@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+transformers
+accelerate
+torch
+pillow
+numpy
+pytest
