@@ -10,5 +10,5 @@ export const ChatMessageSchema = z.object({
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
 export const ChatRequestSchema = z.object({
-  messages: z.array(ChatMessageSchema.min(1))
+  messages: z.array(ChatMessageSchema).min(1)
 });
