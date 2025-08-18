@@ -16,19 +16,21 @@ export function Shell() {
   }, []);
 
   return (
-    <div className="flex h-full">
-      <Sidebar open={open} onOpenChange={setOpen} />
-      <div className="flex flex-1 flex-col">
-        <div className="flex h-12 items-center border-b px-4">
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            className="mr-2"
-          >
-            <PanelLeft className="h-5 w-5" />
-          </button>
+    <div className="w-full h-full rounded-2xl bg-panel shadow-soft ring-1 ring-border overflow-hidden">
+      <div className="grid h-full grid-cols-1 md:grid-cols-[280px,1fr]">
+        <Sidebar open={open} onOpenChange={setOpen} />
+        <div className="relative flex flex-col">
+          <div className="sticky top-0 z-10 flex h-12 items-center border-b border-border bg-panel/80 backdrop-blur supports-[backdrop-filter]:bg-panel/80 px-4">
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              className="h-9 px-3 rounded-xl bg-panelElev hover:bg-panelElev/80 ring-1 ring-border transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+            >
+              <PanelLeft className="h-5 w-5" />
+            </button>
+          </div>
+          <ChatPane />
         </div>
-        <ChatPane />
       </div>
     </div>
   );

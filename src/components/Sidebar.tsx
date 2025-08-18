@@ -14,19 +14,17 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
       open={open}
       onOpenChange={onOpenChange}
       className={clsx(
-        'h-full transition-all',
+        'h-full transition-[width] duration-200 motion-reduce:transition-none',
         open ? 'w-64' : 'w-0 overflow-hidden'
       )}
     >
-      <Collapsible.Content className="flex h-full flex-col border-r bg-background">
-        <div className="border-b p-4 font-semibold">Projects</div>
-        <div className="flex-1 p-4 text-sm text-muted-foreground">
-          No projects yet
-        </div>
-        <div className="border-t p-4">
+      <Collapsible.Content className="flex h-full flex-col bg-panelElev border-r border-border">
+        <div className="border-b border-border p-4 text-sm uppercase tracking-wider text-subtext/70">Projects</div>
+        <div className="flex-1 p-4 text-sm text-subtext">No projects yet</div>
+        <div className="border-t border-border p-4">
           <button
             type="button"
-            className="w-full rounded bg-primary px-3 py-2 text-sm text-primary-foreground"
+            className="h-9 w-full rounded-xl bg-accent text-black font-medium hover:brightness-110 shadow-soft transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
           >
             New Project
           </button>
