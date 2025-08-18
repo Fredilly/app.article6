@@ -29,10 +29,22 @@ export default function ChatApp() {
       setMessages(out);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setMessages([
-        ...next,
-        { role: "assistant", content: `Error: ${message}` }
-      ]);
+      setMessages([...next, { role: "assistant", content: `Error: ${message}` }]);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onUploadImage(dataUrl: string) {
+    const next: ChatMessage[] = [...messages, { role: "user", content: "", image: dataUrl }];
+    setMessages(next);
+    setBusy(true);
+    try {
+      const out = await sendChat(next);
+      setMessages(out);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setMessages([...next, { role: "assistant", content: `Error: ${message}` }]);
     } finally {
       setBusy(false);
     }
@@ -64,7 +76,7 @@ export default function ChatApp() {
           )}
         >
           <MessageList messages={messages} />
-          <Composer disabled={busy} onSend={onSend} />
+          <Composer disabled={busy} onSend={onSend} onUploadImage={onUploadImage} />
         </section>
         <aside
           className={cn(

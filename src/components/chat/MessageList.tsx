@@ -11,13 +11,21 @@ export default function MessageList({ messages }: { messages: ChatMessage[] }) {
       {messages.map((m, i) => (
         <div
           key={i}
-          className={
-            m.role === "user"
-              ? "ml-auto max-w-[80%] rounded-2xl bg-black text-white px-4 py-2"
-              : "mr-auto max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2"
-          }
+          className={m.role === "user" ? "ml-auto max-w-[80%]" : "mr-auto max-w-[80%]"}
         >
-          {m.content}
+          {m.image ? (
+            <img src={m.image} alt="user upload" className="rounded-2xl" />
+          ) : (
+            <div
+              className={
+                m.role === "user"
+                  ? "rounded-2xl bg-black text-white px-4 py-2"
+                  : "rounded-2xl bg-gray-100 px-4 py-2"
+              }
+            >
+              {m.content}
+            </div>
+          )}
         </div>
       ))}
     </div>
