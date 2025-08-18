@@ -11,7 +11,14 @@
   "dependencies": {
     "next": "^15.4.6",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "clsx": "^2.1.1",
+    "eventsource-parser": "^1.0.0",
+    "lucide-react": "^0.471.0",
+    "openai": "^4.52.0",
+    "react-markdown": "^9.0.3",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
