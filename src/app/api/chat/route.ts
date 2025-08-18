@@ -28,7 +28,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ messages: [...messages, assistant] }, { status: 200 });
-  } catch (e: any) {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

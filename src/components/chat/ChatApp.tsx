@@ -27,10 +27,11 @@ export default function ChatApp() {
     try {
       const out = await sendChat(next);
       setMessages(out);
-    } catch (e: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       setMessages([
         ...next,
-        { role: "assistant", content: `Error: ${e?.message ?? "Unknown"}` }
+        { role: "assistant", content: `Error: ${message}` }
       ]);
     } finally {
       setBusy(false);
