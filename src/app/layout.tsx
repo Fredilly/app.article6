@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Coming Soon",
-  description: "Our website is coming soon. Stay tuned!",
+  title: "Nature's Agent Chat",
+  description: "Chat with Nature's agent.",
 };
 
 export default function RootLayout({
@@ -32,3 +32,4 @@ export default function RootLayout({
     </html>
   );
 }
+
