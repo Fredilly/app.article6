@@ -74,14 +74,18 @@ function withImages(
   messages: TextMessage[],
   images?: string[]
 ): ChatCompletionMessageParam[] {
-  if (!images?.length) return messages;
-  const last = messages[messages.length - 1];
+  const mapped = messages.map<ChatCompletionMessageParam>((m) => ({
+    role: m.role as ChatCompletionMessageParam["role"],
+    content: m.content,
+  }));
+  if (!images?.length) return mapped;
+  const last = mapped[mapped.length - 1];
   return [
-    ...(messages.slice(0, -1) as ChatCompletionMessageParam[]),
+    ...mapped.slice(0, -1),
     {
-      role: last.role as ChatCompletionMessageParam["role"],
+      role: last.role,
       content: [
-        { type: "text", text: last.content },
+        { type: "text", text: last.content as string },
         ...images.map((url) => ({ type: "image_url", image_url: { url } })),
       ],
     },
