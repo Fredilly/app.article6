@@ -19,7 +19,9 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
       )}
     >
       <Collapsible.Content className="flex h-full flex-col bg-panelElev border-r border-border">
-        <div className="border-b border-border p-4 text-sm uppercase tracking-wider text-subtext/70">Projects</div>
+        <div className="border-b border-border p-4 text-sm uppercase tracking-wider text-subtext/70">
+          Projects
+        </div>
         <div className="flex-1 p-4 text-sm text-subtext">No projects yet</div>
         <div className="border-t border-border p-4">
           <button

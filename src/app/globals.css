@@ -3,7 +3,8 @@
 /* Custom scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #223042 #0E141B;
+  /* Subtle scrollbar akin to ChatGPT */
+  scrollbar-color: #565869 #2A2B32;
 }
 
 *::-webkit-scrollbar {
@@ -11,10 +12,10 @@
 }
 
 *::-webkit-scrollbar-track {
-  background: #0E141B;
+  background: #2A2B32;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #223042;
+  background: #565869;
   border-radius: 9999px;
 }

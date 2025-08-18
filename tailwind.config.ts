@@ -5,14 +5,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: '#0B0F14',
-        panel: '#11161D',
-        panelElev: '#141B23',
-        border: '#1E2630',
-        text: '#E6EDF6',
-        subtext: '#9CB0C3',
-        accent: '#35A0FF',
-        'accent-2': '#6BE675',
+        // ChatGPT-inspired dark palette
+        bg: '#343541',
+        panel: '#40414F',
+        panelElev: '#202123',
+        border: '#565869',
+        text: '#ECECF1',
+        subtext: '#ACB1C9',
+        accent: '#10A37F',
+        'accent-2': '#2A8C63',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
