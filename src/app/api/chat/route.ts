@@ -85,7 +85,13 @@ function withImages(
     role: "user",
     content: [
       { type: "text", text: last.content },
-      ...images.map((url) => ({ type: "image_url", image_url: { url } })),
+      ...images.map(
+        (url) =>
+          ({ type: "image_url", image_url: { url } } as unknown as {
+            type: "image_url";
+            image_url: { url: string };
+          })
+      ),
     ],
   };
   return [...mapped.slice(0, -1), userWithImages];
