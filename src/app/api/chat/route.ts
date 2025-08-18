@@ -80,16 +80,15 @@ function withImages(
   })) as ChatCompletionMessageParam[];
   if (!images?.length) return mapped;
   const last = mapped[mapped.length - 1];
-  return [
-    ...mapped.slice(0, -1),
-    {
-      role: last.role,
-      content: [
-        { type: "text", text: last.content as string },
-        ...images.map((url) => ({ type: "image_url", image_url: { url } })),
-      ],
-    },
-  ];
+  if (last.role !== "user" || typeof last.content !== "string") return mapped;
+  const userWithImages: ChatCompletionMessageParam = {
+    role: "user",
+    content: [
+      { type: "text", text: last.content },
+      ...images.map((url) => ({ type: "image_url", image_url: { url } })),
+    ],
+  };
+  return [...mapped.slice(0, -1), userWithImages];
 }
 
 async function handleOpenAI(
