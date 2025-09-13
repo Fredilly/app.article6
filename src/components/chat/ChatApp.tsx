@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useState } from "react";
-import { sendChat } from "@/lib/chat/client";
+import { sendChat, retrieveQuery, type QueryResponse } from "@/lib/chat/client";
 import type { ChatMessage } from "@/lib/chat/schema";
 import { Menu, PanelsTopLeft } from "lucide-react";
 import SidePane from "./SidePane";
@@ -19,14 +19,23 @@ export default function ChatApp() {
   ]);
   const [open, setOpen] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [results, setResults] = useState<QueryResponse["results"]>([]);
+  const [metrics, setMetrics] = useState<QueryResponse["metrics"]>([]);
+  const [engineTag, setEngineTag] = useState<string>("mvp-baselines-v1");
 
   async function onSend(text: string) {
     const next: ChatMessage[] = [...messages, { role: "user", content: text }];
     setMessages(next);
     setBusy(true);
     try {
-      const out = await sendChat(next);
-      setMessages(out);
+      const out = await retrieveQuery(text);
+      setResults(out.results ?? []);
+      setMetrics(out.metrics ?? []);
+      setEngineTag(out.engineTag ?? "mvp-baselines-v1");
+      setMessages([
+        ...next,
+        { role: "assistant", content: `Found ${out.results?.length ?? 0} rule cards.` }
+      ]);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setMessages([...next, { role: "assistant", content: `Error: ${message}` }]);
@@ -84,9 +93,22 @@ export default function ChatApp() {
             open ? "opacity-100" : "opacity-0 md:hidden pointer-events-none"
           )}
         >
-          <SidePane />
+          <SidePane results={results} />
         </aside>
       </div>
+
+      <footer className="mt-4 text-xs text-gray-600 flex items-center justify-between">
+        <div>
+          Engine: <span className="font-mono">{engineTag || "mvp-baselines-v1"}</span>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {metrics?.map((m, i) => (
+            <span key={`${m.key}-${i}`} className="font-mono">
+              {m.key}: {String(m.value)}
+            </span>
+          ))}
+        </div>
+      </footer>
     </div>
   );
 }

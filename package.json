@@ -13,6 +13,7 @@
     "next": "^15.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "article6-methodologies": "github:Fredilly/article6-methodologies#mvp-baselines-v1",
     "zod": "^3.23.8",
     "lucide-react": "^0.460.0",
     "clsx": "^2.1.1"

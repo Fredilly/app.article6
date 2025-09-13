@@ -1,18 +1,40 @@
 import React from "react";
 
-export default function SidePane() {
+export type EngineResult = {
+  id: string;
+  section: string;
+  refs?: string[];
+  sha256?: string;
+  score?: number;
+};
+
+export default function SidePane({ results }: { results: EngineResult[] }) {
   return (
-    <div className="h-full p-4 space-y-3">
-      <h2 className="text-lg font-semibold">Project tools</h2>
-      <ul className="text-sm list-disc pl-5 space-y-1">
-        <li>Map upload (KML/GeoJSON) — coming next</li>
-        <li>Compliance presets (Art. 6.4)</li>
-        <li>Risk preview &amp; evidence</li>
-      </ul>
-      <p className="text-xs text-gray-500">
-        Backend currently set to <strong>echo</strong>. Switch to QWEN by
-        setting <code>QWEN_PROVIDER=local|hf</code> and configuring env vars.
-      </p>
+    <div className="h-full p-4 space-y-3 overflow-y-auto">
+      <h2 className="text-lg font-semibold">Rule cards</h2>
+      {results?.length ? (
+        <ul className="space-y-3">
+          {results.map((r) => (
+            <li key={r.id} className="rounded-xl border p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="font-medium truncate">{r.id}</div>
+                {typeof r.score === "number" && (
+                  <span className="text-xs text-gray-500">{r.score.toFixed(2)}</span>
+                )}
+              </div>
+              <p className="text-sm text-gray-700 whitespace-pre-line mt-1 line-clamp-5">
+                {r.section}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-gray-600">
+                {r.refs?.length ? <span>refs: {r.refs.join(", ")}</span> : null}
+                {r.sha256 ? <span className="font-mono">sha256: {r.sha256}</span> : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-gray-500">No results yet. Ask a question.</p>
+      )}
     </div>
   );
 }
