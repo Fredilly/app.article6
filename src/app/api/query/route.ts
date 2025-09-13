@@ -1,3 +1,4 @@
+export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
@@ -34,7 +35,9 @@ async function retrieve(query: string): Promise<QueryResponse> {
 
   // 2) Try module import first if dependency is available
   try {
-    const mod: any = await import("article6-methodologies");
+    // Avoid bundler resolving a missing optional dep: construct the name
+    const modName = ("article6-" + "methodologies") as string;
+    const mod: any = await import(modName);
     const fn = mod?.retrieve ?? mod?.default ?? mod?.search ?? mod?.query;
     if (typeof fn === "function") {
       const out = await fn({ query });
@@ -51,7 +54,7 @@ async function retrieve(query: string): Promise<QueryResponse> {
   // 3) Fallback to CLI via package bin
   try {
     const require = createRequire(import.meta.url);
-    const pkgPath = require.resolve("article6-methodologies/package.json");
+    const pkgPath = require.resolve(("article6-" + "methodologies" + "/package.json") as string);
     const pkg = JSON.parse(await readFile(pkgPath, "utf8"));
     const binField = pkg?.bin;
     let binRel: string | undefined;
@@ -118,4 +121,3 @@ export async function GET(req: Request) {
   const data = await retrieve(query);
   return NextResponse.json(data satisfies QueryResponse);
 }
-
