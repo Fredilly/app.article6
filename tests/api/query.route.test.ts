@@ -16,6 +16,7 @@ describe("/api/query route", () => {
   it("forwards POST to ENGINE_URL with bearer token", async () => {
     process.env.ENGINE_URL = "https://engine.example";
     process.env.ENGINE_BEARER = "demo-token";
+    process.env.ENGINE_ADAPTER = "remote";
 
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(
@@ -48,6 +49,7 @@ describe("/api/query route", () => {
 
   it("forward GET delegates query param", async () => {
     process.env.ENGINE_URL = "https://engine.example";
+    process.env.ENGINE_ADAPTER = "remote";
 
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ engineTag: "demo", metrics: [], results: [] }), {
@@ -67,6 +69,7 @@ describe("/api/query route", () => {
 
   it("returns 502 when ENGINE_URL missing", async () => {
     delete process.env.ENGINE_URL;
+    process.env.ENGINE_ADAPTER = "remote";
 
     const res = await POST(
       new Request("http://localhost/api/query", {
@@ -81,3 +84,26 @@ describe("/api/query route", () => {
     expect(payload.error).toMatch(/ENGINE_URL is not configured/);
   });
 });
+  it("returns demo payload when adapter is demo", async () => {
+    process.env.ENGINE_ADAPTER = "demo";
+    delete process.env.ENGINE_URL;
+    process.env.NEXT_PUBLIC_ENGINE_TAG = "demo-tag";
+
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const res = await POST(
+      new Request("http://localhost/api/query", {
+        method: "POST",
+        body: JSON.stringify({ query: "baseline" }),
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.engineTag).toBe("demo-tag");
+    expect(body.metrics.find((m: any) => m.key === "mode")?.value).toBe("demo");
+    expect(body.results.length).toBeGreaterThan(0);
+  });

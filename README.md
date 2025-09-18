@@ -2,13 +2,14 @@
 
 ## Environment
 
-- Create a `.env.local` with at least `ENGINE_URL` pointing at the engine base URL (for example `https://engine.example.com`). Optionally set `ENGINE_BEARER` if the engine requires bearer authentication and `NEXT_PUBLIC_ENGINE_TAG` to tweak the default UI label.
+- Create a `.env.local` with at least `ENGINE_URL` pointing at the engine base URL (for example `https://engine.example.com`). Optionally set `ENGINE_BEARER` if the engine requires bearer authentication, `ENGINE_ADAPTER` to force `remote` or `demo` mode, and `NEXT_PUBLIC_ENGINE_TAG` to tweak the default UI label.
 - The API route appends `/query` to the configured base, so the underlying service must expose `POST /query`.
+  - If `ENGINE_ADAPTER=demo` (or `ENGINE_URL` is omitted), the internal demo adapter returns deterministic sample results sourced from `data/methodologies/META.json`.
 
 ### Vercel deployment
 
 - This repository includes a `vercel.json` that only sets `NEXT_PUBLIC_ENGINE_TAG`; all runtime values should be injected via Vercel environment variables.
-- Use `vercel env add` or the dashboard to assign `ENGINE_URL` for Preview and Production (they can differ per environment).
+- Use `vercel env add` or the dashboard to assign `ENGINE_URL` for Preview and Production (they can differ per environment). If you prefer the internal demo adapter, set `ENGINE_ADAPTER=demo` and leave `ENGINE_URL` unset.
 - If the engine requires auth, add `ENGINE_BEARER` via `vercel env add`; the API route reads it automatically when present.
 - If an engine key is required, create `ENGINE_BEARER` via the dashboard or CLI; it is optional and read automatically by `/api/query`.
 - Override `NEXT_PUBLIC_ENGINE_TAG` per-environment if you want the footer badge to differ between Preview/Production builds.
