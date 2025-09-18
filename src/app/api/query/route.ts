@@ -1,9 +1,19 @@
 export const runtime = "nodejs";
 import { NextResponse } from "next/server";
+import { runDemoAdapter } from "@/lib/engine/demo";
+import type { QueryResponse } from "@/lib/engine/types";
 
 type QueryRequest = { query?: string };
+type EngineMode = "remote" | "demo";
 
 const ENGINE_PATH = "/query";
+
+function resolveEngineMode(): EngineMode {
+  const adapter = process.env.ENGINE_ADAPTER?.toLowerCase();
+  if (adapter === "demo") return "demo";
+  if (adapter === "remote") return "remote";
+  return process.env.ENGINE_URL ? "remote" : "demo";
+}
 
 function resolveEngineEndpoint(): URL {
   const base = process.env.ENGINE_URL;
@@ -24,6 +34,11 @@ function buildHeaders(): HeadersInit {
 }
 
 async function forwardToEngine(query: string) {
+  if (resolveEngineMode() === "demo") {
+    const payload = await runDemoAdapter(query);
+    return NextResponse.json(payload satisfies QueryResponse);
+  }
+
   const engineUrl = resolveEngineEndpoint();
   const res = await fetch(engineUrl, {
     method: "POST",
