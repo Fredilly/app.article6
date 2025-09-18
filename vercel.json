@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "env": {
+    "NEXT_PUBLIC_ENGINE_TAG": "mvp-baselines-v1"
+  }
+}

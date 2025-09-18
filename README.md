@@ -1,1 +1,31 @@
 # app.article6
+
+## Environment
+
+- Create a `.env.local` with at least `ENGINE_URL` pointing at the engine base URL (for example `https://engine.example.com`). Optionally set `ENGINE_BEARER` if the engine requires bearer authentication and `NEXT_PUBLIC_ENGINE_TAG` to tweak the default UI label.
+- The API route appends `/query` to the configured base, so the underlying service must expose `POST /query`.
+
+### Vercel deployment
+
+- This repository includes a `vercel.json` that only sets `NEXT_PUBLIC_ENGINE_TAG`; all runtime values should be injected via Vercel environment variables.
+- Use `vercel env add` or the dashboard to assign `ENGINE_URL` for Preview and Production (they can differ per environment).
+- If the engine requires auth, add `ENGINE_BEARER` via `vercel env add`; the API route reads it automatically when present.
+- If an engine key is required, create `ENGINE_BEARER` via the dashboard or CLI; it is optional and read automatically by `/api/query`.
+- Override `NEXT_PUBLIC_ENGINE_TAG` per-environment if you want the footer badge to differ between Preview/Production builds.
+
+## Vendored PDFs
+
+- Place the methodologies snapshot under `data/methodologies`. The server expects a `META.json` array alongside the PDFs (for example `data/methodologies/pdfs/...`).
+- Each metadata entry should include: `id`, `sha256`, an optional `sourcePath`, and a relative path to the PDF (`pdf`/`file`/`filename`). Example:
+
+```json
+[
+  {
+    "id": "baseline-carbon-44-12",
+    "sha256": "<sha256-hex>",
+    "sourcePath": "methodologies/baseline-carbon-44-12.pdf",
+    "pdf": "pdfs/baseline-carbon-44-12.pdf"
+  }
+]
+```
+- The `/pdf/:id` route resolves the metadata, streams the vendored PDF, and emits `X-SHA256` and `X-Source-Path` headers for verification.

@@ -9,6 +9,8 @@ import MessageList from "./MessageList";
 import Composer from "./Composer";
 import { cn } from "@/lib/utils";
 
+const DEFAULT_ENGINE_TAG = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "mvp-baselines-v1";
+
 export default function ChatApp() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -21,7 +23,7 @@ export default function ChatApp() {
   const [busy, setBusy] = useState(false);
   const [results, setResults] = useState<QueryResponse["results"]>([]);
   const [metrics, setMetrics] = useState<QueryResponse["metrics"]>([]);
-  const [engineTag, setEngineTag] = useState<string>("mvp-baselines-v1");
+  const [engineTag, setEngineTag] = useState<string>(DEFAULT_ENGINE_TAG);
 
   async function onSend(text: string) {
     const next: ChatMessage[] = [...messages, { role: "user", content: text }];
@@ -99,7 +101,7 @@ export default function ChatApp() {
 
       <footer className="mt-4 text-xs text-gray-600 flex items-center justify-between">
         <div>
-          Engine: <span className="font-mono">{engineTag || "mvp-baselines-v1"}</span>
+          Engine: <span className="font-mono">{engineTag || DEFAULT_ENGINE_TAG}</span>
         </div>
         <div className="flex flex-wrap gap-3">
           {metrics?.map((m, i) => (

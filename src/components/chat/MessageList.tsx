@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import Image from "next/image";
 import type { ChatMessage } from "@/lib/chat/schema";
 
 export default function MessageList({ messages }: { messages: ChatMessage[] }) {
@@ -14,7 +15,14 @@ export default function MessageList({ messages }: { messages: ChatMessage[] }) {
           className={m.role === "user" ? "ml-auto max-w-[80%]" : "mr-auto max-w-[80%]"}
         >
           {m.image ? (
-            <img src={m.image} alt="user upload" className="rounded-2xl" />
+            <Image
+              src={m.image}
+              alt="user upload"
+              width={1024}
+              height={1024}
+              unoptimized
+              className="rounded-2xl h-auto w-full max-w-md object-contain"
+            />
           ) : (
             <div
               className={
