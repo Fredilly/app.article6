@@ -1,0 +1,9 @@
+{
+  "sample": {
+    "id": "sample",
+    "title": "Sample PDF from Article 6",
+    "sha256": "a23d125920f771f85a9d9962a5712c9fd45d78d08d2b4d7f66731d95d1c39e81",
+    "sourcePath": "methodologies/sample.pdf",
+    "file": "/pdfs/sample.pdf"
+  }
+}

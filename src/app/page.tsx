@@ -1,10 +1,10 @@
 import React from "react";
-import ChatApp from "@/components/chat/ChatApp";
+import QueryApp from "@/components/query/QueryApp";
 
 export default function Page() {
   return (
     <main className="min-h-screen bg-white">
-      <ChatApp />
+      <QueryApp />
     </main>
   );
 }
