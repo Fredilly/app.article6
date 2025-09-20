@@ -61,56 +61,76 @@ export default function ChatApp() {
     }
   }
 
+  const metricItems = metrics.slice(0, 4);
+  const hasMetrics = metricItems.length > 0;
+
   return (
-    <div className="mx-auto max-w-6xl p-4 md:p-6">
-      <header className="flex items-center justify-between gap-3 pb-3">
-        <div className="flex items-center gap-3">
-          <button
-            aria-label="Toggle side pane"
-            className="rounded-xl border px-3 py-2 hover:bg-gray-50"
-            onClick={() => setOpen(v => !v)}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-stone-100">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-10">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              aria-label="Toggle insights"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm transition hover:border-gray-300 hover:shadow"
+              onClick={() => setOpen(v => !v)}
+            >
+              <Menu className="h-5 w-5 text-gray-500" />
+            </button>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-400">Article 6 Verification</p>
+              <h1 className="text-xl font-semibold text-gray-900 md:text-2xl">
+                What would you like to verify today?
+              </h1>
+            </div>
+          </div>
+          <PanelsTopLeft className="h-6 w-6 text-gray-300" />
+        </header>
+
+        {hasMetrics ? (
+          <div className="flex flex-wrap gap-2">
+            {metricItems.map((m, i) => (
+              <span
+                key={`${m.key}-${i}`}
+                className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 shadow-sm"
+              >
+                <span className="text-gray-400">{m.key}</span>
+                <span className="font-semibold text-gray-800">{String(m.value)}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,3.5fr)_minmax(0,2fr)]">
+          <section
+            className={cn(
+              "flex h-[70vh] flex-col rounded-[1.5rem] border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur lg:h-[72vh]",
+            )}
           >
-            <Menu className="h-5 w-5" />
-          </button>
-          <h1 className="text-xl md:text-2xl font-semibold">
-            What would you like to verify?
-          </h1>
-        </div>
-        <PanelsTopLeft className="h-5 w-5 text-gray-400" />
-      </header>
+            <MessageList messages={messages} />
+            <Composer disabled={busy} onSend={onSend} onUploadImage={onUploadImage} />
+          </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <section
-          className={cn(
-            "md:col-span-8 rounded-2xl border bg-white",
-            "flex flex-col h-[70vh]"
-          )}
-        >
-          <MessageList messages={messages} />
-          <Composer disabled={busy} onSend={onSend} onUploadImage={onUploadImage} />
-        </section>
-        <aside
-          className={cn(
-            "md:col-span-4 rounded-2xl border bg-white h-[70vh] transition-all",
-            open ? "opacity-100" : "opacity-0 md:hidden pointer-events-none"
-          )}
-        >
-          <SidePane results={results} />
-        </aside>
-      </div>
-
-      <footer className="mt-4 text-xs text-gray-600 flex items-center justify-between">
-        <div>
-          Engine: <span className="font-mono">{engineTag || DEFAULT_ENGINE_TAG}</span>
+          <aside
+            className={cn(
+              "lg:static lg:block",
+              open ? "block" : "hidden lg:block"
+            )}
+          >
+            <SidePane results={results} />
+          </aside>
         </div>
-        <div className="flex flex-wrap gap-3">
-          {metrics.map((m, i) => (
-            <span key={`${m.key}-${i}`} className="font-mono">
-              {m.key}: {String(m.value)}
+
+        <footer className="mt-2 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500">
+          <div>
+            Engine: <span className="font-mono">{engineTag || DEFAULT_ENGINE_TAG}</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full border border-gray-200 bg-white px-2 py-1 font-mono">
+              {messages.length - 1} exchanges
             </span>
-          ))}
-        </div>
-      </footer>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

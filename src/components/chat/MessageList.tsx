@@ -8,11 +8,11 @@ export default function MessageList({ messages }: { messages: ChatMessage[] }) {
     ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
   return (
-    <div ref={ref} className="flex-1 overflow-y-auto p-4 space-y-3">
+    <div ref={ref} className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
       {messages.map((m, i) => (
         <div
           key={i}
-          className={m.role === "user" ? "ml-auto max-w-[80%]" : "mr-auto max-w-[80%]"}
+          className={m.role === "user" ? "ml-auto max-w-[78%]" : "mr-auto max-w-[78%]"}
         >
           {m.image ? (
             <Image
@@ -21,14 +21,14 @@ export default function MessageList({ messages }: { messages: ChatMessage[] }) {
               width={1024}
               height={1024}
               unoptimized
-              className="rounded-2xl h-auto w-full max-w-md object-contain"
+              className="rounded-3xl h-auto w-full max-w-md border border-gray-200 object-contain shadow-sm"
             />
           ) : (
             <div
               className={
                 m.role === "user"
-                  ? "rounded-2xl bg-black text-white px-4 py-2"
-                  : "rounded-2xl bg-gray-100 px-4 py-2"
+                  ? "rounded-3xl bg-gray-900 px-5 py-3 text-sm leading-6 text-white shadow"
+                  : "rounded-3xl border border-gray-200 bg-white px-5 py-3 text-sm leading-6 text-gray-700 shadow-sm"
               }
             >
               {m.content}
