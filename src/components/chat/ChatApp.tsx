@@ -104,7 +104,7 @@ export default function ChatApp() {
           Engine: <span className="font-mono">{engineTag || DEFAULT_ENGINE_TAG}</span>
         </div>
         <div className="flex flex-wrap gap-3">
-          {metrics?.map((m, i) => (
+          {metrics.map((m, i) => (
             <span key={`${m.key}-${i}`} className="font-mono">
               {m.key}: {String(m.value)}
             </span>

@@ -20,7 +20,18 @@ describe("/api/query route", () => {
 
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(
-        JSON.stringify({ engineTag: "demo", metrics: [], results: [{ id: "1", section: "section" }] }),
+        JSON.stringify({
+          engineTag: "demo",
+          metrics: [],
+          results: [
+            {
+              id: "1",
+              section: "fallback",
+              section_title: "Sample Title",
+              text: "Sample text from engine",
+            },
+          ],
+        }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       )
     );
@@ -45,6 +56,8 @@ describe("/api/query route", () => {
       Authorization: "Bearer demo-token",
     });
     expect(json.results[0].id).toBe("1");
+    expect(json.results[0].section_title).toBe("Sample Title");
+    expect(json.results[0].text).toBe("Sample text from engine");
   });
 
   it("forward GET delegates query param", async () => {
@@ -83,7 +96,6 @@ describe("/api/query route", () => {
     const payload = await res.json();
     expect(payload.error).toMatch(/ENGINE_URL is not configured/);
   });
-});
   it("returns demo payload when adapter is demo", async () => {
     process.env.ENGINE_ADAPTER = "demo";
     delete process.env.ENGINE_URL;
@@ -106,4 +118,8 @@ describe("/api/query route", () => {
     expect(body.engineTag).toBe("demo-tag");
     expect(body.metrics.find((m: any) => m.key === "mode")?.value).toBe("demo");
     expect(body.results.length).toBeGreaterThan(0);
+    const result = body.results[0];
+    expect(result.section_title ?? result.sectionTitle).toBeTruthy();
+    expect(result.text).toBeTruthy();
   });
+});

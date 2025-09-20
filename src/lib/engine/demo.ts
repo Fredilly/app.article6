@@ -28,6 +28,8 @@ export async function runDemoAdapter(query: string): Promise<QueryResponse> {
     const results = records.slice(0, Math.min(3, records.length)).map((record, idx) => ({
       id: record.id,
       section: `Demo match for "${query}" using ${record.sourcePath || record.fileRelative}`,
+      section_title: record.id,
+      text: `Demo evidence for "${query}".\nSource: ${record.sourcePath || record.fileRelative}`,
       refs: [record.sourcePath || record.fileRelative],
       sha256: record.sha256,
       score: Number((1 - idx * 0.1).toFixed(2)),
