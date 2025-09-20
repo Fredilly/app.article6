@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pickTitle, pickBody } from "@/components/chat/SidePane";
+import { pickTitle, pickBody, buildGroups } from "@/components/chat/SidePane";
 
 describe("SidePane helpers", () => {
   it("prefers explicit section_title over other fields", () => {
@@ -26,5 +26,20 @@ describe("SidePane helpers", () => {
     expect(pickBody({ id: "node-5", text: "Body copy" })).toBe("Body copy");
     expect(pickBody({ id: "node-6", section: "Fallback" })).toBe("Fallback");
     expect(pickBody({ id: "node-7" })).toBe("");
+  });
+
+  it("groups identical title/body pairs while preserving provenance", () => {
+    const input = [
+      { id: "a", section_title: "Title", text: "Body", refs: ["ref1"] },
+      { id: "b", section_title: "Title", text: "Body", refs: ["ref2"] },
+      { id: "c", section_title: "Different", text: "Other" },
+    ];
+
+    const groups = buildGroups(input as any);
+    expect(groups).toHaveLength(2);
+    const first = groups.find((g) => g.items.length === 2)!;
+    expect(first.items.map((i) => i.id).sort()).toEqual(["a", "b"]);
+    expect(first.title).toBe("Title");
+    expect(first.body).toBe("Body");
   });
 });

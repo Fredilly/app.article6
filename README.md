@@ -34,5 +34,5 @@
 ## UI
 
 - The chat experience is optimised for mobile-first use with a minimal, card-based layout. On small screens the insights pane collapses behind the “Toggle insights” button; larger displays show messages and rule cards side-by-side.
-- Result cards surface `section_title`, the matched excerpt, score badge, identifiers, and references when available. Engines returning `section_title`/`text` automatically populate the card header and body.
+- Result cards surface `section_title`, the matched excerpt, score badge, identifiers, and references when available. Identical snippets are grouped automatically; expand a group to inspect every variant while retaining provenance (`id`, `refs`, `sha256`). Engines returning `section_title`/`text` automatically populate the card header and body.
 - Demo mode (`ENGINE_ADAPTER=demo`) produces meaningful preview cards so the interface stays demonstrable without the remote engine.
