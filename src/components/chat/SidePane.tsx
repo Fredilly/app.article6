@@ -21,9 +21,13 @@ type GroupedResult = {
   body: string;
   items: EngineResult[];
   primary: EngineResult;
+  methodologies: { id: string; version?: string }[];
 };
 
 function VariantRow({ item, isPrimary }: { item: EngineResult; isPrimary: boolean }) {
+  const methodologyId = item.methodology_id ?? item.methodologyId;
+  const methodologyVersion = item.methodology_version ?? item.methodologyVersion;
+
   return (
     <div className="rounded-xl border border-gray-200/70 bg-white/70 px-3 py-2 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600">
@@ -44,6 +48,12 @@ function VariantRow({ item, isPrimary }: { item: EngineResult; isPrimary: boolea
         </div>
       </div>
       <div className="mt-2 space-y-1 text-[11px] text-gray-500">
+        {methodologyId ? (
+          <p className="rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600">
+            {methodologyId}
+            {methodologyVersion ? ` · v${methodologyVersion}` : ""}
+          </p>
+        ) : null}
         {item.refs?.length ? <p className="truncate">refs: {item.refs.join(", ")}</p> : null}
         {item.sha256 ? <p className="font-mono">sha256: {item.sha256}</p> : null}
       </div>
@@ -59,11 +69,22 @@ export function buildGroups(results: EngineResult[]): GroupedResult[] {
     const body = pickBody(result) || "";
     const key = `${title}::${body}`;
     const existing = map.get(key);
+    const methodologyId = result.methodology_id ?? result.methodologyId;
+    const methodologyVersion = result.methodology_version ?? result.methodologyVersion;
+    const methodologyLabel = methodologyId
+      ? { id: methodologyId, version: methodologyVersion }
+      : null;
 
     if (existing) {
       existing.items.push(result);
       if ((result.score ?? -Infinity) > (existing.primary.score ?? -Infinity)) {
         existing.primary = result;
+      }
+      if (methodologyLabel) {
+        const alreadyPresent = existing.methodologies.some(
+          (entry) => entry.id === methodologyLabel.id && entry.version === methodologyLabel.version
+        );
+        if (!alreadyPresent) existing.methodologies.push(methodologyLabel);
       }
     } else {
       map.set(key, {
@@ -72,6 +93,7 @@ export function buildGroups(results: EngineResult[]): GroupedResult[] {
         body,
         items: [result],
         primary: result,
+        methodologies: methodologyLabel ? [methodologyLabel] : [],
       });
     }
   });
@@ -99,7 +121,7 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
       {hasResults ? (
         <ul className="space-y-3">
           {groups.map((group) => {
-            const { primary, items, title, body, key } = group;
+            const { primary, items, title, body, key, methodologies } = group;
             const displayBody = body || "No excerpt available.";
             const isExpanded = expandedGroups[key] ?? false;
             const variants = items.length;
@@ -138,6 +160,15 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
                     </span>
                   ) : null}
                   {primary.sha256 ? <span className="font-mono">sha256: {primary.sha256}</span> : null}
+                  {methodologies.map((method) => (
+                    <span
+                      key={`${method.id}-${method.version ?? "latest"}`}
+                      className="rounded-full border border-gray-200 bg-white px-2 py-0.5 font-medium text-gray-600"
+                    >
+                      {method.id}
+                      {method.version ? ` · v${method.version}` : ""}
+                    </span>
+                  ))}
                   {variants > 1 ? (
                     <span className="rounded-full border border-gray-200 bg-white px-2 py-0.5 font-medium text-gray-600">
                       {variants} variants

@@ -33,6 +33,8 @@ export async function runDemoAdapter(query: string): Promise<QueryResponse> {
       refs: [record.sourcePath || record.fileRelative],
       sha256: record.sha256,
       score: Number((1 - idx * 0.1).toFixed(2)),
+      methodology_id: record.id.split("-")[0],
+      methodology_version: "demo",
     }));
 
     return {

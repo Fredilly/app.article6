@@ -30,8 +30,22 @@ describe("SidePane helpers", () => {
 
   it("groups identical title/body pairs while preserving provenance", () => {
     const input = [
-      { id: "a", section_title: "Title", text: "Body", refs: ["ref1"] },
-      { id: "b", section_title: "Title", text: "Body", refs: ["ref2"] },
+      {
+        id: "a",
+        section_title: "Title",
+        text: "Body",
+        refs: ["ref1"],
+        methodology_id: "METH-A",
+        methodology_version: "1.0",
+      },
+      {
+        id: "b",
+        section_title: "Title",
+        text: "Body",
+        refs: ["ref2"],
+        methodology_id: "METH-B",
+        methodology_version: "2.1",
+      },
       { id: "c", section_title: "Different", text: "Other" },
     ];
 
@@ -41,5 +55,9 @@ describe("SidePane helpers", () => {
     expect(first.items.map((i) => i.id).sort()).toEqual(["a", "b"]);
     expect(first.title).toBe("Title");
     expect(first.body).toBe("Body");
+    expect(first.methodologies).toEqual([
+      { id: "METH-A", version: "1.0" },
+      { id: "METH-B", version: "2.1" },
+    ]);
   });
 });
