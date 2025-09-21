@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint",
     "test": "vitest run"
   },
   "dependencies": {

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { ChatRequestSchema, ChatMessage } from "@/lib/chat/schema";
 import { buildEchoReply } from "@/lib/chat/echo";
+import { withMetrics } from "@/lib/metrics";
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   try {
     const json = await req.json();
     const parse = ChatRequestSchema.safeParse(json);
@@ -33,3 +34,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
+export const POST = withMetrics("api/chat:POST", handlePost);
