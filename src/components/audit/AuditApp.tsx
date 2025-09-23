@@ -1,25 +1,14 @@
 "use client";
 
+import { ArrowUpRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { AuditRule, ExtractedVariable } from "@/lib/audit/sample";
 import { EXTRACTED_VARIABLES, SAMPLE_RULES } from "@/lib/audit/sample";
+import Checklist, { type ChecklistState } from "@/components/audit/Checklist";
+import { CHECKLIST_ITEMS } from "@/lib/audit/checklist";
 
-const qaChecklist = [
-  { key: "parsed", label: "PDF parsed" },
-  { key: "anchors", label: "anchors matched" },
-  { key: "hash", label: "hash verified" },
-] as const;
-
-type QaKey = (typeof qaChecklist)[number]["key"];
-
-type QaState = Record<QaKey, boolean>;
-
-function buildInitialQaState(): QaState {
-  return {
-    parsed: false,
-    anchors: false,
-    hash: false,
-  };
+function buildInitialQaState(): ChecklistState {
+  return Object.fromEntries(CHECKLIST_ITEMS.map(item => [item.id, false]));
 }
 
 function getRulesForFile(file: File): AuditRule[] {
@@ -39,7 +28,7 @@ export default function AuditApp() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [rules, setRules] = useState<AuditRule[]>([]);
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
-  const [qaState, setQaState] = useState<QaState>(buildInitialQaState());
+  const [checklistState, setChecklistState] = useState<ChecklistState>(buildInitialQaState());
   const [variables, setVariables] = useState<ExtractedVariable[]>([]);
 
   const selectedRule = useMemo(
@@ -52,12 +41,12 @@ export default function AuditApp() {
     const extractedRules = getRulesForFile(file);
     setRules(extractedRules);
     setSelectedRuleId(extractedRules[0]?.id ?? null);
-    setQaState({ parsed: true, anchors: false, hash: false });
+    setChecklistState(() => ({ ...buildInitialQaState(), "raw-pages": true }));
     setVariables(getVariablesForFile(file));
   };
 
-  const toggleQa = (key: QaKey) => {
-    setQaState(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleQa = (key: string) => {
+    setChecklistState(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -75,7 +64,7 @@ export default function AuditApp() {
               fileName={fileName}
               rule={selectedRule}
               variables={variables}
-              qaState={qaState}
+              checklistState={checklistState}
               onToggleQa={toggleQa}
             />
           </section>
@@ -148,7 +137,21 @@ function RuleList({ rules, selectedRuleId, onSelect }: RuleListProps) {
                 className={`flex w-full flex-col gap-2 px-4 py-3 text-left transition ${isActive ? "bg-slate-100" : "hover:bg-slate-50"}`}
               >
                 <span className="text-sm font-medium text-slate-900">{rule.title}</span>
-                <span className="text-xs text-slate-600">Section: <span className="font-medium text-slate-900">{rule.sectionId}</span></span>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                  <span>
+                    Section: <span className="font-medium text-slate-900">{rule.sectionId}</span>
+                  </span>
+                  <a
+                    href={rule.rawUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+                    onClick={event => event.stopPropagation()}
+                  >
+                    Raw p.{rule.rawPage}
+                    <ArrowUpRight className="h-3 w-3" />
+                  </a>
+                </div>
                 <span className="text-xs text-slate-500">SHA256: {rule.sha256}</span>
               </button>
             </li>
@@ -163,11 +166,11 @@ type ResultsPanelProps = {
   fileName: string | null;
   rule: AuditRule | null;
   variables: ExtractedVariable[];
-  qaState: QaState;
-  onToggleQa: (key: QaKey) => void;
+  checklistState: ChecklistState;
+  onToggleQa: (key: string) => void;
 };
 
-function ResultsPanel({ fileName, rule, variables, qaState, onToggleQa }: ResultsPanelProps) {
+function ResultsPanel({ fileName, rule, variables, checklistState, onToggleQa }: ResultsPanelProps) {
   return (
     <section className="space-y-6">
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -182,26 +185,41 @@ function ResultsPanel({ fileName, rule, variables, qaState, onToggleQa }: Result
         </header>
 
         {rule ? (
-          <div className="space-y-4">
-            <article className="space-y-3">
-              <div>
+          <div className="space-y-5">
+            <article className="space-y-4">
+              <div className="space-y-2">
                 <h4 className="text-base font-semibold text-slate-900">{rule.title}</h4>
                 <p className="text-sm text-slate-600">{rule.summary}</p>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                  <ProvenanceLink href={`${rule.pdfId ? `/pdf/${rule.pdfId}${rule.anchor}` : rule.anchor}`} label="Anchor" value={rule.anchor} />
+                  <ProvenanceLink href={rule.rawUrl} label="Raw page" value={`p.${rule.rawPage}`} />
+                  <ProvenanceLink href={rule.rawUrl} label="SHA256" value={rule.sha256} isHash />
+                </div>
               </div>
-              <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <dt className="text-xs uppercase text-slate-500">Anchor</dt>
-                  <dd className="font-mono text-xs text-slate-900">{rule.anchor}</dd>
+
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                <div className="space-y-3">
+                  <h5 className="text-sm font-semibold text-slate-900">Processed excerpt</h5>
+                  <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+                    {rule.summary}
+                  </p>
                 </div>
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <dt className="text-xs uppercase text-slate-500">Section ID</dt>
-                  <dd className="font-mono text-xs text-slate-900">{rule.sectionId}</dd>
+                <div className="space-y-3">
+                  <h5 className="text-sm font-semibold text-slate-900">Raw PDF spot-check</h5>
+                  <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                    <object
+                      key={rule.rawUrl}
+                      data={rule.rawUrl}
+                      type="application/pdf"
+                      className="h-64 w-full"
+                    >
+                      <div className="p-3 text-xs text-slate-600">
+                        PDF preview unavailable. <a className="font-semibold text-slate-900" href={rule.rawUrl} target="_blank" rel="noopener noreferrer">Open raw document</a>.
+                      </div>
+                    </object>
+                  </div>
                 </div>
-                <div className="sm:col-span-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <dt className="text-xs uppercase text-slate-500">SHA256</dt>
-                  <dd className="font-mono text-xs text-slate-900 break-all">{rule.sha256}</dd>
-                </div>
-              </dl>
+              </div>
             </article>
 
             <section className="space-y-3">
@@ -210,10 +228,22 @@ function ResultsPanel({ fileName, rule, variables, qaState, onToggleQa }: Result
                 {variables.map(variable => (
                   <li key={variable.id} className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                     <div className="text-xs font-semibold uppercase text-slate-500">{variable.label}</div>
-                    <div className="text-sm font-mono text-slate-900">{variable.value}</div>
+                    <a
+                      href={variable.rawAnchor}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-flex items-center gap-1 font-mono text-sm text-slate-900 underline decoration-dotted underline-offset-2"
+                    >
+                      {variable.value}
+                      <ArrowUpRight className="h-3 w-3" />
+                    </a>
                     <div className="mt-2 space-y-1 text-xs text-slate-600">
-                      <p>Section: <span className="font-mono text-slate-900">{variable.sectionId}</span></p>
-                      <p className="break-all">SHA256: {variable.sha256}</p>
+                      <p>
+                        Section: <ProvenanceLink href={variable.rawAnchor} value={variable.sectionId} />
+                      </p>
+                      <p className="break-all">
+                        SHA256: <ProvenanceLink href={variable.rawAnchor} value={variable.sha256} isHash />
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -226,25 +256,32 @@ function ResultsPanel({ fileName, rule, variables, qaState, onToggleQa }: Result
       </div>
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <header className="mb-4">
-          <h4 className="text-sm font-semibold text-slate-900">QA/QC mini-checklist</h4>
-          <p className="text-sm text-slate-600">Toggle checks as you validate the uploaded document.</p>
-        </header>
-        <div className="space-y-3">
-          {qaChecklist.map(item => (
-            <label key={item.key} className="flex items-center gap-3 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-slate-300 text-slate-800 focus:ring-slate-600"
-                checked={qaState[item.key]}
-                onChange={() => onToggleQa(item.key)}
-              />
-              {item.label}
-            </label>
-          ))}
-        </div>
+        <Checklist state={checklistState} onToggle={onToggleQa} />
       </section>
     </section>
+  );
+}
+
+type ProvenanceLinkProps = {
+  href: string;
+  label?: string;
+  value: string;
+  isHash?: boolean;
+};
+
+function ProvenanceLink({ href, label, value, isHash }: ProvenanceLinkProps) {
+  const displayValue = isHash ? `${value.slice(0, 12)}…` : value;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+    >
+      {label ? <span className="text-slate-500">{label}</span> : null}
+      <span className="font-mono">{displayValue}</span>
+      <ArrowUpRight className="h-3 w-3" />
+    </a>
   );
 }
 
