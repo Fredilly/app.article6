@@ -41,7 +41,7 @@ curl -sS -b bypass.cookies "${DOMAIN}/"
 
 The first request sets `__Secure-vercel-bypass` and Vercel accepts that cookie for all protected routes until it expires. You can inspect the store with `cat bypass.cookies` to verify the cookie was issued.
 
-For the full walkthrough (including automation bypass and metrics verification), see [`docs/bypass.md`](docs/bypass.md).
+
 
 ## Health monitoring
 
@@ -79,6 +79,17 @@ For the full walkthrough (including automation bypass and metrics verification),
 - The chat experience is optimised for mobile-first use with a minimal, card-based layout. On small screens the insights pane collapses behind the “Toggle insights” button; larger displays show messages and rule cards side-by-side.
 - Result cards surface `section_title`, the matched excerpt, score badge, identifiers, references, and methodology chips (id + version) when available. Identical snippets are grouped automatically; expand a group to inspect every variant while retaining provenance (`id`, `refs`, `sha256`, methodology metadata). Engines returning `section_title`/`text` automatically populate the card header and body.
 - Demo mode (`ENGINE_ADAPTER=demo`) produces meaningful preview cards so the interface stays demonstrable without the remote engine.
+- `/manifest` exposes a searchable manifest of methodology rules; filter by methodology or keywords and jump straight to PDF anchors with hashes.
+- `/registry/mock` simulates tCO₂e issuance totals with dummy ledger rows so investors can preview balances before the registry is live.
+
+## Definition of done
+
+Every release should satisfy the following UI checks before shipping:
+
+- `/api/query` responds with a `200` payload that includes `results` (use the preview bypass cookie if protection is enabled).
+- `/audit` loads (with `NEXT_PUBLIC_ENABLE_AUDIT=true`) and every surfaced number links to provenance — anchors resolve to the PDF viewer, hashes render, and the QA/QC checklist toggles.
+- The health badge in this README renders `status=ok` for the current deployment.
+- Lint (`npm run lint`) and tests (`npm run test`) pass using Node 20 (`.nvmrc`).
 
 ## Definition of done
 
