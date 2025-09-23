@@ -41,7 +41,7 @@ curl -sS -b bypass.cookies "${DOMAIN}/"
 
 The first request sets `__Secure-vercel-bypass` and Vercel accepts that cookie for all protected routes until it expires. You can inspect the store with `cat bypass.cookies` to verify the cookie was issued.
 
-For a full walkthrough (including automation bypass and metrics verification), see [`docs/bypass.md`](docs/bypass.md).
+
 
 ## Health monitoring
 
