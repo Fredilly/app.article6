@@ -1,0 +1,40 @@
+name: Next.js tests
+
+on:
+  pull_request:
+    paths:
+      - '**.ts'
+      - '**.tsx'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vitest.config.ts'
+      - '.github/workflows/next-test.yml'
+      - 'tsconfig.json'
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: next-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f463248a3f6f0a0aa8b1b8b4bd3e4f86
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@8c918f6e415566e8c3d0eaf262f1f7b633a2ba0c
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+        env:
+          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
