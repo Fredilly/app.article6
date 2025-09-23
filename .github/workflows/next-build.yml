@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f463248a3f6f0a0aa8b1b8b4bd3e4f86
+        uses: actions/checkout@b4ffde65f463248a3f6f0a0aa8ea951354ad0de
 
       - name: Use Node.js 20
         uses: actions/setup-node@8c918f6e415566e8c3d0eaf262f1f7b633a2ba0c
