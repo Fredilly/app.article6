@@ -41,6 +41,8 @@ curl -sS -b bypass.cookies "${DOMAIN}/"
 
 The first request sets `__Secure-vercel-bypass` and Vercel accepts that cookie for all protected routes until it expires. You can inspect the store with `cat bypass.cookies` to verify the cookie was issued.
 
+For the full walkthrough (including automation bypass and metrics verification), see [`docs/bypass.md`](docs/bypass.md).
+
 ## Health monitoring
 
 - `GET /api/health` returns `{ "status": "ok" | "degraded", "timestamp": iso, "engine": {...} }`. When `ENGINE_HEALTH_PATH` is defined, the route also performs that upstream check using the configured bearer header.
