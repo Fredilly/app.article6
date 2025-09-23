@@ -79,3 +79,12 @@ The first request sets `__Secure-vercel-bypass` and Vercel accepts that cookie f
 - Demo mode (`ENGINE_ADAPTER=demo`) produces meaningful preview cards so the interface stays demonstrable without the remote engine.
 - `/manifest` exposes a searchable manifest of methodology rules; filter by methodology or keywords and jump straight to PDF anchors with hashes.
 - `/registry/mock` simulates tCO₂e issuance totals with dummy ledger rows so investors can preview balances before the registry is live.
+
+## Definition of done
+
+Every release should satisfy the following UI checks before shipping:
+
+- `/api/query` responds with a `200` payload that includes `results` (use the preview bypass cookie if protection is enabled).
+- `/audit` loads (with `NEXT_PUBLIC_ENABLE_AUDIT=true`) and every surfaced number links to provenance — anchors resolve to the PDF viewer, hashes render, and the QA/QC checklist toggles.
+- The health badge in this README renders `status=ok` for the current deployment.
+- Lint (`npm run lint`) and tests (`npm run test`) pass using Node 20 (`.nvmrc`).
