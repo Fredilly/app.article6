@@ -2,7 +2,7 @@
 
 ## Environment
 
-- Create a `.env.local` with at least `ENGINE_URL` pointing at the engine base URL (for example `https://engine.example.com`). Optionally set `ENGINE_BEARER` if the engine requires bearer authentication, `ENGINE_ADAPTER` to force `remote` or `demo` mode, `ENGINE_HEALTH_PATH` to probe a bespoke health endpoint (relative to the engine base), and `NEXT_PUBLIC_ENGINE_TAG` to tweak the default UI label.
+- Create a `.env.local` with at least `ENGINE_URL` pointing at the engine base URL (for example `https://engine.example.com`). Optionally set `ENGINE_BEARER` if the engine requires bearer authentication, `ENGINE_ADAPTER` to force `remote` or `demo` mode, `ENGINE_HEALTH_PATH` to probe a bespoke health endpoint (relative to the engine base), `NEXT_PUBLIC_ENGINE_TAG` to tweak the default UI label, and `NEXT_PUBLIC_ENABLE_AUDIT=true` to unlock the `/audit` dry-run workflow.
 - The API route appends `/query` to the configured base, so the underlying service must expose `POST /query`.
   - If `ENGINE_ADAPTER=demo` (or `ENGINE_URL` is omitted), the internal demo adapter returns deterministic sample results sourced from `data/methodologies/META.json`.
 
