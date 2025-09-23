@@ -5,6 +5,9 @@ export type AuditRule = {
   anchor: string;
   sectionId: string;
   sha256: string;
+  rawPage: number;
+  rawUrl: string;
+  pdfId: string;
 };
 
 export type ExtractedVariable = {
@@ -13,6 +16,9 @@ export type ExtractedVariable = {
   value: string;
   sectionId: string;
   sha256: string;
+  rawPage: number;
+  rawAnchor: string;
+  pdfId: string;
 };
 
 export const SAMPLE_RULES: AuditRule[] = [
@@ -23,6 +29,9 @@ export const SAMPLE_RULES: AuditRule[] = [
     anchor: "#baseline-carbon-4412",
     sectionId: "SEC-3.1",
     sha256: "8b4c0b1fa541a0c93ad8d95567acbbbe42a9f6fb9e31f4f0c1a88d730c7f61fa",
+    rawPage: 12,
+    rawUrl: "/pdf/baseline-carbon-44-12#page=12",
+    pdfId: "baseline-carbon-44-12",
   },
   {
     id: "rule-sampling-confidence",
@@ -31,6 +40,9 @@ export const SAMPLE_RULES: AuditRule[] = [
     anchor: "#sampling-confidence-9010",
     sectionId: "SEC-4.2",
     sha256: "d1e57ef0bb0c2226f08e9e812309161cbb2e27c6fd5953dd75d99b97f1eed8f9",
+    rawPage: 24,
+    rawUrl: "/pdf/baseline-carbon-44-12#page=24",
+    pdfId: "baseline-carbon-44-12",
   },
   {
     id: "rule-buffer-pool",
@@ -39,6 +51,9 @@ export const SAMPLE_RULES: AuditRule[] = [
     anchor: "#buffer-pool-risk-table",
     sectionId: "SEC-5.4",
     sha256: "f3a6f980c8d3e48361f306e02e9a7df3de229a3d4e753d2c73e957a920d06d42",
+    rawPage: 33,
+    rawUrl: "/pdf/baseline-carbon-44-12#page=33",
+    pdfId: "baseline-carbon-44-12",
   },
 ];
 
@@ -49,6 +64,9 @@ export const EXTRACTED_VARIABLES: ExtractedVariable[] = [
     value: "44/12",
     sectionId: "SEC-3.1",
     sha256: "8b4c0b1fa541a0c93ad8d95567acbbbe42a9f6fb9e31f4f0c1a88d730c7f61fa",
+    rawPage: 12,
+    rawAnchor: "/pdf/baseline-carbon-44-12#page=12&highlight=44/12",
+    pdfId: "baseline-carbon-44-12",
   },
   {
     id: "var-confidence",
@@ -56,6 +74,9 @@ export const EXTRACTED_VARIABLES: ExtractedVariable[] = [
     value: "90/10",
     sectionId: "SEC-4.2",
     sha256: "d1e57ef0bb0c2226f08e9e812309161cbb2e27c6fd5953dd75d99b97f1eed8f9",
+    rawPage: 24,
+    rawAnchor: "/pdf/baseline-carbon-44-12#page=24&highlight=90%25",
+    pdfId: "baseline-carbon-44-12",
   },
   {
     id: "var-buffer",
@@ -63,5 +84,8 @@ export const EXTRACTED_VARIABLES: ExtractedVariable[] = [
     value: "Medium",
     sectionId: "SEC-5.4",
     sha256: "f3a6f980c8d3e48361f306e02e9a7df3de229a3d4e753d2c73e957a920d06d42",
+    rawPage: 33,
+    rawAnchor: "/pdf/baseline-carbon-44-12#page=33&highlight=buffer",
+    pdfId: "baseline-carbon-44-12",
   },
 ];
