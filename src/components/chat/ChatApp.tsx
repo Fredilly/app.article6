@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { useState } from "react";
-import Link from "next/link";
 import { sendChat, retrieveQuery, type QueryResponse } from "@/lib/chat/client";
 import type { ChatMessage } from "@/lib/chat/schema";
 import { Menu, PanelsTopLeft } from "lucide-react";
@@ -9,7 +8,6 @@ import SidePane from "./SidePane";
 import MessageList from "./MessageList";
 import Composer from "./Composer";
 import { cn } from "@/lib/utils";
-import { AUDIT_FEATURE_ENABLED } from "@/lib/flags";
 
 const DEFAULT_ENGINE_TAG = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "mvp-baselines-v1";
 
@@ -85,19 +83,7 @@ export default function ChatApp() {
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {AUDIT_FEATURE_ENABLED ? (
-              <Link
-                href="/audit"
-                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm transition hover:border-gray-300 hover:text-gray-900"
-              >
-                <PanelsTopLeft className="h-4 w-4" />
-                Dry-run audit
-              </Link>
-            ) : (
-              <PanelsTopLeft className="h-6 w-6 text-gray-300" />
-            )}
-          </div>
+          <PanelsTopLeft className="h-6 w-6 text-gray-300" />
         </header>
 
         {hasMetrics ? (
