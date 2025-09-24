@@ -74,13 +74,18 @@ The first request sets `__Secure-vercel-bypass` and Vercel accepts that cookie f
 ```
 - The `/pdf/:id` route resolves the metadata, streams the vendored PDF, and emits `X-SHA256` and `X-Source-Path` headers for verification.
 
-## UI
+## Demo surfaces
+
+- `/` Chat landing — mobile-first chat experience with insights pane.
+- `/audit` Dry-run audit workflow — upload PDFs, view anchors/hashes, check QA/QC.
+- `/manifest` Searchable manifest — filter rules by methodology/tags and jump to anchored PDFs.
+- `/registry/mock` Mock issuance — preview dummy tCO₂e issuance and balances for investor storytelling.
+
+Implementation notes:
 
 - The chat experience is optimised for mobile-first use with a minimal, card-based layout. On small screens the insights pane collapses behind the “Toggle insights” button; larger displays show messages and rule cards side-by-side.
 - Result cards surface `section_title`, the matched excerpt, score badge, identifiers, references, and methodology chips (id + version) when available. Identical snippets are grouped automatically; expand a group to inspect every variant while retaining provenance (`id`, `refs`, `sha256`, methodology metadata). Engines returning `section_title`/`text` automatically populate the card header and body.
 - Demo mode (`ENGINE_ADAPTER=demo`) produces meaningful preview cards so the interface stays demonstrable without the remote engine.
-- `/manifest` exposes a searchable manifest of methodology rules; filter by methodology or keywords and jump straight to PDF anchors with hashes.
-- `/registry/mock` simulates tCO₂e issuance totals with dummy ledger rows so investors can preview balances before the registry is live.
 
 ## Definition of done
 
