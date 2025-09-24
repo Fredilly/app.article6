@@ -28,7 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
+
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-8">
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-400">Article 6 demo</p>

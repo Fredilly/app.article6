@@ -4,13 +4,14 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-type DemoRoute = { href: string; title: string; description: string };
+
 
 const demoRoutes: DemoRoute[] = [
   {
     href: "/",
     title: "Chat",
     description: "Ask questions and see rule cards instantly.",
+
   },
   {
     href: "/audit",
@@ -39,14 +40,7 @@ export default function DemoNav() {
         const baseClasses = "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 font-medium shadow-sm transition";
         const appearance = isActive
           ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800'
-          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:text-gray-900';
-        return (
-          <Link
-            key={route.href}
-            href={route.href}
-            className={`${baseClasses} ${appearance}`}
-            aria-current={isActive ? 'page' : undefined}
-          >
+
             <span>{route.title}</span>
             <ArrowUpRight className="h-3 w-3" />
           </Link>
