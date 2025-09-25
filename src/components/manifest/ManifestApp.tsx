@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
+
 type ManifestEntry = {
   id: string;
   methodology: string;
