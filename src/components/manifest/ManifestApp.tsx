@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { MANIFEST_ENTRIES } from "@/lib/manifest/data";
 
-type ManifestEntry = (typeof MANIFEST_ENTRIES)[number];
+type ManifestEntry = {
+  id: string;
+  methodology: string;
+  version: string;
+  rule: string;
+  tags: string[];
+  pdfId?: string;
+  anchor?: string;
+  sha256?: string;
+};
 
 export default function ManifestApp() {
   const [query, setQuery] = useState("");
