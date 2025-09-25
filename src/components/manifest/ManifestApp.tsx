@@ -21,38 +21,15 @@ export default function ManifestApp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const methodologies = useMemo(() => {
-    const unique = new Set<string>(entries.map(entry => entry.methodology));
-    return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
-  }, [entries]);
-
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(async () => {
-      let base = process.env.NEXT_PUBLIC_ENGINE_URL ?? "";
-      if (!base && typeof window !== "undefined") {
-        base = window.location.origin;
-      }
-
-      if (!base) {
-        setError("Engine URL is not configured");
-        setEntries([]);
-        setLoading(false);
-        return;
-      }
-
-      const url = new URL("/api/manifest", base.replace(/\/$/, ""));
-      if (query.trim()) {
-        url.searchParams.set("q", query.trim());
-      } else {
-        url.searchParams.set("all", "1");
-      }
-
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(url.toString(), {
+        const params = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
+        const response = await fetch(`/api/manifest${params}`, {
           signal: controller.signal,
           cache: "no-store",
         });
@@ -75,6 +52,11 @@ export default function ManifestApp() {
       clearTimeout(timeout);
     };
   }, [query]);
+
+  const methodologies = useMemo(() => {
+    const unique = new Set<string>(entries.map(entry => entry.methodology));
+    return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
+  }, [entries]);
 
   const visibleResults = useMemo(() => {
     return entries.filter(entry => methodologyFilter === "all" || entry.methodology === methodologyFilter);
@@ -121,7 +103,11 @@ export default function ManifestApp() {
         <section className="space-y-3">
           <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-500">
             <span>
-              {loading ? "Searching…" : `${visibleResults.length} result${visibleResults.length === 1 ? "" : "s"}`}
+              {loading
+                ? "Searching…"
+                : error
+                ? "Error"
+                : `${visibleResults.length} result${visibleResults.length === 1 ? "" : "s"}`}
             </span>
             <span>Click entries to open the PDF at the anchored section.</span>
           </div>
