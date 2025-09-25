@@ -29,15 +29,19 @@ export default function ManifestApp() {
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(async () => {
-      const base = process.env.NEXT_PUBLIC_ENGINE_URL;
+      let base = process.env.NEXT_PUBLIC_ENGINE_URL ?? "";
+      if (!base && typeof window !== "undefined") {
+        base = window.location.origin;
+      }
+
       if (!base) {
-        setError("NEXT_PUBLIC_ENGINE_URL is not configured");
+        setError("Engine URL is not configured");
         setEntries([]);
         setLoading(false);
         return;
       }
 
-      const url = new URL("/api/manifest", base);
+      const url = new URL("/api/manifest", base.replace(/\/$/, ""));
       if (query.trim()) {
         url.searchParams.set("q", query.trim());
       } else {
