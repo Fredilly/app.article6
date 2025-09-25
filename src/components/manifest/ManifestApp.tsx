@@ -1,16 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { MANIFEST_ENTRIES, type ManifestEntry } from "@/lib/manifest/data";
-
-function normalize(value: string) {
-  return value.toLowerCase();
-}
 
 export default function ManifestApp() {
   const [query, setQuery] = useState("");
   const [methodologyFilter, setMethodologyFilter] = useState("all");
+  const [results, setResults] = useState<ManifestEntry[]>(MANIFEST_ENTRIES);
+  const [loading, setLoading] = useState(false);
 
   const methodologies = useMemo(() => {
     const unique = new Set<string>();
@@ -18,23 +16,39 @@ export default function ManifestApp() {
     return ["all", ...Array.from(unique).sort()];
   }, []);
 
-  const results = useMemo(() => {
-    const normalizedQuery = normalize(query.trim());
-    return MANIFEST_ENTRIES.filter(entry => {
-      const matchesMethodology = methodologyFilter === "all" || entry.methodology === methodologyFilter;
-      if (!matchesMethodology) return false;
-      if (!normalizedQuery) return true;
-      const haystack = [
-        entry.methodology,
-        entry.version,
-        entry.rule,
-        entry.tags.join(" "),
-      ]
-        .map(normalize)
-        .join(" ");
-      return haystack.includes(normalizedQuery);
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/manifest?q=${encodeURIComponent(query)}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = (await response.json()) as { results: ManifestEntry[] };
+        setResults(data.results);
+      } catch (error) {
+        if ((error as { name?: string }).name !== "AbortError") {
+          setResults([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, 200);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, [query]);
+
+  const visibleResults = useMemo(() => {
+    return results.filter(entry => {
+      if (methodologyFilter === "all") return true;
+      return entry.methodology === methodologyFilter;
     });
-  }, [query, methodologyFilter]);
+  }, [results, methodologyFilter]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -76,17 +90,19 @@ export default function ManifestApp() {
 
         <section className="space-y-3">
           <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-500">
-            <span>{results.length} result{results.length === 1 ? "" : "s"}</span>
+            <span>
+              {loading ? "Searching…" : `${visibleResults.length} result${visibleResults.length === 1 ? "" : "s"}`}
+            </span>
             <span>Click entries to open the PDF at the anchored section.</span>
           </div>
 
           <ul className="space-y-3">
-            {results.map(entry => (
+            {visibleResults.map(entry => (
               <li key={entry.id}>
                 <ManifestCard entry={entry} />
               </li>
             ))}
-            {results.length === 0 ? (
+            {!loading && visibleResults.length === 0 ? (
               <li className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
                 No manifest entries match your filters yet.
               </li>
