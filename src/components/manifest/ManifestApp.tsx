@@ -1,40 +1,65 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
-import { MANIFEST_ENTRIES, type ManifestEntry } from "@/lib/manifest/data";
 
-function normalize(value: string) {
-  return value.toLowerCase();
-}
+type ManifestEntry = {
+  id: string;
+  methodology: string;
+  version: string;
+  rule: string;
+  tags: string[];
+  pdfId?: string;
+  anchor?: string;
+  sha256?: string;
+};
 
 export default function ManifestApp() {
   const [query, setQuery] = useState("");
   const [methodologyFilter, setMethodologyFilter] = useState("all");
+  const [entries, setEntries] = useState<ManifestEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
+        const response = await fetch(`/api/manifest${params}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = (await response.json()) as { results?: ManifestEntry[] };
+        setEntries(Array.isArray(data.results) ? data.results : []);
+      } catch (err) {
+        if ((err as { name?: string }).name !== "AbortError") {
+          setError(err instanceof Error ? err.message : String(err));
+          setEntries([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, 200);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, [query]);
 
   const methodologies = useMemo(() => {
-    const unique = new Set<string>();
-    for (const entry of MANIFEST_ENTRIES) unique.add(entry.methodology);
-    return ["all", ...Array.from(unique).sort()];
-  }, []);
+    const unique = new Set<string>(entries.map(entry => entry.methodology));
+    return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
+  }, [entries]);
 
   const results = useMemo(() => {
-    const normalizedQuery = normalize(query.trim());
-    return MANIFEST_ENTRIES.filter(entry => {
-      const matchesMethodology = methodologyFilter === "all" || entry.methodology === methodologyFilter;
-      if (!matchesMethodology) return false;
-      if (!normalizedQuery) return true;
-      const haystack = [
-        entry.methodology,
-        entry.version,
-        entry.rule,
-        entry.tags.join(" "),
-      ]
-        .map(normalize)
-        .join(" ");
-      return haystack.includes(normalizedQuery);
-    });
-  }, [query, methodologyFilter]);
+    return entries.filter(entry => methodologyFilter === "all" || entry.methodology === methodologyFilter);
+  }, [entries, methodologyFilter]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -76,7 +101,13 @@ export default function ManifestApp() {
 
         <section className="space-y-3">
           <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-500">
-            <span>{results.length} result{results.length === 1 ? "" : "s"}</span>
+            <span>
+              {loading
+                ? "Searching…"
+                : error
+                ? "Error"
+                : `${results.length} result${results.length === 1 ? "" : "s"}`}
+            </span>
             <span>Click entries to open the PDF at the anchored section.</span>
           </div>
 
@@ -86,12 +117,17 @@ export default function ManifestApp() {
                 <ManifestCard entry={entry} />
               </li>
             ))}
-            {results.length === 0 ? (
+            {!loading && !error && results.length === 0 ? (
               <li className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
                 No manifest entries match your filters yet.
               </li>
             ) : null}
           </ul>
+          {error ? (
+            <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {error}
+            </p>
+          ) : null}
         </section>
       </div>
     </div>
@@ -103,7 +139,11 @@ type ManifestCardProps = {
 };
 
 function ManifestCard({ entry }: ManifestCardProps) {
-  const url = `/pdf/${entry.pdfId}${entry.anchor}`;
+  const anchor = entry.anchor ?? "";
+  const pdfId = entry.pdfId ?? "";
+  const url = pdfId ? `/pdf/${pdfId}${anchor}` : anchor || "#";
+  const tags = entry.tags?.length ? entry.tags.join(", ") : "—";
+  const sha = entry.sha256 ? `${entry.sha256.slice(0, 12)}…` : "n/a";
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -112,18 +152,20 @@ function ManifestCard({ entry }: ManifestCardProps) {
           {entry.methodology} · {entry.version}
         </span>
       </div>
-      <p className="mt-3 text-sm text-slate-600">Tags: {entry.tags.join(", ")}</p>
+      <p className="mt-3 text-sm text-slate-600">Tags: {tags}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-600">
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
-        >
-          View anchor
-        </a>
-        <span className="font-mono">SHA256 {entry.sha256.slice(0, 12)}…</span>
+        {url !== "#" ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+          >
+            View anchor
+          </a>
+        ) : null}
+        <span className="font-mono">SHA256 {sha}</span>
       </div>
     </article>
   );
