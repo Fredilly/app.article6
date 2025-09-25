@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
-import { MANIFEST_ENTRIES } from "@/lib/manifest/data";
-
 type ManifestEntry = {
   id: string;
   methodology: string;
@@ -18,7 +16,7 @@ type ManifestEntry = {
 export default function ManifestApp() {
   const [query, setQuery] = useState("");
   const [methodologyFilter, setMethodologyFilter] = useState("all");
-  const [entries, setEntries] = useState<ManifestEntry[]>(MANIFEST_ENTRIES);
+  const [entries, setEntries] = useState<ManifestEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,11 +35,11 @@ export default function ManifestApp() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = (await response.json()) as { results?: ManifestEntry[]; rules?: ManifestEntry[] };
         const payload = data.results ?? data.rules ?? [];
-        setEntries(Array.isArray(payload) && payload.length ? payload : MANIFEST_ENTRIES);
+        setEntries(Array.isArray(payload) ? payload : []);
       } catch (err) {
         if ((err as { name?: string }).name !== "AbortError") {
           setError(err instanceof Error ? err.message : String(err));
-          setEntries(MANIFEST_ENTRIES);
+          setEntries([]);
         }
       } finally {
         setLoading(false);
