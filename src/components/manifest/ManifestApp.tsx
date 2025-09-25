@@ -26,8 +26,9 @@ export default function ManifestApp() {
           cache: "no-store",
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = (await response.json()) as { results?: ManifestEntry[] };
-        setEntries(Array.isArray(data.results) ? data.results : MANIFEST_ENTRIES);
+        const data = (await response.json()) as { results?: ManifestEntry[]; rules?: ManifestEntry[] };
+        const payload = data.results ?? data.rules ?? [];
+        setEntries(Array.isArray(payload) && payload.length ? payload : MANIFEST_ENTRIES);
       } catch (err) {
         if ((err as { name?: string }).name !== "AbortError") {
           setError(err instanceof Error ? err.message : String(err));
@@ -49,7 +50,7 @@ export default function ManifestApp() {
     return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
   }, [entries]);
 
-  const results = useMemo(() => {
+  const visibleResults = useMemo(() => {
     return entries.filter(entry => methodologyFilter === "all" || entry.methodology === methodologyFilter);
   }, [entries, methodologyFilter]);
 
@@ -98,25 +99,25 @@ export default function ManifestApp() {
                 ? "Searching…"
                 : error
                 ? "Error"
-                : `${results.length} result${results.length === 1 ? "" : "s"}`}
+                : `${visibleResults.length} result${visibleResults.length === 1 ? "" : "s"}`}
             </span>
             <span>Click entries to open the PDF at the anchored section.</span>
           </div>
 
           <ul className="space-y-3">
-            {results.map(entry => (
+            {visibleResults.map(entry => (
               <li key={entry.id}>
                 <ManifestCard entry={entry} />
               </li>
             ))}
-            {!loading && !error && results.length === 0 ? (
+            {!loading && !error && visibleResults.length === 0 ? (
               <li className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
                 No manifest entries match your filters yet.
               </li>
             ) : null}
           </ul>
           {error ? (
-            <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+            <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
               {error}
             </p>
           ) : null}
@@ -131,11 +132,11 @@ type ManifestCardProps = {
 };
 
 function ManifestCard({ entry }: ManifestCardProps) {
-  const anchor = entry.anchor ?? "";
+  const anchorPath = entry.anchor ?? "";
   const pdfId = entry.pdfId ?? "";
-  const url = pdfId ? `/pdf/${pdfId}${anchor}` : anchor || "#";
+  const url = pdfId ? `/pdf/${pdfId}${anchorPath}` : anchorPath || "#";
+  const shaLabel = entry.sha256 ? `${entry.sha256.slice(0, 12)}…` : "n/a";
   const tags = entry.tags?.length ? entry.tags.join(", ") : "—";
-  const sha = entry.sha256 ? `${entry.sha256.slice(0, 12)}…` : "n/a";
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -157,7 +158,7 @@ function ManifestCard({ entry }: ManifestCardProps) {
             View anchor
           </a>
         ) : null}
-        <span className="font-mono">SHA256 {sha}</span>
+        <span className="font-mono">SHA256 {shaLabel}</span>
       </div>
     </article>
   );
