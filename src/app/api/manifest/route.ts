@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 async function loadManifest() {
   const fallback: unknown = [];
