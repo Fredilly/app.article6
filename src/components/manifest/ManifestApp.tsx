@@ -2,22 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
+import { MANIFEST_ENTRIES } from "@/lib/manifest/data";
 
-type ManifestEntry = {
-  id: string;
-  methodology: string;
-  version: string;
-  rule: string;
-  tags: string[];
-  pdfId?: string;
-  anchor?: string;
-  sha256?: string;
-};
+type ManifestEntry = (typeof MANIFEST_ENTRIES)[number];
 
 export default function ManifestApp() {
   const [query, setQuery] = useState("");
   const [methodologyFilter, setMethodologyFilter] = useState("all");
-  const [entries, setEntries] = useState<ManifestEntry[]>([]);
+  const [entries, setEntries] = useState<ManifestEntry[]>(MANIFEST_ENTRIES);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,11 +27,11 @@ export default function ManifestApp() {
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = (await response.json()) as { results?: ManifestEntry[] };
-        setEntries(Array.isArray(data.results) ? data.results : []);
+        setEntries(Array.isArray(data.results) ? data.results : MANIFEST_ENTRIES);
       } catch (err) {
         if ((err as { name?: string }).name !== "AbortError") {
           setError(err instanceof Error ? err.message : String(err));
-          setEntries([]);
+          setEntries(MANIFEST_ENTRIES);
         }
       } finally {
         setLoading(false);
