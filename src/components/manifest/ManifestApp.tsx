@@ -2,35 +2,68 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
-import { MANIFEST_ENTRIES, type ManifestEntry } from "@/lib/manifest/data";
+
+type ManifestEntry = {
+  id: string;
+  methodology: string;
+  version: string;
+  rule: string;
+  tags: string[];
+  pdfId?: string;
+  anchor?: string;
+  sha256?: string;
+};
 
 export default function ManifestApp() {
   const [query, setQuery] = useState("");
   const [methodologyFilter, setMethodologyFilter] = useState("all");
-  const [results, setResults] = useState<ManifestEntry[]>(MANIFEST_ENTRIES);
+  const [entries, setEntries] = useState<ManifestEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const methodologies = useMemo(() => {
-    const unique = new Set<string>();
-    for (const entry of MANIFEST_ENTRIES) unique.add(entry.methodology);
-    return ["all", ...Array.from(unique).sort()];
-  }, []);
+    const unique = new Set<string>(entries.map(entry => entry.methodology));
+    return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
+  }, [entries]);
 
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(async () => {
+      let base = process.env.NEXT_PUBLIC_ENGINE_URL ?? "";
+      if (!base && typeof window !== "undefined") {
+        base = window.location.origin;
+      }
+
+      if (!base) {
+        setError("Engine URL is not configured");
+        setEntries([]);
+        setLoading(false);
+        return;
+      }
+
+      const url = new URL("/api/manifest", base.replace(/\/$/, ""));
+      if (query.trim()) {
+        url.searchParams.set("q", query.trim());
+      } else {
+        url.searchParams.set("all", "1");
+      }
+
       setLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch(`/api/manifest?q=${encodeURIComponent(query)}`, {
+        const response = await fetch(url.toString(), {
           signal: controller.signal,
           cache: "no-store",
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = (await response.json()) as { results: ManifestEntry[] };
-        setResults(data.results);
-      } catch (error) {
-        if ((error as { name?: string }).name !== "AbortError") {
-          setResults([]);
+        const data = (await response.json()) as { results?: ManifestEntry[]; rules?: ManifestEntry[] };
+        const payload = data.results ?? data.rules ?? [];
+        setEntries(Array.isArray(payload) ? payload : []);
+      } catch (err) {
+        if ((err as { name?: string }).name !== "AbortError") {
+          setError(err instanceof Error ? err.message : String(err));
+          setEntries([]);
         }
       } finally {
         setLoading(false);
@@ -44,11 +77,8 @@ export default function ManifestApp() {
   }, [query]);
 
   const visibleResults = useMemo(() => {
-    return results.filter(entry => {
-      if (methodologyFilter === "all") return true;
-      return entry.methodology === methodologyFilter;
-    });
-  }, [results, methodologyFilter]);
+    return entries.filter(entry => methodologyFilter === "all" || entry.methodology === methodologyFilter);
+  }, [entries, methodologyFilter]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -102,12 +132,17 @@ export default function ManifestApp() {
                 <ManifestCard entry={entry} />
               </li>
             ))}
-            {!loading && visibleResults.length === 0 ? (
+            {!loading && !error && visibleResults.length === 0 ? (
               <li className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
                 No manifest entries match your filters yet.
               </li>
             ) : null}
           </ul>
+          {error ? (
+            <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {error}
+            </p>
+          ) : null}
         </section>
       </div>
     </div>
@@ -119,7 +154,11 @@ type ManifestCardProps = {
 };
 
 function ManifestCard({ entry }: ManifestCardProps) {
-  const url = `/pdf/${entry.pdfId}${entry.anchor}`;
+  const anchorPath = entry.anchor ?? "";
+  const pdfId = entry.pdfId ?? "";
+  const url = pdfId ? `/pdf/${pdfId}${anchorPath}` : anchorPath || "#";
+  const shaLabel = entry.sha256 ? `${entry.sha256.slice(0, 12)}…` : "n/a";
+  const tags = entry.tags?.length ? entry.tags.join(", ") : "—";
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -128,18 +167,20 @@ function ManifestCard({ entry }: ManifestCardProps) {
           {entry.methodology} · {entry.version}
         </span>
       </div>
-      <p className="mt-3 text-sm text-slate-600">Tags: {entry.tags.join(", ")}</p>
+      <p className="mt-3 text-sm text-slate-600">Tags: {tags}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-600">
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
-        >
-          View anchor
-        </a>
-        <span className="font-mono">SHA256 {entry.sha256.slice(0, 12)}…</span>
+        {url !== "#" ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+          >
+            View anchor
+          </a>
+        ) : null}
+        <span className="font-mono">SHA256 {shaLabel}</span>
       </div>
     </article>
   );
