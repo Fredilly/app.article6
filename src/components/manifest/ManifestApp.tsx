@@ -57,9 +57,30 @@ export default function ManifestApp() {
     return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
   }, [entries]);
 
-  const visibleResults = useMemo(() => {
-    return entries.filter(entry => methodologyFilter === "all" || entry.methodology === methodologyFilter);
+  const uniqueMethodologies = useMemo(() => {
+    const methodologiesMap = new Map<string, ManifestEntry[]>();
+
+    entries.forEach(entry => {
+      if (!methodologiesMap.has(entry.methodology)) {
+        methodologiesMap.set(entry.methodology, []);
+      }
+      methodologiesMap.get(entry.methodology)!.push(entry);
+    });
+
+    return Array.from(methodologiesMap.entries())
+      .map(([methodology, rules]) => ({
+        methodology,
+        rules,
+      }))
+      .filter(
+        ({ methodology }) =>
+          methodologyFilter === "all" || methodology === methodologyFilter,
+      );
   }, [entries, methodologyFilter]);
+
+  const resultsCount = useMemo(() => {
+    return uniqueMethodologies.reduce((acc, { rules }) => acc + rules.length, 0);
+  }, [uniqueMethodologies]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -106,23 +127,30 @@ export default function ManifestApp() {
                 ? "Searching…"
                 : error
                 ? "Error"
-                : `${visibleResults.length} result${visibleResults.length === 1 ? "" : "s"}`}
+                : `${resultsCount} result${resultsCount === 1 ? "" : "s"}`}
             </span>
             <span>Click entries to open the PDF at the anchored section.</span>
           </div>
 
-          <ul className="space-y-3">
-            {visibleResults.map(entry => (
-              <li key={entry.id}>
-                <ManifestCard entry={entry} />
-              </li>
+          <div className="space-y-6">
+            {uniqueMethodologies.map(({ methodology, rules }) => (
+              <div key={methodology}>
+                <h2 className="text-lg font-medium text-slate-800">{methodology}</h2>
+                <ul className="mt-3 space-y-3">
+                  {rules.map(rule => (
+                    <li key={rule.id}>
+                      <ManifestCard entry={rule} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-            {!loading && !error && visibleResults.length === 0 ? (
-              <li className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+            {!loading && !error && resultsCount === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
                 No manifest entries match your filters yet.
-              </li>
+              </div>
             ) : null}
-          </ul>
+          </div>
           {error ? (
             <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
               {error}
