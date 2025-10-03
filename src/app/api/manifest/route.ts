@@ -23,7 +23,13 @@ export async function GET(request: Request) {
   if (resolveEngineMode() === "remote") {
     try {
       const engineUrl = resolveEngineEndpoint();
-      const manifestUrl = new URL("./manifest", engineUrl);
+      const manifestUrl = new URL(engineUrl);
+      const replacedPath = manifestUrl.pathname.replace(/\/?query\/?$/, "/manifest");
+      if (replacedPath !== manifestUrl.pathname) {
+        manifestUrl.pathname = replacedPath;
+      } else {
+        manifestUrl.pathname = `${manifestUrl.pathname.replace(/\/$/, "")}/manifest`;
+      }
       if (query) manifestUrl.searchParams.set("q", query);
 
       const response = await fetch(manifestUrl, {
