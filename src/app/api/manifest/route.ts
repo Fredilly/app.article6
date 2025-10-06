@@ -205,7 +205,7 @@ export async function GET(request: Request) {
         coerceManifestEntry(e as RemoteManifestEntry, manifestIndex),
       );
 
-      return NextResponse.json({ results: enriched });
+      return NextResponse.json(enriched);
     } catch (error) {
       console.warn(
         "[manifest] Remote manifest unavailable, using static dataset:",
@@ -216,6 +216,6 @@ export async function GET(request: Request) {
   }
 
   const filtered = filterEntries(manifestEntries, rawQuery, showAll);
-  return NextResponse.json({ results: filtered });
+  return NextResponse.json(filtered);
 }
 
