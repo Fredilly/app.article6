@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { buildEngineHeaders, resolveEngineEndpoint, resolveEngineMode } from "@/lib/engine/config";
+import {
+  buildEngineHeaders,
+  resolveEngineEndpoint,
+  resolveEngineMode,
+} from "@/lib/engine/config";
 
 export const runtime = "nodejs";
 
@@ -35,8 +39,12 @@ export async function GET(request: Request) {
         method: "GET",
         headers: buildEngineHeaders(),
         cache: "no-store",
-      }).catch(error => {
-        throw new Error(`Failed to reach engine manifest: ${error instanceof Error ? error.message : String(error)}`);
+      }).catch((error) => {
+        throw new Error(
+          `Failed to reach engine manifest: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       });
 
       const rawBody = await response.text();
@@ -45,7 +53,11 @@ export async function GET(request: Request) {
         try {
           parsedBody = JSON.parse(rawBody);
         } catch (error) {
-          throw new Error(`Invalid engine manifest JSON: ${error instanceof Error ? error.message : String(error)}`);
+          throw new Error(
+            `Invalid engine manifest JSON: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          );
         }
       }
 
@@ -58,9 +70,9 @@ export async function GET(request: Request) {
       const remoteEntries = Array.isArray(parsedBody)
         ? parsedBody
         : parsedBody && typeof parsedBody === "object"
-        ? (parsedBody as { results?: unknown[]; rules?: unknown[] }).results ??
-          (parsedBody as { results?: unknown[]; rules?: unknown[] }).rules
-        : undefined;
+          ? (parsedBody as { results?: unknown[]; rules?: unknown[] }).results ??
+            (parsedBody as { results?: unknown[]; rules?: unknown[] }).rules
+          : undefined;
 
       if (!Array.isArray(remoteEntries)) {
         throw new Error("Engine manifest response missing rules array");
@@ -81,7 +93,7 @@ export async function GET(request: Request) {
   }
 
   const normalizedQuery = rawQuery.toLowerCase();
-  const filtered = entries.filter(entry => {
+  const filtered = entries.filter((entry) => {
     if (entry && typeof entry === "object") {
       const haystack = JSON.stringify(entry).toLowerCase();
       return haystack.includes(normalizedQuery);
