@@ -56,7 +56,7 @@ describe("/api/query route", () => {
       Authorization: "Bearer demo-token",
     });
     expect(json.results[0].id).toBe("1");
-    expect(json.results[0].section_title).toBe("Sample Title");
+    expect(json.results[0].section_title).toBe("Sample text from engine");
     expect(json.results[0].text).toBe("Sample text from engine");
   });
 

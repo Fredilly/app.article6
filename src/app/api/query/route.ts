@@ -3,14 +3,43 @@ import { NextResponse } from "next/server";
 import { runDemoAdapter } from "@/lib/engine/demo";
 import type { QueryResponse } from "@/lib/engine/types";
 import { buildEngineHeaders, resolveEngineEndpoint, resolveEngineMode } from "@/lib/engine/config";
+import {
+  buildManifestIndex,
+  enrichResults,
+  loadManifestEntries,
+  type RemoteManifestEntry,
+} from "@/lib/manifest/cards";
 import { withMetrics } from "@/lib/metrics";
 
 type QueryRequest = { query?: string };
 
+async function enrichWithManifest(payload: unknown) {
+  const manifestEntries = await loadManifestEntries();
+  const manifestIndex = buildManifestIndex(manifestEntries);
+
+  const base = payload && typeof payload === "object" ? { ...(payload as Record<string, unknown>) } : {};
+  const rawResults = Array.isArray((base as { results?: unknown[] }).results)
+    ? (base as { results: unknown[] }).results
+    : Array.isArray((base as { rules?: unknown[] }).rules)
+    ? (base as { rules: unknown[] }).rules
+    : Array.isArray(payload)
+    ? (payload as unknown[])
+    : null;
+
+  if (rawResults) {
+    base.results = enrichResults(rawResults as RemoteManifestEntry[], manifestIndex);
+  } else if (!("results" in base)) {
+    base.results = [];
+  }
+
+  return base;
+}
+
 async function forwardToEngine(query: string) {
   if (resolveEngineMode() === "demo") {
     const payload = await runDemoAdapter(query);
-    return NextResponse.json(payload satisfies QueryResponse);
+    const enriched = await enrichWithManifest(payload);
+    return NextResponse.json(enriched satisfies QueryResponse);
   }
 
   const engineUrl = resolveEngineEndpoint();
@@ -38,7 +67,8 @@ async function forwardToEngine(query: string) {
     return NextResponse.json(payload, { status: res.status });
   }
 
-  return NextResponse.json(parsed ?? {});
+  const enriched = await enrichWithManifest(parsed ?? {});
+  return NextResponse.json(enriched satisfies QueryResponse);
 }
 
 async function handlePost(req: Request) {
