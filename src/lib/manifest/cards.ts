@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import type { EngineResult } from "@/lib/engine/types";
 
 export type ManifestEntry = {
   id: string;
@@ -132,20 +133,45 @@ export function filterEntries(entries: ManifestEntry[], rawQuery: string, showAl
   });
 }
 
-export function enrichResults<T extends RemoteManifestEntry>(
-  results: T[],
+export function enrichResults(
+  results: RemoteManifestEntry[],
   manifestIndex: Map<string, ManifestEntry>,
-) {
+): EngineResult[] {
   return results.map(result => {
     const entry = coerceManifestEntry(result, manifestIndex);
+    const refs = Array.isArray(result.refs) ? result.refs.map(String) : undefined;
+    const pdfId = typeof entry.pdfId === "string"
+      ? entry.pdfId
+      : typeof result.pdfId === "string"
+      ? result.pdfId
+      : undefined;
+    const anchor = typeof entry.anchor === "string"
+      ? entry.anchor
+      : typeof result.anchor === "string"
+      ? result.anchor
+      : undefined;
+    const sha256 = typeof entry.sha256 === "string"
+      ? entry.sha256
+      : typeof result.sha256 === "string"
+      ? result.sha256
+      : undefined;
+    const methodologyId = entry.methodology || (typeof result.methodology_id === "string" ? result.methodology_id : undefined);
+    const methodologyVersion = entry.version || (typeof result.methodology_version === "string" ? result.methodology_version : undefined);
+
     return {
-      ...result,
+      id: entry.id,
+      section: typeof result.section === "string" ? result.section : undefined,
       section_title: entry.rule,
+      sectionTitle: entry.rule,
       text: entry.rule,
+      refs,
+      sha256,
+      score: typeof result.score === "number" ? result.score : undefined,
+      methodology_id: methodologyId,
+      methodologyId: methodologyId,
+      methodology_version: methodologyVersion,
+      methodologyVersion: methodologyVersion,
       tags: entry.tags,
-      pdfId: entry.pdfId ?? result.pdfId,
-      anchor: entry.anchor ?? result.anchor,
-      sha256: entry.sha256 ?? result.sha256,
-    };
+    } satisfies EngineResult;
   });
 }

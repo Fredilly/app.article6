@@ -13,13 +13,22 @@ import { withMetrics } from "@/lib/metrics";
 
 type QueryRequest = { query?: string };
 
-async function enrichWithManifest(payload: unknown) {
+type QueryPayload = Partial<QueryResponse> & Record<string, unknown>;
+
+function normalisePayload(payload: unknown): QueryPayload {
+  if (payload && typeof payload === "object") {
+    return { ...(payload as Record<string, unknown>) };
+  }
+  return {};
+}
+
+async function enrichWithManifest(payload: unknown): Promise<QueryResponse & Record<string, unknown>> {
   const manifestEntries = await loadManifestEntries();
   const manifestIndex = buildManifestIndex(manifestEntries);
 
-  const base = payload && typeof payload === "object" ? { ...(payload as Record<string, unknown>) } : {};
-  const rawResults = Array.isArray((base as { results?: unknown[] }).results)
-    ? (base as { results: unknown[] }).results
+  const base = normalisePayload(payload);
+  const rawResults = Array.isArray(base.results)
+    ? base.results
     : Array.isArray((base as { rules?: unknown[] }).rules)
     ? (base as { rules: unknown[] }).rules
     : Array.isArray(payload)
@@ -32,7 +41,15 @@ async function enrichWithManifest(payload: unknown) {
     base.results = [];
   }
 
-  return base;
+  if (!Array.isArray(base.metrics)) {
+    base.metrics = [];
+  }
+
+  if (typeof base.engineTag !== "string") {
+    base.engineTag = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "";
+  }
+
+  return base as QueryResponse & Record<string, unknown>;
 }
 
 async function forwardToEngine(query: string) {

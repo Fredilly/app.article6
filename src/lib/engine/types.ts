@@ -6,6 +6,7 @@ export type EngineResult = {
   sectionTitle?: string;
   text?: string;
   refs?: string[];
+  tags?: string[];
   sha256?: string;
   score?: number;
   methodology_id?: string;
