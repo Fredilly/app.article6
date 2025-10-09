@@ -14,7 +14,6 @@ import { withMetrics } from "@/lib/metrics";
 const DEFAULT_ENGINE_TAG = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "rich-cards-v1";
 
 type QueryRequest = { query?: string };
-
 type QueryPayload = Partial<QueryResponse> & Record<string, unknown>;
 
 function normalisePayload(payload: unknown): QueryPayload {
@@ -47,6 +46,7 @@ async function enrichWithManifest(payload: unknown): Promise<QueryResponse & Rec
     base.metrics = [];
   }
 
+  // Keep locked default tag if missing/empty
   if (typeof base.engineTag !== "string" || !base.engineTag) {
     base.engineTag = DEFAULT_ENGINE_TAG;
   }

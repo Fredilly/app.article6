@@ -57,30 +57,38 @@ function parseDocIdentifier(value: unknown) {
 
 export function extractRemoteKey(entry: RemoteManifestEntry) {
   const docDetails = parseDocIdentifier(entry.doc_id);
-  const methodology = typeof entry.methodology_id === "string"
-    ? entry.methodology_id
-    : typeof entry.methodology === "string"
-    ? entry.methodology
-    : docDetails.methodology;
-  const version = typeof entry.version === "string"
-    ? entry.version
-    : typeof entry.methodology_version === "string"
-    ? entry.methodology_version
-    : typeof entry.methodologyVersion === "string"
-    ? entry.methodologyVersion
-    : docDetails.version;
-  const ruleId = typeof entry.rule_id === "string"
-    ? entry.rule_id
-    : typeof entry.id === "string"
-    ? entry.id
-    : typeof entry.ruleId === "string"
-    ? entry.ruleId
-    : docDetails.ruleId;
+  const methodology =
+    typeof entry.methodology_id === "string"
+      ? entry.methodology_id
+      : typeof entry.methodology === "string"
+      ? entry.methodology
+      : docDetails.methodology;
+
+  const version =
+    typeof entry.version === "string"
+      ? entry.version
+      : typeof entry.methodology_version === "string"
+      ? entry.methodology_version
+      : typeof entry.methodologyVersion === "string"
+      ? entry.methodologyVersion
+      : docDetails.version;
+
+  const ruleId =
+    typeof entry.rule_id === "string"
+      ? entry.rule_id
+      : typeof entry.id === "string"
+      ? entry.id
+      : typeof entry.ruleId === "string"
+      ? entry.ruleId
+      : docDetails.ruleId;
 
   return { methodology, version, ruleId };
 }
 
-export function coerceManifestEntry(entry: RemoteManifestEntry, manifestIndex: Map<string, ManifestEntry>): ManifestEntry {
+export function coerceManifestEntry(
+  entry: RemoteManifestEntry,
+  manifestIndex: Map<string, ManifestEntry>,
+): ManifestEntry {
   const { methodology, version, ruleId } = extractRemoteKey(entry);
   const key = manifestKey(methodology, version, ruleId);
   if (key) {
@@ -88,17 +96,16 @@ export function coerceManifestEntry(entry: RemoteManifestEntry, manifestIndex: M
     if (match) return match;
   }
 
-  const ruleText = typeof entry.rule === "string"
-    ? entry.rule
-    : typeof entry.text === "string"
-    ? entry.text
-    : typeof entry.section_title === "string"
-    ? entry.section_title
-    : ruleId ?? "";
+  const ruleText =
+    typeof entry.rule === "string"
+      ? entry.rule
+      : typeof entry.text === "string"
+      ? entry.text
+      : typeof entry.section_title === "string"
+      ? entry.section_title
+      : ruleId ?? "";
 
-  const tags = Array.isArray(entry.tags)
-    ? entry.tags.map(tag => String(tag))
-    : [];
+  const tags = Array.isArray(entry.tags) ? entry.tags.map((tag) => String(tag)) : [];
 
   const pdfId = typeof entry.pdfId === "string" ? entry.pdfId : undefined;
   const anchor = typeof entry.anchor === "string" ? entry.anchor : undefined;
@@ -119,7 +126,7 @@ export function coerceManifestEntry(entry: RemoteManifestEntry, manifestIndex: M
 export function filterEntries(entries: ManifestEntry[], rawQuery: string, showAll: boolean) {
   if (showAll) return entries;
   const normalizedQuery = rawQuery.toLowerCase();
-  return entries.filter(entry => {
+  return entries.filter((entry) => {
     const haystack = JSON.stringify(entry).toLowerCase();
     return haystack.includes(normalizedQuery);
   });
@@ -129,26 +136,38 @@ export function enrichResults(
   results: RemoteManifestEntry[],
   manifestIndex: Map<string, ManifestEntry>,
 ): EngineResult[] {
-  return results.map(result => {
+  return results.map((result) => {
     const entry = coerceManifestEntry(result, manifestIndex);
     const refs = Array.isArray(result.refs) ? result.refs.map(String) : undefined;
-    const pdfId = typeof entry.pdfId === "string"
-      ? entry.pdfId
-      : typeof result.pdfId === "string"
-      ? result.pdfId
-      : undefined;
-    const anchor = typeof entry.anchor === "string"
-      ? entry.anchor
-      : typeof result.anchor === "string"
-      ? result.anchor
-      : undefined;
-    const sha256 = typeof entry.sha256 === "string"
-      ? entry.sha256
-      : typeof result.sha256 === "string"
-      ? result.sha256
-      : undefined;
-    const methodologyId = entry.methodology || (typeof result.methodology_id === "string" ? result.methodology_id : undefined);
-    const methodologyVersion = entry.version || (typeof result.methodology_version === "string" ? result.methodology_version : undefined);
+
+    const pdfId =
+      typeof entry.pdfId === "string"
+        ? entry.pdfId
+        : typeof result.pdfId === "string"
+        ? result.pdfId
+        : undefined;
+
+    const anchor =
+      typeof entry.anchor === "string"
+        ? entry.anchor
+        : typeof result.anchor === "string"
+        ? result.anchor
+        : undefined;
+
+    const sha256 =
+      typeof entry.sha256 === "string"
+        ? entry.sha256
+        : typeof result.sha256 === "string"
+        ? result.sha256
+        : undefined;
+
+    const methodologyId =
+      entry.methodology ||
+      (typeof result.methodology_id === "string" ? result.methodology_id : undefined);
+
+    const methodologyVersion =
+      entry.version ||
+      (typeof result.methodology_version === "string" ? result.methodology_version : undefined);
 
     return {
       id: entry.id,
