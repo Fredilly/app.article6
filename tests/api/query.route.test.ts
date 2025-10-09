@@ -84,6 +84,9 @@ describe("/api/query route", () => {
     delete process.env.ENGINE_URL;
     process.env.ENGINE_ADAPTER = "remote";
 
+    const fetchMock = vi.fn().mockRejectedValue(new Error("network down"));
+    vi.stubGlobal("fetch", fetchMock);
+
     const res = await POST(
       new Request("http://localhost/api/query", {
         method: "POST",
@@ -92,9 +95,10 @@ describe("/api/query route", () => {
       })
     );
 
+    expect(fetchMock).toHaveBeenCalled();
     expect(res.status).toBe(502);
     const payload = await res.json();
-    expect(payload.error).toMatch(/ENGINE_URL is not configured/);
+    expect(payload.error).toMatch(/Failed to reach engine/);
   });
   it("returns demo payload when adapter is demo", async () => {
     process.env.ENGINE_ADAPTER = "demo";

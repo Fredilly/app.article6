@@ -11,8 +11,9 @@ import {
 } from "@/lib/manifest/cards";
 import { withMetrics } from "@/lib/metrics";
 
-type QueryRequest = { query?: string };
+const DEFAULT_ENGINE_TAG = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "rich-cards-v1";
 
+type QueryRequest = { query?: string };
 type QueryPayload = Partial<QueryResponse> & Record<string, unknown>;
 
 function normalisePayload(payload: unknown): QueryPayload {
@@ -45,8 +46,9 @@ async function enrichWithManifest(payload: unknown): Promise<QueryResponse & Rec
     base.metrics = [];
   }
 
-  if (typeof base.engineTag !== "string") {
-    base.engineTag = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "";
+  // Keep locked default tag if missing/empty
+  if (typeof base.engineTag !== "string" || !base.engineTag) {
+    base.engineTag = DEFAULT_ENGINE_TAG;
   }
 
   return base as QueryResponse & Record<string, unknown>;
@@ -56,7 +58,12 @@ async function forwardToEngine(query: string) {
   if (resolveEngineMode() === "demo") {
     const payload = await runDemoAdapter(query);
     const enriched = await enrichWithManifest(payload);
-    return NextResponse.json(enriched satisfies QueryResponse);
+    return NextResponse.json(enriched satisfies QueryResponse, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        Pragma: "no-cache",
+      },
+    });
   }
 
   const engineUrl = resolveEngineEndpoint();
@@ -81,11 +88,16 @@ async function forwardToEngine(query: string) {
 
   if (!res.ok) {
     const payload = parsed && typeof parsed === "object" ? parsed : { error: raw || `Engine HTTP ${res.status}` };
-    return NextResponse.json(payload, { status: res.status });
+    return NextResponse.json(payload, { status: res.status, headers: { "Cache-Control": "no-store" } });
   }
 
   const enriched = await enrichWithManifest(parsed ?? {});
-  return NextResponse.json(enriched satisfies QueryResponse);
+  return NextResponse.json(enriched satisfies QueryResponse, {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      Pragma: "no-cache",
+    },
+  });
 }
 
 async function handlePost(req: Request) {

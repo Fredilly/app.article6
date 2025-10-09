@@ -9,6 +9,8 @@ import {
 } from "@/lib/manifest/cards";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -80,7 +82,12 @@ export async function GET(request: Request) {
         coerceManifestEntry(e as RemoteManifestEntry, manifestIndex),
       );
 
-      return NextResponse.json(enriched);
+      return NextResponse.json(enriched, {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
     } catch (error) {
       console.warn(
         "[manifest] Remote manifest unavailable, using static dataset:",
@@ -91,5 +98,10 @@ export async function GET(request: Request) {
   }
 
   const filtered = filterEntries(manifestEntries, rawQuery, showAll);
-  return NextResponse.json(filtered);
+  return NextResponse.json(filtered, {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      Pragma: "no-cache",
+    },
+  });
 }
