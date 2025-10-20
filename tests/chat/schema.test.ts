@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 import { ChatRequestSchema } from "@/lib/chat/schema";
 
 describe("ChatRequestSchema", () => {

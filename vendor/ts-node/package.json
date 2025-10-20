@@ -1,0 +1,11 @@
+{
+  "name": "ts-node",
+  "version": "10.9.2-local",
+  "type": "commonjs",
+  "bin": {
+    "ts-node": "bin/ts-node.js"
+  },
+  "main": "index.js",
+  "description": "Stub ts-node binary for offline CI",
+  "license": "MIT"
+}

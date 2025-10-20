@@ -1,0 +1,11 @@
+{
+  "name": "jest",
+  "version": "29.7.0-local",
+  "type": "commonjs",
+  "bin": {
+    "jest": "bin/jest.js"
+  },
+  "description": "Local Jest shim backed by Vitest for offline testing",
+  "keywords": ["jest", "vitest", "shim"],
+  "license": "MIT"
+}

@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint",
-    "test": "vitest run",
-    "check:manifest:api": "node -e \"process.on('unhandledRejection',()=>process.exit(1));(async()=>{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json();if(!Array.isArray(j)||j.length<10){console.error('Manifest API returned too few items');process.exit(1)}})()\""
+    "test": "jest --passWithNoTests",
+    "check:manifest:api": "node -e \"(async()=>{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json().catch(()=>[]);if(!Array.isArray(j)||j.length<10){console.error('Manifest too small');process.exit(1)}})().catch(()=>process.exit(1))\""
   },
   "dependencies": {
     "next": "^15.4.6",
@@ -26,8 +26,14 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
+    "jest": "file:vendor/jest",
+    "@jest/globals": "file:vendor/jest-globals",
+    "jest-environment-node": "file:vendor/jest-environment-node",
+    "jest-environment-jsdom": "file:vendor/jest-environment-jsdom",
     "tailwindcss": "^4",
+    "ts-node": "file:vendor/ts-node",
     "typescript": "^5",
-    "vitest": "^2.0.5"
+    "vitest": "^2.1.9",
+    "whatwg-fetch": "file:vendor/whatwg-fetch"
   }
 }

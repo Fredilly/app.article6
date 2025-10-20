@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 import { pickTitle, pickBody, buildGroups } from "@/components/chat/SidePane";
 
 describe("SidePane helpers", () => {

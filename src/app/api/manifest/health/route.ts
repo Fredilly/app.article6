@@ -1,20 +1,15 @@
 import { NextResponse } from "next/server";
 
+import { loadManifestAll } from "@/lib/manifestSource";
+
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-
+export async function GET(_request?: Request) {
   let count = 0;
   try {
-    const response = await fetch(`${url.origin}/api/manifest?all=1`, { cache: "no-store" });
-    if (response.ok) {
-      const data: unknown = await response.json().catch(() => []);
-      if (Array.isArray(data)) {
-        count = data.length;
-      }
-    }
+    const entries = await loadManifestAll();
+    count = Array.isArray(entries) ? entries.length : 0;
   } catch (error) {
     console.warn(
       "[manifest-health] Failed to retrieve manifest entries:",

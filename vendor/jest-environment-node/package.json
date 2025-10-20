@@ -1,0 +1,8 @@
+{
+  "name": "jest-environment-node",
+  "version": "29.7.0-local",
+  "type": "commonjs",
+  "main": "index.js",
+  "description": "Stub Node environment for local Jest shim",
+  "license": "MIT"
+}

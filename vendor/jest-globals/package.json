@@ -1,0 +1,9 @@
+{
+  "name": "@jest/globals",
+  "version": "29.7.0-local",
+  "type": "module",
+  "main": "index.js",
+  "description": "Local shim that re-exports Vitest globals for Jest compatibility",
+  "keywords": ["jest", "vitest", "globals"],
+  "license": "MIT"
+}

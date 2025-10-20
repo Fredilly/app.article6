@@ -2,14 +2,27 @@ import { describe, expect, it, beforeEach, afterAll, vi } from "vitest";
 import { POST, GET } from "@/app/api/query/route";
 
 const originalEnv = { ...process.env };
+const originalFetch = global.fetch;
 
 beforeEach(() => {
   vi.restoreAllMocks();
   process.env = { ...originalEnv };
+  if (originalFetch) {
+    global.fetch = originalFetch;
+  } else {
+    // @ts-expect-error allow deleting fetch for isolation
+    delete global.fetch;
+  }
 });
 
 afterAll(() => {
   process.env = originalEnv;
+  if (originalFetch) {
+    global.fetch = originalFetch;
+  } else {
+    // @ts-expect-error cleanup custom fetch override
+    delete global.fetch;
+  }
 });
 
 describe("/api/query route", () => {
@@ -35,7 +48,7 @@ describe("/api/query route", () => {
         { status: 200, headers: { "Content-Type": "application/json" } }
       )
     );
-    vi.stubGlobal("fetch", fetchMock);
+    global.fetch = fetchMock as unknown as typeof fetch;
 
     const req = new Request("http://localhost/api/query", {
       method: "POST",
@@ -70,7 +83,7 @@ describe("/api/query route", () => {
         headers: { "Content-Type": "application/json" },
       })
     );
-    vi.stubGlobal("fetch", fetchMock);
+    global.fetch = fetchMock as unknown as typeof fetch;
 
     const res = await GET(new Request("http://localhost/api/query?text=baseline"));
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -102,7 +115,7 @@ describe("/api/query route", () => {
     process.env.NEXT_PUBLIC_ENGINE_TAG = "demo-tag";
 
     const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
+    global.fetch = fetchMock as unknown as typeof fetch;
 
     const res = await POST(
       new Request("http://localhost/api/query", {

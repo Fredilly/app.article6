@@ -1,0 +1,8 @@
+{
+  "name": "whatwg-fetch",
+  "version": "3.6.20-local",
+  "type": "module",
+  "module": "index.js",
+  "description": "Stub fetch polyfill that uses global fetch",
+  "license": "MIT"
+}

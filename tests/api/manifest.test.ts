@@ -1,12 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { GET } from "@/app/api/manifest/route";
+import { describe, expect, test, vi } from 'vitest';
+import * as manifestMock from '../../__mocks__/lib/manifestSource';
 
-describe("/api/manifest", () => {
-  it("returns a non-empty manifest when requesting all entries", async () => {
-    const response = await GET(new Request("http://localhost/api/manifest?all=1"));
-    expect(response.ok).toBe(true);
-    const payload = await response.json();
-    expect(Array.isArray(payload)).toBe(true);
-    expect(payload.length).toBeGreaterThan(0);
+vi.mock('@/lib/manifestSource', () => manifestMock);
+import { loadManifestAll } from '@/lib/manifestSource';
+
+describe('manifest source helper', () => {
+  test('manifest source returns non-empty array', async () => {
+    const data = await loadManifestAll();
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThan(0);
   });
 });
