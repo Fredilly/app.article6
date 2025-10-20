@@ -28,7 +28,12 @@ export default function ManifestApp() {
       setError(null);
 
       try {
-        const params = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
+        const trimmedQuery = query.trim();
+        const searchParams = new URLSearchParams({ all: "1" });
+        if (trimmedQuery) {
+          searchParams.set("q", trimmedQuery);
+        }
+        const params = `?${searchParams.toString()}`;
         const response = await fetch(`/api/manifest${params}`, {
           signal: controller.signal,
           cache: "no-store",

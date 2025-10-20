@@ -40,3 +40,22 @@ jobs:
         run: |
           npm run lint
           npm run build
+
+      - name: Start Next.js server
+        env:
+          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
+        run: |
+          npm start &
+          echo $! > .next-server-pid
+          sleep 5
+
+      - name: Verify manifest API
+        run: npm run check:manifest:api
+
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          if [ -f .next-server-pid ]; then
+            kill $(cat .next-server-pid) || true
+            rm .next-server-pid
+          fi
