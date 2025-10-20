@@ -4,6 +4,8 @@ import path from "node:path";
 import { buildEngineHeaders, resolveEngineEndpoint, resolveEngineMode } from "@/lib/engine/config";
 
 export const runtime = "nodejs";
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 type ManifestEntry = {
   id: string;
@@ -141,6 +143,24 @@ export async function GET(request: Request) {
   const allParam = url.searchParams.get("all") ?? "";
   const showAll = !rawQuery || ["1", "true", "yes"].includes(allParam.toLowerCase());
 
+  const fallbackToAll = async (): Promise<ManifestEntry[]> => {
+    try {
+      const resAll = await fetch(`${url.origin}/api/manifest?all=1`, { cache: "no-store" });
+      const allData: unknown = await resAll.json().catch(() => []);
+      return Array.isArray(allData) ? (allData as ManifestEntry[]) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const respond = async (entries: ManifestEntry[]) => {
+    if (!url.searchParams.has("all") && !rawQuery && entries.length === 0) {
+      const fallbackEntries = await fallbackToAll();
+      return NextResponse.json(fallbackEntries);
+    }
+    return NextResponse.json(entries);
+  };
+
   // Always load local manifest for enrichment/fallback
   const manifestEntries = await loadManifestEntries();
 
@@ -205,7 +225,7 @@ export async function GET(request: Request) {
         coerceManifestEntry(e as RemoteManifestEntry, manifestIndex),
       );
 
-      return NextResponse.json(enriched);
+      return respond(enriched);
     } catch (error) {
       console.warn(
         "[manifest] Remote manifest unavailable, using static dataset:",
@@ -216,6 +236,6 @@ export async function GET(request: Request) {
   }
 
   const filtered = filterEntries(manifestEntries, rawQuery, showAll);
-  return NextResponse.json(filtered);
+  return respond(filtered);
 }
 

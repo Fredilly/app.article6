@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:manifest:api": "node -e \"process.on('unhandledRejection',()=>process.exit(1));(async()=>{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json();if(!Array.isArray(j)||j.length<10){console.error('Manifest API returned too few items');process.exit(1)}})()\""
   },
   "dependencies": {
     "next": "^15.4.6",
