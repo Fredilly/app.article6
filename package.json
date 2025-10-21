@@ -7,27 +7,38 @@
     "build": "next build",
     "start": "next start",
     "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint",
-    "test": "vitest run",
-    "check:manifest:api": "node -e \"process.on('unhandledRejection',()=>process.exit(1));(async()=>{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json();if(!Array.isArray(j)||j.length<10){console.error('Manifest API returned too few items');process.exit(1)}})()\""
+    "test": "jest --passWithNoTests",
+    "check:manifest:api": "node -e \"process.on('unhandledRejection',()=>process.exit(1));(async()=>{try{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json().catch(()=>[]);if(!Array.isArray(j)||j.length<10){console.error('Manifest API returned too few items');process.exit(1)}}catch(error){console.error(error);process.exit(1)}})()\""
+  },
+  "engines": {
+    "node": "20.11.1",
+    "npm": ">=10"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.460.0",
     "next": "^15.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "zod": "^3.23.8",
-    "lucide-react": "^0.460.0",
-    "clsx": "^2.1.1"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@jest/globals": "^29.7.0",
     "@tailwindcss/postcss": "^4",
+    "@types/jest": "^29.5.11",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5",
-    "vitest": "^2.0.5"
+    "vitest": "^2.0.5",
+    "whatwg-fetch": "^3.6.20"
   }
 }

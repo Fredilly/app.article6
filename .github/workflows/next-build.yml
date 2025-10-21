@@ -34,12 +34,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint AND Build
+      - name: Run lint
         env:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
-        run: |
-          npm run lint
-          npm run build
+        run: npm run lint
+
+      - name: Build app
+        env:
+          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
+        run: npm run build
 
       - name: Start Next.js server
         env:
@@ -49,7 +52,7 @@ jobs:
           echo $! > .next-server-pid
           sleep 5
 
-      - name: Verify manifest API
+      - name: Smoke manifest API
         run: npm run check:manifest:api
 
       - name: Stop Next.js server

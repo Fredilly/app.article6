@@ -1,30 +1,35 @@
 import { NextResponse } from "next/server";
+import { loadManifestAll } from "@/lib/manifestSource";
 
-export const revalidate = 0;
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
+const RESPONSE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+  Pragma: "no-cache",
+} as const;
 
-  let count = 0;
+export async function GET() {
   try {
-    const response = await fetch(`${url.origin}/api/manifest?all=1`, { cache: "no-store" });
-    if (response.ok) {
-      const data: unknown = await response.json().catch(() => []);
-      if (Array.isArray(data)) {
-        count = data.length;
-      }
-    }
+    const entries = await loadManifestAll({ showAll: true });
+    return NextResponse.json(
+      {
+        count: entries.length,
+        updatedAt: new Date().toISOString(),
+        engineUrl: process.env.ENGINE_URL ?? "static",
+      },
+      { headers: RESPONSE_HEADERS },
+    );
   } catch (error) {
-    console.warn(
-      "[manifest-health] Failed to retrieve manifest entries:",
-      error instanceof Error ? error.message : String(error),
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json(
+      {
+        error: message,
+        updatedAt: new Date().toISOString(),
+        engineUrl: process.env.ENGINE_URL ?? "static",
+      },
+      { status: 500, headers: RESPONSE_HEADERS },
     );
   }
-
-  return NextResponse.json({
-    count,
-    updatedAt: new Date().toISOString(),
-    engineUrl: process.env.ENGINE_URL ?? "static",
-  });
 }

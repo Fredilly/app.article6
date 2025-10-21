@@ -6,12 +6,15 @@ export type EngineResult = {
   sectionTitle?: string;
   text?: string;
   refs?: string[];
+  tags?: string[];
   sha256?: string;
   score?: number;
   methodology_id?: string;
   methodologyId?: string;
   methodology_version?: string;
   methodologyVersion?: string;
+  pdfId?: string;
+  anchor?: string;
 };
 export type QueryResponse = {
   engineTag: string;

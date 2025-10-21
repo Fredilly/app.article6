@@ -3,14 +3,67 @@ import { NextResponse } from "next/server";
 import { runDemoAdapter } from "@/lib/engine/demo";
 import type { QueryResponse } from "@/lib/engine/types";
 import { buildEngineHeaders, resolveEngineEndpoint, resolveEngineMode } from "@/lib/engine/config";
+import {
+  buildManifestIndex,
+  enrichResults,
+  loadManifestEntries,
+  type RemoteManifestEntry,
+} from "@/lib/manifest/cards";
 import { withMetrics } from "@/lib/metrics";
 
+const DEFAULT_ENGINE_TAG = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "rich-cards-v1";
+
 type QueryRequest = { query?: string };
+
+type QueryPayload = Partial<QueryResponse> & Record<string, unknown>;
+
+function normalisePayload(payload: unknown): QueryPayload {
+  if (payload && typeof payload === "object") {
+    return { ...(payload as Record<string, unknown>) };
+  }
+  return {};
+}
+
+async function enrichWithManifest(payload: unknown): Promise<QueryResponse & Record<string, unknown>> {
+  const manifestEntries = await loadManifestEntries();
+  const manifestIndex = buildManifestIndex(manifestEntries);
+
+  const base = normalisePayload(payload);
+  const rawResults = Array.isArray(base.results)
+    ? base.results
+    : Array.isArray((base as { rules?: unknown[] }).rules)
+    ? (base as { rules: unknown[] }).rules
+    : Array.isArray(payload)
+    ? (payload as unknown[])
+    : null;
+
+  if (rawResults) {
+    base.results = enrichResults(rawResults as RemoteManifestEntry[], manifestIndex);
+  } else if (!("results" in base)) {
+    base.results = [];
+  }
+
+  if (!Array.isArray(base.metrics)) {
+    base.metrics = [];
+  }
+
+  if (typeof base.engineTag !== "string" || !base.engineTag) {
+    base.engineTag = DEFAULT_ENGINE_TAG;
+  }
+
+  return base as QueryResponse & Record<string, unknown>;
+}
 
 async function forwardToEngine(query: string) {
   if (resolveEngineMode() === "demo") {
     const payload = await runDemoAdapter(query);
-    return NextResponse.json(payload satisfies QueryResponse);
+    const enriched = await enrichWithManifest(payload);
+    return NextResponse.json(enriched satisfies QueryResponse, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        Pragma: "no-cache",
+      },
+    });
   }
 
   const engineUrl = resolveEngineEndpoint();
@@ -35,10 +88,16 @@ async function forwardToEngine(query: string) {
 
   if (!res.ok) {
     const payload = parsed && typeof parsed === "object" ? parsed : { error: raw || `Engine HTTP ${res.status}` };
-    return NextResponse.json(payload, { status: res.status });
+    return NextResponse.json(payload, { status: res.status, headers: { "Cache-Control": "no-store" } });
   }
 
-  return NextResponse.json(parsed ?? {});
+  const enriched = await enrichWithManifest(parsed ?? {});
+  return NextResponse.json(enriched satisfies QueryResponse, {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      Pragma: "no-cache",
+    },
+  });
 }
 
 async function handlePost(req: Request) {
