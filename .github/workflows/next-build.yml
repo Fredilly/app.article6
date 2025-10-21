@@ -34,9 +34,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint AND Build
+      - name: Run lint
+        env:
+          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
+        run: npm run lint
+
+      - name: Build app
+        env:
+          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
+        run: npm run build
+
+      - name: Smoke manifest API
         env:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: |
-          npm run lint
-          npm run build
+          npm start &
+          APP_PID=$!
+          trap "kill $APP_PID" EXIT
+          sleep 5
+          npm run check:manifest:api

@@ -164,6 +164,8 @@ export function enrichResults(
       methodology_version: methodologyVersion,
       methodologyVersion: methodologyVersion,
       tags: entry.tags,
+      pdfId,
+      anchor,
     } satisfies EngineResult;
   });
 }

@@ -13,6 +13,8 @@ export type EngineResult = {
   methodologyId?: string;
   methodology_version?: string;
   methodologyVersion?: string;
+  pdfId?: string;
+  anchor?: string;
 };
 export type QueryResponse = {
   engineTag: string;

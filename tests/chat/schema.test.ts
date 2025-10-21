@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from '@jest/globals';
 import { ChatRequestSchema } from "@/lib/chat/schema";
 
 describe("ChatRequestSchema", () => {
