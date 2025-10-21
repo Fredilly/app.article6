@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint",
     "test": "jest --passWithNoTests",
-    "check:manifest:api": "node -e \"(async()=>{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json().catch(()=>[]);if(!Array.isArray(j)||j.length<10){console.error('Manifest too small');process.exit(1)}})().catch(()=>process.exit(1))\""
+    "check:manifest:api": "node -e \"process.on('unhandledRejection',()=>process.exit(1));(async()=>{try{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json().catch(()=>[]);if(!Array.isArray(j)||j.length<10){console.error('Manifest API returned too few items');process.exit(1)}}catch(error){console.error(error);process.exit(1)}})()\""
   },
   "engines": {
     "node": "20.11.1",

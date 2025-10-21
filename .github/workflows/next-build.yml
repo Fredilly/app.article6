@@ -44,12 +44,21 @@ jobs:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: npm run build
 
-      - name: Smoke manifest API
+      - name: Start Next.js server
         env:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: |
           npm start &
-          APP_PID=$!
-          trap "kill $APP_PID" EXIT
+          echo $! > .next-server-pid
           sleep 5
-          npm run check:manifest:api
+
+      - name: Smoke manifest API
+        run: npm run check:manifest:api
+
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          if [ -f .next-server-pid ]; then
+            kill $(cat .next-server-pid) || true
+            rm .next-server-pid
+          fi

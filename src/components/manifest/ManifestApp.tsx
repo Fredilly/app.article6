@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Filter } from "lucide-react";
+
 type ManifestEntry = {
   id: string;
   methodology: string;
@@ -27,15 +28,30 @@ export default function ManifestApp() {
       setError(null);
 
       try {
-        const params = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
+        const trimmedQuery = query.trim();
+        const searchParams = new URLSearchParams({ all: "1" });
+        if (trimmedQuery) {
+          searchParams.set("q", trimmedQuery);
+        }
+        const params = `?${searchParams.toString()}`;
         const response = await fetch(`/api/manifest${params}`, {
           signal: controller.signal,
           cache: "no-store",
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = (await response.json()) as { results?: ManifestEntry[]; rules?: ManifestEntry[] };
-        const payload = data.results ?? data.rules ?? [];
-        setEntries(Array.isArray(payload) ? payload : []);
+        const data: unknown = await response.json();
+        let payload: ManifestEntry[] = [];
+        if (Array.isArray(data)) {
+          payload = data as ManifestEntry[];
+        } else if (typeof data === "object" && data !== null) {
+          const maybe = data as { results?: unknown; rules?: unknown };
+          if (Array.isArray(maybe.results)) {
+            payload = maybe.results as ManifestEntry[];
+          } else if (Array.isArray(maybe.rules)) {
+            payload = maybe.rules as ManifestEntry[];
+          }
+        }
+        setEntries(payload);
       } catch (err) {
         if ((err as { name?: string }).name !== "AbortError") {
           setError(err instanceof Error ? err.message : String(err));

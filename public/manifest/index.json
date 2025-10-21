@@ -1,674 +1,565 @@
 [
   {
-    "id": "R-1-0001",
-    "section_id": "S-1",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0001",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "eligibility"
-    ],
-    "text": "Project restores degraded forest lands and meets additionality tests per Tool 01.",
-    "rule": "Project restores degraded forest lands and meets additionality tests per Tool 01.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0002",
-    "section_id": "S-2",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0002",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "calc",
       "baseline"
-    ],
-    "text": "Baseline net GHG removals derived from historical land-use data per Tool 02 guidance.",
-    "rule": "Baseline net GHG removals derived from historical land-use data per Tool 02 guidance.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0003",
-    "section_id": "S-3",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0003",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "calc",
       "emissions"
-    ],
-    "text": "Project emissions include fossil fuel use, biomass burning, and fertilizer application as per Tool 08.",
-    "rule": "Project emissions include fossil fuel use, biomass burning, and fertilizer application as per Tool 08.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0004",
-    "section_id": "S-4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0004",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "leakage"
-    ],
-    "text": "Leakage from activity shifting and market effects addressed using Tool 14 default factors.",
-    "rule": "Leakage from activity shifting and market effects addressed using Tool 14 default factors.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0005",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0005",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "monitoring"
-    ],
-    "text": "Non-permanence buffer determined via Tool 15 risk analysis and recorded in registry accounts.",
-    "rule": "Non-permanence buffer determined via Tool 15 risk analysis and recorded in registry accounts.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0006",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0006",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "monitoring"
-    ],
-    "text": "Permanent sample plots re-measured at least every five years per Tool 16 QA/QC guidance.",
-    "rule": "Permanent sample plots re-measured at least every five years per Tool 16 QA/QC guidance.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0007",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0007",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "uncertainty"
-    ],
-    "text": "Sampling uncertainty kept below 10% at 90% confidence or conservatively adjusted using Tool 12.",
-    "rule": "Sampling uncertainty kept below 10% at 90% confidence or conservatively adjusted using Tool 12.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0008",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule_id": "R-1-0008",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "reporting"
-    ],
-    "text": "Monitoring reports compile geospatial data, emissions sources, and buffer transactions with full audit trail.",
-    "rule": "Monitoring reports compile geospatial data, emissions sources, and buffer transactions with full audit trail.",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0001",
-    "section_id": "S-1",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0001",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "eligibility"
-    ],
-    "text": "Projects reforest lands without forest cover since 1989 and comply with national forest definitions.",
-    "rule": "Projects reforest lands without forest cover since 1989 and comply with national forest definitions.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0002",
-    "section_id": "S-2",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0002",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "calc",
       "baseline"
-    ],
-    "text": "Baseline biomass estimated using IPCC defaults or site-specific sampling following Tool 02.",
-    "rule": "Baseline biomass estimated using IPCC defaults or site-specific sampling following Tool 02.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0003",
-    "section_id": "S-3",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0003",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "equation"
-    ],
-    "text": "Net anthropogenic removals equal project removals minus baseline emissions and leakage.",
-    "rule": "Net anthropogenic removals equal project removals minus baseline emissions and leakage.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0004",
-    "section_id": "S-4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0004",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "leakage"
-    ],
-    "text": "Activity shifting leakage quantified annually using Tool 14 and deducted from net removals.",
-    "rule": "Activity shifting leakage quantified annually using Tool 14 and deducted from net removals.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0005",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0005",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "monitoring"
-    ],
-    "text": "Non-permanence risks addressed through buffer contributions per Tool 15 guidance.",
-    "rule": "Non-permanence risks addressed through buffer contributions per Tool 15 guidance.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0006",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0006",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "monitoring"
-    ],
-    "text": "Field biomass measurements conducted at least every five years using permanent plots.",
-    "rule": "Field biomass measurements conducted at least every five years using permanent plots.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0007",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0007",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "uncertainty"
-    ],
-    "text": "Sampling uncertainty above 10% addressed with Tool 12 conservative adjustments.",
-    "rule": "Sampling uncertainty above 10% addressed with Tool 12 conservative adjustments.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0008",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule_id": "R-1-0008",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "reporting"
-    ],
-    "text": "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
-    "rule": "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0001",
-    "section_id": "S-1",
-    "tags": [
-      "eligibility"
-    ],
-    "text": "Small-scale A/R activities eligible when total area < 16,000 ha and participants grouped as defined.",
-    "rule": "Small-scale A/R activities eligible when total area < 16,000 ha and participants grouped as defined.",
+    "provider": "UNFCCC",
+    "category": "Forestry",
     "methodology": "AR-AMS0003",
     "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    "rule_id": "R-1-0001",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+    "tags": [
+      "eligibility"
+    ]
   },
   {
-    "id": "R-1-0002",
-    "section_id": "S-2",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0002",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "eligibility",
       "definition"
-    ],
-    "text": "Definitions for grouped smallholder projects include participants, monitoring entity, and leakage belt.",
-    "rule": "Definitions for grouped smallholder projects include participants, monitoring entity, and leakage belt.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0003",
-    "section_id": "S-3",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0003",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "eligibility",
       "boundary"
-    ],
-    "text": "Project boundary includes above- and below-ground biomass, dead wood, litter, and soil carbon pools unless excluded with justification.",
-    "rule": "Project boundary includes above- and below-ground biomass, dead wood, litter, and soil carbon pools unless excluded with justification.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0004",
-    "section_id": "S-4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0004",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "calc",
       "baseline"
-    ],
-    "text": "Baseline scenario assumes continuation of pre-project land use with carbon stock change set to zero.",
-    "rule": "Baseline scenario assumes continuation of pre-project land use with carbon stock change set to zero.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0005",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0005",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "calc",
       "emissions"
-    ],
-    "text": "Project removals calculated by summing carbon stock changes per pool minus fossil fuel and fertilizer emissions.",
-    "rule": "Project removals calculated by summing carbon stock changes per pool minus fossil fuel and fertilizer emissions.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0006",
-    "section_id": "S-6",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0006",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "leakage"
-    ],
-    "text": "Leakage from activity shifting or market effects monitored and deducted using Tool 14 default factors.",
-    "rule": "Leakage from activity shifting or market effects monitored and deducted using Tool 14 default factors.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0007",
-    "section_id": "S-7",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0007",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "monitoring"
-    ],
-    "text": "Monitoring plan requires permanent plots measured every five years plus tracking of grouped participant compliance.",
-    "rule": "Monitoring plan requires permanent plots measured every five years plus tracking of grouped participant compliance.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0008",
-    "section_id": "S-8",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0008",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "parameter",
       "data"
-    ],
-    "text": "Data and parameters table specifies default biomass factors and sampling requirements.",
-    "rule": "Data and parameters table specifies default biomass factors and sampling requirements.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0009",
-    "section_id": "S-9",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0009",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "uncertainty"
-    ],
-    "text": "Uncertainty calculated per Tool 12; apply deductions when precision exceeds 10%.",
-    "rule": "Uncertainty calculated per Tool 12; apply deductions when precision exceeds 10%.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0010",
-    "section_id": "S-10",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0010",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "uncertainty",
       "permanence"
-    ],
-    "text": "Non-permanence risk buffer determined via Tool 15 and updated when risk profile changes.",
-    "rule": "Non-permanence risk buffer determined via Tool 15 and updated when risk profile changes.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0011",
-    "section_id": "S-11",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0011",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "reporting",
       "reference"
-    ],
-    "text": "Normative tools and references (Tools 02, 08, 12, 14, 15, 16) must be accessible to grouped project manager.",
-    "rule": "Normative tools and references (Tools 02, 08, 12, 14, 15, 16) must be accessible to grouped project manager.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0012",
-    "section_id": "S-12",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0012",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "equation"
-    ],
-    "text": "Annual net removals computed as sum of pool changes minus leakage and emissions, divided by years between measurements.",
-    "rule": "Annual net removals computed as sum of pool changes minus leakage and emissions, divided by years between measurements.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0013",
-    "section_id": "S-13",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule_id": "R-1-0013",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "reporting"
-    ],
-    "text": "Annexes include participant enrollment records, training logs, and dispute resolution evidence.",
-    "rule": "Annexes include participant enrollment records, training logs, and dispute resolution evidence.",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0001",
-    "section_id": "S-1",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0001",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "eligibility"
-    ],
-    "text": "Wetland restoration projects eligible when activities convert degraded wetlands to forest and meet small-scale thresholds.",
-    "rule": "Wetland restoration projects eligible when activities convert degraded wetlands to forest and meet small-scale thresholds.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0002",
-    "section_id": "S-2",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0002",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "eligibility",
       "definition"
-    ],
-    "text": "Definitions clarify wetland geomorphology, participant aggregation, and leakage belt concepts.",
-    "rule": "Definitions clarify wetland geomorphology, participant aggregation, and leakage belt concepts.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0003",
-    "section_id": "S-3",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0003",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "eligibility",
       "boundary"
-    ],
-    "text": "Project boundary includes on-site hydrological interventions and relevant carbon pools except where justified.",
-    "rule": "Project boundary includes on-site hydrological interventions and relevant carbon pools except where justified.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0004",
-    "section_id": "S-4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0004",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "calc",
       "baseline"
-    ],
-    "text": "Baseline assumes continuation of pre-project wetland degradation with zero additional removals.",
-    "rule": "Baseline assumes continuation of pre-project wetland degradation with zero additional removals.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0005",
-    "section_id": "S-5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0005",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "calc",
       "emissions"
-    ],
-    "text": "Project removals calculated from pool carbon stock changes minus emissions from project operations.",
-    "rule": "Project removals calculated from pool carbon stock changes minus emissions from project operations.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0006",
-    "section_id": "S-6",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0006",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "leakage"
-    ],
-    "text": "Leakage from displaced wetland uses monitored and deducted using Tool 14 defaults.",
-    "rule": "Leakage from displaced wetland uses monitored and deducted using Tool 14 defaults.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0007",
-    "section_id": "S-7",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0007",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "monitoring"
-    ],
-    "text": "Monitoring plan covers hydrology restoration, vegetation plots, and participant reporting.",
-    "rule": "Monitoring plan covers hydrology restoration, vegetation plots, and participant reporting.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0008",
-    "section_id": "S-8",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0008",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "parameter",
       "data"
-    ],
-    "text": "Data tables specify default biomass factors, hydrological parameters, and monitoring records.",
-    "rule": "Data tables specify default biomass factors, hydrological parameters, and monitoring records.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0009",
-    "section_id": "S-9",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0009",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "uncertainty"
-    ],
-    "text": "Uncertainty analysis follows Tool 12 with deductions when precision thresholds unmet.",
-    "rule": "Uncertainty analysis follows Tool 12 with deductions when precision thresholds unmet.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0010",
-    "section_id": "S-10",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0010",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "uncertainty",
       "permanence"
-    ],
-    "text": "Permanence buffer contributions determined via Tool 15 wetland risk factors.",
-    "rule": "Permanence buffer contributions determined via Tool 15 wetland risk factors.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0011",
-    "section_id": "S-11",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0011",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
+      "reporting",
       "reference"
-    ],
-    "text": "Normative tools and references maintained for monitoring and verification teams.",
-    "rule": "Normative tools and references maintained for monitoring and verification teams.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0012",
-    "section_id": "S-12",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule_id": "R-1-0012",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
     "tags": [
       "equation"
-    ],
-    "text": "Annualized carbon stock change derived from difference in pool carbon divided by measurement interval.",
-    "rule": "Annualized carbon stock change derived from difference in pool carbon divided by measurement interval.",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    ]
   },
   {
-    "id": "R-1-0013",
-    "section_id": "S-13",
-    "tags": [
-      "reporting"
-    ],
-    "text": "Annexes capture hydrology restoration evidence, training records, and community engagement notes.",
-    "rule": "Annexes capture hydrology restoration evidence, training records, and community engagement notes.",
+    "provider": "UNFCCC",
+    "category": "Forestry",
     "methodology": "AR-AMS0007",
     "version": "v03-1",
-    "family": "UNFCCC/Forestry",
-    "source": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "pdfId": "",
-    "anchor": "",
-    "sha256": ""
+    "rule_id": "R-1-0013",
+    "rule": "\"\"",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+    "tags": [
+      "reporting"
+    ]
   }
 ]

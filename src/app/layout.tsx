@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import DemoNav from "@/components/DemoNav";
+import FooterHealth from "@/components/FooterHealth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,17 +26,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 antialiased`}>
-        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-8">
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-wide text-slate-400">Article 6 demo</p>
-              <h1 className="text-base font-semibold text-slate-900">Verification surfaces</h1>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 antialiased`}
+      >
+        <div className="flex min-h-screen flex-col">
+          <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
+            <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-8">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wide text-slate-400">Article 6 demo</p>
+                <h1 className="text-base font-semibold text-slate-900">Verification surfaces</h1>
+              </div>
+              <DemoNav />
             </div>
-            <DemoNav />
-          </div>
-        </header>
-        {children}
+          </header>
+          <div className="flex-1">{children}</div>
+          <footer className="border-t border-slate-200 bg-white/80">
+            <div className="mx-auto flex w-full max-w-6xl justify-end px-4 py-3 md:px-8">
+              <FooterHealth />
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );

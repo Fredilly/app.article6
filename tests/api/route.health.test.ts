@@ -1,9 +1,18 @@
-import { describe, expect, test } from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
-jest.mock('@/lib/manifestSource');
+const loadManifestAllMock = jest.fn();
+
+jest.mock('@/lib/manifestSource', () => ({
+  loadManifestAll: (...args: unknown[]) => loadManifestAllMock(...args),
+}));
 
 import { GET as HealthGET } from '@/app/api/manifest/health/route';
+
+beforeEach(() => {
+  loadManifestAllMock.mockReset();
+  loadManifestAllMock.mockResolvedValue([{ id: 'manifest-entry' }]);
+});
 
 describe('GET /api/manifest/health', () => {
   test('GET /api/manifest/health reports count', async () => {
@@ -12,5 +21,6 @@ describe('GET /api/manifest/health', () => {
     const json = await res.json();
     expect(json.count).toBeGreaterThan(0);
     expect(typeof json.updatedAt).toBe('string');
+    expect(typeof json.engineUrl).toBe('string');
   });
 });

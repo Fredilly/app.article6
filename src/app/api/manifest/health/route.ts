@@ -5,6 +5,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const RESPONSE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+  Pragma: "no-cache",
+} as const;
+
 export async function GET() {
   try {
     const entries = await loadManifestAll({ showAll: true });
@@ -12,16 +17,19 @@ export async function GET() {
       {
         count: entries.length,
         updatedAt: new Date().toISOString(),
+        engineUrl: process.env.ENGINE_URL ?? "static",
       },
-      {
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate",
-          Pragma: "no-cache",
-        },
-      },
+      { headers: RESPONSE_HEADERS },
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: message,
+        updatedAt: new Date().toISOString(),
+        engineUrl: process.env.ENGINE_URL ?? "static",
+      },
+      { status: 500, headers: RESPONSE_HEADERS },
+    );
   }
 }
