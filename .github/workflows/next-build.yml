@@ -44,6 +44,9 @@ jobs:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: npm run build
 
+      - name: Ensure manifest not empty
+        run: npm run check:manifest
+
       - name: Start Next.js server
         env:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
