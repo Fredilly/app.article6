@@ -81,6 +81,12 @@ The first request sets `__Secure-vercel-bypass` and Vercel accepts that cookie f
 - `/manifest` Searchable manifest — filter rules by methodology/tags and jump to anchored PDFs.
 - `/registry/mock` Mock issuance — preview dummy tCO₂e issuance and balances for investor storytelling.
 
+### Manifest surface
+
+- A live badge polls `/api/manifest/health` every 30 seconds. Green indicates the static or remote manifest responded successfully; red marks degraded upstream connectivity. Hover for the last refresh timestamp, rule count, and whether the payload came from the static snapshot or remote engine.
+- Filters persist in the URL: search terms are stored under `?q=` and tag selections under `?tags=tag-a,tag-b`. Reloading the page restores the filter state, and the “Clear tags” pill removes all active tag filters in one click.
+- Each rule card exposes one-click affordances — copy the full SHA-256 hash, preview the anchored PDF page via tooltip, export the lean JSON via `/api/manifest/rule/[sha]`, and compare text across methodology versions through the version switcher modal.
+
 Implementation notes:
 
 - The chat experience is optimised for mobile-first use with a minimal, card-based layout. On small screens the insights pane collapses behind the “Toggle insights” button; larger displays show messages and rule cards side-by-side.
