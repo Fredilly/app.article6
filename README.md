@@ -78,7 +78,7 @@ The first request sets `__Secure-vercel-bypass` and Vercel accepts that cookie f
 
 - `/` Chat landing — mobile-first chat experience with insights pane.
 - `/audit` Dry-run audit workflow — upload PDFs, view anchors/hashes, check QA/QC.
-- `/manifest` Searchable manifest — filter rules by methodology/tags and jump to anchored PDFs.
+- `/manifest` Searchable manifest — live health badge, tag-aware URLs, clipboard hashes, JSON export, and cross-version diffs on rule cards.
 - `/registry/mock` Mock issuance — preview dummy tCO₂e issuance and balances for investor storytelling.
 
 Implementation notes:
