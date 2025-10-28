@@ -21,6 +21,9 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      ENGINE_ADAPTER: demo
+      NODE_OPTIONS: "--max-old-space-size=4096"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,4 +43,5 @@ jobs:
       - name: Run tests
         env:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
-        run: npm run test
+          ENGINE_ADAPTER: demo
+        run: npm run test -- --maxWorkers=2

@@ -11,8 +11,17 @@ import {
   type ReactNode,
 } from "react";
 
+type TriggerEventHandlers = {
+  onMouseEnter?: (event: React.MouseEvent) => void;
+  onMouseLeave?: (event: React.MouseEvent) => void;
+  onFocus?: (event: React.FocusEvent) => void;
+  onBlur?: (event: React.FocusEvent) => void;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
+  "aria-describedby"?: string;
+} & Record<string, unknown>;
+
 type TooltipProps = {
-  children: ReactElement;
+  children: ReactElement<TriggerEventHandlers>;
   content: ReactNode;
   delay?: number;
 };
@@ -45,26 +54,28 @@ export function Tooltip({ children, content, delay = 150 }: TooltipProps) {
     return () => clearTimer();
   }, [clearTimer]);
 
+  const childProps = children.props as TriggerEventHandlers;
+
   const triggerProps = {
     onMouseEnter: (event: React.MouseEvent) => {
-      children.props.onMouseEnter?.(event);
+      childProps.onMouseEnter?.(event);
       if (!event.defaultPrevented) show();
     },
     onMouseLeave: (event: React.MouseEvent) => {
-      children.props.onMouseLeave?.(event);
+      childProps.onMouseLeave?.(event);
       if (!event.defaultPrevented) hide();
     },
     onFocus: (event: React.FocusEvent) => {
-      children.props.onFocus?.(event);
+      childProps.onFocus?.(event);
       if (!event.defaultPrevented) show();
     },
     onBlur: (event: React.FocusEvent) => {
-      children.props.onBlur?.(event);
+      childProps.onBlur?.(event);
       if (!event.defaultPrevented) hide();
     },
     onKeyDown: (event: React.KeyboardEvent) => {
       if (event.key === "Escape") hide();
-      children.props.onKeyDown?.(event);
+      childProps.onKeyDown?.(event);
     },
     "aria-describedby": open ? id : undefined,
   };

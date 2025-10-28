@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveEngineMode } from "@/lib/engine/config";
+import { resolveEngineEndpoint, resolveEngineMode } from "@/lib/engine/config";
 import { loadManifestWithMeta } from "@/lib/manifestSource";
 
 export const runtime = "nodejs";
@@ -19,13 +19,27 @@ export async function GET() {
     const mode = resolveEngineMode();
     const degraded = mode === "remote" && result.source === "static" && Boolean(result.error);
     const status: HealthStatus = degraded ? "degraded" : "ok";
+    const entries = Array.isArray(result.entries) ? result.entries : [];
+    let engineUrl = "";
+
+    if (mode === "remote") {
+      try {
+        const endpoint = resolveEngineEndpoint();
+        engineUrl = endpoint.origin + endpoint.pathname;
+      } catch {
+        engineUrl = "";
+      }
+    }
 
     return NextResponse.json(
       {
         status,
         lastUpdated: result.fetchedAt,
+        updatedAt: result.fetchedAt,
         source: result.source,
-        ruleCount: result.entries.length,
+        ruleCount: entries.length,
+        count: entries.length,
+        engineUrl,
         error: result.error ?? null,
       },
       {
@@ -39,8 +53,11 @@ export async function GET() {
       {
         status: "degraded" satisfies HealthStatus,
         lastUpdated: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         source: "static" as const,
         ruleCount: 0,
+        count: 0,
+        engineUrl: "",
         error: message,
       },
       {

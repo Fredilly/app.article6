@@ -86,8 +86,9 @@ function buildStaticResult(
   options: { rawQuery: string; showAll: boolean },
   error?: string,
 ): ManifestLoadResult {
+  const filtered = filterEntries(manifestEntries, options.rawQuery, options.showAll);
   return {
-    entries: filterEntries(manifestEntries, options.rawQuery, options.showAll),
+    entries: Array.isArray(filtered) ? filtered : [],
     source: "static",
     fetchedAt: new Date().toISOString(),
     error,

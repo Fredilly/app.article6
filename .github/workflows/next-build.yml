@@ -21,6 +21,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_ENABLE_AUDIT: 'true'
+      ENGINE_ADAPTER: demo
+      NODE_OPTIONS: '--max-old-space-size=4096'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,21 +39,15 @@ jobs:
         run: npm ci
 
       - name: Run lint
-        env:
-          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: npm run lint
 
       - name: Build app
-        env:
-          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: npm run build
 
       - name: Ensure manifest not empty
         run: npm run check:manifest
 
       - name: Start Next.js server
-        env:
-          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: |
           npm start &
           echo $! > .next-server-pid

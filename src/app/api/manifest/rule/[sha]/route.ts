@@ -10,13 +10,8 @@ const RESPONSE_HEADERS = {
   Pragma: "no-cache",
 } as const;
 
-type RouteParams = {
-  params: {
-    sha: string;
-  };
-};
-
-export async function GET(_request: Request, context: RouteParams) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function GET(request: Request, context: any) {
   const shaParam = context.params?.sha?.trim();
   if (!shaParam) {
     return NextResponse.json(
