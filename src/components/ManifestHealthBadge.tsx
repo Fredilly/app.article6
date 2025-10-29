@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type TargetAndTransition } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Tooltip from "@/components/ui/Tooltip";
 
@@ -149,14 +149,14 @@ export default function ManifestHealthBadge() {
   const dotClasses = health.status === "ok" ? "bg-emerald-500" : "bg-rose-500";
   const label = health.status === "ok" ? "Manifest healthy" : "Manifest degraded";
 
-  const pulseAnimation = {
+  const pulseAnimation: TargetAndTransition = {
     opacity: health.status === "ok" ? [0.75, 1, 0.75] : [0.65, 1, 0.65],
     scale: [1, 1.05, 1],
-  } as const;
+  };
 
-  const dotAnimation = {
+  const dotAnimation: TargetAndTransition = {
     scale: [1, 1.2, 1],
-  } as const;
+  };
 
   return (
     <Tooltip content={tooltipContent}>
