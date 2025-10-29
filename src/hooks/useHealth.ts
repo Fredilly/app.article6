@@ -2,46 +2,47 @@
 
 import { useEffect, useState } from "react";
 
-type Health = { ok: boolean; degraded?: boolean; source?: string };
+type HealthStatus = "healthy" | "degraded" | "loading";
+
+export type ManifestHealth = {
+  status: HealthStatus;
+  count: number | null;
+  updatedAt: string | null;
+  source: string;
+  errorMessage?: string;
+};
 
 export function useHealth(intervalMs = 20000) {
-  const [data, setData] = useState<Health | null>(null);
+  const [data, setData] = useState<ManifestHealth | null>(null);
   const [err, setErr] = useState<Error | null>(null);
 
   useEffect(() => {
     let alive = true;
     async function tick() {
       try {
-        const response = await fetch("/api/health", { cache: "no-store" });
+        const response = await fetch("/api/manifest/health", { cache: "no-store" });
         const payload = (await response.json()) as Record<string, unknown>;
-        const statusRaw = payload["status"];
-        const status = typeof statusRaw === "string" ? statusRaw.toLowerCase() : "";
-        const ok = status === "ok";
-        const engineRaw = payload["engine"];
-        const engineMode =
-          typeof engineRaw === "object" &&
-          engineRaw !== null &&
-          "mode" in engineRaw &&
-          typeof (engineRaw as Record<string, unknown>).mode === "string"
-            ? ((engineRaw as Record<string, unknown>).mode as string)
-            : undefined;
-        const hasEndpoint =
-          typeof engineRaw === "object" &&
-          engineRaw !== null &&
-          "endpoint" in engineRaw &&
-          typeof (engineRaw as Record<string, unknown>).endpoint === "string";
+        const countRaw = payload["count"];
+        const updatedAtRaw = payload["updatedAt"];
+        const engineUrlRaw = payload["engineUrl"];
+        const errorMessage =
+          typeof payload["error"] === "string" ? (payload["error"] as string) : undefined;
+
+        const count = typeof countRaw === "number" && Number.isFinite(countRaw) ? countRaw : null;
+        const updatedAt = typeof updatedAtRaw === "string" ? updatedAtRaw : null;
         const sourceCandidate =
-          engineMode ??
-          (hasEndpoint ? "remote" : undefined) ??
-          (typeof payload["engineUrl"] === "string" ? (payload["engineUrl"] as string) : undefined);
-        const source =
-          typeof sourceCandidate === "string" && sourceCandidate.trim().length > 0
-            ? sourceCandidate
+          typeof engineUrlRaw === "string" && engineUrlRaw.trim().length > 0
+            ? (engineUrlRaw as string)
             : "static";
-        const normalized: Health = {
-          ok,
-          degraded: !ok,
-          source,
+
+        const healthy = response.ok && typeof count === "number" && count > 0;
+        const status: HealthStatus = healthy ? "healthy" : "degraded";
+        const normalized: ManifestHealth = {
+          status,
+          count,
+          updatedAt,
+          source: sourceCandidate,
+          errorMessage,
         };
         if (alive) {
           setData(normalized);
@@ -51,7 +52,18 @@ export function useHealth(intervalMs = 20000) {
         if (!alive) return;
         setErr(error instanceof Error ? error : new Error(String(error)));
         if (alive) {
-          setData({ ok: false, degraded: true, source: "unreachable" });
+          setData({
+            status: "degraded",
+            count: null,
+            updatedAt: null,
+            source: "unreachable",
+            errorMessage:
+              error instanceof Error
+                ? error.message
+                : typeof error === "string"
+                ? error
+                : undefined,
+          });
         }
       }
     }
