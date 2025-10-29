@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type TargetAndTransition } from "framer-motion";
+import { motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Tooltip from "@/components/ui/Tooltip";
 
@@ -147,41 +147,47 @@ export default function ManifestHealthBadge() {
       : "bg-rose-100 text-rose-700 border-rose-200";
 
   const dotClasses = health.status === "ok" ? "bg-emerald-500" : "bg-rose-500";
-  const label = health.status === "ok" ? "Manifest healthy" : "Manifest degraded";
+  const label = health.status === "ok" ? "Healthy" : "Degraded";
 
-  const pulseAnimation: TargetAndTransition = {
-    opacity: health.status === "ok" ? [0.75, 1, 0.75] : [0.65, 1, 0.65],
-    scale: [1, 1.05, 1],
-  };
+  const dotAnimation =
+    health.status === "ok"
+      ? {
+          scale: [1, 1.25, 1],
+          opacity: [0.6, 1, 0.6],
+        }
+      : {
+          scale: 1,
+          opacity: 1,
+        };
 
-  const dotAnimation: TargetAndTransition = {
-    scale: [1, 1.2, 1],
-  };
+  const dotTransition =
+    health.status === "ok"
+      ? {
+          duration: 1.6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }
+      : undefined;
 
   return (
     <Tooltip content={tooltipContent}>
-      <motion.button
+      <button
         type="button"
         onClick={() => void fetchHealth()}
         className={`flex h-11 items-center gap-2 rounded-full border px-3 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-500 focus-visible:outline-offset-2 ${badgeClasses}`}
         aria-live="polite"
-        animate={pulseAnimation}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        whileHover={{ scale: 1.05, opacity: 1 }}
-        whileFocus={{ scale: 1.05, opacity: 1 }}
       >
         <motion.span
           className={`h-2.5 w-2.5 rounded-full ${dotClasses}`}
           aria-hidden="true"
           animate={dotAnimation}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          transition={dotTransition}
         />
         <span>{label}</span>
-        <span className="text-xs text-slate-500">({health.source})</span>
         <span className="sr-only">
           {loading ? "Refreshing status" : `Last updated ${formattedTimestamp}`}
         </span>
-      </motion.button>
+      </button>
     </Tooltip>
   );
 }
