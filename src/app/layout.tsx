@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import DemoNav from "@/components/DemoNav";
 import FooterHealth from "@/components/FooterHealth";
+import HealthBadge from "@/components/HealthBadge";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,7 +37,12 @@ export default function RootLayout({
                 <p className="text-xs uppercase tracking-wide text-slate-400">Article 6 demo</p>
                 <h1 className="text-base font-semibold text-slate-900">Verification surfaces</h1>
               </div>
-              <DemoNav />
+              <div className="flex items-center gap-4 md:ml-auto">
+                {/* Always-on health indicator */}
+                {/* Ensure no feature-flag wraps this */}
+                <HealthBadge />
+                <DemoNav />
+              </div>
             </div>
           </header>
           <div className="flex-1">{children}</div>
