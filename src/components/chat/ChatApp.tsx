@@ -65,45 +65,45 @@ export default function ChatApp() {
   const hasMetrics = metricItems.length > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-stone-100">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-10">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-slate-50">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-4 py-5 md:px-6 md:py-8">
+        <header className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
             <button
               aria-label="Toggle insights"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm transition hover:border-gray-300 hover:shadow"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white/90 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
               onClick={() => setOpen(v => !v)}
             >
-              <Menu className="h-5 w-5 text-gray-500" />
+              <Menu className="h-4 w-4" />
             </button>
             <div>
-              <p className="text-xs uppercase tracking-wide text-gray-400">Article 6 Verification</p>
-              <h1 className="text-xl font-semibold text-gray-900 md:text-2xl">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Article 6 Verification</p>
+              <h1 className="text-lg text-slate-900 md:text-xl">
                 What would you like to verify today?
               </h1>
             </div>
           </div>
-          <PanelsTopLeft className="h-6 w-6 text-gray-300" />
+          <PanelsTopLeft className="h-5 w-5 text-slate-300" />
         </header>
 
         {hasMetrics ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {metricItems.map((m, i) => (
               <span
                 key={`${m.key}-${i}`}
-                className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 shadow-sm"
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white/90 px-2.5 py-1 text-[11px] text-slate-600"
               >
-                <span className="text-gray-400">{m.key}</span>
-                <span className="font-semibold text-gray-800">{String(m.value)}</span>
+                <span className="text-slate-400">{m.key}</span>
+                <span className="text-slate-700">{String(m.value)}</span>
               </span>
             ))}
           </div>
         ) : null}
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,3.5fr)_minmax(0,2fr)]">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,3.5fr)_minmax(0,2fr)]">
           <section
             className={cn(
-              "flex h-[70vh] flex-col rounded-[1.5rem] border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur lg:h-[72vh]",
+              "flex h-[68vh] flex-col rounded-3xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur lg:h-[70vh]",
             )}
           >
             <MessageList messages={messages} />
@@ -120,12 +120,12 @@ export default function ChatApp() {
           </aside>
         </div>
 
-        <footer className="mt-2 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500">
+        <footer className="mt-1 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
           <div>
             Engine: <span className="font-mono">{engineTag || DEFAULT_ENGINE_TAG}</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <span className="rounded-full border border-gray-200 bg-white px-2 py-1 font-mono">
+            <span className="rounded-lg border border-slate-200 bg-white px-2 py-0.5 font-mono">
               {messages.length - 1} exchanges
             </span>
           </div>

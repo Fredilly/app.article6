@@ -29,27 +29,27 @@ function VariantRow({ item, isPrimary }: { item: EngineResult; isPrimary: boolea
   const methodologyVersion = item.methodology_version ?? item.methodologyVersion;
 
   return (
-    <div className="rounded-xl border border-gray-200/70 bg-white/70 px-3 py-2 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600">
+    <div className="rounded-xl border border-slate-200/70 bg-white/80 px-3 py-2 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
         <span className="font-mono" title={item.id}>
           {item.id}
         </span>
         <div className="flex items-center gap-2">
           {typeof item.score === "number" ? (
-            <span className="rounded-full bg-gray-900/80 px-2 py-0.5 text-[11px] font-medium text-white">
+            <span className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[11px] text-white">
               {item.score.toFixed(2)}
             </span>
           ) : null}
           {isPrimary ? (
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] text-emerald-700">
               primary
             </span>
           ) : null}
         </div>
       </div>
-      <div className="mt-2 space-y-1 text-[11px] text-gray-500">
+      <div className="mt-2 space-y-1 text-[11px] text-slate-500">
         {methodologyId ? (
-          <p className="rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600">
+          <p className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] text-slate-600">
             {methodologyId}
             {methodologyVersion ? ` · v${methodologyVersion}` : ""}
           </p>
@@ -112,10 +112,10 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
   };
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-y-auto rounded-[1.25rem] border border-gray-200/60 bg-white/70 p-4 shadow-sm backdrop-blur">
+    <div className="flex h-full flex-col gap-3 overflow-y-auto rounded-[1.25rem] border border-slate-200/60 bg-white/80 p-4 shadow-sm backdrop-blur">
       <div>
-        <p className="text-xs uppercase tracking-wide text-gray-400">Insights</p>
-        <h2 className="text-lg font-semibold text-gray-900">Rule cards</h2>
+        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Insights</p>
+        <h2 className="text-base text-slate-900">Rule cards</h2>
       </div>
 
       {hasResults ? (
@@ -130,28 +130,28 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
             return (
               <li
                 key={key}
-                className="group rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+                className="group rounded-2xl border border-slate-200 bg-white/85 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-wide text-gray-400">Section</p>
-                    <h3 className="text-sm font-semibold text-gray-900 line-clamp-2" title={title}>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Section</p>
+                    <h3 className="text-sm text-slate-900 line-clamp-2" title={title}>
                       {title}
                     </h3>
                   </div>
                   {typeof primary.score === "number" && (
-                    <span className="rounded-full bg-gray-900/90 px-2 py-0.5 text-xs font-medium text-white shadow-sm">
+                    <span className="rounded-full bg-slate-900/90 px-2 py-0.5 text-xs text-white shadow-sm">
                       {primary.score.toFixed(2)}
                     </span>
                   )}
                 </div>
 
-                <p className="mt-3 text-sm leading-6 text-gray-600 line-clamp-4" title={displayBody}>
+                <p className="mt-3 text-sm leading-6 text-slate-600 line-clamp-4" title={displayBody}>
                   {displayBody}
                 </p>
 
-                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-2 text-[11px] text-gray-500">
-                  <span className="max-w-full truncate font-mono text-gray-400" title={primary.id}>
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-2 text-[11px] text-slate-500">
+                  <span className="max-w-full truncate font-mono text-slate-400" title={primary.id}>
                     {primary.id}
                   </span>
                   {primary.refs?.length ? (
@@ -163,20 +163,20 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
                   {methodologies.map((method) => (
                     <span
                       key={`${method.id}-${method.version ?? "latest"}`}
-                      className="rounded-full border border-gray-200 bg-white px-2 py-0.5 font-medium text-gray-600"
+                      className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-slate-600"
                     >
                       {method.id}
                       {method.version ? ` · v${method.version}` : ""}
                     </span>
                   ))}
                   {variants > 1 ? (
-                    <span className="rounded-full border border-gray-200 bg-white px-2 py-0.5 font-medium text-gray-600">
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-slate-600">
                       {variants} variants
                     </span>
                   ) : null}
                   {!isExpanded && otherItems.length ? (
                     <span
-                      className="max-w-full truncate text-gray-400"
+                      className="max-w-full truncate text-slate-400"
                       title={otherItems.map((item) => item.id).join(", ")}
                     >
                       +{otherItems.length} more: {otherItems.slice(0, 2).map((item) => item.id).join(",")}
@@ -190,13 +190,13 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
                     <button
                       type="button"
                       onClick={() => toggleGroup(key)}
-                      className="inline-flex items-center gap-2 text-xs font-medium text-gray-600 underline-offset-4 transition hover:text-gray-900 hover:underline"
+                      className="inline-flex items-center gap-2 text-xs text-slate-600 underline-offset-4 transition hover:text-slate-900 hover:underline"
                     >
                       {isExpanded ? "Hide variants" : `Show ${variants - 1} other variant${variants - 1 === 1 ? "" : "s"}`}
                     </button>
 
                     {isExpanded && (
-                      <div className="space-y-2 rounded-2xl border border-dashed border-gray-200 bg-gray-50/80 p-3">
+                      <div className="space-y-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-3">
                         {items.map((item, idx) => (
                           <VariantRow key={`${item.id}-${idx}`} item={item} isPrimary={item === primary} />
                         ))}
@@ -209,7 +209,7 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
           })}
         </ul>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-12 text-center text-sm text-gray-500">
+        <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 py-12 text-center text-sm text-slate-500">
           <p>Ask a question to see matched rules and supporting evidence.</p>
         </div>
       )}

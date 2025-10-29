@@ -8,7 +8,7 @@ export default function MessageList({ messages }: { messages: ChatMessage[] }) {
     ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
   return (
-    <div ref={ref} className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+    <div ref={ref} className="flex-1 space-y-3 overflow-y-auto px-4 py-5">
       {messages.map((m, i) => (
         <div
           key={i}
@@ -21,14 +21,14 @@ export default function MessageList({ messages }: { messages: ChatMessage[] }) {
               width={1024}
               height={1024}
               unoptimized
-              className="rounded-3xl h-auto w-full max-w-md border border-gray-200 object-contain shadow-sm"
+              className="h-auto w-full max-w-md rounded-2xl border border-slate-200 object-contain shadow-sm"
             />
           ) : (
             <div
               className={
                 m.role === "user"
-                  ? "rounded-3xl bg-gray-900 px-5 py-3 text-sm leading-6 text-white shadow"
-                  : "rounded-3xl border border-gray-200 bg-white px-5 py-3 text-sm leading-6 text-gray-700 shadow-sm"
+                  ? "rounded-2xl bg-slate-900 px-4 py-3 text-sm leading-6 text-white shadow-sm"
+                  : "rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm leading-6 text-slate-700 shadow-sm"
               }
             >
               {m.content}
