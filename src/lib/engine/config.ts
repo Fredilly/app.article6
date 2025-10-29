@@ -5,11 +5,12 @@ export type EngineMode = "remote" | "demo";
 const ENGINE_PATH = "/query";
 
 export function resolveEngineMode(): EngineMode {
-  const defaults = ensureEngineDefaults();
   const adapter = process.env.ENGINE_ADAPTER?.toLowerCase();
   if (adapter === "demo") return "demo";
   if (adapter === "remote") return "remote";
-  return defaults.engineUrl ? "remote" : "demo";
+  const explicit = process.env.ENGINE_URL || process.env.NEXT_PUBLIC_ENGINE_URL;
+  if (explicit && explicit.trim().length) return "remote";
+  return "demo";
 }
 
 export function resolveEngineEndpoint(): URL {
