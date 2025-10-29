@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Filter, Search } from "lucide-react";
-import ManifestHealthBadge from "@/components/ManifestHealthBadge";
 import RuleCard from "@/components/RuleCard";
 import MethodologyGroup from "@/components/manifest/MethodologyGroup";
 import VersionDiffModal from "@/components/manifest/VersionDiffModal";
@@ -127,15 +126,12 @@ export default function ManifestApp() {
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4">
-        <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="space-y-3">
-            <h1 className="text-3xl font-semibold text-slate-900">Methodology manifest</h1>
-            <p className="max-w-2xl text-sm text-slate-600">
-              Search rules across methodologies, jump to anchored evidence, filter by tags,
-              and compare versions without leaving the page.
-            </p>
-          </div>
-          <ManifestHealthBadge />
+        <header className="space-y-3">
+          <h1 className="text-3xl font-semibold text-slate-900">Methodology manifest</h1>
+          <p className="max-w-2xl text-sm text-slate-600">
+            Search rules across methodologies, jump to anchored evidence, filter by tags,
+            and compare versions without leaving the page.
+          </p>
         </header>
 
         <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
