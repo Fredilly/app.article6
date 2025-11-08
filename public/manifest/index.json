@@ -2,648 +2,2536 @@
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Project restores degraded forest lands and meets additionality tests per Tool 01.",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "eece4efeea1e33859370f4a08278b5e93aae51740505e98b3c7eb6e94d9f4f29",
+    "sha256": "ad8d54abdcbea833b917e2396e194b8a24528ed2966ff252ef24acc37b323340",
     "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "R-1-0002",
-    "rule_id": "R-1-0002",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Baseline net GHG removals derived from historical land-use data per Tool 02 guidance.",
-    "tags": [
-      "calc",
-      "baseline"
-    ],
-    "sha256": "2be96dbebec4ac1c6cc7c2ab5c884e954a9ca97289a0a069ecd82af853796700",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-2"
-  },
-  {
-    "id": "R-1-0003",
-    "rule_id": "R-1-0003",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Project emissions include fossil fuel use, biomass burning, and fertilizer application as per Tool 08.",
-    "tags": [
-      "calc",
-      "emissions"
-    ],
-    "sha256": "58fd16262708861274fa19a07b97efda386f61fea077efd53c4ebf5ec7d5bc9d",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-3"
-  },
-  {
-    "id": "R-1-0004",
-    "rule_id": "R-1-0004",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Leakage from activity shifting and market effects addressed using Tool 14 default factors.",
-    "tags": [
-      "leakage"
-    ],
-    "sha256": "c41ee9e14878f260c59b381e1e69225194d1319d239afa01ec14fb3a78201bec",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-4"
-  },
-  {
-    "id": "R-1-0005",
-    "rule_id": "R-1-0005",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Non-permanence buffer determined via Tool 15 risk analysis and recorded in registry accounts.",
-    "tags": [
-      "monitoring"
-    ],
-    "sha256": "3ce1e08394525334cc5040053395fa931293828660b2461396ecc9c21fec839b",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
-  },
-  {
-    "id": "R-1-0006",
-    "rule_id": "R-1-0006",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Permanent sample plots re-measured at least every five years per Tool 16 QA/QC guidance.",
-    "tags": [
-      "monitoring"
-    ],
-    "sha256": "fa61f9db56dd32f49fb450b0580a5a897e6edbc00a9229dfb63893f038713ecc",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
-  },
-  {
-    "id": "R-1-0007",
-    "rule_id": "R-1-0007",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Sampling uncertainty kept below 10% at 90% confidence or conservatively adjusted using Tool 12.",
-    "tags": [
-      "uncertainty"
-    ],
-    "sha256": "b7b666a116e2d85f446a81242f8c0aaecf8834fccf90130a5e655cf090466ae0",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
-  },
-  {
-    "id": "R-1-0008",
-    "rule_id": "R-1-0008",
-    "methodology": "AR-ACM0003",
-    "version": "v02-0",
-    "rule": "Monitoring reports compile geospatial data, emissions sources, and buffer transactions with full audit trail.",
-    "tags": [
-      "reporting"
-    ],
-    "sha256": "cfe405bb4515c762040edb99b7912be3c6edb8c955b7996e80afd199b28ad952",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
-  },
-  {
-    "id": "R-1-0001",
-    "rule_id": "R-1-0001",
-    "methodology": "AR-AM0014",
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "ACM0010",
     "version": "v03-0",
-    "rule": "Projects reforest lands without forest cover since 1989 and comply with national forest definitions.",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "34ea5ad5ee038c7fa22be0c05d51e4829a8bc12e22ddf1ab5c78fb6cae2925bc",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "65c5a99ac9b7703a87c9eb1fc52939039a991099f012961ead2ab0b5cb0a7223",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "73415d3b1d58fb838bfd3cc188231ef779ef2a2560a5a66c37808395886dd301",
+    "sha256": "cf3cf3385f6f9e4af79bf97c5b5e1ada49346d7d4bcb695920739a5501132384",
     "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "R-1-0002",
-    "rule_id": "R-1-0002",
-    "methodology": "AR-AM0014",
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "ACM0010",
     "version": "v03-0",
-    "rule": "Baseline biomass estimated using IPCC defaults or site-specific sampling following Tool 02.",
-    "tags": [
-      "calc",
-      "baseline"
-    ],
-    "sha256": "cdaf04f3bed14be94067ef94f2159d3d4f6b71ea0f2d2512282ea61b5d4aefb5",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-2"
-  },
-  {
-    "id": "R-1-0003",
-    "rule_id": "R-1-0003",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "rule": "Net anthropogenic removals equal project removals minus baseline emissions and leakage.",
+    "rule": "C_AGB_t = AGB_dm * CF",
     "tags": [
       "equation"
     ],
-    "sha256": "4f95a0ec1cf79744f7e5eae4fd1f8d8b4db5d1dada39095018a1dae0b8cf6f07",
+    "sha256": "1a17327506be498262a55f39de51b9dbc61f92b00dde953d764b346177ecb931",
     "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-3"
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0004",
-    "rule_id": "R-1-0004",
-    "methodology": "AR-AM0014",
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "ACM0010",
     "version": "v03-0",
-    "rule": "Activity shifting leakage quantified annually using Tool 14 and deducted from net removals.",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "51a76ae7425310a788874bcf7dfc4598f339072f6c6a50f16b30483c0be3124b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "07ec676b743da6b2e3a6c1808c58699b23f3163bd8f1b2155ba92661a4a6488b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "leakage = L_AS + L_MD",
     "tags": [
       "leakage"
     ],
-    "sha256": "2ada7e76aa6a323502c4db5c983c7b53a13aabac17b84173fc8b430e262b202c",
+    "sha256": "1c145aa3227d736eae9fe084aa679046131e93d79e89206da31338d218a2adff",
     "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-4"
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0005",
-    "rule_id": "R-1-0005",
-    "methodology": "AR-AM0014",
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "ACM0010",
     "version": "v03-0",
-    "rule": "Non-permanence risks addressed through buffer contributions per Tool 15 guidance.",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "a8f77f6e8f00f6ef02c0f25722cc224f1239788e8e91966ee00a4e84c60d866b",
+    "sha256": "f19f0c2e2fdc002f0dcbdae8466b00ef7a6706078868349afa041525ca692c59",
     "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0006",
-    "rule_id": "R-1-0006",
-    "methodology": "AR-AM0014",
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "ACM0010",
     "version": "v03-0",
-    "rule": "Field biomass measurements conducted at least every five years using permanent plots.",
-    "tags": [
-      "monitoring"
-    ],
-    "sha256": "e8d04cccdef2d3e9f309ecfc105e1276519b0eb0c6bb4e1d0a1016775118aacd",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
-  },
-  {
-    "id": "R-1-0007",
-    "rule_id": "R-1-0007",
-    "methodology": "AR-AM0014",
-    "version": "v03-0",
-    "rule": "Sampling uncertainty above 10% addressed with Tool 12 conservative adjustments.",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "1de71d3735f225ca725ace153b75a3c182a77a35bd4b4454ad9cbca01f4f92e5",
+    "sha256": "ce39b42fe776352e1212971e5ff02899ffe6d9a12e73df375c7975d1c1de2afa",
     "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0008",
-    "rule_id": "R-1-0008",
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "b0fe5ac7b366ee24da6f751080048a2fe8aa7f7e475cd27374be98dead253111",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "31aacecede98e5512de1e5c7c3c499ec7d4082fd3dfb266ce3c21ac7f5173d7d",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "481fbcfd7b988d914ec4a06838451255332344cda908a5969bcf6472ca17c0fb",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "914ae062f0ab3ae7d534baacac98688e846469a7ef92c28d1a525c355c5846d3",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "ce0938d248822d15f3a43c365aa3dba1a95cdfe6ed44de14c75927d63913c841",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "da836bb56dfca3203347dc5961c24b6a227e831400421dd078fad48fbcc9e0e8",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "5c4aad67ffc8a54fb23f13da27484061633e4944c89e78fe11c8d56e95c3c9ad",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "ee57184b02c19cb0135bb54651082ffb4d39fd30cc0217c703da358ff4b895db",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "fdf892ef7a935b1602ef4b5ef5c8ce536a5983ebe617afe53f0550b1e90a6a50",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "991aa9997d55ce87db6c8ba7c955b4bff61d1fb3d18d032a718b7d0f1b08a5a4",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "6a61b573d82ea41165d372ddaf39b213625b06a452197c7c454e15df7d2fe807",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "667b90f27b431373ca3bbc0d6e2922d0d2aca712ec7e965c335b94c99eefc150",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "c006e7feeb941e188f59307dd99d3ecd5129e02c65557a388a9f827d67d79ec0",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "630294455d2db980bc68bd858101a20598ccacbfe9a6f6fd108f7d231a4c62f3",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "3212744cede8c138d15ea6b78b87786e7810eab2183b84ecd68f6df3b481d9ce",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "34ef700257a089c02c19757a22902579114a0b3c86860c9dc80437ee44a7844f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "078b1b83340b302c2da0803af136ebcdb051c4cb5105f111fdece7ecd0e77cca",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "a4e9ae85cce1e9d6b13ac6bfe0a992dbc2ea535bffa7c93b734b4dc053bfe828",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "7d73bcf9f105fa3b3903763b59f21dd1ab0d2a9156c6bef82fcf5bffaf52899e",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "62023a01b74df9c8078b1692391bf7438e9d2d0b5aaeccba9b421c657ac16148",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "97f88cc7b0cfdb56ea46e38186cbf4800ab9254c8335abbd6c1cb1e6e74c5a25",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "084a7a016d2da55012c9b32f14f262527096333a7b7eb2fb302f9b0899258e53",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "da40da612358acdbfbee5160536619a825f51772da66d7f9f436795a8559c232",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "0d90d081ce618ae78fe5fa82029835fc4e929d96c46eca2634cbe8127d502997",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "0f2c12ff75eb45056542353374a59041369bee20fb11aafe50b82ae16f89e3fc",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "ba8c7090fc0d5d0c4e809c5c43d5f5a0b0f7a796702421b55bf588d3d6cfd438",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "fc847ba197109ca4fd8a6fcbda19103cd56a40006cdbb9350e3980933dd42028",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "c4a163f89a44b66bf7403738cc07b2b3dec1a58dc088a5ddeaaf2152cc8fa974",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-ACM0003",
+    "version": "v01-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "07926b36bd2dbce380a92271f0ba3ccef7798f5f893a95d9b775343693b880aa",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "717fca819f064e76541e25a9585179ef799a0bf8d728821646d5352f3b09a309",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "3afdc82e4d4e61386008776cd2fb74a90685031e87aff32f465db4e8c4e4cc1f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "1b7102a125c6f8ce6e59d6ef221e719e8c1bc3d80467116812f9c527272f2615",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "1aad0aabb03092aeecefd93071f6845d3101f2c74a8b99c0204b6158d4471247",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "c734cf168a3f44007ac7e9fc0472366b4c39239ef7f5e630adc3e8cf35af5c8f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "a586b9c27f6abf2b188dff5d312c5977dae760c8a03010d631d74b266d838f1c",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "f6c8cbb044e686b554689819d6403ea9e5b131e9254a1c3b446e3fd03083c083",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "866606ef28c4928d93a22bf5988ef443141384473cce74e4c31e18c102f14e2b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "68d2fb4c6c0a0f85b97ad8b32ffeb09b7a99e215389de795d9950436b8022578",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "dc78ec36f03c4961fc874e803a847b16b7088c8aee81091750c5fe179e7d5661",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "9d22ca075fcf2142466740d4f06e6d5fdd3dcfb804a7b9f2b8484790dd54b44c",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "9790c2dc2c6b3c6d27322fb86db122d4b948fe73ef0406e39aa5d32bda04172a",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-ACM0003",
+    "version": "v02-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "f5ee38b89f5e484c09dfef7c27db897d05997c5a992da168caea762f2a79eb83",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "0513319c2d0b0fabcf401593540c4aa9c23a11b5e1a9109a256498fc659e3086",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "bdf09ca63f0d6d188cee1d9acec1ff158a40eb15edb14894fbb5655c400b9d96",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "860a4c71accb51dfd34221713e783330ffed1d3b98164804eb596bb47d2d4ab6",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "8136ad08fa2a4b88652325e8a50a7d33033b0d4d236c270b724d628948bbc415",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "5ac2e99198a3b6395e51df150361a1827ad9ea1c7e54b19643b65be936d186e4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "72ce08e883b1473acc80a09b9925d21d770e8891fbcf5c15bf749579424a5008",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "0d2f92f404a6cdaa3d70f4c405de76ef78bce75ee1a8c30da37b72b6f310e880",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "f84980d4f39010f8c66934867b0872e267249628725b2586f1335a910fe0d89b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "68a849f51b21832e6501739e9fb8360a63d134c97a939bf5fda75ab11d263cc3",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "b100573116a4dbcd7c82f986c1fd99a1fa06562d77d357df72f71eab7f1ee826",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "e1a0319e1f2d927b820964b211339382f4b375f35086a5a32cfb6473a1228036",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "0b75b25f9f6f13b612eb91c9aa1ef83c350842bd1c01d1f71efb66585586ac0e",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AM0014",
+    "version": "v01-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "6e7de1716834de681da86dff8abbd0dd3477a6ba06d5bb6068fb61b871df3b20",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "f4afc267ba5f699740076b5d21ffbcf1aa38675a367f8667f593d543a4f247d4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "26f83340bf477927b4b489db8682ec3950f4d594f28150a5393fa3787c630636",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "337fac9441ba88893e1dd7f46de9f81ab62d8d3a65e849e09dda9e87d5643918",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "fef1ac6c03b6740e9f265dfd01bc288ec7224dd179940df87fd1d798e3715c85",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "682b1fda0e9d12b1f7c2215d6d313562e1f51c43d72ca1731d74fcc66e7d5f72",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "69670fbb3e34c57c0865970293da82082aab1424f4000782f50e0e0b42a7744f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "3e7e2884759f46ea2ce281d62ae62881fe27d0705c23f98b3f3356cfa7845ac2",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "13938be96f9d95dae544438b1115f235d300c7c02a52f17669845acf5450215e",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "0f2679e612f08c6193fbc5b69d2eda511d625f18438665e18d9e390aeda22b34",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "8c7982616f1ed527814c519b9cd4d1871e81bf9f93052efe0ebceed44c6481e4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "2d1262c2eb62b0326c68889968293a88198e32faf3dfd9af0faec790c5231174",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "0a6b72232a96134453d6e958dba8b4cee6a9bc2800df7548a9cc71725ee8defd",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AM0014",
+    "version": "v02-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "563f57b98ca2ed2255e4a81c48ec3367d7baf370a5d55cde1818356bd071d8cd",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
     "methodology": "AR-AM0014",
     "version": "v03-0",
-    "rule": "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
     "tags": [
-      "reporting"
+      "eligibility"
     ],
-    "sha256": "20392924b5cb87f77dc2c9c8e80fd0e6a07b7c42f36f62c5e6719bcb79139253",
+    "sha256": "e34ac85092e55586bd7bbb402a5baabce7284ab7fa0a85f0d4a2043c4de318c2",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "3dc357c5d7057dc663816cc27c94f04943ff3fdc0b737660b0c791f0a7f74705",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "6cc8f356fbe55be0271bd5a5326789634583b03c5cda75620bc629547457342b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "18ed6f25175847f7c84a7344f1053b59d4562d885e70aeeabdb456fab59e64b1",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "565f3a54300476ff92dd8fd1aa88fe13edebb044c691af4b98ec72357719b228",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "cbe38cb510816dbaee104852ca77854306b233b793371dc3d09fab9fb105f0be",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "1ba46bd8f1570741a77d6f8b528d6e2ee971080713b13b40df29a685d6b1b1c5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "33bbdc1ced3d6b86eeccd6afa672251bc11082a628b0c4efc0e34d2bd85b6a6f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "ab51470782d7b788755bc3a4b3d690e3e87a6865874ee9a7a874e7ea4ed1965d",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "43807028acdb3b5d709bea461a5cd06ec5526e1e6f08c4c468825d2a6d62e5f4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "4f4b91f0574c49b8b5986e88374afa22ea0d1f19ae15dec623aa4063db49094e",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "36d41434c98898c78e91485f1badd63e8ec3078d4761619aff3aa05c7b2a0221",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AM0014",
+    "version": "v03-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "62239b759fae43a3e47fb31b64993470bd6c7e4544e408cb3c84dc498954f617",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "sectionId": "S-1"
   },
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-AMS0003",
     "version": "v01-0",
-    "rule": "Small-scale A/R activities eligible when total area < 16,000 ha and participants grouped as defined.",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "0a9bf2b8d8faa00f312d358e8d6c68f575678257d74b9e562663697fd499d3ba",
+    "sha256": "2006cbbee359f6428430e28e4a7b40bd55c75919047a9179ddaa1db4405071dc",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
     "sectionId": "S-1"
-  },
-  {
-    "id": "R-1-0002",
-    "rule_id": "R-1-0002",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Definitions for grouped smallholder projects include participants, monitoring entity, and leakage belt.",
-    "tags": [
-      "eligibility",
-      "definition"
-    ],
-    "sha256": "5d650f96f8684972c6c2be15a37e424ac380a8c2fdca745db42ebe1643e8cda5",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-2"
-  },
-  {
-    "id": "R-1-0003",
-    "rule_id": "R-1-0003",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Project boundary includes above- and below-ground biomass, dead wood, litter, and soil carbon pools unless excluded with justification.",
-    "tags": [
-      "eligibility",
-      "boundary"
-    ],
-    "sha256": "a942e22bc527f9b38347b5ad05c4825591a6bbdec10d6e08303223c35c3846f8",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-3"
-  },
-  {
-    "id": "R-1-0004",
-    "rule_id": "R-1-0004",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Baseline scenario assumes continuation of pre-project land use with carbon stock change set to zero.",
-    "tags": [
-      "calc",
-      "baseline"
-    ],
-    "sha256": "c8336f5f6ee266da4266a731726ccf24820577ca6352d3e5bf5c383e20e2a632",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-4"
-  },
-  {
-    "id": "R-1-0005",
-    "rule_id": "R-1-0005",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Project removals calculated by summing carbon stock changes per pool minus fossil fuel and fertilizer emissions.",
-    "tags": [
-      "calc",
-      "emissions"
-    ],
-    "sha256": "2f2756b82b58b1bf02f3a8463f295573d617ffecdbedf884798a45af38bd77b3",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-5"
-  },
-  {
-    "id": "R-1-0006",
-    "rule_id": "R-1-0006",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Leakage from activity shifting or market effects monitored and deducted using Tool 14 default factors.",
-    "tags": [
-      "leakage"
-    ],
-    "sha256": "29617681672616c00d765d851338c1aa656b60727a379437594554a52bfe5f82",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-6"
-  },
-  {
-    "id": "R-1-0007",
-    "rule_id": "R-1-0007",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Monitoring plan requires permanent plots measured every five years plus tracking of grouped participant compliance.",
-    "tags": [
-      "monitoring"
-    ],
-    "sha256": "18b358295d9181f30ed5edf4b4705077d1849f34837fdf91ca0e53fac38b6a8b",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-7"
-  },
-  {
-    "id": "R-1-0008",
-    "rule_id": "R-1-0008",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Data and parameters table specifies default biomass factors and sampling requirements.",
-    "tags": [
-      "parameter",
-      "data"
-    ],
-    "sha256": "3375e21ee36a077c878d10a74e12036c8c7d9fd6c8bcc85d93b5249ff9289353",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-8"
-  },
-  {
-    "id": "R-1-0009",
-    "rule_id": "R-1-0009",
-    "methodology": "AR-AMS0003",
-    "version": "v01-0",
-    "rule": "Uncertainty calculated per Tool 12; apply deductions when precision exceeds 10%.",
-    "tags": [
-      "uncertainty"
-    ],
-    "sha256": "ccf66995424d01856751fb07c114cd77f2fbee12a3688be28407b0c4d603fe55",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-9"
   },
   {
     "id": "R-1-0010",
     "rule_id": "R-1-0010",
     "methodology": "AR-AMS0003",
     "version": "v01-0",
-    "rule": "Non-permanence risk buffer determined via Tool 15 and updated when risk profile changes.",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
     "tags": [
-      "uncertainty",
-      "permanence"
+      "parameter"
     ],
-    "sha256": "cc28ee2c5b1b7bcdd8dbc8b38955e6eb871cecef3b44368080aec08199606e5b",
+    "sha256": "67c7c3e964c9519818608a6d945412edfa60fb49dc4a9bfa405f92af8cdcbd32",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-10"
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0011",
-    "rule_id": "R-1-0011",
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
     "methodology": "AR-AMS0003",
     "version": "v01-0",
-    "rule": "Normative tools and references (Tools 02, 08, 12, 14, 15, 16) must be accessible to grouped project manager.",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
     "tags": [
-      "reporting",
-      "reference"
+      "parameter"
     ],
-    "sha256": "8c0e06c585f6ec322150ef8372e5f620392a062ef16c13fc7aff78bb67e496cb",
+    "sha256": "6fa99452fc14ba6c5bc0629658dbb8e49031e64f899dc0bde34c5d98e4ea2faa",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-11"
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0012",
-    "rule_id": "R-1-0012",
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
     "methodology": "AR-AMS0003",
     "version": "v01-0",
-    "rule": "Annual net removals computed as sum of pool changes minus leakage and emissions, divided by years between measurements.",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "53becff8859bc4b81aa2d463aaf6e25c52753882d2ab62c82e1da4a4bd851f07",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
     "tags": [
       "equation"
     ],
-    "sha256": "e7b9579f7443e2622455a51484002b1bf83bb5c12ac84e5e280cf55e616e73d7",
+    "sha256": "b6318e8288c99be5bd2a690c1758a8f1a1de32c4914f7d183e11cbdc1b16944c",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-12"
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0013",
-    "rule_id": "R-1-0013",
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
     "methodology": "AR-AMS0003",
     "version": "v01-0",
-    "rule": "Annexes include participant enrollment records, training logs, and dispute resolution evidence.",
+    "rule": "CO2e_pool = C_pool * 44/12",
     "tags": [
-      "reporting"
+      "equation"
     ],
-    "sha256": "ecaf6969b8847d3eb51145fba77d9cf486b0d49af5a4e3b2b4b6da824314d19b",
+    "sha256": "5a967d6c30960d4a97aa56e7e46631f24d496ef457a410fbd3c5e0656127986d",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-13"
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "91e3fc4f1889ee0d57124381db9073c1b31470edce57586603ce8721aa636548",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "c8ec0b59f9bdc65c3ca27b9aff517ce2f127906c4853dd05ebefa76f75d8bf85",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "33fad1d04977a8d83904cde8ce2369332150a52b073c19f67944c02cdc4b9686",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "817ed3269f0722886d8037821e1b913d8504da25d1b56c6b4cfd5b5a0aa7dfd2",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "3c25b76af714c5476de87aa831c1e60bfcf0f6bc01d1d128c28ea6dcb7538b68",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "f64acb60e5748f37baa1deb6426644fadf3b1c560798562ac6a709a5b3d99037",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AMS0003",
+    "version": "v01-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "eb176a2ed907127a0950b438a3b8d738f17c70d128b1e94ec5bd4d6596db436c",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "a77c396849c0deac0205fb72ca5beab00cd66d48ad3a79a542d8bdfc2d4abc56",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "9274c25f9e3ecf341d25bedee989866a085590c1bb4e1922c31b993a42ca0471",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "a60a94a2e493c72758e30f0280165d3152438ad275ce9b9ca0bf61cb13a5d356",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "f5547ff9244cfbab3f3d3598506a3ba2acdb3129fdbdae977b7fc286a7ce9a4c",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "2dd487d96617ab4a29b759ec0c654abf38812f6dfe8ea02de2ad3fe284e7bb74",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "b9ab812c340c997c788f1ca67cb7ed1a654e6738b707bbc618b59cbb39af7520",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "9bbdc7dda04c2967b7b08f8e995f79483d8ffab76d31f5ae7fcda7f15b13db5d",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "d5153232bd4f3cce93233e9c66ac0b63130b620b7d263ee224eef769e6b08214",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "7490158a91270af4103e882acfea2bb09ff2ccaca8c4cba72afafc05581a8a02",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "446c1161a08abc8a8edcbf79579f6ad7eb1a74363a5c308dca7bf4c84007207b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "de2302fbc524ecc2ae5981894b8fb0903e84b9b4d859beaad97f9bb938becc00",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "6d650ec52663f7da64b8da64d603eb4cc1cd1e64184e950c97cd5b589bfcd241",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AMS0003",
+    "version": "v02-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "763e6f3befb2e816fd2777c6f4c1c868983825aee4f566f0f199cee6bc0b4bb4",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "91bc60a4b7561c9750faa4faa04423d386c34e5b0bae37064201638c90590c4b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "6572a3d94ba1a670aacf29771704e803474a5d85f7c96b3e437650ec474263ba",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "76268998ab6193119cbbfa98c9e53797f69dd6e0a15c5e6efb175a30fd02a016",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "6d9247951165b0a99b270f3114588dc195263c9fb1f1e2e95ddfc14eb806eed0",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "efcd1c4a2114ef24a8067932bbdd2419444bb8ea36cd07b8c80d581034a91bd9",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "90aa5c245ea3aa0da34e6d7f7928d272e5c42b089d0e7a2610444d5c48080eda",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "5eaadd689722b20e254e45126d6e0dd83ec7866eb01983c1dfc74bdafa0788ae",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "331c55aed61c6d1dae021f63f32f178bf9fd37016b16338a796c49ab703e71e5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "11205a636035f237cdafd409bf46da4d8491eec9b3f870714fccbfca3f641095",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "a498731de3452dca6d26789269ab7099276ab8f4404f360d739d261f8721673f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "a0803eb7b41f8cecbe822b630088253e3d861ba7913d07fe6554cfa7e4fefc32",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "11548b76b6f44040cf6c6870eb858e3d909eb3044036c42660c6ce335d9c72ec",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AMS0003",
+    "version": "v03-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "98bd0d67a9b42b280eeb58de90662003a2db0feb8ffbf55db3e6cb56a0839728",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v03-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "4d65612e72f39c96c8e7df9599ac4be3244bbb4c2b3aa489a28e956d79f0b55f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "bb3a97a87aea94a9943cca4e7c692704b73a51192eb2a74c33663e121b519cbf",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "ad84873e9d0fbfa116c7c91023e5a20f29c00fae7ff4068400ff60e297eb2c3c",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "d0ab7d37120fcacc50e18bbc54f73a5799e036f145fba04edc48aa16c6db5b70",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "6c19e0d0151ed7c9786eeb8e0af06d5314e83def1377a89707d0d556b979775a",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "d9f31ced407b4fda327996f50dc3953f9670a5afb121fe089c1af08096be37f8",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "fc5908708c178bb76cd40a21a9c822de60ff92e8fe3b842286c361d68650c972",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "47a527239c88f1f64def97e340296e567894bd7d959fb9d905f8b9b1a7a84436",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "972bed22e0ecc0ec67965df3136cc834fbf02f777f6f514aebb3f6d174f5d296",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "e1c6c4e9bc066ca3f6302699b79a19e9688b47fef94a0b4aa72d359ce101f82b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "3b5af4600216f421d151b1e11c0a0e184abe8263ffa5d73c9918a998176d0dd8",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "3e828f68ff489a4d8875492911cca1a0f9dbee0f8495e936ab0259b4a90fb8ba",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AMS0007",
+    "version": "v01-1",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "8bb9afd0af7ab07d3d45ae7c05c72b0839d7d893b1208f9652dc934624e7b30f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v01-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "8072ec3e053d3ab1bbec1008ef4479e12a134af9a54692288f6ad048848fc758",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "e5f4533f92b36b795e11db659e3d7af9124e36bd7b434fff464f319bbd085215",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
+    "tags": [
+      "parameter"
+    ],
+    "sha256": "56cc3d0fe594acbea70af28ff8c92516261ddff6de791ff3432c1b9f103a238e",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "56386b30b68cc1b8f0db3bb22f5ca9ed504936f2a5eb351dfc142a6b1ed7a130",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "C_AGB_t = AGB_dm * CF",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "dbd139b758fe6713650a2c1b293cab3ba8f089a291489b2850ab04564f544293",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "CO2e_pool = C_pool * 44/12",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "35d2073f7994560a568aca201973ccce075a27f9e55984224ebf647b18c3e95b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "b715b0c2207479f12d2984170d379f015cb733dc5028e188fd5f9dcd28017556",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "959a2c314b2a59220ddf86bc6121d53aff781fd886f035bbba2c50f8cc6e6086",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "775399963b6185d7e74a5be88b96b47a13f7d3c79859729fc960bf943a9b62c0",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "d906f99b9eb39bda1a9e0ab83c92d1f53ec3c1519ae817aae302333fbea51664",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "fb3feb23f744168d57e53ee3fae73d1d5128ab260588c85b3425f3e32136fe99",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "92810e82938e27400dea444a353c8c5f62f750704f3341377c44fc0d2bd29bcb",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AMS0007",
+    "version": "v02-0",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "e264f8c2a9aa2507df0d0e2a434a7736965633ef5bfe4772fe7bb9ab158cf289",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v02-0/rules.json",
+    "sectionId": "S-1"
   },
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-AMS0007",
     "version": "v03-1",
-    "rule": "Wetland restoration projects eligible when activities convert degraded wetlands to forest and meet small-scale thresholds.",
+    "rule": "ELIGIBLE if all predicates true; otherwise INELIGIBLE.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "74246b2153daf8d271b9a4f5fcaccf913d078b7d6aaade50eff02cc3a129f021",
+    "sha256": "ddf35e0c29afdb3459ae2b56c1a5928bcbaf8adb152f333924d5769cced0a3b6",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "R-1-0002",
-    "rule_id": "R-1-0002",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Definitions clarify wetland geomorphology, participant aggregation, and leakage belt concepts.",
-    "tags": [
-      "eligibility",
-      "definition"
-    ],
-    "sha256": "a837df7fd85425e68421e1e3002cf012ff4675c756264336eb58149075a053d2",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-2"
-  },
-  {
-    "id": "R-1-0003",
-    "rule_id": "R-1-0003",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Project boundary includes on-site hydrological interventions and relevant carbon pools except where justified.",
-    "tags": [
-      "eligibility",
-      "boundary"
-    ],
-    "sha256": "026d02de41ef06fee779d7c94af25e7d5c1db90c13fad423e158ce666f42c094",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-3"
-  },
-  {
-    "id": "R-1-0004",
-    "rule_id": "R-1-0004",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Baseline assumes continuation of pre-project wetland degradation with zero additional removals.",
-    "tags": [
-      "calc",
-      "baseline"
-    ],
-    "sha256": "eab42f1a05ea732da552ef34fa7fb0cf321a7dcfd72663659b1731481e9dd7ec",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-4"
-  },
-  {
-    "id": "R-1-0005",
-    "rule_id": "R-1-0005",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Project removals calculated from pool carbon stock changes minus emissions from project operations.",
-    "tags": [
-      "calc",
-      "emissions"
-    ],
-    "sha256": "11bbc274d72a3c9a1c1cdf2f616f009fcfc2775a9c9181ec64fbc0661a3cdfeb",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-5"
-  },
-  {
-    "id": "R-1-0006",
-    "rule_id": "R-1-0006",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Leakage from displaced wetland uses monitored and deducted using Tool 14 defaults.",
-    "tags": [
-      "leakage"
-    ],
-    "sha256": "919d090d94f8b9c91108c11266e7955655a33daac0905b4cd5816b43fb203566",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-6"
-  },
-  {
-    "id": "R-1-0007",
-    "rule_id": "R-1-0007",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Monitoring plan covers hydrology restoration, vegetation plots, and participant reporting.",
-    "tags": [
-      "monitoring"
-    ],
-    "sha256": "45019177281e97bf25b2af939e6c22aec0831a1f78aebfdf54bf0dcbf0bf58f4",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-7"
-  },
-  {
-    "id": "R-1-0008",
-    "rule_id": "R-1-0008",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Data tables specify default biomass factors, hydrological parameters, and monitoring records.",
-    "tags": [
-      "parameter",
-      "data"
-    ],
-    "sha256": "54ab0d3d4724f7202cdd7b40349930ea4097d2c7598e8994f6ba8e41f894f8b2",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-8"
-  },
-  {
-    "id": "R-1-0009",
-    "rule_id": "R-1-0009",
-    "methodology": "AR-AMS0007",
-    "version": "v03-1",
-    "rule": "Uncertainty analysis follows Tool 12 with deductions when precision thresholds unmet.",
-    "tags": [
-      "uncertainty"
-    ],
-    "sha256": "42ea1b7791bcf192eb31c66d4680a25a718cdb52b61e0f295d063f85191f256c",
-    "provider": "UNFCCC",
-    "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-9"
-  },
-  {
     "id": "R-1-0010",
     "rule_id": "R-1-0010",
     "methodology": "AR-AMS0007",
     "version": "v03-1",
-    "rule": "Permanence buffer contributions determined via Tool 15 wetland risk factors.",
+    "rule": "Default CF = 0.47 t C per t d.m. (trees and shrubs).",
     "tags": [
-      "uncertainty",
-      "permanence"
+      "parameter"
     ],
-    "sha256": "8adab52d9161d1c71c61d67f99720eb032ed9c87461e04164ebfb08cbece779f",
+    "sha256": "c7a487882195936e1d36d201ac27f3a436e24c765bc784892d52dc1c9f5f33ec",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-10"
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0011",
-    "rule_id": "R-1-0011",
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
     "methodology": "AR-AMS0007",
     "version": "v03-1",
-    "rule": "Normative tools and references maintained for monitoring and verification teams.",
+    "rule": "RSR_trees = 0.25; RSR_shrubs = 0.40 (dimensionless).",
     "tags": [
-      "reporting",
-      "reference"
+      "parameter"
     ],
-    "sha256": "c57da507c1f47546a76cc6d9d20ecbafc3471ce8d5785300028147461c89935d",
+    "sha256": "c1f23a30e6014ae1c8c7772a015f6e0a83a41407e2528f8b36287e6675b2f351",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-11"
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0012",
-    "rule_id": "R-1-0012",
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
     "methodology": "AR-AMS0007",
     "version": "v03-1",
-    "rule": "Annualized carbon stock change derived from difference in pool carbon divided by measurement interval.",
+    "rule": "If a pool is excluded from boundary, set its ΔCO2e := 0 by rule.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "6205fcef1cf6ec9289a9689c6a1259f2642ecb801e669b0feb1633df5077c4ae",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "C_AGB_t = AGB_dm * CF",
     "tags": [
       "equation"
     ],
-    "sha256": "b6caa70ca875e34ee5c82c034d9302f62417b4f1685e6422279ebca7f921b241",
+    "sha256": "a90e267499266e63ee51001d621552002e2cdfb7a4ddb662ab9de026baf094e3",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-12"
+    "sectionId": "S-1"
   },
   {
-    "id": "R-1-0013",
-    "rule_id": "R-1-0013",
+    "id": "R-1-0045",
+    "rule_id": "R-1-0045",
     "methodology": "AR-AMS0007",
     "version": "v03-1",
-    "rule": "Annexes capture hydrology restoration evidence, training records, and community engagement notes.",
+    "rule": "CO2e_pool = C_pool * 44/12",
     "tags": [
-      "reporting"
+      "equation"
     ],
-    "sha256": "1a45b3e5dae01f80649fad79054dea595fca811723dbc381185e260e3c720b43",
+    "sha256": "02bd952702613c6803522ceb83a2a55fae9ecc8bb396b4d4b2f6b120ff3a375c",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-13"
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "Net_project = (dCO2e_AGB + dCO2e_BGB + dCO2e_DOM + dCO2e_Litter + dCO2e_SOC) - leakage",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "d0f00e75f4e75570c323a52dee56e6e4a1a2bc1f49d9ebbab79c66b3b3c7b0c2",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "leakage = L_AS + L_MD",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "d64afd638340269e30d0cc7d2fc1cd37c4bcfdc733a127395d2068e1494f66c5",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "Revisit plots every RevisitInterval years using consistent mensuration protocol.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "e987246dde2b29e9e6a0ca41acbdc795df5f21f3d454ee87d47130e22aaa9ffe",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "If RelativePrecision > 10 then apply uncertainty discount per U-table.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "f1f284db31e180a9500e13e4069780f49c1d491ffc5624257c325fd890626307",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "If ShrubCrownCover_i <= 0.05 then ΔC_shrubs_i := 0.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "979fcf99761872de8796d25a3a49ea977ff9f576c5a3772d91612081ec32b058",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0100",
+    "rule_id": "R-1-0100",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "ΔC_year = (C_t2 - C_t1) / T",
+    "tags": [
+      "equation"
+    ],
+    "sha256": "b7f795b7ab8266a2d2cf2215f0859db3f26ed520114968533a6f1d6d77450d8b",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0110",
+    "rule_id": "R-1-0110",
+    "methodology": "AR-AMS0007",
+    "version": "v03-1",
+    "rule": "Maintain SOPs and QA/QC per national inventory guidance or IPCC GPG; record all monitored parameters at each verification.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "c7af5103ba5c850525a943281a750b8e72978020d9fd486a996382f85a1e437f",
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "sectionId": "S-1"
   }
 ]
