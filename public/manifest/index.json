@@ -2,648 +2,1083 @@
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Only multi-farm projects that centralize anaerobic manure treatment under the full applicability conditions qualify.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "068865949d1e2b27e35120a774f210165d10d6037abf5b9069b661d5a4d9c182",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Establish additionality using the approved tool for both the central facility and the participating farms.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "518780bb7741c9fc5d99e370d04a2f5f67a05d255167d3ea8c17754c578c95ff",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Baseline scenario must remain anaerobic manure treatment without methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "906d1cb4cec556861ad2b4096ddfe9d77f6ddc99d3ea531b9af2668a86d38451",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Define the project boundary to include farm sites, transport, centralized treatment, biogas handling and energy systems.",
+    "tags": [
+      "reporting"
+    ],
+    "sha256": "ae6278db4908d73a4233d972af1f22a1137da4fdaefdcc641445308a805c5ebd",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-3"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Baseline methane emissions equal the sum of farm-level anaerobic system emissions.",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "218a1c586fa9fd4f7224df74f70d3a98aa454e5b0c8fe7a597d0e96ba5f52cae",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Baseline fossil fuel and electricity emissions must rely on the approved combustion and electricity tools.",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "5c6943fb1574123aafe3d2de9bc48b23d6c6ed75b1c80ebabeaff3a212fd79f1",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Project emissions cover residual methane, methane slip and auxiliary energy consumption.",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "9e79a07e073bc1b845f1355425dd318ef7ed70ca33a0c01387914ff2895fde2d",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Leakage covers incremental manure transport and any displaced baseline manure uses.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "03d13659d418109f1945023349e3945762e257decbb64e837bae1c4e070b363d",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "Monitor animal populations, manure flows, biogas production, methane content, COD removal, fossil fuel use and exported electricity/heat.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "2ac4b4d627a6796b89f518361ab154500de5ee455daa932fa98c05e606cb422c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-6"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AM0073",
+    "version": "v1-0",
+    "rule": "The central plant operator must retain farmer declarations assigning CER claims and provide them to the DOE.",
+    "tags": [
+      "reporting"
+    ],
+    "sha256": "d2196156588f33c8d6e69a6ccb040d5b271c3de8302eb53278efa84ed508586b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v1-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Livestock must be confined and baseline manure streams must be anaerobic without methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "5c354b03abaeba42d6d3c7f734d37150a3429c0457c897bcabced856625ce9f4",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Residual waste must be handled aerobically and all biogas must be captured or flared.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "9ea611f8b4206c018a63b82780a4c0a6e95a7026adb2d9eea5865f731d08739a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Apply alternative methodologies when landfill, wastewater or co-digestion activities occur.",
+    "tags": [
+      "reporting"
+    ],
+    "sha256": "2a44db387c5694ae9768b46f455a02759e5cd11804c0e345ab5ca61a2574200f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Additionality is satisfied if no regulation requires methane capture; otherwise apply SSC additionality guidelines.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "1ae7ea21bb777052bf5ae1f3a13a5bbabe1dc888d8b369a06e03030b0d678329",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Include livestock facilities, manure handling, centralized digesters, biogas utilization and transport within the project boundary.",
+    "tags": [
+      "reporting"
+    ],
+    "sha256": "0a38eafe7f39415add5929013f1d6e06f3bb96d293591f4c36457127de847ff8",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Baseline methane emissions follow ACM0010/AM0073 factors using VS or COD data and methane conversion factors.",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "8b17d13f4fa4f719e4737ab587a41e802e0cb5e77ffe318701b6d6922de50eb4",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-3"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Project emissions use the anaerobic digester, flaring, fossil fuel and electricity tools.",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "10e1a2d4144d4f85a48d81e5adef86d6e47477bd6147633fc30473df0a50318e",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Account for leakage from manure transport, digestate handling and suppressed baseline uses.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "66d24ad871221c1b4a7900c685babbd85570c9e476bdf325c96701b84c76171f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Monitor all parameters listed in Table 5.1 with calibrated instruments and maintain 95/10 precision when sampling.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "137d7d4ccc1901f337eaecb0301ea283141550a9b544dee97dd74332a556e685",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "R-1-0090",
+    "rule_id": "R-1-0090",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Respect the 60 kt CO2e/year small-scale cap and SSC general guidelines for lifetime and capacity additions.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "e671884350073dd11d5e39c20db0f063e9daec530311225fab6dcd207875423f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Installations must be at individual households or small farms where baseline manure decays anaerobically without methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "1c82ff7ac2a3a0ef734b27034fa4bd1f514b07ba35703ed2637ee7b5be226271",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Only the manure fraction that decays anaerobically in the baseline may be credited and must be established via a 90/10 survey.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "a59c7e7ca3aed50d2af2bf7b5770007a381d89e01e625bd9ca8c8205aa61501c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "R-1-0020",
+    "rule_id": "R-1-0020",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Projects may mix small amounts of other agricultural wastes, but emission reductions may only reflect manure.",
+    "tags": [
+      "reporting"
+    ],
+    "sha256": "5ef526edfa6d8b220183f85679c7841ce5ccf31e1a7045c307ac64c3c864b8c9",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0030",
+    "rule_id": "R-1-0030",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Demonstrate additionality using TOOL21 or by showing no regulation requires household methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "7f1ea3f8b1280b581cb07f4b94b03fbcdcce3b0eba037c55d54b880a58b775d1",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-3"
+  },
+  {
+    "id": "R-1-0040",
+    "rule_id": "R-1-0040",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Baseline methane emissions follow Equation (13) using animal populations, volatile solids, B0 and MCF values.",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "77b74fd2bccbe27f1fc6fc43a633ec13d7d70566c1c6697d9e9146de616f55ca",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "R-1-0050",
+    "rule_id": "R-1-0050",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Project emissions must account for methane losses, fossil fuels and electricity use via TOOL14, TOOL03 and TOOL05.",
+    "tags": [
+      "calc"
+    ],
+    "sha256": "6051db352f44ff5d90377eef065796cea54f2c978bae5186a8c2cf7ba107f8d5",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "R-1-0060",
+    "rule_id": "R-1-0060",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Assess leakage from shifts in biomass fuels, manure use and transport via TOOL22 and SSC sampling standards.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "a92e2058f1a313162e0ee121fab9ef9e3e9372de43d633c7d9475a5542c57f78",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "R-1-0070",
+    "rule_id": "R-1-0070",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Monitor all parameters in Table 6.1 and maintain documented O&M and rehabilitation services for every digester.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "a452c05f8943d85783d398b25034a0eca2ba11f9ee832b61908ee9080941549a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-6"
+  },
+  {
+    "id": "R-1-0080",
+    "rule_id": "R-1-0080",
+    "methodology": "AMS-III.R",
+    "version": "v5-0",
+    "rule": "Aggregated emission reductions across all included systems must remain ≤60 kt CO2e per year.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "a85f905c3c470ee5775c79f7da75b15a931b10fee3c62787649df0f17b30c54b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v5-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Project restores degraded forest lands and meets additionality tests per Tool 01.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "eece4efeea1e33859370f4a08278b5e93aae51740505e98b3c7eb6e94d9f4f29",
+    "sha256": "ebaaf2e59a22a17b6485c6586d70b6e76b9f2b90d66eb1be23fb3a779be81616",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-1"
   },
   {
     "id": "R-1-0002",
     "rule_id": "R-1-0002",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Baseline net GHG removals derived from historical land-use data per Tool 02 guidance.",
     "tags": [
       "calc",
       "baseline"
     ],
-    "sha256": "2be96dbebec4ac1c6cc7c2ab5c884e954a9ca97289a0a069ecd82af853796700",
+    "sha256": "fdfd9f0345eb91d30f6ba6dc14a80e652db6d029b00bd2c59be6717f10a91aa8",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-2"
   },
   {
     "id": "R-1-0003",
     "rule_id": "R-1-0003",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Project emissions include fossil fuel use, biomass burning, and fertilizer application as per Tool 08.",
     "tags": [
       "calc",
       "emissions"
     ],
-    "sha256": "58fd16262708861274fa19a07b97efda386f61fea077efd53c4ebf5ec7d5bc9d",
+    "sha256": "f5c7293915eb4f49e3b82255cc7b73e44a72787e0da433b503c734aa55648679",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-3"
   },
   {
     "id": "R-1-0004",
     "rule_id": "R-1-0004",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Leakage from activity shifting and market effects addressed using Tool 14 default factors.",
     "tags": [
       "leakage"
     ],
-    "sha256": "c41ee9e14878f260c59b381e1e69225194d1319d239afa01ec14fb3a78201bec",
+    "sha256": "3c0387d54cf80e014e916007d5ae589246609cd034629e506518be1431835c0e",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-4"
   },
   {
     "id": "R-1-0005",
     "rule_id": "R-1-0005",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Non-permanence buffer determined via Tool 15 risk analysis and recorded in registry accounts.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "3ce1e08394525334cc5040053395fa931293828660b2461396ecc9c21fec839b",
+    "sha256": "1c21ebe51e5c6b70d48f1bd0fadaaf485f23a16d74ff135d110cb2c3551ca6f9",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0006",
     "rule_id": "R-1-0006",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Permanent sample plots re-measured at least every five years per Tool 16 QA/QC guidance.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "fa61f9db56dd32f49fb450b0580a5a897e6edbc00a9229dfb63893f038713ecc",
+    "sha256": "29ccfc687891f75bc987e4d95cbe6b56e4898a405b86b831c537b4d4883ae8c3",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0007",
     "rule_id": "R-1-0007",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Sampling uncertainty kept below 10% at 90% confidence or conservatively adjusted using Tool 12.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "b7b666a116e2d85f446a81242f8c0aaecf8834fccf90130a5e655cf090466ae0",
+    "sha256": "9befaa90c787afcc91335c4ae5bbbf1a76b41d673bbc1070b1dfaf4531e9c1d9",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0008",
     "rule_id": "R-1-0008",
     "methodology": "AR-ACM0003",
-    "version": "v02-0",
+    "version": "v2-0",
     "rule": "Monitoring reports compile geospatial data, emissions sources, and buffer transactions with full audit trail.",
     "tags": [
       "reporting"
     ],
-    "sha256": "cfe405bb4515c762040edb99b7912be3c6edb8c955b7996e80afd199b28ad952",
+    "sha256": "c81449bb2ba8290a8a4ab5b4998c05780d023a8622ba2fe0f43a85b3b90fe7d3",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v2-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Projects reforest lands without forest cover since 1989 and comply with national forest definitions.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "73415d3b1d58fb838bfd3cc188231ef779ef2a2560a5a66c37808395886dd301",
+    "sha256": "392ee019e8ab2b8e06ddf4fa6162a8d3aa04b3092a565ea0df59e14c0803c428",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-1"
   },
   {
     "id": "R-1-0002",
     "rule_id": "R-1-0002",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Baseline biomass estimated using IPCC defaults or site-specific sampling following Tool 02.",
     "tags": [
       "calc",
       "baseline"
     ],
-    "sha256": "cdaf04f3bed14be94067ef94f2159d3d4f6b71ea0f2d2512282ea61b5d4aefb5",
+    "sha256": "16cfeaa631192e3750a784c0e5b30ab63441f0962d05ee5fb0a26dbab5d57eba",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-2"
   },
   {
     "id": "R-1-0003",
     "rule_id": "R-1-0003",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Net anthropogenic removals equal project removals minus baseline emissions and leakage.",
     "tags": [
       "equation"
     ],
-    "sha256": "4f95a0ec1cf79744f7e5eae4fd1f8d8b4db5d1dada39095018a1dae0b8cf6f07",
+    "sha256": "5ef9e44ababe6374d51fe5a39fbd3461a010e683613a4ef3a73a439e461e7501",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-3"
   },
   {
     "id": "R-1-0004",
     "rule_id": "R-1-0004",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Activity shifting leakage quantified annually using Tool 14 and deducted from net removals.",
     "tags": [
       "leakage"
     ],
-    "sha256": "2ada7e76aa6a323502c4db5c983c7b53a13aabac17b84173fc8b430e262b202c",
+    "sha256": "971e7a93622000dec42c18d6bb60f2fd1fc4e3e47957aa75b3bd6ec82519ae29",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-4"
   },
   {
     "id": "R-1-0005",
     "rule_id": "R-1-0005",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Non-permanence risks addressed through buffer contributions per Tool 15 guidance.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "a8f77f6e8f00f6ef02c0f25722cc224f1239788e8e91966ee00a4e84c60d866b",
+    "sha256": "1f2b5dd58eea911c2f4a675e1471264fef3ebf91ee62e74a53ecd3d60cc497c1",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0006",
     "rule_id": "R-1-0006",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Field biomass measurements conducted at least every five years using permanent plots.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "e8d04cccdef2d3e9f309ecfc105e1276519b0eb0c6bb4e1d0a1016775118aacd",
+    "sha256": "444853789c0ddecbac5796ed956b18a7566a957fad23718c3a94a6156b2ebb32",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0007",
     "rule_id": "R-1-0007",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Sampling uncertainty above 10% addressed with Tool 12 conservative adjustments.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "1de71d3735f225ca725ace153b75a3c182a77a35bd4b4454ad9cbca01f4f92e5",
+    "sha256": "9792415d6310478af16141939bf917865dd0bfa6f4b4b242e69b4e9a17cf668a",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0008",
     "rule_id": "R-1-0008",
     "methodology": "AR-AM0014",
-    "version": "v03-0",
+    "version": "v3-0",
     "rule": "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
     "tags": [
       "reporting"
     ],
-    "sha256": "20392924b5cb87f77dc2c9c8e80fd0e6a07b7c42f36f62c5e6719bcb79139253",
+    "sha256": "4556fcacfc397802bd4de1c8c5dc97c56cfb5af4591f397bd169b0a159fec64b",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v3-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Small-scale A/R activities eligible when total area < 16,000 ha and participants grouped as defined.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "0a9bf2b8d8faa00f312d358e8d6c68f575678257d74b9e562663697fd499d3ba",
+    "sha256": "6c590a6bc220d46265d1b8835e01fa071bf69f1f4c89ca251acf1847bc450fa6",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-1"
   },
   {
     "id": "R-1-0002",
     "rule_id": "R-1-0002",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Definitions for grouped smallholder projects include participants, monitoring entity, and leakage belt.",
     "tags": [
       "eligibility",
       "definition"
     ],
-    "sha256": "5d650f96f8684972c6c2be15a37e424ac380a8c2fdca745db42ebe1643e8cda5",
+    "sha256": "0de2dd55e94e25b64e89fad2046d6b95c19388751f0d030c555660b06b916474",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-2"
   },
   {
     "id": "R-1-0003",
     "rule_id": "R-1-0003",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Project boundary includes above- and below-ground biomass, dead wood, litter, and soil carbon pools unless excluded with justification.",
     "tags": [
       "eligibility",
       "boundary"
     ],
-    "sha256": "a942e22bc527f9b38347b5ad05c4825591a6bbdec10d6e08303223c35c3846f8",
+    "sha256": "f1fd440122a24022528cac6310284fa61ff9ecdb5ab0314c367676f7ff7174ab",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-3"
   },
   {
     "id": "R-1-0004",
     "rule_id": "R-1-0004",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Baseline scenario assumes continuation of pre-project land use with carbon stock change set to zero.",
     "tags": [
       "calc",
       "baseline"
     ],
-    "sha256": "c8336f5f6ee266da4266a731726ccf24820577ca6352d3e5bf5c383e20e2a632",
+    "sha256": "33b0b4527fb28a12502b3b2046c22b9373cf98067036771e3a0f5b94653bf2f0",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-4"
   },
   {
     "id": "R-1-0005",
     "rule_id": "R-1-0005",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Project removals calculated by summing carbon stock changes per pool minus fossil fuel and fertilizer emissions.",
     "tags": [
       "calc",
       "emissions"
     ],
-    "sha256": "2f2756b82b58b1bf02f3a8463f295573d617ffecdbedf884798a45af38bd77b3",
+    "sha256": "77585a735b1c6ced20af47e3b01393ecaecc663528802917121f0c2a0ecd3162",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0006",
     "rule_id": "R-1-0006",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Leakage from activity shifting or market effects monitored and deducted using Tool 14 default factors.",
     "tags": [
       "leakage"
     ],
-    "sha256": "29617681672616c00d765d851338c1aa656b60727a379437594554a52bfe5f82",
+    "sha256": "5effe7b99ac3486bcc553feda8a5f6c85a290d4da147dfb2b23dbe094d762ff2",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-6"
   },
   {
     "id": "R-1-0007",
     "rule_id": "R-1-0007",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Monitoring plan requires permanent plots measured every five years plus tracking of grouped participant compliance.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "18b358295d9181f30ed5edf4b4705077d1849f34837fdf91ca0e53fac38b6a8b",
+    "sha256": "fd1a8014d63d3661dd19fddf185f014c2d2fa0c5bd9ced4fe18c2704e65862ef",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-7"
   },
   {
     "id": "R-1-0008",
     "rule_id": "R-1-0008",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Data and parameters table specifies default biomass factors and sampling requirements.",
     "tags": [
       "parameter",
       "data"
     ],
-    "sha256": "3375e21ee36a077c878d10a74e12036c8c7d9fd6c8bcc85d93b5249ff9289353",
+    "sha256": "d539dca01c95fdf06c298ccafb5c06eac51b26b9862a3f1cafcee0b248684164",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-8"
   },
   {
     "id": "R-1-0009",
     "rule_id": "R-1-0009",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Uncertainty calculated per Tool 12; apply deductions when precision exceeds 10%.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "ccf66995424d01856751fb07c114cd77f2fbee12a3688be28407b0c4d603fe55",
+    "sha256": "21cf0fff223706335eaafeb39d319055496045d98f8da0686d6edcfd73161c37",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-9"
   },
   {
     "id": "R-1-0010",
     "rule_id": "R-1-0010",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Non-permanence risk buffer determined via Tool 15 and updated when risk profile changes.",
     "tags": [
       "uncertainty",
       "permanence"
     ],
-    "sha256": "cc28ee2c5b1b7bcdd8dbc8b38955e6eb871cecef3b44368080aec08199606e5b",
+    "sha256": "fe69a76f62cb6db2e50277c9b0220360a633f03e1072c70fe23685fefd4a0f0e",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-10"
   },
   {
     "id": "R-1-0011",
     "rule_id": "R-1-0011",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Normative tools and references (Tools 02, 08, 12, 14, 15, 16) must be accessible to grouped project manager.",
     "tags": [
       "reporting",
       "reference"
     ],
-    "sha256": "8c0e06c585f6ec322150ef8372e5f620392a062ef16c13fc7aff78bb67e496cb",
+    "sha256": "c3c9d15b2c3ba1a20fd7607744604c0c1b0dc49e68ab02dc078b60f1cbe62ae9",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-11"
   },
   {
     "id": "R-1-0012",
     "rule_id": "R-1-0012",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Annual net removals computed as sum of pool changes minus leakage and emissions, divided by years between measurements.",
     "tags": [
       "equation"
     ],
-    "sha256": "e7b9579f7443e2622455a51484002b1bf83bb5c12ac84e5e280cf55e616e73d7",
+    "sha256": "d6e5fe2f0c21a98797ebb9869ac4281bf0a3de1b2a82a9977045e6eaca9185a3",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-12"
   },
   {
     "id": "R-1-0013",
     "rule_id": "R-1-0013",
     "methodology": "AR-AMS0003",
-    "version": "v01-0",
+    "version": "v1-0",
     "rule": "Annexes include participant enrollment records, training logs, and dispute resolution evidence.",
     "tags": [
       "reporting"
     ],
-    "sha256": "ecaf6969b8847d3eb51145fba77d9cf486b0d49af5a4e3b2b4b6da824314d19b",
+    "sha256": "d1acb2e357a63debb77f48f7cbdc657b33e9bee56553a387fb4d2f046737ab42",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v1-0/rules.json",
     "sectionId": "S-13"
   },
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Wetland restoration projects eligible when activities convert degraded wetlands to forest and meet small-scale thresholds.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "74246b2153daf8d271b9a4f5fcaccf913d078b7d6aaade50eff02cc3a129f021",
+    "sha256": "e13999e8c3d1a3c98a2941a95d13c788e0270c42849cb00fca683250271946d3",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-1"
   },
   {
     "id": "R-1-0002",
     "rule_id": "R-1-0002",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Definitions clarify wetland geomorphology, participant aggregation, and leakage belt concepts.",
     "tags": [
       "eligibility",
       "definition"
     ],
-    "sha256": "a837df7fd85425e68421e1e3002cf012ff4675c756264336eb58149075a053d2",
+    "sha256": "a130affff5b7891601617238186dfab40940f8735037aaa524c999d2700e76c4",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-2"
   },
   {
     "id": "R-1-0003",
     "rule_id": "R-1-0003",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Project boundary includes on-site hydrological interventions and relevant carbon pools except where justified.",
     "tags": [
       "eligibility",
       "boundary"
     ],
-    "sha256": "026d02de41ef06fee779d7c94af25e7d5c1db90c13fad423e158ce666f42c094",
+    "sha256": "3af92474fcb51cdc349c7a5e662eedc55efa8570f85ae8cff4cff018e3be01fe",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-3"
   },
   {
     "id": "R-1-0004",
     "rule_id": "R-1-0004",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Baseline assumes continuation of pre-project wetland degradation with zero additional removals.",
     "tags": [
       "calc",
       "baseline"
     ],
-    "sha256": "eab42f1a05ea732da552ef34fa7fb0cf321a7dcfd72663659b1731481e9dd7ec",
+    "sha256": "6c51ba21daf3aba0943f54f0d32e1e613eac5759789d4984c8b0bd93fadd8a90",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-4"
   },
   {
     "id": "R-1-0005",
     "rule_id": "R-1-0005",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Project removals calculated from pool carbon stock changes minus emissions from project operations.",
     "tags": [
       "calc",
       "emissions"
     ],
-    "sha256": "11bbc274d72a3c9a1c1cdf2f616f009fcfc2775a9c9181ec64fbc0661a3cdfeb",
+    "sha256": "a95185303209e91a066d897b333637905ecbcd4b8e71c52dcf1db44b445c378b",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-5"
   },
   {
     "id": "R-1-0006",
     "rule_id": "R-1-0006",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Leakage from displaced wetland uses monitored and deducted using Tool 14 defaults.",
     "tags": [
       "leakage"
     ],
-    "sha256": "919d090d94f8b9c91108c11266e7955655a33daac0905b4cd5816b43fb203566",
+    "sha256": "5d9723c9a1bf9bacd5739a492891328a7f32ce1207e78538559080c63efa8770",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-6"
   },
   {
     "id": "R-1-0007",
     "rule_id": "R-1-0007",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Monitoring plan covers hydrology restoration, vegetation plots, and participant reporting.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "45019177281e97bf25b2af939e6c22aec0831a1f78aebfdf54bf0dcbf0bf58f4",
+    "sha256": "3737db9da781a8c8dfabb27f2a9ab517b8e5379fbcaa533675e198db025f43f3",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-7"
   },
   {
     "id": "R-1-0008",
     "rule_id": "R-1-0008",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Data tables specify default biomass factors, hydrological parameters, and monitoring records.",
     "tags": [
       "parameter",
       "data"
     ],
-    "sha256": "54ab0d3d4724f7202cdd7b40349930ea4097d2c7598e8994f6ba8e41f894f8b2",
+    "sha256": "a3c82398c51e777b12bbae94bfae9008643ae8f6e867026ac354bb392b00c735",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-8"
   },
   {
     "id": "R-1-0009",
     "rule_id": "R-1-0009",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Uncertainty analysis follows Tool 12 with deductions when precision thresholds unmet.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "42ea1b7791bcf192eb31c66d4680a25a718cdb52b61e0f295d063f85191f256c",
+    "sha256": "074a2190f4762c0e9652d2795700ee87140a7d62baf3dcc2ca2439ece2e0ef23",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-9"
   },
   {
     "id": "R-1-0010",
     "rule_id": "R-1-0010",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Permanence buffer contributions determined via Tool 15 wetland risk factors.",
     "tags": [
       "uncertainty",
       "permanence"
     ],
-    "sha256": "8adab52d9161d1c71c61d67f99720eb032ed9c87461e04164ebfb08cbece779f",
+    "sha256": "d939e792afae24c51fecb47b807adf7f6f1688b162a0020cf9ed7f6d022c9c39",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-10"
   },
   {
     "id": "R-1-0011",
     "rule_id": "R-1-0011",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Normative tools and references maintained for monitoring and verification teams.",
     "tags": [
       "reporting",
       "reference"
     ],
-    "sha256": "c57da507c1f47546a76cc6d9d20ecbafc3471ce8d5785300028147461c89935d",
+    "sha256": "eb9448cd7e6f9cbc990769aaf111a496c92629ed3a598751df90a5e34f97d1b2",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-11"
   },
   {
     "id": "R-1-0012",
     "rule_id": "R-1-0012",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Annualized carbon stock change derived from difference in pool carbon divided by measurement interval.",
     "tags": [
       "equation"
     ],
-    "sha256": "b6caa70ca875e34ee5c82c034d9302f62417b4f1685e6422279ebca7f921b241",
+    "sha256": "9bb3edd99ae44575b1287dc9d8146456d3436a9e2b29c7fb7c1a037c1471b984",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-12"
   },
   {
     "id": "R-1-0013",
     "rule_id": "R-1-0013",
     "methodology": "AR-AMS0007",
-    "version": "v03-1",
+    "version": "v3-1",
     "rule": "Annexes capture hydrology restoration evidence, training records, and community engagement notes.",
     "tags": [
       "reporting"
     ],
-    "sha256": "1a45b3e5dae01f80649fad79054dea595fca811723dbc381185e260e3c720b43",
+    "sha256": "2fbc7f65b8a340b18fb1184a755ddd4baad762e1c4fcfef858c88f153938176d",
     "provider": "UNFCCC",
     "category": "Forestry",
-    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
+    "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v3-1/rules.json",
     "sectionId": "S-13"
   }
 ]
