@@ -1,5 +1,440 @@
 [
   {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0001",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Only multi-farm projects that centralize anaerobic manure treatment under the full applicability conditions qualify.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "0f2091327327e5559bf7c2d691e32edee817f625c3eb98b6b9d018af282e10cc",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0010",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0010",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Establish additionality using the approved tool for both the central facility and the participating farms.",
+    "tags": [
+      "additionality"
+    ],
+    "sha256": "fa47ea544baf883829bf9bd59f3357df6f50d44ac9751133d1f980f18b02ab4c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0020",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0020",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Baseline scenario must remain anaerobic manure treatment without methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "42e1b3bf6e7256da2878eb9e6c7d30b8ccba6e1d87f16db091936a21cce02982",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0030",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0030",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Define the project boundary to include farm sites, transport, centralized treatment, biogas handling and energy systems.",
+    "tags": [
+      "boundary"
+    ],
+    "sha256": "0c7622e2a08bbb0d17aec62fcb8888170f4b9227133eb86877dea864fb0dbf25",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-3"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0040",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0040",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Baseline methane emissions equal the sum of farm-level anaerobic system emissions.",
+    "tags": [
+      "calculation"
+    ],
+    "sha256": "df83b6cdbe107aeaa490ee01ade07d085cc805226a3059375e0b6817c5380e34",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0050",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0050",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Baseline fossil fuel and electricity emissions must rely on the approved combustion and electricity tools.",
+    "tags": [
+      "calculation"
+    ],
+    "sha256": "790906c5575d804dc4b6f99745b609baa713d520cbfe6f8c89192135076a71e2",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0060",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0060",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Project emissions cover residual methane, methane slip and auxiliary energy consumption.",
+    "tags": [
+      "calculation"
+    ],
+    "sha256": "9ff633808de1152b67d53a3cfd4b9e17e018fa594b6790ebdfaa384aba762936",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0070",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0070",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Leakage covers incremental manure transport and any displaced baseline manure uses.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "af6ab7ff69baa39ea117ee41bab9d37dd24a98ac94d8ec6842d9518073296e02",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0080",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0080",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Monitor animal populations, manure flows, biogas production, methane content, COD removal, fossil fuel use and exported electricity/heat.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "814ddf011e223be8e78f044cea1c040205eae140d1a8996ad8eafc84e9d0310e",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-6"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0090",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-1-0090",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "The central plant operator must retain farmer declarations assigning CER claims and provide them to the DOE.",
+    "tags": [
+      "governance"
+    ],
+    "sha256": "2ebdc00a0dcb6bb67193f357f0dd71df4f17d2ca4c7dc54a372a14914db91f17",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0001",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Livestock must be confined and baseline manure streams must be anaerobic without methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "0df0abae8d222a09f22dc2659f9c9661f12a28ad2476c91aadef59347227b94f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0010",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0010",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Residual waste must be handled aerobically and all biogas must be captured or flared.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "08b22e9ccab77e4774e21c95a15b33a7cbfd81fcb92d89c3cf00eb0b1ddf6e1c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0020",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0020",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Apply alternative methodologies when landfill, wastewater or co-digestion activities occur.",
+    "tags": [
+      "scope"
+    ],
+    "sha256": "e01c404300214e571ffb5b00ef89b5582edaaf2f6079bd2c96c0146eb7bf4a66",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0030",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0030",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Additionality is satisfied if no regulation requires methane capture; otherwise apply SSC additionality guidelines.",
+    "tags": [
+      "additionality"
+    ],
+    "sha256": "f3e39ff3f68943686753dfa52f3e1aff63128dac066255db19364215e37e2a70",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0040",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0040",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Include livestock facilities, manure handling, centralized digesters, biogas utilization and transport within the project boundary.",
+    "tags": [
+      "boundary"
+    ],
+    "sha256": "dc8332271e7a1519a7983044b58982feb69e30ed6250cfa6417b3bc1a86c44e7",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0050",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0050",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Baseline methane emissions follow ACM0010/AM0073 factors using VS or COD data and methane conversion factors.",
+    "tags": [
+      "calculation"
+    ],
+    "sha256": "77627f7e557c1788aa59e8501f226044c4453e2e05813678bd93d95690ebdb46",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-3"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0060",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0060",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Project emissions use the anaerobic digester, flaring, fossil fuel and electricity tools.",
+    "tags": [
+      "calculation"
+    ],
+    "sha256": "3f5bf3b75525fe27b5ced59287474d7c01af3dad80f26a7d611f244a4cfa6f9a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0070",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0070",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Account for leakage from manure transport, digestate handling and suppressed baseline uses.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "0954f869058cea246da22445f0af894a97a76be64688c3f818a9761ecd17ad6f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0080",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0080",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Monitor all parameters listed in Table 5.1 with calibrated instruments and maintain 95/10 precision when sampling.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "1d5130b475ea619a7ebb707ab4715bead82cde22b06cfee46fd6c9e98747ba55",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0090",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.D.v21-0.R-1-0090",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Respect the 60 kt CO2e/year small-scale cap and SSC general guidelines for lifetime and capacity additions.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "88c40d47748bfce7b1449cff3438c96ed78726c80217aeff363520d894bc0832",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0001",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Installations must be at individual households or small farms where baseline manure decays anaerobically without methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "0081944926cebf4493d024bc23ab32c8d27e90b8830b29d9d4bba0c9952de3a8",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0010",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0010",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Only the manure fraction that decays anaerobically in the baseline may be credited and must be established via a 90/10 survey.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "e26568ba833a938c2d6af8475162cf922ea10602fe5a1c087e98315470d83d27",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-2"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0020",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0020",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Projects may mix small amounts of other agricultural wastes, but emission reductions may only reflect manure.",
+    "tags": [
+      "scope"
+    ],
+    "sha256": "0296bc8fb6702222b616fd8e2a50bde76c4ec0a770d07ae25f547f1e2678a9c4",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0030",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0030",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Demonstrate additionality using TOOL21 or by showing no regulation requires household methane recovery.",
+    "tags": [
+      "additionality"
+    ],
+    "sha256": "04bc230ea8404f53af8a0ccd6a47aa758bb1b8fcee396adb1527a05bb76a494c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-3"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0040",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0040",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Baseline methane emissions follow Equation (13) using animal populations, volatile solids, B0 and MCF values.",
+    "tags": [
+      "calculation"
+    ],
+    "sha256": "a1218e2908c4262577caee9ba6ad8740697993d9d0e36292adcdbeaf93b0ec4e",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0050",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0050",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Project emissions must account for methane losses, fossil fuels and electricity use via TOOL14, TOOL03 and TOOL05.",
+    "tags": [
+      "calculation"
+    ],
+    "sha256": "fd462b998936a65993befc6ea84301c3f586ccb060d04fdc7133c889cd0b01f4",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-4"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0060",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0060",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Assess leakage from shifts in biomass fuels, manure use and transport via TOOL22 and SSC sampling standards.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "da2c6fddd680f403e65f6ac94efc223c53a1c6a7747348be74d16ba138a633fe",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-5"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0070",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0070",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Monitor all parameters in Table 6.1 and maintain documented O&M and rehabilitation services for every digester.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "4f5a2748ad328f8ed9adc760647728d88b0ef2760d68379690271714b7f6490a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-6"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0080",
+    "rule_id": "UNFCCC.Agriculture.AMS-III.R.v05-0.R-1-0080",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Aggregated emission reductions across all included systems must remain ≤60 kt CO2e per year.",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "8614454c8ebad22c29ed515a1e6538daa700b50e19a4f70303b13656a60fe3a7",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-1"
+  },
+  {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-ACM0003",
