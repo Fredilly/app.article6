@@ -1,5 +1,65 @@
 [
   {
+    "id": "UNFCCC.Agriculture.ACM0010.v03-0.R-0-0000",
+    "rule_id": "UNFCCC.Agriculture.ACM0010.v03-0.R-0-0000",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "TODO: replace with rich rule summary",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "0d76165e5f628ae97f9f4c5157dc753e872b23d5213f97bd7171a8a83a142150",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0000"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AM0073.v01-0.R-0-0000",
+    "rule_id": "UNFCCC.Agriculture.AM0073.v01-0.R-0-0000",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "TODO: replace with rich rule summary",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "e588f88e573c2d69d9e41de9678b9f21fbac661865020439dd46f109eace2689",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0000"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III-D.v21-0.R-0-0000",
+    "rule_id": "UNFCCC.Agriculture.AMS-III-D.v21-0.R-0-0000",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "TODO: replace with rich rule summary",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "62b2edc5bcac1d0d8e169a19aa77aa072342950b4ffddbb6c3f7615cd5fd51ec",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0000"
+  },
+  {
+    "id": "UNFCCC.Agriculture.AMS-III-R.v05-0.R-0-0000",
+    "rule_id": "UNFCCC.Agriculture.AMS-III-R.v05-0.R-0-0000",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "TODO: replace with rich rule summary",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "ae7d4dbdced1d213bedfddad0e1282b1d9a5b6be371e08116206c7e16e9f2958",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0000"
+  },
+  {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-ACM0003",
