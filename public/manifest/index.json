@@ -1,5 +1,17 @@
 [
   {
+    "id": "UNFCCC.Agriculture.AMS-III-D.v21-0.R-0-0000",
+    "rule_id": "UNFCCC.Agriculture.AMS-III-D.v21-0.R-0-0000",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "TODO: replace with lean rule summary",
+    "tags": [],
+    "sha256": "3ce29ef32d541a8fc8cb332f177e101110411956e174e27919b40972db2ffd1d",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json"
+  },
+  {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-ACM0003",
