@@ -1,5 +1,1790 @@
 [
   {
+    "id": "R-0002-0001",
+    "rule_id": "R-0002-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Approved consolidated baseline methodology ACM0010",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "f1def5e3eac0995ee5578ed0598240b036d1e5e3e4340bededb76c5dc66ad7f8",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0002"
+  },
+  {
+    "id": "R-0004-0001",
+    "rule_id": "R-0004-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "• Farms where livestock populations, comprising of cattle, buffalo, swine, sheep, goats, and/or poultry, is managed under confined conditions. • Farms where manure is not discharged into natural water resources (e.g. rivers or estuaries)...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "62b57797d7474060cdd41b2270901fef46a748dc737aa2ea48aa25f876c4b898",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0004"
+  },
+  {
+    "id": "R-0011-0001",
+    "rule_id": "R-0011-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "For each alternative baseline scenario, the internal rate of return (IRR) and/or the net present value (NPV) should be calculated.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "07087361cad479e5064d7f67105c8d70a0b8ed31f5f02cb04bfb3dfbecf9a86a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0011"
+  },
+  {
+    "id": "R-0046-0001",
+    "rule_id": "R-0046-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "the baseline emissions section.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "d1c02953a5025bfa6ff590e92fd018f8bab574c0d054e46ca24e4a5c9a56e5b9",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0046"
+  },
+  {
+    "id": "R-0052-0001",
+    "rule_id": "R-0052-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Leakage",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "d0b1b399f58c5a4c896030fa2f794aa76a3761aaa3efccbd2fe2966d817a6503",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0052"
+  },
+  {
+    "id": "R-0055-0001",
+    "rule_id": "R-0055-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "RN,n Fraction of NEX in manure waste that is reduced in the Baseline AWMS.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "6c9113ff12f6615f0b2e18a73e48d7872638de71c19f48cf171f4843bcc29f11",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0055"
+  },
+  {
+    "id": "R-0070-0001",
+    "rule_id": "R-0070-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "• Leakage from anaerobic digester, if used.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "4ecd6ba0e647325d435c6a84f051596b06ab2902f2df35dfaf075f78a4698a50",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0070"
+  },
+  {
+    "id": "R-0070-0002",
+    "rule_id": "R-0070-0002",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "The default value is 15%, but in case project participants use a lower value, the appropriate measurement to support the lower value shall be monitored and reported. • The default nitrogen excretion per animal or parameters required to e...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "fdf0dfa1cd7c46d7c50b87cf92d376334b568ddd06da66758e89a9f998550486",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0070"
+  },
+  {
+    "id": "R-0070-0003",
+    "rule_id": "R-0070-0003",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "If N intake method is used the amount of dry matter intake by livestock shall be monitored. • Amount of electricity used in the project case.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "4f77cc213bea13cbf274a475328da7b2b0dce7fb7bc1e7de0e7d8e9396ac48c8",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0070"
+  },
+  {
+    "id": "R-0070-0004",
+    "rule_id": "R-0070-0004",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Calculated following the latest version of “Tool to calculate project or leakage CO2 emissions from fossil fuel combustion”. • Flow of biogas to the flare, heat generation, and electricity generation.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "c2084777d4c607ce363c661ccfd73734fc6dd39aaaf93a7b4909e685d83720e6",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0070"
+  },
+  {
+    "id": "R-0070-0005",
+    "rule_id": "R-0070-0005",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "In the case where biogas is just flared, one flow meter can be used provided that the meter used is calibrated periodically by an officially accredited entity. • Concentration of methane in biogas at outlet of anaerobic digester, this sh...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "7918063e3fe885900ed43167b3ddb0a805524695b9ec3b4900deabbe094f2f60",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0070"
+  },
+  {
+    "id": "R-0072-0001",
+    "rule_id": "R-0072-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Leakage:",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "b6227a1b995ed51edb3626ba888f61ed7f7886b965f08ac5317060cbaefa3bb0",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0072"
+  },
+  {
+    "id": "R-0074-0001",
+    "rule_id": "R-0074-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Data and parameters monitored",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "488f4174c6a248bd16b8e37b85badd0d40ba85cbb8638f1aeeaec3575dbe5832",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0074"
+  },
+  {
+    "id": "R-0076-0001",
+    "rule_id": "R-0076-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Data / Parameter: VSLT,y Data unit: kg dry matter/animal/year Description: Volatile solid excretion per animal per day Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any):...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "b9e8f234f477776f5af97414dfb8b56de1744649cb33002c0b965cfe9f67cc51",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0076"
+  },
+  {
+    "id": "R-0078-0001",
+    "rule_id": "R-0078-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Data / Parameter: RN,n Data unit: fraction Description: Nitrogen degradation factor Source of data: Refer to Annex 1 Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency: Annually QA/QC...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "4dca073deb5a1ddf47327995d95e5a343fe5b8a6c3a5ebfdcca2b3885274bc27",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0078"
+  },
+  {
+    "id": "R-0080-0001",
+    "rule_id": "R-0080-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Data / Parameter: EGd,y Data unit: MWh Description: Electricity exported to grid Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency: Annual QA/QC pr...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "524f0318e3d2955ff04bd26615ff237fb3dbde37b0ae43dd200096e053c68037",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0080"
+  },
+  {
+    "id": "R-0080-0002",
+    "rule_id": "R-0080-0002",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Uncertainty of the meters to be obtained from the manufacturers.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "4886de378cf15d3058ce59d6608c36ee4ad453f050ff843fdd8c2ceaf4e29ec6",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0080"
+  },
+  {
+    "id": "R-0080-0003",
+    "rule_id": "R-0080-0003",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "This uncertainty to be included in a conservative manner while calculating CERs and procedure for doing so should be described in the CDM-PDD.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "9e13053d09c01c289b09852534bfd2e3c6c8d60319749824cb3138a6322af783",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0080"
+  },
+  {
+    "id": "R-0082-0001",
+    "rule_id": "R-0082-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Data / Parameter: Wsite Data unit: kg Description: Weight of livestock Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency: Monthly QA/QC procedures:...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "8caabc1836adc04981848318a2b62880b881173507a06f00bdab3fcd8a6ffa89",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0082"
+  },
+  {
+    "id": "R-0084-0001",
+    "rule_id": "R-0084-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Monitoring frequency: to be decided by PPs.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "d000ebc2ae4d4902471c3540983f5c25c30566bc44e90530369e8e506a0f1e92",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0084"
+  },
+  {
+    "id": "R-0084-0002",
+    "rule_id": "R-0084-0002",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "QA/QC procedures: The project proponents shall define the variability of the concentration.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "03b33a93c31f4b1a17000cf7f8572f37ce4d44c689240ce6087e3bbfda7b5eec",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0084"
+  },
+  {
+    "id": "R-0086-0001",
+    "rule_id": "R-0086-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Measurement As per the “Tool to calculate project emissions from electricity consumption” procedures (if any): Monitoring frequency: As per the “Tool to calculate project emissions from electricity consumption” QA/QC procedures: As per t...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "d8a59fc36b7915708c14fb5cec3337f83be65bc9542a27bc4b3c87cac1326a01",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0086"
+  },
+  {
+    "id": "R-0088-0001",
+    "rule_id": "R-0088-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Data / Parameter: QDM Data unit: kg Description: Mass of manure disposed outside project boundary Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "467b1935860e9aae3e68db9db54a927e586a9ec7df63d617a0e6b5b97aa8e984",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0088"
+  },
+  {
+    "id": "R-0090-0001",
+    "rule_id": "R-0090-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Source of data: --- Measurement Archive electronically during project plus 5 yrs procedures (if any): Monitoring frequency: --- QA/QC procedures: --- Any comment: ---",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "a231f54d826ba93bbd6c14944b6fb3276aaf55d5f5230a0df7e412cd6df8b06b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-0090"
+  },
+  {
+    "id": "R-0002-0001",
+    "rule_id": "R-0002-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Approved baseline and monitoring methodology AM0073",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "04c02cade95dd62f3f09df0c4805cb8bb2ebd6fb8944e8d1fde6c3ffcf0ed761",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0002"
+  },
+  {
+    "id": "R-0003-0001",
+    "rule_id": "R-0003-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Sources This baseline and monitoring methodology is based on the following proposed new methodology:",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "9330e22f2d19efda06749b2c1f1af863b100d0acff06def456433e26636d8f2a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0003"
+  },
+  {
+    "id": "R-0005-0001",
+    "rule_id": "R-0005-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "• In the cases where the baseline anaerobic treatment system is an open lagoon, the lagoon depth shall be greater than 1 m;2 • The retention time of the organic matter in the baseline anaerobic treatment systems should be at least 30 day...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "9f57af29935aade20986157d02d0f12fac763d7b7cbe2764db60e4aa76d51e20",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0005"
+  },
+  {
+    "id": "R-0005-0002",
+    "rule_id": "R-0005-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Finally, this methodology is only applicable if the application of the procedure to identify the baseline scenario results in that anaerobic manure treatment systems without methane recovery in the farms are the most plausible baseline s...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "1a6e591abb2b6eeb237d9961005e15b7fddd6dc93e2be00e4a8398e172d4473a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0005"
+  },
+  {
+    "id": "R-0006-0001",
+    "rule_id": "R-0006-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Identification of the baseline scenario Baseline scenario should be identified from the perspective of the owner of central treatment plant, as well as from the perspective of the multiple livestock farms owners.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "02ba735b025e9a64723f43b2b7e06efcee923d3a6cbdea1dfeaecb8ff4bd5122",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0006"
+  },
+  {
+    "id": "R-0006-0002",
+    "rule_id": "R-0006-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Project participants shall apply the following steps to identify the baseline scenario: Step 1: Identify plausible alternative scenarios",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "8d3b9e93589c921b32255d5e518e87fcf9457e8723388255acf0b8c84f749ff7",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0006"
+  },
+  {
+    "id": "R-0016-0001",
+    "rule_id": "R-0016-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "For each alternative baseline scenario, the internal rate of return (IRR) and/or the net present value (NPV) should be calculated.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "7d86ad5c30cbe6311ac2e73ebf86ba2aea21a4b6868c56dd7d3c30f989d6963e",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0016"
+  },
+  {
+    "id": "R-0016-0002",
+    "rule_id": "R-0016-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "The baseline scenario is identified as the economically most attractive course of action i.e., alternative scenario with highest IRR or NPV, where the IRR cannot be calculated Step 4: Baseline revision at renewal of crediting period At t...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "8e40d3e373d8449cb3cd1a2019409d3bdbf7a50a006541146b1ed883df6878a3",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0016"
+  },
+  {
+    "id": "R-0016-0003",
+    "rule_id": "R-0016-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "This methodology is only applicable if the application of the procedure to identify the baseline scenario results in that anaerobic manure treatment systems in the farms and no implementation of the central plant are the most plausible b...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "133ffac2891dd12d64cc18d1e1c749bce98342acb6b8ed07c610e890ce7bcff2",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0016"
+  },
+  {
+    "id": "R-0016-0004",
+    "rule_id": "R-0016-0004",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Guidance for the assessment of the baseline scenario for the livestock farms For validation, project proponents shall calculate the baseline emission from each farm separately, based on ex ante estimation of parameters.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "7f688d237a7241ba5524e04d9a0ab4ff298be18e96792d14ffdac6b1f86fe7e2",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0016"
+  },
+  {
+    "id": "R-0016-0005",
+    "rule_id": "R-0016-0005",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Then, project participants shall ordinate, in decreasing order, the sites where most of the baseline emissions would occur.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "a8003b733c999d10ccc5ba9507872086d6ed90ca5b768556818993ea32a03006",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0016"
+  },
+  {
+    "id": "R-0016-0006",
+    "rule_id": "R-0016-0006",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "DOEs shall perform site inspections on the sites that are individually responsible for an amount of baseline emissions equal to, or higher than, 900 tCO2e (“upper rank”).",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "4e5bd7d654dc8472bb3ec3e89b49ef72ba0fd2e7cd1c3c07cfaac5cfe98a0f2d",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0016"
+  },
+  {
+    "id": "R-0016-0007",
+    "rule_id": "R-0016-0007",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "This guarantees that the most preponderant baseline GHG sources are properly validated.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "4b9100b1d650bbc75658cc11119c21da0bf173e90898c91365310839dc77ccf1",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0016"
+  },
+  {
+    "id": "R-0025-0001",
+    "rule_id": "R-0025-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "FVRG ,h = Volumetric flow rate of the captured biogas in dry basis at normal conditions in hour h (m3/h) fvCH 4 , RG , h = Volumetric fraction of methane in the captured biogas on dry basis in hour h (fraction) LFAD = Methane leakage fro...",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "691d0ac89c97c7a6822a2965eb3bd675f1dc5bde56e50462f81895a0fdbda7b2",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0025"
+  },
+  {
+    "id": "R-0035-0001",
+    "rule_id": "R-0035-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Else, RN can be calculated based on the direct monitoring of the nitrogen concentration in the effluent mix after each treatment step. (iv) Physical Leakage from distribution network of the captured methane in (PEPL) This refers to leaks...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "b22844ff2c22e52542ea92a1f47d9251b99b3750655f016bf84d52512b865565",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0035"
+  },
+  {
+    "id": "R-0035-0002",
+    "rule_id": "R-0035-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "The sum of the quantities of captured methane fed to the flare, to the power plant and to the boiler (measured as per the monitoring plan) must be compared annually with the total methane generated as measured by meter at the outlet of t...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "bb6946f67c7eed1a3e4f10d1833325e1990a86be74f94c69a10520df3eabf49f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0035"
+  },
+  {
+    "id": "R-0035-0003",
+    "rule_id": "R-0035-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "The difference between the monitored value of methane generated and that consumed in flare/electricity generation/heat shall be accounted as leakage from the pipelines.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "44f0a093497d530c8b7970ceba8a88db086ed58d8b810b12180ee135dea95781",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0035"
+  },
+  {
+    "id": "R-0038-0001",
+    "rule_id": "R-0038-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "The project emissions from fossil fuel combustion (PEheat,j,y = PEFC,j,y ) will be calculated following the latest version of “Tool to calculate project or leakage CO2 emissions from fossil fuel combustion”.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "22f712388a96d11cf3e10483bc6b3dbe54027284b7c08cb458f1bb29c0767409",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0038"
+  },
+  {
+    "id": "R-0044-0001",
+    "rule_id": "R-0044-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "(i) Methane emissions from animal waste treatment Manure management system in the baseline could be based on different treatment systems and on one or more stages.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "1063de53e68e34a6429751596e604585ba56ab35cc0c9ac062b454b4c90f0bc9",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0044"
+  },
+  {
+    "id": "R-0065-0001",
+    "rule_id": "R-0065-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Baseline electricity and thermal energy consumptions should be estimated as the average of the historical",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "3fd3f23a9194d906e83dfef9083914d4bf78bbbef15394f4c0aefb32069317ee",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0065"
+  },
+  {
+    "id": "R-0066-0001",
+    "rule_id": "R-0066-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Leakage Leakage covers the emissions from land application of treated residues, outside the project boundary.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "cc5cd040e17ad92eb2928e65086a8139a9c39f95b5775e0cab7ac920c547738f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0066"
+  },
+  {
+    "id": "R-0066-0002",
+    "rule_id": "R-0066-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "These emissions are estimated as net of those released under project activity and those released in the baseline scenario.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "6691d1025ef31e7e0d7d11356a3bdb3f72b4f181efe0ffde8bf188a177ea7fbc",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0066"
+  },
+  {
+    "id": "R-0066-0003",
+    "rule_id": "R-0066-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Net leakage of N2O and CH4 are only considered if they are positive.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "3f90510d079c5acfed15b7a91ab57eea8028a367563092bc9d3380cdf45623db",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0066"
+  },
+  {
+    "id": "R-0066-0004",
+    "rule_id": "R-0066-0004",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "CO2 emissions due to the road transportation of sludge or treated effluent outside the project boundary are also considered as leakage.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "9149a315dd39d3a8645790e0ed6322a067e58c8df9ebc72e9c2eda0d026c53be",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0066"
+  },
+  {
+    "id": "R-0068-0001",
+    "rule_id": "R-0068-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Where: LE B , N 2O = N2O emissions released during baseline scenario from land application of the treated manure, in tCO2e/year GWPN 2O = Global Warming Potential (GWP) for N2O CFN 2O − N , N = Conversion factor (= 44/28) LE B , N 2O ,la...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "14e2d2c3064ca3b9f0ad6d15b4479f7b233dfe1378bf347d7f27e72b92e146c7",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0068"
+  },
+  {
+    "id": "R-0068-0002",
+    "rule_id": "R-0068-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Otherwise, default values from table 11.3, chapter 11, volume 4 of IPCC 2006 guidelines can be used N LT , y = Number of animals of type LT for the year y, expressed in numbers NEX LT = Is the annual average nitrogen excretion per head o...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "73c64dab3497cb521bb5a8fe148108050aeb259d1108d65d7218a3d24f0f7ad1",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0068"
+  },
+  {
+    "id": "R-0068-0003",
+    "rule_id": "R-0068-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Otherwise, default values from table 11.1, chapter 11, volume 4 of IPCC 2006 guidelines can be used RN , n = Fraction of N that is reduced in the Baseline AWMS.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "0af46252e19d74c4cce474d4967a95f0c76c5185d2bf825b9604d4b29b825716",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0068"
+  },
+  {
+    "id": "R-0076-0001",
+    "rule_id": "R-0076-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data and parameters not monitored In addition to the parameters listed in the tables below, the provisions on data and parameters not monitored in the tools referred to in this methodology apply.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "e9f56d200bf6a0bc26c5f5650bf737f906d04ab7cdf7ca1af92c2253ef042505",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0076"
+  },
+  {
+    "id": "R-0079-0001",
+    "rule_id": "R-0079-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "ID Number: 7 Parameter: HG Bl , y Data unit: MJ Description: Heat used by baseline AWMSs Source of data: Project proponents Measurement Archive electronic for the duration of project + 5 yrs procedures (if any): Any comment: At start of ...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "87f9fca6774d1f3f4570875a6ae7776be34cb5a111038977119424d45c851d1b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0079"
+  },
+  {
+    "id": "R-0088-0001",
+    "rule_id": "R-0088-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Prior to the verification, project proponents shall calculate the baseline emission from each site separately.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "fb2d25ffe7f6d73fa206d7b77c9b75309e96fdeed440a387e6040a9897fe728a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0088"
+  },
+  {
+    "id": "R-0088-0002",
+    "rule_id": "R-0088-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Then, project participants shall ordinate, in decreasing order, the sites where most of the baseline emissions would occur.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "613fdfed588c0384c9d7233689281140586c313835cd755ec466e6aa1fc961eb",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0088"
+  },
+  {
+    "id": "R-0088-0003",
+    "rule_id": "R-0088-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "DOEs shall perform site inspections on the sites that are individually responsible for an amount of baseline emissions equal or higher than 900 tCO2e (“upper rank”).",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "334448ae4689d50e1fdcb4e036ddc90a07330945615a046a735faf963fccf903",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0088"
+  },
+  {
+    "id": "R-0088-0004",
+    "rule_id": "R-0088-0004",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "This guarantees that the most preponderant baseline GHG sources are properly verified.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "88ee90e2bbc933d8759ee916d925696ac99f2282bbe71c1170df3809e6614234",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0088"
+  },
+  {
+    "id": "R-0091-0001",
+    "rule_id": "R-0091-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Where: corrected BELR = Total corrected baseline emissions from the “lower rank” sites (tCO2e) , total",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "0a6346a861c164bfccae9be612fb68ea932f566a6af2e38a9341f72d490500de",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0091"
+  },
+  {
+    "id": "R-0093-0001",
+    "rule_id": "R-0093-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: B0 , LT Data unit: m3 CH4/kg_VS_dm Description: Maximum methane producing potential of the volatile solid generated Source of data: IPCC 2006 Guidelines or directly measured Measurement Archive electronically during pro...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "acaf8a8e95e1b36fd2c79cfdd1f87f9d768d57108ba031c09d7a80b7ba0fba6e",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0093"
+  },
+  {
+    "id": "R-0095-0001",
+    "rule_id": "R-0095-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: Q EM ,m Data unit: m3/month Description: Monthly volume of the effluent mix entering the central treatment plant Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedur...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "834a612ed1d589cfdf32ff234daa68998e7a61e3b7c5eae26be8b45be0cc86df",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0095"
+  },
+  {
+    "id": "R-0095-0002",
+    "rule_id": "R-0095-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "This maintenance/calibration practice should be clearly stated in the CDM-PDD Any comment: This parameter shall be monitored by continuous flow meters installed after the effluent admittance point or after the equalization tanks (if exis...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "8eb8c893960a448935e2c041bb124c46ffd2a469f278742c7c1b46d28b0f1ab5",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0095"
+  },
+  {
+    "id": "R-0097-0001",
+    "rule_id": "R-0097-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: VS res ,m Data unit: Ton VS/ton residue Description: Average monthly volatile solids (VS) concentration of the residue entering the composting step Source of data: Project proponents Measurement Archive electronically d...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "07ab386bcf8e2b77f966b2ce3ec27f085b2782e53caabcf213730424bc91afa9",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0097"
+  },
+  {
+    "id": "R-0099-0001",
+    "rule_id": "R-0099-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: [ N ] EM ,m Data unit: kg N/m3 Monthly total nitrogen concentration in the effluent mix entering the central Description: treatment plant Source of data: Project proponents Measurement Archive electronically during proj...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "564b1118311fdc985dbc19471660453f066b0e36d7b2eabfa1f7822082190572",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0099"
+  },
+  {
+    "id": "R-0099-0002",
+    "rule_id": "R-0099-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Total QA/QC procedures: nitrogen determination should be performed according to the guidance provided in annex 3 Any comment: The effluent mix shall be collected after the effluent admittance point or after the equalization tanks (if exi...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "29bde2e022615efdbe2a54e3f643e4fea04e889f27ecdfbd279081c603aff40c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0099"
+  },
+  {
+    "id": "R-0103-0001",
+    "rule_id": "R-0103-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: EG d , y Data unit: MWh Description: Electricity exported to grid Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency: Annual QA/QC...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "a650fcf8606b68ab1024bd32dd5b079ea9f0897088b0a13a3ca690e4f3df401b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0103"
+  },
+  {
+    "id": "R-0103-0002",
+    "rule_id": "R-0103-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Uncertainty of the meters to be obtained from the manufacturers.",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "e789f40e6b25aaa655ff0ccd7ca79a71bdb827e60d27314cbb6a2e642f69a2f3",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0103"
+  },
+  {
+    "id": "R-0103-0003",
+    "rule_id": "R-0103-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "This uncertainty to be included in a conservative manner while calculating CERs and procedure for doing so should be described in the CDM-PDD",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "e3a63f9d976ab8cb25f44c0514682e4ffe78c8b72c7570d840b0c7312d56970c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0103"
+  },
+  {
+    "id": "R-0105-0001",
+    "rule_id": "R-0105-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: EFN 2O , D ,n Data unit: kg N2O-N/ kg N Description: Direct N2O emission factor for treatment stage n Source of data: Project proponents or IPCC 2006 Guidelines Measurement Archive electronically during project plus 5 y...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "f5096ea0dabd4f0d07406643defc60577a552ed11c5fb541e5a748ab0afdb246",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0105"
+  },
+  {
+    "id": "R-0105-0002",
+    "rule_id": "R-0105-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "The data used for this purpose shall be included in the monitoring plan of the CDM-PDD.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "9fab96c20e3a7b84fcab74ea74c3efcf74e16e0ccf11c8e87e8ffe308fa3d256",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0105"
+  },
+  {
+    "id": "R-0107-0001",
+    "rule_id": "R-0107-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: T2 ,m Data unit: Kelvin Description: Monthly average ambient temperature at the manure storage tanks Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any):...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "c3eff067895cd70b95588aa18a4e5b4256b40eafe24125aa88ac3b3f9e45585a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0107"
+  },
+  {
+    "id": "R-0109-0001",
+    "rule_id": "R-0109-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / Parameter: PE flare , y Data unit: tCO2e Description: Project emissions from flaring of the residual gas stream in year y Source of data: “Tool to determine project emissions from flaring gases containing Methane” Measurement The ...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "d22002174f1743c60d6674cd9bccacbfb9c9b261f40f79e90aa7116c1d72eb62",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0109"
+  },
+  {
+    "id": "R-0111-0001",
+    "rule_id": "R-0111-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / parameter: N vehicles ,i , y Data unit: Number Number of trips of vehicles type i used for transportation, with similar loading Description: capacity Source of data: Project proponents Measurement On-site monitoring records proced...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "c942718bfcc8ecadbf7122ccd62ca7278ba52aa91f64b024a4e5895619bb5637",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0111"
+  },
+  {
+    "id": "R-0113-0001",
+    "rule_id": "R-0113-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / parameter: N LT , y Data unit: Number Average livestock population used in both baseline and project case emissions Description: estimation.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "bf12d9843e9714b4707627d8922eb9d1f43531294c2cb83761ba9fd39e53cbd7",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0113"
+  },
+  {
+    "id": "R-0113-0002",
+    "rule_id": "R-0113-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency: Monthly QA/QC procedures: --- The PDD should describe the system on monitoring the number of liv...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "57621885be72c9cf4a4f3c542670a7915c84a5cf8d246799b933979a8505d84b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0113"
+  },
+  {
+    "id": "R-0115-0001",
+    "rule_id": "R-0115-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / parameter: Wsite Data unit: kg Description: Weight of livestock Source of data: Project proponents Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency: Monthly QA/QC procedures:...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "e71dcf7d4acd34b2eac22a27fd0f60c8fdd04f3a2aa043de3b7d3fee3bf9d999",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0115"
+  },
+  {
+    "id": "R-0117-0001",
+    "rule_id": "R-0117-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Use country-specific values where available Measurement Archive electronically during project plus 5 years procedures (if any): Monitoring frequency: --- QA/QC procedures: --- Any comment: ---",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "2fd8062ba571dbfafd90b9e8f61fa938b70be4acccfd057b61feeb3238ed16ab",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0117"
+  },
+  {
+    "id": "R-0119-0001",
+    "rule_id": "R-0119-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / parameter: N Data unit: - Description: Total Numbers of farms Source of data: Project proponents Measurement procedures (if any): Monitoring frequency: Annually QA/QC procedures: Any comment:",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "8c685ee5d1475da19840ebe20d882b1fb833c896ec9006d23146f84b639deba9",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0119"
+  },
+  {
+    "id": "R-0121-0001",
+    "rule_id": "R-0121-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Monitoring frequency: Weekly aggregated for monthly average QA/QC procedures: Any comment:",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "cb6b23df95942c58cf20b7c19a3aecba9eb64ba8fd62bd4321c77ada5e1a7f72",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0121"
+  },
+  {
+    "id": "R-0123-0001",
+    "rule_id": "R-0123-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Monitoring frequency: Weekly aggregated for monthly average QA/QC procedures: Any comment:",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "05536f58463f32e5b1e49c73a4568c579a32ef415ab7f1dae24b3bee52943c4f",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0123"
+  },
+  {
+    "id": "R-0125-0001",
+    "rule_id": "R-0125-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Data / parameter: PEEC,y Data unit: tCO2 Description: Project emissions from electricity consumption by the project activity during the year y Source of data: Calculated as per the “Tool to calculate baseline, project and/or leakage emis...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "1c49e4f0fe0d7192ba6b3a73cbf720548b886c18da84be3cf484512edfab3754",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-0125"
+  },
+  {
+    "id": "R-0005-0001",
+    "rule_id": "R-0005-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Leakage ..........................................................................................................",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "d1ebae0831d1d247a1f00fb0f9d0792f41482cc96c5b4dde1614eb8fac26831b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0005"
+  },
+  {
+    "id": "R-0009-0001",
+    "rule_id": "R-0009-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "(a) The livestock population in the farm is managed under confined conditions; (b) Manure or the streams obtained after treatment are not discharged into natural water resources (e.g. river or estuaries), otherwise “AMS-III.H Methane rec...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "1243bef302697525d27ca1df4950988a43102349aba61dc8f0d17db0431a59fb",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0009"
+  },
+  {
+    "id": "R-0014-0001",
+    "rule_id": "R-0014-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "If the recovered biogas is used to power auxiliary equipment of the project activity, it should be taken into account accordingly, using zero as its emission factor; however, energy used for such purposes is not eligible as an SSC CDM Ty...",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "75d1a2a3a50818d43cacc59fe00ba274113d25b03f01b94edffd87be8628c694",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0014"
+  },
+  {
+    "id": "R-0015-0001",
+    "rule_id": "R-0015-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "compared to the baseline scenario are only eligible if they comply with the related and relevant requirements in the \"General guidelines for SSC CDM methodologies\".",
+    "tags": [
+      "eligibility"
+    ],
+    "sha256": "e5096d21779a4fbd02f5cd40f853ae8f198cdda6fd86c143eff741147d3733ae",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0015"
+  },
+  {
+    "id": "R-0020-0001",
+    "rule_id": "R-0020-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "methodologies and tools: (a) “ACM0010: Consolidated baseline methodology for GHG emission reductions from manure management systems”; (b) AM0073: GHG emission reductions through multi-site manure collection and treatment in a central pla...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "38f2090fcd997b48e4e78cfd6218386315803c1d5544f023cd7475ab61bfe74b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0020"
+  },
+  {
+    "id": "R-0025-0001",
+    "rule_id": "R-0025-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Baseline emissions (BEy) are calculated by using one of the following two options: (a) Using the amount of the waste or raw material that would decay anaerobically in the absence of the project activity, with the most recent IPCC Tier 2 ...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "7a7001b11aceba0f9075bf6d18465132967e63fd1d9a2e8ec55800abc699a7b1",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0025"
+  },
+  {
+    "id": "R-0025-0002",
+    "rule_id": "R-0025-0002",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "For this calculation, information about the characteristics of the manure and of the management systems in the baseline is required.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "d00b67c9c2c38a1850db3ef7eb586525baadd674a2c435fd86e9251b3ab74b8b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0025"
+  },
+  {
+    "id": "R-0035-0001",
+    "rule_id": "R-0035-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "(a) Physical leakage of biogas in the manure management systems which includes production, collection and transport of biogas to the point of flaring/combustion or gainful use (PEPL,y); (b) Emissions from flaring or combustion of the gas...",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "d5bd9b2ac24f29834602fad5fa38f787034f18949f0cbc0d9d00d63fd0c7925b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0035"
+  },
+  {
+    "id": "R-0038-0001",
+    "rule_id": "R-0038-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "However, this use of the recovered biogas shall be included in the project boundary and its output shall be monitored in order to ensure that the recovered biogas is actually destroyed, even if the emission reductions from this component...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "3a275a22dc8b37eeb5538808ec2f3d6592e3a124e5df2c59677161d11ed63c60",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0038"
+  },
+  {
+    "id": "R-0039-0001",
+    "rule_id": "R-0039-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "a default value of 10% of the maximum methane producing potential (Bo) for the physical leakages from anaerobic digesters.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "0518f44ec74a0799eeeedf7862753ae47564bce4c9d9747dd55ba5fb98189d5c",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0039"
+  },
+  {
+    "id": "R-0041-0001",
+    "rule_id": "R-0041-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "the methodological tool “Project and leakage emissions from anaerobic digesters”, where PEPower,y is the sum of PEEC,y and PEFC,y in the tool.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "262284de90fcbe8a5ccdd9319a6f25fc868876a9c9d62b432c2b1a79e83ba3bf",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0041"
+  },
+  {
+    "id": "R-0044-0001",
+    "rule_id": "R-0044-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "leakage emissions from anaerobic digesters”.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "7c2f579468131900be13760add4958dc306e60d7b055a0fb91ddcfd501f5ff93",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0044"
+  },
+  {
+    "id": "R-0048-0001",
+    "rule_id": "R-0048-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "year of measurements within the confidence level, as well as the methods and instruments used for metering, recording and processing the data obtained, shall be described in the project design document and monitored during the crediting ...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "3d01cf89a634817850bff4f4a7731f02271dcd8f0741bf039cd43f0768bed90a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0048"
+  },
+  {
+    "id": "R-0049-0001",
+    "rule_id": "R-0049-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "may be calculated as follows, based on the amount of monitored electricity generation, without monitoring methane flow and concentration:",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "0d3fa6b0bb27c0c714b39dc8fcc2ee0216a8c0f44739f14e58147482e50b55c4",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0049"
+  },
+  {
+    "id": "R-0054-0001",
+    "rule_id": "R-0054-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "When the amount of methane that is combusted for energy and that is flared is separately monitored, or when only the biogas flow to the flare is monitored and the biogas used for energy is calculated based on electricity generation, a de...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "05b6fe162d1e47fb694c5f256dd3341a9797cfa781de0005b188f11246b90cca",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0054"
+  },
+  {
+    "id": "R-0055-0001",
+    "rule_id": "R-0055-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "residual waste shall be monitored.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "394a950e71a8d96d03b15b569ef8f89b7938c94925cdf48b8abb7eeb5efb8a4d",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0055"
+  },
+  {
+    "id": "R-0057-0001",
+    "rule_id": "R-0057-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "(a) The PDD shall describe the system used for monitoring the fraction of the manure handled in the animal manure management system (MS%,i,y), the average weight of the livestock (Wsite) and the livestock population (NLT,y) taking into a...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "5a01d09fba7bbe02b7b383356bebf6a8538415bf357c3404658ace5b14113df8",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0057"
+  },
+  {
+    "id": "R-0060-0001",
+    "rule_id": "R-0060-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "requirements specified in the “General Guidelines for SSC CDM methodologies” (e.g. calibration requirements, sampling requirements) are also an integral part of the monitoring guidelines specified below and therefore shall be referred by...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "2ed5989244d230ed5683f5a9c87ff4f9b61107421ab2bcf6bc829c460bbeb4cd",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0060"
+  },
+  {
+    "id": "R-0069-0001",
+    "rule_id": "R-0069-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Sampled group will be changed in each monitoring period.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "cd3be562b240ad87c1fdac78750e8ad265c118005f03f47e95c51ba4bd861dcf",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0069"
+  },
+  {
+    "id": "R-0071-0001",
+    "rule_id": "R-0071-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "the date and signature; the monitor forms will be collected, summarized and kept by the project participant.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "43cd04f9cff1378fcabcfff133533c2267225e29bdf02a78365a7f0004f49f0e",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0071"
+  },
+  {
+    "id": "R-0081-0001",
+    "rule_id": "R-0081-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Use country-specific values where available Monitoring frequency: - QA/QC procedures: - Any comment: -",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "72efad1880c9c4668d7a60dcf569e3b2336ca3d2066ff20f434645ac7c712a37",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0081"
+  },
+  {
+    "id": "R-0084-0001",
+    "rule_id": "R-0084-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "programme of activities: (a) If the project activity involves the replacement of equipment, and the leakage effect of the use of the replaced equipment in another activity is neglected, because the replaced equipment is scrapped, an inde...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "0a8b5bcc29993d6103381f53cc02a8c560bad870b7f25c6f41ac414d6e191e0a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0084"
+  },
+  {
+    "id": "R-0084-0002",
+    "rule_id": "R-0084-0002",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "The monitoring should include a check if the number of project activity equipment distributed by the project and the number of scrapped equipment correspond with each other.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "f2847cd8ae3a0a1557dc0bba24022dea6afe9f2461c662d2031c67d15d13a2bb",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0084"
+  },
+  {
+    "id": "R-0092-0001",
+    "rule_id": "R-0092-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "To include the monitoring table to clarify the monitoring requirements.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "cba280368a841563f3ce00da01b41d6db531765aa41b15ecaef50dc7c1e3648a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0092"
+  },
+  {
+    "id": "R-0093-0001",
+    "rule_id": "R-0093-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "To cover centralized treatment of animal manure collected from different farms and to include provisions for determining baseline emissions based on the direct measurement of manure quantity and volatile solids.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "9562b5c5fc1fec72f17346429d9165c8b70d704ec8dbdf8dc8e0dcc9c0f16cbe",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0093"
+  },
+  {
+    "id": "R-0099-0001",
+    "rule_id": "R-0099-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "To clarify that in the monitoring plan on-site inspections are to be conducted for each individual farm and includes additional guidance on how to determine the efficiency of the flaring process in an enclosed flare and in an open flare;...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "40fdb5331da96310a69d617ead37133e55c712011ffa5989ddf7397fb57e6016",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0099"
+  },
+  {
+    "id": "R-0107-0001",
+    "rule_id": "R-0107-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Guidance on ‘capacity addition’ and ‘cofiring’ in Type I methodologies and monitoring of methane in AMS-III.D included.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "42f099155c339238a1a7998ec9add209b66ff38855335d10a1263d92229361aa",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0107"
+  },
+  {
+    "id": "R-0108-0001",
+    "rule_id": "R-0108-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "AMS-II.F was adopted, leakage due to equipment transfer was included in all Type I and Type II methodologies.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "0e92c062d2807930a2cb595cabf2dac075cec16c42ba30bd6a8b1195a887989b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-0108"
+  },
+  {
+    "id": "R-0009-0001",
+    "rule_id": "R-0009-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "(a) The average annual emission reductions achieved by each domestic biogas digester, methane recovery and combustion system is less than or equal to five tonnes of carbon dioxide equivalent (tCO2e) per system;2 (b) Final digestate must ...",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "30e90b4557beabecb888ea45f1acf5beddb2ae7384eb658a75d61b31002958ee",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0009"
+  },
+  {
+    "id": "R-0009-0002",
+    "rule_id": "R-0009-0002",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Justifications shall be provided in the PDD and monitoring reports to demonstrate that gasholders are sufficiently large to capture and store all the biogas that would be generated until consumption; (ii) Ensures that the construction or...",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "4c7a37e86ba4a523a9856cf75e1f40ae41df5d65b676f38bd53d917b6ca99fa5",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0009"
+  },
+  {
+    "id": "R-0012-0001",
+    "rule_id": "R-0012-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "“TOOL21: Demonstration of additionality of small-scale project activities” and “TOOL22: Leakage in biomass small-scale project activities” available at <http://cdm.unfccc.int/Reference/Guidclarif/index.html#meth> mutatis mutandis.",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "c1c8cc727cf28c9677aa25995c913f33f1f2f24414a452b7f02195434e28591d",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0012"
+  },
+  {
+    "id": "R-0013-0001",
+    "rule_id": "R-0013-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "methodologies, tools and standard: (a) “AMS-I.C.: Thermal energy production with or without electricity”; (b) “AMS-I.E.: Switch from non-renewable biomass for thermal applications by the user”; (c) “AMS-I.I.: Biogas/biomass thermal appli...",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "4f5e0248f9e505c24ae5476d5cd7e14dc68fec4817820486940ddfbca16a38a6",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0013"
+  },
+  {
+    "id": "R-0017-0001",
+    "rule_id": "R-0017-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "The survey should determine the baseline animal manure management practices applied.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "b6bf7922cfce8e25779e922d46dd65ac613d5f2d3d9b3b1f64007f428b5b7a11",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0017"
+  },
+  {
+    "id": "R-0017-0002",
+    "rule_id": "R-0017-0002",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "If the livestock is raised in shared centralized farms, 3 the project participant shall be able to show the baseline animal manure management practices at each farm, either individually or through sampling.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "8193b20cb433b5429b00ecc7cbe050dc62c9e308459075bea57b7cc4379b73f3",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0017"
+  },
+  {
+    "id": "R-0021-0001",
+    "rule_id": "R-0021-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "𝑀𝐶𝐹𝐿𝑇,𝑀𝑆,𝑘 = Methane conversion factors for each manure management system MS by climate region k (per cent) Use default values as provided in Table 10.17 of chapter ‘Emissions from Livestock and Manure Management’ under the volum...",
+    "tags": [
+      "uncertainty"
+    ],
+    "sha256": "128aca6a805cba3edcee6210028592d94e030320416896360e6d7d638c33f99b",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0021"
+  },
+  {
+    "id": "R-0022-0001",
+    "rule_id": "R-0022-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "(a) Physical leakage of biogas (PEPL,y); (b) CO2 emissions from use of fossil fuels for the operation of all the installed facilities (PEFC,y); (c) CO2 emissions from use of electricity for the operation of all the installed facilities (...",
+    "tags": [
+      "leakage"
+    ],
+    "sha256": "a553ae531672de4d0137de473b479faf4bbea4e38a0cef254ed5f9baaf95e7cd",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0022"
+  },
+  {
+    "id": "R-0040-0001",
+    "rule_id": "R-0040-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Revision to • Provide further clarity on monitoring requirements for biogas digester systems; • Address the fugitive methane emissions from biogas digesters and the use of updated Intergovernmental Panel on Climate Change (IPCC) methods.",
+    "tags": [
+      "monitoring"
+    ],
+    "sha256": "9ea17c678aa9b1e9e8f39c33ee6351039f0d41a5a3fe26d9c8da10a3cc666c3a",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0040"
+  },
+  {
+    "id": "R-0042-0001",
+    "rule_id": "R-0042-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "To introduce the IPCC Tier 1 approach as an alternative method for calculation of baseline emissions.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "f4d5026a3be696f14917de3279cd074ad11d93f948f6e4a36d7780d3ac98c193",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0042"
+  },
+  {
+    "id": "R-0044-0001",
+    "rule_id": "R-0044-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "• To revise the guidance on calculation of project emissions from physical leakage and baseline emissions; • To revise sampling requirements; • To remove the conditions for PoA.",
+    "tags": [
+      "baseline"
+    ],
+    "sha256": "a43cf7093bd00a32acba3f6c52c403fe1468e2c146bf76529e10c725dd506455",
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-0044"
+  },
+  {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
     "methodology": "AR-ACM0003",
