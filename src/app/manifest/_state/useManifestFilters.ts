@@ -62,9 +62,10 @@ export type ManifestFilters = {
 export default function useManifestFilters(): ManifestFilters {
   const router = useRouter();
   const pathname = usePathname();
+  const resolvedPathname = pathname ?? "/manifest";
   const searchParams = useSearchParams();
   const [filters, setFiltersState] = useState<FiltersState>(() =>
-    parseFilters(new URLSearchParams(searchParams)),
+    parseFilters(new URLSearchParams(searchParams?.toString())),
   );
 
   const lastAppliedRef = useRef<string | null>(null);
@@ -73,10 +74,10 @@ export default function useManifestFilters(): ManifestFilters {
     (next: FiltersState) => {
       const search = buildSearchString(next);
       lastAppliedRef.current = search;
-      const href = search ? `${pathname}?${search}` : pathname;
+      const href = search ? `${resolvedPathname}?${search}` : resolvedPathname;
       router.replace(href, { scroll: false });
     },
-    [pathname, router],
+    [resolvedPathname, router],
   );
 
   const setFilters = useCallback(
@@ -94,7 +95,7 @@ export default function useManifestFilters(): ManifestFilters {
   );
 
   useEffect(() => {
-    const incoming = new URLSearchParams(searchParams);
+    const incoming = new URLSearchParams(searchParams?.toString());
     const incomingString = incoming.toString();
     if (incomingString === (lastAppliedRef.current ?? "")) {
       lastAppliedRef.current = null;
