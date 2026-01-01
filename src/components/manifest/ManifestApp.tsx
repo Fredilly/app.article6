@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Filter, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import ManifestDetailsDrawer, {
   type ManifestRuleGroup,
 } from "@/components/manifest/ManifestDetailsDrawer";
+import MethodologyPicker, {
+  type MethodologyOption,
+} from "@/components/manifest/MethodologyPicker";
 import ManifestTable, {
   type ManifestSortDirection,
   type ManifestSortKey,
@@ -18,12 +21,44 @@ type ManifestHealthPayload = {
   engineUrl?: string;
 };
 
+type MethodsRegistryResponse = {
+  source_url?: string;
+  entries?: Array<{ code: string; versions: string[] }>;
+};
+
+function parseMethodCode(value: string) {
+  const parts = value.split("/").filter(Boolean);
+  if (parts.length >= 3) {
+    return {
+      program: parts[0] ?? undefined,
+      sector: parts[1] ?? undefined,
+      code: parts[parts.length - 1] ?? value,
+    };
+  }
+  if (parts.length === 2) {
+    return {
+      program: parts[0] ?? undefined,
+      sector: undefined,
+      code: parts[1] ?? value,
+    };
+  }
+  return { program: undefined, sector: undefined, code: value };
+}
+
+function pickLatestVersion(versions: string[]) {
+  if (!versions.length) return undefined;
+  return [...versions].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
+}
+
 export default function ManifestApp() {
   const [entries, setEntries] = useState<ManifestEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [health, setHealth] = useState<ManifestHealthPayload | null>(null);
   const [healthError, setHealthError] = useState<string | null>(null);
+  const [registry, setRegistry] = useState<MethodsRegistryResponse | null>(null);
+  const [registryError, setRegistryError] = useState<string | null>(null);
+  const [registryLoadedAt, setRegistryLoadedAt] = useState<string | null>(null);
   const [selected, setSelected] = useState<ManifestRuleGroup | null>(null);
   const [sortKey, setSortKey] = useState<ManifestSortKey>("methodology");
   const [sortDirection, setSortDirection] = useState<ManifestSortDirection>("asc");
@@ -100,10 +135,93 @@ export default function ManifestApp() {
     };
   }, []);
 
-  const methodologyOptions = useMemo(() => {
-    const unique = new Set<string>(entries.map(entry => entry.methodology));
-    return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
-  }, [entries]);
+  useEffect(() => {
+    let cancelled = false;
+    setRegistryError(null);
+    fetch("/api/methods-registry", { cache: "no-store" })
+      .then(async response => {
+        const payload = (await response.json().catch(() => null)) as MethodsRegistryResponse | null;
+        if (!response.ok || !payload) {
+          throw new Error(`Methods registry request failed with ${response.status}`);
+        }
+        if (!cancelled) {
+          setRegistry(payload);
+          setRegistryLoadedAt(new Date().toLocaleString());
+        }
+      })
+      .catch(fetchError => {
+        if (!cancelled) {
+          setRegistry(null);
+          setRegistryError(fetchError instanceof Error ? fetchError.message : String(fetchError));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const methodologyOptions = useMemo((): MethodologyOption[] => {
+    const fallbackCodes = Array.from(new Set(entries.map(entry => entry.methodology)));
+    const registryEntries = Array.isArray(registry?.entries) ? registry!.entries : [];
+    const merged = new Map<string, MethodologyOption>();
+
+    for (const entry of registryEntries) {
+      if (!entry?.code || !Array.isArray(entry.versions)) continue;
+      const parsed = parseMethodCode(entry.code);
+      const value = parsed.code;
+      if (!value) continue;
+      const existing = merged.get(value);
+      const latest = pickLatestVersion(entry.versions);
+      const versionsCount = entry.versions.length;
+      if (!existing) {
+        merged.set(value, {
+          key: value,
+          value,
+          code: value,
+          program: parsed.program,
+          sector: parsed.sector,
+          versionsCount,
+          latestVersion: latest,
+        });
+      } else {
+        const nextCount = existing.versionsCount + versionsCount;
+        const bestLatest = [existing.latestVersion, latest]
+          .filter(Boolean)
+          .sort((a, b) => (b ?? "").localeCompare(a ?? "", undefined, { numeric: true }))[0];
+        merged.set(value, {
+          ...existing,
+          program: existing.program ?? parsed.program,
+          sector: existing.sector ?? parsed.sector,
+          versionsCount: nextCount,
+          latestVersion: bestLatest,
+        });
+      }
+    }
+
+    for (const code of fallbackCodes) {
+      if (!merged.has(code)) {
+        merged.set(code, {
+          key: code,
+          value: code,
+          code,
+          versionsCount: 0,
+          latestVersion: undefined,
+        });
+      }
+    }
+
+    return Array.from(merged.values()).sort((a, b) => {
+      const programA = a.program ?? "";
+      const programB = b.program ?? "";
+      const program = programA.localeCompare(programB);
+      if (program) return program;
+      const sectorA = a.sector ?? "";
+      const sectorB = b.sector ?? "";
+      const sector = sectorA.localeCompare(sectorB);
+      if (sector) return sector;
+      return a.code.localeCompare(b.code);
+    });
+  }, [entries, registry]);
 
   const groupedRules = useMemo(() => {
     const grouping = new Map<string, ManifestRuleGroup>();
@@ -228,20 +346,21 @@ export default function ManifestApp() {
             />
           </label>
 
-          <label className="flex min-h-[2.75rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4">
-            <Filter className="h-4 w-4 text-slate-400" aria-hidden="true" />
-            <select
-              value={filters.methodology}
-              onChange={event => filters.setMethodology(event.target.value)}
-              className="flex-1 bg-transparent text-sm text-slate-900 focus:outline-none"
-            >
-              {methodologyOptions.map(option => (
-                <option key={option} value={option}>
-                  {option === "all" ? "All methodologies" : option}
-                </option>
-              ))}
-            </select>
-          </label>
+          <MethodologyPicker
+            value={filters.methodology}
+            onChange={filters.setMethodology}
+            options={methodologyOptions}
+            sourceUrl={registry?.source_url ?? null}
+            lastLoadedAt={registryLoadedAt}
+          />
+
+          {registryError ? (
+            <div className="lg:col-span-2">
+              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                Live registry unavailable ({registryError}). Showing a partial list based on the current manifest.
+              </p>
+            </div>
+          ) : null}
 
           {filters.activeTags.length ? (
             <div className="lg:col-span-2">
