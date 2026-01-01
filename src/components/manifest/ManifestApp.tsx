@@ -2,22 +2,31 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Filter, Search } from "lucide-react";
-import RuleCard from "@/components/RuleCard";
-import MethodologyGroup from "@/components/manifest/MethodologyGroup";
-import VersionDiffModal from "@/components/manifest/VersionDiffModal";
+import ManifestDetailsDrawer, {
+  type ManifestRuleGroup,
+} from "@/components/manifest/ManifestDetailsDrawer";
+import ManifestTable, {
+  type ManifestSortDirection,
+  type ManifestSortKey,
+} from "@/components/manifest/ManifestTable";
 import useManifestFilters from "@/app/manifest/_state/useManifestFilters";
 import { type ManifestEntry } from "@/lib/manifest/cards";
 
-type VersionModalState = {
-  current: ManifestEntry;
-  comparison: ManifestEntry;
+type ManifestHealthPayload = {
+  count?: number;
+  updatedAt?: string;
+  engineUrl?: string;
 };
 
 export default function ManifestApp() {
   const [entries, setEntries] = useState<ManifestEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [modalState, setModalState] = useState<VersionModalState | null>(null);
+  const [health, setHealth] = useState<ManifestHealthPayload | null>(null);
+  const [healthError, setHealthError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<ManifestRuleGroup | null>(null);
+  const [sortKey, setSortKey] = useState<ManifestSortKey>("methodology");
+  const [sortDirection, setSortDirection] = useState<ManifestSortDirection>("asc");
 
   const filters = useManifestFilters();
 
@@ -69,56 +78,109 @@ export default function ManifestApp() {
     };
   }, [filters.query]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setHealthError(null);
+    fetch("/api/manifest/health", { cache: "no-store" })
+      .then(async response => {
+        const payload = (await response.json().catch(() => null)) as ManifestHealthPayload | null;
+        if (!response.ok || !payload) {
+          throw new Error(`Health request failed with ${response.status}`);
+        }
+        if (!cancelled) setHealth(payload);
+      })
+      .catch(fetchError => {
+        if (!cancelled) {
+          setHealth(null);
+          setHealthError(fetchError instanceof Error ? fetchError.message : String(fetchError));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const methodologyOptions = useMemo(() => {
     const unique = new Set<string>(entries.map(entry => entry.methodology));
     return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
   }, [entries]);
 
-  const versionMap = useMemo(() => {
-    const map = new Map<string, ManifestEntry[]>();
-    entries.forEach(entry => {
+  const groupedRules = useMemo(() => {
+    const grouping = new Map<string, ManifestRuleGroup>();
+    for (const entry of entries) {
       const key = `${entry.methodology}::${entry.id}`;
-      const list = map.get(key) ?? [];
-      list.push(entry);
-      map.set(key, list);
+      const current = grouping.get(key);
+      if (!current) {
+        grouping.set(key, {
+          key,
+          methodology: entry.methodology,
+          id: entry.id,
+          rule: entry.rule,
+          tags: Array.isArray(entry.tags) ? entry.tags : [],
+          versions: [entry],
+          latest: entry,
+        });
+        continue;
+      }
+      current.versions.push(entry);
+      const nextTags = Array.isArray(entry.tags) ? entry.tags : [];
+      const tagSet = new Set([...current.tags, ...nextTags]);
+      current.tags = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+      if (entry.rule && entry.rule.length > current.rule.length) {
+        current.rule = entry.rule;
+      }
+    }
+
+    const rules = Array.from(grouping.values());
+    rules.forEach(rule => {
+      rule.versions.sort((a, b) => b.version.localeCompare(a.version));
+      rule.latest = rule.versions[0] ?? rule.latest;
     });
-    map.forEach(list => {
-      list.sort((a, b) => a.version.localeCompare(b.version));
-    });
-    return map;
+
+    return rules;
   }, [entries]);
 
-  const filteredEntries = useMemo(() => {
-    return entries.filter(entry => {
+  const filteredRules = useMemo(() => {
+    return groupedRules.filter(rule => {
       const methodologyMatch =
-        filters.methodology === "all" || entry.methodology === filters.methodology;
-      const tagsMatch = filters.activeTags.every(tag =>
-        (entry.tags ?? []).includes(tag),
-      );
+        filters.methodology === "all" || rule.methodology === filters.methodology;
+      const tagsMatch = filters.activeTags.every(tag => rule.tags.includes(tag));
       return methodologyMatch && tagsMatch;
     });
-  }, [entries, filters.methodology, filters.activeTags]);
+  }, [groupedRules, filters.methodology, filters.activeTags]);
 
-  const groupedEntries = useMemo(() => {
-    const grouping = new Map<string, ManifestEntry[]>();
-    filteredEntries.forEach(entry => {
-      const current = grouping.get(entry.methodology) ?? [];
-      current.push(entry);
-      grouping.set(entry.methodology, current);
+  const sortedRules = useMemo(() => {
+    const list = [...filteredRules];
+    const dir = sortDirection === "asc" ? 1 : -1;
+    list.sort((a, b) => {
+      switch (sortKey) {
+        case "methodology":
+          return dir * a.methodology.localeCompare(b.methodology);
+        case "id":
+          return dir * a.id.localeCompare(b.id);
+        case "latestVersion":
+          return dir * a.latest.version.localeCompare(b.latest.version);
+        case "versionCount":
+          return dir * (a.versions.length - b.versions.length);
+        default:
+          return 0;
+      }
     });
-    return Array.from(grouping.entries())
-      .map(([methodology, rules]) => ({
-        methodology,
-        rules: rules.sort((a, b) => a.id.localeCompare(b.id)),
-      }))
-      .sort((a, b) => a.methodology.localeCompare(b.methodology));
-  }, [filteredEntries]);
+    return list;
+  }, [filteredRules, sortKey, sortDirection]);
 
-  const resultCount = filteredEntries.length;
+  const resultCount = sortedRules.length;
 
-  const handleVersionSelect = useCallback(
-    (base: ManifestEntry, comparison: ManifestEntry) => {
-      setModalState({ current: base, comparison });
+  const handleSortChange = useCallback(
+    (nextKey: ManifestSortKey) => {
+      setSortKey(current => {
+        if (current !== nextKey) {
+          setSortDirection("asc");
+          return nextKey;
+        }
+        setSortDirection(dir => (dir === "asc" ? "desc" : "asc"));
+        return current;
+      });
     },
     [],
   );
@@ -129,10 +191,30 @@ export default function ManifestApp() {
         <header className="space-y-3">
           <h1 className="text-3xl font-semibold text-slate-900">Methodology manifest</h1>
           <p className="max-w-2xl text-sm text-slate-600">
-            Search rules across methodologies, jump to anchored evidence, filter by tags,
-            and compare versions without leaving the page.
+            Investor-ready inventory view of methodology rules, with provenance, versioning,
+            and exportable evidence links.
           </p>
         </header>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-900">Provenance</h2>
+              <p className="text-xs text-slate-500">
+                Source: {health?.engineUrl ?? "static"} · Cached: no-store · Last updated:{" "}
+                {health?.updatedAt ?? "—"}
+              </p>
+            </div>
+            <div className="text-xs text-slate-500">
+              {typeof health?.count === "number" ? `${health.count} entries` : "—"}
+            </div>
+          </div>
+          {healthError ? (
+            <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Provenance unavailable: {healthError}
+            </p>
+          ) : null}
+        </section>
 
         <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <label className="flex min-h-[2.75rem] items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4">
@@ -213,40 +295,22 @@ export default function ManifestApp() {
             </div>
           ) : null}
 
-          <div className="space-y-10">
-            {groupedEntries.map(({ methodology, rules }) => (
-              <MethodologyGroup
-                key={methodology}
-                methodology={methodology}
-                visibleCount={rules.length}
-              >
-                <div className="space-y-4">
-                  {rules.map(entry => {
-                    const versionKey = `${entry.methodology}::${entry.id}`;
-                    const relatedVersions = versionMap.get(versionKey) ?? [entry];
-                    return (
-                      <RuleCard
-                        key={`${entry.methodology}-${entry.version}-${entry.id}`}
-                        entry={entry}
-                        activeTags={filters.activeTags}
-                        onToggleTag={filters.toggleTag}
-                        relatedVersions={relatedVersions}
-                        onSelectVersion={selected => handleVersionSelect(entry, selected)}
-                      />
-                    );
-                  })}
-                </div>
-              </MethodologyGroup>
-            ))}
-          </div>
+          <ManifestTable
+            rows={sortedRules}
+            activeTags={filters.activeTags}
+            onToggleTag={filters.toggleTag}
+            sortKey={sortKey}
+            sortDirection={sortDirection}
+            onSortChange={handleSortChange}
+            onOpenDetails={row => setSelected(row)}
+          />
         </section>
       </div>
 
-      <VersionDiffModal
-        open={modalState !== null}
-        current={modalState?.current ?? null}
-        comparison={modalState?.comparison ?? null}
-        onClose={() => setModalState(null)}
+      <ManifestDetailsDrawer
+        open={selected !== null}
+        rule={selected}
+        onClose={() => setSelected(null)}
       />
     </div>
   );
