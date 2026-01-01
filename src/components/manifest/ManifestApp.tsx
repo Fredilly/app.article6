@@ -13,13 +13,64 @@ type VersionModalState = {
   comparison: ManifestEntry;
 };
 
+type MethodsRegistryEntry = {
+  code: string;
+  versions: string[];
+};
+
+type MethodsRegistryResponse = {
+  source_url: string;
+  entries: MethodsRegistryEntry[];
+};
+
 export default function ManifestApp() {
   const [entries, setEntries] = useState<ManifestEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [modalState, setModalState] = useState<VersionModalState | null>(null);
 
+  const [methodsRegistry, setMethodsRegistry] = useState<MethodsRegistryEntry[]>([]);
+  const [methodsRegistrySource, setMethodsRegistrySource] = useState<string | null>(null);
+  const [methodsRegistryError, setMethodsRegistryError] = useState<string | null>(null);
+  const [showAllMethods, setShowAllMethods] = useState(false);
+
   const filters = useManifestFilters();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+
+    setMethodsRegistryError(null);
+
+    fetch("/api/methods-registry", { cache: "no-store", signal: controller.signal })
+      .then(async response => {
+        const payload = (await response.json().catch(() => null)) as MethodsRegistryResponse | null;
+        if (!response.ok || !payload) {
+          throw new Error(`Methods registry request failed with ${response.status}`);
+        }
+        if (!Array.isArray(payload.entries)) {
+          throw new Error("Methods registry response missing entries");
+        }
+        if (!cancelled) {
+          setMethodsRegistrySource(typeof payload.source_url === "string" ? payload.source_url : null);
+          setMethodsRegistry(payload.entries);
+        }
+      })
+      .catch(fetchError => {
+        if ((fetchError as { name?: string }).name === "AbortError") return;
+        if (!cancelled) {
+          setMethodsRegistry([]);
+          setMethodsRegistryError(
+            fetchError instanceof Error ? fetchError.message : String(fetchError),
+          );
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -133,6 +184,65 @@ export default function ManifestApp() {
             and compare versions without leaving the page.
           </p>
         </header>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-900">Methods registry</h2>
+              <p className="text-xs text-slate-500">
+                Live-loaded from article6-methodologies (cached at the edge).
+              </p>
+            </div>
+            <div className="text-xs text-slate-500">
+              {methodsRegistry.length} methods
+            </div>
+          </div>
+
+          {methodsRegistrySource ? (
+            <p className="mt-3 break-all text-xs text-slate-500">
+              Source: {methodsRegistrySource}
+            </p>
+          ) : null}
+
+          {methodsRegistryError ? (
+            <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Registry unavailable. Showing an empty list. ({methodsRegistryError})
+            </p>
+          ) : null}
+
+          {!methodsRegistryError && methodsRegistry.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-500">No methods loaded yet.</p>
+          ) : null}
+
+          {methodsRegistry.length ? (
+            <>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {(showAllMethods ? methodsRegistry : methodsRegistry.slice(0, 24)).map(entry => (
+                  <div
+                    key={entry.code}
+                    className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <div className="text-sm font-semibold text-slate-900">{entry.code}</div>
+                    <div className="mt-1 text-xs text-slate-600">
+                      {entry.versions.length
+                        ? entry.versions.join(", ")
+                        : "No versions recorded"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {methodsRegistry.length > 24 ? (
+                <button
+                  type="button"
+                  onClick={() => setShowAllMethods(value => !value)}
+                  className="mt-4 inline-flex min-h-[2.75rem] items-center rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-500 focus-visible:outline-offset-2"
+                >
+                  {showAllMethods ? "Show fewer" : "Show all"}
+                </button>
+              ) : null}
+            </>
+          ) : null}
+        </section>
 
         <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <label className="flex min-h-[2.75rem] items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4">
@@ -251,3 +361,4 @@ export default function ManifestApp() {
     </div>
   );
 }
+

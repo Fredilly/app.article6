@@ -13,7 +13,7 @@
     "dev:manifest:count": "node -e \"console.log(require('./public/manifest/index.json').length)\""
   },
   "engines": {
-    "node": "20.11.1",
+    "node": ">=20 <21",
     "npm": ">=10"
   },
   "dependencies": {
