@@ -1,0 +1,6 @@
+- [ ] M0: audit current /manifest source + routes
+- [ ] M1: build methods inventory view (default)
+- [ ] M2: add detail panel w/ tabs + trust strip
+- [ ] M3: rules list + rule drawer + sections map
+- [ ] M4: Method Assistant chat (guided + grounded)
+- [ ] M5: GeoVista mock verify flow + site fit + export
