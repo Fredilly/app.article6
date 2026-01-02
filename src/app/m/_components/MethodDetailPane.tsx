@@ -163,6 +163,18 @@ export default function MethodDetailPane({
     [activeVersion, method.code],
   );
 
+  const buildAuditLink = useCallback(
+    (ruleId: string) => {
+      const params = new URLSearchParams({ method: method.code });
+      if (activeVersion) params.set("version", activeVersion);
+      params.set("rule", ruleId);
+      const relative = `/audit?${params.toString()}`;
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      return { relative, absolute: `${origin}${relative}` };
+    },
+    [activeVersion, method.code],
+  );
+
   const loadRuleDetail = useCallback(async (ruleId: string) => {
     if (!activeVersion) return;
     setRuleDetailLoading(true);
@@ -560,6 +572,72 @@ export default function MethodDetailPane({
 
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-800">
                           {ruleDetail.text || "—"}
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-white p-4">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            Evidence needed
+                          </div>
+                          <div className="mt-2 space-y-3">
+                            {ruleDetail.sectionId || ruleDetail.sourcePath || ruleDetail.sha256 ? (
+                              <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+                                {ruleDetail.sectionId ? (
+                                  <li>
+                                    Evidence anchor/section:{" "}
+                                    <span className="font-mono text-xs text-slate-700">
+                                      {ruleDetail.sectionId}
+                                    </span>
+                                  </li>
+                                ) : null}
+                                {ruleDetail.sourcePath ? (
+                                  <li>
+                                    Source file:{" "}
+                                    <span className="break-all font-mono text-xs text-slate-700">
+                                      {ruleDetail.sourcePath}
+                                    </span>
+                                  </li>
+                                ) : null}
+                                {ruleDetail.sha256 ? (
+                                  <li>
+                                    Rule hash:{" "}
+                                    <span className="break-all font-mono text-xs text-slate-700">
+                                      {ruleDetail.sha256}
+                                    </span>
+                                  </li>
+                                ) : null}
+                              </ul>
+                            ) : (
+                              <p className="text-sm text-slate-600">
+                                Add evidence requirements for this rule (coming next).
+                              </p>
+                            )}
+
+                            {activeRuleId ? (
+                              <div className="flex flex-wrap gap-2">
+                                <Link
+                                  href={buildAuditLink(activeRuleId).relative}
+                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                                >
+                                  Open in Audit (scoped)
+                                </Link>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    try {
+                                      await navigator.clipboard.writeText(
+                                        buildAuditLink(activeRuleId).absolute,
+                                      );
+                                    } catch {
+                                      // ignore
+                                    }
+                                  }}
+                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                                >
+                                  Copy Audit link
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
                         </div>
 
                         <div className="grid gap-2 text-xs text-slate-600">
