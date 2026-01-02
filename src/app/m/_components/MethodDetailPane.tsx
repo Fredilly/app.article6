@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
+import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 
-type DetailTab = "overview" | "versions" | "rules" | "sections";
+type DetailTab = "overview" | "versions" | "rules" | "sections" | "rich";
 
 type MethodDetail = {
   code: string;
@@ -105,6 +106,18 @@ export default function MethodDetailPane({
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
   const didSelectSectionFromQuery = useRef(false);
 
+  const [richLoading, setRichLoading] = useState(false);
+  const [richError, setRichError] = useState<string | null>(null);
+  const [richEvidence, setRichEvidence] = useState<NormalizedRichEvidence | null>(null);
+  const [richRaw, setRichRaw] = useState<unknown>(null);
+  const [richRawOpen, setRichRawOpen] = useState(false);
+  const [richOpenBlocks, setRichOpenBlocks] = useState({
+    entities: false,
+    tables: false,
+    citations: false,
+    diffs: false,
+  });
+
   const sortedVersionsNewestFirst = useMemo(() => {
     return [...method.versions].reverse();
   }, [method.versions]);
@@ -161,6 +174,15 @@ export default function MethodDetailPane({
     setSectionQuery("");
     setActiveSectionId(null);
     didSelectSectionFromQuery.current = false;
+  }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    setRichEvidence(null);
+    setRichRaw(null);
+    setRichError(null);
+    setRichLoading(false);
+    setRichRawOpen(false);
+    setRichOpenBlocks({ entities: false, tables: false, citations: false, diffs: false });
   }, [activeVersion, method.code]);
 
   const ensureRulesLoaded = useCallback(async (): Promise<RuleListItem[]> => {
@@ -358,6 +380,33 @@ export default function MethodDetailPane({
     }
   }, [activeVersion, method.code, sections, sectionsLoading]);
 
+  const ensureRichLoaded = useCallback(async (): Promise<NormalizedRichEvidence | null> => {
+    if (!activeVersion) return null;
+    if (richEvidence) return richEvidence;
+    if (richLoading) return richEvidence;
+    setRichLoading(true);
+    setRichError(null);
+    try {
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/rich`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error(`Rich request failed with ${response.status}`);
+      const payload = (await response.json()) as { raw?: unknown };
+      setRichRaw(payload.raw ?? null);
+      const normalized = normalizeRichEvidence(payload.raw);
+      setRichEvidence(normalized);
+      return normalized;
+    } catch (error) {
+      setRichEvidence(null);
+      setRichRaw(null);
+      setRichError(error instanceof Error ? error.message : String(error));
+      return null;
+    } finally {
+      setRichLoading(false);
+    }
+  }, [activeVersion, method.code, richEvidence, richLoading]);
+
   const openRule = useCallback(async (ruleId: string) => {
     setTab("rules");
     setRulesDeeplinkWarning(null);
@@ -495,6 +544,17 @@ export default function MethodDetailPane({
           aria-pressed={tab === "sections"}
         >
           Sections
+        </button>
+        <button
+          type="button"
+          onClick={async () => {
+            setTab("rich");
+            await ensureRichLoaded();
+          }}
+          className={`${tabBase} ${tab === "rich" ? tabActive : tabIdle}`}
+          aria-pressed={tab === "rich"}
+        >
+          Rich
         </button>
       </div>
 
@@ -875,7 +935,7 @@ export default function MethodDetailPane({
               </div>
             ) : null}
           </div>
-        ) : (
+        ) : tab === "sections" ? (
           <div className="mt-4 grid gap-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -983,6 +1043,337 @@ export default function MethodDetailPane({
                 )}
               </div>
             </div>
+          </div>
+        ) : (
+          <div className="mt-4 grid gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Rich evidence for {activeVersion ?? "—"}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                  onClick={() => setRichRawOpen(true)}
+                  disabled={!richRaw}
+                >
+                  View raw JSON
+                </button>
+              </div>
+            </div>
+
+            {richError ? (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {richError}
+              </div>
+            ) : null}
+
+            {richLoading ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                Loading rich evidence…
+              </div>
+            ) : null}
+
+            {!richLoading && !richError && richEvidence ? (
+              <div className="grid gap-3">
+                <div className="flex flex-wrap gap-2">
+                  {(
+                    [
+                      ["Entities", richEvidence.entities.length, "entities"],
+                      ["Tables", richEvidence.tables.length, "tables"],
+                      ["Citations", richEvidence.citations.length, "citations"],
+                      ["Diffs", richEvidence.diffs.length, "diffs"],
+                    ] as const
+                  ).map(([label, count, key]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() =>
+                        setRichOpenBlocks((prev) => ({ ...prev, [key]: !prev[key] }))
+                      }
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm ${
+                        richOpenBlocks[key]
+                          ? "border-slate-300 bg-slate-900 text-white"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                      }`}
+                    >
+                      <span>{label}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[11px] ${
+                          richOpenBlocks[key] ? "bg-white/15 text-white" : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {richEvidence.entities.length === 0 &&
+                richEvidence.tables.length === 0 &&
+                richEvidence.citations.length === 0 &&
+                richEvidence.diffs.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
+                    No rich evidence for this version yet.
+                    <div className="mt-1 text-xs text-slate-400">
+                      Run rich extraction in the pipeline to populate.
+                    </div>
+                  </div>
+                ) : null}
+
+                {richOpenBlocks.entities ? (
+                  <div className="rounded-xl border border-slate-200 bg-white p-4">
+                    <div className="text-sm font-semibold text-slate-900">Entities</div>
+                    {richEvidence.entities.length ? (
+                      <div className="mt-3 grid gap-4">
+                        {Object.entries(
+                          richEvidence.entities.reduce<Record<string, typeof richEvidence.entities>>(
+                            (acc, entity) => {
+                              const key = entity.type || "Unknown";
+                              acc[key] = acc[key] ? [...acc[key], entity] : [entity];
+                              return acc;
+                            },
+                            {},
+                          ),
+                        )
+                          .sort(([a], [b]) => a.localeCompare(b))
+                          .map(([type, items]) => (
+                            <div key={type}>
+                              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                {type} ({items.length})
+                              </div>
+                              <ul className="mt-2 grid gap-1 text-sm text-slate-700">
+                                {items.slice(0, 12).map((entity, index) => (
+                                  <li key={`${type}-${index}`} className="flex flex-wrap items-center gap-2">
+                                    <span className="rounded-full bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700">
+                                      {entity.value}
+                                    </span>
+                                    {typeof entity.confidence === "number" ? (
+                                      <span className="text-xs text-slate-500">
+                                        conf: {entity.confidence.toFixed(2)}
+                                      </span>
+                                    ) : null}
+                                    {entity.sectionId ? (
+                                      <button
+                                        type="button"
+                                        className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                                        onClick={async () => {
+                                          const target = entity.sectionId;
+                                          if (!target) return;
+                                          setTab("sections");
+                                          const list = await ensureSectionsLoaded();
+                                          if (!list.length) return;
+                                          const exists = list.some((section) => section.id === target);
+                                          if (!exists) {
+                                            setSectionsDeeplinkWarning(`Unknown section: ${target}`);
+                                            return;
+                                          }
+                                          setSectionsDeeplinkWarning(null);
+                                          setActiveSectionId(target);
+                                          setSectionParam(target);
+                                        }}
+                                      >
+                                        {entity.sectionId}
+                                      </button>
+                                    ) : null}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-sm text-slate-600">No entities extracted.</div>
+                    )}
+                  </div>
+                ) : null}
+
+                {richOpenBlocks.tables ? (
+                  <div className="rounded-xl border border-slate-200 bg-white p-4">
+                    <div className="text-sm font-semibold text-slate-900">Tables</div>
+                    {richEvidence.tables.length ? (
+                      <div className="mt-3 grid gap-4">
+                        {richEvidence.tables.map((table, index) => (
+                          <div key={`table-${index}`} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="text-sm font-semibold text-slate-900">
+                                {table.title ?? `Table ${index + 1}`}
+                              </div>
+                              <div className="text-xs text-slate-500">rows: {table.rows.length}</div>
+                            </div>
+                            {table.sectionId ? (
+                              <button
+                                type="button"
+                                className="mt-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                                onClick={async () => {
+                                  const target = table.sectionId;
+                                  if (!target) return;
+                                  setTab("sections");
+                                  const list = await ensureSectionsLoaded();
+                                  if (!list.length) return;
+                                  const exists = list.some((section) => section.id === target);
+                                  if (!exists) {
+                                    setSectionsDeeplinkWarning(`Unknown section: ${target}`);
+                                    return;
+                                  }
+                                  setSectionsDeeplinkWarning(null);
+                                  setActiveSectionId(target);
+                                  setSectionParam(target);
+                                }}
+                              >
+                                section {table.sectionId}
+                              </button>
+                            ) : null}
+                            <div className="mt-3 overflow-auto rounded-lg bg-white">
+                              <pre className="min-w-full whitespace-pre-wrap px-3 py-2 text-xs text-slate-700">
+                                {JSON.stringify(table.rows.slice(0, 12), null, 2)}
+                              </pre>
+                              {table.rows.length > 12 ? (
+                                <div className="px-3 pb-2 text-xs text-slate-500">
+                                  Showing first 12 rows (expand extraction for full data).
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-sm text-slate-600">No tables extracted.</div>
+                    )}
+                  </div>
+                ) : null}
+
+                {richOpenBlocks.citations ? (
+                  <div className="rounded-xl border border-slate-200 bg-white p-4">
+                    <div className="text-sm font-semibold text-slate-900">Citations</div>
+                    {richEvidence.citations.length ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {richEvidence.citations.slice(0, 60).map((citation, index) => (
+                          <button
+                            key={`citation-${index}`}
+                            type="button"
+                            disabled={!citation.sectionId}
+                            className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm ${
+                              citation.sectionId
+                                ? "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                                : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400"
+                            }`}
+                            onClick={async () => {
+                              const target = citation.sectionId;
+                              if (!target) return;
+                              setTab("sections");
+                              const list = await ensureSectionsLoaded();
+                              if (!list.length) return;
+                              const exists = list.some((section) => section.id === target);
+                              if (!exists) {
+                                setSectionsDeeplinkWarning(`Unknown section: ${target}`);
+                                return;
+                              }
+                              setSectionsDeeplinkWarning(null);
+                              setActiveSectionId(target);
+                              setSectionParam(target);
+                            }}
+                          >
+                            {citation.sectionId ? `${citation.label} (${citation.sectionId})` : citation.label}
+                          </button>
+                        ))}
+                        {richEvidence.citations.length > 60 ? (
+                          <div className="text-xs text-slate-500">
+                            Showing first 60 citations.
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-sm text-slate-600">No citations extracted.</div>
+                    )}
+                  </div>
+                ) : null}
+
+                {richOpenBlocks.diffs ? (
+                  <div className="rounded-xl border border-slate-200 bg-white p-4">
+                    <div className="text-sm font-semibold text-slate-900">Diffs / Changes</div>
+                    {richEvidence.diffs.length ? (
+                      <ul className="mt-3 grid gap-2">
+                        {richEvidence.diffs.slice(0, 40).map((diff, index) => (
+                          <li key={`diff-${index}`} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="text-sm font-semibold text-slate-900">{diff.label}</div>
+                              {diff.sectionId ? (
+                                <button
+                                  type="button"
+                                  className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                                  onClick={async () => {
+                                    const target = diff.sectionId;
+                                    if (!target) return;
+                                    setTab("sections");
+                                    const list = await ensureSectionsLoaded();
+                                    if (!list.length) return;
+                                    const exists = list.some((section) => section.id === target);
+                                    if (!exists) {
+                                      setSectionsDeeplinkWarning(`Unknown section: ${target}`);
+                                      return;
+                                    }
+                                    setSectionsDeeplinkWarning(null);
+                                    setActiveSectionId(target);
+                                    setSectionParam(target);
+                                  }}
+                                >
+                                  section {diff.sectionId}
+                                </button>
+                              ) : null}
+                            </div>
+                            {diff.from || diff.to ? (
+                              <div className="mt-2 grid gap-1 text-xs text-slate-700">
+                                {diff.from ? <div>from: {diff.from}</div> : null}
+                                {diff.to ? <div>to: {diff.to}</div> : null}
+                              </div>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="mt-2 text-sm text-slate-600">No diffs available.</div>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {richRawOpen ? (
+              <div
+                className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Raw rich JSON"
+                onClick={() => setRichRawOpen(false)}
+              >
+                <div
+                  className="w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                    <div>
+                      <div className="text-sm font-semibold text-slate-900">Raw JSON</div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {method.code} · {activeVersion ?? "—"}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setRichRawOpen(false)}
+                      className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <div className="max-h-[70vh] overflow-auto px-5 py-4">
+                    <pre className="whitespace-pre-wrap text-xs text-slate-800">
+                      {JSON.stringify(richRaw, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
     </div>
