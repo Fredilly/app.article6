@@ -8,12 +8,14 @@ type MethodsFinderProps = {
   selectedCode?: string;
   selectedVersion?: string;
   selectedRuleId?: string;
+  selectedSectionId?: string;
 };
 
 export default async function MethodsFinder({
   selectedCode,
   selectedVersion,
   selectedRuleId,
+  selectedSectionId,
 }: MethodsFinderProps) {
   const { methods, generatedAt, datasetHash } = await getMethodInventory();
 
@@ -106,6 +108,7 @@ export default async function MethodsFinder({
                 }}
                 activeVersion={effectiveVersion}
                 initialRuleId={selectedRuleId}
+                initialSectionId={selectedSectionId}
                 generatedAt={generatedAt}
                 repoSha={repoSha}
                 datasetHash={datasetHash}
