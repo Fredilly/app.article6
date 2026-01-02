@@ -110,11 +110,20 @@ export default function MethodDetailPane({
   const [richError, setRichError] = useState<string | null>(null);
   const [richEvidence, setRichEvidence] = useState<NormalizedRichEvidence | null>(null);
   const [richRaw, setRichRaw] = useState<unknown>(null);
+  type RichAttempt = {
+    name: string;
+    url: string;
+    resolvedUrl?: string;
+    status?: number;
+    ok: boolean;
+    bytes?: number;
+    error?: string;
+  };
   const [richProbe, setRichProbe] = useState<{
     ok: boolean;
     sources: string[];
-    attempted: string[];
     missing: string[];
+    attempts: RichAttempt[];
   } | null>(null);
   const [richRawOpen, setRichRawOpen] = useState(false);
   const [richOpenBlocks, setRichOpenBlocks] = useState({
@@ -394,35 +403,92 @@ export default function MethodDetailPane({
     setRichLoading(true);
     setRichError(null);
     try {
-      const response = await fetch(
-        `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/rich`,
-        { cache: "no-store" },
-      );
-      if (!response.ok) throw new Error(`Rich request failed with ${response.status}`);
-      const payload = (await response.json()) as
-        | {
-            ok: true;
-            sources: string[];
-            attempted: string[];
-            missing: string[];
-            data: unknown;
-          }
-        | {
-            ok: false;
-            sources: string[];
-            attempted: string[];
-            missing: string[];
-            data: null;
-          };
+      const ensureLeadingSlash = (value: string) => (value.startsWith("/") ? value : `/${value}`);
+      const segment = (value: string) => encodeURIComponent(value);
 
+      const program = method.program?.trim();
+      const sector = method.sector?.trim();
+      const code = method.code.trim();
+      const version = activeVersion.trim();
+
+      if (!program || program === "—" || !sector || sector === "—" || !code || !version) {
+        setRichProbe({
+          ok: false,
+          sources: [],
+          missing: ["rules.rich.json", "sections.rich.json", "rich.json"],
+          attempts: [
+            {
+              name: "precheck",
+              url: "/methodologies/<program>/<sector>/<code>/<ver>",
+              ok: false,
+              error: "Missing program/sector/code/version to resolve methodology asset URLs.",
+            },
+          ],
+        });
+        setRichRaw(null);
+        const normalized = normalizeRichEvidence(null);
+        setRichEvidence(normalized);
+        return normalized;
+      }
+
+      const basePath = ensureLeadingSlash(
+        `methodologies/${segment(program)}/${segment(sector)}/${segment(code)}/${segment(version)}`,
+      );
+
+      const candidates = [
+        { name: "rules.rich.json", url: `${basePath}/rules.rich.json` },
+        { name: "sections.rich.json", url: `${basePath}/sections.rich.json` },
+        { name: "rich.json", url: `${basePath}/rich.json` },
+      ];
+
+      const attempts = await Promise.all(
+        candidates.map(async (candidate): Promise<RichAttempt & { data?: unknown }> => {
+          try {
+            const response = await fetch(candidate.url, { cache: "no-store" });
+            const resolvedUrl = response.url || candidate.url;
+            const status = response.status;
+            if (!response.ok) {
+              return { name: candidate.name, url: candidate.url, resolvedUrl, status, ok: false };
+            }
+            const text = await response.text();
+            const bytes = text.length;
+            const parsed = text ? JSON.parse(text) : null;
+            return { name: candidate.name, url: candidate.url, resolvedUrl, status, ok: true, bytes, data: parsed };
+          } catch (error) {
+            return {
+              name: candidate.name,
+              url: candidate.url,
+              resolvedUrl: candidate.url,
+              ok: false,
+              error: error instanceof Error ? error.message : String(error),
+            };
+          }
+        }),
+      );
+
+      const sources = attempts.filter((a) => a.ok).map((a) => a.name);
+      const missing = attempts
+        .filter((a) => !a.ok && typeof a.status === "number" && a.status === 404)
+        .map((a) => a.name);
+
+      const data: { rulesRich?: unknown; sectionsRich?: unknown; rich?: unknown } = {};
+      for (const attempt of attempts) {
+        if (!attempt.ok) continue;
+        if (attempt.name === "rules.rich.json") data.rulesRich = attempt.data;
+        if (attempt.name === "sections.rich.json") data.sectionsRich = attempt.data;
+        if (attempt.name === "rich.json") data.rich = attempt.data;
+      }
+
+      const ok = Boolean(sources.length);
       setRichProbe({
-        ok: Boolean(payload.ok),
-        sources: Array.isArray(payload.sources) ? payload.sources : [],
-        attempted: Array.isArray(payload.attempted) ? payload.attempted : [],
-        missing: Array.isArray(payload.missing) ? payload.missing : [],
+        ok,
+        sources,
+        missing,
+        attempts: attempts.map(({ data: _data, ...rest }) => rest),
       });
-      setRichRaw(payload.ok ? payload.data : null);
-      const normalized = normalizeRichEvidence(payload.ok ? payload.data : null);
+      setRichRaw(ok ? data : null);
+
+      const normalized = normalizeRichEvidence(ok ? data : null);
       setRichEvidence(normalized);
       return normalized;
     } catch (error) {
@@ -1157,7 +1223,7 @@ export default function MethodDetailPane({
                     <div className="mt-1 text-xs text-slate-400">
                       Run rich extraction in the pipeline to populate.
                     </div>
-                    {richProbe && (richProbe.missing.length || richProbe.attempted.length) ? (
+                    {richProbe && (richProbe.missing.length || richProbe.attempts.length) ? (
                       <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left">
                         <summary className="cursor-pointer text-xs font-semibold text-slate-700">
                           Why empty?
@@ -1169,27 +1235,50 @@ export default function MethodDetailPane({
                               <div className="mt-1">{richProbe.missing.join(", ")}</div>
                             </div>
                           ) : null}
-                          {richProbe.attempted.length ? (
+                          {richProbe.attempts.length ? (
                             <div>
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <div className="font-semibold text-slate-700">Attempted paths</div>
+                                <div className="font-semibold text-slate-700">Attempted URLs</div>
                                 <button
                                   type="button"
                                   className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
                                   onClick={async () => {
                                     try {
-                                      await navigator.clipboard.writeText(richProbe.attempted.join("\n"));
+                                      await navigator.clipboard.writeText(
+                                        richProbe.attempts
+                                          .map((attempt) => {
+                                            const status = typeof attempt.status === "number" ? attempt.status : "—";
+                                            const resolved = attempt.resolvedUrl ?? attempt.url;
+                                            return `${attempt.name} ${status} ${resolved}`;
+                                          })
+                                          .join("\n"),
+                                      );
                                     } catch {
                                       // ignore
                                     }
                                   }}
                                 >
-                                  Copy attempted paths
+                                  Copy attempted status
                                 </button>
                               </div>
-                              <div className="mt-2 max-h-32 overflow-auto rounded-lg bg-white px-3 py-2 font-mono text-[11px] text-slate-700">
-                                {richProbe.attempted.join("\n")}
-                              </div>
+                              <ul className="mt-2 grid gap-2 rounded-lg bg-white px-3 py-2 text-[11px] text-slate-700">
+                                {richProbe.attempts.map((attempt) => (
+                                  <li key={attempt.name} className="grid gap-1">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                      <span className="font-mono font-semibold">{attempt.name}</span>
+                                      <span className="font-mono">
+                                        {typeof attempt.status === "number" ? attempt.status : attempt.ok ? "ok" : "—"}
+                                      </span>
+                                    </div>
+                                    <div className="break-all font-mono text-slate-600">
+                                      {attempt.resolvedUrl ?? attempt.url}
+                                    </div>
+                                    {attempt.error ? (
+                                      <div className="break-all font-mono text-rose-700">{attempt.error}</div>
+                                    ) : null}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
                           ) : null}
                         </div>
