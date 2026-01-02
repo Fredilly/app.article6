@@ -3,6 +3,7 @@ import MethodsFinder from "@/app/m/_components/MethodsFinder";
 
 type PageProps = {
   params: Promise<{ code: string }>;
+  searchParams?: Promise<{ rule?: string }>;
 };
 
 export const metadata: Metadata = {
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
   description: "Method inventory selection route.",
 };
 
-export default async function MethodPage({ params }: PageProps) {
+export default async function MethodPage({ params, searchParams }: PageProps) {
   const { code } = await params;
-  return <MethodsFinder selectedCode={code} />;
+  const resolvedSearch = await Promise.resolve(searchParams);
+  const rule = typeof resolvedSearch?.rule === "string" ? resolvedSearch.rule : undefined;
+  return <MethodsFinder selectedCode={code} selectedRuleId={rule} />;
 }
