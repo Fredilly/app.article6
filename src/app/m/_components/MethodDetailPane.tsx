@@ -57,9 +57,9 @@ export default function MethodDetailPane({
   const [ruleQuery, setRuleQuery] = useState("");
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesError, setRulesError] = useState<string | null>(null);
-  const [rules, setRules] = useState<
-    { id: string; title: string; snippet: string; tags: string[]; type?: string }[]
-  >([]);
+  const [rulesDeeplinkWarning, setRulesDeeplinkWarning] = useState<string | null>(null);
+  type RuleListItem = { id: string; title: string; snippet: string; tags: string[]; type?: string };
+  const [rules, setRules] = useState<RuleListItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(Boolean(initialRuleId));
   const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
   const [ruleDetail, setRuleDetail] = useState<{
@@ -101,6 +101,7 @@ export default function MethodDetailPane({
     setRules([]);
     setRulesError(null);
     setRulesLoading(false);
+    setRulesDeeplinkWarning(null);
     setRuleQuery("");
     setDrawerOpen(false);
     setActiveRuleId(null);
@@ -110,9 +111,10 @@ export default function MethodDetailPane({
     didOpenFromQuery.current = false;
   }, [activeVersion, method.code]);
 
-  const ensureRulesLoaded = useCallback(async () => {
-    if (!activeVersion) return;
-    if (rulesLoading || rules.length) return;
+  const ensureRulesLoaded = useCallback(async (): Promise<RuleListItem[]> => {
+    if (!activeVersion) return [];
+    if (rules.length) return rules;
+    if (rulesLoading) return rules;
     setRulesLoading(true);
     setRulesError(null);
     try {
@@ -123,7 +125,7 @@ export default function MethodDetailPane({
       if (!response.ok) throw new Error(`Rules request failed with ${response.status}`);
       const payload = (await response.json()) as { rules?: unknown };
       const list = Array.isArray(payload.rules) ? payload.rules : [];
-      const nextRules: { id: string; title: string; snippet: string; tags: string[]; type?: string }[] = [];
+      const nextRules: RuleListItem[] = [];
 
       for (const item of list) {
         if (!item || typeof item !== "object") continue;
@@ -140,13 +142,15 @@ export default function MethodDetailPane({
       }
 
       setRules(nextRules);
+      return nextRules;
     } catch (error) {
       setRules([]);
       setRulesError(error instanceof Error ? error.message : String(error));
+      return [];
     } finally {
       setRulesLoading(false);
     }
-  }, [activeVersion, method.code, rules.length, rulesLoading]);
+  }, [activeVersion, method.code, rules, rulesLoading]);
 
   const loadRuleDetail = useCallback(async (ruleId: string) => {
     if (!activeVersion) return;
@@ -200,6 +204,7 @@ export default function MethodDetailPane({
 
   const openRule = useCallback(async (ruleId: string) => {
     setTab("rules");
+    setRulesDeeplinkWarning(null);
     await ensureRulesLoaded();
     setActiveRuleId(ruleId);
     setDrawerOpen(true);
@@ -220,8 +225,20 @@ export default function MethodDetailPane({
     if (!initialRuleId) return;
     if (!activeVersion) return;
     didOpenFromQuery.current = true;
-    void openRule(initialRuleId);
-  }, [activeVersion, initialRuleId, openRule]);
+    (async () => {
+      setTab("rules");
+      const list = await ensureRulesLoaded();
+      if (list.length === 0) {
+        return;
+      }
+      const exists = list.some((rule) => rule.id === initialRuleId);
+      if (!exists) {
+        setRulesDeeplinkWarning(`Unknown rule id "${initialRuleId}".`);
+        return;
+      }
+      await openRule(initialRuleId);
+    })();
+  }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule]);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -377,6 +394,12 @@ export default function MethodDetailPane({
               />
             </div>
 
+            {rulesDeeplinkWarning ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {rulesDeeplinkWarning}
+              </div>
+            ) : null}
+
             {rulesError ? (
               <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {rulesError}
@@ -462,7 +485,19 @@ export default function MethodDetailPane({
                   <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
                     {ruleDetailError ? (
                       <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                        {ruleDetailError}
+                        <div className="font-semibold text-rose-900">Failed to load rule.</div>
+                        <div className="mt-1 text-xs text-rose-700">{ruleDetailError}</div>
+                        <button
+                          type="button"
+                          className="mt-3 inline-flex items-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 shadow-sm hover:border-rose-300 hover:text-rose-900"
+                          onClick={() => {
+                            if (activeRuleId) {
+                              void loadRuleDetail(activeRuleId);
+                            }
+                          }}
+                        >
+                          Retry
+                        </button>
                       </div>
                     ) : null}
                     {ruleDetailLoading ? (
