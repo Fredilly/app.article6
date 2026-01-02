@@ -2,6 +2,7 @@
 
 import { ArrowUpRight } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { AuditRule, ExtractedVariable } from "@/lib/audit/sample";
 import { EXTRACTED_VARIABLES, SAMPLE_RULES } from "@/lib/audit/sample";
 import Checklist, { type ChecklistState } from "@/components/audit/Checklist";
@@ -26,6 +27,8 @@ function getVariablesForFile(file: File): ExtractedVariable[] {
 }
 
 export default function AuditApp() {
+  const searchParams = useSearchParams();
+  const requestedRule = (searchParams.get("rule") ?? "").trim() || undefined;
   const deeplink = useDeeplinkMethodVersion();
   const selectedMethod = deeplink.resolved.method;
   const selectedVersion = deeplink.resolved.resolvedVersion;
@@ -57,11 +60,11 @@ export default function AuditApp() {
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4">
-        {selectedMethod || deeplink.resolved.warnings.length ? (
+        {selectedMethod || requestedRule || deeplink.resolved.warnings.length ? (
           <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Deeplink context
+                Context
               </span>
               {deeplink.loading ? <span className="text-xs text-slate-500">Loading…</span> : null}
             </div>
@@ -72,6 +75,9 @@ export default function AuditApp() {
               <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
                 version: {selectedVersion ?? "—"}
               </span>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
+                rule: {requestedRule ?? "—"}
+              </span>
             </div>
             {deeplink.resolved.warnings.length ? (
               <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-amber-700">
@@ -79,6 +85,11 @@ export default function AuditApp() {
                   <li key={warning}>{warning}</li>
                 ))}
               </ul>
+            ) : null}
+            {!selectedMethod && requestedRule ? (
+              <div className="mt-2 text-xs text-amber-700">
+                Rule scope provided without a valid method. Add `method=` (and optional `version=`) to scope the audit.
+              </div>
             ) : null}
           </div>
         ) : null}
