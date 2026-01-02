@@ -15,6 +15,12 @@ export type RuleFull = RuleSummary & {
   text: string;
   sha256?: string;
   sectionId?: string;
+  anchor?: string;
+  citations?: Array<{
+    sectionId?: string;
+    anchor?: string;
+    label?: string;
+  }>;
   sourcePath?: string;
 };
 
@@ -48,6 +54,52 @@ function pickStringArray(entry: Record<string, unknown>, keys: string[]): string
     if (Array.isArray(value)) return value.map((item) => String(item)).filter(Boolean);
   }
   return [];
+}
+
+function sectionIdFromAnchor(value?: string): string | undefined {
+  if (!value) return undefined;
+  const match = value.match(/S-\d{1,6}/i);
+  return match ? match[0] : undefined;
+}
+
+function pickCitations(entry: Record<string, unknown>): RuleFull["citations"] {
+  const raw =
+    entry.citations ??
+    entry.references ??
+    entry.anchors ??
+    entry.anchor ??
+    entry.evidence;
+
+  const items = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  const citations: NonNullable<RuleFull["citations"]> = [];
+
+  for (const item of items) {
+    if (!item) continue;
+    if (typeof item === "string") {
+      const trimmed = item.trim();
+      if (!trimmed) continue;
+      const sectionId = /^S-\d{1,6}$/i.test(trimmed) ? trimmed : sectionIdFromAnchor(trimmed);
+      citations.push({
+        sectionId,
+        anchor: sectionId ? undefined : trimmed,
+        label: sectionId ? undefined : trimmed,
+      });
+      continue;
+    }
+
+    if (typeof item === "object") {
+      const record = item as Record<string, unknown>;
+      const anchor = pickString(record, ["anchor", "href", "url"]);
+      const sectionId =
+        pickString(record, ["sectionId", "section_id", "id"]) ?? sectionIdFromAnchor(anchor);
+      const label = pickString(record, ["label", "title", "name"]);
+      if (sectionId || anchor || label) {
+        citations.push({ sectionId, anchor, label });
+      }
+    }
+  }
+
+  return citations.length ? citations : undefined;
 }
 
 function stableDerivedId(seed: string): string {
@@ -122,6 +174,8 @@ function coerceRulesFromUnknown(parsed: unknown): RuleFull[] {
       type: pickString(record, ["type", "kind", "category"]),
       sha256: pickString(record, ["sha256", "hash"]),
       sectionId: pickString(record, ["sectionId", "section_id"]),
+      anchor: pickString(record, ["anchor", "href"]),
+      citations: pickCitations(record),
       sourcePath: pickString(record, ["path", "sourcePath", "source_path"]),
     });
   }
@@ -148,6 +202,10 @@ function coerceRulesFromManifest(entries: ManifestEntry[]): RuleFull[] {
         type: undefined,
         sha256: entry.sha256,
         sectionId: typeof entry.sectionId === "string" ? entry.sectionId : undefined,
+        anchor:
+          typeof (entry as Record<string, unknown>).anchor === "string"
+            ? ((entry as Record<string, unknown>).anchor as string)
+            : undefined,
         sourcePath: typeof entry.path === "string" ? entry.path : undefined,
       } satisfies RuleFull;
     })

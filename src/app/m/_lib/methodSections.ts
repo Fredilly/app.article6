@@ -27,7 +27,7 @@ function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-function snippetFromText(value: string, max = 220): string {
+function snippetFromText(value: string, max = 240): string {
   const normalized = normalizeWhitespace(value);
   if (normalized.length <= max) return normalized;
   return `${normalized.slice(0, max).trimEnd()}…`;
@@ -241,4 +241,3 @@ export async function loadMethodSections(code: string, version: string): Promise
   }));
   return { sections, byId, source: "manifest" };
 }
-
