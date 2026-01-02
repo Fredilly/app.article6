@@ -101,7 +101,13 @@ export function buildGroups(results: EngineResult[]): GroupedResult[] {
   return Array.from(map.values()).sort((a, b) => (b.primary.score ?? 0) - (a.primary.score ?? 0));
 }
 
-export default function SidePane({ results }: { results: EngineResult[] }) {
+type SidePaneProps = {
+  results: EngineResult[];
+  contextMethod?: string;
+  contextVersion?: string;
+};
+
+export default function SidePane({ results, contextMethod, contextVersion }: SidePaneProps) {
   const groups = useMemo(() => buildGroups(results ?? []), [results]);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
@@ -160,15 +166,29 @@ export default function SidePane({ results }: { results: EngineResult[] }) {
                     </span>
                   ) : null}
                   {primary.sha256 ? <span className="font-mono">sha256: {primary.sha256}</span> : null}
-                  {methodologies.map((method) => (
-                    <span
-                      key={`${method.id}-${method.version ?? "latest"}`}
-                      className="rounded-full border border-gray-200 bg-white px-2 py-0.5 font-medium text-gray-600"
-                    >
-                      {method.id}
-                      {method.version ? ` · v${method.version}` : ""}
-                    </span>
-                  ))}
+                  {methodologies.map((method) => {
+                    const matchesMethod = contextMethod
+                      ? method.id.toLowerCase() === contextMethod.toLowerCase()
+                      : false;
+                    const matchesVersion = contextVersion
+                      ? (method.version ?? "").toLowerCase() === contextVersion.toLowerCase()
+                      : true;
+                    const isActive = matchesMethod && matchesVersion;
+
+                    return (
+                      <span
+                        key={`${method.id}-${method.version ?? "latest"}`}
+                        className={`rounded-full border px-2 py-0.5 font-medium ${
+                          isActive
+                            ? "border-slate-900 bg-slate-900 text-white"
+                            : "border-gray-200 bg-white text-gray-600"
+                        }`}
+                      >
+                        {method.id}
+                        {method.version ? ` · v${method.version}` : ""}
+                      </span>
+                    );
+                  })}
                   {variants > 1 ? (
                     <span className="rounded-full border border-gray-200 bg-white px-2 py-0.5 font-medium text-gray-600">
                       {variants} variants

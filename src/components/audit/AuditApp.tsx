@@ -6,6 +6,7 @@ import type { AuditRule, ExtractedVariable } from "@/lib/audit/sample";
 import { EXTRACTED_VARIABLES, SAMPLE_RULES } from "@/lib/audit/sample";
 import Checklist, { type ChecklistState } from "@/components/audit/Checklist";
 import { CHECKLIST_ITEMS } from "@/lib/audit/checklist";
+import useDeeplinkMethodVersion from "@/hooks/useDeeplinkMethodVersion";
 
 function buildInitialQaState(): ChecklistState {
   return Object.fromEntries(CHECKLIST_ITEMS.map(item => [item.id, false]));
@@ -25,6 +26,10 @@ function getVariablesForFile(file: File): ExtractedVariable[] {
 }
 
 export default function AuditApp() {
+  const deeplink = useDeeplinkMethodVersion();
+  const selectedMethod = deeplink.resolved.method;
+  const selectedVersion = deeplink.resolved.resolvedVersion;
+
   const [fileName, setFileName] = useState<string | null>(null);
   const [rules, setRules] = useState<AuditRule[]>([]);
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
@@ -52,6 +57,32 @@ export default function AuditApp() {
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4">
+        {selectedMethod || deeplink.resolved.warnings.length ? (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Deeplink context
+              </span>
+              {deeplink.loading ? <span className="text-xs text-slate-500">Loading…</span> : null}
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
+                method: {selectedMethod ?? "—"}
+              </span>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
+                version: {selectedVersion ?? "—"}
+              </span>
+            </div>
+            {deeplink.resolved.warnings.length ? (
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-amber-700">
+                {deeplink.resolved.warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
+
         <UploadCard onUpload={handleUpload} fileName={fileName} />
         {rules.length > 0 ? (
           <section className="grid gap-6 lg:grid-cols-[260px_1fr]">
