@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 
-type DetailTab = "overview" | "versions" | "rules";
+type DetailTab = "overview" | "versions" | "rules" | "sections";
 
 type MethodDetail = {
   code: string;
@@ -23,6 +23,7 @@ type MethodDetailPaneProps = {
   method: MethodDetail;
   activeVersion?: string;
   initialRuleId?: string;
+  initialSectionId?: string;
   generatedAt?: string;
   repoSha?: string;
   datasetHash?: string;
@@ -45,6 +46,7 @@ export default function MethodDetailPane({
   method,
   activeVersion,
   initialRuleId,
+  initialSectionId,
   generatedAt,
   repoSha,
   datasetHash,
@@ -53,7 +55,9 @@ export default function MethodDetailPane({
 }: MethodDetailPaneProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [tab, setTab] = useState<DetailTab>(initialRuleId ? "rules" : "overview");
+  const [tab, setTab] = useState<DetailTab>(
+    initialSectionId ? "sections" : initialRuleId ? "rules" : "overview",
+  );
   const [ruleQuery, setRuleQuery] = useState("");
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesError, setRulesError] = useState<string | null>(null);
@@ -75,6 +79,23 @@ export default function MethodDetailPane({
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
   const didOpenFromQuery = useRef(false);
+
+  type SectionListItem = {
+    id: string;
+    title: string;
+    level: number;
+    anchor?: string;
+    page?: number;
+    textSnippet?: string;
+  };
+
+  const [sectionQuery, setSectionQuery] = useState("");
+  const [sectionsLoading, setSectionsLoading] = useState(false);
+  const [sectionsError, setSectionsError] = useState<string | null>(null);
+  const [sectionsDeeplinkWarning, setSectionsDeeplinkWarning] = useState<string | null>(null);
+  const [sections, setSections] = useState<SectionListItem[]>([]);
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
+  const didSelectSectionFromQuery = useRef(false);
 
   const sortedVersionsNewestFirst = useMemo(() => {
     return [...method.versions].reverse();
@@ -109,6 +130,16 @@ export default function MethodDetailPane({
     setRuleDetailError(null);
     setRuleDetailLoading(false);
     didOpenFromQuery.current = false;
+  }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    setSections([]);
+    setSectionsError(null);
+    setSectionsLoading(false);
+    setSectionsDeeplinkWarning(null);
+    setSectionQuery("");
+    setActiveSectionId(null);
+    didSelectSectionFromQuery.current = false;
   }, [activeVersion, method.code]);
 
   const ensureRulesLoaded = useCallback(async (): Promise<RuleListItem[]> => {
@@ -158,6 +189,17 @@ export default function MethodDetailPane({
       const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(
         activeVersion ?? "",
       )}?rule=${encodeURIComponent(ruleId)}`;
+      return `${origin}${path}`;
+    },
+    [activeVersion, method.code],
+  );
+
+  const buildSectionLink = useCallback(
+    (sectionId: string) => {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(
+        activeVersion ?? "",
+      )}?section=${encodeURIComponent(sectionId)}`;
       return `${origin}${path}`;
     },
     [activeVersion, method.code],
@@ -225,6 +267,56 @@ export default function MethodDetailPane({
     router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
   }, [pathname, router]);
 
+  const setSectionParam = useCallback(
+    (sectionId?: string) => {
+      if (!pathname) return;
+      const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      if (sectionId) params.set("section", sectionId);
+      else params.delete("section");
+      const search = params.toString();
+      router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
+    },
+    [pathname, router],
+  );
+
+  const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
+    if (!activeVersion) return [];
+    if (sections.length) return sections;
+    if (sectionsLoading) return sections;
+    setSectionsLoading(true);
+    setSectionsError(null);
+    try {
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/sections`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error(`Sections request failed with ${response.status}`);
+      const payload = (await response.json()) as { sections?: unknown };
+      const list = Array.isArray(payload.sections) ? payload.sections : [];
+      const next: SectionListItem[] = [];
+      for (const item of list) {
+        if (!item || typeof item !== "object") continue;
+        const record = item as Record<string, unknown>;
+        const id = typeof record.id === "string" ? record.id : "";
+        if (!id) continue;
+        const title = typeof record.title === "string" ? record.title : id;
+        const level = typeof record.level === "number" ? record.level : 1;
+        const anchor = typeof record.anchor === "string" ? record.anchor : undefined;
+        const page = typeof record.page === "number" ? record.page : undefined;
+        const textSnippet = typeof record.textSnippet === "string" ? record.textSnippet : undefined;
+        next.push({ id, title, level, anchor, page, textSnippet });
+      }
+      setSections(next);
+      return next;
+    } catch (error) {
+      setSections([]);
+      setSectionsError(error instanceof Error ? error.message : String(error));
+      return [];
+    } finally {
+      setSectionsLoading(false);
+    }
+  }, [activeVersion, method.code, sections, sectionsLoading]);
+
   const openRule = useCallback(async (ruleId: string) => {
     setTab("rules");
     setRulesDeeplinkWarning(null);
@@ -267,6 +359,41 @@ export default function MethodDetailPane({
       await openRule(initialRuleId);
     })();
   }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule]);
+
+  const filteredSections = useMemo(() => {
+    const q = sectionQuery.trim().toLowerCase();
+    if (!q) return sections;
+    return sections.filter((section) => {
+      const haystack = `${section.id} ${section.title} ${section.anchor ?? ""} ${section.page ?? ""} ${section.textSnippet ?? ""}`.toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [sectionQuery, sections]);
+
+  useEffect(() => {
+    if (!activeSectionId) return;
+    const el = document.getElementById(`section-row-${activeSectionId}`);
+    el?.scrollIntoView({ block: "nearest" });
+  }, [activeSectionId, tab]);
+
+  useEffect(() => {
+    if (didSelectSectionFromQuery.current) return;
+    if (!initialSectionId) return;
+    if (!activeVersion) return;
+    didSelectSectionFromQuery.current = true;
+    (async () => {
+      setTab("sections");
+      const list = await ensureSectionsLoaded();
+      if (list.length === 0) return;
+      const exists = list.some((section) => section.id === initialSectionId);
+      if (!exists) {
+        setSectionsDeeplinkWarning(`Unknown section: ${initialSectionId}`);
+        return;
+      }
+      setSectionsDeeplinkWarning(null);
+      setActiveSectionId(initialSectionId);
+      setSectionParam(initialSectionId);
+    })();
+  }, [activeVersion, ensureSectionsLoaded, initialSectionId, setSectionParam]);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -316,6 +443,17 @@ export default function MethodDetailPane({
           aria-pressed={tab === "rules"}
         >
           Rules
+        </button>
+        <button
+          type="button"
+          onClick={async () => {
+            setTab("sections");
+            await ensureSectionsLoaded();
+          }}
+          className={`${tabBase} ${tab === "sections" ? tabActive : tabIdle}`}
+          aria-pressed={tab === "sections"}
+        >
+          Sections
         </button>
       </div>
 
@@ -376,8 +514,7 @@ export default function MethodDetailPane({
             </Link>
           </div>
         </div>
-      ) : (
-        tab === "versions" ? (
+      ) : tab === "versions" ? (
         <div className="mt-4 grid gap-2">
           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Available versions
@@ -407,7 +544,7 @@ export default function MethodDetailPane({
             })}
           </ul>
         </div>
-        ) : (
+        ) : tab === "rules" ? (
           <div className="mt-4 grid gap-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -579,6 +716,36 @@ export default function MethodDetailPane({
                             Evidence needed
                           </div>
                           <div className="mt-2 space-y-3">
+                            {ruleDetail.sectionId ? (
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                  Citations
+                                </span>
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                                  onClick={async () => {
+                                    const target = ruleDetail.sectionId;
+                                    if (!target) return;
+                                    closeDrawer();
+                                    setTab("sections");
+                                    const list = await ensureSectionsLoaded();
+                                    if (!list.length) return;
+                                    const exists = list.some((section) => section.id === target);
+                                    if (!exists) {
+                                      setSectionsDeeplinkWarning(`Unresolved citation: ${target}`);
+                                      return;
+                                    }
+                                    setSectionsDeeplinkWarning(null);
+                                    setActiveSectionId(target);
+                                    setSectionParam(target);
+                                  }}
+                                >
+                                  {ruleDetail.sectionId}
+                                </button>
+                              </div>
+                            ) : null}
+
                             {ruleDetail.sectionId || ruleDetail.sourcePath || ruleDetail.sha256 ? (
                               <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
                                 {ruleDetail.sectionId ? (
@@ -661,8 +828,116 @@ export default function MethodDetailPane({
               </div>
             ) : null}
           </div>
-        )
-      )}
+        ) : (
+          <div className="mt-4 grid gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Sections for {activeVersion ?? "—"}
+              </div>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                {activeSectionId ? (
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(buildSectionLink(activeSectionId));
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                  >
+                    Copy section link
+                  </button>
+                ) : null}
+                <input
+                  type="search"
+                  value={sectionQuery}
+                  onChange={(event) => setSectionQuery(event.target.value)}
+                  placeholder="Search sections…"
+                  className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none sm:max-w-xs"
+                />
+              </div>
+            </div>
+
+            {sectionsDeeplinkWarning ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {sectionsDeeplinkWarning}
+              </div>
+            ) : null}
+
+            {sectionsError ? (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {sectionsError}
+              </div>
+            ) : null}
+
+            {sectionsLoading ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                Loading sections…
+              </div>
+            ) : null}
+
+            {!sectionsLoading && !sectionsError && filteredSections.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
+                No sections found for this version.
+              </div>
+            ) : null}
+
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+              <div className="max-h-[22rem] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
+                <ul className="grid gap-2">
+                  {filteredSections.map((section) => {
+                    const selected = section.id === activeSectionId;
+                    return (
+                      <li key={section.id} id={`section-row-${section.id}`}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSectionsDeeplinkWarning(null);
+                            setActiveSectionId(section.id);
+                            setSectionParam(section.id);
+                          }}
+                          className={`flex w-full flex-col gap-1 rounded-lg border px-3 py-2 text-left transition-colors ${
+                            selected
+                              ? "border-slate-300 bg-slate-50"
+                              : "border-slate-200 bg-white hover:bg-slate-50"
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-sm font-semibold text-slate-900">{section.title}</span>
+                            <span className="text-xs text-slate-500">
+                              {section.page ? `p.${section.page}` : section.anchor ? "anchor" : "—"}
+                            </span>
+                          </div>
+                          <div className="font-mono text-xs text-slate-500">{section.id}</div>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Section preview
+                </div>
+                {activeSectionId ? (
+                  <>
+                    <div className="mt-2 font-mono text-xs text-slate-600">{activeSectionId}</div>
+                    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800">
+                      {sections.find((section) => section.id === activeSectionId)?.textSnippet ?? "—"}
+                    </div>
+                  </>
+                ) : (
+                  <div className="mt-3 text-sm text-slate-600">
+                    Select a section to preview its snippet.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
