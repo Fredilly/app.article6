@@ -37,6 +37,10 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
+function asArray(value: unknown): unknown[] | null {
+  return Array.isArray(value) ? value : null;
+}
+
 function pickString(record: Record<string, unknown>, keys: string[]): string | undefined {
   for (const key of keys) {
     const value = record[key];
@@ -61,6 +65,47 @@ function sectionIdFromText(value?: string): string | undefined {
   if (!value) return undefined;
   const match = value.match(/S-\d{1,6}/i);
   return match ? match[0] : undefined;
+}
+
+function normalizeCitationsFromRulesRich(rulesRich: unknown): NormalizedCitation[] {
+  const items = asArray(rulesRich);
+  if (!items) return [];
+  const citations: NormalizedCitation[] = [];
+
+  for (const item of items) {
+    const record = asRecord(item);
+    if (!record) continue;
+    const ruleId = pickString(record, ["id", "ruleId", "rule_id"]);
+    const label = pickString(record, ["summary", "logic", "title", "name"]) ?? ruleId ?? "Rule";
+
+    const refs = asRecord(record.refs);
+    const sections =
+      (refs ? asArray(refs.sections) : null) ??
+      asArray(record.sections) ??
+      asArray(record.sectionIds) ??
+      null;
+    if (!sections) continue;
+
+    for (const section of sections) {
+      if (typeof section !== "string") continue;
+      const sectionId = sectionIdFromText(section) ?? section.trim();
+      if (!sectionId) continue;
+      citations.push({
+        label,
+        sectionId,
+        ruleId: ruleId ?? undefined,
+      });
+    }
+  }
+
+  citations.sort((a, b) => {
+    const sa = a.sectionId ?? "";
+    const sb = b.sectionId ?? "";
+    if (sa !== sb) return sa.localeCompare(sb);
+    return (a.ruleId ?? "").localeCompare(b.ruleId ?? "");
+  });
+
+  return citations;
 }
 
 function normalizeEntities(raw: unknown): NormalizedEntity[] {
@@ -127,6 +172,31 @@ function normalizeTables(raw: unknown): NormalizedTable[] {
 }
 
 function normalizeCitations(raw: unknown): NormalizedCitation[] {
+  const arrayItems = asArray(raw);
+  if (arrayItems) {
+    const citations: NormalizedCitation[] = [];
+    for (const item of arrayItems) {
+      const record = asRecord(item);
+      if (!record) continue;
+      const sectionId =
+        pickString(record, ["sectionId", "section_id", "section"]) ??
+        sectionIdFromText(pickString(record, ["anchor", "href", "url"]));
+      const label =
+        pickString(record, ["label", "title", "name"]) ??
+        (sectionId ? `Section ${sectionId}` : "Citation");
+      const ruleId = pickString(record, ["ruleId", "rule_id", "rule"]);
+      const page = pickNumber(record, ["page", "pageNumber"]);
+      if (!label && !sectionId) continue;
+      citations.push({
+        label,
+        sectionId: sectionId ?? undefined,
+        ruleId: ruleId ?? undefined,
+        page: page ?? undefined,
+      });
+    }
+    return citations;
+  }
+
   const record = asRecord(raw);
   const candidates: unknown[] = [];
 
@@ -208,14 +278,15 @@ export function normalizeRichEvidence(raw: unknown): NormalizedRichEvidence {
 
   const record = asRecord(raw);
   const composite = record
-    ? shallowMergeObjects([record.rulesRich, record.sectionsRich, record.rich, raw])
+    ? shallowMergeObjects([record.rich, raw])
     : asRecord(raw) ?? {};
+
+  const rulesRich = record ? (record.rulesRich ?? null) : null;
 
   return {
     entities: normalizeEntities(composite),
     tables: normalizeTables(composite),
-    citations: normalizeCitations(composite),
+    citations: [...normalizeCitations(composite), ...normalizeCitationsFromRulesRich(rulesRich)],
     diffs: normalizeDiffs(composite),
   };
 }
-
