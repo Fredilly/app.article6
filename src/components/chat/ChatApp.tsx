@@ -8,10 +8,16 @@ import SidePane from "./SidePane";
 import MessageList from "./MessageList";
 import Composer from "./Composer";
 import { cn } from "@/lib/utils";
+import useDeeplinkMethodVersion from "@/hooks/useDeeplinkMethodVersion";
 
 const DEFAULT_ENGINE_TAG = process.env.NEXT_PUBLIC_ENGINE_TAG ?? "mvp-baselines-v1";
 
 export default function ChatApp() {
+  const deeplink = useDeeplinkMethodVersion();
+  const deeplinkWarnings = deeplink.resolved.warnings;
+  const selectedMethod = deeplink.resolved.method;
+  const selectedVersion = deeplink.resolved.resolvedVersion;
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
@@ -86,6 +92,34 @@ export default function ChatApp() {
           <PanelsTopLeft className="h-6 w-6 text-gray-300" />
         </header>
 
+        {selectedMethod || deeplinkWarnings.length ? (
+          <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 text-sm text-gray-700 shadow-sm backdrop-blur">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                Deeplink context
+              </span>
+              {deeplink.loading ? (
+                <span className="text-xs text-gray-500">Loading…</span>
+              ) : null}
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-700">
+                method: {selectedMethod ?? "—"}
+              </span>
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-700">
+                version: {selectedVersion ?? "—"}
+              </span>
+            </div>
+            {deeplinkWarnings.length ? (
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-amber-700">
+                {deeplinkWarnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
+
         {hasMetrics ? (
           <div className="flex flex-wrap gap-2">
             {metricItems.map((m, i) => (
@@ -116,7 +150,11 @@ export default function ChatApp() {
               open ? "block" : "hidden lg:block"
             )}
           >
-            <SidePane results={results} />
+            <SidePane
+              results={results}
+              contextMethod={selectedMethod}
+              contextVersion={selectedVersion}
+            />
           </aside>
         </div>
 

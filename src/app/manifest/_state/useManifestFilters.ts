@@ -7,12 +7,14 @@ type FiltersState = {
   query: string;
   methodology: string;
   tags: string[];
+  version: string;
 };
 
 const DEFAULT_STATE: FiltersState = {
   query: "",
   methodology: "all",
   tags: [],
+  version: "",
 };
 
 function parseTags(value: string | null): string[] {
@@ -29,12 +31,15 @@ function parseTags(value: string | null): string[] {
 
 function parseFilters(params: URLSearchParams | Readonly<URLSearchParams>): FiltersState {
   const query = params.get("q") ?? "";
-  const methodology = params.get("methodology") ?? DEFAULT_STATE.methodology;
+  const methodology =
+    params.get("method") ?? params.get("methodology") ?? DEFAULT_STATE.methodology;
   const tags = parseTags(params.get("tags"));
+  const version = params.get("version") ?? DEFAULT_STATE.version;
   return {
     query,
     methodology: methodology || DEFAULT_STATE.methodology,
     tags,
+    version: version || DEFAULT_STATE.version,
   };
 }
 
@@ -43,8 +48,10 @@ function buildSearchString(state: FiltersState) {
   if (state.query.trim()) params.set("q", state.query.trim());
   if (state.methodology && state.methodology !== DEFAULT_STATE.methodology) {
     params.set("methodology", state.methodology);
+    params.set("method", state.methodology);
   }
   if (state.tags.length) params.set("tags", state.tags.join(","));
+  if (state.version.trim()) params.set("version", state.version.trim());
   return params.toString();
 }
 
@@ -53,6 +60,8 @@ export type ManifestFilters = {
   setQuery: (value: string) => void;
   methodology: string;
   setMethodology: (value: string) => void;
+  version: string;
+  setVersion: (value: string) => void;
   activeTags: string[];
   toggleTag: (tag: string) => void;
   clearTags: () => void;
@@ -124,6 +133,16 @@ export default function useManifestFilters(): ManifestFilters {
     [setFilters],
   );
 
+  const setVersion = useCallback(
+    (value: string) => {
+      setFilters(prev => ({
+        ...prev,
+        version: value.trim(),
+      }));
+    },
+    [setFilters],
+  );
+
   const toggleTag = useCallback(
     (tag: string) => {
       const normalized = tag.trim();
@@ -153,6 +172,8 @@ export default function useManifestFilters(): ManifestFilters {
     setQuery,
     methodology: filters.methodology,
     setMethodology,
+    version: filters.version,
+    setVersion,
     activeTags: filters.tags,
     toggleTag,
     clearTags,

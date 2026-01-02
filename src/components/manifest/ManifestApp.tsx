@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Filter, Search } from "lucide-react";
 import RuleCard from "@/components/RuleCard";
 import MethodologyGroup from "@/components/manifest/MethodologyGroup";
 import VersionDiffModal from "@/components/manifest/VersionDiffModal";
 import useManifestFilters from "@/app/manifest/_state/useManifestFilters";
 import { type ManifestEntry } from "@/lib/manifest/cards";
+import useDeeplinkMethodVersion from "@/hooks/useDeeplinkMethodVersion";
 
 type VersionModalState = {
   current: ManifestEntry;
@@ -20,6 +21,19 @@ export default function ManifestApp() {
   const [modalState, setModalState] = useState<VersionModalState | null>(null);
 
   const filters = useManifestFilters();
+  const deeplink = useDeeplinkMethodVersion();
+  const didInitFromDeeplink = useRef(false);
+
+  useEffect(() => {
+    if (didInitFromDeeplink.current) return;
+    if (!deeplink.resolved.method) return;
+
+    didInitFromDeeplink.current = true;
+    filters.setMethodology(deeplink.resolved.method);
+    if (deeplink.resolved.resolvedVersion) {
+      filters.setVersion(deeplink.resolved.resolvedVersion);
+    }
+  }, [deeplink.resolved.method, deeplink.resolved.resolvedVersion, filters]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -92,12 +106,13 @@ export default function ManifestApp() {
     return entries.filter(entry => {
       const methodologyMatch =
         filters.methodology === "all" || entry.methodology === filters.methodology;
+      const versionMatch = !filters.version || entry.version === filters.version;
       const tagsMatch = filters.activeTags.every(tag =>
         (entry.tags ?? []).includes(tag),
       );
-      return methodologyMatch && tagsMatch;
+      return methodologyMatch && versionMatch && tagsMatch;
     });
-  }, [entries, filters.methodology, filters.activeTags]);
+  }, [entries, filters.methodology, filters.version, filters.activeTags]);
 
   const groupedEntries = useMemo(() => {
     const grouping = new Map<string, ManifestEntry[]>();
@@ -126,6 +141,19 @@ export default function ManifestApp() {
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4">
+        {deeplink.resolved.warnings.length ? (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+              Deeplink context
+            </div>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">
+              {deeplink.resolved.warnings.map((warning) => (
+                <li key={warning}>{warning}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         <header className="space-y-3">
           <h1 className="text-3xl font-semibold text-slate-900">Methodology manifest</h1>
           <p className="max-w-2xl text-sm text-slate-600">
@@ -196,9 +224,14 @@ export default function ManifestApp() {
                 ? "Error"
                 : `${resultCount} result${resultCount === 1 ? "" : "s"}`}
             </span>
-            <span className="text-xs text-slate-500">
-              Copy hashes, export JSON, and open anchors without leaving context.
-            </span>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              {filters.version ? (
+                <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700">
+                  version {filters.version}
+                </span>
+              ) : null}
+              <span>Copy hashes, export JSON, and open anchors without leaving context.</span>
+            </div>
           </div>
 
           {error ? (
