@@ -42,6 +42,12 @@ function buildDeepLink(basePath: string, methodCode: string, version?: string) {
   return `${basePath}?${params.toString()}`;
 }
 
+function sectionIdFromText(value?: string): string | undefined {
+  if (!value) return undefined;
+  const match = value.match(/S-\d{1,6}/i);
+  return match ? match[0] : undefined;
+}
+
 export default function MethodDetailPane({
   method,
   activeVersion,
@@ -74,6 +80,8 @@ export default function MethodDetailPane({
     type?: string;
     sha256?: string;
     sectionId?: string;
+    anchor?: string;
+    citations?: Array<{ sectionId: string | undefined; anchor: string | undefined; label: string | undefined }>;
     sourcePath?: string;
   } | null>(null);
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
@@ -117,6 +125,19 @@ export default function MethodDetailPane({
       return haystack.includes(q);
     });
   }, [ruleQuery, rules]);
+
+  const ruleCitationSectionIds = useMemo(() => {
+    if (!ruleDetail) return [];
+    const ids = new Set<string>();
+    if (ruleDetail.sectionId) ids.add(ruleDetail.sectionId);
+    const fromAnchor = sectionIdFromText(ruleDetail.anchor);
+    if (fromAnchor) ids.add(fromAnchor);
+    for (const citation of ruleDetail.citations ?? []) {
+      const value = citation.sectionId ?? sectionIdFromText(citation.anchor);
+      if (value) ids.add(value);
+    }
+    return Array.from(ids);
+  }, [ruleDetail]);
 
   useEffect(() => {
     setRules([]);
@@ -233,6 +254,24 @@ export default function MethodDetailPane({
       const rule = payload.rule;
       if (!rule || typeof rule !== "object") throw new Error("Rule payload missing");
       const record = rule as Record<string, unknown>;
+      const citations = Array.isArray(record.citations)
+        ? record.citations
+            .map((item: unknown) => {
+              if (!item || typeof item !== "object") return null;
+              const citation = item as Record<string, unknown>;
+              const sectionId = typeof citation.sectionId === "string" ? citation.sectionId : undefined;
+              const anchor = typeof citation.anchor === "string" ? citation.anchor : undefined;
+              const label = typeof citation.label === "string" ? citation.label : undefined;
+              if (!sectionId && !anchor && !label) return null;
+              return { sectionId, anchor, label };
+            })
+            .filter(
+              (
+                value,
+              ): value is { sectionId: string | undefined; anchor: string | undefined; label: string | undefined } =>
+                value !== null,
+            )
+        : undefined;
       setRuleDetail({
         id: typeof record.id === "string" ? record.id : ruleId,
         title:
@@ -248,6 +287,8 @@ export default function MethodDetailPane({
         type: typeof record.type === "string" ? record.type : undefined,
         sha256: typeof record.sha256 === "string" ? record.sha256 : undefined,
         sectionId: typeof record.sectionId === "string" ? record.sectionId : undefined,
+        anchor: typeof record.anchor === "string" ? record.anchor : undefined,
+        citations,
         sourcePath: typeof record.sourcePath === "string" ? record.sourcePath : undefined,
       });
     } catch (error) {
@@ -716,44 +757,50 @@ export default function MethodDetailPane({
                             Evidence needed
                           </div>
                           <div className="mt-2 space-y-3">
-                            {ruleDetail.sectionId ? (
+                            {ruleCitationSectionIds.length ? (
                               <div className="flex flex-wrap items-center gap-2">
                                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                                   Citations
                                 </span>
-                                <button
-                                  type="button"
-                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                  onClick={async () => {
-                                    const target = ruleDetail.sectionId;
-                                    if (!target) return;
-                                    closeDrawer();
-                                    setTab("sections");
-                                    const list = await ensureSectionsLoaded();
-                                    if (!list.length) return;
-                                    const exists = list.some((section) => section.id === target);
-                                    if (!exists) {
-                                      setSectionsDeeplinkWarning(`Unresolved citation: ${target}`);
-                                      return;
-                                    }
-                                    setSectionsDeeplinkWarning(null);
-                                    setActiveSectionId(target);
-                                    setSectionParam(target);
-                                  }}
-                                >
-                                  {ruleDetail.sectionId}
-                                </button>
+                                {ruleCitationSectionIds.map((target) => (
+                                  <button
+                                    key={target}
+                                    type="button"
+                                    className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                                    onClick={async () => {
+                                      closeDrawer();
+                                      setTab("sections");
+                                      const list = await ensureSectionsLoaded();
+                                      if (!list.length) return;
+                                      const exists = list.some((section) => section.id === target);
+                                      if (!exists) {
+                                        setSectionsDeeplinkWarning(`Unresolved citation: ${target}`);
+                                        return;
+                                      }
+                                      setSectionsDeeplinkWarning(null);
+                                      setActiveSectionId(target);
+                                      setSectionParam(target);
+                                    }}
+                                  >
+                                    {target}
+                                  </button>
+                                ))}
                               </div>
                             ) : null}
 
-                            {ruleDetail.sectionId || ruleDetail.sourcePath || ruleDetail.sha256 ? (
+                            {ruleCitationSectionIds.length || ruleDetail.sourcePath || ruleDetail.sha256 ? (
                               <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
-                                {ruleDetail.sectionId ? (
+                                {ruleCitationSectionIds.length ? (
                                   <li>
                                     Evidence anchor/section:{" "}
-                                    <span className="font-mono text-xs text-slate-700">
-                                      {ruleDetail.sectionId}
-                                    </span>
+                                    {ruleCitationSectionIds.map((sectionId) => (
+                                      <span
+                                        key={sectionId}
+                                        className="mr-2 inline-flex font-mono text-xs text-slate-700"
+                                      >
+                                        {sectionId}
+                                      </span>
+                                    ))}
                                   </li>
                                 ) : null}
                                 {ruleDetail.sourcePath ? (
