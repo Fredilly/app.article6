@@ -36,6 +36,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local build-time artifact sync
+.cache/
+public/methodologies/
+public/_provenance/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -10,7 +10,10 @@
     "test": "jest --passWithNoTests",
     "check:manifest:api": "node -e \"process.on('unhandledRejection',()=>process.exit(1));(async()=>{try{const r=await fetch('http://localhost:3000/api/manifest?all=1');const j=await r.json().catch(()=>[]);if(!Array.isArray(j)||j.length<10){console.error('Manifest API returned too few items');process.exit(1)}}catch(error){console.error(error);process.exit(1)}})()\"",
     "check:manifest": "node -e \"const x=require('./public/manifest/index.json');if(!Array.isArray(x)||x.length<10){console.error('Manifest too small');process.exit(1)}\"",
-    "dev:manifest:count": "node -e \"console.log(require('./public/manifest/index.json').length)\""
+    "dev:manifest:count": "node -e \"console.log(require('./public/manifest/index.json').length)\"",
+    "fetch:methodologies-pack": "bash scripts/fetch-methodologies-pack.sh",
+    "check:golden": "bash scripts/check-golden-rich.sh",
+    "vercel-build": "npm run fetch:methodologies-pack && npm run check:golden && next build"
   },
   "engines": {
     "node": "20.11.1",
