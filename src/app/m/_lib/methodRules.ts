@@ -1,5 +1,6 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { loadManifestEntries, type ManifestEntry } from "@/lib/manifest/cards";
 
 export type RuleSummary = {
@@ -49,6 +50,11 @@ function pickStringArray(entry: Record<string, unknown>, keys: string[]): string
   return [];
 }
 
+function stableDerivedId(seed: string): string {
+  const hash = createHash("sha256").update(seed).digest("hex").slice(0, 12);
+  return `derived-${hash}`;
+}
+
 async function readJsonFile(filePath: string): Promise<unknown> {
   const raw = await readFile(filePath, "utf8");
   try {
@@ -95,14 +101,18 @@ function coerceRulesFromUnknown(parsed: unknown): RuleFull[] {
 
   const rules: RuleFull[] = [];
 
-  for (const item of items) {
+  for (const [index, item] of items.entries()) {
     if (!item || typeof item !== "object") continue;
     const record = item as Record<string, unknown>;
-    const id = pickString(record, ["id", "rule_id", "ruleId", "key"]);
-    const title = pickString(record, ["title", "label", "name"]) ?? id;
+    const rawId = pickString(record, ["id", "rule_id", "ruleId", "key"]);
+    const title = pickString(record, ["title", "label", "name"]) ?? rawId;
     const text =
       pickString(record, ["text", "rule", "content", "body", "description", "summary"]) ?? "";
-    if (!id) continue;
+    const id =
+      rawId ??
+      (title
+        ? stableDerivedId(`${title}::${text}`.slice(0, 2000))
+        : stableDerivedId(`index::${index}`));
     rules.push({
       id,
       title: title ?? id,
