@@ -1,19 +1,34 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
-import { loadManifestEntries, type ManifestEntry } from "@/lib/manifest/cards";
+import { type ManifestEntry } from "@/lib/manifest/cards";
 
-export type MethodRichResult = {
-  raw: {
-    rulesRich?: unknown;
-    sectionsRich?: unknown;
-    rich?: unknown;
-  };
-  sources: {
-    rulesRich?: string;
-    sectionsRich?: string;
-    rich?: string;
-  };
+export type MethodRichProbeResult =
+  | {
+      ok: true;
+      sources: string[];
+      attempted: string[];
+      missing: string[];
+      data: {
+        rulesRich?: unknown;
+        sectionsRich?: unknown;
+        rich?: unknown;
+      };
+    }
+  | {
+      ok: false;
+      sources: [];
+      attempted: string[];
+      missing: string[];
+      data: null;
+    };
+
+type Cache = {
+  mtimeMs: number;
+  entries: ManifestEntry[];
 };
+
+const MANIFEST_FILE = path.join(process.cwd(), "public", "manifest", "index.json");
+let cache: Cache | null = null;
 
 async function readJsonFile(filePath: string): Promise<unknown> {
   const raw = await readFile(filePath, "utf8");
@@ -37,20 +52,38 @@ async function tryRead(filePath: string): Promise<unknown | null> {
   }
 }
 
-function resolveCandidate(manifestPath: string, candidateFileName: string): string | null {
+async function loadManifestCached(): Promise<ManifestEntry[]> {
+  try {
+    const manifestStat = await stat(MANIFEST_FILE);
+    if (cache && cache.mtimeMs === manifestStat.mtimeMs) return cache.entries;
+    const raw = await readFile(MANIFEST_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    const entries: ManifestEntry[] = Array.isArray(parsed) ? (parsed as ManifestEntry[]) : [];
+    cache = { mtimeMs: manifestStat.mtimeMs, entries };
+    return entries;
+  } catch {
+    return [];
+  }
+}
+
+function resolveCandidate(manifestPath: string, candidateFileName: string): { absolute: string; relative: string } | null {
   const normalized = path.normalize(manifestPath);
   if (!normalized || path.isAbsolute(normalized)) return null;
   const absolute = path.join(process.cwd(), normalized);
-  const dir = absolute.endsWith("rules.json") ? path.dirname(absolute) : path.dirname(absolute);
-  return path.join(dir, candidateFileName);
+  const dir = path.dirname(absolute);
+  const candidateAbs = path.join(dir, candidateFileName);
+  const relative = path.relative(process.cwd(), candidateAbs);
+  return { absolute: candidateAbs, relative };
 }
 
-export async function loadMethodRich(code: string, version: string): Promise<MethodRichResult> {
+export async function probeMethodRich(code: string, version: string): Promise<MethodRichProbeResult> {
   const normalizedCode = code.trim();
   const normalizedVersion = version.trim();
-  if (!normalizedCode || !normalizedVersion) return { raw: {}, sources: {} };
+  if (!normalizedCode || !normalizedVersion) {
+    return { ok: false, sources: [], attempted: [], missing: [], data: null };
+  }
 
-  const entries = (await loadManifestEntries()).filter(
+  const entries = (await loadManifestCached()).filter(
     (entry) => entry.methodology === normalizedCode && entry.version === normalizedVersion,
   );
 
@@ -63,53 +96,68 @@ export async function loadMethodRich(code: string, version: string): Promise<Met
       )
       .find((value): value is string => Boolean(value)) ?? undefined;
 
-  if (!manifestPath) return { raw: {}, sources: {} };
-
-  const rulesRichPath =
-    resolveCandidate(manifestPath, "rules.rich.json") ??
-    (manifestPath.endsWith("rules.json")
-      ? path.join(process.cwd(), path.normalize(manifestPath).replace(/rules\.json$/, "rules.rich.json"))
-      : null);
-  const sectionsRichPath = resolveCandidate(manifestPath, "sections.rich.json");
-  const richPath = resolveCandidate(manifestPath, "rich.json");
-
-  const raw: MethodRichResult["raw"] = {};
-  const sources: MethodRichResult["sources"] = {};
-
-  if (rulesRichPath) {
-    const parsed = await tryRead(rulesRichPath);
-    if (parsed) {
-      raw.rulesRich = parsed;
-      sources.rulesRich = rulesRichPath;
-    }
-  }
-
-  if (sectionsRichPath) {
-    const parsed = await tryRead(sectionsRichPath);
-    if (parsed) {
-      raw.sectionsRich = parsed;
-      sources.sectionsRich = sectionsRichPath;
-    }
-  }
-
-  if (richPath) {
-    const parsed = await tryRead(richPath);
-    if (parsed) {
-      raw.rich = parsed;
-      sources.rich = richPath;
-    }
-  }
-
-  // If rich artifacts are missing, include minimal metadata for debugging (non-fatal).
-  if (!raw.rulesRich && !raw.sectionsRich && !raw.rich) {
-    raw.rich = {
-      message: "No rich artifacts found for this method/version.",
-      methodology: normalizedCode,
-      version: normalizedVersion,
-      sampleEntry: entries[0] ? (entries[0] satisfies ManifestEntry) : null,
+  if (!manifestPath) {
+    return {
+      ok: false,
+      sources: [],
+      attempted: ["(manifest missing path field for this method/version)"],
+      missing: ["rich.json", "rules.rich.json", "sections.rich.json"],
+      data: null,
     };
   }
 
-  return { raw, sources };
-}
+  const richCandidate = resolveCandidate(manifestPath, "rich.json");
+  const rulesRichCandidate =
+    resolveCandidate(manifestPath, "rules.rich.json") ??
+    (manifestPath.endsWith("rules.json")
+      ? (() => {
+          const absolute = path.join(process.cwd(), path.normalize(manifestPath).replace(/rules\.json$/, "rules.rich.json"));
+          return { absolute, relative: path.relative(process.cwd(), absolute) };
+        })()
+      : null);
+  const sectionsRichCandidate = resolveCandidate(manifestPath, "sections.rich.json");
 
+  const attempted: string[] = [];
+  const missing: string[] = [];
+  const sources: string[] = [];
+  const data: NonNullable<MethodRichProbeResult["data"]> = {};
+
+  if (richCandidate) {
+    attempted.push(richCandidate.relative);
+    const parsed = await tryRead(richCandidate.absolute);
+    if (parsed) {
+      data.rich = parsed;
+      sources.push("rich.json");
+      return { ok: true, sources, attempted, missing, data };
+    }
+    missing.push("rich.json");
+  }
+
+  if (rulesRichCandidate) {
+    attempted.push(rulesRichCandidate.relative);
+    const parsed = await tryRead(rulesRichCandidate.absolute);
+    if (parsed) {
+      data.rulesRich = parsed;
+      sources.push("rules.rich.json");
+    } else {
+      missing.push("rules.rich.json");
+    }
+  }
+
+  if (sectionsRichCandidate) {
+    attempted.push(sectionsRichCandidate.relative);
+    const parsed = await tryRead(sectionsRichCandidate.absolute);
+    if (parsed) {
+      data.sectionsRich = parsed;
+      sources.push("sections.rich.json");
+    } else {
+      missing.push("sections.rich.json");
+    }
+  }
+
+  if (sources.length) {
+    return { ok: true, sources, attempted, missing, data };
+  }
+
+  return { ok: false, sources: [], attempted, missing, data: null };
+}

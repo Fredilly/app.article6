@@ -3,6 +3,8 @@ import FinderShell from "@/components/FinderShell";
 import TrustStrip from "@/components/TrustStrip";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
+import { probeMethodRich } from "@/app/m/_lib/methodRich";
+import { normalizeRichEvidence } from "@/lib/rich/normalize";
 
 type MethodsFinderProps = {
   selectedCode?: string;
@@ -19,13 +21,42 @@ export default async function MethodsFinder({
 }: MethodsFinderProps) {
   const { methods, generatedAt, datasetHash } = await getMethodInventory();
 
+  const findGoldenRichSelection = async () => {
+    const maxMethods = 30;
+    const maxVersionsPerMethod = 3;
+
+    for (const method of methods.slice(0, maxMethods)) {
+      const versions = [...method.versions].slice(-maxVersionsPerMethod).reverse();
+      for (const version of versions) {
+        const probe = await probeMethodRich(method.code, version);
+        if (!probe.ok) continue;
+        const normalized = normalizeRichEvidence(probe.data);
+        const count =
+          normalized.entities.length +
+          normalized.tables.length +
+          normalized.citations.length +
+          normalized.diffs.length;
+        if (count > 0) return { code: method.code, version };
+      }
+    }
+
+    return null;
+  };
+
   const normalizedCode = selectedCode?.trim();
-  const selectedMethod = normalizedCode
-    ? methods.find((method) => method.code.toLowerCase() === normalizedCode.toLowerCase()) ?? null
+  const goldenSelection =
+    normalizedCode || selectedVersion ? null : await findGoldenRichSelection();
+  const resolvedCode = normalizedCode ?? goldenSelection?.code;
+
+  const selectedMethod = resolvedCode
+    ? methods.find((method) => method.code.toLowerCase() === resolvedCode.toLowerCase()) ?? null
     : null;
 
   const effectiveVersion =
-    selectedVersion?.trim() || selectedMethod?.latestVersion || selectedMethod?.versions.at(-1);
+    selectedVersion?.trim() ||
+    goldenSelection?.version ||
+    selectedMethod?.latestVersion ||
+    selectedMethod?.versions.at(-1);
 
   const versionAuditHash =
     (selectedMethod && effectiveVersion
@@ -48,6 +79,16 @@ export default async function MethodsFinder({
           <p className="text-sm text-slate-600">
             Browse methods, select a version, and verify provenance via audit hashes.
           </p>
+          {!selectedCode && goldenSelection ? (
+            <p className="text-xs text-slate-500">
+              Rich demo auto-selected:{" "}
+              <span className="font-mono">
+                {goldenSelection.code}@{goldenSelection.version}
+              </span>
+            </p>
+          ) : !selectedCode ? (
+            <p className="text-xs text-slate-500">No rich-enabled versions detected in this dataset.</p>
+          ) : null}
         </header>
 
         <TrustStrip

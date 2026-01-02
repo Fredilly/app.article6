@@ -110,6 +110,12 @@ export default function MethodDetailPane({
   const [richError, setRichError] = useState<string | null>(null);
   const [richEvidence, setRichEvidence] = useState<NormalizedRichEvidence | null>(null);
   const [richRaw, setRichRaw] = useState<unknown>(null);
+  const [richProbe, setRichProbe] = useState<{
+    ok: boolean;
+    sources: string[];
+    attempted: string[];
+    missing: string[];
+  } | null>(null);
   const [richRawOpen, setRichRawOpen] = useState(false);
   const [richOpenBlocks, setRichOpenBlocks] = useState({
     entities: false,
@@ -179,6 +185,7 @@ export default function MethodDetailPane({
   useEffect(() => {
     setRichEvidence(null);
     setRichRaw(null);
+    setRichProbe(null);
     setRichError(null);
     setRichLoading(false);
     setRichRawOpen(false);
@@ -392,14 +399,36 @@ export default function MethodDetailPane({
         { cache: "no-store" },
       );
       if (!response.ok) throw new Error(`Rich request failed with ${response.status}`);
-      const payload = (await response.json()) as { raw?: unknown };
-      setRichRaw(payload.raw ?? null);
-      const normalized = normalizeRichEvidence(payload.raw);
+      const payload = (await response.json()) as
+        | {
+            ok: true;
+            sources: string[];
+            attempted: string[];
+            missing: string[];
+            data: unknown;
+          }
+        | {
+            ok: false;
+            sources: string[];
+            attempted: string[];
+            missing: string[];
+            data: null;
+          };
+
+      setRichProbe({
+        ok: Boolean(payload.ok),
+        sources: Array.isArray(payload.sources) ? payload.sources : [],
+        attempted: Array.isArray(payload.attempted) ? payload.attempted : [],
+        missing: Array.isArray(payload.missing) ? payload.missing : [],
+      });
+      setRichRaw(payload.ok ? payload.data : null);
+      const normalized = normalizeRichEvidence(payload.ok ? payload.data : null);
       setRichEvidence(normalized);
       return normalized;
     } catch (error) {
       setRichEvidence(null);
       setRichRaw(null);
+      setRichProbe(null);
       setRichError(error instanceof Error ? error.message : String(error));
       return null;
     } finally {
@@ -1062,6 +1091,16 @@ export default function MethodDetailPane({
               </div>
             </div>
 
+            {richProbe ? (
+              <div className="text-xs text-slate-500">
+                {richProbe.ok && richProbe.sources.length
+                  ? `Rich sources: ${richProbe.sources.join(", ")}`
+                  : richProbe.missing.length
+                    ? `Rich sources missing: ${richProbe.missing.join(", ")}`
+                    : "Rich sources missing."}
+              </div>
+            ) : null}
+
             {richError ? (
               <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {richError}
@@ -1118,6 +1157,44 @@ export default function MethodDetailPane({
                     <div className="mt-1 text-xs text-slate-400">
                       Run rich extraction in the pipeline to populate.
                     </div>
+                    {richProbe && (richProbe.missing.length || richProbe.attempted.length) ? (
+                      <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left">
+                        <summary className="cursor-pointer text-xs font-semibold text-slate-700">
+                          Why empty?
+                        </summary>
+                        <div className="mt-3 grid gap-3 text-xs text-slate-600">
+                          {richProbe.missing.length ? (
+                            <div>
+                              <div className="font-semibold text-slate-700">Missing</div>
+                              <div className="mt-1">{richProbe.missing.join(", ")}</div>
+                            </div>
+                          ) : null}
+                          {richProbe.attempted.length ? (
+                            <div>
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="font-semibold text-slate-700">Attempted paths</div>
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                                  onClick={async () => {
+                                    try {
+                                      await navigator.clipboard.writeText(richProbe.attempted.join("\n"));
+                                    } catch {
+                                      // ignore
+                                    }
+                                  }}
+                                >
+                                  Copy attempted paths
+                                </button>
+                              </div>
+                              <div className="mt-2 max-h-32 overflow-auto rounded-lg bg-white px-3 py-2 font-mono text-[11px] text-slate-700">
+                                {richProbe.attempted.join("\n")}
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </details>
+                    ) : null}
                   </div>
                 ) : null}
 
