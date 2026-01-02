@@ -9,6 +9,7 @@ export type MethodInventoryItem = {
   versions: string[];
   latestVersion?: string;
   versionCount: number;
+  ruleCountByVersion: Record<string, number | undefined>;
   hasRich: boolean;
   hasPrevious: boolean;
   generated_at?: string;
@@ -30,6 +31,7 @@ type MethodAccumulator = {
   versions: Set<string>;
   hashesByVersion: Map<string, string[]>;
   allHashes: string[];
+  ruleCountByVersion: Map<string, number>;
 };
 
 type Cache = {
@@ -131,6 +133,7 @@ export async function getMethodInventory(): Promise<{
         versions: new Set<string>(),
         hashesByVersion: new Map<string, string[]>(),
         allHashes: [],
+        ruleCountByVersion: new Map<string, number>(),
       };
       map.set(code, current);
     }
@@ -145,6 +148,9 @@ export async function getMethodInventory(): Promise<{
       list.push(sha);
       current.hashesByVersion.set(version, list);
     }
+
+    const existingCount = current.ruleCountByVersion.get(version) ?? 0;
+    current.ruleCountByVersion.set(version, existingCount + 1);
   }
 
   const sourceSha =
@@ -157,8 +163,10 @@ export async function getMethodInventory(): Promise<{
     const latestVersion = versions.at(-1);
 
     const versionAuditHashes: Record<string, string | undefined> = {};
+    const ruleCountByVersion: Record<string, number | undefined> = {};
     for (const version of versions) {
       versionAuditHashes[version] = normalizeAuditHash(method.hashesByVersion.get(version) ?? []);
+      ruleCountByVersion[version] = method.ruleCountByVersion.get(version);
     }
 
     const methodAuditHash = normalizeAuditHash(method.allHashes);
@@ -170,6 +178,7 @@ export async function getMethodInventory(): Promise<{
       versions,
       latestVersion,
       versionCount: versions.length,
+      ruleCountByVersion,
       hasRich: false,
       hasPrevious: false,
       generated_at: generatedAt,
