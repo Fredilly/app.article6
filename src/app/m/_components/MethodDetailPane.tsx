@@ -152,6 +152,17 @@ export default function MethodDetailPane({
     }
   }, [activeVersion, method.code, rules, rulesLoading]);
 
+  const buildRuleLink = useCallback(
+    (ruleId: string) => {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(
+        activeVersion ?? "",
+      )}?rule=${encodeURIComponent(ruleId)}`;
+      return `${origin}${path}`;
+    },
+    [activeVersion, method.code],
+  );
+
   const loadRuleDetail = useCallback(async (ruleId: string) => {
     if (!activeVersion) return;
     setRuleDetailLoading(true);
@@ -205,7 +216,12 @@ export default function MethodDetailPane({
   const openRule = useCallback(async (ruleId: string) => {
     setTab("rules");
     setRulesDeeplinkWarning(null);
-    await ensureRulesLoaded();
+    const list = await ensureRulesLoaded();
+    if (list.length === 0) return;
+    if (!list.some((rule) => rule.id === ruleId)) {
+      setRulesDeeplinkWarning(`Unknown rule id "${ruleId}".`);
+      return;
+    }
     setActiveRuleId(ruleId);
     setDrawerOpen(true);
     setRuleParam(ruleId);
@@ -385,13 +401,32 @@ export default function MethodDetailPane({
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                 Rules for {activeVersion ?? "—"}
               </div>
-              <input
-                type="search"
-                value={ruleQuery}
-                onChange={(event) => setRuleQuery(event.target.value)}
-                placeholder="Search rules…"
-                className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none sm:max-w-xs"
-              />
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                {filteredRules.length ? (
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                    onClick={async () => {
+                      const first = filteredRules[0];
+                      if (!first || !activeVersion) return;
+                      try {
+                        await navigator.clipboard.writeText(buildRuleLink(first.id));
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                  >
+                    Copy first rule link
+                  </button>
+                ) : null}
+                <input
+                  type="search"
+                  value={ruleQuery}
+                  onChange={(event) => setRuleQuery(event.target.value)}
+                  placeholder="Search rules…"
+                  className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none sm:max-w-xs"
+                />
+              </div>
             </div>
 
             {rulesDeeplinkWarning ? (
@@ -427,12 +462,12 @@ export default function MethodDetailPane({
                     className="flex w-full flex-col gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-mono text-xs text-slate-500">{rule.id}</span>
                       <span className="text-xs text-slate-500">
                         {rule.type ? rule.type : rule.tags.length ? rule.tags.slice(0, 2).join(", ") : "—"}
                       </span>
                     </div>
                     <div className="text-sm font-semibold text-slate-900">{rule.title}</div>
+                    <div className="font-mono text-xs text-slate-500">{rule.id}</div>
                     <div className="text-sm text-slate-600">{rule.snippet || "—"}</div>
                   </button>
                 </li>
@@ -449,12 +484,12 @@ export default function MethodDetailPane({
                   <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
                     <div className="min-w-0">
                       <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        Rule
+                        Rule{" "}
+                        <span className="break-words font-mono text-xs text-slate-600">
+                          {activeRuleId ?? "—"}
+                        </span>
                       </div>
-                      <div className="mt-1 break-words font-mono text-xs text-slate-600">
-                        {activeRuleId ?? "—"}
-                      </div>
-                      <div className="mt-1 text-base font-semibold text-slate-900">
+                      <div className="mt-2 text-base font-semibold text-slate-900">
                         {ruleDetail?.title ?? "Loading…"}
                       </div>
                     </div>
@@ -462,11 +497,10 @@ export default function MethodDetailPane({
                       <button
                         type="button"
                         onClick={async () => {
+                          if (!activeRuleId || !activeVersion) return;
                           try {
-                            await navigator.clipboard.writeText(window.location.href);
-                          } catch {
-                            // ignore
-                          }
+                            await navigator.clipboard.writeText(buildRuleLink(activeRuleId));
+                          } catch {}
                         }}
                         className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
                       >
