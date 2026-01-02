@@ -7,9 +7,14 @@ import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 type MethodsFinderProps = {
   selectedCode?: string;
   selectedVersion?: string;
+  selectedRuleId?: string;
 };
 
-export default async function MethodsFinder({ selectedCode, selectedVersion }: MethodsFinderProps) {
+export default async function MethodsFinder({
+  selectedCode,
+  selectedVersion,
+  selectedRuleId,
+}: MethodsFinderProps) {
   const { methods, generatedAt, datasetHash } = await getMethodInventory();
 
   const normalizedCode = selectedCode?.trim();
@@ -100,6 +105,7 @@ export default async function MethodsFinder({ selectedCode, selectedVersion }: M
                   ruleCountByVersion: selectedMethod.ruleCountByVersion,
                 }}
                 activeVersion={effectiveVersion}
+                initialRuleId={selectedRuleId}
                 generatedAt={generatedAt}
                 repoSha={repoSha}
                 datasetHash={datasetHash}
