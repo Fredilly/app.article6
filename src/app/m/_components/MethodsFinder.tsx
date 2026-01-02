@@ -1,18 +1,13 @@
 import Link from "next/link";
 import FinderShell from "@/components/FinderShell";
 import TrustStrip from "@/components/TrustStrip";
-import VersionSelector from "@/app/m/_components/VersionSelector";
+import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 
 type MethodsFinderProps = {
   selectedCode?: string;
   selectedVersion?: string;
 };
-
-function shortSha(value?: string): string | undefined {
-  if (!value) return undefined;
-  return value.slice(0, 7);
-}
 
 export default async function MethodsFinder({ selectedCode, selectedVersion }: MethodsFinderProps) {
   const { methods, generatedAt, datasetHash } = await getMethodInventory();
@@ -36,7 +31,7 @@ export default async function MethodsFinder({ selectedCode, selectedVersion }: M
     { label: "dataset_sha256", value: datasetHash },
     { label: "method_sha256", value: selectedMethod?.audit_hashes?.method_sha256 },
     { label: "version_sha256", value: versionAuditHash },
-  ].filter((hash) => Boolean(hash.value));
+  ];
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -92,42 +87,25 @@ export default async function MethodsFinder({ selectedCode, selectedVersion }: M
           }
           right={
             selectedMethod ? (
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex flex-col gap-1">
-                    <h2 className="text-sm font-semibold text-slate-900">{selectedMethod.code}</h2>
-                    <p className="text-sm text-slate-600">
-                      {selectedMethod.program} • {selectedMethod.sector}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Latest: {selectedMethod.latestVersion ?? "—"} • Repo: {shortSha(repoSha) ?? "—"}
-                    </p>
-                  </div>
-                  <div className="w-full sm:max-w-xs">
-                    <VersionSelector
-                      methodCode={selectedMethod.code}
-                      versions={selectedMethod.versions}
-                      selectedVersion={selectedVersion}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-4 grid gap-3">
-                  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
-                    Detail pane placeholder (versions, rules, evidence anchors) — URL selection is refresh-safe.
-                  </div>
-                  {effectiveVersion ? (
-                    <Link
-                      href={`/m/${encodeURIComponent(selectedMethod.code)}/v/${encodeURIComponent(
-                        effectiveVersion,
-                      )}`}
-                      className="text-sm font-medium text-slate-700 underline decoration-slate-300 underline-offset-4 hover:text-slate-900"
-                    >
-                      Open version route: /m/{selectedMethod.code}/v/{effectiveVersion}
-                    </Link>
-                  ) : null}
-                </div>
-              </div>
+              <MethodDetailPane
+                method={{
+                  code: selectedMethod.code,
+                  program: selectedMethod.program,
+                  sector: selectedMethod.sector,
+                  versions: selectedMethod.versions,
+                  latestVersion: selectedMethod.latestVersion,
+                  versionCount: selectedMethod.versionCount,
+                  hasRich: selectedMethod.hasRich,
+                  hasPrevious: selectedMethod.hasPrevious,
+                  ruleCountByVersion: selectedMethod.ruleCountByVersion,
+                }}
+                activeVersion={effectiveVersion}
+                generatedAt={generatedAt}
+                repoSha={repoSha}
+                datasetHash={datasetHash}
+                methodHash={selectedMethod.audit_hashes?.method_sha256}
+                versionHash={versionAuditHash}
+              />
             ) : (
               <div className="rounded-xl border border-slate-200 bg-white p-4">
                 <h2 className="text-sm font-semibold text-slate-900">Detail</h2>
@@ -142,4 +120,3 @@ export default async function MethodsFinder({ selectedCode, selectedVersion }: M
     </main>
   );
 }
-

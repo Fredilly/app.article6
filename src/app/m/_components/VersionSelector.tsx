@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 type VersionSelectorProps = {
@@ -15,7 +15,7 @@ export default function VersionSelector({
   selectedVersion,
 }: VersionSelectorProps) {
   const router = useRouter();
-  const [value, setValue] = useState(selectedVersion ?? "");
+  const value = selectedVersion ?? "";
 
   const options = useMemo(() => {
     return versions.map((version) => ({ value: version, label: version }));
@@ -37,7 +37,6 @@ export default function VersionSelector({
         value={value}
         onChange={(event) => {
           const next = event.target.value;
-          setValue(next);
           if (!next) return;
           router.push(`/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(next)}`);
         }}
@@ -54,4 +53,3 @@ export default function VersionSelector({
     </label>
   );
 }
-
