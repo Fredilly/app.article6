@@ -11,6 +11,7 @@ type DemoRoute = {
 
 const demoRoutes: DemoRoute[] = [
   { href: "/", title: "Chat" },
+  { href: "/m", title: "Methods" },
   { href: "/audit", title: "Audit" },
   { href: "/manifest", title: "Manifest" },
   { href: "/registry/mock", title: "Issuance" },
@@ -24,7 +25,8 @@ export default function DemoNav() {
       <span className="font-semibold uppercase tracking-wide text-slate-400">Demo surfaces</span>
       {demoRoutes.map(route => {
         const isActive =
-          pathname === route.href || (route.href !== "/" && pathname.startsWith(route.href));
+          pathname === route.href ||
+          (route.href !== "/" && pathname.startsWith(`${route.href}/`));
         const base = "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 font-medium shadow-sm transition";
         const appearance = isActive
           ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
