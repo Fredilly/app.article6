@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import FinderShell from "@/components/FinderShell";
 import TrustStrip from "@/components/TrustStrip";
-import MethodologiesPackProvenance from "@/components/MethodologiesPackProvenance";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 import { probeMethodRich } from "@/app/m/_lib/methodRich";
 import { normalizeRichEvidence } from "@/lib/rich/normalize";
+import { loadManifestEntries } from "@/lib/manifest/cards";
+import packConfig from "../../../../config/methodologies_pack.json";
 
 type MethodsFinderProps = {
   selectedCode?: string;
@@ -13,6 +16,25 @@ type MethodsFinderProps = {
   selectedRuleId?: string;
   selectedSectionId?: string;
 };
+
+async function loadPackProvenanceJson(): Promise<unknown | null> {
+  try {
+    const filePath = path.join(process.cwd(), "public", "_provenance", "methodologies_PROVENANCE.json");
+    const raw = await readFile(filePath, "utf8");
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveManifestRulesPath(code: string, version: string): Promise<string | null> {
+  const entries = await loadManifestEntries();
+  const match = entries.find((entry) => entry.methodology === code && entry.version === version);
+  if (!match) return null;
+  const record = match as unknown as Record<string, unknown>;
+  const manifestPath = typeof record.path === "string" ? record.path : null;
+  return manifestPath && manifestPath.trim() ? manifestPath.trim() : null;
+}
 
 export default async function MethodsFinder({
   selectedCode,
@@ -66,11 +88,11 @@ export default async function MethodsFinder({
 
   const repoSha = selectedMethod?.source_sha ?? process.env.VERCEL_GIT_COMMIT_SHA ?? undefined;
 
-  const auditHashes = [
-    { label: "dataset_sha256", value: datasetHash },
-    { label: "method_sha256", value: selectedMethod?.audit_hashes?.method_sha256 },
-    { label: "version_sha256", value: versionAuditHash },
-  ];
+  const packProvenanceJson = await loadPackProvenanceJson();
+  const manifestRulesPath =
+    selectedMethod && effectiveVersion
+      ? await resolveManifestRulesPath(selectedMethod.code, effectiveVersion)
+      : null;
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -80,7 +102,13 @@ export default async function MethodsFinder({
           <p className="text-sm text-slate-600">
             Browse methods, select a version, and verify provenance via audit hashes.
           </p>
-          <MethodologiesPackProvenance />
+          <TrustStrip
+            methodCode={selectedMethod?.code}
+            version={effectiveVersion}
+            packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}
+            provenanceJson={packProvenanceJson}
+            manifestRulesPath={manifestRulesPath}
+          />
           {!selectedCode && goldenSelection ? (
             <p className="text-xs text-slate-500">
               Rich demo auto-selected:{" "}
@@ -92,14 +120,6 @@ export default async function MethodsFinder({
             <p className="text-xs text-slate-500">No rich-enabled versions detected in this dataset.</p>
           ) : null}
         </header>
-
-        <TrustStrip
-          methodCode={selectedMethod?.code}
-          version={effectiveVersion}
-          generatedAt={generatedAt}
-          repoSha={repoSha}
-          auditHashes={auditHashes}
-        />
 
         <FinderShell
           left={
