@@ -1,0 +1,362 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+import { formatIso, pickProvenanceFields, shortSha } from "@/lib/trustFormat";
+
+type TrustStripProps = {
+  methodCode?: string;
+  version?: string;
+  packTag?: string | null;
+  provenanceJson?: unknown | null;
+  manifestRulesPath?: string | null;
+};
+
+type ExportArtifact = "provenance" | "META" | "rules" | "sections" | "rich";
+
+function ensureLeadingSlash(value: string): string {
+  return value.startsWith("/") ? value : `/${value}`;
+}
+
+function dirnameFromPath(value: string): string {
+  const normalized = value.replace(/\\/g, "/");
+  const idx = normalized.lastIndexOf("/");
+  return idx === -1 ? "" : normalized.slice(0, idx);
+}
+
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // fall back
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "0";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+function buildFilename(
+  code: string | undefined,
+  version: string | undefined,
+  artifact: ExportArtifact,
+  shaHint: string | undefined,
+): string {
+  const safeCode = (code ?? "unknown").trim() || "unknown";
+  const safeVer = (version ?? "unknown").trim() || "unknown";
+  const short = shaHint ? shortSha(shaHint) : "";
+  const safeShort = short || "unknown";
+  return `article6__${safeCode}__${safeVer}__${artifact}__${safeShort}.json`;
+}
+
+async function downloadJsonText(text: string, filename: string) {
+  const blob = new Blob([text], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function fetchJsonText(url: string): Promise<string | null> {
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) return null;
+    const text = await response.text();
+    JSON.parse(text);
+    return text;
+  } catch {
+    return null;
+  }
+}
+
+async function checkExists(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+    if (res.status === 405) return true;
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+function ChipButton({
+  label,
+  value,
+  display,
+  className,
+  onCopied,
+}: {
+  label: string;
+  value?: string;
+  display?: string;
+  className?: string;
+  onCopied?: () => void;
+}) {
+  const disabled = !value;
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={async () => {
+        if (!value) return;
+        const ok = await copyText(value);
+        if (ok) onCopied?.();
+      }}
+      title={value || ""}
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      aria-label={`Copy ${label}`}
+    >
+      <span className="text-slate-500">{label}:</span>
+      <span className="font-mono">{display ?? value ?? ""}</span>
+    </button>
+  );
+}
+
+export default function TrustStrip({
+  methodCode,
+  version,
+  packTag,
+  provenanceJson,
+  manifestRulesPath,
+}: TrustStripProps) {
+  const provenancePicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
+  const repoSha = provenancePicked.sha;
+  const repo = provenancePicked.repo;
+  const generatedAt = provenancePicked.generatedAt;
+
+  const rulesUrl = useMemo(() => {
+    if (!manifestRulesPath) return null;
+    return ensureLeadingSlash(manifestRulesPath);
+  }, [manifestRulesPath]);
+
+  const baseDir = useMemo(() => (rulesUrl ? dirnameFromPath(rulesUrl) : null), [rulesUrl]);
+  const metaUrl = useMemo(() => (baseDir ? `${baseDir}/META.json` : null), [baseDir]);
+  const sectionsUrl = useMemo(() => (rulesUrl ? rulesUrl.replace(/rules\.json$/i, "sections.json") : null), [rulesUrl]);
+  const richUrl = useMemo(() => (baseDir ? `${baseDir}/rich.json` : null), [baseDir]);
+
+  const [metaPicked, setMetaPicked] = useState(() => pickProvenanceFields(null));
+  const [metaAvailable, setMetaAvailable] = useState(false);
+  const [richAvailable, setRichAvailable] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setMetaPicked(pickProvenanceFields(null));
+      setMetaAvailable(false);
+      if (!metaUrl) return;
+      const exists = await checkExists(metaUrl);
+      if (cancelled) return;
+      setMetaAvailable(exists);
+      if (!exists) return;
+      const text = await fetchJsonText(metaUrl);
+      if (cancelled) return;
+      setMetaPicked(pickProvenanceFields(text ? JSON.parse(text) : null));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [metaUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setRichAvailable(false);
+      if (!richUrl) return;
+      const exists = await checkExists(richUrl);
+      if (cancelled) return;
+      setRichAvailable(exists);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [richUrl]);
+
+  const audit = metaPicked.auditHashes;
+
+  const handleCopied = useCallback((key: string) => {
+    setCopiedKey(key);
+    window.setTimeout(() => setCopiedKey((current) => (current === key ? null : current)), 900);
+  }, []);
+
+  const exportArtifact = useCallback(
+    async (artifact: ExportArtifact) => {
+      const filename = buildFilename(methodCode, version, artifact, repoSha);
+
+      if (artifact === "provenance") {
+        if (!provenanceJson) return;
+        await downloadJsonText(JSON.stringify(provenanceJson, null, 2), filename);
+        return;
+      }
+
+      const urlMap: Record<Exclude<ExportArtifact, "provenance">, string | null> = {
+        META: metaUrl,
+        rules: rulesUrl,
+        sections: sectionsUrl,
+        rich: richUrl,
+      };
+
+      const url = urlMap[artifact];
+      if (!url) return;
+      const text = await fetchJsonText(url);
+      if (!text) return;
+      await downloadJsonText(text, filename);
+    },
+    [methodCode, metaUrl, provenanceJson, repoSha, richUrl, rulesUrl, sectionsUrl, version],
+  );
+
+  const showStrip = Boolean(repo || repoSha || packTag || generatedAt || metaAvailable || rulesUrl);
+  if (!showStrip) return null;
+
+  const sourceDisplay = repo && repoSha ? `${repo}@${shortSha(repoSha)}` : repo || repoSha || undefined;
+  const packSha = provenancePicked.packSha ?? repoSha;
+  const packDisplay = packTag ? `${packTag}${packSha ? `@${shortSha(packSha)}` : ""}` : packSha ? shortSha(packSha) : undefined;
+
+  return (
+    <div className="w-full">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+        {repo || repoSha ? (
+          <ChipButton
+            label="source"
+            value={repo && repoSha ? `${repo}@${repoSha}` : repoSha ?? repo ?? ""}
+            display={sourceDisplay}
+            onCopied={() => handleCopied("source")}
+          />
+        ) : null}
+
+        {packTag || packSha ? (
+          <ChipButton
+            label="pack"
+            value={packTag && packSha ? `${packTag}@${packSha}` : packTag ?? packSha ?? ""}
+            display={packDisplay}
+            onCopied={() => handleCopied("pack")}
+          />
+        ) : null}
+
+        {generatedAt ? (
+          <ChipButton
+            label="generated"
+            value={generatedAt}
+            display={formatIso(generatedAt)}
+            onCopied={() => handleCopied("generated")}
+          />
+        ) : null}
+
+        {audit?.rules ? (
+          <ChipButton
+            label="rules_sha256"
+            value={audit.rules}
+            display={shortSha(audit.rules)}
+            onCopied={() => handleCopied("rules")}
+          />
+        ) : null}
+
+        {audit?.sections ? (
+          <ChipButton
+            label="sections_sha256"
+            value={audit.sections}
+            display={shortSha(audit.sections)}
+            onCopied={() => handleCopied("sections")}
+          />
+        ) : null}
+
+        {audit?.sourcePdf ? (
+          <ChipButton
+            label="source_pdf_sha256"
+            value={audit.sourcePdf}
+            display={shortSha(audit.sourcePdf)}
+            onCopied={() => handleCopied("pdf")}
+          />
+        ) : null}
+
+        <div className="ml-auto flex items-center gap-2">
+          {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
+          <details className="relative">
+            <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+              Export
+            </summary>
+            <div className="absolute right-0 z-10 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+              <div className="flex flex-col p-2 text-sm">
+                {provenanceJson ? (
+                  <button
+                    type="button"
+                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={() => exportArtifact("provenance")}
+                  >
+                    Export Provenance JSON
+                  </button>
+                ) : null}
+                {metaAvailable ? (
+                  <button
+                    type="button"
+                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={() => exportArtifact("META")}
+                  >
+                    Export META.json
+                  </button>
+                ) : null}
+                {rulesUrl ? (
+                  <button
+                    type="button"
+                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={() => exportArtifact("rules")}
+                  >
+                    Export rules.json
+                  </button>
+                ) : null}
+                {sectionsUrl ? (
+                  <button
+                    type="button"
+                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={() => exportArtifact("sections")}
+                  >
+                    Export sections.json
+                  </button>
+                ) : null}
+                {richAvailable ? (
+                  <button
+                    type="button"
+                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={() => exportArtifact("rich")}
+                  >
+                    Export rich.json
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      {(methodCode || version) && (
+        <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
+          {methodCode ? <span className="font-mono">{methodCode}</span> : null}
+          {version ? <span className="font-mono">{version}</span> : null}
+        </div>
+      )}
+    </div>
+  );
+}
+
