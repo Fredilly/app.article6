@@ -25,7 +25,7 @@ jobs:
 
       - name: Validate tag input
         env:
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ github.event.inputs.tag }}
         run: |
           set -euo pipefail
           if [[ ! "${TAG}" =~ ^methodologies-pack-[0-9a-f]{12}$ ]]; then
@@ -35,7 +35,7 @@ jobs:
 
       - name: Update pinned pack config
         env:
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ github.event.inputs.tag }}
         run: |
           set -euo pipefail
           node - <<'NODE'
@@ -70,16 +70,16 @@ jobs:
       - name: Open bump PR
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: chore: bump methodologies pack to ${{ inputs.tag }}
-          branch: bot/bump-pack-${{ inputs.tag }}
+          commit-message: chore: bump methodologies pack to ${{ github.event.inputs.tag }}
+          branch: bot/bump-pack-${{ github.event.inputs.tag }}
           delete-branch: true
-          title: chore: bump methodologies pack to ${{ inputs.tag }}
+          title: chore: bump methodologies pack to ${{ github.event.inputs.tag }}
           body: |
             ## Pack bump
 
-            - Tag: `${{ inputs.tag }}`
-            - Asset: `${{ inputs.tag }}.tar.gz`
-            - Release: https://github.com/${{ steps.prov.outputs.repo }}/releases/tag/${{ inputs.tag }}
+            - Tag: `${{ github.event.inputs.tag }}`
+            - Asset: `${{ github.event.inputs.tag }}.tar.gz`
+            - Release: https://github.com/${{ steps.prov.outputs.repo }}/releases/tag/${{ github.event.inputs.tag }}
 
             ## Provenance
 
