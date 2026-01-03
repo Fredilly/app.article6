@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { extractPackId } from "@/lib/packId";
 import { formatIso, pickProvenanceFields, shortSha } from "@/lib/trustFormat";
 
 type TrustStripProps = {
@@ -145,6 +146,7 @@ export default function TrustStrip({
   const repoSha = provenancePicked.sha;
   const repo = provenancePicked.repo;
   const generatedAt = provenancePicked.generatedAt;
+  const packIdFromTag = useMemo(() => (packTag ? extractPackId(packTag) : null), [packTag]);
 
   const rulesUrl = useMemo(() => {
     if (!manifestRulesPath) return null;
@@ -200,15 +202,27 @@ export default function TrustStrip({
     const rows: Array<{ key: string; label: string; value: string; display?: string }> = [];
     if (repo && repoSha) {
       rows.push({
-        key: "source",
-        label: "source",
+        key: "github",
+        label: "GitHub",
         value: `${repo}@${repoSha}`,
-        display: `${repo}@${shortSha(repoSha)}`,
       });
-    } else if (repoSha) {
-      rows.push({ key: "source", label: "source", value: repoSha, display: shortSha(repoSha) });
     } else if (repo) {
-      rows.push({ key: "source", label: "source", value: repo });
+      rows.push({ key: "github", label: "GitHub", value: repo });
+    } else if (repoSha) {
+      rows.push({ key: "github", label: "GitHub", value: repoSha });
+    }
+
+    const packSha = packIdFromTag ?? provenancePicked.packSha ?? null;
+    if (packTag && packSha) {
+      rows.push({ key: "pack", label: "pack", value: `${packTag}@${packSha}` });
+    } else if (packTag) {
+      rows.push({ key: "pack", label: "pack", value: packTag });
+    } else if (packSha) {
+      rows.push({ key: "pack", label: "pack", value: packSha });
+    }
+
+    if (generatedAt) {
+      rows.push({ key: "generated_at", label: "generated_at", value: generatedAt });
     }
 
     if (audit?.rules) {
@@ -231,7 +245,7 @@ export default function TrustStrip({
       });
     }
     return rows;
-  }, [audit?.rules, audit?.sections, audit?.sourcePdf, repo, repoSha]);
+  }, [audit?.rules, audit?.sections, audit?.sourcePdf, generatedAt, packIdFromTag, packTag, provenancePicked.packSha, repo, repoSha]);
 
   const handleCopied = useCallback((key: string) => {
     setCopiedKey(key);
@@ -264,27 +278,39 @@ export default function TrustStrip({
     [methodCode, metaUrl, provenanceJson, repoSha, richUrl, rulesUrl, sectionsUrl, version],
   );
 
-  const showStrip = Boolean(repo || repoSha || packTag || generatedAt || metaAvailable || rulesUrl);
-  if (!showStrip) return null;
+  const copyAllPayload = useMemo(() => {
+    const github = repo && repoSha ? `${repo}@${repoSha}` : repo ?? repoSha ?? undefined;
+    const packSha = packIdFromTag ?? provenancePicked.packSha ?? undefined;
+    const pack = packTag && packSha ? `${packTag}@${packSha}` : packTag ?? packSha ?? undefined;
+    const auditHashes =
+      audit && (audit.rules || audit.sections || audit.sourcePdf)
+        ? {
+            rules_sha256: audit.rules,
+            sections_sha256: audit.sections,
+            source_pdf_sha256: audit.sourcePdf,
+          }
+        : undefined;
+    const payload = {
+      github,
+      pack,
+      generated_at: generatedAt,
+      audit_hashes: auditHashes,
+    };
+    return Object.values(payload).some((value) => value != null) ? payload : null;
+  }, [audit, generatedAt, packIdFromTag, packTag, provenancePicked.packSha, repo, repoSha]);
 
-  const packSha = provenancePicked.packSha ?? repoSha;
-  const packDisplay = packTag
-    ? `${packTag}${packSha ? `@${shortSha(packSha)}` : ""}`
-    : packSha
-      ? shortSha(packSha)
-      : undefined;
+  const showStrip = Boolean(methodCode || version || generatedAt || metaAvailable || rulesUrl || provenanceJson);
+  if (!showStrip) return null;
 
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-        {packTag || packSha ? (
-          <ChipButton
-            label="pack"
-            value={packTag && packSha ? `${packTag}@${packSha}` : packTag ?? packSha ?? ""}
-            display={packDisplay}
-            onCopied={() => handleCopied("pack")}
-          />
-        ) : null}
+        <ChipButton
+          label="source"
+          value="Article6 Methodologies"
+          display="Article6 Methodologies"
+          onCopied={() => handleCopied("source")}
+        />
 
         {generatedAt ? (
           <ChipButton
@@ -351,18 +377,33 @@ export default function TrustStrip({
               </div>
             </div>
           </details>
-          {detailsRows.length ? (
-            <details className="relative">
-              <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-                Details
-              </summary>
-              <div className="absolute right-0 z-10 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-                <div className="flex flex-col gap-2 p-3">
-                  {detailsRows.map((row) => (
+          <details className="relative">
+            <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+              Details
+            </summary>
+            <div className="absolute right-0 z-10 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+              <div className="flex flex-col gap-2 p-3">
+                {copyAllPayload ? (
+                  <button
+                    type="button"
+                    className="self-start rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={async () => {
+                      const ok = await copyText(JSON.stringify(copyAllPayload));
+                      if (ok) handleCopied("copy_all");
+                    }}
+                  >
+                    Copy all
+                  </button>
+                ) : null}
+
+                {detailsRows.length ? (
+                  detailsRows.map((row) => (
                     <div key={row.key} className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-xs font-semibold text-slate-700">{row.label}</div>
-                        <div className="break-all font-mono text-xs text-slate-600">{row.value}</div>
+                        <div className="break-all font-mono text-xs text-slate-600">
+                          {row.display ?? row.value}
+                        </div>
                       </div>
                       <button
                         type="button"
@@ -375,11 +416,13 @@ export default function TrustStrip({
                         Copy
                       </button>
                     </div>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-slate-500">No additional provenance details.</div>
+                )}
               </div>
-            </details>
-          ) : null}
+            </div>
+          </details>
         </div>
       </div>
     </div>
