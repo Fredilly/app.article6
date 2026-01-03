@@ -56,6 +56,38 @@ describe("buildAssistantBundle", () => {
     });
 
     expect(bundle.geovista?.status).toBe("verified");
-    expect(bundle.geovista?.artifacts[0]?.id).toBe("artifact-1");
+    expect(bundle.geovista?.artifacts.map((artifact) => artifact.id)).toEqual(["geovista:section:S-1"]);
+  });
+
+  test("regenerates geovista artifacts to match evidence", () => {
+    const answer: AssistantAnswer = {
+      question_id: "required_data",
+      answer_md: "## Answer\nTest",
+      evidence: [
+        { type: "section", id: "S-1", title: "One", excerpt: "Excerpt", quality: "low" },
+        { type: "section", id: "S-2", title: "Two", excerpt: "Excerpt", quality: "low" },
+      ],
+      assumptions: [],
+      next_actions: [],
+      provenance: {},
+    };
+
+    const bundle = buildAssistantBundle({
+      answer,
+      evidencePayloads: { sections: [], rules: [] },
+      provenance: {},
+      geovista: {
+        status: "verified",
+        summary: "Verified via mock.",
+        artifacts: [{ id: "geovista:section:S-999" }],
+        generated_at: "2026-01-01T00:00:00Z",
+        provenance: { source: "mock" },
+      },
+    });
+
+    expect(bundle.geovista?.artifacts.map((artifact) => artifact.id)).toEqual([
+      "geovista:section:S-1",
+      "geovista:section:S-2",
+    ]);
   });
 });

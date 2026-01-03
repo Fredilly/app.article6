@@ -1,4 +1,5 @@
 import type { GeoVistaVerification } from "@/services/geovista/types";
+import { buildArtifactsFromEvidenceIds } from "@/services/geovista/artifacts";
 
 export type GeoVistaVerificationRequest = {
   method_code: string;
@@ -15,11 +16,8 @@ function nowIso(): string {
 }
 
 function mockVerification(req: GeoVistaVerificationRequest): GeoVistaVerification {
-  const cited = req.cited_ids.filter(Boolean).slice(0, 6);
-  const artifacts = cited.map((id) => ({
-    id: `geovista:${req.method_code}:${req.method_version}:${id}`,
-    label: `Verification artifact for ${id}`,
-  }));
+  const cited = req.cited_ids.filter(Boolean);
+  const artifacts = buildArtifactsFromEvidenceIds(cited);
 
   return {
     status: "not_run",
@@ -43,4 +41,3 @@ export async function getVerification(
   if (!isEnabled()) return null;
   return mockVerification(req);
 }
-
