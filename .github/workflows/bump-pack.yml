@@ -88,7 +88,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git switch -c "${branch}"
-          git add config/methodologies_pack.json public/methodologies public/_provenance/methodologies_PROVENANCE.json
+          git add config/methodologies_pack.json
           if git diff --cached --quiet; then
             echo "No changes to commit; exiting."
             exit 0
