@@ -1,12 +1,12 @@
 import type { AssistantQuestionId } from "@/lib/assistant/questions";
 
-type RuleSummary = { id: string; title: string; snippet: string };
-type SectionSummary = { id: string; title: string; textSnippet?: string };
+type RuleInput = { id: string; title: string; snippet: string; text?: string };
+type SectionInput = { id: string; title: string; textSnippet?: string; text?: string };
 
 type EvidenceItem =
-  | { type: "rule"; id: string; title?: string; href?: string }
-  | { type: "section"; id: string; title?: string; href?: string }
-  | { type: "citation"; id: string; title?: string; href?: string };
+  | { type: "rule"; id: string; title?: string; href?: string; excerpt?: string; quality?: "high" | "low" }
+  | { type: "section"; id: string; title?: string; href?: string; excerpt?: string; quality?: "high" | "low" }
+  | { type: "citation"; id: string; title?: string; href?: string; excerpt?: string; quality?: "high" | "low" };
 
 export type AssistantAnswer = {
   question_id: AssistantQuestionId;
@@ -57,12 +57,24 @@ function hrefForSection(code: string, ver: string, sectionId: string) {
   return `/m/${encodeURIComponent(code)}/v/${encodeURIComponent(ver)}?section=${encodeURIComponent(sectionId)}`;
 }
 
+function excerptWords(value: string, maxWords: number): string {
+  const words = value.trim().split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) return words.join(" ");
+  return `${words.slice(0, maxWords).join(" ")}…`;
+}
+
+function normalizeBodyText(value?: string): string | null {
+  if (!value) return null;
+  const normalized = value.replace(/\s+/g, " ").trim();
+  return normalized ? normalized : null;
+}
+
 export function generateAnswer(input: {
   questionId: AssistantQuestionId;
   methodCode: string;
   version: string;
-  rules: RuleSummary[];
-  sections: SectionSummary[];
+  rules: RuleInput[];
+  sections: SectionInput[];
   rich?: unknown | null;
   meta?: unknown | null;
   provenance: { pack?: string; generated_at?: string; repo_sha?: string };
@@ -84,8 +96,8 @@ export function generateAnswer(input: {
   }
 
   const assumptions: string[] = [
-    "Generated from loaded section titles/snippets and rule titles/snippets only.",
-    "This output does not infer requirements beyond loaded text.",
+    "This output is generated from loaded evidence only (no inference beyond provided content).",
+    "Evidence excerpts use full text when available; otherwise they fall back to snippets (marked low quality).",
   ];
 
   const next_actions: string[] = [
@@ -93,29 +105,39 @@ export function generateAnswer(input: {
     "Export the evidence bundle for audit packaging.",
   ];
 
-  const sectionText = (s: SectionSummary) => `${s.id} ${s.title} ${s.textSnippet ?? ""}`;
-  const ruleText = (r: RuleSummary) => `${r.id} ${r.title} ${r.snippet}`;
+  const sectionText = (s: SectionInput) => `${s.id} ${s.title} ${s.textSnippet ?? ""} ${s.text ?? ""}`;
+  const ruleText = (r: RuleInput) => `${r.id} ${r.title} ${r.snippet} ${r.text ?? ""}`;
 
   const evidence: EvidenceItem[] = [];
 
-  const addSectionEvidence = (matches: SectionSummary[]) => {
+  const addSectionEvidence = (matches: SectionInput[]) => {
     for (const section of matches) {
+      const body = normalizeBodyText(section.text);
+      const fallback = normalizeBodyText(section.textSnippet) ?? normalizeBodyText(section.title) ?? null;
+      const excerptSource = body ?? fallback ?? "";
       evidence.push({
         type: "section",
         id: section.id,
         title: section.title,
         href: hrefForSection(methodCode, version, section.id),
+        excerpt: excerptSource ? excerptWords(excerptSource, 20) : undefined,
+        quality: body ? "high" : "low",
       });
     }
   };
 
-  const addRuleEvidence = (matches: RuleSummary[]) => {
+  const addRuleEvidence = (matches: RuleInput[]) => {
     for (const rule of matches) {
+      const body = normalizeBodyText(rule.text);
+      const fallback = normalizeBodyText(rule.snippet) ?? normalizeBodyText(rule.title) ?? null;
+      const excerptSource = body ?? fallback ?? "";
       evidence.push({
         type: "rule",
         id: rule.id,
         title: rule.title,
         href: hrefForRule(methodCode, version, rule.id),
+        excerpt: excerptSource ? excerptWords(excerptSource, 20) : undefined,
+        quality: body ? "high" : "low",
       });
     }
   };

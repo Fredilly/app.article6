@@ -18,10 +18,10 @@ type AssistantPanelProps = {
   sections: SectionSummary[];
   rich?: unknown | null;
   meta?: unknown | null;
+  manifestRulesPath?: string | null;
   packTag?: string | null;
   provenanceJson?: unknown | null;
-  onOpenRule?: (ruleId: string) => void;
-  onOpenSection?: (sectionId: string) => void;
+  onNavigateEvidence?: (type: "rule" | "section", id: string) => void;
 };
 
 function downloadJson(value: unknown, filename: string) {
@@ -39,19 +39,56 @@ function downloadJson(value: unknown, filename: string) {
 function EvidenceChip({
   label,
   onClick,
+  title,
 }: {
   label: string;
   onClick?: () => void;
+  title?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      title={title}
       className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
     >
       {label}
     </button>
   );
+}
+
+function ensureLeadingSlash(value: string): string {
+  return value.startsWith("/") ? value : `/${value}`;
+}
+
+function dirnameFromPath(value: string): string {
+  const normalized = value.replace(/\\/g, "/");
+  const idx = normalized.lastIndexOf("/");
+  return idx === -1 ? "" : normalized.slice(0, idx);
+}
+
+async function fetchJson(url: string): Promise<unknown | null> {
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    return (await res.json()) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+function pickMetaAuditHashes(meta: unknown): Record<string, string> | null {
+  if (!meta || typeof meta !== "object") return null;
+  const record = meta as Record<string, unknown>;
+  const auditHashes = record.audit_hashes;
+  if (!auditHashes || typeof auditHashes !== "object") return null;
+  const a = auditHashes as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const key of ["rules_json_sha256", "sections_json_sha256", "source_pdf_sha256"]) {
+    const value = a[key];
+    if (typeof value === "string" && value.trim()) out[key] = value.trim();
+  }
+  return Object.keys(out).length ? out : null;
 }
 
 function AnswerBody({ markdown }: { markdown: string }) {
@@ -155,9 +192,62 @@ export default function AssistantPanel(props: AssistantPanelProps) {
           <button
             type="button"
             className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-            onClick={() => {
-              const filename = `article6__${props.methodCode}__${props.version}__assistant__${answer.question_id}.json`;
-              downloadJson(answer, filename);
+            onClick={async () => {
+              const evidenceRules: Record<string, unknown> = {};
+              const evidenceSections: Record<string, unknown> = {};
+
+              const unique = new Set<string>();
+              const targets = answer.evidence.filter((item) => item.type === "rule" || item.type === "section");
+              await Promise.all(
+                targets.map(async (item) => {
+                  const key = `${item.type}:${item.id}`;
+                  if (unique.has(key)) return;
+                  unique.add(key);
+
+                  if (item.type === "rule") {
+                    const json = await fetchJson(
+                      `/api/methods/${encodeURIComponent(props.methodCode)}/v/${encodeURIComponent(props.version)}/rules?id=${encodeURIComponent(item.id)}`,
+                    );
+                    if (json && typeof json === "object" && (json as Record<string, unknown>).rule) {
+                      evidenceRules[item.id] = (json as Record<string, unknown>).rule as unknown;
+                    }
+                  }
+
+                  if (item.type === "section") {
+                    const json = await fetchJson(
+                      `/api/methods/${encodeURIComponent(props.methodCode)}/v/${encodeURIComponent(props.version)}/sections?id=${encodeURIComponent(item.id)}`,
+                    );
+                    if (json && typeof json === "object" && (json as Record<string, unknown>).section) {
+                      evidenceSections[item.id] = (json as Record<string, unknown>).section as unknown;
+                    }
+                  }
+                }),
+              );
+
+              const packId = props.packTag ? extractPackId(props.packTag) : undefined;
+              const metaUrl = props.manifestRulesPath
+                ? `${dirnameFromPath(ensureLeadingSlash(props.manifestRulesPath))}/META.json`
+                : null;
+              const metaJson = metaUrl ? await fetchJson(metaUrl) : null;
+              const auditHashes = pickMetaAuditHashes(metaJson);
+
+              const bundle = {
+                answer,
+                evidence_payloads: {
+                  rules: evidenceRules,
+                  sections: evidenceSections,
+                },
+                provenance_snapshot: {
+                  pack_tag: props.packTag ?? undefined,
+                  pack_id: packId ?? undefined,
+                  generated_at: provenance.generated_at,
+                  repo_sha: provenance.repo_sha,
+                  audit_hashes: auditHashes ?? undefined,
+                },
+              };
+
+              const filename = `article6__${props.methodCode}__${props.version}__assistant__${answer.question_id}.bundle.json`;
+              downloadJson(bundle, filename);
             }}
           >
             Export answer
@@ -185,9 +275,17 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                     <EvidenceChip
                       key={`${item.type}:${item.id}`}
                       label={label}
+                      title={
+                        item.excerpt
+                          ? `${item.excerpt}${item.quality === "low" ? " (low confidence excerpt)" : ""}`
+                          : item.quality === "low"
+                            ? "Low confidence evidence (full text not loaded)."
+                            : undefined
+                      }
                       onClick={() => {
-                        if (item.type === "rule") props.onOpenRule?.(item.id);
-                        if (item.type === "section") props.onOpenSection?.(item.id);
+                        if (item.type === "rule" || item.type === "section") {
+                          props.onNavigateEvidence?.(item.type, item.id);
+                        }
                       }}
                     />
                   );

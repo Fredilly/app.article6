@@ -583,15 +583,40 @@ export default function MethodDetailPane({
   useEffect(() => {
     if (!activeSectionId) return;
     const el = document.getElementById(`section-row-${activeSectionId}`);
-    el?.scrollIntoView({ block: "nearest" });
+    el?.scrollIntoView({ block: "start" });
   }, [activeSectionId, tab]);
 
   useEffect(() => {
     if (tab !== "rules") return;
     if (!activeRuleId) return;
     const el = document.getElementById(`rule-row-${activeRuleId}`);
-    el?.scrollIntoView({ block: "nearest" });
+    el?.scrollIntoView({ block: "start" });
   }, [activeRuleId, tab]);
+
+  const navigateToRule = useCallback(
+    async (ruleId: string) => {
+      setTab("rules");
+      await ensureRulesLoaded();
+      window.setTimeout(() => {
+        document.getElementById(`rule-row-${ruleId}`)?.scrollIntoView({ block: "start" });
+      }, 0);
+    },
+    [ensureRulesLoaded],
+  );
+
+  const navigateToSection = useCallback(
+    async (sectionId: string) => {
+      setTab("sections");
+      await ensureSectionsLoaded();
+      setSectionsDeeplinkWarning(null);
+      setActiveSectionId(sectionId);
+      setSectionParam(sectionId);
+      window.setTimeout(() => {
+        document.getElementById(`section-row-${sectionId}`)?.scrollIntoView({ block: "start" });
+      }, 0);
+    },
+    [ensureSectionsLoaded, setSectionParam],
+  );
 
   useEffect(() => {
     if (didSelectSectionFromQuery.current) return;
@@ -753,10 +778,13 @@ export default function MethodDetailPane({
           rules={rules}
           sections={sections}
           rich={richEvidence}
+          manifestRulesPath={manifestRulesPath}
           packTag={packTag}
           provenanceJson={provenanceJson}
-          onOpenRule={(ruleId) => void openRule(ruleId)}
-          onOpenSection={(sectionId) => void jumpToSection(sectionId)}
+          onNavigateEvidence={(type, id) => {
+            if (type === "rule") return void navigateToRule(id);
+            if (type === "section") return void navigateToSection(id);
+          }}
         />
       ) : tab === "versions" ? (
         <div className="mt-4 grid gap-2">
