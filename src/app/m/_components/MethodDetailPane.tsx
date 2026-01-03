@@ -9,6 +9,7 @@ import AssistantPanel from "@/components/assistant/AssistantPanel";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 
 type DetailTab = "overview" | "assistant" | "versions" | "rules" | "sections" | "rich";
+type NonAssistantTab = Exclude<DetailTab, "assistant">;
 
 type MethodDetail = {
   code: string;
@@ -58,6 +59,10 @@ export default function MethodDetailPane({
   const [tab, setTab] = useState<DetailTab>(
     initialSectionId ? "sections" : initialRuleId ? "rules" : "overview",
   );
+  const lastNonAssistantTab = useRef<NonAssistantTab>(
+    initialSectionId ? "sections" : initialRuleId ? "rules" : "overview",
+  );
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [ruleQuery, setRuleQuery] = useState("");
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesError, setRulesError] = useState<string | null>(null);
@@ -552,6 +557,11 @@ export default function MethodDetailPane({
   );
 
   useEffect(() => {
+    if (tab === "assistant") return;
+    lastNonAssistantTab.current = tab;
+  }, [tab]);
+
+  useEffect(() => {
     if (didOpenFromQuery.current) return;
     if (!initialRuleId) return;
     if (!activeVersion) return;
@@ -585,6 +595,13 @@ export default function MethodDetailPane({
     const el = document.getElementById(`section-row-${activeSectionId}`);
     el?.scrollIntoView({ block: "nearest" });
   }, [activeSectionId, tab]);
+
+  useEffect(() => {
+    if (tab !== "rules") return;
+    if (!activeRuleId) return;
+    const el = document.getElementById(`rule-row-${activeRuleId}`);
+    el?.scrollIntoView({ block: "nearest" });
+  }, [activeRuleId, tab]);
 
   useEffect(() => {
     if (didSelectSectionFromQuery.current) return;
@@ -690,16 +707,21 @@ export default function MethodDetailPane({
         <button
           type="button"
           onClick={async () => {
-            setTab("assistant");
-            await Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
+            setAssistantOpen((value) => !value);
+            if (!assistantOpen) {
+              setTab(lastNonAssistantTab.current);
+              await Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
+            }
           }}
-          className={`${tabBase} ${tab === "assistant" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "assistant"}
+          className={`${tabBase} ${assistantOpen ? tabActive : tabIdle}`}
+          aria-pressed={assistantOpen}
         >
           Assistant
         </button>
       </div>
 
+      <div className={assistantOpen ? "grid gap-4 lg:grid-cols-3" : ""}>
+        <div className={assistantOpen ? "lg:col-span-2" : ""}>
       {tab === "overview" ? (
         <div className="mt-4 grid gap-4">
           <div className="grid gap-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
@@ -841,7 +863,7 @@ export default function MethodDetailPane({
 
             <ul className="grid gap-2">
               {filteredRules.map((rule) => (
-                <li key={rule.id}>
+                <li key={rule.id} id={`rule-row-${rule.id}`}>
                   <button
                     type="button"
                     onClick={() => openRule(rule.id)}
@@ -1523,6 +1545,24 @@ export default function MethodDetailPane({
             ) : null}
           </div>
         )}
+        </div>
+        {assistantOpen ? (
+          <div className="mt-4 lg:mt-0">
+            <AssistantPanel
+              methodCode={method.code}
+              version={activeVersion ?? ""}
+              hasPrevious={method.hasPrevious}
+              rules={rules}
+              sections={sections}
+              rich={richEvidence}
+              packTag={packTag}
+              provenanceJson={provenanceJson}
+              onOpenRule={(ruleId) => void openRule(ruleId)}
+              onOpenSection={(sectionId) => void jumpToSection(sectionId)}
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
