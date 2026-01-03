@@ -484,7 +484,15 @@ export default function MethodDetailPane({
         ok,
         sources,
         missing,
-        attempts: attempts.map(({ data: _data, ...rest }) => rest),
+        attempts: attempts.map((attempt) => ({
+          name: attempt.name,
+          url: attempt.url,
+          resolvedUrl: attempt.resolvedUrl,
+          status: attempt.status,
+          ok: attempt.ok,
+          bytes: attempt.bytes,
+          error: attempt.error,
+        })),
       });
       setRichRaw(ok ? data : null);
 
@@ -500,7 +508,7 @@ export default function MethodDetailPane({
     } finally {
       setRichLoading(false);
     }
-  }, [activeVersion, method.code, richEvidence, richLoading]);
+  }, [activeVersion, method.code, method.program, method.sector, richEvidence, richLoading]);
 
   const openRule = useCallback(async (ruleId: string) => {
     setTab("rules");
@@ -524,6 +532,31 @@ export default function MethodDetailPane({
     setRuleDetailError(null);
     setRuleParam(undefined);
   }, [setRuleParam]);
+
+  const jumpToSection = useCallback(
+    async (
+      target: string,
+      options?: {
+        closeRuleDrawer?: boolean;
+        missingLabel?: string;
+      },
+    ) => {
+      if (!target) return;
+      if (options?.closeRuleDrawer) closeDrawer();
+      setTab("sections");
+      const list = await ensureSectionsLoaded();
+      if (!list.length) return;
+      const exists = list.some((section) => section.id === target);
+      if (!exists) {
+        setSectionsDeeplinkWarning(`${options?.missingLabel ?? "Unknown section"}: ${target}`);
+        return;
+      }
+      setSectionsDeeplinkWarning(null);
+      setActiveSectionId(target);
+      setSectionParam(target);
+    },
+    [closeDrawer, ensureSectionsLoaded, setSectionParam],
+  );
 
   useEffect(() => {
     if (didOpenFromQuery.current) return;
@@ -922,20 +955,12 @@ export default function MethodDetailPane({
                                     key={target}
                                     type="button"
                                     className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                    onClick={async () => {
-                                      closeDrawer();
-                                      setTab("sections");
-                                      const list = await ensureSectionsLoaded();
-                                      if (!list.length) return;
-                                      const exists = list.some((section) => section.id === target);
-                                      if (!exists) {
-                                        setSectionsDeeplinkWarning(`Unresolved citation: ${target}`);
-                                        return;
-                                      }
-                                      setSectionsDeeplinkWarning(null);
-                                      setActiveSectionId(target);
-                                      setSectionParam(target);
-                                    }}
+                                    onClick={() =>
+                                      void jumpToSection(target, {
+                                        closeRuleDrawer: true,
+                                        missingLabel: "Unresolved citation",
+                                      })
+                                    }
                                   >
                                     {target}
                                   </button>
@@ -1323,21 +1348,7 @@ export default function MethodDetailPane({
                                       <button
                                         type="button"
                                         className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                                        onClick={async () => {
-                                          const target = entity.sectionId;
-                                          if (!target) return;
-                                          setTab("sections");
-                                          const list = await ensureSectionsLoaded();
-                                          if (!list.length) return;
-                                          const exists = list.some((section) => section.id === target);
-                                          if (!exists) {
-                                            setSectionsDeeplinkWarning(`Unknown section: ${target}`);
-                                            return;
-                                          }
-                                          setSectionsDeeplinkWarning(null);
-                                          setActiveSectionId(target);
-                                          setSectionParam(target);
-                                        }}
+                                        onClick={() => void jumpToSection(entity.sectionId ?? "")}
                                       >
                                         {entity.sectionId}
                                       </button>
@@ -1371,21 +1382,7 @@ export default function MethodDetailPane({
                               <button
                                 type="button"
                                 className="mt-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                                onClick={async () => {
-                                  const target = table.sectionId;
-                                  if (!target) return;
-                                  setTab("sections");
-                                  const list = await ensureSectionsLoaded();
-                                  if (!list.length) return;
-                                  const exists = list.some((section) => section.id === target);
-                                  if (!exists) {
-                                    setSectionsDeeplinkWarning(`Unknown section: ${target}`);
-                                    return;
-                                  }
-                                  setSectionsDeeplinkWarning(null);
-                                  setActiveSectionId(target);
-                                  setSectionParam(target);
-                                }}
+                                onClick={() => void jumpToSection(table.sectionId ?? "")}
                               >
                                 section {table.sectionId}
                               </button>
@@ -1427,17 +1424,7 @@ export default function MethodDetailPane({
                             onClick={async () => {
                               const target = citation.sectionId;
                               if (!target) return;
-                              setTab("sections");
-                              const list = await ensureSectionsLoaded();
-                              if (!list.length) return;
-                              const exists = list.some((section) => section.id === target);
-                              if (!exists) {
-                                setSectionsDeeplinkWarning(`Unknown section: ${target}`);
-                                return;
-                              }
-                              setSectionsDeeplinkWarning(null);
-                              setActiveSectionId(target);
-                              setSectionParam(target);
+                              await jumpToSection(target);
                             }}
                           >
                             {citation.sectionId ? `${citation.label} (${citation.sectionId})` : citation.label}
@@ -1468,21 +1455,7 @@ export default function MethodDetailPane({
                                 <button
                                   type="button"
                                   className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                                  onClick={async () => {
-                                    const target = diff.sectionId;
-                                    if (!target) return;
-                                    setTab("sections");
-                                    const list = await ensureSectionsLoaded();
-                                    if (!list.length) return;
-                                    const exists = list.some((section) => section.id === target);
-                                    if (!exists) {
-                                      setSectionsDeeplinkWarning(`Unknown section: ${target}`);
-                                      return;
-                                    }
-                                    setSectionsDeeplinkWarning(null);
-                                    setActiveSectionId(target);
-                                    setSectionParam(target);
-                                  }}
+                                  onClick={() => void jumpToSection(diff.sectionId ?? "")}
                                 >
                                   section {diff.sectionId}
                                 </button>
