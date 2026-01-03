@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
+import TrustStrip from "@/components/TrustStrip";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 
 type DetailTab = "overview" | "versions" | "rules" | "sections" | "rich";
@@ -30,6 +31,9 @@ type MethodDetailPaneProps = {
   datasetHash?: string;
   methodHash?: string;
   versionHash?: string;
+  packTag?: string | null;
+  provenanceJson?: unknown | null;
+  manifestRulesPath?: string | null;
 };
 
 function shortHash(value?: string): string {
@@ -59,6 +63,9 @@ export default function MethodDetailPane({
   datasetHash,
   methodHash,
   versionHash,
+  packTag,
+  provenanceJson,
+  manifestRulesPath,
 }: MethodDetailPaneProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -632,6 +639,16 @@ export default function MethodDetailPane({
             selectedVersion={activeVersion}
           />
         </div>
+      </div>
+
+      <div className="mt-3">
+        <TrustStrip
+          methodCode={method.code}
+          version={activeVersion}
+          packTag={packTag}
+          provenanceJson={provenanceJson}
+          manifestRulesPath={manifestRulesPath}
+        />
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">

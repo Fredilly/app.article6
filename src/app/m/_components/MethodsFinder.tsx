@@ -177,6 +177,9 @@ export default async function MethodsFinder({
                 datasetHash={datasetHash}
                 methodHash={selectedMethod.audit_hashes?.method_sha256}
                 versionHash={versionAuditHash}
+                packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}
+                provenanceJson={packProvenanceJson}
+                manifestRulesPath={manifestRulesPath}
               />
             ) : (
               <div className="rounded-xl border border-slate-200 bg-white p-4">
