@@ -1,12 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ASSISTANT_QUESTIONS, type AssistantQuestionId } from "@/lib/assistant/questions";
 import { generateAnswer, type AssistantAnswer } from "@/lib/assistant/generateAnswer";
 import { buildAssistantBundle } from "@/lib/assistant/bundle";
 import { pickProvenanceFields } from "@/lib/trustFormat";
 import { extractPackId } from "@/lib/packId";
+import GeoVistaCard from "@/components/assistant/GeoVistaCard";
+import { getVerification } from "@/services/geovista/client";
+import type { GeoVistaVerification } from "@/services/geovista/types";
 
 type RuleSummary = { id: string; title: string; snippet: string };
 type SectionSummary = { id: string; title: string; textSnippet?: string };
@@ -165,6 +168,7 @@ function AnswerBody({ markdown }: { markdown: string }) {
 export default function AssistantPanel(props: AssistantPanelProps) {
   const [active, setActive] = useState<AssistantQuestionId>("purpose_claims");
   const [toast, setToast] = useState<string | null>(null);
+  const [geovista, setGeovista] = useState<GeoVistaVerification | null>(null);
 
   const showToast = useCallback((message: string) => {
     setToast(message);
@@ -195,6 +199,34 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   }, [active, props.methodCode, props.meta, props.rich, props.rules, props.sections, props.version, provenance]);
 
   const evidenceRequired = answer.evidence.length === 0;
+  const geovistaEnabled = process.env.NEXT_PUBLIC_GEOVISTA_ENABLED === "true";
+
+  useEffect(() => {
+    if (!geovistaEnabled) {
+      setGeovista(null);
+      return;
+    }
+    if (!props.methodCode || !props.version) return;
+
+    const cited_ids = answer.evidence
+      .filter((item) => item.type === "rule" || item.type === "section")
+      .map((item) => item.id);
+
+    let cancelled = false;
+    (async () => {
+      const verification = await getVerification({
+        method_code: props.methodCode,
+        method_version: props.version,
+        cited_ids,
+      });
+      if (cancelled) return;
+      setGeovista(verification);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [answer.evidence, geovistaEnabled, props.methodCode, props.version]);
 
   return (
     <div className="mt-4 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 bg-slate-50">
@@ -294,6 +326,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                   repo_sha: provenance.repo_sha,
                   audit_hashes: auditHashes ?? undefined,
                 },
+                geovista: geovista ?? undefined,
               });
 
               const filename = `article6__${props.methodCode}__${props.version}__assistant__${answer.question_id}.bundle.json`;
@@ -360,6 +393,8 @@ export default function AssistantPanel(props: AssistantPanelProps) {
               )}
             </div>
           </div>
+
+          {geovistaEnabled && geovista ? <GeoVistaCard verification={geovista} /> : null}
 
           <div>
             <div className="text-xs font-semibold text-slate-700">Assumptions</div>
