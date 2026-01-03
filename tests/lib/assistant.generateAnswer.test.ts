@@ -39,7 +39,9 @@ describe("generateAnswer", () => {
 
     expect(result.question_id).toBe("required_data");
     expect(result.evidence.some((e) => e.type === "section" && e.id === "S-10")).toBe(true);
+    const firstSection = result.evidence.find((e) => e.type === "section");
+    expect(firstSection?.excerpt).toBeTruthy();
+    expect(firstSection?.quality).toBeDefined();
     expect(result.answer_md).toContain("Required data inputs");
   });
 });
-
