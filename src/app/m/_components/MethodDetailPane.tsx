@@ -98,6 +98,7 @@ export default function MethodDetailPane({
   const [sections, setSections] = useState<SectionListItem[]>([]);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
   const didSelectSectionFromQuery = useRef(false);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -582,14 +583,14 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!activeSectionId) return;
-    const el = document.getElementById(`section-row-${activeSectionId}`);
+    const el = document.getElementById(activeSectionId);
     el?.scrollIntoView({ block: "start" });
   }, [activeSectionId, tab]);
 
   useEffect(() => {
     if (tab !== "rules") return;
     if (!activeRuleId) return;
-    const el = document.getElementById(`rule-row-${activeRuleId}`);
+    const el = document.getElementById(activeRuleId);
     el?.scrollIntoView({ block: "start" });
   }, [activeRuleId, tab]);
 
@@ -598,7 +599,9 @@ export default function MethodDetailPane({
       setTab("rules");
       await ensureRulesLoaded();
       window.setTimeout(() => {
-        document.getElementById(`rule-row-${ruleId}`)?.scrollIntoView({ block: "start" });
+        document.getElementById(ruleId)?.scrollIntoView({ block: "start" });
+        setHighlightId(ruleId);
+        window.setTimeout(() => setHighlightId((current) => (current === ruleId ? null : current)), 1500);
       }, 0);
     },
     [ensureRulesLoaded],
@@ -612,7 +615,9 @@ export default function MethodDetailPane({
       setActiveSectionId(sectionId);
       setSectionParam(sectionId);
       window.setTimeout(() => {
-        document.getElementById(`section-row-${sectionId}`)?.scrollIntoView({ block: "start" });
+        document.getElementById(sectionId)?.scrollIntoView({ block: "start" });
+        setHighlightId(sectionId);
+        window.setTimeout(() => setHighlightId((current) => (current === sectionId ? null : current)), 1500);
       }, 0);
     },
     [ensureSectionsLoaded, setSectionParam],
@@ -876,7 +881,15 @@ export default function MethodDetailPane({
 
             <ul className="grid gap-2">
               {filteredRules.map((rule) => (
-                <li key={rule.id} id={`rule-row-${rule.id}`}>
+                <li
+                  key={rule.id}
+                  id={rule.id}
+                  className={
+                    highlightId === rule.id
+                      ? "rounded-2xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
+                      : ""
+                  }
+                >
                   <button
                     type="button"
                     onClick={() => openRule(rule.id)}
@@ -1160,7 +1173,15 @@ export default function MethodDetailPane({
                   {filteredSections.map((section) => {
                     const selected = section.id === activeSectionId;
                     return (
-                      <li key={section.id} id={`section-row-${section.id}`}>
+                      <li
+                        key={section.id}
+                        id={section.id}
+                        className={
+                          highlightId === section.id
+                            ? "rounded-xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
+                            : ""
+                        }
+                      >
                         <button
                           type="button"
                           onClick={() => {

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import { generateAnswer } from "@/lib/assistant/generateAnswer";
+import { MAX_EVIDENCE_EXCERPT_CHARS } from "@/lib/assistant/generateAnswer";
 
 describe("generateAnswer", () => {
   test("empty inputs -> Not enough evidence loaded", () => {
@@ -43,5 +44,21 @@ describe("generateAnswer", () => {
     expect(firstSection?.excerpt).toBeTruthy();
     expect(firstSection?.quality).toBeDefined();
     expect(result.answer_md).toContain("Required data inputs");
+  });
+
+  test("excerpt length is capped", () => {
+    const long = Array.from({ length: 600 }, () => "word").join(" ");
+    const result = generateAnswer({
+      questionId: "required_data",
+      methodCode: "AR-AM0014",
+      version: "v03-0",
+      rules: [{ id: "R-1", title: "Inputs", snippet: "x", text: long }],
+      sections: [{ id: "S-1", title: "Data", textSnippet: "x", text: long }],
+      rich: null,
+      meta: null,
+      provenance: {},
+    });
+    const excerpt = result.evidence.find((e) => e.type === "rule")?.excerpt ?? "";
+    expect(excerpt.length).toBeLessThanOrEqual(MAX_EVIDENCE_EXCERPT_CHARS + 1);
   });
 });
