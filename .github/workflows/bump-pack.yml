@@ -1,0 +1,93 @@
+name: bump-pack
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'methodologies-pack tag (e.g. methodologies-pack-3ea9dc32bfaf)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Validate tag input
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "${TAG}" =~ ^methodologies-pack-[0-9a-f]{12}$ ]]; then
+            echo "Invalid tag: ${TAG} (expected: methodologies-pack-<sha12>)" >&2
+            exit 2
+          fi
+
+      - name: Update pinned pack config
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const tag = process.env.TAG;
+          const p = 'config/methodologies_pack.json';
+          const json = JSON.parse(fs.readFileSync(p, 'utf8'));
+          json.tag = tag;
+          json.asset = `${tag}.tar.gz`;
+          fs.writeFileSync(p, JSON.stringify(json, null, 2) + '\n', 'utf8');
+          NODE
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (fetch pack via prebuild)
+        env:
+          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
+        run: npm run build
+
+      - name: Read provenance
+        id: prov
+        run: |
+          set -euo pipefail
+          prov_repo="$(node -p "require('./public/_provenance/methodologies_PROVENANCE.json').repo")"
+          prov_sha="$(node -p "require('./public/_provenance/methodologies_PROVENANCE.json').sha")"
+          prov_generated_at="$(node -p "require('./public/_provenance/methodologies_PROVENANCE.json').generated_at")"
+          echo "repo=${prov_repo}" >> "$GITHUB_OUTPUT"
+          echo "sha=${prov_sha}" >> "$GITHUB_OUTPUT"
+          echo "generated_at=${prov_generated_at}" >> "$GITHUB_OUTPUT"
+
+      - name: Open bump PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: chore: bump methodologies pack to ${{ inputs.tag }}
+          branch: bot/bump-pack-${{ inputs.tag }}
+          delete-branch: true
+          title: chore: bump methodologies pack to ${{ inputs.tag }}
+          body: |
+            ## Pack bump
+
+            - Tag: `${{ inputs.tag }}`
+            - Asset: `${{ inputs.tag }}.tar.gz`
+            - Release: https://github.com/${{ steps.prov.outputs.repo }}/releases/tag/${{ inputs.tag }}
+
+            ## Provenance
+
+            - repo: `${{ steps.prov.outputs.repo }}`
+            - sha: `${{ steps.prov.outputs.sha }}`
+            - generated_at: `${{ steps.prov.outputs.generated_at }}`
+          add-paths: |
+            config/methodologies_pack.json
+            public/methodologies
+            public/_provenance/methodologies_PROVENANCE.json
