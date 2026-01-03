@@ -54,6 +54,43 @@ function EvidenceChip({
   );
 }
 
+function AnswerBody({ markdown }: { markdown: string }) {
+  const nodes = useMemo(() => {
+    const lines = markdown.split("\n");
+    return lines.map((raw, index) => {
+      const line = raw.replace(/\s+$/g, "");
+      if (!line.trim()) return { kind: "spacer" as const, key: `sp-${index}` };
+      if (line.startsWith("## ")) {
+        return { kind: "heading" as const, key: `h-${index}`, text: line.slice(3).trim() };
+      }
+      return { kind: "p" as const, key: `p-${index}`, text: line };
+    });
+  }, [markdown]);
+
+  return (
+    <div className="max-w-2xl">
+      {nodes.map((node) => {
+        if (node.kind === "spacer") return <div key={node.key} className="h-2" />;
+        if (node.kind === "heading") {
+          return (
+            <div
+              key={node.key}
+              className="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-500"
+            >
+              {node.text}
+            </div>
+          );
+        }
+        return (
+          <div key={node.key} className="text-sm leading-relaxed text-slate-700">
+            {node.text}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AssistantPanel(props: AssistantPanelProps) {
   const [active, setActive] = useState<AssistantQuestionId>("purpose_claims");
 
@@ -83,32 +120,36 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   const evidenceRequired = answer.evidence.length === 0;
 
   return (
-    <div className="mt-4 grid gap-3">
-      <div className="flex flex-wrap gap-2">
-        {ASSISTANT_QUESTIONS.map((question) => {
-          const disabled = question.id === "changes_vs_previous" ? changesDisabled : false;
-          return (
-            <button
-              key={question.id}
-              type="button"
-              disabled={disabled}
-              onClick={() => setActive(question.id)}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm transition-colors",
-                active === question.id
-                  ? "border-slate-300 bg-slate-900 text-white"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-                disabled ? "cursor-not-allowed opacity-50" : "",
-              )}
-              title={disabled ? "No previous version available." : undefined}
-            >
-              {question.label}
-            </button>
-          );
-        })}
+    <div className="mt-4 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 bg-slate-50">
+      <div className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur">
+        <div className="flex flex-wrap gap-2">
+          {ASSISTANT_QUESTIONS.map((question) => {
+            const disabled = question.id === "changes_vs_previous" ? changesDisabled : false;
+            return (
+              <button
+                key={question.id}
+                type="button"
+                disabled={disabled}
+                onClick={() => setActive(question.id)}
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm transition-colors",
+                  active === question.id
+                    ? "border-slate-300 bg-slate-900 text-white"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+                  disabled ? "cursor-not-allowed opacity-50" : "",
+                )}
+                title={disabled ? "No previous version available." : undefined}
+              >
+                {question.label}
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-2 text-xs text-slate-500">Evidence-linked answers. Exportable for audit.</div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="p-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm font-semibold text-slate-900">Answer</div>
           <button
@@ -123,7 +164,9 @@ export default function AssistantPanel(props: AssistantPanelProps) {
           </button>
         </div>
 
-        <div className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{answer.answer_md}</div>
+        <div className="mt-3">
+          <AnswerBody markdown={answer.answer_md} />
+        </div>
 
         {evidenceRequired ? (
           <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -178,7 +221,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
-
