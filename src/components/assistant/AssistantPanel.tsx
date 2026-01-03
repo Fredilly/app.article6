@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ASSISTANT_QUESTIONS, type AssistantQuestionId } from "@/lib/assistant/questions";
 import { generateAnswer, type AssistantAnswer } from "@/lib/assistant/generateAnswer";
+import { buildAssistantBundle } from "@/lib/assistant/bundle";
 import { pickProvenanceFields } from "@/lib/trustFormat";
 import { extractPackId } from "@/lib/packId";
 
@@ -89,6 +90,12 @@ function pickMetaAuditHashes(meta: unknown): Record<string, string> | null {
     if (typeof value === "string" && value.trim()) out[key] = value.trim();
   }
   return Object.keys(out).length ? out : null;
+}
+
+function evidenceCaption(item: AssistantAnswer["evidence"][number]): string | null {
+  if (item.excerpt && item.excerpt.trim()) return item.excerpt.trim();
+  if (item.quality === "low") return "Excerpt unavailable (low confidence).";
+  return null;
 }
 
 function AnswerBody({ markdown }: { markdown: string }) {
@@ -193,8 +200,10 @@ export default function AssistantPanel(props: AssistantPanelProps) {
             type="button"
             className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
             onClick={async () => {
-              const evidenceRules: Record<string, unknown> = {};
-              const evidenceSections: Record<string, unknown> = {};
+              const evidenceRules: unknown[] = [];
+              const evidenceSections: unknown[] = [];
+              const seenRules = new Set<string>();
+              const seenSections = new Set<string>();
 
               const unique = new Set<string>();
               const targets = answer.evidence.filter((item) => item.type === "rule" || item.type === "section");
@@ -209,7 +218,10 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                       `/api/methods/${encodeURIComponent(props.methodCode)}/v/${encodeURIComponent(props.version)}/rules?id=${encodeURIComponent(item.id)}`,
                     );
                     if (json && typeof json === "object" && (json as Record<string, unknown>).rule) {
-                      evidenceRules[item.id] = (json as Record<string, unknown>).rule as unknown;
+                      if (!seenRules.has(item.id)) {
+                        seenRules.add(item.id);
+                        evidenceRules.push((json as Record<string, unknown>).rule as unknown);
+                      }
                     }
                   }
 
@@ -218,7 +230,10 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                       `/api/methods/${encodeURIComponent(props.methodCode)}/v/${encodeURIComponent(props.version)}/sections?id=${encodeURIComponent(item.id)}`,
                     );
                     if (json && typeof json === "object" && (json as Record<string, unknown>).section) {
-                      evidenceSections[item.id] = (json as Record<string, unknown>).section as unknown;
+                      if (!seenSections.has(item.id)) {
+                        seenSections.add(item.id);
+                        evidenceSections.push((json as Record<string, unknown>).section as unknown);
+                      }
                     }
                   }
                 }),
@@ -231,20 +246,17 @@ export default function AssistantPanel(props: AssistantPanelProps) {
               const metaJson = metaUrl ? await fetchJson(metaUrl) : null;
               const auditHashes = pickMetaAuditHashes(metaJson);
 
-              const bundle = {
+              const bundle = buildAssistantBundle({
                 answer,
-                evidence_payloads: {
-                  rules: evidenceRules,
-                  sections: evidenceSections,
-                },
-                provenance_snapshot: {
+                evidencePayloads: { rules: evidenceRules, sections: evidenceSections },
+                provenance: {
                   pack_tag: props.packTag ?? undefined,
                   pack_id: packId ?? undefined,
                   generated_at: provenance.generated_at,
                   repo_sha: provenance.repo_sha,
                   audit_hashes: auditHashes ?? undefined,
                 },
-              };
+              });
 
               const filename = `article6__${props.methodCode}__${props.version}__assistant__${answer.question_id}.bundle.json`;
               downloadJson(bundle, filename);
@@ -267,27 +279,24 @@ export default function AssistantPanel(props: AssistantPanelProps) {
         <div className="mt-4 grid gap-3">
           <div>
             <div className="text-xs font-semibold text-slate-700">Evidence</div>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-2 grid gap-2">
               {answer.evidence.length ? (
                 answer.evidence.map((item) => {
                   const label = item.type === "rule" ? `Rule: ${item.id}` : item.type === "section" ? `Section: ${item.id}` : `Citation: ${item.id}`;
+                  const caption = evidenceCaption(item);
                   return (
-                    <EvidenceChip
-                      key={`${item.type}:${item.id}`}
-                      label={label}
-                      title={
-                        item.excerpt
-                          ? `${item.excerpt}${item.quality === "low" ? " (low confidence excerpt)" : ""}`
-                          : item.quality === "low"
-                            ? "Low confidence evidence (full text not loaded)."
-                            : undefined
-                      }
-                      onClick={() => {
-                        if (item.type === "rule" || item.type === "section") {
-                          props.onNavigateEvidence?.(item.type, item.id);
-                        }
-                      }}
-                    />
+                    <div key={`${item.type}:${item.id}`} className="flex flex-col items-start gap-1">
+                      <EvidenceChip
+                        label={label}
+                        title={caption ?? undefined}
+                        onClick={() => {
+                          if (item.type === "rule" || item.type === "section") {
+                            props.onNavigateEvidence?.(item.type, item.id);
+                          }
+                        }}
+                      />
+                      {caption ? <div className="text-xs text-slate-500">{caption}</div> : null}
+                    </div>
                   );
                 })
               ) : (

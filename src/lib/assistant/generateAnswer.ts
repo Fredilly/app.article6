@@ -57,16 +57,37 @@ function hrefForSection(code: string, ver: string, sectionId: string) {
   return `/m/${encodeURIComponent(code)}/v/${encodeURIComponent(ver)}?section=${encodeURIComponent(sectionId)}`;
 }
 
-function excerptWords(value: string, maxWords: number): string {
-  const words = value.trim().split(/\s+/).filter(Boolean);
-  if (words.length <= maxWords) return words.join(" ");
-  return `${words.slice(0, maxWords).join(" ")}…`;
-}
+export const MAX_EVIDENCE_EXCERPT_CHARS = 180;
+export const MAX_EVIDENCE_EXCERPT_WORDS = 20;
 
 function normalizeBodyText(value?: string): string | null {
   if (!value) return null;
   const normalized = value.replace(/\s+/g, " ").trim();
   return normalized ? normalized : null;
+}
+
+function firstSentence(value: string): string {
+  const match = value.match(/^[\\s\\S]*?[.!?](\\s|$)/);
+  return match ? match[0] : value;
+}
+
+function capExcerpt(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (trimmed.length <= MAX_EVIDENCE_EXCERPT_CHARS) return trimmed;
+  return `${trimmed.slice(0, MAX_EVIDENCE_EXCERPT_CHARS).trimEnd()}…`;
+}
+
+function excerptFromText(value: string): string {
+  const normalized = normalizeBodyText(value) ?? "";
+  if (!normalized) return "";
+  const sentence = firstSentence(normalized);
+  const words = sentence.split(/\\s+/).filter(Boolean);
+  const limited =
+    words.length <= MAX_EVIDENCE_EXCERPT_WORDS
+      ? sentence
+      : `${words.slice(0, MAX_EVIDENCE_EXCERPT_WORDS).join(" ")}…`;
+  return capExcerpt(limited);
 }
 
 export function generateAnswer(input: {
@@ -114,13 +135,13 @@ export function generateAnswer(input: {
     for (const section of matches) {
       const body = normalizeBodyText(section.text);
       const fallback = normalizeBodyText(section.textSnippet) ?? normalizeBodyText(section.title) ?? null;
-      const excerptSource = body ?? fallback ?? "";
+      const excerptSource = body ?? fallback ?? null;
       evidence.push({
         type: "section",
         id: section.id,
         title: section.title,
         href: hrefForSection(methodCode, version, section.id),
-        excerpt: excerptSource ? excerptWords(excerptSource, 20) : undefined,
+        excerpt: excerptSource ? excerptFromText(excerptSource) : undefined,
         quality: body ? "high" : "low",
       });
     }
@@ -130,13 +151,13 @@ export function generateAnswer(input: {
     for (const rule of matches) {
       const body = normalizeBodyText(rule.text);
       const fallback = normalizeBodyText(rule.snippet) ?? normalizeBodyText(rule.title) ?? null;
-      const excerptSource = body ?? fallback ?? "";
+      const excerptSource = body ?? fallback ?? null;
       evidence.push({
         type: "rule",
         id: rule.id,
         title: rule.title,
         href: hrefForRule(methodCode, version, rule.id),
-        excerpt: excerptSource ? excerptWords(excerptSource, 20) : undefined,
+        excerpt: excerptSource ? excerptFromText(excerptSource) : undefined,
         quality: body ? "high" : "low",
       });
     }
