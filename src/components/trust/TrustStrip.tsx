@@ -196,6 +196,43 @@ export default function TrustStrip({
 
   const audit = metaPicked.auditHashes;
 
+  const detailsRows = useMemo(() => {
+    const rows: Array<{ key: string; label: string; value: string; display?: string }> = [];
+    if (repo && repoSha) {
+      rows.push({
+        key: "source",
+        label: "source",
+        value: `${repo}@${repoSha}`,
+        display: `${repo}@${shortSha(repoSha)}`,
+      });
+    } else if (repoSha) {
+      rows.push({ key: "source", label: "source", value: repoSha, display: shortSha(repoSha) });
+    } else if (repo) {
+      rows.push({ key: "source", label: "source", value: repo });
+    }
+
+    if (audit?.rules) {
+      rows.push({ key: "rules", label: "rules_sha256", value: audit.rules, display: shortSha(audit.rules) });
+    }
+    if (audit?.sections) {
+      rows.push({
+        key: "sections",
+        label: "sections_sha256",
+        value: audit.sections,
+        display: shortSha(audit.sections),
+      });
+    }
+    if (audit?.sourcePdf) {
+      rows.push({
+        key: "pdf",
+        label: "source_pdf_sha256",
+        value: audit.sourcePdf,
+        display: shortSha(audit.sourcePdf),
+      });
+    }
+    return rows;
+  }, [audit?.rules, audit?.sections, audit?.sourcePdf, repo, repoSha]);
+
   const handleCopied = useCallback((key: string) => {
     setCopiedKey(key);
     window.setTimeout(() => setCopiedKey((current) => (current === key ? null : current)), 900);
@@ -230,22 +267,16 @@ export default function TrustStrip({
   const showStrip = Boolean(repo || repoSha || packTag || generatedAt || metaAvailable || rulesUrl);
   if (!showStrip) return null;
 
-  const sourceDisplay = repo && repoSha ? `${repo}@${shortSha(repoSha)}` : repo || repoSha || undefined;
   const packSha = provenancePicked.packSha ?? repoSha;
-  const packDisplay = packTag ? `${packTag}${packSha ? `@${shortSha(packSha)}` : ""}` : packSha ? shortSha(packSha) : undefined;
+  const packDisplay = packTag
+    ? `${packTag}${packSha ? `@${shortSha(packSha)}` : ""}`
+    : packSha
+      ? shortSha(packSha)
+      : undefined;
 
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-        {repo || repoSha ? (
-          <ChipButton
-            label="source"
-            value={repo && repoSha ? `${repo}@${repoSha}` : repoSha ?? repo ?? ""}
-            display={sourceDisplay}
-            onCopied={() => handleCopied("source")}
-          />
-        ) : null}
-
         {packTag || packSha ? (
           <ChipButton
             label="pack"
@@ -261,33 +292,6 @@ export default function TrustStrip({
             value={generatedAt}
             display={formatIso(generatedAt)}
             onCopied={() => handleCopied("generated")}
-          />
-        ) : null}
-
-        {audit?.rules ? (
-          <ChipButton
-            label="rules_sha256"
-            value={audit.rules}
-            display={shortSha(audit.rules)}
-            onCopied={() => handleCopied("rules")}
-          />
-        ) : null}
-
-        {audit?.sections ? (
-          <ChipButton
-            label="sections_sha256"
-            value={audit.sections}
-            display={shortSha(audit.sections)}
-            onCopied={() => handleCopied("sections")}
-          />
-        ) : null}
-
-        {audit?.sourcePdf ? (
-          <ChipButton
-            label="source_pdf_sha256"
-            value={audit.sourcePdf}
-            display={shortSha(audit.sourcePdf)}
-            onCopied={() => handleCopied("pdf")}
           />
         ) : null}
 
@@ -347,16 +351,37 @@ export default function TrustStrip({
               </div>
             </div>
           </details>
+          {detailsRows.length ? (
+            <details className="relative">
+              <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                Details
+              </summary>
+              <div className="absolute right-0 z-10 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+                <div className="flex flex-col gap-2 p-3">
+                  {detailsRows.map((row) => (
+                    <div key={row.key} className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-xs font-semibold text-slate-700">{row.label}</div>
+                        <div className="break-all font-mono text-xs text-slate-600">{row.value}</div>
+                      </div>
+                      <button
+                        type="button"
+                        className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={async () => {
+                          const ok = await copyText(row.value);
+                          if (ok) handleCopied(row.key);
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </details>
+          ) : null}
         </div>
       </div>
-
-      {(methodCode || version) && (
-        <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
-          {methodCode ? <span className="font-mono">{methodCode}</span> : null}
-          {version ? <span className="font-mono">{version}</span> : null}
-        </div>
-      )}
     </div>
   );
 }
-

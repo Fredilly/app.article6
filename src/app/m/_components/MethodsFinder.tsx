@@ -2,7 +2,6 @@ import Link from "next/link";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import FinderShell from "@/components/FinderShell";
-import TrustStrip from "@/components/TrustStrip";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 import { probeMethodRich } from "@/app/m/_lib/methodRich";
@@ -42,7 +41,7 @@ export default async function MethodsFinder({
   selectedRuleId,
   selectedSectionId,
 }: MethodsFinderProps) {
-  const { methods, generatedAt, datasetHash } = await getMethodInventory();
+  const { methods } = await getMethodInventory();
 
   const findGoldenRichSelection = async () => {
     const maxMethods = 30;
@@ -81,13 +80,6 @@ export default async function MethodsFinder({
     selectedMethod?.latestVersion ||
     selectedMethod?.versions.at(-1);
 
-  const versionAuditHash =
-    (selectedMethod && effectiveVersion
-      ? selectedMethod.versionAuditHashes[effectiveVersion]
-      : undefined) ?? undefined;
-
-  const repoSha = selectedMethod?.source_sha ?? process.env.VERCEL_GIT_COMMIT_SHA ?? undefined;
-
   const packProvenanceJson = await loadPackProvenanceJson();
   const manifestRulesPath =
     selectedMethod && effectiveVersion
@@ -102,13 +94,6 @@ export default async function MethodsFinder({
           <p className="text-sm text-slate-600">
             Browse methods, select a version, and verify provenance via audit hashes.
           </p>
-          <TrustStrip
-            methodCode={selectedMethod?.code}
-            version={effectiveVersion}
-            packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}
-            provenanceJson={packProvenanceJson}
-            manifestRulesPath={manifestRulesPath}
-          />
           {!selectedCode && goldenSelection ? (
             <p className="text-xs text-slate-500">
               Rich demo auto-selected:{" "}
@@ -172,11 +157,6 @@ export default async function MethodsFinder({
                 activeVersion={effectiveVersion}
                 initialRuleId={selectedRuleId}
                 initialSectionId={selectedSectionId}
-                generatedAt={generatedAt}
-                repoSha={repoSha}
-                datasetHash={datasetHash}
-                methodHash={selectedMethod.audit_hashes?.method_sha256}
-                versionHash={versionAuditHash}
                 packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}
                 provenanceJson={packProvenanceJson}
                 manifestRulesPath={manifestRulesPath}

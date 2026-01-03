@@ -26,20 +26,10 @@ type MethodDetailPaneProps = {
   activeVersion?: string;
   initialRuleId?: string;
   initialSectionId?: string;
-  generatedAt?: string;
-  repoSha?: string;
-  datasetHash?: string;
-  methodHash?: string;
-  versionHash?: string;
   packTag?: string | null;
   provenanceJson?: unknown | null;
   manifestRulesPath?: string | null;
 };
-
-function shortHash(value?: string): string {
-  if (!value) return "—";
-  return value.length > 14 ? `${value.slice(0, 10)}…${value.slice(-4)}` : value;
-}
 
 function buildDeepLink(basePath: string, methodCode: string, version?: string) {
   const params = new URLSearchParams({ method: methodCode });
@@ -58,11 +48,6 @@ export default function MethodDetailPane({
   activeVersion,
   initialRuleId,
   initialSectionId,
-  generatedAt,
-  repoSha,
-  datasetHash,
-  methodHash,
-  versionHash,
   packTag,
   provenanceJson,
   manifestRulesPath,
@@ -717,26 +702,7 @@ export default function MethodDetailPane({
           </div>
 
           <div className="grid gap-2 text-xs text-slate-600">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-slate-700">generated_at</span>
-              <span className="font-mono text-slate-700">{generatedAt ?? "—"}</span>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-slate-700">repo sha</span>
-              <span className="font-mono text-slate-700">{repoSha ? repoSha.slice(0, 7) : "—"}</span>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-slate-700">dataset hash</span>
-              <span className="font-mono text-slate-700">{shortHash(datasetHash)}</span>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-slate-700">method hash</span>
-              <span className="font-mono text-slate-700">{shortHash(methodHash)}</span>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-slate-700">version hash</span>
-              <span className="font-mono text-slate-700">{shortHash(versionHash)}</span>
-            </div>
+            <span className="text-xs text-slate-500">Provenance details are available in the TrustStrip.</span>
           </div>
 
           <div className="flex flex-wrap gap-2">
