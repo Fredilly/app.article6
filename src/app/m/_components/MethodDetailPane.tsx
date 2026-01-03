@@ -5,9 +5,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
+import AssistantPanel from "@/components/assistant/AssistantPanel";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 
-type DetailTab = "overview" | "versions" | "rules" | "sections" | "rich";
+type DetailTab = "overview" | "assistant" | "versions" | "rules" | "sections" | "rich";
 
 type MethodDetail = {
   code: string;
@@ -586,6 +587,13 @@ export default function MethodDetailPane({
   }, [activeSectionId, tab]);
 
   useEffect(() => {
+    if (tab !== "rules") return;
+    if (!activeRuleId) return;
+    const el = document.getElementById(`rule-row-${activeRuleId}`);
+    el?.scrollIntoView({ block: "nearest" });
+  }, [activeRuleId, tab]);
+
+  useEffect(() => {
     if (didSelectSectionFromQuery.current) return;
     if (!initialSectionId) return;
     if (!activeVersion) return;
@@ -686,6 +694,17 @@ export default function MethodDetailPane({
         >
           Rich
         </button>
+        <button
+          type="button"
+          onClick={async () => {
+            setTab("assistant");
+            await Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
+          }}
+          className={`${tabBase} ${tab === "assistant" ? tabActive : tabIdle}`}
+          aria-pressed={tab === "assistant"}
+        >
+          Assistant
+        </button>
       </div>
 
       {tab === "overview" ? (
@@ -726,6 +745,19 @@ export default function MethodDetailPane({
             </Link>
           </div>
         </div>
+      ) : tab === "assistant" ? (
+        <AssistantPanel
+          methodCode={method.code}
+          version={activeVersion ?? ""}
+          hasPrevious={method.hasPrevious}
+          rules={rules}
+          sections={sections}
+          rich={richEvidence}
+          packTag={packTag}
+          provenanceJson={provenanceJson}
+          onOpenRule={(ruleId) => void openRule(ruleId)}
+          onOpenSection={(sectionId) => void jumpToSection(sectionId)}
+        />
       ) : tab === "versions" ? (
         <div className="mt-4 grid gap-2">
           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -816,7 +848,7 @@ export default function MethodDetailPane({
 
             <ul className="grid gap-2">
               {filteredRules.map((rule) => (
-                <li key={rule.id}>
+                <li key={rule.id} id={`rule-row-${rule.id}`}>
                   <button
                     type="button"
                     onClick={() => openRule(rule.id)}
