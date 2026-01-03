@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FinderShell from "@/components/FinderShell";
 import TrustStrip from "@/components/TrustStrip";
+import MethodologiesPackProvenance from "@/components/MethodologiesPackProvenance";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 import { probeMethodRich } from "@/app/m/_lib/methodRich";
@@ -79,6 +80,7 @@ export default async function MethodsFinder({
           <p className="text-sm text-slate-600">
             Browse methods, select a version, and verify provenance via audit hashes.
           </p>
+          <MethodologiesPackProvenance />
           {!selectedCode && goldenSelection ? (
             <p className="text-xs text-slate-500">
               Rich demo auto-selected:{" "}
