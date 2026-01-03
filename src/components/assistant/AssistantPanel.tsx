@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ASSISTANT_QUESTIONS, type AssistantQuestionId } from "@/lib/assistant/questions";
 import { generateAnswer, type AssistantAnswer } from "@/lib/assistant/generateAnswer";
@@ -35,6 +35,33 @@ function downloadJson(value: unknown, filename: string) {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // fall back
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "0";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return ok;
+  } catch {
+    return false;
+  }
 }
 
 function EvidenceChip({
@@ -137,6 +164,12 @@ function AnswerBody({ markdown }: { markdown: string }) {
 
 export default function AssistantPanel(props: AssistantPanelProps) {
   const [active, setActive] = useState<AssistantQuestionId>("purpose_claims");
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = useCallback((message: string) => {
+    setToast(message);
+    window.setTimeout(() => setToast((current) => (current === message ? null : current)), 900);
+  }, []);
 
   const changesDisabled = !props.hasPrevious;
 
@@ -193,6 +226,11 @@ export default function AssistantPanel(props: AssistantPanelProps) {
       </div>
 
       <div className="p-4">
+        {toast ? (
+          <div className="fixed bottom-4 right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
+            {toast}
+          </div>
+        ) : null}
         <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm font-semibold text-slate-900">Answer</div>
@@ -284,17 +322,35 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                 answer.evidence.map((item) => {
                   const label = item.type === "rule" ? `Rule: ${item.id}` : item.type === "section" ? `Section: ${item.id}` : `Citation: ${item.id}`;
                   const caption = evidenceCaption(item);
+                  const canLink = item.type === "rule" || item.type === "section";
                   return (
                     <div key={`${item.type}:${item.id}`} className="flex flex-col items-start gap-1">
-                      <EvidenceChip
-                        label={label}
-                        title={caption ?? undefined}
-                        onClick={() => {
-                          if (item.type === "rule" || item.type === "section") {
-                            props.onNavigateEvidence?.(item.type, item.id);
-                          }
-                        }}
-                      />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <EvidenceChip
+                          label={label}
+                          title={caption ?? undefined}
+                          onClick={() => {
+                            if (canLink) props.onNavigateEvidence?.(item.type, item.id);
+                          }}
+                        />
+                        {canLink ? (
+                          <button
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                            onClick={async () => {
+                              const url = new URL(window.location.href);
+                              const tab = item.type === "rule" ? "rules" : "sections";
+                              url.searchParams.set("tab", tab);
+                              url.searchParams.set("focus", item.id);
+                              window.history.replaceState(null, "", url.toString());
+                              const ok = await copyText(url.toString());
+                              if (ok) showToast("Copied");
+                            }}
+                          >
+                            Copy link
+                          </button>
+                        ) : null}
+                      </div>
                       {caption ? <div className="text-xs text-slate-500">{caption}</div> : null}
                     </div>
                   );

@@ -99,6 +99,7 @@ export default function MethodDetailPane({
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
   const didSelectSectionFromQuery = useRef(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const didApplyFocusFromUrl = useRef(false);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -352,6 +353,14 @@ export default function MethodDetailPane({
     [pathname, router],
   );
 
+  const setFocusParam = useCallback((focusTab: "rules" | "sections", focusId: string) => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", focusTab);
+    url.searchParams.set("focus", focusId);
+    window.history.replaceState(null, "", url.toString());
+  }, []);
+
   const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
     if (!activeVersion) return [];
     if (sections.length) return sections;
@@ -596,6 +605,7 @@ export default function MethodDetailPane({
 
   const navigateToRule = useCallback(
     async (ruleId: string) => {
+      setFocusParam("rules", ruleId);
       setTab("rules");
       await ensureRulesLoaded();
       window.setTimeout(() => {
@@ -604,11 +614,12 @@ export default function MethodDetailPane({
         window.setTimeout(() => setHighlightId((current) => (current === ruleId ? null : current)), 1500);
       }, 0);
     },
-    [ensureRulesLoaded],
+    [ensureRulesLoaded, setFocusParam],
   );
 
   const navigateToSection = useCallback(
     async (sectionId: string) => {
+      setFocusParam("sections", sectionId);
       setTab("sections");
       await ensureSectionsLoaded();
       setSectionsDeeplinkWarning(null);
@@ -620,8 +631,22 @@ export default function MethodDetailPane({
         window.setTimeout(() => setHighlightId((current) => (current === sectionId ? null : current)), 1500);
       }, 0);
     },
-    [ensureSectionsLoaded, setSectionParam],
+    [ensureSectionsLoaded, setFocusParam, setSectionParam],
   );
+
+  useEffect(() => {
+    if (didApplyFocusFromUrl.current) return;
+    if (!activeVersion) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const focusTab = params.get("tab");
+    const focusId = params.get("focus");
+    if (!focusTab || !focusId) return;
+
+    didApplyFocusFromUrl.current = true;
+    if (focusTab === "rules") void navigateToRule(focusId);
+    if (focusTab === "sections") void navigateToSection(focusId);
+  }, [activeVersion, navigateToRule, navigateToSection]);
 
   useEffect(() => {
     if (didSelectSectionFromQuery.current) return;
@@ -886,7 +911,7 @@ export default function MethodDetailPane({
                   id={rule.id}
                   className={
                     highlightId === rule.id
-                      ? "rounded-2xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
+                      ? "assistant-focus-highlight rounded-2xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
                       : ""
                   }
                 >
@@ -1178,7 +1203,7 @@ export default function MethodDetailPane({
                         id={section.id}
                         className={
                           highlightId === section.id
-                            ? "rounded-xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
+                            ? "assistant-focus-highlight rounded-xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
                             : ""
                         }
                       >
