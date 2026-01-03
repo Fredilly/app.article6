@@ -1,0 +1,105 @@
+name: bump-pack-dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'methodologies-pack tag (e.g. methodologies-pack-3ea9dc32bfaf)'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Validate tag input
+        env:
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "${TAG}" =~ ^methodologies-pack-[0-9a-f]{12}$ ]]; then
+            echo "Invalid tag: ${TAG} (expected: methodologies-pack-<sha12>)" >&2
+            exit 2
+          fi
+
+      - name: Update pinned pack config
+        env:
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const tag = process.env.TAG;
+          const p = 'config/methodologies_pack.json';
+          const json = JSON.parse(fs.readFileSync(p, 'utf8'));
+          json.tag = tag;
+          json.asset = `${tag}.tar.gz`;
+          fs.writeFileSync(p, JSON.stringify(json, null, 2) + '\n', 'utf8');
+          NODE
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (fetch pack via prebuild)
+        env:
+          NEXT_PUBLIC_ENABLE_AUDIT: 'true'
+        run: npm run build
+
+      - name: Create bump PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          branch="bot/bump-pack-${TAG}"
+
+          prov_repo="$(node -p "require('./public/_provenance/methodologies_PROVENANCE.json').repo")"
+          prov_sha="$(node -p "require('./public/_provenance/methodologies_PROVENANCE.json').sha")"
+          prov_generated_at="$(node -p "require('./public/_provenance/methodologies_PROVENANCE.json').generated_at")"
+
+          title="chore: bump methodologies pack to ${TAG}"
+          body_file="$(mktemp)"
+          cat > "${body_file}" <<EOF
+          ## Pack bump
+
+          - Tag: \`${TAG}\`
+          - Asset: \`${TAG}.tar.gz\`
+          - Release: https://github.com/${prov_repo}/releases/tag/${TAG}
+
+          ## Provenance
+
+          - repo: \`${prov_repo}\`
+          - sha: \`${prov_sha}\`
+          - generated_at: \`${prov_generated_at}\`
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git switch -c "${branch}"
+          git add config/methodologies_pack.json public/methodologies public/_provenance/methodologies_PROVENANCE.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit; exiting."
+            exit 0
+          fi
+          git commit -m "${title}"
+          git push -f origin "HEAD:${branch}"
+
+          existing="$(gh pr list --head "${branch}" --state open --json number -q '.[0].number' || true)"
+          if [[ -n "${existing}" ]]; then
+            gh pr edit "${existing}" --title "${title}" --body-file "${body_file}"
+            echo "Updated existing PR #${existing}"
+          else
+            gh pr create --base main --head "${branch}" --title "${title}" --body-file "${body_file}"
+          fi
