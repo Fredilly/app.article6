@@ -31,5 +31,31 @@ describe("buildAssistantBundle", () => {
     expect((bundle.evidence_payloads.sections[0] as any).id).toBe("S-10");
     expect((bundle.evidence_payloads.rules[0] as any).id).toBe("R-1");
   });
-});
 
+  test("includes geovista snapshot when provided", () => {
+    const answer: AssistantAnswer = {
+      question_id: "purpose_claims",
+      answer_md: "## Answer\nTest",
+      evidence: [{ type: "section", id: "S-1", title: "Purpose", excerpt: "Excerpt", quality: "low" }],
+      assumptions: [],
+      next_actions: [],
+      provenance: {},
+    };
+
+    const bundle = buildAssistantBundle({
+      answer,
+      evidencePayloads: { sections: [], rules: [] },
+      provenance: {},
+      geovista: {
+        status: "verified",
+        summary: "Verified via mock.",
+        artifacts: [{ id: "artifact-1" }],
+        generated_at: "2026-01-01T00:00:00Z",
+        provenance: { source: "mock" },
+      },
+    });
+
+    expect(bundle.geovista?.status).toBe("verified");
+    expect(bundle.geovista?.artifacts[0]?.id).toBe("artifact-1");
+  });
+});
