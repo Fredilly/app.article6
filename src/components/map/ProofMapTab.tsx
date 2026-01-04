@@ -139,7 +139,11 @@ export default function ProofMapTab({
     (async () => {
       try {
         const fp = await aoiFingerprint(aoi.geojson);
-        if (!cancelled) setCurrentAoiFingerprint(fp);
+        if (cancelled) return;
+        setCurrentAoiFingerprint(fp);
+        if (aoi.aoi_fingerprint !== fp) {
+          onSetAoi({ ...aoi, aoi_fingerprint: fp });
+        }
       } catch {
         if (!cancelled) setCurrentAoiFingerprint(null);
       }
@@ -147,7 +151,18 @@ export default function ProofMapTab({
     return () => {
       cancelled = true;
     };
-  }, [aoi]);
+  }, [aoi, onSetAoi]);
+
+  useEffect(() => {
+    if (!aoi || !currentAoiFingerprint) return;
+    const nextPins = evidencePins.map((pin) => {
+      if (pin.aoi_fingerprint) return pin;
+      if (pin.aoi_id && pin.aoi_id === aoi.id) return { ...pin, aoi_fingerprint: currentAoiFingerprint };
+      return pin;
+    });
+    const changed = nextPins.some((pin, idx) => pin !== evidencePins[idx]);
+    if (changed) onSetEvidencePins(nextPins);
+  }, [aoi, currentAoiFingerprint, evidencePins, onSetEvidencePins]);
 
   const currentRuns = useMemo(() => {
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });

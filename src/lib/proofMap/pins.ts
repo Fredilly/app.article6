@@ -25,6 +25,7 @@ export function buildEvidencePin(input: {
   title: string;
   cited_ids: string[];
   aoi_id?: string | null;
+  aoi_fingerprint?: string | null;
 }): EvidencePin {
   const created_at = new Date().toISOString();
   const id =
@@ -37,6 +38,7 @@ export function buildEvidencePin(input: {
     kind: "note",
     title: input.title.trim() || "Assistant evidence",
     aoi_id: input.aoi_id ?? undefined,
+    aoi_fingerprint: input.aoi_fingerprint ?? undefined,
     cited_ids: dedupeStrings(input.cited_ids),
     created_at,
   };

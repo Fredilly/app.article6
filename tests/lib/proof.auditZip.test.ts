@@ -95,6 +95,9 @@ describe("audit zip exporter/importer", () => {
 
     const zip = await JSZip.loadAsync(zipBytes);
     expect(zip.file("bundle.json")).toBeTruthy();
+    expect(zip.file("verification/provenance.txt")).toBeTruthy();
+    expect(zip.file("verification/stac_items.json")).toBeTruthy();
+    expect(zip.file("verification/stac_evidence.geojson")).toBeTruthy();
     const attachmentFiles = Object.keys(zip.files).filter((p) => p.startsWith("attachments/att-1__"));
     expect(attachmentFiles).toHaveLength(1);
   });
