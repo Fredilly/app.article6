@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
@@ -8,6 +8,7 @@ import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
 import { aoiFingerprint, createQueuedVerificationRun, runGeoVistaVerification, runInputFingerprint, splitRunsByAoiFingerprint } from "@/lib/proofMap/verificationRuns";
+import type { Map as MapLibreMap } from "maplibre-gl";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -89,6 +90,8 @@ export default function ProofMapTab({
   const [isRunning, setIsRunning] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<string | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
+  const [mapReadyTick, setMapReadyTick] = useState(0);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -127,9 +130,51 @@ export default function ProofMapTab({
     return splitRunsByAoiFingerprint({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !aoi?.bbox) return;
+
+    const fit = () => {
+      try {
+        map.resize?.();
+      } catch {
+        // ignore
+      }
+      try {
+        map.fitBounds(
+          [
+            [aoi.bbox[0], aoi.bbox[1]],
+            [aoi.bbox[2], aoi.bbox[3]],
+          ],
+          { padding: 20, duration: 0 },
+        );
+      } catch {
+        // ignore
+      }
+    };
+
+    requestAnimationFrame(() => {
+      if (!map.isStyleLoaded?.()) {
+        map.once?.("load", fit);
+        return;
+      }
+      fit();
+    });
+  }, [aoi, mapReadyTick]);
+
   return (
     <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-      <MapCanvas aoi={aoi} pins={evidencePins} />
+      <MapCanvas
+        aoi={aoi}
+        pins={evidencePins}
+        onMapReady={(map) => {
+          mapRef.current = map;
+          setMapReadyTick((value) => value + 1);
+        }}
+        onMapDestroyed={() => {
+          mapRef.current = null;
+        }}
+      />
 
       <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
         {toast ? (
