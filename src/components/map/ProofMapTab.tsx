@@ -289,6 +289,7 @@ export default function ProofMapTab({
                     });
                     const updated: VerificationRun = {
                       ...queued,
+                      provider: res.provider,
                       status: res.runStatus,
                       summary: res.summary,
                       result_json: res.result_json,

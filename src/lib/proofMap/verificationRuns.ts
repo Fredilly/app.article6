@@ -1,6 +1,5 @@
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import type { GeoVistaVerificationRequest } from "@/services/geovista/client";
-import { getVerification } from "@/services/geovista/client";
 import type { GeoVistaVerification } from "@/services/geovista/types";
 import { canonicalJson, sha256Hex } from "@/lib/proof/fingerprints";
 import { dedupeStrings } from "@/lib/proofMap/pins";
@@ -71,6 +70,7 @@ export function createQueuedVerificationRun(input: {
   pins: EvidencePin[];
   aoi_fingerprint: string;
   input_fingerprint: string;
+  provider?: VerificationRun["provider"];
 }): VerificationRun {
   const aggregates = buildVerificationRunInputFromPins(input.pins);
   return {
@@ -84,10 +84,22 @@ export function createQueuedVerificationRun(input: {
     attachment_sha256: aggregates.attachment_sha256,
     cited_ids_count: aggregates.cited_ids.length,
     attachment_count: aggregates.attachment_sha256.length,
-    provider: "geovista",
+    provider: input.provider ?? "geovista",
     status: "queued",
     created_at: nowIso(),
   };
+}
+
+async function fetchJson(url: string, body: unknown): Promise<{ ok: boolean; status: number; json: unknown }> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const text = await res.text();
+  const json = text ? (JSON.parse(text) as unknown) : null;
+  return { ok: res.ok, status: res.status, json };
 }
 
 export async function runGeoVistaVerification(input: {
@@ -95,7 +107,7 @@ export async function runGeoVistaVerification(input: {
   aoi: AOI;
   cited_ids: string[];
   attachment_sha256: string[];
-}): Promise<{ runStatus: VerificationRun["status"]; summary: string; result_json: unknown }> {
+}): Promise<{ provider: VerificationRun["provider"]; runStatus: VerificationRun["status"]; summary: string; result_json: unknown }> {
   const req: GeoVistaVerificationRequest = {
     method_code: input.method.code,
     method_version: input.method.version,
@@ -103,23 +115,54 @@ export async function runGeoVistaVerification(input: {
     cited_ids: input.cited_ids,
   };
 
-  const verification = await getVerification({
+  const geovista = await fetchJson("/api/geovista/verify", {
     ...req,
     aoi: input.aoi,
     attachment_sha256: input.attachment_sha256,
   });
 
-  if (!verification) {
+  if (geovista.status === 501) {
+    const code =
+      geovista.json && typeof geovista.json === "object" && typeof (geovista.json as Record<string, unknown>).code === "string"
+        ? String((geovista.json as Record<string, unknown>).code)
+        : "";
+    if (code === "GEOVISTA_NOT_CONFIGURED") {
+      const stac = await fetchJson("/api/stac/search", { aoi_geojson: input.aoi.geojson });
+      if (!stac.ok) {
+        return {
+          provider: "stac",
+          runStatus: "error",
+          summary: "STAC unavailable.",
+          result_json: stac.json,
+        };
+      }
+      const stacRecord =
+        stac.json && typeof stac.json === "object" ? (stac.json as Record<string, unknown>) : null;
+      const items = stacRecord && Array.isArray(stacRecord.items) ? (stacRecord.items as unknown[]) : [];
+      const itemsCount = items.length;
+      return {
+        provider: "stac",
+        runStatus: "ok",
+        summary: `STAC returned ${itemsCount} item(s).`,
+        result_json: stac.json,
+      };
+    }
+  }
+
+  if (!geovista.ok) {
     return {
+      provider: "geovista",
       runStatus: "error",
       summary: "GeoVista unavailable.",
-      result_json: { status: "error", summary: "GeoVista unavailable." },
+      result_json: geovista.json ?? { status: "error", summary: "GeoVista unavailable." },
     };
   }
 
+  const verification = geovista.json as GeoVistaVerification;
   return {
+    provider: "geovista",
     runStatus: mapGeoVistaVerificationToRunStatus(verification),
-    summary: verification.summary,
+    summary: verification.summary ?? "GeoVista response received.",
     result_json: verification,
   };
 }
