@@ -36,6 +36,7 @@ export type VerificationRun = {
   summary?: string;
   result_json?: unknown;
   created_at: string;
+  ended_at?: string;
 };
 
 export type EvidencePin = {
@@ -46,6 +47,8 @@ export type EvidencePin = {
   cited_ids: string[];
   location?: { lng: number; lat: number };
   attachments?: EvidenceAttachment[];
+  stac_item_ids?: string[];
+  stac_run_id?: string;
   created_at: string;
 };
 

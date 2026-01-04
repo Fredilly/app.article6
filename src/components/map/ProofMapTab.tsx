@@ -9,6 +9,8 @@ import { kindFromCitedId } from "@/lib/proofMap/pins";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
 import { aoiFingerprint, createQueuedVerificationRun, runGeoVistaVerification, runInputFingerprint, runsForCurrentAoi, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
 import type { Map as MapLibreMap } from "maplibre-gl";
+import selectLatestStacRun from "@/lib/runs/selectLatestStacRun";
+import normalizeStacItems from "@/lib/stac/normalizeStacItems";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -16,11 +18,17 @@ type ProofMapTabProps = {
   aoi: AOI | null;
   evidencePins: EvidencePin[];
   verificationRuns: VerificationRun[];
+  stacEvidenceByAoi: Record<string, { fc: GeoJSON.FeatureCollection; itemsById: Record<string, unknown>; runId: string }>;
+  selectedStacItemId: string | null;
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
   onRemoveAoi: () => void;
   onSetEvidencePins: (pins: EvidencePin[]) => void;
   onSetVerificationRuns: (runs: VerificationRun[]) => void;
+  onSetStacEvidenceByAoi: (
+    next: Record<string, { fc: GeoJSON.FeatureCollection; itemsById: Record<string, unknown>; runId: string }>,
+  ) => void;
+  onSelectStacItemId: (id: string | null) => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
 };
 
@@ -62,6 +70,10 @@ function prettyJson(value: unknown): string {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 function statusPill(status: VerificationRun["status"]): { label: string; className: string } {
   if (status === "ok") return { label: "OK", className: "bg-emerald-50 text-emerald-700 border-emerald-200" };
   if (status === "warn") return { label: "WARN", className: "bg-amber-50 text-amber-800 border-amber-200" };
@@ -76,11 +88,15 @@ export default function ProofMapTab({
   aoi,
   evidencePins,
   verificationRuns,
+  stacEvidenceByAoi,
+  selectedStacItemId,
   evidenceSnapshots,
   onSetAoi,
   onRemoveAoi,
   onSetEvidencePins,
   onSetVerificationRuns,
+  onSetStacEvidenceByAoi,
+  onSelectStacItemId,
   onNavigateEvidence,
 }: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +111,15 @@ export default function ProofMapTab({
   const showToast = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast((current) => (current === message ? null : current)), 900);
+  };
+
+  const copyToClipboard = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      showToast("Copied");
+    } catch {
+      showToast("Copy failed");
+    }
   };
 
   const bboxLabel = useMemo(() => {
@@ -127,6 +152,81 @@ export default function ProofMapTab({
   const currentRuns = useMemo(() => {
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
+
+  const currentStacEvidence = useMemo(() => {
+    if (!currentAoiFingerprint) return null;
+    return stacEvidenceByAoi[currentAoiFingerprint] ?? null;
+  }, [currentAoiFingerprint, stacEvidenceByAoi]);
+
+  const selectedStacDetails = useMemo(() => {
+    if (!selectedStacItemId) return null;
+    const record = currentStacEvidence?.itemsById?.[selectedStacItemId];
+    if (!record || typeof record !== "object") return null;
+
+    const selected = record as Record<string, unknown>;
+    const props = isRecord(selected.properties) ? (selected.properties as Record<string, unknown>) : null;
+
+    const rawDatetime =
+      (props && typeof props.datetime === "string" ? props.datetime : null) ??
+      (typeof selected.datetime === "string" ? selected.datetime : null);
+
+    const cloudCover = props ? props["eo:cloud_cover"] : null;
+
+    const assets = props && isRecord(props.assets) ? (props.assets as Record<string, unknown>) : null;
+    const assetRows = assets
+      ? (Object.entries(assets)
+          .map(([key, value]) => {
+            const href =
+              typeof value === "string"
+                ? value
+                : isRecord(value) && typeof value.href === "string"
+                  ? value.href
+                  : null;
+            return href ? { key, href } : null;
+          })
+          .filter(Boolean) as Array<{ key: string; href: string }>)
+      : [];
+
+    const links = props && Array.isArray(props.links) ? (props.links as unknown[]) : [];
+    const linkRows = links
+      .map((link) => {
+        if (!isRecord(link)) return null;
+        if (typeof link.href !== "string") return null;
+        const rel = typeof link.rel === "string" ? link.rel : "link";
+        return { rel, href: link.href };
+      })
+      .filter(Boolean) as Array<{ rel: string; href: string }>;
+
+    return {
+      id: selectedStacItemId,
+      datetime: rawDatetime ? formatLocalDateTime(rawDatetime) : "—",
+      cloudCover: cloudCover == null ? "—" : String(cloudCover),
+      runId: currentStacEvidence?.runId ?? "",
+      assetRows,
+      linkRows,
+    };
+  }, [currentStacEvidence, selectedStacItemId]);
+
+  useEffect(() => {
+    if (!currentAoiFingerprint) return;
+    const latestRun = selectLatestStacRun({ runs: verificationRuns, aoiFingerprint: currentAoiFingerprint });
+    if (!latestRun) return;
+    const existing = stacEvidenceByAoi[currentAoiFingerprint];
+    if (existing && existing.runId === latestRun.id) return;
+
+    const normalized = normalizeStacItems(latestRun.result_json);
+    onSetStacEvidenceByAoi({
+      ...stacEvidenceByAoi,
+      [currentAoiFingerprint]: { fc: normalized.featureCollection, itemsById: normalized.itemsById, runId: latestRun.id },
+    });
+  }, [currentAoiFingerprint, onSetStacEvidenceByAoi, stacEvidenceByAoi, verificationRuns]);
+
+  useEffect(() => {
+    if (!selectedStacItemId) return;
+    if (!currentStacEvidence?.itemsById?.[selectedStacItemId]) {
+      onSelectStacItemId(null);
+    }
+  }, [currentStacEvidence, onSelectStacItemId, selectedStacItemId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -165,6 +265,9 @@ export default function ProofMapTab({
       <MapCanvas
         aoi={aoi}
         pins={evidencePins}
+        stacEvidence={currentStacEvidence?.fc ?? null}
+        selectedStacItemId={selectedStacItemId}
+        onSelectStacItemId={onSelectStacItemId}
         onMapReady={(map) => {
           mapRef.current = map;
           setMapReadyTick((value) => value + 1);
@@ -329,6 +432,7 @@ export default function ProofMapTab({
                       status: res.runStatus,
                       summary: res.summary,
                       result_json: res.result_json,
+                      ended_at: new Date().toISOString(),
                     };
                     onSetVerificationRuns([updated, ...verificationRuns]);
                     showToast("Verification complete");
@@ -339,6 +443,7 @@ export default function ProofMapTab({
                       status: "error",
                       summary: message,
                       result_json: { error: message },
+                      ended_at: new Date().toISOString(),
                     };
                     onSetVerificationRuns([updated, ...verificationRuns]);
                     setError(message);
@@ -413,6 +518,30 @@ export default function ProofMapTab({
                       />
                     </label>
                   </div>
+                  {currentStacEvidence?.runId && selectedStacItemId ? (
+                    <button
+                      type="button"
+                      className="mt-2 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                      onClick={() => {
+                        const existing = new Set(pin.stac_item_ids ?? []);
+                        existing.add(selectedStacItemId);
+                        onSetEvidencePins(
+                          evidencePins.map((item) =>
+                            item.id === pin.id
+                              ? {
+                                  ...item,
+                                  stac_item_ids: Array.from(existing),
+                                  stac_run_id: item.stac_run_id ?? currentStacEvidence.runId,
+                                }
+                              : item,
+                          ),
+                        );
+                        showToast("STAC item attached");
+                      }}
+                    >
+                      Attach selected STAC item
+                    </button>
+                  ) : null}
                   <div className="mt-2 flex flex-wrap gap-2">
                     {(pin.cited_ids ?? []).map((id) => {
                       const type = kindFromCitedId(id);
@@ -435,6 +564,28 @@ export default function ProofMapTab({
                       );
                     })}
                   </div>
+                  {(pin.stac_item_ids ?? []).length ? (
+                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        STAC items
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {(pin.stac_item_ids ?? []).map((id) => (
+                          <button
+                            key={id}
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                            onClick={() => onSelectStacItemId(id)}
+                          >
+                            {id}
+                          </button>
+                        ))}
+                      </div>
+                      {pin.stac_run_id ? (
+                        <div className="mt-1 font-mono text-[11px] text-slate-500">run: {pin.stac_run_id}</div>
+                      ) : null}
+                    </div>
+                  ) : null}
                   {(pin.attachments ?? []).length ? (
                     <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
                       <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -483,6 +634,110 @@ export default function ProofMapTab({
               ))
             ) : (
               <div className="text-xs text-slate-500">No pins yet. Use “Add to map” from Assistant.</div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
+          <div className="mt-2 grid gap-2">
+            {aoi && currentAoiFingerprint && currentStacEvidence?.fc?.features?.length ? (
+              <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-xs font-semibold text-slate-900">
+                    {currentStacEvidence.fc.features.length} feature(s)
+                  </div>
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => onSelectStacItemId(null)}
+                    disabled={!selectedStacItemId}
+                  >
+                    Clear selection
+                  </button>
+                </div>
+                {selectedStacDetails ? (
+                  <div className="mt-3 grid gap-2">
+                    <div className="grid gap-1 text-xs text-slate-700">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-semibold text-slate-900">Item ID</span>
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                          onClick={() => copyToClipboard(selectedStacDetails.id)}
+                        >
+                          Copy
+                        </button>
+                      </div>
+                      <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
+                    </div>
+                    <div className="grid gap-1 text-xs text-slate-700">
+                      <div className="font-semibold text-slate-900">Datetime</div>
+                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.datetime}</div>
+                    </div>
+                    <div className="grid gap-1 text-xs text-slate-700">
+                      <div className="font-semibold text-slate-900">Cloud cover</div>
+                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.cloudCover}</div>
+                    </div>
+                    {selectedStacDetails.runId ? (
+                      <div className="grid gap-1 text-xs text-slate-700">
+                        <div className="font-semibold text-slate-900">Run</div>
+                        <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
+                      </div>
+                    ) : null}
+                    {selectedStacDetails.assetRows.length ? (
+                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>
+                        <div className="mt-2 grid gap-2">
+                          {selectedStacDetails.assetRows.map((row) => (
+                            <div key={row.key} className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="text-xs font-semibold text-slate-800">{row.key}</div>
+                                <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
+                              </div>
+                              <button
+                                type="button"
+                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                onClick={() => copyToClipboard(row.href)}
+                              >
+                                Copy
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                    {selectedStacDetails.linkRows.length ? (
+                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Links</div>
+                        <div className="mt-2 grid gap-2">
+                          {selectedStacDetails.linkRows.map((row, idx) => (
+                            <div key={`${row.href}:${idx}`} className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="text-xs font-semibold text-slate-800">{row.rel}</div>
+                                <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
+                              </div>
+                              <button
+                                type="button"
+                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                onClick={() => copyToClipboard(row.href)}
+                              >
+                                Copy
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="mt-2 text-xs text-slate-500">Click a footprint/marker on the map to inspect.</div>
+                )}
+              </div>
+            ) : (
+              <div className="text-xs text-slate-500">
+                {!aoi ? "No AOI selected." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No STAC evidence for this AOI."}
+              </div>
             )}
           </div>
         </div>
