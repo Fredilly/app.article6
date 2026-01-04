@@ -3,11 +3,12 @@
 import { describe, expect, test } from "@jest/globals";
 import JSZip from "jszip";
 import { buildProofBundleV1 } from "@/lib/proof/bundle";
-import { buildAuditZipBytes, readAuditZipBytes } from "@/lib/proof/auditZip";
+import { buildAuditZipBytes, exportAuditZipFromStorage, readAuditZipBytes } from "@/lib/proof/auditZip";
 import { sha256ArrayBuffer } from "@/lib/proof/hash";
 import { importProofBundleFile } from "@/lib/proof/import";
-import { loadPins } from "@/lib/proofMap/storage";
+import { loadPins, loadVerificationRuns, saveVerificationRuns } from "@/lib/proofMap/storage";
 import { getAttachmentBytes } from "@/lib/proofMap/attachments";
+import { buildVerificationRunInputFromPins } from "@/lib/proofMap/verificationRuns";
 
 describe("evidence attachment hashing", () => {
   test("sha256ArrayBuffer returns stable hash for known bytes", async () => {
@@ -18,6 +19,42 @@ describe("evidence attachment hashing", () => {
 });
 
 describe("audit zip exporter/importer", () => {
+  test("run builder unions cited_ids + attachment_sha256", async () => {
+    const bytes = new Uint8Array([1, 2, 3]).buffer;
+    const sha = await sha256ArrayBuffer(bytes);
+    const input = buildVerificationRunInputFromPins([
+      {
+        id: "pin-1",
+        kind: "doc",
+        title: "Pin",
+        cited_ids: ["S-1", "S-1", "R-1"],
+        created_at: "2026-01-01T00:00:00Z",
+        attachments: [
+          {
+            id: "att-1",
+            pin_id: "pin-1",
+            filename: "evidence.pdf",
+            mime: "application/pdf",
+            size: 3,
+            sha256: sha,
+            created_at: "2026-01-01T00:00:00Z",
+          },
+        ],
+      },
+      {
+        id: "pin-2",
+        kind: "doc",
+        title: "Pin2",
+        cited_ids: ["R-1"],
+        created_at: "2026-01-01T00:00:00Z",
+        attachments: [],
+      },
+    ]);
+
+    expect(input.cited_ids.sort()).toEqual(["R-1", "S-1"]);
+    expect(input.attachment_sha256).toEqual([sha]);
+  });
+
   test("export ZIP includes bundle.json + N attachments", async () => {
     const bytes = new Uint8Array([1, 2, 3]).buffer;
     const sha = await sha256ArrayBuffer(bytes);
@@ -60,6 +97,37 @@ describe("audit zip exporter/importer", () => {
     expect(zip.file("bundle.json")).toBeTruthy();
     const attachmentFiles = Object.keys(zip.files).filter((p) => p.startsWith("attachments/att-1__"));
     expect(attachmentFiles).toHaveLength(1);
+  });
+
+  test("export ZIP includes runs.json when runs exist", async () => {
+    window.localStorage.clear();
+    saveVerificationRuns("AR-ACM0003", "v02-0", [
+      {
+        id: "run-1",
+        method: { code: "AR-ACM0003", version: "v02-0" },
+        cited_ids: ["S-1"],
+        attachment_sha256: [],
+        provider: "geovista",
+        status: "ok",
+        summary: "Verified",
+        result_json: { ok: true },
+        created_at: "2026-01-01T00:00:00Z",
+      },
+    ]);
+
+    const bundle = await buildProofBundleV1({
+      code: "AR-ACM0003",
+      version: "v02-0",
+      source: "Article6 Methodologies",
+      provenance: {},
+      rules: [],
+      sections: [],
+      evidence_pins: [],
+    });
+
+    const zipBytes = await exportAuditZipFromStorage(bundle);
+    const zip = await JSZip.loadAsync(zipBytes);
+    expect(zip.file("runs.json")).toBeTruthy();
   });
 
   test("import ZIP rejects when an attachment hash mismatches", async () => {
@@ -158,5 +226,43 @@ describe("audit zip exporter/importer", () => {
     const stored = await getAttachmentBytes("att-zip-1");
     expect(stored).not.toBeNull();
     expect(Array.from(new Uint8Array(stored!))).toEqual(Array.from(new Uint8Array(bytes)));
+  });
+
+  test("import ZIP restores verification runs into localStorage", async () => {
+    window.localStorage.clear();
+
+    saveVerificationRuns("AR-ACM0003", "v02-0", [
+      {
+        id: "run-restore-1",
+        method: { code: "AR-ACM0003", version: "v02-0" },
+        cited_ids: ["S-1"],
+        attachment_sha256: ["sha"],
+        provider: "geovista",
+        status: "warn",
+        summary: "Needs review",
+        result_json: { status: "needs_review" },
+        created_at: "2026-01-01T00:00:00Z",
+      },
+    ]);
+
+    const bundle = await buildProofBundleV1({
+      code: "AR-ACM0003",
+      version: "v02-0",
+      source: "Article6 Methodologies",
+      provenance: {},
+      rules: [],
+      sections: [],
+      evidence_pins: [],
+    });
+
+    const zipBytes = await exportAuditZipFromStorage(bundle);
+
+    const file = new File([zipBytes], "audit.zip", { type: "application/zip" });
+    const res = await importProofBundleFile(file, { code: "AR-ACM0003", version: "v02-0" });
+    expect(res.ok).toBe(true);
+
+    const runs = loadVerificationRuns("AR-ACM0003", "v02-0");
+    expect(runs).toHaveLength(1);
+    expect(runs[0]?.id).toBe("run-restore-1");
   });
 });

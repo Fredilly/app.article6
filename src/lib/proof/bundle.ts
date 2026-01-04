@@ -31,7 +31,7 @@ export type ProofBundleV1 = {
   evidence_pins?: EvidencePin[];
   evidence_attachments?: EvidenceAttachment[];
   evidence_items?: ProofEvidenceItem[];
-  integrity: { sha256: string; attachments?: Array<{ id: string; sha256: string }> };
+  integrity: { sha256: string; attachments?: Array<{ id: string; sha256: string }>; runs_sha256?: string };
 };
 
 export type ProofBundleIntegrityCheck =

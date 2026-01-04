@@ -1,9 +1,10 @@
 import JSZip from "jszip";
-import type { EvidenceAttachment, EvidencePin } from "@/lib/proofMap/types";
+import type { EvidenceAttachment, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import type { ProofBundleV1 } from "@/lib/proof/bundle";
-import { isProofBundleV1, verifyProofBundleIntegrity } from "@/lib/proof/bundle";
-import { sha256ArrayBuffer } from "@/lib/proof/hash";
+import { canonicalizeProofBundleForHash, isProofBundleV1, sha256Hex, verifyProofBundleIntegrity } from "@/lib/proof/bundle";
+import { sha256ArrayBuffer, sha256Text } from "@/lib/proof/hash";
 import { getAttachmentBytes, putAttachmentBytes } from "@/lib/proofMap/attachments";
+import { loadVerificationRuns } from "@/lib/proofMap/storage";
 
 function safeFilename(value: string): string {
   const trimmed = (value ?? "").trim() || "file";
@@ -28,9 +29,13 @@ function bundleAttachments(bundle: ProofBundleV1): EvidenceAttachment[] {
 export async function buildAuditZipBytes(input: {
   bundle: ProofBundleV1;
   attachments: Array<{ id: string; filename: string; bytes: ArrayBuffer }>;
+  runs?: VerificationRun[];
 }): Promise<Uint8Array> {
   const zip = new JSZip();
   zip.file("bundle.json", JSON.stringify(input.bundle, null, 2));
+  if (input.runs && input.runs.length) {
+    zip.file("runs.json", JSON.stringify(input.runs, null, 2));
+  }
   for (const att of input.attachments) {
     zip.file(`attachments/${att.id}__${safeFilename(att.filename)}`, att.bytes);
   }
@@ -45,11 +50,35 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
     if (!bytes) throw new Error(`Missing attachment bytes for ${meta.filename} (${meta.id}).`);
     payload.push({ id: meta.id, filename: meta.filename, bytes });
   }
-  return await buildAuditZipBytes({ bundle, attachments: payload });
+
+  const methodCode = bundle.method.code;
+  const version = bundle.method.version;
+  const runs = loadVerificationRuns(methodCode, version);
+  const runsText = runs.length ? JSON.stringify(runs, null, 2) : "";
+  const runs_sha256 = runsText ? await sha256Text(runsText) : undefined;
+
+  const bundleWithRunsIntegrity: ProofBundleV1 = runs_sha256
+    ? { ...bundle, integrity: { ...bundle.integrity, runs_sha256 } }
+    : bundle;
+  if (runs_sha256) {
+    const canonical = canonicalizeProofBundleForHash(bundleWithRunsIntegrity);
+    bundleWithRunsIntegrity.integrity.sha256 = await sha256Hex(canonical);
+  }
+
+  return await buildAuditZipBytes({
+    bundle: bundleWithRunsIntegrity,
+    attachments: payload,
+    runs: runs.length ? runs : undefined,
+  });
 }
 
 export type AuditZipReadResult =
-  | { ok: true; bundle: ProofBundleV1; attachments: Array<{ meta: EvidenceAttachment; bytes: ArrayBuffer }> }
+  | {
+      ok: true;
+      bundle: ProofBundleV1;
+      attachments: Array<{ meta: EvidenceAttachment; bytes: ArrayBuffer }>;
+      runs: VerificationRun[];
+    }
   | { ok: false; message: string };
 
 export async function readAuditZipBytes(zipBytes: ArrayBuffer | Uint8Array): Promise<AuditZipReadResult> {
@@ -95,7 +124,23 @@ export async function readAuditZipBytes(zipBytes: ArrayBuffer | Uint8Array): Pro
       attachments.push({ meta, bytes });
     }
 
-    return { ok: true, bundle: parsed, attachments };
+    const runsFile = zip.file("runs.json");
+    const integrityRunsSha =
+      parsed.integrity && typeof parsed.integrity === "object"
+        ? (parsed.integrity as { runs_sha256?: string }).runs_sha256
+        : undefined;
+    const runsText = runsFile ? await runsFile.async("text") : "";
+    if (integrityRunsSha && !runsFile) {
+      return { ok: false, message: "runs.json missing from zip." };
+    }
+    if (runsFile && integrityRunsSha) {
+      const actualRunsSha = await sha256Text(runsText);
+      if (actualRunsSha !== integrityRunsSha) return { ok: false, message: "Runs integrity check failed." };
+    }
+    const parsedRuns: unknown = runsText ? JSON.parse(runsText) : [];
+    const runs = Array.isArray(parsedRuns) ? (parsedRuns as VerificationRun[]) : [];
+
+    return { ok: true, bundle: parsed, attachments, runs };
   } catch (e) {
     return { ok: false, message: e instanceof Error ? e.message : String(e) };
   }
@@ -109,4 +154,3 @@ export async function writeAuditZipToStorage(input: {
     await putAttachmentBytes(meta.id, bytes);
   }
 }
-
