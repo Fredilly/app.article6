@@ -1,6 +1,7 @@
 import type { PickedProvenance } from "@/lib/trustFormat";
-import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import type { AOI, EvidenceAttachment, EvidencePin } from "@/lib/proofMap/types";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
+import { sha256Text } from "@/lib/proof/hash";
 
 export type ProofEvidenceItem = {
   id: string;
@@ -28,8 +29,9 @@ export type ProofBundleV1 = {
   };
   aoi?: AOI | null;
   evidence_pins?: EvidencePin[];
+  evidence_attachments?: EvidenceAttachment[];
   evidence_items?: ProofEvidenceItem[];
-  integrity: { sha256: string };
+  integrity: { sha256: string; attachments?: Array<{ id: string; sha256: string }> };
 };
 
 export type ProofBundleIntegrityCheck =
@@ -122,28 +124,13 @@ function canonicalizeValue(value: unknown): unknown {
 
 export function canonicalizeProofBundleForHash(bundle: Omit<ProofBundleV1, "integrity"> & { integrity?: unknown }): string {
   const withoutSha: Record<string, unknown> = { ...(bundle as Record<string, unknown>) };
-  withoutSha.integrity = {};
+  const rawIntegrity = (withoutSha.integrity ?? {}) as Record<string, unknown>;
+  withoutSha.integrity = { ...rawIntegrity, sha256: "" };
   return JSON.stringify(canonicalizeValue(withoutSha));
 }
 
 export async function sha256Hex(input: string): Promise<string> {
-  const data =
-    typeof globalThis.TextEncoder !== "undefined"
-      ? new globalThis.TextEncoder().encode(input)
-      : // Node/Jest fallback (Buffer exists server-side).
-        new Uint8Array(Buffer.from(input, "utf8"));
-  if (globalThis.crypto?.subtle?.digest) {
-    const digest = await globalThis.crypto.subtle.digest("SHA-256", data);
-    const bytes = new Uint8Array(digest);
-    return Array.from(bytes)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-  }
-
-  // Fallback for environments without WebCrypto (should be rare).
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const nodeCrypto = require("crypto") as typeof import("crypto");
-  return nodeCrypto.createHash("sha256").update(Buffer.from(data)).digest("hex");
+  return sha256Text(input);
 }
 
 export function isProofBundleV1(value: unknown): value is ProofBundleV1 {
@@ -180,6 +167,17 @@ export async function buildProofBundleV1(input: {
 }): Promise<ProofBundleV1> {
   const exported_at = nowIso();
   const evidence_pins = input.evidence_pins && input.evidence_pins.length ? input.evidence_pins : undefined;
+  const evidence_attachments = evidence_pins
+    ? (() => {
+        const all: EvidenceAttachment[] = [];
+        for (const pin of evidence_pins) {
+          for (const attachment of pin.attachments ?? []) all.push(attachment);
+        }
+        if (!all.length) return undefined;
+        return [...all].sort((a, b) => a.id.localeCompare(b.id));
+      })()
+    : undefined;
+  const integrityAttachments = evidence_attachments?.map((att) => ({ id: att.id, sha256: att.sha256 }));
   const evidence_items = evidence_pins
     ? buildEvidenceSnapshot({
         methodCode: input.code,
@@ -208,8 +206,9 @@ export async function buildProofBundleV1(input: {
     },
     aoi: input.aoi ?? undefined,
     evidence_pins,
+    evidence_attachments,
     evidence_items,
-    integrity: { sha256: "" },
+    integrity: { sha256: "", attachments: integrityAttachments },
   };
 
   const canonical = canonicalizeProofBundleForHash(bundle);

@@ -6,6 +6,7 @@ import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
+import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
 
 type ProofMapTabProps = {
   aoi: AOI | null;
@@ -13,11 +14,31 @@ type ProofMapTabProps = {
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
   onRemoveAoi: () => void;
+  onSetEvidencePins: (pins: EvidencePin[]) => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
 };
 
 function formatNum(value: number): string {
   return Number.isFinite(value) ? value.toFixed(2) : "—";
+}
+
+function formatBytes(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  let bytes = value;
+  let unit = 0;
+  while (bytes >= 1024 && unit < units.length - 1) {
+    bytes /= 1024;
+    unit += 1;
+  }
+  const rounded = unit === 0 ? `${Math.round(bytes)}` : bytes.toFixed(1);
+  return `${rounded} ${units[unit]}`;
+}
+
+function shortSha(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.length <= 12) return trimmed;
+  return `${trimmed.slice(0, 10)}…${trimmed.slice(-2)}`;
 }
 
 export default function ProofMapTab({
@@ -26,6 +47,7 @@ export default function ProofMapTab({
   evidenceSnapshots,
   onSetAoi,
   onRemoveAoi,
+  onSetEvidencePins,
   onNavigateEvidence,
 }: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
@@ -149,10 +171,48 @@ export default function ProofMapTab({
             {evidencePins.length ? (
               evidencePins.map((pin) => (
                 <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
-                  <div className="mt-1 text-xs text-slate-500">{pin.created_at}</div>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
+                      <div className="mt-1 text-xs text-slate-500">{pin.created_at}</div>
+                    </div>
+                    <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                      Attach file
+                      <input
+                        type="file"
+                        accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={async (event) => {
+                          const file = event.target.files?.[0];
+                          event.target.value = "";
+                          if (!file) return;
+                          setError(null);
+                          try {
+                            const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
+                            if (!result.ok) {
+                              setError(result.message);
+                              return;
+                            }
+                            onSetEvidencePins(
+                              evidencePins.map((existing) =>
+                                existing.id === pin.id
+                                  ? {
+                                      ...existing,
+                                      attachments: [...(existing.attachments ?? []), result.attachment],
+                                    }
+                                  : existing,
+                              ),
+                            );
+                            showToast("Attachment saved");
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : String(e));
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {pin.cited_ids.map((id) => {
+                    {(pin.cited_ids ?? []).map((id) => {
                       const type = kindFromCitedId(id);
                       return (
                         <button
@@ -173,6 +233,50 @@ export default function ProofMapTab({
                       );
                     })}
                   </div>
+                  {(pin.attachments ?? []).length ? (
+                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        Attachments
+                      </div>
+                      <div className="grid gap-1">
+                        {(pin.attachments ?? []).map((att) => (
+                          <div key={att.id} className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="truncate text-xs font-semibold text-slate-800">
+                                {att.filename} <span className="font-normal text-slate-500">({formatBytes(att.size)})</span>
+                              </div>
+                              <div className="font-mono text-[11px] text-slate-600">{shortSha(att.sha256)}</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={async () => {
+                                setError(null);
+                                try {
+                                  await deleteAttachmentBytes(att.id);
+                                } catch {
+                                  // ignore (metadata removal still matters)
+                                }
+                                onSetEvidencePins(
+                                  evidencePins.map((existing) =>
+                                    existing.id === pin.id
+                                      ? {
+                                          ...existing,
+                                          attachments: (existing.attachments ?? []).filter((item) => item.id !== att.id),
+                                        }
+                                      : existing,
+                                  ),
+                                );
+                                showToast("Attachment removed");
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               ))
             ) : (

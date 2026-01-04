@@ -9,6 +9,16 @@ export type AOI = {
 
 export type EvidencePinKind = "photo" | "doc" | "note";
 
+export type EvidenceAttachment = {
+  id: string;
+  pin_id: string;
+  filename: string;
+  mime: string;
+  size: number;
+  sha256: string;
+  created_at: string;
+};
+
 export type EvidencePin = {
   id: string;
   kind: EvidencePinKind;
@@ -16,6 +26,7 @@ export type EvidencePin = {
   aoi_id?: string | null;
   cited_ids: string[];
   location?: { lng: number; lat: number };
+  attachments?: EvidenceAttachment[];
   created_at: string;
 };
 
@@ -23,4 +34,3 @@ export type ProofMapState = {
   aoi: AOI | null;
   evidence_pins: EvidencePin[];
 };
-

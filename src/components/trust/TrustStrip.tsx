@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { extractPackId } from "@/lib/packId";
 import { formatIso, pickProvenanceFields, shortSha } from "@/lib/trustFormat";
-import { importProofBundleText } from "@/lib/proof/import";
+import { importProofBundleFile } from "@/lib/proof/import";
 import { useRouter } from "next/navigation";
 
 type TrustStripProps = {
@@ -336,15 +336,14 @@ export default function TrustStrip({
             Import bundle
             <input
               type="file"
-              accept=".json,.bundle.json,application/json"
+              accept=".json,.bundle.json,.zip,application/json,application/zip"
               className="hidden"
               onChange={async (event) => {
                 const file = event.target.files?.[0];
                 event.target.value = "";
                 if (!file) return;
-                const text = await file.text();
                 const current = { code: (methodCode ?? "").trim(), version: (version ?? "").trim() };
-                const result = await importProofBundleText(text, current);
+                const result = await importProofBundleFile(file, current);
                 if (result.ok) {
                   window.dispatchEvent(new Event("proofbundle:imported"));
                   setImportStatus({ kind: "idle" });
@@ -352,7 +351,8 @@ export default function TrustStrip({
                 }
 
                 if (result.code === "SWITCH_REQUIRED" && result.target) {
-                  setImportStatus({ kind: "switch", message: result.message, target: result.target, bundleText: text });
+                  const bundleText = file.name.toLowerCase().endsWith(".zip") ? undefined : await file.text();
+                  setImportStatus({ kind: "switch", message: result.message, target: result.target, bundleText });
                   return;
                 }
 

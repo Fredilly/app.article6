@@ -903,6 +903,7 @@ export default function MethodDetailPane({
           evidenceSnapshots={evidenceSnapshots}
           onSetAoi={setAoiAndPersist}
           onRemoveAoi={() => setAoiAndPersist(null)}
+          onSetEvidencePins={setEvidencePinsAndPersist}
           onNavigateEvidence={async (type, id) => {
             if (type === "rule") return await navigateToRule(id);
             if (type === "section") return await navigateToSection(id);
