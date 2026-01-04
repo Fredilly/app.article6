@@ -278,6 +278,7 @@ export default function ProofMapTab({
         aoi={aoi}
         pins={evidencePins}
         stacEvidence={currentStacEvidence?.fc ?? null}
+        stacEvidenceRunId={currentStacEvidence?.runId ?? null}
         selectedStacItemId={selectedStacItemId}
         onSelectStacItemId={onSelectStacItemId}
         onMapReady={(map) => {
