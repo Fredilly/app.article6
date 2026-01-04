@@ -10,7 +10,7 @@ describe("extractStacArtifacts", () => {
     expect(out.stac_evidence_geojson.features).toHaveLength(0);
   });
 
-  test("handles missing geometry using bbox centroid", () => {
+  test("handles missing geometry using bbox polygon", () => {
     const runsForAoi: VerificationRun[] = [
       {
         id: "run-1",
@@ -34,7 +34,7 @@ describe("extractStacArtifacts", () => {
 
     const out = extractStacArtifacts({ runsForAoi });
     expect(out.stac_item_count).toBe(1);
-    expect(out.stac_evidence_geojson.features[0]?.geometry?.type).toBe("Point");
+    expect(out.stac_evidence_geojson.features[0]?.geometry?.type).toBe("Polygon");
   });
 
   test("stac_item_count matches raw items length even when evidence has no geometry", () => {

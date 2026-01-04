@@ -67,6 +67,60 @@ describe("/api/stac/search route", () => {
     expect(body.bbox).toBeUndefined();
   });
 
+  it("returns items with geometry/bbox and lightweight properties", async () => {
+    process.env.STAC_BASE_URL = "https://stac.example";
+    const fetchMock = jest.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              id: "S2A_123",
+              bbox: [0, 0, 1, 1],
+              geometry: { type: "Polygon", coordinates: [[[0, 0],[0, 1],[1, 1],[1, 0],[0, 0]]] },
+              properties: { datetime: "2026-01-01T00:00:00Z", "eo:cloud_cover": 7.5 },
+              links: [{ rel: "self", href: "https://example/items/S2A_123" }],
+              assets: { thumbnail: { href: "https://example/thumb.jpg", type: "image/jpeg" } },
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/geo+json" },
+        },
+      ),
+    );
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const polygon = {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [[[0, 0],[0, 1],[1, 1],[1, 0],[0, 0]]],
+      },
+      properties: {},
+    };
+    const req = new Request("http://localhost/api/stac/search", {
+      method: "POST",
+      body: JSON.stringify({ aoi_geojson: polygon }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const res = await POST(req);
+    expect(res.ok).toBe(true);
+    const payload = await res.json();
+    expect(payload.ok).toBe(true);
+    expect(payload.items).toHaveLength(1);
+    expect(payload.items[0]).toMatchObject({
+      id: "S2A_123",
+      datetime: "2026-01-01T00:00:00Z",
+      cloud_cover: 7.5,
+      bbox: [0, 0, 1, 1],
+      geometry: { type: "Polygon" },
+    });
+  });
+
   it("maps non-2xx upstream to ok:false with code", async () => {
     process.env.STAC_BASE_URL = "https://stac.example";
     const fetchMock = jest.fn().mockResolvedValue(new Response(JSON.stringify({ error: "nope" }), { status: 500 }));

@@ -6,6 +6,9 @@ import { z } from "zod";
 type StacItemSummary = {
   id: string;
   datetime?: string;
+  cloud_cover?: number;
+  bbox?: [number, number, number, number];
+  geometry?: PolygonLike;
   collection?: string;
   links?: Array<{ rel?: string; href?: string; type?: string }>;
   assets?: Record<string, { href?: string; type?: string }>;
@@ -189,6 +192,12 @@ export async function POST(req: Request) {
     const collection = typeof record.collection === "string" ? record.collection : undefined;
     const props = record.properties && typeof record.properties === "object" ? (record.properties as Record<string, unknown>) : undefined;
     const datetimeValue = props && typeof props.datetime === "string" ? props.datetime : undefined;
+    const cloudCoverValue = props && typeof props["eo:cloud_cover"] === "number" && Number.isFinite(props["eo:cloud_cover"]) ? (props["eo:cloud_cover"] as number) : undefined;
+    const bboxValue =
+      Array.isArray(record.bbox) && record.bbox.length === 4 && record.bbox.every(isFiniteNumber)
+        ? (record.bbox as [number, number, number, number])
+        : undefined;
+    const geometryValue = extractPolygonGeometry(record.geometry) ?? undefined;
     const links = Array.isArray(record.links)
       ? (record.links as unknown[])
           .filter((v) => v && typeof v === "object")
@@ -198,7 +207,7 @@ export async function POST(req: Request) {
           })
       : undefined;
     const assets = record.assets && typeof record.assets === "object" ? (record.assets as Record<string, { href?: string; type?: string }>) : undefined;
-    items.push({ id, datetime: datetimeValue, collection, links, assets });
+    items.push({ id, datetime: datetimeValue, cloud_cover: cloudCoverValue, bbox: bboxValue, geometry: geometryValue, collection, links, assets });
   }
 
   return NextResponse.json({
