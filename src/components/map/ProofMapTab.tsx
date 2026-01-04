@@ -230,6 +230,18 @@ export default function ProofMapTab({
 
   useEffect(() => {
     const map = mapRef.current;
+    if (!map) return;
+    requestAnimationFrame(() => {
+      try {
+        map.resize?.();
+      } catch {
+        // ignore
+      }
+    });
+  }, [mapReadyTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
     if (!map || !aoi?.bbox) return;
 
     const fit = () => {
