@@ -7,7 +7,7 @@ import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
-import { createQueuedVerificationRun, runGeoVistaVerification } from "@/lib/proofMap/verificationRuns";
+import { createQueuedVerificationRun, isDuplicateRunAttempt, runGeoVistaVerification } from "@/lib/proofMap/verificationRuns";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -46,6 +46,13 @@ function shortSha(value: string): string {
   return `${trimmed.slice(0, 10)}…${trimmed.slice(-2)}`;
 }
 
+function formatLocalDateTime(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
+}
+
 function prettyJson(value: unknown): string {
   try {
     return JSON.stringify(value ?? null, null, 2);
@@ -79,6 +86,7 @@ export default function ProofMapTab({
   const [toast, setToast] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -209,15 +217,36 @@ export default function ProofMapTab({
               <button
                 type="button"
                 className="w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={!aoi || !methodCode.trim() || !version.trim() || !evidencePins.some((pin) => (pin.cited_ids ?? []).length)}
+                disabled={
+                  isRunning ||
+                  !aoi ||
+                  !methodCode.trim() ||
+                  !version.trim() ||
+                  !evidencePins.some((pin) => (pin.cited_ids ?? []).length)
+                }
                 onClick={async () => {
                   if (!aoi) return;
                   setError(null);
+                  if (isRunning) return;
                   const queued = createQueuedVerificationRun({
                     method: { code: methodCode, version },
                     aoi,
                     pins: evidencePins,
                   });
+                  const duplicate = await isDuplicateRunAttempt({
+                    latest: verificationRuns[0],
+                    next: {
+                      aoi_id: queued.aoi_id ?? "",
+                      cited_ids: queued.cited_ids ?? [],
+                      attachment_sha256: queued.attachment_sha256 ?? [],
+                    },
+                  });
+                  if (duplicate) {
+                    showToast("Already ran this input.");
+                    return;
+                  }
+
+                  setIsRunning(true);
                   onSetVerificationRuns([queued, ...verificationRuns]);
                   try {
                     const res = await runGeoVistaVerification({
@@ -244,10 +273,12 @@ export default function ProofMapTab({
                     };
                     onSetVerificationRuns([updated, ...verificationRuns]);
                     setError(message);
+                  } finally {
+                    setIsRunning(false);
                   }
                 }}
               >
-                Run verification
+                {isRunning ? "Running…" : "Run verification"}
               </button>
               {!evidencePins.some((pin) => (pin.cited_ids ?? []).length) ? (
                 <div className="mt-1 text-[11px] text-slate-500">Add a pin with cited ids to enable.</div>
@@ -269,7 +300,7 @@ export default function ProofMapTab({
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
-                      <div className="mt-1 text-xs text-slate-500">{pin.created_at}</div>
+                      <div className="mt-1 text-xs text-slate-500">{formatLocalDateTime(pin.created_at)}</div>
                     </div>
                     <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
                       Attach file
@@ -392,7 +423,7 @@ export default function ProofMapTab({
                       <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
                         {pill.label}
                       </span>
-                      <span className="text-xs text-slate-500">{run.created_at}</span>
+                      <span className="text-xs text-slate-500">{formatLocalDateTime(run.created_at)}</span>
                     </div>
                     {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
                     {run.result_json ? (

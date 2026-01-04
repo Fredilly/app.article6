@@ -92,7 +92,9 @@ function normalizeArtifacts(value: unknown): GeoVistaArtifact[] {
 function normalizeGeoVistaResponse(payload: unknown): GeoVistaVerification {
   if (!payload || typeof payload !== "object") {
     return {
+      ok: false,
       status: "error",
+      severity: "fail",
       summary: "GeoVista returned an invalid response.",
       artifacts: [],
       generated_at: nowIso(),
@@ -101,6 +103,8 @@ function normalizeGeoVistaResponse(payload: unknown): GeoVistaVerification {
 
   const record = payload as Record<string, unknown>;
   const status = normalizeStatus(record.status ?? record.verification_status ?? record.verdict);
+  const severity: GeoVistaVerification["severity"] =
+    status === "verified" ? "ok" : status === "needs_review" ? "warn" : status === "not_run" ? "warn" : "fail";
   const summary =
     typeof record.summary === "string"
       ? record.summary
@@ -125,7 +129,7 @@ function normalizeGeoVistaResponse(payload: unknown): GeoVistaVerification {
 
   const provenance = record.provenance && typeof record.provenance === "object" ? (record.provenance as Record<string, unknown>) : undefined;
 
-  return { status, summary, artifacts, generated_at, provenance };
+  return { ok: true, status, severity, summary, artifacts, generated_at, provenance };
 }
 
 export async function POST(req: Request) {

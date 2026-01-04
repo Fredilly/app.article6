@@ -6,8 +6,10 @@ export type GeoVistaArtifact = {
 };
 
 export type GeoVistaVerification = {
+  ok?: boolean;
   mode?: "mock" | "real";
   status: "not_run" | "verified" | "needs_review" | "error";
+  severity?: "ok" | "warn" | "fail";
   summary: string;
   artifacts: GeoVistaArtifact[];
   generated_at: string;
