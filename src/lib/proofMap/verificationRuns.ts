@@ -64,6 +64,29 @@ export function splitRunsByAoiFingerprint(input: {
   return { current, stale };
 }
 
+export function runsForCurrentAoi(input: {
+  runs: VerificationRun[];
+  currentAoiFingerprint: string | null;
+}): VerificationRun[] {
+  if (!input.currentAoiFingerprint) return [];
+  return (input.runs ?? []).filter((run) => run.aoi_fingerprint === input.currentAoiFingerprint);
+}
+
+export function shouldDisableRunVerification(input: {
+  isRunning: boolean;
+  aoi: AOI | null;
+  currentAoiFingerprint: string | null;
+  methodCode: string;
+  version: string;
+  evidencePins: EvidencePin[];
+}): boolean {
+  if (input.isRunning) return true;
+  if (!input.aoi) return true;
+  if (!input.currentAoiFingerprint) return true;
+  if (!input.methodCode.trim() || !input.version.trim()) return true;
+  return !input.evidencePins.some((pin) => (pin.cited_ids ?? []).length);
+}
+
 export function createQueuedVerificationRun(input: {
   method: { code: string; version: string };
   aoi: AOI;
