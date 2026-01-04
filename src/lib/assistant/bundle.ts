@@ -56,16 +56,7 @@ export function buildAssistantBundle(input: {
         })()
       : undefined;
 
-  const evidencePins =
-    input.evidencePins && input.evidencePins.length
-      ? input.evidencePins
-          .map((pin) => {
-            const next = (pin.cited_ids ?? []).filter((id) => citedIds.includes(id));
-            return { ...pin, cited_ids: next };
-          })
-          .filter((pin) => (pin.cited_ids ?? []).length > 0)
-      : undefined;
-  const normalizedPins = evidencePins && evidencePins.length ? evidencePins : undefined;
+  const evidencePins = input.evidencePins && input.evidencePins.length ? input.evidencePins : undefined;
 
   return {
     answer: input.answer,
@@ -74,6 +65,6 @@ export function buildAssistantBundle(input: {
     provenance: input.provenance,
     geovista,
     aoi: input.aoi ?? undefined,
-    evidence_pins: normalizedPins,
+    evidence_pins: evidencePins,
   };
 }

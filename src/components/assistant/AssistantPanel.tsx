@@ -11,6 +11,7 @@ import GeoVistaCard from "@/components/assistant/GeoVistaCard";
 import { getVerification } from "@/services/geovista/client";
 import type { GeoVistaVerification } from "@/services/geovista/types";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import { buildEvidencePin, dedupeStrings } from "@/lib/proofMap/pins";
 
 type RuleSummary = { id: string; title: string; snippet: string };
 type SectionSummary = { id: string; title: string; textSnippet?: string };
@@ -205,13 +206,12 @@ export default function AssistantPanel(props: AssistantPanelProps) {
 
   const evidenceRequired = answer.evidence.length === 0;
   const geovistaEnabled = process.env.NEXT_PUBLIC_GEOVISTA_ENABLED === "true";
-  const currentEvidenceIds = useMemo(
-    () =>
-      answer.evidence
-        .filter((item) => item.type === "rule" || item.type === "section")
-        .map((item) => item.id),
-    [answer.evidence],
-  );
+  const currentEvidenceIds = useMemo(() => {
+    const ids = answer.evidence
+      .filter((item) => item.type === "rule" || item.type === "section")
+      .map((item) => item.id);
+    return dedupeStrings(ids);
+  }, [answer.evidence]);
 
   useEffect(() => {
     if (!geovistaEnabled) {
@@ -294,17 +294,13 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                 const cited_ids = currentEvidenceIds;
                 if (!cited_ids.length) return;
                 const question = ASSISTANT_QUESTIONS.find((q) => q.id === answer.question_id);
-                const created_at = new Date().toISOString();
-                const pin: EvidencePin = {
-                  id: `pin_${created_at}_${Math.random().toString(16).slice(2)}`,
-                  kind: "note",
+                const pin: EvidencePin = buildEvidencePin({
                   title: question?.label ?? "Assistant evidence",
-                  aoi_id: props.aoi?.id ?? null,
+                  aoi_id: props.aoi?.id ?? undefined,
                   cited_ids,
-                  created_at,
-                };
+                });
                 props.onAddEvidencePin?.(pin);
-                showToast("Added");
+                showToast("Added to map");
               }}
               disabled={!currentEvidenceIds.length}
               title={!currentEvidenceIds.length ? "No evidence to add." : undefined}

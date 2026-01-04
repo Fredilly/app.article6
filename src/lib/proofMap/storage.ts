@@ -1,29 +1,51 @@
-import type { ProofMapState } from "@/lib/proofMap/types";
+import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 
-function keyFor(code: string, version: string): string {
-  return `proofmap:${code}:${version}`;
+function aoiKey(code: string, version: string): string {
+  return `aoi:${code}:${version}`;
 }
 
-export function loadProofMapState(code: string, version: string): ProofMapState {
-  if (typeof window === "undefined") return { aoi: null, evidence_pins: [] };
+function pinsKey(code: string, version: string): string {
+  return `pins:${code}:${version}`;
+}
+
+export function loadAoi(code: string, version: string): AOI | null {
+  if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(keyFor(code, version));
-    if (!raw) return { aoi: null, evidence_pins: [] };
+    const raw = window.localStorage.getItem(aoiKey(code, version));
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== "object") return { aoi: null, evidence_pins: [] };
-    const record = parsed as Record<string, unknown>;
-    const aoi = record.aoi && typeof record.aoi === "object" ? (record.aoi as ProofMapState["aoi"]) : null;
-    const evidence_pins = Array.isArray(record.evidence_pins) ? (record.evidence_pins as ProofMapState["evidence_pins"]) : [];
-    return { aoi: aoi ?? null, evidence_pins };
+    return parsed && typeof parsed === "object" ? (parsed as AOI) : null;
   } catch {
-    return { aoi: null, evidence_pins: [] };
+    return null;
   }
 }
 
-export function saveProofMapState(code: string, version: string, state: ProofMapState) {
+export function saveAoi(code: string, version: string, aoi: AOI | null) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(keyFor(code, version), JSON.stringify(state));
+    if (!aoi) window.localStorage.removeItem(aoiKey(code, version));
+    else window.localStorage.setItem(aoiKey(code, version), JSON.stringify(aoi));
+  } catch {
+    // ignore
+  }
+}
+
+export function loadPins(code: string, version: string): EvidencePin[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(pinsKey(code, version));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as EvidencePin[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function savePins(code: string, version: string, pins: EvidencePin[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(pinsKey(code, version), JSON.stringify(pins));
   } catch {
     // ignore
   }

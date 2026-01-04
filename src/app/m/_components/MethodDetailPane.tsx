@@ -8,7 +8,7 @@ import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
-import { loadProofMapState, saveProofMapState } from "@/lib/proofMap/storage";
+import { loadAoi, loadPins, saveAoi, savePins } from "@/lib/proofMap/storage";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 
 type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
@@ -184,33 +184,26 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!activeVersion) return;
-    const state = loadProofMapState(method.code, activeVersion);
-    setAoi(state.aoi);
-    setEvidencePins(state.evidence_pins ?? []);
+    setAoi(loadAoi(method.code, activeVersion));
+    setEvidencePins(loadPins(method.code, activeVersion));
   }, [activeVersion, method.code]);
-
-  const persistProofMap = useCallback(
-    (next: { aoi: AOI | null; evidence_pins: EvidencePin[] }) => {
-      if (!activeVersion) return;
-      saveProofMapState(method.code, activeVersion, next);
-    },
-    [activeVersion, method.code],
-  );
 
   const setAoiAndPersist = useCallback(
     (nextAoi: AOI | null) => {
       setAoi(nextAoi);
-      persistProofMap({ aoi: nextAoi, evidence_pins: evidencePins });
+      if (!activeVersion) return;
+      saveAoi(method.code, activeVersion, nextAoi);
     },
-    [evidencePins, persistProofMap],
+    [activeVersion, method.code],
   );
 
   const setEvidencePinsAndPersist = useCallback(
     (nextPins: EvidencePin[]) => {
       setEvidencePins(nextPins);
-      persistProofMap({ aoi, evidence_pins: nextPins });
+      if (!activeVersion) return;
+      savePins(method.code, activeVersion, nextPins);
     },
-    [aoi, persistProofMap],
+    [activeVersion, method.code],
   );
 
   useEffect(() => {

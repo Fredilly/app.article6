@@ -170,7 +170,7 @@ describe("buildAssistantBundle", () => {
     expect(bundle.evidence_pins?.[0]?.id).toBe("pin-1");
   });
 
-  test("drops evidence pins with drifted citations", () => {
+  test("includes evidence pins even when citations drift", () => {
     const answer: AssistantAnswer = {
       question_id: "required_data",
       answer_md: "## Answer\nTest",
@@ -195,6 +195,6 @@ describe("buildAssistantBundle", () => {
       ],
     });
 
-    expect(bundle.evidence_pins).toBeUndefined();
+    expect(bundle.evidence_pins?.[0]?.cited_ids).toEqual(["S-999"]);
   });
 });
