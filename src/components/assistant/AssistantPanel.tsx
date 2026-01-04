@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ASSISTANT_QUESTIONS, type AssistantQuestionId } from "@/lib/assistant/questions";
 import { generateAnswer, type AssistantAnswer } from "@/lib/assistant/generateAnswer";
 import { buildProofBundleV1 } from "@/lib/proof/bundle";
+import { exportAuditZipFromStorage } from "@/lib/proof/auditZip";
 import { pickProvenanceFields } from "@/lib/trustFormat";
 import { extractPackId } from "@/lib/packId";
 import GeoVistaCard from "@/components/assistant/GeoVistaCard";
@@ -37,6 +38,18 @@ type AssistantPanelProps = {
 
 function downloadJson(value: unknown, filename: string) {
   const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadBytes(bytes: Uint8Array, filename: string, mime: string) {
+  const blob = new Blob([bytes], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -304,6 +317,39 @@ export default function AssistantPanel(props: AssistantPanelProps) {
               }}
             >
               Export answer
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={async () => {
+                try {
+                  const packId = props.packTag ? extractPackId(props.packTag) : undefined;
+                  const packDigest = pickedProvenance.packSha ?? packId ?? pickedProvenance.packTag ?? undefined;
+
+                  const bundle = await buildProofBundleV1({
+                    program: props.program,
+                    sector: props.sector,
+                    code: props.methodCode,
+                    version: props.version,
+                    source: "Article6 Methodologies",
+                    generated_at: pickedProvenance.generatedAt,
+                    provenance: pickedProvenance,
+                    pack_digest: packDigest,
+                    aoi: props.aoi ?? undefined,
+                    evidence_pins: props.evidencePins ?? undefined,
+                    rules: props.rules,
+                    sections: props.sections,
+                  });
+
+                  const zipBytes = await exportAuditZipFromStorage(bundle);
+                  const filename = `article6__${props.methodCode}__${props.version}__proof.audit.zip`;
+                  downloadBytes(zipBytes, filename, "application/zip");
+                } catch (e) {
+                  showToast(e instanceof Error ? e.message : String(e));
+                }
+              }}
+            >
+              Export ZIP
             </button>
           </div>
         </div>
