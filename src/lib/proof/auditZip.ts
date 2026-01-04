@@ -6,6 +6,9 @@ import { sha256ArrayBuffer, sha256Text } from "@/lib/proof/hash";
 import { canonicalJson } from "@/lib/proof/fingerprints";
 import { getAttachmentBytes, putAttachmentBytes } from "@/lib/proofMap/attachments";
 import { loadVerificationRuns } from "@/lib/proofMap/storage";
+import buildProvenance from "@/lib/export/buildProvenance";
+import extractStacArtifacts from "@/lib/export/extractStacArtifacts";
+import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 
 function safeFilename(value: string): string {
   const trimmed = (value ?? "").trim() || "file";
@@ -31,12 +34,27 @@ export async function buildAuditZipBytes(input: {
   bundle: ProofBundleV1;
   attachments: Array<{ id: string; filename: string; bytes: ArrayBuffer }>;
   runs?: VerificationRun[];
+  verificationSnapshot?: {
+    provenanceText: string;
+    stacItemsJson: unknown;
+    stacEvidenceGeojson: GeoJSON.FeatureCollection;
+  };
 }): Promise<Uint8Array> {
   const zip = new JSZip();
   zip.file("bundle.json", JSON.stringify(input.bundle, null, 2));
   if (input.runs && input.runs.length) {
     zip.file("runs.json", canonicalJson(input.runs));
   }
+
+  const emptyEvidence: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+  const provenanceText = input.verificationSnapshot?.provenanceText ?? buildProvenance({});
+  zip.file("verification/provenance.txt", provenanceText);
+  zip.file("verification/stac_items.json", canonicalJsonStringify(input.verificationSnapshot?.stacItemsJson ?? { items: [] }));
+  zip.file(
+    "verification/stac_evidence.geojson",
+    canonicalJsonStringify(input.verificationSnapshot?.stacEvidenceGeojson ?? emptyEvidence),
+  );
+
   for (const att of input.attachments) {
     zip.file(`attachments/${att.id}__${safeFilename(att.filename)}`, att.bytes);
   }
@@ -58,6 +76,22 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
   const runsText = runs.length ? canonicalJson(runs) : "";
   const runs_sha256 = runsText ? await sha256Text(runsText) : undefined;
 
+  const currentAoiFingerprint = bundle.aoi?.geojson ? await sha256Hex(canonicalJson(bundle.aoi.geojson)) : null;
+  const stac = extractStacArtifacts({ runs, currentAoiFingerprint });
+  const stacEvidence = stac.evidenceGeojson ?? { type: "FeatureCollection", features: [] };
+  const itemCount = stacEvidence.features?.length ?? 0;
+  const provenanceText = buildProvenance({
+    aoi_id: bundle.aoi?.id,
+    aoi_fingerprint: currentAoiFingerprint ?? undefined,
+    methodology_code: methodCode,
+    methodology_version: version,
+    provider: "stac",
+    stac_run_id: stac.runMeta.id,
+    stac_status: stac.runMeta.status,
+    stac_executed_at: stac.runMeta.executed_at,
+    stac_item_count: itemCount,
+  });
+
   const bundleWithRunsIntegrity: ProofBundleV1 = runs_sha256
     ? { ...bundle, integrity: { ...bundle.integrity, runs_sha256 } }
     : bundle;
@@ -70,6 +104,11 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
     bundle: bundleWithRunsIntegrity,
     attachments: payload,
     runs: runs.length ? runs : undefined,
+    verificationSnapshot: {
+      provenanceText,
+      stacItemsJson: stac.itemsJson,
+      stacEvidenceGeojson: stacEvidence,
+    },
   });
 }
 
