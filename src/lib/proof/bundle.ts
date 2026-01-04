@@ -32,6 +32,10 @@ export type ProofBundleV1 = {
   integrity: { sha256: string };
 };
 
+export type ProofBundleIntegrityCheck =
+  | { ok: true; expected: string; actual: string }
+  | { ok: false; expected: string; actual: string };
+
 type RuleSummary = { id: string; title: string; snippet: string };
 type SectionSummary = { id: string; title: string; textSnippet?: string };
 
@@ -123,7 +127,11 @@ export function canonicalizeProofBundleForHash(bundle: Omit<ProofBundleV1, "inte
 }
 
 export async function sha256Hex(input: string): Promise<string> {
-  const data = new TextEncoder().encode(input);
+  const data =
+    typeof globalThis.TextEncoder !== "undefined"
+      ? new globalThis.TextEncoder().encode(input)
+      : // Node/Jest fallback (Buffer exists server-side).
+        new Uint8Array(Buffer.from(input, "utf8"));
   if (globalThis.crypto?.subtle?.digest) {
     const digest = await globalThis.crypto.subtle.digest("SHA-256", data);
     const bytes = new Uint8Array(digest);
@@ -136,6 +144,24 @@ export async function sha256Hex(input: string): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const nodeCrypto = require("crypto") as typeof import("crypto");
   return nodeCrypto.createHash("sha256").update(Buffer.from(data)).digest("hex");
+}
+
+export function isProofBundleV1(value: unknown): value is ProofBundleV1 {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  if (record.bundle_version !== "proof-bundle@1") return false;
+  if (!record.method || typeof record.method !== "object") return false;
+  if (!record.integrity || typeof record.integrity !== "object") return false;
+  const integrity = record.integrity as Record<string, unknown>;
+  return typeof integrity.sha256 === "string" && integrity.sha256.length >= 16;
+}
+
+export async function verifyProofBundleIntegrity(bundle: ProofBundleV1): Promise<ProofBundleIntegrityCheck> {
+  const canonical = canonicalizeProofBundleForHash(bundle);
+  const actual = await sha256Hex(canonical);
+  const expected = bundle.integrity.sha256;
+  if (actual === expected) return { ok: true, expected, actual };
+  return { ok: false, expected, actual };
 }
 
 export async function buildProofBundleV1(input: {
@@ -190,4 +216,3 @@ export async function buildProofBundleV1(input: {
   bundle.integrity.sha256 = await sha256Hex(canonical);
   return bundle;
 }
-
