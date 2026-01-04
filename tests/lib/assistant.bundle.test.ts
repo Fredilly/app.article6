@@ -127,4 +127,74 @@ describe("buildAssistantBundle", () => {
     expect(bundle.geovista?.artifacts[0]?.url).toBe("https://geovista.example/a/1");
     expect(bundle.geovista?.artifacts[0]?.id).toBe("geovista:section:S-1");
   });
+
+  test("includes AOI and evidence pins when present", () => {
+    const answer: AssistantAnswer = {
+      question_id: "required_data",
+      answer_md: "## Answer\nTest",
+      evidence: [{ type: "section", id: "S-1", title: "One", excerpt: "Excerpt", quality: "low" }],
+      assumptions: [],
+      next_actions: [],
+      provenance: {},
+    };
+
+    const bundle = buildAssistantBundle({
+      answer,
+      evidencePayloads: { sections: [], rules: [] },
+      provenance: {},
+      aoi: {
+        id: "aoi-1",
+        name: "Test AOI",
+        geojson: {
+          type: "Feature",
+          geometry: { type: "Polygon", coordinates: [[[0, 0],[0, 1],[1, 1],[1, 0],[0, 0]]] },
+          properties: {},
+        },
+        bbox: [0, 0, 1, 1],
+        area_km2: 1,
+        created_at: "2026-01-01T00:00:00Z",
+      },
+      evidencePins: [
+        {
+          id: "pin-1",
+          kind: "note",
+          title: "Q",
+          aoi_id: "aoi-1",
+          cited_ids: ["S-1"],
+          created_at: "2026-01-01T00:00:00Z",
+        },
+      ],
+    });
+
+    expect(bundle.aoi?.id).toBe("aoi-1");
+    expect(bundle.evidence_pins?.[0]?.id).toBe("pin-1");
+  });
+
+  test("drops evidence pins with drifted citations", () => {
+    const answer: AssistantAnswer = {
+      question_id: "required_data",
+      answer_md: "## Answer\nTest",
+      evidence: [{ type: "section", id: "S-1", title: "One", excerpt: "Excerpt", quality: "low" }],
+      assumptions: [],
+      next_actions: [],
+      provenance: {},
+    };
+
+    const bundle = buildAssistantBundle({
+      answer,
+      evidencePayloads: { sections: [], rules: [] },
+      provenance: {},
+      evidencePins: [
+        {
+          id: "pin-1",
+          kind: "note",
+          title: "Q",
+          cited_ids: ["S-999"],
+          created_at: "2026-01-01T00:00:00Z",
+        },
+      ],
+    });
+
+    expect(bundle.evidence_pins).toBeUndefined();
+  });
 });

@@ -1,6 +1,7 @@
 import type { AssistantAnswer } from "@/lib/assistant/generateAnswer";
 import type { GeoVistaVerification } from "@/services/geovista/types";
 import { buildArtifactsFromEvidenceIds } from "@/services/geovista/artifacts";
+import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 
 export type AssistantEvidencePayloads = {
   sections: unknown[];
@@ -19,6 +20,8 @@ export type AssistantBundle = {
     audit_hashes?: Record<string, string>;
   };
   geovista?: GeoVistaVerification;
+  aoi?: AOI | null;
+  evidence_pins?: EvidencePin[];
 };
 
 export function buildAssistantBundle(input: {
@@ -26,6 +29,8 @@ export function buildAssistantBundle(input: {
   evidencePayloads: AssistantEvidencePayloads;
   provenance: AssistantBundle["provenance"];
   geovista?: GeoVistaVerification;
+  aoi?: AOI | null;
+  evidencePins?: EvidencePin[];
 }): AssistantBundle {
   const citedIds = input.answer.evidence
     .filter((item) => item.type === "rule" || item.type === "section")
@@ -51,11 +56,24 @@ export function buildAssistantBundle(input: {
         })()
       : undefined;
 
+  const evidencePins =
+    input.evidencePins && input.evidencePins.length
+      ? input.evidencePins
+          .map((pin) => {
+            const next = (pin.cited_ids ?? []).filter((id) => citedIds.includes(id));
+            return { ...pin, cited_ids: next };
+          })
+          .filter((pin) => (pin.cited_ids ?? []).length > 0)
+      : undefined;
+  const normalizedPins = evidencePins && evidencePins.length ? evidencePins : undefined;
+
   return {
     answer: input.answer,
     evidence_items: input.answer.evidence,
     evidence_payloads: input.evidencePayloads,
     provenance: input.provenance,
     geovista,
+    aoi: input.aoi ?? undefined,
+    evidence_pins: normalizedPins,
   };
 }
