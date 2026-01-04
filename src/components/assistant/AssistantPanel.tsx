@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ASSISTANT_QUESTIONS, type AssistantQuestionId } from "@/lib/assistant/questions";
 import { generateAnswer, type AssistantAnswer } from "@/lib/assistant/generateAnswer";
@@ -12,7 +12,7 @@ import GeoVistaCard from "@/components/assistant/GeoVistaCard";
 import { getVerification } from "@/services/geovista/client";
 import type { GeoVistaVerification } from "@/services/geovista/types";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
-import { buildEvidencePin, dedupeStrings } from "@/lib/proofMap/pins";
+import { buildEvidencePin, dedupeStrings, evidencePinFingerprint, isDuplicateEvidencePin } from "@/lib/proofMap/pins";
 
 type RuleSummary = { id: string; title: string; snippet: string };
 type SectionSummary = { id: string; title: string; textSnippet?: string };
@@ -156,6 +156,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   const [toast, setToast] = useState<string | null>(null);
   const [geovista, setGeovista] = useState<GeoVistaVerification | null>(null);
   const [geovistaLoading, setGeovistaLoading] = useState(false);
+  const lastPinFingerprintRef = useRef<{ fp: string; atMs: number } | null>(null);
 
   const showToast = useCallback((message: string) => {
     setToast(message);
@@ -273,7 +274,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
             <button
               type="button"
               className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={() => {
+              onClick={async () => {
                 const cited_ids = currentEvidenceIds;
                 if (!cited_ids.length) return;
                 const question = ASSISTANT_QUESTIONS.find((q) => q.id === answer.question_id);
@@ -282,6 +283,21 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                   aoi_id: props.aoi?.id ?? undefined,
                   cited_ids,
                 });
+                const fp = await evidencePinFingerprint({ title: pin.title, cited_ids: pin.cited_ids ?? [] });
+                const last = lastPinFingerprintRef.current;
+                if (last && last.fp === fp && Date.now() - last.atMs < 2_000) {
+                  showToast("Pin already exists.");
+                  return;
+                }
+                const duplicate = await isDuplicateEvidencePin(props.evidencePins ?? [], {
+                  title: pin.title,
+                  cited_ids: pin.cited_ids ?? [],
+                });
+                if (duplicate) {
+                  showToast("Pin already exists.");
+                  return;
+                }
+                lastPinFingerprintRef.current = { fp, atMs: Date.now() };
                 props.onAddEvidencePin?.(pin);
                 showToast("Added to map");
               }}

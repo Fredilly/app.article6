@@ -1,4 +1,5 @@
 import type { EvidencePin } from "@/lib/proofMap/types";
+import { sha256Text } from "@/lib/proof/hash";
 
 export function dedupeStrings(values: string[]): string[] {
   const out: string[] = [];
@@ -41,3 +42,23 @@ export function buildEvidencePin(input: {
   };
 }
 
+function canonicalPinFingerprintInput(input: { title: string; cited_ids: string[] }): string {
+  const cited_ids = dedupeStrings(input.cited_ids).sort((a, b) => a.localeCompare(b));
+  return JSON.stringify({ title: input.title.trim(), cited_ids });
+}
+
+export async function evidencePinFingerprint(input: { title: string; cited_ids: string[] }): Promise<string> {
+  return await sha256Text(canonicalPinFingerprintInput(input));
+}
+
+export async function isDuplicateEvidencePin(
+  existingPins: EvidencePin[],
+  candidate: { title: string; cited_ids: string[] },
+): Promise<boolean> {
+  const candidateFp = await evidencePinFingerprint(candidate);
+  for (const pin of existingPins ?? []) {
+    const fp = await evidencePinFingerprint({ title: pin.title, cited_ids: pin.cited_ids ?? [] });
+    if (fp === candidateFp) return true;
+  }
+  return false;
+}

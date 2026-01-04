@@ -47,8 +47,10 @@ export async function getVerification(
       if (res.status === 501 && code === "GEOVISTA_NOT_CONFIGURED") {
         const artifacts = buildArtifactsFromEvidenceIds(req.cited_ids);
         return {
+          ok: true,
           mode: "mock",
           status: "not_run",
+          severity: "ok",
           summary: `GeoVista enabled (mock). Ready to verify ${artifacts.length} cited item(s).`,
           artifacts,
           generated_at: nowIso(),
@@ -57,8 +59,10 @@ export async function getVerification(
       }
 
       return {
+        ok: false,
         mode: "real",
         status: "error",
+        severity: "fail",
         summary: "GeoVista unavailable.",
         artifacts: [],
         generated_at: nowIso(),
@@ -67,11 +71,13 @@ export async function getVerification(
     }
 
     if (parsed && typeof parsed === "object") {
-      return { ...(parsed as Record<string, unknown>), mode: "real" } as GeoVistaVerification;
+      return { ok: true, ...(parsed as Record<string, unknown>), mode: "real" } as GeoVistaVerification;
     }
     return {
+      ok: false,
       mode: "real",
       status: "error",
+      severity: "fail",
       summary: "GeoVista unavailable.",
       artifacts: [],
       generated_at: nowIso(),
@@ -79,8 +85,10 @@ export async function getVerification(
     };
   } catch (error) {
     return {
+      ok: false,
       mode: "real",
       status: "error",
+      severity: "fail",
       summary: "GeoVista unavailable.",
       artifacts: [],
       generated_at: nowIso(),
