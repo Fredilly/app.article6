@@ -5,7 +5,6 @@ import 'whatwg-fetch';
 if (typeof globalThis.structuredClone !== "function") {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const v8 = require("node:v8") as typeof import("node:v8");
-  // @ts-expect-error - polyfilling for test environment
   globalThis.structuredClone = (value: unknown) => v8.deserialize(v8.serialize(value));
 }
 
