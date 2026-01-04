@@ -22,7 +22,7 @@ describe("normalizeStacItems", () => {
     expect((out.featureCollection.features[0]?.properties as Record<string, unknown> | null)?.id).toBe("scene-1");
   });
 
-  test("missing geometry but has bbox returns centroid point feature", () => {
+  test("missing geometry but has bbox returns a bbox polygon feature", () => {
     const input = {
       items: [
         {
@@ -36,8 +36,16 @@ describe("normalizeStacItems", () => {
     const out = normalizeStacItems(input as unknown);
     expect(out.itemsById["scene-2"]).toBeTruthy();
     expect(out.featureCollection.features).toHaveLength(1);
-    expect(out.featureCollection.features[0]?.geometry?.type).toBe("Point");
-    expect((out.featureCollection.features[0]?.geometry as GeoJSON.Point | null)?.coordinates).toEqual([1, 1]);
+    expect(out.featureCollection.features[0]?.geometry?.type).toBe("Polygon");
+    expect((out.featureCollection.features[0]?.geometry as GeoJSON.Polygon | null)?.coordinates).toEqual([
+      [
+        [0, 0],
+        [0, 2],
+        [2, 2],
+        [2, 0],
+        [0, 0],
+      ],
+    ]);
   });
 
   test("garbage input returns empty without throwing", () => {

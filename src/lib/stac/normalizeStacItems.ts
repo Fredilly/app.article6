@@ -2,6 +2,7 @@ export type StacItemLike = {
   id?: string;
   bbox?: unknown;
   geometry?: unknown;
+  cloud_cover?: unknown;
   properties?: Record<string, unknown>;
   assets?: Record<string, unknown>;
   links?: unknown;
@@ -30,8 +31,12 @@ function parseBbox(value: unknown): [number, number, number, number] | null {
   return [minLng, minLat, maxLng, maxLat];
 }
 
-function centroidFromBbox(bbox: [number, number, number, number]): GeoJSON.Point {
-  return { type: "Point", coordinates: [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2] };
+function polygonFromBbox(bbox: [number, number, number, number]): GeoJSON.Polygon {
+  const [minLng, minLat, maxLng, maxLat] = bbox;
+  return {
+    type: "Polygon",
+    coordinates: [[[minLng, minLat], [minLng, maxLat], [maxLng, maxLat], [maxLng, minLat], [minLng, minLat]]],
+  };
 }
 
 function normalizeStacItemFromFeature(feature: GeoJSON.Feature): StacItemLike & { id: string } {
@@ -43,6 +48,7 @@ function normalizeStacItemFromFeature(feature: GeoJSON.Feature): StacItemLike & 
     id,
     bbox,
     geometry: feature.geometry,
+    cloud_cover: props["eo:cloud_cover"],
     properties: props,
     assets: isRecord(props.assets) ? (props.assets as Record<string, unknown>) : undefined,
     links: props.links,
@@ -59,6 +65,7 @@ function normalizeStacItemFromItem(item: unknown): (StacItemLike & { id: string 
     id,
     bbox: item.bbox,
     geometry: item.geometry,
+    cloud_cover: item.cloud_cover ?? properties["eo:cloud_cover"],
     properties,
     assets: isRecord(item.assets) ? (item.assets as Record<string, unknown>) : undefined,
     links: item.links,
@@ -75,7 +82,7 @@ function itemToFeature(item: StacItemLike & { id: string }): GeoJSON.Feature<Geo
   const datetime = asString(properties.datetime) ?? asString(item.datetime);
   if (datetime) properties.datetime = datetime;
 
-  const cloudCover = properties["eo:cloud_cover"];
+  const cloudCover = asNumber(properties["eo:cloud_cover"]) ?? asNumber(item.cloud_cover);
   if (cloudCover != null) properties["eo:cloud_cover"] = cloudCover;
 
   if (item.links != null) properties.links = item.links;
@@ -92,7 +99,7 @@ function itemToFeature(item: StacItemLike & { id: string }): GeoJSON.Feature<Geo
 
   if (!geometry) {
     const bbox = parseBbox(item.bbox);
-    if (bbox) geometry = centroidFromBbox(bbox);
+    if (bbox) geometry = polygonFromBbox(bbox);
   }
 
   if (!geometry) return null;
