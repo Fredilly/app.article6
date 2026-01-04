@@ -104,14 +104,14 @@ export default function extractStacArtifacts(input: {
 
   const normalized = normalizeStacItems(raw);
   const evidenceGeojson = normalized.featureCollection?.features?.length ? normalized.featureCollection : emptyFeatureCollection();
-  const itemCount = evidenceGeojson.features?.length ?? 0;
 
   if (isRecord(raw) && Array.isArray(raw.items)) {
+    const itemsCount = raw.items.length;
     return {
       stac_run_id: runId,
       stac_status: run.status || "ok",
       stac_executed_at: executedAt,
-      stac_item_count: itemCount,
+      stac_item_count: itemsCount,
       stac_items_json: toJsonSafe(raw),
       stac_evidence_geojson: evidenceGeojson,
     };
@@ -122,7 +122,7 @@ export default function extractStacArtifacts(input: {
     stac_run_id: runId,
     stac_status: run.status || "ok",
     stac_executed_at: executedAt,
-    stac_item_count: itemCount,
+    stac_item_count: items.length,
     stac_items_json: { items },
     stac_evidence_geojson: evidenceGeojson,
   };
