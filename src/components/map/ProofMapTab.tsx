@@ -4,22 +4,33 @@ import { useMemo, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
+import type { ProofEvidenceItem } from "@/lib/proof/bundle";
+import { kindFromCitedId } from "@/lib/proofMap/pins";
 
 type ProofMapTabProps = {
   aoi: AOI | null;
   evidencePins: EvidencePin[];
+  evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
   onRemoveAoi: () => void;
-  onNavigateEvidence: (type: "rule" | "section", id: string) => void;
+  onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
 };
 
 function formatNum(value: number): string {
   return Number.isFinite(value) ? value.toFixed(2) : "—";
 }
 
-export default function ProofMapTab({ aoi, evidencePins, onSetAoi, onRemoveAoi, onNavigateEvidence }: ProofMapTabProps) {
+export default function ProofMapTab({
+  aoi,
+  evidencePins,
+  evidenceSnapshots,
+  onSetAoi,
+  onRemoveAoi,
+  onNavigateEvidence,
+}: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -40,6 +51,34 @@ export default function ProofMapTab({ aoi, evidencePins, onSetAoi, onRemoveAoi, 
         {toast ? (
           <div className="fixed bottom-4 right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
             {toast}
+          </div>
+        ) : null}
+        {snapshot ? (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+                <div className="text-sm font-semibold text-slate-900">Bundle snapshot</div>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => setSnapshot(null)}
+                >
+                  Close
+                </button>
+              </div>
+              <div className="grid gap-2 px-5 py-4">
+                <div className="text-xs font-semibold text-slate-900">
+                  {snapshot.kind}: {snapshot.id}
+                </div>
+                {snapshot.title ? <div className="text-sm text-slate-800">{snapshot.title}</div> : null}
+                {snapshot.snippet ? <div className="text-sm text-slate-700">{snapshot.snippet}</div> : null}
+                {snapshot.stable_ref ? (
+                  <a className="break-words font-mono text-xs text-slate-600 underline" href={snapshot.stable_ref}>
+                    {snapshot.stable_ref}
+                  </a>
+                ) : null}
+              </div>
+            </div>
           </div>
         ) : null}
         <div className="flex items-start justify-between gap-2">
@@ -114,15 +153,19 @@ export default function ProofMapTab({ aoi, evidencePins, onSetAoi, onRemoveAoi, 
                   <div className="mt-1 text-xs text-slate-500">{pin.created_at}</div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {pin.cited_ids.map((id) => {
-                      const type = /^R-/i.test(id) ? "rule" : /^S-/i.test(id) ? "section" : null;
+                      const type = kindFromCitedId(id);
                       return (
                         <button
                           key={`${pin.id}:${id}`}
                           type="button"
                           className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                          onClick={() => {
+                          onClick={async () => {
                             if (!type) return void showToast("Unsupported id");
-                            return void onNavigateEvidence(type, id);
+                            const ok = await onNavigateEvidence(type, id);
+                            if (ok) return;
+                            const matchSnapshot = (evidenceSnapshots ?? []).find((item) => item.id === id);
+                            if (matchSnapshot) setSnapshot(matchSnapshot);
+                            else showToast("Evidence not found");
                           }}
                         >
                           {id}

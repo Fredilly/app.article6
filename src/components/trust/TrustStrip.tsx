@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { extractPackId } from "@/lib/packId";
 import { formatIso, pickProvenanceFields, shortSha } from "@/lib/trustFormat";
+import { importProofBundleText } from "@/lib/proof/import";
+import { useRouter } from "next/navigation";
 
 type TrustStripProps = {
   methodCode?: string;
@@ -142,6 +144,7 @@ export default function TrustStrip({
   provenanceJson,
   manifestRulesPath,
 }: TrustStripProps) {
+  const router = useRouter();
   const provenancePicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
   const repoSha = provenancePicked.sha;
   const repo = provenancePicked.repo;
@@ -162,6 +165,12 @@ export default function TrustStrip({
   const [metaAvailable, setMetaAvailable] = useState(false);
   const [richAvailable, setRichAvailable] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [importStatus, setImportStatus] = useState<{
+    kind: "idle" | "error" | "switch";
+    message?: string;
+    target?: { code: string; version: string };
+    bundleText?: string;
+  }>({ kind: "idle" });
 
   useEffect(() => {
     let cancelled = false;
@@ -323,6 +332,34 @@ export default function TrustStrip({
 
         <div className="ml-auto flex items-center gap-2">
           {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
+          <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+            Import bundle
+            <input
+              type="file"
+              accept=".json,.bundle.json,application/json"
+              className="hidden"
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (!file) return;
+                const text = await file.text();
+                const current = { code: (methodCode ?? "").trim(), version: (version ?? "").trim() };
+                const result = await importProofBundleText(text, current);
+                if (result.ok) {
+                  window.dispatchEvent(new Event("proofbundle:imported"));
+                  setImportStatus({ kind: "idle" });
+                  return;
+                }
+
+                if (result.code === "SWITCH_REQUIRED" && result.target) {
+                  setImportStatus({ kind: "switch", message: result.message, target: result.target, bundleText: text });
+                  return;
+                }
+
+                setImportStatus({ kind: "error", message: result.message });
+              }}
+            />
+          </label>
           <details className="relative">
             <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
               Export
@@ -425,6 +462,45 @@ export default function TrustStrip({
           </details>
         </div>
       </div>
+      {importStatus.kind !== "idle" ? (
+        <div className="mt-2 rounded-xl border border-slate-200 bg-white p-3 text-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className={importStatus.kind === "error" ? "text-rose-700" : "text-slate-700"}>
+              {importStatus.message}
+            </div>
+            <div className="flex items-center gap-2">
+              {importStatus.kind === "switch" && importStatus.target && importStatus.bundleText ? (
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => {
+                    const target = importStatus.target;
+                    if (!target) return;
+                    try {
+                      window.sessionStorage.setItem("pending:proof-bundle@1", importStatus.bundleText ?? "");
+                    } catch {
+                      // ignore
+                    }
+                    router.push(
+                      `/m/${encodeURIComponent(target.code)}/v/${encodeURIComponent(target.version)}`,
+                    );
+                    setImportStatus({ kind: "idle" });
+                  }}
+                >
+                  Switch and load
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setImportStatus({ kind: "idle" })}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

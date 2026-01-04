@@ -8,8 +8,10 @@ import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
-import { loadAoi, loadPins, saveAoi, savePins } from "@/lib/proofMap/storage";
+import { loadAoi, loadEvidenceSnapshots, loadPins, saveAoi, savePins } from "@/lib/proofMap/storage";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import type { ProofEvidenceItem } from "@/lib/proof/bundle";
+import { importProofBundleText } from "@/lib/proof/import";
 
 type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
 
@@ -106,6 +108,7 @@ export default function MethodDetailPane({
 
   const [aoi, setAoi] = useState<AOI | null>(null);
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
+  const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -186,6 +189,7 @@ export default function MethodDetailPane({
     if (!activeVersion) return;
     setAoi(loadAoi(method.code, activeVersion));
     setEvidencePins(loadPins(method.code, activeVersion));
+    setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
   }, [activeVersion, method.code]);
 
   const setAoiAndPersist = useCallback(
@@ -205,6 +209,35 @@ export default function MethodDetailPane({
     },
     [activeVersion, method.code],
   );
+
+  const refreshProofMapFromStorage = useCallback(() => {
+    if (!activeVersion) return;
+    setAoi(loadAoi(method.code, activeVersion));
+    setEvidencePins(loadPins(method.code, activeVersion));
+    setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
+  }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => refreshProofMapFromStorage();
+    window.addEventListener("proofbundle:imported", handler);
+    return () => window.removeEventListener("proofbundle:imported", handler);
+  }, [refreshProofMapFromStorage]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!activeVersion) return;
+    const key = "pending:proof-bundle@1";
+    const pending = window.sessionStorage.getItem(key);
+    if (!pending) return;
+    (async () => {
+      const result = await importProofBundleText(pending, { code: method.code, version: activeVersion });
+      window.sessionStorage.removeItem(key);
+      if (result.ok) {
+        window.dispatchEvent(new Event("proofbundle:imported"));
+      }
+    })();
+  }, [activeVersion, method.code]);
 
   useEffect(() => {
     setSections([]);
@@ -635,23 +668,26 @@ export default function MethodDetailPane({
 
   const navigateToRule = useCallback(
     async (ruleId: string) => {
+      const list = await ensureRulesLoaded();
+      if (!list.some((rule) => rule.id === ruleId)) return false;
       setFocusParam("rules", ruleId);
       setTab("rules");
-      await ensureRulesLoaded();
       window.setTimeout(() => {
         document.getElementById(ruleId)?.scrollIntoView({ block: "start" });
         setHighlightId(ruleId);
         window.setTimeout(() => setHighlightId((current) => (current === ruleId ? null : current)), 1500);
       }, 0);
+      return true;
     },
     [ensureRulesLoaded, setFocusParam],
   );
 
   const navigateToSection = useCallback(
     async (sectionId: string) => {
+      const list = await ensureSectionsLoaded();
+      if (!list.some((section) => section.id === sectionId)) return false;
       setFocusParam("sections", sectionId);
       setTab("sections");
-      await ensureSectionsLoaded();
       setSectionsDeeplinkWarning(null);
       setActiveSectionId(sectionId);
       setSectionParam(sectionId);
@@ -660,6 +696,7 @@ export default function MethodDetailPane({
         setHighlightId(sectionId);
         window.setTimeout(() => setHighlightId((current) => (current === sectionId ? null : current)), 1500);
       }, 0);
+      return true;
     },
     [ensureSectionsLoaded, setFocusParam, setSectionParam],
   );
@@ -863,11 +900,13 @@ export default function MethodDetailPane({
         <ProofMapTab
           aoi={aoi}
           evidencePins={evidencePins}
+          evidenceSnapshots={evidenceSnapshots}
           onSetAoi={setAoiAndPersist}
           onRemoveAoi={() => setAoiAndPersist(null)}
-          onNavigateEvidence={(type, id) => {
-            if (type === "rule") return void navigateToRule(id);
-            if (type === "section") return void navigateToSection(id);
+          onNavigateEvidence={async (type, id) => {
+            if (type === "rule") return await navigateToRule(id);
+            if (type === "section") return await navigateToSection(id);
+            return false;
           }}
         />
       ) : tab === "versions" ? (
