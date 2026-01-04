@@ -29,10 +29,10 @@ export function buildArtifactsFromEvidenceIds(ids: string[]): GeoVistaArtifact[]
 
     out.push({
       id: buildArtifactId(kind, id),
-      label: kind === "rule" ? `Rule ${id}` : `Section ${id}`,
+      kind,
+      ref_id: id,
     });
   }
 
   return out;
 }
-

@@ -47,6 +47,7 @@ describe("buildAssistantBundle", () => {
       evidencePayloads: { sections: [], rules: [] },
       provenance: {},
       geovista: {
+        mode: "real",
         status: "verified",
         summary: "Verified via mock.",
         artifacts: [{ id: "artifact-1" }],
@@ -56,6 +57,7 @@ describe("buildAssistantBundle", () => {
     });
 
     expect(bundle.geovista?.status).toBe("verified");
+    expect(bundle.geovista?.mode).toBe("real");
     expect(bundle.geovista?.artifacts.map((artifact) => artifact.id)).toEqual(["geovista:section:S-1"]);
   });
 
@@ -77,6 +79,7 @@ describe("buildAssistantBundle", () => {
       evidencePayloads: { sections: [], rules: [] },
       provenance: {},
       geovista: {
+        mode: "real",
         status: "verified",
         summary: "Verified via mock.",
         artifacts: [{ id: "geovista:section:S-999" }],
@@ -89,5 +92,39 @@ describe("buildAssistantBundle", () => {
       "geovista:section:S-1",
       "geovista:section:S-2",
     ]);
+  });
+
+  test("preserves artifact urls when ids match expected", () => {
+    const answer: AssistantAnswer = {
+      question_id: "required_data",
+      answer_md: "## Answer\nTest",
+      evidence: [{ type: "section", id: "S-1", title: "One", excerpt: "Excerpt", quality: "low" }],
+      assumptions: [],
+      next_actions: [],
+      provenance: {},
+    };
+
+    const bundle = buildAssistantBundle({
+      answer,
+      evidencePayloads: { sections: [], rules: [] },
+      provenance: {},
+      geovista: {
+        mode: "real",
+        status: "verified",
+        summary: "Verified.",
+        artifacts: [
+          {
+            id: "geovista:section:S-1",
+            kind: "section",
+            ref_id: "S-1",
+            url: "https://geovista.example/a/1",
+          },
+        ],
+        generated_at: "2026-01-01T00:00:00Z",
+      },
+    });
+
+    expect(bundle.geovista?.artifacts[0]?.url).toBe("https://geovista.example/a/1");
+    expect(bundle.geovista?.artifacts[0]?.id).toBe("geovista:section:S-1");
   });
 });

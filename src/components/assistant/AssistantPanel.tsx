@@ -169,6 +169,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   const [active, setActive] = useState<AssistantQuestionId>("purpose_claims");
   const [toast, setToast] = useState<string | null>(null);
   const [geovista, setGeovista] = useState<GeoVistaVerification | null>(null);
+  const [geovistaLoading, setGeovistaLoading] = useState(false);
 
   const showToast = useCallback((message: string) => {
     setToast(message);
@@ -204,6 +205,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   useEffect(() => {
     if (!geovistaEnabled) {
       setGeovista(null);
+      setGeovistaLoading(false);
       return;
     }
     if (!props.methodCode || !props.version) return;
@@ -214,24 +216,28 @@ export default function AssistantPanel(props: AssistantPanelProps) {
 
     if (!cited_ids.length) {
       setGeovista(null);
+      setGeovistaLoading(false);
       return;
     }
 
     let cancelled = false;
     (async () => {
+      setGeovistaLoading(true);
       const verification = await getVerification({
         method_code: props.methodCode,
         method_version: props.version,
         cited_ids,
+        question_id: answer.question_id,
       });
       if (cancelled) return;
       setGeovista(verification);
+      setGeovistaLoading(false);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [answer.evidence, geovistaEnabled, props.methodCode, props.version]);
+  }, [answer.evidence, answer.question_id, geovistaEnabled, props.methodCode, props.version]);
 
   return (
     <div className="mt-4 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 bg-slate-50">
@@ -399,7 +405,9 @@ export default function AssistantPanel(props: AssistantPanelProps) {
             </div>
           </div>
 
-          {geovistaEnabled && geovista ? <GeoVistaCard verification={geovista} /> : null}
+          {geovistaEnabled && (geovistaLoading || geovista) ? (
+            <GeoVistaCard loading={geovistaLoading} verification={geovista} />
+          ) : null}
 
           <div>
             <div className="text-xs font-semibold text-slate-700">Assumptions</div>
