@@ -4,6 +4,7 @@ export type AOI = {
   geojson: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
   bbox: [number, number, number, number];
   area_km2: number;
+  aoi_fingerprint?: string;
   created_at: string;
 };
 
@@ -44,6 +45,7 @@ export type EvidencePin = {
   kind: EvidencePinKind;
   title: string;
   aoi_id?: string | null;
+  aoi_fingerprint?: string;
   cited_ids: string[];
   location?: { lng: number; lat: number };
   attachments?: EvidenceAttachment[];

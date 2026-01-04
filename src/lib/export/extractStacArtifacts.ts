@@ -1,5 +1,4 @@
 import type { VerificationRun } from "@/lib/proofMap/types";
-import selectLatestStacRun from "@/lib/runs/selectLatestStacRun";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -58,45 +57,73 @@ function itemsFromFeatureCollection(fc: GeoJSON.FeatureCollection): Array<Record
 }
 
 export default function extractStacArtifacts(input: {
-  runs: VerificationRun[];
-  currentAoiFingerprint: string | null;
+  runsForAoi: VerificationRun[];
 }): {
-  itemsJson: unknown;
-  evidenceGeojson: GeoJSON.FeatureCollection;
-  runMeta: { id: string; status: string; executed_at: string };
+  stac_run_id: string;
+  stac_status: string;
+  stac_executed_at: string;
+  stac_item_count: number;
+  stac_items_json: unknown;
+  stac_evidence_geojson: GeoJSON.FeatureCollection;
 } {
-  const run = selectLatestStacRun({ runs: input.runs, aoiFingerprint: input.currentAoiFingerprint });
+  const candidates = (input.runsForAoi ?? []).filter((run) => run.provider === "stac" && run.status === "ok");
+  candidates.sort((a, b) => {
+    const aTime = Date.parse(a.ended_at ?? a.created_at);
+    const bTime = Date.parse(b.ended_at ?? b.created_at);
+    const aScore = Number.isFinite(aTime) ? aTime : 0;
+    const bScore = Number.isFinite(bTime) ? bTime : 0;
+    return bScore - aScore;
+  });
+  const run = candidates[0] ?? null;
   if (!run) {
     return {
-      itemsJson: { items: [] },
-      evidenceGeojson: emptyFeatureCollection(),
-      runMeta: { id: "none", status: "none", executed_at: "none" },
+      stac_run_id: "none",
+      stac_status: "none",
+      stac_executed_at: "none",
+      stac_item_count: 0,
+      stac_items_json: { items: [] },
+      stac_evidence_geojson: emptyFeatureCollection(),
     };
   }
 
   const executedAt = (run.ended_at ?? run.created_at) || "none";
-  const runMeta = { id: run.id || "none", status: run.status || "none", executed_at: executedAt };
+  const runId = run.id || "none";
 
   const raw = run.result_json;
   if (isFeatureCollection(raw)) {
+    const itemCount = raw.features?.length ?? 0;
     return {
-      itemsJson: toJsonSafe(raw),
-      evidenceGeojson: raw,
-      runMeta,
+      stac_run_id: runId,
+      stac_status: run.status || "ok",
+      stac_executed_at: executedAt,
+      stac_item_count: itemCount,
+      stac_items_json: toJsonSafe(raw),
+      stac_evidence_geojson: raw,
     };
   }
 
   const normalized = normalizeStacItems(raw);
   const evidenceGeojson = normalized.featureCollection?.features?.length ? normalized.featureCollection : emptyFeatureCollection();
+  const itemCount = evidenceGeojson.features?.length ?? 0;
 
   if (isRecord(raw) && Array.isArray(raw.items)) {
-    return { itemsJson: toJsonSafe(raw), evidenceGeojson, runMeta };
+    return {
+      stac_run_id: runId,
+      stac_status: run.status || "ok",
+      stac_executed_at: executedAt,
+      stac_item_count: itemCount,
+      stac_items_json: toJsonSafe(raw),
+      stac_evidence_geojson: evidenceGeojson,
+    };
   }
 
   const items = itemsFromFeatureCollection(evidenceGeojson);
   return {
-    itemsJson: { items },
-    evidenceGeojson,
-    runMeta,
+    stac_run_id: runId,
+    stac_status: run.status || "ok",
+    stac_executed_at: executedAt,
+    stac_item_count: itemCount,
+    stac_items_json: { items },
+    stac_evidence_geojson: evidenceGeojson,
   };
 }

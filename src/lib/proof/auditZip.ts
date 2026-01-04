@@ -6,9 +6,10 @@ import { sha256ArrayBuffer, sha256Text } from "@/lib/proof/hash";
 import { canonicalJson } from "@/lib/proof/fingerprints";
 import { getAttachmentBytes, putAttachmentBytes } from "@/lib/proofMap/attachments";
 import { loadVerificationRuns } from "@/lib/proofMap/storage";
-import buildProvenance from "@/lib/export/buildProvenance";
 import extractStacArtifacts from "@/lib/export/extractStacArtifacts";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
+import buildProvenanceTxt from "@/lib/export/buildProvenanceTxt";
+import selectRunsForAoi from "@/lib/export/selectRunsForAoi";
 
 function safeFilename(value: string): string {
   const trimmed = (value ?? "").trim() || "file";
@@ -47,7 +48,7 @@ export async function buildAuditZipBytes(input: {
   }
 
   const emptyEvidence: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
-  const provenanceText = input.verificationSnapshot?.provenanceText ?? buildProvenance({});
+  const provenanceText = input.verificationSnapshot?.provenanceText ?? buildProvenanceTxt({});
   zip.file("verification/provenance.txt", provenanceText);
   zip.file("verification/stac_items.json", canonicalJsonStringify(input.verificationSnapshot?.stacItemsJson ?? { items: [] }));
   zip.file(
@@ -72,29 +73,48 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
 
   const methodCode = bundle.method.code;
   const version = bundle.method.version;
-  const runs = loadVerificationRuns(methodCode, version);
-  const runsText = runs.length ? canonicalJson(runs) : "";
+  const allRuns = loadVerificationRuns(methodCode, version);
+  const currentAoiId = bundle.aoi?.id ?? null;
+  const currentAoiFingerprint =
+    bundle.aoi?.aoi_fingerprint ??
+    (bundle.aoi?.geojson ? await sha256Hex(canonicalJson(bundle.aoi.geojson)) : null);
+
+  const pinsForExport =
+    currentAoiFingerprint && currentAoiId
+      ? (bundle.evidence_pins ?? []).filter(
+          (pin) => pin.aoi_fingerprint === currentAoiFingerprint || pin.aoi_id === currentAoiId,
+        )
+      : (bundle.evidence_pins ?? []);
+
+  const runsForExport = selectRunsForAoi({
+    runs: allRuns,
+    aoiFingerprint: currentAoiFingerprint,
+    aoiId: currentAoiId,
+  });
+  const runsText = runsForExport.length ? canonicalJson(runsForExport) : "";
   const runs_sha256 = runsText ? await sha256Text(runsText) : undefined;
 
-  const currentAoiFingerprint = bundle.aoi?.geojson ? await sha256Hex(canonicalJson(bundle.aoi.geojson)) : null;
-  const stac = extractStacArtifacts({ runs, currentAoiFingerprint });
-  const stacEvidence = stac.evidenceGeojson ?? { type: "FeatureCollection", features: [] };
-  const itemCount = stacEvidence.features?.length ?? 0;
-  const provenanceText = buildProvenance({
-    aoi_id: bundle.aoi?.id,
+  const scopedBundle: ProofBundleV1 = {
+    ...bundle,
+    aoi: bundle.aoi ? { ...bundle.aoi, aoi_fingerprint: currentAoiFingerprint ?? undefined } : bundle.aoi,
+    evidence_pins: pinsForExport.length ? pinsForExport : undefined,
+  };
+
+  const stac = extractStacArtifacts({ runsForAoi: runsForExport });
+  const provenanceText = buildProvenanceTxt({
+    method_code: methodCode,
+    method_version: version,
+    aoi_id: currentAoiId ?? undefined,
     aoi_fingerprint: currentAoiFingerprint ?? undefined,
-    methodology_code: methodCode,
-    methodology_version: version,
-    provider: "stac",
-    stac_run_id: stac.runMeta.id,
-    stac_status: stac.runMeta.status,
-    stac_executed_at: stac.runMeta.executed_at,
-    stac_item_count: itemCount,
+    stac_run_id: stac.stac_run_id,
+    stac_status: stac.stac_status,
+    stac_executed_at: stac.stac_executed_at,
+    stac_item_count: stac.stac_item_count,
   });
 
   const bundleWithRunsIntegrity: ProofBundleV1 = runs_sha256
-    ? { ...bundle, integrity: { ...bundle.integrity, runs_sha256 } }
-    : bundle;
+    ? { ...scopedBundle, integrity: { ...scopedBundle.integrity, runs_sha256 } }
+    : scopedBundle;
   if (runs_sha256) {
     const canonical = canonicalizeProofBundleForHash(bundleWithRunsIntegrity);
     bundleWithRunsIntegrity.integrity.sha256 = await sha256Hex(canonical);
@@ -103,11 +123,11 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
   return await buildAuditZipBytes({
     bundle: bundleWithRunsIntegrity,
     attachments: payload,
-    runs: runs.length ? runs : undefined,
+    runs: runsForExport.length ? runsForExport : undefined,
     verificationSnapshot: {
       provenanceText,
-      stacItemsJson: stac.itemsJson,
-      stacEvidenceGeojson: stacEvidence,
+      stacItemsJson: stac.stac_items_json,
+      stacEvidenceGeojson: stac.stac_evidence_geojson,
     },
   });
 }

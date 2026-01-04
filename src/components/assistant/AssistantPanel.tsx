@@ -281,6 +281,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                 const pin: EvidencePin = buildEvidencePin({
                   title: question?.label ?? "Assistant evidence",
                   aoi_id: props.aoi?.id ?? undefined,
+                  aoi_fingerprint: props.aoi?.aoi_fingerprint ?? undefined,
                   cited_ids,
                 });
                 const fp = await evidencePinFingerprint({ title: pin.title, cited_ids: pin.cited_ids ?? [] });
