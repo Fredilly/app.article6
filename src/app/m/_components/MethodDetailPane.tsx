@@ -840,6 +840,8 @@ export default function MethodDetailPane({
         </div>
       ) : tab === "assistant" ? (
         <AssistantPanel
+          program={method.program}
+          sector={method.sector}
           methodCode={method.code}
           version={activeVersion ?? ""}
           hasPrevious={method.hasPrevious}
