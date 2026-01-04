@@ -1,5 +1,6 @@
 import type { AssistantAnswer } from "@/lib/assistant/generateAnswer";
 import type { GeoVistaVerification } from "@/services/geovista/types";
+import { buildArtifactsFromEvidenceIds } from "@/services/geovista/artifacts";
 
 export type AssistantEvidencePayloads = {
   sections: unknown[];
@@ -26,11 +27,21 @@ export function buildAssistantBundle(input: {
   provenance: AssistantBundle["provenance"];
   geovista?: GeoVistaVerification;
 }): AssistantBundle {
+  const citedIds = input.answer.evidence
+    .filter((item) => item.type === "rule" || item.type === "section")
+    .map((item) => item.id);
+  const expectedArtifacts = buildArtifactsFromEvidenceIds(citedIds);
+
+  const geovista =
+    input.geovista && expectedArtifacts.length
+      ? { ...input.geovista, artifacts: expectedArtifacts }
+      : undefined;
+
   return {
     answer: input.answer,
     evidence_items: input.answer.evidence,
     evidence_payloads: input.evidencePayloads,
     provenance: input.provenance,
-    geovista: input.geovista,
+    geovista,
   };
 }

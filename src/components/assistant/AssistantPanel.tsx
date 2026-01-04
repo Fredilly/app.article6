@@ -212,6 +212,11 @@ export default function AssistantPanel(props: AssistantPanelProps) {
       .filter((item) => item.type === "rule" || item.type === "section")
       .map((item) => item.id);
 
+    if (!cited_ids.length) {
+      setGeovista(null);
+      return;
+    }
+
     let cancelled = false;
     (async () => {
       const verification = await getVerification({
