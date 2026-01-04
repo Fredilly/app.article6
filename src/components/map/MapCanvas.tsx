@@ -9,15 +9,27 @@ import "maplibre-gl/dist/maplibre-gl.css";
 type MapCanvasProps = {
   aoi: AOI | null;
   pins: EvidencePin[];
+  onMapReady?: (map: MapLibreMap) => void;
+  onMapDestroyed?: () => void;
 };
 
 function centerFromBbox(bbox: [number, number, number, number]): [number, number] {
   return [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2];
 }
 
-export default function MapCanvas({ aoi, pins }: MapCanvasProps) {
+export default function MapCanvas({ aoi, pins, onMapReady, onMapDestroyed }: MapCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const onMapReadyRef = useRef(onMapReady);
+  const onMapDestroyedRef = useRef(onMapDestroyed);
+
+  useEffect(() => {
+    onMapReadyRef.current = onMapReady;
+  }, [onMapReady]);
+
+  useEffect(() => {
+    onMapDestroyedRef.current = onMapDestroyed;
+  }, [onMapDestroyed]);
 
   const pointsGeoJson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>>(() => {
     const fallback = aoi ? centerFromBbox(aoi.bbox) : null;
@@ -77,6 +89,7 @@ export default function MapCanvas({ aoi, pins }: MapCanvasProps) {
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
       map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
       mapRef.current = map;
+      onMapReadyRef.current?.(map);
     })();
 
     return () => {
@@ -85,44 +98,61 @@ export default function MapCanvas({ aoi, pins }: MapCanvasProps) {
         mapRef.current.remove();
         mapRef.current = null;
       }
+      onMapDestroyedRef.current?.();
     };
   }, []);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (!map.isStyleLoaded?.()) return;
-    const source = map.getSource?.("aoi") as unknown as GeoJSONSource | undefined;
-    if (!source?.setData) return;
+    const apply = () => {
+      const source = map.getSource?.("aoi") as unknown as GeoJSONSource | undefined;
+      if (!source?.setData) return;
 
-    const data: GeoJSON.FeatureCollection<GeoJSON.Geometry> = {
-      type: "FeatureCollection",
-      features: aoi ? ([aoi.geojson] as unknown as Array<GeoJSON.Feature<GeoJSON.Geometry>>) : [],
-    };
-    source.setData(data);
+      const data: GeoJSON.FeatureCollection<GeoJSON.Geometry> = {
+        type: "FeatureCollection",
+        features: aoi ? ([aoi.geojson] as unknown as Array<GeoJSON.Feature<GeoJSON.Geometry>>) : [],
+      };
+      source.setData(data);
 
-    if (aoi?.bbox) {
-      try {
-        map.fitBounds(
-          [
-            [aoi.bbox[0], aoi.bbox[1]],
-            [aoi.bbox[2], aoi.bbox[3]],
-          ],
-          { padding: 30, duration: 0 },
-        );
-      } catch {
-        // ignore
+      if (aoi?.bbox) {
+        try {
+          map.fitBounds(
+            [
+              [aoi.bbox[0], aoi.bbox[1]],
+              [aoi.bbox[2], aoi.bbox[3]],
+            ],
+            { padding: 30, duration: 0 },
+          );
+        } catch {
+          // ignore
+        }
       }
+    };
+
+    if (!map.isStyleLoaded?.()) {
+      map.once?.("load", apply);
+      return;
     }
+
+    apply();
   }, [aoi]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (!map.isStyleLoaded?.()) return;
-    const source = map.getSource?.("pins") as unknown as GeoJSONSource | undefined;
-    if (!source?.setData) return;
-    source.setData(pointsGeoJson);
+    const apply = () => {
+      const source = map.getSource?.("pins") as unknown as GeoJSONSource | undefined;
+      if (!source?.setData) return;
+      source.setData(pointsGeoJson);
+    };
+
+    if (!map.isStyleLoaded?.()) {
+      map.once?.("load", apply);
+      return;
+    }
+
+    apply();
   }, [pointsGeoJson]);
 
   return <div ref={containerRef} className="h-[26rem] w-full rounded-xl border border-slate-200 bg-slate-100" />;
