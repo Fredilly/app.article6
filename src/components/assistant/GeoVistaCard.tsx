@@ -4,38 +4,49 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { GeoVistaVerification } from "@/services/geovista/types";
 
+type GeoVistaCardProps = {
+  loading?: boolean;
+  verification?: GeoVistaVerification | null;
+};
+
 function statusLabel(status: GeoVistaVerification["status"]): string {
   if (status === "verified") return "Verified";
   if (status === "needs_review") return "Needs review";
+  if (status === "error") return "Unavailable";
   return "Not run";
 }
 
 function statusBadgeClass(status: GeoVistaVerification["status"]): string {
   if (status === "verified") return "border-emerald-200 bg-emerald-50 text-emerald-800";
   if (status === "needs_review") return "border-amber-200 bg-amber-50 text-amber-900";
+  if (status === "error") return "border-rose-200 bg-rose-50 text-rose-700";
   return "border-slate-200 bg-slate-50 text-slate-700";
 }
 
-export default function GeoVistaCard({ verification }: { verification: GeoVistaVerification }) {
+export default function GeoVistaCard({ loading, verification }: GeoVistaCardProps) {
   const [open, setOpen] = useState(false);
 
-  const artifacts = useMemo(() => verification.artifacts ?? [], [verification.artifacts]);
+  const artifacts = useMemo(() => verification?.artifacts ?? [], [verification?.artifacts]);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="text-sm font-semibold text-slate-900">GeoVista Verification</div>
-          <div className="mt-1 text-sm text-slate-700">{verification.summary}</div>
+          {loading ? (
+            <div className="mt-1 text-sm text-slate-700">Verifying…</div>
+          ) : verification ? (
+            <div className="mt-1 text-sm text-slate-700">{verification.summary}</div>
+          ) : null}
         </div>
         <div className="flex items-center gap-2">
           <span
             className={cn(
               "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold",
-              statusBadgeClass(verification.status),
+              statusBadgeClass(verification?.status ?? "not_run"),
             )}
           >
-            {statusLabel(verification.status)}
+            {loading ? "Verifying" : statusLabel(verification?.status ?? "not_run")}
           </span>
           {artifacts.length ? (
             <button
@@ -63,23 +74,32 @@ export default function GeoVistaCard({ verification }: { verification: GeoVistaV
               </button>
             </div>
             <div className="grid gap-2 px-5 py-4">
-              {artifacts.map((artifact) => (
-                <div key={artifact.id} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                  <div className="text-xs font-semibold text-slate-900">{artifact.label ?? "Artifact"}</div>
-                  {artifact.href ? (
-                    <a
-                      className="mt-1 block break-words font-mono text-xs text-slate-600 underline"
-                      href={artifact.href}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {artifact.href}
-                    </a>
-                  ) : (
-                    <div className="mt-1 break-words font-mono text-xs text-slate-600">{artifact.id}</div>
-                  )}
-                </div>
-              ))}
+              {artifacts.length ? (
+                artifacts.map((artifact) => (
+                  <div
+                    key={artifact.id}
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <div className="text-xs font-semibold text-slate-900">
+                      {artifact.kind && artifact.ref_id ? `${artifact.kind}: ${artifact.ref_id}` : "Artifact"}
+                    </div>
+                    {artifact.url ? (
+                      <a
+                        className="mt-1 block break-words font-mono text-xs text-slate-600 underline"
+                        href={artifact.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {artifact.url}
+                      </a>
+                    ) : (
+                      <div className="mt-1 break-words font-mono text-xs text-slate-600">{artifact.id}</div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-xs text-slate-600">No artifacts returned.</div>
+              )}
             </div>
           </div>
         </div>
@@ -87,4 +107,3 @@ export default function GeoVistaCard({ verification }: { verification: GeoVistaV
     </div>
   );
 }
-

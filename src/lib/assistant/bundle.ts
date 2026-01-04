@@ -34,7 +34,21 @@ export function buildAssistantBundle(input: {
 
   const geovista =
     input.geovista && expectedArtifacts.length
-      ? { ...input.geovista, artifacts: expectedArtifacts }
+      ? (() => {
+          const byId = new Map<string, GeoVistaVerification["artifacts"][number]>();
+          for (const artifact of input.geovista.artifacts ?? []) {
+            if (!artifact?.id) continue;
+            byId.set(artifact.id, artifact);
+          }
+
+          const artifacts = expectedArtifacts.map((expected) => {
+            const found = byId.get(expected.id);
+            if (!found) return expected;
+            return { ...found, ...expected, id: expected.id, kind: expected.kind, ref_id: expected.ref_id };
+          });
+
+          return { ...input.geovista, artifacts };
+        })()
       : undefined;
 
   return {
