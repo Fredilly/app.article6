@@ -2,7 +2,7 @@ import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import type { GeoVistaVerificationRequest } from "@/services/geovista/client";
 import { getVerification } from "@/services/geovista/client";
 import type { GeoVistaVerification } from "@/services/geovista/types";
-import { sha256Text } from "@/lib/proof/hash";
+import { canonicalJson, sha256Hex } from "@/lib/proof/fingerprints";
 import { dedupeStrings } from "@/lib/proofMap/pins";
 
 function nowIso(): string {
@@ -38,57 +38,52 @@ export function mapGeoVistaVerificationToRunStatus(verification: GeoVistaVerific
   return "ok";
 }
 
-function canonicalRunFingerprintInput(input: {
-  aoi_id: string;
-  cited_ids: string[];
-  attachment_sha256: string[];
-}): string {
-  const cited = [...dedupeStrings(input.cited_ids)].sort((a, b) => a.localeCompare(b));
-  const attachments = [...dedupeStrings(input.attachment_sha256)].sort((a, b) => a.localeCompare(b));
-  return JSON.stringify({ aoi_id: input.aoi_id, cited_ids: cited, attachment_sha256: attachments });
+export async function aoiFingerprint(geojson: AOI["geojson"]): Promise<string> {
+  return await sha256Hex(canonicalJson(geojson));
 }
 
-export async function runFingerprint(input: {
-  aoi_id: string;
+export async function runInputFingerprint(input: {
+  aoi_fp: string;
   cited_ids: string[];
   attachment_sha256: string[];
 }): Promise<string> {
-  return await sha256Text(canonicalRunFingerprintInput(input));
+  const cited = [...dedupeStrings(input.cited_ids)].sort((a, b) => a.localeCompare(b));
+  const attachments = [...dedupeStrings(input.attachment_sha256)].sort((a, b) => a.localeCompare(b));
+  return await sha256Hex(canonicalJson({ aoi_fp: input.aoi_fp, cited_ids: cited, attachment_sha256: attachments }));
 }
 
-export async function isDuplicateRunAttempt(input: {
-  latest?: VerificationRun;
-  next: { aoi_id: string; cited_ids: string[]; attachment_sha256: string[] };
-  nowMs?: number;
-  windowMs?: number;
-}): Promise<boolean> {
-  const latest = input.latest;
-  if (!latest) return false;
-  const windowMs = input.windowMs ?? 60_000;
-  const nowMs = input.nowMs ?? Date.now();
-  const latestMs = Date.parse(latest.created_at);
-  if (!Number.isFinite(latestMs)) return false;
-  if (nowMs - latestMs > windowMs) return false;
-
-  const [a, b] = await Promise.all([
-    runFingerprint({ aoi_id: latest.aoi_id ?? "", cited_ids: latest.cited_ids ?? [], attachment_sha256: latest.attachment_sha256 ?? [] }),
-    runFingerprint(input.next),
-  ]);
-  return a === b;
+export function splitRunsByAoiFingerprint(input: {
+  runs: VerificationRun[];
+  currentAoiFingerprint: string;
+}): { current: VerificationRun[]; stale: VerificationRun[] } {
+  const current: VerificationRun[] = [];
+  const stale: VerificationRun[] = [];
+  for (const run of input.runs ?? []) {
+    if (run.aoi_fingerprint === input.currentAoiFingerprint) current.push(run);
+    else stale.push(run);
+  }
+  return { current, stale };
 }
 
 export function createQueuedVerificationRun(input: {
   method: { code: string; version: string };
   aoi: AOI;
   pins: EvidencePin[];
+  aoi_fingerprint: string;
+  input_fingerprint: string;
 }): VerificationRun {
   const aggregates = buildVerificationRunInputFromPins(input.pins);
   return {
     id: newId("run"),
     method: input.method,
     aoi_id: input.aoi.id,
+    aoi_snapshot: { name: input.aoi.name, bbox: input.aoi.bbox, area_km2: input.aoi.area_km2 },
+    aoi_fingerprint: input.aoi_fingerprint,
+    input_fingerprint: input.input_fingerprint,
     cited_ids: aggregates.cited_ids,
     attachment_sha256: aggregates.attachment_sha256,
+    cited_ids_count: aggregates.cited_ids.length,
+    attachment_count: aggregates.attachment_sha256.length,
     provider: "geovista",
     status: "queued",
     created_at: nowIso(),

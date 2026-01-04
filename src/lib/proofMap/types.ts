@@ -23,9 +23,14 @@ export type VerificationRun = {
   id: string;
   method: { code: string; version: string };
   aoi_id?: string;
+  aoi_snapshot?: { name: string; bbox: [number, number, number, number]; area_km2: number };
+  aoi_fingerprint: string;
+  input_fingerprint: string;
   pin_id?: string;
   cited_ids: string[];
+  cited_ids_count: number;
   attachment_sha256: string[];
+  attachment_count: number;
   provider: "geovista";
   status: "queued" | "ok" | "warn" | "fail" | "error";
   summary?: string;

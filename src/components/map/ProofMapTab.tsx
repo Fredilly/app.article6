@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
-import { createQueuedVerificationRun, isDuplicateRunAttempt, runGeoVistaVerification } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, createQueuedVerificationRun, runGeoVistaVerification, runInputFingerprint, splitRunsByAoiFingerprint } from "@/lib/proofMap/verificationRuns";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -87,6 +87,8 @@ export default function ProofMapTab({
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<string | null>(null);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -98,6 +100,32 @@ export default function ProofMapTab({
     const [minLng, minLat, maxLng, maxLat] = aoi.bbox;
     return `${formatNum(minLng)}, ${formatNum(minLat)} → ${formatNum(maxLng)}, ${formatNum(maxLat)}`;
   }, [aoi]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!aoi) {
+      setCurrentAoiFingerprint(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+    (async () => {
+      try {
+        const fp = await aoiFingerprint(aoi.geojson);
+        if (!cancelled) setCurrentAoiFingerprint(fp);
+      } catch {
+        if (!cancelled) setCurrentAoiFingerprint(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [aoi]);
+
+  const runBuckets = useMemo(() => {
+    if (!currentAoiFingerprint) return { current: [], stale: verificationRuns };
+    return splitRunsByAoiFingerprint({ runs: verificationRuns, currentAoiFingerprint });
+  }, [currentAoiFingerprint, verificationRuns]);
 
   return (
     <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -152,7 +180,7 @@ export default function ProofMapTab({
               </div>
               <div className="max-h-[70vh] overflow-auto px-5 py-4">
                 <pre className="whitespace-pre-wrap break-words font-mono text-xs text-slate-700">
-                  {prettyJson(runJson.result_json)}
+                  {prettyJson(runJson)}
                 </pre>
               </div>
             </div>
@@ -220,6 +248,7 @@ export default function ProofMapTab({
                 disabled={
                   isRunning ||
                   !aoi ||
+                  !currentAoiFingerprint ||
                   !methodCode.trim() ||
                   !version.trim() ||
                   !evidencePins.some((pin) => (pin.cited_ids ?? []).length)
@@ -228,25 +257,28 @@ export default function ProofMapTab({
                   if (!aoi) return;
                   setError(null);
                   if (isRunning) return;
-                  const queued = createQueuedVerificationRun({
-                    method: { code: methodCode, version },
-                    aoi,
-                    pins: evidencePins,
+                  if (!currentAoiFingerprint) return;
+
+                  const cited_ids = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+                  const attachment_sha256 = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
+                  const input_fingerprint = await runInputFingerprint({
+                    aoi_fp: currentAoiFingerprint,
+                    cited_ids,
+                    attachment_sha256,
                   });
-                  const duplicate = await isDuplicateRunAttempt({
-                    latest: verificationRuns[0],
-                    next: {
-                      aoi_id: queued.aoi_id ?? "",
-                      cited_ids: queued.cited_ids ?? [],
-                      attachment_sha256: queued.attachment_sha256 ?? [],
-                    },
-                  });
-                  if (duplicate) {
-                    showToast("Already ran this input.");
+                  if (verificationRuns[0]?.input_fingerprint === input_fingerprint) {
+                    showToast("Already ran this exact input.");
                     return;
                   }
 
                   setIsRunning(true);
+                  const queued = createQueuedVerificationRun({
+                    method: { code: methodCode, version },
+                    aoi,
+                    pins: evidencePins,
+                    aoi_fingerprint: currentAoiFingerprint,
+                    input_fingerprint,
+                  });
                   onSetVerificationRuns([queued, ...verificationRuns]);
                   try {
                     const res = await runGeoVistaVerification({
@@ -299,7 +331,14 @@ export default function ProofMapTab({
                 <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
+                        {!aoi ? (
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                            Unbound (no AOI)
+                          </span>
+                        ) : null}
+                      </div>
                       <div className="mt-1 text-xs text-slate-500">{formatLocalDateTime(pin.created_at)}</div>
                     </div>
                     <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
@@ -412,10 +451,10 @@ export default function ProofMapTab({
         </div>
 
         <div>
-          <div className="text-xs font-semibold text-slate-700">Verification runs</div>
+          <div className="text-xs font-semibold text-slate-700">Verification runs (current AOI)</div>
           <div className="mt-2 grid gap-2">
-            {verificationRuns.length ? (
-              verificationRuns.map((run) => {
+            {currentAoiFingerprint && runBuckets.current.length ? (
+              runBuckets.current.map((run) => {
                 const pill = statusPill(run.status);
                 return (
                   <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
@@ -439,8 +478,53 @@ export default function ProofMapTab({
                 );
               })
             ) : (
-              <div className="text-xs text-slate-500">No runs yet.</div>
+              <div className="text-xs text-slate-500">
+                {!aoi ? "No AOI uploaded." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No runs yet for this AOI."}
+              </div>
             )}
+            {aoi && runBuckets.stale.length ? (
+              <div className="mt-1">
+                <button
+                  type="button"
+                  className="w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => setShowHistory((v) => !v)}
+                >
+                  {showHistory ? "Hide history" : `History (older AOIs) • ${runBuckets.stale.length}`}
+                </button>
+                {showHistory ? (
+                  <div className="mt-2 grid gap-2">
+                    {runBuckets.stale.map((run) => {
+                      const pill = statusPill(run.status);
+                      return (
+                        <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
+                                {pill.label}
+                              </span>
+                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                                STALE (AOI changed)
+                              </span>
+                            </div>
+                            <span className="text-xs text-slate-500">{formatLocalDateTime(run.created_at)}</span>
+                          </div>
+                          {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
+                          {run.result_json ? (
+                            <button
+                              type="button"
+                              className="mt-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={() => setRunJson(run)}
+                            >
+                              View JSON
+                            </button>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
