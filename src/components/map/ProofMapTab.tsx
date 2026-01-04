@@ -2,19 +2,24 @@
 
 import { useMemo, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
-import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
+import { createQueuedVerificationRun, runGeoVistaVerification } from "@/lib/proofMap/verificationRuns";
 
 type ProofMapTabProps = {
+  methodCode: string;
+  version: string;
   aoi: AOI | null;
   evidencePins: EvidencePin[];
+  verificationRuns: VerificationRun[];
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
   onRemoveAoi: () => void;
   onSetEvidencePins: (pins: EvidencePin[]) => void;
+  onSetVerificationRuns: (runs: VerificationRun[]) => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
 };
 
@@ -41,18 +46,39 @@ function shortSha(value: string): string {
   return `${trimmed.slice(0, 10)}…${trimmed.slice(-2)}`;
 }
 
+function prettyJson(value: unknown): string {
+  try {
+    return JSON.stringify(value ?? null, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+function statusPill(status: VerificationRun["status"]): { label: string; className: string } {
+  if (status === "ok") return { label: "OK", className: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+  if (status === "warn") return { label: "WARN", className: "bg-amber-50 text-amber-800 border-amber-200" };
+  if (status === "fail") return { label: "FAIL", className: "bg-rose-50 text-rose-700 border-rose-200" };
+  if (status === "queued") return { label: "QUEUED", className: "bg-slate-50 text-slate-700 border-slate-200" };
+  return { label: "ERROR", className: "bg-rose-50 text-rose-700 border-rose-200" };
+}
+
 export default function ProofMapTab({
+  methodCode,
+  version,
   aoi,
   evidencePins,
+  verificationRuns,
   evidenceSnapshots,
   onSetAoi,
   onRemoveAoi,
   onSetEvidencePins,
+  onSetVerificationRuns,
   onNavigateEvidence,
 }: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
+  const [runJson, setRunJson] = useState<VerificationRun | null>(null);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -99,6 +125,27 @@ export default function ProofMapTab({
                     {snapshot.stable_ref}
                   </a>
                 ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {runJson ? (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+                <div className="text-sm font-semibold text-slate-900">Verification JSON</div>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => setRunJson(null)}
+                >
+                  Close
+                </button>
+              </div>
+              <div className="max-h-[70vh] overflow-auto px-5 py-4">
+                <pre className="whitespace-pre-wrap break-words font-mono text-xs text-slate-700">
+                  {prettyJson(runJson.result_json)}
+                </pre>
               </div>
             </div>
           </div>
@@ -157,6 +204,54 @@ export default function ProofMapTab({
             <div className="mt-2 grid gap-1 text-xs text-slate-600">
               <div>area: {formatNum(aoi.area_km2)} km²</div>
               <div className="break-words">bbox: {bboxLabel}</div>
+            </div>
+            <div className="mt-3">
+              <button
+                type="button"
+                className="w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={!aoi || !methodCode.trim() || !version.trim() || !evidencePins.some((pin) => (pin.cited_ids ?? []).length)}
+                onClick={async () => {
+                  if (!aoi) return;
+                  setError(null);
+                  const queued = createQueuedVerificationRun({
+                    method: { code: methodCode, version },
+                    aoi,
+                    pins: evidencePins,
+                  });
+                  onSetVerificationRuns([queued, ...verificationRuns]);
+                  try {
+                    const res = await runGeoVistaVerification({
+                      method: { code: methodCode, version },
+                      aoi,
+                      cited_ids: queued.cited_ids,
+                      attachment_sha256: queued.attachment_sha256,
+                    });
+                    const updated: VerificationRun = {
+                      ...queued,
+                      status: res.runStatus,
+                      summary: res.summary,
+                      result_json: res.result_json,
+                    };
+                    onSetVerificationRuns([updated, ...verificationRuns]);
+                    showToast("Verification complete");
+                  } catch (e) {
+                    const message = e instanceof Error ? e.message : String(e);
+                    const updated: VerificationRun = {
+                      ...queued,
+                      status: "error",
+                      summary: message,
+                      result_json: { error: message },
+                    };
+                    onSetVerificationRuns([updated, ...verificationRuns]);
+                    setError(message);
+                  }
+                }}
+              >
+                Run verification
+              </button>
+              {!evidencePins.some((pin) => (pin.cited_ids ?? []).length) ? (
+                <div className="mt-1 text-[11px] text-slate-500">Add a pin with cited ids to enable.</div>
+              ) : null}
             </div>
           </div>
         ) : (
@@ -281,6 +376,39 @@ export default function ProofMapTab({
               ))
             ) : (
               <div className="text-xs text-slate-500">No pins yet. Use “Add to map” from Assistant.</div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="text-xs font-semibold text-slate-700">Verification runs</div>
+          <div className="mt-2 grid gap-2">
+            {verificationRuns.length ? (
+              verificationRuns.map((run) => {
+                const pill = statusPill(run.status);
+                return (
+                  <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
+                        {pill.label}
+                      </span>
+                      <span className="text-xs text-slate-500">{run.created_at}</span>
+                    </div>
+                    {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
+                    {run.result_json ? (
+                      <button
+                        type="button"
+                        className="mt-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={() => setRunJson(run)}
+                      >
+                        View JSON
+                      </button>
+                    ) : null}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-xs text-slate-500">No runs yet.</div>
             )}
           </div>
         </div>

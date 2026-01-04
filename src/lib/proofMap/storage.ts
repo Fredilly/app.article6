@@ -1,4 +1,4 @@
-import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 
 function aoiKey(code: string, version: string): string {
@@ -11,6 +11,10 @@ function pinsKey(code: string, version: string): string {
 
 function snapshotsKey(code: string, version: string): string {
   return `snapshots:${code}:${version}`;
+}
+
+function runsKey(code: string, version: string): string {
+  return `runs:${code}:${version}`;
 }
 
 export function loadAoi(code: string, version: string): AOI | null {
@@ -73,6 +77,28 @@ export function saveEvidenceSnapshots(code: string, version: string, items: Proo
   try {
     if (!items || !items.length) window.localStorage.removeItem(snapshotsKey(code, version));
     else window.localStorage.setItem(snapshotsKey(code, version), JSON.stringify(items));
+  } catch {
+    // ignore
+  }
+}
+
+export function loadVerificationRuns(code: string, version: string): VerificationRun[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(runsKey(code, version));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as VerificationRun[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveVerificationRuns(code: string, version: string, runs: VerificationRun[] | null | undefined) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!runs || !runs.length) window.localStorage.removeItem(runsKey(code, version));
+    else window.localStorage.setItem(runsKey(code, version), JSON.stringify(runs));
   } catch {
     // ignore
   }

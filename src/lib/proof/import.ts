@@ -1,5 +1,5 @@
 import { isProofBundleV1, verifyProofBundleIntegrity } from "@/lib/proof/bundle";
-import { saveAoi, saveEvidenceSnapshots, savePins } from "@/lib/proofMap/storage";
+import { saveAoi, saveEvidenceSnapshots, savePins, saveVerificationRuns } from "@/lib/proofMap/storage";
 import { readAuditZipBytes, writeAuditZipToStorage } from "@/lib/proof/auditZip";
 
 export type ProofBundleImportResult =
@@ -84,6 +84,7 @@ export async function importProofBundleFile(
   saveAoi(target.code, target.version, read.bundle.aoi ?? null);
   savePins(target.code, target.version, read.bundle.evidence_pins ?? []);
   saveEvidenceSnapshots(target.code, target.version, read.bundle.evidence_items ?? []);
+  saveVerificationRuns(target.code, target.version, read.runs ?? []);
   await writeAuditZipToStorage({ bundle: read.bundle, attachments: read.attachments });
   return { ok: true };
 }

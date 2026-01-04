@@ -7,7 +7,10 @@ import { buildArtifactId, kindFromEvidenceId, type GeoVistaEvidenceKind } from "
 type VerifyRequest = {
   method_code?: string;
   method_version?: string;
+  method?: { code?: string; version?: string };
+  aoi?: unknown;
   cited_ids?: string[];
+  attachment_sha256?: string[];
   question_id?: string;
 };
 
@@ -133,10 +136,24 @@ export async function POST(req: Request) {
   }
 
   const body: VerifyRequest = await req.json().catch(() => ({}));
-  const method_code = typeof body.method_code === "string" ? body.method_code.trim() : "";
-  const method_version = typeof body.method_version === "string" ? body.method_version.trim() : "";
+  const method_code =
+    typeof body.method_code === "string"
+      ? body.method_code.trim()
+      : body.method && typeof body.method === "object" && typeof body.method.code === "string"
+        ? body.method.code.trim()
+        : "";
+  const method_version =
+    typeof body.method_version === "string"
+      ? body.method_version.trim()
+      : body.method && typeof body.method === "object" && typeof body.method.version === "string"
+        ? body.method.version.trim()
+        : "";
   const question_id = typeof body.question_id === "string" ? body.question_id.trim() : undefined;
   const cited_ids = Array.isArray(body.cited_ids) ? body.cited_ids.map((v) => String(v).trim()).filter(Boolean) : [];
+  const attachment_sha256 = Array.isArray(body.attachment_sha256)
+    ? body.attachment_sha256.map((v) => String(v).trim()).filter(Boolean)
+    : [];
+  const aoi = body.aoi ?? undefined;
 
   if (!method_code) return jsonError("BAD_REQUEST", "Missing required field: method_code", 400);
   if (!method_version) return jsonError("BAD_REQUEST", "Missing required field: method_version", 400);
@@ -153,7 +170,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ method_code, method_version, cited_ids, question_id }),
+      body: JSON.stringify({ method_code, method_version, cited_ids, question_id, aoi, attachment_sha256 }),
       cache: "no-store",
     });
   } catch {

@@ -8,8 +8,17 @@ import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
-import { loadAoi, loadEvidenceSnapshots, loadPins, saveAoi, savePins } from "@/lib/proofMap/storage";
+import {
+  loadAoi,
+  loadEvidenceSnapshots,
+  loadPins,
+  loadVerificationRuns,
+  saveAoi,
+  savePins,
+  saveVerificationRuns,
+} from "@/lib/proofMap/storage";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import type { VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
 
@@ -109,6 +118,7 @@ export default function MethodDetailPane({
   const [aoi, setAoi] = useState<AOI | null>(null);
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
   const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
+  const [verificationRuns, setVerificationRuns] = useState<VerificationRun[]>([]);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -190,6 +200,7 @@ export default function MethodDetailPane({
     setAoi(loadAoi(method.code, activeVersion));
     setEvidencePins(loadPins(method.code, activeVersion));
     setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
+    setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
   }, [activeVersion, method.code]);
 
   const setAoiAndPersist = useCallback(
@@ -210,11 +221,21 @@ export default function MethodDetailPane({
     [activeVersion, method.code],
   );
 
+  const setVerificationRunsAndPersist = useCallback(
+    (nextRuns: VerificationRun[]) => {
+      setVerificationRuns(nextRuns);
+      if (!activeVersion) return;
+      saveVerificationRuns(method.code, activeVersion, nextRuns);
+    },
+    [activeVersion, method.code],
+  );
+
   const refreshProofMapFromStorage = useCallback(() => {
     if (!activeVersion) return;
     setAoi(loadAoi(method.code, activeVersion));
     setEvidencePins(loadPins(method.code, activeVersion));
     setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
+    setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -898,12 +919,16 @@ export default function MethodDetailPane({
         />
       ) : tab === "map" ? (
         <ProofMapTab
+          methodCode={method.code}
+          version={activeVersion ?? ""}
           aoi={aoi}
           evidencePins={evidencePins}
+          verificationRuns={verificationRuns}
           evidenceSnapshots={evidenceSnapshots}
           onSetAoi={setAoiAndPersist}
           onRemoveAoi={() => setAoiAndPersist(null)}
           onSetEvidencePins={setEvidencePinsAndPersist}
+          onSetVerificationRuns={setVerificationRunsAndPersist}
           onNavigateEvidence={async (type, id) => {
             if (type === "rule") return await navigateToRule(id);
             if (type === "section") return await navigateToSection(id);

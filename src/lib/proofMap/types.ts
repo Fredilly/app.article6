@@ -19,6 +19,20 @@ export type EvidenceAttachment = {
   created_at: string;
 };
 
+export type VerificationRun = {
+  id: string;
+  method: { code: string; version: string };
+  aoi_id?: string;
+  pin_id?: string;
+  cited_ids: string[];
+  attachment_sha256: string[];
+  provider: "geovista";
+  status: "queued" | "ok" | "warn" | "fail" | "error";
+  summary?: string;
+  result_json?: unknown;
+  created_at: string;
+};
+
 export type EvidencePin = {
   id: string;
   kind: EvidencePinKind;

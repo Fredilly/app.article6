@@ -1,11 +1,15 @@
 import type { GeoVistaVerification } from "@/services/geovista/types";
 import { buildArtifactsFromEvidenceIds } from "@/services/geovista/artifacts";
+import type { AOI } from "@/lib/proofMap/types";
 
 export type GeoVistaVerificationRequest = {
   method_code: string;
   method_version: string;
+  method?: { code: string; version: string };
   cited_ids: string[];
   question_id?: string;
+  aoi?: AOI;
+  attachment_sha256?: string[];
 };
 
 function isEnabled(): boolean {
