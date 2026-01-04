@@ -27,6 +27,7 @@ export default function GeoVistaCard({ loading, verification }: GeoVistaCardProp
   const [open, setOpen] = useState(false);
 
   const artifacts = useMemo(() => verification?.artifacts ?? [], [verification?.artifacts]);
+  const mode = verification?.mode;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -40,14 +41,20 @@ export default function GeoVistaCard({ loading, verification }: GeoVistaCardProp
           ) : null}
         </div>
         <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold",
-              statusBadgeClass(verification?.status ?? "not_run"),
-            )}
-          >
-            {loading ? "Verifying" : statusLabel(verification?.status ?? "not_run")}
-          </span>
+          {mode === "mock" ? (
+            <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+              Mock
+            </span>
+          ) : (
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold",
+                statusBadgeClass(verification?.status ?? "not_run"),
+              )}
+            >
+              {loading ? "Verifying" : statusLabel(verification?.status ?? "not_run")}
+            </span>
+          )}
           {artifacts.length ? (
             <button
               type="button"

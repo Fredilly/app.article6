@@ -6,6 +6,7 @@ export type GeoVistaArtifact = {
 };
 
 export type GeoVistaVerification = {
+  mode?: "mock" | "real";
   status: "not_run" | "verified" | "needs_review" | "error";
   summary: string;
   artifacts: GeoVistaArtifact[];

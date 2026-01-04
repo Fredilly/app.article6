@@ -21,7 +21,7 @@ afterAll(() => {
 });
 
 describe("/api/geovista/verify route", () => {
-  it("returns 500 when GEOVISTA_BASE_URL or GEOVISTA_API_KEY missing", async () => {
+  it("returns 501 GEOVISTA_NOT_CONFIGURED when GEOVISTA_BASE_URL or GEOVISTA_API_KEY missing", async () => {
     delete process.env.GEOVISTA_BASE_URL;
     delete process.env.GEOVISTA_API_KEY;
 
@@ -32,9 +32,12 @@ describe("/api/geovista/verify route", () => {
     });
 
     const res = await POST(req);
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(501);
     const payload = await res.json();
-    expect(payload.error).toMatch(/GEOVISTA_BASE_URL/i);
+    expect(payload).toMatchObject({
+      code: "GEOVISTA_NOT_CONFIGURED",
+      message: "GeoVista not configured",
+    });
   });
 
   it("normalizes a GeoVista response into GeoVistaVerification", async () => {
@@ -67,6 +70,7 @@ describe("/api/geovista/verify route", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(json.status).toBe("verified");
+    expect(json.mode).toBe("real");
     expect(json.summary).toBe("All cited items verified.");
     expect(json.generated_at).toBe("2026-01-01T00:00:00Z");
     expect(json.artifacts).toHaveLength(1);
@@ -79,4 +83,3 @@ describe("/api/geovista/verify route", () => {
     expect(json.provenance.run_id).toBe("run-123");
   });
 });
-

@@ -47,6 +47,7 @@ describe("buildAssistantBundle", () => {
       evidencePayloads: { sections: [], rules: [] },
       provenance: {},
       geovista: {
+        mode: "real",
         status: "verified",
         summary: "Verified via mock.",
         artifacts: [{ id: "artifact-1" }],
@@ -56,6 +57,7 @@ describe("buildAssistantBundle", () => {
     });
 
     expect(bundle.geovista?.status).toBe("verified");
+    expect(bundle.geovista?.mode).toBe("real");
     expect(bundle.geovista?.artifacts.map((artifact) => artifact.id)).toEqual(["geovista:section:S-1"]);
   });
 
@@ -77,6 +79,7 @@ describe("buildAssistantBundle", () => {
       evidencePayloads: { sections: [], rules: [] },
       provenance: {},
       geovista: {
+        mode: "real",
         status: "verified",
         summary: "Verified via mock.",
         artifacts: [{ id: "geovista:section:S-999" }],
@@ -106,6 +109,7 @@ describe("buildAssistantBundle", () => {
       evidencePayloads: { sections: [], rules: [] },
       provenance: {},
       geovista: {
+        mode: "real",
         status: "verified",
         summary: "Verified.",
         artifacts: [

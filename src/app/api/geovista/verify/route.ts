@@ -11,8 +11,8 @@ type VerifyRequest = {
   question_id?: string;
 };
 
-function jsonError(message: string, status: number) {
-  return NextResponse.json({ error: message }, { status });
+function jsonError(code: string, message: string, status: number) {
+  return NextResponse.json({ code, message }, { status });
 }
 
 function requireEnv(name: string): string | null {
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
   const baseUrl = requireEnv("GEOVISTA_BASE_URL");
   const apiKey = requireEnv("GEOVISTA_API_KEY");
   if (!baseUrl || !apiKey) {
-    return jsonError("Missing required server env: GEOVISTA_BASE_URL and/or GEOVISTA_API_KEY", 500);
+    return jsonError("GEOVISTA_NOT_CONFIGURED", "GeoVista not configured", 501);
   }
 
   const body: VerifyRequest = await req.json().catch(() => ({}));
@@ -138,9 +138,9 @@ export async function POST(req: Request) {
   const question_id = typeof body.question_id === "string" ? body.question_id.trim() : undefined;
   const cited_ids = Array.isArray(body.cited_ids) ? body.cited_ids.map((v) => String(v).trim()).filter(Boolean) : [];
 
-  if (!method_code) return jsonError("Missing required field: method_code", 400);
-  if (!method_version) return jsonError("Missing required field: method_version", 400);
-  if (!cited_ids.length) return jsonError("Missing required field: cited_ids", 400);
+  if (!method_code) return jsonError("BAD_REQUEST", "Missing required field: method_code", 400);
+  if (!method_version) return jsonError("BAD_REQUEST", "Missing required field: method_version", 400);
+  if (!cited_ids.length) return jsonError("BAD_REQUEST", "Missing required field: cited_ids", 400);
 
   const endpoint = joinUrl(baseUrl, "/verify");
 
@@ -156,8 +156,8 @@ export async function POST(req: Request) {
       body: JSON.stringify({ method_code, method_version, cited_ids, question_id }),
       cache: "no-store",
     });
-  } catch (error) {
-    return jsonError(`Failed to reach GeoVista: ${error instanceof Error ? error.message : String(error)}`, 502);
+  } catch {
+    return jsonError("GEOVISTA_UNAVAILABLE", "GeoVista unavailable", 502);
   }
 
   const raw = await upstream.text();
@@ -165,25 +165,17 @@ export async function POST(req: Request) {
   if (raw) {
     try {
       parsed = JSON.parse(raw);
-    } catch (error) {
-      return jsonError(
-        `Invalid GeoVista response JSON: ${error instanceof Error ? error.message : String(error)}`,
-        502,
-      );
+    } catch {
+      return jsonError("GEOVISTA_UNAVAILABLE", "GeoVista unavailable", 502);
     }
   }
 
   if (!upstream.ok) {
-    const message =
-      parsed && typeof parsed === "object" && typeof (parsed as Record<string, unknown>).error === "string"
-        ? String((parsed as Record<string, unknown>).error)
-        : raw || `GeoVista HTTP ${upstream.status}`;
-    return jsonError(message, 502);
+    return jsonError("GEOVISTA_UNAVAILABLE", "GeoVista unavailable", 502);
   }
 
   const normalized = normalizeGeoVistaResponse(parsed);
-  return NextResponse.json(normalized satisfies GeoVistaVerification, {
+  return NextResponse.json({ ...normalized, mode: "real" } satisfies GeoVistaVerification, {
     headers: { "Cache-Control": "no-store, no-cache, must-revalidate", Pragma: "no-cache" },
   });
 }
-
