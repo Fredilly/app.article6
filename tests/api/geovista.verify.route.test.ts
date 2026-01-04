@@ -21,9 +21,9 @@ afterAll(() => {
 });
 
 describe("/api/geovista/verify route", () => {
-  it("returns 501 GEOVISTA_NOT_CONFIGURED when GEOVISTA_BASE_URL or GEOVISTA_API_KEY missing", async () => {
-    delete process.env.GEOVISTA_BASE_URL;
-    delete process.env.GEOVISTA_API_KEY;
+  it("rejects invalid payload with 400", async () => {
+    process.env.GEOVISTA_BASE_URL = "https://geovista.example";
+    process.env.GEOVISTA_API_KEY = "secret";
 
     const req = new Request("http://localhost/api/geovista/verify", {
       method: "POST",
@@ -32,12 +32,44 @@ describe("/api/geovista/verify route", () => {
     });
 
     const res = await POST(req);
-    expect(res.status).toBe(501);
-    const payload = await res.json();
-    expect(payload).toMatchObject({
-      code: "GEOVISTA_NOT_CONFIGURED",
-      message: "GeoVista not configured",
+    expect(res.status).toBe(400);
+  });
+
+  it("missing env returns mock only in dev", async () => {
+    delete process.env.GEOVISTA_BASE_URL;
+    delete process.env.GEOVISTA_API_KEY;
+
+    const body = {
+      method_code: "AR-ACM0003",
+      method_version: "v02-0",
+      cited_ids: ["S-1"],
+      aoi: { geojson: { type: "Feature", geometry: { type: "Polygon", coordinates: [] }, properties: {} } },
+      attachment_sha256: ["abc"],
+    };
+
+    const req = new Request("http://localhost/api/geovista/verify", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
     });
+
+    const res = await POST(req);
+    expect(res.ok).toBe(true);
+    const payload = await res.json();
+    expect(payload.mode).toBe("mock");
+    expect(typeof payload.request_id).toBe("string");
+    expect(payload.ok).toBe(true);
+
+    process.env.NODE_ENV = "production";
+    const reqProd = new Request("http://localhost/api/geovista/verify", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
+    });
+    const resProd = await POST(reqProd);
+    expect(resProd.status).toBe(500);
+    const payloadProd = await resProd.json();
+    expect(payloadProd.code).toBe("GEOVISTA_NOT_CONFIGURED");
   });
 
   it("normalizes a GeoVista response into GeoVistaVerification", async () => {
@@ -60,7 +92,13 @@ describe("/api/geovista/verify route", () => {
 
     const req = new Request("http://localhost/api/geovista/verify", {
       method: "POST",
-      body: JSON.stringify({ method_code: "AR-ACM0003", method_version: "v02-0", cited_ids: ["S-1"] }),
+      body: JSON.stringify({
+        method_code: "AR-ACM0003",
+        method_version: "v02-0",
+        cited_ids: ["S-1"],
+        aoi: { geojson: { type: "Feature", geometry: { type: "Polygon", coordinates: [] }, properties: {} } },
+        attachment_sha256: ["abc"],
+      }),
       headers: { "Content-Type": "application/json" },
     });
 
@@ -81,5 +119,33 @@ describe("/api/geovista/verify route", () => {
       url: "https://geovista.example/a/1",
     });
     expect(json.provenance.run_id).toBe("run-123");
+    expect(typeof json.request_id).toBe("string");
+    expect(json.mode).toBe("real");
+  });
+
+  it("maps non-2xx upstream to ok:false with request_id", async () => {
+    process.env.GEOVISTA_BASE_URL = "https://geovista.example";
+    process.env.GEOVISTA_API_KEY = "secret";
+
+    const fetchMock = jest.fn().mockResolvedValue(new Response(JSON.stringify({ message: "upstream down" }), { status: 503 }));
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const req = new Request("http://localhost/api/geovista/verify", {
+      method: "POST",
+      body: JSON.stringify({
+        method_code: "AR-ACM0003",
+        method_version: "v02-0",
+        cited_ids: ["S-1"],
+        aoi: { geojson: { type: "Feature", geometry: { type: "Polygon", coordinates: [] }, properties: {} } },
+        attachment_sha256: [],
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(502);
+    const payload = await res.json();
+    expect(payload.ok).toBe(false);
+    expect(typeof payload.request_id).toBe("string");
   });
 });

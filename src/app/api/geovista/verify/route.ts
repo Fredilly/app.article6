@@ -2,7 +2,10 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import type { GeoVistaArtifact, GeoVistaVerification } from "@/services/geovista/types";
+import { buildArtifactsFromEvidenceIds } from "@/services/geovista/artifacts";
 import { buildArtifactId, kindFromEvidenceId, type GeoVistaEvidenceKind } from "@/services/geovista/artifacts";
+import { canonicalJson, sha256Hex } from "@/lib/proof/fingerprints";
+import { z } from "zod";
 
 type VerifyRequest = {
   method_code?: string;
@@ -24,14 +27,38 @@ function requireEnv(name: string): string | null {
   return value.trim();
 }
 
+function requireIntEnv(name: string, fallback: number): number {
+  const raw = requireEnv(name);
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.floor(parsed);
+}
+
 function joinUrl(base: string, path: string): string {
   const b = base.replace(/\/+$/g, "");
   const p = path.startsWith("/") ? path : `/${path}`;
   return `${b}${p}`;
 }
 
+function stripQuery(url: string): string {
+  try {
+    const u = new URL(url);
+    u.search = "";
+    u.hash = "";
+    return u.toString();
+  } catch {
+    return url.split("?")[0] ?? url;
+  }
+}
+
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function newRequestId(): string {
+  if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
+  return `req_${nowIso()}_${Math.random().toString(16).slice(2)}`;
 }
 
 function normalizeStatus(value: unknown): GeoVistaVerification["status"] {
@@ -132,14 +159,45 @@ function normalizeGeoVistaResponse(payload: unknown): GeoVistaVerification {
   return { ok: true, status, severity, summary, artifacts, generated_at, provenance };
 }
 
+const VerifyRequestSchema = z.object({
+  method_code: z.string().optional(),
+  method_version: z.string().optional(),
+  method: z
+    .object({
+      code: z.string().optional(),
+      version: z.string().optional(),
+    })
+    .optional(),
+  aoi: z
+    .object({
+      geojson: z.unknown(),
+    })
+    .passthrough()
+    .optional(),
+  cited_ids: z.array(z.string()).optional(),
+  attachment_sha256: z.array(z.string()).optional(),
+  question_id: z.string().optional(),
+});
+
+async function aoiFingerprintFromBody(aoi: { geojson: unknown }): Promise<string> {
+  return await sha256Hex(canonicalJson(aoi.geojson));
+}
+
 export async function POST(req: Request) {
   const baseUrl = requireEnv("GEOVISTA_BASE_URL");
   const apiKey = requireEnv("GEOVISTA_API_KEY");
-  if (!baseUrl || !apiKey) {
-    return jsonError("GEOVISTA_NOT_CONFIGURED", "GeoVista not configured", 501);
-  }
+  const timeoutMs = requireIntEnv("GEOVISTA_TIMEOUT_MS", 15_000);
+  const request_id = newRequestId();
 
-  const body: VerifyRequest = await req.json().catch(() => ({}));
+  const received_at = nowIso();
+
+  const rawBody: unknown = await req.json().catch(() => ({}));
+  const parsedBody = VerifyRequestSchema.safeParse(rawBody);
+  if (!parsedBody.success) {
+    return jsonError("BAD_REQUEST", "Invalid request payload.", 400);
+  }
+  const body: VerifyRequest = parsedBody.data;
+
   const method_code =
     typeof body.method_code === "string"
       ? body.method_code.trim()
@@ -157,15 +215,60 @@ export async function POST(req: Request) {
   const attachment_sha256 = Array.isArray(body.attachment_sha256)
     ? body.attachment_sha256.map((v) => String(v).trim()).filter(Boolean)
     : [];
-  const aoi = body.aoi ?? undefined;
+  const aoi = body.aoi && typeof body.aoi === "object" ? (body.aoi as { geojson?: unknown }) : undefined;
+  const hasGeojson = Boolean(aoi && "geojson" in aoi && aoi.geojson);
 
   if (!method_code) return jsonError("BAD_REQUEST", "Missing required field: method_code", 400);
   if (!method_version) return jsonError("BAD_REQUEST", "Missing required field: method_version", 400);
+  if (!hasGeojson) return jsonError("BAD_REQUEST", "Missing required field: aoi.geojson", 400);
   if (!cited_ids.length) return jsonError("BAD_REQUEST", "Missing required field: cited_ids", 400);
 
-  const endpoint = joinUrl(baseUrl, "/verify");
+  const endpoint = baseUrl ? joinUrl(baseUrl, "/verify") : "";
+  const provider_url = endpoint ? stripQuery(endpoint) : undefined;
+
+  const aoi_fingerprint = await aoiFingerprintFromBody(aoi as { geojson: unknown });
+
+  const auditRequest = {
+    request_id,
+    provider_url,
+    received_at,
+    method: { code: method_code, version: method_version },
+    aoi_fingerprint,
+    cited_ids,
+    attachment_sha256,
+  };
+
+  const envMissing = !baseUrl || !apiKey;
+  const isProduction = process.env.NODE_ENV === "production";
+  if (envMissing) {
+    if (isProduction) {
+      return NextResponse.json(
+        { ok: false, code: "GEOVISTA_NOT_CONFIGURED", message: "GeoVista not configured", request_id } satisfies Partial<GeoVistaVerification>,
+        { status: 500 },
+      );
+    }
+    const artifacts = buildArtifactsFromEvidenceIds(cited_ids);
+    const mock: GeoVistaVerification = {
+      ok: true,
+      mode: "mock",
+      status: "not_run",
+      severity: "ok",
+      summary: `GeoVista not configured (mock). Ready to verify ${artifacts.length} cited item(s).`,
+      artifacts,
+      generated_at: received_at,
+      request_id,
+      provider_url,
+      received_at,
+      request: auditRequest,
+      provider_response: { mode: "mock", configured: false },
+      provenance: { source: "mock", reason: "GEOVISTA_NOT_CONFIGURED" },
+    };
+    return NextResponse.json(mock, { headers: { "Cache-Control": "no-store" } });
+  }
 
   let upstream: Response;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     upstream = await fetch(endpoint, {
       method: "POST",
@@ -176,9 +279,17 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({ method_code, method_version, cited_ids, question_id, aoi, attachment_sha256 }),
       cache: "no-store",
+      signal: controller.signal,
     });
-  } catch {
-    return jsonError("GEOVISTA_UNAVAILABLE", "GeoVista unavailable", 502);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    const code = message.toLowerCase().includes("abort") ? "GEOVISTA_TIMEOUT" : "GEOVISTA_UNAVAILABLE";
+    return NextResponse.json(
+      { ok: false, code, message: code === "GEOVISTA_TIMEOUT" ? "GeoVista timed out" : "GeoVista unavailable", request_id } satisfies Partial<GeoVistaVerification>,
+      { status: code === "GEOVISTA_TIMEOUT" ? 504 : 502 },
+    );
+  } finally {
+    clearTimeout(timeout);
   }
 
   const raw = await upstream.text();
@@ -187,16 +298,37 @@ export async function POST(req: Request) {
     try {
       parsed = JSON.parse(raw);
     } catch {
-      return jsonError("GEOVISTA_UNAVAILABLE", "GeoVista unavailable", 502);
+      return NextResponse.json(
+        { ok: false, code: "GEOVISTA_UNAVAILABLE", message: "Invalid provider response", request_id } satisfies Partial<GeoVistaVerification>,
+        { status: 502 },
+      );
     }
   }
 
   if (!upstream.ok) {
-    return jsonError("GEOVISTA_UNAVAILABLE", "GeoVista unavailable", 502);
+    const message =
+      parsed && typeof parsed === "object" && typeof (parsed as Record<string, unknown>).message === "string"
+        ? String((parsed as Record<string, unknown>).message)
+        : `GeoVista HTTP ${upstream.status}`;
+    return NextResponse.json(
+      { ok: false, code: "GEOVISTA_UPSTREAM_ERROR", message, request_id } satisfies Partial<GeoVistaVerification>,
+      { status: 502 },
+    );
   }
 
   const normalized = normalizeGeoVistaResponse(parsed);
-  return NextResponse.json({ ...normalized, mode: "real" } satisfies GeoVistaVerification, {
+  return NextResponse.json(
+    {
+      ...normalized,
+      mode: "real",
+      request_id,
+      provider_url,
+      received_at,
+      request: auditRequest,
+      provider_response: parsed,
+    } satisfies GeoVistaVerification,
+    {
     headers: { "Cache-Control": "no-store, no-cache, must-revalidate", Pragma: "no-cache" },
-  });
+    },
+  );
 }

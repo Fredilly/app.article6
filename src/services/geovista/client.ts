@@ -71,7 +71,10 @@ export async function getVerification(
     }
 
     if (parsed && typeof parsed === "object") {
-      return { ok: true, ...(parsed as Record<string, unknown>), mode: "real" } as GeoVistaVerification;
+      const record = parsed as Record<string, unknown>;
+      const mode = typeof record.mode === "string" ? (record.mode as GeoVistaVerification["mode"]) : "real";
+      const ok = typeof record.ok === "boolean" ? record.ok : true;
+      return { ...record, ok, mode } as GeoVistaVerification;
     }
     return {
       ok: false,
