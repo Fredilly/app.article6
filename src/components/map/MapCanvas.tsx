@@ -10,6 +10,7 @@ type MapCanvasProps = {
   aoi: AOI | null;
   pins: EvidencePin[];
   stacEvidence?: GeoJSON.FeatureCollection | null;
+  stacEvidenceRunId?: string | null;
   selectedStacItemId?: string | null;
   onSelectStacItemId?: (id: string | null) => void;
   onMapReady?: (map: MapLibreMap) => void;
@@ -33,17 +34,19 @@ const STAC_LAYER_POINTS_SELECTED = "stac-evidence-points-selected";
 
 function isStyleReady(map: MapLibreMap): boolean {
   try {
-    return Boolean(map.isStyleLoaded?.());
+    const loaded = typeof map.loaded === "function" ? map.loaded() : true;
+    const styleLoaded = typeof map.isStyleLoaded === "function" ? map.isStyleLoaded() : true;
+    return Boolean(loaded && styleLoaded);
   } catch {
     return false;
   }
 }
 
-function safeCall(label: string, fn: () => void) {
+function safeCall(label: string, context: Record<string, unknown>, fn: () => void) {
   try {
     fn();
   } catch (error) {
-    console.warn(`[map] ${label} failed`, error);
+    console.warn(`[map] ${label} failed`, { ...context, error });
   }
 }
 
@@ -61,8 +64,8 @@ function isFatalMapError(message: string): boolean {
   );
 }
 
-function upsertStacEvidence(map: MapLibreMap) {
-  safeCall("upsert STAC source/layers", () => {
+function upsertStacEvidence(map: MapLibreMap, context: Record<string, unknown>) {
+  safeCall("upsert STAC source/layers", context, () => {
     if (!isStyleReady(map)) return;
 
     if (!map.getSource?.(STAC_SOURCE_ID)) {
@@ -125,6 +128,7 @@ export default function MapCanvas({
   aoi,
   pins,
   stacEvidence,
+  stacEvidenceRunId,
   selectedStacItemId,
   onSelectStacItemId,
   onMapReady,
@@ -137,6 +141,7 @@ export default function MapCanvas({
   const onMapReadyRef = useRef(onMapReady);
   const onMapDestroyedRef = useRef(onMapDestroyed);
   const onSelectStacItemIdRef = useRef(onSelectStacItemId);
+  const stacEvidenceRunIdRef = useRef<string | null | undefined>(stacEvidenceRunId);
 
   useEffect(() => {
     onMapReadyRef.current = onMapReady;
@@ -149,6 +154,10 @@ export default function MapCanvas({
   useEffect(() => {
     onSelectStacItemIdRef.current = onSelectStacItemId;
   }, [onSelectStacItemId]);
+
+  useEffect(() => {
+    stacEvidenceRunIdRef.current = stacEvidenceRunId;
+  }, [stacEvidenceRunId]);
 
   const pointsGeoJson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>>(() => {
     const fallback = aoi ? centerFromBbox(aoi.bbox) : null;
@@ -219,19 +228,27 @@ export default function MapCanvas({
         });
 
         map.on?.("load", () => {
-          upsertStacEvidence(map);
-          safeCall("resize after load", () => map.resize?.());
+          upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null });
+          safeCall("resize after load", {}, () => map.resize?.());
           setMapReadyTick((value) => value + 1);
         });
 
         map.on?.("style.load", () => {
-          upsertStacEvidence(map);
+          upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null });
           setMapReadyTick((value) => value + 1);
         });
 
         mapRef.current = map;
         setMapReadyTick((value) => value + 1);
         onMapReadyRef.current?.(map);
+
+        window.setTimeout(() => {
+          if (cancelled) return;
+          if (!mapRef.current) return;
+          if (!isStyleReady(mapRef.current)) {
+            setMapError((prev) => prev ?? "Map style did not finish loading.");
+          }
+        }, 8000);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         setMapError(message);
@@ -254,7 +271,7 @@ export default function MapCanvas({
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
-      safeCall("set AOI data", () => {
+      safeCall("set AOI data", {}, () => {
         const source = map.getSource?.("aoi") as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
 
@@ -292,7 +309,7 @@ export default function MapCanvas({
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
-      safeCall("set pins data", () => {
+      safeCall("set pins data", {}, () => {
         const source = map.getSource?.("pins") as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
         source.setData(pointsGeoJson);
@@ -311,8 +328,9 @@ export default function MapCanvas({
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
-      upsertStacEvidence(map);
-      safeCall("set STAC evidence data", () => {
+      const context = { runId: stacEvidenceRunIdRef.current ?? null, featureCount: stacEvidence?.features?.length ?? 0 };
+      upsertStacEvidence(map, context);
+      safeCall("set STAC evidence data", context, () => {
         const source = map.getSource?.(STAC_SOURCE_ID) as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
         const data: GeoJSON.FeatureCollection =
@@ -334,8 +352,9 @@ export default function MapCanvas({
     if (!map) return;
     const apply = () => {
       const id = selectedStacItemId ?? "";
-      upsertStacEvidence(map);
-      safeCall("set STAC selected filters", () => {
+      const context = { runId: stacEvidenceRunIdRef.current ?? null, selectedId: id || null };
+      upsertStacEvidence(map, context);
+      safeCall("set STAC selected filters", context, () => {
         map.setFilter?.(STAC_LAYER_OUTLINE_SELECTED, ["==", ["get", "id"], id]);
         map.setFilter?.(STAC_LAYER_POINTS_SELECTED, ["==", ["get", "id"], id]);
       });
@@ -373,8 +392,9 @@ export default function MapCanvas({
     };
 
     const apply = () => {
-      upsertStacEvidence(map);
-      safeCall("attach STAC click handlers", () => {
+      const context = { runId: stacEvidenceRunIdRef.current ?? null };
+      upsertStacEvidence(map, context);
+      safeCall("attach STAC click handlers", context, () => {
         map.on?.("click", STAC_LAYER_OUTLINE, handleSelect);
         map.on?.("click", STAC_LAYER_POINTS, handleSelect);
         map.on?.("mouseenter", STAC_LAYER_OUTLINE, setPointer);
@@ -391,15 +411,40 @@ export default function MapCanvas({
     }
 
     return () => {
-      map.off?.("click", STAC_LAYER_OUTLINE, handleSelect);
-      map.off?.("click", STAC_LAYER_POINTS, handleSelect);
-      map.off?.("mouseenter", STAC_LAYER_OUTLINE, setPointer);
-      map.off?.("mouseenter", STAC_LAYER_POINTS, setPointer);
-      map.off?.("mouseleave", STAC_LAYER_OUTLINE, unsetPointer);
-      map.off?.("mouseleave", STAC_LAYER_POINTS, unsetPointer);
-      map.off?.("load", apply);
+      safeCall("detach STAC click handlers", {}, () => {
+        map.off?.("click", STAC_LAYER_OUTLINE, handleSelect);
+        map.off?.("click", STAC_LAYER_POINTS, handleSelect);
+        map.off?.("mouseenter", STAC_LAYER_OUTLINE, setPointer);
+        map.off?.("mouseenter", STAC_LAYER_POINTS, setPointer);
+        map.off?.("mouseleave", STAC_LAYER_OUTLINE, unsetPointer);
+        map.off?.("mouseleave", STAC_LAYER_POINTS, unsetPointer);
+        map.off?.("load", apply);
+      });
     };
   }, [mapReadyTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!containerRef.current) return;
+
+    const node = containerRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.some((entry) => entry.isIntersecting);
+        if (!visible) return;
+        requestAnimationFrame(() => {
+          safeCall("resize on resume", {}, () => map.resize?.());
+          upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null, reason: "resume" });
+          setMapReadyTick((value) => value + 1);
+        });
+      },
+      { root: null, threshold: 0.01 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="relative h-[26rem] w-full rounded-xl border border-slate-200 bg-slate-100">
