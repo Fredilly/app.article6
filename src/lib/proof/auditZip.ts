@@ -3,6 +3,7 @@ import type { EvidenceAttachment, EvidencePin, VerificationRun } from "@/lib/pro
 import type { ProofBundleV1 } from "@/lib/proof/bundle";
 import { canonicalizeProofBundleForHash, isProofBundleV1, sha256Hex, verifyProofBundleIntegrity } from "@/lib/proof/bundle";
 import { sha256ArrayBuffer, sha256Text } from "@/lib/proof/hash";
+import { canonicalJson } from "@/lib/proof/fingerprints";
 import { getAttachmentBytes, putAttachmentBytes } from "@/lib/proofMap/attachments";
 import { loadVerificationRuns } from "@/lib/proofMap/storage";
 
@@ -34,7 +35,7 @@ export async function buildAuditZipBytes(input: {
   const zip = new JSZip();
   zip.file("bundle.json", JSON.stringify(input.bundle, null, 2));
   if (input.runs && input.runs.length) {
-    zip.file("runs.json", JSON.stringify(input.runs, null, 2));
+    zip.file("runs.json", canonicalJson(input.runs));
   }
   for (const att of input.attachments) {
     zip.file(`attachments/${att.id}__${safeFilename(att.filename)}`, att.bytes);
@@ -54,7 +55,7 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
   const methodCode = bundle.method.code;
   const version = bundle.method.version;
   const runs = loadVerificationRuns(methodCode, version);
-  const runsText = runs.length ? JSON.stringify(runs, null, 2) : "";
+  const runsText = runs.length ? canonicalJson(runs) : "";
   const runs_sha256 = runsText ? await sha256Text(runsText) : undefined;
 
   const bundleWithRunsIntegrity: ProofBundleV1 = runs_sha256
