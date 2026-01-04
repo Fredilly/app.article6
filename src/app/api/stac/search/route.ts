@@ -125,7 +125,10 @@ export async function POST(req: Request) {
     .filter(Boolean);
 
   const collections = parsedBody.data.collections?.length ? parsedBody.data.collections : collectionsDefault;
-  const bbox = parsedBody.data.bbox?.length === 4 && parsedBody.data.bbox.every(isFiniteNumber) ? (parsedBody.data.bbox as [number, number, number, number]) : bboxFromGeometry(geometry);
+  const bboxInput =
+    parsedBody.data.bbox?.length === 4 && parsedBody.data.bbox.every(isFiniteNumber)
+      ? (parsedBody.data.bbox as [number, number, number, number])
+      : bboxFromGeometry(geometry);
   const limit = parsedBody.data.limit ?? 10;
   const datetime = parsedBody.data.datetime;
 
@@ -141,7 +144,6 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         collections,
         intersects: geometry,
-        bbox,
         datetime,
         limit,
       }),
@@ -210,11 +212,10 @@ export async function POST(req: Request) {
       received_at,
       collections,
       datetime,
-      bbox,
+      bbox: bboxInput,
       limit,
     },
     items,
-    request: { aoi_geojson_type: geometry.type, bbox, datetime, collections, limit },
+    request: { aoi_geojson_type: geometry.type, datetime, collections, limit },
   });
 }
-
