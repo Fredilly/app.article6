@@ -10,6 +10,7 @@ import { extractPackId } from "@/lib/packId";
 import GeoVistaCard from "@/components/assistant/GeoVistaCard";
 import { getVerification } from "@/services/geovista/client";
 import type { GeoVistaVerification } from "@/services/geovista/types";
+import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 
 type RuleSummary = { id: string; title: string; snippet: string };
 type SectionSummary = { id: string; title: string; textSnippet?: string };
@@ -25,6 +26,9 @@ type AssistantPanelProps = {
   manifestRulesPath?: string | null;
   packTag?: string | null;
   provenanceJson?: unknown | null;
+  aoi?: AOI | null;
+  evidencePins?: EvidencePin[];
+  onAddEvidencePin?: (pin: EvidencePin) => void;
   onNavigateEvidence?: (type: "rule" | "section", id: string) => void;
 };
 
@@ -201,6 +205,13 @@ export default function AssistantPanel(props: AssistantPanelProps) {
 
   const evidenceRequired = answer.evidence.length === 0;
   const geovistaEnabled = process.env.NEXT_PUBLIC_GEOVISTA_ENABLED === "true";
+  const currentEvidenceIds = useMemo(
+    () =>
+      answer.evidence
+        .filter((item) => item.type === "rule" || item.type === "section")
+        .map((item) => item.id),
+    [answer.evidence],
+  );
 
   useEffect(() => {
     if (!geovistaEnabled) {
@@ -210,9 +221,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
     }
     if (!props.methodCode || !props.version) return;
 
-    const cited_ids = answer.evidence
-      .filter((item) => item.type === "rule" || item.type === "section")
-      .map((item) => item.id);
+    const cited_ids = currentEvidenceIds;
 
     if (!cited_ids.length) {
       setGeovista(null);
@@ -237,7 +246,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
     return () => {
       cancelled = true;
     };
-  }, [answer.evidence, answer.question_id, geovistaEnabled, props.methodCode, props.version]);
+  }, [answer.question_id, currentEvidenceIds, geovistaEnabled, props.methodCode, props.version]);
 
   return (
     <div className="mt-4 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 bg-slate-50">
@@ -277,10 +286,35 @@ export default function AssistantPanel(props: AssistantPanelProps) {
         <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm font-semibold text-slate-900">Answer</div>
-          <button
-            type="button"
-            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-            onClick={async () => {
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={() => {
+                const cited_ids = currentEvidenceIds;
+                if (!cited_ids.length) return;
+                const question = ASSISTANT_QUESTIONS.find((q) => q.id === answer.question_id);
+                const created_at = new Date().toISOString();
+                const pin: EvidencePin = {
+                  id: `pin_${created_at}_${Math.random().toString(16).slice(2)}`,
+                  kind: "note",
+                  title: question?.label ?? "Assistant evidence",
+                  aoi_id: props.aoi?.id ?? null,
+                  cited_ids,
+                  created_at,
+                };
+                props.onAddEvidencePin?.(pin);
+                showToast("Added");
+              }}
+              disabled={!currentEvidenceIds.length}
+              title={!currentEvidenceIds.length ? "No evidence to add." : undefined}
+            >
+              Add to map
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={async () => {
               const evidenceRules: unknown[] = [];
               const evidenceSections: unknown[] = [];
               const seenRules = new Set<string>();
@@ -338,14 +372,17 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                   audit_hashes: auditHashes ?? undefined,
                 },
                 geovista: geovista ?? undefined,
+                aoi: props.aoi ?? null,
+                evidencePins: props.evidencePins ?? [],
               });
 
               const filename = `article6__${props.methodCode}__${props.version}__assistant__${answer.question_id}.bundle.json`;
               downloadJson(bundle, filename);
-            }}
-          >
-            Export answer
-          </button>
+              }}
+            >
+              Export answer
+            </button>
+          </div>
         </div>
 
         <div className="mt-3">

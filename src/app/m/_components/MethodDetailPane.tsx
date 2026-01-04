@@ -6,9 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
+import ProofMapTab from "@/components/map/ProofMapTab";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
+import { loadProofMapState, saveProofMapState } from "@/lib/proofMap/storage";
+import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 
-type DetailTab = "overview" | "assistant" | "versions" | "rules" | "sections" | "rich";
+type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
 
 type MethodDetail = {
   code: string;
@@ -101,6 +104,9 @@ export default function MethodDetailPane({
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const didApplyFocusFromUrl = useRef(false);
 
+  const [aoi, setAoi] = useState<AOI | null>(null);
+  const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
+
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
   const [richEvidence, setRichEvidence] = useState<NormalizedRichEvidence | null>(null);
@@ -175,6 +181,37 @@ export default function MethodDetailPane({
     setRuleDetailLoading(false);
     didOpenFromQuery.current = false;
   }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    if (!activeVersion) return;
+    const state = loadProofMapState(method.code, activeVersion);
+    setAoi(state.aoi);
+    setEvidencePins(state.evidence_pins ?? []);
+  }, [activeVersion, method.code]);
+
+  const persistProofMap = useCallback(
+    (next: { aoi: AOI | null; evidence_pins: EvidencePin[] }) => {
+      if (!activeVersion) return;
+      saveProofMapState(method.code, activeVersion, next);
+    },
+    [activeVersion, method.code],
+  );
+
+  const setAoiAndPersist = useCallback(
+    (nextAoi: AOI | null) => {
+      setAoi(nextAoi);
+      persistProofMap({ aoi: nextAoi, evidence_pins: evidencePins });
+    },
+    [evidencePins, persistProofMap],
+  );
+
+  const setEvidencePinsAndPersist = useCallback(
+    (nextPins: EvidencePin[]) => {
+      setEvidencePins(nextPins);
+      persistProofMap({ aoi, evidence_pins: nextPins });
+    },
+    [aoi, persistProofMap],
+  );
 
   useEffect(() => {
     setSections([]);
@@ -760,6 +797,14 @@ export default function MethodDetailPane({
         >
           Assistant
         </button>
+        <button
+          type="button"
+          onClick={() => setTab("map")}
+          className={`${tabBase} ${tab === "map" ? tabActive : tabIdle}`}
+          aria-pressed={tab === "map"}
+        >
+          Map
+        </button>
       </div>
 
       {tab === "overview" ? (
@@ -811,6 +856,20 @@ export default function MethodDetailPane({
           manifestRulesPath={manifestRulesPath}
           packTag={packTag}
           provenanceJson={provenanceJson}
+          aoi={aoi}
+          evidencePins={evidencePins}
+          onAddEvidencePin={(pin) => setEvidencePinsAndPersist([pin, ...evidencePins])}
+          onNavigateEvidence={(type, id) => {
+            if (type === "rule") return void navigateToRule(id);
+            if (type === "section") return void navigateToSection(id);
+          }}
+        />
+      ) : tab === "map" ? (
+        <ProofMapTab
+          aoi={aoi}
+          evidencePins={evidencePins}
+          onSetAoi={setAoiAndPersist}
+          onRemoveAoi={() => setAoiAndPersist(null)}
           onNavigateEvidence={(type, id) => {
             if (type === "rule") return void navigateToRule(id);
             if (type === "section") return void navigateToSection(id);
