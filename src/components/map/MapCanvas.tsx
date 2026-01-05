@@ -13,6 +13,7 @@ type MapCanvasProps = {
   stacEvidenceCentroids?: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
   stacEvidenceCentroidsEnabled?: boolean;
   stacEvidenceRunId?: string | null;
+  autoFitAoi?: boolean;
   selectedStacItemId?: string | null;
   onSelectStacItemId?: (id: string | null) => void;
   onSelectEvidence?: (selection: { id: string; source: "pin" | "polygon" }) => void;
@@ -172,6 +173,7 @@ export default function MapCanvas({
   stacEvidenceCentroids,
   stacEvidenceCentroidsEnabled,
   stacEvidenceRunId,
+  autoFitAoi = true,
   selectedStacItemId,
   onSelectStacItemId,
   onSelectEvidence,
@@ -336,7 +338,7 @@ export default function MapCanvas({
         };
         source.setData(data);
 
-        if (aoi?.bbox) {
+        if (autoFitAoi && aoi?.bbox) {
           try {
             map.fitBounds(
               [
@@ -358,7 +360,7 @@ export default function MapCanvas({
     }
 
     apply();
-  }, [aoi, mapReadyTick]);
+  }, [aoi, autoFitAoi, mapReadyTick]);
 
   useEffect(() => {
     const map = mapRef.current;

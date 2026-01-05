@@ -7,12 +7,14 @@ type VersionSelectorProps = {
   methodCode: string;
   versions: string[];
   selectedVersion?: string;
+  preserveTab?: string;
 };
 
 export default function VersionSelector({
   methodCode,
   versions,
   selectedVersion,
+  preserveTab,
 }: VersionSelectorProps) {
   const router = useRouter();
   const value = selectedVersion ?? "";
@@ -38,7 +40,10 @@ export default function VersionSelector({
         onChange={(event) => {
           const next = event.target.value;
           if (!next) return;
-          router.push(`/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(next)}`);
+          const params = new URLSearchParams();
+          if (preserveTab) params.set("tab", preserveTab);
+          const search = params.toString();
+          router.push(`/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(next)}${search ? `?${search}` : ""}`);
         }}
       >
         <option value="" disabled>

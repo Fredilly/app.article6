@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
@@ -21,6 +21,7 @@ import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
+import { formatBboxParam, parseProofMapUrlState } from "@/lib/proofMap/urlState";
 
 type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
 
@@ -69,6 +70,7 @@ export default function MethodDetailPane({
 }: MethodDetailPaneProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<DetailTab>(
     initialSectionId ? "sections" : initialRuleId ? "rules" : "overview",
   );
@@ -122,9 +124,12 @@ export default function MethodDetailPane({
   const didApplyFocusFromUrl = useRef(false);
 
   const [aoi, setAoi] = useState<AOI | null>(null);
+  const [aoiUrlRef, setAoiUrlRef] = useState<string | null>(null);
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
   const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
   const [verificationRuns, setVerificationRuns] = useState<VerificationRun[]>([]);
+  const [mapViewportBbox, setMapViewportBbox] = useState<[number, number, number, number] | null>(null);
+  const [urlHydrated, setUrlHydrated] = useState(false);
   type StacEvidenceState = {
     aoiFingerprint: string;
     fc: GeoJSON.FeatureCollection;
@@ -462,12 +467,13 @@ export default function MethodDetailPane({
   );
 
   const setFocusParam = useCallback((focusTab: "rules" | "sections", focusId: string) => {
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", focusTab);
-    url.searchParams.set("focus", focusId);
-    window.history.replaceState(null, "", url.toString());
-  }, []);
+    if (!pathname) return;
+    const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+    params.set("tab", focusTab);
+    params.set("focus", focusId);
+    const search = params.toString();
+    router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
+  }, [pathname, router]);
 
   const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
     if (!activeVersion) return [];
@@ -620,6 +626,62 @@ export default function MethodDetailPane({
       setRichLoading(false);
     }
   }, [activeVersion, method.code, method.program, method.sector, richEvidence, richLoading]);
+
+  const urlState = useMemo(() => {
+    return parseProofMapUrlState(searchParams);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!activeVersion) return;
+    if (urlState.tab && urlState.tab !== tab) {
+      setTab(urlState.tab);
+      if (urlState.tab === "rules") void ensureRulesLoaded();
+      if (urlState.tab === "sections") void ensureSectionsLoaded();
+      if (urlState.tab === "rich") void ensureRichLoaded();
+      if (urlState.tab === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
+    }
+    if (urlState.aoiRef) setAoiUrlRef(urlState.aoiRef);
+    if (urlState.selectedStacItemId) setSelectedStacItemId(urlState.selectedStacItemId);
+    if (urlState.viewportBbox) setMapViewportBbox(urlState.viewportBbox);
+    if (!urlHydrated) setUrlHydrated(true);
+  }, [
+    activeVersion,
+    ensureRichLoaded,
+    ensureRulesLoaded,
+    ensureSectionsLoaded,
+    tab,
+    urlHydrated,
+    urlState.aoiRef,
+    urlState.selectedStacItemId,
+    urlState.tab,
+    urlState.viewportBbox,
+  ]);
+
+  useEffect(() => {
+    if (!pathname) return;
+    if (!activeVersion) return;
+    if (!urlHydrated) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+
+    const derivedAoiRef = aoi ? (aoi.aoi_fingerprint ?? aoi.id) : aoiUrlRef;
+    if (derivedAoiRef) params.set("aoi", derivedAoiRef);
+    else params.delete("aoi");
+
+    if (selectedStacItemId) params.set("stac", selectedStacItemId);
+    else params.delete("stac");
+
+    if (mapViewportBbox) params.set("bbox", formatBboxParam(mapViewportBbox));
+    else params.delete("bbox");
+
+    if (tab !== "rules" && tab !== "sections") params.delete("focus");
+
+    const next = params.toString();
+    const current = searchParams.toString();
+    if (next === current) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [activeVersion, aoi, aoiUrlRef, mapViewportBbox, pathname, router, searchParams, selectedStacItemId, tab, urlHydrated]);
 
   const openRule = useCallback(async (ruleId: string) => {
     setTab("rules");
@@ -783,6 +845,25 @@ export default function MethodDetailPane({
     })();
   }, [activeVersion, ensureSectionsLoaded, initialSectionId, setSectionParam]);
 
+  const setAoiForMap = useCallback(
+    (nextAoi: AOI | null) => {
+      const prevId = aoi?.id ?? null;
+      const nextId = nextAoi?.id ?? null;
+      setAoiAndPersist(nextAoi);
+      setAoiUrlRef(nextAoi ? (nextAoi.aoi_fingerprint ?? nextAoi.id) : null);
+      if (prevId !== nextId) {
+        setSelectedStacItemId(null);
+        setMapViewportBbox(null);
+      }
+    },
+    [aoi?.id, setAoiAndPersist],
+  );
+
+  const removeAoiForMap = useCallback(() => {
+    setAoiForMap(null);
+    setAoiUrlRef(null);
+  }, [setAoiForMap]);
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -800,6 +881,7 @@ export default function MethodDetailPane({
             methodCode={method.code}
             versions={sortedVersionsNewestFirst}
             selectedVersion={activeVersion}
+            preserveTab={tab}
           />
         </div>
       </div>
@@ -949,14 +1031,16 @@ export default function MethodDetailPane({
           methodCode={method.code}
           version={activeVersion ?? ""}
           provenanceJson={provenanceJson}
+          restoreViewportBbox={mapViewportBbox}
+          onViewportBboxChange={setMapViewportBbox}
           aoi={aoi}
           evidencePins={evidencePins}
           verificationRuns={verificationRuns}
           stacEvidenceState={stacEvidenceState}
           selectedStacItemId={selectedStacItemId}
           evidenceSnapshots={evidenceSnapshots}
-          onSetAoi={setAoiAndPersist}
-          onRemoveAoi={() => setAoiAndPersist(null)}
+          onSetAoi={setAoiForMap}
+          onRemoveAoi={removeAoiForMap}
           onSetEvidencePins={setEvidencePinsAndPersist}
           onSetVerificationRuns={setVerificationRunsAndPersist}
           onSetStacEvidenceState={(next) => {

@@ -21,6 +21,8 @@ type ProofMapTabProps = {
   methodCode: string;
   version: string;
   provenanceJson?: unknown | null;
+  restoreViewportBbox?: [number, number, number, number] | null;
+  onViewportBboxChange?: (bbox: [number, number, number, number] | null) => void;
   aoi: AOI | null;
   evidencePins: EvidencePin[];
   verificationRuns: VerificationRun[];
@@ -169,6 +171,8 @@ export default function ProofMapTab({
   methodCode,
   version,
   provenanceJson,
+  restoreViewportBbox,
+  onViewportBboxChange,
   aoi,
   evidencePins,
   verificationRuns,
@@ -194,6 +198,8 @@ export default function ProofMapTab({
   const [mapReadyTick, setMapReadyTick] = useState(0);
   const [stacCentroidsEnabled, setStacCentroidsEnabled] = useState(true);
   const [viewportBbox, setViewportBbox] = useState<[number, number, number, number] | null>(null);
+  const didApplyRestoreViewportRef = useRef(false);
+  const lastAppliedRestoreKeyRef = useRef<string | null>(null);
   const stacEvidenceCardRef = useRef<HTMLDivElement | null>(null);
   const [stacInspectOpen, setStacInspectOpen] = useState(false);
   const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
@@ -503,36 +509,38 @@ export default function ProofMapTab({
   }, [mapReadyTick]);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !aoi?.bbox) return;
+    if (!restoreViewportBbox) {
+      didApplyRestoreViewportRef.current = false;
+      lastAppliedRestoreKeyRef.current = null;
+      return;
+    }
 
-    const fit = () => {
-      try {
-        map.resize?.();
-      } catch {
-        // ignore
-      }
+    const map = mapRef.current;
+    if (!map) return;
+    const key = restoreViewportBbox.join(",");
+    if (lastAppliedRestoreKeyRef.current === key) return;
+
+    const apply = () => {
       try {
         map.fitBounds(
           [
-            [aoi.bbox[0], aoi.bbox[1]],
-            [aoi.bbox[2], aoi.bbox[3]],
+            [restoreViewportBbox[0], restoreViewportBbox[1]],
+            [restoreViewportBbox[2], restoreViewportBbox[3]],
           ],
-          { padding: 20, duration: 0 },
+          { padding: 30, duration: 0 },
         );
+        lastAppliedRestoreKeyRef.current = key;
+        didApplyRestoreViewportRef.current = true;
       } catch {
         // ignore
       }
     };
 
     requestAnimationFrame(() => {
-      if (!map.isStyleLoaded?.()) {
-        map.once?.("load", fit);
-        return;
-      }
-      fit();
+      if (!map.isStyleLoaded?.()) map.once?.("load", apply);
+      else apply();
     });
-  }, [aoi, mapReadyTick]);
+  }, [mapReadyTick, restoreViewportBbox]);
 
   return (
     <div className="mt-4 grid gap-4">
@@ -704,9 +712,15 @@ export default function ProofMapTab({
         stacEvidenceCentroids={stacCentroids}
         stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
         stacEvidenceRunId={currentStacEvidence?.runId ?? null}
+        autoFitAoi={!restoreViewportBbox}
         selectedStacItemId={selectedStacItemId}
         onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
-        onViewportBboxChange={(bbox) => setViewportBbox(bbox)}
+        onViewportBboxChange={(bbox) => {
+          setViewportBbox(bbox);
+          if (!onViewportBboxChange) return;
+          if (restoreViewportBbox && !didApplyRestoreViewportRef.current) return;
+          onViewportBboxChange(bbox);
+        }}
         onMapReady={(map) => {
           mapRef.current = map;
           setMapReadyTick((value) => value + 1);
