@@ -6,7 +6,7 @@ describe("selectLatestStacRun", () => {
   test("picks newest ok stac run for matching AOI", () => {
     const runs: VerificationRun[] = [
       {
-        id: "geovista-1",
+        id: "stac-error-old",
         method: { code: "M", version: "1" },
         aoi_fingerprint: "aoi-1",
         input_fingerprint: "x",
@@ -14,8 +14,8 @@ describe("selectLatestStacRun", () => {
         cited_ids_count: 0,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
-        status: "ok",
+        provider: "stac",
+        status: "error",
         created_at: "2026-01-01T00:00:00Z",
       },
       {
@@ -85,4 +85,3 @@ describe("selectLatestStacRun", () => {
     expect(selected).toBeNull();
   });
 });
-

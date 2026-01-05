@@ -15,7 +15,7 @@ describe("selectRunsForAoi", () => {
         cited_ids_count: 0,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
+        provider: "stac",
         status: "ok",
         created_at: "2026-01-01T00:00:00Z",
       },
@@ -51,7 +51,7 @@ describe("selectRunsForAoi", () => {
         cited_ids_count: 0,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
+        provider: "stac",
         status: "ok",
         created_at: "2026-01-01T00:00:00Z",
       },
@@ -61,4 +61,3 @@ describe("selectRunsForAoi", () => {
     expect(selected.map((r) => r.id)).toEqual(["run-1"]);
   });
 });
-

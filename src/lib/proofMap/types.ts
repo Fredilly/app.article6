@@ -32,7 +32,7 @@ export type VerificationRun = {
   cited_ids_count: number;
   attachment_sha256: string[];
   attachment_count: number;
-  provider: "geovista" | "stac";
+  provider: "stac";
   status: "queued" | "ok" | "warn" | "fail" | "error";
   summary?: string;
   result_json?: unknown;

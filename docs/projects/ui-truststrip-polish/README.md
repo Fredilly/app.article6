@@ -81,5 +81,3 @@ Action:
 - Method Assistant
 - Rich evidence rendering improvements
 - Diff UI
-- GeoVista integration
-

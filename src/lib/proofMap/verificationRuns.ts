@@ -1,6 +1,4 @@
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
-import type { GeoVistaVerificationRequest } from "@/services/geovista/client";
-import type { GeoVistaVerification } from "@/services/geovista/types";
 import { canonicalJson, sha256Hex } from "@/lib/proof/fingerprints";
 import { dedupeStrings } from "@/lib/proofMap/pins";
 
@@ -26,15 +24,6 @@ export function buildVerificationRunInputFromPins(pins: EvidencePin[]): Verifica
     for (const att of pin.attachments ?? []) attachmentSha.push(att.sha256);
   }
   return { cited_ids: dedupeStrings(cited), attachment_sha256: dedupeStrings(attachmentSha) };
-}
-
-export function mapGeoVistaVerificationToRunStatus(verification: GeoVistaVerification): VerificationRun["status"] {
-  if (verification.ok === false) return "error";
-  if (verification.mode === "mock") return "ok";
-  if (verification.severity === "ok") return "ok";
-  if (verification.severity === "warn") return "warn";
-  if (verification.severity === "fail") return "fail";
-  return "ok";
 }
 
 export async function aoiFingerprint(geojson: AOI["geojson"]): Promise<string> {
@@ -93,7 +82,6 @@ export function createQueuedVerificationRun(input: {
   pins: EvidencePin[];
   aoi_fingerprint: string;
   input_fingerprint: string;
-  provider?: VerificationRun["provider"];
 }): VerificationRun {
   const aggregates = buildVerificationRunInputFromPins(input.pins);
   return {
@@ -107,7 +95,7 @@ export function createQueuedVerificationRun(input: {
     attachment_sha256: aggregates.attachment_sha256,
     cited_ids_count: aggregates.cited_ids.length,
     attachment_count: aggregates.attachment_sha256.length,
-    provider: input.provider ?? "geovista",
+    provider: "stac",
     status: "queued",
     created_at: nowIso(),
   };
@@ -125,67 +113,28 @@ async function fetchJson(url: string, body: unknown): Promise<{ ok: boolean; sta
   return { ok: res.ok, status: res.status, json };
 }
 
-export async function runGeoVistaVerification(input: {
+export async function runStacEvidenceSearch(input: {
   method: { code: string; version: string };
   aoi: AOI;
   cited_ids: string[];
   attachment_sha256: string[];
 }): Promise<{ provider: VerificationRun["provider"]; runStatus: VerificationRun["status"]; summary: string; result_json: unknown }> {
-  const req: GeoVistaVerificationRequest = {
-    method_code: input.method.code,
-    method_version: input.method.version,
-    method: { code: input.method.code, version: input.method.version },
-    cited_ids: input.cited_ids,
-  };
-
-  const geovista = await fetchJson("/api/geovista/verify", {
-    ...req,
-    aoi: input.aoi,
-    attachment_sha256: input.attachment_sha256,
-  });
-
-  if (geovista.status === 501) {
-    const code =
-      geovista.json && typeof geovista.json === "object" && typeof (geovista.json as Record<string, unknown>).code === "string"
-        ? String((geovista.json as Record<string, unknown>).code)
-        : "";
-    if (code === "GEOVISTA_NOT_CONFIGURED") {
-      const stac = await fetchJson("/api/stac/search", { aoi_geojson: input.aoi.geojson });
-      if (!stac.ok) {
-        return {
-          provider: "stac",
-          runStatus: "error",
-          summary: "STAC unavailable.",
-          result_json: stac.json,
-        };
-      }
-      const stacRecord =
-        stac.json && typeof stac.json === "object" ? (stac.json as Record<string, unknown>) : null;
-      const items = stacRecord && Array.isArray(stacRecord.items) ? (stacRecord.items as unknown[]) : [];
-      const itemsCount = items.length;
-      return {
-        provider: "stac",
-        runStatus: "ok",
-        summary: `STAC returned ${itemsCount} item(s).`,
-        result_json: stac.json,
-      };
-    }
-  }
-
-  if (!geovista.ok) {
+  const stac = await fetchJson("/api/stac/search", { aoi_geojson: input.aoi.geojson });
+  if (!stac.ok) {
     return {
-      provider: "geovista",
+      provider: "stac",
       runStatus: "error",
-      summary: "GeoVista unavailable.",
-      result_json: geovista.json ?? { status: "error", summary: "GeoVista unavailable." },
+      summary: "STAC search failed.",
+      result_json: stac.json,
     };
   }
-
-  const verification = geovista.json as GeoVistaVerification;
+  const stacRecord = stac.json && typeof stac.json === "object" ? (stac.json as Record<string, unknown>) : null;
+  const items = stacRecord && Array.isArray(stacRecord.items) ? (stacRecord.items as unknown[]) : [];
+  const itemsCount = items.length;
   return {
-    provider: "geovista",
-    runStatus: mapGeoVistaVerificationToRunStatus(verification),
-    summary: verification.summary ?? "GeoVista response received.",
-    result_json: verification,
+    provider: "stac",
+    runStatus: "ok",
+    summary: `STAC returned ${itemsCount} item(s).`,
+    result_json: stac.json,
   };
 }

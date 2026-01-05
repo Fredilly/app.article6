@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ASSISTANT_QUESTIONS, type AssistantQuestionId } from "@/lib/assistant/questions";
 import { generateAnswer, type AssistantAnswer } from "@/lib/assistant/generateAnswer";
@@ -8,9 +8,6 @@ import { buildProofBundleV1 } from "@/lib/proof/bundle";
 import { exportAuditZipFromStorage } from "@/lib/proof/auditZip";
 import { pickProvenanceFields } from "@/lib/trustFormat";
 import { extractPackId } from "@/lib/packId";
-import GeoVistaCard from "@/components/assistant/GeoVistaCard";
-import { getVerification } from "@/services/geovista/client";
-import type { GeoVistaVerification } from "@/services/geovista/types";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import { buildEvidencePin, dedupeStrings, evidencePinFingerprint, isDuplicateEvidencePin } from "@/lib/proofMap/pins";
 
@@ -154,8 +151,6 @@ function AnswerBody({ markdown }: { markdown: string }) {
 export default function AssistantPanel(props: AssistantPanelProps) {
   const [active, setActive] = useState<AssistantQuestionId>("purpose_claims");
   const [toast, setToast] = useState<string | null>(null);
-  const [geovista, setGeovista] = useState<GeoVistaVerification | null>(null);
-  const [geovistaLoading, setGeovistaLoading] = useState(false);
   const lastPinFingerprintRef = useRef<{ fp: string; atMs: number } | null>(null);
 
   const showToast = useCallback((message: string) => {
@@ -189,48 +184,12 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   }, [active, props.methodCode, props.meta, props.rich, props.rules, props.sections, props.version, provenance]);
 
   const evidenceRequired = answer.evidence.length === 0;
-  const geovistaEnabled = process.env.NEXT_PUBLIC_GEOVISTA_ENABLED === "true";
   const currentEvidenceIds = useMemo(() => {
     const ids = answer.evidence
       .filter((item) => item.type === "rule" || item.type === "section")
       .map((item) => item.id);
     return dedupeStrings(ids);
   }, [answer.evidence]);
-
-  useEffect(() => {
-    if (!geovistaEnabled) {
-      setGeovista(null);
-      setGeovistaLoading(false);
-      return;
-    }
-    if (!props.methodCode || !props.version) return;
-
-    const cited_ids = currentEvidenceIds;
-
-    if (!cited_ids.length) {
-      setGeovista(null);
-      setGeovistaLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-    (async () => {
-      setGeovistaLoading(true);
-      const verification = await getVerification({
-        method_code: props.methodCode,
-        method_version: props.version,
-        cited_ids,
-        question_id: answer.question_id,
-      });
-      if (cancelled) return;
-      setGeovista(verification);
-      setGeovistaLoading(false);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [answer.question_id, currentEvidenceIds, geovistaEnabled, props.methodCode, props.version]);
 
   return (
     <div className="mt-4 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 bg-slate-50">
@@ -427,10 +386,6 @@ export default function AssistantPanel(props: AssistantPanelProps) {
               )}
             </div>
           </div>
-
-          {geovistaEnabled && (geovistaLoading || geovista) ? (
-            <GeoVistaCard loading={geovistaLoading} verification={geovista} />
-          ) : null}
 
           <div>
             <div className="text-xs font-semibold text-slate-700">Assumptions</div>

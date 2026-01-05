@@ -7,7 +7,7 @@ import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
-import { aoiFingerprint, createQueuedVerificationRun, runGeoVistaVerification, runInputFingerprint, runsForCurrentAoi, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunForActiveAoi";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
@@ -859,7 +859,7 @@ export default function ProofMapTab({
                   });
                   onSetVerificationRuns([queued, ...verificationRuns]);
                   try {
-                    const res = await runGeoVistaVerification({
+                    const res = await runStacEvidenceSearch({
                       method: { code: methodCode, version },
                       aoi,
                       cited_ids: queued.cited_ids,
@@ -932,7 +932,7 @@ export default function ProofMapTab({
                   }
                 }}
               >
-                {isRunning ? "Running…" : "Run verification"}
+                {isRunning ? "Searching…" : "Search STAC evidence"}
               </button>
               {!evidencePins.some((pin) => (pin.cited_ids ?? []).length) ? (
                 <div className="mt-1 text-[11px] text-slate-500">Add a pin with cited ids to enable.</div>
