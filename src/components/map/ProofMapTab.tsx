@@ -14,6 +14,8 @@ import normalizeStacItems from "@/lib/stac/normalizeStacItems";
 import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFormat";
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
+import getFeatureBbox from "@/lib/map/getFeatureBbox";
+import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -114,12 +116,6 @@ function parseBbox(value: unknown): [number, number, number, number] | null {
   return [a, b, c, d];
 }
 
-function unionBbox(a: [number, number, number, number] | null, b: [number, number, number, number] | null): [number, number, number, number] | null {
-  if (!a) return b;
-  if (!b) return a;
-  return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])];
-}
-
 function formatLocalDateTime(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
@@ -180,6 +176,8 @@ export default function ProofMapTab({
   const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<string | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [mapReadyTick, setMapReadyTick] = useState(0);
+  const [stacCentroidsEnabled, setStacCentroidsEnabled] = useState(true);
+  const [viewportBbox, setViewportBbox] = useState<[number, number, number, number] | null>(null);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -258,6 +256,56 @@ export default function ProofMapTab({
   }, [currentAoiFingerprint, stacEvidenceState]);
 
   const stacRenderedCount = currentStacEvidence?.fc?.features?.length ?? 0;
+
+  const evidenceDiagnostics = useMemo(() => {
+    const features = currentStacEvidence?.fc?.features ?? [];
+    const total = features.length;
+    let valid = 0;
+    let bounds: [number, number, number, number] | null = null;
+    const byIdBbox = new Map<string, [number, number, number, number]>();
+
+    for (const feature of features) {
+      const bbox = getFeatureBbox(feature);
+      const id =
+        feature && typeof feature === "object"
+          ? (() => {
+              const record = feature as unknown as { id?: unknown; properties?: unknown };
+              const props = record.properties && typeof record.properties === "object" ? (record.properties as Record<string, unknown>) : null;
+              const pid = props && typeof props.id === "string" ? props.id : null;
+              const fid = typeof record.id === "string" ? record.id : null;
+              return pid ?? fid ?? null;
+            })()
+          : null;
+
+      if (!bbox || !id) {
+        continue;
+      }
+      valid += 1;
+      bounds = unionBbox(bounds, bbox);
+      byIdBbox.set(id, bbox);
+    }
+
+    const inView =
+      viewportBbox && total
+        ? Array.from(byIdBbox.values()).reduce((acc, bbox) => (bboxIntersects(viewportBbox, bbox) ? acc + 1 : acc), 0)
+        : null;
+
+    return { total, valid, skipped: total - valid, bounds, byIdBbox, inView };
+  }, [currentStacEvidence?.fc?.features, viewportBbox]);
+
+  const stacCentroids = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>>(() => {
+    const features: Array<GeoJSON.Feature<GeoJSON.Point>> = [];
+    for (const [id, bbox] of evidenceDiagnostics.byIdBbox.entries()) {
+      const [lng, lat] = centerFromBbox(bbox);
+      features.push({
+        type: "Feature",
+        id,
+        geometry: { type: "Point", coordinates: [lng, lat] },
+        properties: { id },
+      });
+    }
+    return { type: "FeatureCollection", features };
+  }, [evidenceDiagnostics.byIdBbox]);
 
   const selectedStacDetails = useMemo(() => {
     if (!selectedStacItemId) return null;
@@ -612,9 +660,12 @@ export default function ProofMapTab({
         aoi={aoi}
         pins={evidencePins}
         stacEvidence={currentStacEvidence?.fc ?? null}
+        stacEvidenceCentroids={stacCentroids}
+        stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
         stacEvidenceRunId={currentStacEvidence?.runId ?? null}
         selectedStacItemId={selectedStacItemId}
         onSelectStacItemId={onSelectStacItemId}
+        onViewportBboxChange={(bbox) => setViewportBbox(bbox)}
         onMapReady={(map) => {
           mapRef.current = map;
           setMapReadyTick((value) => value + 1);
@@ -804,7 +855,7 @@ export default function ProofMapTab({
                       for (const item of Object.values(normalized.itemsById)) {
                         if (!item || typeof item !== "object") continue;
                         const record = item as Record<string, unknown>;
-                        evidenceBbox = unionBbox(evidenceBbox, parseBbox(record.bbox));
+                        evidenceBbox = unionBbox(evidenceBbox, getFeatureBbox(record));
                       }
                       const targetBbox = unionBbox(parseBbox(aoi.bbox), evidenceBbox) ?? evidenceBbox ?? parseBbox(aoi.bbox);
                       if (targetBbox && mapRef.current?.fitBounds) {
@@ -1045,6 +1096,61 @@ export default function ProofMapTab({
                   </button>
                 </div>
                 <div className="mt-1 text-[11px] text-slate-500">Rendered: {stacRenderedCount}</div>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                  <span>
+                    Valid: {evidenceDiagnostics.valid}, Skipped: {evidenceDiagnostics.skipped}
+                  </span>
+                  {evidenceDiagnostics.inView != null ? (
+                    <span>
+                      In view: {evidenceDiagnostics.inView}/{evidenceDiagnostics.valid}
+                    </span>
+                  ) : null}
+                </div>
+                {evidenceDiagnostics.bounds ? (
+                  <div className="mt-1 break-words font-mono text-[11px] text-slate-500">
+                    Bounds: {formatNum(evidenceDiagnostics.bounds[0])}, {formatNum(evidenceDiagnostics.bounds[1])} →{" "}
+                    {formatNum(evidenceDiagnostics.bounds[2])}, {formatNum(evidenceDiagnostics.bounds[3])}
+                  </div>
+                ) : (
+                  <div className="mt-1 text-[11px] text-slate-500">Bounds: —</div>
+                )}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={() => {
+                      if (!evidenceDiagnostics.bounds) return void showToast("No valid evidence geometry/bbox");
+                      if (!mapRef.current?.fitBounds) return;
+                      const bbox = evidenceDiagnostics.bounds;
+                      try {
+                        mapRef.current.fitBounds(
+                          [
+                            [bbox[0], bbox[1]],
+                            [bbox[2], bbox[3]],
+                          ],
+                          { padding: 60, duration: 0 },
+                        );
+                      } catch {
+                        showToast("Zoom failed");
+                      }
+                    }}
+                    title="Zoom map to evidence bounds"
+                  >
+                    Zoom to evidence ({evidenceDiagnostics.valid})
+                  </button>
+                  <button
+                    type="button"
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${
+                      stacCentroidsEnabled
+                        ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setStacCentroidsEnabled((v) => !v)}
+                    title="Toggle centroid pins"
+                  >
+                    Pins: {stacCentroidsEnabled ? "On" : "Off"}
+                  </button>
+                </div>
                 {selectedStacDetails ? (
                   <div className="mt-3 grid gap-2">
                     <div className="grid gap-1 text-xs text-slate-700">

@@ -10,9 +10,12 @@ type MapCanvasProps = {
   aoi: AOI | null;
   pins: EvidencePin[];
   stacEvidence?: GeoJSON.FeatureCollection | null;
+  stacEvidenceCentroids?: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
+  stacEvidenceCentroidsEnabled?: boolean;
   stacEvidenceRunId?: string | null;
   selectedStacItemId?: string | null;
   onSelectStacItemId?: (id: string | null) => void;
+  onViewportBboxChange?: (bbox: [number, number, number, number]) => void;
   onMapReady?: (map: MapLibreMap) => void;
   onMapDestroyed?: () => void;
 };
@@ -31,6 +34,10 @@ const STAC_LAYER_OUTLINE = "stac-evidence-outline";
 const STAC_LAYER_POINTS = "stac-evidence-points";
 const STAC_LAYER_OUTLINE_SELECTED = "stac-evidence-outline-selected";
 const STAC_LAYER_POINTS_SELECTED = "stac-evidence-points-selected";
+
+const STAC_CENTROID_SOURCE_ID = "stac-evidence-centroids";
+const STAC_CENTROID_LAYER = "stac-evidence-centroids-points";
+const STAC_CENTROID_LAYER_SELECTED = "stac-evidence-centroids-selected";
 
 function isStyleReady(map: MapLibreMap): boolean {
   try {
@@ -70,6 +77,10 @@ function upsertStacEvidence(map: MapLibreMap, context: Record<string, unknown>) 
 
     if (!map.getSource?.(STAC_SOURCE_ID)) {
       map.addSource(STAC_SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    }
+
+    if (!map.getSource?.(STAC_CENTROID_SOURCE_ID)) {
+      map.addSource(STAC_CENTROID_SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
     }
 
     if (!map.getLayer?.(STAC_LAYER_FILL)) {
@@ -121,6 +132,35 @@ function upsertStacEvidence(map: MapLibreMap, context: Record<string, unknown>) 
         paint: { "circle-color": "#0ea5e9", "circle-radius": 6, "circle-stroke-color": "#ffffff", "circle-stroke-width": 2 },
       });
     }
+
+    if (!map.getLayer?.(STAC_CENTROID_LAYER)) {
+      map.addLayer({
+        id: STAC_CENTROID_LAYER,
+        type: "circle",
+        source: STAC_CENTROID_SOURCE_ID,
+        paint: {
+          "circle-color": "#f97316",
+          "circle-radius": 6,
+          "circle-stroke-color": "#0f172a",
+          "circle-stroke-width": 2,
+        },
+      });
+    }
+
+    if (!map.getLayer?.(STAC_CENTROID_LAYER_SELECTED)) {
+      map.addLayer({
+        id: STAC_CENTROID_LAYER_SELECTED,
+        type: "circle",
+        source: STAC_CENTROID_SOURCE_ID,
+        filter: ["==", ["get", "id"], ""],
+        paint: {
+          "circle-color": "#0ea5e9",
+          "circle-radius": 8,
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 2,
+        },
+      });
+    }
   });
 }
 
@@ -128,9 +168,12 @@ export default function MapCanvas({
   aoi,
   pins,
   stacEvidence,
+  stacEvidenceCentroids,
+  stacEvidenceCentroidsEnabled,
   stacEvidenceRunId,
   selectedStacItemId,
   onSelectStacItemId,
+  onViewportBboxChange,
   onMapReady,
   onMapDestroyed,
 }: MapCanvasProps) {
@@ -141,6 +184,7 @@ export default function MapCanvas({
   const onMapReadyRef = useRef(onMapReady);
   const onMapDestroyedRef = useRef(onMapDestroyed);
   const onSelectStacItemIdRef = useRef(onSelectStacItemId);
+  const onViewportBboxChangeRef = useRef(onViewportBboxChange);
   const stacEvidenceRunIdRef = useRef<string | null | undefined>(stacEvidenceRunId);
 
   useEffect(() => {
@@ -154,6 +198,10 @@ export default function MapCanvas({
   useEffect(() => {
     onSelectStacItemIdRef.current = onSelectStacItemId;
   }, [onSelectStacItemId]);
+
+  useEffect(() => {
+    onViewportBboxChangeRef.current = onViewportBboxChange;
+  }, [onViewportBboxChange]);
 
   useEffect(() => {
     stacEvidenceRunIdRef.current = stacEvidenceRunId;
@@ -351,12 +399,42 @@ export default function MapCanvas({
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
+      const context = {
+        runId: stacEvidenceRunIdRef.current ?? null,
+        centroidCount: stacEvidenceCentroids?.features?.length ?? 0,
+        enabled: Boolean(stacEvidenceCentroidsEnabled),
+      };
+      upsertStacEvidence(map, context);
+      safeCall("set STAC evidence centroids data", context, () => {
+        const source = map.getSource?.(STAC_CENTROID_SOURCE_ID) as unknown as GeoJSONSource | undefined;
+        if (!source?.setData) return;
+        const data: GeoJSON.FeatureCollection<GeoJSON.Point> =
+          stacEvidenceCentroidsEnabled && stacEvidenceCentroids?.features?.length
+            ? stacEvidenceCentroids
+            : { type: "FeatureCollection", features: [] };
+        source.setData(data);
+      });
+    };
+
+    if (!map.isStyleLoaded?.()) {
+      map.once?.("load", apply);
+      return;
+    }
+
+    apply();
+  }, [mapReadyTick, stacEvidenceCentroids, stacEvidenceCentroidsEnabled]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
       const id = selectedStacItemId ?? "";
       const context = { runId: stacEvidenceRunIdRef.current ?? null, selectedId: id || null };
       upsertStacEvidence(map, context);
       safeCall("set STAC selected filters", context, () => {
         map.setFilter?.(STAC_LAYER_OUTLINE_SELECTED, ["==", ["get", "id"], id]);
         map.setFilter?.(STAC_LAYER_POINTS_SELECTED, ["==", ["get", "id"], id]);
+        map.setFilter?.(STAC_CENTROID_LAYER_SELECTED, ["==", ["get", "id"], id]);
       });
     };
 
@@ -397,10 +475,13 @@ export default function MapCanvas({
       safeCall("attach STAC click handlers", context, () => {
         map.on?.("click", STAC_LAYER_OUTLINE, handleSelect);
         map.on?.("click", STAC_LAYER_POINTS, handleSelect);
+        map.on?.("click", STAC_CENTROID_LAYER, handleSelect);
         map.on?.("mouseenter", STAC_LAYER_OUTLINE, setPointer);
         map.on?.("mouseenter", STAC_LAYER_POINTS, setPointer);
+        map.on?.("mouseenter", STAC_CENTROID_LAYER, setPointer);
         map.on?.("mouseleave", STAC_LAYER_OUTLINE, unsetPointer);
         map.on?.("mouseleave", STAC_LAYER_POINTS, unsetPointer);
+        map.on?.("mouseleave", STAC_CENTROID_LAYER, unsetPointer);
       });
     };
 
@@ -414,12 +495,51 @@ export default function MapCanvas({
       safeCall("detach STAC click handlers", {}, () => {
         map.off?.("click", STAC_LAYER_OUTLINE, handleSelect);
         map.off?.("click", STAC_LAYER_POINTS, handleSelect);
+        map.off?.("click", STAC_CENTROID_LAYER, handleSelect);
         map.off?.("mouseenter", STAC_LAYER_OUTLINE, setPointer);
         map.off?.("mouseenter", STAC_LAYER_POINTS, setPointer);
+        map.off?.("mouseenter", STAC_CENTROID_LAYER, setPointer);
         map.off?.("mouseleave", STAC_LAYER_OUTLINE, unsetPointer);
         map.off?.("mouseleave", STAC_LAYER_POINTS, unsetPointer);
+        map.off?.("mouseleave", STAC_CENTROID_LAYER, unsetPointer);
         map.off?.("load", apply);
       });
+    };
+  }, [mapReadyTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const emit = () => {
+      if (!onViewportBboxChangeRef.current) return;
+      try {
+        const bounds = map.getBounds?.();
+        if (!bounds) return;
+        const arr = bounds.toArray();
+        const west = arr[0][0];
+        const south = arr[0][1];
+        const east = arr[1][0];
+        const north = arr[1][1];
+        onViewportBboxChangeRef.current([west, south, east, north]);
+      } catch {
+        // ignore
+      }
+    };
+
+    const apply = () => {
+      emit();
+      map.on?.("moveend", emit);
+      map.on?.("zoomend", emit);
+    };
+
+    if (!map.isStyleLoaded?.()) map.once?.("load", apply);
+    else apply();
+
+    return () => {
+      map.off?.("moveend", emit);
+      map.off?.("zoomend", emit);
+      map.off?.("load", apply);
     };
   }, [mapReadyTick]);
 
