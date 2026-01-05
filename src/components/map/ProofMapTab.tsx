@@ -13,6 +13,7 @@ import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunF
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
 import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFormat";
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
+import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -33,6 +34,7 @@ type ProofMapTabProps = {
   ) => void;
   onSelectStacItemId: (id: string | null) => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
+  onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
 };
 
 function formatNum(value: number): string {
@@ -135,6 +137,7 @@ export default function ProofMapTab({
   onSetStacEvidenceByAoi,
   onSelectStacItemId,
   onNavigateEvidence,
+  onEvidenceSelectionChange,
 }: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -229,6 +232,7 @@ export default function ProofMapTab({
 
     const selected = record as Record<string, unknown>;
     const props = isRecord(selected.properties) ? (selected.properties as Record<string, unknown>) : null;
+    const links = deriveLinksFromProperties(props);
 
     const rawDatetime =
       (props && typeof props.datetime === "string" ? props.datetime : null) ??
@@ -251,8 +255,8 @@ export default function ProofMapTab({
           .filter(Boolean) as Array<{ key: string; href: string }>)
       : [];
 
-    const links = props && Array.isArray(props.links) ? (props.links as unknown[]) : [];
-    const linkRows = links
+    const propsLinks = props && Array.isArray(props.links) ? (props.links as unknown[]) : [];
+    const linkRows = propsLinks
       .map((link) => {
         if (!isRecord(link)) return null;
         if (typeof link.href !== "string") return null;
@@ -268,8 +272,24 @@ export default function ProofMapTab({
       runId: currentStacEvidence?.runId ?? "",
       assetRows,
       linkRows,
+      ruleIds: links.ruleIds,
+      sectionIds: links.sectionIds,
     };
   }, [currentStacEvidence, selectedStacItemId]);
+
+  useEffect(() => {
+    if (!onEvidenceSelectionChange) return;
+    if (!selectedStacDetails) {
+      onEvidenceSelectionChange(null);
+      return;
+    }
+    onEvidenceSelectionChange({
+      kind: "evidence",
+      id: selectedStacDetails.id,
+      ruleIds: selectedStacDetails.ruleIds ?? [],
+      sectionIds: selectedStacDetails.sectionIds ?? [],
+    });
+  }, [onEvidenceSelectionChange, selectedStacDetails]);
 
   const stacEndpointUrl = useMemo(() => {
     if (!latestStacRun) return null;
@@ -952,6 +972,45 @@ export default function ProofMapTab({
                         <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
                       </div>
                     ) : null}
+                    {selectedStacDetails.ruleIds.length || selectedStacDetails.sectionIds.length ? (
+                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          Linked to
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {selectedStacDetails.ruleIds.map((id) => (
+                            <button
+                              key={id}
+                              type="button"
+                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={async () => {
+                                const ok = await onNavigateEvidence("rule", id);
+                                if (!ok) showToast("Rule not found");
+                              }}
+                              title={`Open rule ${id}`}
+                            >
+                              <span className="font-mono">{id}</span>
+                            </button>
+                          ))}
+                          {selectedStacDetails.sectionIds.map((id) => (
+                            <button
+                              key={id}
+                              type="button"
+                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={async () => {
+                                const ok = await onNavigateEvidence("section", id);
+                                if (!ok) showToast("Section not found");
+                              }}
+                              title={`Open section ${id}`}
+                            >
+                              <span className="font-mono">{id}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-slate-500">Linked to: none</div>
+                    )}
                     {selectedStacDetails.assetRows.length ? (
                       <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>

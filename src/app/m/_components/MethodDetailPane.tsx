@@ -113,6 +113,12 @@ export default function MethodDetailPane({
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
   const didSelectSectionFromQuery = useRef(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [evidenceLinkSelection, setEvidenceLinkSelection] = useState<{
+    kind: "evidence";
+    id: string;
+    ruleIds: string[];
+    sectionIds: string[];
+  } | null>(null);
   const didApplyFocusFromUrl = useRef(false);
 
   const [aoi, setAoi] = useState<AOI | null>(null);
@@ -726,6 +732,9 @@ export default function MethodDetailPane({
     [ensureSectionsLoaded, setFocusParam, setSectionParam],
   );
 
+  const linkedRuleIds = useMemo(() => new Set(evidenceLinkSelection?.ruleIds ?? []), [evidenceLinkSelection]);
+  const linkedSectionIds = useMemo(() => new Set(evidenceLinkSelection?.sectionIds ?? []), [evidenceLinkSelection]);
+
   useEffect(() => {
     if (didApplyFocusFromUrl.current) return;
     if (!activeVersion) return;
@@ -938,6 +947,7 @@ export default function MethodDetailPane({
           onSetVerificationRuns={setVerificationRunsAndPersist}
           onSetStacEvidenceByAoi={setStacEvidenceByAoi}
           onSelectStacItemId={setSelectedStacItemId}
+          onEvidenceSelectionChange={setEvidenceLinkSelection}
           onNavigateEvidence={async (type, id) => {
             if (type === "rule") return await navigateToRule(id);
             if (type === "section") return await navigateToSection(id);
@@ -1040,13 +1050,17 @@ export default function MethodDetailPane({
                   className={
                     highlightId === rule.id
                       ? "assistant-focus-highlight rounded-2xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
+                      : linkedRuleIds.has(rule.id)
+                        ? "rounded-2xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
                       : ""
                   }
                 >
                   <button
                     type="button"
                     onClick={() => openRule(rule.id)}
-                    className="flex w-full flex-col gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                    className={`flex w-full flex-col gap-1 rounded-xl border px-4 py-3 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${
+                      linkedRuleIds.has(rule.id) ? "border-sky-200 bg-sky-50/30" : "border-slate-200 bg-white"
+                    }`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="text-xs text-slate-500">
@@ -1325,6 +1339,7 @@ export default function MethodDetailPane({
                 <ul className="grid gap-2">
                   {filteredSections.map((section) => {
                     const selected = section.id === activeSectionId;
+                    const linked = linkedSectionIds.has(section.id);
                     return (
                       <li
                         key={section.id}
@@ -1332,6 +1347,8 @@ export default function MethodDetailPane({
                         className={
                           highlightId === section.id
                             ? "assistant-focus-highlight rounded-xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
+                            : linked
+                              ? "rounded-xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
                             : ""
                         }
                       >
@@ -1345,7 +1362,9 @@ export default function MethodDetailPane({
                           className={`flex w-full flex-col gap-1 rounded-lg border px-3 py-2 text-left transition-colors ${
                             selected
                               ? "border-slate-300 bg-slate-50"
-                              : "border-slate-200 bg-white hover:bg-slate-50"
+                              : linked
+                                ? "border-sky-200 bg-sky-50/30 hover:bg-slate-50"
+                                : "border-slate-200 bg-white hover:bg-slate-50"
                           }`}
                         >
                           <div className="flex flex-wrap items-center justify-between gap-2">
