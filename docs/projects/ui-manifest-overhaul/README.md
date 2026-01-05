@@ -1,7 +1,7 @@
 # Article6 UI Manifest Overhaul
 
 ## Goal
-Ship an investor-ready, minimalist UI that makes methodology evidence easy to browse, verify, and export — with a GeoVista “Verify Location” demo flow.
+Ship an investor-ready, minimalist UI that makes methodology evidence easy to browse and export.
 
 ## Principles
 - Methods-first (summaries), drill down to versions, then evidence.
@@ -14,7 +14,7 @@ Ship an investor-ready, minimalist UI that makes methodology evidence easy to br
 1) Choose a method (e.g., AR-AM0014).
 2) View versions and trust strip (hashes + source commit).
 3) Open a rule and jump to evidence anchor.
-4) Run “Verify Location” (GeoVista), show Method ↔ Site Fit.
+4) View evidence map overlay (if available).
 5) Export Audit Pack / Verification Snapshot.
 
 ## Milestones

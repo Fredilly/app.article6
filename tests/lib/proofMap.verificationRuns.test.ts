@@ -1,22 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
-import { aoiFingerprint, mapGeoVistaVerificationToRunStatus, runInputFingerprint, runsForCurrentAoi, shouldDisableRunVerification, splitRunsByAoiFingerprint } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, runInputFingerprint, runsForCurrentAoi, shouldDisableRunVerification, splitRunsByAoiFingerprint } from "@/lib/proofMap/verificationRuns";
 
 describe("verification runs", () => {
-  test("mock response maps to status=ok", () => {
-    const status = mapGeoVistaVerificationToRunStatus({
-      ok: true,
-      mode: "mock",
-      status: "not_run",
-      severity: "ok",
-      summary: "Mock",
-      artifacts: [],
-      generated_at: "2026-01-01T00:00:00Z",
-    });
-    expect(status).toBe("ok");
-  });
-
   test("runInputFingerprint changes when AOI changes", async () => {
     const geojson1 = {
       type: "Feature",
@@ -48,7 +35,7 @@ describe("verification runs", () => {
         cited_ids_count: 1,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
+        provider: "stac",
         status: "ok",
         created_at: "2026-01-01T00:00:00Z",
       },
@@ -62,7 +49,7 @@ describe("verification runs", () => {
         cited_ids_count: 1,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
+        provider: "stac",
         status: "warn",
         created_at: "2026-01-01T00:00:01Z",
       },
@@ -84,7 +71,7 @@ describe("verification runs", () => {
         cited_ids_count: 1,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
+        provider: "stac",
         status: "ok",
         created_at: "2026-01-01T00:00:00Z",
       },
@@ -97,7 +84,7 @@ describe("verification runs", () => {
         cited_ids_count: 1,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
+        provider: "stac",
         status: "ok",
         created_at: "2026-01-01T00:00:01Z",
       },
@@ -118,7 +105,7 @@ describe("verification runs", () => {
         cited_ids_count: 1,
         attachment_sha256: [],
         attachment_count: 0,
-        provider: "geovista",
+        provider: "stac",
         status: "ok",
         created_at: "2026-01-01T00:00:00Z",
       },

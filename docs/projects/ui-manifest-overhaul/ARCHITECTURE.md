@@ -9,7 +9,6 @@
 - /api/registry
 - /api/methods/:code
 - /api/methods/:code/v/:version
-- /api/geovista/verify (mock first)
 
 ## Entity links
 - Rule: /r/:ruleId
