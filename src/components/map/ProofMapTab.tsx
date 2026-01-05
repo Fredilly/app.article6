@@ -197,6 +197,14 @@ export default function ProofMapTab({
   const stacEvidenceCardRef = useRef<HTMLDivElement | null>(null);
   const [stacInspectOpen, setStacInspectOpen] = useState(false);
   const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
+  const [railOpen, setRailOpen] = useState({
+    pins: true,
+    stac: true,
+    selected: false,
+    runs: false,
+  });
+  const [attachPickerOpen, setAttachPickerOpen] = useState(false);
+  const selectedSectionRef = useRef<HTMLDivElement | null>(null);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -216,9 +224,10 @@ export default function ProofMapTab({
     onSelectStacItemId(id);
     setLastSelectionSource(source);
     setStacInspectOpen(true);
+    setRailOpen((prev) => ({ ...prev, selected: true }));
     requestAnimationFrame(() => {
       try {
-        stacEvidenceCardRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+        (selectedSectionRef.current ?? stacEvidenceCardRef.current)?.scrollIntoView({ block: "start", behavior: "smooth" });
       } catch {
         // ignore
       }
@@ -229,7 +238,34 @@ export default function ProofMapTab({
     if (selectedStacItemId) return;
     setLastSelectionSource(null);
     setStacInspectOpen(false);
+    setRailOpen((prev) => ({ ...prev, selected: false }));
   }, [selectedStacItemId]);
+
+  useEffect(() => {
+    if (!selectedStacItemId) return;
+    setRailOpen((prev) => ({ ...prev, selected: true }));
+  }, [selectedStacItemId]);
+
+  const attachSelectedToPin = (pinId: string) => {
+    if (!selectedStacItemId) return;
+    if (!currentStacEvidence?.runId) return;
+    const pin = evidencePins.find((p) => p.id === pinId);
+    if (!pin) return;
+    const existing = new Set(pin.stac_item_ids ?? []);
+    existing.add(selectedStacItemId);
+    onSetEvidencePins(
+      evidencePins.map((item) =>
+        item.id === pinId
+          ? {
+              ...item,
+              stac_item_ids: Array.from(existing),
+              stac_run_id: item.stac_run_id ?? currentStacEvidence.runId,
+            }
+          : item,
+      ),
+    );
+    showToast("STAC item attached");
+  };
 
   const bboxLabel = useMemo(() => {
     if (!aoi) return null;
@@ -696,27 +732,31 @@ export default function ProofMapTab({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-      <MapCanvas
-        aoi={aoi}
-        pins={evidencePins}
-        stacEvidence={currentStacEvidence?.fc ?? null}
-        stacEvidenceCentroids={stacCentroids}
-        stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
-        stacEvidenceRunId={currentStacEvidence?.runId ?? null}
-        selectedStacItemId={selectedStacItemId}
-        onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
-        onViewportBboxChange={(bbox) => setViewportBbox(bbox)}
-        onMapReady={(map) => {
-          mapRef.current = map;
-          setMapReadyTick((value) => value + 1);
-        }}
-        onMapDestroyed={() => {
-          mapRef.current = null;
-        }}
-      />
+      <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-1">
+          <MapCanvas
+            aoi={aoi}
+            pins={evidencePins}
+            stacEvidence={currentStacEvidence?.fc ?? null}
+            stacEvidenceCentroids={stacCentroids}
+            stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
+            stacEvidenceRunId={currentStacEvidence?.runId ?? null}
+            selectedStacItemId={selectedStacItemId}
+            onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
+            onViewportBboxChange={(bbox) => setViewportBbox(bbox)}
+            onMapReady={(map) => {
+              mapRef.current = map;
+              setMapReadyTick((value) => value + 1);
+            }}
+            onMapDestroyed={() => {
+              mapRef.current = null;
+            }}
+          />
+        </div>
 
-      <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
+        <div className="w-full shrink-0 lg:w-[400px]">
+          <div className="sticky top-[72px] h-[calc(100vh-72px)] overflow-hidden">
+            <div className="flex h-full min-h-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {toast ? (
           <div className="fixed bottom-4 right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
             {toast}
@@ -771,6 +811,44 @@ export default function ProofMapTab({
             </div>
           </div>
         ) : null}
+        {attachPickerOpen && selectedStacItemId ? (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+                <div className="text-sm font-semibold text-slate-900">Attach selected STAC item</div>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => setAttachPickerOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+              <div className="grid gap-2 px-5 py-4">
+                {evidencePins.length ? (
+                  evidencePins.map((pin) => (
+                    <button
+                      key={pin.id}
+                      type="button"
+                      className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm hover:bg-slate-50"
+                      onClick={() => {
+                        attachSelectedToPin(pin.id);
+                        setAttachPickerOpen(false);
+                      }}
+                    >
+                      <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
+                      <div className="mt-1 font-mono text-[11px] text-slate-500">{pin.id}</div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-600">No pins available. Add a pin first.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="shrink-0 border-b border-slate-200 px-4 py-3">
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
@@ -944,10 +1022,23 @@ export default function ProofMapTab({
             No AOI uploaded.
           </div>
         )}
+        </div>
 
-        <div>
-          <div className="text-xs font-semibold text-slate-700">Evidence pins</div>
-          <div className="mt-2 grid gap-2">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
+            <div className="grid gap-3">
+              <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-2 border-b border-slate-100 bg-slate-50 px-3 py-2 text-left"
+                  onClick={() => setRailOpen((prev) => ({ ...prev, pins: !prev.pins }))}
+                >
+                  <span className="text-xs font-semibold text-slate-700">Evidence pins</span>
+                  <span className="text-xs text-slate-500">{railOpen.pins ? "Hide" : "Show"}</span>
+                </button>
+                {railOpen.pins ? (
+                  <div className="px-3 py-2">
+                    <div className="grid gap-2">
             {evidencePins.length ? (
               evidencePins.map((pin) => (
                 <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
@@ -1115,305 +1206,307 @@ export default function ProofMapTab({
             ) : (
               <div className="text-xs text-slate-500">No pins yet. Use “Add to map” from Assistant.</div>
             )}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
-          <div className="mt-2 grid gap-2">
-            {aoi && currentAoiFingerprint && stacRenderedCount ? (
-              <div ref={stacEvidenceCardRef} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-xs font-semibold text-slate-900">
-                    {stacRenderedCount} feature(s)
-                  </div>
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => onSelectStacItemId(null)}
-                    disabled={!selectedStacItemId}
-                  >
-                    Clear selection
-                  </button>
-                </div>
-                <div className="mt-1 text-[11px] text-slate-500">Rendered: {stacRenderedCount}</div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                  <span>
-                    Valid: {evidenceDiagnostics.valid}, Skipped: {evidenceDiagnostics.skipped}
-                  </span>
-                  {evidenceDiagnostics.inView != null ? (
-                    <span>
-                      In view: {evidenceDiagnostics.inView}/{evidenceDiagnostics.valid}
-                    </span>
-                  ) : null}
-                </div>
-                {evidenceDiagnostics.bounds ? (
-                  <div className="mt-1 break-words font-mono text-[11px] text-slate-500">
-                    Bounds: {formatNum(evidenceDiagnostics.bounds[0])}, {formatNum(evidenceDiagnostics.bounds[1])} →{" "}
-                    {formatNum(evidenceDiagnostics.bounds[2])}, {formatNum(evidenceDiagnostics.bounds[3])}
-                  </div>
-                ) : (
-                  <div className="mt-1 text-[11px] text-slate-500">Bounds: —</div>
-                )}
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                    onClick={() => {
-                      if (!evidenceDiagnostics.bounds) return void showToast("No valid evidence geometry/bbox");
-                      zoomToBbox(mapRef.current, evidenceDiagnostics.bounds, 80);
-                    }}
-                    title="Zoom map to evidence bounds"
-                  >
-                    Zoom to evidence ({evidenceDiagnostics.valid})
-                  </button>
-                  <button
-                    type="button"
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${
-                      stacCentroidsEnabled
-                        ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                    }`}
-                    onClick={() => setStacCentroidsEnabled((v) => !v)}
-                    title="Toggle centroid pins"
-                  >
-                    Pins: {stacCentroidsEnabled ? "On" : "Off"}
-                  </button>
-                </div>
-                {stacFeatureIds.length ? (
-                  <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                      Features
                     </div>
-                    <div className="mt-2 max-h-40 overflow-auto">
-                      <div className="grid gap-1">
-                        {stacFeatureIds.slice(0, 60).map((id) => {
-                          const bbox = evidenceDiagnostics.byIdBbox.get(id) ?? null;
-                          const selected = id === selectedStacItemId;
-                          return (
-                            <button
-                              key={id}
-                              type="button"
-                              className={`w-full rounded-md border px-2 py-1 text-left text-xs font-semibold shadow-sm transition ${
-                                selected
-                                  ? "border-sky-200 bg-white text-slate-900"
-                                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                              }`}
-                              onClick={() => {
-                                selectEvidence(id, "pin");
-                                zoomToBbox(mapRef.current, bbox, 120);
-                              }}
-                              title="Select and zoom to feature"
-                            >
-                              <span className="font-mono">{id}</span>
-                            </button>
-                          );
-                        })}
-                        {stacFeatureIds.length > 60 ? (
-                          <div className="pt-1 text-[11px] text-slate-500">
-                            Showing first 60 of {stacFeatureIds.length}.
+                  </div>
+                ) : null}
+              </div>
+
+              <div ref={stacEvidenceCardRef} className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-2 border-b border-slate-100 bg-slate-50 px-3 py-2 text-left"
+                  onClick={() => setRailOpen((prev) => ({ ...prev, stac: !prev.stac }))}
+                >
+                  <span className="text-xs font-semibold text-slate-700">STAC Evidence</span>
+                  <span className="text-xs text-slate-500">{railOpen.stac ? "Hide" : "Show"}</span>
+                </button>
+                {railOpen.stac ? (
+                  <div className="px-3 py-2">
+                    {aoi && currentAoiFingerprint && stacRenderedCount ? (
+                      <>
+                        <div className="text-xs font-semibold text-slate-900">{stacRenderedCount} feature(s)</div>
+                        <div className="mt-1 text-[11px] text-slate-500">Rendered: {stacRenderedCount}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                          <span>
+                            Valid: {evidenceDiagnostics.valid}, Skipped: {evidenceDiagnostics.skipped}
+                          </span>
+                          {evidenceDiagnostics.inView != null ? (
+                            <span>
+                              In view: {evidenceDiagnostics.inView}/{evidenceDiagnostics.valid}
+                            </span>
+                          ) : null}
+                        </div>
+                        {evidenceDiagnostics.bounds ? (
+                          <div className="mt-1 break-words font-mono text-[11px] text-slate-500">
+                            Bounds: {formatNum(evidenceDiagnostics.bounds[0])}, {formatNum(evidenceDiagnostics.bounds[1])} →{" "}
+                            {formatNum(evidenceDiagnostics.bounds[2])}, {formatNum(evidenceDiagnostics.bounds[3])}
+                          </div>
+                        ) : (
+                          <div className="mt-1 text-[11px] text-slate-500">Bounds: —</div>
+                        )}
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                            onClick={() => {
+                              if (!evidenceDiagnostics.bounds) return void showToast("No valid evidence geometry/bbox");
+                              zoomToBbox(mapRef.current, evidenceDiagnostics.bounds, 80);
+                            }}
+                          >
+                            Zoom to evidence ({evidenceDiagnostics.valid})
+                          </button>
+                          <button
+                            type="button"
+                            className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${
+                              stacCentroidsEnabled
+                                ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                            }`}
+                            onClick={() => setStacCentroidsEnabled((v) => !v)}
+                          >
+                            Pins: {stacCentroidsEnabled ? "On" : "Off"}
+                          </button>
+                        </div>
+
+                        {stacFeatureIds.length ? (
+                          <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Features</div>
+                            <div className="mt-2 max-h-40 overflow-auto">
+                              <div className="grid gap-1">
+                                {stacFeatureIds.slice(0, 60).map((id) => {
+                                  const bbox = evidenceDiagnostics.byIdBbox.get(id) ?? null;
+                                  const selected = id === selectedStacItemId;
+                                  return (
+                                    <button
+                                      key={id}
+                                      type="button"
+                                      className={`w-full rounded-md border px-2 py-1 text-left text-xs font-semibold shadow-sm transition ${
+                                        selected
+                                          ? "border-sky-200 bg-white text-slate-900"
+                                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                      }`}
+                                      onClick={() => {
+                                        selectEvidence(id, "pin");
+                                        zoomToBbox(mapRef.current, bbox, 120);
+                                      }}
+                                    >
+                                      <span className="font-mono">{id}</span>
+                                    </button>
+                                  );
+                                })}
+                                {stacFeatureIds.length > 60 ? (
+                                  <div className="pt-1 text-[11px] text-slate-500">Showing first 60 of {stacFeatureIds.length}.</div>
+                                ) : null}
+                              </div>
+                            </div>
                           </div>
                         ) : null}
+                      </>
+                    ) : (
+                      <div className="text-xs text-slate-500">
+                        {!aoi ? "No AOI selected." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No STAC evidence for this AOI."}
                       </div>
-                    </div>
+                    )}
                   </div>
                 ) : null}
-                {selectedStacItemId && !stacInspectOpen ? (
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                    onClick={() => setStacInspectOpen(true)}
-                  >
-                    Open inspect
-                  </button>
-                ) : null}
-                {selectedStacDetails && stacInspectOpen ? (
-                  <div className="mt-3 grid gap-2">
+              </div>
+
+              <div ref={selectedSectionRef} className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-2 border-b border-slate-100 bg-slate-50 px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-70"
+                  onClick={() => setRailOpen((prev) => ({ ...prev, selected: !prev.selected }))}
+                  disabled={!selectedStacItemId}
+                >
+                  <span className="text-xs font-semibold text-slate-700">Selected</span>
+                  <span className="text-xs text-slate-500">{!selectedStacItemId ? "None" : railOpen.selected ? "Hide" : "Show"}</span>
+                </button>
+                {railOpen.selected && selectedStacDetails ? (
+                  <div className="px-3 py-2">
                     <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
                       <div className="text-xs font-semibold text-slate-900">
                         Selected: <span className="font-mono">{selectedStacDetails.id}</span>
                         {lastSelectionSource ? (
-                          <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            via {lastSelectionSource}
-                          </span>
+                          <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">via {lastSelectionSource}</span>
                         ) : null}
                       </div>
                       <button
                         type="button"
                         className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={() => setStacInspectOpen(false)}
-                        title="Collapse inspect"
+                        onClick={() => setStacInspectOpen((v) => !v)}
                       >
-                        Hide
+                        {stacInspectOpen ? "Hide" : "Inspect"}
                       </button>
                     </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-semibold text-slate-900">Item ID</span>
-                        <button
-                          type="button"
-                          className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                          onClick={() => copyToClipboard(selectedStacDetails.id)}
-                        >
-                          Copy
-                        </button>
-                      </div>
-                      <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">BBox</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.bbox}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">Datetime</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.datetime}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">Cloud cover</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.cloudCover}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">Assets</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.assetsCount}</div>
-                    </div>
-                    {selectedStacDetails.runId ? (
-                      <div className="grid gap-1 text-xs text-slate-700">
-                        <div className="font-semibold text-slate-900">Run</div>
-                        <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
-                      </div>
-                    ) : null}
-                    {selectedStacDetails.ruleIds.length || selectedStacDetails.sectionIds.length ? (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          Linked to
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {selectedStacDetails.ruleIds.map((id) => (
+                    {stacInspectOpen ? (
+                      <div className="mt-2 grid gap-2">
+                        <div className="grid gap-1 text-xs text-slate-700">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="font-semibold text-slate-900">Item ID</span>
                             <button
-                              key={id}
                               type="button"
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={async () => {
-                                const ok = await onNavigateEvidence("rule", id);
-                                if (!ok) showToast("Rule not found");
-                              }}
-                              title={`Open rule ${id}`}
+                              className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={() => copyToClipboard(selectedStacDetails.id)}
                             >
-                              <span className="font-mono">{id}</span>
+                              Copy
                             </button>
-                          ))}
-                          {selectedStacDetails.sectionIds.map((id) => (
-                            <button
-                              key={id}
-                              type="button"
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={async () => {
-                                const ok = await onNavigateEvidence("section", id);
-                                if (!ok) showToast("Section not found");
-                              }}
-                              title={`Open section ${id}`}
-                            >
-                              <span className="font-mono">{id}</span>
-                            </button>
-                          ))}
+                          </div>
+                          <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-slate-500">Linked to: none</div>
-                    )}
-                    {selectedStacDetails.assetRows.length ? (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>
-                        <div className="mt-2 grid gap-2">
-                          {selectedStacDetails.assetRows.map((row) => (
-                            <div key={row.key} className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="text-xs font-semibold text-slate-800">{row.key}</div>
-                                <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
-                              </div>
-                              <button
-                                type="button"
-                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                                onClick={() => copyToClipboard(row.href)}
-                              >
-                                Copy
-                              </button>
+                        <div className="grid gap-1 text-xs text-slate-700">
+                          <div className="font-semibold text-slate-900">BBox</div>
+                          <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.bbox}</div>
+                        </div>
+                        <div className="grid gap-1 text-xs text-slate-700">
+                          <div className="font-semibold text-slate-900">Datetime</div>
+                          <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.datetime}</div>
+                        </div>
+                        <div className="grid gap-1 text-xs text-slate-700">
+                          <div className="font-semibold text-slate-900">Cloud cover</div>
+                          <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.cloudCover}</div>
+                        </div>
+                        <div className="grid gap-1 text-xs text-slate-700">
+                          <div className="font-semibold text-slate-900">Assets</div>
+                          <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.assetsCount}</div>
+                        </div>
+                        {selectedStacDetails.runId ? (
+                          <div className="grid gap-1 text-xs text-slate-700">
+                            <div className="font-semibold text-slate-900">Run</div>
+                            <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
+                          </div>
+                        ) : null}
+                        {selectedStacDetails.ruleIds.length || selectedStacDetails.sectionIds.length ? (
+                          <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Linked to</div>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {selectedStacDetails.ruleIds.map((id) => (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                  onClick={async () => {
+                                    const ok = await onNavigateEvidence("rule", id);
+                                    if (!ok) showToast("Rule not found");
+                                  }}
+                                >
+                                  <span className="font-mono">{id}</span>
+                                </button>
+                              ))}
+                              {selectedStacDetails.sectionIds.map((id) => (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                  onClick={async () => {
+                                    const ok = await onNavigateEvidence("section", id);
+                                    if (!ok) showToast("Section not found");
+                                  }}
+                                >
+                                  <span className="font-mono">{id}</span>
+                                </button>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                    {selectedStacDetails.linkRows.length ? (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Links</div>
-                        <div className="mt-2 grid gap-2">
-                          {selectedStacDetails.linkRows.map((row, idx) => (
-                            <div key={`${row.href}:${idx}`} className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="text-xs font-semibold text-slate-800">{row.rel}</div>
-                                <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
-                              </div>
-                              <button
-                                type="button"
-                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                                onClick={() => copyToClipboard(row.href)}
-                              >
-                                Copy
-                              </button>
-                            </div>
-                          ))}
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-slate-500">Linked to: none</div>
+                        )}
                       </div>
                     ) : null}
                   </div>
                 ) : (
-                  <div className="mt-2 text-xs text-slate-500">Click a footprint/marker on the map to inspect.</div>
+                  <div className="px-3 py-2 text-xs text-slate-500">Select a STAC feature to inspect.</div>
                 )}
               </div>
-            ) : (
-              <div className="text-xs text-slate-500">
-                {!aoi ? "No AOI selected." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No STAC evidence for this AOI."}
-              </div>
-            )}
-          </div>
-        </div>
 
-        <div>
-          <div className="text-xs font-semibold text-slate-700">Verification runs (current AOI)</div>
-          <div className="mt-2 grid gap-2">
-            {aoi && currentAoiFingerprint && currentRuns.length ? (
-              currentRuns.map((run) => {
-                const pill = statusPill(run.status);
-                return (
-                  <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
-                        {pill.label}
-                      </span>
-                      <span className="text-xs text-slate-500">{formatLocalDateTime(run.created_at)}</span>
+              <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-2 border-b border-slate-100 bg-slate-50 px-3 py-2 text-left"
+                  onClick={() => setRailOpen((prev) => ({ ...prev, runs: !prev.runs }))}
+                >
+                  <span className="text-xs font-semibold text-slate-700">Verification runs</span>
+                  <span className="text-xs text-slate-500">{railOpen.runs ? "Hide" : "Show"}</span>
+                </button>
+                {railOpen.runs ? (
+                  <div className="px-3 py-2">
+                    <div className="grid gap-2">
+                      {aoi && currentAoiFingerprint && currentRuns.length ? (
+                        currentRuns.map((run) => {
+                          const pill = statusPill(run.status);
+                          return (
+                            <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
+                                  {pill.label}
+                                </span>
+                                <span className="text-xs text-slate-500">{formatLocalDateTime(run.created_at)}</span>
+                              </div>
+                              {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
+                              {run.result_json ? (
+                                <button
+                                  type="button"
+                                  className="mt-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                  onClick={() => setRunJson(run)}
+                                >
+                                  View JSON
+                                </button>
+                              ) : null}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-xs text-slate-500">
+                          {!aoi ? "No AOI selected." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No runs yet for this AOI."}
+                        </div>
+                      )}
                     </div>
-                    {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
-                    {run.result_json ? (
-                      <button
-                        type="button"
-                        className="mt-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={() => setRunJson(run)}
-                      >
-                        View JSON
-                      </button>
-                    ) : null}
                   </div>
-                );
-              })
-            ) : (
-              <div className="text-xs text-slate-500">
-                {!aoi ? "No AOI selected." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No runs yet for this AOI."}
+                ) : null}
               </div>
+            </div>
+          </div>
+
+          <div className="shrink-0 border-t border-slate-200 px-4 py-3">
+            {selectedStacItemId ? (
+              <div className="flex flex-col gap-2">
+                <div className="text-xs font-semibold text-slate-900">
+                  Selected: <span className="font-mono">{selectedStacItemId}</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={() => setRailOpen((prev) => ({ ...prev, selected: true }))}
+                  >
+                    Open inspect
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={!currentStacEvidence?.runId || !evidencePins.length}
+                    onClick={() => setAttachPickerOpen(true)}
+                    title={!evidencePins.length ? "Add a pin first" : undefined}
+                  >
+                    Attach selected STAC item
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={() => onSelectStacItemId(null)}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-xs text-slate-500">Select a STAC feature to show actions.</div>
             )}
           </div>
         </div>
       </div>
+    </div>
       </div>
+    </div>
     </div>
   );
 }
