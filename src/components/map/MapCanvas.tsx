@@ -13,6 +13,7 @@ type MapCanvasProps = {
   stacEvidenceCentroids?: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
   stacEvidenceCentroidsEnabled?: boolean;
   stacEvidenceRunId?: string | null;
+  restoreViewportBbox?: [number, number, number, number] | null;
   selectedStacItemId?: string | null;
   onSelectStacItemId?: (id: string | null) => void;
   onSelectEvidence?: (selection: { id: string; source: "pin" | "polygon" }) => void;
@@ -172,6 +173,7 @@ export default function MapCanvas({
   stacEvidenceCentroids,
   stacEvidenceCentroidsEnabled,
   stacEvidenceRunId,
+  restoreViewportBbox,
   selectedStacItemId,
   onSelectStacItemId,
   onSelectEvidence,
@@ -189,6 +191,10 @@ export default function MapCanvas({
   const onSelectEvidenceRef = useRef(onSelectEvidence);
   const onViewportBboxChangeRef = useRef(onViewportBboxChange);
   const stacEvidenceRunIdRef = useRef<string | null | undefined>(stacEvidenceRunId);
+  const restoreViewportBboxRef = useRef<MapCanvasProps["restoreViewportBbox"]>(restoreViewportBbox);
+  const pendingInitialRestoreRef = useRef(Boolean(restoreViewportBbox));
+  const hasRestoredViewportRef = useRef(false);
+  const lastAoiKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     onMapReadyRef.current = onMapReady;
@@ -213,6 +219,42 @@ export default function MapCanvas({
   useEffect(() => {
     stacEvidenceRunIdRef.current = stacEvidenceRunId;
   }, [stacEvidenceRunId]);
+
+  useEffect(() => {
+    restoreViewportBboxRef.current = restoreViewportBbox;
+    if (restoreViewportBbox && !hasRestoredViewportRef.current && pendingInitialRestoreRef.current === false) {
+      pendingInitialRestoreRef.current = true;
+    }
+  }, [restoreViewportBbox]);
+
+  const restoreViewportIfNeeded = (map: MapLibreMap) => {
+    if (!pendingInitialRestoreRef.current) return;
+    const bbox = restoreViewportBboxRef.current;
+    if (!bbox) return;
+    pendingInitialRestoreRef.current = false;
+    hasRestoredViewportRef.current = true;
+    safeCall("restore viewport bbox", { bbox }, () => {
+      map.fitBounds(
+        [
+          [bbox[0], bbox[1]],
+          [bbox[2], bbox[3]],
+        ],
+        { padding: 30, duration: 0 },
+      );
+    });
+  };
+
+  useEffect(() => {
+    if (hasRestoredViewportRef.current) return;
+    if (!restoreViewportBbox) return;
+    const map = mapRef.current;
+    if (!map) return;
+    if (!map.isStyleLoaded?.()) {
+      map.once?.("load", () => restoreViewportIfNeeded(map));
+      return;
+    }
+    restoreViewportIfNeeded(map);
+  }, [mapReadyTick, restoreViewportBbox]);
 
   const pointsGeoJson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>>(() => {
     const fallback = aoi ? centerFromBbox(aoi.bbox) : null;
@@ -285,6 +327,7 @@ export default function MapCanvas({
         map.on?.("load", () => {
           upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null });
           safeCall("resize after load", {}, () => map.resize?.());
+          restoreViewportIfNeeded(map);
           setMapReadyTick((value) => value + 1);
         });
 
@@ -296,6 +339,7 @@ export default function MapCanvas({
         mapRef.current = map;
         setMapReadyTick((value) => value + 1);
         onMapReadyRef.current?.(map);
+        restoreViewportIfNeeded(map);
 
         window.setTimeout(() => {
           if (cancelled) return;
@@ -326,6 +370,14 @@ export default function MapCanvas({
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
+      const aoiKey = aoi ? (aoi.aoi_fingerprint ?? aoi.id ?? null) : null;
+      if (lastAoiKeyRef.current && aoiKey !== lastAoiKeyRef.current) {
+        lastAoiKeyRef.current = aoiKey;
+        hasRestoredViewportRef.current = false;
+      } else if (!lastAoiKeyRef.current) {
+        lastAoiKeyRef.current = aoiKey;
+      }
+
       safeCall("set AOI data", {}, () => {
         const source = map.getSource?.("aoi") as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
@@ -336,7 +388,7 @@ export default function MapCanvas({
         };
         source.setData(data);
 
-        if (aoi?.bbox) {
+        if (aoi?.bbox && !pendingInitialRestoreRef.current && !hasRestoredViewportRef.current) {
           try {
             map.fitBounds(
               [

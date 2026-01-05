@@ -53,6 +53,8 @@ type ProofMapTabProps = {
   onSelectStacItemId: (id: string | null) => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
   onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
+  restoreViewportBbox?: [number, number, number, number] | null;
+  onViewportBboxChange?: (bbox: [number, number, number, number] | null) => void;
 };
 
 function formatNum(value: number): string {
@@ -183,6 +185,8 @@ export default function ProofMapTab({
   onSelectStacItemId,
   onNavigateEvidence,
   onEvidenceSelectionChange,
+  restoreViewportBbox,
+  onViewportBboxChange,
 }: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -704,9 +708,13 @@ export default function ProofMapTab({
         stacEvidenceCentroids={stacCentroids}
         stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
         stacEvidenceRunId={currentStacEvidence?.runId ?? null}
+        restoreViewportBbox={restoreViewportBbox ?? null}
         selectedStacItemId={selectedStacItemId}
         onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
-        onViewportBboxChange={(bbox) => setViewportBbox(bbox)}
+        onViewportBboxChange={(bbox) => {
+          setViewportBbox(bbox);
+          onViewportBboxChange?.(bbox);
+        }}
         onMapReady={(map) => {
           mapRef.current = map;
           setMapReadyTick((value) => value + 1);

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import MethodsInventoryApp from "@/components/manifest/MethodsInventoryApp";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 
@@ -11,7 +12,9 @@ export default async function ManifestPage() {
   const { methods, generatedAt, datasetHash } = await getMethodInventory();
   return (
     <main className="min-h-screen bg-slate-50">
-      <MethodsInventoryApp methods={methods} generatedAt={generatedAt} datasetHash={datasetHash} />
+      <Suspense fallback={<div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8">Loading…</div>}>
+        <MethodsInventoryApp methods={methods} generatedAt={generatedAt} datasetHash={datasetHash} />
+      </Suspense>
     </main>
   );
 }

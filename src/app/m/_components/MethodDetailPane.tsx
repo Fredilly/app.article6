@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
@@ -21,6 +21,7 @@ import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
+import { applyUrlUpdates, formatBboxParam, parseBboxParam, parseDetailTab } from "@/lib/nav/urlState";
 
 type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
 
@@ -69,6 +70,7 @@ export default function MethodDetailPane({
 }: MethodDetailPaneProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<DetailTab>(
     initialSectionId ? "sections" : initialRuleId ? "rules" : "overview",
   );
@@ -119,7 +121,7 @@ export default function MethodDetailPane({
     ruleIds: string[];
     sectionIds: string[];
   } | null>(null);
-  const didApplyFocusFromUrl = useRef(false);
+  const lastAppliedFocusFromUrl = useRef<string | null>(null);
 
   const [aoi, setAoi] = useState<AOI | null>(null);
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
@@ -134,6 +136,8 @@ export default function MethodDetailPane({
   };
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
+  const [mapViewportBbox, setMapViewportBbox] = useState<[number, number, number, number] | null>(null);
+  const [urlHydrated, setUrlHydrated] = useState(false);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -463,11 +467,10 @@ export default function MethodDetailPane({
 
   const setFocusParam = useCallback((focusTab: "rules" | "sections", focusId: string) => {
     if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", focusTab);
-    url.searchParams.set("focus", focusId);
-    window.history.replaceState(null, "", url.toString());
-  }, []);
+    if (!pathname) return;
+    const next = applyUrlUpdates(searchParams, { tab: focusTab, focus: focusId });
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
     if (!activeVersion) return [];
@@ -750,18 +753,58 @@ export default function MethodDetailPane({
   const linkedSectionIds = useMemo(() => new Set(evidenceLinkSelection?.sectionIds ?? []), [evidenceLinkSelection]);
 
   useEffect(() => {
-    if (didApplyFocusFromUrl.current) return;
     if (!activeVersion) return;
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const focusTab = params.get("tab");
-    const focusId = params.get("focus");
-    if (!focusTab || !focusId) return;
 
-    didApplyFocusFromUrl.current = true;
-    if (focusTab === "rules") void navigateToRule(focusId);
-    if (focusTab === "sections") void navigateToSection(focusId);
-  }, [activeVersion, navigateToRule, navigateToSection]);
+    const tabFromUrl = parseDetailTab(searchParams.get("tab"));
+    if (tabFromUrl && tabFromUrl !== tab) {
+      setTab(tabFromUrl);
+      if (tabFromUrl === "rules") void ensureRulesLoaded();
+      if (tabFromUrl === "sections") void ensureSectionsLoaded();
+      if (tabFromUrl === "rich") void ensureRichLoaded();
+      if (tabFromUrl === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
+    }
+
+    const stacId = (searchParams.get("stac") ?? "").trim();
+    setSelectedStacItemId(stacId ? stacId : null);
+    setMapViewportBbox(parseBboxParam(searchParams.get("bbox")));
+
+    const focusTab = (searchParams.get("tab") ?? "").trim();
+    const focusId = (searchParams.get("focus") ?? "").trim();
+    const focusKey = focusId && (focusTab === "rules" || focusTab === "sections") ? `${focusTab}:${focusId}` : null;
+    if (focusKey && focusKey !== lastAppliedFocusFromUrl.current) {
+      lastAppliedFocusFromUrl.current = focusKey;
+      if (focusTab === "rules") void navigateToRule(focusId);
+      if (focusTab === "sections") void navigateToSection(focusId);
+    }
+
+    if (!urlHydrated) setUrlHydrated(true);
+  }, [
+    activeVersion,
+    ensureRichLoaded,
+    ensureRulesLoaded,
+    ensureSectionsLoaded,
+    lastAppliedFocusFromUrl,
+    navigateToRule,
+    navigateToSection,
+    searchParams,
+    tab,
+    urlHydrated,
+  ]);
+
+  useEffect(() => {
+    if (!pathname) return;
+    if (!activeVersion) return;
+    if (!urlHydrated) return;
+
+    const next = applyUrlUpdates(searchParams, {
+      tab,
+      stac: selectedStacItemId,
+      bbox: mapViewportBbox ? formatBboxParam(mapViewportBbox) : null,
+      focus: tab === "rules" || tab === "sections" ? (searchParams.get("focus") ?? null) : null,
+    });
+    if (next === searchParams.toString()) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [activeVersion, mapViewportBbox, pathname, router, searchParams, selectedStacItemId, tab, urlHydrated]);
 
   useEffect(() => {
     if (didSelectSectionFromQuery.current) return;
@@ -971,6 +1014,8 @@ export default function MethodDetailPane({
             });
           }}
           onSelectStacItemId={setSelectedStacItemId}
+          restoreViewportBbox={mapViewportBbox}
+          onViewportBboxChange={setMapViewportBbox}
           onEvidenceSelectionChange={setEvidenceLinkSelection}
           onNavigateEvidence={async (type, id) => {
             if (type === "rule") return await navigateToRule(id);
