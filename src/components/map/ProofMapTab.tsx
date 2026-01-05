@@ -9,7 +9,7 @@ import { kindFromCitedId } from "@/lib/proofMap/pins";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
 import { aoiFingerprint, createQueuedVerificationRun, runGeoVistaVerification, runInputFingerprint, runsForCurrentAoi, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import selectLatestStacRun from "@/lib/runs/selectLatestStacRun";
+import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunForActiveAoi";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
 
 type ProofMapTabProps = {
@@ -141,6 +141,7 @@ export default function ProofMapTab({
         const fp = await aoiFingerprint(aoi.geojson);
         if (cancelled) return;
         setCurrentAoiFingerprint(fp);
+        onSelectStacItemId(null);
         if (aoi.aoi_fingerprint !== fp) {
           onSetAoi({ ...aoi, aoi_fingerprint: fp });
         }
@@ -151,7 +152,7 @@ export default function ProofMapTab({
     return () => {
       cancelled = true;
     };
-  }, [aoi, onSetAoi]);
+  }, [aoi, onSelectStacItemId, onSetAoi]);
 
   useEffect(() => {
     if (!aoi || !currentAoiFingerprint) return;
@@ -164,14 +165,25 @@ export default function ProofMapTab({
     if (changed) onSetEvidencePins(nextPins);
   }, [aoi, currentAoiFingerprint, evidencePins, onSetEvidencePins]);
 
+  useEffect(() => {
+    onSelectStacItemId(null);
+  }, [methodCode, onSelectStacItemId, version]);
+
   const currentRuns = useMemo(() => {
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
 
+  const latestStacRun = useMemo(() => {
+    return selectLatestOkStacRunForActiveAoi({ runs: verificationRuns, activeAoiFingerprint: currentAoiFingerprint });
+  }, [currentAoiFingerprint, verificationRuns]);
+
   const currentStacEvidence = useMemo(() => {
     if (!currentAoiFingerprint) return null;
-    return stacEvidenceByAoi[currentAoiFingerprint] ?? null;
-  }, [currentAoiFingerprint, stacEvidenceByAoi]);
+    if (!latestStacRun) return null;
+    const cached = stacEvidenceByAoi[currentAoiFingerprint] ?? null;
+    if (cached && cached.runId === latestStacRun.id) return cached;
+    return null;
+  }, [currentAoiFingerprint, latestStacRun, stacEvidenceByAoi]);
 
   const selectedStacDetails = useMemo(() => {
     if (!selectedStacItemId) return null;
@@ -224,17 +236,20 @@ export default function ProofMapTab({
 
   useEffect(() => {
     if (!currentAoiFingerprint) return;
-    const latestRun = selectLatestStacRun({ runs: verificationRuns, aoiFingerprint: currentAoiFingerprint });
-    if (!latestRun) return;
+    if (!latestStacRun) return;
     const existing = stacEvidenceByAoi[currentAoiFingerprint];
-    if (existing && existing.runId === latestRun.id) return;
+    if (existing && existing.runId === latestStacRun.id) return;
 
-    const normalized = normalizeStacItems(latestRun.result_json);
+    const normalized = normalizeStacItems(latestStacRun.result_json);
     onSetStacEvidenceByAoi({
       ...stacEvidenceByAoi,
-      [currentAoiFingerprint]: { fc: normalized.featureCollection, itemsById: normalized.itemsById, runId: latestRun.id },
+      [currentAoiFingerprint]: { fc: normalized.featureCollection, itemsById: normalized.itemsById, runId: latestStacRun.id },
     });
-  }, [currentAoiFingerprint, onSetStacEvidenceByAoi, stacEvidenceByAoi, verificationRuns]);
+  }, [currentAoiFingerprint, latestStacRun, onSetStacEvidenceByAoi, stacEvidenceByAoi]);
+
+  useEffect(() => {
+    if (selectedStacItemId && !latestStacRun) onSelectStacItemId(null);
+  }, [latestStacRun, onSelectStacItemId, selectedStacItemId]);
 
   useEffect(() => {
     if (!selectedStacItemId) return;
