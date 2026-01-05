@@ -178,6 +178,9 @@ export default function ProofMapTab({
   const [mapReadyTick, setMapReadyTick] = useState(0);
   const [stacCentroidsEnabled, setStacCentroidsEnabled] = useState(true);
   const [viewportBbox, setViewportBbox] = useState<[number, number, number, number] | null>(null);
+  const stacEvidenceCardRef = useRef<HTMLDivElement | null>(null);
+  const [stacInspectOpen, setStacInspectOpen] = useState(false);
+  const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -192,6 +195,25 @@ export default function ProofMapTab({
       showToast("Copy failed");
     }
   };
+
+  const selectEvidence = (id: string, source: "pin" | "polygon") => {
+    onSelectStacItemId(id);
+    setLastSelectionSource(source);
+    setStacInspectOpen(true);
+    requestAnimationFrame(() => {
+      try {
+        stacEvidenceCardRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+      } catch {
+        // ignore
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (selectedStacItemId) return;
+    setLastSelectionSource(null);
+    setStacInspectOpen(false);
+  }, [selectedStacItemId]);
 
   const bboxLabel = useMemo(() => {
     if (!aoi) return null;
@@ -664,7 +686,7 @@ export default function ProofMapTab({
         stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
         stacEvidenceRunId={currentStacEvidence?.runId ?? null}
         selectedStacItemId={selectedStacItemId}
-        onSelectStacItemId={onSelectStacItemId}
+        onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
         onViewportBboxChange={(bbox) => setViewportBbox(bbox)}
         onMapReady={(map) => {
           mapRef.current = map;
@@ -1081,7 +1103,7 @@ export default function ProofMapTab({
           <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
           <div className="mt-2 grid gap-2">
             {aoi && currentAoiFingerprint && stacRenderedCount ? (
-              <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+              <div ref={stacEvidenceCardRef} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-xs font-semibold text-slate-900">
                     {stacRenderedCount} feature(s)
@@ -1151,8 +1173,35 @@ export default function ProofMapTab({
                     Pins: {stacCentroidsEnabled ? "On" : "Off"}
                   </button>
                 </div>
-                {selectedStacDetails ? (
+                {selectedStacItemId && !stacInspectOpen ? (
+                  <button
+                    type="button"
+                    className="mt-3 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={() => setStacInspectOpen(true)}
+                  >
+                    Open inspect
+                  </button>
+                ) : null}
+                {selectedStacDetails && stacInspectOpen ? (
                   <div className="mt-3 grid gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-xs font-semibold text-slate-900">
+                        Selected: <span className="font-mono">{selectedStacDetails.id}</span>
+                        {lastSelectionSource ? (
+                          <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            via {lastSelectionSource}
+                          </span>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={() => setStacInspectOpen(false)}
+                        title="Collapse inspect"
+                      >
+                        Hide
+                      </button>
+                    </div>
                     <div className="grid gap-1 text-xs text-slate-700">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="font-semibold text-slate-900">Item ID</span>
