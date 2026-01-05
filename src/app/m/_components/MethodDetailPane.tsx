@@ -925,6 +925,7 @@ export default function MethodDetailPane({
         <ProofMapTab
           methodCode={method.code}
           version={activeVersion ?? ""}
+          provenanceJson={provenanceJson}
           aoi={aoi}
           evidencePins={evidencePins}
           verificationRuns={verificationRuns}
