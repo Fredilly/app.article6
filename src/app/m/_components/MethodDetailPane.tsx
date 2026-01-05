@@ -125,9 +125,13 @@ export default function MethodDetailPane({
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
   const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
   const [verificationRuns, setVerificationRuns] = useState<VerificationRun[]>([]);
-  const [stacEvidenceByAoi, setStacEvidenceByAoi] = useState<
-    Record<string, { fc: GeoJSON.FeatureCollection; itemsById: Record<string, unknown>; runId: string }>
-  >({});
+  const [stacEvidenceState, setStacEvidenceState] = useState<{
+    aoiFingerprint: string;
+    fc: GeoJSON.FeatureCollection;
+    itemsById: Record<string, unknown>;
+    runId: string;
+    source?: { type: "stac_url" | "unknown"; ref: string };
+  } | null>(null);
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
 
   const [richLoading, setRichLoading] = useState(false);
@@ -938,14 +942,14 @@ export default function MethodDetailPane({
           aoi={aoi}
           evidencePins={evidencePins}
           verificationRuns={verificationRuns}
-          stacEvidenceByAoi={stacEvidenceByAoi}
+          stacEvidenceState={stacEvidenceState}
           selectedStacItemId={selectedStacItemId}
           evidenceSnapshots={evidenceSnapshots}
           onSetAoi={setAoiAndPersist}
           onRemoveAoi={() => setAoiAndPersist(null)}
           onSetEvidencePins={setEvidencePinsAndPersist}
           onSetVerificationRuns={setVerificationRunsAndPersist}
-          onSetStacEvidenceByAoi={setStacEvidenceByAoi}
+          onSetStacEvidenceState={setStacEvidenceState}
           onSelectStacItemId={setSelectedStacItemId}
           onEvidenceSelectionChange={setEvidenceLinkSelection}
           onNavigateEvidence={async (type, id) => {

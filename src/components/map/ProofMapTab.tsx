@@ -22,15 +22,31 @@ type ProofMapTabProps = {
   aoi: AOI | null;
   evidencePins: EvidencePin[];
   verificationRuns: VerificationRun[];
-  stacEvidenceByAoi: Record<string, { fc: GeoJSON.FeatureCollection; itemsById: Record<string, unknown>; runId: string }>;
+  stacEvidenceState:
+    | {
+        aoiFingerprint: string;
+        fc: GeoJSON.FeatureCollection;
+        itemsById: Record<string, unknown>;
+        runId: string;
+        source?: { type: "stac_url" | "unknown"; ref: string };
+      }
+    | null;
   selectedStacItemId: string | null;
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
   onRemoveAoi: () => void;
   onSetEvidencePins: (pins: EvidencePin[]) => void;
   onSetVerificationRuns: (runs: VerificationRun[]) => void;
-  onSetStacEvidenceByAoi: (
-    next: Record<string, { fc: GeoJSON.FeatureCollection; itemsById: Record<string, unknown>; runId: string }>,
+  onSetStacEvidenceState: (
+    next:
+      | {
+          aoiFingerprint: string;
+          fc: GeoJSON.FeatureCollection;
+          itemsById: Record<string, unknown>;
+          runId: string;
+          source?: { type: "stac_url" | "unknown"; ref: string };
+        }
+      | null,
   ) => void;
   onSelectStacItemId: (id: string | null) => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
@@ -87,6 +103,23 @@ function hostnamePathFromUrl(value: string): string {
   }
 }
 
+function parseBbox(value: unknown): [number, number, number, number] | null {
+  if (!Array.isArray(value) || value.length < 4) return null;
+  const a = value[0];
+  const b = value[1];
+  const c = value[2];
+  const d = value[3];
+  if (typeof a !== "number" || typeof b !== "number" || typeof c !== "number" || typeof d !== "number") return null;
+  if (![a, b, c, d].every((n) => Number.isFinite(n))) return null;
+  return [a, b, c, d];
+}
+
+function unionBbox(a: [number, number, number, number] | null, b: [number, number, number, number] | null): [number, number, number, number] | null {
+  if (!a) return b;
+  if (!b) return a;
+  return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])];
+}
+
 function formatLocalDateTime(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
@@ -127,14 +160,14 @@ export default function ProofMapTab({
   aoi,
   evidencePins,
   verificationRuns,
-  stacEvidenceByAoi,
+  stacEvidenceState,
   selectedStacItemId,
   evidenceSnapshots,
   onSetAoi,
   onRemoveAoi,
   onSetEvidencePins,
   onSetVerificationRuns,
-  onSetStacEvidenceByAoi,
+  onSetStacEvidenceState,
   onSelectStacItemId,
   onNavigateEvidence,
   onEvidenceSelectionChange,
@@ -219,11 +252,12 @@ export default function ProofMapTab({
 
   const currentStacEvidence = useMemo(() => {
     if (!currentAoiFingerprint) return null;
-    if (!latestStacRun) return null;
-    const cached = stacEvidenceByAoi[currentAoiFingerprint] ?? null;
-    if (cached && cached.runId === latestStacRun.id) return cached;
-    return null;
-  }, [currentAoiFingerprint, latestStacRun, stacEvidenceByAoi]);
+    if (!stacEvidenceState) return null;
+    if (stacEvidenceState.aoiFingerprint !== currentAoiFingerprint) return null;
+    return stacEvidenceState;
+  }, [currentAoiFingerprint, stacEvidenceState]);
+
+  const stacRenderedCount = currentStacEvidence?.fc?.features?.length ?? 0;
 
   const selectedStacDetails = useMemo(() => {
     if (!selectedStacItemId) return null;
@@ -233,6 +267,8 @@ export default function ProofMapTab({
     const selected = record as Record<string, unknown>;
     const props = isRecord(selected.properties) ? (selected.properties as Record<string, unknown>) : null;
     const links = deriveLinksFromProperties(props);
+    const bbox = parseBbox(selected.bbox);
+    const bboxLabel = bbox ? `${formatNum(bbox[0])}, ${formatNum(bbox[1])} → ${formatNum(bbox[2])}, ${formatNum(bbox[3])}` : "—";
 
     const rawDatetime =
       (props && typeof props.datetime === "string" ? props.datetime : null) ??
@@ -270,6 +306,8 @@ export default function ProofMapTab({
       datetime: rawDatetime ? formatLocalDateTime(rawDatetime) : "—",
       cloudCover: cloudCover == null ? "—" : String(cloudCover),
       runId: currentStacEvidence?.runId ?? "",
+      bbox: bboxLabel,
+      assetsCount: assetRows.length,
       assetRows,
       linkRows,
       ruleIds: links.ruleIds,
@@ -292,12 +330,16 @@ export default function ProofMapTab({
   }, [onEvidenceSelectionChange, selectedStacDetails]);
 
   const stacEndpointUrl = useMemo(() => {
+    if (currentStacEvidence?.source?.type === "stac_url") return currentStacEvidence.source.ref;
     if (!latestStacRun) return null;
-    const root = latestStacRun.result_json && typeof latestStacRun.result_json === "object" ? (latestStacRun.result_json as Record<string, unknown>) : null;
+    const root =
+      latestStacRun.result_json && typeof latestStacRun.result_json === "object"
+        ? (latestStacRun.result_json as Record<string, unknown>)
+        : null;
     const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
     const endpoint = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
     return endpoint && endpoint.trim() ? endpoint.trim() : null;
-  }, [latestStacRun]);
+  }, [currentStacEvidence?.source, latestStacRun]);
 
   const localEvidenceHashInputs = useMemo(() => {
     const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
@@ -318,17 +360,35 @@ export default function ProofMapTab({
   }, [stacEndpointUrl]);
 
   useEffect(() => {
-    if (!currentAoiFingerprint) return;
+    if (!currentAoiFingerprint) {
+      if (stacEvidenceState) onSetStacEvidenceState(null);
+      return;
+    }
     if (!latestStacRun) return;
-    const existing = stacEvidenceByAoi[currentAoiFingerprint];
-    if (existing && existing.runId === latestStacRun.id) return;
+
+    if (stacEvidenceState && stacEvidenceState.aoiFingerprint === currentAoiFingerprint && stacEvidenceState.runId === latestStacRun.id) {
+      return;
+    }
 
     const normalized = normalizeStacItems(latestStacRun.result_json);
-    onSetStacEvidenceByAoi({
-      ...stacEvidenceByAoi,
-      [currentAoiFingerprint]: { fc: normalized.featureCollection, itemsById: normalized.itemsById, runId: latestStacRun.id },
+    const endpoint = (() => {
+      const root =
+        latestStacRun.result_json && typeof latestStacRun.result_json === "object"
+          ? (latestStacRun.result_json as Record<string, unknown>)
+          : null;
+      const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
+      const url = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
+      return url && url.trim() ? url.trim() : null;
+    })();
+
+    onSetStacEvidenceState({
+      aoiFingerprint: currentAoiFingerprint,
+      fc: normalized.featureCollection,
+      itemsById: normalized.itemsById,
+      runId: latestStacRun.id,
+      source: endpoint ? { type: "stac_url", ref: endpoint } : { type: "unknown", ref: "unknown" },
     });
-  }, [currentAoiFingerprint, latestStacRun, onSetStacEvidenceByAoi, stacEvidenceByAoi]);
+  }, [currentAoiFingerprint, latestStacRun, onSetStacEvidenceState, stacEvidenceState]);
 
   useEffect(() => {
     if (selectedStacItemId && !latestStacRun) onSelectStacItemId(null);
@@ -721,6 +781,47 @@ export default function ProofMapTab({
                       result_json: res.result_json,
                       ended_at: new Date().toISOString(),
                     };
+
+                    if (res.provider === "stac" && res.runStatus === "ok") {
+                      const normalized = normalizeStacItems(res.result_json);
+                      const endpoint = (() => {
+                        const root = res.result_json && typeof res.result_json === "object" ? (res.result_json as Record<string, unknown>) : null;
+                        const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
+                        const url = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
+                        return url && url.trim() ? url.trim() : null;
+                      })();
+
+                      onSetStacEvidenceState({
+                        aoiFingerprint: currentAoiFingerprint,
+                        fc: normalized.featureCollection,
+                        itemsById: normalized.itemsById,
+                        runId: updated.id,
+                        source: endpoint ? { type: "stac_url", ref: endpoint } : { type: "unknown", ref: "unknown" },
+                      });
+                      onSelectStacItemId(null);
+
+                      let evidenceBbox: [number, number, number, number] | null = null;
+                      for (const item of Object.values(normalized.itemsById)) {
+                        if (!item || typeof item !== "object") continue;
+                        const record = item as Record<string, unknown>;
+                        evidenceBbox = unionBbox(evidenceBbox, parseBbox(record.bbox));
+                      }
+                      const targetBbox = unionBbox(parseBbox(aoi.bbox), evidenceBbox) ?? evidenceBbox ?? parseBbox(aoi.bbox);
+                      if (targetBbox && mapRef.current?.fitBounds) {
+                        try {
+                          mapRef.current.fitBounds(
+                            [
+                              [targetBbox[0], targetBbox[1]],
+                              [targetBbox[2], targetBbox[3]],
+                            ],
+                            { padding: 40, duration: 0 },
+                          );
+                        } catch {
+                          // ignore
+                        }
+                      }
+                    }
+
                     onSetVerificationRuns([updated, ...verificationRuns]);
                     showToast("Verification complete");
                   } catch (e) {
@@ -928,11 +1029,11 @@ export default function ProofMapTab({
         <div>
           <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
           <div className="mt-2 grid gap-2">
-            {aoi && currentAoiFingerprint && currentStacEvidence?.fc?.features?.length ? (
+            {aoi && currentAoiFingerprint && stacRenderedCount ? (
               <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-xs font-semibold text-slate-900">
-                    {currentStacEvidence.fc.features.length} feature(s)
+                    {stacRenderedCount} feature(s)
                   </div>
                   <button
                     type="button"
@@ -943,6 +1044,7 @@ export default function ProofMapTab({
                     Clear selection
                   </button>
                 </div>
+                <div className="mt-1 text-[11px] text-slate-500">Rendered: {stacRenderedCount}</div>
                 {selectedStacDetails ? (
                   <div className="mt-3 grid gap-2">
                     <div className="grid gap-1 text-xs text-slate-700">
@@ -959,12 +1061,20 @@ export default function ProofMapTab({
                       <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
                     </div>
                     <div className="grid gap-1 text-xs text-slate-700">
+                      <div className="font-semibold text-slate-900">BBox</div>
+                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.bbox}</div>
+                    </div>
+                    <div className="grid gap-1 text-xs text-slate-700">
                       <div className="font-semibold text-slate-900">Datetime</div>
                       <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.datetime}</div>
                     </div>
                     <div className="grid gap-1 text-xs text-slate-700">
                       <div className="font-semibold text-slate-900">Cloud cover</div>
                       <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.cloudCover}</div>
+                    </div>
+                    <div className="grid gap-1 text-xs text-slate-700">
+                      <div className="font-semibold text-slate-900">Assets</div>
+                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.assetsCount}</div>
                     </div>
                     {selectedStacDetails.runId ? (
                       <div className="grid gap-1 text-xs text-slate-700">
