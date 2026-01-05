@@ -35,7 +35,7 @@ function idsFromStacLike(input: unknown): { count: number; ids: Set<string> } {
       if (!isRecord(item)) continue;
       const id =
         (typeof item.id === "string" && item.id) ||
-        (isRecord(item.properties) && typeof item.properties.id === "string" && item.properties.id) ||
+        (isRecord(item["properties"]) && typeof item["properties"]["id"] === "string" && item["properties"]["id"]) ||
         "";
       if (id) ids.add(id);
     }
@@ -46,11 +46,11 @@ function idsFromStacLike(input: unknown): { count: number; ids: Set<string> } {
     const features = input.features ?? [];
     for (const rawFeature of features) {
       if (!isRecord(rawFeature)) continue;
-      const props = isRecord(rawFeature.properties) ? rawFeature.properties : {};
+      const props = isRecord(rawFeature["properties"]) ? (rawFeature["properties"] as Record<string, unknown>) : {};
       const id =
-        (typeof props.id === "string" && props.id) ||
-        (typeof rawFeature.id === "string" && rawFeature.id) ||
-        (typeof rawFeature.id === "number" && String(rawFeature.id)) ||
+        (typeof props["id"] === "string" && props["id"]) ||
+        (typeof rawFeature["id"] === "string" && rawFeature["id"]) ||
+        (typeof rawFeature["id"] === "number" && String(rawFeature["id"])) ||
         "";
       if (id) ids.add(id);
     }
@@ -61,8 +61,9 @@ function idsFromStacLike(input: unknown): { count: number; ids: Set<string> } {
     const items = input.items as unknown[];
     for (const item of items) {
       if (!isRecord(item)) continue;
-      const props = isRecord(item.properties) ? item.properties : {};
-      const id = (typeof item.id === "string" && item.id) || (typeof props.id === "string" && props.id) || "";
+      const props = isRecord(item["properties"]) ? (item["properties"] as Record<string, unknown>) : {};
+      const id =
+        (typeof item["id"] === "string" && item["id"]) || (typeof props["id"] === "string" && props["id"]) || "";
       if (id) ids.add(id);
     }
     return { count: items.length, ids };
@@ -72,11 +73,11 @@ function idsFromStacLike(input: unknown): { count: number; ids: Set<string> } {
     const features = input.features as unknown[];
     for (const rawFeature of features) {
       if (!isRecord(rawFeature)) continue;
-      const props = isRecord(rawFeature.properties) ? rawFeature.properties : {};
+      const props = isRecord(rawFeature["properties"]) ? (rawFeature["properties"] as Record<string, unknown>) : {};
       const id =
-        (typeof props.id === "string" && props.id) ||
-        (typeof rawFeature.id === "string" && rawFeature.id) ||
-        (typeof rawFeature.id === "number" && String(rawFeature.id)) ||
+        (typeof props["id"] === "string" && props["id"]) ||
+        (typeof rawFeature["id"] === "string" && rawFeature["id"]) ||
+        (typeof rawFeature["id"] === "number" && String(rawFeature["id"])) ||
         "";
       if (id) ids.add(id);
     }
@@ -99,8 +100,8 @@ function diffSets(expected: Set<string>, actual: Set<string>): { missing: string
 export function assertVerificationSnapshotInvariants(input: {
   selectedRun: { id: string; status: string; ended_at?: string; created_at?: string; result_json: unknown };
   provenanceText: string;
-  stacItems: any[] | { features?: any[]; items?: any[] };
-  evidence: { type: "FeatureCollection"; features: any[] };
+  stacItems: unknown[] | { features?: unknown[]; items?: unknown[] };
+  evidence: { type: "FeatureCollection"; features: unknown[] };
 }): void {
   const expected = idsFromStacLike(input.selectedRun.result_json);
   const stacItems = idsFromStacLike(input.stacItems);
@@ -109,7 +110,7 @@ export function assertVerificationSnapshotInvariants(input: {
   const evidenceIds = new Set<string>();
   for (let index = 0; index < evidenceFeatures.length; index++) {
     const feature = evidenceFeatures[index];
-    const props = isRecord(feature?.properties) ? feature.properties : null;
+    const props = isRecord(feature) && isRecord(feature["properties"]) ? (feature["properties"] as Record<string, unknown>) : null;
     const id = props && typeof props.id === "string" ? props.id.trim() : "";
     if (!id) {
       throw new Error(`Invariant failed: evidence feature missing properties.id (index=${index}).`);
@@ -171,4 +172,3 @@ export function assertVerificationSnapshotInvariants(input: {
     );
   }
 }
-
