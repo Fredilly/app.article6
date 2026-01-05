@@ -5,6 +5,8 @@ on:
     paths:
       - '**.ts'
       - '**.tsx'
+      - 'scripts/verify-export-snapshot.mjs'
+      - 'src/lib/export/__fixtures__/**'
       - 'package.json'
       - 'package-lock.json'
       - 'vitest.config.ts'
@@ -41,3 +43,6 @@ jobs:
         env:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: npm run test
+
+      - name: Verify export snapshot invariants
+        run: npm run verify:export-snapshot

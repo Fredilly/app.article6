@@ -1,0 +1,9 @@
+exported_at=2026-01-01T00:00:00Z
+app_git_sha=fixture
+method=fixture-method@0.0.0
+aoi_id=fixture-aoi
+aoi_fingerprint=fixture-aoi-fp
+stac_run_id=stac_run_001
+stac_status=ok
+stac_executed_at=2026-01-02T03:04:05Z
+stac_item_count=3

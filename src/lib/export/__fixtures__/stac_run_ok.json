@@ -1,0 +1,61 @@
+{
+  "id": "stac_run_001",
+  "method": { "code": "fixture-method", "version": "0.0.0" },
+  "aoi_id": "fixture-aoi",
+  "aoi_snapshot": { "name": "Fixture AOI", "bbox": [-123.2, 45.3, -123.0, 45.5], "area_km2": 12.34 },
+  "aoi_fingerprint": "fixture-aoi-fp",
+  "input_fingerprint": "fixture-input-fp",
+  "cited_ids": [],
+  "cited_ids_count": 0,
+  "attachment_sha256": [],
+  "attachment_count": 0,
+  "provider": "stac",
+  "status": "ok",
+  "summary": "fixture stac ok run",
+  "created_at": "2026-01-02T03:00:00Z",
+  "ended_at": "2026-01-02T03:04:05Z",
+  "result_json": {
+    "items": [
+      {
+        "id": "stac-item-poly-1",
+        "bbox": [-123.12, 45.41, -123.08, 45.45],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [-123.12, 45.41],
+              [-123.12, 45.45],
+              [-123.08, 45.45],
+              [-123.08, 45.41],
+              [-123.12, 45.41]
+            ]
+          ]
+        },
+        "properties": { "datetime": "2026-01-01T00:00:00Z", "eo:cloud_cover": 7 }
+      },
+      {
+        "id": "stac-item-poly-2",
+        "bbox": [-123.05, 45.31, -123.01, 45.35],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [-123.05, 45.31],
+              [-123.05, 45.35],
+              [-123.01, 45.35],
+              [-123.01, 45.31],
+              [-123.05, 45.31]
+            ]
+          ]
+        },
+        "properties": { "datetime": "2026-01-01T00:00:00Z", "eo:cloud_cover": 12 }
+      },
+      {
+        "id": "stac-item-bbox-only",
+        "bbox": [-123.2, 45.3, -123.18, 45.32],
+        "properties": { "datetime": "2026-01-01T00:00:00Z", "eo:cloud_cover": 0 }
+      }
+    ]
+  }
+}
+
