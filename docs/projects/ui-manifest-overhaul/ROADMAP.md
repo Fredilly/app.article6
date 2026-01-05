@@ -21,25 +21,21 @@ Acceptance
 
 ## M2 — Method detail panel + tabs (2–3 days)
 - Desktop two-panel layout OR list + detail pane
-- Tabs: Overview, Versions, Rules, Document, Rich, Map
+- Tabs: Overview, Versions, Rules, Document, Rich
 - Trust strip on Overview (repo SHA, generated_at, hashes, export)
-- Stable URLs preserve selected method+version + active tab
 
 Acceptance
 - Selecting a method shows version timeline
 - Trust strip shows copy actions for hashes + source SHA
-- Copy/paste URL restores the same tab + selection (no resets when switching tabs)
 - Vercel green
 
 ## M3 — Evidence deep dive (2–4 days)
 - Rules tab: searchable list, tag chips
-- Rule drawer: rule id, text, tags; linked sections/anchors
-- Document tab: outline tree with deep links; cross-highlighting between rules ↔ sections
-- Rich tab: show extracted evidence, deltas, and citations (if available)
+- Rule drawer: rule id, text, tags, linked sections/anchors
+- Document tab: sections outline tree; clicking highlights related rules
 
 Acceptance
 - At least one end-to-end “rule → evidence anchor” jump works
-- Cross-highlighting is obvious and non-breaking
 
 ## M4 — Chat as Method Assistant (2–3 days)
 - Guided prompts (8–12)
@@ -50,32 +46,17 @@ Acceptance
 Acceptance
 - Guided prompts produce grounded responses with evidence links
 
-## M5 — Evidence Map integration (2–4 days)
-- “View evidence map” CTA from Method+Version detail (only enabled when method+version selected)
-- Inputs: STAC URL (preferred) OR GeoJSON upload; optional AOI polygon + date range
-- Outputs: render overlays + metadata; Rule ↔ Evidence traceability (rule IDs + section anchors)
-- Trust strip shows provenance + exact evidence-layer identifier (URL or content hash)
-- Export “Evidence Snapshot” JSON (method+version, AOI, layer refs, selected features, hashes)
-- Non-goal: no pass/fail verification claims unless backed by explicit rule text + evidence links
+## M5 — GeoVista MVP (2–4 days)
+- Verify Location CTA from method detail
+- Map/pin or lat/lon input
+- Mock API route first + fixtures
+- “Method ↔ Site Fit” panel mapping checks to rule ids
+- Export Verification Snapshot JSON
 
 Acceptance
-- Evidence map loads and renders from STAC URL and from GeoJSON upload
-- Selecting a feature shows its linked rule IDs / section anchors (when present)
-- Exported Evidence Snapshot is stable and reproducible for the same inputs
+- Demo flow works without external dependencies (mocked)
 
----
-
-## Definition of Done (Investor Demo)
-1) Pick method+version → view Trust Strip
-2) Open a rule → jump to an evidence anchor in the document
-3) View evidence map overlay for the same context
-4) Export Evidence Snapshot (and audit pack if present)
-5) Share the URL and confirm it restores the same state
-
-## WHAT
-- Update roadmap to remove verification-specific milestones and align to Evidence Map integration + current IA.
-
-## WHY
-- Keep investor-demo scope consistent with the system prompt (evidence-centric, no verification product claims).
-
-Signed-off-by: Fred E <fredilly@article6.org>
+## M6 — Real GeoVista wiring (later)
+- /api/geovista/verify with env key
+- caching, rate limit, error UX
+- optional persistence of snapshots
