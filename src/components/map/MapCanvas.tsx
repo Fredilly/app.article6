@@ -15,6 +15,7 @@ type MapCanvasProps = {
   stacEvidenceRunId?: string | null;
   selectedStacItemId?: string | null;
   onSelectStacItemId?: (id: string | null) => void;
+  onSelectEvidence?: (selection: { id: string; source: "pin" | "polygon" }) => void;
   onViewportBboxChange?: (bbox: [number, number, number, number]) => void;
   onMapReady?: (map: MapLibreMap) => void;
   onMapDestroyed?: () => void;
@@ -173,6 +174,7 @@ export default function MapCanvas({
   stacEvidenceRunId,
   selectedStacItemId,
   onSelectStacItemId,
+  onSelectEvidence,
   onViewportBboxChange,
   onMapReady,
   onMapDestroyed,
@@ -184,6 +186,7 @@ export default function MapCanvas({
   const onMapReadyRef = useRef(onMapReady);
   const onMapDestroyedRef = useRef(onMapDestroyed);
   const onSelectStacItemIdRef = useRef(onSelectStacItemId);
+  const onSelectEvidenceRef = useRef(onSelectEvidence);
   const onViewportBboxChangeRef = useRef(onViewportBboxChange);
   const stacEvidenceRunIdRef = useRef<string | null | undefined>(stacEvidenceRunId);
 
@@ -198,6 +201,10 @@ export default function MapCanvas({
   useEffect(() => {
     onSelectStacItemIdRef.current = onSelectStacItemId;
   }, [onSelectStacItemId]);
+
+  useEffect(() => {
+    onSelectEvidenceRef.current = onSelectEvidence;
+  }, [onSelectEvidence]);
 
   useEffect(() => {
     onViewportBboxChangeRef.current = onViewportBboxChange;
@@ -450,14 +457,30 @@ export default function MapCanvas({
     const map = mapRef.current;
     if (!map) return;
 
-    const handleSelect = (event: LayerClickEvent) => {
+    const getIdFromEvent = (event: LayerClickEvent): string | null => {
       const feature = event.features?.[0];
       const props = feature?.properties ?? null;
       const propId = props && typeof props.id === "string" ? props.id : null;
       const featureId = feature && typeof feature.id === "string" ? feature.id : null;
       const id = propId ?? featureId;
-      if (!id) return;
+      return id ?? null;
+    };
+
+    const select = (id: string, source: "pin" | "polygon") => {
       onSelectStacItemIdRef.current?.(id);
+      onSelectEvidenceRef.current?.({ id, source });
+    };
+
+    const handleSelectPolygon = (event: LayerClickEvent) => {
+      const id = getIdFromEvent(event);
+      if (!id) return;
+      select(id, "polygon");
+    };
+
+    const handleSelectPin = (event: LayerClickEvent) => {
+      const id = getIdFromEvent(event);
+      if (!id) return;
+      select(id, "pin");
     };
 
     const setPointer = () => {
@@ -473,15 +496,24 @@ export default function MapCanvas({
       const context = { runId: stacEvidenceRunIdRef.current ?? null };
       upsertStacEvidence(map, context);
       safeCall("attach STAC click handlers", context, () => {
-        map.on?.("click", STAC_LAYER_OUTLINE, handleSelect);
-        map.on?.("click", STAC_LAYER_POINTS, handleSelect);
-        map.on?.("click", STAC_CENTROID_LAYER, handleSelect);
+        map.on?.("click", STAC_LAYER_OUTLINE, handleSelectPolygon);
+        map.on?.("click", STAC_LAYER_POINTS, handleSelectPolygon);
+        map.on?.("click", STAC_LAYER_OUTLINE_SELECTED, handleSelectPolygon);
+        map.on?.("click", STAC_LAYER_POINTS_SELECTED, handleSelectPolygon);
+        map.on?.("click", STAC_CENTROID_LAYER, handleSelectPin);
+        map.on?.("click", STAC_CENTROID_LAYER_SELECTED, handleSelectPin);
         map.on?.("mouseenter", STAC_LAYER_OUTLINE, setPointer);
         map.on?.("mouseenter", STAC_LAYER_POINTS, setPointer);
+        map.on?.("mouseenter", STAC_LAYER_OUTLINE_SELECTED, setPointer);
+        map.on?.("mouseenter", STAC_LAYER_POINTS_SELECTED, setPointer);
         map.on?.("mouseenter", STAC_CENTROID_LAYER, setPointer);
+        map.on?.("mouseenter", STAC_CENTROID_LAYER_SELECTED, setPointer);
         map.on?.("mouseleave", STAC_LAYER_OUTLINE, unsetPointer);
         map.on?.("mouseleave", STAC_LAYER_POINTS, unsetPointer);
+        map.on?.("mouseleave", STAC_LAYER_OUTLINE_SELECTED, unsetPointer);
+        map.on?.("mouseleave", STAC_LAYER_POINTS_SELECTED, unsetPointer);
         map.on?.("mouseleave", STAC_CENTROID_LAYER, unsetPointer);
+        map.on?.("mouseleave", STAC_CENTROID_LAYER_SELECTED, unsetPointer);
       });
     };
 
@@ -493,15 +525,24 @@ export default function MapCanvas({
 
     return () => {
       safeCall("detach STAC click handlers", {}, () => {
-        map.off?.("click", STAC_LAYER_OUTLINE, handleSelect);
-        map.off?.("click", STAC_LAYER_POINTS, handleSelect);
-        map.off?.("click", STAC_CENTROID_LAYER, handleSelect);
+        map.off?.("click", STAC_LAYER_OUTLINE, handleSelectPolygon);
+        map.off?.("click", STAC_LAYER_POINTS, handleSelectPolygon);
+        map.off?.("click", STAC_LAYER_OUTLINE_SELECTED, handleSelectPolygon);
+        map.off?.("click", STAC_LAYER_POINTS_SELECTED, handleSelectPolygon);
+        map.off?.("click", STAC_CENTROID_LAYER, handleSelectPin);
+        map.off?.("click", STAC_CENTROID_LAYER_SELECTED, handleSelectPin);
         map.off?.("mouseenter", STAC_LAYER_OUTLINE, setPointer);
         map.off?.("mouseenter", STAC_LAYER_POINTS, setPointer);
+        map.off?.("mouseenter", STAC_LAYER_OUTLINE_SELECTED, setPointer);
+        map.off?.("mouseenter", STAC_LAYER_POINTS_SELECTED, setPointer);
         map.off?.("mouseenter", STAC_CENTROID_LAYER, setPointer);
+        map.off?.("mouseenter", STAC_CENTROID_LAYER_SELECTED, setPointer);
         map.off?.("mouseleave", STAC_LAYER_OUTLINE, unsetPointer);
         map.off?.("mouseleave", STAC_LAYER_POINTS, unsetPointer);
+        map.off?.("mouseleave", STAC_LAYER_OUTLINE_SELECTED, unsetPointer);
+        map.off?.("mouseleave", STAC_LAYER_POINTS_SELECTED, unsetPointer);
         map.off?.("mouseleave", STAC_CENTROID_LAYER, unsetPointer);
+        map.off?.("mouseleave", STAC_CENTROID_LAYER_SELECTED, unsetPointer);
         map.off?.("load", apply);
       });
     };
