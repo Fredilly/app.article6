@@ -11,10 +11,13 @@ import { aoiFingerprint, createQueuedVerificationRun, runGeoVistaVerification, r
 import type { Map as MapLibreMap } from "maplibre-gl";
 import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunForActiveAoi";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
+import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFormat";
+import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 
 type ProofMapTabProps = {
   methodCode: string;
   version: string;
+  provenanceJson?: unknown | null;
   aoi: AOI | null;
   evidencePins: EvidencePin[];
   verificationRuns: VerificationRun[];
@@ -55,6 +58,33 @@ function shortSha(value: string): string {
   return `${trimmed.slice(0, 10)}…${trimmed.slice(-2)}`;
 }
 
+function downloadJson(value: unknown, filename: string) {
+  const text = JSON.stringify(value, null, 2);
+  const blob = new Blob([text], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function safeFilename(value: string): string {
+  const trimmed = (value ?? "").trim() || "unknown";
+  return trimmed.replace(/[^\w.\-]+/g, "_").slice(0, 64) || "unknown";
+}
+
+function hostnamePathFromUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    return `${url.host}${url.pathname}`;
+  } catch {
+    return value;
+  }
+}
+
 function formatLocalDateTime(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
@@ -74,6 +104,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+function asNonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : undefined;
+}
+
 function statusPill(status: VerificationRun["status"]): { label: string; className: string } {
   if (status === "ok") return { label: "OK", className: "bg-emerald-50 text-emerald-700 border-emerald-200" };
   if (status === "warn") return { label: "WARN", className: "bg-amber-50 text-amber-800 border-amber-200" };
@@ -85,6 +121,7 @@ function statusPill(status: VerificationRun["status"]): { label: string; classNa
 export default function ProofMapTab({
   methodCode,
   version,
+  provenanceJson,
   aoi,
   evidencePins,
   verificationRuns,
@@ -234,6 +271,32 @@ export default function ProofMapTab({
     };
   }, [currentStacEvidence, selectedStacItemId]);
 
+  const stacEndpointUrl = useMemo(() => {
+    if (!latestStacRun) return null;
+    const root = latestStacRun.result_json && typeof latestStacRun.result_json === "object" ? (latestStacRun.result_json as Record<string, unknown>) : null;
+    const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
+    const endpoint = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
+    return endpoint && endpoint.trim() ? endpoint.trim() : null;
+  }, [latestStacRun]);
+
+  const localEvidenceHashInputs = useMemo(() => {
+    const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+    const attachmentSha = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
+    const combined = [...citedIds.map((v) => `cited:${v}`), ...attachmentSha.map((v) => `att:${v}`)].filter(Boolean);
+    return combined.length ? combined : null;
+  }, [evidencePins]);
+
+  const trustPicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
+  const auditHashes = trustPicked.auditHashes;
+  const appCommit = shortCommitSha(process.env.NEXT_PUBLIC_GIT_SHA || "");
+
+  const evidenceChip = useMemo(() => {
+    if (stacEndpointUrl) {
+      return { label: "evidence", display: hostnamePathFromUrl(stacEndpointUrl), value: stacEndpointUrl };
+    }
+    return null;
+  }, [stacEndpointUrl]);
+
   useEffect(() => {
     if (!currentAoiFingerprint) return;
     if (!latestStacRun) return;
@@ -303,7 +366,168 @@ export default function ProofMapTab({
   }, [aoi, mapReadyTick]);
 
   return (
-    <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    <div className="mt-4 grid gap-4">
+      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={async () => {
+                const text = `${methodCode}@${version}`;
+                await copyToClipboard(text);
+              }}
+              title={`Copy method ${methodCode}@${version}`}
+            >
+              <span className="text-slate-500">method:</span>
+              <span className="font-mono">{methodCode}@{version}</span>
+            </button>
+
+            {appCommit ? (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={async () => {
+                  const full = (process.env.NEXT_PUBLIC_GIT_SHA || "").trim();
+                  await copyToClipboard(full || appCommit);
+                }}
+                title="Copy app commit"
+              >
+                <span className="text-slate-500">app:</span>
+                <span className="font-mono">{appCommit}</span>
+              </button>
+            ) : null}
+
+            {evidenceChip ? (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={async () => {
+                  await copyToClipboard(evidenceChip.value);
+                }}
+                title="Copy evidence layer ref"
+              >
+                <span className="text-slate-500">{evidenceChip.label}:</span>
+                <span className="font-mono">{evidenceChip.display}</span>
+              </button>
+            ) : localEvidenceHashInputs ? (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={async () => {
+                  const snapshot = await buildEvidenceSnapshot({
+                    method: { code: methodCode, version },
+                    evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
+                    generated_at: new Date().toISOString(),
+                  });
+                  if (snapshot.evidence_source.hash) await copyToClipboard(snapshot.evidence_source.hash);
+                }}
+                title="Copy local evidence hash"
+              >
+                <span className="text-slate-500">evidence:</span>
+                <span className="font-mono">local:{localEvidenceHashInputs.length}</span>
+              </button>
+            ) : (
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
+                evidence: none
+              </span>
+            )}
+
+            {auditHashes?.rules ? (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={async () => copyToClipboard(auditHashes.rules ?? "")}
+                title="Copy rules_sha256"
+              >
+                <span className="text-slate-500">rules:</span>
+                <span className="font-mono">{shortSha(auditHashes.rules)}</span>
+              </button>
+            ) : null}
+            {auditHashes?.sections ? (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={async () => copyToClipboard(auditHashes.sections ?? "")}
+                title="Copy sections_sha256"
+              >
+                <span className="text-slate-500">sections:</span>
+                <span className="font-mono">{shortSha(auditHashes.sections)}</span>
+              </button>
+            ) : null}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={async () => {
+                const now = new Date();
+                const date = now.toISOString().slice(0, 10);
+                const selectedItem =
+                  selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
+                    ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
+                    : null;
+
+                const minimalItem = selectedItem
+                  ? {
+                      id: selectedStacItemId ?? undefined,
+                      datetime:
+                        isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
+                          ? selectedItem.properties.datetime
+                          : typeof selectedItem.datetime === "string"
+                            ? selectedItem.datetime
+                            : undefined,
+                      bbox: selectedItem.bbox,
+                      geometry: selectedItem.geometry,
+                    }
+                  : undefined;
+
+                const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+                const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
+
+                const evidenceSource =
+                  stacEndpointUrl
+                    ? { type: "stac_url" as const, ref: stacEndpointUrl }
+                    : localEvidenceHashInputs
+                      ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
+                      : { type: "unknown" as const, ref: "unknown" };
+
+                const snap = await buildEvidenceSnapshot({
+                  method: { code: methodCode, version },
+                  aoi: aoi
+                    ? {
+                        id: aoi.id,
+                        bbox: aoi.bbox,
+                        geojson: aoi.geojson,
+                      }
+                    : undefined,
+                  evidence_source: evidenceSource,
+                  selected: {
+                    id: selectedStacItemId ?? undefined,
+                    ids: selectedIds,
+                    item: minimalItem ?? undefined,
+                  },
+                  generated_at: now.toISOString(),
+                  app: {
+                    commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
+                    env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
+                    version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
+                  },
+                });
+
+                const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.${date}.json`;
+                downloadJson(snap, filename);
+                showToast("Snapshot downloaded");
+              }}
+            >
+              Export snapshot
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <MapCanvas
         aoi={aoi}
         pins={evidencePins}
@@ -819,6 +1043,7 @@ export default function ProofMapTab({
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
