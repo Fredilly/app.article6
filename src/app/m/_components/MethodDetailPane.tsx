@@ -125,13 +125,14 @@ export default function MethodDetailPane({
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
   const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
   const [verificationRuns, setVerificationRuns] = useState<VerificationRun[]>([]);
-  const [stacEvidenceState, setStacEvidenceState] = useState<{
+  type StacEvidenceState = {
     aoiFingerprint: string;
     fc: GeoJSON.FeatureCollection;
     itemsById: Record<string, unknown>;
     runId: string;
     source?: { type: "stac_url" | "unknown"; ref: string };
-  } | null>(null);
+  };
+  const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
 
   const [richLoading, setRichLoading] = useState(false);
@@ -164,6 +165,15 @@ export default function MethodDetailPane({
   const sortedVersionsNewestFirst = useMemo(() => {
     return [...method.versions].reverse();
   }, [method.versions]);
+
+  const evidenceKey = useMemo(() => {
+    const ver = (activeVersion ?? "").trim();
+    const aoiKey = (aoi?.aoi_fingerprint ?? aoi?.id ?? "").trim();
+    if (!ver || !aoiKey) return null;
+    return `${method.code}@${ver}::${aoiKey}`;
+  }, [activeVersion, aoi?.aoi_fingerprint, aoi?.id, method.code]);
+
+  const stacEvidenceState = evidenceKey ? stacEvidenceByKey[evidenceKey] ?? null : null;
 
   const activeRuleCount =
     (activeVersion ? method.ruleCountByVersion[activeVersion] : undefined) ?? undefined;
@@ -949,7 +959,17 @@ export default function MethodDetailPane({
           onRemoveAoi={() => setAoiAndPersist(null)}
           onSetEvidencePins={setEvidencePinsAndPersist}
           onSetVerificationRuns={setVerificationRunsAndPersist}
-          onSetStacEvidenceState={setStacEvidenceState}
+          onSetStacEvidenceState={(next) => {
+            if (!evidenceKey) return;
+            setStacEvidenceByKey((prev) => {
+              if (!next) {
+                const out = { ...prev };
+                delete out[evidenceKey];
+                return out;
+              }
+              return { ...prev, [evidenceKey]: next };
+            });
+          }}
           onSelectStacItemId={setSelectedStacItemId}
           onEvidenceSelectionChange={setEvidenceLinkSelection}
           onNavigateEvidence={async (type, id) => {

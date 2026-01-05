@@ -123,6 +123,22 @@ function formatLocalDateTime(iso: string): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 }
 
+function zoomToBbox(map: MapLibreMap | null, bbox: [number, number, number, number] | null, padding = 70) {
+  if (!map?.fitBounds) return;
+  if (!bbox) return;
+  try {
+    map.fitBounds(
+      [
+        [bbox[0], bbox[1]],
+        [bbox[2], bbox[3]],
+      ],
+      { padding, duration: 0 },
+    );
+  } catch {
+    // ignore
+  }
+}
+
 function prettyJson(value: unknown): string {
   try {
     return JSON.stringify(value ?? null, null, 2);
@@ -329,6 +345,12 @@ export default function ProofMapTab({
     return { type: "FeatureCollection", features };
   }, [evidenceDiagnostics.byIdBbox]);
 
+  const stacFeatureIds = useMemo(() => {
+    const ids = Array.from(evidenceDiagnostics.byIdBbox.keys());
+    ids.sort((a, b) => a.localeCompare(b));
+    return ids;
+  }, [evidenceDiagnostics.byIdBbox]);
+
   const selectedStacDetails = useMemo(() => {
     if (!selectedStacItemId) return null;
     const record = currentStacEvidence?.itemsById?.[selectedStacItemId];
@@ -430,10 +452,7 @@ export default function ProofMapTab({
   }, [stacEndpointUrl]);
 
   useEffect(() => {
-    if (!currentAoiFingerprint) {
-      if (stacEvidenceState) onSetStacEvidenceState(null);
-      return;
-    }
+    if (!currentAoiFingerprint) return;
     if (!latestStacRun) return;
 
     if (stacEvidenceState && stacEvidenceState.aoiFingerprint === currentAoiFingerprint && stacEvidenceState.runId === latestStacRun.id) {
@@ -1142,19 +1161,7 @@ export default function ProofMapTab({
                     className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                     onClick={() => {
                       if (!evidenceDiagnostics.bounds) return void showToast("No valid evidence geometry/bbox");
-                      if (!mapRef.current?.fitBounds) return;
-                      const bbox = evidenceDiagnostics.bounds;
-                      try {
-                        mapRef.current.fitBounds(
-                          [
-                            [bbox[0], bbox[1]],
-                            [bbox[2], bbox[3]],
-                          ],
-                          { padding: 60, duration: 0 },
-                        );
-                      } catch {
-                        showToast("Zoom failed");
-                      }
+                      zoomToBbox(mapRef.current, evidenceDiagnostics.bounds, 80);
                     }}
                     title="Zoom map to evidence bounds"
                   >
@@ -1173,6 +1180,44 @@ export default function ProofMapTab({
                     Pins: {stacCentroidsEnabled ? "On" : "Off"}
                   </button>
                 </div>
+                {stacFeatureIds.length ? (
+                  <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Features
+                    </div>
+                    <div className="mt-2 max-h-40 overflow-auto">
+                      <div className="grid gap-1">
+                        {stacFeatureIds.slice(0, 60).map((id) => {
+                          const bbox = evidenceDiagnostics.byIdBbox.get(id) ?? null;
+                          const selected = id === selectedStacItemId;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              className={`w-full rounded-md border px-2 py-1 text-left text-xs font-semibold shadow-sm transition ${
+                                selected
+                                  ? "border-sky-200 bg-white text-slate-900"
+                                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              }`}
+                              onClick={() => {
+                                selectEvidence(id, "pin");
+                                zoomToBbox(mapRef.current, bbox, 120);
+                              }}
+                              title="Select and zoom to feature"
+                            >
+                              <span className="font-mono">{id}</span>
+                            </button>
+                          );
+                        })}
+                        {stacFeatureIds.length > 60 ? (
+                          <div className="pt-1 text-[11px] text-slate-500">
+                            Showing first 60 of {stacFeatureIds.length}.
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
                 {selectedStacItemId && !stacInspectOpen ? (
                   <button
                     type="button"
