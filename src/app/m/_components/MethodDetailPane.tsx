@@ -21,7 +21,7 @@ import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
-import { applyUrlUpdates, formatBboxParam, parseBboxParam, parseDetailTab } from "@/lib/nav/urlState";
+import { applyUrlUpdates, parseDetailTab } from "@/lib/nav/urlState";
 
 type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
 
@@ -162,7 +162,6 @@ export default function MethodDetailPane({
   };
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
-  const [mapViewportBbox, setMapViewportBbox] = useState<[number, number, number, number] | null>(null);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -826,16 +825,6 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     const params = new URLSearchParams(searchString);
-    const stacId = (params.get("stac") ?? "").trim() || null;
-    if (stacId !== selectedStacItemId) setSelectedStacItemId(stacId);
-    const bbox = parseBboxParam(params.get("bbox"));
-    const bboxString = bbox ? bbox.join(",") : "";
-    const currentBboxString = mapViewportBbox ? mapViewportBbox.join(",") : "";
-    if (bboxString !== currentBboxString) setMapViewportBbox(bbox);
-  }, [mapViewportBbox, searchString, selectedStacItemId]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(searchString);
     const focusTab = (params.get("tab") ?? "").trim();
     const focusId = (params.get("focus") ?? "").trim();
     const focusKey = focusId && (focusTab === "rules" || focusTab === "sections") ? `${focusTab}:${focusId}` : null;
@@ -845,19 +834,6 @@ export default function MethodDetailPane({
     if (focusTab === "rules") void focusRuleInView(focusId);
     if (focusTab === "sections") void focusSectionInView(focusId);
   }, [focusRuleInView, focusSectionInView, searchString]);
-
-  useEffect(() => {
-    if (!pathname) return;
-    const params = new URLSearchParams(searchString);
-    const desiredStac = selectedStacItemId;
-    const desiredBbox = mapViewportBbox ? formatBboxParam(mapViewportBbox) : null;
-    const currentStac = (params.get("stac") ?? "").trim() || null;
-    const currentBbox = (params.get("bbox") ?? "").trim() || null;
-    if (currentStac === (desiredStac ?? null) && currentBbox === (desiredBbox ?? null)) return;
-    const next = applyUrlUpdates(params, { stac: desiredStac, bbox: desiredBbox });
-    if (next === searchString) return;
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [mapViewportBbox, pathname, router, searchString, selectedStacItemId]);
 
   useEffect(() => {
     if (didSelectSectionFromQuery.current) return;
@@ -1055,8 +1031,6 @@ export default function MethodDetailPane({
             });
           }}
           onSelectStacItemId={setSelectedStacItemId}
-          restoreViewportBbox={mapViewportBbox}
-          onViewportBboxChange={setMapViewportBbox}
           onEvidenceSelectionChange={setEvidenceLinkSelection}
           onNavigateEvidence={async (type, id) => {
             if (type === "rule") return await navigateToRule(id);

@@ -13,7 +13,8 @@ type MapCanvasProps = {
   stacEvidenceCentroids?: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
   stacEvidenceCentroidsEnabled?: boolean;
   stacEvidenceRunId?: string | null;
-  restoreViewportBbox?: [number, number, number, number] | null;
+  viewStorageKey?: string | null;
+  initialViewportBbox?: [number, number, number, number] | null;
   selectedStacItemId?: string | null;
   onSelectStacItemId?: (id: string | null) => void;
   onSelectEvidence?: (selection: { id: string; source: "pin" | "polygon" }) => void;
@@ -173,7 +174,8 @@ export default function MapCanvas({
   stacEvidenceCentroids,
   stacEvidenceCentroidsEnabled,
   stacEvidenceRunId,
-  restoreViewportBbox,
+  viewStorageKey,
+  initialViewportBbox,
   selectedStacItemId,
   onSelectStacItemId,
   onSelectEvidence,
@@ -191,10 +193,12 @@ export default function MapCanvas({
   const onSelectEvidenceRef = useRef(onSelectEvidence);
   const onViewportBboxChangeRef = useRef(onViewportBboxChange);
   const stacEvidenceRunIdRef = useRef<string | null | undefined>(stacEvidenceRunId);
-  const restoreViewportBboxRef = useRef<MapCanvasProps["restoreViewportBbox"]>(restoreViewportBbox);
-  const pendingInitialRestoreRef = useRef(Boolean(restoreViewportBbox));
-  const hasRestoredViewportRef = useRef(false);
-  const lastAoiKeyRef = useRef<string | null>(null);
+  const viewStorageKeyRef = useRef<MapCanvasProps["viewStorageKey"]>(viewStorageKey);
+  const initialViewportBboxRef = useRef<MapCanvasProps["initialViewportBbox"]>(initialViewportBbox);
+  const hasAppliedInitialViewportRef = useRef(false);
+  const saveTimerRef = useRef<number | null>(null);
+  const pendingViewRef = useRef<{ center: { lng: number; lat: number }; zoom: number; bbox: [number, number, number, number] } | null>(null);
+  const applyInitialViewportRef = useRef<(map: MapLibreMap) => void>(() => {});
 
   useEffect(() => {
     onMapReadyRef.current = onMapReady;
@@ -221,40 +225,88 @@ export default function MapCanvas({
   }, [stacEvidenceRunId]);
 
   useEffect(() => {
-    restoreViewportBboxRef.current = restoreViewportBbox;
-    if (restoreViewportBbox && !hasRestoredViewportRef.current && pendingInitialRestoreRef.current === false) {
-      pendingInitialRestoreRef.current = true;
-    }
-  }, [restoreViewportBbox]);
-
-  const restoreViewportIfNeeded = (map: MapLibreMap) => {
-    if (!pendingInitialRestoreRef.current) return;
-    const bbox = restoreViewportBboxRef.current;
-    if (!bbox) return;
-    pendingInitialRestoreRef.current = false;
-    hasRestoredViewportRef.current = true;
-    safeCall("restore viewport bbox", { bbox }, () => {
-      map.fitBounds(
-        [
-          [bbox[0], bbox[1]],
-          [bbox[2], bbox[3]],
-        ],
-        { padding: 30, duration: 0 },
-      );
-    });
-  };
+    viewStorageKeyRef.current = viewStorageKey;
+  }, [viewStorageKey]);
 
   useEffect(() => {
-    if (hasRestoredViewportRef.current) return;
-    if (!restoreViewportBbox) return;
-    const map = mapRef.current;
-    if (!map) return;
-    if (!map.isStyleLoaded?.()) {
-      map.once?.("load", () => restoreViewportIfNeeded(map));
-      return;
-    }
-    restoreViewportIfNeeded(map);
-  }, [mapReadyTick, restoreViewportBbox]);
+    initialViewportBboxRef.current = initialViewportBbox;
+  }, [initialViewportBbox]);
+
+  const storageId = useMemo(() => {
+    const key = (viewStorageKey ?? "").trim();
+    return key ? `a6:mapview:${key}` : null;
+  }, [viewStorageKey]);
+
+  useEffect(() => {
+    applyInitialViewportRef.current = (map: MapLibreMap) => {
+      if (hasAppliedInitialViewportRef.current) return;
+
+      const fromUrl = initialViewportBboxRef.current;
+      if (fromUrl) {
+        hasAppliedInitialViewportRef.current = true;
+        safeCall("apply initial viewport (url bbox)", { bbox: fromUrl }, () => {
+          map.fitBounds(
+            [
+              [fromUrl[0], fromUrl[1]],
+              [fromUrl[2], fromUrl[3]],
+            ],
+            { padding: 30, duration: 0 },
+          );
+        });
+        return;
+      }
+
+      if (!storageId) return;
+
+      const raw = (() => {
+        try {
+          return window.localStorage.getItem(storageId);
+        } catch {
+          return null;
+        }
+      })();
+      if (!raw) return;
+
+      try {
+        const parsed = JSON.parse(raw) as unknown;
+        if (!parsed || typeof parsed !== "object") return;
+        const record = parsed as Record<string, unknown>;
+        const center =
+          record.center && typeof record.center === "object" ? (record.center as Record<string, unknown>) : null;
+        const zoom = typeof record.zoom === "number" ? record.zoom : null;
+        const bbox = Array.isArray(record.bbox) ? (record.bbox as unknown[]) : null;
+        const lng = center && typeof center.lng === "number" ? center.lng : null;
+        const lat = center && typeof center.lat === "number" ? center.lat : null;
+        const bboxNums =
+          bbox && bbox.length >= 4 && bbox.slice(0, 4).every((n) => typeof n === "number" && Number.isFinite(n))
+            ? (bbox.slice(0, 4) as [number, number, number, number])
+            : null;
+
+        hasAppliedInitialViewportRef.current = true;
+
+        if (lng != null && lat != null && zoom != null && Number.isFinite(zoom)) {
+          safeCall("apply initial viewport (storage center/zoom)", { lng, lat, zoom }, () => {
+            map.jumpTo({ center: [lng, lat], zoom });
+          });
+          return;
+        }
+
+        if (bboxNums) {
+          safeCall("apply initial viewport (storage bbox)", { bbox: bboxNums }, () => {
+            map.fitBounds(
+              [
+                [bboxNums[0], bboxNums[1]],
+                [bboxNums[2], bboxNums[3]],
+              ],
+              { padding: 30, duration: 0 },
+            );
+          });
+        }
+      } catch {
+        // ignore
+      }
+    };
+  }, [storageId]);
 
   const pointsGeoJson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>>(() => {
     const fallback = aoi ? centerFromBbox(aoi.bbox) : null;
@@ -327,7 +379,7 @@ export default function MapCanvas({
         map.on?.("load", () => {
           upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null });
           safeCall("resize after load", {}, () => map.resize?.());
-          restoreViewportIfNeeded(map);
+          applyInitialViewportRef.current(map);
           setMapReadyTick((value) => value + 1);
         });
 
@@ -339,7 +391,7 @@ export default function MapCanvas({
         mapRef.current = map;
         setMapReadyTick((value) => value + 1);
         onMapReadyRef.current?.(map);
-        restoreViewportIfNeeded(map);
+        applyInitialViewportRef.current(map);
 
         window.setTimeout(() => {
           if (cancelled) return;
@@ -363,6 +415,11 @@ export default function MapCanvas({
       }
       setMapReadyTick((value) => value + 1);
       onMapDestroyedRef.current?.();
+
+      if (saveTimerRef.current != null) {
+        window.clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -370,14 +427,6 @@ export default function MapCanvas({
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
-      const aoiKey = aoi ? (aoi.aoi_fingerprint ?? aoi.id ?? null) : null;
-      if (lastAoiKeyRef.current && aoiKey !== lastAoiKeyRef.current) {
-        lastAoiKeyRef.current = aoiKey;
-        hasRestoredViewportRef.current = false;
-      } else if (!lastAoiKeyRef.current) {
-        lastAoiKeyRef.current = aoiKey;
-      }
-
       safeCall("set AOI data", {}, () => {
         const source = map.getSource?.("aoi") as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
@@ -388,7 +437,7 @@ export default function MapCanvas({
         };
         source.setData(data);
 
-        if (aoi?.bbox && !pendingInitialRestoreRef.current && !hasRestoredViewportRef.current) {
+        if (aoi?.bbox && !hasAppliedInitialViewportRef.current) {
           try {
             map.fitBounds(
               [
@@ -615,6 +664,39 @@ export default function MapCanvas({
         const east = arr[1][0];
         const north = arr[1][1];
         onViewportBboxChangeRef.current([west, south, east, north]);
+
+        const center = map.getCenter?.();
+        const zoom = typeof map.getZoom === "function" ? map.getZoom() : null;
+        if (!center || typeof center.lng !== "number" || typeof center.lat !== "number") return;
+        if (zoom == null || typeof zoom !== "number" || !Number.isFinite(zoom)) return;
+        const key = storageId;
+        if (!key) return;
+
+        pendingViewRef.current = {
+          center: { lng: center.lng, lat: center.lat },
+          zoom,
+          bbox: [west, south, east, north],
+        };
+
+        if (saveTimerRef.current != null) return;
+        saveTimerRef.current = window.setTimeout(() => {
+          saveTimerRef.current = null;
+          const pending = pendingViewRef.current;
+          if (!pending) return;
+          try {
+            window.localStorage.setItem(
+              key,
+              JSON.stringify({
+                center: pending.center,
+                zoom: pending.zoom,
+                bbox: pending.bbox,
+                updatedAt: new Date().toISOString(),
+              }),
+            );
+          } catch {
+            // ignore
+          }
+        }, 250);
       } catch {
         // ignore
       }
@@ -634,7 +716,7 @@ export default function MapCanvas({
       map.off?.("zoomend", emit);
       map.off?.("load", apply);
     };
-  }, [mapReadyTick]);
+  }, [mapReadyTick, storageId]);
 
   useEffect(() => {
     const map = mapRef.current;

@@ -53,8 +53,6 @@ type ProofMapTabProps = {
   onSelectStacItemId: (id: string | null) => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
   onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
-  restoreViewportBbox?: [number, number, number, number] | null;
-  onViewportBboxChange?: (bbox: [number, number, number, number] | null) => void;
 };
 
 function formatNum(value: number): string {
@@ -185,8 +183,6 @@ export default function ProofMapTab({
   onSelectStacItemId,
   onNavigateEvidence,
   onEvidenceSelectionChange,
-  restoreViewportBbox,
-  onViewportBboxChange,
 }: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -201,6 +197,16 @@ export default function ProofMapTab({
   const stacEvidenceCardRef = useRef<HTMLDivElement | null>(null);
   const [stacInspectOpen, setStacInspectOpen] = useState(false);
   const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
+  const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
+    if (typeof window === "undefined") return null;
+    const raw = new URLSearchParams(window.location.search).get("bbox");
+    if (!raw) return null;
+    const parts = raw.split(",").map((value) => Number(value.trim()));
+    if (parts.length !== 4) return null;
+    if (parts.some((n) => !Number.isFinite(n))) return null;
+    return [parts[0], parts[1], parts[2], parts[3]];
+  });
+  const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -708,16 +714,17 @@ export default function ProofMapTab({
         stacEvidenceCentroids={stacCentroids}
         stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
         stacEvidenceRunId={currentStacEvidence?.runId ?? null}
-        restoreViewportBbox={restoreViewportBbox ?? null}
+        viewStorageKey={viewStorageKey}
+        initialViewportBbox={initialViewportBbox}
         selectedStacItemId={selectedStacItemId}
         onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
         onViewportBboxChange={(bbox) => {
           setViewportBbox(bbox);
-          onViewportBboxChange?.(bbox);
         }}
         onMapReady={(map) => {
           mapRef.current = map;
           setMapReadyTick((value) => value + 1);
+          setInitialViewportBbox(null);
         }}
         onMapDestroyed={() => {
           mapRef.current = null;
