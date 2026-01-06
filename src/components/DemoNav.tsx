@@ -14,7 +14,6 @@ const demoRoutes: DemoRoute[] = [
   { href: "/m", title: "Methods" },
   { href: "/audit", title: "Audit" },
   { href: "/manifest", title: "Manifest" },
-  { href: "/registry/mock", title: "Issuance" },
 ];
 
 export default function DemoNav() {

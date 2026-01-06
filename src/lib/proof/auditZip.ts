@@ -49,10 +49,10 @@ export async function buildAuditZipBytes(input: {
 
   const emptyEvidence: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
   const provenanceText = input.verificationSnapshot?.provenanceText ?? buildProvenanceTxt({});
-  zip.file("verification/provenance.txt", provenanceText);
-  zip.file("verification/stac_items.json", canonicalJsonStringify(input.verificationSnapshot?.stacItemsJson ?? { items: [] }));
+  zip.file("evidence/provenance.txt", provenanceText);
+  zip.file("evidence/stac_items.json", canonicalJsonStringify(input.verificationSnapshot?.stacItemsJson ?? { items: [] }));
   zip.file(
-    "verification/stac_evidence.geojson",
+    "evidence/stac_evidence.geojson",
     canonicalJsonStringify(input.verificationSnapshot?.stacEvidenceGeojson ?? emptyEvidence),
   );
 

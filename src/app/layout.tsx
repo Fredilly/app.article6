@@ -35,7 +35,7 @@ export default function RootLayout({
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-8">
               <div className="space-y-1">
                 <p className="text-xs uppercase tracking-wide text-slate-400">Article 6 demo</p>
-                <h1 className="text-base font-semibold text-slate-900">Verification surfaces</h1>
+                <h1 className="text-base font-semibold text-slate-900">Evidence surfaces</h1>
               </div>
               <div className="flex items-center gap-4 md:ml-auto">
                 {/* Always-on health indicator */}
