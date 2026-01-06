@@ -207,55 +207,6 @@ export default function TrustStrip({
 
   const audit = metaPicked.auditHashes;
 
-  const detailsRows = useMemo(() => {
-    const rows: Array<{ key: string; label: string; value: string; display?: string }> = [];
-    if (repo && repoSha) {
-      rows.push({
-        key: "github",
-        label: "GitHub",
-        value: `${repo}@${repoSha}`,
-      });
-    } else if (repo) {
-      rows.push({ key: "github", label: "GitHub", value: repo });
-    } else if (repoSha) {
-      rows.push({ key: "github", label: "GitHub", value: repoSha });
-    }
-
-    const packSha = packIdFromTag ?? provenancePicked.packSha ?? null;
-    if (packTag && packSha) {
-      rows.push({ key: "pack", label: "pack", value: `${packTag}@${packSha}` });
-    } else if (packTag) {
-      rows.push({ key: "pack", label: "pack", value: packTag });
-    } else if (packSha) {
-      rows.push({ key: "pack", label: "pack", value: packSha });
-    }
-
-    if (generatedAt) {
-      rows.push({ key: "generated_at", label: "generated_at", value: generatedAt });
-    }
-
-    if (audit?.rules) {
-      rows.push({ key: "rules", label: "rules_sha256", value: audit.rules, display: shortSha(audit.rules) });
-    }
-    if (audit?.sections) {
-      rows.push({
-        key: "sections",
-        label: "sections_sha256",
-        value: audit.sections,
-        display: shortSha(audit.sections),
-      });
-    }
-    if (audit?.sourcePdf) {
-      rows.push({
-        key: "pdf",
-        label: "source_pdf_sha256",
-        value: audit.sourcePdf,
-        display: shortSha(audit.sourcePdf),
-      });
-    }
-    return rows;
-  }, [audit?.rules, audit?.sections, audit?.sourcePdf, generatedAt, packIdFromTag, packTag, provenancePicked.packSha, repo, repoSha]);
-
   const handleCopied = useCallback((key: string) => {
     setCopiedKey(key);
     window.setTimeout(() => setCopiedKey((current) => (current === key ? null : current)), 900);
@@ -287,26 +238,29 @@ export default function TrustStrip({
     [methodCode, metaUrl, provenanceJson, repoSha, richUrl, rulesUrl, sectionsUrl, version],
   );
 
-  const copyAllPayload = useMemo(() => {
-    const github = repo && repoSha ? `${repo}@${repoSha}` : repo ?? repoSha ?? undefined;
-    const packSha = packIdFromTag ?? provenancePicked.packSha ?? undefined;
-    const pack = packTag && packSha ? `${packTag}@${packSha}` : packTag ?? packSha ?? undefined;
-    const auditHashes =
-      audit && (audit.rules || audit.sections || audit.sourcePdf)
-        ? {
-            rules_sha256: audit.rules,
-            sections_sha256: audit.sections,
-            source_pdf_sha256: audit.sourcePdf,
-          }
-        : undefined;
+  const datasetRelease = useMemo(() => {
+    const packSha = packIdFromTag ?? provenancePicked.packSha ?? null;
+    if (packTag && packSha) return `${packTag}@${packSha}`;
+    if (packTag) return packTag;
+    if (packSha) return packSha;
+    return null;
+  }, [packIdFromTag, packTag, provenancePicked.packSha]);
+
+  const auditFingerprintsPayload = useMemo(() => {
     const payload = {
-      github,
-      pack,
-      generated_at: generatedAt,
-      audit_hashes: auditHashes,
+      rules_fingerprint: audit?.rules ?? undefined,
+      sections_fingerprint: audit?.sections ?? undefined,
+      source_pdf_fingerprint: audit?.sourcePdf ?? undefined,
     };
     return Object.values(payload).some((value) => value != null) ? payload : null;
-  }, [audit, generatedAt, packIdFromTag, packTag, provenancePicked.packSha, repo, repoSha]);
+  }, [audit?.rules, audit?.sections, audit?.sourcePdf]);
+
+  const technicalProvenancePayload = useMemo(() => {
+    const github = repo && repoSha ? `${repo}@${repoSha}` : repo ?? repoSha ?? undefined;
+    const pack = datasetRelease ?? undefined;
+    const payload = { github, pack };
+    return Object.values(payload).some((value) => value != null) ? payload : null;
+  }, [datasetRelease, repo, repoSha]);
 
   const showStrip = Boolean(methodCode || version || generatedAt || metaAvailable || rulesUrl || provenanceJson);
   if (!showStrip) return null;
@@ -332,34 +286,6 @@ export default function TrustStrip({
 
         <div className="ml-auto flex items-center gap-2">
           {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
-          <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-            Import bundle
-            <input
-              type="file"
-              accept=".json,.bundle.json,.zip,application/json,application/zip"
-              className="hidden"
-              onChange={async (event) => {
-                const file = event.target.files?.[0];
-                event.target.value = "";
-                if (!file) return;
-                const current = { code: (methodCode ?? "").trim(), version: (version ?? "").trim() };
-                const result = await importProofBundleFile(file, current);
-                if (result.ok) {
-                  window.dispatchEvent(new Event("proofbundle:imported"));
-                  setImportStatus({ kind: "idle" });
-                  return;
-                }
-
-                if (result.code === "SWITCH_REQUIRED" && result.target) {
-                  const bundleText = file.name.toLowerCase().endsWith(".zip") ? undefined : await file.text();
-                  setImportStatus({ kind: "switch", message: result.message, target: result.target, bundleText });
-                  return;
-                }
-
-                setImportStatus({ kind: "error", message: result.message });
-              }}
-            />
-          </label>
           <details className="relative">
             <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
               Export
@@ -419,44 +345,142 @@ export default function TrustStrip({
               Details
             </summary>
             <div className="absolute right-0 z-10 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-              <div className="flex flex-col gap-2 p-3">
-                {copyAllPayload ? (
-                  <button
-                    type="button"
-                    className="self-start rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                    onClick={async () => {
-                      const ok = await copyText(JSON.stringify(copyAllPayload));
-                      if (ok) handleCopied("copy_all");
-                    }}
-                  >
-                    Copy all
-                  </button>
-                ) : null}
-
-                {detailsRows.length ? (
-                  detailsRows.map((row) => (
-                    <div key={row.key} className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-xs font-semibold text-slate-700">{row.label}</div>
-                        <div className="break-all font-mono text-xs text-slate-600">
-                          {row.display ?? row.value}
-                        </div>
+              <div className="flex flex-col gap-3 p-3">
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                  <div className="text-xs font-semibold text-slate-900">Dataset</div>
+                  <div className="mt-2 grid gap-2 text-xs text-slate-700">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-slate-500">Source</span>
+                      <span className="text-right font-medium text-slate-800">Article6 Methodologies</span>
+                    </div>
+                    {datasetRelease ? (
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="text-slate-500">Release</span>
+                        <span className="break-all text-right font-mono text-[11px] text-slate-700">{datasetRelease}</span>
                       </div>
+                    ) : null}
+                    {generatedAt ? (
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="text-slate-500">Generated</span>
+                        <span className="text-right font-medium text-slate-800">{formatIso(generatedAt)}</span>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+
+                <details className="rounded-lg border border-slate-100 bg-white">
+                  <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                    Audit fingerprints
+                    <span className="ml-2 text-[11px] font-medium text-slate-500">(collapsed)</span>
+                  </summary>
+                  <div className="grid gap-2 px-3 pb-3 text-xs text-slate-700">
+                    <div className="text-[11px] text-slate-500">
+                      Fingerprints for the audited artifacts used by this dataset.
+                    </div>
+                    <div className="grid gap-2">
+                      {audit?.rules ? (
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-slate-500">Rules fingerprint</span>
+                          <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.rules)}</span>
+                        </div>
+                      ) : null}
+                      {audit?.sections ? (
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-slate-500">Sections fingerprint</span>
+                          <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.sections)}</span>
+                        </div>
+                      ) : null}
+                      {audit?.sourcePdf ? (
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-slate-500">Source PDF fingerprint</span>
+                          <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.sourcePdf)}</span>
+                        </div>
+                      ) : null}
+                      {!audit?.rules && !audit?.sections && !audit?.sourcePdf ? (
+                        <div className="text-xs text-slate-500">No audit fingerprints available.</div>
+                      ) : null}
+                    </div>
+                    {auditFingerprintsPayload ? (
                       <button
                         type="button"
-                        className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        className="mt-1 self-start rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                         onClick={async () => {
-                          const ok = await copyText(row.value);
-                          if (ok) handleCopied(row.key);
+                          const ok = await copyText(JSON.stringify(auditFingerprintsPayload, null, 2));
+                          if (ok) handleCopied("audit_fingerprints");
                         }}
                       >
-                        Copy
+                        Copy all
                       </button>
+                    ) : null}
+                  </div>
+                </details>
+
+                <details className="rounded-lg border border-slate-100 bg-white">
+                  <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                    Technical provenance
+                  </summary>
+                  <div className="grid gap-2 px-3 pb-3 text-xs text-slate-700">
+                    <div className="text-[11px] text-slate-500">For auditors and implementation review.</div>
+                    <div className="grid gap-2">
+                      {repo || repoSha ? (
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-slate-500">GitHub</span>
+                          <span className="break-all text-right font-mono text-[11px] text-slate-700">
+                            {repo && repoSha ? `${repo}@${shortSha(repoSha)}` : repo ?? repoSha ?? ""}
+                          </span>
+                        </div>
+                      ) : null}
+                      {datasetRelease ? (
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-slate-500">Pack</span>
+                          <span className="break-all text-right font-mono text-[11px] text-slate-700">{datasetRelease}</span>
+                        </div>
+                      ) : null}
                     </div>
-                  ))
-                ) : (
-                  <div className="text-xs text-slate-500">No additional provenance details.</div>
-                )}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {technicalProvenancePayload ? (
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                          onClick={async () => {
+                            const ok = await copyText(JSON.stringify(technicalProvenancePayload, null, 2));
+                            if (ok) handleCopied("technical_provenance");
+                          }}
+                        >
+                          Copy technical provenance
+                        </button>
+                      ) : null}
+                      <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                        Import bundle
+                        <input
+                          type="file"
+                          accept=".json,.bundle.json,.zip,application/json,application/zip"
+                          className="hidden"
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            event.target.value = "";
+                            if (!file) return;
+                            const current = { code: (methodCode ?? "").trim(), version: (version ?? "").trim() };
+                            const result = await importProofBundleFile(file, current);
+                            if (result.ok) {
+                              window.dispatchEvent(new Event("proofbundle:imported"));
+                              setImportStatus({ kind: "idle" });
+                              return;
+                            }
+
+                            if (result.code === "SWITCH_REQUIRED" && result.target) {
+                              const bundleText = file.name.toLowerCase().endsWith(".zip") ? undefined : await file.text();
+                              setImportStatus({ kind: "switch", message: result.message, target: result.target, bundleText });
+                              return;
+                            }
+
+                            setImportStatus({ kind: "error", message: result.message });
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </details>
               </div>
             </div>
           </details>
