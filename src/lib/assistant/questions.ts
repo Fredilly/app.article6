@@ -18,32 +18,36 @@ export type AssistantQuestion = {
 export const ASSISTANT_QUESTIONS: AssistantQuestion[] = [
   {
     id: "purpose_claims",
-    label: "Purpose & claims",
-    promptTemplate: "Summarize the business purpose and what the methodology claims to achieve.",
+    label: "Explain this method in plain English",
+    promptTemplate: "Explain this methodology in plain English without adding facts not present in the evidence.",
     requiredInputs: ["sections", "rules"],
   },
   {
     id: "eligibility_constraints",
-    label: "Eligibility constraints",
-    promptTemplate: "List eligibility constraints and the practical implications for a project.",
+    label: "What would an auditor check?",
+    promptTemplate:
+      "List what an auditor would check, using only requirements and definitions found in the evidence.",
     requiredInputs: ["sections", "rules"],
   },
   {
     id: "required_data",
-    label: "Required data",
-    promptTemplate: "Identify what input data is required to apply this methodology.",
+    label: "What evidence do I need for this method?",
+    promptTemplate:
+      "List the evidence and inputs required to apply this methodology, grounded in the evidence text (no guesses).",
     requiredInputs: ["sections"],
   },
   {
     id: "calculation_steps",
-    label: "Calculation steps",
-    promptTemplate: "Outline the calculation steps and where to find them.",
+    label: "Show the most important rules to validate first",
+    promptTemplate:
+      "Identify the most important requirements to validate first, and where they are defined in the evidence.",
     requiredInputs: ["sections", "rules"],
   },
   {
     id: "monitoring_reporting",
-    label: "Monitoring & reporting",
-    promptTemplate: "Summarize monitoring and reporting expectations and where they are defined.",
+    label: "Which sections define monitoring requirements?",
+    promptTemplate:
+      "Summarize monitoring and reporting expectations and point to the defining sections and rules.",
     requiredInputs: ["sections"],
   },
   {
@@ -53,4 +57,3 @@ export const ASSISTANT_QUESTIONS: AssistantQuestion[] = [
     requiredInputs: ["meta", "sections"],
   },
 ];
-
