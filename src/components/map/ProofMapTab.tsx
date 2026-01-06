@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
@@ -36,7 +36,6 @@ type ProofMapTabProps = {
   selectedStacItemId: string | null;
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
-  onRemoveAoi: () => void;
   onSetEvidencePins: (pins: EvidencePin[]) => void;
   onSetVerificationRuns: (runs: VerificationRun[]) => void;
   onSetStacEvidenceState: (
@@ -51,6 +50,7 @@ type ProofMapTabProps = {
       | null,
   ) => void;
   onSelectStacItemId: (id: string | null) => void;
+  onStartOver: () => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
   onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
 };
@@ -176,11 +176,11 @@ export default function ProofMapTab({
   selectedStacItemId,
   evidenceSnapshots,
   onSetAoi,
-  onRemoveAoi,
   onSetEvidencePins,
   onSetVerificationRuns,
   onSetStacEvidenceState,
   onSelectStacItemId,
+  onStartOver,
   onNavigateEvidence,
   onEvidenceSelectionChange,
 }: ProofMapTabProps) {
@@ -197,6 +197,8 @@ export default function ProofMapTab({
   const stacEvidenceCardRef = useRef<HTMLDivElement | null>(null);
   const [stacInspectOpen, setStacInspectOpen] = useState(false);
   const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
+  const [startOverOpen, setStartOverOpen] = useState(false);
+  const [startOverBusy, setStartOverBusy] = useState(false);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -460,6 +462,61 @@ export default function ProofMapTab({
     }
     return null;
   }, [stacEndpointUrl]);
+
+  const hasStartOverState = useMemo(() => {
+    const hasAoi = Boolean(aoi);
+    const hasPins = evidencePins.length > 0;
+    const hasSelection = Boolean(selectedStacItemId);
+    const hasEvidence = (currentStacEvidence?.fc?.features?.length ?? 0) > 0;
+    const hasRuns = verificationRuns.length > 0;
+    const hasSnapshots = (evidenceSnapshots ?? []).length > 0;
+    return hasAoi || hasPins || hasSelection || hasEvidence || hasRuns || hasSnapshots;
+  }, [aoi, currentStacEvidence?.fc?.features?.length, evidencePins.length, evidenceSnapshots, selectedStacItemId, verificationRuns.length]);
+
+  const runStartOver = useCallback(async () => {
+    if (startOverBusy) return;
+    setStartOverBusy(true);
+    try {
+      for (const pin of evidencePins) {
+        for (const attachment of pin.attachments ?? []) {
+          if (!attachment?.id) continue;
+          try {
+            await deleteAttachmentBytes(attachment.id);
+          } catch {
+            // ignore
+          }
+        }
+      }
+      onStartOver();
+
+      setError(null);
+      setSnapshot(null);
+      setRunJson(null);
+      setViewportBbox(null);
+      setStacInspectOpen(false);
+      setLastSelectionSource(null);
+      setStacCentroidsEnabled(true);
+      try {
+        mapRef.current?.jumpTo?.({ center: [0, 0], zoom: 1 });
+      } catch {
+        // ignore
+      }
+      showToast("Cleared. Upload an AOI to begin.");
+    } finally {
+      setStartOverBusy(false);
+      setStartOverOpen(false);
+    }
+  }, [
+    evidencePins,
+    onStartOver,
+    startOverBusy,
+  ]);
+
+  useEffect(() => {
+    if (!startOverOpen) return;
+    if (hasStartOverState) return;
+    setStartOverOpen(false);
+  }, [hasStartOverState, startOverOpen]);
 
   useEffect(() => {
     if (!currentAoiFingerprint) return;
@@ -786,38 +843,92 @@ export default function ProofMapTab({
             </div>
           </div>
         ) : null}
+        {startOverOpen ? (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+                <div className="text-sm font-semibold text-slate-900">Start over?</div>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => setStartOverOpen(false)}
+                  disabled={startOverBusy}
+                >
+                  Close
+                </button>
+              </div>
+              <div className="grid gap-4 px-5 py-4">
+                <div className="text-sm text-slate-700">
+                  This clears the AOI, pins, and evidence selections for this method/version.
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => setStartOverOpen(false)}
+                    disabled={startOverBusy}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-rose-200 bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => void runStartOver()}
+                    disabled={startOverBusy}
+                  >
+                    Start over
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
             <div className="mt-1 text-xs text-slate-500">Stored locally for this method/version.</div>
           </div>
-          <label className="inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-            Upload AOI
-            <input
-              type="file"
-              accept=".json,.geojson,application/json"
-              className="hidden"
-              onChange={async (event) => {
-                const file = event.target.files?.[0];
-                event.target.value = "";
-                if (!file) return;
-                setError(null);
-                try {
-                  const text = await file.text();
-                  const parsed = JSON.parse(text) as unknown;
-                  const result = parseAoiGeoJson(parsed, file.name.replace(/\\.(geojson|json)$/i, ""));
-                  if (!result.ok) {
-                    setError(result.error);
-                    return;
-                  }
-                  onSetAoi(result.aoi);
-                } catch (e) {
-                  setError(e instanceof Error ? e.message : String(e));
-                }
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <button
+              type="button"
+              className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() => {
+                if (hasStartOverState) setStartOverOpen(true);
+                else showToast("Nothing to clear.");
               }}
-            />
-          </label>
+              disabled={startOverBusy}
+            >
+              Start over
+            </button>
+            <label className="inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+              Upload AOI
+              <input
+                type="file"
+                accept=".json,.geojson,application/json"
+                className="hidden"
+                onChange={async (event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (!file) return;
+                  setError(null);
+                  try {
+                    const text = await file.text();
+                    const parsed = JSON.parse(text) as unknown;
+                    const result = parseAoiGeoJson(parsed, file.name.replace(/\\.(geojson|json)$/i, ""));
+                    if (!result.ok) {
+                      setError(result.error);
+                      return;
+                    }
+                    onSetAoi(result.aoi);
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : String(e));
+                  }
+                }}
+              />
+            </label>
+          </div>
         </div>
+        <div className="text-xs text-slate-500">Clears AOI, pins, and evidence selections.</div>
 
         {error ? (
           <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
@@ -827,16 +938,7 @@ export default function ProofMapTab({
 
         {aoi ? (
           <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-            <div className="flex items-center justify-between gap-2">
-              <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={onRemoveAoi}
-              >
-                Remove AOI
-              </button>
-            </div>
+            <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
             <div className="mt-2 grid gap-1 text-xs text-slate-600">
               <div>area: {formatNum(aoi.area_km2)} km²</div>
               <div className="break-words">bbox: {bboxLabel}</div>
