@@ -9,6 +9,8 @@ import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 import {
+  clearProofMapStorage,
+  clearStoredMapView,
   loadAoi,
   loadEvidenceSnapshots,
   loadPins,
@@ -290,6 +292,29 @@ export default function MethodDetailPane({
     },
     [activeVersion, method.code],
   );
+
+  const startOverProofMap = useCallback(() => {
+    if (!activeVersion) return;
+    clearProofMapStorage(method.code, activeVersion);
+    clearStoredMapView(`${method.code}@${activeVersion}`);
+
+    setAoi(null);
+    setEvidencePins([]);
+    setEvidenceSnapshots([]);
+    setVerificationRuns([]);
+    setSelectedStacItemId(null);
+    setEvidenceLinkSelection(null);
+
+    const prefix = `${method.code}@${activeVersion}::`;
+    setStacEvidenceByKey((prev) => {
+      const next: Record<string, StacEvidenceState> = {};
+      for (const [key, value] of Object.entries(prev)) {
+        if (key.startsWith(prefix)) continue;
+        next[key] = value;
+      }
+      return next;
+    });
+  }, [activeVersion, method.code]);
 
   const refreshProofMapFromStorage = useCallback(() => {
     if (!activeVersion) return;
@@ -1016,7 +1041,7 @@ export default function MethodDetailPane({
           selectedStacItemId={selectedStacItemId}
           evidenceSnapshots={evidenceSnapshots}
           onSetAoi={setAoiAndPersist}
-          onRemoveAoi={() => setAoiAndPersist(null)}
+          onStartOver={startOverProofMap}
           onSetEvidencePins={setEvidencePinsAndPersist}
           onSetVerificationRuns={setVerificationRunsAndPersist}
           onSetStacEvidenceState={(next) => {

@@ -103,3 +103,24 @@ export function saveVerificationRuns(code: string, version: string, runs: Verifi
     // ignore
   }
 }
+
+export function clearProofMapStorage(code: string, version: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(aoiKey(code, version));
+    window.localStorage.removeItem(pinsKey(code, version));
+    window.localStorage.removeItem(snapshotsKey(code, version));
+    window.localStorage.removeItem(runsKey(code, version));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearStoredMapView(viewKey: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(`a6:mapview:${viewKey}`);
+  } catch {
+    // ignore
+  }
+}
