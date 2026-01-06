@@ -36,8 +36,13 @@ function parseBoolParam(value: string | null): boolean {
 }
 
 function parseFiltersFromUrl(searchParams: { get(key: string): string | null }): FiltersState {
+  const query = (() => {
+    const fromSearch = (searchParams.get("search") ?? "").trim();
+    if (fromSearch) return fromSearch;
+    return (searchParams.get("q") ?? "").trim();
+  })();
   return {
-    query: (searchParams.get("q") ?? "").trim(),
+    query,
     program: (searchParams.get("program") ?? "").trim() || "all",
     sector: (searchParams.get("sector") ?? "").trim() || "all",
     richOnly: parseBoolParam(searchParams.get("rich")),
@@ -96,7 +101,8 @@ export default function MethodsInventoryApp({ methods, generatedAt, datasetHash 
     if (!pathname) return;
     if (!urlHydrated) return;
     const next = applyUrlUpdates(searchParams, {
-      q: filters.query,
+      search: filters.query,
+      q: null,
       program: filters.program !== "all" ? filters.program : null,
       sector: filters.sector !== "all" ? filters.sector : null,
       rich: filters.richOnly ? "1" : null,
