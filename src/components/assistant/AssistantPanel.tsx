@@ -10,6 +10,8 @@ import { pickProvenanceFields } from "@/lib/trustFormat";
 import { extractPackId } from "@/lib/packId";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import { buildEvidencePin, dedupeStrings, evidencePinFingerprint, isDuplicateEvidencePin } from "@/lib/proofMap/pins";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { applyUrlUpdates } from "@/lib/nav/urlState";
 
 type RuleSummary = { id: string; title: string; snippet: string };
 type SectionSummary = { id: string; title: string; textSnippet?: string };
@@ -149,6 +151,9 @@ function AnswerBody({ markdown }: { markdown: string }) {
 }
 
 export default function AssistantPanel(props: AssistantPanelProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [active, setActive] = useState<AssistantQuestionId>("purpose_claims");
   const [toast, setToast] = useState<string | null>(null);
   const lastPinFingerprintRef = useRef<{ fp: string; atMs: number } | null>(null);
@@ -184,6 +189,18 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   }, [active, props.methodCode, props.meta, props.rich, props.rules, props.sections, props.version, provenance]);
 
   const evidenceRequired = answer.evidence.length === 0;
+  const hasSelection = Boolean(props.methodCode?.trim()) && Boolean(props.version?.trim());
+
+  const setTabParam = useCallback(
+    (tab: "rules" | "sections" | "map") => {
+      if (!pathname) return;
+      const next = applyUrlUpdates(searchParams, { tab, focus: null });
+      if (next === searchParams.toString()) return;
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   const currentEvidenceIds = useMemo(() => {
     const ids = answer.evidence
       .filter((item) => item.type === "rule" || item.type === "section")
@@ -217,7 +234,9 @@ export default function AssistantPanel(props: AssistantPanelProps) {
             );
           })}
         </div>
-        <div className="mt-2 text-xs text-slate-500">Evidence-linked answers. Exportable for audit.</div>
+        <div className="mt-2 text-xs text-slate-500">
+          Guided, evidence-linked answers. No verification or pass/fail claims.
+        </div>
       </div>
 
       <div className="p-4">
@@ -226,6 +245,17 @@ export default function AssistantPanel(props: AssistantPanelProps) {
             {toast}
           </div>
         ) : null}
+        {!hasSelection ? (
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="text-sm font-semibold text-slate-900">Assistant</div>
+            <div className="mt-2 text-sm text-slate-700">
+              Select a method version to enable guided help.
+            </div>
+            <div className="mt-2 text-xs text-slate-500">
+              Choose a version above, then return to the Assistant tab.
+            </div>
+          </div>
+        ) : (
         <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm font-semibold text-slate-900">Answer</div>
@@ -336,7 +366,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
 
         {evidenceRequired ? (
           <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            Evidence required: this answer currently has no linked evidence.
+            No grounded evidence found for this prompt.
           </div>
         ) : null}
 
@@ -381,7 +411,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                   );
                 })
               ) : (
-                <span className="text-xs text-slate-500">No evidence linked.</span>
+                <span className="text-xs text-slate-500">No grounded evidence found.</span>
               )}
             </div>
           </div>
@@ -399,6 +429,32 @@ export default function AssistantPanel(props: AssistantPanelProps) {
 
           <div>
             <div className="text-xs font-semibold text-slate-700">Next actions</div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setTabParam("rules")}
+              >
+                Open Rules tab
+              </button>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setTabParam("sections")}
+              >
+                Open Sections tab
+              </button>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setTabParam("map")}
+              >
+                Open Map tab
+              </button>
+            </div>
+            <div className="mt-2 text-xs text-slate-500">
+              Map workflow: upload an AOI, then search STAC evidence and export an Evidence Snapshot.
+            </div>
             <ul className="mt-2 list-disc pl-5 text-xs text-slate-600">
               {answer.next_actions.length ? (
                 answer.next_actions.map((item) => <li key={item}>{item}</li>)
@@ -409,6 +465,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
           </div>
         </div>
       </div>
+        )}
       </div>
     </div>
   );
