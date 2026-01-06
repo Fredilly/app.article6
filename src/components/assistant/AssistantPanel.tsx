@@ -368,7 +368,6 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                               const tab = item.type === "rule" ? "rules" : "sections";
                               url.searchParams.set("tab", tab);
                               url.searchParams.set("focus", item.id);
-                              window.history.replaceState(null, "", url.toString());
                               const ok = await copyText(url.toString());
                               if (ok) showToast("Copied");
                             }}

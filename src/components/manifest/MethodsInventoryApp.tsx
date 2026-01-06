@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Filter, Search } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
+import { applyUrlUpdates } from "@/lib/nav/urlState";
 
 type MethodsInventoryAppProps = {
   methods: MethodInventoryItem[];
@@ -26,6 +28,31 @@ function sumRuleCount(method: MethodInventoryItem): number {
 
 function normalizeText(value: string): string {
   return value.trim().toLowerCase();
+}
+
+function parseBoolParam(value: string | null): boolean {
+  const trimmed = (value ?? "").trim().toLowerCase();
+  return trimmed === "1" || trimmed === "true" || trimmed === "yes";
+}
+
+function parseFiltersFromUrl(searchParams: { get(key: string): string | null }): FiltersState {
+  return {
+    query: (searchParams.get("q") ?? "").trim(),
+    program: (searchParams.get("program") ?? "").trim() || "all",
+    sector: (searchParams.get("sector") ?? "").trim() || "all",
+    richOnly: parseBoolParam(searchParams.get("rich")),
+    hasPreviousOnly: parseBoolParam(searchParams.get("prev")),
+  };
+}
+
+function areFiltersEqual(a: FiltersState, b: FiltersState): boolean {
+  return (
+    a.query === b.query &&
+    a.program === b.program &&
+    a.sector === b.sector &&
+    a.richOnly === b.richOnly &&
+    a.hasPreviousOnly === b.hasPreviousOnly
+  );
 }
 
 export function filterMethods(methods: MethodInventoryItem[], filters: FiltersState): MethodInventoryItem[] {
@@ -52,13 +79,32 @@ function methodHref(method: MethodInventoryItem): string {
 }
 
 export default function MethodsInventoryApp({ methods, generatedAt, datasetHash }: MethodsInventoryAppProps) {
-  const [filters, setFilters] = useState<FiltersState>({
-    query: "",
-    program: "all",
-    sector: "all",
-    richOnly: false,
-    hasPreviousOnly: false,
-  });
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [filters, setFilters] = useState<FiltersState>(() => parseFiltersFromUrl(searchParams));
+  const [urlHydrated, setUrlHydrated] = useState(false);
+
+  const filtersFromUrl = useMemo(() => parseFiltersFromUrl(searchParams), [searchParams]);
+
+  useEffect(() => {
+    setFilters((prev) => (areFiltersEqual(prev, filtersFromUrl) ? prev : filtersFromUrl));
+    if (!urlHydrated) setUrlHydrated(true);
+  }, [filtersFromUrl, urlHydrated]);
+
+  useEffect(() => {
+    if (!pathname) return;
+    if (!urlHydrated) return;
+    const next = applyUrlUpdates(searchParams, {
+      q: filters.query,
+      program: filters.program !== "all" ? filters.program : null,
+      sector: filters.sector !== "all" ? filters.sector : null,
+      rich: filters.richOnly ? "1" : null,
+      prev: filters.hasPreviousOnly ? "1" : null,
+    });
+    if (next === searchParams.toString()) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [filters, pathname, router, searchParams, urlHydrated]);
 
   const programOptions = useMemo(() => {
     const unique = new Set(methods.map((m) => m.program).filter(Boolean));

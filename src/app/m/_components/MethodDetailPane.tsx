@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
@@ -21,6 +21,7 @@ import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
+import { applyUrlUpdates, parseDetailTab } from "@/lib/nav/urlState";
 
 type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
 
@@ -69,9 +70,36 @@ export default function MethodDetailPane({
 }: MethodDetailPaneProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [tab, setTab] = useState<DetailTab>(
-    initialSectionId ? "sections" : initialRuleId ? "rules" : "overview",
+  const searchParams = useSearchParams();
+  const searchString = searchParams.toString();
+  const defaultTab: DetailTab = useMemo(
+    () => (initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
+    [initialRuleId, initialSectionId],
   );
+  const tab = useMemo(() => {
+    const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
+    return parsed ?? defaultTab;
+  }, [defaultTab, searchString]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    if (typeof window === "undefined") return;
+    const history = (window as unknown as { __a6TabHistory?: Array<{ tab: string; at: number }> }).__a6TabHistory ?? [];
+    history.push({ tab, at: Date.now() });
+    const trimmed = history.filter((entry) => Date.now() - entry.at < 1500).slice(-8);
+    (window as unknown as { __a6TabHistory?: Array<{ tab: string; at: number }> }).__a6TabHistory = trimmed;
+    if (trimmed.length < 6) return;
+    const last = trimmed.slice(-6).map((x) => x.tab);
+    const oscillating =
+      last[0] === last[2] &&
+      last[2] === last[4] &&
+      last[1] === last[3] &&
+      last[3] === last[5] &&
+      last[0] !== last[1];
+    if (oscillating) {
+      throw new Error(`Tab oscillation detected: ${last.join(" → ")}`);
+    }
+  }, [tab]);
   const [ruleQuery, setRuleQuery] = useState("");
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesError, setRulesError] = useState<string | null>(null);
@@ -119,7 +147,7 @@ export default function MethodDetailPane({
     ruleIds: string[];
     sectionIds: string[];
   } | null>(null);
-  const didApplyFocusFromUrl = useRef(false);
+  const lastAppliedFocusFromUrl = useRef<string | null>(null);
 
   const [aoi, setAoi] = useState<AOI | null>(null);
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
@@ -218,6 +246,15 @@ export default function MethodDetailPane({
     setRuleDetailLoading(false);
     didOpenFromQuery.current = false;
   }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    if (!pathname) return;
+    const urlTab = parseDetailTab(new URLSearchParams(searchString).get("tab"));
+    if (urlTab) return;
+    const next = applyUrlUpdates(new URLSearchParams(searchString), { tab });
+    if (next === searchString) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [pathname, router, searchString, tab]);
 
   useEffect(() => {
     if (!activeVersion) return;
@@ -463,11 +500,25 @@ export default function MethodDetailPane({
 
   const setFocusParam = useCallback((focusTab: "rules" | "sections", focusId: string) => {
     if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", focusTab);
-    url.searchParams.set("focus", focusId);
-    window.history.replaceState(null, "", url.toString());
-  }, []);
+    if (!pathname) return;
+    const next = applyUrlUpdates(new URLSearchParams(searchString), { tab: focusTab, focus: focusId });
+    if (next === searchString) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [pathname, router, searchString]);
+
+  const setTabParam = useCallback(
+    (nextTab: DetailTab) => {
+      if (!pathname) return;
+      const params = new URLSearchParams(searchString);
+      const next = applyUrlUpdates(params, {
+        tab: nextTab,
+        focus: null,
+      });
+      if (next === searchString) return;
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchString],
+  );
 
   const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
     if (!activeVersion) return [];
@@ -621,8 +672,15 @@ export default function MethodDetailPane({
     }
   }, [activeVersion, method.code, method.program, method.sector, richEvidence, richLoading]);
 
+  useEffect(() => {
+    if (tab === "rules") void ensureRulesLoaded();
+    if (tab === "sections") void ensureSectionsLoaded();
+    if (tab === "rich") void ensureRichLoaded();
+    if (tab === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
+  }, [ensureRichLoaded, ensureRulesLoaded, ensureSectionsLoaded, tab]);
+
   const openRule = useCallback(async (ruleId: string) => {
-    setTab("rules");
+    setTabParam("rules");
     setRulesDeeplinkWarning(null);
     const list = await ensureRulesLoaded();
     if (list.length === 0) return;
@@ -634,7 +692,7 @@ export default function MethodDetailPane({
     setDrawerOpen(true);
     setRuleParam(ruleId);
     await loadRuleDetail(ruleId);
-  }, [ensureRulesLoaded, loadRuleDetail, setRuleParam]);
+  }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam]);
 
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
@@ -654,7 +712,7 @@ export default function MethodDetailPane({
     ) => {
       if (!target) return;
       if (options?.closeRuleDrawer) closeDrawer();
-      setTab("sections");
+      setTabParam("sections");
       const list = await ensureSectionsLoaded();
       if (!list.length) return;
       const exists = list.some((section) => section.id === target);
@@ -666,7 +724,7 @@ export default function MethodDetailPane({
       setActiveSectionId(target);
       setSectionParam(target);
     },
-    [closeDrawer, ensureSectionsLoaded, setSectionParam],
+    [closeDrawer, ensureSectionsLoaded, setSectionParam, setTabParam],
   );
 
   useEffect(() => {
@@ -675,7 +733,7 @@ export default function MethodDetailPane({
     if (!activeVersion) return;
     didOpenFromQuery.current = true;
     (async () => {
-      setTab("rules");
+      setTabParam("rules");
       const list = await ensureRulesLoaded();
       if (list.length === 0) {
         return;
@@ -687,7 +745,7 @@ export default function MethodDetailPane({
       }
       await openRule(initialRuleId);
     })();
-  }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule]);
+  }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule, setTabParam]);
 
   const filteredSections = useMemo(() => {
     const q = sectionQuery.trim().toLowerCase();
@@ -711,12 +769,10 @@ export default function MethodDetailPane({
     el?.scrollIntoView({ block: "start" });
   }, [activeRuleId, tab]);
 
-  const navigateToRule = useCallback(
+  const focusRuleInView = useCallback(
     async (ruleId: string) => {
       const list = await ensureRulesLoaded();
       if (!list.some((rule) => rule.id === ruleId)) return false;
-      setFocusParam("rules", ruleId);
-      setTab("rules");
       window.setTimeout(() => {
         document.getElementById(ruleId)?.scrollIntoView({ block: "start" });
         setHighlightId(ruleId);
@@ -724,15 +780,13 @@ export default function MethodDetailPane({
       }, 0);
       return true;
     },
-    [ensureRulesLoaded, setFocusParam],
+    [ensureRulesLoaded],
   );
 
-  const navigateToSection = useCallback(
+  const focusSectionInView = useCallback(
     async (sectionId: string) => {
       const list = await ensureSectionsLoaded();
       if (!list.some((section) => section.id === sectionId)) return false;
-      setFocusParam("sections", sectionId);
-      setTab("sections");
       setSectionsDeeplinkWarning(null);
       setActiveSectionId(sectionId);
       setSectionParam(sectionId);
@@ -743,25 +797,43 @@ export default function MethodDetailPane({
       }, 0);
       return true;
     },
-    [ensureSectionsLoaded, setFocusParam, setSectionParam],
+    [ensureSectionsLoaded, setSectionParam],
+  );
+
+  const navigateToRule = useCallback(
+    async (ruleId: string) => {
+      const ok = await focusRuleInView(ruleId);
+      if (!ok) return false;
+      setFocusParam("rules", ruleId);
+      return true;
+    },
+    [focusRuleInView, setFocusParam],
+  );
+
+  const navigateToSection = useCallback(
+    async (sectionId: string) => {
+      const ok = await focusSectionInView(sectionId);
+      if (!ok) return false;
+      setFocusParam("sections", sectionId);
+      return true;
+    },
+    [focusSectionInView, setFocusParam],
   );
 
   const linkedRuleIds = useMemo(() => new Set(evidenceLinkSelection?.ruleIds ?? []), [evidenceLinkSelection]);
   const linkedSectionIds = useMemo(() => new Set(evidenceLinkSelection?.sectionIds ?? []), [evidenceLinkSelection]);
 
   useEffect(() => {
-    if (didApplyFocusFromUrl.current) return;
-    if (!activeVersion) return;
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const focusTab = params.get("tab");
-    const focusId = params.get("focus");
-    if (!focusTab || !focusId) return;
-
-    didApplyFocusFromUrl.current = true;
-    if (focusTab === "rules") void navigateToRule(focusId);
-    if (focusTab === "sections") void navigateToSection(focusId);
-  }, [activeVersion, navigateToRule, navigateToSection]);
+    const params = new URLSearchParams(searchString);
+    const focusTab = (params.get("tab") ?? "").trim();
+    const focusId = (params.get("focus") ?? "").trim();
+    const focusKey = focusId && (focusTab === "rules" || focusTab === "sections") ? `${focusTab}:${focusId}` : null;
+    if (!focusKey) return;
+    if (focusKey === lastAppliedFocusFromUrl.current) return;
+    lastAppliedFocusFromUrl.current = focusKey;
+    if (focusTab === "rules") void focusRuleInView(focusId);
+    if (focusTab === "sections") void focusSectionInView(focusId);
+  }, [focusRuleInView, focusSectionInView, searchString]);
 
   useEffect(() => {
     if (didSelectSectionFromQuery.current) return;
@@ -769,7 +841,7 @@ export default function MethodDetailPane({
     if (!activeVersion) return;
     didSelectSectionFromQuery.current = true;
     (async () => {
-      setTab("sections");
+      setTabParam("sections");
       const list = await ensureSectionsLoaded();
       if (list.length === 0) return;
       const exists = list.some((section) => section.id === initialSectionId);
@@ -781,7 +853,7 @@ export default function MethodDetailPane({
       setActiveSectionId(initialSectionId);
       setSectionParam(initialSectionId);
     })();
-  }, [activeVersion, ensureSectionsLoaded, initialSectionId, setSectionParam]);
+  }, [activeVersion, ensureSectionsLoaded, initialSectionId, setSectionParam, setTabParam]);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -817,7 +889,7 @@ export default function MethodDetailPane({
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
-          onClick={() => setTab("overview")}
+          onClick={() => setTabParam("overview")}
           className={`${tabBase} ${tab === "overview" ? tabActive : tabIdle}`}
           aria-pressed={tab === "overview"}
         >
@@ -825,7 +897,7 @@ export default function MethodDetailPane({
         </button>
         <button
           type="button"
-          onClick={() => setTab("versions")}
+          onClick={() => setTabParam("versions")}
           className={`${tabBase} ${tab === "versions" ? tabActive : tabIdle}`}
           aria-pressed={tab === "versions"}
         >
@@ -833,10 +905,7 @@ export default function MethodDetailPane({
         </button>
         <button
           type="button"
-          onClick={async () => {
-            setTab("rules");
-            await ensureRulesLoaded();
-          }}
+          onClick={() => setTabParam("rules")}
           className={`${tabBase} ${tab === "rules" ? tabActive : tabIdle}`}
           aria-pressed={tab === "rules"}
         >
@@ -844,10 +913,7 @@ export default function MethodDetailPane({
         </button>
         <button
           type="button"
-          onClick={async () => {
-            setTab("sections");
-            await ensureSectionsLoaded();
-          }}
+          onClick={() => setTabParam("sections")}
           className={`${tabBase} ${tab === "sections" ? tabActive : tabIdle}`}
           aria-pressed={tab === "sections"}
         >
@@ -855,10 +921,7 @@ export default function MethodDetailPane({
         </button>
         <button
           type="button"
-          onClick={async () => {
-            setTab("rich");
-            await ensureRichLoaded();
-          }}
+          onClick={() => setTabParam("rich")}
           className={`${tabBase} ${tab === "rich" ? tabActive : tabIdle}`}
           aria-pressed={tab === "rich"}
         >
@@ -866,10 +929,7 @@ export default function MethodDetailPane({
         </button>
         <button
           type="button"
-          onClick={async () => {
-            setTab("assistant");
-            await Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
-          }}
+          onClick={() => setTabParam("assistant")}
           className={`${tabBase} ${tab === "assistant" ? tabActive : tabIdle}`}
           aria-pressed={tab === "assistant"}
         >
@@ -877,7 +937,7 @@ export default function MethodDetailPane({
         </button>
         <button
           type="button"
-          onClick={() => setTab("map")}
+          onClick={() => setTabParam("map")}
           className={`${tabBase} ${tab === "map" ? tabActive : tabIdle}`}
           aria-pressed={tab === "map"}
         >
