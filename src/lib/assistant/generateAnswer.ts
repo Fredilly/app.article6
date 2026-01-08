@@ -190,7 +190,7 @@ export function generateAnswer(input: {
       `- Loaded sections: ${sections.length}`,
       `- Loaded rules: ${rules.length}`,
       "",
-      "Use the Evidence chips to verify the exact language.",
+      "Use the Evidence chips to confirm the exact language.",
     ].join("\n");
 
     return { question_id: questionId, answer_md, evidence: uniqEvidence(), assumptions, next_actions, provenance };

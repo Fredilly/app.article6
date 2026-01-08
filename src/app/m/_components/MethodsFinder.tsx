@@ -92,7 +92,7 @@ export default async function MethodsFinder({
         <header className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Method Inventory</h1>
           <p className="text-sm text-slate-600">
-            Browse methods, select a version, and verify provenance via audit hashes.
+            Browse methods, select a version, and review provenance via audit fingerprints.
           </p>
           {!selectedCode && goldenSelection ? (
             <p className="text-xs text-slate-500">

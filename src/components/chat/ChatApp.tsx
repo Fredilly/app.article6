@@ -22,7 +22,7 @@ export default function ChatApp() {
     {
       role: "assistant",
       content:
-        "Welcome to Article6 — What would you like to verify? Upload a map later; for now, chat is ready."
+        "Welcome to Article6 — What would you like to explore? You can add an evidence map later; for now, chat is ready."
     }
   ]);
   const [open, setOpen] = useState(true);
@@ -83,9 +83,9 @@ export default function ChatApp() {
               <Menu className="h-5 w-5 text-gray-500" />
             </button>
             <div>
-              <p className="text-xs uppercase tracking-wide text-gray-400">Article 6 Verification</p>
+              <p className="text-xs uppercase tracking-wide text-gray-400">Article 6 Evidence</p>
               <h1 className="text-xl font-semibold text-gray-900 md:text-2xl">
-                What would you like to verify today?
+                What would you like to explore today?
               </h1>
             </div>
           </div>

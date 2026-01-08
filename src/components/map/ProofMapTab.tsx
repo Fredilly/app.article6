@@ -826,7 +826,7 @@ export default function ProofMapTab({
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
             <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
               <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-                <div className="text-sm font-semibold text-slate-900">Verification JSON</div>
+                <div className="text-sm font-semibold text-slate-900">Evidence search JSON</div>
                 <button
                   type="button"
                   className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
@@ -1032,7 +1032,7 @@ export default function ProofMapTab({
                     }
 
                     onSetVerificationRuns([updated, ...verificationRuns]);
-                    showToast("Verification complete");
+                    showToast("Search complete");
                   } catch (e) {
                     const message = e instanceof Error ? e.message : String(e);
                     const updated: VerificationRun = {
@@ -1496,7 +1496,7 @@ export default function ProofMapTab({
         </div>
 
         <div>
-          <div className="text-xs font-semibold text-slate-700">Verification runs (current AOI)</div>
+          <div className="text-xs font-semibold text-slate-700">Evidence searches (current AOI)</div>
           <div className="mt-2 grid gap-2">
             {aoi && currentAoiFingerprint && currentRuns.length ? (
               currentRuns.map((run) => {
