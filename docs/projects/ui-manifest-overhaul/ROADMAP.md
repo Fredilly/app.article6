@@ -21,7 +21,7 @@ Acceptance
 
 ## M2 — Method detail panel + tabs (2–3 days)
 - Desktop two-panel layout OR list + detail pane
-- Tabs: Overview, Versions, Rules, Document, Rich, Map
+- Tabs: Overview, Versions, Rules, Document, Rich
 - Trust strip on Overview (repo SHA, generated_at, hashes, export)
 - Stable URLs preserve selected method+version + active tab
 
@@ -67,10 +67,10 @@ Acceptance
 
 ## Definition of Done (Investor Demo)
 1) Pick method+version → view Trust Strip
-2) Open a rule → jump to an evidence anchor in the document
-3) View evidence map overlay for the same context
-4) Export Evidence Snapshot (and audit pack if present)
-5) Share the URL and confirm it restores the same state
+2) Open a rule
+3) Jump to evidence anchor
+4) View evidence map overlay
+5) Export Evidence Snapshot / audit pack
 
 ## WHAT
 - Update roadmap to remove verification-specific milestones and align to Evidence Map integration + current IA.
