@@ -15,6 +15,7 @@
     "dev:manifest:count": "node -e \"console.log(require('./public/manifest/index.json').length)\"",
     "fetch:methodologies-pack": "bash scripts/fetch-methodologies-pack.sh",
     "check:golden": "bash scripts/check-golden-rich.sh",
+    "verify:artifacts": "node scripts/verify-artifacts.mjs",
     "vercel-build": "npm run build",
     "prebuild": "npm run fetch:methodologies-pack && npm run check:golden"
   },
@@ -43,6 +44,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "ajv": "^8.17.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.10",
     "jest": "^29.7.0",
