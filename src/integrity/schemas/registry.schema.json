@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "registry.json",
+  "type": "object",
+  "required": ["program", "sector", "methods"],
+  "properties": {
+    "generated_at": { "type": "string" },
+    "program": { "type": "string", "minLength": 1 },
+    "sector": { "type": "string", "minLength": 1 },
+    "methods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "versions"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1 },
+          "versions": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
+
