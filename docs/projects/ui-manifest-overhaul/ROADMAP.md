@@ -79,3 +79,27 @@ Acceptance
 - Keep investor-demo scope consistent with the system prompt (evidence-centric, no verification product claims).
 
 Signed-off-by: Fred E <fredilly@article6.org>
+
+---
+
+## Phase: Data Integrity + Exports (sellable packaging)
+
+### Export scopes (product tiers)
+- **Tier 0 — Method pack**: methodology bundle only (META/rules/sections + rich) → Free / Starter
+- **Tier 1 — Method pack + pack meta**: add `pack.meta.json` provenance/exporter info → Pro
+- **Tier 2 — Session pack**: AOI upload + STAC query/results + selections (later verification output) → Team / Pro+
+- **Tier 3 — Verification + diffs**: verification outputs + manifest-to-manifest diff/change control → Enterprise
+
+### Sequencing (highest leverage)
+1. **PR8** — method-pack export + download endpoint
+2. **PR8.1** — add `pack.meta.json` (+ optional `registry.json` when present)
+3. **PR9** — determinism gate (build twice ⇒ byte-identical zip)
+4. **PR10** — session-pack (“run evidence”: AOI + evidence outputs)
+5. **PR11** — diff: manifest-to-manifest comparison (what changed + why)
+
+### Acceptance / visible markers
+- PR8: download yields `manifest.json` + 5 method files
+- PR8.1: zip also includes `pack.meta.json`; `manifest.files` includes it
+- PR9: two exports for same commit are byte-identical (sha256 matches)
+- PR10: zip includes `snapshot/aoi.json` + `snapshot/evidence.query.json` + `snapshot/evidence.results.json`
+- PR11: diff report lists added/removed/changed files + sha changes
