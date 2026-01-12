@@ -19,7 +19,8 @@ export async function GET(req: Request) {
         "Cache-Control": "no-store",
       },
     });
-  } catch (e: any) {
-    return new Response(`Audit pack export failed (500). ${e?.message || e}`, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return new Response(`Audit pack export failed (500). ${message}`, { status: 500 });
   }
 }

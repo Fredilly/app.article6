@@ -4,15 +4,16 @@ import crypto from "node:crypto";
 import { zipSync, strToU8 } from "fflate";
 
 // stable JSON for hashing + export bytes
-function canonicalStringify(value: any): string {
+function canonicalStringify(value: unknown): string {
   const seen = new WeakSet<object>();
-  const norm = (v: any): any => {
+  const norm = (v: unknown): unknown => {
     if (v === null || typeof v !== "object") return v;
     if (Array.isArray(v)) return v.map(norm);
     if (seen.has(v)) throw new Error("circular");
     seen.add(v);
-    const out: Record<string, any> = {};
-    for (const k of Object.keys(v).sort()) out[k] = norm(v[k]);
+    const record = v as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(record).sort()) out[k] = norm(record[k]);
     return out;
   };
   return JSON.stringify(norm(value)) + "\n";
