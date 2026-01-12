@@ -1,26 +1,17 @@
-import fs from "node:fs";
-import path from "node:path";
-import process from "node:process";
-import { buildAuditPack } from "@/exports/buildAuditPack";
+import { buildAuditPackZip } from "@/exports/auditPack";
 
-export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-function getArtifactRoots(repoRoot: string): string[] {
-  const env = process.env.ARTIFACT_ROOTS;
-  const roots = (env ? env.split(",").map((s) => s.trim()) : ["methodologies", "public", "data", "artifacts", "src/data"])
-    .filter(Boolean)
-    .map((p) => path.join(repoRoot, p));
-  return roots.filter((p) => fs.existsSync(p));
-}
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const method = url.searchParams.get("method") || "";
+  const version = url.searchParams.get("version") || "";
+  if (!method || !version) return new Response("Missing ?method=AR-XXXX&version=vYY-Y", { status: 400 });
 
-export async function GET() {
-  const repoRoot = process.cwd();
-  const prebuiltPath = path.join(repoRoot, "public", "exports", "audit-pack.zip");
-
-  if (fs.existsSync(prebuiltPath)) {
-    const bytes = fs.readFileSync(prebuiltPath);
-    return new Response(new Uint8Array(bytes), {
+  try {
+    const zip = buildAuditPackZip(method, version);
+    return new Response(zip, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
@@ -28,20 +19,7 @@ export async function GET() {
         "Cache-Control": "no-store",
       },
     });
+  } catch (e: any) {
+    return new Response(`Audit pack export failed (500). ${e?.message || e}`, { status: 500 });
   }
-
-  const artifactRoots = getArtifactRoots(repoRoot);
-  if (artifactRoots.length === 0) {
-    return new Response("No artifact roots found. Set ARTIFACT_ROOTS=dir1,dir2.", { status: 500 });
-  }
-
-  const { zipBytes } = await buildAuditPack({ repoRoot, artifactRoots });
-  return new Response(new Uint8Array(zipBytes), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/zip",
-      "Content-Disposition": 'attachment; filename="audit-pack.zip"',
-      "Cache-Control": "no-store",
-    },
-  });
 }
