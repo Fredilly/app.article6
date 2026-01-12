@@ -19,7 +19,8 @@
     "verify:audit-pack": "node scripts/verify-audit-pack.mjs",
     "verify:artifacts": "node scripts/verify-artifacts.mjs",
     "vercel-build": "npm run build",
-    "prebuild": "npm run fetch:methodologies-pack && npm run check:golden"
+    "prebuild": "npm run fetch:methodologies-pack && npm run check:golden",
+    "determinism:audit-pack": "node scripts/determinism-audit-pack.mjs"
   },
   "engines": {
     "node": "20.11.1",

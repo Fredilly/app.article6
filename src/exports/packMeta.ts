@@ -18,11 +18,12 @@ export function makePackMeta(args: {
   version: string;
   repo: string;
   commit: string;
+  generated_at: string;
 }): PackMeta {
   return {
     kind: "article6.pack_meta",
     version: 1,
-    generated_at: new Date().toISOString(),
+    generated_at: args.generated_at,
     exporter: {
       name: "app.article6",
       export_format_version: 1,

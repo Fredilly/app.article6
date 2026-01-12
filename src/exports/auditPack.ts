@@ -45,6 +45,24 @@ function resolveMethodDir(methodCode: string, version: string): string {
   return "";
 }
 
+function deterministicTimestamp(): string {
+  if (process.env.SOURCE_DATE_EPOCH) {
+    const parsed = Number(process.env.SOURCE_DATE_EPOCH);
+    if (Number.isFinite(parsed)) {
+      return new Date(parsed * 1000).toISOString();
+    }
+  }
+  return "1970-01-01T00:00:00.000Z";
+}
+
+function zipMtimeFromTimestamp(iso: string): Date {
+  const date = new Date(iso);
+  if (!Number.isFinite(date.getTime())) return new Date("1980-01-01T00:00:00.000Z");
+  if (date.getUTCFullYear() < 1980) return new Date("1980-01-01T00:00:00.000Z");
+  if (date.getUTCFullYear() > 2099) return new Date("2099-12-31T23:59:58.000Z");
+  return date;
+}
+
 export function buildAuditPackZip(methodCode: string, version: string) {
   const methodDir = resolveMethodDir(methodCode, version);
   if (!methodDir) {
@@ -68,12 +86,13 @@ export function buildAuditPackZip(methodCode: string, version: string) {
   const repo = process.env.GITHUB_REPOSITORY || process.env.VERCEL_GIT_REPO_SLUG || "unknown";
   const commit = process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "unknown";
 
-  const packMeta = makePackMeta({ methodCode, version, repo, commit });
+  const generatedAt = deterministicTimestamp();
+  const packMeta = makePackMeta({ methodCode, version, repo, commit, generated_at: generatedAt });
 
   const manifest = {
     kind: "article6.audit_pack",
     version: 1,
-    generated_at: new Date().toISOString(),
+    generated_at: generatedAt,
     provenance: {
       repo,
       commit,
@@ -113,11 +132,12 @@ export function buildAuditPackZip(methodCode: string, version: string) {
     .sort((a, b) => a.path.localeCompare(b.path));
 
   // Zip entries (sorted for stability)
-  const entries: Record<string, Uint8Array> = {
-    "manifest.json": strToU8(canonicalStringify(manifest)),
+  const entryMtime = zipMtimeFromTimestamp(generatedAt);
+  const entries: Record<string, Uint8Array | [Uint8Array, { mtime: Date }]> = {
+    "manifest.json": [strToU8(canonicalStringify(manifest)), { mtime: entryMtime }],
   };
   for (const f of files.sort((a, b) => a.path.localeCompare(b.path))) {
-    entries[f.path] = new Uint8Array(f.bytes);
+    entries[f.path] = [new Uint8Array(f.bytes), { mtime: entryMtime }];
   }
 
   const zipped = zipSync(entries, { level: 0 }); // store only; determinism cleanup in PR9
