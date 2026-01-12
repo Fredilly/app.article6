@@ -16,6 +16,7 @@
     "fetch:methodologies-pack": "bash scripts/fetch-methodologies-pack.sh",
     "check:golden": "bash scripts/check-golden-rich.sh",
     "build:audit-pack": "node scripts/build-audit-pack.mjs",
+    "verify:audit-pack": "node scripts/verify-audit-pack.mjs",
     "verify:artifacts": "node scripts/verify-artifacts.mjs",
     "vercel-build": "npm run build",
     "prebuild": "npm run fetch:methodologies-pack && npm run check:golden"
