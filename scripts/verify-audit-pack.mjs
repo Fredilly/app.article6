@@ -1,7 +1,15 @@
-import { execFileSync } from "node:child_process";
+#!/usr/bin/env node
 import crypto from "node:crypto";
+import { execSync } from "node:child_process";
 
-const zipPath = process.argv[2] || "/tmp/audit-pack.zip";
+const zip = process.argv[2] || "/tmp/audit-pack.zip";
+
+function sh(cmd) {
+  return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+}
+function shBuf(cmd) {
+  return execSync(cmd, { encoding: null, stdio: ["ignore", "pipe", "pipe"] });
+}
 
 function canonicalStringify(value) {
   const seen = new WeakSet();
@@ -21,75 +29,85 @@ function sha256Hex(buf) {
   return crypto.createHash("sha256").update(buf).digest("hex");
 }
 
-function unzipText(entryPath) {
-  return execFileSync("unzip", ["-p", zipPath, entryPath], { encoding: "utf8" });
+function zipListFiles(zipPath) {
+  const out = sh(`unzip -Z1 "${zipPath}"`);
+  return out
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((p) => !p.endsWith("/"));
 }
 
-function unzipBuffer(entryPath) {
-  return execFileSync("unzip", ["-p", zipPath, entryPath]);
+function zipReadText(zipPath, p) {
+  return sh(`unzip -p "${zipPath}" "${p}"`);
+}
+function zipReadBuf(zipPath, p) {
+  return shBuf(`unzip -p "${zipPath}" "${p}"`);
 }
 
-function isJsonPath(p) {
-  return p.toLowerCase().endsWith(".json");
+function die(msg) {
+  console.error(msg);
+  process.exit(1);
 }
 
-let manifestRaw;
 try {
-  manifestRaw = unzipText("manifest.json");
-} catch (error) {
-  console.error(`Failed to read manifest.json from ${zipPath}.`);
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-}
+  const manifestRaw = zipReadText(zip, "manifest.json");
+  const manifest = JSON.parse(manifestRaw);
 
-let manifest;
-try {
-  manifest = JSON.parse(manifestRaw);
-} catch (error) {
-  console.error("manifest.json is not valid JSON.");
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-}
-
-if (!manifest || typeof manifest !== "object" || !Array.isArray(manifest.files)) {
-  console.error("manifest.json missing files[] array.");
-  process.exit(1);
-}
-
-let ok = 0;
-let fail = 0;
-for (const entry of manifest.files) {
-  if (!entry || typeof entry !== "object") continue;
-  const path = entry.path;
-  const expected = entry.sha256;
-  if (typeof path !== "string" || typeof expected !== "string") continue;
-
-  try {
-    const raw = unzipBuffer(path);
-    const actual = (() => {
-      if (!isJsonPath(path)) return sha256Hex(raw);
-      const parsed = JSON.parse(raw.toString("utf8"));
-      const canonical = Buffer.from(canonicalStringify(parsed), "utf8");
-      return sha256Hex(canonical);
-    })();
-
-    if (actual !== expected) {
-      console.error(`❌ ${path}`);
-      console.error(`  expected ${expected}`);
-      console.error(`  got      ${actual}`);
-      fail += 1;
-    } else {
-      ok += 1;
-    }
-  } catch (error) {
-    console.error(`❌ ${path}`);
-    console.error(error instanceof Error ? error.message : String(error));
-    fail += 1;
+  if (!manifest?.files || !Array.isArray(manifest.files)) {
+    die("❌ manifest.json missing .files[]");
   }
-}
 
-if (fail) {
-  console.error(`FAIL ok=${ok} fail=${fail}`);
+  const zipFiles = zipListFiles(zip);
+  const zipSet = new Set(zipFiles);
+
+  const manifestPaths = manifest.files.map((f) => f.path);
+  const allowed = new Set(["manifest.json", ...manifestPaths]);
+
+  const extras = zipFiles.filter((p) => !allowed.has(p));
+  const missing = manifestPaths.filter((p) => !zipSet.has(p));
+
+  if (extras.length) {
+    console.error("❌ EXTRA files not in manifest.json:");
+    for (const p of extras) console.error("  -", p);
+  }
+  if (missing.length) {
+    console.error("❌ MISSING files listed in manifest.json but not in zip:");
+    for (const p of missing) console.error("  -", p);
+  }
+  if (extras.length || missing.length) process.exit(1);
+
+  let ok = 0;
+  let fail = 0;
+  for (const f of manifest.files) {
+    const p = f.path;
+    const isJson = p.toLowerCase().endsWith(".json");
+
+    let bytes;
+    if (isJson) {
+      const raw = zipReadText(zip, p);
+      const parsed = JSON.parse(raw);
+      bytes = Buffer.from(canonicalStringify(parsed), "utf8");
+    } else {
+      bytes = Buffer.from(zipReadBuf(zip, p));
+    }
+
+    const h = sha256Hex(bytes);
+    if (h !== f.sha256) {
+      console.error(`❌ HASH MISMATCH ${p}\n  expected ${f.sha256}\n  got      ${h}`);
+      fail++;
+    } else {
+      ok++;
+    }
+  }
+
+  if (fail) {
+    console.error(`FAIL ok=${ok} fail=${fail}`);
+    process.exit(1);
+  }
+
+  console.log(`✅ PASS ok=${ok} fail=${fail} (strict inventory + sha256)`);
+} catch (e) {
+  console.error("❌ verify-audit-pack failed:", e?.message || e);
   process.exit(1);
 }
-console.log(`PASS ok=${ok} fail=${fail}`);
