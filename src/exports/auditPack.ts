@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { zipSync, strToU8 } from "fflate";
+import { makePackMeta } from "./packMeta";
 
 // stable JSON for hashing + export bytes
 function canonicalStringify(value: unknown): string {
@@ -64,13 +65,18 @@ export function buildAuditPackZip(methodCode: string, version: string) {
     });
   }
 
+  const repo = process.env.GITHUB_REPOSITORY || process.env.VERCEL_GIT_REPO_SLUG || "unknown";
+  const commit = process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "unknown";
+
+  const packMeta = makePackMeta({ methodCode, version, repo, commit });
+
   const manifest = {
     kind: "article6.audit_pack",
     version: 1,
     generated_at: new Date().toISOString(),
     provenance: {
-      repo: process.env.GITHUB_REPOSITORY || process.env.VERCEL_GIT_REPO_SLUG || "unknown",
-      commit: process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "unknown",
+      repo,
+      commit,
     },
     method: { code: methodCode, version },
     source: { methodDir: path.relative(process.cwd(), methodDir) },
@@ -78,6 +84,33 @@ export function buildAuditPackZip(methodCode: string, version: string) {
       .map((f) => ({ path: f.path, sha256: f.sha256, bytes: f.bytes.length }))
       .sort((a, b) => a.path.localeCompare(b.path)),
   };
+
+  const packMetaBytes = Buffer.from(canonicalStringify(packMeta), "utf8");
+  files.push({
+    path: "pack.meta.json",
+    bytes: packMetaBytes,
+    sha256: sha256Hex(packMetaBytes),
+  });
+
+  const registryCandidates = [
+    path.join(process.cwd(), "public", "registry.json"),
+    path.join(process.cwd(), "public", "methodologies", "registry.json"),
+    path.join(process.cwd(), "data", "registry.json"),
+  ];
+  for (const candidate of registryCandidates) {
+    if (!fs.existsSync(candidate)) continue;
+    const registryBytes = readJsonCanonical(candidate);
+    files.push({
+      path: "registry.json",
+      bytes: registryBytes,
+      sha256: sha256Hex(registryBytes),
+    });
+    break;
+  }
+
+  manifest.files = files
+    .map((f) => ({ path: f.path, sha256: f.sha256, bytes: f.bytes.length }))
+    .sort((a, b) => a.path.localeCompare(b.path));
 
   // Zip entries (sorted for stability)
   const entries: Record<string, Uint8Array> = {
