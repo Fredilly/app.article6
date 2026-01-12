@@ -103,3 +103,11 @@ Signed-off-by: Fred E <fredilly@article6.org>
 - PR9: two exports for same commit are byte-identical (sha256 matches)
 - PR10: zip includes `snapshot/aoi.json` + `snapshot/evidence.query.json` + `snapshot/evidence.results.json`
 - PR11: diff report lists added/removed/changed files + sha changes
+
+### Audit Pack Quality Gates
+- Local smoke test (dev server required): `npm run test:audit-pack:smoke`
+- Preview smoke test: `BASE_URL=https://<preview>.vercel.app npm run test:audit-pack:smoke`
+
+### Merge Gates
+- Local parity gate: `npm run pr:gate`
+- CI gate: `.github/workflows/pr-gate.yml` (build + test + lint + audit-pack smoke)
