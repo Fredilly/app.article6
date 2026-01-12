@@ -286,6 +286,14 @@ export default function TrustStrip({
 
         <div className="ml-auto flex items-center gap-2">
           {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
+          <a
+            href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            Download audit pack
+          </a>
           <details className="relative">
             <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
               Export
