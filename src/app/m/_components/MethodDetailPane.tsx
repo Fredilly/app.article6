@@ -251,7 +251,15 @@ export default function MethodDetailPane({
 
   const linkedTraceSections = useMemo(() => {
     if (!traceIndex || !activeRuleId) return [];
-    return traceIndex.rule_to_sections?.[activeRuleId] ?? [];
+    const raw = traceIndex.rule_to_sections?.[activeRuleId] ?? [];
+    const seen = new Set<string>();
+    const deduped: TraceLink[] = [];
+    for (const link of raw) {
+      if (seen.has(link.section_id)) continue;
+      seen.add(link.section_id);
+      deduped.push(link);
+    }
+    return deduped;
   }, [activeRuleId, traceIndex]);
 
   useEffect(() => {
@@ -1341,12 +1349,14 @@ export default function MethodDetailPane({
                                     key={link.section_id}
                                     type="button"
                                     className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                    onClick={() =>
+                                    onClick={(event) => {
+                                      event.preventDefault();
+                                      event.stopPropagation();
                                       void jumpToSection(link.section_id, {
                                         closeRuleDrawer: true,
                                         missingLabel: "Unresolved trace link",
-                                      })
-                                    }
+                                      });
+                                    }}
                                   >
                                     <span className="font-mono">{link.section_id}</span>
                                     {link.title ? <span className="truncate">{link.title}</span> : null}
