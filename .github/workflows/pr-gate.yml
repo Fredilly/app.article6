@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -33,3 +35,6 @@ jobs:
 
       - name: Audit pack smoke
         run: npm run test:audit-pack:smoke
+
+      - name: Roadmap status gate
+        run: npm run roadmap:check
