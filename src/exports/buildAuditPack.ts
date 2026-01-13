@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import JSZip from "jszip";
-import { canonicalStringify, sha256Hex } from "@/integrity/canonical.mjs";
+import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
 
 type PackFileEntry = { path: string; sha256: string; bytes: number };
 

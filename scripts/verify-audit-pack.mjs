@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
-import { canonicalStringify, sha256Hex } from "../src/integrity/canonical.mjs";
+import artifacts from "../src/integrity/artifacts.js";
+
+const { canonicalStringify, sha256Hex } = artifacts;
 
 const zip = process.argv[2] || "/tmp/audit-pack.zip";
 

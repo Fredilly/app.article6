@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { zipSync, strToU8 } from "fflate";
 import { makePackMeta } from "./packMeta";
-import { canonicalStringify, sha256Hex } from "@/integrity/canonical.mjs";
+import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
 
 function readJsonCanonical(p: string): Buffer {
   const raw = fs.readFileSync(p, "utf8");

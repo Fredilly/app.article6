@@ -1,6 +1,7 @@
-import { createHash } from "node:crypto";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { createHash } = require("node:crypto");
 
-export function canonicalStringify(value) {
+function canonicalStringify(value) {
   const seen = new WeakSet();
 
   function normalize(v) {
@@ -21,6 +22,8 @@ export function canonicalStringify(value) {
   return JSON.stringify(normalize(value), null, 2) + "\n";
 }
 
-export function sha256Hex(input) {
+function sha256Hex(input) {
   return createHash("sha256").update(input).digest("hex");
 }
+
+module.exports = { canonicalStringify, sha256Hex };

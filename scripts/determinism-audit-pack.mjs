@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
 import fs from "node:fs";
-import { sha256Hex } from "../src/integrity/canonical.mjs";
+import artifacts from "../src/integrity/artifacts.js";
+
+const { sha256Hex } = artifacts;
 
 const method = process.argv[2] || "AR-ACM0003";
 const version = process.argv[3] || "v02-0";

@@ -2,7 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import Ajv from "ajv/dist/2020.js";
-import { canonicalStringify } from "../src/integrity/canonical.mjs";
+import artifacts from "../src/integrity/artifacts.js";
+
+const { canonicalStringify } = artifacts;
 
 const REPO_ROOT = process.cwd();
 const SCHEMA_DIR = path.join(REPO_ROOT, "schemas", "artifacts");
