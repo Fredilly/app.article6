@@ -156,6 +156,7 @@ export default function MethodDetailPane({
   const [sectionsDeeplinkWarning, setSectionsDeeplinkWarning] = useState<string | null>(null);
   const [sections, setSections] = useState<SectionListItem[]>([]);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
+  const sectionIds = useMemo(() => new Set(sections.map((s) => s.id)), [sections]);
   const didSelectSectionFromQuery = useRef(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [evidenceLinkSelection, setEvidenceLinkSelection] = useState<{
@@ -387,6 +388,14 @@ export default function MethodDetailPane({
     didSelectSectionFromQuery.current = false;
   }, [activeVersion, method.code]);
 
+  useEffect(() => {
+    if (tab !== "sections") return;
+    if (!focusSectionParam) return;
+    if (!sectionIds.has(focusSectionParam)) return;
+    if (activeSectionId === focusSectionParam) return;
+    setActiveSectionId(focusSectionParam);
+  }, [tab, focusSectionParam, sectionIds, activeSectionId]);
+
   useLayoutEffect(() => {
     if (!focusSectionParam) return;
     if (tab !== "sections") return;
@@ -597,6 +606,18 @@ export default function MethodDetailPane({
       });
       if (next === searchString) return;
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchString],
+  );
+
+  const onSelectSection = useCallback(
+    (id: string) => {
+      setActiveSectionId(id);
+      if (!pathname) return;
+      const params = new URLSearchParams(searchString);
+      params.set("tab", "sections");
+      params.set("section", id);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [pathname, router, searchString],
   );
@@ -1600,7 +1621,7 @@ export default function MethodDetailPane({
                           type="button"
                           onClick={() => {
                             setSectionsDeeplinkWarning(null);
-                            setActiveSectionId(section.id);
+                            onSelectSection(section.id);
                             setSectionParam(section.id);
                           }}
                           className={`flex w-full flex-col gap-1 rounded-lg border px-3 py-2 text-left transition-colors ${
