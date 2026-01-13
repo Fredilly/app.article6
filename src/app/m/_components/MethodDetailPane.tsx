@@ -107,9 +107,23 @@ export default function MethodDetailPane({
   const [rulesError, setRulesError] = useState<string | null>(null);
   const [rulesDeeplinkWarning, setRulesDeeplinkWarning] = useState<string | null>(null);
   type RuleListItem = { id: string; title: string; snippet: string; tags: string[]; type?: string };
+  type TraceLink = {
+    section_id: string;
+    title?: string | null;
+    anchor?: string | null;
+    match: "explicit" | "text";
+  };
+  type TraceIndex = {
+    version: number;
+    method?: { code?: string; version?: string };
+    rule_to_sections: Record<string, TraceLink[]>;
+  };
   const [rules, setRules] = useState<RuleListItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(Boolean(initialRuleId));
   const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
+  const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
+  const [traceLoading, setTraceLoading] = useState(false);
+  const [traceError, setTraceError] = useState<string | null>(null);
   const [ruleDetail, setRuleDetail] = useState<{
     id: string;
     title: string;
@@ -235,6 +249,11 @@ export default function MethodDetailPane({
     return Array.from(ids);
   }, [ruleDetail]);
 
+  const linkedTraceSections = useMemo(() => {
+    if (!traceIndex || !activeRuleId) return [];
+    return traceIndex.rule_to_sections?.[activeRuleId] ?? [];
+  }, [activeRuleId, traceIndex]);
+
   useEffect(() => {
     setRules([]);
     setRulesError(null);
@@ -246,6 +265,9 @@ export default function MethodDetailPane({
     setRuleDetail(null);
     setRuleDetailError(null);
     setRuleDetailLoading(false);
+    setTraceIndex(null);
+    setTraceError(null);
+    setTraceLoading(false);
     didOpenFromQuery.current = false;
   }, [activeVersion, method.code]);
 
@@ -583,6 +605,32 @@ export default function MethodDetailPane({
     }
   }, [activeVersion, method.code, sections, sectionsLoading]);
 
+  const ensureTraceLoaded = useCallback(async (): Promise<TraceIndex | null> => {
+    if (!activeVersion) return null;
+    if (traceIndex) return traceIndex;
+    if (traceLoading) return traceIndex;
+    setTraceLoading(true);
+    setTraceError(null);
+    try {
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/trace`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error(`Trace request failed with ${response.status}`);
+      const payload = (await response.json()) as { trace?: unknown };
+      const trace = payload?.trace;
+      if (!trace || typeof trace !== "object") throw new Error("Trace payload missing");
+      setTraceIndex(trace as TraceIndex);
+      return trace as TraceIndex;
+    } catch (error) {
+      setTraceIndex(null);
+      setTraceError(error instanceof Error ? error.message : String(error));
+      return null;
+    } finally {
+      setTraceLoading(false);
+    }
+  }, [activeVersion, method.code, traceIndex, traceLoading]);
+
   const ensureRichLoaded = useCallback(async (): Promise<NormalizedRichEvidence | null> => {
     if (!activeVersion) return null;
     if (richEvidence) return richEvidence;
@@ -703,6 +751,11 @@ export default function MethodDetailPane({
     if (tab === "rich") void ensureRichLoaded();
     if (tab === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
   }, [ensureRichLoaded, ensureRulesLoaded, ensureSectionsLoaded, tab]);
+
+  useEffect(() => {
+    if (!activeRuleId) return;
+    void ensureTraceLoaded();
+  }, [activeRuleId, ensureTraceLoaded]);
 
   const openRule = useCallback(async (ruleId: string) => {
     setTabParam("rules");
@@ -1270,6 +1323,40 @@ export default function MethodDetailPane({
 
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-800">
                           {ruleDetail.text || "—"}
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-white p-4">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            Linked sections
+                          </div>
+                          <div className="mt-2 space-y-2">
+                            {traceError ? (
+                              <div className="text-xs text-rose-700">Trace unavailable: {traceError}</div>
+                            ) : traceLoading ? (
+                              <div className="text-xs text-slate-600">Loading links…</div>
+                            ) : linkedTraceSections.length ? (
+                              <div className="flex flex-wrap gap-2">
+                                {linkedTraceSections.slice(0, 6).map((link) => (
+                                  <button
+                                    key={link.section_id}
+                                    type="button"
+                                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                                    onClick={() =>
+                                      void jumpToSection(link.section_id, {
+                                        closeRuleDrawer: true,
+                                        missingLabel: "Unresolved trace link",
+                                      })
+                                    }
+                                  >
+                                    <span className="font-mono">{link.section_id}</span>
+                                    {link.title ? <span className="truncate">{link.title}</span> : null}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-sm text-slate-600">No linked sections yet.</div>
+                            )}
+                          </div>
                         </div>
 
                         <div className="rounded-xl border border-slate-200 bg-white p-4">

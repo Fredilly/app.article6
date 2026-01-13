@@ -34,6 +34,18 @@ function die(msg) {
   process.exit(1);
 }
 
+function assertTraceShape(trace) {
+  if (!trace || typeof trace !== "object") throw new Error("trace.json must be an object");
+  if (trace.version !== 1) throw new Error("trace.json missing version=1");
+  if (!trace.method || typeof trace.method !== "object") throw new Error("trace.json missing method");
+  if (typeof trace.method.code !== "string" || typeof trace.method.version !== "string") {
+    throw new Error("trace.json method must include code and version");
+  }
+  if (!trace.rule_to_sections || typeof trace.rule_to_sections !== "object") {
+    throw new Error("trace.json missing rule_to_sections");
+  }
+}
+
 try {
   const manifestRaw = zipReadText(zip, "manifest.json");
   const manifest = JSON.parse(manifestRaw);
@@ -71,6 +83,15 @@ try {
     if (isJson) {
       const raw = zipReadText(zip, p);
       const parsed = JSON.parse(raw);
+      if (p === "trace.json") {
+        try {
+          assertTraceShape(parsed);
+        } catch (error) {
+          console.error(`❌ INVALID TRACE ${p}\n  ${error?.message || error}`);
+          fail++;
+          continue;
+        }
+      }
       bytes = Buffer.from(canonicalStringify(parsed), "utf8");
     } else {
       bytes = Buffer.from(zipReadBuf(zip, p));
