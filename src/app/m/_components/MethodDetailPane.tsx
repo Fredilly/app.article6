@@ -78,6 +78,7 @@ export default function MethodDetailPane({
     () => (initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
     [initialRuleId, initialSectionId],
   );
+  const focusSectionParam = searchParams.get("section")?.trim() || null;
   const tab = useMemo(() => {
     const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     return parsed ?? defaultTab;
@@ -385,6 +386,13 @@ export default function MethodDetailPane({
     setActiveSectionId(null);
     didSelectSectionFromQuery.current = false;
   }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    if (!focusSectionParam) return;
+    if (tab !== "sections") return;
+    const el = document.getElementById(`section-${focusSectionParam}`);
+    el?.scrollIntoView({ block: "start" });
+  }, [focusSectionParam, tab]);
 
   useEffect(() => {
     setRichEvidence(null);
@@ -1562,7 +1570,7 @@ export default function MethodDetailPane({
                     return (
                       <li
                         key={section.id}
-                        id={section.id}
+                        id={`section-${section.id}`}
                         className={
                           highlightId === section.id
                             ? "assistant-focus-highlight rounded-xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
