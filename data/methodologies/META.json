@@ -1,8 +1,8 @@
 [
   {
     "id": "baseline-carbon-44-12",
+    "pdf": "pdfs/baseline-carbon-44-12.pdf",
     "sha256": "cb37be84a7c90e551640137f02047f1e9648ddb6a6c75a5901c33f35273b08f0",
-    "sourcePath": "methodologies/baseline-carbon-44-12.pdf",
-    "pdf": "pdfs/baseline-carbon-44-12.pdf"
+    "sourcePath": "methodologies/baseline-carbon-44-12.pdf"
   }
 ]

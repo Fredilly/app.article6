@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import crypto from "node:crypto";
 import { execSync } from "node:child_process";
+import { canonicalStringify, sha256Hex } from "../src/integrity/canonical.mjs";
 
 const zip = process.argv[2] || "/tmp/audit-pack.zip";
 
@@ -9,24 +9,6 @@ function sh(cmd) {
 }
 function shBuf(cmd) {
   return execSync(cmd, { encoding: null, stdio: ["ignore", "pipe", "pipe"] });
-}
-
-function canonicalStringify(value) {
-  const seen = new WeakSet();
-  const norm = (v) => {
-    if (v === null || typeof v !== "object") return v;
-    if (Array.isArray(v)) return v.map(norm);
-    if (seen.has(v)) throw new Error("circular");
-    seen.add(v);
-    const out = {};
-    for (const k of Object.keys(v).sort()) out[k] = norm(v[k]);
-    return out;
-  };
-  return JSON.stringify(norm(value)) + "\n";
-}
-
-function sha256Hex(buf) {
-  return crypto.createHash("sha256").update(buf).digest("hex");
 }
 
 function zipListFiles(zipPath) {

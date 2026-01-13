@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "META.json",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "method": { "anyOf": [{ "type": "object" }, { "type": "string" }] },
+        "version": { "type": "string" },
+        "program": { "type": "string" },
+        "sector": { "type": "string" },
+        "automation": { "type": "object" },
+        "source": { "type": "object" },
+        "generated_at": { "type": "string" },
+        "audit": { "type": "object" },
+        "META": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "sha256": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  ]
+}

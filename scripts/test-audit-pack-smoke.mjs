@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { sha256Hex } from "../src/integrity/canonical.mjs";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 const METHOD = process.env.METHOD || "AR-ACM0003";
@@ -15,10 +15,6 @@ function sh(cmd, env) {
 
 function shOut(cmd, env) {
   return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env: env ?? process.env });
-}
-
-function sha256Hex(buf) {
-  return crypto.createHash("sha256").update(buf).digest("hex");
 }
 
 function die(message) {
