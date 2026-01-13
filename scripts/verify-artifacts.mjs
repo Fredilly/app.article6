@@ -1,8 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 import process from "node:process";
+import { execSync } from "node:child_process";
 import Ajv from "ajv/dist/2020.js";
+import artifacts from "../src/integrity/artifacts.js";
+
+const { canonicalStringify, sha256Hex } = artifacts;
 
 const REPO_ROOT = process.cwd();
 const SCHEMA_DIR = path.join(REPO_ROOT, "src", "integrity", "schemas");
@@ -20,24 +23,6 @@ const ROOTS = (
 if (ROOTS.length === 0) {
   console.error("No artifact roots found. Set ARTIFACT_ROOTS=dir1,dir2 (relative to repo root).");
   process.exit(2);
-}
-
-function canonicalStringify(value) {
-  const seen = new WeakSet();
-  const normalize = (v) => {
-    if (v === null || typeof v !== "object") return v;
-    if (Array.isArray(v)) return v.map(normalize);
-    if (seen.has(v)) throw new Error("circular structure not allowed");
-    seen.add(v);
-    const out = {};
-    for (const k of Object.keys(v).sort()) out[k] = normalize(v[k]);
-    return out;
-  };
-  return JSON.stringify(normalize(value)) + "\n";
-}
-
-function sha256Hex(input) {
-  return crypto.createHash("sha256").update(input).digest("hex");
 }
 
 function schemaNameForFile(filePath) {
@@ -93,10 +78,12 @@ if (targets.length === 0) {
 
 let ok = 0;
 let fail = 0;
+const hashes = {};
 
 for (const t of targets) {
   try {
-    const data = JSON.parse(fs.readFileSync(t.file, "utf8"));
+    const raw = fs.readFileSync(t.file, "utf8");
+    const data = JSON.parse(raw);
 
     const validate = getValidator(t.schemaFile);
     const valid = validate(data);
@@ -110,7 +97,15 @@ for (const t of targets) {
     }
 
     const canonical = canonicalStringify(data);
+    if (raw !== canonical) {
+      fail++;
+      console.error(`❌ NON-CANONICAL ${path.relative(REPO_ROOT, t.file)}`);
+      continue;
+    }
+
     const hash = sha256Hex(canonical);
+    const rel = path.relative(REPO_ROOT, t.file).replaceAll("\\", "/");
+    hashes[rel] = hash;
 
     ok++;
     if (process.env.VERIFY_ARTIFACTS_VERBOSE === "1") {
@@ -122,7 +117,27 @@ for (const t of targets) {
   }
 }
 
+const hashOutputPath =
+  process.env.ARTIFACT_HASHES_OUT || path.join(REPO_ROOT, "artifacts", "hashes.json");
+fs.mkdirSync(path.dirname(hashOutputPath), { recursive: true });
+const manifest = {
+  algorithm: "sha256",
+  canonical: "json:sorted-keys,indent=2,lf",
+  files: hashes,
+};
+fs.writeFileSync(hashOutputPath, canonicalStringify(manifest), "utf8");
+
 const rootsStr = ROOTS.map((r) => path.relative(REPO_ROOT, r)).join(", ");
 console.log(`verify-artifacts: roots=[${rootsStr}] targets=${targets.length} ok=${ok} fail=${fail}`);
 
 if (fail > 0) process.exit(1);
+
+const shouldCheckDiff = process.env.VERIFY_ARTIFACTS_CHECK_DIFF === "1" || process.env.CI === "true";
+if (shouldCheckDiff) {
+  try {
+    execSync("git diff --exit-code", { stdio: "inherit" });
+  } catch {
+    console.error("❌ Artifact drift detected (git diff not empty).");
+    process.exit(1);
+  }
+}

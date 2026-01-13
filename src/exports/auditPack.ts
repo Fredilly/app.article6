@@ -1,27 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 import { zipSync, strToU8 } from "fflate";
 import { makePackMeta } from "./packMeta";
+import { canonicalStringify, sha256Hex } from "@/integrity/artifacts";
 
-// stable JSON for hashing + export bytes
-function canonicalStringify(value: unknown): string {
-  const seen = new WeakSet<object>();
-  const norm = (v: unknown): unknown => {
-    if (v === null || typeof v !== "object") return v;
-    if (Array.isArray(v)) return v.map(norm);
-    if (seen.has(v)) throw new Error("circular");
-    seen.add(v);
-    const record = v as Record<string, unknown>;
-    const out: Record<string, unknown> = {};
-    for (const k of Object.keys(record).sort()) out[k] = norm(record[k]);
-    return out;
-  };
-  return JSON.stringify(norm(value)) + "\n";
-}
-function sha256Hex(buf: Buffer) {
-  return crypto.createHash("sha256").update(buf).digest("hex");
-}
 function readJsonCanonical(p: string): Buffer {
   const raw = fs.readFileSync(p, "utf8");
   const parsed = JSON.parse(raw);
