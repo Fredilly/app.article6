@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
@@ -387,11 +387,28 @@ export default function MethodDetailPane({
     didSelectSectionFromQuery.current = false;
   }, [activeVersion, method.code]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!focusSectionParam) return;
     if (tab !== "sections") return;
-    const el = document.getElementById(`section-${focusSectionParam}`);
-    el?.scrollIntoView({ block: "start" });
+
+    let cancelled = false;
+    let tries = 0;
+
+    const tick = () => {
+      if (cancelled) return;
+      const el = document.getElementById(`section-${focusSectionParam}`);
+      if (el) {
+        el.scrollIntoView({ block: "start" });
+        return;
+      }
+      tries += 1;
+      if (tries < 10) requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+    };
   }, [focusSectionParam, tab]);
 
   useEffect(() => {
