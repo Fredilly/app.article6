@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
@@ -565,12 +565,32 @@ export default function MethodDetailPane({
     (nextTab: DetailTab) => {
       if (!pathname) return;
       const params = new URLSearchParams(searchString);
+      if (nextTab === "rules") params.delete("section");
       const next = applyUrlUpdates(params, {
         tab: nextTab,
         focus: null,
       });
       if (next === searchString) return;
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchString],
+  );
+
+  const goToSectionFromTrace = useCallback(
+    (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!pathname) return;
+      const params = new URLSearchParams(searchString);
+      params.set("tab", "sections");
+      params.set("section", sectionId);
+      params.delete("rule");
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      setDrawerOpen(false);
+      setActiveRuleId(null);
+      setRuleDetail(null);
+      setRuleDetailError(null);
+      setRuleDetailLoading(false);
     },
     [pathname, router, searchString],
   );
@@ -1349,14 +1369,7 @@ export default function MethodDetailPane({
                                     key={link.section_id}
                                     type="button"
                                     className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                    onClick={(event) => {
-                                      event.preventDefault();
-                                      event.stopPropagation();
-                                      void jumpToSection(link.section_id, {
-                                        closeRuleDrawer: true,
-                                        missingLabel: "Unresolved trace link",
-                                      });
-                                    }}
+                                    onClick={(event) => goToSectionFromTrace(event, link.section_id)}
                                   >
                                     <span className="font-mono">{link.section_id}</span>
                                     {link.title ? <span className="truncate">{link.title}</span> : null}
