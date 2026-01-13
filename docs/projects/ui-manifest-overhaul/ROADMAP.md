@@ -107,3 +107,7 @@ Signed-off-by: Fred E <fredilly@article6.org>
 ### Audit Pack Quality Gates
 - Local smoke test (dev server required): `npm run test:audit-pack:smoke`
 - Preview smoke test: `BASE_URL=https://<preview>.vercel.app npm run test:audit-pack:smoke`
+
+### Merge Gates
+- Local parity gate: `npm run pr:gate`
+- CI gate: `.github/workflows/pr-gate.yml` (build + test + lint + audit-pack smoke)

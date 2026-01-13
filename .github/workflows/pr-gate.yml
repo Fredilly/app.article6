@@ -1,0 +1,46 @@
+name: pr-gate
+
+on:
+  pull_request:
+
+jobs:
+  pr-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Start app
+        run: npm run start -- -p 3000 &
+
+      - name: Wait for health
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://localhost:3000/api/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Health check failed" >&2
+          exit 1
+
+      - name: Audit pack smoke
+        run: BASE_URL=http://localhost:3000 npm run test:audit-pack:smoke

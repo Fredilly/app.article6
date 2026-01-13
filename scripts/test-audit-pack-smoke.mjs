@@ -63,13 +63,13 @@ sh(`npm run verify:audit-pack -- "${run2}"`);
 console.log("Tampering with a JSON file...");
 cleanDir(tamperDir);
 sh(`unzip -q "${run1}" -d "${tamperDir}"`);
-const jsonFiles = shOut(`python - <<'PY'\nfrom pathlib import Path\nfiles = list(Path("${tamperDir}").rglob("*.json"))\nif not files:\n  print(\"\", end=\"\")\nelse:\n  print(str(files[0]))\nPY`).trim();
+const jsonFiles = shOut(`python - <<'PY'\nfrom pathlib import Path\nfiles = list(Path("${tamperDir}").rglob("*.json"))\nif not files:\n  print("", end="")\nelse:\n  print(str(files[0]))\nPY`).trim();
 
 if (!jsonFiles) {
   die("❌ No JSON files found to tamper.");
 }
 
-sh(`python - <<'PY'\nfrom pathlib import Path\np = Path("${jsonFiles}")\ntext = p.read_text()\np.write_text(text + \"\\n\\\"_tamper\\\":true\\n\")\nprint(f\"tampered: {p}\")\nPY`);
+sh(`python - <<'PY'\nfrom pathlib import Path\np = Path("${jsonFiles}")\ntext = p.read_text()\np.write_text(text + "\\n\\\"_tamper\\\":true\\n")\nprint(f"tampered: {p}")\nPY`);
 
 sh(`cd "${tamperDir}" && zip -qr "${tamperZip}" .`);
 
