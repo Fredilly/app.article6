@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-import crypto from "node:crypto";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import artifacts from "../src/integrity/artifacts.js";
+
+const { sha256Hex } = artifacts;
 
 const method = process.argv[2] || "AR-ACM0003";
 const version = process.argv[3] || "v02-0";
@@ -17,9 +19,8 @@ const env = {
 execSync(`node scripts/build-audit-pack.mjs ${method} ${version} ${a}`, { stdio: "inherit", env });
 execSync(`node scripts/build-audit-pack.mjs ${method} ${version} ${b}`, { stdio: "inherit", env });
 
-const sha = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
-const ha = sha(a);
-const hb = sha(b);
+const ha = sha256Hex(fs.readFileSync(a));
+const hb = sha256Hex(fs.readFileSync(b));
 
 if (ha !== hb) {
   console.error("❌ NOT IDENTICAL");

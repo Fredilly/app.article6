@@ -1,24 +1,19 @@
 #!/usr/bin/env node
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
+import artifacts from "../src/integrity/artifacts.js";
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
-const METHOD = process.env.METHOD || "AR-ACM0003";
-const VERSION = process.env.VERSION || "v02-0";
-const OUT_DIR = process.env.OUT_DIR || "/tmp/audit-pack-smoke";
+const { sha256Hex } = artifacts;
+
+const BASE_URL = "http://localhost:3011";
+const METHOD = "AR-ACM0003";
+const VERSION = "v02-0";
+const OUT_DIR = "/tmp/audit-pack-smoke";
+const HARD_TIMEOUT_MS = 2 * 60 * 1000;
 
 function sh(cmd, env) {
   return execSync(cmd, { stdio: "inherit", env: env ?? process.env });
-}
-
-function shOut(cmd, env) {
-  return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env: env ?? process.env });
-}
-
-function sha256Hex(buf) {
-  return crypto.createHash("sha256").update(buf).digest("hex");
 }
 
 function die(message) {
@@ -35,54 +30,110 @@ function cleanDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+async function waitForServer(url, timeoutMs = 30000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const res = await fetch(url, { method: "GET" });
+      if (res.ok) return;
+    } catch {
+      // keep polling
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error(`Server did not respond in ${timeoutMs}ms`);
+}
+
+function findFirstJson(dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const found = findFirstJson(full);
+      if (found) return found;
+    } else if (entry.isFile() && entry.name.endsWith(".json")) {
+      return full;
+    }
+  }
+  return "";
+}
+
 const url = `${BASE_URL}/api/exports/audit-pack?method=${encodeURIComponent(METHOD)}&version=${encodeURIComponent(VERSION)}`;
 
 ensureDir(OUT_DIR);
 
 const run1 = path.join(OUT_DIR, "run1.zip");
-const run2 = path.join(OUT_DIR, "run2.zip");
 const tamperDir = path.join(OUT_DIR, "tamper");
 const tamperZip = path.join(OUT_DIR, "tampered.zip");
 
-console.log(`Fetching audit-pack twice from ${url}`);
-sh(`curl -LfsS "${url}" -o "${run1}"`);
-sh(`curl -LfsS "${url}" -o "${run2}"`);
+let server;
+let smokeSucceeded = false;
+let hardTimeout;
 
-const hash1 = sha256Hex(fs.readFileSync(run1));
-const hash2 = sha256Hex(fs.readFileSync(run2));
-
-if (hash1 !== hash2) {
-  die(`❌ Byte mismatch: ${hash1} vs ${hash2}`);
-}
-console.log(`✅ Deterministic bytes: ${hash1}`);
-
-console.log("Verifying both zips...");
-sh(`npm run verify:audit-pack -- "${run1}"`);
-sh(`npm run verify:audit-pack -- "${run2}"`);
-
-console.log("Tampering with a JSON file...");
-cleanDir(tamperDir);
-sh(`unzip -q "${run1}" -d "${tamperDir}"`);
-const jsonFiles = shOut(`python - <<'PY'\nfrom pathlib import Path\nfiles = list(Path("${tamperDir}").rglob("*.json"))\nif not files:\n  print("", end="")\nelse:\n  print(str(files[0]))\nPY`).trim();
-
-if (!jsonFiles) {
-  die("❌ No JSON files found to tamper.");
-}
-
-sh(`python - <<'PY'\nfrom pathlib import Path\np = Path("${jsonFiles}")\ntext = p.read_text()\np.write_text(text + "\\n\\\"_tamper\\\":true\\n")\nprint(f"tampered: {p}")\nPY`);
-
-sh(`cd "${tamperDir}" && zip -qr "${tamperZip}" .`);
-
-console.log("Verifying tampered zip (should fail)...");
-let tamperOk = true;
 try {
-  sh(`npm run verify:audit-pack -- "${tamperZip}"`);
-} catch {
-  tamperOk = false;
+  hardTimeout = setTimeout(() => {
+    console.error(`❌ Smoke test timed out after ${HARD_TIMEOUT_MS}ms`);
+    process.exit(1);
+  }, HARD_TIMEOUT_MS);
+
+  console.log("Starting server on http://localhost:3011 ...");
+  server = spawn("npm", ["run", "start", "--", "-p", "3011"], {
+    detached: true,
+    stdio: "inherit",
+    env: process.env,
+  });
+
+  await waitForServer(`${BASE_URL}/api/health`);
+
+  console.log(`Fetching audit-pack from ${url}`);
+  sh(`curl -LfsS "${url}" -o "${run1}"`);
+
+  const hash1 = sha256Hex(fs.readFileSync(run1));
+  console.log(`✅ Downloaded audit-pack sha256=${hash1}`);
+
+  console.log("Verifying zip...");
+  sh(`npm run verify:audit-pack -- "${run1}"`);
+
+  console.log("Tampering with a JSON file...");
+  cleanDir(tamperDir);
+  sh(`unzip -q "${run1}" -d "${tamperDir}"`);
+
+  const jsonFile = findFirstJson(tamperDir);
+  if (!jsonFile) {
+    die("❌ No JSON files found to tamper.");
+  }
+
+  const text = fs.readFileSync(jsonFile, "utf8");
+  fs.writeFileSync(jsonFile, `${text}\n"_tamper":true\n`, "utf8");
+  console.log(`tampered: ${jsonFile}`);
+
+  sh(`cd "${tamperDir}" && zip -qr "${tamperZip}" .`);
+
+  console.log("Verifying tampered zip (should fail)...");
+  let tamperOk = true;
+  try {
+    sh(`npm run verify:audit-pack -- "${tamperZip}"`);
+  } catch {
+    tamperOk = false;
+  }
+
+  if (tamperOk) {
+    die("❌ Tampered zip unexpectedly passed verification.");
+  }
+
+  console.log("✅ PASS: verification + tamper fail");
+  smokeSucceeded = true;
+} finally {
+  if (hardTimeout) clearTimeout(hardTimeout);
+  if (server?.pid) {
+    try {
+      process.kill(-server.pid, "SIGTERM");
+    } catch {}
+    await new Promise((r) => setTimeout(r, 500));
+    try {
+      process.kill(-server.pid, "SIGKILL");
+    } catch {}
+  }
 }
 
-if (tamperOk) {
-  die("❌ Tampered zip unexpectedly passed verification.");
-}
-
-console.log("✅ PASS: determinism + verification + tamper fail");
+process.exit(smokeSucceeded ? 0 : 1);

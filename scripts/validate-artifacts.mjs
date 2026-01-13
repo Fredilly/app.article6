@@ -4,7 +4,7 @@ import process from "node:process";
 import Ajv from "ajv/dist/2020.js";
 import artifacts from "../src/integrity/artifacts.js";
 
-const { canonicalStringify, sha256Hex } = artifacts;
+const { canonicalStringify } = artifacts;
 
 const REPO_ROOT = process.cwd();
 const SCHEMA_DIR = path.join(REPO_ROOT, "schemas", "artifacts");
@@ -44,6 +44,11 @@ function* walk(dir) {
   }
 }
 
+if (!fs.existsSync(SCHEMA_DIR)) {
+  console.error(`Schema directory missing: ${path.relative(REPO_ROOT, SCHEMA_DIR)}`);
+  process.exit(2);
+}
+
 const ajv = new Ajv({ allErrors: true, allowUnionTypes: true, strict: false });
 
 function loadSchema(schemaFile) {
@@ -80,7 +85,8 @@ let fail = 0;
 
 for (const t of targets) {
   try {
-    const data = JSON.parse(fs.readFileSync(t.file, "utf8"));
+    const raw = fs.readFileSync(t.file, "utf8");
+    const data = JSON.parse(raw);
 
     const validate = getValidator(t.schemaFile);
     const valid = validate(data);
@@ -94,12 +100,13 @@ for (const t of targets) {
     }
 
     const canonical = canonicalStringify(data);
-    const hash = sha256Hex(canonical);
+    if (canonical !== raw) {
+      fail++;
+      console.error(`❌ NONCANON ${path.relative(REPO_ROOT, t.file)}`);
+      continue;
+    }
 
     ok++;
-    if (process.env.VERIFY_ARTIFACTS_VERBOSE === "1") {
-      console.log(`✅ OK ${path.relative(REPO_ROOT, t.file)} sha256=${hash}`);
-    }
   } catch (error) {
     fail++;
     console.error(`❌ ERROR   ${path.relative(REPO_ROOT, t.file)}: ${error?.message || error}`);
@@ -107,6 +114,6 @@ for (const t of targets) {
 }
 
 const rootsStr = ROOTS.map((r) => path.relative(REPO_ROOT, r)).join(", ");
-console.log(`verify-artifacts: roots=[${rootsStr}] targets=${targets.length} ok=${ok} fail=${fail}`);
+console.log(`validate-artifacts: roots=[${rootsStr}] targets=${targets.length} ok=${ok} fail=${fail}`);
 
 if (fail > 0) process.exit(1);

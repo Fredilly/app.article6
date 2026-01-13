@@ -2,7 +2,6 @@ name: verify-artifacts
 
 on:
   pull_request:
-  push:
 
 jobs:
   verify:
@@ -15,6 +14,7 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Verify artifacts (schema + canonical hash)
-        run: npm run verify:artifacts
-
+      - name: Validate artifacts
+        run: npm run validate:artifacts
+      - name: Drift gate
+        run: npm run drift:artifacts

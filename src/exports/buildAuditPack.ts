@@ -1,8 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 import JSZip from "jszip";
-import { canonicalStringify } from "@/integrity/canonicalJson";
+import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
 
 type PackFileEntry = { path: string; sha256: string; bytes: number };
 
@@ -16,10 +15,6 @@ export type AuditPackManifest = {
   };
   files: PackFileEntry[];
 };
-
-function sha256Hex(buf: Buffer): string {
-  return crypto.createHash("sha256").update(buf).digest("hex");
-}
 
 function* walk(dir: string): Generator<string> {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -94,4 +89,3 @@ export async function buildAuditPack(opts: {
   const zipBytes = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
   return { zipBytes, manifest };
 }
-
