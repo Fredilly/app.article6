@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
+import { geojsonToLngLatBounds } from "@/lib/geo/aoiBounds";
 import { sha256Text } from "@/lib/proof/hash";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { AOI } from "@/lib/proofMap/types";
 import normalizeStacItems, { type StacItemLike } from "@/lib/stac/normalizeStacItems";
 import { buildEvidenceRuleIndex } from "@/lib/trace/evidenceLinks";
 import type { TraceIndex } from "@/lib/trace/traceIndex";
+import type { Map as MapLibreMap } from "maplibre-gl";
 
 type EvidenceMapPageProps = {
   methodCode: string;
@@ -66,9 +68,11 @@ export default function EvidenceMapPage({ methodCode, version }: EvidenceMapPage
   const [traceLoading, setTraceLoading] = useState(false);
 
   const [aoi, setAoi] = useState<AOI | null>(null);
+  const [aoiBounds, setAoiBounds] = useState<[[number, number], [number, number]] | null>(null);
   const [aoiError, setAoiError] = useState<string | null>(null);
 
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -157,9 +161,11 @@ export default function EvidenceMapPage({ methodCode, version }: EvidenceMapPage
       const result = parseAoiGeoJson(parsed, file.name);
       if (!result.ok) throw new Error(result.error);
       setAoi(result.aoi);
+      setAoiBounds(geojsonToLngLatBounds(parsed));
     } catch (error) {
       setAoiError(error instanceof Error ? error.message : String(error));
       setAoi(null);
+      setAoiBounds(null);
     }
   }, []);
 
@@ -182,6 +188,24 @@ export default function EvidenceMapPage({ methodCode, version }: EvidenceMapPage
   }, [aoi, methodCode, selectedEvidenceId, stacState?.sourceUrl, stacUrl, version]);
 
   const stacSourceLabel = stacState?.sourceUrl ?? stacUrl.trim();
+  const aoiBboxLabel = aoiBounds
+    ? `${aoiBounds[0][1].toFixed(4)}, ${aoiBounds[0][0].toFixed(4)} → ${aoiBounds[1][1].toFixed(4)}, ${aoiBounds[1][0].toFixed(4)}`
+    : null;
+
+  useEffect(() => {
+    if (!aoiBounds || !mapRef.current) return;
+    try {
+      mapRef.current.fitBounds(
+        [
+          [aoiBounds[0][1], aoiBounds[0][0]],
+          [aoiBounds[1][1], aoiBounds[1][0]],
+        ],
+        { padding: 24, duration: 0 },
+      );
+    } catch {
+      // ignore
+    }
+  }, [aoiBounds]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -266,6 +290,12 @@ export default function EvidenceMapPage({ methodCode, version }: EvidenceMapPage
               selectedStacItemId={selectedEvidenceId}
               onSelectStacItemId={(id) => setSelectedEvidenceId(id)}
               viewStorageKey={`evidence-map-${methodCode}-${version}`}
+              onMapReady={(map) => {
+                mapRef.current = map;
+              }}
+              onMapDestroyed={() => {
+                mapRef.current = null;
+              }}
             />
           </div>
 
@@ -277,6 +307,7 @@ export default function EvidenceMapPage({ methodCode, version }: EvidenceMapPage
 
             {traceLoading && <div className="text-xs text-slate-500">Loading trace index…</div>}
             {traceError && <div className="text-xs text-rose-600">Trace unavailable: {traceError}</div>}
+            {aoiBboxLabel && <div className="text-xs text-slate-500">AOI bbox: {aoiBboxLabel}</div>}
 
             <div className="space-y-3 overflow-auto">
               {evidenceItems.length === 0 ? (
