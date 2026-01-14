@@ -7,6 +7,7 @@ export default defineConfig({
   expect: {
     timeout: 15_000,
   },
+  retries: process.env.CI ? 2 : 0,
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",
