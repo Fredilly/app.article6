@@ -1,26 +1,7 @@
 {
-  "phase": "phase-assurance-surface-mvp",
-  "prs": [
-    {
-      "id": "PR12",
-      "title": "Evidence Map MVP (trace-driven)",
-      "status": "in-progress",
-      "branch": "feat/pr12-evidence-map-mvp"
-    },
-    {
-      "id": "PR13",
-      "title": "Grounded Method Assistant (guided prompts only)",
-      "status": "planned"
-    },
-    {
-      "id": "PR14",
-      "title": "Rule-Scoped Evidence Pack + Append-Only Review Log",
-      "status": "planned"
-    },
-    {
-      "id": "PR15",
-      "title": "Verifier Mode + Audit Trail + Rule Jump",
-      "status": "planned"
-    }
-  ]
+  "PR12": "in-progress",
+  "PR13": "planned",
+  "PR14": "planned",
+  "PR15": "planned",
+  "updated_at": "2026-01-14T12:00:15.684Z"
 }
