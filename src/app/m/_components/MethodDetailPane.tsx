@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
+import { IntegrityDiffPanel } from "@/app/m/_components/IntegrityDiffPanel";
 import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
@@ -1113,6 +1114,8 @@ export default function MethodDetailPane({
           <div className="grid gap-2 text-xs text-slate-600">
             <span className="text-xs text-slate-500">Provenance details are available in the TrustStrip.</span>
           </div>
+
+          <IntegrityDiffPanel />
 
           <div className="flex flex-wrap gap-2">
             <Link
