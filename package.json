@@ -26,8 +26,8 @@
     "vercel-build": "npm run build",
     "prebuild": "npm run fetch:methodologies-pack && npm run check:golden",
     "determinism:audit-pack": "node scripts/determinism-audit-pack.mjs",
-    "test:audit-pack:smoke": "node scripts/test-audit-pack-smoke.mjs",
-    "pr:gate": "node scripts/pr-gate.mjs"
+    "pr:gate": "node scripts/pr-gate.mjs",
+    "audit-pack:diff": "node scripts/audit-pack/diff-manifests.mjs"
   },
   "engines": {
     "node": "20.11.1",
