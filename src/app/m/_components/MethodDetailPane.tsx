@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import TrustStrip from "@/components/TrustStrip";
@@ -78,6 +78,7 @@ export default function MethodDetailPane({
     () => (initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
     [initialRuleId, initialSectionId],
   );
+  const focusSectionParam = searchParams.get("section")?.trim() || null;
   const tab = useMemo(() => {
     const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     return parsed ?? defaultTab;
@@ -107,9 +108,23 @@ export default function MethodDetailPane({
   const [rulesError, setRulesError] = useState<string | null>(null);
   const [rulesDeeplinkWarning, setRulesDeeplinkWarning] = useState<string | null>(null);
   type RuleListItem = { id: string; title: string; snippet: string; tags: string[]; type?: string };
+  type TraceLink = {
+    section_id: string;
+    title?: string | null;
+    anchor?: string | null;
+    match: "explicit" | "text";
+  };
+  type TraceIndex = {
+    version: number;
+    method?: { code?: string; version?: string };
+    rule_to_sections: Record<string, TraceLink[]>;
+  };
   const [rules, setRules] = useState<RuleListItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(Boolean(initialRuleId));
   const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
+  const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
+  const [traceLoading, setTraceLoading] = useState(false);
+  const [traceError, setTraceError] = useState<string | null>(null);
   const [ruleDetail, setRuleDetail] = useState<{
     id: string;
     title: string;
@@ -141,6 +156,7 @@ export default function MethodDetailPane({
   const [sectionsDeeplinkWarning, setSectionsDeeplinkWarning] = useState<string | null>(null);
   const [sections, setSections] = useState<SectionListItem[]>([]);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
+  const sectionIds = useMemo(() => new Set(sections.map((s) => s.id)), [sections]);
   const didSelectSectionFromQuery = useRef(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [evidenceLinkSelection, setEvidenceLinkSelection] = useState<{
@@ -235,6 +251,19 @@ export default function MethodDetailPane({
     return Array.from(ids);
   }, [ruleDetail]);
 
+  const linkedTraceSections = useMemo(() => {
+    if (!traceIndex || !activeRuleId) return [];
+    const raw = traceIndex.rule_to_sections?.[activeRuleId] ?? [];
+    const seen = new Set<string>();
+    const deduped: TraceLink[] = [];
+    for (const link of raw) {
+      if (seen.has(link.section_id)) continue;
+      seen.add(link.section_id);
+      deduped.push(link);
+    }
+    return deduped;
+  }, [activeRuleId, traceIndex]);
+
   useEffect(() => {
     setRules([]);
     setRulesError(null);
@@ -246,6 +275,9 @@ export default function MethodDetailPane({
     setRuleDetail(null);
     setRuleDetailError(null);
     setRuleDetailLoading(false);
+    setTraceIndex(null);
+    setTraceError(null);
+    setTraceLoading(false);
     didOpenFromQuery.current = false;
   }, [activeVersion, method.code]);
 
@@ -355,6 +387,38 @@ export default function MethodDetailPane({
     setActiveSectionId(null);
     didSelectSectionFromQuery.current = false;
   }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    if (tab !== "sections") return;
+    if (!focusSectionParam) return;
+    if (!sectionIds.has(focusSectionParam)) return;
+    if (activeSectionId === focusSectionParam) return;
+    setActiveSectionId(focusSectionParam);
+  }, [tab, focusSectionParam, sectionIds, activeSectionId]);
+
+  useLayoutEffect(() => {
+    if (!focusSectionParam) return;
+    if (tab !== "sections") return;
+
+    let cancelled = false;
+    let tries = 0;
+
+    const tick = () => {
+      if (cancelled) return;
+      const el = document.getElementById(`section-${focusSectionParam}`);
+      if (el) {
+        el.scrollIntoView({ block: "start" });
+        return;
+      }
+      tries += 1;
+      if (tries < 10) requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+    };
+  }, [focusSectionParam, tab]);
 
   useEffect(() => {
     setRichEvidence(null);
@@ -535,12 +599,44 @@ export default function MethodDetailPane({
     (nextTab: DetailTab) => {
       if (!pathname) return;
       const params = new URLSearchParams(searchString);
+      if (nextTab === "rules") params.delete("section");
       const next = applyUrlUpdates(params, {
         tab: nextTab,
         focus: null,
       });
       if (next === searchString) return;
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchString],
+  );
+
+  const onSelectSection = useCallback(
+    (id: string) => {
+      setActiveSectionId(id);
+      if (!pathname) return;
+      const params = new URLSearchParams(searchString);
+      params.set("tab", "sections");
+      params.set("section", id);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchString],
+  );
+
+  const goToSectionFromTrace = useCallback(
+    (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!pathname) return;
+      const params = new URLSearchParams(searchString);
+      params.set("tab", "sections");
+      params.set("section", sectionId);
+      params.delete("rule");
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      setDrawerOpen(false);
+      setActiveRuleId(null);
+      setRuleDetail(null);
+      setRuleDetailError(null);
+      setRuleDetailLoading(false);
     },
     [pathname, router, searchString],
   );
@@ -582,6 +678,32 @@ export default function MethodDetailPane({
       setSectionsLoading(false);
     }
   }, [activeVersion, method.code, sections, sectionsLoading]);
+
+  const ensureTraceLoaded = useCallback(async (): Promise<TraceIndex | null> => {
+    if (!activeVersion) return null;
+    if (traceIndex) return traceIndex;
+    if (traceLoading) return traceIndex;
+    setTraceLoading(true);
+    setTraceError(null);
+    try {
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/trace`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error(`Trace request failed with ${response.status}`);
+      const payload = (await response.json()) as { trace?: unknown };
+      const trace = payload?.trace;
+      if (!trace || typeof trace !== "object") throw new Error("Trace payload missing");
+      setTraceIndex(trace as TraceIndex);
+      return trace as TraceIndex;
+    } catch (error) {
+      setTraceIndex(null);
+      setTraceError(error instanceof Error ? error.message : String(error));
+      return null;
+    } finally {
+      setTraceLoading(false);
+    }
+  }, [activeVersion, method.code, traceIndex, traceLoading]);
 
   const ensureRichLoaded = useCallback(async (): Promise<NormalizedRichEvidence | null> => {
     if (!activeVersion) return null;
@@ -703,6 +825,11 @@ export default function MethodDetailPane({
     if (tab === "rich") void ensureRichLoaded();
     if (tab === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
   }, [ensureRichLoaded, ensureRulesLoaded, ensureSectionsLoaded, tab]);
+
+  useEffect(() => {
+    if (!activeRuleId) return;
+    void ensureTraceLoaded();
+  }, [activeRuleId, ensureTraceLoaded]);
 
   const openRule = useCallback(async (ruleId: string) => {
     setTabParam("rules");
@@ -1274,6 +1401,35 @@ export default function MethodDetailPane({
 
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
                           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            Linked sections
+                          </div>
+                          <div className="mt-2 space-y-2">
+                            {traceError ? (
+                              <div className="text-xs text-rose-700">Trace unavailable: {traceError}</div>
+                            ) : traceLoading ? (
+                              <div className="text-xs text-slate-600">Loading links…</div>
+                            ) : linkedTraceSections.length ? (
+                              <div className="flex flex-wrap gap-2">
+                                {linkedTraceSections.slice(0, 6).map((link) => (
+                                  <button
+                                    key={link.section_id}
+                                    type="button"
+                                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                                    onClick={(event) => goToSectionFromTrace(event, link.section_id)}
+                                  >
+                                    <span className="font-mono">{link.section_id}</span>
+                                    {link.title ? <span className="truncate">{link.title}</span> : null}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-sm text-slate-600">No linked sections yet.</div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-white p-4">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                             Evidence needed
                           </div>
                           <div className="mt-2 space-y-3">
@@ -1452,7 +1608,7 @@ export default function MethodDetailPane({
                     return (
                       <li
                         key={section.id}
-                        id={section.id}
+                        id={`section-${section.id}`}
                         className={
                           highlightId === section.id
                             ? "assistant-focus-highlight rounded-xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
@@ -1465,7 +1621,7 @@ export default function MethodDetailPane({
                           type="button"
                           onClick={() => {
                             setSectionsDeeplinkWarning(null);
-                            setActiveSectionId(section.id);
+                            onSelectSection(section.id);
                             setSectionParam(section.id);
                           }}
                           className={`flex w-full flex-col gap-1 rounded-lg border px-3 py-2 text-left transition-colors ${

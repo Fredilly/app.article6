@@ -3,11 +3,16 @@ import path from "node:path";
 import { zipSync, strToU8 } from "fflate";
 import { makePackMeta } from "./packMeta";
 import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
+import { buildTraceIndex } from "../lib/trace/traceIndex";
 
 function readJsonCanonical(p: string): Buffer {
   const raw = fs.readFileSync(p, "utf8");
   const parsed = JSON.parse(raw);
   return Buffer.from(canonicalStringify(parsed), "utf8");
+}
+
+function readJsonRaw(p: string): unknown {
+  return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 
 function resolveMethodDir(methodCode: string, version: string): string {
@@ -64,6 +69,20 @@ export function buildAuditPackZip(methodCode: string, version: string) {
       sha256: sha256Hex(bytes),
     });
   }
+
+  const rulesPath = path.join(methodDir, "rules.json");
+  const sectionsPath = path.join(methodDir, "sections.json");
+  const trace = buildTraceIndex({
+    method: { code: methodCode, version },
+    rules: readJsonRaw(rulesPath),
+    sections: readJsonRaw(sectionsPath),
+  });
+  const traceBytes = Buffer.from(canonicalStringify(trace), "utf8");
+  files.push({
+    path: "trace.json",
+    bytes: traceBytes,
+    sha256: sha256Hex(traceBytes),
+  });
 
   const repo = process.env.GITHUB_REPOSITORY || process.env.VERCEL_GIT_REPO_SLUG || "unknown";
   const commit = process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "unknown";

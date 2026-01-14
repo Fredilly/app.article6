@@ -23,7 +23,8 @@ function extractSlugAndItem(title, body) {
   const slug = slugMatch ? slugMatch[1].trim() : null;
 
   const itemMatch = title?.match(/\bPR\d+\b/) || body?.match(/\bRoadmap-Item:\s*(PR\d+)\b/i);
-  const item = itemMatch ? itemMatch[1].trim().toUpperCase() : null;
+  const itemRaw = itemMatch ? (itemMatch[1] ?? itemMatch[0]) : null;
+  const item = itemRaw ? itemRaw.trim().toUpperCase() : null;
 
   return { slug, item };
 }
