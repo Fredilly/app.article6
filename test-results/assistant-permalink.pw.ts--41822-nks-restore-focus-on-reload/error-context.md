@@ -1,0 +1,122 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - paragraph [ref=e6]: Article 6 demo
+        - heading "Evidence surfaces" [level=1] [ref=e7]
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - generic [ref=e10]: ●
+          - text: Checking…
+        - navigation [ref=e11]:
+          - generic [ref=e12]: Demo surfaces
+          - link "Chat" [ref=e13] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e14]: Chat
+            - img [ref=e15]
+          - link "Methods" [ref=e18] [cursor=pointer]:
+            - /url: /m
+            - generic [ref=e19]: Methods
+            - img [ref=e20]
+          - link "Audit" [ref=e23] [cursor=pointer]:
+            - /url: /audit
+            - generic [ref=e24]: Audit
+            - img [ref=e25]
+          - link "Manifest" [ref=e28] [cursor=pointer]:
+            - /url: /manifest
+            - generic [ref=e29]: Manifest
+            - img [ref=e30]
+  - main [ref=e34]:
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - heading "Method Inventory" [level=1] [ref=e37]
+        - paragraph [ref=e38]: Browse methods, select a version, and review provenance via audit fingerprints.
+      - generic [ref=e39]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - heading "Methods" [level=2] [ref=e43]
+            - generic [ref=e44]: 4 items
+          - list [ref=e45]:
+            - listitem [ref=e46]:
+              - link "AR-ACM0003 UNFCCC • Forestry 1 v" [ref=e47] [cursor=pointer]:
+                - /url: /m/AR-ACM0003
+                - generic [ref=e48]:
+                  - generic [ref=e49]: AR-ACM0003
+                  - generic [ref=e50]: UNFCCC • Forestry
+                - generic [ref=e51]: 1 v
+            - listitem [ref=e52]:
+              - link "AR-AM0014 UNFCCC • Forestry 1 v" [ref=e53] [cursor=pointer]:
+                - /url: /m/AR-AM0014
+                - generic [ref=e54]:
+                  - generic [ref=e55]: AR-AM0014
+                  - generic [ref=e56]: UNFCCC • Forestry
+                - generic [ref=e57]: 1 v
+            - listitem [ref=e58]:
+              - link "AR-AMS0003 UNFCCC • Forestry 1 v" [ref=e59] [cursor=pointer]:
+                - /url: /m/AR-AMS0003
+                - generic [ref=e60]:
+                  - generic [ref=e61]: AR-AMS0003
+                  - generic [ref=e62]: UNFCCC • Forestry
+                - generic [ref=e63]: 1 v
+            - listitem [ref=e64]:
+              - link "AR-AMS0007 UNFCCC • Forestry 1 v" [ref=e65] [cursor=pointer]:
+                - /url: /m/AR-AMS0007
+                - generic [ref=e66]:
+                  - generic [ref=e67]: AR-AMS0007
+                  - generic [ref=e68]: UNFCCC • Forestry
+                - generic [ref=e69]: 1 v
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - heading "AR-ACM0003" [level=2] [ref=e74]
+              - paragraph [ref=e75]: UNFCCC • Forestry
+              - paragraph [ref=e76]: "Latest: v02-0 • Versions: 1"
+            - generic [ref=e78]:
+              - generic [ref=e79]: Version
+              - combobox "Version" [ref=e80]:
+                - option "Select…" [disabled]
+                - option "v02-0" [selected]
+          - generic [ref=e83]:
+            - button "Copy source" [ref=e84]:
+              - generic [ref=e85]: "source:"
+              - generic [ref=e86]: Article6 Methodologies
+            - button "Copy generated" [ref=e87]:
+              - generic [ref=e88]: "generated:"
+              - generic [ref=e89]: 2026-01-03 07:28:34Z
+            - generic [ref=e90]:
+              - link "Download audit pack" [ref=e91] [cursor=pointer]:
+                - /url: /api/exports/audit-pack?method=AR-ACM0003&version=v02-0
+              - group [ref=e92]:
+                - generic "Export" [ref=e93] [cursor=pointer]
+              - group [ref=e94]:
+                - generic "Details" [ref=e95] [cursor=pointer]
+          - generic [ref=e96]:
+            - button "Overview" [pressed] [ref=e97]
+            - button "Versions" [ref=e98]
+            - button "Rules" [ref=e99]
+            - button "Sections" [ref=e100]
+            - button "Rich" [ref=e101]
+            - button "Assistant" [active] [ref=e102]
+            - button "Map" [ref=e103]
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e107]: Selected version
+                - generic [ref=e108]: v02-0
+              - generic [ref=e109]:
+                - generic [ref=e110]: "Rules: 8"
+                - generic [ref=e111]: "Rich: No • Previous: No"
+            - generic [ref=e113]: Provenance details are available in the TrustStrip.
+            - generic [ref=e114]:
+              - link "Open in Chat" [ref=e115] [cursor=pointer]:
+                - /url: /?method=AR-ACM0003&version=v02-0
+              - link "Open in Manifest" [ref=e116] [cursor=pointer]:
+                - /url: /manifest?method=AR-ACM0003&version=v02-0
+              - link "Open in Audit" [ref=e117] [cursor=pointer]:
+                - /url: /audit?method=AR-ACM0003&version=v02-0
+  - contentinfo [ref=e118]:
+    - status [ref=e120]: "Manifest: —"
+```
