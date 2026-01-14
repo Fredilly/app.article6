@@ -910,7 +910,7 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!activeSectionId) return;
-    const el = document.getElementById(activeSectionId);
+    const el = document.getElementById(`section-${activeSectionId}`);
     el?.scrollIntoView({ block: "start" });
   }, [activeSectionId, tab]);
 
@@ -943,7 +943,7 @@ export default function MethodDetailPane({
       setActiveSectionId(sectionId);
       setSectionParam(sectionId);
       window.setTimeout(() => {
-        document.getElementById(sectionId)?.scrollIntoView({ block: "start" });
+        document.getElementById(`section-${sectionId}`)?.scrollIntoView({ block: "start" });
         setHighlightId(sectionId);
         window.setTimeout(() => setHighlightId((current) => (current === sectionId ? null : current)), 1500);
       }, 0);
