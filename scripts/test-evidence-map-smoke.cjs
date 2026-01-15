@@ -31,9 +31,11 @@ async function run() {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Expected 200 but got ${res.status}`);
       const html = await res.text();
-      const marker = html.includes("AOI + Evidence") || html.includes("Upload AOI");
-      if (!marker) {
-        throw new Error("Smoke test failed: expected Map surface marker in /evidence response.");
+      if (!html.includes("Upload AOI") || !html.includes("Search STAC evidence")) {
+        throw new Error("Smoke test failed: expected AOI upload and STAC search controls.");
+      }
+      if (html.includes("Use fixture") || html.includes("Evidence pins")) {
+        throw new Error("Smoke test failed: dev controls should be hidden on /evidence.");
       }
     }
     const canonicalPath = canonicalEvidencePath(

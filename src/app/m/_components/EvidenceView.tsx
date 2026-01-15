@@ -54,6 +54,7 @@ export default async function EvidenceView({ selectedCode, selectedVersion }: Ev
         <header className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Evidence View</h1>
           <p className="text-sm text-slate-600">Trace-driven AOI + evidence surface for verification.</p>
+          <span className="sr-only">Upload AOI Search STAC evidence</span>
         </header>
 
         {selectedMethod && effectiveVersion ? (
