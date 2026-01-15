@@ -12,6 +12,7 @@ import type { Map as MapLibreMap } from "maplibre-gl";
 import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunForActiveAoi";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
 import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFormat";
+import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
 import getFeatureBbox from "@/lib/map/getFeatureBbox";
@@ -79,7 +80,7 @@ function shortSha(value: string): string {
 }
 
 function downloadJson(value: unknown, filename: string) {
-  const text = JSON.stringify(value, null, 2);
+  const text = canonicalJsonStringify(value);
   const blob = new Blob([text], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -654,7 +655,6 @@ export default function ProofMapTab({
                   const snapshot = await buildEvidenceSnapshot({
                     method: { code: methodCode, version },
                     evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
-                    generated_at: new Date().toISOString(),
                   });
                   if (snapshot.evidence_source.hash) await copyToClipboard(snapshot.evidence_source.hash);
                 }}
@@ -698,8 +698,6 @@ export default function ProofMapTab({
               type="button"
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
               onClick={async () => {
-                const now = new Date();
-                const date = now.toISOString().slice(0, 10);
                 const selectedItem =
                   selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
                     ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
@@ -733,7 +731,6 @@ export default function ProofMapTab({
                   method: { code: methodCode, version },
                   aoi: aoi
                     ? {
-                        id: aoi.id,
                         bbox: aoi.bbox,
                         geojson: aoi.geojson,
                       }
@@ -744,7 +741,6 @@ export default function ProofMapTab({
                     ids: selectedIds,
                     item: minimalItem ?? undefined,
                   },
-                  generated_at: now.toISOString(),
                   app: {
                     commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
                     env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
@@ -752,7 +748,7 @@ export default function ProofMapTab({
                   },
                 });
 
-                const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.${date}.json`;
+                const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
                 downloadJson(snap, filename);
                 showToast("Snapshot downloaded");
               }}

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { sha256Text } from "@/lib/proof/hash";
 
 export const EvidenceSnapshotSchema = z
@@ -26,7 +27,6 @@ export const EvidenceSnapshotSchema = z
         item: z.record(z.unknown()).optional(),
       })
       .optional(),
-    generated_at: z.string().min(1),
     app: z
       .object({
         commit: z.string().min(1).optional(),
@@ -76,11 +76,8 @@ export async function buildEvidenceSnapshot(input: {
     hash_inputs?: string[] | null;
   };
   selected?: { id?: string | null; ids?: string[] | null; item?: Record<string, unknown> | null };
-  generated_at?: string;
   app?: { commit?: string | null; env?: string | null; version?: string | null };
 }): Promise<EvidenceSnapshot> {
-  const generated_at = asNonEmptyString(input.generated_at) ?? new Date().toISOString();
-
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
   const evidenceType = input.evidence_source.type;
 
@@ -94,6 +91,8 @@ export async function buildEvidenceSnapshot(input: {
 
   const selectedIds = uniqSorted((input.selected?.ids ?? undefined) ?? undefined);
   const selectedId = asNonEmptyString(input.selected?.id ?? undefined);
+  const aoiGeojson = input.aoi?.geojson ?? undefined;
+  const aoiId = aoiGeojson ? `aoi_${await sha256Text(canonicalJsonStringify(aoiGeojson))}` : undefined;
 
   const payload: EvidenceSnapshot = EvidenceSnapshotSchema.parse(
     stripUndefined({
@@ -103,9 +102,9 @@ export async function buildEvidenceSnapshot(input: {
       },
       aoi: input.aoi
         ? stripUndefined({
-            id: asNonEmptyString(input.aoi.id ?? undefined),
+            id: aoiId,
             bbox: input.aoi.bbox ?? undefined,
-            geojson: input.aoi.geojson ?? undefined,
+            geojson: aoiGeojson,
           })
         : undefined,
       evidence_source: stripUndefined({
@@ -120,7 +119,6 @@ export async function buildEvidenceSnapshot(input: {
             item: input.selected.item ?? undefined,
           })
         : undefined,
-      generated_at,
       app: input.app
         ? stripUndefined({
             commit: asNonEmptyString(input.app.commit ?? undefined),
@@ -133,4 +131,3 @@ export async function buildEvidenceSnapshot(input: {
 
   return payload;
 }
-
