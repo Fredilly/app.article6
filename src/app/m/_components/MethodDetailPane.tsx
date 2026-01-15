@@ -85,9 +85,10 @@ export default function MethodDetailPane({
   );
   const focusSectionParam = searchParams.get("section")?.trim() || null;
   const tab = useMemo(() => {
+    if (isEvidenceMode) return "map";
     const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     return parsed ?? defaultTab;
-  }, [defaultTab, searchString]);
+  }, [defaultTab, isEvidenceMode, searchString]);
   const effectiveTab: DetailTab = isEvidenceMode ? "map" : tab;
 
   useEffect(() => {
@@ -288,13 +289,14 @@ export default function MethodDetailPane({
   }, [activeVersion, method.code]);
 
   useEffect(() => {
+    if (isEvidenceMode) return;
     if (!pathname) return;
     const urlTab = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     if (urlTab) return;
     const next = applyUrlUpdates(new URLSearchParams(searchString), { tab });
     if (next === searchString) return;
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [pathname, router, searchString, tab]);
+  }, [isEvidenceMode, pathname, router, searchString, tab]);
 
   useEffect(() => {
     if (!activeVersion) return;
@@ -574,36 +576,40 @@ export default function MethodDetailPane({
 
   const setRuleParam = useCallback((ruleId?: string) => {
     if (!pathname) return;
+    if (isEvidenceMode) return;
     const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
     if (ruleId) params.set("rule", ruleId);
     else params.delete("rule");
     const search = params.toString();
     router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
-  }, [pathname, router]);
+  }, [isEvidenceMode, pathname, router]);
 
   const setSectionParam = useCallback(
     (sectionId?: string) => {
       if (!pathname) return;
+      if (isEvidenceMode) return;
       const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
       if (sectionId) params.set("section", sectionId);
       else params.delete("section");
       const search = params.toString();
       router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
     },
-    [pathname, router],
+    [isEvidenceMode, pathname, router],
   );
 
   const setFocusParam = useCallback((focusTab: "rules" | "sections", focusId: string) => {
     if (typeof window === "undefined") return;
+    if (isEvidenceMode) return;
     if (!pathname) return;
     const next = applyUrlUpdates(new URLSearchParams(searchString), { tab: focusTab, focus: focusId });
     if (next === searchString) return;
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [pathname, router, searchString]);
+  }, [isEvidenceMode, pathname, router, searchString]);
 
   const setTabParam = useCallback(
     (nextTab: DetailTab) => {
       if (!pathname) return;
+      if (isEvidenceMode) return;
       const params = new URLSearchParams(searchString);
       if (nextTab === "rules") params.delete("section");
       const next = applyUrlUpdates(params, {
@@ -613,25 +619,27 @@ export default function MethodDetailPane({
       if (next === searchString) return;
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
     },
-    [pathname, router, searchString],
+    [isEvidenceMode, pathname, router, searchString],
   );
 
   const onSelectSection = useCallback(
     (id: string) => {
       setActiveSectionId(id);
+      if (isEvidenceMode) return;
       if (!pathname) return;
       const params = new URLSearchParams(searchString);
       params.set("tab", "sections");
       params.set("section", id);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [pathname, router, searchString],
+    [isEvidenceMode, pathname, router, searchString],
   );
 
   const goToSectionFromTrace = useCallback(
     (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
       event.preventDefault();
       event.stopPropagation();
+      if (isEvidenceMode) return;
       if (!pathname) return;
       const params = new URLSearchParams(searchString);
       params.set("tab", "sections");
@@ -644,7 +652,7 @@ export default function MethodDetailPane({
       setRuleDetailError(null);
       setRuleDetailLoading(false);
     },
-    [pathname, router, searchString],
+    [isEvidenceMode, pathname, router, searchString],
   );
 
   const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
@@ -1047,11 +1055,7 @@ export default function MethodDetailPane({
       {isEvidenceMode ? (
         <div className="mt-3 flex justify-end">
           <Link
-            href={
-              activeVersion
-                ? `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}?tab=map`
-                : `/m/${encodeURIComponent(method.code)}`
-            }
+            href={`/m/${encodeURIComponent(method.code)}?tab=map`}
             className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
           >
             Back to Method

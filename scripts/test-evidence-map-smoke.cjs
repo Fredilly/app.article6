@@ -23,12 +23,18 @@ async function startServer() {
 async function run() {
   const { app, server, port } = await startServer();
   try {
-    const res = await fetch(`http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence?tab=map`);
-    if (!res.ok) throw new Error(`Expected 200 but got ${res.status}`);
-    const html = await res.text();
-    const marker = html.includes("AOI + Evidence") || html.includes("Upload AOI");
-    if (!marker) {
-      throw new Error("Smoke test failed: expected Map surface marker in /evidence response.");
+    const urls = [
+      `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence`,
+      `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence?tab=map`,
+    ];
+    for (const url of urls) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Expected 200 but got ${res.status}`);
+      const html = await res.text();
+      const marker = html.includes("AOI + Evidence") || html.includes("Upload AOI");
+      if (!marker) {
+        throw new Error("Smoke test failed: expected Map surface marker in /evidence response.");
+      }
     }
     const canonicalPath = canonicalEvidencePath(
       "/m/AR-ACM0003/v/v02-0/evidence",
