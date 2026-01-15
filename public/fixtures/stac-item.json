@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "fixture-1",
+      "bbox": [-122.6, 37.6, -122.2, 37.9],
+      "properties": {
+        "id": "fixture-1",
+        "datetime": "2024-01-01T00:00:00Z",
+        "eo:cloud_cover": 12,
+        "quality": "good"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-122.6, 37.6],
+            [-122.6, 37.9],
+            [-122.2, 37.9],
+            [-122.2, 37.6],
+            [-122.6, 37.6]
+          ]
+        ]
+      }
+    }
+  ]
+}

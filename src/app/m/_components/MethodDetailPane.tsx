@@ -75,9 +75,10 @@ export default function MethodDetailPane({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchString = searchParams.toString();
+  const isEvidenceRoute = pathname?.includes("/evidence");
   const defaultTab: DetailTab = useMemo(
-    () => (initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
-    [initialRuleId, initialSectionId],
+    () => (isEvidenceRoute ? "map" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
+    [initialRuleId, initialSectionId, isEvidenceRoute],
   );
   const focusSectionParam = searchParams.get("section")?.trim() || null;
   const tab = useMemo(() => {
@@ -1039,6 +1040,21 @@ export default function MethodDetailPane({
         />
       </div>
 
+      {isEvidenceRoute ? (
+        <div className="mt-3 flex justify-end">
+          <Link
+            href={
+              activeVersion
+                ? `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}?tab=map`
+                : `/m/${encodeURIComponent(method.code)}`
+            }
+            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+          >
+            Back to Method
+          </Link>
+        </div>
+      ) : null}
+
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -1118,6 +1134,18 @@ export default function MethodDetailPane({
           <IntegrityDiffPanel />
 
           <div className="flex flex-wrap gap-2">
+            {activeVersion ? (
+              <Link
+                href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/evidence`}
+                className="inline-flex items-center rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
+              >
+                Evidence Map
+              </Link>
+            ) : (
+              <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-400">
+                Evidence Map
+              </span>
+            )}
             <Link
               href={buildDeepLink("/", method.code, activeVersion)}
               className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
