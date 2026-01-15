@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import MethodsFinder from "@/app/m/_components/MethodsFinder";
+import EvidenceView from "@/app/m/_components/EvidenceView";
+import EvidenceCanonicalizer from "@/app/m/[code]/v/[ver]/evidence/EvidenceCanonicalizer";
 
 type PageProps = {
   params: Promise<{ code: string; ver: string }>;
@@ -12,5 +13,9 @@ export const metadata: Metadata = {
 
 export default async function EvidencePage({ params }: PageProps) {
   const { code, ver } = await params;
-  return <MethodsFinder selectedCode={code} selectedVersion={ver} />;
+  return (
+    <EvidenceCanonicalizer>
+      <EvidenceView selectedCode={code} selectedVersion={ver} />
+    </EvidenceCanonicalizer>
+  );
 }

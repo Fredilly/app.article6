@@ -45,6 +45,7 @@ type MethodDetailPaneProps = {
   activeVersion?: string;
   initialRuleId?: string;
   initialSectionId?: string;
+  mode?: "full" | "evidence";
   packTag?: string | null;
   provenanceJson?: unknown | null;
   manifestRulesPath?: string | null;
@@ -67,6 +68,7 @@ export default function MethodDetailPane({
   activeVersion,
   initialRuleId,
   initialSectionId,
+  mode = "full",
   packTag,
   provenanceJson,
   manifestRulesPath,
@@ -76,15 +78,18 @@ export default function MethodDetailPane({
   const searchParams = useSearchParams();
   const searchString = searchParams.toString();
   const isEvidenceRoute = pathname?.includes("/evidence");
+  const isEvidenceMode = mode === "evidence" || isEvidenceRoute;
   const defaultTab: DetailTab = useMemo(
-    () => (isEvidenceRoute ? "map" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
-    [initialRuleId, initialSectionId, isEvidenceRoute],
+    () => (isEvidenceMode ? "map" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
+    [initialRuleId, initialSectionId, isEvidenceMode],
   );
   const focusSectionParam = searchParams.get("section")?.trim() || null;
   const tab = useMemo(() => {
+    if (isEvidenceMode) return "map";
     const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     return parsed ?? defaultTab;
-  }, [defaultTab, searchString]);
+  }, [defaultTab, isEvidenceMode, searchString]);
+  const effectiveTab: DetailTab = isEvidenceMode ? "map" : tab;
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return;
@@ -284,13 +289,14 @@ export default function MethodDetailPane({
   }, [activeVersion, method.code]);
 
   useEffect(() => {
+    if (isEvidenceMode) return;
     if (!pathname) return;
     const urlTab = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     if (urlTab) return;
     const next = applyUrlUpdates(new URLSearchParams(searchString), { tab });
     if (next === searchString) return;
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [pathname, router, searchString, tab]);
+  }, [isEvidenceMode, pathname, router, searchString, tab]);
 
   useEffect(() => {
     if (!activeVersion) return;
@@ -570,36 +576,40 @@ export default function MethodDetailPane({
 
   const setRuleParam = useCallback((ruleId?: string) => {
     if (!pathname) return;
+    if (isEvidenceMode) return;
     const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
     if (ruleId) params.set("rule", ruleId);
     else params.delete("rule");
     const search = params.toString();
     router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
-  }, [pathname, router]);
+  }, [isEvidenceMode, pathname, router]);
 
   const setSectionParam = useCallback(
     (sectionId?: string) => {
       if (!pathname) return;
+      if (isEvidenceMode) return;
       const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
       if (sectionId) params.set("section", sectionId);
       else params.delete("section");
       const search = params.toString();
       router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
     },
-    [pathname, router],
+    [isEvidenceMode, pathname, router],
   );
 
   const setFocusParam = useCallback((focusTab: "rules" | "sections", focusId: string) => {
     if (typeof window === "undefined") return;
+    if (isEvidenceMode) return;
     if (!pathname) return;
     const next = applyUrlUpdates(new URLSearchParams(searchString), { tab: focusTab, focus: focusId });
     if (next === searchString) return;
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [pathname, router, searchString]);
+  }, [isEvidenceMode, pathname, router, searchString]);
 
   const setTabParam = useCallback(
     (nextTab: DetailTab) => {
       if (!pathname) return;
+      if (isEvidenceMode) return;
       const params = new URLSearchParams(searchString);
       if (nextTab === "rules") params.delete("section");
       const next = applyUrlUpdates(params, {
@@ -609,25 +619,27 @@ export default function MethodDetailPane({
       if (next === searchString) return;
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
     },
-    [pathname, router, searchString],
+    [isEvidenceMode, pathname, router, searchString],
   );
 
   const onSelectSection = useCallback(
     (id: string) => {
       setActiveSectionId(id);
+      if (isEvidenceMode) return;
       if (!pathname) return;
       const params = new URLSearchParams(searchString);
       params.set("tab", "sections");
       params.set("section", id);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [pathname, router, searchString],
+    [isEvidenceMode, pathname, router, searchString],
   );
 
   const goToSectionFromTrace = useCallback(
     (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
       event.preventDefault();
       event.stopPropagation();
+      if (isEvidenceMode) return;
       if (!pathname) return;
       const params = new URLSearchParams(searchString);
       params.set("tab", "sections");
@@ -640,7 +652,7 @@ export default function MethodDetailPane({
       setRuleDetailError(null);
       setRuleDetailLoading(false);
     },
-    [pathname, router, searchString],
+    [isEvidenceMode, pathname, router, searchString],
   );
 
   const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
@@ -822,11 +834,11 @@ export default function MethodDetailPane({
   }, [activeVersion, method.code, method.program, method.sector, richEvidence, richLoading]);
 
   useEffect(() => {
-    if (tab === "rules") void ensureRulesLoaded();
-    if (tab === "sections") void ensureSectionsLoaded();
-    if (tab === "rich") void ensureRichLoaded();
-    if (tab === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
-  }, [ensureRichLoaded, ensureRulesLoaded, ensureSectionsLoaded, tab]);
+    if (effectiveTab === "rules") void ensureRulesLoaded();
+    if (effectiveTab === "sections") void ensureSectionsLoaded();
+    if (effectiveTab === "rich") void ensureRichLoaded();
+    if (effectiveTab === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
+  }, [effectiveTab, ensureRichLoaded, ensureRulesLoaded, ensureSectionsLoaded]);
 
   useEffect(() => {
     if (!activeRuleId) return;
@@ -1040,14 +1052,10 @@ export default function MethodDetailPane({
         />
       </div>
 
-      {isEvidenceRoute ? (
+      {isEvidenceMode ? (
         <div className="mt-3 flex justify-end">
           <Link
-            href={
-              activeVersion
-                ? `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}?tab=map`
-                : `/m/${encodeURIComponent(method.code)}`
-            }
+            href={`/m/${encodeURIComponent(method.code)}?tab=map`}
             className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
           >
             Back to Method
@@ -1055,66 +1063,102 @@ export default function MethodDetailPane({
         </div>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setTabParam("overview")}
-          className={`${tabBase} ${tab === "overview" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "overview"}
-        >
-          Overview
-        </button>
-        <button
-          type="button"
-          onClick={() => setTabParam("versions")}
-          className={`${tabBase} ${tab === "versions" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "versions"}
-        >
-          Versions
-        </button>
-        <button
-          type="button"
-          onClick={() => setTabParam("rules")}
-          className={`${tabBase} ${tab === "rules" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "rules"}
-        >
-          Rules
-        </button>
-        <button
-          type="button"
-          onClick={() => setTabParam("sections")}
-          className={`${tabBase} ${tab === "sections" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "sections"}
-        >
-          Sections
-        </button>
-        <button
-          type="button"
-          onClick={() => setTabParam("rich")}
-          className={`${tabBase} ${tab === "rich" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "rich"}
-        >
-          Rich
-        </button>
-        <button
-          type="button"
-          onClick={() => setTabParam("assistant")}
-          className={`${tabBase} ${tab === "assistant" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "assistant"}
-        >
-          Assistant
-        </button>
-        <button
-          type="button"
-          onClick={() => setTabParam("map")}
-          className={`${tabBase} ${tab === "map" ? tabActive : tabIdle}`}
-          aria-pressed={tab === "map"}
-        >
-          Map
-        </button>
-      </div>
+      {isEvidenceMode ? null : (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setTabParam("overview")}
+            className={`${tabBase} ${tab === "overview" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "overview"}
+          >
+            Overview
+          </button>
+          <button
+            type="button"
+            onClick={() => setTabParam("versions")}
+            className={`${tabBase} ${tab === "versions" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "versions"}
+          >
+            Versions
+          </button>
+          <button
+            type="button"
+            onClick={() => setTabParam("rules")}
+            className={`${tabBase} ${tab === "rules" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "rules"}
+          >
+            Rules
+          </button>
+          <button
+            type="button"
+            onClick={() => setTabParam("sections")}
+            className={`${tabBase} ${tab === "sections" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "sections"}
+          >
+            Sections
+          </button>
+          <button
+            type="button"
+            onClick={() => setTabParam("rich")}
+            className={`${tabBase} ${tab === "rich" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "rich"}
+          >
+            Rich
+          </button>
+          <button
+            type="button"
+            onClick={() => setTabParam("assistant")}
+            className={`${tabBase} ${tab === "assistant" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "assistant"}
+          >
+            Assistant
+          </button>
+          <button
+            type="button"
+            onClick={() => setTabParam("map")}
+            className={`${tabBase} ${tab === "map" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "map"}
+          >
+            Map
+          </button>
+        </div>
+      )}
 
-      {tab === "overview" ? (
+      {isEvidenceMode ? (
+        <ProofMapTab
+          methodCode={method.code}
+          version={activeVersion ?? ""}
+          provenanceJson={provenanceJson}
+          aoi={aoi}
+          evidencePins={evidencePins}
+          verificationRuns={verificationRuns}
+          stacEvidenceState={stacEvidenceState}
+          selectedStacItemId={selectedStacItemId}
+          evidenceSnapshots={evidenceSnapshots}
+          onSetAoi={setAoiAndPersist}
+          onStartOver={startOverProofMap}
+          onSetEvidencePins={setEvidencePinsAndPersist}
+          onSetVerificationRuns={setVerificationRunsAndPersist}
+          onSetStacEvidenceState={(next) => {
+            if (!evidenceKey) return;
+            setStacEvidenceByKey((prev) => {
+              if (!next) {
+                const out = { ...prev };
+                delete out[evidenceKey];
+                return out;
+              }
+              return { ...prev, [evidenceKey]: next };
+            });
+          }}
+          onSelectStacItemId={setSelectedStacItemId}
+          onEvidenceSelectionChange={setEvidenceLinkSelection}
+          onNavigateEvidence={async (type, id) => {
+            if (type === "rule") return await navigateToRule(id);
+            if (type === "section") return await navigateToSection(id);
+            return false;
+          }}
+        />
+      ) : effectiveTab === "overview" ? (
         <div className="mt-4 grid gap-4">
           <div className="grid gap-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1166,7 +1210,7 @@ export default function MethodDetailPane({
             </Link>
           </div>
         </div>
-      ) : tab === "assistant" ? (
+      ) : effectiveTab === "assistant" ? (
         <AssistantPanel
           program={method.program}
           sector={method.sector}
@@ -1187,7 +1231,7 @@ export default function MethodDetailPane({
             if (type === "section") return void navigateToSection(id);
           }}
         />
-      ) : tab === "map" ? (
+      ) : effectiveTab === "map" ? (
         <ProofMapTab
           methodCode={method.code}
           version={activeVersion ?? ""}
@@ -1221,7 +1265,7 @@ export default function MethodDetailPane({
             return false;
           }}
         />
-      ) : tab === "versions" ? (
+      ) : effectiveTab === "versions" ? (
         <div className="mt-4 grid gap-2">
           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Available versions
@@ -1251,7 +1295,7 @@ export default function MethodDetailPane({
             })}
           </ul>
         </div>
-        ) : tab === "rules" ? (
+        ) : effectiveTab === "rules" ? (
           <div className="mt-4 grid gap-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -1574,7 +1618,7 @@ export default function MethodDetailPane({
               </div>
             ) : null}
           </div>
-        ) : tab === "sections" ? (
+        ) : effectiveTab === "sections" ? (
           <div className="mt-4 grid gap-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
