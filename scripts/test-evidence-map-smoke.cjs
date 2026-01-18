@@ -23,6 +23,13 @@ async function startServer() {
 async function run() {
   const { app, server, port } = await startServer();
   try {
+    const methodRes = await fetch(`http://localhost:${port}/m/AR-ACM0003/v/v02-0`);
+    if (!methodRes.ok) throw new Error(`Expected 200 but got ${methodRes.status} for method page`);
+    const methodHtml = await methodRes.text();
+    if (!methodHtml.includes("Evidence View")) {
+      throw new Error("Smoke test failed: expected Evidence View control on method page.");
+    }
+
     const urls = [
       `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence`,
       `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence?tab=map`,
