@@ -34,6 +34,14 @@ export const EvidenceSnapshotSchema = z
         version: z.string().min(1).optional(),
       })
       .optional(),
+    items: z
+      .array(
+        z.object({
+          id: z.string().min(1),
+          linked_rules: z.array(z.string().min(1)),
+        }),
+      )
+      .optional(),
   })
   .strict();
 
@@ -50,6 +58,21 @@ function uniqSorted(values: string[] | undefined): string[] | undefined {
   const set = new Set(values.map((v) => v.trim()).filter(Boolean));
   if (!set.size) return undefined;
   return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function normalizeItems(
+  items: Array<{ id?: string | null; linked_rules?: string[] | null }> | undefined,
+): Array<{ id: string; linked_rules: string[] }> | undefined {
+  if (!items) return undefined;
+  const normalized: Array<{ id: string; linked_rules: string[] }> = [];
+  for (const item of items) {
+    const id = asNonEmptyString(item.id ?? undefined);
+    if (!id) continue;
+    const linked_rules = uniqSorted((item.linked_rules ?? undefined) ?? undefined) ?? [];
+    normalized.push({ id, linked_rules });
+  }
+  normalized.sort((a, b) => a.id.localeCompare(b.id));
+  return normalized;
 }
 
 function stripUndefined<T extends Record<string, unknown>>(input: T): Partial<T> {
@@ -77,6 +100,7 @@ export async function buildEvidenceSnapshot(input: {
   };
   selected?: { id?: string | null; ids?: string[] | null; item?: Record<string, unknown> | null };
   app?: { commit?: string | null; env?: string | null; version?: string | null };
+  items?: Array<{ id?: string | null; linked_rules?: string[] | null }> | null;
 }): Promise<EvidenceSnapshot> {
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
   const evidenceType = input.evidence_source.type;
@@ -126,6 +150,7 @@ export async function buildEvidenceSnapshot(input: {
             version: asNonEmptyString(input.app.version ?? undefined),
           })
         : undefined,
+      items: normalizeItems((input.items ?? undefined) ?? undefined),
     }),
   );
 
