@@ -1129,6 +1129,7 @@ export default function MethodDetailPane({
           methodCode={method.code}
           version={activeVersion ?? ""}
           provenanceJson={provenanceJson}
+          mode="evidence"
           aoi={aoi}
           evidencePins={evidencePins}
           verificationRuns={verificationRuns}
