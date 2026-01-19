@@ -15,6 +15,7 @@ import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFor
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
+import { getWorkspaceWorkFlags } from "@/lib/proofMap/workspace";
 import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 
@@ -270,7 +271,16 @@ export default function ProofMapTab({
   }, [selectedStacItemId]);
 
   const isPreview = Boolean(draftAoi);
-  const hasPinsOrSelections = Boolean(evidencePins.length) || Boolean(selectedStacItemId);
+  const { willClearWork } = useMemo(
+    () =>
+      getWorkspaceWorkFlags({
+        evidencePins,
+        selectedStacItemId,
+        evidenceSnapshots,
+        verificationRuns,
+      }),
+    [evidencePins, evidenceSnapshots, selectedStacItemId, verificationRuns],
+  );
 
   const bboxLabel = useMemo(() => {
     if (!aoi) return null;
@@ -997,7 +1007,7 @@ export default function ProofMapTab({
                 <div className="mt-1">
                   Replace the current AOI with <span className="font-semibold">{aoi.name}</span>?
                 </div>
-                {hasPinsOrSelections ? (
+                {willClearWork ? (
                   <div className="mt-1 text-[11px] text-slate-600">
                     This will clear pins and evidence selections.
                   </div>
