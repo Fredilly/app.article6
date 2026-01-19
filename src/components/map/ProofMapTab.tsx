@@ -15,6 +15,7 @@ import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFor
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
+import { getWorkspaceWorkFlags } from "@/lib/proofMap/workspace";
 import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 
@@ -270,6 +271,16 @@ export default function ProofMapTab({
   }, [selectedStacItemId]);
 
   const isPreview = Boolean(draftAoi);
+  const { willClearWork } = useMemo(
+    () =>
+      getWorkspaceWorkFlags({
+        evidencePins,
+        selectedStacItemId,
+        evidenceSnapshots,
+        verificationRuns,
+      }),
+    [evidencePins, evidenceSnapshots, selectedStacItemId, verificationRuns],
+  );
 
   const bboxLabel = useMemo(() => {
     if (!aoi) return null;
@@ -923,27 +934,6 @@ export default function ProofMapTab({
             </div>
           </div>
         ) : null}
-        {isPreview ? (
-          <div className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-slate-700">
-            <div className="font-semibold text-slate-900">AOI loaded (preview). Apply to workspace?</div>
-            <div className="mt-2 flex items-center gap-2">
-              <button
-                type="button"
-                className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
-                onClick={onApplyDraftAoi}
-              >
-                Apply
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={onCancelDraftAoi}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : null}
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
@@ -1011,6 +1001,35 @@ export default function ProofMapTab({
                 </span>
               ) : null}
             </div>
+            {isPreview ? (
+              <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs text-slate-700">
+                <div className="font-semibold text-slate-900">New AOI ready</div>
+                <div className="mt-1">
+                  Replace the current AOI with <span className="font-semibold">{aoi.name}</span>?
+                </div>
+                {willClearWork ? (
+                  <div className="mt-1 text-[11px] text-slate-600">
+                    This will clear pins and evidence selections.
+                  </div>
+                ) : null}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
+                    onClick={onApplyDraftAoi}
+                  >
+                    Replace AOI
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={onCancelDraftAoi}
+                  >
+                    Keep current
+                  </button>
+                </div>
+              </div>
+            ) : null}
             <div className="mt-2 grid gap-1 text-xs text-slate-600">
               <div>area: {formatNum(aoi.area_km2)} km²</div>
               <div className="break-words">bbox: {bboxLabel}</div>
