@@ -706,6 +706,9 @@ export default function ProofMapTab({
                     ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
                     : null;
 
+                const linkedRules = selectedItem
+                  ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
+                  : [];
                 const minimalItem = selectedItem
                   ? {
                       id: selectedStacItemId ?? undefined,
@@ -717,8 +720,10 @@ export default function ProofMapTab({
                             : undefined,
                       bbox: selectedItem.bbox,
                       geometry: selectedItem.geometry,
+                      linked_rules: linkedRules,
                     }
                   : undefined;
+                const snapshotItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
 
                 const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
                 const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
@@ -744,6 +749,7 @@ export default function ProofMapTab({
                     ids: selectedIds,
                     item: minimalItem ?? undefined,
                   },
+                  items: snapshotItems,
                   app: {
                     commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
                     env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
@@ -1400,11 +1406,11 @@ export default function ProofMapTab({
                         <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
                       </div>
                     ) : null}
-                    {selectedStacDetails.ruleIds.length || selectedStacDetails.sectionIds.length ? (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          Linked to
-                        </div>
+                    <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        Linked rules
+                      </div>
+                      {selectedStacDetails.ruleIds.length ? (
                         <div className="mt-2 flex flex-wrap gap-2">
                           {selectedStacDetails.ruleIds.map((id) => (
                             <button
@@ -1420,25 +1426,36 @@ export default function ProofMapTab({
                               <span className="font-mono">{id}</span>
                             </button>
                           ))}
-                          {selectedStacDetails.sectionIds.map((id) => (
-                            <button
-                              key={id}
-                              type="button"
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={async () => {
-                                const ok = await onNavigateEvidence("section", id);
-                                if (!ok) showToast("Section not found");
-                              }}
-                              title={`Open section ${id}`}
-                            >
-                              <span className="font-mono">{id}</span>
-                            </button>
-                          ))}
                         </div>
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-slate-500">Linked to: none</div>
-                    )}
+                      ) : (
+                        <span className="mt-2 inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                          Unlinked
+                        </span>
+                      )}
+                      {selectedStacDetails.sectionIds.length ? (
+                        <div className="mt-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            Linked sections
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {selectedStacDetails.sectionIds.map((id) => (
+                              <button
+                                key={id}
+                                type="button"
+                                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                onClick={async () => {
+                                  const ok = await onNavigateEvidence("section", id);
+                                  if (!ok) showToast("Section not found");
+                                }}
+                                title={`Open section ${id}`}
+                              >
+                                <span className="font-mono">{id}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
                     {selectedStacDetails.assetRows.length ? (
                       <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>
