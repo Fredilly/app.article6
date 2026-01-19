@@ -13,10 +13,13 @@ import {
   clearProofMapStorage,
   clearStoredMapView,
   loadAoi,
+  loadDraftAoi,
   loadEvidenceSnapshots,
   loadPins,
   loadVerificationRuns,
   saveAoi,
+  saveDraftAoi,
+  saveEvidenceSnapshots,
   savePins,
   saveVerificationRuns,
 } from "@/lib/proofMap/storage";
@@ -174,10 +177,20 @@ export default function MethodDetailPane({
   } | null>(null);
   const lastAppliedFocusFromUrl = useRef<string | null>(null);
 
-  const [aoi, setAoi] = useState<AOI | null>(null);
+  const [currentAoi, setCurrentAoi] = useState<AOI | null>(null);
+  const [draftAoi, setDraftAoi] = useState<AOI | null>(null);
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
   const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
   const [verificationRuns, setVerificationRuns] = useState<VerificationRun[]>([]);
+  type WorkspaceSnapshot = {
+    currentAoi: AOI | null;
+    evidencePins: EvidencePin[];
+    evidenceSnapshots: ProofEvidenceItem[];
+    verificationRuns: VerificationRun[];
+    selectedStacItemId: string | null;
+  };
+  const [undoSnapshot, setUndoSnapshot] = useState<WorkspaceSnapshot | null>(null);
+  const [applyToken, setApplyToken] = useState(0);
   type StacEvidenceState = {
     aoiFingerprint: string;
     fc: GeoJSON.FeatureCollection;
@@ -219,12 +232,13 @@ export default function MethodDetailPane({
     return [...method.versions].reverse();
   }, [method.versions]);
 
+  const effectiveAoi = draftAoi ?? currentAoi;
   const evidenceKey = useMemo(() => {
     const ver = (activeVersion ?? "").trim();
-    const aoiKey = (aoi?.aoi_fingerprint ?? aoi?.id ?? "").trim();
+    const aoiKey = (effectiveAoi?.aoi_fingerprint ?? effectiveAoi?.id ?? "").trim();
     if (!ver || !aoiKey) return null;
     return `${method.code}@${ver}::${aoiKey}`;
-  }, [activeVersion, aoi?.aoi_fingerprint, aoi?.id, method.code]);
+  }, [activeVersion, effectiveAoi?.aoi_fingerprint, effectiveAoi?.id, method.code]);
 
   const stacEvidenceState = evidenceKey ? stacEvidenceByKey[evidenceKey] ?? null : null;
 
@@ -300,19 +314,41 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!activeVersion) return;
-    setAoi(loadAoi(method.code, activeVersion));
+    setCurrentAoi(loadAoi(method.code, activeVersion));
+    setDraftAoi(loadDraftAoi(method.code, activeVersion));
     setEvidencePins(loadPins(method.code, activeVersion));
     setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
     setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
+    setUndoSnapshot(null);
   }, [activeVersion, method.code]);
 
-  const setAoiAndPersist = useCallback(
+  const setCurrentAoiAndPersist = useCallback(
     (nextAoi: AOI | null) => {
-      setAoi(nextAoi);
+      setCurrentAoi(nextAoi);
       if (!activeVersion) return;
       saveAoi(method.code, activeVersion, nextAoi);
     },
     [activeVersion, method.code],
+  );
+
+  const setDraftAoiAndPersist = useCallback(
+    (nextAoi: AOI | null) => {
+      setDraftAoi(nextAoi);
+      if (!activeVersion) return;
+      saveDraftAoi(method.code, activeVersion, nextAoi);
+    },
+    [activeVersion, method.code],
+  );
+
+  const setActiveAoiAndPersist = useCallback(
+    (nextAoi: AOI | null) => {
+      if (draftAoi) {
+        setDraftAoiAndPersist(nextAoi);
+        return;
+      }
+      setCurrentAoiAndPersist(nextAoi);
+    },
+    [draftAoi, setCurrentAoiAndPersist, setDraftAoiAndPersist],
   );
 
   const setEvidencePinsAndPersist = useCallback(
@@ -320,6 +356,15 @@ export default function MethodDetailPane({
       setEvidencePins(nextPins);
       if (!activeVersion) return;
       savePins(method.code, activeVersion, nextPins);
+    },
+    [activeVersion, method.code],
+  );
+
+  const setEvidenceSnapshotsAndPersist = useCallback(
+    (nextSnapshots: ProofEvidenceItem[]) => {
+      setEvidenceSnapshots(nextSnapshots);
+      if (!activeVersion) return;
+      saveEvidenceSnapshots(method.code, activeVersion, nextSnapshots);
     },
     [activeVersion, method.code],
   );
@@ -333,17 +378,101 @@ export default function MethodDetailPane({
     [activeVersion, method.code],
   );
 
+  const hasWorkspaceState = Boolean(
+    currentAoi ||
+      draftAoi ||
+      evidencePins.length ||
+      evidenceSnapshots.length ||
+      verificationRuns.length ||
+      selectedStacItemId,
+  );
+
+  const applyAoiToWorkspace = useCallback(
+    (nextAoi: AOI) => {
+      const snapshot: WorkspaceSnapshot = {
+        currentAoi,
+        evidencePins,
+        evidenceSnapshots,
+        verificationRuns,
+        selectedStacItemId,
+      };
+      setUndoSnapshot(snapshot);
+      setCurrentAoiAndPersist(nextAoi);
+      setDraftAoiAndPersist(null);
+      setEvidencePinsAndPersist([]);
+      setEvidenceSnapshotsAndPersist([]);
+      setVerificationRunsAndPersist([]);
+      setSelectedStacItemId(null);
+      setEvidenceLinkSelection(null);
+      setApplyToken((value) => value + 1);
+    },
+    [
+      currentAoi,
+      evidencePins,
+      evidenceSnapshots,
+      verificationRuns,
+      selectedStacItemId,
+      setCurrentAoiAndPersist,
+      setDraftAoiAndPersist,
+      setEvidencePinsAndPersist,
+      setEvidenceSnapshotsAndPersist,
+      setVerificationRunsAndPersist,
+    ],
+  );
+
+  const handleUploadAoi = useCallback(
+    (nextAoi: AOI) => {
+      if (!hasWorkspaceState) {
+        applyAoiToWorkspace(nextAoi);
+        return;
+      }
+      setDraftAoiAndPersist(nextAoi);
+    },
+    [applyAoiToWorkspace, hasWorkspaceState, setDraftAoiAndPersist],
+  );
+
+  const handleApplyDraftAoi = useCallback(() => {
+    if (!draftAoi) return;
+    applyAoiToWorkspace(draftAoi);
+  }, [applyAoiToWorkspace, draftAoi]);
+
+  const handleCancelDraftAoi = useCallback(() => {
+    if (!draftAoi) return;
+    setDraftAoiAndPersist(null);
+  }, [draftAoi, setDraftAoiAndPersist]);
+
+  const handleUndoApply = useCallback(() => {
+    if (!undoSnapshot) return;
+    setCurrentAoiAndPersist(undoSnapshot.currentAoi ?? null);
+    setDraftAoiAndPersist(null);
+    setEvidencePinsAndPersist(undoSnapshot.evidencePins ?? []);
+    setEvidenceSnapshotsAndPersist(undoSnapshot.evidenceSnapshots ?? []);
+    setVerificationRunsAndPersist(undoSnapshot.verificationRuns ?? []);
+    setSelectedStacItemId(undoSnapshot.selectedStacItemId ?? null);
+    setEvidenceLinkSelection(null);
+    setUndoSnapshot(null);
+  }, [
+    setCurrentAoiAndPersist,
+    setDraftAoiAndPersist,
+    setEvidencePinsAndPersist,
+    setEvidenceSnapshotsAndPersist,
+    setVerificationRunsAndPersist,
+    undoSnapshot,
+  ]);
+
   const startOverProofMap = useCallback(() => {
     if (!activeVersion) return;
     clearProofMapStorage(method.code, activeVersion);
     clearStoredMapView(`${method.code}@${activeVersion}`);
 
-    setAoi(null);
+    setCurrentAoi(null);
+    setDraftAoi(null);
     setEvidencePins([]);
     setEvidenceSnapshots([]);
     setVerificationRuns([]);
     setSelectedStacItemId(null);
     setEvidenceLinkSelection(null);
+    setUndoSnapshot(null);
 
     const prefix = `${method.code}@${activeVersion}::`;
     setStacEvidenceByKey((prev) => {
@@ -358,7 +487,8 @@ export default function MethodDetailPane({
 
   const refreshProofMapFromStorage = useCallback(() => {
     if (!activeVersion) return;
-    setAoi(loadAoi(method.code, activeVersion));
+    setCurrentAoi(loadAoi(method.code, activeVersion));
+    setDraftAoi(loadDraftAoi(method.code, activeVersion));
     setEvidencePins(loadPins(method.code, activeVersion));
     setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
     setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
@@ -1129,13 +1259,21 @@ export default function MethodDetailPane({
           methodCode={method.code}
           version={activeVersion ?? ""}
           provenanceJson={provenanceJson}
-          aoi={aoi}
+          mode="evidence"
+          aoi={effectiveAoi}
+          currentAoi={currentAoi}
+          draftAoi={draftAoi}
           evidencePins={evidencePins}
           verificationRuns={verificationRuns}
           stacEvidenceState={stacEvidenceState}
           selectedStacItemId={selectedStacItemId}
           evidenceSnapshots={evidenceSnapshots}
-          onSetAoi={setAoiAndPersist}
+          onSetAoi={setActiveAoiAndPersist}
+          onUploadAoi={handleUploadAoi}
+          onApplyDraftAoi={handleApplyDraftAoi}
+          onCancelDraftAoi={handleCancelDraftAoi}
+          onUndoApplyAoi={handleUndoApply}
+          applyToken={applyToken}
           onStartOver={startOverProofMap}
           onSetEvidencePins={setEvidencePinsAndPersist}
           onSetVerificationRuns={setVerificationRunsAndPersist}
@@ -1223,7 +1361,7 @@ export default function MethodDetailPane({
           manifestRulesPath={manifestRulesPath}
           packTag={packTag}
           provenanceJson={provenanceJson}
-          aoi={aoi}
+          aoi={effectiveAoi}
           evidencePins={evidencePins}
           onAddEvidencePin={(pin) => setEvidencePinsAndPersist([pin, ...evidencePins])}
           onNavigateEvidence={(type, id) => {
@@ -1236,13 +1374,21 @@ export default function MethodDetailPane({
           methodCode={method.code}
           version={activeVersion ?? ""}
           provenanceJson={provenanceJson}
-          aoi={aoi}
+          aoi={effectiveAoi}
+          currentAoi={currentAoi}
+          draftAoi={draftAoi}
           evidencePins={evidencePins}
           verificationRuns={verificationRuns}
           stacEvidenceState={stacEvidenceState}
           selectedStacItemId={selectedStacItemId}
           evidenceSnapshots={evidenceSnapshots}
-          onSetAoi={setAoiAndPersist}
+          onSetAoi={setActiveAoiAndPersist}
+          onUploadAoi={handleUploadAoi}
+          onApplyDraftAoi={handleApplyDraftAoi}
+          onCancelDraftAoi={handleCancelDraftAoi}
+          onUndoApplyAoi={handleUndoApply}
+          hasWorkspaceState={hasWorkspaceState}
+          applyToken={applyToken}
           onStartOver={startOverProofMap}
           onSetEvidencePins={setEvidencePinsAndPersist}
           onSetVerificationRuns={setVerificationRunsAndPersist}

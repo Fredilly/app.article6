@@ -73,7 +73,7 @@ export function shouldDisableRunVerification(input: {
   if (!input.aoi) return true;
   if (!input.currentAoiFingerprint) return true;
   if (!input.methodCode.trim() || !input.version.trim()) return true;
-  return !input.evidencePins.some((pin) => (pin.cited_ids ?? []).length);
+  return false;
 }
 
 export function createQueuedVerificationRun(input: {

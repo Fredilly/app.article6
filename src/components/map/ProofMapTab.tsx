@@ -23,6 +23,8 @@ type ProofMapTabProps = {
   version: string;
   provenanceJson?: unknown | null;
   aoi: AOI | null;
+  currentAoi: AOI | null;
+  draftAoi: AOI | null;
   evidencePins: EvidencePin[];
   verificationRuns: VerificationRun[];
   stacEvidenceState:
@@ -37,6 +39,11 @@ type ProofMapTabProps = {
   selectedStacItemId: string | null;
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
+  onUploadAoi: (aoi: AOI) => void;
+  onApplyDraftAoi: () => void;
+  onCancelDraftAoi: () => void;
+  onUndoApplyAoi: () => void;
+  applyToken: number;
   onSetEvidencePins: (pins: EvidencePin[]) => void;
   onSetVerificationRuns: (runs: VerificationRun[]) => void;
   onSetStacEvidenceState: (
@@ -171,12 +178,19 @@ export default function ProofMapTab({
   version,
   provenanceJson,
   aoi,
+  currentAoi,
+  draftAoi,
   evidencePins,
   verificationRuns,
   stacEvidenceState,
   selectedStacItemId,
   evidenceSnapshots,
   onSetAoi,
+  onUploadAoi,
+  onApplyDraftAoi,
+  onCancelDraftAoi,
+  onUndoApplyAoi,
+  applyToken,
   onSetEvidencePins,
   onSetVerificationRuns,
   onSetStacEvidenceState,
@@ -187,6 +201,7 @@ export default function ProofMapTab({
 }: ProofMapTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [undoVisible, setUndoVisible] = useState(false);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -216,6 +231,13 @@ export default function ProofMapTab({
     window.setTimeout(() => setToast((current) => (current === message ? null : current)), 900);
   };
 
+  useEffect(() => {
+    if (!applyToken) return;
+    setUndoVisible(true);
+    const timer = window.setTimeout(() => setUndoVisible(false), 4500);
+    return () => window.clearTimeout(timer);
+  }, [applyToken]);
+
   const copyToClipboard = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -243,6 +265,8 @@ export default function ProofMapTab({
     setLastSelectionSource(null);
     setStacInspectOpen(false);
   }, [selectedStacItemId]);
+
+  const isPreview = Boolean(draftAoi);
 
   const bboxLabel = useMemo(() => {
     if (!aoi) return null;
@@ -785,8 +809,27 @@ export default function ProofMapTab({
       />
 
       <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
+        {undoVisible ? (
+          <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
+            <span>New AOI applied.</span>
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+              onClick={() => {
+                onUndoApplyAoi();
+                setUndoVisible(false);
+              }}
+            >
+              Undo
+            </button>
+          </div>
+        ) : null}
         {toast ? (
-          <div className="fixed bottom-4 right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
+          <div
+            className={`fixed right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow ${
+              undoVisible ? "bottom-14" : "bottom-4"
+            }`}
+          >
             {toast}
           </div>
         ) : null}
@@ -844,14 +887,6 @@ export default function ProofMapTab({
             <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
               <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
                 <div className="text-sm font-semibold text-slate-900">Start over?</div>
-                <button
-                  type="button"
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={() => setStartOverOpen(false)}
-                  disabled={startOverBusy}
-                >
-                  Close
-                </button>
               </div>
               <div className="grid gap-4 px-5 py-4">
                 <div className="text-sm text-slate-700">
@@ -876,6 +911,27 @@ export default function ProofMapTab({
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        ) : null}
+        {isPreview ? (
+          <div className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-slate-700">
+            <div className="font-semibold text-slate-900">AOI loaded (preview). Apply to workspace?</div>
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                type="button"
+                className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
+                onClick={onApplyDraftAoi}
+              >
+                Apply
+              </button>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={onCancelDraftAoi}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         ) : null}
@@ -915,7 +971,7 @@ export default function ProofMapTab({
                       setError(result.error);
                       return;
                     }
-                    onSetAoi(result.aoi);
+                    onUploadAoi(result.aoi);
                   } catch (e) {
                     setError(e instanceof Error ? e.message : String(e));
                   }
@@ -934,7 +990,18 @@ export default function ProofMapTab({
 
         {aoi ? (
           <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-            <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
+              {isPreview ? (
+                <span className="rounded-full border border-sky-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                  Preview
+                </span>
+              ) : currentAoi ? (
+                <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                  Current
+                </span>
+              ) : null}
+            </div>
             <div className="mt-2 grid gap-1 text-xs text-slate-600">
               <div>area: {formatNum(aoi.area_km2)} km²</div>
               <div className="break-words">bbox: {bboxLabel}</div>
@@ -1047,9 +1114,6 @@ export default function ProofMapTab({
               >
                 {isRunning ? "Searching…" : "Search STAC evidence"}
               </button>
-              {!evidencePins.some((pin) => (pin.cited_ids ?? []).length) ? (
-                <div className="mt-1 text-[11px] text-slate-500">Add a pin with cited ids to enable.</div>
-              ) : null}
             </div>
           </div>
         ) : (
@@ -1221,13 +1285,13 @@ export default function ProofMapTab({
                           </div>
                         ))}
                       </div>
-                    </div>
-                  ) : null}
-                </div>
-              ))
-            ) : (
-              <div className="text-xs text-slate-500">No pins yet. Use “Add to map” from Assistant.</div>
-            )}
+                    ) : null}
+                  </div>
+                ))
+              ) : (
+                <div className="text-xs text-slate-500">No pins yet. Add pins from Assistant if needed.</div>
+              )}
+            </div>
           </div>
         </div>
 
