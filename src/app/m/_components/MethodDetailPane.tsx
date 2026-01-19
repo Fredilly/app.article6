@@ -82,6 +82,12 @@ export default function MethodDetailPane({
   const searchString = searchParams.toString();
   const isEvidenceRoute = pathname?.includes("/evidence");
   const isEvidenceMode = mode === "evidence" || isEvidenceRoute;
+  const verifyMode = useMemo(() => {
+    if (!isEvidenceMode) return "map" as const;
+    const params = new URLSearchParams(searchString);
+    const raw = (params.get("mode") ?? "").trim().toLowerCase();
+    return raw === "map" ? "map" : "list";
+  }, [isEvidenceMode, searchString]);
   const defaultTab: DetailTab = useMemo(
     () => (isEvidenceMode ? "map" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
     [initialRuleId, initialSectionId, isEvidenceMode],
@@ -200,6 +206,7 @@ export default function MethodDetailPane({
   };
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
+  const lastEvidenceParam = useRef<string | null>(null);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -1120,6 +1127,34 @@ export default function MethodDetailPane({
   const linkedSectionIds = useMemo(() => new Set(evidenceLinkSelection?.sectionIds ?? []), [evidenceLinkSelection]);
 
   useEffect(() => {
+    if (!isEvidenceMode) return;
+    const next = (searchParams.get("evidence") ?? "").trim() || null;
+    if (next === lastEvidenceParam.current) return;
+    lastEvidenceParam.current = next;
+    setSelectedStacItemId(next);
+  }, [isEvidenceMode, searchParams, searchString]);
+
+  useEffect(() => {
+    if (!isEvidenceMode) return;
+    if (!pathname) return;
+    const next = applyUrlUpdates(new URLSearchParams(searchString), {
+      evidence: selectedStacItemId ?? null,
+    });
+    if (next === searchString) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [isEvidenceMode, pathname, router, searchString, selectedStacItemId]);
+
+  useEffect(() => {
+    if (!isEvidenceMode) return;
+    if (!pathname) return;
+    const next = applyUrlUpdates(new URLSearchParams(searchString), {
+      aoi: effectiveAoi?.id ?? null,
+    });
+    if (next === searchString) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [effectiveAoi?.id, isEvidenceMode, pathname, router, searchString]);
+
+  useEffect(() => {
     const params = new URLSearchParams(searchString);
     const focusTab = (params.get("tab") ?? "").trim();
     const focusId = (params.get("focus") ?? "").trim();
@@ -1249,7 +1284,7 @@ export default function MethodDetailPane({
             className={`${tabBase} ${tab === "map" ? tabActive : tabIdle}`}
             aria-pressed={tab === "map"}
           >
-            Map
+            Verify
           </button>
         </div>
       )}
@@ -1260,6 +1295,7 @@ export default function MethodDetailPane({
           version={activeVersion ?? ""}
           provenanceJson={provenanceJson}
           mode="evidence"
+          viewMode={verifyMode}
           aoi={effectiveAoi}
           currentAoi={currentAoi}
           draftAoi={draftAoi}
@@ -1321,11 +1357,11 @@ export default function MethodDetailPane({
                 href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/evidence`}
                 className="inline-flex items-center rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
               >
-                Evidence View
+                Verify
               </Link>
             ) : (
               <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-400">
-                Evidence View
+                Verify
               </span>
             )}
             <Link
@@ -1374,6 +1410,7 @@ export default function MethodDetailPane({
           methodCode={method.code}
           version={activeVersion ?? ""}
           provenanceJson={provenanceJson}
+          viewMode="map"
           aoi={effectiveAoi}
           currentAoi={currentAoi}
           draftAoi={draftAoi}
@@ -1442,7 +1479,7 @@ export default function MethodDetailPane({
                       href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(version)}/evidence`}
                       className="text-xs font-semibold text-slate-600 hover:text-slate-900"
                     >
-                      Evidence
+                      Verify
                     </Link>
                   </div>
                 </li>

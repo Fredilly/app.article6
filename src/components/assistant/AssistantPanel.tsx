@@ -452,11 +452,11 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                 className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                 onClick={() => setTabParam("map")}
               >
-                Open Map tab
+                Open Verify tab
               </button>
             </div>
             <div className="mt-2 text-xs text-slate-500">
-              Map workflow: upload an AOI, then search STAC evidence and export an Evidence Snapshot.
+              Verify workflow: upload an AOI, then search STAC evidence and export an Evidence Snapshot.
             </div>
             <ul className="mt-2 list-disc pl-5 text-xs text-slate-600">
               {answer.next_actions.length ? (

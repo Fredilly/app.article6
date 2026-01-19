@@ -24,6 +24,7 @@ type ProofMapTabProps = {
   version: string;
   provenanceJson?: unknown | null;
   mode?: "explorer" | "evidence";
+  viewMode?: "list" | "map";
   aoi: AOI | null;
   currentAoi: AOI | null;
   draftAoi: AOI | null;
@@ -180,6 +181,7 @@ export default function ProofMapTab({
   version,
   provenanceJson,
   mode = "explorer",
+  viewMode = "map",
   aoi,
   currentAoi,
   draftAoi,
@@ -203,6 +205,7 @@ export default function ProofMapTab({
   onEvidenceSelectionChange,
 }: ProofMapTabProps) {
   const isEvidenceMode = mode === "evidence";
+  const isListMode = viewMode === "list";
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [undoVisible, setUndoVisible] = useState(false);
@@ -269,6 +272,15 @@ export default function ProofMapTab({
     setLastSelectionSource(null);
     setStacInspectOpen(false);
   }, [selectedStacItemId]);
+
+  useEffect(() => {
+    if (isListMode) return;
+    try {
+      mapRef.current?.resize?.();
+    } catch {
+      // ignore
+    }
+  }, [isListMode]);
 
   const isPreview = Boolean(draftAoi);
   const { willClearWork } = useMemo(
@@ -803,30 +815,32 @@ export default function ProofMapTab({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-      <MapCanvas
-        aoi={aoi}
-        pins={evidencePins}
-        stacEvidence={currentStacEvidence?.fc ?? null}
-        stacEvidenceCentroids={stacCentroids}
-        stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
-        stacEvidenceRunId={currentStacEvidence?.runId ?? null}
-        viewStorageKey={viewStorageKey}
-        initialViewportBbox={initialViewportBbox}
-        selectedStacItemId={selectedStacItemId}
-        onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
-        onViewportBboxChange={(bbox) => {
-          setViewportBbox(bbox);
-        }}
-        onMapReady={(map) => {
-          mapRef.current = map;
-          setMapReadyTick((value) => value + 1);
-          setInitialViewportBbox(null);
-        }}
-        onMapDestroyed={() => {
-          mapRef.current = null;
-        }}
-      />
+      <div className={`grid gap-4 ${isListMode ? "" : "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"}`}>
+      <div className={isListMode ? "hidden" : undefined}>
+        <MapCanvas
+          aoi={aoi}
+          pins={evidencePins}
+          stacEvidence={currentStacEvidence?.fc ?? null}
+          stacEvidenceCentroids={stacCentroids}
+          stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
+          stacEvidenceRunId={currentStacEvidence?.runId ?? null}
+          viewStorageKey={viewStorageKey}
+          initialViewportBbox={initialViewportBbox}
+          selectedStacItemId={selectedStacItemId}
+          onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
+          onViewportBboxChange={(bbox) => {
+            setViewportBbox(bbox);
+          }}
+          onMapReady={(map) => {
+            mapRef.current = map;
+            setMapReadyTick((value) => value + 1);
+            setInitialViewportBbox(null);
+          }}
+          onMapDestroyed={() => {
+            mapRef.current = null;
+          }}
+        />
+      </div>
 
       <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
         {undoVisible ? (
@@ -1146,7 +1160,9 @@ export default function ProofMapTab({
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-slate-200 bg-white px-3 py-3 text-xs text-slate-500">
-            No AOI uploaded.
+            {isListMode
+              ? "No evidence loaded yet. Add STAC link or upload AOI to begin."
+              : "No evidence loaded yet. This is the spatial view of evidence—upload an AOI to begin."}
           </div>
         )}
 

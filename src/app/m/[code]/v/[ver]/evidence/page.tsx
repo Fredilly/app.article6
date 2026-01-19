@@ -7,8 +7,8 @@ type PageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Evidence Map | app.article6",
-  description: "Trace-driven evidence map for a method version.",
+  title: "Verify | app.article6",
+  description: "Evidence-first verification surface for a method version.",
 };
 
 export default async function EvidencePage({ params }: PageProps) {
