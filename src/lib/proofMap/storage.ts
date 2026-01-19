@@ -1,7 +1,17 @@
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 
-function aoiKey(code: string, version: string): string {
+const AOI_STORAGE_VERSION = "v2";
+
+function aoiCurrentKey(code: string, version: string): string {
+  return `aoi:${AOI_STORAGE_VERSION}:${code}:${version}:current`;
+}
+
+function aoiDraftKey(code: string, version: string): string {
+  return `aoi:${AOI_STORAGE_VERSION}:${code}:${version}:draft`;
+}
+
+function legacyAoiKey(code: string, version: string): string {
   return `aoi:${code}:${version}`;
 }
 
@@ -20,9 +30,14 @@ function runsKey(code: string, version: string): string {
 export function loadAoi(code: string, version: string): AOI | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(aoiKey(code, version));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as unknown;
+    const currentRaw = window.localStorage.getItem(aoiCurrentKey(code, version));
+    if (currentRaw) {
+      const parsed = JSON.parse(currentRaw) as unknown;
+      return parsed && typeof parsed === "object" ? (parsed as AOI) : null;
+    }
+    const legacyRaw = window.localStorage.getItem(legacyAoiKey(code, version));
+    if (!legacyRaw) return null;
+    const parsed = JSON.parse(legacyRaw) as unknown;
     return parsed && typeof parsed === "object" ? (parsed as AOI) : null;
   } catch {
     return null;
@@ -32,8 +47,34 @@ export function loadAoi(code: string, version: string): AOI | null {
 export function saveAoi(code: string, version: string, aoi: AOI | null) {
   if (typeof window === "undefined") return;
   try {
-    if (!aoi) window.localStorage.removeItem(aoiKey(code, version));
-    else window.localStorage.setItem(aoiKey(code, version), JSON.stringify(aoi));
+    if (!aoi) {
+      window.localStorage.removeItem(aoiCurrentKey(code, version));
+    } else {
+      window.localStorage.setItem(aoiCurrentKey(code, version), JSON.stringify(aoi));
+    }
+    window.localStorage.removeItem(legacyAoiKey(code, version));
+  } catch {
+    // ignore
+  }
+}
+
+export function loadDraftAoi(code: string, version: string): AOI | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(aoiDraftKey(code, version));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    return parsed && typeof parsed === "object" ? (parsed as AOI) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveDraftAoi(code: string, version: string, aoi: AOI | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!aoi) window.localStorage.removeItem(aoiDraftKey(code, version));
+    else window.localStorage.setItem(aoiDraftKey(code, version), JSON.stringify(aoi));
   } catch {
     // ignore
   }
@@ -107,7 +148,9 @@ export function saveVerificationRuns(code: string, version: string, runs: Verifi
 export function clearProofMapStorage(code: string, version: string) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.removeItem(aoiKey(code, version));
+    window.localStorage.removeItem(aoiCurrentKey(code, version));
+    window.localStorage.removeItem(aoiDraftKey(code, version));
+    window.localStorage.removeItem(legacyAoiKey(code, version));
     window.localStorage.removeItem(pinsKey(code, version));
     window.localStorage.removeItem(snapshotsKey(code, version));
     window.localStorage.removeItem(runsKey(code, version));

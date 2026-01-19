@@ -289,12 +289,12 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                 }
                 lastPinFingerprintRef.current = { fp, atMs: Date.now() };
                 props.onAddEvidencePin?.(pin);
-                showToast("Added to map");
+                showToast("Pins added");
               }}
               disabled={!currentEvidenceIds.length}
               title={!currentEvidenceIds.length ? "No evidence to add." : undefined}
             >
-              Add to map
+              Add pins
             </button>
             <button
               type="button"
@@ -358,6 +358,9 @@ export default function AssistantPanel(props: AssistantPanelProps) {
               Export ZIP
             </button>
           </div>
+        </div>
+        <div className="mt-2 text-[11px] text-slate-500">
+          Adds pins from cited ids. Does not change AOI.
         </div>
 
         <div className="mt-3">
