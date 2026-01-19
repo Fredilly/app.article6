@@ -1,5 +1,7 @@
 # Assurance Surface MVP Roadmap
 
+Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.json`; docs must not drift.
+
 ## Goals (Definition of Done)
 
 - Deterministic scoped exports: same inputs => byte-identical rule packs.

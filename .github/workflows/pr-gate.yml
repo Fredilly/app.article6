@@ -38,3 +38,6 @@ jobs:
 
       - name: Roadmap status gate
         run: npm run roadmap:check
+
+      - name: Status drift check
+        run: npm run status:check
