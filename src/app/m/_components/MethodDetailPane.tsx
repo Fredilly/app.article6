@@ -1321,11 +1321,11 @@ export default function MethodDetailPane({
                 href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/evidence`}
                 className="inline-flex items-center rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
               >
-                Evidence Map
+                Evidence View
               </Link>
             ) : (
               <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-400">
-                Evidence Map
+                Evidence View
               </span>
             )}
             <Link
@@ -1422,20 +1422,30 @@ export default function MethodDetailPane({
               const count = method.ruleCountByVersion[version];
               return (
                 <li key={version}>
-                  <Link
-                    href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(version)}`}
-                    className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
+                  <div
+                    className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2 transition-colors ${
                       selected
                         ? "border-slate-300 bg-slate-50"
                         : "border-slate-200 bg-white hover:bg-slate-50"
                     }`}
-                    aria-current={selected ? "page" : undefined}
                   >
-                    <span className="font-mono text-sm text-slate-900">{version}</span>
-                    <span className="text-xs text-slate-500">
-                      rules: {typeof count === "number" ? count : "—"}
-                    </span>
-                  </Link>
+                    <Link
+                      href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(version)}`}
+                      className="flex min-w-0 flex-1 items-center justify-between gap-3"
+                      aria-current={selected ? "page" : undefined}
+                    >
+                      <span className="font-mono text-sm text-slate-900">{version}</span>
+                      <span className="text-xs text-slate-500">
+                        rules: {typeof count === "number" ? count : "—"}
+                      </span>
+                    </Link>
+                    <Link
+                      href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(version)}/evidence`}
+                      className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+                    >
+                      Evidence
+                    </Link>
+                  </div>
                 </li>
               );
             })}

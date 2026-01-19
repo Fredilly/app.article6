@@ -22,6 +22,7 @@ type ProofMapTabProps = {
   methodCode: string;
   version: string;
   provenanceJson?: unknown | null;
+  mode?: "explorer" | "evidence";
   aoi: AOI | null;
   currentAoi: AOI | null;
   draftAoi: AOI | null;
@@ -177,6 +178,7 @@ export default function ProofMapTab({
   methodCode,
   version,
   provenanceJson,
+  mode = "explorer",
   aoi,
   currentAoi,
   draftAoi,
@@ -199,6 +201,7 @@ export default function ProofMapTab({
   onNavigateEvidence,
   onEvidenceSelectionChange,
 }: ProofMapTabProps) {
+  const isEvidenceMode = mode === "evidence";
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [undoVisible, setUndoVisible] = useState(false);
@@ -727,6 +730,9 @@ export default function ProofMapTab({
                     ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
                     : null;
 
+                const linkedRules = selectedItem
+                  ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
+                  : [];
                 const minimalItem = selectedItem
                   ? {
                       id: selectedStacItemId ?? undefined,
@@ -738,8 +744,10 @@ export default function ProofMapTab({
                             : undefined,
                       bbox: selectedItem.bbox,
                       geometry: selectedItem.geometry,
+                      linked_rules: linkedRules,
                     }
                   : undefined;
+                const snapshotItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
 
                 const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
                 const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
@@ -765,6 +773,7 @@ export default function ProofMapTab({
                     ids: selectedIds,
                     item: minimalItem ?? undefined,
                   },
+                  items: snapshotItems,
                   app: {
                     commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
                     env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
@@ -1122,168 +1131,170 @@ export default function ProofMapTab({
           </div>
         )}
 
-        <div>
-          <div className="text-xs font-semibold text-slate-700">Evidence pins</div>
-          <div className="mt-2 grid gap-2">
-            {evidencePins.length ? (
-              evidencePins.map((pin) => (
-                <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
-                        {!aoi ? (
-                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                            Unbound (no AOI)
-                          </span>
-                        ) : null}
+        {isEvidenceMode ? null : (
+          <div>
+            <div className="text-xs font-semibold text-slate-700">Evidence pins</div>
+            <div className="mt-2 grid gap-2">
+              {evidencePins.length ? (
+                evidencePins.map((pin) => (
+                  <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
+                          {!aoi ? (
+                            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                              Unbound (no AOI)
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{formatLocalDateTime(pin.created_at)}</div>
                       </div>
-                      <div className="mt-1 text-xs text-slate-500">{formatLocalDateTime(pin.created_at)}</div>
-                    </div>
-                    <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-                      Attach file
-                      <input
-                        type="file"
-                        accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
-                        className="hidden"
-                        onChange={async (event) => {
-                          const file = event.target.files?.[0];
-                          event.target.value = "";
-                          if (!file) return;
-                          setError(null);
-                          try {
-                            const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
-                            if (!result.ok) {
-                              setError(result.message);
-                              return;
+                      <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                        Attach file
+                        <input
+                          type="file"
+                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
+                          className="hidden"
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            event.target.value = "";
+                            if (!file) return;
+                            setError(null);
+                            try {
+                              const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
+                              if (!result.ok) {
+                                setError(result.message);
+                                return;
+                              }
+                              onSetEvidencePins(
+                                evidencePins.map((existing) =>
+                                  existing.id === pin.id
+                                    ? {
+                                        ...existing,
+                                        attachments: [...(existing.attachments ?? []), result.attachment],
+                                      }
+                                    : existing,
+                                ),
+                              );
+                              showToast("Attachment saved");
+                            } catch (e) {
+                              setError(e instanceof Error ? e.message : String(e));
                             }
-                            onSetEvidencePins(
-                              evidencePins.map((existing) =>
-                                existing.id === pin.id
-                                  ? {
-                                      ...existing,
-                                      attachments: [...(existing.attachments ?? []), result.attachment],
-                                    }
-                                  : existing,
-                              ),
-                            );
-                            showToast("Attachment saved");
-                          } catch (e) {
-                            setError(e instanceof Error ? e.message : String(e));
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                  {currentStacEvidence?.runId && selectedStacItemId ? (
-                    <button
-                      type="button"
-                      className="mt-2 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                      onClick={() => {
-                        const existing = new Set(pin.stac_item_ids ?? []);
-                        existing.add(selectedStacItemId);
-                        onSetEvidencePins(
-                          evidencePins.map((item) =>
-                            item.id === pin.id
-                              ? {
-                                  ...item,
-                                  stac_item_ids: Array.from(existing),
-                                  stac_run_id: item.stac_run_id ?? currentStacEvidence.runId,
-                                }
-                              : item,
-                          ),
-                        );
-                        showToast("STAC item attached");
-                      }}
-                    >
-                      Attach selected STAC item
-                    </button>
-                  ) : null}
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {(pin.cited_ids ?? []).map((id) => {
-                      const type = kindFromCitedId(id);
-                      return (
-                        <button
-                          key={`${pin.id}:${id}`}
-                          type="button"
-                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                          onClick={async () => {
-                            if (!type) return void showToast("Unsupported id");
-                            const ok = await onNavigateEvidence(type, id);
-                            if (ok) return;
-                            const matchSnapshot = (evidenceSnapshots ?? []).find((item) => item.id === id);
-                            if (matchSnapshot) setSnapshot(matchSnapshot);
-                            else showToast("Evidence not found");
                           }}
-                        >
-                          {id}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {(pin.stac_item_ids ?? []).length ? (
-                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        STAC items
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {(pin.stac_item_ids ?? []).map((id) => (
+                        />
+                      </label>
+                    </div>
+                    {currentStacEvidence?.runId && selectedStacItemId ? (
+                      <button
+                        type="button"
+                        className="mt-2 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={() => {
+                          const existing = new Set(pin.stac_item_ids ?? []);
+                          existing.add(selectedStacItemId);
+                          onSetEvidencePins(
+                            evidencePins.map((item) =>
+                              item.id === pin.id
+                                ? {
+                                    ...item,
+                                    stac_item_ids: Array.from(existing),
+                                    stac_run_id: item.stac_run_id ?? currentStacEvidence.runId,
+                                  }
+                                : item,
+                            ),
+                          );
+                          showToast("STAC item attached");
+                        }}
+                      >
+                        Attach selected STAC item
+                      </button>
+                    ) : null}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(pin.cited_ids ?? []).map((id) => {
+                        const type = kindFromCitedId(id);
+                        return (
                           <button
-                            key={id}
+                            key={`${pin.id}:${id}`}
                             type="button"
-                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                            onClick={() => onSelectStacItemId(id)}
+                            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                            onClick={async () => {
+                              if (!type) return void showToast("Unsupported id");
+                              const ok = await onNavigateEvidence(type, id);
+                              if (ok) return;
+                              const matchSnapshot = (evidenceSnapshots ?? []).find((item) => item.id === id);
+                              if (matchSnapshot) setSnapshot(matchSnapshot);
+                              else showToast("Evidence not found");
+                            }}
                           >
                             {id}
                           </button>
-                        ))}
-                      </div>
-                      {pin.stac_run_id ? (
-                        <div className="mt-1 font-mono text-[11px] text-slate-500">run: {pin.stac_run_id}</div>
-                      ) : null}
+                        );
+                      })}
                     </div>
-                  ) : null}
-                  {(pin.attachments ?? []).length ? (
-                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        Attachments
-                      </div>
-                      <div className="grid gap-1">
-                        {(pin.attachments ?? []).map((att) => (
-                          <div key={att.id} className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <div className="truncate text-xs font-semibold text-slate-800">
-                                {att.filename} <span className="font-normal text-slate-500">({formatBytes(att.size)})</span>
-                              </div>
-                              <div className="font-mono text-[11px] text-slate-600">{shortSha(att.sha256)}</div>
-                            </div>
+                    {(pin.stac_item_ids ?? []).length ? (
+                      <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          STAC items
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {(pin.stac_item_ids ?? []).map((id) => (
                             <button
+                              key={id}
                               type="button"
-                              className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={async () => {
-                                setError(null);
-                                try {
-                                  await deleteAttachmentBytes(att.id);
-                                } catch {
-                                  // ignore (metadata removal still matters)
-                                }
-                                onSetEvidencePins(
-                                  evidencePins.map((existing) =>
-                                    existing.id === pin.id
-                                      ? {
-                                          ...existing,
-                                          attachments: (existing.attachments ?? []).filter((item) => item.id !== att.id),
-                                        }
-                                      : existing,
-                                  ),
-                                );
-                                showToast("Attachment removed");
-                              }}
+                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={() => onSelectStacItemId(id)}
                             >
-                              Remove
+                              {id}
                             </button>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                        {pin.stac_run_id ? (
+                          <div className="mt-1 font-mono text-[11px] text-slate-500">run: {pin.stac_run_id}</div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {(pin.attachments ?? []).length ? (
+                      <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          Attachments
+                        </div>
+                        <div className="grid gap-1">
+                          {(pin.attachments ?? []).map((att) => (
+                            <div key={att.id} className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="truncate text-xs font-semibold text-slate-800">
+                                  {att.filename} <span className="font-normal text-slate-500">({formatBytes(att.size)})</span>
+                                </div>
+                                <div className="font-mono text-[11px] text-slate-600">{shortSha(att.sha256)}</div>
+                              </div>
+                              <button
+                                type="button"
+                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                onClick={async () => {
+                                  setError(null);
+                                  try {
+                                    await deleteAttachmentBytes(att.id);
+                                  } catch {
+                                    // ignore (metadata removal still matters)
+                                  }
+                                  onSetEvidencePins(
+                                    evidencePins.map((existing) =>
+                                      existing.id === pin.id
+                                        ? {
+                                            ...existing,
+                                            attachments: (existing.attachments ?? []).filter((item) => item.id !== att.id),
+                                          }
+                                        : existing,
+                                    ),
+                                  );
+                                  showToast("Attachment removed");
+                                }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ) : null}
                   </div>
@@ -1293,7 +1304,7 @@ export default function ProofMapTab({
               )}
             </div>
           </div>
-        </div>
+        )}
 
         <div>
           <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
@@ -1459,11 +1470,11 @@ export default function ProofMapTab({
                         <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
                       </div>
                     ) : null}
-                    {selectedStacDetails.ruleIds.length || selectedStacDetails.sectionIds.length ? (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          Linked to
-                        </div>
+                    <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        Linked rules
+                      </div>
+                      {selectedStacDetails.ruleIds.length ? (
                         <div className="mt-2 flex flex-wrap gap-2">
                           {selectedStacDetails.ruleIds.map((id) => (
                             <button
@@ -1479,25 +1490,36 @@ export default function ProofMapTab({
                               <span className="font-mono">{id}</span>
                             </button>
                           ))}
-                          {selectedStacDetails.sectionIds.map((id) => (
-                            <button
-                              key={id}
-                              type="button"
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={async () => {
-                                const ok = await onNavigateEvidence("section", id);
-                                if (!ok) showToast("Section not found");
-                              }}
-                              title={`Open section ${id}`}
-                            >
-                              <span className="font-mono">{id}</span>
-                            </button>
-                          ))}
                         </div>
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-slate-500">Linked to: none</div>
-                    )}
+                      ) : (
+                        <span className="mt-2 inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                          Unlinked
+                        </span>
+                      )}
+                      {selectedStacDetails.sectionIds.length ? (
+                        <div className="mt-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            Linked sections
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {selectedStacDetails.sectionIds.map((id) => (
+                              <button
+                                key={id}
+                                type="button"
+                                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                onClick={async () => {
+                                  const ok = await onNavigateEvidence("section", id);
+                                  if (!ok) showToast("Section not found");
+                                }}
+                                title={`Open section ${id}`}
+                              >
+                                <span className="font-mono">{id}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
                     {selectedStacDetails.assetRows.length ? (
                       <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>

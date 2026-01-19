@@ -23,6 +23,13 @@ async function startServer() {
 async function run() {
   const { app, server, port } = await startServer();
   try {
+    const methodRes = await fetch(`http://localhost:${port}/m/AR-ACM0003/v/v02-0`);
+    if (!methodRes.ok) throw new Error(`Expected 200 but got ${methodRes.status} for method page`);
+    const methodHtml = await methodRes.text();
+    if (!methodHtml.includes("Evidence View")) {
+      throw new Error("Smoke test failed: expected Evidence View control on method page.");
+    }
+
     const urls = [
       `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence`,
       `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence?tab=map`,
@@ -31,9 +38,11 @@ async function run() {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Expected 200 but got ${res.status}`);
       const html = await res.text();
-      const marker = html.includes("AOI + Evidence") || html.includes("Upload AOI");
-      if (!marker) {
-        throw new Error("Smoke test failed: expected Map surface marker in /evidence response.");
+      if (!html.includes("Upload AOI") || !html.includes("Search STAC evidence")) {
+        throw new Error("Smoke test failed: expected AOI upload and STAC search controls.");
+      }
+      if (html.includes("Use fixture") || html.includes("Evidence pins")) {
+        throw new Error("Smoke test failed: dev controls should be hidden on /evidence.");
       }
     }
     const canonicalPath = canonicalEvidencePath(
