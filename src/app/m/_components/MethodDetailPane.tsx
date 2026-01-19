@@ -1387,7 +1387,6 @@ export default function MethodDetailPane({
           onApplyDraftAoi={handleApplyDraftAoi}
           onCancelDraftAoi={handleCancelDraftAoi}
           onUndoApplyAoi={handleUndoApply}
-          hasWorkspaceState={hasWorkspaceState}
           applyToken={applyToken}
           onStartOver={startOverProofMap}
           onSetEvidencePins={setEvidencePinsAndPersist}
