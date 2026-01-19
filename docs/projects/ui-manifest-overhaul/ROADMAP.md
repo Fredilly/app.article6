@@ -1,3 +1,6 @@
+> ⚠️ **DEPRECATED**: This roadmap is not canonical.  
+> Go to: `docs/projects/ROADMAP.md`
+
 # Roadmap
 
 ## M0 — Baseline + scope lock (0.5 day)

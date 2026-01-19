@@ -1,3 +1,6 @@
+> ⚠️ **DEPRECATED**: This roadmap index is not canonical.  
+> Go to: `docs/projects/ROADMAP.md`
+
 # Roadmaps
 
 Each roadmap lives at `docs/roadmaps/<slug>/` and must include:

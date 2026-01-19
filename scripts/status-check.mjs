@@ -62,6 +62,26 @@ if (!fs.existsSync(ssotRoot)) {
 const ssotFiles = listFiles(ssotRoot, (file) => file.endsWith("phase-status.json"));
 const errors = [];
 
+const docsRoot = "docs";
+if (fs.existsSync(docsRoot)) {
+  const mdFiles = listFiles(docsRoot, (file) => file.toLowerCase().endsWith(".md"));
+  const canonicalHits = [];
+  for (const mdPath of mdFiles) {
+    const contents = fs.readFileSync(mdPath, "utf8");
+    if (contents.toLowerCase().includes("canonical roadmap")) {
+      canonicalHits.push(mdPath);
+    }
+  }
+  if (canonicalHits.length !== 1) {
+    errors.push(
+      `status:check: expected exactly 1 canonical roadmap marker, found ${canonicalHits.length}`,
+    );
+    for (const hit of canonicalHits) {
+      errors.push(`status:check: canonical roadmap marker: ${hit}`);
+    }
+  }
+}
+
 for (const ssotPath of ssotFiles) {
   const slug = path.basename(path.dirname(ssotPath));
   const ssot = readJson(ssotPath);
