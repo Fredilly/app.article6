@@ -1,11 +1,8 @@
-> ⚠️ **DEPRECATED**: This roadmap index is not canonical.  
-> Go to: `docs/projects/ROADMAP.md`
-
 # Roadmaps
 
 Each roadmap lives at `docs/roadmaps/<slug>/` and must include:
 
-- `ROADMAP.md`
+- `PLAN.md`
 - `phase-status.json`
 
 If a PR is part of a roadmap, include the roadmap metadata in the PR title or body:

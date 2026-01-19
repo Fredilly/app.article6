@@ -1,6 +1,3 @@
-> ⚠️ **DEPRECATED**: This roadmap is not canonical.  
-> Go to: `docs/projects/ROADMAP.md`
-
 # New Roadmap: Phase — Data Integrity + Exports (Sellable Core)
 
 ## Goals (Definition of Done)

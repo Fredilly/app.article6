@@ -18,4 +18,4 @@ Ship an investor-ready, minimalist UI that makes methodology evidence easy to br
 5) Export Audit Pack / Verification Snapshot.
 
 ## Milestones
-See ROADMAP.md.
+See PLAN.md.

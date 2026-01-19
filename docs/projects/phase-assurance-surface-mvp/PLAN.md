@@ -1,6 +1,3 @@
-> ⚠️ **DEPRECATED**: This roadmap is not canonical.  
-> Go to: `docs/projects/ROADMAP.md`
-
 # Assurance Surface MVP Roadmap
 
 Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.json`; docs must not drift.

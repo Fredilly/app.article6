@@ -63,22 +63,20 @@ const ssotFiles = listFiles(ssotRoot, (file) => file.endsWith("phase-status.json
 const errors = [];
 
 const docsRoot = "docs";
+const canonicalRoadmapPath = path.join(docsRoot, "projects", "ROADMAP.md");
 if (fs.existsSync(docsRoot)) {
-  const mdFiles = listFiles(docsRoot, (file) => file.toLowerCase().endsWith(".md"));
-  const canonicalHits = [];
-  for (const mdPath of mdFiles) {
-    const contents = fs.readFileSync(mdPath, "utf8");
-    if (contents.toLowerCase().includes("canonical roadmap")) {
-      canonicalHits.push(mdPath);
-    }
-  }
-  if (canonicalHits.length !== 1) {
+  const roadmapFiles = listFiles(docsRoot, (file) => path.basename(file).toLowerCase() === "roadmap.md");
+  if (roadmapFiles.length !== 1) {
     errors.push(
-      `status:check: expected exactly 1 canonical roadmap marker, found ${canonicalHits.length}`,
+      `status:check: expected exactly 1 ROADMAP.md in docs, found ${roadmapFiles.length}`,
     );
-    for (const hit of canonicalHits) {
-      errors.push(`status:check: canonical roadmap marker: ${hit}`);
+    for (const hit of roadmapFiles) {
+      errors.push(`status:check: ROADMAP.md: ${hit}`);
     }
+  } else if (path.normalize(roadmapFiles[0]) !== path.normalize(canonicalRoadmapPath)) {
+    errors.push(
+      `status:check: canonical ROADMAP.md must be ${canonicalRoadmapPath} (found ${roadmapFiles[0]})`,
+    );
   }
 }
 
@@ -108,31 +106,24 @@ for (const ssotPath of ssotFiles) {
     }
   }
 
-  const docRoot = path.join("docs", "projects", slug);
-  if (!fs.existsSync(docRoot)) continue;
-  const mdFiles = listFiles(
-    docRoot,
-    (file) => /ROADMAP.*\.md$/i.test(file) || /CHECKLIST.*\.md$/i.test(file),
-  );
-  for (const mdPath of mdFiles) {
-    const lines = fs.readFileSync(mdPath, "utf8").split("\n");
-    lines.forEach((line, idx) => {
-      const match = line.match(/\bPR\d+\b/gi);
-      if (!match) return;
-      const statusClaim = collectStatusClaims(line);
-      if (!statusClaim) return;
-      for (const rawId of match) {
-        const id = rawId.toUpperCase();
-        const expected = prStatuses[id];
-        if (!expected) continue;
-        if (expected !== statusClaim) {
-          errors.push(
-            `status:check: ${mdPath}:${idx + 1} ${id}=${statusClaim} disagrees with SSOT ${ssotPath}=${expected}`,
-          );
-        }
+  if (!fs.existsSync(canonicalRoadmapPath)) continue;
+  const lines = fs.readFileSync(canonicalRoadmapPath, "utf8").split("\n");
+  lines.forEach((line, idx) => {
+    const match = line.match(/\bPR\d+\b/gi);
+    if (!match) return;
+    const statusClaim = collectStatusClaims(line);
+    if (!statusClaim) return;
+    for (const rawId of match) {
+      const id = rawId.toUpperCase();
+      const expected = prStatuses[id];
+      if (!expected) continue;
+      if (expected !== statusClaim) {
+        errors.push(
+          `status:check: ${canonicalRoadmapPath}:${idx + 1} ${id}=${statusClaim} disagrees with SSOT ${ssotPath}=${expected}`,
+        );
       }
-    });
-  }
+    }
+  });
 }
 
 if (errors.length) die(errors);
