@@ -4,13 +4,13 @@
     {
       "id": "PR12",
       "title": "Evidence Map MVP (trace-driven)",
-      "status": "in-progress",
+      "status": "done",
       "branch": "feat/pr12-evidence-map-mvp"
     },
     {
       "id": "PR13",
       "title": "Grounded Method Assistant (guided prompts only)",
-      "status": "planned"
+      "status": "in-progress"
     },
     {
       "id": "PR14",
