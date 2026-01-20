@@ -69,6 +69,8 @@ Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.j
 - Manifest hashes validate every file; tampering fails verification.
 - Review log is append-only; review_state derived from log.
 - Pack includes enough trace context to review the rule, or flags missing data explicitly.
+- Integrity semantics: zip_sha256 + manifest.json + no extras.
+- verify-audit-pack is the gate.
 
 ### Visible UI changes to look for
 - Rule view download button.

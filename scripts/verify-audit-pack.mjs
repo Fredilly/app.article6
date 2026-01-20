@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
+import fs from "node:fs";
+import JSZip from "jszip";
 import artifacts from "../src/integrity/artifacts.js";
 
-const { canonicalStringify, sha256Hex } = artifacts;
+const { sha256Hex } = artifacts;
 
 const zip = process.argv[2] || "/tmp/audit-pack.zip";
 
@@ -77,24 +79,16 @@ try {
   let fail = 0;
   for (const f of manifest.files) {
     const p = f.path;
-    const isJson = p.toLowerCase().endsWith(".json");
-
-    let bytes;
-    if (isJson) {
-      const raw = zipReadText(zip, p);
-      const parsed = JSON.parse(raw);
-      if (p === "trace.json") {
-        try {
-          assertTraceShape(parsed);
-        } catch (error) {
-          console.error(`❌ INVALID TRACE ${p}\n  ${error?.message || error}`);
-          fail++;
-          continue;
-        }
+    const bytes = Buffer.from(zipReadBuf(zip, p));
+    if (p === "trace.json") {
+      try {
+        const parsed = JSON.parse(bytes.toString("utf8"));
+        assertTraceShape(parsed);
+      } catch (error) {
+        console.error(`❌ INVALID TRACE ${p}\n  ${error?.message || error}`);
+        fail++;
+        continue;
       }
-      bytes = Buffer.from(canonicalStringify(parsed), "utf8");
-    } else {
-      bytes = Buffer.from(zipReadBuf(zip, p));
     }
 
     const h = sha256Hex(bytes);
@@ -112,6 +106,48 @@ try {
   }
 
   console.log(`✅ PASS ok=${ok} fail=${fail} (strict inventory + sha256)`);
+
+  if (zipSet.has("bundle.json")) {
+    const bundleRaw = zipReadText(zip, "bundle.json");
+    const bundle = JSON.parse(bundleRaw);
+    const integrity = bundle?.integrity || {};
+    if (integrity.manifest_sha256) {
+      const manifestBytes = Buffer.from(zipReadBuf(zip, "manifest.json"));
+      const manifestSha = sha256Hex(manifestBytes);
+      if (manifestSha !== integrity.manifest_sha256) {
+        die(`❌ manifest_sha256 mismatch (expected ${integrity.manifest_sha256}, got ${manifestSha})`);
+      }
+    }
+    if (integrity.runs_sha256) {
+      const runsBytes = Buffer.from(zipReadBuf(zip, "runs.json"));
+      const runsSha = sha256Hex(runsBytes);
+      if (runsSha !== integrity.runs_sha256) {
+        die(`❌ runs_sha256 mismatch (expected ${integrity.runs_sha256}, got ${runsSha})`);
+      }
+    }
+    if (integrity.zip_sha256) {
+      const zipBytes = fs.readFileSync(zip);
+      const jszip = await JSZip.loadAsync(zipBytes);
+      const payloadEntries = Object.keys(jszip.files)
+        .filter((p) => !jszip.files[p].dir)
+        .filter((p) => p !== "bundle.json" && p !== "manifest.json")
+        .sort();
+      const payloadZip = new JSZip();
+      for (const p of payloadEntries) {
+        const bytes = await jszip.file(p).async("uint8array");
+        payloadZip.file(p, bytes, { date: new Date("1980-01-01T00:00:00.000Z") });
+      }
+      const payloadZipBytes = await payloadZip.generateAsync({
+        type: "uint8array",
+        compression: "DEFLATE",
+        compressionOptions: { level: 6 },
+      });
+      const payloadSha = sha256Hex(Buffer.from(payloadZipBytes));
+      if (payloadSha !== integrity.zip_sha256) {
+        die(`❌ zip_sha256 mismatch (expected ${integrity.zip_sha256}, got ${payloadSha})`);
+      }
+    }
+  }
 } catch (e) {
   console.error("❌ verify-audit-pack failed:", e?.message || e);
   process.exit(1);

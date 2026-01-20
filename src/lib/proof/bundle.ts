@@ -31,7 +31,15 @@ export type ProofBundleV1 = {
   evidence_pins?: EvidencePin[];
   evidence_attachments?: EvidenceAttachment[];
   evidence_items?: ProofEvidenceItem[];
-  integrity: { sha256: string; attachments?: Array<{ id: string; sha256: string }>; runs_sha256?: string };
+  integrity: {
+    bundle_sha256?: string;
+    zip_sha256?: string;
+    runs_sha256?: string;
+    manifest_sha256?: string;
+    sha256?: string;
+    sha256_meaning?: "bundle_sha256" | "zip_sha256";
+    attachments?: Array<{ id: string; sha256: string }>;
+  };
 };
 
 export type ProofBundleIntegrityCheck =
@@ -125,7 +133,13 @@ function canonicalizeValue(value: unknown): unknown {
 export function canonicalizeProofBundleForHash(bundle: Omit<ProofBundleV1, "integrity"> & { integrity?: unknown }): string {
   const withoutSha: Record<string, unknown> = { ...(bundle as Record<string, unknown>) };
   const rawIntegrity = (withoutSha.integrity ?? {}) as Record<string, unknown>;
-  withoutSha.integrity = { ...rawIntegrity, sha256: "" };
+  withoutSha.integrity = {
+    ...rawIntegrity,
+    bundle_sha256: "",
+    zip_sha256: "",
+    manifest_sha256: "",
+    sha256: "",
+  };
   return JSON.stringify(canonicalizeValue(withoutSha));
 }
 
@@ -140,13 +154,15 @@ export function isProofBundleV1(value: unknown): value is ProofBundleV1 {
   if (!record.method || typeof record.method !== "object") return false;
   if (!record.integrity || typeof record.integrity !== "object") return false;
   const integrity = record.integrity as Record<string, unknown>;
-  return typeof integrity.sha256 === "string" && integrity.sha256.length >= 16;
+  const bundleSha = typeof integrity.bundle_sha256 === "string" && integrity.bundle_sha256.length >= 16;
+  const legacySha = typeof integrity.sha256 === "string" && integrity.sha256.length >= 16;
+  return bundleSha || legacySha;
 }
 
 export async function verifyProofBundleIntegrity(bundle: ProofBundleV1): Promise<ProofBundleIntegrityCheck> {
   const canonical = canonicalizeProofBundleForHash(bundle);
   const actual = await sha256Hex(canonical);
-  const expected = bundle.integrity.sha256;
+  const expected = bundle.integrity.bundle_sha256 ?? bundle.integrity.sha256 ?? "";
   if (actual === expected) return { ok: true, expected, actual };
   return { ok: false, expected, actual };
 }
@@ -208,10 +224,13 @@ export async function buildProofBundleV1(input: {
     evidence_pins,
     evidence_attachments,
     evidence_items,
-    integrity: { sha256: "", attachments: integrityAttachments },
+    integrity: { bundle_sha256: "", attachments: integrityAttachments },
   };
 
   const canonical = canonicalizeProofBundleForHash(bundle);
-  bundle.integrity.sha256 = await sha256Hex(canonical);
+  const bundleSha = await sha256Hex(canonical);
+  bundle.integrity.bundle_sha256 = bundleSha;
+  bundle.integrity.sha256 = bundleSha;
+  bundle.integrity.sha256_meaning = "bundle_sha256";
   return bundle;
 }
