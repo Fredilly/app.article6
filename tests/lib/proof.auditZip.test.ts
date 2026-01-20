@@ -194,7 +194,7 @@ describe("audit zip exporter/importer", () => {
 
   test("review log includes entry when note provided", async () => {
     const { buildReviewLog } = await import("@/lib/proof/auditZip");
-    const log = buildReviewLog({
+    const log = await buildReviewLog({
       createdAt: "2026-01-01T00:00:00Z",
       methodCode: "AR-ACM0003",
       version: "v02-0",

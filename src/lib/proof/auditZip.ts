@@ -238,14 +238,14 @@ export function buildRuleEvidenceMap(input: {
   };
 }
 
-export function buildReviewLog(input: {
+export async function buildReviewLog(input: {
   createdAt: string;
   methodCode: string;
   version: string;
   aoiId?: string | null;
   aoiFingerprint?: string | null;
   entry?: { actor?: string; action?: ReviewLogEntry["action"]; note?: string };
-}): ReviewLog {
+}): Promise<ReviewLog> {
   const actor = (input.entry?.actor ?? "").trim() || "unknown";
   const note = (input.entry?.note ?? "").trim();
   const action = input.entry?.action ?? "note";
@@ -259,7 +259,7 @@ export function buildReviewLog(input: {
       note: note || "(no note provided)",
       refs: {},
     };
-    const id = sha256Hex(JSON.stringify(entry));
+    const id = await hashBytes(encodeText(JSON.stringify(entry)));
     entries.push({ id, ...entry });
   }
 
@@ -333,13 +333,13 @@ export async function buildAuditZipBytes(input: {
 
   const reviewLog =
     input.reviewLog ??
-    buildReviewLog({
+    (await buildReviewLog({
       createdAt: input.bundle.exported_at,
       methodCode: input.bundle.method.code,
       version: input.bundle.method.version,
       aoiId: input.bundle.aoi?.id ?? null,
       aoiFingerprint: input.bundle.aoi?.aoi_fingerprint ?? null,
-    });
+    }));
   payloadEntries.push({
     path: "evidence/review_log.json",
     bytes: encodeText(canonicalJsonStringify(reviewLog)),
@@ -456,7 +456,7 @@ export async function exportAuditZipFromStorage(
     stacItemsJson: stac.stac_items_json,
   });
 
-  const reviewLog = buildReviewLog({
+  const reviewLog = await buildReviewLog({
     createdAt: bundle.exported_at,
     methodCode,
     version,
