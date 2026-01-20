@@ -75,6 +75,17 @@ Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.j
 - Integrity semantics: zip_sha256 + manifest.json + no extras.
 - verify-audit-pack is the gate.
 
+### Audit Pack Verification
+- Verification is defined as:
+  - `manifest.json` per-file SHA256 matches file bytes, and
+  - strict inventory: zip contains no files not listed in the manifest
+- `zip_sha256` is optional; the manifest is the authoritative integrity model
+- `generated_at` is intentionally fixed to a constant (epoch) to keep exports deterministic and diff-free
+
+```bash
+npm run verify:audit-pack -- ~/Desktop/audit-pack.zip
+```
+
 ### Visible UI changes to look for
 - Rule view download button.
 - Review status chip + notes list.

@@ -101,6 +101,15 @@ describe("audit zip exporter/importer", () => {
     expect(zip.file("evidence/provenance.txt")).toBeTruthy();
     expect(zip.file("evidence/stac_items.json")).toBeTruthy();
     expect(zip.file("evidence/stac_evidence.geojson")).toBeTruthy();
+    const bundleRaw = await zip.file("bundle.json")?.async("string");
+    const bundleJson = bundleRaw ? JSON.parse(bundleRaw) : null;
+    expect(bundleJson?.provenance?.runtime).toEqual(
+      expect.objectContaining({
+        node: expect.any(String),
+        platform: expect.any(String),
+        arch: expect.any(String),
+      }),
+    );
     const attachmentFiles = Object.keys(zip.files).filter((p) => p.startsWith("attachments/att-1__"));
     expect(attachmentFiles).toHaveLength(1);
   });
