@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
-import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 import { loadManifestEntries } from "@/lib/manifest/cards";
 import packConfig from "../../../../config/methodologies_pack.json";
@@ -52,8 +51,6 @@ export default async function EvidenceView({ selectedCode, selectedVersion }: Ev
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 md:px-8">
-        <VerifyHeader />
-
         {selectedMethod && effectiveVersion ? (
           <MethodDetailPane
             method={{
