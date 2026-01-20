@@ -54,6 +54,15 @@ Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.j
 - Rule view: "Download Evidence Pack" (rule-scoped).
 - Pack includes: META, rules, sections, trace, review_log.jsonl, review_state.json, manifest.json.
 - Review UI: add note, mark reviewed, mark approved.
+- Integrity hardening (no drift):
+  - Add manifest with per-file SHA256.
+  - Enforce "no extra files" in pack (manifest is authoritative).
+  - Define bundle integrity fields explicitly (zip hash vs runs hash) so values match reality.
+  - Add CI/verify step so integrity drift cannot regress.
+- Rule/Section ↔ Evidence bindings in export:
+  - Each evidence item includes linked rule IDs + section anchors + short justification.
+- Append-only review log inside export:
+  - reviewer, timestamp, decision, notes (append-only semantics).
 
 ### Acceptance
 - Export same rule pack twice => byte-identical ZIP (CI gate).
@@ -71,6 +80,10 @@ Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.j
 - Verifier Mode: read-only surfaces for review.
 - Audit Trail tab: diff counts + top changed files + downloadable changes.json.
 - Rule jump/search: fast navigation to rule id.
+- Verifier UI renders rule↔evidence bindings (click evidence → see linked rules/sections).
+- "Jump to rule" and "Jump to section" from verifier surface.
+- Display audit trail + provenance summary (pack hash, app git sha, methodology pack provenance).
+- Verifier proposes next actions (add evidence / open verify / export pack) but stays guided (no freeform).
 
 ### Acceptance
 - Verifier Mode disables write actions.
@@ -82,3 +95,10 @@ Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.j
 - Verifier Mode toggle/link behavior.
 - Audit Trail tab with counts + drilldowns.
 - Rule jump/search UI.
+
+## PR16 - Derived MRV artifacts + hashes (future)
+
+### Scope
+- Include derived outputs (cloud mask/composites, indices, change maps, uncertainty/QC).
+- Hash all derived files and include in manifest.
+- Keep compute deterministic and replayable.

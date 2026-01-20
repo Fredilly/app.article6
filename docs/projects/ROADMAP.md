@@ -22,3 +22,4 @@ Details: `docs/projects/phase-assurance-surface-mvp/PLAN.md`
 2) PR13 — Grounded Method Assistant (guided prompts only): Done
 3) PR14 — Rule-Scoped Evidence Pack + Append-Only Review Log: Planned
 4) PR15 — Verifier Mode + Audit Trail + Rule Jump: Planned
+5) PR16 — Derived MRV artifacts + hashes (future): Planned
