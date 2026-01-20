@@ -1446,7 +1446,6 @@ export default function MethodDetailPane({
           provenanceJson={provenanceJson}
           aoi={effectiveAoi}
           evidencePins={evidencePins}
-          onAddEvidencePin={(pin) => setEvidencePinsAndPersist([pin, ...evidencePins])}
           onNavigateEvidence={(type, id) => {
             if (type === "rule") return void navigateToRule(id);
             if (type === "section") return void navigateToSection(id);

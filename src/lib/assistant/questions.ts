@@ -1,12 +1,10 @@
 export type AssistantInputKey = "rules" | "sections" | "rich" | "meta";
 
 export type AssistantQuestionId =
-  | "purpose_claims"
-  | "eligibility_constraints"
-  | "required_data"
-  | "calculation_steps"
-  | "monitoring_reporting"
-  | "changes_vs_previous";
+  | "important_rules"
+  | "evidence_first"
+  | "where_defined"
+  | "export_pack";
 
 export type AssistantQuestion = {
   id: AssistantQuestionId;
@@ -17,43 +15,27 @@ export type AssistantQuestion = {
 
 export const ASSISTANT_QUESTIONS: AssistantQuestion[] = [
   {
-    id: "purpose_claims",
-    label: "Explain this method in plain English",
-    promptTemplate: "Explain this methodology in plain English without adding facts not present in the evidence.",
+    id: "important_rules",
+    label: "Show the most important rules to verify",
+    promptTemplate: "Highlight the highest priority rules and where they are defined.",
     requiredInputs: ["sections", "rules"],
   },
   {
-    id: "eligibility_constraints",
-    label: "What would an auditor check?",
-    promptTemplate:
-      "List what an auditor would check, using only requirements and definitions found in the evidence.",
+    id: "evidence_first",
+    label: "What evidence should I gather first?",
+    promptTemplate: "List the evidence to gather first and cite the defining rules/sections.",
     requiredInputs: ["sections", "rules"],
   },
   {
-    id: "required_data",
-    label: "What evidence do I need for this method?",
-    promptTemplate:
-      "List the evidence and inputs required to apply this methodology, grounded in the evidence text (no guesses).",
-    requiredInputs: ["sections"],
-  },
-  {
-    id: "calculation_steps",
-    label: "Show the most important rules to validate first",
-    promptTemplate:
-      "Identify the most important requirements to validate first, and where they are defined in the evidence.",
+    id: "where_defined",
+    label: "Where in the document is this defined?",
+    promptTemplate: "Locate the defining sections for a category and cite supporting rules.",
     requiredInputs: ["sections", "rules"],
   },
   {
-    id: "monitoring_reporting",
-    label: "Which sections define monitoring requirements?",
-    promptTemplate:
-      "Summarize monitoring and reporting expectations and point to the defining sections and rules.",
-    requiredInputs: ["sections"],
-  },
-  {
-    id: "changes_vs_previous",
-    label: "Changes vs previous",
-    promptTemplate: "Summarize changes vs the previous version and where they are documented.",
-    requiredInputs: ["meta", "sections"],
+    id: "export_pack",
+    label: "How do I export an audit-ready pack?",
+    promptTemplate: "Explain how to export the audit-ready pack and cite the relevant evidence.",
+    requiredInputs: ["sections", "rules"],
   },
 ];

@@ -5,14 +5,14 @@ import type { AssistantAnswer } from "@/lib/assistant/generateAnswer";
 describe("buildAssistantBundle", () => {
   test("includes payloads for cited ids", () => {
     const answer: AssistantAnswer = {
-      question_id: "required_data",
-      answer_md: "## Answer\nTest",
+      question_id: "important_rules",
+      answer: "Test",
       evidence: [
-        { type: "section", id: "S-10", title: "Data", excerpt: "Excerpt", quality: "low" },
-        { type: "rule", id: "R-1", title: "Rule", excerpt: "Excerpt", quality: "low" },
+        { type: "section", id: "S-10", title: "Data" },
+        { type: "rule", id: "R-1", title: "Rule" },
       ],
       assumptions: [],
-      next_actions: [],
+      next_actions: [{ id: "open_verify", label: "Open Verify" }],
       provenance: {},
     };
 
@@ -34,11 +34,11 @@ describe("buildAssistantBundle", () => {
 
   test("includes AOI and evidence pins when present", () => {
     const answer: AssistantAnswer = {
-      question_id: "required_data",
-      answer_md: "## Answer\nTest",
-      evidence: [{ type: "section", id: "S-1", title: "One", excerpt: "Excerpt", quality: "low" }],
+      question_id: "important_rules",
+      answer: "Test",
+      evidence: [{ type: "section", id: "S-1", title: "One" }],
       assumptions: [],
-      next_actions: [],
+      next_actions: [{ id: "open_verify", label: "Open Verify" }],
       provenance: {},
     };
 
@@ -76,11 +76,11 @@ describe("buildAssistantBundle", () => {
 
   test("includes evidence pins even when citations drift", () => {
     const answer: AssistantAnswer = {
-      question_id: "required_data",
-      answer_md: "## Answer\nTest",
-      evidence: [{ type: "section", id: "S-1", title: "One", excerpt: "Excerpt", quality: "low" }],
+      question_id: "important_rules",
+      answer: "Test",
+      evidence: [{ type: "section", id: "S-1", title: "One" }],
       assumptions: [],
-      next_actions: [],
+      next_actions: [{ id: "open_verify", label: "Open Verify" }],
       provenance: {},
     };
 
