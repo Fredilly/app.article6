@@ -19,6 +19,6 @@ Status SSOT: `docs/roadmaps/phase-assurance-surface-mvp/phase-status.json`
 Details: `docs/projects/phase-assurance-surface-mvp/PLAN.md`
 
 1) PR12 — Evidence Map MVP (trace-driven): Done
-2) PR13 — Grounded Method Assistant (guided prompts only): In progress
+2) PR13 — Grounded Method Assistant (guided prompts only): Done
 3) PR14 — Rule-Scoped Evidence Pack + Append-Only Review Log: Planned
 4) PR15 — Verifier Mode + Audit Trail + Rule Jump: Planned
