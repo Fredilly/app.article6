@@ -222,6 +222,7 @@ export default function ProofMapTab({
   const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
+  const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -280,6 +281,42 @@ export default function ProofMapTab({
     } catch {
       // ignore
     }
+  }, [isListMode]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("a6:verify:panelCollapsed");
+    if (stored === "1") setPanelCollapsed(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("a6:verify:panelCollapsed", panelCollapsed ? "1" : "0");
+  }, [panelCollapsed]);
+
+  useEffect(() => {
+    if (isListMode) return;
+    try {
+      mapRef.current?.resize?.();
+    } catch {
+      // ignore
+    }
+  }, [isListMode, panelCollapsed]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      if (isListMode) return;
+      requestAnimationFrame(() => {
+        try {
+          mapRef.current?.resize?.();
+        } catch {
+          // ignore
+        }
+      });
+    };
+    window.addEventListener("a6:verify-layout", handler);
+    return () => window.removeEventListener("a6:verify-layout", handler);
   }, [isListMode]);
 
   const isPreview = Boolean(draftAoi);
@@ -652,6 +689,498 @@ export default function ProofMapTab({
     });
   }, [aoi, mapReadyTick]);
 
+  const listContent = (
+    <>
+      {isEvidenceMode ? null : (
+        <div>
+          <div className="text-xs font-semibold text-slate-700">Evidence pins</div>
+          <div className="mt-2 grid gap-2">
+            {evidencePins.length ? (
+              evidencePins.map((pin) => (
+                <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
+                        {!aoi ? (
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                            Unbound (no AOI)
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">{formatLocalDateTime(pin.created_at)}</div>
+                    </div>
+                    <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                      Attach file
+                      <input
+                        type="file"
+                        accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={async (event) => {
+                          const file = event.target.files?.[0];
+                          event.target.value = "";
+                          if (!file) return;
+                          setError(null);
+                          try {
+                            const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
+                            if (!result.ok) {
+                              setError(result.message);
+                              return;
+                            }
+                            onSetEvidencePins(
+                              evidencePins.map((existing) =>
+                                existing.id === pin.id
+                                  ? {
+                                      ...existing,
+                                      attachments: [...(existing.attachments ?? []), result.attachment],
+                                    }
+                                  : existing,
+                              ),
+                            );
+                            showToast("Attachment saved");
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : String(e));
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  {currentStacEvidence?.runId && selectedStacItemId ? (
+                    <button
+                      type="button"
+                      className="mt-2 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                      onClick={() => {
+                        const existing = new Set(pin.stac_item_ids ?? []);
+                        existing.add(selectedStacItemId);
+                        onSetEvidencePins(
+                          evidencePins.map((item) =>
+                            item.id === pin.id
+                              ? {
+                                  ...item,
+                                  stac_item_ids: Array.from(existing),
+                                  stac_run_id: item.stac_run_id ?? currentStacEvidence.runId,
+                                }
+                              : item,
+                          ),
+                        );
+                        showToast("STAC item attached");
+                      }}
+                    >
+                      Attach selected STAC item
+                    </button>
+                  ) : null}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(pin.cited_ids ?? []).map((id) => {
+                      const type = kindFromCitedId(id);
+                      return (
+                        <button
+                          key={`${pin.id}:${id}`}
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                          onClick={async () => {
+                            if (!type) return void showToast("Unsupported id");
+                            const ok = await onNavigateEvidence(type, id);
+                            if (ok) return;
+                            const matchSnapshot = (evidenceSnapshots ?? []).find((item) => item.id === id);
+                            if (matchSnapshot) setSnapshot(matchSnapshot);
+                            else showToast("Evidence not found");
+                          }}
+                        >
+                          {id}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {(pin.stac_item_ids ?? []).length ? (
+                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        STAC items
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {(pin.stac_item_ids ?? []).map((id) => (
+                          <button
+                            key={id}
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                            onClick={() => onSelectStacItemId(id)}
+                          >
+                            {id}
+                          </button>
+                        ))}
+                      </div>
+                      {pin.stac_run_id ? (
+                        <div className="mt-1 font-mono text-[11px] text-slate-500">run: {pin.stac_run_id}</div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {(pin.attachments ?? []).length ? (
+                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        Attachments
+                      </div>
+                      <div className="grid gap-1">
+                        {(pin.attachments ?? []).map((att) => (
+                          <div key={att.id} className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="truncate text-xs font-semibold text-slate-800">
+                                {att.filename}{" "}
+                                <span className="font-normal text-slate-500">({formatBytes(att.size)})</span>
+                              </div>
+                              <div className="font-mono text-[11px] text-slate-600">{shortSha(att.sha256)}</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={async () => {
+                                setError(null);
+                                try {
+                                  await deleteAttachmentBytes(att.id);
+                                } catch {
+                                  // ignore (metadata removal still matters)
+                                }
+                                onSetEvidencePins(
+                                  evidencePins.map((existing) =>
+                                    existing.id === pin.id
+                                      ? {
+                                          ...existing,
+                                          attachments: (existing.attachments ?? []).filter((item) => item.id !== att.id),
+                                        }
+                                      : existing,
+                                  ),
+                                );
+                                showToast("Attachment removed");
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ))
+            ) : (
+              <div className="text-xs text-slate-500">No pins yet. Add pins from Assistant if needed.</div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
+        <div className="mt-2 grid gap-2">
+          {aoi && currentAoiFingerprint && stacRenderedCount ? (
+            <div ref={stacEvidenceCardRef} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs font-semibold text-slate-900">{stacRenderedCount} feature(s)</div>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => onSelectStacItemId(null)}
+                  disabled={!selectedStacItemId}
+                >
+                  Clear selection
+                </button>
+              </div>
+              <div className="mt-1 text-[11px] text-slate-500">Rendered: {stacRenderedCount}</div>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                <span>
+                  Valid: {evidenceDiagnostics.valid}, Skipped: {evidenceDiagnostics.skipped}
+                </span>
+                {evidenceDiagnostics.inView != null ? (
+                  <span>
+                    In view: {evidenceDiagnostics.inView}/{evidenceDiagnostics.valid}
+                  </span>
+                ) : null}
+              </div>
+              {evidenceDiagnostics.bounds ? (
+                <div className="mt-1 break-words font-mono text-[11px] text-slate-500">
+                  Bounds: {formatNum(evidenceDiagnostics.bounds[0])}, {formatNum(evidenceDiagnostics.bounds[1])} →{" "}
+                  {formatNum(evidenceDiagnostics.bounds[2])}, {formatNum(evidenceDiagnostics.bounds[3])}
+                </div>
+              ) : (
+                <div className="mt-1 text-[11px] text-slate-500">Bounds: —</div>
+              )}
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => {
+                    if (!evidenceDiagnostics.bounds) return void showToast("No valid evidence geometry/bbox");
+                    zoomToBbox(mapRef.current, evidenceDiagnostics.bounds, 80);
+                  }}
+                  title="Zoom map to evidence bounds"
+                >
+                  Zoom to evidence ({evidenceDiagnostics.valid})
+                </button>
+                <button
+                  type="button"
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${
+                    stacCentroidsEnabled
+                      ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  }`}
+                  onClick={() => setStacCentroidsEnabled((v) => !v)}
+                  title="Toggle centroid pins"
+                >
+                  Pins: {stacCentroidsEnabled ? "On" : "Off"}
+                </button>
+              </div>
+              {stacFeatureIds.length ? (
+                <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    Features
+                  </div>
+                  <div className="mt-2 max-h-40 overflow-auto">
+                    <div className="grid gap-1">
+                      {stacFeatureIds.slice(0, 60).map((id) => {
+                        const bbox = evidenceDiagnostics.byIdBbox.get(id) ?? null;
+                        const selected = id === selectedStacItemId;
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            className={`w-full rounded-md border px-2 py-1 text-left text-xs font-semibold shadow-sm transition ${
+                              selected
+                                ? "border-sky-200 bg-white text-slate-900"
+                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                            }`}
+                            onClick={() => {
+                              selectEvidence(id, "pin");
+                              zoomToBbox(mapRef.current, bbox, 120);
+                            }}
+                            title="Select and zoom to feature"
+                          >
+                            <span className="font-mono">{id}</span>
+                          </button>
+                        );
+                      })}
+                      {stacFeatureIds.length > 60 ? (
+                        <div className="pt-1 text-[11px] text-slate-500">
+                          Showing first 60 of {stacFeatureIds.length}.
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+              {selectedStacItemId && !stacInspectOpen ? (
+                <button
+                  type="button"
+                  className="mt-3 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => setStacInspectOpen(true)}
+                >
+                  Open inspect
+                </button>
+              ) : null}
+              {selectedStacDetails && stacInspectOpen ? (
+                <div className="mt-3 grid gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                    <div className="text-xs font-semibold text-slate-900">
+                      Selected: <span className="font-mono">{selectedStacDetails.id}</span>
+                      {lastSelectionSource ? (
+                        <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          via {lastSelectionSource}
+                        </span>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                      onClick={() => setStacInspectOpen(false)}
+                      title="Collapse inspect"
+                    >
+                      Hide
+                    </button>
+                  </div>
+                  <div className="grid gap-1 text-xs text-slate-700">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-semibold text-slate-900">Item ID</span>
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={() => copyToClipboard(selectedStacDetails.id)}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
+                  </div>
+                  <div className="grid gap-1 text-xs text-slate-700">
+                    <div className="font-semibold text-slate-900">BBox</div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.bbox}</div>
+                  </div>
+                  <div className="grid gap-1 text-xs text-slate-700">
+                    <div className="font-semibold text-slate-900">Datetime</div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.datetime}</div>
+                  </div>
+                  <div className="grid gap-1 text-xs text-slate-700">
+                    <div className="font-semibold text-slate-900">Cloud cover</div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.cloudCover}</div>
+                  </div>
+                  <div className="grid gap-1 text-xs text-slate-700">
+                    <div className="font-semibold text-slate-900">Assets</div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.assetsCount}</div>
+                  </div>
+                  {selectedStacDetails.runId ? (
+                    <div className="grid gap-1 text-xs text-slate-700">
+                      <div className="font-semibold text-slate-900">Run</div>
+                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
+                    </div>
+                  ) : null}
+                  <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Linked rules
+                    </div>
+                    {selectedStacDetails.ruleIds.length ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {selectedStacDetails.ruleIds.map((id) => (
+                          <button
+                            key={id}
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                            onClick={async () => {
+                              const ok = await onNavigateEvidence("rule", id);
+                              if (!ok) showToast("Rule not found");
+                            }}
+                            title={`Open rule ${id}`}
+                          >
+                            <span className="font-mono">{id}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="mt-2 inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                        Unlinked
+                      </span>
+                    )}
+                    {selectedStacDetails.sectionIds.length ? (
+                      <div className="mt-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          Linked sections
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {selectedStacDetails.sectionIds.map((id) => (
+                            <button
+                              key={id}
+                              type="button"
+                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={async () => {
+                                const ok = await onNavigateEvidence("section", id);
+                                if (!ok) showToast("Section not found");
+                              }}
+                              title={`Open section ${id}`}
+                            >
+                              <span className="font-mono">{id}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                  {selectedStacDetails.assetRows.length ? (
+                    <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>
+                      <div className="mt-2 grid gap-2">
+                        {selectedStacDetails.assetRows.map((row) => (
+                          <div key={row.key} className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="text-xs font-semibold text-slate-800">{row.key}</div>
+                              <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={() => copyToClipboard(row.href)}
+                            >
+                              Copy
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {selectedStacDetails.linkRows.length ? (
+                    <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Links</div>
+                      <div className="mt-2 grid gap-2">
+                        {selectedStacDetails.linkRows.map((row, idx) => (
+                          <div key={`${row.href}:${idx}`} className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="text-xs font-semibold text-slate-800">{row.rel}</div>
+                              <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                              onClick={() => copyToClipboard(row.href)}
+                            >
+                              Copy
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="mt-2 text-xs text-slate-500">Click a footprint/marker on the map to inspect.</div>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-slate-500">
+              {!aoi
+                ? "No AOI selected."
+                : !currentAoiFingerprint
+                  ? "Computing AOI fingerprint…"
+                  : "No STAC evidence for this AOI."}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <div className="text-xs font-semibold text-slate-700">Evidence searches (current AOI)</div>
+        <div className="mt-2 grid gap-2">
+          {aoi && currentAoiFingerprint && currentRuns.length ? (
+            currentRuns.map((run) => {
+              const pill = statusPill(run.status);
+              return (
+                <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
+                      {pill.label}
+                    </span>
+                    <span className="text-xs text-slate-500">{formatLocalDateTime(run.created_at)}</span>
+                  </div>
+                  {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
+                  {run.result_json ? (
+                    <button
+                      type="button"
+                      className="mt-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                      onClick={() => setRunJson(run)}
+                    >
+                      View JSON
+                    </button>
+                  ) : null}
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-xs text-slate-500">
+              {!aoi
+                ? "No AOI selected."
+                : !currentAoiFingerprint
+                  ? "Computing AOI fingerprint…"
+                  : "No runs yet for this AOI."}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="mt-4 grid gap-4">
       <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
@@ -815,139 +1344,161 @@ export default function ProofMapTab({
         </div>
       </div>
 
-      <div className={`grid gap-4 ${isListMode ? "" : "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"}`}>
-      <div className={isListMode ? "hidden" : undefined}>
-        <MapCanvas
-          aoi={aoi}
-          pins={evidencePins}
-          stacEvidence={currentStacEvidence?.fc ?? null}
-          stacEvidenceCentroids={stacCentroids}
-          stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
-          stacEvidenceRunId={currentStacEvidence?.runId ?? null}
-          viewStorageKey={viewStorageKey}
-          initialViewportBbox={initialViewportBbox}
-          selectedStacItemId={selectedStacItemId}
-          onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
-          onViewportBboxChange={(bbox) => {
-            setViewportBbox(bbox);
-          }}
-          onMapReady={(map) => {
-            mapRef.current = map;
-            setMapReadyTick((value) => value + 1);
-            setInitialViewportBbox(null);
-          }}
-          onMapDestroyed={() => {
-            mapRef.current = null;
-          }}
-        />
-      </div>
-
-      <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
-        {undoVisible ? (
-          <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
-            <span>New AOI applied.</span>
-            <button
-              type="button"
-              className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-              onClick={() => {
-                onUndoApplyAoi();
-                setUndoVisible(false);
-              }}
-            >
-              Undo
-            </button>
-          </div>
-        ) : null}
-        {toast ? (
-          <div
-            className={`fixed right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow ${
-              undoVisible ? "bottom-14" : "bottom-4"
-            }`}
+      {undoVisible ? (
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
+          <span>New AOI applied.</span>
+          <button
+            type="button"
+            className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+            onClick={() => {
+              onUndoApplyAoi();
+              setUndoVisible(false);
+            }}
           >
-            {toast}
+            Undo
+          </button>
+        </div>
+      ) : null}
+      {toast ? (
+        <div
+          className={`fixed right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow ${
+            undoVisible ? "bottom-14" : "bottom-4"
+          }`}
+        >
+          {toast}
+        </div>
+      ) : null}
+      {snapshot ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+              <div className="text-sm font-semibold text-slate-900">Bundle snapshot</div>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setSnapshot(null)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="grid gap-2 px-5 py-4">
+              <div className="text-xs font-semibold text-slate-900">
+                {snapshot.kind}: {snapshot.id}
+              </div>
+              {snapshot.title ? <div className="text-sm text-slate-800">{snapshot.title}</div> : null}
+              {snapshot.snippet ? <div className="text-sm text-slate-700">{snapshot.snippet}</div> : null}
+              {snapshot.stable_ref ? (
+                <a className="break-words font-mono text-xs text-slate-600 underline" href={snapshot.stable_ref}>
+                  {snapshot.stable_ref}
+                </a>
+              ) : null}
+            </div>
           </div>
-        ) : null}
-        {snapshot ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
-              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-                <div className="text-sm font-semibold text-slate-900">Bundle snapshot</div>
+        </div>
+      ) : null}
+      {runJson ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+              <div className="text-sm font-semibold text-slate-900">Evidence search JSON</div>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setRunJson(null)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-auto px-5 py-4">
+              <pre className="whitespace-pre-wrap break-words font-mono text-xs text-slate-700">
+                {prettyJson(runJson)}
+              </pre>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {startOverOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+              <div className="text-sm font-semibold text-slate-900">Start over?</div>
+            </div>
+            <div className="grid gap-4 px-5 py-4">
+              <div className="text-sm text-slate-700">
+                This clears the AOI, pins, and evidence selections for this method/version.
+              </div>
+              <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                  onClick={() => setSnapshot(null)}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => setStartOverOpen(false)}
+                  disabled={startOverBusy}
                 >
-                  Close
+                  Cancel
                 </button>
-              </div>
-              <div className="grid gap-2 px-5 py-4">
-                <div className="text-xs font-semibold text-slate-900">
-                  {snapshot.kind}: {snapshot.id}
-                </div>
-                {snapshot.title ? <div className="text-sm text-slate-800">{snapshot.title}</div> : null}
-                {snapshot.snippet ? <div className="text-sm text-slate-700">{snapshot.snippet}</div> : null}
-                {snapshot.stable_ref ? (
-                  <a className="break-words font-mono text-xs text-slate-600 underline" href={snapshot.stable_ref}>
-                    {snapshot.stable_ref}
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        ) : null}
-        {runJson ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
-              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-                <div className="text-sm font-semibold text-slate-900">Evidence search JSON</div>
                 <button
                   type="button"
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                  onClick={() => setRunJson(null)}
+                  className="rounded-full border border-rose-200 bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => void runStartOver()}
+                  disabled={startOverBusy}
                 >
-                  Close
+                  Start over
                 </button>
               </div>
-              <div className="max-h-[70vh] overflow-auto px-5 py-4">
-                <pre className="whitespace-pre-wrap break-words font-mono text-xs text-slate-700">
-                  {prettyJson(runJson)}
-                </pre>
-              </div>
             </div>
           </div>
-        ) : null}
-        {startOverOpen ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
-              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-                <div className="text-sm font-semibold text-slate-900">Start over?</div>
-              </div>
-              <div className="grid gap-4 px-5 py-4">
-                <div className="text-sm text-slate-700">
-                  This clears the AOI, pins, and evidence selections for this method/version.
-                </div>
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => setStartOverOpen(false)}
-                    disabled={startOverBusy}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-rose-200 bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => void runStartOver()}
-                    disabled={startOverBusy}
-                  >
-                    Start over
-                  </button>
-                </div>
-              </div>
+        </div>
+      ) : null}
+
+      <div
+        className={`grid gap-4 ${
+          panelCollapsed ? "lg:grid-cols-[minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
+        }`}
+      >
+        <div className="grid gap-3">
+          {panelCollapsed ? (
+            <div className="hidden justify-end lg:flex">
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setPanelCollapsed(false)}
+                aria-label="Show Verify panel"
+              >
+                Show panel »
+              </button>
             </div>
+          ) : null}
+          <div className={isListMode ? "grid gap-3 rounded-xl border border-slate-200 bg-white p-4" : "hidden"}>
+            {listContent}
           </div>
-        ) : null}
+          <div className={isListMode ? "hidden" : undefined}>
+            <MapCanvas
+              aoi={aoi}
+              pins={evidencePins}
+              stacEvidence={currentStacEvidence?.fc ?? null}
+              stacEvidenceCentroids={stacCentroids}
+              stacEvidenceCentroidsEnabled={stacCentroidsEnabled}
+              stacEvidenceRunId={currentStacEvidence?.runId ?? null}
+              viewStorageKey={viewStorageKey}
+              initialViewportBbox={initialViewportBbox}
+              selectedStacItemId={selectedStacItemId}
+              onSelectEvidence={({ id, source }) => selectEvidence(id, source)}
+              onViewportBboxChange={(bbox) => {
+                setViewportBbox(bbox);
+              }}
+              onMapReady={(map) => {
+                mapRef.current = map;
+                setMapReadyTick((value) => value + 1);
+                setInitialViewportBbox(null);
+              }}
+              onMapDestroyed={() => {
+                mapRef.current = null;
+              }}
+            />
+          </div>
+        </div>
+
+        <div className={`grid gap-3 rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
@@ -964,6 +1515,14 @@ export default function ProofMapTab({
               disabled={startOverBusy}
             >
               Start over
+            </button>
+            <button
+              type="button"
+              className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+              onClick={() => setPanelCollapsed(true)}
+              aria-label="Collapse Verify panel"
+            >
+              Collapse »
             </button>
             <label className="inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
               Upload AOI
@@ -1166,486 +1725,7 @@ export default function ProofMapTab({
           </div>
         )}
 
-        {isEvidenceMode ? null : (
-          <div>
-            <div className="text-xs font-semibold text-slate-700">Evidence pins</div>
-            <div className="mt-2 grid gap-2">
-              {evidencePins.length ? (
-                evidencePins.map((pin) => (
-                  <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
-                          {!aoi ? (
-                            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                              Unbound (no AOI)
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500">{formatLocalDateTime(pin.created_at)}</div>
-                      </div>
-                      <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-                        Attach file
-                        <input
-                          type="file"
-                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
-                          className="hidden"
-                          onChange={async (event) => {
-                            const file = event.target.files?.[0];
-                            event.target.value = "";
-                            if (!file) return;
-                            setError(null);
-                            try {
-                              const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
-                              if (!result.ok) {
-                                setError(result.message);
-                                return;
-                              }
-                              onSetEvidencePins(
-                                evidencePins.map((existing) =>
-                                  existing.id === pin.id
-                                    ? {
-                                        ...existing,
-                                        attachments: [...(existing.attachments ?? []), result.attachment],
-                                      }
-                                    : existing,
-                                ),
-                              );
-                              showToast("Attachment saved");
-                            } catch (e) {
-                              setError(e instanceof Error ? e.message : String(e));
-                            }
-                          }}
-                        />
-                      </label>
-                    </div>
-                    {currentStacEvidence?.runId && selectedStacItemId ? (
-                      <button
-                        type="button"
-                        className="mt-2 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={() => {
-                          const existing = new Set(pin.stac_item_ids ?? []);
-                          existing.add(selectedStacItemId);
-                          onSetEvidencePins(
-                            evidencePins.map((item) =>
-                              item.id === pin.id
-                                ? {
-                                    ...item,
-                                    stac_item_ids: Array.from(existing),
-                                    stac_run_id: item.stac_run_id ?? currentStacEvidence.runId,
-                                  }
-                                : item,
-                            ),
-                          );
-                          showToast("STAC item attached");
-                        }}
-                      >
-                        Attach selected STAC item
-                      </button>
-                    ) : null}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {(pin.cited_ids ?? []).map((id) => {
-                        const type = kindFromCitedId(id);
-                        return (
-                          <button
-                            key={`${pin.id}:${id}`}
-                            type="button"
-                            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                            onClick={async () => {
-                              if (!type) return void showToast("Unsupported id");
-                              const ok = await onNavigateEvidence(type, id);
-                              if (ok) return;
-                              const matchSnapshot = (evidenceSnapshots ?? []).find((item) => item.id === id);
-                              if (matchSnapshot) setSnapshot(matchSnapshot);
-                              else showToast("Evidence not found");
-                            }}
-                          >
-                            {id}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {(pin.stac_item_ids ?? []).length ? (
-                      <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          STAC items
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {(pin.stac_item_ids ?? []).map((id) => (
-                            <button
-                              key={id}
-                              type="button"
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={() => onSelectStacItemId(id)}
-                            >
-                              {id}
-                            </button>
-                          ))}
-                        </div>
-                        {pin.stac_run_id ? (
-                          <div className="mt-1 font-mono text-[11px] text-slate-500">run: {pin.stac_run_id}</div>
-                        ) : null}
-                      </div>
-                    ) : null}
-                    {(pin.attachments ?? []).length ? (
-                      <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          Attachments
-                        </div>
-                        <div className="grid gap-1">
-                          {(pin.attachments ?? []).map((att) => (
-                            <div key={att.id} className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="truncate text-xs font-semibold text-slate-800">
-                                  {att.filename} <span className="font-normal text-slate-500">({formatBytes(att.size)})</span>
-                                </div>
-                                <div className="font-mono text-[11px] text-slate-600">{shortSha(att.sha256)}</div>
-                              </div>
-                              <button
-                                type="button"
-                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                                onClick={async () => {
-                                  setError(null);
-                                  try {
-                                    await deleteAttachmentBytes(att.id);
-                                  } catch {
-                                    // ignore (metadata removal still matters)
-                                  }
-                                  onSetEvidencePins(
-                                    evidencePins.map((existing) =>
-                                      existing.id === pin.id
-                                        ? {
-                                            ...existing,
-                                            attachments: (existing.attachments ?? []).filter((item) => item.id !== att.id),
-                                          }
-                                        : existing,
-                                    ),
-                                  );
-                                  showToast("Attachment removed");
-                                }}
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                ))
-              ) : (
-                <div className="text-xs text-slate-500">No pins yet. Add pins from Assistant if needed.</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div>
-          <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
-          <div className="mt-2 grid gap-2">
-            {aoi && currentAoiFingerprint && stacRenderedCount ? (
-              <div ref={stacEvidenceCardRef} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-xs font-semibold text-slate-900">
-                    {stacRenderedCount} feature(s)
-                  </div>
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => onSelectStacItemId(null)}
-                    disabled={!selectedStacItemId}
-                  >
-                    Clear selection
-                  </button>
-                </div>
-                <div className="mt-1 text-[11px] text-slate-500">Rendered: {stacRenderedCount}</div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                  <span>
-                    Valid: {evidenceDiagnostics.valid}, Skipped: {evidenceDiagnostics.skipped}
-                  </span>
-                  {evidenceDiagnostics.inView != null ? (
-                    <span>
-                      In view: {evidenceDiagnostics.inView}/{evidenceDiagnostics.valid}
-                    </span>
-                  ) : null}
-                </div>
-                {evidenceDiagnostics.bounds ? (
-                  <div className="mt-1 break-words font-mono text-[11px] text-slate-500">
-                    Bounds: {formatNum(evidenceDiagnostics.bounds[0])}, {formatNum(evidenceDiagnostics.bounds[1])} →{" "}
-                    {formatNum(evidenceDiagnostics.bounds[2])}, {formatNum(evidenceDiagnostics.bounds[3])}
-                  </div>
-                ) : (
-                  <div className="mt-1 text-[11px] text-slate-500">Bounds: —</div>
-                )}
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                    onClick={() => {
-                      if (!evidenceDiagnostics.bounds) return void showToast("No valid evidence geometry/bbox");
-                      zoomToBbox(mapRef.current, evidenceDiagnostics.bounds, 80);
-                    }}
-                    title="Zoom map to evidence bounds"
-                  >
-                    Zoom to evidence ({evidenceDiagnostics.valid})
-                  </button>
-                  <button
-                    type="button"
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${
-                      stacCentroidsEnabled
-                        ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                    }`}
-                    onClick={() => setStacCentroidsEnabled((v) => !v)}
-                    title="Toggle centroid pins"
-                  >
-                    Pins: {stacCentroidsEnabled ? "On" : "Off"}
-                  </button>
-                </div>
-                {stacFeatureIds.length ? (
-                  <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                      Features
-                    </div>
-                    <div className="mt-2 max-h-40 overflow-auto">
-                      <div className="grid gap-1">
-                        {stacFeatureIds.slice(0, 60).map((id) => {
-                          const bbox = evidenceDiagnostics.byIdBbox.get(id) ?? null;
-                          const selected = id === selectedStacItemId;
-                          return (
-                            <button
-                              key={id}
-                              type="button"
-                              className={`w-full rounded-md border px-2 py-1 text-left text-xs font-semibold shadow-sm transition ${
-                                selected
-                                  ? "border-sky-200 bg-white text-slate-900"
-                                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                              }`}
-                              onClick={() => {
-                                selectEvidence(id, "pin");
-                                zoomToBbox(mapRef.current, bbox, 120);
-                              }}
-                              title="Select and zoom to feature"
-                            >
-                              <span className="font-mono">{id}</span>
-                            </button>
-                          );
-                        })}
-                        {stacFeatureIds.length > 60 ? (
-                          <div className="pt-1 text-[11px] text-slate-500">
-                            Showing first 60 of {stacFeatureIds.length}.
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-                {selectedStacItemId && !stacInspectOpen ? (
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                    onClick={() => setStacInspectOpen(true)}
-                  >
-                    Open inspect
-                  </button>
-                ) : null}
-                {selectedStacDetails && stacInspectOpen ? (
-                  <div className="mt-3 grid gap-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-xs font-semibold text-slate-900">
-                        Selected: <span className="font-mono">{selectedStacDetails.id}</span>
-                        {lastSelectionSource ? (
-                          <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            via {lastSelectionSource}
-                          </span>
-                        ) : null}
-                      </div>
-                      <button
-                        type="button"
-                        className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={() => setStacInspectOpen(false)}
-                        title="Collapse inspect"
-                      >
-                        Hide
-                      </button>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-semibold text-slate-900">Item ID</span>
-                        <button
-                          type="button"
-                          className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                          onClick={() => copyToClipboard(selectedStacDetails.id)}
-                        >
-                          Copy
-                        </button>
-                      </div>
-                      <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">BBox</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.bbox}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">Datetime</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.datetime}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">Cloud cover</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.cloudCover}</div>
-                    </div>
-                    <div className="grid gap-1 text-xs text-slate-700">
-                      <div className="font-semibold text-slate-900">Assets</div>
-                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.assetsCount}</div>
-                    </div>
-                    {selectedStacDetails.runId ? (
-                      <div className="grid gap-1 text-xs text-slate-700">
-                        <div className="font-semibold text-slate-900">Run</div>
-                        <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
-                      </div>
-                    ) : null}
-                    <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        Linked rules
-                      </div>
-                      {selectedStacDetails.ruleIds.length ? (
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {selectedStacDetails.ruleIds.map((id) => (
-                            <button
-                              key={id}
-                              type="button"
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={async () => {
-                                const ok = await onNavigateEvidence("rule", id);
-                                if (!ok) showToast("Rule not found");
-                              }}
-                              title={`Open rule ${id}`}
-                            >
-                              <span className="font-mono">{id}</span>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="mt-2 inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500">
-                          Unlinked
-                        </span>
-                      )}
-                      {selectedStacDetails.sectionIds.length ? (
-                        <div className="mt-3">
-                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            Linked sections
-                          </div>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {selectedStacDetails.sectionIds.map((id) => (
-                              <button
-                                key={id}
-                                type="button"
-                                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                                onClick={async () => {
-                                  const ok = await onNavigateEvidence("section", id);
-                                  if (!ok) showToast("Section not found");
-                                }}
-                                title={`Open section ${id}`}
-                              >
-                                <span className="font-mono">{id}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                    {selectedStacDetails.assetRows.length ? (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>
-                        <div className="mt-2 grid gap-2">
-                          {selectedStacDetails.assetRows.map((row) => (
-                            <div key={row.key} className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="text-xs font-semibold text-slate-800">{row.key}</div>
-                                <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
-                              </div>
-                              <button
-                                type="button"
-                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                                onClick={() => copyToClipboard(row.href)}
-                              >
-                                Copy
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                    {selectedStacDetails.linkRows.length ? (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Links</div>
-                        <div className="mt-2 grid gap-2">
-                          {selectedStacDetails.linkRows.map((row, idx) => (
-                            <div key={`${row.href}:${idx}`} className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="text-xs font-semibold text-slate-800">{row.rel}</div>
-                                <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
-                              </div>
-                              <button
-                                type="button"
-                                className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                                onClick={() => copyToClipboard(row.href)}
-                              >
-                                Copy
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className="mt-2 text-xs text-slate-500">Click a footprint/marker on the map to inspect.</div>
-                )}
-              </div>
-            ) : (
-              <div className="text-xs text-slate-500">
-                {!aoi ? "No AOI selected." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No STAC evidence for this AOI."}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-xs font-semibold text-slate-700">Evidence searches (current AOI)</div>
-          <div className="mt-2 grid gap-2">
-            {aoi && currentAoiFingerprint && currentRuns.length ? (
-              currentRuns.map((run) => {
-                const pill = statusPill(run.status);
-                return (
-                  <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
-                        {pill.label}
-                      </span>
-                      <span className="text-xs text-slate-500">{formatLocalDateTime(run.created_at)}</span>
-                    </div>
-                    {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
-                    {run.result_json ? (
-                      <button
-                        type="button"
-                        className="mt-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={() => setRunJson(run)}
-                      >
-                        View JSON
-                      </button>
-                    ) : null}
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text-xs text-slate-500">
-                {!aoi ? "No AOI selected." : !currentAoiFingerprint ? "Computing AOI fingerprint…" : "No runs yet for this AOI."}
-              </div>
-            )}
-          </div>
-        </div>
+        {isListMode ? null : listContent}
       </div>
       </div>
     </div>
