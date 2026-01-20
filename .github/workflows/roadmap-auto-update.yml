@@ -1,0 +1,58 @@
+name: roadmap-auto-update
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  roadmap-auto-update:
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.pull_request.title, '[skip ci]') &&
+      !contains(github.event.pull_request.body, '[skip ci]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Apply roadmap update
+        run: node scripts/roadmap/apply-merged-pr.mjs --event "$GITHUB_EVENT_PATH"
+
+      - name: Commit and push if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet; then
+            echo "roadmap-auto-update: no changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(roadmap): update status from PR #${{ github.event.pull_request.number }} [skip ci]"
+          if git push origin HEAD:main; then
+            echo "roadmap-auto-update: pushed to main"
+            exit 0
+          fi
+          branch="automation/roadmap-pr-${{ github.event.pull_request.number }}"
+          git checkout -b "$branch"
+          git push origin "$branch"
+          gh pr create -R "${{ github.repository }}" \
+            --base main \
+            --head "$branch" \
+            --title "chore(roadmap): update status from PR #${{ github.event.pull_request.number }}" \
+            --body "Automated roadmap update from PR #${{ github.event.pull_request.number }}."

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { normalizeStatus, parseRoadmapDirective } from "./roadmap-lib.mjs";
 
 function die(message) {
   console.error(message);
@@ -18,68 +18,50 @@ function readEvent() {
   }
 }
 
-function extractSlugAndItem(title, body) {
-  const slugMatch = title?.match(/\[RM:([^\]]+)]/i) || body?.match(/\bRoadmap:\s*([^\n]+)/i);
-  const slug = slugMatch ? slugMatch[1].trim() : null;
-
-  const itemMatch = title?.match(/\bPR\d+\b/) || body?.match(/\bRoadmap-Item:\s*(PR\d+)\b/i);
-  const itemRaw = itemMatch ? (itemMatch[1] ?? itemMatch[0]) : null;
-  const item = itemRaw ? itemRaw.trim().toUpperCase() : null;
-
-  return { slug, item };
-}
-
-function getDiffFiles() {
-  const base = process.env.GITHUB_BASE_REF;
-  if (base) {
-    return execSync(`git diff --name-only origin/${base}...HEAD`, { encoding: "utf8" })
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-  return execSync("git diff --name-only HEAD~1", { encoding: "utf8" })
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
+const ALLOWED_STATUSES = new Set(["planned", "next", "in-progress", "done", "blocked"]);
 
 const event = readEvent();
 const title = event?.pull_request?.title ?? "";
 const body = event?.pull_request?.body ?? "";
 
-const { slug, item } = extractSlugAndItem(title, body);
+const directive = parseRoadmapDirective(body);
+const legacyHint =
+  /\bRoadmap:\s*/i.test(body) ||
+  /\bRoadmap-Item:\s*/i.test(body) ||
+  /\[RM:[^\]]+\]/i.test(title);
 
-if (!slug || !item) {
-  console.log("roadmap: no slug/item found; skipping");
+if (!directive) {
+  if (legacyHint) {
+    die("roadmap: Roadmap-Update block missing from PR body.");
+  }
+  console.log("roadmap: no Roadmap-Update block; skipping");
   process.exit(0);
 }
 
-const statusPath = path.join("docs", "roadmaps", slug, "phase-status.json");
-
-const diffFiles = getDiffFiles();
-if (!diffFiles.includes(statusPath)) {
-  die(
-    `roadmap: ${statusPath} must be updated for ${item}. ` +
-      "Set the item to in-progress or merged and include it in the PR diff.",
-  );
+const slug = directive.slug?.trim();
+if (!slug) {
+  die("roadmap: Roadmap-Update missing slug.");
 }
+if (["n/a", "na", "none"].includes(slug.toLowerCase())) {
+  console.log("roadmap: Roadmap-Update marked N/A; skipping");
+  process.exit(0);
+}
+
+if (!directive.items.length) {
+  die("roadmap: Roadmap-Update requires at least one item.");
+}
+
+const statusPath = path.join("docs", "roadmaps", slug, "phase-status.json");
 
 if (!fs.existsSync(statusPath)) {
   die(`roadmap: missing ${statusPath}`);
 }
 
-let status;
-try {
-  status = JSON.parse(fs.readFileSync(statusPath, "utf8"));
-} catch {
-  die(`roadmap: invalid JSON in ${statusPath}`);
+for (const item of directive.items) {
+  const normalized = normalizeStatus(item.status);
+  if (!normalized || !ALLOWED_STATUSES.has(normalized)) {
+    die(`roadmap: invalid status for ${item.id} (${item.status}).`);
+  }
 }
 
-const value = status[item];
-if (value !== "in-progress" && value !== "merged") {
-  die(
-    `roadmap: ${statusPath} entry for ${item} must be in-progress or merged (found ${JSON.stringify(value)}).`,
-  );
-}
-
-console.log(`roadmap: ${slug} ${item} status=${value}`);
+console.log(`roadmap: ${slug} ${directive.items.length} item(s) validated`);

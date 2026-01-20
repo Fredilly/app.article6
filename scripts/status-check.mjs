@@ -1,17 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-
-const STATUS_TOKENS = [
-  { re: /\b(in[-_\s]?progress)\b/i, status: "in-progress" },
-  { re: /\b(done|complete|completed)\b/i, status: "done" },
-  { re: /\b(merged)\b/i, status: "merged" },
-  { re: /\b(planned)\b/i, status: "planned" },
-];
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf8"));
-}
+import { generateRoadmapContent, listSsotFiles, normalizeStatus } from "./roadmap/roadmap-lib.mjs";
 
 function listFiles(root, matcher) {
   const out = [];
@@ -31,23 +21,6 @@ function listFiles(root, matcher) {
   return out;
 }
 
-function normalizePrStatus(value) {
-  if (!value) return null;
-  const lowered = String(value).trim().toLowerCase();
-  if (["in-progress", "in_progress", "in progress"].includes(lowered)) return "in-progress";
-  if (["done", "complete", "completed"].includes(lowered)) return "done";
-  if (["merged"].includes(lowered)) return "merged";
-  if (["planned"].includes(lowered)) return "planned";
-  return lowered;
-}
-
-function collectStatusClaims(line) {
-  for (const token of STATUS_TOKENS) {
-    if (token.re.test(line)) return token.status;
-  }
-  return null;
-}
-
 function die(messages) {
   for (const message of messages) console.error(message);
   process.exit(1);
@@ -59,7 +32,7 @@ if (!fs.existsSync(ssotRoot)) {
   process.exit(0);
 }
 
-const ssotFiles = listFiles(ssotRoot, (file) => file.endsWith("phase-status.json"));
+const ssotFiles = listSsotFiles(ssotRoot);
 const errors = [];
 
 const docsRoot = "docs";
@@ -82,22 +55,22 @@ if (fs.existsSync(docsRoot)) {
 
 for (const ssotPath of ssotFiles) {
   const slug = path.basename(path.dirname(ssotPath));
-  const ssot = readJson(ssotPath);
+  const ssot = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
   const prStatuses = Object.fromEntries(
     Object.entries(ssot)
       .filter(([key]) => /^PR\d+$/i.test(key))
-      .map(([key, value]) => [key.toUpperCase(), normalizePrStatus(value)]),
+      .map(([key, value]) => [key.toUpperCase(), normalizeStatus(value)]),
   );
 
   const projectStatusPath = path.join("docs", "projects", slug, "phase-status.json");
   if (fs.existsSync(projectStatusPath)) {
-    const projectStatus = readJson(projectStatusPath);
+    const projectStatus = JSON.parse(fs.readFileSync(projectStatusPath, "utf8"));
     const items = Array.isArray(projectStatus.prs) ? projectStatus.prs : [];
     for (const item of items) {
       const id = typeof item.id === "string" ? item.id.toUpperCase() : null;
       if (!id || !prStatuses[id]) continue;
       const expected = prStatuses[id];
-      const actual = normalizePrStatus(item.status);
+      const actual = normalizeStatus(item.status);
       if (expected !== actual) {
         errors.push(
           `status:check: ${projectStatusPath} ${id}=${actual} disagrees with SSOT ${ssotPath}=${expected}`,
@@ -105,25 +78,14 @@ for (const ssotPath of ssotFiles) {
       }
     }
   }
+}
 
-  if (!fs.existsSync(canonicalRoadmapPath)) continue;
-  const lines = fs.readFileSync(canonicalRoadmapPath, "utf8").split("\n");
-  lines.forEach((line, idx) => {
-    const match = line.match(/\bPR\d+\b/gi);
-    if (!match) return;
-    const statusClaim = collectStatusClaims(line);
-    if (!statusClaim) return;
-    for (const rawId of match) {
-      const id = rawId.toUpperCase();
-      const expected = prStatuses[id];
-      if (!expected) continue;
-      if (expected !== statusClaim) {
-        errors.push(
-          `status:check: ${canonicalRoadmapPath}:${idx + 1} ${id}=${statusClaim} disagrees with SSOT ${ssotPath}=${expected}`,
-        );
-      }
-    }
-  });
+if (fs.existsSync(canonicalRoadmapPath)) {
+  const expected = generateRoadmapContent(ssotRoot, docsRoot).trim() + "\n";
+  const actual = fs.readFileSync(canonicalRoadmapPath, "utf8");
+  if (actual !== expected) {
+    errors.push(`status:check: ${canonicalRoadmapPath} must be generated from SSOT (run roadmap auto-update).`);
+  }
 }
 
 if (errors.length) die(errors);
