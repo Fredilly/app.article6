@@ -139,6 +139,7 @@ export function canonicalizeProofBundleForHash(bundle: Omit<ProofBundleV1, "inte
     zip_sha256: "",
     manifest_sha256: "",
     sha256: "",
+    sha256_meaning: "",
   };
   return JSON.stringify(canonicalizeValue(withoutSha));
 }

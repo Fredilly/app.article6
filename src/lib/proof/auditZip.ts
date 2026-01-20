@@ -42,11 +42,19 @@ function cloneBundleWithIntegrity(bundle: ProofBundleV1): ProofBundleV1 {
 
 function bundleJsonBytes(bundle: ProofBundleV1): Uint8Array {
   const text = JSON.stringify(bundle, null, 2);
-  return new TextEncoder().encode(text);
+  return encodeText(text);
+}
+
+function encodeText(text: string): Uint8Array {
+  if (typeof TextEncoder !== "undefined") {
+    return new TextEncoder().encode(text);
+  }
+  return new Uint8Array(Buffer.from(text, "utf8"));
 }
 
 async function hashBytes(bytes: Uint8Array): Promise<string> {
-  return sha256ArrayBuffer(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+  const copy = Uint8Array.from(bytes);
+  return sha256ArrayBuffer(copy.buffer);
 }
 
 async function buildZipBytes(entries: AuditZipEntry[]): Promise<Uint8Array> {
@@ -99,7 +107,7 @@ export async function buildAuditZipBytes(input: {
   const payloadEntries: AuditZipEntry[] = [];
 
   if (input.runs && input.runs.length) {
-    const runsBytes = new TextEncoder().encode(canonicalJson(input.runs));
+    const runsBytes = encodeText(canonicalJson(input.runs));
     payloadEntries.push({ path: "runs.json", bytes: runsBytes });
   }
 
@@ -107,15 +115,15 @@ export async function buildAuditZipBytes(input: {
   const provenanceText = input.verificationSnapshot?.provenanceText ?? buildProvenanceTxt({});
   payloadEntries.push({
     path: "evidence/provenance.txt",
-    bytes: new TextEncoder().encode(provenanceText),
+    bytes: encodeText(provenanceText),
   });
   payloadEntries.push({
     path: "evidence/stac_items.json",
-    bytes: new TextEncoder().encode(canonicalJsonStringify(input.verificationSnapshot?.stacItemsJson ?? { items: [] })),
+    bytes: encodeText(canonicalJsonStringify(input.verificationSnapshot?.stacItemsJson ?? { items: [] })),
   });
   payloadEntries.push({
     path: "evidence/stac_evidence.geojson",
-    bytes: new TextEncoder().encode(canonicalJsonStringify(input.verificationSnapshot?.stacEvidenceGeojson ?? emptyEvidence)),
+    bytes: encodeText(canonicalJsonStringify(input.verificationSnapshot?.stacEvidenceGeojson ?? emptyEvidence)),
   });
 
   for (const att of input.attachments) {
@@ -146,7 +154,7 @@ export async function buildAuditZipBytes(input: {
     },
   };
 
-  const manifestBytes = new TextEncoder().encode(canonicalJsonStringify(manifest));
+  const manifestBytes = encodeText(canonicalJsonStringify(manifest));
   bundleForZip.integrity.manifest_sha256 = await hashBytes(manifestBytes);
 
   const bundleJsonForZip = bundleJsonBytes(bundleForZip);
