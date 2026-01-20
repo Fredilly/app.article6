@@ -63,6 +63,9 @@ Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.j
   - Each evidence item includes linked rule IDs + section anchors + short justification.
 - Append-only review log inside export:
   - reviewer, timestamp, decision, notes (append-only semantics).
+- Adds evidence/rule/section binding file in the export.
+- Adds append-only review_log.json in the export.
+- Export remains self-verifying via manifest + verifier gate.
 
 ### Acceptance
 - Export same rule pack twice => byte-identical ZIP (CI gate).

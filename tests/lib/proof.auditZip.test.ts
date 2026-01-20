@@ -96,6 +96,8 @@ describe("audit zip exporter/importer", () => {
     const zip = await JSZip.loadAsync(zipBytes);
     expect(zip.file("bundle.json")).toBeTruthy();
     expect(zip.file("manifest.json")).toBeTruthy();
+    expect(zip.file("evidence/rule_evidence_map.json")).toBeTruthy();
+    expect(zip.file("evidence/review_log.json")).toBeTruthy();
     expect(zip.file("evidence/provenance.txt")).toBeTruthy();
     expect(zip.file("evidence/stac_items.json")).toBeTruthy();
     expect(zip.file("evidence/stac_evidence.geojson")).toBeTruthy();
@@ -150,6 +152,59 @@ describe("audit zip exporter/importer", () => {
 
     const read = await readAuditZipBytes(zipBytes);
     expect(read.ok).toBe(true);
+  });
+
+  test("rule evidence map is stable for fixed input", async () => {
+    const { buildRuleEvidenceMap } = await import("@/lib/proof/auditZip");
+    const mapA = buildRuleEvidenceMap({
+      generatedAt: "2026-01-01T00:00:00Z",
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      aoiId: "aoi-1",
+      aoiFingerprint: "fp-1",
+      rules: [
+        { id: "R-1", title: "Monitoring", snippet: "monitoring data" },
+        { id: "R-2", title: "Other", snippet: "..." },
+      ],
+      sections: [
+        { id: "S-1", title: "Monitoring section", textSnippet: "data requirements" },
+        { id: "S-2", title: "Other section", textSnippet: "..." },
+      ],
+      stacItemsJson: { items: [{ id: "stac-1" }, { id: "stac-2" }] },
+    });
+    const mapB = buildRuleEvidenceMap({
+      generatedAt: "2026-01-01T00:00:00Z",
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      aoiId: "aoi-1",
+      aoiFingerprint: "fp-1",
+      rules: [
+        { id: "R-1", title: "Monitoring", snippet: "monitoring data" },
+        { id: "R-2", title: "Other", snippet: "..." },
+      ],
+      sections: [
+        { id: "S-1", title: "Monitoring section", textSnippet: "data requirements" },
+        { id: "S-2", title: "Other section", textSnippet: "..." },
+      ],
+      stacItemsJson: { items: [{ id: "stac-1" }, { id: "stac-2" }] },
+    });
+
+    expect(JSON.stringify(mapA)).toBe(JSON.stringify(mapB));
+  });
+
+  test("review log includes entry when note provided", async () => {
+    const { buildReviewLog } = await import("@/lib/proof/auditZip");
+    const log = await buildReviewLog({
+      createdAt: "2026-01-01T00:00:00Z",
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      aoiId: "aoi-1",
+      aoiFingerprint: "fp-1",
+      entry: { actor: "Reviewer", action: "note", note: "Check inputs." },
+    });
+
+    expect(log.entries).toHaveLength(1);
+    expect(log.entries[0]?.actor).toBe("Reviewer");
   });
 
   test("export ZIP includes runs.json when runs exist", async () => {
