@@ -24,6 +24,7 @@
     "drift:artifacts": "node scripts/drift-artifacts.mjs",
     "roadmap:init": "node scripts/roadmap/init-roadmap.mjs",
     "roadmap:check": "node scripts/roadmap/check-roadmap-status.mjs",
+    "roadmap:status": "node scripts/roadmap/status.mjs",
     "status:check": "node scripts/status-check.mjs",
     "vercel-build": "npm run build",
     "prebuild": "npm run fetch:methodologies-pack && npm run check:golden",

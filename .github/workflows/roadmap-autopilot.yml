@@ -1,0 +1,60 @@
+name: roadmap-autopilot
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autopilot:
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.pull_request.title, '[skip ci]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Apply roadmap autopilot
+        id: autopilot
+        run: |
+          node scripts/roadmap/autopilot-merge.mjs --event "$GITHUB_EVENT_PATH" --output "$GITHUB_OUTPUT"
+
+      - name: Comment when skipped
+        if: steps.autopilot.outputs.status == 'skipped'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request?.number;
+            const reason = "${{ steps.autopilot.outputs.reason }}" || "unknown";
+            const prKey = "${{ steps.autopilot.outputs.prKey }}";
+            const details = prKey ? `PR key: ${prKey}` : "PR key could not be inferred.";
+            const body = `Roadmap autopilot skipped for this merge (${reason}). ${details}\n\nFix by naming the PR like \`feat(prNN): ...\` or include a Roadmap-Update block.`;
+            if (!prNumber) return;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+      - name: Commit roadmap updates
+        if: steps.autopilot.outputs.status == 'updated'
+        run: |
+          if git diff --quiet; then
+            echo "No roadmap changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmaps docs/projects/ROADMAP.md
+          git commit -m "chore(roadmap): autopilot mark ${{ steps.autopilot.outputs.prKey }} done [skip ci]"
+          git push

@@ -1,0 +1,104 @@
+name: pr-auto-label
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Infer PR key
+        id: infer
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          node scripts/roadmap/infer-pr-key.mjs --title "$PR_TITLE" --body "$PR_BODY" --branch "$PR_BRANCH" --output "$GITHUB_OUTPUT" || true
+
+      - name: Find SSOT
+        id: ssot
+        if: steps.infer.outputs.prKey != ''
+        run: |
+          node scripts/roadmap/find-ssot-for-pr.mjs --pr "${{ steps.infer.outputs.prKey }}" --output "$GITHUB_OUTPUT" --allow-missing
+
+      - name: Apply labels
+        if: steps.infer.outputs.prKey != '' && steps.ssot.outputs.slug != ''
+        uses: actions/github-script@v7
+        env:
+          PR_KEY: ${{ steps.infer.outputs.prKey }}
+          PHASE_SLUG: ${{ steps.ssot.outputs.slug }}
+        with:
+          script: |
+            const prKey = process.env.PR_KEY;
+            const slug = process.env.PHASE_SLUG;
+            const prNumber = context.payload.pull_request?.number;
+            if (!prKey || !slug || !prNumber) return;
+
+            const prLabel = `pr:${prKey}`;
+            const phaseLabel = `phase:${slug}`;
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100,
+            });
+            const filenames = files.map((file) => file.filename || "");
+
+            const areaLabels = new Set();
+            if (filenames.some((name) => name.startsWith("tests/") || (name.startsWith("src/") && name.includes("assistant")))) {
+              areaLabels.add("area:assistant");
+            }
+            if (filenames.some((name) => name.startsWith("docs/roadmaps/") || name.startsWith("docs/projects/"))) {
+              areaLabels.add("area:roadmap");
+            }
+            if (filenames.some((name) => name.startsWith("scripts/") && (name.includes("export") || name.includes("audit-pack")))) {
+              areaLabels.add("area:exports");
+            }
+            if (filenames.some((name) => name.startsWith("src/"))) {
+              areaLabels.add("area:ui");
+            }
+
+            const existingLabels = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            const existing = new Set(existingLabels.map((label) => label.name));
+
+            for (const label of [prLabel, phaseLabel]) {
+              if (!existing.has(label)) {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label,
+                  color: "cfd3d7",
+                  description: "Roadmap automation",
+                });
+                existing.add(label);
+              }
+            }
+
+            const labelsToApply = [prLabel, phaseLabel];
+            for (const label of areaLabels) {
+              if (label === "area:ui" && !existing.has(label)) continue;
+              if (existing.has(label)) labelsToApply.push(label);
+            }
+
+            if (labelsToApply.length) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: labelsToApply,
+              });
+            }
