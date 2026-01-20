@@ -5,12 +5,16 @@ Each roadmap lives at `docs/roadmaps/<slug>/` and must include:
 - `PLAN.md`
 - `phase-status.json`
 
-If a PR is part of a roadmap, include the roadmap metadata in the PR title or body:
+If a PR is part of a roadmap, include a machine-parseable directive in the PR body:
 
-- Preferred title format: `[RM:<slug>]` and item like `PR10` in the title
-- Or in the body:
-  - `Roadmap: <slug>`
-  - `Roadmap-Item: PR10`
+```
+### Roadmap-Update
+- slug: <slug>
+- items:
+  - PR10: in_progress
+```
 
-If a PR declares a roadmap slug/item, the PR must update the matching
-`docs/roadmaps/<slug>/phase-status.json` entry to `in-progress` or `merged`.
+Allowed statuses: planned | next | in_progress | done | blocked
+
+On merge, automation updates `docs/roadmaps/<slug>/phase-status.json` and
+regenerates `docs/projects/ROADMAP.md`. Manual edits to those files should be avoided.
