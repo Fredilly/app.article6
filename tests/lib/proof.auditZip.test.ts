@@ -95,11 +95,61 @@ describe("audit zip exporter/importer", () => {
 
     const zip = await JSZip.loadAsync(zipBytes);
     expect(zip.file("bundle.json")).toBeTruthy();
+    expect(zip.file("manifest.json")).toBeTruthy();
     expect(zip.file("evidence/provenance.txt")).toBeTruthy();
     expect(zip.file("evidence/stac_items.json")).toBeTruthy();
     expect(zip.file("evidence/stac_evidence.geojson")).toBeTruthy();
     const attachmentFiles = Object.keys(zip.files).filter((p) => p.startsWith("attachments/att-1__"));
     expect(attachmentFiles).toHaveLength(1);
+  });
+
+  test("export ZIP writes integrity fields and validates manifest", async () => {
+    const bytes = new Uint8Array([4, 5, 6]).buffer;
+    const sha = await sha256ArrayBuffer(bytes);
+
+    const bundle = await buildProofBundleV1({
+      code: "AR-ACM0003",
+      version: "v02-0",
+      source: "Article6 Methodologies",
+      provenance: {},
+      rules: [],
+      sections: [],
+      evidence_pins: [
+        {
+          id: "pin-2",
+          kind: "doc",
+          title: "Pin",
+          cited_ids: [],
+          created_at: "2026-01-01T00:00:00Z",
+          attachments: [
+            {
+              id: "att-2",
+              pin_id: "pin-2",
+              filename: "evidence.pdf",
+              mime: "application/pdf",
+              size: 3,
+              sha256: sha,
+              created_at: "2026-01-01T00:00:00Z",
+            },
+          ],
+        },
+      ],
+    });
+
+    const zipBytes = await buildAuditZipBytes({
+      bundle,
+      attachments: [{ id: "att-2", filename: "evidence.pdf", bytes }],
+    });
+
+    const zip = await JSZip.loadAsync(zipBytes);
+    const bundleText = await zip.file("bundle.json")!.async("text");
+    const parsed = JSON.parse(bundleText) as { integrity?: Record<string, string> };
+    expect(parsed.integrity?.bundle_sha256).toBeTruthy();
+    expect(parsed.integrity?.zip_sha256).toBeTruthy();
+    expect(parsed.integrity?.manifest_sha256).toBeTruthy();
+
+    const read = await readAuditZipBytes(zipBytes);
+    expect(read.ok).toBe(true);
   });
 
   test("export ZIP includes runs.json when runs exist", async () => {

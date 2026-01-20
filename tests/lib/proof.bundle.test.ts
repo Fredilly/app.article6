@@ -32,8 +32,9 @@ describe("proof bundle exporter", () => {
       commit: "abc123",
       pack_digest: "pack-1",
     });
-    expect(typeof bundle.integrity.sha256).toBe("string");
-    expect(bundle.integrity.sha256.length).toBeGreaterThan(10);
+    expect(typeof bundle.integrity.bundle_sha256).toBe("string");
+    expect(bundle.integrity.bundle_sha256?.length).toBeGreaterThan(10);
+    expect(bundle.integrity.sha256_meaning).toBe("bundle_sha256");
   });
 
   test("evidence snapshot contains all cited ids from pins", async () => {
@@ -65,7 +66,7 @@ describe("proof bundle exporter", () => {
     expect(rule.stable_ref).toContain("?rule=R-1");
   });
 
-  test("integrity.sha256 changes when payload changes", async () => {
+  test("integrity.bundle_sha256 changes when payload changes", async () => {
     const bundle = await buildProofBundleV1({
       code: "AR-ACM0003",
       version: "v02-0",
@@ -78,12 +79,11 @@ describe("proof bundle exporter", () => {
 
     const canonical = canonicalizeProofBundleForHash(bundle);
     const computed = await sha256Hex(canonical);
-    expect(bundle.integrity.sha256).toBe(computed);
+    expect(bundle.integrity.bundle_sha256).toBe(computed);
 
     const modified = { ...bundle, method: { ...bundle.method, source: "Changed" } };
     const canonical2 = canonicalizeProofBundleForHash(modified);
     const computed2 = await sha256Hex(canonical2);
-    expect(computed2).not.toBe(bundle.integrity.sha256);
+    expect(computed2).not.toBe(bundle.integrity.bundle_sha256);
   });
 });
-
