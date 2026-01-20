@@ -303,6 +303,22 @@ export default function ProofMapTab({
     }
   }, [isListMode, panelCollapsed]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      if (isListMode) return;
+      requestAnimationFrame(() => {
+        try {
+          mapRef.current?.resize?.();
+        } catch {
+          // ignore
+        }
+      });
+    };
+    window.addEventListener("a6:verify-layout", handler);
+    return () => window.removeEventListener("a6:verify-layout", handler);
+  }, [isListMode]);
+
   const isPreview = Boolean(draftAoi);
   const { willClearWork } = useMemo(
     () =>

@@ -9,6 +9,7 @@ import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
+import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 import {
   clearProofMapStorage,
@@ -81,6 +82,7 @@ export default function MethodDetailPane({
   const searchString = searchParams.toString();
   const isEvidenceRoute = pathname?.includes("/evidence");
   const isEvidenceMode = mode === "evidence" || isEvidenceRoute;
+  const methodsLayout = useMethodsLayout();
   const verifyMode = useMemo(() => {
     const params = new URLSearchParams(searchString);
     const raw = (params.get("mode") ?? "").trim().toLowerCase();
@@ -1363,6 +1365,15 @@ export default function MethodDetailPane({
           >
             Verify
           </button>
+          {methodsLayout?.isVerifyTab && tab === "verify" ? (
+            <button
+              type="button"
+              onClick={() => methodsLayout.setMethodsCollapsed(!methodsLayout.methodsCollapsed)}
+              className="hidden items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+            >
+              {methodsLayout.methodsCollapsed ? "Show methods" : "Hide methods"}
+            </button>
+          ) : null}
         </div>
       )}
 

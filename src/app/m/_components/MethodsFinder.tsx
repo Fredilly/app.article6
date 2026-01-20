@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import FinderShell from "@/components/FinderShell";
+import MethodsFinderShell from "@/app/m/_components/MethodsFinderShell";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 import { probeMethodRich } from "@/app/m/_lib/methodRich";
@@ -106,71 +107,79 @@ export default async function MethodsFinder({
           ) : null}
         </header>
 
-        <FinderShell
-          left={
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold text-slate-900">Methods</h2>
-                <span className="text-xs text-slate-500">{methods.length} items</span>
-              </div>
-              <ul className="flex flex-col gap-2">
-                {methods.map((method) => {
-                  const active = selectedMethod?.code === method.code;
-                  return (
-                    <li key={method.code}>
-                      <Link
-                        href={`/m/${encodeURIComponent(method.code)}`}
-                        className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
-                          active
-                            ? "border-slate-300 bg-slate-50"
-                            : "border-slate-200 bg-white hover:bg-slate-50"
-                        }`}
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-mono text-sm text-slate-900">{method.code}</span>
-                          <span className="text-xs text-slate-500">
-                            {method.program} • {method.sector}
-                          </span>
-                        </div>
-                        <span className="text-xs text-slate-400">{method.versionCount} v</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+        <Suspense
+          fallback={
+            <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500">
+              Loading methods…
             </div>
           }
-          right={
-            selectedMethod ? (
-              <MethodDetailPane
-                method={{
-                  code: selectedMethod.code,
-                  program: selectedMethod.program,
-                  sector: selectedMethod.sector,
-                  versions: selectedMethod.versions,
-                  latestVersion: selectedMethod.latestVersion,
-                  versionCount: selectedMethod.versionCount,
-                  hasRich: selectedMethod.hasRich,
-                  hasPrevious: selectedMethod.hasPrevious,
-                  ruleCountByVersion: selectedMethod.ruleCountByVersion,
-                }}
-                activeVersion={effectiveVersion}
-                initialRuleId={selectedRuleId}
-                initialSectionId={selectedSectionId}
-                packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}
-                provenanceJson={packProvenanceJson}
-                manifestRulesPath={manifestRulesPath}
-              />
-            ) : (
+        >
+          <MethodsFinderShell
+            left={
               <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <h2 className="text-sm font-semibold text-slate-900">Detail</h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  Select a method from the list to view details and version routes.
-                </p>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h2 className="text-sm font-semibold text-slate-900">Methods</h2>
+                  <span className="text-xs text-slate-500">{methods.length} items</span>
+                </div>
+                <ul className="flex flex-col gap-2">
+                  {methods.map((method) => {
+                    const active = selectedMethod?.code === method.code;
+                    return (
+                      <li key={method.code}>
+                        <Link
+                          href={`/m/${encodeURIComponent(method.code)}`}
+                          className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
+                            active
+                              ? "border-slate-300 bg-slate-50"
+                              : "border-slate-200 bg-white hover:bg-slate-50"
+                          }`}
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-mono text-sm text-slate-900">{method.code}</span>
+                            <span className="text-xs text-slate-500">
+                              {method.program} • {method.sector}
+                            </span>
+                          </div>
+                          <span className="text-xs text-slate-400">{method.versionCount} v</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-            )
-          }
-        />
+            }
+            right={
+              selectedMethod ? (
+                <MethodDetailPane
+                  method={{
+                    code: selectedMethod.code,
+                    program: selectedMethod.program,
+                    sector: selectedMethod.sector,
+                    versions: selectedMethod.versions,
+                    latestVersion: selectedMethod.latestVersion,
+                    versionCount: selectedMethod.versionCount,
+                    hasRich: selectedMethod.hasRich,
+                    hasPrevious: selectedMethod.hasPrevious,
+                    ruleCountByVersion: selectedMethod.ruleCountByVersion,
+                  }}
+                  activeVersion={effectiveVersion}
+                  initialRuleId={selectedRuleId}
+                  initialSectionId={selectedSectionId}
+                  packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}
+                  provenanceJson={packProvenanceJson}
+                  manifestRulesPath={manifestRulesPath}
+                />
+              ) : (
+                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                  <h2 className="text-sm font-semibold text-slate-900">Detail</h2>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Select a method from the list to view details and version routes.
+                  </p>
+                </div>
+              )
+            }
+          />
+        </Suspense>
       </div>
     </main>
   );
