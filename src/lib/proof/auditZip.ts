@@ -12,6 +12,47 @@ import buildProvenanceTxt from "@/lib/export/buildProvenanceTxt";
 import selectRunsForAoi from "@/lib/export/selectRunsForAoi";
 
 type AuditZipEntry = { path: string; bytes: Uint8Array };
+type RuleSummary = { id: string; title?: string; snippet?: string; tags?: string[]; text?: string };
+type SectionSummary = { id: string; title?: string; anchor?: string; textSnippet?: string; text?: string };
+
+export type RuleEvidenceMapItem = {
+  evidence_id: string;
+  evidence_type: "stac" | "upload" | "note" | "other";
+  source_ref: string;
+  rule_ids: string[];
+  section_anchors: string[];
+  justification: string;
+};
+
+export type RuleEvidenceMap = {
+  schema_version: "v1";
+  generated_at: string;
+  method: { code: string; version: string };
+  aoi?: { id?: string; fingerprint?: string } | null;
+  items: RuleEvidenceMapItem[];
+  unmapped_reason?: string;
+};
+
+export type ReviewLogEntry = {
+  id: string;
+  ts: string;
+  actor: string;
+  action: "note" | "approve" | "reject" | "needs_more_evidence";
+  note: string;
+  refs: {
+    evidence_ids?: string[];
+    rule_ids?: string[];
+    section_anchors?: string[];
+  };
+};
+
+export type ReviewLog = {
+  schema_version: "v1";
+  created_at: string;
+  method: { code: string; version: string };
+  aoi?: { id?: string; fingerprint?: string } | null;
+  entries: ReviewLogEntry[];
+};
 
 const ZIP_ENTRY_DATE = new Date("1980-01-01T00:00:00.000Z");
 
@@ -86,6 +127,151 @@ async function buildManifestEntries(entries: AuditZipEntry[], bundleEntryHashByt
   return manifestEntries.sort((a, b) => a.path.localeCompare(b.path));
 }
 
+function normalizeText(value?: string): string {
+  return (value ?? "").toString().toLowerCase();
+}
+
+function scoreByKeywords(text: string, keywords: string[]): number {
+  return keywords.reduce((score, kw) => (text.includes(kw) ? score + 1 : score), 0);
+}
+
+function selectRules(rules: RuleSummary[], keywords: string[], limit: number): RuleSummary[] {
+  const scored = rules
+    .map((rule) => ({
+      rule,
+      score: scoreByKeywords(normalizeText([rule.id, rule.title, rule.snippet, rule.text, ...(rule.tags ?? [])].join(" ")), keywords),
+    }))
+    .sort((a, b) => b.score - a.score || a.rule.id.localeCompare(b.rule.id));
+
+  const matches = scored.filter((row) => row.score > 0).map((row) => row.rule);
+  const fallback = rules.slice(0, limit);
+  return (matches.length ? matches : fallback).slice(0, limit);
+}
+
+function selectSections(sections: SectionSummary[], keywords: string[], limit: number): SectionSummary[] {
+  const scored = sections
+    .map((section) => ({
+      section,
+      score: scoreByKeywords(normalizeText([section.id, section.anchor, section.title, section.textSnippet, section.text].join(" ")), keywords),
+    }))
+    .sort((a, b) => b.score - a.score || a.section.id.localeCompare(b.section.id));
+
+  const matches = scored.filter((row) => row.score > 0).map((row) => row.section);
+  const fallback = sections.slice(0, limit);
+  return (matches.length ? matches : fallback).slice(0, limit);
+}
+
+function extractStacItemIds(stacItemsJson: unknown): string[] {
+  if (!stacItemsJson || typeof stacItemsJson !== "object") return [];
+  const record = stacItemsJson as { items?: unknown };
+  if (!Array.isArray(record.items)) return [];
+  return record.items
+    .map((item, idx) => {
+      if (item && typeof item === "object") {
+        const id = (item as { id?: unknown }).id;
+        if (typeof id === "string" && id.trim()) return id.trim();
+      }
+      return `item-${idx + 1}`;
+    })
+    .filter(Boolean);
+}
+
+export function buildRuleEvidenceMap(input: {
+  generatedAt: string;
+  methodCode: string;
+  version: string;
+  aoiId?: string | null;
+  aoiFingerprint?: string | null;
+  rules?: RuleSummary[];
+  sections?: SectionSummary[];
+  stacItemsJson?: unknown;
+}): RuleEvidenceMap {
+  const items = extractStacItemIds(input.stacItemsJson ?? { items: [] });
+  const rules = input.rules ?? [];
+  const sections = input.sections ?? [];
+  const hasRules = rules.length > 0;
+  const hasSections = sections.length > 0;
+
+  if (!items.length) {
+    return {
+      schema_version: "v1",
+      generated_at: input.generatedAt,
+      method: { code: input.methodCode, version: input.version },
+      aoi: { id: input.aoiId ?? undefined, fingerprint: input.aoiFingerprint ?? undefined },
+      items: [],
+      unmapped_reason: "No STAC evidence items to map.",
+    };
+  }
+
+  if (!hasRules || !hasSections) {
+    return {
+      schema_version: "v1",
+      generated_at: input.generatedAt,
+      method: { code: input.methodCode, version: input.version },
+      aoi: { id: input.aoiId ?? undefined, fingerprint: input.aoiFingerprint ?? undefined },
+      items: [],
+      unmapped_reason: "Rules/sections unavailable for mapping.",
+    };
+  }
+
+  const keywords = ["monitor", "data", "remote", "qa", "qc", "sampling", "baseline"];
+  const candidateRules = selectRules(rules, keywords, 3);
+  const candidateSections = selectSections(sections, ["monitor", "data", "report", "qa", "qc"], 3);
+  const ruleIds = candidateRules.map((rule) => rule.id);
+  const sectionAnchors = candidateSections.map((section) => section.id);
+
+  const mapItems: RuleEvidenceMapItem[] = items.map((id) => ({
+    evidence_id: `stac:${id}`,
+    evidence_type: "stac",
+    source_ref: `evidence/stac_items.json#${id}`,
+    rule_ids: ruleIds,
+    section_anchors: sectionAnchors,
+    justification: "Monitoring evidence mapped via keyword heuristics to relevant rules and sections.",
+  }));
+
+  return {
+    schema_version: "v1",
+    generated_at: input.generatedAt,
+    method: { code: input.methodCode, version: input.version },
+    aoi: { id: input.aoiId ?? undefined, fingerprint: input.aoiFingerprint ?? undefined },
+    items: mapItems.sort((a, b) => a.evidence_id.localeCompare(b.evidence_id)),
+  };
+}
+
+export function buildReviewLog(input: {
+  createdAt: string;
+  methodCode: string;
+  version: string;
+  aoiId?: string | null;
+  aoiFingerprint?: string | null;
+  entry?: { actor?: string; action?: ReviewLogEntry["action"]; note?: string };
+}): ReviewLog {
+  const actor = (input.entry?.actor ?? "").trim() || "unknown";
+  const note = (input.entry?.note ?? "").trim();
+  const action = input.entry?.action ?? "note";
+  const entries: ReviewLogEntry[] = [];
+
+  if (note || actor !== "unknown" || action !== "note") {
+    const entry = {
+      ts: input.createdAt,
+      actor,
+      action,
+      note: note || "(no note provided)",
+      refs: {},
+    };
+    const id = sha256Hex(JSON.stringify(entry));
+    entries.push({ id, ...entry });
+  }
+
+  return {
+    schema_version: "v1",
+    created_at: input.createdAt,
+    method: { code: input.methodCode, version: input.version },
+    aoi: { id: input.aoiId ?? undefined, fingerprint: input.aoiFingerprint ?? undefined },
+    entries,
+  };
+}
+
 export async function buildAuditZipBytes(input: {
   bundle: ProofBundleV1;
   attachments: Array<{ id: string; filename: string; bytes: ArrayBuffer }>;
@@ -95,6 +281,8 @@ export async function buildAuditZipBytes(input: {
     stacItemsJson: unknown;
     stacEvidenceGeojson: GeoJSON.FeatureCollection;
   };
+  ruleEvidenceMap?: RuleEvidenceMap;
+  reviewLog?: ReviewLog;
 }): Promise<Uint8Array> {
   const bundleForZip = cloneBundleWithIntegrity(input.bundle);
   const canonical = canonicalizeProofBundleForHash(bundleForZip);
@@ -124,6 +312,37 @@ export async function buildAuditZipBytes(input: {
   payloadEntries.push({
     path: "evidence/stac_evidence.geojson",
     bytes: encodeText(canonicalJsonStringify(input.verificationSnapshot?.stacEvidenceGeojson ?? emptyEvidence)),
+  });
+
+  const ruleEvidenceMap =
+    input.ruleEvidenceMap ??
+    buildRuleEvidenceMap({
+      generatedAt: input.bundle.exported_at,
+      methodCode: input.bundle.method.code,
+      version: input.bundle.method.version,
+      aoiId: input.bundle.aoi?.id ?? null,
+      aoiFingerprint: input.bundle.aoi?.aoi_fingerprint ?? null,
+      rules: [],
+      sections: [],
+      stacItemsJson: input.verificationSnapshot?.stacItemsJson ?? { items: [] },
+    });
+  payloadEntries.push({
+    path: "evidence/rule_evidence_map.json",
+    bytes: encodeText(canonicalJsonStringify(ruleEvidenceMap)),
+  });
+
+  const reviewLog =
+    input.reviewLog ??
+    buildReviewLog({
+      createdAt: input.bundle.exported_at,
+      methodCode: input.bundle.method.code,
+      version: input.bundle.method.version,
+      aoiId: input.bundle.aoi?.id ?? null,
+      aoiFingerprint: input.bundle.aoi?.aoi_fingerprint ?? null,
+    });
+  payloadEntries.push({
+    path: "evidence/review_log.json",
+    bytes: encodeText(canonicalJsonStringify(reviewLog)),
   });
 
   for (const att of input.attachments) {
@@ -165,7 +384,14 @@ export async function buildAuditZipBytes(input: {
   return await buildZipBytes(entries);
 }
 
-export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<Uint8Array> {
+export async function exportAuditZipFromStorage(
+  bundle: ProofBundleV1,
+  options?: {
+    rules?: RuleSummary[];
+    sections?: SectionSummary[];
+    reviewEntry?: { actor?: string; action?: ReviewLogEntry["action"]; note?: string };
+  },
+): Promise<Uint8Array> {
   const attachments = bundleAttachments(bundle);
   const payload: Array<{ id: string; filename: string; bytes: ArrayBuffer }> = [];
   for (const meta of attachments) {
@@ -219,6 +445,26 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
     ? { ...scopedBundle, integrity: { ...scopedBundle.integrity, runs_sha256 } }
     : scopedBundle;
 
+  const ruleEvidenceMap = buildRuleEvidenceMap({
+    generatedAt: bundle.exported_at,
+    methodCode,
+    version,
+    aoiId: currentAoiId,
+    aoiFingerprint: currentAoiFingerprint,
+    rules: options?.rules ?? [],
+    sections: options?.sections ?? [],
+    stacItemsJson: stac.stac_items_json,
+  });
+
+  const reviewLog = buildReviewLog({
+    createdAt: bundle.exported_at,
+    methodCode,
+    version,
+    aoiId: currentAoiId,
+    aoiFingerprint: currentAoiFingerprint,
+    entry: options?.reviewEntry,
+  });
+
   return await buildAuditZipBytes({
     bundle: bundleWithRunsIntegrity,
     attachments: payload,
@@ -228,6 +474,8 @@ export async function exportAuditZipFromStorage(bundle: ProofBundleV1): Promise<
       stacItemsJson: stac.stac_items_json,
       stacEvidenceGeojson: stac.stac_evidence_geojson,
     },
+    ruleEvidenceMap,
+    reviewLog,
   });
 }
 

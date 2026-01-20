@@ -61,6 +61,9 @@ export default function AssistantPanel(props: AssistantPanelProps) {
   const [category, setCategory] = useState<PromptCategory>("eligibility");
   const [toast, setToast] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [reviewActor, setReviewActor] = useState("");
+  const [reviewAction, setReviewAction] = useState<"note" | "approve" | "reject" | "needs_more_evidence">("note");
+  const [reviewNote, setReviewNote] = useState("");
   const generationTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -135,6 +138,10 @@ export default function AssistantPanel(props: AssistantPanelProps) {
     try {
       const packId = props.packTag ? extractPackId(props.packTag) : undefined;
       const packDigest = pickedProvenance.packSha ?? packId ?? pickedProvenance.packTag ?? undefined;
+      const hasReviewInput = Boolean(reviewActor.trim() || reviewNote.trim() || reviewAction !== "note");
+      const reviewEntry = hasReviewInput
+        ? { actor: reviewActor.trim(), action: reviewAction, note: reviewNote.trim() }
+        : undefined;
 
       const bundle = await buildProofBundleV1({
         program: props.program,
@@ -151,7 +158,11 @@ export default function AssistantPanel(props: AssistantPanelProps) {
         sections: props.sections,
       });
 
-      const zipBytes = await exportAuditZipFromStorage(bundle);
+      const zipBytes = await exportAuditZipFromStorage(bundle, {
+        rules: props.rules,
+        sections: props.sections,
+        reviewEntry,
+      });
       const filename = `article6__${props.methodCode}__${props.version}__proof.audit.zip`;
       downloadBytes(zipBytes, filename, "application/zip");
     } catch (e) {
@@ -170,6 +181,9 @@ export default function AssistantPanel(props: AssistantPanelProps) {
     props.sections,
     props.sector,
     props.version,
+    reviewAction,
+    reviewActor,
+    reviewNote,
     showToast,
   ]);
 
@@ -320,6 +334,54 @@ export default function AssistantPanel(props: AssistantPanelProps) {
                   </button>
                 ))}
               </div>
+              <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+                <summary className="cursor-pointer font-semibold text-slate-700">
+                  Add review note (optional)
+                </summary>
+                <div className="mt-3 grid gap-3 text-xs text-slate-700">
+                  <label className="grid gap-1">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Actor
+                    </span>
+                    <input
+                      type="text"
+                      value={reviewActor}
+                      onChange={(event) => setReviewActor(event.target.value)}
+                      placeholder="Name or role"
+                      className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+                    />
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Action
+                    </span>
+                    <select
+                      value={reviewAction}
+                      onChange={(event) =>
+                        setReviewAction(event.target.value as "note" | "approve" | "reject" | "needs_more_evidence")
+                      }
+                      className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+                    >
+                      <option value="note">Note</option>
+                      <option value="approve">Approve</option>
+                      <option value="reject">Reject</option>
+                      <option value="needs_more_evidence">Needs more evidence</option>
+                    </select>
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Note
+                    </span>
+                    <textarea
+                      value={reviewNote}
+                      onChange={(event) => setReviewNote(event.target.value)}
+                      rows={3}
+                      placeholder="Short note for the review log"
+                      className="resize-none rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+                    />
+                  </label>
+                </div>
+              </details>
             </div>
 
             {isGenerating ? (

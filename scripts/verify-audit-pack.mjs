@@ -48,6 +48,52 @@ function assertTraceShape(trace) {
   }
 }
 
+function assertRuleEvidenceMap(map) {
+  if (!map || typeof map !== "object") throw new Error("rule_evidence_map.json must be an object");
+  if (map.schema_version !== "v1") throw new Error("rule_evidence_map.json missing schema_version=v1");
+  if (!map.method || typeof map.method !== "object") throw new Error("rule_evidence_map.json missing method");
+  if (typeof map.method.code !== "string" || typeof map.method.version !== "string") {
+    throw new Error("rule_evidence_map.json method must include code and version");
+  }
+  if (!Array.isArray(map.items)) throw new Error("rule_evidence_map.json items must be an array");
+  if (!map.items.length && typeof map.unmapped_reason !== "string") {
+    throw new Error("rule_evidence_map.json missing unmapped_reason when items empty");
+  }
+  for (const item of map.items) {
+    if (!item || typeof item !== "object") throw new Error("rule_evidence_map.json item must be object");
+    if (typeof item.evidence_id !== "string") throw new Error("rule_evidence_map.json item missing evidence_id");
+    if (typeof item.evidence_type !== "string") throw new Error("rule_evidence_map.json item missing evidence_type");
+    if (typeof item.source_ref !== "string") throw new Error("rule_evidence_map.json item missing source_ref");
+    if (!Array.isArray(item.rule_ids)) throw new Error("rule_evidence_map.json item missing rule_ids array");
+    if (!Array.isArray(item.section_anchors)) throw new Error("rule_evidence_map.json item missing section_anchors array");
+    if (typeof item.justification !== "string") throw new Error("rule_evidence_map.json item missing justification");
+    if (!item.rule_ids.every((id) => typeof id === "string")) {
+      throw new Error("rule_evidence_map.json item rule_ids must be strings");
+    }
+    if (!item.section_anchors.every((id) => typeof id === "string")) {
+      throw new Error("rule_evidence_map.json item section_anchors must be strings");
+    }
+  }
+}
+
+function assertReviewLog(log) {
+  if (!log || typeof log !== "object") throw new Error("review_log.json must be an object");
+  if (log.schema_version !== "v1") throw new Error("review_log.json missing schema_version=v1");
+  if (!log.method || typeof log.method !== "object") throw new Error("review_log.json missing method");
+  if (typeof log.method.code !== "string" || typeof log.method.version !== "string") {
+    throw new Error("review_log.json method must include code and version");
+  }
+  if (!Array.isArray(log.entries)) throw new Error("review_log.json entries must be an array");
+  for (const entry of log.entries) {
+    if (!entry || typeof entry !== "object") throw new Error("review_log.json entry must be object");
+    if (typeof entry.id !== "string") throw new Error("review_log.json entry missing id");
+    if (typeof entry.ts !== "string") throw new Error("review_log.json entry missing ts");
+    if (typeof entry.actor !== "string") throw new Error("review_log.json entry missing actor");
+    if (typeof entry.action !== "string") throw new Error("review_log.json entry missing action");
+    if (typeof entry.note !== "string") throw new Error("review_log.json entry missing note");
+  }
+}
+
 try {
   const manifestRaw = zipReadText(zip, "manifest.json");
   const manifest = JSON.parse(manifestRaw);
@@ -86,6 +132,25 @@ try {
         assertTraceShape(parsed);
       } catch (error) {
         console.error(`❌ INVALID TRACE ${p}\n  ${error?.message || error}`);
+        fail++;
+        continue;
+      }
+    }
+
+    if (p === "evidence/rule_evidence_map.json") {
+      try {
+        assertRuleEvidenceMap(JSON.parse(bytes.toString("utf8")));
+      } catch (error) {
+        console.error(`❌ INVALID RULE EVIDENCE MAP ${p}\n  ${error?.message || error}`);
+        fail++;
+        continue;
+      }
+    }
+    if (p === "evidence/review_log.json") {
+      try {
+        assertReviewLog(JSON.parse(bytes.toString("utf8")));
+      } catch (error) {
+        console.error(`❌ INVALID REVIEW LOG ${p}\n  ${error?.message || error}`);
         fail++;
         continue;
       }
