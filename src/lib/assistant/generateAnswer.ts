@@ -1,93 +1,140 @@
 import type { AssistantQuestionId } from "@/lib/assistant/questions";
 
-type RuleInput = { id: string; title: string; snippet: string; text?: string };
+export type PromptCategory =
+  | "eligibility"
+  | "additionality"
+  | "monitoring"
+  | "leakage"
+  | "permanence";
+
+export const WHERE_DEFINED_CATEGORIES: { id: PromptCategory; label: string }[] = [
+  { id: "eligibility", label: "Eligibility" },
+  { id: "additionality", label: "Additionality" },
+  { id: "monitoring", label: "Monitoring" },
+  { id: "leakage", label: "Leakage" },
+  { id: "permanence", label: "Permanence" },
+];
+
+type RuleInput = { id: string; title: string; snippet: string; tags?: string[]; text?: string };
 type SectionInput = { id: string; title: string; textSnippet?: string; text?: string };
 
-type EvidenceItem =
-  | { type: "rule"; id: string; title?: string; href?: string; excerpt?: string; quality?: "high" | "low" }
-  | { type: "section"; id: string; title?: string; href?: string; excerpt?: string; quality?: "high" | "low" }
-  | { type: "citation"; id: string; title?: string; href?: string; excerpt?: string; quality?: "high" | "low" };
+type EvidenceItem = { type: "rule" | "section"; id: string; title?: string };
 
 export type AssistantAnswer = {
   question_id: AssistantQuestionId;
-  answer_md: string;
+  answer: string;
   evidence: EvidenceItem[];
-  assumptions: string[];
-  next_actions: string[];
+  assumptions?: string[];
+  next_actions: Array<{ id: "open_verify" | "add_evidence" | "export_pack"; label: string }>;
   provenance: { pack?: string; generated_at?: string; repo_sha?: string };
 };
 
-function topMatches<T>(
-  items: T[],
-  toText: (item: T) => string,
-  keywords: string[],
-  limit: number,
-): T[] {
+const CATEGORY_KEYWORDS: Record<PromptCategory, string[]> = {
+  eligibility: ["eligib", "applic", "boundary", "project", "scope"],
+  additionality: ["additional", "baseline", "barrier", "common practice"],
+  monitoring: ["monitor", "report", "qa", "qc", "verification", "frequency"],
+  leakage: ["leak", "leakage", "displacement", "reversal"],
+  permanence: ["perman", "reversal", "buffer", "risk", "crediting period"],
+};
+
+const IMPORTANT_RULE_KEYWORDS = [
+  "mrv",
+  "monitor",
+  "report",
+  "eligib",
+  "additional",
+  "leak",
+  "perman",
+  "baseline",
+  "verification",
+  "audit",
+];
+
+const EVIDENCE_KEYWORDS = ["data", "parameter", "input", "evidence", "record", "monitor", "report", "qa", "qc"];
+
+function normalizeText(value?: string): string {
+  return (value ?? "").toString().toLowerCase();
+}
+
+function scoreByKeywords(text: string, keywords: string[]): number {
+  return keywords.reduce((score, kw) => (text.includes(kw) ? score + 1 : score), 0);
+}
+
+function pickTop<T>(items: T[], toText: (item: T) => string, keywords: string[], limit: number): T[] {
   const scored = items
-    .map((item) => {
-      const text = toText(item).toLowerCase();
-      const score = keywords.reduce((acc, kw) => (text.includes(kw) ? acc + 1 : acc), 0);
-      return { item, score };
-    })
+    .map((item) => ({ item, score: scoreByKeywords(toText(item), keywords) }))
     .filter((row) => row.score > 0)
     .sort((a, b) => b.score - a.score);
 
   return scored.slice(0, limit).map((row) => row.item);
 }
 
-function buildMissingAnswer(questionId: AssistantQuestionId, missing: string[], provenance: AssistantAnswer["provenance"]): AssistantAnswer {
-  return {
-    question_id: questionId,
-    answer_md: `Not enough evidence loaded.\n\nMissing: ${missing.join(", ")}`,
-    evidence: [],
-    assumptions: [],
-    next_actions: [
-      "Load Rules and Sections (and Rich evidence if available).",
-      "Retry this question after evidence loads.",
-    ],
-    provenance,
+function ruleText(rule: RuleInput): string {
+  return [
+    rule.id,
+    rule.title,
+    rule.snippet,
+    rule.text ?? "",
+    ...(rule.tags ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function sectionText(section: SectionInput): string {
+  return [section.id, section.title, section.textSnippet ?? "", section.text ?? ""]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function dedupeEvidence(items: EvidenceItem[]): EvidenceItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = `${item.type}:${item.id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function ensureEvidence(items: EvidenceItem[], rules: RuleInput[], sections: SectionInput[]): EvidenceItem[] {
+  const evidence = [...items];
+  const rulesUsed = new Set(evidence.filter((item) => item.type === "rule").map((item) => item.id));
+  const sectionsUsed = new Set(evidence.filter((item) => item.type === "section").map((item) => item.id));
+
+  const addRule = (rule?: RuleInput) => {
+    if (!rule || rulesUsed.has(rule.id)) return;
+    rulesUsed.add(rule.id);
+    evidence.push({ type: "rule", id: rule.id, title: rule.title });
   };
+
+  const addSection = (section?: SectionInput) => {
+    if (!section || sectionsUsed.has(section.id)) return;
+    sectionsUsed.add(section.id);
+    evidence.push({ type: "section", id: section.id, title: section.title });
+  };
+
+  if (rulesUsed.size === 0 && rules.length) addRule(rules[0]);
+  if (sectionsUsed.size === 0 && sections.length) addSection(sections[0]);
+
+  if (rulesUsed.size >= 2 || (rulesUsed.size >= 1 && sectionsUsed.size >= 1)) {
+    return dedupeEvidence(evidence);
+  }
+
+  if (rules.length > 1 && rulesUsed.size < 2) addRule(rules[1]);
+  if (sections.length > 1 && sectionsUsed.size < 1) addSection(sections[1]);
+
+  return dedupeEvidence(evidence);
 }
 
-function hrefForRule(code: string, ver: string, ruleId: string) {
-  return `/m/${encodeURIComponent(code)}/v/${encodeURIComponent(ver)}?rule=${encodeURIComponent(ruleId)}`;
-}
-
-function hrefForSection(code: string, ver: string, sectionId: string) {
-  return `/m/${encodeURIComponent(code)}/v/${encodeURIComponent(ver)}?section=${encodeURIComponent(sectionId)}`;
-}
-
-export const MAX_EVIDENCE_EXCERPT_CHARS = 180;
-export const MAX_EVIDENCE_EXCERPT_WORDS = 20;
-
-function normalizeBodyText(value?: string): string | null {
-  if (!value) return null;
-  const normalized = value.replace(/\s+/g, " ").trim();
-  return normalized ? normalized : null;
-}
-
-function firstSentence(value: string): string {
-  const match = value.match(/^[\\s\\S]*?[.!?](\\s|$)/);
-  return match ? match[0] : value;
-}
-
-function capExcerpt(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  if (trimmed.length <= MAX_EVIDENCE_EXCERPT_CHARS) return trimmed;
-  return `${trimmed.slice(0, MAX_EVIDENCE_EXCERPT_CHARS).trimEnd()}…`;
-}
-
-function excerptFromText(value: string): string {
-  const normalized = normalizeBodyText(value) ?? "";
-  if (!normalized) return "";
-  const sentence = firstSentence(normalized);
-  const words = sentence.split(/\\s+/).filter(Boolean);
-  const limited =
-    words.length <= MAX_EVIDENCE_EXCERPT_WORDS
-      ? sentence
-      : `${words.slice(0, MAX_EVIDENCE_EXCERPT_WORDS).join(" ")}…`;
-  return capExcerpt(limited);
+function baseActions(): AssistantAnswer["next_actions"] {
+  return [
+    { id: "open_verify", label: "Open Verify" },
+    { id: "add_evidence", label: "Add evidence" },
+    { id: "export_pack", label: "Export pack" },
+  ];
 }
 
 export function generateAnswer(input: {
@@ -96,189 +143,93 @@ export function generateAnswer(input: {
   version: string;
   rules: RuleInput[];
   sections: SectionInput[];
-  rich?: unknown | null;
-  meta?: unknown | null;
+  category?: PromptCategory;
   provenance: { pack?: string; generated_at?: string; repo_sha?: string };
 }): AssistantAnswer {
-  const { questionId, methodCode, version, rules, sections, provenance, meta } = input;
-
-  const missing: string[] = [];
-  if (!rules.length) missing.push("rules");
-  if (!sections.length) missing.push("sections");
-
-  // For MVP, all questions require at least sections; some benefit from rules.
-  if (questionId === "required_data" || questionId === "monitoring_reporting") {
-    if (!sections.length) return buildMissingAnswer(questionId, ["sections"], provenance);
-  } else if (questionId === "changes_vs_previous") {
-    if (!meta) missing.push("meta");
-    if (missing.length) return buildMissingAnswer(questionId, Array.from(new Set(missing)), provenance);
-  } else {
-    if (missing.length) return buildMissingAnswer(questionId, missing, provenance);
-  }
-
-  const assumptions: string[] = [
-    "This output is generated from loaded evidence only (no inference beyond provided content).",
-    "Evidence excerpts use full text when available; otherwise they fall back to snippets (marked low quality).",
-  ];
-
-  const next_actions: string[] = [
-    "Open the linked evidence items to validate details in context.",
-    "Export the evidence bundle for audit packaging.",
-  ];
-
-  const sectionText = (s: SectionInput) => `${s.id} ${s.title} ${s.textSnippet ?? ""} ${s.text ?? ""}`;
-  const ruleText = (r: RuleInput) => `${r.id} ${r.title} ${r.snippet} ${r.text ?? ""}`;
+  const { questionId, rules, sections, category = "eligibility", provenance } = input;
 
   const evidence: EvidenceItem[] = [];
-
-  const addSectionEvidence = (matches: SectionInput[]) => {
-    for (const section of matches) {
-      const body = normalizeBodyText(section.text);
-      const fallback = normalizeBodyText(section.textSnippet) ?? normalizeBodyText(section.title) ?? null;
-      const excerptSource = body ?? fallback ?? null;
-      evidence.push({
-        type: "section",
-        id: section.id,
-        title: section.title,
-        href: hrefForSection(methodCode, version, section.id),
-        excerpt: excerptSource ? excerptFromText(excerptSource) : undefined,
-        quality: body ? "high" : "low",
-      });
+  const addRules = (items: RuleInput[]) => {
+    for (const rule of items) {
+      evidence.push({ type: "rule", id: rule.id, title: rule.title });
+    }
+  };
+  const addSections = (items: SectionInput[]) => {
+    for (const section of items) {
+      evidence.push({ type: "section", id: section.id, title: section.title });
     }
   };
 
-  const addRuleEvidence = (matches: RuleInput[]) => {
-    for (const rule of matches) {
-      const body = normalizeBodyText(rule.text);
-      const fallback = normalizeBodyText(rule.snippet) ?? normalizeBodyText(rule.title) ?? null;
-      const excerptSource = body ?? fallback ?? null;
-      evidence.push({
-        type: "rule",
-        id: rule.id,
-        title: rule.title,
-        href: hrefForRule(methodCode, version, rule.id),
-        excerpt: excerptSource ? excerptFromText(excerptSource) : undefined,
-        quality: body ? "high" : "low",
-      });
-    }
+  if (questionId === "important_rules") {
+    const rulesFound = pickTop(rules, ruleText, IMPORTANT_RULE_KEYWORDS, 4);
+    const sectionsFound = pickTop(sections, sectionText, IMPORTANT_RULE_KEYWORDS, 2);
+    addRules(rulesFound.length ? rulesFound : rules.slice(0, 3));
+    addSections(sectionsFound);
+
+    const answer =
+      "Start with the rules below that shape eligibility, monitoring, and permanence. Verify each against the cited sections.";
+
+    return {
+      question_id: questionId,
+      answer,
+      evidence: ensureEvidence(dedupeEvidence(evidence), rules, sections),
+      assumptions: ["Priority is inferred from tags and keyword matches."],
+      next_actions: baseActions(),
+      provenance,
+    };
+  }
+
+  if (questionId === "evidence_first") {
+    const sectionsFound = pickTop(sections, sectionText, EVIDENCE_KEYWORDS, 4);
+    const rulesFound = pickTop(rules, ruleText, EVIDENCE_KEYWORDS, 2);
+    addSections(sectionsFound.length ? sectionsFound : sections.slice(0, 3));
+    addRules(rulesFound);
+
+    const answer =
+      "Gather monitoring inputs, eligibility evidence, and any permanence/leakage controls referenced below.";
+
+    return {
+      question_id: questionId,
+      answer,
+      evidence: ensureEvidence(dedupeEvidence(evidence), rules, sections),
+      assumptions: ["Checklist is inferred from rule tags and section keywords."],
+      next_actions: baseActions(),
+      provenance,
+    };
+  }
+
+  if (questionId === "where_defined") {
+    const keywords = CATEGORY_KEYWORDS[category];
+    const sectionsFound = pickTop(sections, sectionText, keywords, 4);
+    const rulesFound = pickTop(rules, ruleText, keywords, 2);
+    addSections(sectionsFound.length ? sectionsFound : sections.slice(0, 2));
+    addRules(rulesFound);
+
+    const label = WHERE_DEFINED_CATEGORIES.find((entry) => entry.id === category)?.label ?? "Category";
+    const answer = `The ${label.toLowerCase()} definition and constraints are grounded in the sections below.`;
+
+    return {
+      question_id: questionId,
+      answer,
+      evidence: ensureEvidence(dedupeEvidence(evidence), rules, sections),
+      next_actions: baseActions(),
+      provenance,
+    };
+  }
+
+  const exportKeywords = ["audit", "export", "pack", "verification", "report"];
+  const rulesFound = pickTop(rules, ruleText, exportKeywords, 2);
+  const sectionsFound = pickTop(sections, sectionText, exportKeywords, 2);
+  addRules(rulesFound.length ? rulesFound : rules.slice(0, 1));
+  addSections(sectionsFound.length ? sectionsFound : sections.slice(0, 1));
+
+  const answer = "Use the Export pack action to generate the audit-ready bundle for this method and version.";
+
+  return {
+    question_id: questionId,
+    answer,
+    evidence: ensureEvidence(dedupeEvidence(evidence), rules, sections),
+    next_actions: baseActions(),
+    provenance,
   };
-
-  const uniqEvidence = () => {
-    const seen = new Set<string>();
-    return evidence.filter((item) => {
-      const key = `${item.type}:${item.id}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  };
-
-  if (questionId === "purpose_claims") {
-    const sectionsFound =
-      topMatches(sections, sectionText, ["purpose", "scope", "objective", "claim"], 3) ||
-      sections.slice(0, 2);
-    const rulesFound = topMatches(rules, ruleText, ["shall", "must", "objective", "scope"], 2);
-
-    addSectionEvidence(sectionsFound.length ? sectionsFound : sections.slice(0, 2));
-    addRuleEvidence(rulesFound);
-
-    const answer_md = [
-      "## Answer",
-      "This methodology’s purpose and claims are grounded in the sections linked below.",
-      "",
-      "## Summary",
-      `- Loaded sections: ${sections.length}`,
-      `- Loaded rules: ${rules.length}`,
-      "",
-      "Use the Evidence chips to confirm the exact language.",
-    ].join("\n");
-
-    return { question_id: questionId, answer_md, evidence: uniqEvidence(), assumptions, next_actions, provenance };
-  }
-
-  if (questionId === "eligibility_constraints") {
-    const sectionsFound = topMatches(sections, sectionText, ["eligib", "applic", "boundary", "project", "shall", "must"], 4);
-    const rulesFound = topMatches(rules, ruleText, ["eligib", "shall", "must", "require"], 3);
-    addSectionEvidence(sectionsFound);
-    addRuleEvidence(rulesFound);
-
-    const answer_md = [
-      "## Answer",
-      "Eligibility constraints should be validated from the linked passages; this summary avoids introducing unstated requirements.",
-      "",
-      "## What to look for",
-      "- Applicability conditions (where the method can/can’t be used)",
-      "- Boundary definitions and exclusions",
-      "- Required prerequisites before claiming credits",
-    ].join("\n");
-
-    return { question_id: questionId, answer_md, evidence: uniqEvidence(), assumptions, next_actions, provenance };
-  }
-
-  if (questionId === "required_data") {
-    const sectionsFound = topMatches(sections, sectionText, ["data", "parameter", "input", "table", "measure", "monitor"], 5);
-    addSectionEvidence(sectionsFound.length ? sectionsFound : sections.slice(0, 3));
-
-    const answer_md = [
-      "## Answer",
-      "Required data inputs are defined in the linked sections (parameters, tables, and monitoring inputs).",
-      "",
-      "## How to use this",
-      "- Extract parameter names, units, and sources from the Evidence sections",
-      "- Confirm any default values or conservative assumptions in the source text",
-    ].join("\n");
-
-    return { question_id: questionId, answer_md, evidence: uniqEvidence(), assumptions, next_actions, provenance };
-  }
-
-  if (questionId === "calculation_steps") {
-    const sectionsFound = topMatches(sections, sectionText, ["calcul", "equation", "step", "formula", "baseline", "emission"], 5);
-    const rulesFound = topMatches(rules, ruleText, ["calcul", "equation", "baseline", "emission"], 3);
-    addSectionEvidence(sectionsFound.length ? sectionsFound : sections.slice(0, 3));
-    addRuleEvidence(rulesFound);
-
-    const answer_md = [
-      "## Answer",
-      "Calculation steps are grounded in the linked sections (and any rules that reference formulas/steps).",
-      "",
-      "## Suggested walkthrough",
-      "- Identify the baseline scenario section(s)",
-      "- Locate equations/formulas and required parameters",
-      "- Confirm any discounting / uncertainty / conservativeness rules",
-    ].join("\n");
-
-    return { question_id: questionId, answer_md, evidence: uniqEvidence(), assumptions, next_actions, provenance };
-  }
-
-  if (questionId === "monitoring_reporting") {
-    const sectionsFound = topMatches(sections, sectionText, ["monitor", "report", "qa", "qc", "verification", "frequency"], 5);
-    addSectionEvidence(sectionsFound.length ? sectionsFound : sections.slice(0, 3));
-
-    const answer_md = [
-      "## Answer",
-      "Monitoring and reporting expectations are defined in the linked sections.",
-      "",
-      "## What to extract",
-      "- Required measurements and frequency",
-      "- QA/QC procedures",
-      "- Reporting artifacts and retention requirements",
-    ].join("\n");
-
-    return { question_id: questionId, answer_md, evidence: uniqEvidence(), assumptions, next_actions, provenance };
-  }
-
-  if (questionId === "changes_vs_previous") {
-    const sectionsFound = topMatches(sections, sectionText, ["change", "revision", "update", "previous"], 4);
-    addSectionEvidence(sectionsFound);
-    const answer_md = [
-      "## Answer",
-      "Changes vs previous versions should be confirmed directly in the linked sections and any referenced change logs.",
-      "",
-      "If no change-log section is present, open the Versions tab to compare versions manually.",
-    ].join("\n");
-    return { question_id: questionId, answer_md, evidence: uniqEvidence(), assumptions, next_actions, provenance };
-  }
-
-  const fallback_md = `Not enough evidence loaded.\n\nMissing: rules, sections`;
-  return { question_id: questionId, answer_md: fallback_md, evidence: [], assumptions: [], next_actions: [], provenance };
 }

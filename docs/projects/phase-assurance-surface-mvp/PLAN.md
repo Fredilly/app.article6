@@ -33,20 +33,20 @@ Status is sourced from `docs/roadmaps/phase-assurance-surface-mvp/phase-status.j
 ## PR13 - Grounded Method Assistant (guided prompts only)
 
 ### Scope
-- Assistant panel with 6-10 fixed prompt buttons.
-- Response format is structured JSON: answer_summary + citations[] + data_used[].
+- Assistant panel with 4 fixed prompt buttons (guided only, no freeform).
+- Structured response: Answer, Evidence (rule/section links), Assumptions (optional), Next actions.
 - Only uses: META/rules/sections/trace/diff (no other sources).
 
 ### Acceptance
-- Every response includes >=1 citation; otherwise returns "Not enough grounded data".
-- All citations resolve to valid ids/routes.
-- Same prompt + same artifacts => identical output JSON after canonicalization.
-- Unit tests per prompt enforce constraints (no uncited claims, ids valid).
+- No freeform input visible anywhere in the Assistant surface.
+- Every response includes grounded Evidence linking to rule IDs and/or section anchors.
+- Next actions route to Verify (list/map) and Export pack.
+- Same prompt + same artifacts => identical output after canonicalization.
 
 ### Visible UI changes to look for
-- Assistant panel.
-- Guided prompts.
-- Clickable citations to rules/sections/evidence.
+- Assistant panel shows 4 prompt buttons and no text box.
+- Evidence lists clickable rule IDs + section anchors.
+- Next actions appear as buttons (Open Verify / Add evidence / Export pack).
 
 ## PR14 - Rule-Scoped Evidence Pack + Append-Only Review Log
 
