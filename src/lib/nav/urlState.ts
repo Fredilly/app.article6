@@ -1,4 +1,4 @@
-export type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
+export type DetailTab = "overview" | "assistant" | "verify" | "versions" | "rules" | "sections" | "rich";
 
 type SearchParamsLike = { get(key: string): string | null; toString(): string };
 
@@ -6,12 +6,14 @@ export function parseDetailTab(value: string | null): DetailTab | null {
   switch ((value ?? "").trim()) {
     case "overview":
     case "assistant":
-    case "map":
+    case "verify":
     case "versions":
     case "rules":
     case "sections":
     case "rich":
       return value as DetailTab;
+    case "map":
+      return "verify";
     default:
       return null;
   }
@@ -51,4 +53,3 @@ export function applyUrlUpdates(
   }
   return next.toString();
 }
-

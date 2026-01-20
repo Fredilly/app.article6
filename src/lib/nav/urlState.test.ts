@@ -3,12 +3,13 @@ import { applyUrlUpdates, formatBboxParam, parseBboxParam, parseDetailTab } from
 describe("urlState", () => {
   test("applyUrlUpdates preserves unrelated params and deletes empty updates", () => {
     const params = new URLSearchParams("method=ACME&version=1.0.0&tab=overview&keep=1");
-    const next = applyUrlUpdates(params, { tab: "map", keep: null, extra: "x" });
-    expect(next).toBe("method=ACME&version=1.0.0&tab=map&extra=x");
+    const next = applyUrlUpdates(params, { tab: "verify", keep: null, extra: "x" });
+    expect(next).toBe("method=ACME&version=1.0.0&tab=verify&extra=x");
   });
 
   test("parseDetailTab accepts only known tabs", () => {
-    expect(parseDetailTab("map")).toBe("map");
+    expect(parseDetailTab("verify")).toBe("verify");
+    expect(parseDetailTab("map")).toBe("verify");
     expect(parseDetailTab("")).toBeNull();
     expect(parseDetailTab("nope")).toBeNull();
   });
@@ -19,4 +20,3 @@ describe("urlState", () => {
     expect(parseBboxParam(encoded)).toEqual(bbox);
   });
 });
-

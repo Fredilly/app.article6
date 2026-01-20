@@ -26,13 +26,14 @@ async function run() {
     const methodRes = await fetch(`http://localhost:${port}/m/AR-ACM0003/v/v02-0`);
     if (!methodRes.ok) throw new Error(`Expected 200 but got ${methodRes.status} for method page`);
     const methodHtml = await methodRes.text();
-    if (!methodHtml.includes("Evidence View")) {
-      throw new Error("Smoke test failed: expected Evidence View control on method page.");
+    if (!methodHtml.includes("Verify")) {
+      throw new Error("Smoke test failed: expected Verify control on method page.");
     }
 
     const urls = [
       `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence`,
       `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence?tab=map`,
+      `http://localhost:${port}/m/AR-ACM0003/v/v02-0/evidence?mode=map`,
     ];
     for (const url of urls) {
       const res = await fetch(url);
@@ -49,8 +50,8 @@ async function run() {
       "/m/AR-ACM0003/v/v02-0/evidence",
       new URLSearchParams("tab=map"),
     );
-    if (canonicalPath !== "/m/AR-ACM0003/v/v02-0/evidence") {
-      throw new Error("Smoke test failed: canonical evidence path did not strip tab param.");
+    if (canonicalPath !== "/m/AR-ACM0003/v/v02-0/evidence?mode=map") {
+      throw new Error("Smoke test failed: canonical evidence path did not normalize tab to mode.");
     }
 
     const snapshotInput = {

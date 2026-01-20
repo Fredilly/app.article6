@@ -51,12 +51,6 @@ export default async function EvidenceView({ selectedCode, selectedVersion }: Ev
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 md:px-8">
-        <header className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Evidence View</h1>
-          <p className="text-sm text-slate-600">Trace-driven AOI + evidence surface for verification.</p>
-          <span className="sr-only">Upload AOI Search STAC evidence</span>
-        </header>
-
         {selectedMethod && effectiveVersion ? (
           <MethodDetailPane
             method={{
@@ -78,7 +72,7 @@ export default async function EvidenceView({ selectedCode, selectedVersion }: Ev
           />
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <h2 className="text-sm font-semibold text-slate-900">Evidence View</h2>
+            <h2 className="text-sm font-semibold text-slate-900">Verify</h2>
             <p className="mt-1 text-sm text-slate-600">
               Method {normalizedCode}@{normalizedVersion} was not found in the current inventory.
             </p>

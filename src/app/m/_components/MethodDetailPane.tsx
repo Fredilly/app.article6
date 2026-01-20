@@ -8,6 +8,7 @@ import { IntegrityDiffPanel } from "@/app/m/_components/IntegrityDiffPanel";
 import TrustStrip from "@/components/TrustStrip";
 import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
+import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 import {
   clearProofMapStorage,
@@ -27,9 +28,7 @@ import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
-import { applyUrlUpdates, parseDetailTab } from "@/lib/nav/urlState";
-
-type DetailTab = "overview" | "assistant" | "map" | "versions" | "rules" | "sections" | "rich";
+import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlState";
 
 type MethodDetail = {
   code: string;
@@ -82,17 +81,42 @@ export default function MethodDetailPane({
   const searchString = searchParams.toString();
   const isEvidenceRoute = pathname?.includes("/evidence");
   const isEvidenceMode = mode === "evidence" || isEvidenceRoute;
+  const verifyMode = useMemo(() => {
+    const params = new URLSearchParams(searchString);
+    const raw = (params.get("mode") ?? "").trim().toLowerCase();
+    return raw === "map" ? "map" : "list";
+  }, [searchString]);
   const defaultTab: DetailTab = useMemo(
-    () => (isEvidenceMode ? "map" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
+    () => (isEvidenceMode ? "verify" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
     [initialRuleId, initialSectionId, isEvidenceMode],
   );
   const focusSectionParam = searchParams.get("section")?.trim() || null;
   const tab = useMemo(() => {
-    if (isEvidenceMode) return "map";
+    if (isEvidenceMode) return "verify";
     const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     return parsed ?? defaultTab;
   }, [defaultTab, isEvidenceMode, searchString]);
-  const effectiveTab: DetailTab = isEvidenceMode ? "map" : tab;
+  const effectiveTab: DetailTab = isEvidenceMode ? "verify" : tab;
+  const methodBasePath = useMemo(() => {
+    const encodedCode = encodeURIComponent(method.code);
+    if (activeVersion) {
+      return `/m/${encodedCode}/v/${encodeURIComponent(activeVersion)}`;
+    }
+    return `/m/${encodedCode}`;
+  }, [activeVersion, method.code]);
+  const buildVerifyHref = useCallback(
+    (versionOverride?: string) => {
+      const basePath = versionOverride
+        ? `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(versionOverride)}`
+        : methodBasePath;
+      const params = new URLSearchParams(searchString);
+      params.set("tab", "verify");
+      if (!params.get("mode")) params.set("mode", "list");
+      const query = params.toString();
+      return query ? `${basePath}?${query}` : basePath;
+    },
+    [method.code, methodBasePath, searchString],
+  );
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return;
@@ -200,6 +224,7 @@ export default function MethodDetailPane({
   };
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
+  const lastEvidenceParam = useRef<string | null>(null);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richError, setRichError] = useState<string | null>(null);
@@ -305,6 +330,17 @@ export default function MethodDetailPane({
   useEffect(() => {
     if (isEvidenceMode) return;
     if (!pathname) return;
+    const mapParams = new URLSearchParams(searchString);
+    const rawTab = mapParams.get("tab");
+    if (rawTab && rawTab.trim() === "map") {
+      mapParams.set("tab", "verify");
+      if (!mapParams.get("mode")) mapParams.set("mode", "map");
+      const nextQuery = mapParams.toString();
+      if (nextQuery !== searchString) {
+        router.replace(`${pathname}?${nextQuery}`, { scroll: false });
+      }
+      return;
+    }
     const urlTab = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     if (urlTab) return;
     const next = applyUrlUpdates(new URLSearchParams(searchString), { tab });
@@ -1120,6 +1156,34 @@ export default function MethodDetailPane({
   const linkedSectionIds = useMemo(() => new Set(evidenceLinkSelection?.sectionIds ?? []), [evidenceLinkSelection]);
 
   useEffect(() => {
+    if (!isEvidenceMode) return;
+    const next = (searchParams.get("evidence") ?? "").trim() || null;
+    if (next === lastEvidenceParam.current) return;
+    lastEvidenceParam.current = next;
+    setSelectedStacItemId(next);
+  }, [isEvidenceMode, searchParams, searchString]);
+
+  useEffect(() => {
+    if (!isEvidenceMode) return;
+    if (!pathname) return;
+    const next = applyUrlUpdates(new URLSearchParams(searchString), {
+      evidence: selectedStacItemId ?? null,
+    });
+    if (next === searchString) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [isEvidenceMode, pathname, router, searchString, selectedStacItemId]);
+
+  useEffect(() => {
+    if (!isEvidenceMode) return;
+    if (!pathname) return;
+    const next = applyUrlUpdates(new URLSearchParams(searchString), {
+      aoi: effectiveAoi?.id ?? null,
+    });
+    if (next === searchString) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [effectiveAoi?.id, isEvidenceMode, pathname, router, searchString]);
+
+  useEffect(() => {
     const params = new URLSearchParams(searchString);
     const focusTab = (params.get("tab") ?? "").trim();
     const focusId = (params.get("focus") ?? "").trim();
@@ -1150,6 +1214,54 @@ export default function MethodDetailPane({
       setSectionParam(initialSectionId);
     })();
   }, [activeVersion, ensureSectionsLoaded, initialSectionId, setSectionParam, setTabParam]);
+
+  const verifySurface = (
+    <div className="mt-4 grid gap-4">
+      <VerifyHeader />
+      <ProofMapTab
+        methodCode={method.code}
+        version={activeVersion ?? ""}
+        provenanceJson={provenanceJson}
+        mode={isEvidenceMode ? "evidence" : undefined}
+        viewMode={verifyMode}
+        aoi={effectiveAoi}
+        currentAoi={currentAoi}
+        draftAoi={draftAoi}
+        evidencePins={evidencePins}
+        verificationRuns={verificationRuns}
+        stacEvidenceState={stacEvidenceState}
+        selectedStacItemId={selectedStacItemId}
+        evidenceSnapshots={evidenceSnapshots}
+        onSetAoi={setActiveAoiAndPersist}
+        onUploadAoi={handleUploadAoi}
+        onApplyDraftAoi={handleApplyDraftAoi}
+        onCancelDraftAoi={handleCancelDraftAoi}
+        onUndoApplyAoi={handleUndoApply}
+        applyToken={applyToken}
+        onStartOver={startOverProofMap}
+        onSetEvidencePins={setEvidencePinsAndPersist}
+        onSetVerificationRuns={setVerificationRunsAndPersist}
+        onSetStacEvidenceState={(next) => {
+          if (!evidenceKey) return;
+          setStacEvidenceByKey((prev) => {
+            if (!next) {
+              const out = { ...prev };
+              delete out[evidenceKey];
+              return out;
+            }
+            return { ...prev, [evidenceKey]: next };
+          });
+        }}
+        onSelectStacItemId={setSelectedStacItemId}
+        onEvidenceSelectionChange={setEvidenceLinkSelection}
+        onNavigateEvidence={async (type, id) => {
+          if (type === "rule") return await navigateToRule(id);
+          if (type === "section") return await navigateToSection(id);
+          return false;
+        }}
+      />
+    </div>
+  );
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -1185,7 +1297,7 @@ export default function MethodDetailPane({
       {isEvidenceMode ? (
         <div className="mt-3 flex justify-end">
           <Link
-            href={`/m/${encodeURIComponent(method.code)}?tab=map`}
+            href={buildVerifyHref()}
             className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
           >
             Back to Method
@@ -1245,57 +1357,17 @@ export default function MethodDetailPane({
           </button>
           <button
             type="button"
-            onClick={() => setTabParam("map")}
-            className={`${tabBase} ${tab === "map" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "map"}
+            onClick={() => setTabParam("verify")}
+            className={`${tabBase} ${tab === "verify" ? tabActive : tabIdle}`}
+            aria-pressed={tab === "verify"}
           >
-            Map
+            Verify
           </button>
         </div>
       )}
 
       {isEvidenceMode ? (
-        <ProofMapTab
-          methodCode={method.code}
-          version={activeVersion ?? ""}
-          provenanceJson={provenanceJson}
-          mode="evidence"
-          aoi={effectiveAoi}
-          currentAoi={currentAoi}
-          draftAoi={draftAoi}
-          evidencePins={evidencePins}
-          verificationRuns={verificationRuns}
-          stacEvidenceState={stacEvidenceState}
-          selectedStacItemId={selectedStacItemId}
-          evidenceSnapshots={evidenceSnapshots}
-          onSetAoi={setActiveAoiAndPersist}
-          onUploadAoi={handleUploadAoi}
-          onApplyDraftAoi={handleApplyDraftAoi}
-          onCancelDraftAoi={handleCancelDraftAoi}
-          onUndoApplyAoi={handleUndoApply}
-          applyToken={applyToken}
-          onStartOver={startOverProofMap}
-          onSetEvidencePins={setEvidencePinsAndPersist}
-          onSetVerificationRuns={setVerificationRunsAndPersist}
-          onSetStacEvidenceState={(next) => {
-            if (!evidenceKey) return;
-            setStacEvidenceByKey((prev) => {
-              if (!next) {
-                const out = { ...prev };
-                delete out[evidenceKey];
-                return out;
-              }
-              return { ...prev, [evidenceKey]: next };
-            });
-          }}
-          onSelectStacItemId={setSelectedStacItemId}
-          onEvidenceSelectionChange={setEvidenceLinkSelection}
-          onNavigateEvidence={async (type, id) => {
-            if (type === "rule") return await navigateToRule(id);
-            if (type === "section") return await navigateToSection(id);
-            return false;
-          }}
-        />
+        verifySurface
       ) : effectiveTab === "overview" ? (
         <div className="mt-4 grid gap-4">
           <div className="grid gap-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
@@ -1318,14 +1390,14 @@ export default function MethodDetailPane({
           <div className="flex flex-wrap gap-2">
             {activeVersion ? (
               <Link
-                href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/evidence`}
+                href={buildVerifyHref(activeVersion)}
                 className="inline-flex items-center rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
               >
-                Evidence View
+                Go to Verify
               </Link>
             ) : (
               <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-400">
-                Evidence View
+                Go to Verify
               </span>
             )}
             <Link
@@ -1369,47 +1441,8 @@ export default function MethodDetailPane({
             if (type === "section") return void navigateToSection(id);
           }}
         />
-      ) : effectiveTab === "map" ? (
-        <ProofMapTab
-          methodCode={method.code}
-          version={activeVersion ?? ""}
-          provenanceJson={provenanceJson}
-          aoi={effectiveAoi}
-          currentAoi={currentAoi}
-          draftAoi={draftAoi}
-          evidencePins={evidencePins}
-          verificationRuns={verificationRuns}
-          stacEvidenceState={stacEvidenceState}
-          selectedStacItemId={selectedStacItemId}
-          evidenceSnapshots={evidenceSnapshots}
-          onSetAoi={setActiveAoiAndPersist}
-          onUploadAoi={handleUploadAoi}
-          onApplyDraftAoi={handleApplyDraftAoi}
-          onCancelDraftAoi={handleCancelDraftAoi}
-          onUndoApplyAoi={handleUndoApply}
-          applyToken={applyToken}
-          onStartOver={startOverProofMap}
-          onSetEvidencePins={setEvidencePinsAndPersist}
-          onSetVerificationRuns={setVerificationRunsAndPersist}
-          onSetStacEvidenceState={(next) => {
-            if (!evidenceKey) return;
-            setStacEvidenceByKey((prev) => {
-              if (!next) {
-                const out = { ...prev };
-                delete out[evidenceKey];
-                return out;
-              }
-              return { ...prev, [evidenceKey]: next };
-            });
-          }}
-          onSelectStacItemId={setSelectedStacItemId}
-          onEvidenceSelectionChange={setEvidenceLinkSelection}
-          onNavigateEvidence={async (type, id) => {
-            if (type === "rule") return await navigateToRule(id);
-            if (type === "section") return await navigateToSection(id);
-            return false;
-          }}
-        />
+      ) : effectiveTab === "verify" ? (
+        verifySurface
       ) : effectiveTab === "versions" ? (
         <div className="mt-4 grid gap-2">
           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -1439,10 +1472,10 @@ export default function MethodDetailPane({
                       </span>
                     </Link>
                     <Link
-                      href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(version)}/evidence`}
+                      href={buildVerifyHref(version)}
                       className="text-xs font-semibold text-slate-600 hover:text-slate-900"
                     >
-                      Evidence
+                      Verify
                     </Link>
                   </div>
                 </li>
