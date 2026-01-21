@@ -169,9 +169,7 @@ export default function AssistantPanel(props: AssistantPanelProps) {
       showToast(e instanceof Error ? e.message : String(e));
     }
   }, [
-    pickedProvenance.generatedAt,
-    pickedProvenance.packSha,
-    pickedProvenance.packTag,
+    pickedProvenance,
     props.aoi,
     props.evidencePins,
     props.methodCode,

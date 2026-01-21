@@ -52,10 +52,6 @@ const IMPORTANT_RULE_KEYWORDS = [
 
 const EVIDENCE_KEYWORDS = ["data", "parameter", "input", "evidence", "record", "monitor", "report", "qa", "qc"];
 
-function normalizeText(value?: string): string {
-  return (value ?? "").toString().toLowerCase();
-}
-
 function scoreByKeywords(text: string, keywords: string[]): number {
   return keywords.reduce((score, kw) => (text.includes(kw) ? score + 1 : score), 0);
 }

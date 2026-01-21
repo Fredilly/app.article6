@@ -1,0 +1,21 @@
+{
+  "extends": ["config:base"],
+  "schedule": ["every week"],
+  "automerge": true,
+  "automergeType": "pr",
+  "major": {
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "groupName": "next-react",
+      "matchPackagePatterns": ["^next$", "^react$", "^react-dom$"],
+      "automerge": true
+    },
+    {
+      "groupName": "linting-tooling",
+      "matchPackagePatterns": ["^eslint", "^@typescript-eslint", "^typescript", "^jest", "^playwright", "^prettier", "^vitest"],
+      "automerge": true
+    }
+  ]
+}

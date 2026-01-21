@@ -21,23 +21,5 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build
-        run: npm run build
-
-      - name: Test
-        run: npm run test
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Audit pack determinism
-        run: npm run determinism:audit-pack -- AR-ACM0003 v02-0
-
-      - name: Audit pack smoke
-        run: npm run test:audit-pack:smoke
-
-      - name: Roadmap status gate
-        run: npm run roadmap:check
-
-      - name: Status drift check
-        run: npm run status:check
+      - name: CI
+        run: npm run ci
