@@ -10,10 +10,7 @@ type DemoRoute = {
 };
 
 const demoRoutes: DemoRoute[] = [
-  { href: "/", title: "Chat" },
   { href: "/m", title: "Methods" },
-  { href: "/audit", title: "Audit" },
-  { href: "/manifest", title: "Manifest" },
 ];
 
 export default function DemoNav() {
