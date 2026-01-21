@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint",
+    "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "ci": "npm run lint && npm run typecheck && npm test && npm run build",
     "test": "jest --passWithNoTests",
     "test:e2e": "playwright test",
     "test:audit-pack:smoke": "node scripts/test-audit-pack-smoke.mjs",
@@ -30,10 +32,11 @@
     "prebuild": "npm run fetch:methodologies-pack && npm run check:golden",
     "determinism:audit-pack": "node scripts/determinism-audit-pack.mjs",
     "pr:gate": "node scripts/pr-gate.mjs",
-    "audit-pack:diff": "node scripts/audit-pack/diff-manifests.mjs"
+    "audit-pack:diff": "node scripts/audit-pack/diff-manifests.mjs",
+    "prepare": "husky install"
   },
   "engines": {
-    "node": "20.11.1",
+    "node": ">=20 <21",
     "npm": ">=10"
   },
   "dependencies": {
@@ -61,6 +64,7 @@
     "ajv": "^8.17.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.10",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",
