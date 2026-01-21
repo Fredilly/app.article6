@@ -348,7 +348,7 @@ export default function MethodDetailPane({
     setTraceIndex(null);
     setTraceError(null);
     setTraceLoading(false);
-    didOpenFromQuery.current = false;
+    lastRuleFromQuery.current = null;
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -1329,7 +1329,7 @@ export default function MethodDetailPane({
                 onClear: clearTrail,
                 onExport: handleExportAuditTrail,
                 onJumpToRule: handleJumpToRule,
-                onOpenEvidence: (_url) => navigateToVerify("map"),
+                onOpenEvidence: () => navigateToVerify("map"),
               }
             : null
         }
