@@ -1,4 +1,4 @@
-function normalizeMode(value: string | null): string | null {
+function normalizeView(value: string | null): string | null {
   const trimmed = (value ?? "").trim().toLowerCase();
   if (trimmed === "map" || trimmed === "list") return trimmed;
   return null;
@@ -8,8 +8,15 @@ export function canonicalEvidencePath(pathname: string, searchParams: URLSearchP
   if (!searchParams.toString()) return null;
 
   const next = new URLSearchParams();
-  const mode = normalizeMode(searchParams.get("mode")) ?? normalizeMode(searchParams.get("tab"));
-  if (mode) next.set("mode", mode);
+  const rawMode = (searchParams.get("mode") ?? "").trim();
+  if (rawMode === "verify") {
+    next.set("mode", "verify");
+    const view = normalizeView(searchParams.get("view")) ?? "list";
+    next.set("view", view);
+  } else {
+    const mode = normalizeView(searchParams.get("mode")) ?? normalizeView(searchParams.get("tab"));
+    if (mode) next.set("mode", mode);
+  }
 
   for (const key of ["aoi", "rule", "evidence"]) {
     const value = searchParams.get(key);

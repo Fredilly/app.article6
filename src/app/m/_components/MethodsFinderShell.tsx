@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MethodsLayoutProvider } from "@/app/m/_components/MethodsLayoutContext";
 import { applyUrlUpdates } from "@/lib/nav/urlState";
+import { getVerifyView } from "@/lib/mode";
 
 type MethodsFinderShellProps = {
   left: ReactNode;
@@ -20,7 +21,7 @@ export default function MethodsFinderShell({ left, right }: MethodsFinderShellPr
   const pathname = usePathname();
   const tab = (searchParams.get("tab") ?? "").trim().toLowerCase();
   const isVerifyTab = tab === "verify" || tab === "map";
-  const mode = (searchParams.get("mode") ?? "").trim().toLowerCase();
+  const mode = getVerifyView(searchParams);
   const methodsParam = (searchParams.get("methods") ?? "").trim().toLowerCase();
   const [methodsCollapsed, setMethodsCollapsed] = useState(false);
 

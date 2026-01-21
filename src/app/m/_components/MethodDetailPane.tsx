@@ -11,6 +11,9 @@ import ProofMapTab from "@/components/map/ProofMapTab";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
+import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
+import { getVerifyView, isVerifierMode } from "@/lib/mode";
+import { jumpToRule } from "@/lib/ruleJump";
 import {
   clearProofMapStorage,
   clearStoredMapView,
@@ -27,6 +30,7 @@ import {
 } from "@/lib/proofMap/storage";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
+import { aoiFingerprint } from "@/lib/proofMap/verificationRuns";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
 import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlState";
@@ -83,11 +87,8 @@ export default function MethodDetailPane({
   const isEvidenceRoute = pathname?.includes("/evidence");
   const isEvidenceMode = mode === "evidence" || isEvidenceRoute;
   const methodsLayout = useMethodsLayout();
-  const verifyMode = useMemo(() => {
-    const params = new URLSearchParams(searchString);
-    const raw = (params.get("mode") ?? "").trim().toLowerCase();
-    return raw === "map" ? "map" : "list";
-  }, [searchString]);
+  const verifierMode = useMemo(() => isVerifierMode(searchParams), [searchParams]);
+  const verifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
   const defaultTab: DetailTab = useMemo(
     () => (isEvidenceMode ? "verify" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
     [initialRuleId, initialSectionId, isEvidenceMode],
@@ -119,6 +120,14 @@ export default function MethodDetailPane({
     },
     [method.code, methodBasePath, searchString],
   );
+  const { events: auditEvents, appendEvent, clearTrail, exportJson, exportSha256 } = useAuditTrail();
+  const appendAuditEvent = useCallback(
+    (input: AuditTrailEventInput) => {
+      if (!verifierMode) return;
+      appendEvent(input);
+    },
+    [appendEvent, verifierMode],
+  );
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return;
@@ -139,6 +148,17 @@ export default function MethodDetailPane({
       throw new Error(`Tab oscillation detected: ${last.join(" → ")}`);
     }
   }, [tab]);
+
+  useEffect(() => {
+    if (!activeVersion) return;
+    const key = `${method.code}@${activeVersion}`;
+    if (lastMethodSelection.current === key) return;
+    lastMethodSelection.current = key;
+    appendAuditEvent({
+      kind: "method.select",
+      payload: { method_code: method.code, version: activeVersion },
+    });
+  }, [activeVersion, appendAuditEvent, method.code]);
   const [ruleQuery, setRuleQuery] = useState("");
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesError, setRulesError] = useState<string | null>(null);
@@ -175,7 +195,9 @@ export default function MethodDetailPane({
   } | null>(null);
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
-  const didOpenFromQuery = useRef(false);
+  const lastRuleFromQuery = useRef<string | null>(null);
+  const lastMethodSelection = useRef<string | null>(null);
+  const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
 
   type SectionListItem = {
     id: string;
@@ -326,7 +348,7 @@ export default function MethodDetailPane({
     setTraceIndex(null);
     setTraceError(null);
     setTraceLoading(false);
-    didOpenFromQuery.current = false;
+    lastRuleFromQuery.current = null;
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -443,6 +465,17 @@ export default function MethodDetailPane({
       setSelectedStacItemId(null);
       setEvidenceLinkSelection(null);
       setApplyToken((value) => value + 1);
+      void (async () => {
+        try {
+          const hash = await aoiFingerprint(nextAoi.geojson);
+          appendAuditEvent({
+            kind: "evidence.input",
+            payload: { aoi_hash: hash, aoi_id: nextAoi.id ?? null },
+          });
+        } catch {
+          // ignore hash failures
+        }
+      })();
     },
     [
       currentAoi,
@@ -455,6 +488,7 @@ export default function MethodDetailPane({
       setEvidencePinsAndPersist,
       setEvidenceSnapshotsAndPersist,
       setVerificationRunsAndPersist,
+      appendAuditEvent,
     ],
   );
 
@@ -1017,15 +1051,16 @@ export default function MethodDetailPane({
     setTabParam("rules");
     setRulesDeeplinkWarning(null);
     const list = await ensureRulesLoaded();
-    if (list.length === 0) return;
+    if (list.length === 0) return false;
     if (!list.some((rule) => rule.id === ruleId)) {
       setRulesDeeplinkWarning(`Unknown rule id "${ruleId}".`);
-      return;
+      return false;
     }
     setActiveRuleId(ruleId);
     setDrawerOpen(true);
     setRuleParam(ruleId);
     await loadRuleDetail(ruleId);
+    return true;
   }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam]);
 
   const closeDrawer = useCallback(() => {
@@ -1062,10 +1097,10 @@ export default function MethodDetailPane({
   );
 
   useEffect(() => {
-    if (didOpenFromQuery.current) return;
     if (!initialRuleId) return;
     if (!activeVersion) return;
-    didOpenFromQuery.current = true;
+    if (lastRuleFromQuery.current === initialRuleId) return;
+    lastRuleFromQuery.current = initialRuleId;
     (async () => {
       setTabParam("rules");
       const list = await ensureRulesLoaded();
@@ -1103,6 +1138,14 @@ export default function MethodDetailPane({
     el?.scrollIntoView({ block: "start" });
   }, [activeRuleId, tab]);
 
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const node = ruleHeaderRef.current;
+    if (!node) return;
+    node.scrollIntoView({ block: "start" });
+    node.focus();
+  }, [activeRuleId, drawerOpen, ruleDetail?.title]);
+
   const focusRuleInView = useCallback(
     async (ruleId: string) => {
       const list = await ensureRulesLoaded();
@@ -1136,12 +1179,13 @@ export default function MethodDetailPane({
 
   const navigateToRule = useCallback(
     async (ruleId: string) => {
-      const ok = await focusRuleInView(ruleId);
+      const ok = await openRule(ruleId);
       if (!ok) return false;
       setFocusParam("rules", ruleId);
+      appendAuditEvent({ kind: "rule.jump", payload: { rule_id: ruleId } });
       return true;
     },
-    [focusRuleInView, setFocusParam],
+    [appendAuditEvent, openRule, setFocusParam],
   );
 
   const navigateToSection = useCallback(
@@ -1153,6 +1197,37 @@ export default function MethodDetailPane({
     },
     [focusSectionInView, setFocusParam],
   );
+
+  const navigateToVerify = useCallback(
+    (view: "list" | "map") => {
+      if (!pathname) return;
+      const params = new URLSearchParams(searchString);
+      params.set("tab", "verify");
+      if (verifierMode) {
+        params.set("mode", "verify");
+        params.set("view", view);
+      } else {
+        params.set("mode", view);
+        params.delete("view");
+      }
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchString, verifierMode],
+  );
+
+  const handleJumpToRule = useCallback(
+    (ruleId: string) => {
+      jumpToRule(router, ruleId);
+      appendAuditEvent({ kind: "rule.jump", payload: { rule_id: ruleId } });
+    },
+    [appendAuditEvent, router],
+  );
+
+  const handleExportAuditTrail = useCallback(() => {
+    if (!exportSha256) return;
+    appendAuditEvent({ kind: "export.audit_trail", payload: { audit_trail_sha256: exportSha256 } });
+  }, [appendAuditEvent, exportSha256]);
 
   const linkedRuleIds = useMemo(() => new Set(evidenceLinkSelection?.ruleIds ?? []), [evidenceLinkSelection]);
   const linkedSectionIds = useMemo(() => new Set(evidenceLinkSelection?.sectionIds ?? []), [evidenceLinkSelection]);
@@ -1226,6 +1301,7 @@ export default function MethodDetailPane({
         provenanceJson={provenanceJson}
         mode={isEvidenceMode ? "evidence" : undefined}
         viewMode={verifyMode}
+        verifierMode={verifierMode}
         aoi={effectiveAoi}
         currentAoi={currentAoi}
         draftAoi={draftAoi}
@@ -1243,6 +1319,20 @@ export default function MethodDetailPane({
         onStartOver={startOverProofMap}
         onSetEvidencePins={setEvidencePinsAndPersist}
         onSetVerificationRuns={setVerificationRunsAndPersist}
+        onAuditEvent={appendAuditEvent}
+        auditTrail={
+          verifierMode
+            ? {
+                events: auditEvents,
+                exportJson,
+                exportSha256,
+                onClear: clearTrail,
+                onExport: handleExportAuditTrail,
+                onJumpToRule: handleJumpToRule,
+                onOpenEvidence: () => navigateToVerify("map"),
+              }
+            : null
+        }
         onSetStacEvidenceState={(next) => {
           if (!evidenceKey) return;
           setStacEvidenceByKey((prev) => {
@@ -1599,7 +1689,11 @@ export default function MethodDetailPane({
                           {activeRuleId ?? "—"}
                         </span>
                       </div>
-                      <div className="mt-2 text-base font-semibold text-slate-900">
+                      <div
+                        ref={ruleHeaderRef}
+                        tabIndex={-1}
+                        className="mt-2 text-base font-semibold text-slate-900"
+                      >
                         {ruleDetail?.title ?? "Loading…"}
                       </div>
                     </div>
