@@ -26,6 +26,11 @@ export type ProofBundleV1 = {
     repo?: string;
     commit?: string;
     pack_digest?: string;
+    runtime?: {
+      node: string;
+      platform: string;
+      arch: string;
+    };
   };
   aoi?: AOI | null;
   evidence_pins?: EvidencePin[];
@@ -183,6 +188,14 @@ export async function buildProofBundleV1(input: {
   sections: SectionSummary[];
 }): Promise<ProofBundleV1> {
   const exported_at = nowIso();
+  const runtime =
+    typeof process === "undefined"
+      ? undefined
+      : {
+          node: typeof process.version === "string" ? process.version : "unknown",
+          platform: typeof process.platform === "string" ? process.platform : "unknown",
+          arch: typeof process.arch === "string" ? process.arch : "unknown",
+        };
   const evidence_pins = input.evidence_pins && input.evidence_pins.length ? input.evidence_pins : undefined;
   const evidence_attachments = evidence_pins
     ? (() => {
@@ -220,6 +233,7 @@ export async function buildProofBundleV1(input: {
       repo: input.provenance.repo,
       commit: input.provenance.sha,
       pack_digest: input.pack_digest,
+      runtime,
     },
     aoi: input.aoi ?? undefined,
     evidence_pins,
