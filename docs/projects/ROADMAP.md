@@ -25,3 +25,13 @@ Details: `/Users/fredilly/app.article6/docs/projects/phase-assurance-surface-mvp
 5) PR15 — Verifier Mode + Audit Trail + Rule Jump: Done
 6) PR16 — CI Hardening + Self-Upgrading Deps: Done
 7) PR17 — Derived MRV artifacts + hashes (future): Planned
+
+## verifier-moat
+
+Status SSOT: `/Users/fredilly/app.article6/docs/roadmaps/verifier-moat/phase-status.json`
+Details: `/Users/fredilly/app.article6/docs/roadmaps/verifier-moat/PLAN.md`
+
+1) PR1 — Shrink Method UI to Read | Verify + demote tools: Planned
+2) PR2 — CI hardening (align with PR16): Planned
+3) PR3 — Trail inside audit pack + strict verify: Planned
+4) PR4 — Share link (optional): Planned
