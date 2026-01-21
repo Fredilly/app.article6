@@ -90,6 +90,17 @@ npm run verify:audit-pack -- ~/Desktop/audit-pack.zip
 - Rule view download button.
 - Review status chip + notes list.
 
+## PR14_1 - Audit Pack Verification Semantics + Runtime Provenance
+
+### Scope
+- Document audit-pack verification semantics (manifest + no extras).
+- Clarify deterministic `generated_at` (fixed epoch).
+- Add runtime provenance fields (node/platform/arch) in bundle metadata.
+
+### Acceptance
+- Docs explicitly define verification semantics and deterministic timestamps.
+- Exported pack includes runtime provenance fields without breaking verify.
+
 ## PR15 - Verifier Mode + Audit Trail + Rule Jump
 
 ### Scope
@@ -112,7 +123,20 @@ npm run verify:audit-pack -- ~/Desktop/audit-pack.zip
 - Audit Trail tab with counts + drilldowns.
 - Rule jump/search UI.
 
-## PR16 - Derived MRV artifacts + hashes (future)
+## PR16 - CI Hardening + Self-Upgrading Deps
+
+### Scope
+- Unified CI entrypoint (`npm run ci`) with lint/typecheck/test/build.
+- pr-gate runs the unified CI command only.
+- Pre-push hook runs lint + typecheck.
+- Renovate weekly self-upgrades for patch/minor.
+
+### Acceptance
+- CI uses the unified script; duplicated steps removed.
+- Pre-push hook is fast and blocks lint/typecheck regressions.
+- Renovate config merges patch/minor when CI is green.
+
+## PR17 - Derived MRV artifacts + hashes (future)
 
 ### Scope
 - Include derived outputs (cloud mask/composites, indices, change maps, uncertainty/QC).
