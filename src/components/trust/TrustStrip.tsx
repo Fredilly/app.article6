@@ -13,6 +13,7 @@ type TrustStripProps = {
   packTag?: string | null;
   provenanceJson?: unknown | null;
   manifestRulesPath?: string | null;
+  onOpenIntegrityDiff?: () => void;
 };
 
 type ExportArtifact = "provenance" | "META" | "rules" | "sections" | "rich";
@@ -143,6 +144,7 @@ export default function TrustStrip({
   packTag,
   provenanceJson,
   manifestRulesPath,
+  onOpenIntegrityDiff,
 }: TrustStripProps) {
   const router = useRouter();
   const provenancePicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
@@ -267,22 +269,13 @@ export default function TrustStrip({
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <ChipButton
-          label="source"
-          value="Article6 Methodologies"
-          display="Article6 Methodologies"
-          onCopied={() => handleCopied("source")}
-        />
-
-        {generatedAt ? (
-          <ChipButton
-            label="generated"
-            value={generatedAt}
-            display={formatIso(generatedAt)}
-            onCopied={() => handleCopied("generated")}
-          />
-        ) : null}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+        <div className="flex min-w-[160px] flex-col gap-0.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            Trust strip
+          </span>
+          <span className="text-sm font-semibold text-slate-900">Audit pack & provenance</span>
+        </div>
 
         <div className="ml-auto flex items-center gap-2">
           {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
@@ -290,70 +283,16 @@ export default function TrustStrip({
             href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
             target="_blank"
             rel="noreferrer"
-            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
           >
-            Download audit pack
+            Export audit pack
           </a>
           <details className="relative">
-            <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-              Export
+            <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+              Advanced
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-              <div className="flex flex-col p-2 text-sm">
-                {provenanceJson ? (
-                  <button
-                    type="button"
-                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                    onClick={() => exportArtifact("provenance")}
-                  >
-                    Export Provenance JSON
-                  </button>
-                ) : null}
-                {metaAvailable ? (
-                  <button
-                    type="button"
-                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                    onClick={() => exportArtifact("META")}
-                  >
-                    Export META.json
-                  </button>
-                ) : null}
-                {rulesUrl ? (
-                  <button
-                    type="button"
-                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                    onClick={() => exportArtifact("rules")}
-                  >
-                    Export rules.json
-                  </button>
-                ) : null}
-                {sectionsUrl ? (
-                  <button
-                    type="button"
-                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                    onClick={() => exportArtifact("sections")}
-                  >
-                    Export sections.json
-                  </button>
-                ) : null}
-                {richAvailable ? (
-                  <button
-                    type="button"
-                    className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                    onClick={() => exportArtifact("rich")}
-                  >
-                    Export rich.json
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          </details>
-          <details className="relative">
-            <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-              Details
-            </summary>
-            <div className="absolute right-0 z-10 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-              <div className="flex flex-col gap-3 p-3">
+            <div className="absolute right-0 z-10 mt-2 w-[22rem] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+              <div className="flex flex-col gap-3 p-3 text-sm">
                 <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
                   <div className="text-xs font-semibold text-slate-900">Dataset</div>
                   <div className="mt-2 grid gap-2 text-xs text-slate-700">
@@ -372,6 +311,75 @@ export default function TrustStrip({
                         <span className="text-slate-500">Generated</span>
                         <span className="text-right font-medium text-slate-800">{formatIso(generatedAt)}</span>
                       </div>
+                    ) : null}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <ChipButton
+                      label="source"
+                      value="Article6 Methodologies"
+                      display="Article6 Methodologies"
+                      onCopied={() => handleCopied("source")}
+                    />
+                    {generatedAt ? (
+                      <ChipButton
+                        label="generated"
+                        value={generatedAt}
+                        display={formatIso(generatedAt)}
+                        onCopied={() => handleCopied("generated")}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-slate-100 bg-white">
+                  <div className="border-b border-slate-100 px-3 py-2 text-xs font-semibold text-slate-900">
+                    Export JSON
+                  </div>
+                  <div className="flex flex-col p-2 text-sm">
+                    {provenanceJson ? (
+                      <button
+                        type="button"
+                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => exportArtifact("provenance")}
+                      >
+                        Export Provenance JSON
+                      </button>
+                    ) : null}
+                    {metaAvailable ? (
+                      <button
+                        type="button"
+                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => exportArtifact("META")}
+                      >
+                        Export META.json
+                      </button>
+                    ) : null}
+                    {rulesUrl ? (
+                      <button
+                        type="button"
+                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => exportArtifact("rules")}
+                      >
+                        Export rules.json
+                      </button>
+                    ) : null}
+                    {sectionsUrl ? (
+                      <button
+                        type="button"
+                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => exportArtifact("sections")}
+                      >
+                        Export sections.json
+                      </button>
+                    ) : null}
+                    {richAvailable ? (
+                      <button
+                        type="button"
+                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => exportArtifact("rich")}
+                      >
+                        Export rich.json
+                      </button>
                     ) : null}
                   </div>
                 </div>
@@ -489,6 +497,26 @@ export default function TrustStrip({
                     </div>
                   </div>
                 </details>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  >
+                    Download audit pack
+                  </a>
+                  {onOpenIntegrityDiff ? (
+                    <button
+                      type="button"
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                      onClick={onOpenIntegrityDiff}
+                    >
+                      Integrity diff
+                    </button>
+                  ) : null}
+                </div>
               </div>
             </div>
           </details>

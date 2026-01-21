@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import { IntegrityDiffPanel } from "@/app/m/_components/IntegrityDiffPanel";
 import TrustStrip from "@/components/TrustStrip";
-import AssistantPanel from "@/components/assistant/AssistantPanel";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
@@ -51,18 +50,11 @@ type MethodDetailPaneProps = {
   method: MethodDetail;
   activeVersion?: string;
   initialRuleId?: string;
-  initialSectionId?: string;
   mode?: "full" | "evidence";
   packTag?: string | null;
   provenanceJson?: unknown | null;
   manifestRulesPath?: string | null;
 };
-
-function buildDeepLink(basePath: string, methodCode: string, version?: string) {
-  const params = new URLSearchParams({ method: methodCode });
-  if (version) params.set("version", version);
-  return `${basePath}?${params.toString()}`;
-}
 
 function sectionIdFromText(value?: string): string | undefined {
   if (!value) return undefined;
@@ -74,7 +66,6 @@ export default function MethodDetailPane({
   method,
   activeVersion,
   initialRuleId,
-  initialSectionId,
   mode = "full",
   packTag,
   provenanceJson,
@@ -89,17 +80,14 @@ export default function MethodDetailPane({
   const methodsLayout = useMethodsLayout();
   const verifierMode = useMemo(() => isVerifierMode(searchParams), [searchParams]);
   const verifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
-  const defaultTab: DetailTab = useMemo(
-    () => (isEvidenceMode ? "verify" : initialSectionId ? "sections" : initialRuleId ? "rules" : "overview"),
-    [initialRuleId, initialSectionId, isEvidenceMode],
-  );
-  const focusSectionParam = searchParams.get("section")?.trim() || null;
+  const defaultTab: DetailTab = useMemo(() => (isEvidenceMode ? "verify" : "rules"), [isEvidenceMode]);
   const tab = useMemo(() => {
     if (isEvidenceMode) return "verify";
     const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     return parsed ?? defaultTab;
   }, [defaultTab, isEvidenceMode, searchString]);
-  const effectiveTab: DetailTab = isEvidenceMode ? "verify" : tab;
+  const surfaceTab: DetailTab = tab === "verify" ? "verify" : "rules";
+  const effectiveTab: DetailTab = isEvidenceMode ? "verify" : surfaceTab;
   const methodBasePath = useMemo(() => {
     const encodedCode = encodeURIComponent(method.code);
     if (activeVersion) {
@@ -198,6 +186,8 @@ export default function MethodDetailPane({
   const lastRuleFromQuery = useRef<string | null>(null);
   const lastMethodSelection = useRef<string | null>(null);
   const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
+  const [drawerSourceOpen, setDrawerSourceOpen] = useState(false);
+  const [drawerCitationsOpen, setDrawerCitationsOpen] = useState(false);
 
   type SectionListItem = {
     id: string;
@@ -208,28 +198,22 @@ export default function MethodDetailPane({
     textSnippet?: string;
   };
 
-  const [sectionQuery, setSectionQuery] = useState("");
   const [sectionsLoading, setSectionsLoading] = useState(false);
-  const [sectionsError, setSectionsError] = useState<string | null>(null);
-  const [sectionsDeeplinkWarning, setSectionsDeeplinkWarning] = useState<string | null>(null);
   const [sections, setSections] = useState<SectionListItem[]>([]);
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId ?? null);
-  const sectionIds = useMemo(() => new Set(sections.map((s) => s.id)), [sections]);
-  const didSelectSectionFromQuery = useRef(false);
-  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [sectionPreview, setSectionPreview] = useState<SectionListItem | null>(null);
   const [evidenceLinkSelection, setEvidenceLinkSelection] = useState<{
     kind: "evidence";
     id: string;
     ruleIds: string[];
     sectionIds: string[];
   } | null>(null);
-  const lastAppliedFocusFromUrl = useRef<string | null>(null);
 
   const [currentAoi, setCurrentAoi] = useState<AOI | null>(null);
   const [draftAoi, setDraftAoi] = useState<AOI | null>(null);
   const [evidencePins, setEvidencePins] = useState<EvidencePin[]>([]);
   const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
   const [verificationRuns, setVerificationRuns] = useState<VerificationRun[]>([]);
+  const [integrityDiffOpen, setIntegrityDiffOpen] = useState(false);
   type WorkspaceSnapshot = {
     currentAoi: AOI | null;
     evidencePins: EvidencePin[];
@@ -251,31 +235,7 @@ export default function MethodDetailPane({
   const lastEvidenceParam = useRef<string | null>(null);
 
   const [richLoading, setRichLoading] = useState(false);
-  const [richError, setRichError] = useState<string | null>(null);
   const [richEvidence, setRichEvidence] = useState<NormalizedRichEvidence | null>(null);
-  const [richRaw, setRichRaw] = useState<unknown>(null);
-  type RichAttempt = {
-    name: string;
-    url: string;
-    resolvedUrl?: string;
-    status?: number;
-    ok: boolean;
-    bytes?: number;
-    error?: string;
-  };
-  const [richProbe, setRichProbe] = useState<{
-    ok: boolean;
-    sources: string[];
-    missing: string[];
-    attempts: RichAttempt[];
-  } | null>(null);
-  const [richRawOpen, setRichRawOpen] = useState(false);
-  const [richOpenBlocks, setRichOpenBlocks] = useState({
-    entities: false,
-    tables: false,
-    citations: false,
-    diffs: false,
-  });
 
   const sortedVersionsNewestFirst = useMemo(() => {
     return [...method.versions].reverse();
@@ -290,9 +250,6 @@ export default function MethodDetailPane({
   }, [activeVersion, effectiveAoi?.aoi_fingerprint, effectiveAoi?.id, method.code]);
 
   const stacEvidenceState = evidenceKey ? stacEvidenceByKey[evidenceKey] ?? null : null;
-
-  const activeRuleCount =
-    (activeVersion ? method.ruleCountByVersion[activeVersion] : undefined) ?? undefined;
 
   const tabBase =
     "inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold transition";
@@ -366,6 +323,13 @@ export default function MethodDetailPane({
       return;
     }
     const urlTab = parseDetailTab(new URLSearchParams(searchString).get("tab"));
+    if (urlTab && urlTab !== "verify") {
+      const next = applyUrlUpdates(new URLSearchParams(searchString), { tab: "rules" });
+      if (next !== searchString) {
+        router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+      }
+      return;
+    }
     if (urlTab) return;
     const next = applyUrlUpdates(new URLSearchParams(searchString), { tab });
     if (next === searchString) return;
@@ -590,54 +554,13 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     setSections([]);
-    setSectionsError(null);
     setSectionsLoading(false);
-    setSectionsDeeplinkWarning(null);
-    setSectionQuery("");
-    setActiveSectionId(null);
-    didSelectSectionFromQuery.current = false;
+    setSectionPreview(null);
   }, [activeVersion, method.code]);
 
   useEffect(() => {
-    if (tab !== "sections") return;
-    if (!focusSectionParam) return;
-    if (!sectionIds.has(focusSectionParam)) return;
-    if (activeSectionId === focusSectionParam) return;
-    setActiveSectionId(focusSectionParam);
-  }, [tab, focusSectionParam, sectionIds, activeSectionId]);
-
-  useLayoutEffect(() => {
-    if (!focusSectionParam) return;
-    if (tab !== "sections") return;
-
-    let cancelled = false;
-    let tries = 0;
-
-    const tick = () => {
-      if (cancelled) return;
-      const el = document.getElementById(`section-${focusSectionParam}`);
-      if (el) {
-        el.scrollIntoView({ block: "start" });
-        return;
-      }
-      tries += 1;
-      if (tries < 10) requestAnimationFrame(tick);
-    };
-
-    requestAnimationFrame(tick);
-    return () => {
-      cancelled = true;
-    };
-  }, [focusSectionParam, tab]);
-
-  useEffect(() => {
     setRichEvidence(null);
-    setRichRaw(null);
-    setRichProbe(null);
-    setRichError(null);
     setRichLoading(false);
-    setRichRawOpen(false);
-    setRichOpenBlocks({ entities: false, tables: false, citations: false, diffs: false });
   }, [activeVersion, method.code]);
 
   const ensureRulesLoaded = useCallback(async (): Promise<RuleListItem[]> => {
@@ -688,29 +611,6 @@ export default function MethodDetailPane({
         activeVersion ?? "",
       )}?rule=${encodeURIComponent(ruleId)}`;
       return `${origin}${path}`;
-    },
-    [activeVersion, method.code],
-  );
-
-  const buildSectionLink = useCallback(
-    (sectionId: string) => {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(
-        activeVersion ?? "",
-      )}?section=${encodeURIComponent(sectionId)}`;
-      return `${origin}${path}`;
-    },
-    [activeVersion, method.code],
-  );
-
-  const buildAuditLink = useCallback(
-    (ruleId: string) => {
-      const params = new URLSearchParams({ method: method.code });
-      if (activeVersion) params.set("version", activeVersion);
-      params.set("rule", ruleId);
-      const relative = `/audit?${params.toString()}`;
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      return { relative, absolute: `${origin}${relative}` };
     },
     [activeVersion, method.code],
   );
@@ -786,34 +686,11 @@ export default function MethodDetailPane({
     router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
   }, [isEvidenceMode, pathname, router]);
 
-  const setSectionParam = useCallback(
-    (sectionId?: string) => {
-      if (!pathname) return;
-      if (isEvidenceMode) return;
-      const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
-      if (sectionId) params.set("section", sectionId);
-      else params.delete("section");
-      const search = params.toString();
-      router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
-    },
-    [isEvidenceMode, pathname, router],
-  );
-
-  const setFocusParam = useCallback((focusTab: "rules" | "sections", focusId: string) => {
-    if (typeof window === "undefined") return;
-    if (isEvidenceMode) return;
-    if (!pathname) return;
-    const next = applyUrlUpdates(new URLSearchParams(searchString), { tab: focusTab, focus: focusId });
-    if (next === searchString) return;
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [isEvidenceMode, pathname, router, searchString]);
-
   const setTabParam = useCallback(
     (nextTab: DetailTab) => {
       if (!pathname) return;
       if (isEvidenceMode) return;
       const params = new URLSearchParams(searchString);
-      if (nextTab === "rules") params.delete("section");
       const next = applyUrlUpdates(params, {
         tab: nextTab,
         focus: null,
@@ -824,45 +701,11 @@ export default function MethodDetailPane({
     [isEvidenceMode, pathname, router, searchString],
   );
 
-  const onSelectSection = useCallback(
-    (id: string) => {
-      setActiveSectionId(id);
-      if (isEvidenceMode) return;
-      if (!pathname) return;
-      const params = new URLSearchParams(searchString);
-      params.set("tab", "sections");
-      params.set("section", id);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [isEvidenceMode, pathname, router, searchString],
-  );
-
-  const goToSectionFromTrace = useCallback(
-    (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (isEvidenceMode) return;
-      if (!pathname) return;
-      const params = new URLSearchParams(searchString);
-      params.set("tab", "sections");
-      params.set("section", sectionId);
-      params.delete("rule");
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-      setDrawerOpen(false);
-      setActiveRuleId(null);
-      setRuleDetail(null);
-      setRuleDetailError(null);
-      setRuleDetailLoading(false);
-    },
-    [isEvidenceMode, pathname, router, searchString],
-  );
-
   const ensureSectionsLoaded = useCallback(async (): Promise<SectionListItem[]> => {
     if (!activeVersion) return [];
     if (sections.length) return sections;
     if (sectionsLoading) return sections;
     setSectionsLoading(true);
-    setSectionsError(null);
     try {
       const response = await fetch(
         `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/sections`,
@@ -886,14 +729,26 @@ export default function MethodDetailPane({
       }
       setSections(next);
       return next;
-    } catch (error) {
+    } catch {
       setSections([]);
-      setSectionsError(error instanceof Error ? error.message : String(error));
       return [];
     } finally {
       setSectionsLoading(false);
     }
   }, [activeVersion, method.code, sections, sectionsLoading]);
+
+  const goToSectionFromTrace = useCallback(
+    (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
+      event.preventDefault();
+      event.stopPropagation();
+      void (async () => {
+        const list = await ensureSectionsLoaded();
+        const match = list.find((section) => section.id === sectionId) ?? null;
+        if (match) setSectionPreview(match);
+      })();
+    },
+    [ensureSectionsLoaded],
+  );
 
   const ensureTraceLoaded = useCallback(async (): Promise<TraceIndex | null> => {
     if (!activeVersion) return null;
@@ -926,7 +781,6 @@ export default function MethodDetailPane({
     if (richEvidence) return richEvidence;
     if (richLoading) return richEvidence;
     setRichLoading(true);
-    setRichError(null);
     try {
       const ensureLeadingSlash = (value: string) => (value.startsWith("/") ? value : `/${value}`);
       const segment = (value: string) => encodeURIComponent(value);
@@ -937,20 +791,6 @@ export default function MethodDetailPane({
       const version = activeVersion.trim();
 
       if (!program || program === "—" || !sector || sector === "—" || !code || !version) {
-        setRichProbe({
-          ok: false,
-          sources: [],
-          missing: ["rules.rich.json", "sections.rich.json", "rich.json"],
-          attempts: [
-            {
-              name: "precheck",
-              url: "/methodologies/<program>/<sector>/<code>/<ver>",
-              ok: false,
-              error: "Missing program/sector/code/version to resolve methodology asset URLs.",
-            },
-          ],
-        });
-        setRichRaw(null);
         const normalized = normalizeRichEvidence(null);
         setRichEvidence(normalized);
         return normalized;
@@ -967,34 +807,18 @@ export default function MethodDetailPane({
       ];
 
       const attempts = await Promise.all(
-        candidates.map(async (candidate): Promise<RichAttempt & { data?: unknown }> => {
+        candidates.map(async (candidate): Promise<{ name: string; ok: boolean; data?: unknown }> => {
           try {
             const response = await fetch(candidate.url, { cache: "no-store" });
-            const resolvedUrl = response.url || candidate.url;
-            const status = response.status;
-            if (!response.ok) {
-              return { name: candidate.name, url: candidate.url, resolvedUrl, status, ok: false };
-            }
+            if (!response.ok) return { name: candidate.name, ok: false };
             const text = await response.text();
-            const bytes = text.length;
             const parsed = text ? JSON.parse(text) : null;
-            return { name: candidate.name, url: candidate.url, resolvedUrl, status, ok: true, bytes, data: parsed };
-          } catch (error) {
-            return {
-              name: candidate.name,
-              url: candidate.url,
-              resolvedUrl: candidate.url,
-              ok: false,
-              error: error instanceof Error ? error.message : String(error),
-            };
+            return { name: candidate.name, ok: true, data: parsed };
+          } catch {
+            return { name: candidate.name, ok: false };
           }
         }),
       );
-
-      const sources = attempts.filter((a) => a.ok).map((a) => a.name);
-      const missing = attempts
-        .filter((a) => !a.ok && typeof a.status === "number" && a.status === 404)
-        .map((a) => a.name);
 
       const data: { rulesRich?: unknown; sectionsRich?: unknown; rich?: unknown } = {};
       for (const attempt of attempts) {
@@ -1004,31 +828,12 @@ export default function MethodDetailPane({
         if (attempt.name === "rich.json") data.rich = attempt.data;
       }
 
-      const ok = Boolean(sources.length);
-      setRichProbe({
-        ok,
-        sources,
-        missing,
-        attempts: attempts.map((attempt) => ({
-          name: attempt.name,
-          url: attempt.url,
-          resolvedUrl: attempt.resolvedUrl,
-          status: attempt.status,
-          ok: attempt.ok,
-          bytes: attempt.bytes,
-          error: attempt.error,
-        })),
-      });
-      setRichRaw(ok ? data : null);
-
-      const normalized = normalizeRichEvidence(ok ? data : null);
+      const hasData = Object.keys(data).length > 0;
+      const normalized = normalizeRichEvidence(hasData ? data : null);
       setRichEvidence(normalized);
       return normalized;
-    } catch (error) {
+    } catch {
       setRichEvidence(null);
-      setRichRaw(null);
-      setRichProbe(null);
-      setRichError(error instanceof Error ? error.message : String(error));
       return null;
     } finally {
       setRichLoading(false);
@@ -1037,15 +842,19 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (effectiveTab === "rules") void ensureRulesLoaded();
-    if (effectiveTab === "sections") void ensureSectionsLoaded();
-    if (effectiveTab === "rich") void ensureRichLoaded();
-    if (effectiveTab === "assistant") void Promise.all([ensureRulesLoaded(), ensureSectionsLoaded()]);
-  }, [effectiveTab, ensureRichLoaded, ensureRulesLoaded, ensureSectionsLoaded]);
+  }, [effectiveTab, ensureRulesLoaded]);
 
   useEffect(() => {
     if (!activeRuleId) return;
     void ensureTraceLoaded();
   }, [activeRuleId, ensureTraceLoaded]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    if (!drawerSourceOpen && !drawerCitationsOpen) return;
+    void ensureSectionsLoaded();
+    if (method.hasRich) void ensureRichLoaded();
+  }, [drawerCitationsOpen, drawerOpen, drawerSourceOpen, ensureRichLoaded, ensureSectionsLoaded, method.hasRich]);
 
   const openRule = useCallback(async (ruleId: string) => {
     setTabParam("rules");
@@ -1071,31 +880,6 @@ export default function MethodDetailPane({
     setRuleParam(undefined);
   }, [setRuleParam]);
 
-  const jumpToSection = useCallback(
-    async (
-      target: string,
-      options?: {
-        closeRuleDrawer?: boolean;
-        missingLabel?: string;
-      },
-    ) => {
-      if (!target) return;
-      if (options?.closeRuleDrawer) closeDrawer();
-      setTabParam("sections");
-      const list = await ensureSectionsLoaded();
-      if (!list.length) return;
-      const exists = list.some((section) => section.id === target);
-      if (!exists) {
-        setSectionsDeeplinkWarning(`${options?.missingLabel ?? "Unknown section"}: ${target}`);
-        return;
-      }
-      setSectionsDeeplinkWarning(null);
-      setActiveSectionId(target);
-      setSectionParam(target);
-    },
-    [closeDrawer, ensureSectionsLoaded, setSectionParam, setTabParam],
-  );
-
   useEffect(() => {
     if (!initialRuleId) return;
     if (!activeVersion) return;
@@ -1116,20 +900,7 @@ export default function MethodDetailPane({
     })();
   }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule, setTabParam]);
 
-  const filteredSections = useMemo(() => {
-    const q = sectionQuery.trim().toLowerCase();
-    if (!q) return sections;
-    return sections.filter((section) => {
-      const haystack = `${section.id} ${section.title} ${section.anchor ?? ""} ${section.page ?? ""} ${section.textSnippet ?? ""}`.toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [sectionQuery, sections]);
-
-  useEffect(() => {
-    if (!activeSectionId) return;
-    const el = document.getElementById(`section-${activeSectionId}`);
-    el?.scrollIntoView({ block: "start" });
-  }, [activeSectionId, tab]);
+  const sectionsById = useMemo(() => new Map(sections.map((section) => [section.id, section])), [sections]);
 
   useEffect(() => {
     if (tab !== "rules") return;
@@ -1140,62 +911,37 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!drawerOpen) return;
+    setDrawerSourceOpen(false);
+    setDrawerCitationsOpen(false);
+  }, [activeRuleId, drawerOpen]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
     const node = ruleHeaderRef.current;
     if (!node) return;
     node.scrollIntoView({ block: "start" });
     node.focus();
   }, [activeRuleId, drawerOpen, ruleDetail?.title]);
 
-  const focusRuleInView = useCallback(
-    async (ruleId: string) => {
-      const list = await ensureRulesLoaded();
-      if (!list.some((rule) => rule.id === ruleId)) return false;
-      window.setTimeout(() => {
-        document.getElementById(ruleId)?.scrollIntoView({ block: "start" });
-        setHighlightId(ruleId);
-        window.setTimeout(() => setHighlightId((current) => (current === ruleId ? null : current)), 1500);
-      }, 0);
-      return true;
-    },
-    [ensureRulesLoaded],
-  );
-
-  const focusSectionInView = useCallback(
-    async (sectionId: string) => {
-      const list = await ensureSectionsLoaded();
-      if (!list.some((section) => section.id === sectionId)) return false;
-      setSectionsDeeplinkWarning(null);
-      setActiveSectionId(sectionId);
-      setSectionParam(sectionId);
-      window.setTimeout(() => {
-        document.getElementById(`section-${sectionId}`)?.scrollIntoView({ block: "start" });
-        setHighlightId(sectionId);
-        window.setTimeout(() => setHighlightId((current) => (current === sectionId ? null : current)), 1500);
-      }, 0);
-      return true;
-    },
-    [ensureSectionsLoaded, setSectionParam],
-  );
-
   const navigateToRule = useCallback(
     async (ruleId: string) => {
       const ok = await openRule(ruleId);
       if (!ok) return false;
-      setFocusParam("rules", ruleId);
       appendAuditEvent({ kind: "rule.jump", payload: { rule_id: ruleId } });
       return true;
     },
-    [appendAuditEvent, openRule, setFocusParam],
+    [appendAuditEvent, openRule],
   );
 
   const navigateToSection = useCallback(
     async (sectionId: string) => {
-      const ok = await focusSectionInView(sectionId);
-      if (!ok) return false;
-      setFocusParam("sections", sectionId);
+      const list = await ensureSectionsLoaded();
+      const match = list.find((section) => section.id === sectionId) ?? null;
+      if (!match) return false;
+      setSectionPreview(match);
       return true;
     },
-    [focusSectionInView, setFocusParam],
+    [ensureSectionsLoaded],
   );
 
   const navigateToVerify = useCallback(
@@ -1230,7 +976,6 @@ export default function MethodDetailPane({
   }, [appendAuditEvent, exportSha256]);
 
   const linkedRuleIds = useMemo(() => new Set(evidenceLinkSelection?.ruleIds ?? []), [evidenceLinkSelection]);
-  const linkedSectionIds = useMemo(() => new Set(evidenceLinkSelection?.sectionIds ?? []), [evidenceLinkSelection]);
 
   useEffect(() => {
     if (!isEvidenceMode) return;
@@ -1259,38 +1004,6 @@ export default function MethodDetailPane({
     if (next === searchString) return;
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
   }, [effectiveAoi?.id, isEvidenceMode, pathname, router, searchString]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(searchString);
-    const focusTab = (params.get("tab") ?? "").trim();
-    const focusId = (params.get("focus") ?? "").trim();
-    const focusKey = focusId && (focusTab === "rules" || focusTab === "sections") ? `${focusTab}:${focusId}` : null;
-    if (!focusKey) return;
-    if (focusKey === lastAppliedFocusFromUrl.current) return;
-    lastAppliedFocusFromUrl.current = focusKey;
-    if (focusTab === "rules") void focusRuleInView(focusId);
-    if (focusTab === "sections") void focusSectionInView(focusId);
-  }, [focusRuleInView, focusSectionInView, searchString]);
-
-  useEffect(() => {
-    if (didSelectSectionFromQuery.current) return;
-    if (!initialSectionId) return;
-    if (!activeVersion) return;
-    didSelectSectionFromQuery.current = true;
-    (async () => {
-      setTabParam("sections");
-      const list = await ensureSectionsLoaded();
-      if (list.length === 0) return;
-      const exists = list.some((section) => section.id === initialSectionId);
-      if (!exists) {
-        setSectionsDeeplinkWarning(`Unknown section: ${initialSectionId}`);
-        return;
-      }
-      setSectionsDeeplinkWarning(null);
-      setActiveSectionId(initialSectionId);
-      setSectionParam(initialSectionId);
-    })();
-  }, [activeVersion, ensureSectionsLoaded, initialSectionId, setSectionParam, setTabParam]);
 
   const verifySurface = (
     <div className="mt-4 grid gap-4">
@@ -1383,6 +1096,7 @@ export default function MethodDetailPane({
           packTag={packTag}
           provenanceJson={provenanceJson}
           manifestRulesPath={manifestRulesPath}
+          onOpenIntegrityDiff={() => setIntegrityDiffOpen(true)}
         />
       </div>
 
@@ -1397,65 +1111,73 @@ export default function MethodDetailPane({
         </div>
       ) : null}
 
+      {integrityDiffOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+          <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-xl">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+              <div className="text-sm font-semibold text-slate-900">Integrity Diff</div>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setIntegrityDiffOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
+              <IntegrityDiffPanel />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {sectionPreview ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
+          <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-xl">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Section preview
+                </div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{sectionPreview.title}</div>
+                <div className="mt-1 font-mono text-[11px] text-slate-600">{sectionPreview.id}</div>
+              </div>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={() => setSectionPreview(null)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800">
+                {sectionPreview.textSnippet ?? "No preview available."}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {isEvidenceMode ? null : (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setTabParam("overview")}
-            className={`${tabBase} ${tab === "overview" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "overview"}
-          >
-            Overview
-          </button>
-          <button
-            type="button"
-            onClick={() => setTabParam("versions")}
-            className={`${tabBase} ${tab === "versions" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "versions"}
-          >
-            Versions
-          </button>
-          <button
-            type="button"
             onClick={() => setTabParam("rules")}
-            className={`${tabBase} ${tab === "rules" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "rules"}
+            className={`${tabBase} ${surfaceTab === "rules" ? tabActive : tabIdle}`}
+            aria-pressed={surfaceTab === "rules"}
           >
-            Rules
-          </button>
-          <button
-            type="button"
-            onClick={() => setTabParam("sections")}
-            className={`${tabBase} ${tab === "sections" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "sections"}
-          >
-            Sections
-          </button>
-          <button
-            type="button"
-            onClick={() => setTabParam("rich")}
-            className={`${tabBase} ${tab === "rich" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "rich"}
-          >
-            Rich
-          </button>
-          <button
-            type="button"
-            onClick={() => setTabParam("assistant")}
-            className={`${tabBase} ${tab === "assistant" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "assistant"}
-          >
-            Assistant
+            Read
           </button>
           <button
             type="button"
             onClick={() => setTabParam("verify")}
-            className={`${tabBase} ${tab === "verify" ? tabActive : tabIdle}`}
-            aria-pressed={tab === "verify"}
+            className={`${tabBase} ${surfaceTab === "verify" ? tabActive : tabIdle}`}
+            aria-pressed={surfaceTab === "verify"}
           >
             Verify
           </button>
-          {methodsLayout?.isVerifyTab && tab === "verify" ? (
+          {methodsLayout?.isVerifyTab && surfaceTab === "verify" ? (
             <button
               type="button"
               onClick={() => methodsLayout.setMethodsCollapsed(!methodsLayout.methodsCollapsed)}
@@ -1469,121 +1191,9 @@ export default function MethodDetailPane({
 
       {isEvidenceMode ? (
         verifySurface
-      ) : effectiveTab === "overview" ? (
-        <div className="mt-4 grid gap-4">
-          <div className="grid gap-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-slate-900">Selected version</span>
-              <span className="font-mono text-xs text-slate-700">{activeVersion ?? "—"}</span>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
-              <span>Rules: {typeof activeRuleCount === "number" ? activeRuleCount : "—"}</span>
-              <span>Rich: {method.hasRich ? "Yes" : "No"} • Previous: {method.hasPrevious ? "Yes" : "No"}</span>
-            </div>
-          </div>
-
-          <div className="grid gap-2 text-xs text-slate-600">
-            <span className="text-xs text-slate-500">Provenance details are available in the TrustStrip.</span>
-          </div>
-
-          <IntegrityDiffPanel />
-
-          <div className="flex flex-wrap gap-2">
-            {activeVersion ? (
-              <Link
-                href={buildVerifyHref(activeVersion)}
-                className="inline-flex items-center rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
-              >
-                Go to Verify
-              </Link>
-            ) : (
-              <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-400">
-                Go to Verify
-              </span>
-            )}
-            <Link
-              href={buildDeepLink("/", method.code, activeVersion)}
-              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-            >
-              Open in Chat
-            </Link>
-            <Link
-              href={buildDeepLink("/manifest", method.code, activeVersion)}
-              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-            >
-              Open in Manifest
-            </Link>
-            <Link
-              href={buildDeepLink("/audit", method.code, activeVersion)}
-              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-            >
-              Open in Audit
-            </Link>
-          </div>
-        </div>
-      ) : effectiveTab === "assistant" ? (
-        <AssistantPanel
-          program={method.program}
-          sector={method.sector}
-          methodCode={method.code}
-          version={activeVersion ?? ""}
-          hasPrevious={method.hasPrevious}
-          rules={rules}
-          sections={sections}
-          rich={richEvidence}
-          manifestRulesPath={manifestRulesPath}
-          packTag={packTag}
-          provenanceJson={provenanceJson}
-          aoi={effectiveAoi}
-          evidencePins={evidencePins}
-          onNavigateEvidence={(type, id) => {
-            if (type === "rule") return void navigateToRule(id);
-            if (type === "section") return void navigateToSection(id);
-          }}
-        />
-      ) : effectiveTab === "verify" ? (
+      ) : surfaceTab === "verify" ? (
         verifySurface
-      ) : effectiveTab === "versions" ? (
-        <div className="mt-4 grid gap-2">
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Available versions
-          </div>
-          <ul className="grid gap-2">
-            {sortedVersionsNewestFirst.map((version) => {
-              const selected = Boolean(activeVersion) && version === activeVersion;
-              const count = method.ruleCountByVersion[version];
-              return (
-                <li key={version}>
-                  <div
-                    className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2 transition-colors ${
-                      selected
-                        ? "border-slate-300 bg-slate-50"
-                        : "border-slate-200 bg-white hover:bg-slate-50"
-                    }`}
-                  >
-                    <Link
-                      href={`/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(version)}`}
-                      className="flex min-w-0 flex-1 items-center justify-between gap-3"
-                      aria-current={selected ? "page" : undefined}
-                    >
-                      <span className="font-mono text-sm text-slate-900">{version}</span>
-                      <span className="text-xs text-slate-500">
-                        rules: {typeof count === "number" ? count : "—"}
-                      </span>
-                    </Link>
-                    <Link
-                      href={buildVerifyHref(version)}
-                      className="text-xs font-semibold text-slate-600 hover:text-slate-900"
-                    >
-                      Verify
-                    </Link>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-        ) : effectiveTab === "rules" ? (
+      ) : (
           <div className="mt-4 grid gap-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -1647,10 +1257,8 @@ export default function MethodDetailPane({
                   key={rule.id}
                   id={rule.id}
                   className={
-                    highlightId === rule.id
-                      ? "assistant-focus-highlight rounded-2xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
-                      : linkedRuleIds.has(rule.id)
-                        ? "rounded-2xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
+                    linkedRuleIds.has(rule.id)
+                      ? "rounded-2xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
                       : ""
                   }
                 >
@@ -1766,128 +1374,114 @@ export default function MethodDetailPane({
                           {ruleDetail.text || "—"}
                         </div>
 
-                        <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Linked sections
-                          </div>
-                          <div className="mt-2 space-y-2">
+                        <details
+                          className="rounded-xl border border-slate-200 bg-white p-4"
+                          open={drawerSourceOpen}
+                          onToggle={(event) => setDrawerSourceOpen(event.currentTarget.open)}
+                        >
+                          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            Source
+                          </summary>
+                          <div className="mt-3 space-y-3">
                             {traceError ? (
                               <div className="text-xs text-rose-700">Trace unavailable: {traceError}</div>
                             ) : traceLoading ? (
                               <div className="text-xs text-slate-600">Loading links…</div>
                             ) : linkedTraceSections.length ? (
-                              <div className="flex flex-wrap gap-2">
-                                {linkedTraceSections.slice(0, 6).map((link) => (
-                                  <button
-                                    key={link.section_id}
-                                    type="button"
-                                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                    onClick={(event) => goToSectionFromTrace(event, link.section_id)}
-                                  >
-                                    <span className="font-mono">{link.section_id}</span>
-                                    {link.title ? <span className="truncate">{link.title}</span> : null}
-                                  </button>
-                                ))}
+                              <div className="grid gap-2">
+                                {linkedTraceSections.slice(0, 6).map((link) => {
+                                  const section = sectionsById.get(link.section_id);
+                                  return (
+                                    <div key={link.section_id} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+                                      <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <span className="font-mono text-xs text-slate-700">{link.section_id}</span>
+                                        <button
+                                          type="button"
+                                          className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+                                          onClick={(event) => goToSectionFromTrace(event, link.section_id)}
+                                        >
+                                          Preview
+                                        </button>
+                                      </div>
+                                      <div className="mt-1 text-sm font-semibold text-slate-900">
+                                        {section?.title ?? link.title ?? "Section"}
+                                      </div>
+                                      {section?.textSnippet ? (
+                                        <div className="mt-1 text-xs text-slate-600">{section.textSnippet}</div>
+                                      ) : null}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             ) : (
                               <div className="text-sm text-slate-600">No linked sections yet.</div>
                             )}
-                          </div>
-                        </div>
 
-                        <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Evidence needed
-                          </div>
-                          <div className="mt-2 space-y-3">
-                            {ruleCitationSectionIds.length ? (
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                  Citations
+                            <div className="grid gap-2 text-xs text-slate-600">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className="font-semibold text-slate-700">source</span>
+                                <span className="break-all font-mono text-slate-700">
+                                  {ruleDetail.sourcePath ?? "—"}
                                 </span>
-                                {ruleCitationSectionIds.map((target) => (
-                                  <button
-                                    key={target}
-                                    type="button"
-                                    className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                    onClick={() =>
-                                      void jumpToSection(target, {
-                                        closeRuleDrawer: true,
-                                        missingLabel: "Unresolved citation",
-                                      })
-                                    }
-                                  >
-                                    {target}
-                                  </button>
-                                ))}
                               </div>
-                            ) : null}
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className="font-semibold text-slate-700">sha256</span>
+                                <span className="break-all font-mono text-slate-700">
+                                  {ruleDetail.sha256 ?? "—"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </details>
 
-                            {ruleCitationSectionIds.length || ruleDetail.sourcePath || ruleDetail.sha256 ? (
-                              <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
-                                {ruleCitationSectionIds.length ? (
-                                  <li>
-                                    Evidence anchor/section:{" "}
-                                    {ruleCitationSectionIds.map((sectionId) => (
-                                      <span
-                                        key={sectionId}
-                                        className="mr-2 inline-flex font-mono text-xs text-slate-700"
-                                      >
-                                        {sectionId}
-                                      </span>
-                                    ))}
-                                  </li>
-                                ) : null}
-                                {ruleDetail.sourcePath ? (
-                                  <li>
-                                    Source file:{" "}
-                                    <span className="break-all font-mono text-xs text-slate-700">
-                                      {ruleDetail.sourcePath}
-                                    </span>
-                                  </li>
-                                ) : null}
-                                {ruleDetail.sha256 ? (
-                                  <li>
-                                    Rule hash:{" "}
-                                    <span className="break-all font-mono text-xs text-slate-700">
-                                      {ruleDetail.sha256}
-                                    </span>
-                                  </li>
-                                ) : null}
-                              </ul>
+                        <details
+                          className="rounded-xl border border-slate-200 bg-white p-4"
+                          open={drawerCitationsOpen}
+                          onToggle={(event) => setDrawerCitationsOpen(event.currentTarget.open)}
+                        >
+                          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            Citations
+                          </summary>
+                          <div className="mt-3 space-y-3">
+                            {ruleCitationSectionIds.length ? (
+                              <div className="grid gap-2">
+                                {ruleCitationSectionIds.map((target) => {
+                                  const section = sectionsById.get(target);
+                                  return (
+                                    <div key={target} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+                                      <div className="font-mono text-xs text-slate-700">{target}</div>
+                                      <div className="mt-1 text-sm font-semibold text-slate-900">
+                                        {section?.title ?? "Section"}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             ) : (
-                              <p className="text-sm text-slate-600">
-                                Add evidence requirements for this rule (coming next).
-                              </p>
+                              <div className="text-sm text-slate-600">No citations recorded yet.</div>
                             )}
 
-                            {activeRuleId ? (
-                              <div className="flex flex-wrap gap-2">
-                                <Link
-                                  href={buildAuditLink(activeRuleId).relative}
-                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                >
-                                  Open in Audit (scoped)
-                                </Link>
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    try {
-                                      await navigator.clipboard.writeText(
-                                        buildAuditLink(activeRuleId).absolute,
-                                      );
-                                    } catch {
-                                      // ignore
-                                    }
-                                  }}
-                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                >
-                                  Copy Audit link
-                                </button>
+                            {method.hasRich && richEvidence?.citations.length ? (
+                              <div>
+                                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                  Rich citations
+                                </div>
+                                <div className="mt-2 grid gap-2">
+                                  {richEvidence.citations.slice(0, 6).map((citation, index) => (
+                                    <div key={`rich-citation-${index}`} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+                                      <div className="font-semibold text-slate-900">
+                                        {citation.sectionId ? `${citation.label} (${citation.sectionId})` : citation.label}
+                                      </div>
+                                      {citation.sectionId ? (
+                                        <div className="mt-1 font-mono text-[11px] text-slate-600">{citation.sectionId}</div>
+                                      ) : null}
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             ) : null}
                           </div>
-                        </div>
+                        </details>
 
                         <div className="grid gap-2 text-xs text-slate-600">
                           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1905,478 +1499,6 @@ export default function MethodDetailPane({
                         </div>
                       </div>
                     ) : null}
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </div>
-        ) : effectiveTab === "sections" ? (
-          <div className="mt-4 grid gap-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Sections for {activeVersion ?? "—"}
-              </div>
-              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-                {activeSectionId ? (
-                  <button
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                    onClick={async () => {
-                      try {
-                        await navigator.clipboard.writeText(buildSectionLink(activeSectionId));
-                      } catch {
-                        // ignore
-                      }
-                    }}
-                  >
-                    Copy section link
-                  </button>
-                ) : null}
-                <input
-                  type="search"
-                  value={sectionQuery}
-                  onChange={(event) => setSectionQuery(event.target.value)}
-                  placeholder="Search sections…"
-                  className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none sm:max-w-xs"
-                />
-              </div>
-            </div>
-
-            {sectionsDeeplinkWarning ? (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                {sectionsDeeplinkWarning}
-              </div>
-            ) : null}
-
-            {sectionsError ? (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {sectionsError}
-              </div>
-            ) : null}
-
-            {sectionsLoading ? (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                Loading sections…
-              </div>
-            ) : null}
-
-            {!sectionsLoading && !sectionsError && filteredSections.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
-                No sections found for this version.
-              </div>
-            ) : null}
-
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="max-h-[22rem] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
-                <ul className="grid gap-2">
-                  {filteredSections.map((section) => {
-                    const selected = section.id === activeSectionId;
-                    const linked = linkedSectionIds.has(section.id);
-                    return (
-                      <li
-                        key={section.id}
-                        id={`section-${section.id}`}
-                        className={
-                          highlightId === section.id
-                            ? "assistant-focus-highlight rounded-xl ring-2 ring-amber-300 ring-offset-2 ring-offset-slate-50"
-                            : linked
-                              ? "rounded-xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
-                            : ""
-                        }
-                      >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSectionsDeeplinkWarning(null);
-                            onSelectSection(section.id);
-                            setSectionParam(section.id);
-                          }}
-                          className={`flex w-full flex-col gap-1 rounded-lg border px-3 py-2 text-left transition-colors ${
-                            selected
-                              ? "border-slate-300 bg-slate-50"
-                              : linked
-                                ? "border-sky-200 bg-sky-50/30 hover:bg-slate-50"
-                                : "border-slate-200 bg-white hover:bg-slate-50"
-                          }`}
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-sm font-semibold text-slate-900">{section.title}</span>
-                            <span className="text-xs text-slate-500">
-                              {section.page ? `p.${section.page}` : section.anchor ? "anchor" : "—"}
-                            </span>
-                          </div>
-                          <div className="font-mono text-xs text-slate-500">{section.id}</div>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Section preview
-                </div>
-                {activeSectionId ? (
-                  <>
-                    <div className="mt-2 font-mono text-xs text-slate-600">{activeSectionId}</div>
-                    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800">
-                      {sections.find((section) => section.id === activeSectionId)?.textSnippet ?? "—"}
-                    </div>
-                  </>
-                ) : (
-                  <div className="mt-3 text-sm text-slate-600">
-                    Select a section to preview its snippet.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-4 grid gap-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Rich evidence for {activeVersion ?? "—"}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                  onClick={() => setRichRawOpen(true)}
-                  disabled={!richRaw}
-                >
-                  View raw JSON
-                </button>
-              </div>
-            </div>
-
-            {richProbe ? (
-              <div className="text-xs text-slate-500">
-                {richProbe.ok && richProbe.sources.length
-                  ? `Rich sources: ${richProbe.sources.join(", ")}`
-                  : richProbe.missing.length
-                    ? `Rich sources missing: ${richProbe.missing.join(", ")}`
-                    : "Rich sources missing."}
-              </div>
-            ) : null}
-
-            {richError ? (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {richError}
-              </div>
-            ) : null}
-
-            {richLoading ? (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                Loading rich evidence…
-              </div>
-            ) : null}
-
-            {!richLoading && !richError && richEvidence ? (
-              <div className="grid gap-3">
-                <div className="flex flex-wrap gap-2">
-                  {(
-                    [
-                      ["Entities", richEvidence.entities.length, "entities"],
-                      ["Tables", richEvidence.tables.length, "tables"],
-                      ["Citations", richEvidence.citations.length, "citations"],
-                      ["Diffs", richEvidence.diffs.length, "diffs"],
-                    ] as const
-                  ).map(([label, count, key]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() =>
-                        setRichOpenBlocks((prev) => ({ ...prev, [key]: !prev[key] }))
-                      }
-                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm ${
-                        richOpenBlocks[key]
-                          ? "border-slate-300 bg-slate-900 text-white"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                      }`}
-                    >
-                      <span>{label}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[11px] ${
-                          richOpenBlocks[key] ? "bg-white/15 text-white" : "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        {count}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                {richEvidence.entities.length === 0 &&
-                richEvidence.tables.length === 0 &&
-                richEvidence.citations.length === 0 &&
-                richEvidence.diffs.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
-                    No rich evidence for this version yet.
-                    <div className="mt-1 text-xs text-slate-400">
-                      Run rich extraction in the pipeline to populate.
-                    </div>
-                    {richProbe && (richProbe.missing.length || richProbe.attempts.length) ? (
-                      <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left">
-                        <summary className="cursor-pointer text-xs font-semibold text-slate-700">
-                          Why empty?
-                        </summary>
-                        <div className="mt-3 grid gap-3 text-xs text-slate-600">
-                          {richProbe.missing.length ? (
-                            <div>
-                              <div className="font-semibold text-slate-700">Missing</div>
-                              <div className="mt-1">{richProbe.missing.join(", ")}</div>
-                            </div>
-                          ) : null}
-                          {richProbe.attempts.length ? (
-                            <div>
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <div className="font-semibold text-slate-700">Attempted URLs</div>
-                                <button
-                                  type="button"
-                                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                                  onClick={async () => {
-                                    try {
-                                      await navigator.clipboard.writeText(
-                                        richProbe.attempts
-                                          .map((attempt) => {
-                                            const status = typeof attempt.status === "number" ? attempt.status : "—";
-                                            const resolved = attempt.resolvedUrl ?? attempt.url;
-                                            return `${attempt.name} ${status} ${resolved}`;
-                                          })
-                                          .join("\n"),
-                                      );
-                                    } catch {
-                                      // ignore
-                                    }
-                                  }}
-                                >
-                                  Copy attempted status
-                                </button>
-                              </div>
-                              <ul className="mt-2 grid gap-2 rounded-lg bg-white px-3 py-2 text-[11px] text-slate-700">
-                                {richProbe.attempts.map((attempt) => (
-                                  <li key={attempt.name} className="grid gap-1">
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                      <span className="font-mono font-semibold">{attempt.name}</span>
-                                      <span className="font-mono">
-                                        {typeof attempt.status === "number" ? attempt.status : attempt.ok ? "ok" : "—"}
-                                      </span>
-                                    </div>
-                                    <div className="break-all font-mono text-slate-600">
-                                      {attempt.resolvedUrl ?? attempt.url}
-                                    </div>
-                                    {attempt.error ? (
-                                      <div className="break-all font-mono text-rose-700">{attempt.error}</div>
-                                    ) : null}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ) : null}
-                        </div>
-                      </details>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {richOpenBlocks.entities ? (
-                  <div className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="text-sm font-semibold text-slate-900">Entities</div>
-                    {richEvidence.entities.length ? (
-                      <div className="mt-3 grid gap-4">
-                        {Object.entries(
-                          richEvidence.entities.reduce<Record<string, typeof richEvidence.entities>>(
-                            (acc, entity) => {
-                              const key = entity.type || "Unknown";
-                              acc[key] = acc[key] ? [...acc[key], entity] : [entity];
-                              return acc;
-                            },
-                            {},
-                          ),
-                        )
-                          .sort(([a], [b]) => a.localeCompare(b))
-                          .map(([type, items]) => (
-                            <div key={type}>
-                              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                {type} ({items.length})
-                              </div>
-                              <ul className="mt-2 grid gap-1 text-sm text-slate-700">
-                                {items.slice(0, 12).map((entity, index) => (
-                                  <li key={`${type}-${index}`} className="flex flex-wrap items-center gap-2">
-                                    <span className="rounded-full bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700">
-                                      {entity.value}
-                                    </span>
-                                    {typeof entity.confidence === "number" ? (
-                                      <span className="text-xs text-slate-500">
-                                        conf: {entity.confidence.toFixed(2)}
-                                      </span>
-                                    ) : null}
-                                    {entity.sectionId ? (
-                                      <button
-                                        type="button"
-                                        className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                                        onClick={() => void jumpToSection(entity.sectionId ?? "")}
-                                      >
-                                        {entity.sectionId}
-                                      </button>
-                                    ) : null}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ))}
-                      </div>
-                    ) : (
-                      <div className="mt-2 text-sm text-slate-600">No entities extracted.</div>
-                    )}
-                  </div>
-                ) : null}
-
-                {richOpenBlocks.tables ? (
-                  <div className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="text-sm font-semibold text-slate-900">Tables</div>
-                    {richEvidence.tables.length ? (
-                      <div className="mt-3 grid gap-4">
-                        {richEvidence.tables.map((table, index) => (
-                          <div key={`table-${index}`} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="text-sm font-semibold text-slate-900">
-                                {table.title ?? `Table ${index + 1}`}
-                              </div>
-                              <div className="text-xs text-slate-500">rows: {table.rows.length}</div>
-                            </div>
-                            {table.sectionId ? (
-                              <button
-                                type="button"
-                                className="mt-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                                onClick={() => void jumpToSection(table.sectionId ?? "")}
-                              >
-                                section {table.sectionId}
-                              </button>
-                            ) : null}
-                            <div className="mt-3 overflow-auto rounded-lg bg-white">
-                              <pre className="min-w-full whitespace-pre-wrap px-3 py-2 text-xs text-slate-700">
-                                {JSON.stringify(table.rows.slice(0, 12), null, 2)}
-                              </pre>
-                              {table.rows.length > 12 ? (
-                                <div className="px-3 pb-2 text-xs text-slate-500">
-                                  Showing first 12 rows (expand extraction for full data).
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="mt-2 text-sm text-slate-600">No tables extracted.</div>
-                    )}
-                  </div>
-                ) : null}
-
-                {richOpenBlocks.citations ? (
-                  <div className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="text-sm font-semibold text-slate-900">Citations</div>
-                    {richEvidence.citations.length ? (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {richEvidence.citations.slice(0, 60).map((citation, index) => (
-                          <button
-                            key={`citation-${index}`}
-                            type="button"
-                            disabled={!citation.sectionId}
-                            className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm ${
-                              citation.sectionId
-                                ? "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                                : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400"
-                            }`}
-                            onClick={async () => {
-                              const target = citation.sectionId;
-                              if (!target) return;
-                              await jumpToSection(target);
-                            }}
-                          >
-                            {citation.sectionId ? `${citation.label} (${citation.sectionId})` : citation.label}
-                          </button>
-                        ))}
-                        {richEvidence.citations.length > 60 ? (
-                          <div className="text-xs text-slate-500">
-                            Showing first 60 citations.
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <div className="mt-2 text-sm text-slate-600">No citations extracted.</div>
-                    )}
-                  </div>
-                ) : null}
-
-                {richOpenBlocks.diffs ? (
-                  <div className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="text-sm font-semibold text-slate-900">Diffs / Changes</div>
-                    {richEvidence.diffs.length ? (
-                      <ul className="mt-3 grid gap-2">
-                        {richEvidence.diffs.slice(0, 40).map((diff, index) => (
-                          <li key={`diff-${index}`} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="text-sm font-semibold text-slate-900">{diff.label}</div>
-                              {diff.sectionId ? (
-                                <button
-                                  type="button"
-                                  className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
-                                  onClick={() => void jumpToSection(diff.sectionId ?? "")}
-                                >
-                                  section {diff.sectionId}
-                                </button>
-                              ) : null}
-                            </div>
-                            {diff.from || diff.to ? (
-                              <div className="mt-2 grid gap-1 text-xs text-slate-700">
-                                {diff.from ? <div>from: {diff.from}</div> : null}
-                                {diff.to ? <div>to: {diff.to}</div> : null}
-                              </div>
-                            ) : null}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div className="mt-2 text-sm text-slate-600">No diffs available.</div>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            {richRawOpen ? (
-              <div
-                className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Raw rich JSON"
-                onClick={() => setRichRawOpen(false)}
-              >
-                <div
-                  className="w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl"
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-                    <div>
-                      <div className="text-sm font-semibold text-slate-900">Raw JSON</div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        {method.code} · {activeVersion ?? "—"}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setRichRawOpen(false)}
-                      className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                    >
-                      Close
-                    </button>
-                  </div>
-                  <div className="max-h-[70vh] overflow-auto px-5 py-4">
-                    <pre className="whitespace-pre-wrap text-xs text-slate-800">
-                      {JSON.stringify(richRaw, null, 2)}
-                    </pre>
                   </div>
                 </div>
               </div>

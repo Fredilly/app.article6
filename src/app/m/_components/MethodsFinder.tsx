@@ -14,7 +14,6 @@ type MethodsFinderProps = {
   selectedCode?: string;
   selectedVersion?: string;
   selectedRuleId?: string;
-  selectedSectionId?: string;
 };
 
 async function loadPackProvenanceJson(): Promise<unknown | null> {
@@ -40,7 +39,6 @@ export default async function MethodsFinder({
   selectedCode,
   selectedVersion,
   selectedRuleId,
-  selectedSectionId,
 }: MethodsFinderProps) {
   const { methods } = await getMethodInventory();
 
@@ -164,7 +162,6 @@ export default async function MethodsFinder({
                   }}
                   activeVersion={effectiveVersion}
                   initialRuleId={selectedRuleId}
-                  initialSectionId={selectedSectionId}
                   packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}
                   provenanceJson={packProvenanceJson}
                   manifestRulesPath={manifestRulesPath}

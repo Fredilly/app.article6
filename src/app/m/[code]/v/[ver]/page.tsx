@@ -3,7 +3,7 @@ import MethodsFinder from "@/app/m/_components/MethodsFinder";
 
 type PageProps = {
   params: Promise<{ code: string; ver: string }>;
-  searchParams?: Promise<{ rule?: string; section?: string }>;
+  searchParams?: Promise<{ rule?: string }>;
 };
 
 export const metadata: Metadata = {
@@ -15,13 +15,11 @@ export default async function MethodVersionPage({ params, searchParams }: PagePr
   const { code, ver } = await params;
   const resolvedSearch = await Promise.resolve(searchParams);
   const rule = typeof resolvedSearch?.rule === "string" ? resolvedSearch.rule : undefined;
-  const section = typeof resolvedSearch?.section === "string" ? resolvedSearch.section : undefined;
   return (
     <MethodsFinder
       selectedCode={code}
       selectedVersion={ver}
       selectedRuleId={rule}
-      selectedSectionId={section}
     />
   );
 }

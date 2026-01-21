@@ -1771,16 +1771,26 @@ export default function ProofMapTab({
         )}
 
         {verifierMode && auditTrail ? (
-          <AuditTrailPanel
-            events={auditTrail.events}
-            exportJson={auditTrail.exportJson}
-            exportSha256={auditTrail.exportSha256}
-            onClear={auditTrail.onClear}
-            onExport={auditTrail.onExport}
-            onJumpToRule={auditTrail.onJumpToRule}
-            onOpenEvidence={auditTrail.onOpenEvidence}
-            onNotify={showToast}
-          />
+          <details className="rounded-lg border border-slate-200 bg-white">
+            <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+              Audit trail
+              <span className="ml-2 text-[11px] font-medium text-slate-500">
+                {auditTrail.events.length} events
+              </span>
+            </summary>
+            <div className="px-3 pb-3">
+              <AuditTrailPanel
+                events={auditTrail.events}
+                exportJson={auditTrail.exportJson}
+                exportSha256={auditTrail.exportSha256}
+                onClear={auditTrail.onClear}
+                onExport={auditTrail.onExport}
+                onJumpToRule={auditTrail.onJumpToRule}
+                onOpenEvidence={auditTrail.onOpenEvidence}
+                onNotify={showToast}
+              />
+            </div>
+          </details>
         ) : null}
 
         {isListMode ? null : listContent}
