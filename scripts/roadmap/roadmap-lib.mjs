@@ -10,6 +10,27 @@ const STATUS_LABELS = {
   merged: "Done",
 };
 
+export function normalizePrId(value) {
+  const match = String(value ?? "").trim().toUpperCase().match(/^PR(\d+)(?:[._](\d+))?$/);
+  if (!match) return null;
+  const main = match[1];
+  const sub = match[2] ?? null;
+  return sub ? `PR${main}_${sub}` : `PR${main}`;
+}
+
+export function formatPrId(value) {
+  const normalized = normalizePrId(value);
+  if (!normalized) return String(value ?? "");
+  return normalized.replace("_", ".");
+}
+
+export function prSortKey(value) {
+  const normalized = normalizePrId(value);
+  if (!normalized) return [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+  const [, main, sub] = normalized.match(/^PR(\d+)(?:_(\d+))?$/) ?? [];
+  return [Number(main ?? Number.MAX_SAFE_INTEGER), Number(sub ?? 0)];
+}
+
 export function normalizeStatus(value) {
   if (!value) return null;
   const lowered = String(value).trim().toLowerCase();
@@ -51,9 +72,10 @@ export function parsePlanTitles(planPath) {
   const lines = fs.readFileSync(planPath, "utf8").split("\n");
   const items = [];
   for (const line of lines) {
-    const match = line.match(/^##\s+(PR\d+)\s*(?:[-—:]\s*)?(.*)$/i);
+    const match = line.match(/^##\s+(PR\d+(?:[._]\d+)?)\s*(?:[-—:]\s*)?(.*)$/i);
     if (!match) continue;
-    const id = match[1].toUpperCase();
+    const id = normalizePrId(match[1]);
+    if (!id) continue;
     const title = match[2]?.trim() || null;
     items.push({ id, title });
   }
@@ -85,9 +107,15 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
     const planOrder = planItems.map((item) => item.id);
 
     const ssotItems = Object.entries(ssot)
-      .filter(([key]) => /^PR\d+$/i.test(key))
-      .map(([key, value]) => ({ id: key.toUpperCase(), status: normalizeStatus(value) }))
-      .sort((a, b) => Number(a.id.slice(2)) - Number(b.id.slice(2)));
+      .map(([key, value]) => ({ id: normalizePrId(key), status: normalizeStatus(value) }))
+      .filter((item) => item.id)
+      .map((item) => ({ id: item.id, status: item.status }))
+      .sort((a, b) => {
+        const [aMain, aSub] = prSortKey(a.id);
+        const [bMain, bSub] = prSortKey(b.id);
+        if (aMain !== bMain) return aMain - bMain;
+        return aSub - bSub;
+      });
 
     const ordered = [
       ...planOrder.map((id) => ssotItems.find((item) => item.id === id)).filter(Boolean),
@@ -98,7 +126,7 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
       const title = planItems.find((entry) => entry.id === item.id)?.title;
       const label = statusLabel(item.status);
       const titlePart = title ? ` — ${title}` : "";
-      return `${idx + 1}) ${item.id}${titlePart}: ${label}`;
+      return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}`;
     });
 
     const sectionLines = [
@@ -145,9 +173,11 @@ export function parseRoadmapDirective(body) {
       slug = slugMatch[1].trim();
       continue;
     }
-    const itemMatch = line.match(/^\-?\s*(PR\d+)\s*:\s*([a-zA-Z_-]+)\s*$/i);
+    const itemMatch = line.match(/^\-?\s*(PR\d+(?:[._]\d+)?)\s*:\s*([a-zA-Z_-]+)\s*$/i);
     if (itemMatch) {
-      items.push({ id: itemMatch[1].toUpperCase(), status: itemMatch[2].trim() });
+      const id = normalizePrId(itemMatch[1]);
+      if (!id) continue;
+      items.push({ id, status: itemMatch[2].trim() });
     }
   }
 
