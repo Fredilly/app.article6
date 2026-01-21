@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
+import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
@@ -13,6 +14,9 @@ import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunF
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
 import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFormat";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
+import { canonicalJsonStringify as canonicalAuditJsonStringify } from "@/lib/auditTrail/canonicalJson";
+import { sha256Hex as auditSha256Hex } from "@/lib/auditTrail/hash";
+import type { AuditTrailEvent, AuditTrailEventInput } from "@/lib/auditTrail/types";
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
 import { getWorkspaceWorkFlags } from "@/lib/proofMap/workspace";
@@ -25,6 +29,7 @@ type ProofMapTabProps = {
   provenanceJson?: unknown | null;
   mode?: "explorer" | "evidence";
   viewMode?: "list" | "map";
+  verifierMode?: boolean;
   aoi: AOI | null;
   currentAoi: AOI | null;
   draftAoi: AOI | null;
@@ -63,6 +68,16 @@ type ProofMapTabProps = {
   onSelectStacItemId: (id: string | null) => void;
   onStartOver: () => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
+  onAuditEvent?: (event: AuditTrailEventInput) => void;
+  auditTrail?: {
+    events: AuditTrailEvent[];
+    exportJson: string;
+    exportSha256: string;
+    onClear: () => void;
+    onExport: () => void;
+    onJumpToRule: (ruleId: string) => void;
+    onOpenEvidence: (url: string) => void;
+  } | null;
   onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
 };
 
@@ -182,6 +197,7 @@ export default function ProofMapTab({
   provenanceJson,
   mode = "explorer",
   viewMode = "map",
+  verifierMode = false,
   aoi,
   currentAoi,
   draftAoi,
@@ -202,6 +218,8 @@ export default function ProofMapTab({
   onSelectStacItemId,
   onStartOver,
   onNavigateEvidence,
+  onAuditEvent,
+  auditTrail,
   onEvidenceSelectionChange,
 }: ProofMapTabProps) {
   const isEvidenceMode = mode === "evidence";
@@ -259,6 +277,16 @@ export default function ProofMapTab({
     onSelectStacItemId(id);
     setLastSelectionSource(source);
     setStacInspectOpen(true);
+    if (onAuditEvent) {
+      void (async () => {
+        const payload: Record<string, unknown> = { layer_id: "stac", feature_id: id };
+        const record = currentStacEvidence?.itemsById?.[id];
+        if (record && typeof record === "object") {
+          payload.feature_hash = await auditSha256Hex(canonicalAuditJsonStringify(record));
+        }
+        onAuditEvent({ kind: "evidence.feature.select", payload });
+      })();
+    }
     requestAnimationFrame(() => {
       try {
         stacEvidenceCardRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -1543,6 +1571,17 @@ export default function ProofMapTab({
                       setError(result.error);
                       return;
                     }
+                    if (onAuditEvent) {
+                      try {
+                        const hash = await aoiFingerprint(result.aoi.geojson);
+                        onAuditEvent({
+                          kind: "evidence.input",
+                          payload: { geojson_hash: hash, aoi_hash: hash },
+                        });
+                      } catch {
+                        // ignore hash failures
+                      }
+                    }
                     onUploadAoi(result.aoi);
                   } catch (e) {
                     setError(e instanceof Error ? e.message : String(e));
@@ -1672,6 +1711,12 @@ export default function ProofMapTab({
                         source: endpoint ? { type: "stac_url", ref: endpoint } : { type: "unknown", ref: "unknown" },
                       });
                       onSelectStacItemId(null);
+                      if (onAuditEvent) {
+                        onAuditEvent({
+                          kind: "evidence.input",
+                          payload: { stac_url: endpoint ?? "unknown", aoi_hash: currentAoiFingerprint },
+                        });
+                      }
 
                       let evidenceBbox: [number, number, number, number] | null = null;
                       for (const item of Object.values(normalized.itemsById)) {
@@ -1724,6 +1769,19 @@ export default function ProofMapTab({
               : "No evidence loaded yet. This is the spatial view of evidence—upload an AOI to begin."}
           </div>
         )}
+
+        {verifierMode && auditTrail ? (
+          <AuditTrailPanel
+            events={auditTrail.events}
+            exportJson={auditTrail.exportJson}
+            exportSha256={auditTrail.exportSha256}
+            onClear={auditTrail.onClear}
+            onExport={auditTrail.onExport}
+            onJumpToRule={auditTrail.onJumpToRule}
+            onOpenEvidence={auditTrail.onOpenEvidence}
+            onNotify={showToast}
+          />
+        ) : null}
 
         {isListMode ? null : listContent}
       </div>
