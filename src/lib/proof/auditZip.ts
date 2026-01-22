@@ -62,6 +62,11 @@ function safeFilename(value: string): string {
   return withoutPath.replace(/[^\w.\- ()[\]]+/g, "_").slice(0, 160) || "file";
 }
 
+function buildTrailJsonl(ts: string): Uint8Array {
+  const entry = { ts, actor: "system", action: "trail.init", meta: { schema: "v1" } };
+  return encodeText(`${JSON.stringify(entry)}\n`);
+}
+
 function collectAttachmentsFromPins(pins: EvidencePin[] | undefined): EvidenceAttachment[] {
   const out: EvidenceAttachment[] = [];
   for (const pin of pins ?? []) {
@@ -312,6 +317,10 @@ export async function buildAuditZipBytes(input: {
   payloadEntries.push({
     path: "evidence/stac_evidence.geojson",
     bytes: encodeText(canonicalJsonStringify(input.verificationSnapshot?.stacEvidenceGeojson ?? emptyEvidence)),
+  });
+  payloadEntries.push({
+    path: "trail.jsonl",
+    bytes: buildTrailJsonl(input.bundle.exported_at),
   });
 
   const ruleEvidenceMap =

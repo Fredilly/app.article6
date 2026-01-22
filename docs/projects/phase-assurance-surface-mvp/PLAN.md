@@ -118,6 +118,17 @@ npm run verify:audit-pack -- ~/Desktop/audit-pack.zip
 - Click path works: changed rule -> sections -> evidence -> download pack -> verify.
 - Scripted smoke passes: open -> audit trail -> jump rule -> download pack -> verify.
 
+## PR20 - Trail inside audit pack + strict verify
+
+### Scope
+- Include `trail.jsonl` in every audit pack export (always present).
+- Verify is strict: manifest required, no extras, all hashes match, trail is valid JSONL.
+
+### Acceptance
+- Tampering with trail.jsonl fails verification.
+- Removing trail.jsonl fails verification.
+- verify-audit-pack reports clear file + reason on failure.
+
 ### Visible UI changes to look for
 - Verifier Mode toggle/link behavior.
 - Audit Trail tab with counts + drilldowns.
