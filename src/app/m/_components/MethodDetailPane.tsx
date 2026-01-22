@@ -9,10 +9,12 @@ import TrustStrip from "@/components/TrustStrip";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
+import ShareLinkButton from "@/components/actions/ShareLinkButton";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
 import { jumpToRule } from "@/lib/ruleJump";
+import { decodeShareState, encodeShareState } from "@/lib/shareLink";
 import {
   clearProofMapStorage,
   clearStoredMapView,
@@ -184,6 +186,7 @@ export default function MethodDetailPane({
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
   const lastRuleFromQuery = useRef<string | null>(null);
+  const lastSectionFromQuery = useRef<string | null>(null);
   const lastMethodSelection = useRef<string | null>(null);
   const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
   const [drawerSourceOpen, setDrawerSourceOpen] = useState(false);
@@ -607,10 +610,15 @@ export default function MethodDetailPane({
   const buildRuleLink = useCallback(
     (ruleId: string) => {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(
-        activeVersion ?? "",
-      )}?rule=${encodeURIComponent(ruleId)}`;
-      return `${origin}${path}`;
+      const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion ?? "")}`;
+      const { tab, rule, section, hash } = encodeShareState({ tab: "rules", rule: ruleId });
+      const params = new URLSearchParams();
+      if (tab) params.set("tab", tab);
+      if (rule) params.set("rule", rule);
+      if (section) params.set("section", section);
+      const query = params.toString();
+      const suffix = `${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
+      return `${origin}${path}${suffix}`;
     },
     [activeVersion, method.code],
   );
@@ -680,11 +688,35 @@ export default function MethodDetailPane({
     if (!pathname) return;
     if (isEvidenceMode) return;
     const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
-    if (ruleId) params.set("rule", ruleId);
-    else params.delete("rule");
+    if (ruleId) {
+      params.set("rule", ruleId);
+      params.delete("section");
+    } else {
+      params.delete("rule");
+    }
     const search = params.toString();
-    router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
+    const hash = ruleId ? `#r-${ruleId}` : "";
+    router.replace(search ? `${pathname}?${search}${hash}` : `${pathname}${hash}`, { scroll: false });
   }, [isEvidenceMode, pathname, router]);
+
+  const setSectionParam = useCallback(
+    (sectionId?: string) => {
+      if (!pathname) return;
+      if (isEvidenceMode) return;
+      const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      if (sectionId) {
+        params.set("section", sectionId);
+        params.delete("rule");
+        params.set("tab", "sections");
+      } else {
+        params.delete("section");
+      }
+      const search = params.toString();
+      const hash = sectionId ? `#s-${sectionId}` : "";
+      router.replace(search ? `${pathname}?${search}${hash}` : `${pathname}${hash}`, { scroll: false });
+    },
+    [isEvidenceMode, pathname, router],
+  );
 
   const setTabParam = useCallback(
     (nextTab: DetailTab) => {
@@ -744,10 +776,13 @@ export default function MethodDetailPane({
       void (async () => {
         const list = await ensureSectionsLoaded();
         const match = list.find((section) => section.id === sectionId) ?? null;
-        if (match) setSectionPreview(match);
+        if (match) {
+          setSectionPreview(match);
+          setSectionParam(sectionId);
+        }
       })();
     },
-    [ensureSectionsLoaded],
+    [ensureSectionsLoaded, setSectionParam],
   );
 
   const ensureTraceLoaded = useCallback(async (): Promise<TraceIndex | null> => {
@@ -900,12 +935,33 @@ export default function MethodDetailPane({
     })();
   }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule, setTabParam]);
 
+  useEffect(() => {
+    if (isEvidenceMode) return;
+    if (typeof window === "undefined") return;
+    const { section } = decodeShareState(searchParams, window.location.hash);
+    if (!section) {
+      lastSectionFromQuery.current = null;
+      return;
+    }
+    if (lastSectionFromQuery.current === section) return;
+    lastSectionFromQuery.current = section;
+    void (async () => {
+      const list = await ensureSectionsLoaded();
+      const match = list.find((item) => item.id === section) ?? null;
+      if (match) {
+        setSectionPreview(match);
+      } else {
+        lastSectionFromQuery.current = null;
+      }
+    })();
+  }, [ensureSectionsLoaded, isEvidenceMode, searchParams]);
+
   const sectionsById = useMemo(() => new Map(sections.map((section) => [section.id, section])), [sections]);
 
   useEffect(() => {
     if (tab !== "rules") return;
     if (!activeRuleId) return;
-    const el = document.getElementById(activeRuleId);
+    const el = document.getElementById(`r-${activeRuleId}`) ?? document.getElementById(activeRuleId);
     el?.scrollIntoView({ block: "start" });
   }, [activeRuleId, tab]);
 
@@ -939,9 +995,10 @@ export default function MethodDetailPane({
       const match = list.find((section) => section.id === sectionId) ?? null;
       if (!match) return false;
       setSectionPreview(match);
+      setSectionParam(sectionId);
       return true;
     },
-    [ensureSectionsLoaded],
+    [ensureSectionsLoaded, setSectionParam],
   );
 
   const navigateToVerify = useCallback(
@@ -1100,16 +1157,21 @@ export default function MethodDetailPane({
         />
       </div>
 
-      {isEvidenceMode ? (
-        <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+        <ShareLinkButton
+          tab={isEvidenceMode ? "verify" : tab}
+          ruleId={activeRuleId}
+          sectionId={sectionPreview?.id ?? null}
+        />
+        {isEvidenceMode ? (
           <Link
             href={buildVerifyHref()}
             className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
           >
             Back to Method
           </Link>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       {integrityDiffOpen ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
@@ -1139,13 +1201,18 @@ export default function MethodDetailPane({
                 <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                   Section preview
                 </div>
-                <div className="mt-1 text-sm font-semibold text-slate-900">{sectionPreview.title}</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900" id={`s-${sectionPreview.id}`}>
+                  {sectionPreview.title}
+                </div>
                 <div className="mt-1 font-mono text-[11px] text-slate-600">{sectionPreview.id}</div>
               </div>
               <button
                 type="button"
                 className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={() => setSectionPreview(null)}
+                onClick={() => {
+                  setSectionPreview(null);
+                  setSectionParam(undefined);
+                }}
               >
                 Close
               </button>
@@ -1255,7 +1322,7 @@ export default function MethodDetailPane({
               {filteredRules.map((rule) => (
                 <li
                   key={rule.id}
-                  id={rule.id}
+                  id={`r-${rule.id}`}
                   className={
                     linkedRuleIds.has(rule.id)
                       ? "rounded-2xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
