@@ -32,6 +32,6 @@ Status SSOT: `docs/roadmaps/verifier-moat/phase-status.json`
 Details: `docs/roadmaps/verifier-moat/PLAN.md`
 
 1) PR18 — Shrink Method UI to Read | Verify + demote tools: Done
-2) PR19 — CI hardening (align with PR16): Planned
+2) PR19 — CI hardening (align with PR16): In progress
 3) PR20 — Trail inside audit pack + strict verify: Planned
 4) PR21 — Share link (optional): Planned
