@@ -94,6 +94,29 @@ function assertReviewLog(log) {
   }
 }
 
+function parseJsonLines(text, filename) {
+  const lines = text.split("\n").map((line) => line.trim()).filter(Boolean);
+  const entries = [];
+  for (let idx = 0; idx < lines.length; idx += 1) {
+    const line = lines[idx];
+    try {
+      entries.push(JSON.parse(line));
+    } catch (error) {
+      throw new Error(`${filename} line ${idx + 1} is not valid JSON`);
+    }
+  }
+  return entries;
+}
+
+function assertTrailEntry(entry, filename, index) {
+  if (!entry || typeof entry !== "object") throw new Error(`${filename} line ${index} must be object`);
+  if (typeof entry.ts !== "string") throw new Error(`${filename} line ${index} missing ts`);
+  const parsed = Date.parse(entry.ts);
+  if (!Number.isFinite(parsed)) throw new Error(`${filename} line ${index} ts not ISO date`);
+  if (typeof entry.actor !== "string") throw new Error(`${filename} line ${index} missing actor`);
+  if (typeof entry.action !== "string") throw new Error(`${filename} line ${index} missing action`);
+}
+
 try {
   const manifestRaw = zipReadText(zip, "manifest.json");
   const manifest = JSON.parse(manifestRaw);
@@ -107,6 +130,12 @@ try {
 
   const manifestPaths = manifest.files.map((f) => f.path);
   const allowed = new Set(["manifest.json", ...manifestPaths]);
+  if (!manifestPaths.includes("trail.jsonl")) {
+    die("❌ manifest.json missing trail.jsonl entry");
+  }
+  if (!zipSet.has("trail.jsonl")) {
+    die("❌ trail.jsonl missing from zip");
+  }
 
   const extras = zipFiles.filter((p) => !allowed.has(p));
   const missing = manifestPaths.filter((p) => !zipSet.has(p));
@@ -151,6 +180,18 @@ try {
         assertReviewLog(JSON.parse(bytes.toString("utf8")));
       } catch (error) {
         console.error(`❌ INVALID REVIEW LOG ${p}\n  ${error?.message || error}`);
+        fail++;
+        continue;
+      }
+    }
+    if (p === "trail.jsonl") {
+      try {
+        const entries = parseJsonLines(bytes.toString("utf8"), p);
+        for (let i = 0; i < entries.length; i += 1) {
+          assertTrailEntry(entries[i], p, i + 1);
+        }
+      } catch (error) {
+        console.error(`❌ INVALID TRAIL ${p}\n  ${error?.message || error}`);
         fail++;
         continue;
       }

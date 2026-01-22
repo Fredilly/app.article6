@@ -34,7 +34,8 @@
     "pr:gate": "node scripts/pr-gate.mjs",
     "audit-pack:diff": "node scripts/audit-pack/diff-manifests.mjs",
     "prepare": "husky install",
-    "roadmap:gen": "node scripts/roadmap/gen-roadmap.mjs"
+    "roadmap:gen": "node scripts/roadmap/gen-roadmap.mjs",
+    "test:audit-pack:trail-smoke": "node scripts/test-audit-pack-trail-smoke.mjs"
   },
   "engines": {
     "node": ">=20 <21",

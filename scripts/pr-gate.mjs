@@ -49,6 +49,7 @@ async function main() {
   try {
     await waitForHealth(`${baseUrl}/api/health`);
     run(`BASE_URL=${baseUrl} npm run test:audit-pack:smoke`);
+    run(`BASE_URL=${baseUrl} npm run test:audit-pack:trail-smoke`);
   } finally {
     server.kill("SIGTERM");
   }

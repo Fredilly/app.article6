@@ -50,6 +50,11 @@ function zipMtimeFromTimestamp(iso: string): Date {
   return date;
 }
 
+function buildTrailJsonl(ts: string): Buffer {
+  const entry = { ts, actor: "system", action: "trail.init", meta: { schema: "v1" } };
+  return Buffer.from(`${JSON.stringify(entry)}\n`, "utf8");
+}
+
 export function buildAuditPackZip(methodCode: string, version: string) {
   const methodDir = resolveMethodDir(methodCode, version);
   if (!methodDir) {
@@ -89,6 +94,12 @@ export function buildAuditPackZip(methodCode: string, version: string) {
 
   const generatedAt = deterministicTimestamp();
   const packMeta = makePackMeta({ methodCode, version, repo, commit, generated_at: generatedAt });
+  const trailBytes = buildTrailJsonl(generatedAt);
+  files.push({
+    path: "trail.jsonl",
+    bytes: trailBytes,
+    sha256: sha256Hex(trailBytes),
+  });
 
   const manifest = {
     kind: "article6.audit_pack",
