@@ -23,9 +23,8 @@ Details: `docs/projects/phase-assurance-surface-mvp/PLAN.md`
 3) PR14 — Rule-Scoped Evidence Pack + Append-Only Review Log: Done
 4) PR14.1 — Audit Pack Verification Semantics + Runtime Provenance: Done
 5) PR15 — Verifier Mode + Audit Trail + Rule Jump: Done
-6) PR20 — Trail inside audit pack + strict verify: In progress
-7) PR16 — CI Hardening + Self-Upgrading Deps: Done
-8) PR17 — Derived MRV artifacts + hashes (future): Planned
+6) PR16 — CI Hardening + Self-Upgrading Deps: Done
+7) PR17 — Derived MRV artifacts + hashes (future): Planned
 
 ## verifier-moat
 
