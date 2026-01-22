@@ -21,4 +21,6 @@ Directive format:
 Allowed statuses: planned | next | in_progress | done | blocked
 
 On merge, automation updates `docs/roadmaps/<slug>/phase-status.json` and
-regenerates `docs/projects/ROADMAP.md`. Manual edits to those files should be avoided.
+regenerates `docs/projects/ROADMAP.md`. `in_progress` is fine while a PR is open,
+but merged PR items are finalized to `done` automatically. Manual edits to those
+files should be avoided.

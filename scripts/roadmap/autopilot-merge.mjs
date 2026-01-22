@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { generateRoadmapContent } from "./roadmap-lib.mjs";
+import { generateRoadmapContent, parseRoadmapDirective, normalizePrId } from "./roadmap-lib.mjs";
 import { inferPrKey } from "./infer-pr-key.mjs";
 import { findSsotForPr } from "./find-ssot-for-pr.mjs";
+import { finalizeMergedItems } from "./finalize-merged.mjs";
 
 function getArg(flag) {
   const idx = process.argv.indexOf(flag);
@@ -11,10 +12,10 @@ function getArg(flag) {
   return process.argv[idx + 1] ?? null;
 }
 
-function updateSsotStatus(ssotPath, prKey) {
+function updateSsotStatus(ssotPath, updates, updatedAt) {
   const ssot = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
-  const next = { ...ssot, [prKey]: "done" };
-  next.updated_at = new Date().toISOString();
+  const next = { ...ssot, ...updates };
+  next.updated_at = updatedAt;
 
   const entries = Object.entries(next);
   const prEntries = entries
@@ -50,9 +51,14 @@ const prKey = inferPrKey({
   body: pr.body ?? "",
   branch: pr.head?.ref ?? "",
 });
+const labels = (pr.labels ?? []).map((label) => String(label?.name ?? "")).filter(Boolean);
+const prLabel = labels.find((label) => label.startsWith("pr:PR")) ?? null;
+const labeledPrKey = prLabel ? normalizePrId(prLabel.replace("pr:", "")) : null;
+const directive = parseRoadmapDirective(pr.body ?? "");
+const directiveSlug = directive?.slug?.trim() || null;
 
-if (!prKey) {
-  const payload = { status: "skipped", reason: "no pr key" };
+if (!prKey && !directiveSlug) {
+  const payload = { status: "skipped", reason: "no pr key or directive" };
   writeOutput(outputPath, payload);
   console.log(JSON.stringify(payload));
   process.exit(0);
@@ -60,16 +66,40 @@ if (!prKey) {
 
 let ssotInfo;
 try {
-  ssotInfo = findSsotForPr(prKey);
+  ssotInfo = directiveSlug
+    ? { ssotPath: path.join("docs", "roadmaps", directiveSlug, "phase-status.json"), slug: directiveSlug }
+    : findSsotForPr(prKey ?? "");
 } catch (error) {
   const reason = error && error.code === "AMBIGUOUS" ? "ambiguous" : "not in SSOT";
-  const payload = { status: "skipped", reason, prKey };
+  const payload = { status: "skipped", reason, prKey: prKey ?? "" };
   writeOutput(outputPath, payload);
   console.log(JSON.stringify(payload));
   process.exit(0);
 }
 
-updateSsotStatus(ssotInfo.ssotPath, prKey);
+if (!fs.existsSync(ssotInfo.ssotPath)) {
+  const payload = { status: "skipped", reason: "missing SSOT", prKey: prKey ?? "", slug: ssotInfo.slug };
+  writeOutput(outputPath, payload);
+  console.log(JSON.stringify(payload));
+  process.exit(0);
+}
+
+const updates = {};
+const finalized = finalizeMergedItems(directive?.items ?? [], labeledPrKey ?? prKey);
+for (const item of finalized.items) {
+  if (item.id) updates[item.id] = item.status;
+}
+if (finalized.prKey && !updates[finalized.prKey]) {
+  updates[finalized.prKey] = "done";
+}
+if (!Object.keys(updates).length) {
+  const payload = { status: "skipped", reason: "no items", prKey: prKey ?? "", slug: ssotInfo.slug };
+  writeOutput(outputPath, payload);
+  console.log(JSON.stringify(payload));
+  process.exit(0);
+}
+
+updateSsotStatus(ssotInfo.ssotPath, updates, new Date().toISOString());
 
 const docsRoot = "docs";
 const ssotRoot = path.join(docsRoot, "roadmaps");
@@ -79,7 +109,7 @@ fs.writeFileSync(roadmapPath, content, "utf8");
 
 const payload = {
   status: "updated",
-  prKey,
+  prKey: finalized.prKey ?? prKey ?? "",
   ssotPath: ssotInfo.ssotPath,
   roadmapPath,
   slug: ssotInfo.slug,
