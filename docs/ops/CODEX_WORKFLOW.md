@@ -3,6 +3,9 @@
 Goal: eliminate manual copy/paste of Codex output.
 
 ## How to use
+
+**Tip:** create the PR early (before long runs). The wrapper auto-detects the PR URL and writes it into the run log. If no PR exists yet, the PR field will be empty.
+
 Run your work through:
 
 ```bash

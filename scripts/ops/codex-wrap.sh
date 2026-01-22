@@ -37,6 +37,17 @@ export CODEX_STATUS=$([ "$RC" -eq 0 ] && echo "success" || echo "failure")
 export CODEX_CI="${CODEX_CI:-unknown}"
 export CODEX_PR_URL="${CODEX_PR_URL:-}"
 
+# Best-effort PR URL detection (works if this branch has an open PR)
+PR_URL="$(gh pr view --json url -q .url 2>/dev/null || true)"
+if [ -n "$PR_URL" ]; then
+  export CODEX_PR_URL="$PR_URL"
+fi
+
+# CI marker: allow caller to override; otherwise unknown
+if [ -z "${CODEX_CI:-}" ]; then
+  export CODEX_CI="unknown"
+fi
+
 node scripts/ops/codex-run-log.mjs end >/dev/null
 
 # Commit run log (non-blocking)
