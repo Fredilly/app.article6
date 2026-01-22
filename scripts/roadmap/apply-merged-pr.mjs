@@ -20,8 +20,7 @@ function readEvent(eventPath) {
   }
 }
 
-function updateSsotStatus(ssotPath, updates) {
-  const ssot = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
+function updateSsotStatus(ssot, ssotPath, updates) {
   const next = { ...ssot };
   for (const { id, status } of updates) {
     next[id] = status;
@@ -92,7 +91,14 @@ if (!updates.length) {
   process.exit(0);
 }
 
-updateSsotStatus(ssotPath, updates);
+const existing = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
+const changed = updates.some(({ id, status }) => normalizeStatus(existing[id]) !== status);
+if (!changed) {
+  console.log("roadmap: no status changes needed; skipping");
+  process.exit(0);
+}
+
+updateSsotStatus(existing, ssotPath, updates);
 
 const docsRoot = "docs";
 const ssotRoot = path.join(docsRoot, "roadmaps");

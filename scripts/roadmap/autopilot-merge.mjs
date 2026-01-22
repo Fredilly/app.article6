@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { generateRoadmapContent, parseRoadmapDirective, normalizePrId } from "./roadmap-lib.mjs";
+import {
+  generateRoadmapContent,
+  parseRoadmapDirective,
+  normalizePrId,
+  normalizeStatus,
+} from "./roadmap-lib.mjs";
 import { inferPrKey } from "./infer-pr-key.mjs";
 import { findSsotForPr } from "./find-ssot-for-pr.mjs";
 import { finalizeMergedItems } from "./finalize-merged.mjs";
@@ -12,8 +17,7 @@ function getArg(flag) {
   return process.argv[idx + 1] ?? null;
 }
 
-function updateSsotStatus(ssotPath, updates, updatedAt) {
-  const ssot = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
+function updateSsotStatus(ssot, ssotPath, updates, updatedAt) {
   const next = { ...ssot, ...updates };
   next.updated_at = updatedAt;
 
@@ -99,7 +103,18 @@ if (!Object.keys(updates).length) {
   process.exit(0);
 }
 
-updateSsotStatus(ssotInfo.ssotPath, updates, new Date().toISOString());
+const existing = JSON.parse(fs.readFileSync(ssotInfo.ssotPath, "utf8"));
+const changed = Object.entries(updates).some(([key, value]) => {
+  return normalizeStatus(existing[key]) !== normalizeStatus(value);
+});
+if (!changed) {
+  const payload = { status: "skipped", reason: "no changes", prKey: prKey ?? "", slug: ssotInfo.slug };
+  writeOutput(outputPath, payload);
+  console.log(JSON.stringify(payload));
+  process.exit(0);
+}
+
+updateSsotStatus(existing, ssotInfo.ssotPath, updates, new Date().toISOString());
 
 const docsRoot = "docs";
 const ssotRoot = path.join(docsRoot, "roadmaps");
