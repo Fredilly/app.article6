@@ -1,0 +1,16 @@
+name: roadmap-directive-gate
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Roadmap directive gate
+        run: node scripts/roadmap/check-roadmap-directive.mjs
