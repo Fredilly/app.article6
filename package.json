@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "ci": "npm run lint && npm run typecheck && npm test && npm run build",
+    "ci": "npm run lint && npm run typecheck && npm test && npm run build && npm run roadmap:check",
     "test": "jest --passWithNoTests",
     "test:e2e": "playwright test",
     "test:audit-pack:smoke": "node scripts/test-audit-pack-smoke.mjs",
@@ -25,7 +25,7 @@
     "validate:artifacts": "node scripts/validate-artifacts.mjs",
     "drift:artifacts": "node scripts/drift-artifacts.mjs",
     "roadmap:init": "node scripts/roadmap/init-roadmap.mjs",
-    "roadmap:check": "node scripts/roadmap/check-roadmap-status.mjs",
+    "roadmap:check": "npm run roadmap:gen && git diff --exit-code -- docs/projects/ROADMAP.md",
     "roadmap:status": "node scripts/roadmap/status.mjs",
     "status:check": "node scripts/status-check.mjs",
     "vercel-build": "npm run build",
@@ -33,7 +33,8 @@
     "determinism:audit-pack": "node scripts/determinism-audit-pack.mjs",
     "pr:gate": "node scripts/pr-gate.mjs",
     "audit-pack:diff": "node scripts/audit-pack/diff-manifests.mjs",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "roadmap:gen": "node scripts/roadmap/gen-roadmap.mjs"
   },
   "engines": {
     "node": ">=20 <21",

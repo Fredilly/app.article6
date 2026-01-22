@@ -15,10 +15,10 @@ We stop adding features when:
 - Trail captures inputs, selections, rule jumps, exports
 - `npm run ci` mirrors CI; 10 PRs green
 
-## PR1 - Shrink Method UI to Read | Verify + demote tools
+## PR18 - Shrink Method UI to Read | Verify + demote tools
 
-## PR2 - CI hardening (align with PR16)
+## PR19 - CI hardening (align with PR16)
 
-## PR3 - Trail inside audit pack + strict verify
+## PR20 - Trail inside audit pack + strict verify
 
-## PR4 - Share link (optional)
+## PR21 - Share link (optional)

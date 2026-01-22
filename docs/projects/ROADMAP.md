@@ -28,10 +28,10 @@ Details: `docs/projects/phase-assurance-surface-mvp/PLAN.md`
 
 ## verifier-moat
 
-Status SSOT: `/Users/fredilly/app.article6/docs/roadmaps/verifier-moat/phase-status.json`
-Details: `/Users/fredilly/app.article6/docs/roadmaps/verifier-moat/PLAN.md`
+Status SSOT: `docs/roadmaps/verifier-moat/phase-status.json`
+Details: `docs/roadmaps/verifier-moat/PLAN.md`
 
-1) PR1 — Shrink Method UI to Read | Verify + demote tools: Planned
-2) PR2 — CI hardening (align with PR16): Planned
-3) PR3 — Trail inside audit pack + strict verify: Planned
-4) PR4 — Share link (optional): Planned
+1) PR18 — Shrink Method UI to Read | Verify + demote tools: Planned
+2) PR19 — CI hardening (align with PR16): Planned
+3) PR20 — Trail inside audit pack + strict verify: Planned
+4) PR21 — Share link (optional): Planned
