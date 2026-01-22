@@ -1,6 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 
+function toRepoRelPath(filePath) {
+  if (!filePath) return null;
+  const rel = path.relative(process.cwd(), filePath);
+  // Normalize for markdown + cross-platform output
+  return rel.split(path.sep).join("/");
+}
+
 const STATUS_LABELS = {
   planned: "Planned",
   next: "Next",
@@ -132,8 +139,8 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
     const sectionLines = [
       `## ${slug}`,
       "",
-      `Status SSOT: \`${ssotPath}\``,
-      planPath ? `Details: \`${planPath}\`` : null,
+      `Status SSOT: \`${toRepoRelPath(ssotPath)}\``,
+      planPath ? `Details: \`${toRepoRelPath(planPath)}\`` : null,
       "",
       ...items,
       "",
