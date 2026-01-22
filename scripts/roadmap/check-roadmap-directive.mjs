@@ -25,7 +25,9 @@ if (!pr) {
 }
 
 const labels = (pr.labels ?? []).map((l) => l?.name).filter(Boolean);
-const isRoadmapTracked = labels.some((n) => String(n).startsWith("phase:"));
+const hasPhase = labels.some((n) => String(n).startsWith("phase:"));
+const hasPr = labels.some((n) => String(n).startsWith("pr:PR"));
+const isRoadmapTracked = hasPhase || hasPr;
 
 if (!isRoadmapTracked) {
   // Not a roadmap-tracked PR -> no requirement.
@@ -34,6 +36,10 @@ if (!isRoadmapTracked) {
 
 const body = pr.body ?? "";
 const directive = parseRoadmapDirective(body);
+if (directive && !(hasPhase && hasPr)) {
+  fail("Roadmap-Update is only allowed on roadmap PRs (requires phase:* and pr:PRxx labels).");
+}
+
 if (!directive) {
   fail("Missing '### Roadmap-Update' block in PR body (roadmap-tracked PR).");
 }
