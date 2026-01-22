@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { generateRoadmapContent, normalizeStatus, parseRoadmapDirective } from "./roadmap-lib.mjs";
+import { generateRoadmapContent, normalizePrId, normalizeStatus, parseRoadmapDirective } from "./roadmap-lib.mjs";
+import { finalizeMergedItems } from "./finalize-merged.mjs";
 
 const ALLOWED_STATUSES = new Set(["planned", "next", "in-progress", "done", "blocked"]);
 
@@ -46,6 +47,7 @@ if (!eventPath) {
 
 const event = readEvent(eventPath);
 const body = event?.pull_request?.body ?? "";
+const labels = (event?.pull_request?.labels ?? []).map((label) => String(label?.name ?? "")).filter(Boolean);
 const prNumber = event?.pull_request?.number ?? "unknown";
 
 const directive = parseRoadmapDirective(body);
@@ -69,13 +71,26 @@ if (!fs.existsSync(ssotPath)) {
   die(`roadmap: missing ${ssotPath}`);
 }
 
-const updates = directive.items.map((item) => {
+const prLabel = labels.find((label) => label.startsWith("pr:PR")) ?? null;
+const labeledPrKey = prLabel ? normalizePrId(prLabel.replace("pr:", "")) : null;
+
+const finalized = finalizeMergedItems(directive.items, labeledPrKey);
+const updates = finalized.items.map((item) => {
   const normalized = normalizeStatus(item.status);
   if (!normalized || !ALLOWED_STATUSES.has(normalized)) {
     die(`roadmap: invalid status for ${item.id} (${item.status}).`);
   }
   return { id: item.id, status: normalized };
 });
+
+if (finalized.prKey && !updates.some((item) => item.id === finalized.prKey)) {
+  updates.push({ id: finalized.prKey, status: "done" });
+}
+
+if (!updates.length) {
+  console.log("roadmap: no items to update; skipping");
+  process.exit(0);
+}
 
 updateSsotStatus(ssotPath, updates);
 
