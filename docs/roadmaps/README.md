@@ -24,3 +24,4 @@ On merge, automation updates `docs/roadmaps/<slug>/phase-status.json` and
 regenerates `docs/projects/ROADMAP.md`. `in_progress` is fine while a PR is open,
 but merged PR items are finalized to `done` automatically. Manual edits to those
 files should be avoided.
+If no status changes are needed, the automation skips creating a bot PR.
