@@ -25,6 +25,7 @@ Details: `docs/projects/phase-assurance-surface-mvp/PLAN.md`
 5) PR15 — Verifier Mode + Audit Trail + Rule Jump: Done
 6) PR16 — CI Hardening + Self-Upgrading Deps: Done
 7) PR17 — Derived MRV artifacts + hashes (future): Planned
+8) PR21: Done
 
 ## verifier-moat
 
