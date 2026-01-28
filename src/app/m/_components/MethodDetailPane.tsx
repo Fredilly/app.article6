@@ -1160,6 +1160,7 @@ export default function MethodDetailPane({
       <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
         <ShareLinkButton
           tab={isEvidenceMode ? "verify" : tab}
+          view={verifyMode}
           ruleId={activeRuleId}
           sectionId={sectionPreview?.id ?? null}
         />

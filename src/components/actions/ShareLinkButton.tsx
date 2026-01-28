@@ -1,20 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { DetailTab } from "@/lib/nav/urlState";
-import { applyUrlUpdates } from "@/lib/nav/urlState";
 import { encodeShareState } from "@/lib/shareLink";
 
 type ShareLinkButtonProps = {
   tab: DetailTab;
+  view?: "map" | "list" | null;
   ruleId?: string | null;
   sectionId?: string | null;
 };
 
-export default function ShareLinkButton({ tab, ruleId, sectionId }: ShareLinkButtonProps) {
+export default function ShareLinkButton({ tab, view, ruleId, sectionId }: ShareLinkButtonProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = useCallback((message: string) => {
@@ -30,22 +29,20 @@ export default function ShareLinkButton({ tab, ruleId, sectionId }: ShareLinkBut
 
   const buildShareUrl = useCallback(() => {
     if (!pathname) return null;
-    const { tab: shareTab, rule, section, hash } = encodeShareState({
+    const { tab: shareTab, view: shareView, rule, section, hash } = encodeShareState({
       tab,
+      view,
       rule: ruleId ?? undefined,
       section: sectionId ?? undefined,
     });
-    const params = new URLSearchParams(searchParams.toString());
-    const next = applyUrlUpdates(params, {
-      tab: shareTab ?? null,
-      rule: rule ?? null,
-      section: section ?? null,
-    });
-    const url = new URL(pathname, window.location.origin);
-    url.search = next ? `?${next}` : "";
+    const url = new URL(window.location.origin + pathname);
+    if (shareTab) url.searchParams.set("tab", shareTab);
+    if (shareView) url.searchParams.set("view", shareView);
+    if (rule) url.searchParams.set("rule", rule);
+    if (section) url.searchParams.set("section", section);
     url.hash = hash ? `#${hash}` : "";
     return url.toString();
-  }, [pathname, ruleId, searchParams, sectionId, tab]);
+  }, [pathname, ruleId, sectionId, tab, view]);
 
   const handleShare = useCallback(async () => {
     const url = buildShareUrl();

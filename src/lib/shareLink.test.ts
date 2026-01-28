@@ -34,3 +34,27 @@ test("decodeShareState reads from hash when params missing", () => {
   expect(section.rule).toBeNull();
   expect(section.section).toBe("S-3");
 });
+
+test("decodeShareState keeps view=map", () => {
+  const params = new URLSearchParams("view=map");
+  const result = decodeShareState(params);
+  expect(result.view).toBe("map");
+});
+
+test("decodeShareState drops invalid view values", () => {
+  const params = new URLSearchParams("view=nope");
+  const result = decodeShareState(params);
+  expect(result.view).toBeNull();
+});
+
+test("decodeShareState maps legacy mode=verify to tab when tab missing", () => {
+  const params = new URLSearchParams("mode=verify");
+  const result = decodeShareState(params);
+  expect(result.tab).toBe("verify");
+});
+
+test("decodeShareState keeps tab when tab and mode conflict", () => {
+  const params = new URLSearchParams("tab=rules&mode=verify");
+  const result = decodeShareState(params);
+  expect(result.tab).toBe("rules");
+});
