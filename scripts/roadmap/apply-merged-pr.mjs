@@ -118,7 +118,7 @@ updateSsotStatus(existing, ssotPath, updates);
 
 const docsRoot = "docs";
 const ssotRoot = path.join(docsRoot, "roadmaps");
-const roadmapPath = path.join(docsRoot, "projects", "ROADMAP.md");
+const roadmapPath = path.join(docsRoot, "roadmaps", "SUMMARY.md");
 const content = generateRoadmapContent(ssotRoot, docsRoot).trim() + "\n";
 fs.writeFileSync(roadmapPath, content, "utf8");
 

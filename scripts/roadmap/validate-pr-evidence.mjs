@@ -11,6 +11,11 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
+function isDoneStatus(value) {
+  const status = String(value ?? "").trim().toLowerCase();
+  return status === "done" || status === "merged";
+}
+
 const slugs = fs
   .readdirSync(ROOT, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
@@ -27,7 +32,7 @@ for (const slug of slugs) {
 
   for (const [key, value] of Object.entries(json)) {
     if (!isRoadmapKey(key)) continue;
-    if (value !== "done") continue;
+    if (!isDoneStatus(value)) continue;
 
     const ev = evidence[key];
     const ok =

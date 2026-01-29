@@ -5,7 +5,7 @@ import { generateRoadmapContent } from "./roadmap-lib.mjs";
 const repoRoot = process.cwd();
 const docsRoot = path.join(repoRoot, "docs");
 const ssotRoot = path.join(docsRoot, "roadmaps");
-const outPath = path.join(docsRoot, "projects", "ROADMAP.md");
+const outPath = path.join(docsRoot, "roadmaps", "SUMMARY.md");
 
 const content = generateRoadmapContent(ssotRoot, docsRoot);
 
