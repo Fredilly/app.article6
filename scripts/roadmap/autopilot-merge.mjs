@@ -8,7 +8,6 @@ import {
   normalizeStatus,
 } from "./roadmap-lib.mjs";
 import { inferPrKey } from "./infer-pr-key.mjs";
-import { findSsotForPr } from "./find-ssot-for-pr.mjs";
 import { finalizeMergedItems } from "./finalize-merged.mjs";
 
 function getArg(flag) {
@@ -38,6 +37,20 @@ function writeOutput(outputPath, payload) {
   fs.appendFileSync(outputPath, lines + "\n", "utf8");
 }
 
+function getPhaseSlug(labels) {
+  const phaseLabels = labels.filter((label) => label.startsWith("phase:"));
+  if (phaseLabels.length !== 1) {
+    console.error(`roadmap: expected exactly one phase:* label, found ${phaseLabels.length}.`);
+    process.exit(1);
+  }
+  const slug = phaseLabels[0].slice("phase:".length).trim();
+  if (!slug) {
+    console.error("roadmap: phase label missing slug.");
+    process.exit(1);
+  }
+  return slug;
+}
+
 const eventPath = getArg("--event");
 const outputPath = getArg("--output");
 
@@ -55,30 +68,19 @@ const prKey = inferPrKey({
   branch: pr.head?.ref ?? "",
 });
 const labels = (pr.labels ?? []).map((label) => String(label?.name ?? "")).filter(Boolean);
+const phaseSlug = getPhaseSlug(labels);
 const prLabel = labels.find((label) => label.startsWith("pr:PR")) ?? null;
 const labeledPrKey = prLabel ? normalizePrId(prLabel.replace("pr:", "")) : null;
 const directive = parseRoadmapDirective(pr.body ?? "");
-const directiveSlug = directive?.slug?.trim() || null;
 
-if (!prKey && !directiveSlug) {
+if (!prKey && !directive) {
   const payload = { status: "skipped", reason: "no pr key or directive" };
   writeOutput(outputPath, payload);
   console.log(JSON.stringify(payload));
   process.exit(0);
 }
 
-let ssotInfo;
-try {
-  ssotInfo = directiveSlug
-    ? { ssotPath: path.join("docs", "roadmaps", directiveSlug, "phase-status.json"), slug: directiveSlug }
-    : findSsotForPr(prKey ?? "");
-} catch (error) {
-  const reason = error && error.code === "AMBIGUOUS" ? "ambiguous" : "not in SSOT";
-  const payload = { status: "skipped", reason, prKey: prKey ?? "" };
-  writeOutput(outputPath, payload);
-  console.log(JSON.stringify(payload));
-  process.exit(0);
-}
+const ssotInfo = { ssotPath: path.join("docs", "roadmaps", phaseSlug, "phase-status.json"), slug: phaseSlug };
 
 if (!fs.existsSync(ssotInfo.ssotPath)) {
   const payload = { status: "skipped", reason: "missing SSOT", prKey: prKey ?? "", slug: ssotInfo.slug };

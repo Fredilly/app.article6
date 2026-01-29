@@ -21,5 +21,8 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Validate roadmap SSOT
+        run: npm run roadmap:validate
+
       - name: CI
         run: npm run ci
