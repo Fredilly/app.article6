@@ -27,6 +27,7 @@
     "roadmap:init": "node scripts/roadmap/init-roadmap.mjs",
     "roadmap:check": "npm run roadmap:gen && git diff --exit-code -- docs/projects/ROADMAP.md",
     "roadmap:status": "node scripts/roadmap/status.mjs",
+    "roadmap:validate": "node scripts/roadmap/validate-ssot.mjs",
     "status:check": "node scripts/status-check.mjs",
     "vercel-build": "npm run build",
     "prebuild": "npm run fetch:methodologies-pack && npm run check:golden",

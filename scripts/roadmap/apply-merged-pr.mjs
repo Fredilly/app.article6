@@ -35,6 +35,16 @@ function updateSsotStatus(ssot, ssotPath, updates) {
   fs.writeFileSync(ssotPath, JSON.stringify(ordered, null, 2) + "\n", "utf8");
 }
 
+function getPhaseSlug(labels) {
+  const phaseLabels = labels.filter((label) => label.startsWith("phase:"));
+  if (phaseLabels.length !== 1) {
+    die(`roadmap: expected exactly one phase:* label, found ${phaseLabels.length}.`);
+  }
+  const slug = phaseLabels[0].slice("phase:".length).trim();
+  if (!slug) die("roadmap: phase label missing slug.");
+  return slug;
+}
+
 const args = process.argv.slice(2);
 const eventFlag = args.indexOf("--event");
 const eventPath = eventFlag >= 0 ? args[eventFlag + 1] : null;
@@ -47,6 +57,7 @@ const event = readEvent(eventPath);
 const body = event?.pull_request?.body ?? "";
 const labels = (event?.pull_request?.labels ?? []).map((label) => String(label?.name ?? "")).filter(Boolean);
 const prNumber = event?.pull_request?.number ?? "unknown";
+const phaseSlug = getPhaseSlug(labels);
 
 const directive = parseRoadmapDirective(body);
 if (!directive) {
@@ -64,7 +75,7 @@ if (!directive.items.length) {
   die("roadmap: Roadmap-Update requires at least one item.");
 }
 
-const ssotPath = path.join("docs", "roadmaps", slug, "phase-status.json");
+const ssotPath = path.join("docs", "roadmaps", phaseSlug, "phase-status.json");
 if (!fs.existsSync(ssotPath)) {
   die(`roadmap: missing ${ssotPath}`);
 }
