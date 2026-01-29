@@ -52,6 +52,7 @@ async function main() {
     provenanceText,
     stacItems: stac.stac_items_json,
     evidence: stac.stac_evidence_geojson,
+    snapshotItems: Array.isArray(stac?.stac_items_json?.items) ? stac.stac_items_json.items : [],
   });
 }
 
