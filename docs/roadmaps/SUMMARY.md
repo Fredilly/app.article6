@@ -1,10 +1,10 @@
-# Projects Roadmap
+# Roadmaps Summary
 
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 ## data-integrity-exports
 
-Status SSOT: `docs/roadmaps/data-integrity-exports/phase-status.json`
+Status SSOT: `docs/roadmaps/data-integrity-exports/phase-status.json`  
 Details: `docs/roadmaps/data-integrity-exports/PLAN.md`
 
 1) PR7: Done
@@ -15,7 +15,7 @@ Details: `docs/roadmaps/data-integrity-exports/PLAN.md`
 
 ## phase-assurance-surface-mvp
 
-Status SSOT: `docs/roadmaps/phase-assurance-surface-mvp/phase-status.json`
+Status SSOT: `docs/roadmaps/phase-assurance-surface-mvp/phase-status.json`  
 Details: `docs/roadmaps/phase-assurance-surface-mvp/PLAN.md`
 
 1) PR12 — Evidence Map MVP (trace-driven): Done
@@ -28,7 +28,7 @@ Details: `docs/roadmaps/phase-assurance-surface-mvp/PLAN.md`
 
 ## verifier-moat
 
-Status SSOT: `docs/roadmaps/verifier-moat/phase-status.json`
+Status SSOT: `docs/roadmaps/verifier-moat/phase-status.json`  
 Details: `docs/roadmaps/verifier-moat/PLAN.md`
 
 1) PR18 — Shrink Method UI to Read | Verify + demote tools: Done
