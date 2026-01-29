@@ -8,6 +8,11 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+type AoiSourceInfo = {
+  sourceType: "FeatureCollection" | "Feature" | "Geometry";
+  featureCount: number;
+};
+
 function isPolygonFeature(
   value: unknown,
 ): value is GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> {
@@ -22,20 +27,26 @@ function isPolygonFeature(
 
 function ensureFeature(
   value: unknown,
-): GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null {
-  if (isPolygonFeature(value)) return value;
+): { feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>; source: AoiSourceInfo } | null {
+  if (isPolygonFeature(value)) {
+    return { feature: value, source: { sourceType: "Feature", featureCount: 1 } };
+  }
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
   if (record.type === "Polygon" || record.type === "MultiPolygon") {
     return {
-      type: "Feature",
-      geometry: record as unknown as GeoJSON.Polygon | GeoJSON.MultiPolygon,
-      properties: {},
+      feature: {
+        type: "Feature",
+        geometry: record as unknown as GeoJSON.Polygon | GeoJSON.MultiPolygon,
+        properties: {},
+      },
+      source: { sourceType: "Geometry", featureCount: 1 },
     };
   }
   if (record.type === "FeatureCollection" && Array.isArray(record.features) && record.features.length) {
     const first = record.features[0];
-    return isPolygonFeature(first) ? first : null;
+    if (!isPolygonFeature(first)) return null;
+    return { feature: first, source: { sourceType: "FeatureCollection", featureCount: record.features.length } };
   }
   return null;
 }
@@ -106,8 +117,24 @@ function areaKm2(feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon
 }
 
 export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResult {
-  const feature = ensureFeature(input);
-  if (!feature) return { ok: false, error: "AOI must be a GeoJSON Polygon or MultiPolygon (or Feature/FeatureCollection containing one)." };
+  if (input && typeof input === "object") {
+    const record = input as Record<string, unknown>;
+    if (record.type === "FeatureCollection" && Array.isArray(record.features)) {
+      if (record.features.length !== 1) {
+        return { ok: false, error: "AOI must contain exactly one feature." };
+      }
+    }
+  }
+
+  const result = ensureFeature(input);
+  if (!result) {
+    return {
+      ok: false,
+      error: "AOI must be a GeoJSON Polygon or MultiPolygon (or Feature/FeatureCollection containing one).",
+    };
+  }
+
+  const { feature, source } = result;
 
   if (feature.geometry.type !== "Polygon" && feature.geometry.type !== "MultiPolygon") {
     return { ok: false, error: "AOI geometry must be Polygon or MultiPolygon." };
@@ -123,6 +150,9 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
     geojson: feature,
     bbox,
     area_km2: Number.isFinite(area_km2) ? Math.max(0, area_km2) : 0,
+    aoi_source_type: source.sourceType,
+    aoi_source_feature_count: source.featureCount,
+    aoi_policy: "reject_multi",
     created_at: nowIso(),
   };
   return { ok: true, aoi };
