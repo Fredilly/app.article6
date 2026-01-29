@@ -42,6 +42,11 @@ export const EvidenceSnapshotSchema = z
         }),
       )
       .optional(),
+    stacItemsJson: z
+      .object({
+        items: z.array(z.record(z.unknown())),
+      })
+      .optional(),
   })
   .strict();
 
@@ -101,6 +106,7 @@ export async function buildEvidenceSnapshot(input: {
   selected?: { id?: string | null; ids?: string[] | null; item?: Record<string, unknown> | null };
   app?: { commit?: string | null; env?: string | null; version?: string | null };
   items?: Array<{ id?: string | null; linked_rules?: string[] | null }> | null;
+  stacItemsJson?: { items: Array<Record<string, unknown>> } | null;
 }): Promise<EvidenceSnapshot> {
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
   const evidenceType = input.evidence_source.type;
@@ -151,6 +157,7 @@ export async function buildEvidenceSnapshot(input: {
           })
         : undefined,
       items: normalizeItems((input.items ?? undefined) ?? undefined),
+      stacItemsJson: input.stacItemsJson ?? undefined,
     }),
   );
 
