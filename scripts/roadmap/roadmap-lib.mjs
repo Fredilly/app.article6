@@ -131,7 +131,9 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
     const items = ordered.map((item, idx) => {
       const title = planItems.find((entry) => entry.id === item.id)?.title;
       const label = statusLabel(item.status);
-      const receipts = item.status === "done" && Array.isArray(evidence[item.id]) ? evidence[item.id] : null;
+      const hasReceipts =
+        (item.status === "done" || item.status === "merged") && Array.isArray(evidence[item.id]);
+      const receipts = hasReceipts ? evidence[item.id] : null;
       const receiptText = receipts && receipts.length ? ` (PR #${receipts.join(", #")})` : "";
       const titlePart = title ? ` — ${title}` : "";
       return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}${receiptText}`;
@@ -151,7 +153,7 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
   }
 
   return [
-    "# Projects Roadmap",
+    "# Roadmaps Summary",
     "",
     "This file is generated from roadmap SSOT JSON. Do not edit manually.",
     "",

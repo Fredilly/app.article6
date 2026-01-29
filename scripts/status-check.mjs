@@ -36,7 +36,7 @@ const ssotFiles = listSsotFiles(ssotRoot);
 const errors = [];
 
 const docsRoot = "docs";
-const canonicalRoadmapPath = path.join(docsRoot, "projects", "ROADMAP.md");
+const canonicalRoadmapPath = path.join(docsRoot, "roadmaps", "SUMMARY.md");
 if (fs.existsSync(docsRoot)) {
   const roadmapFiles = listFiles(docsRoot, (file) => path.basename(file).toLowerCase() === "roadmap.md");
   if (roadmapFiles.length !== 1) {

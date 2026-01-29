@@ -26,7 +26,7 @@
     "validate:artifacts": "node scripts/validate-artifacts.mjs",
     "drift:artifacts": "node scripts/drift-artifacts.mjs",
     "roadmap:init": "node scripts/roadmap/init-roadmap.mjs",
-    "roadmap:check": "npm run roadmap:gen && git diff --exit-code -- docs/projects/ROADMAP.md",
+    "roadmap:check": "npm run roadmap:gen && git diff --exit-code -- docs/roadmaps/SUMMARY.md",
     "roadmap:status": "node scripts/roadmap/status.mjs",
     "roadmap:validate": "node scripts/roadmap/validate-ssot.mjs",
     "roadmap:validate-evidence": "node scripts/roadmap/validate-pr-evidence.mjs",
