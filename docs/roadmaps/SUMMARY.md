@@ -18,12 +18,12 @@ Details: `docs/roadmaps/data-integrity-exports/PLAN.md`
 Status SSOT: `docs/roadmaps/phase-assurance-surface-mvp/phase-status.json`  
 Details: `docs/roadmaps/phase-assurance-surface-mvp/PLAN.md`
 
-1) PR12 — Evidence Map MVP (trace-driven): Done
-2) PR13 — Grounded Method Assistant (guided prompts only): Done
-3) PR14 — Rule-Scoped Evidence Pack + Append-Only Review Log: Done
-4) PR14.1 — Audit Pack Verification Semantics + Runtime Provenance: Done
-5) PR15 — Verifier Mode + Audit Trail + Rule Jump: Done
-6) PR16 — CI Hardening + Self-Upgrading Deps: Done
+1) PR12 — Evidence Map MVP (trace-driven): Done (PR #326)
+2) PR13 — Grounded Method Assistant (guided prompts only): Done (PR #340)
+3) PR14 — Rule-Scoped Evidence Pack + Append-Only Review Log: Done (PR #345)
+4) PR14.1 — Audit Pack Verification Semantics + Runtime Provenance: Done (PR #346)
+5) PR15 — Verifier Mode + Audit Trail + Rule Jump: Done (PR #347)
+6) PR16 — CI Hardening + Self-Upgrading Deps: Done (PR #348)
 7) PR17 — Derived MRV artifacts + hashes (future): Planned
 
 ## verifier-moat
@@ -31,7 +31,7 @@ Details: `docs/roadmaps/phase-assurance-surface-mvp/PLAN.md`
 Status SSOT: `docs/roadmaps/verifier-moat/phase-status.json`  
 Details: `docs/roadmaps/verifier-moat/PLAN.md`
 
-1) PR18 — Shrink Method UI to Read | Verify + demote tools: Done
-2) PR19 — CI hardening (align with PR16): Done
-3) PR20 — Trail inside audit pack + strict verify: Done
-4) PR21 — Share link (optional): Done
+1) PR18 — Shrink Method UI to Read | Verify + demote tools: Done (PR #355)
+2) PR19 — CI hardening (align with PR16): Done (PR #358)
+3) PR20 — Trail inside audit pack + strict verify: Done (PR #369)
+4) PR21 — Share link (optional): Done (PR #373)

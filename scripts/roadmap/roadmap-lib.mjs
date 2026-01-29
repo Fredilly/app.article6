@@ -107,6 +107,7 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
   for (const ssotPath of ssotFiles) {
     const slug = path.basename(path.dirname(ssotPath));
     const ssot = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
+    const evidence = ssot.pr_evidence ?? {};
     const planPath = findPlanPath(docsRoot, slug);
     const planItems = parsePlanTitles(planPath);
     const planOrder = planItems.map((item) => item.id);
@@ -130,8 +131,10 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
     const items = ordered.map((item, idx) => {
       const title = planItems.find((entry) => entry.id === item.id)?.title;
       const label = statusLabel(item.status);
+      const receipts = item.status === "done" && Array.isArray(evidence[item.id]) ? evidence[item.id] : null;
+      const receiptText = receipts && receipts.length ? ` (PR #${receipts.join(", #")})` : "";
       const titlePart = title ? ` — ${title}` : "";
-      return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}`;
+      return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}${receiptText}`;
     });
 
     const sectionLines = [
