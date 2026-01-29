@@ -1,5 +1,7 @@
 # Roadmaps
 
+Start here: `docs/roadmaps/SUMMARY.md`.
+
 Each roadmap lives at `docs/roadmaps/<slug>/` and must include:
 
 - `PLAN.md`
@@ -21,7 +23,12 @@ Directive format:
 Allowed statuses: planned | next | in_progress | done | blocked
 
 On merge, automation updates `docs/roadmaps/<slug>/phase-status.json` and
-regenerates `docs/projects/ROADMAP.md`. `in_progress` is fine while a PR is open,
+regenerates `docs/roadmaps/SUMMARY.md`. `in_progress` is fine while a PR is open,
 but merged PR items are finalized to `done` automatically. Manual edits to those
 files should be avoided.
 If no status changes are needed, the automation skips creating a bot PR.
+
+Invariants:
+- Roadmap slugs live only under `docs/roadmaps/`.
+- `docs/projects/` must not contain folders that match roadmap slugs.
+- Automation updates SSOT (`phase-status.json`) and regenerates SUMMARY.
