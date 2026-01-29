@@ -97,14 +97,27 @@ function diffSets(expected: Set<string>, actual: Set<string>): { missing: string
   return { missing, extra };
 }
 
+function idsFromItems(input: unknown): { count: number; ids: Set<string> } {
+  if (!Array.isArray(input)) return { count: 0, ids: new Set() };
+  const ids = new Set<string>();
+  for (const item of input) {
+    if (!isRecord(item)) continue;
+    const id = typeof item.id === "string" ? item.id : "";
+    if (id) ids.add(id);
+  }
+  return { count: input.length, ids };
+}
+
 export function assertVerificationSnapshotInvariants(input: {
   selectedRun: { id: string; status: string; ended_at?: string; created_at?: string; result_json: unknown };
   provenanceText: string;
   stacItems: unknown[] | { features?: unknown[]; items?: unknown[] };
   evidence: { type: "FeatureCollection"; features: unknown[] };
+  snapshotItems?: unknown[] | null;
 }): void {
   const expected = idsFromStacLike(input.selectedRun.result_json);
   const stacItems = idsFromStacLike(input.stacItems);
+  const snapshotItems = idsFromItems(input.snapshotItems ?? []);
 
   const evidenceFeatures = Array.isArray(input.evidence?.features) ? input.evidence.features : [];
   const evidenceIds = new Set<string>();
@@ -149,6 +162,25 @@ export function assertVerificationSnapshotInvariants(input: {
         diffCross.missing.slice(0, 20),
       )}, extra_in_evidence=${JSON.stringify(diffCross.extra.slice(0, 20))}).`,
     );
+  }
+
+  if (stacItems.count > 0) {
+    if (!snapshotItems.count) {
+      throw new Error("Invariant failed: items back-compat mismatch (snapshot items missing).");
+    }
+    if (snapshotItems.count !== stacItems.count) {
+      throw new Error(
+        `Invariant failed: items back-compat mismatch (snapshot=${snapshotItems.count}, stacItems=${stacItems.count}).`,
+      );
+    }
+    const diffSnapshot = diffSets(stacItems.ids, snapshotItems.ids);
+    if (diffSnapshot.missing.length || diffSnapshot.extra.length) {
+      throw new Error(
+        `Invariant failed: items back-compat mismatch (missing=${JSON.stringify(
+          diffSnapshot.missing.slice(0, 20),
+        )}, extra=${JSON.stringify(diffSnapshot.extra.slice(0, 20))}).`,
+      );
+    }
   }
 
   const provenance = parseProvenanceText(input.provenanceText);

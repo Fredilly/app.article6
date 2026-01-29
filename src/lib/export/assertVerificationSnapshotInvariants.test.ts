@@ -38,6 +38,7 @@ describe("assertVerificationSnapshotInvariants", () => {
         provenanceText,
         stacItems: stac.stac_items_json as unknown[] | { features?: unknown[]; items?: unknown[] },
         evidence: stac.stac_evidence_geojson as unknown as { type: "FeatureCollection"; features: unknown[] },
+        snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
       }),
     ).not.toThrow();
   });
@@ -60,6 +61,7 @@ describe("assertVerificationSnapshotInvariants", () => {
         provenanceText,
         stacItems: stac.stac_items_json as unknown[] | { features?: unknown[]; items?: unknown[] },
         evidence: evidence as unknown as { type: "FeatureCollection"; features: unknown[] },
+        snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
       }),
     ).toThrow(/item count mismatch/i);
   });
@@ -82,6 +84,7 @@ describe("assertVerificationSnapshotInvariants", () => {
         provenanceText,
         stacItems: stacItems as unknown as { items?: unknown[] },
         evidence: stac.stac_evidence_geojson as unknown as { type: "FeatureCollection"; features: unknown[] },
+        snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
       }),
     ).toThrow(/DEMO-002/i);
   });
@@ -108,6 +111,7 @@ describe("assertVerificationSnapshotInvariants", () => {
         provenanceText,
         stacItems: stac.stac_items_json as unknown[] | { features?: unknown[]; items?: unknown[] },
         evidence: evidence as unknown as { type: "FeatureCollection"; features: unknown[] },
+        snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
       }),
     ).toThrow(/id set mismatch/i);
   });

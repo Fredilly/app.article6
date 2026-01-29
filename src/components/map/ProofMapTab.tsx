@@ -1381,8 +1381,12 @@ export default function ProofMapTab({
                   stacItemsJson,
                 });
 
+                const snapshotWithLegacyItems = {
+                  ...snap,
+                  items: stacItemsJson.items ?? [],
+                };
                 const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
-                downloadJson(snap, filename);
+                downloadJson(snapshotWithLegacyItems, filename);
                 showToast("Snapshot downloaded");
               }}
             >
