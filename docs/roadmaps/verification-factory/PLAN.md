@@ -124,3 +124,22 @@ Create a pilot loop and formal hard-case intake.
 
 ### Visible UI change to look for
 - Intake queue dashboard and pilot cadence indicator.
+
+## PR28 - Flywheel v1: Outcomes + Moat export
+
+### Goal
+Start compounding moat now by capturing per-rule outcomes + exporting append-only moat logs.
+
+### Key changes
+- Outcome widget on rule modal (status/rationale/time + attach snapshot hash)
+- Local append-only moat logs (index + outcomes)
+- Opt-in anonymized export bundle
+
+### KPI impact
+- Up dataset ownership (first-party verification traces + labels)
+- Down cycle time (reuse "last known good" evidence pack patterns)
+- Up provability (snapshots + outcomes are replayable)
+
+### Visible UI change to look for
+- Rule modal shows "Outcome" section + Save
+- Verify page has "Export moat" + opt-in toggle
