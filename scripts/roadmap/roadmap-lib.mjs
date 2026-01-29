@@ -100,11 +100,24 @@ export function listSsotFiles(ssotRoot) {
   return listFiles(ssotRoot, (file) => file.endsWith("phase-status.json"));
 }
 
-export function generateRoadmapContent(ssotRoot, docsRoot) {
-  const ssotFiles = listSsotFiles(ssotRoot).sort();
-  const sections = [];
+function minPrNumber(ssot) {
+  if (!ssot) return Infinity;
+  let min = Infinity;
+  for (const key of Object.keys(ssot)) {
+    const id = normalizePrId(key);
+    if (!id) continue;
+    const [main] = prSortKey(id);
+    if (main < min) min = main;
+  }
+  return min;
+}
 
-  for (const ssotPath of ssotFiles) {
+export function generateRoadmapContent(ssotRoot, docsRoot) {
+  const ssotFiles = listSsotFiles(ssotRoot);
+  const sections = [];
+  const PARENT = { "verification-factory": "verifier-moat" };
+
+  const sectionData = ssotFiles.map((ssotPath) => {
     const slug = path.basename(path.dirname(ssotPath));
     const ssot = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
     const evidence = ssot.pr_evidence ?? {};
@@ -139,17 +152,51 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
       return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}${receiptText}`;
     });
 
+    return {
+      slug,
+      ssotPath,
+      planPath,
+      items,
+      minPr: minPrNumber(ssot),
+    };
+  });
+
+  const sortedSections = sectionData.sort((a, b) => {
+    if (a.minPr !== b.minPr) return a.minPr - b.minPr;
+    return a.slug.localeCompare(b.slug);
+  });
+
+  const sectionsBySlug = new Map(sortedSections.map((section) => [section.slug, section]));
+  const childrenByParent = new Map();
+  for (const section of sortedSections) {
+    const parent = PARENT[section.slug];
+    if (!parent || !sectionsBySlug.has(parent)) continue;
+    if (!childrenByParent.has(parent)) childrenByParent.set(parent, []);
+    childrenByParent.get(parent).push(section);
+  }
+
+  const renderSection = (section, headingLevel) => {
+    const heading = `${"#".repeat(headingLevel)} ${section.slug}`;
     const sectionLines = [
-      `## ${slug}`,
+      heading,
       "",
-      `Status SSOT: \`${toRepoRelPath(ssotPath)}\``,
-      planPath ? `Details: \`${toRepoRelPath(planPath)}\`` : null,
+      `Status SSOT: \`${toRepoRelPath(section.ssotPath)}\``,
+      section.planPath ? `Details: \`${toRepoRelPath(section.planPath)}\`` : null,
       "",
-      ...items,
+      ...section.items,
       "",
     ].filter((line) => line !== null);
+    return sectionLines.join("\n");
+  };
 
-    sections.push(sectionLines.join("\n"));
+  for (const section of sortedSections) {
+    const parent = PARENT[section.slug];
+    if (parent && sectionsBySlug.has(parent)) continue;
+    sections.push(renderSection(section, 2));
+    const children = childrenByParent.get(section.slug) ?? [];
+    for (const child of children) {
+      sections.push(renderSection(child, 3));
+    }
   }
 
   return [

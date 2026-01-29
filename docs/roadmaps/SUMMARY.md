@@ -26,7 +26,17 @@ Details: `docs/roadmaps/phase-assurance-surface-mvp/PLAN.md`
 6) PR16 — CI Hardening + Self-Upgrading Deps: Done (PR #348)
 7) PR17 — Derived MRV artifacts + hashes (future): Planned
 
-## verification-factory
+## verifier-moat
+
+Status SSOT: `docs/roadmaps/verifier-moat/phase-status.json`
+Details: `docs/roadmaps/verifier-moat/PLAN.md`
+
+1) PR18 — Shrink Method UI to Read | Verify + demote tools: Done (PR #355)
+2) PR19 — CI hardening (align with PR16): Done (PR #358)
+3) PR20 — Trail inside audit pack + strict verify: Done (PR #369)
+4) PR21 — Share link (optional): Done (PR #373)
+
+### verification-factory
 
 Status SSOT: `docs/roadmaps/verification-factory/phase-status.json`
 Details: `docs/roadmaps/verification-factory/PLAN.md`
@@ -38,13 +48,3 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 5) PR26 — Coverage ratchet + link resolver gates: Planned
 6) PR27 — Pilot loop + hard-case intake: Planned
 7) PR28 — Flywheel v1: Outcomes + Moat export: Planned
-
-## verifier-moat
-
-Status SSOT: `docs/roadmaps/verifier-moat/phase-status.json`
-Details: `docs/roadmaps/verifier-moat/PLAN.md`
-
-1) PR18 — Shrink Method UI to Read | Verify + demote tools: Done (PR #355)
-2) PR19 — CI hardening (align with PR16): Done (PR #358)
-3) PR20 — Trail inside audit pack + strict verify: Done (PR #369)
-4) PR21 — Share link (optional): Done (PR #373)
