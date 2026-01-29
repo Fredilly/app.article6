@@ -90,8 +90,6 @@ export function parsePlanTitles(planPath) {
 }
 
 export function findPlanPath(docsRoot, slug) {
-  const projectPlan = path.join(docsRoot, "projects", slug, "PLAN.md");
-  if (fs.existsSync(projectPlan)) return projectPlan;
   const roadmapPlan = path.join(docsRoot, "roadmaps", slug, "PLAN.md");
   if (fs.existsSync(roadmapPlan)) return roadmapPlan;
   return null;
