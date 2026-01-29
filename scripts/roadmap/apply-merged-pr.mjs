@@ -25,14 +25,13 @@ function updateSsotStatus(ssot, ssotPath, updates) {
   for (const { id, status } of updates) {
     next[id] = status;
   }
-  next.updated_at = new Date().toISOString();
 
   const entries = Object.entries(next);
   const prEntries = entries
     .filter(([key]) => /^PR\d+$/i.test(key))
     .sort((a, b) => Number(a[0].slice(2)) - Number(b[0].slice(2)));
-  const otherEntries = entries.filter(([key]) => !/^PR\d+$/i.test(key) && key !== "updated_at").sort();
-  const ordered = Object.fromEntries([...prEntries, ...otherEntries, ["updated_at", next.updated_at]]);
+  const otherEntries = entries.filter(([key]) => !/^PR\d+$/i.test(key)).sort();
+  const ordered = Object.fromEntries([...prEntries, ...otherEntries]);
   fs.writeFileSync(ssotPath, JSON.stringify(ordered, null, 2) + "\n", "utf8");
 }
 
