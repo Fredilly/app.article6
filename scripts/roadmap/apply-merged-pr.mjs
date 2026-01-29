@@ -54,9 +54,15 @@ if (!eventPath) {
 }
 
 const event = readEvent(eventPath);
-const body = event?.pull_request?.body ?? "";
-const labels = (event?.pull_request?.labels ?? []).map((label) => String(label?.name ?? "")).filter(Boolean);
-const prNumber = event?.pull_request?.number ?? "unknown";
+const pr = event?.pull_request ?? event?.pull_request;
+const labels = (pr?.labels ?? []).map((label) => label?.name).filter(Boolean);
+const body = pr?.body ?? "";
+const hasDirective = body.includes("### Roadmap-Update");
+if (!hasDirective) {
+  console.log("roadmap: skip (no Roadmap-Update directive)");
+  process.exit(0);
+}
+const prNumber = pr?.number ?? "unknown";
 const phaseSlug = getPhaseSlug(labels);
 
 const directive = parseRoadmapDirective(body);

@@ -60,18 +60,24 @@ if (!eventPath) {
 }
 
 const event = JSON.parse(fs.readFileSync(eventPath, "utf8"));
-const pr = event.pull_request ?? {};
+const pr = event.pull_request ?? event?.pull_request ?? {};
+const labels = (pr?.labels ?? []).map((label) => label?.name).filter(Boolean);
+const body = pr?.body ?? "";
+const hasDirective = body.includes("### Roadmap-Update");
+if (!hasDirective) {
+  console.log("roadmap: skip (no Roadmap-Update directive)");
+  process.exit(0);
+}
 
 const prKey = inferPrKey({
   title: pr.title ?? "",
-  body: pr.body ?? "",
+  body,
   branch: pr.head?.ref ?? "",
 });
-const labels = (pr.labels ?? []).map((label) => String(label?.name ?? "")).filter(Boolean);
 const phaseSlug = getPhaseSlug(labels);
 const prLabel = labels.find((label) => label.startsWith("pr:PR")) ?? null;
 const labeledPrKey = prLabel ? normalizePrId(prLabel.replace("pr:", "")) : null;
-const directive = parseRoadmapDirective(pr.body ?? "");
+const directive = parseRoadmapDirective(body);
 
 if (!prKey && !directive) {
   const payload = { status: "skipped", reason: "no pr key or directive" };
