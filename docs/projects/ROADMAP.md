@@ -16,7 +16,7 @@ Details: `docs/roadmaps/data-integrity-exports/PLAN.md`
 ## phase-assurance-surface-mvp
 
 Status SSOT: `docs/roadmaps/phase-assurance-surface-mvp/phase-status.json`
-Details: `docs/projects/phase-assurance-surface-mvp/PLAN.md`
+Details: `docs/roadmaps/phase-assurance-surface-mvp/PLAN.md`
 
 1) PR12 — Evidence Map MVP (trace-driven): Done
 2) PR13 — Grounded Method Assistant (guided prompts only): Done
