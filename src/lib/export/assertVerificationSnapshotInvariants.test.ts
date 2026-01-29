@@ -64,6 +64,28 @@ describe("assertVerificationSnapshotInvariants", () => {
     ).toThrow(/item count mismatch/i);
   });
 
+  test("fails if stac items count mismatches run payload (DEMO-002)", () => {
+    const stac = extractStacArtifacts({ runsForAoi: [typedRun] });
+    const provenanceText = buildFixtureProvenance(stac);
+    const stacItems = structuredClone(stac.stac_items_json) as { items?: unknown[] };
+    if (Array.isArray(stacItems.items)) stacItems.items = stacItems.items.slice(0, -1);
+
+    expect(() =>
+      assertVerificationSnapshotInvariants({
+        selectedRun: {
+          id: typedRun.id,
+          status: typedRun.status,
+          created_at: typedRun.created_at,
+          ended_at: typedRun.ended_at,
+          result_json: typedRun.result_json,
+        },
+        provenanceText,
+        stacItems: stacItems as unknown as { items?: unknown[] },
+        evidence: stac.stac_evidence_geojson as unknown as { type: "FeatureCollection"; features: unknown[] },
+      }),
+    ).toThrow(/DEMO-002/i);
+  });
+
   test("fails if you change a feature.properties.id", () => {
     const stac = extractStacArtifacts({ runsForAoi: [typedRun] });
     const provenanceText = buildFixtureProvenance(stac);

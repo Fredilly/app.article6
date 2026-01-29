@@ -1339,6 +1339,25 @@ export default function ProofMapTab({
                       ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
                       : { type: "unknown" as const, ref: "unknown" };
 
+                const stacItemsJson = (() => {
+                  if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] };
+                  if (!latestStacRun.result_json) return { items: [] };
+                  const normalized = normalizeStacItems(latestStacRun.result_json);
+                  const items = Object.values(normalized.itemsById).map((item) => {
+                    const props = isRecord(item.properties) ? item.properties : null;
+                    const collection = props && typeof props.collection === "string" ? props.collection : undefined;
+                    const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
+                    return {
+                      id: item.id,
+                      datetime: item.datetime,
+                      bbox: item.bbox,
+                      collection,
+                      cloud_cover: cloudCover,
+                    };
+                  });
+                  return { items };
+                })();
+
                 const snap = await buildEvidenceSnapshot({
                   method: { code: methodCode, version },
                   aoi: aoi
@@ -1359,6 +1378,7 @@ export default function ProofMapTab({
                     env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
                     version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
                   },
+                  stacItemsJson,
                 });
 
                 const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;

@@ -64,6 +64,10 @@ export type EvidencePin = {
   created_at: string;
 };
 
+export type VerificationSnapshot = {
+  stacItemsJson?: { items: unknown[] };
+};
+
 export type ProofMapState = {
   aoi: AOI | null;
   evidence_pins: EvidencePin[];

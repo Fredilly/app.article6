@@ -120,14 +120,14 @@ export function assertVerificationSnapshotInvariants(input: {
 
   if (expected.count !== stacItems.count || expected.count !== evidenceFeatures.length) {
     throw new Error(
-      `Invariant failed: item count mismatch (expected=${expected.count}, stacItems=${stacItems.count}, evidence=${evidenceFeatures.length}).`,
+      `Invariant failed (DEMO-002): item count mismatch (expected=${expected.count}, stacItems=${stacItems.count}, evidence=${evidenceFeatures.length}).`,
     );
   }
 
   const diffStac = diffSets(expected.ids, stacItems.ids);
   if (diffStac.missing.length || diffStac.extra.length) {
     throw new Error(
-      `Invariant failed: STAC item id set mismatch vs stored run payload (missing=${JSON.stringify(
+      `Invariant failed (DEMO-002): STAC item id set mismatch vs stored run payload (missing=${JSON.stringify(
         diffStac.missing.slice(0, 20),
       )}, extra=${JSON.stringify(diffStac.extra.slice(0, 20))}).`,
     );
