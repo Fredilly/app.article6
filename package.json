@@ -30,6 +30,8 @@
     "roadmap:status": "node scripts/roadmap/status.mjs",
     "roadmap:validate": "node scripts/roadmap/validate-ssot.mjs",
     "roadmap:validate-evidence": "node scripts/roadmap/validate-pr-evidence.mjs",
+    "ticket:new": "node scripts/tickets/new-ticket.mjs",
+    "ticket:list": "node scripts/tickets/list-tickets.mjs",
     "status:check": "node scripts/status-check.mjs",
     "vercel-build": "npm run build",
     "prebuild": "npm run fetch:methodologies-pack && npm run check:golden",

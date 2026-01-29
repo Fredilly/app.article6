@@ -4,6 +4,9 @@ export type AOI = {
   geojson: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
   bbox: [number, number, number, number];
   area_km2: number;
+  aoi_source_type?: "FeatureCollection" | "Feature" | "Geometry";
+  aoi_source_feature_count?: number;
+  aoi_policy?: "reject_multi";
   aoi_fingerprint?: string;
   created_at: string;
 };
@@ -24,7 +27,14 @@ export type VerificationRun = {
   id: string;
   method: { code: string; version: string };
   aoi_id?: string;
-  aoi_snapshot?: { name: string; bbox: [number, number, number, number]; area_km2: number };
+  aoi_snapshot?: {
+    name: string;
+    bbox: [number, number, number, number];
+    area_km2: number;
+    aoi_source_type?: AOI["aoi_source_type"];
+    aoi_source_feature_count?: number;
+    aoi_policy?: AOI["aoi_policy"];
+  };
   aoi_fingerprint: string;
   input_fingerprint: string;
   pin_id?: string;
