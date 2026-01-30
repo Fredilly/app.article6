@@ -87,16 +87,25 @@ export function buildLinkedRulesKey(methodCode: string, version: string): string
   return `verifyLinkedRules:${methodCode}:${version}`;
 }
 
+function legacyLinkedRulesKeys(methodCode: string, version: string): string[] {
+  return [
+    `verifyLinkedRules:${methodCode}@${version}`,
+    `verifyLinkedRules:${methodCode}v${version}`,
+  ];
+}
+
 function migrateLinkedRulesKey(methodCode: string, version: string): void {
   const storage = getLocalStorage();
   if (!storage) return;
   const canonical = buildLinkedRulesKey(methodCode, version);
   if (storage.getItem(canonical)) return;
-  const legacy = `verifyLinkedRules:${methodCode}@${version}`;
-  const legacyValue = storage.getItem(legacy);
-  if (!legacyValue) return;
-  storage.setItem(canonical, legacyValue);
-  storage.removeItem(legacy);
+  for (const legacy of legacyLinkedRulesKeys(methodCode, version)) {
+    const legacyValue = storage.getItem(legacy);
+    if (!legacyValue) continue;
+    storage.setItem(canonical, legacyValue);
+    storage.removeItem(legacy);
+    break;
+  }
 }
 
 export function readLinkedRuleIdsFromStorage(methodCode: string, version: string): string[] {
@@ -128,11 +137,20 @@ export function persistLinkedRuleIds(key: string, ids: string[]): void {
   notifyLinkedRuleListeners();
 }
 
-export function addLinkedRuleIdToStorage(key: string, ruleId: string | null | undefined): string[] {
+function addLinkedRuleIdToKey(key: string, ruleId: string | null | undefined): string[] {
   const current = loadLinkedRuleIds(key);
   const next = addLinkedRuleId(current, ruleId);
   persistLinkedRuleIds(key, next);
   return next;
+}
+
+export function addLinkedRuleIdToStorage(
+  methodCode: string,
+  version: string,
+  ruleId: string | null | undefined,
+): string[] {
+  const key = buildLinkedRulesKey(methodCode, version);
+  return addLinkedRuleIdToKey(key, ruleId);
 }
 
 export function subscribeLinkedRuleIds(listener: LinkedRuleListener): () => void {

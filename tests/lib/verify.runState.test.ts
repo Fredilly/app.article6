@@ -68,11 +68,10 @@ describe("parseLinkedRuleId", () => {
 describe("addLinkedRuleIdToStorage", () => {
   it("dedupes and persists linked rule ids", () => {
     const storage = ensureLocalStorage();
-    const key = buildLinkedRulesKey("VM-1", "v1");
     storage.clear();
-    addLinkedRuleIdToStorage(key, "R-2");
-    addLinkedRuleIdToStorage(key, "R-1");
-    addLinkedRuleIdToStorage(key, "R-1");
+    addLinkedRuleIdToStorage("VM-1", "v1", "R-2");
+    addLinkedRuleIdToStorage("VM-1", "v1", "R-1");
+    addLinkedRuleIdToStorage("VM-1", "v1", "R-1");
 
     expect(readLinkedRuleIdsFromStorage("VM-1", "v1")).toEqual(["R-1", "R-2"]);
   });
@@ -94,12 +93,11 @@ describe("readLinkedRuleIdsFromStorage", () => {
 describe("subscribeLinkedRuleIds", () => {
   it("fires on storage updates", () => {
     ensureLocalStorage();
-    const key = buildLinkedRulesKey("VM-2", "v1");
     let calls = 0;
     const unsubscribe = subscribeLinkedRuleIds(() => {
       calls += 1;
     });
-    addLinkedRuleIdToStorage(key, "R-9");
+    addLinkedRuleIdToStorage("VM-2", "v1", "R-9");
     unsubscribe();
 
     expect(calls).toBe(1);

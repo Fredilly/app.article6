@@ -14,7 +14,7 @@ import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/n
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
 import { jumpToRule } from "@/lib/ruleJump";
-import { addLinkedRuleIdToStorage, buildLinkedRulesKey, parseLinkedRuleId } from "@/lib/verify/runState";
+import { addLinkedRuleIdToStorage, parseLinkedRuleId } from "@/lib/verify/runState";
 import { decodeShareState, encodeShareState } from "@/lib/shareLink";
 import {
   clearProofMapStorage,
@@ -169,10 +169,6 @@ export default function MethodDetailPane({
   const [rules, setRules] = useState<RuleListItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(Boolean(initialRuleId));
   const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
-  const verifyLinkedRulesKey = useMemo(() => {
-    if (!method.code || !activeVersion) return null;
-    return buildLinkedRulesKey(method.code, activeVersion);
-  }, [activeVersion, method.code]);
   const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [traceError, setTraceError] = useState<string | null>(null);
@@ -897,7 +893,7 @@ export default function MethodDetailPane({
   }, [drawerCitationsOpen, drawerOpen, drawerSourceOpen, ensureRichLoaded, ensureSectionsLoaded, method.hasRich]);
 
   const openRule = useCallback(async (ruleId: string) => {
-    if (verifyLinkedRulesKey) addLinkedRuleIdToStorage(verifyLinkedRulesKey, ruleId);
+    if (activeVersion) addLinkedRuleIdToStorage(method.code, activeVersion, ruleId);
     setTabParam("rules");
     setRulesDeeplinkWarning(null);
     const list = await ensureRulesLoaded();
@@ -911,7 +907,7 @@ export default function MethodDetailPane({
     setRuleParam(ruleId);
     await loadRuleDetail(ruleId);
     return true;
-  }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam, verifyLinkedRulesKey]);
+  }, [activeVersion, ensureRulesLoaded, loadRuleDetail, method.code, setRuleParam, setTabParam]);
 
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
@@ -948,13 +944,13 @@ export default function MethodDetailPane({
       const fromParam = typeof ruleParam === "string" && /^R-/.test(ruleParam.trim()) ? ruleParam.trim() : null;
       const ruleId = fromParam ?? parseLinkedRuleId({ ruleParam: null, hash: window.location.hash });
       if (!ruleId) return;
-      if (!verifyLinkedRulesKey) return;
-      addLinkedRuleIdToStorage(verifyLinkedRulesKey, ruleId);
+      if (!activeVersion) return;
+      addLinkedRuleIdToStorage(method.code, activeVersion, ruleId);
     };
     seedFromUrl();
     window.addEventListener("hashchange", seedFromUrl);
     return () => window.removeEventListener("hashchange", seedFromUrl);
-  }, [searchParams, verifyLinkedRulesKey]);
+  }, [activeVersion, method.code, searchParams]);
 
   useEffect(() => {
     if (isEvidenceMode) return;
@@ -1042,11 +1038,11 @@ export default function MethodDetailPane({
 
   const handleJumpToRule = useCallback(
     (ruleId: string) => {
-      if (verifyLinkedRulesKey) addLinkedRuleIdToStorage(verifyLinkedRulesKey, ruleId);
+      if (activeVersion) addLinkedRuleIdToStorage(method.code, activeVersion, ruleId);
       jumpToRule(router, ruleId);
       appendAuditEvent({ kind: "rule.jump", payload: { rule_id: ruleId } });
     },
-    [appendAuditEvent, router, verifyLinkedRulesKey],
+    [activeVersion, appendAuditEvent, method.code, router],
   );
 
   const handleExportAuditTrail = useCallback(() => {

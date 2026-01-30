@@ -328,9 +328,9 @@ export default function ProofMapTab({
 
   const trackLinkedRule = useCallback(
     (id: string) => {
-      setLinkedRuleIds(addLinkedRuleIdToStorage(linkedRulesKey, id));
+      setLinkedRuleIds(addLinkedRuleIdToStorage(methodCode, version, id));
     },
-    [linkedRulesKey],
+    [methodCode, version],
   );
 
   useEffect(() => {
