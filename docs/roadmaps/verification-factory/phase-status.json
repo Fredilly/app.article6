@@ -1,12 +1,14 @@
 {
   "PR22": "planned",
-  "PR23": "planned",
+  "PR23": "done",
   "PR24": "planned",
   "PR25": "planned",
   "PR26": "planned",
   "PR27": "planned",
   "PR28": "done",
   "pr_evidence": {
-    "PR28": [387]
+    "PR28": [
+      387
+    ]
   }
 }
