@@ -34,8 +34,31 @@ if (!isRoadmapTracked) {
   process.exit(0);
 }
 
-const body = pr.body ?? "";
-const directive = parseRoadmapDirective(body);
+async function fetchPrBody(prNumber) {
+  const repo = process.env.GITHUB_REPOSITORY;
+  const token = process.env.GITHUB_TOKEN;
+  if (!repo || !token || !prNumber) return null;
+  const resp = await fetch(`https://api.github.com/repos/${repo}/pulls/${prNumber}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "User-Agent": "roadmap-directive-gate",
+    },
+  });
+  if (!resp.ok) return null;
+  const data = await resp.json().catch(() => null);
+  return data?.body ?? null;
+}
+
+let body = pr.body ?? "";
+let directive = parseRoadmapDirective(body);
+if (!directive && pr.number) {
+  const fetchedBody = await fetchPrBody(pr.number);
+  if (fetchedBody) {
+    body = fetchedBody;
+    directive = parseRoadmapDirective(body);
+  }
+}
 if (directive && !(hasPhase && hasPr)) {
   fail("Roadmap-Update is only allowed on roadmap PRs (requires phase:* and pr:PRxx labels).");
 }
