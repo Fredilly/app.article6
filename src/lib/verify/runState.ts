@@ -84,10 +84,23 @@ function getLocalStorage(): Storage | null {
 }
 
 export function buildLinkedRulesKey(methodCode: string, version: string): string {
-  return `verifyLinkedRules:${methodCode}@${version}`;
+  return `verifyLinkedRules:${methodCode}:${version}`;
+}
+
+function migrateLinkedRulesKey(methodCode: string, version: string): void {
+  const storage = getLocalStorage();
+  if (!storage) return;
+  const canonical = buildLinkedRulesKey(methodCode, version);
+  if (storage.getItem(canonical)) return;
+  const legacy = `verifyLinkedRules:${methodCode}@${version}`;
+  const legacyValue = storage.getItem(legacy);
+  if (!legacyValue) return;
+  storage.setItem(canonical, legacyValue);
+  storage.removeItem(legacy);
 }
 
 export function readLinkedRuleIdsFromStorage(methodCode: string, version: string): string[] {
+  migrateLinkedRulesKey(methodCode, version);
   return loadLinkedRuleIds(buildLinkedRulesKey(methodCode, version));
 }
 

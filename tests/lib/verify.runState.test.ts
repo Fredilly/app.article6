@@ -78,6 +78,19 @@ describe("addLinkedRuleIdToStorage", () => {
   });
 });
 
+describe("readLinkedRuleIdsFromStorage", () => {
+  it("migrates legacy @ key to canonical key", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    const legacyKey = "verifyLinkedRules:VM-3@v1";
+    storage.setItem(legacyKey, JSON.stringify(["R-9"]));
+
+    expect(readLinkedRuleIdsFromStorage("VM-3", "v1")).toEqual(["R-9"]);
+    expect(storage.getItem(legacyKey)).toBeNull();
+    expect(storage.getItem(buildLinkedRulesKey("VM-3", "v1"))).toBe(JSON.stringify(["R-9"]));
+  });
+});
+
 describe("subscribeLinkedRuleIds", () => {
   it("fires on storage updates", () => {
     ensureLocalStorage();
