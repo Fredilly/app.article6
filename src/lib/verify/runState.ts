@@ -17,6 +17,9 @@ export type RunSummary = {
   linkage: {
     linkedRuleIds: string[];
   };
+  exportState: {
+    snapshotExportedAt: string | null;
+  };
   provenance: {
     methodCode?: string | null;
     version?: string | null;
@@ -109,6 +112,9 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
     },
     linkage: {
       linkedRuleIds: uniqSorted(input.linkage?.linkedRuleIds),
+    },
+    exportState: {
+      snapshotExportedAt: input.exportState?.snapshotExportedAt ?? null,
     },
     provenance: {
       methodCode: input.provenance?.methodCode ?? null,

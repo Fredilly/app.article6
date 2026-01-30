@@ -73,6 +73,9 @@ export const EvidenceSnapshotSchema = z
         linkage: z.object({
           linkedRuleIds: z.array(z.string()),
         }),
+        exportState: z.object({
+          snapshotExportedAt: z.string().nullable(),
+        }),
         provenance: z.object({
           methodCode: z.string().nullable().optional(),
           version: z.string().nullable().optional(),
@@ -80,6 +83,19 @@ export const EvidenceSnapshotSchema = z
           generatedAt: z.string().nullable().optional(),
           snapshotSchemaVersion: z.string().nullable().optional(),
         }),
+      })
+      .optional(),
+    kpis: z
+      .object({
+        itemsCount: z.number(),
+        linkedRulesCount: z.number(),
+        coverage: z
+          .object({
+            numerator: z.number(),
+            denominator: z.number().optional(),
+          })
+          .optional(),
+        snapshotExportedAt: z.string().nullable().optional(),
       })
       .optional(),
   })
@@ -143,6 +159,12 @@ export async function buildEvidenceSnapshot(input: {
   items?: Array<{ id?: string | null; linked_rules?: string[] | null }> | null;
   stacItemsJson?: { items: Array<Record<string, unknown>> } | null;
   outcome?: RunSummary | null;
+  kpis?: {
+    itemsCount: number;
+    linkedRulesCount: number;
+    coverage?: { numerator: number; denominator?: number };
+    snapshotExportedAt?: string | null;
+  } | null;
 }): Promise<EvidenceSnapshot> {
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
   const evidenceType = input.evidence_source.type;
@@ -195,6 +217,7 @@ export async function buildEvidenceSnapshot(input: {
       items: normalizeItems((input.items ?? undefined) ?? undefined),
       stacItemsJson: input.stacItemsJson ?? undefined,
       outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
+      kpis: input.kpis ?? undefined,
     }),
   );
 

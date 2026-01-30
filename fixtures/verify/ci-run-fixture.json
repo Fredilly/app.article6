@@ -1,0 +1,51 @@
+{
+  "method": {
+    "code": "VM-001",
+    "version": "v1",
+    "totalRules": 12
+  },
+  "summary": {
+    "aoi": {
+      "hash": "aoi-demo-hash",
+      "bbox": [-122.52, 37.70, -122.35, 37.83],
+      "areaKm2": 42.7
+    },
+    "stac": {
+      "query": {
+        "source": "https://earth-search.aws.element84.com/v1",
+        "collection": "sentinel-2-l2a",
+        "datetime": {
+          "start": "2024-01-01T00:00:00Z",
+          "end": "2024-01-31T23:59:59Z"
+        },
+        "limit": 10,
+        "filters": {
+          "cloud_cover_lt": 20
+        }
+      },
+      "itemIds": [
+        "S2A_001",
+        "S2A_002",
+        "S2A_003",
+        "S2A_004",
+        "S2A_005",
+        "S2A_006",
+        "S2A_007",
+        "S2A_008",
+        "S2A_009",
+        "S2A_010"
+      ]
+    },
+    "linkage": {
+      "linkedRuleIds": ["R-1", "R-2"]
+    },
+    "exportState": {
+      "snapshotExportedAt": null
+    },
+    "provenance": {
+      "methodCode": "VM-001",
+      "version": "v1",
+      "snapshotSchemaVersion": "evidence-snapshot/v2"
+    }
+  }
+}

@@ -26,3 +26,12 @@ jobs:
 
       - name: CI
         run: npm run ci
+
+      - name: Build verify run summary
+        run: node scripts/ci-verify-run-summary.mjs
+
+      - name: Upload verify run summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-ci-run-summary
+          path: artifacts/verify/ci-run-summary.json

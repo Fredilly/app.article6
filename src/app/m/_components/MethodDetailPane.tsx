@@ -1073,6 +1073,7 @@ export default function MethodDetailPane({
         viewMode={verifyMode}
         verifierMode={verifierMode}
         activeRuleId={activeRuleId}
+        totalRules={activeVersion ? method.ruleCountByVersion[activeVersion] ?? null : null}
         aoi={effectiveAoi}
         currentAoi={currentAoi}
         draftAoi={draftAoi}

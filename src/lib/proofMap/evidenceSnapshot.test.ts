@@ -27,6 +27,7 @@ test("persists stac items in evidence snapshot export (DEMO-002)", async () => {
       aoi: { hash: "aoi-hash", bbox: [0, 0, 1, 1], areaKm2: 12.5 },
       stac: { query: { collection: "c-1" }, itemIds: ["stac-1", "stac-2"] },
       linkage: { linkedRuleIds: ["rule-1"] },
+      exportState: { snapshotExportedAt: null },
       provenance: { methodCode: "AR-1", version: "v1", snapshotSchemaVersion: "evidence-snapshot/v2" },
     },
   });
