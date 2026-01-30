@@ -37,6 +37,7 @@ type ProofMapTabProps = {
   verifierMode?: boolean;
   activeRuleId?: string | null;
   totalRules?: number | null;
+  linkedRuleIdsExternal?: string[] | null;
   aoi: AOI | null;
   currentAoi: AOI | null;
   draftAoi: AOI | null;
@@ -223,6 +224,7 @@ export default function ProofMapTab({
   verifierMode = false,
   activeRuleId = null,
   totalRules = null,
+  linkedRuleIdsExternal = null,
   aoi,
   currentAoi,
   draftAoi,
@@ -303,6 +305,17 @@ export default function ProofMapTab({
   const trackLinkedRule = useCallback((id: string) => {
     setLinkedRuleIds((current) => addLinkedRuleId(current, id));
   }, []);
+
+  useEffect(() => {
+    if (!linkedRuleIdsExternal?.length) return;
+    setLinkedRuleIds((current) => {
+      let next = current;
+      for (const id of linkedRuleIdsExternal) {
+        next = addLinkedRuleId(next, id);
+      }
+      return next;
+    });
+  }, [linkedRuleIdsExternal]);
 
   useEffect(() => {
     if (!activeRuleId) return;

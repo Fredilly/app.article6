@@ -14,6 +14,7 @@ import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/n
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
 import { jumpToRule } from "@/lib/ruleJump";
+import { addLinkedRuleId } from "@/lib/verify/runState";
 import { decodeShareState, encodeShareState } from "@/lib/shareLink";
 import {
   clearProofMapStorage,
@@ -168,6 +169,7 @@ export default function MethodDetailPane({
   const [rules, setRules] = useState<RuleListItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(Boolean(initialRuleId));
   const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
+  const [verifyLinkedRuleIds, setVerifyLinkedRuleIds] = useState<string[]>([]);
   const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [traceError, setTraceError] = useState<string | null>(null);
@@ -892,6 +894,7 @@ export default function MethodDetailPane({
   }, [drawerCitationsOpen, drawerOpen, drawerSourceOpen, ensureRichLoaded, ensureSectionsLoaded, method.hasRich]);
 
   const openRule = useCallback(async (ruleId: string) => {
+    const shouldTrackVerify = effectiveTab === "verify" || isEvidenceMode;
     setTabParam("rules");
     setRulesDeeplinkWarning(null);
     const list = await ensureRulesLoaded();
@@ -900,12 +903,15 @@ export default function MethodDetailPane({
       setRulesDeeplinkWarning(`Unknown rule id "${ruleId}".`);
       return false;
     }
+    if (shouldTrackVerify) {
+      setVerifyLinkedRuleIds((current) => addLinkedRuleId(current, ruleId));
+    }
     setActiveRuleId(ruleId);
     setDrawerOpen(true);
     setRuleParam(ruleId);
     await loadRuleDetail(ruleId);
     return true;
-  }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam]);
+  }, [effectiveTab, ensureRulesLoaded, isEvidenceMode, loadRuleDetail, setRuleParam, setTabParam]);
 
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
@@ -1074,6 +1080,7 @@ export default function MethodDetailPane({
         verifierMode={verifierMode}
         activeRuleId={activeRuleId}
         totalRules={activeVersion ? method.ruleCountByVersion[activeVersion] ?? null : null}
+        linkedRuleIdsExternal={verifyLinkedRuleIds}
         aoi={effectiveAoi}
         currentAoi={currentAoi}
         draftAoi={draftAoi}
