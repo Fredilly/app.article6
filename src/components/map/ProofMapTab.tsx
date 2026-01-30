@@ -256,10 +256,10 @@ export default function ProofMapTab({
   });
   const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
 
-  const showToast = (message: string) => {
+  const showToast = useCallback((message: string) => {
     setToast(message);
     window.setTimeout(() => setToast((current) => (current === message ? null : current)), 900);
-  };
+  }, []);
 
   useEffect(() => {
     if (!applyToken) return;
@@ -268,14 +268,14 @@ export default function ProofMapTab({
     return () => window.clearTimeout(timer);
   }, [applyToken]);
 
-  const copyToClipboard = async (value: string) => {
+  const copyToClipboard = useCallback(async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
       showToast("Copied");
     } catch {
       showToast("Copy failed");
     }
-  };
+  }, [showToast]);
 
   const trackLinkedRule = useCallback((id: string) => {
     if (!id) return;
