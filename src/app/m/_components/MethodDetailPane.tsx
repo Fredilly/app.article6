@@ -944,7 +944,9 @@ export default function MethodDetailPane({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const seedFromUrl = () => {
-      const ruleId = parseLinkedRuleId({ ruleParam: searchParams.get("rule"), hash: window.location.hash });
+      const ruleParam = searchParams.get("rule");
+      const fromParam = typeof ruleParam === "string" && /^R-/.test(ruleParam.trim()) ? ruleParam.trim() : null;
+      const ruleId = fromParam ?? parseLinkedRuleId({ ruleParam: null, hash: window.location.hash });
       if (!ruleId) return;
       if (!verifyLinkedRulesKey) return;
       addLinkedRuleIdToStorage(verifyLinkedRulesKey, ruleId);

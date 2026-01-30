@@ -1,5 +1,35 @@
 import { describe, expect, it } from "@jest/globals";
-import { addLinkedRuleId, buildRunSummary, parseLinkedRuleId } from "@/lib/verify/runState";
+import {
+  addLinkedRuleId,
+  addLinkedRuleIdToStorage,
+  buildLinkedRulesKey,
+  buildRunSummary,
+  loadLinkedRuleIds,
+  parseLinkedRuleId,
+} from "@/lib/verify/runState";
+
+function ensureLocalStorage(): Storage {
+  if (typeof localStorage !== "undefined") return localStorage;
+  let store: Record<string, string> = {};
+  const memoryStorage = {
+    getItem: (key: string) => (key in store ? store[key] : null),
+    setItem: (key: string, value: string) => {
+      store[key] = String(value);
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    key: (index: number) => Object.keys(store)[index] ?? null,
+    get length() {
+      return Object.keys(store).length;
+    },
+  } as Storage;
+  (globalThis as unknown as { localStorage: Storage }).localStorage = memoryStorage;
+  return memoryStorage;
+}
 
 describe("buildRunSummary", () => {
   it("dedupes and sorts item and rule ids", () => {
@@ -31,5 +61,18 @@ describe("parseLinkedRuleId", () => {
     expect(parseLinkedRuleId({ ruleParam: null, hash: "#r-R-2" })).toBe("R-2");
     expect(parseLinkedRuleId({ ruleParam: null, hash: "#R-3" })).toBe("R-3");
     expect(parseLinkedRuleId({ ruleParam: null, hash: "#s-S-1" })).toBeNull();
+  });
+});
+
+describe("addLinkedRuleIdToStorage", () => {
+  it("dedupes and persists linked rule ids", () => {
+    const storage = ensureLocalStorage();
+    const key = buildLinkedRulesKey("VM-1", "v1");
+    storage.clear();
+    addLinkedRuleIdToStorage(key, "R-2");
+    addLinkedRuleIdToStorage(key, "R-1");
+    addLinkedRuleIdToStorage(key, "R-1");
+
+    expect(loadLinkedRuleIds(key)).toEqual(["R-1", "R-2"]);
   });
 });

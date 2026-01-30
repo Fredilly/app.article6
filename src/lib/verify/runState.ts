@@ -76,13 +76,22 @@ function notifyLinkedRuleListeners(key: string, ids: string[]) {
   for (const listener of listeners) listener(ids);
 }
 
+function getLocalStorage(): Storage | null {
+  if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+  if (typeof globalThis !== "undefined" && "localStorage" in globalThis) {
+    return (globalThis as unknown as { localStorage?: Storage }).localStorage ?? null;
+  }
+  return null;
+}
+
 export function buildLinkedRulesKey(methodCode: string, version: string): string {
   return `verifyLinkedRules:${methodCode}@${version}`;
 }
 
 export function loadLinkedRuleIds(key: string): string[] {
-  if (typeof window === "undefined") return [];
-  const raw = window.localStorage.getItem(key);
+  const storage = getLocalStorage();
+  if (!storage) return [];
+  const raw = storage.getItem(key);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -94,11 +103,12 @@ export function loadLinkedRuleIds(key: string): string[] {
 }
 
 export function persistLinkedRuleIds(key: string, ids: string[]): void {
-  if (typeof window === "undefined") return;
+  const storage = getLocalStorage();
+  if (!storage) return;
   const next = uniqSorted(ids);
   const current = loadLinkedRuleIds(key);
   if (current.length === next.length && current.every((value, idx) => value === next[idx])) return;
-  window.localStorage.setItem(key, JSON.stringify(next));
+  storage.setItem(key, JSON.stringify(next));
   notifyLinkedRuleListeners(key, next);
 }
 
