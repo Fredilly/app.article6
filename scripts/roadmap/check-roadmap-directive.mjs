@@ -7,25 +7,25 @@ function extractPrNumberFromRef(ref) {
 }
 
 async function fetchPrBody({ repoName, prNumber, token }) {
-  if (!repoName || !prNumber || !token) {
+  if (!repoName || !prNumber) {
     throw new Error(
-      `fetchPrBody missing inputs repo=${repoName ?? "n/a"} prNumber=${prNumber ?? "n/a"} token=${
-        token ? "present" : "missing"
-      }`
+      `fetchPrBody missing inputs repo=${repoName ?? "n/a"} prNumber=${prNumber ?? "n/a"}`
     );
   }
   const apiBase = process.env.GITHUB_API_URL || "https://api.github.com";
-  const resp = await fetch(`${apiBase}/repos/${repoName}/pulls/${prNumber}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "User-Agent": "roadmap-directive-gate",
-    },
-  });
+  const headers = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "roadmap-directive-gate",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const resp = await fetch(`${apiBase}/repos/${repoName}/pulls/${prNumber}`, { headers });
   const text = await resp.text();
   if (!resp.ok) {
     const snippet = text.slice(0, 200).replace(/\s+/g, " ").trim();
-    throw new Error(`fetchPrBody failed status=${resp.status} ${resp.statusText} response="${snippet}"`);
+    const authHint = token ? "auth=present" : "auth=missing";
+    throw new Error(
+      `fetchPrBody failed status=${resp.status} ${resp.statusText} ${authHint} response="${snippet}"`
+    );
   }
   let data;
   try {
