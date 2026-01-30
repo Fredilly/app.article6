@@ -25,7 +25,17 @@ import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { deriveRunKpis } from "@/lib/verify/kpis";
-import { SNAPSHOT_SCHEMA_VERSION, addLinkedRuleId, buildRunSummary, createTicketTemplate, extractStacQuery, parseLinkedRuleId } from "@/lib/verify/runState";
+import {
+  SNAPSHOT_SCHEMA_VERSION,
+  addLinkedRuleIdToStorage,
+  buildLinkedRulesKey,
+  buildRunSummary,
+  createTicketTemplate,
+  extractStacQuery,
+  loadLinkedRuleIds,
+  parseLinkedRuleId,
+  subscribeLinkedRuleIds,
+} from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
 
 type ProofMapTabProps = {
@@ -37,7 +47,6 @@ type ProofMapTabProps = {
   verifierMode?: boolean;
   activeRuleId?: string | null;
   totalRules?: number | null;
-  linkedRuleIdsExternal?: string[] | null;
   aoi: AOI | null;
   currentAoi: AOI | null;
   draftAoi: AOI | null;
@@ -214,7 +223,6 @@ export default function ProofMapTab({
   verifierMode = false,
   activeRuleId = null,
   totalRules = null,
-  linkedRuleIdsExternal = null,
   aoi,
   currentAoi,
   draftAoi,
@@ -258,7 +266,8 @@ export default function ProofMapTab({
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
-  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>([]);
+  const linkedRulesKey = useMemo(() => buildLinkedRulesKey(methodCode, version), [methodCode, version]);
+  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => loadLinkedRuleIds(linkedRulesKey));
   const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -292,20 +301,23 @@ export default function ProofMapTab({
     }
   }, [showToast]);
 
-  const trackLinkedRule = useCallback((id: string) => {
-    setLinkedRuleIds((current) => addLinkedRuleId(current, id));
-  }, []);
-
   useEffect(() => {
-    if (!linkedRuleIdsExternal?.length) return;
-    setLinkedRuleIds((current) => {
-      let next = current;
-      for (const id of linkedRuleIdsExternal) {
-        next = addLinkedRuleId(next, id);
-      }
-      return next;
+    setLinkedRuleIds(loadLinkedRuleIds(linkedRulesKey));
+    const unsubscribe = subscribeLinkedRuleIds(linkedRulesKey, (next) => {
+      setLinkedRuleIds((current) => {
+        if (current.length === next.length && current.every((value, idx) => value === next[idx])) return current;
+        return next;
+      });
     });
-  }, [linkedRuleIdsExternal]);
+    return unsubscribe;
+  }, [linkedRulesKey]);
+
+  const trackLinkedRule = useCallback(
+    (id: string) => {
+      setLinkedRuleIds(addLinkedRuleIdToStorage(linkedRulesKey, id));
+    },
+    [linkedRulesKey],
+  );
 
   useEffect(() => {
     if (!activeRuleId) return;

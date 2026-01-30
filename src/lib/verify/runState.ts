@@ -67,6 +67,60 @@ export function parseLinkedRuleId(input: { ruleParam?: string | null; hash?: str
   return null;
 }
 
+type LinkedRuleListener = (ids: string[]) => void;
+const linkedRuleListeners = new Map<string, Set<LinkedRuleListener>>();
+
+function notifyLinkedRuleListeners(key: string, ids: string[]) {
+  const listeners = linkedRuleListeners.get(key);
+  if (!listeners || listeners.size === 0) return;
+  for (const listener of listeners) listener(ids);
+}
+
+export function buildLinkedRulesKey(methodCode: string, version: string): string {
+  return `verifyLinkedRules:${methodCode}@${version}`;
+}
+
+export function loadLinkedRuleIds(key: string): string[] {
+  if (typeof window === "undefined") return [];
+  const raw = window.localStorage.getItem(key);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return uniqSorted(parsed.filter((value) => typeof value === "string"));
+  } catch {
+    return [];
+  }
+}
+
+export function persistLinkedRuleIds(key: string, ids: string[]): void {
+  if (typeof window === "undefined") return;
+  const next = uniqSorted(ids);
+  const current = loadLinkedRuleIds(key);
+  if (current.length === next.length && current.every((value, idx) => value === next[idx])) return;
+  window.localStorage.setItem(key, JSON.stringify(next));
+  notifyLinkedRuleListeners(key, next);
+}
+
+export function addLinkedRuleIdToStorage(key: string, ruleId: string | null | undefined): string[] {
+  const current = loadLinkedRuleIds(key);
+  const next = addLinkedRuleId(current, ruleId);
+  persistLinkedRuleIds(key, next);
+  return next;
+}
+
+export function subscribeLinkedRuleIds(key: string, listener: LinkedRuleListener): () => void {
+  const listeners = linkedRuleListeners.get(key) ?? new Set<LinkedRuleListener>();
+  listeners.add(listener);
+  linkedRuleListeners.set(key, listeners);
+  return () => {
+    const current = linkedRuleListeners.get(key);
+    if (!current) return;
+    current.delete(listener);
+    if (!current.size) linkedRuleListeners.delete(key);
+  };
+}
+
 function parseDatetimeRange(value: unknown): { start?: string; end?: string } | null {
   const raw = asNonEmptyString(value);
   if (!raw) return null;
