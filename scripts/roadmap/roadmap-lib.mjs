@@ -210,13 +210,14 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
 
 export function parseRoadmapDirective(body) {
   if (!body) return null;
-  const lines = String(body).split("\n");
-  const startIdx = lines.findIndex((line) => /^###\s+Roadmap-Update\b/i.test(line));
+  const normalized = String(body).replace(/\r\n?/g, "\n");
+  const lines = normalized.split("\n");
+  const startIdx = lines.findIndex((line) => /^\s*###\s+Roadmap-Update\b/i.test(line));
   if (startIdx === -1) return null;
   const directiveLines = [];
   for (let i = startIdx + 1; i < lines.length; i += 1) {
     const line = lines[i];
-    if (/^###\s+/i.test(line)) break;
+    if (/^\s*###\s+/i.test(line)) break;
     directiveLines.push(line);
   }
 
