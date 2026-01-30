@@ -24,7 +24,7 @@ import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
-import { SNAPSHOT_SCHEMA_VERSION, buildRunSummary, createTicketTemplate, extractStacQuery } from "@/lib/verify/runState";
+import { SNAPSHOT_SCHEMA_VERSION, addLinkedRuleId, buildRunSummary, createTicketTemplate, extractStacQuery } from "@/lib/verify/runState";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -33,6 +33,7 @@ type ProofMapTabProps = {
   mode?: "explorer" | "evidence";
   viewMode?: "list" | "map";
   verifierMode?: boolean;
+  activeRuleId?: string | null;
   aoi: AOI | null;
   currentAoi: AOI | null;
   draftAoi: AOI | null;
@@ -134,6 +135,22 @@ function hostnamePathFromUrl(value: string): string {
   }
 }
 
+function ruleIdFromLocation(): string | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const ruleParam = params.get("rule")?.trim();
+  if (ruleParam) return ruleParam;
+  const rawHash = (window.location.hash || "").replace(/^#/, "").trim();
+  if (!rawHash) return null;
+  if (rawHash.startsWith("r-")) {
+    const trimmed = rawHash.slice(2).trim();
+    return trimmed || null;
+  }
+  if (rawHash.startsWith("s-")) return null;
+  if (rawHash.startsWith("R-")) return rawHash;
+  return null;
+}
+
 function parseBbox(value: unknown): [number, number, number, number] | null {
   if (!Array.isArray(value) || value.length < 4) return null;
   const a = value[0];
@@ -201,6 +218,7 @@ export default function ProofMapTab({
   mode = "explorer",
   viewMode = "map",
   verifierMode = false,
+  activeRuleId = null,
   aoi,
   currentAoi,
   draftAoi,
@@ -278,12 +296,19 @@ export default function ProofMapTab({
   }, [showToast]);
 
   const trackLinkedRule = useCallback((id: string) => {
-    if (!id) return;
-    setLinkedRuleIds((current) => {
-      if (current.includes(id)) return current;
-      return [...current, id].sort((a, b) => a.localeCompare(b));
-    });
+    setLinkedRuleIds((current) => addLinkedRuleId(current, id));
   }, []);
+
+  useEffect(() => {
+    if (!activeRuleId) return;
+    trackLinkedRule(activeRuleId);
+  }, [activeRuleId, trackLinkedRule]);
+
+  useEffect(() => {
+    const ruleId = ruleIdFromLocation();
+    if (!ruleId) return;
+    trackLinkedRule(ruleId);
+  }, [trackLinkedRule]);
 
   const handleNavigateEvidence = useCallback(
     async (type: "rule" | "section", id: string) => {

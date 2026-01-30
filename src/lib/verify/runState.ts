@@ -44,6 +44,11 @@ function uniqSorted(values: string[] | undefined | null): string[] {
   return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
 
+export function addLinkedRuleId(current: string[] | undefined | null, ruleId: string | null | undefined): string[] {
+  if (!ruleId) return uniqSorted(current);
+  return uniqSorted([...(current ?? []), ruleId]);
+}
+
 function parseDatetimeRange(value: unknown): { start?: string; end?: string } | null {
   const raw = asNonEmptyString(value);
   if (!raw) return null;
