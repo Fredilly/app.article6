@@ -1072,6 +1072,7 @@ export default function MethodDetailPane({
         mode={isEvidenceMode ? "evidence" : undefined}
         viewMode={verifyMode}
         verifierMode={verifierMode}
+        activeRuleId={activeRuleId}
         aoi={effectiveAoi}
         currentAoi={currentAoi}
         draftAoi={draftAoi}
