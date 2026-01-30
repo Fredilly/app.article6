@@ -32,7 +32,7 @@ import {
   buildRunSummary,
   createTicketTemplate,
   extractStacQuery,
-  loadLinkedRuleIds,
+  readLinkedRuleIdsFromStorage,
   parseLinkedRuleId,
   subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
@@ -267,7 +267,7 @@ export default function ProofMapTab({
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const linkedRulesKey = useMemo(() => buildLinkedRulesKey(methodCode, version), [methodCode, version]);
-  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => loadLinkedRuleIds(linkedRulesKey));
+  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => readLinkedRuleIdsFromStorage(methodCode, version));
   const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -302,15 +302,29 @@ export default function ProofMapTab({
   }, [showToast]);
 
   useEffect(() => {
-    setLinkedRuleIds(loadLinkedRuleIds(linkedRulesKey));
-    const unsubscribe = subscribeLinkedRuleIds(linkedRulesKey, (next) => {
+    const readNext = () => {
+      const next = readLinkedRuleIdsFromStorage(methodCode, version);
       setLinkedRuleIds((current) => {
         if (current.length === next.length && current.every((value, idx) => value === next[idx])) return current;
         return next;
       });
-    });
-    return unsubscribe;
-  }, [linkedRulesKey]);
+    };
+    readNext();
+    const unsubscribe = subscribeLinkedRuleIds(readNext);
+    const onStorage = (event: StorageEvent) => {
+      if (!event.key || event.key !== linkedRulesKey) return;
+      readNext();
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", onStorage);
+    }
+    return () => {
+      unsubscribe();
+      if (typeof window !== "undefined") {
+        window.removeEventListener("storage", onStorage);
+      }
+    };
+  }, [linkedRulesKey, methodCode, version]);
 
   const trackLinkedRule = useCallback(
     (id: string) => {

@@ -67,13 +67,12 @@ export function parseLinkedRuleId(input: { ruleParam?: string | null; hash?: str
   return null;
 }
 
-type LinkedRuleListener = (ids: string[]) => void;
-const linkedRuleListeners = new Map<string, Set<LinkedRuleListener>>();
+type LinkedRuleListener = () => void;
+const linkedRuleListeners = new Set<LinkedRuleListener>();
 
-function notifyLinkedRuleListeners(key: string, ids: string[]) {
-  const listeners = linkedRuleListeners.get(key);
-  if (!listeners || listeners.size === 0) return;
-  for (const listener of listeners) listener(ids);
+function notifyLinkedRuleListeners(): void {
+  if (linkedRuleListeners.size === 0) return;
+  for (const listener of linkedRuleListeners) listener();
 }
 
 function getLocalStorage(): Storage | null {
@@ -86,6 +85,10 @@ function getLocalStorage(): Storage | null {
 
 export function buildLinkedRulesKey(methodCode: string, version: string): string {
   return `verifyLinkedRules:${methodCode}@${version}`;
+}
+
+export function readLinkedRuleIdsFromStorage(methodCode: string, version: string): string[] {
+  return loadLinkedRuleIds(buildLinkedRulesKey(methodCode, version));
 }
 
 export function loadLinkedRuleIds(key: string): string[] {
@@ -109,7 +112,7 @@ export function persistLinkedRuleIds(key: string, ids: string[]): void {
   const current = loadLinkedRuleIds(key);
   if (current.length === next.length && current.every((value, idx) => value === next[idx])) return;
   storage.setItem(key, JSON.stringify(next));
-  notifyLinkedRuleListeners(key, next);
+  notifyLinkedRuleListeners();
 }
 
 export function addLinkedRuleIdToStorage(key: string, ruleId: string | null | undefined): string[] {
@@ -119,15 +122,10 @@ export function addLinkedRuleIdToStorage(key: string, ruleId: string | null | un
   return next;
 }
 
-export function subscribeLinkedRuleIds(key: string, listener: LinkedRuleListener): () => void {
-  const listeners = linkedRuleListeners.get(key) ?? new Set<LinkedRuleListener>();
-  listeners.add(listener);
-  linkedRuleListeners.set(key, listeners);
+export function subscribeLinkedRuleIds(listener: LinkedRuleListener): () => void {
+  linkedRuleListeners.add(listener);
   return () => {
-    const current = linkedRuleListeners.get(key);
-    if (!current) return;
-    current.delete(listener);
-    if (!current.size) linkedRuleListeners.delete(key);
+    linkedRuleListeners.delete(listener);
   };
 }
 

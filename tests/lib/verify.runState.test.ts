@@ -4,8 +4,9 @@ import {
   addLinkedRuleIdToStorage,
   buildLinkedRulesKey,
   buildRunSummary,
-  loadLinkedRuleIds,
+  readLinkedRuleIdsFromStorage,
   parseLinkedRuleId,
+  subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
 
 function ensureLocalStorage(): Storage {
@@ -73,6 +74,21 @@ describe("addLinkedRuleIdToStorage", () => {
     addLinkedRuleIdToStorage(key, "R-1");
     addLinkedRuleIdToStorage(key, "R-1");
 
-    expect(loadLinkedRuleIds(key)).toEqual(["R-1", "R-2"]);
+    expect(readLinkedRuleIdsFromStorage("VM-1", "v1")).toEqual(["R-1", "R-2"]);
+  });
+});
+
+describe("subscribeLinkedRuleIds", () => {
+  it("fires on storage updates", () => {
+    ensureLocalStorage();
+    const key = buildLinkedRulesKey("VM-2", "v1");
+    let calls = 0;
+    const unsubscribe = subscribeLinkedRuleIds(() => {
+      calls += 1;
+    });
+    addLinkedRuleIdToStorage(key, "R-9");
+    unsubscribe();
+
+    expect(calls).toBe(1);
   });
 });
