@@ -43,7 +43,7 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 
 1) PR22 — KPI SSOT + CI Snapshot + Proof/Coverage chip: Planned
 2) PR23 — Eval harness Hard Set v0: Done (PR #391)
-3) PR24 — Verifier minutes + checklist: Planned
+3) PR24 — Verifier minutes + checklist: Done
 4) PR25 — Delta→Impact→Tasks pipeline: Planned
 5) PR26 — Coverage ratchet + link resolver gates: Planned
 6) PR27 — Pilot loop + hard-case intake: Planned
