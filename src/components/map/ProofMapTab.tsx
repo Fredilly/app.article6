@@ -761,7 +761,7 @@ export default function ProofMapTab({
     const template = createTicketTemplate(runSummary);
     await copyToClipboard(template);
     showToast("Ticket template copied");
-  }, [copyToClipboard, runSummary]);
+  }, [copyToClipboard, runSummary, showToast]);
 
   const runStartOver = useCallback(async () => {
     if (startOverBusy) return;
@@ -800,6 +800,7 @@ export default function ProofMapTab({
   }, [
     evidencePins,
     onStartOver,
+    showToast,
     startOverBusy,
   ]);
 
