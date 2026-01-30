@@ -34,28 +34,40 @@ if (!isRoadmapTracked) {
   process.exit(0);
 }
 
-async function fetchPrBody(prNumber) {
-  const repo = process.env.GITHUB_REPOSITORY;
+async function fetchPrBody(prNumber, repoFallback) {
+  const repo = process.env.GITHUB_REPOSITORY || repoFallback;
   const token = process.env.GITHUB_TOKEN;
   if (!repo || !token || !prNumber) return null;
-  const resp = await fetch(`https://api.github.com/repos/${repo}/pulls/${prNumber}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "User-Agent": "roadmap-directive-gate",
-    },
-  });
-  if (!resp.ok) return null;
-  const data = await resp.json().catch(() => null);
-  return data?.body ?? null;
+  const apiBase = process.env.GITHUB_API_URL || "https://api.github.com";
+  try {
+    const resp = await fetch(`${apiBase}/repos/${repo}/pulls/${prNumber}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "User-Agent": "roadmap-directive-gate",
+      },
+    });
+    const data = await resp.json().catch(() => null);
+    return {
+      body: data?.body ?? null,
+      status: resp.status,
+    };
+  } catch (error) {
+    return {
+      body: null,
+      status: null,
+      error: error?.message ?? String(error),
+    };
+  }
 }
 
 let body = pr.body ?? "";
 let directive = parseRoadmapDirective(body);
+let fetchMeta = null;
 if (!directive && pr.number) {
-  const fetchedBody = await fetchPrBody(pr.number);
-  if (fetchedBody) {
-    body = fetchedBody;
+  fetchMeta = await fetchPrBody(pr.number, pr?.base?.repo?.full_name);
+  if (fetchMeta?.body) {
+    body = fetchMeta.body;
     directive = parseRoadmapDirective(body);
   }
 }
@@ -64,7 +76,13 @@ if (directive && !(hasPhase && hasPr)) {
 }
 
 if (!directive) {
-  fail("Missing '### Roadmap-Update' block in PR body (roadmap-tracked PR).");
+  const bodyLength = body ? String(body).length : 0;
+  const fetchDetails = fetchMeta
+    ? ` fetchStatus=${fetchMeta.status ?? "n/a"} fetchBodyLength=${fetchMeta.body?.length ?? 0} fetchError=${fetchMeta.error ?? "none"}`
+    : "";
+  fail(
+    `Missing '### Roadmap-Update' block in PR body (roadmap-tracked PR). bodyLength=${bodyLength}${fetchDetails}`
+  );
 }
 
 const slug = directive.slug?.trim();
