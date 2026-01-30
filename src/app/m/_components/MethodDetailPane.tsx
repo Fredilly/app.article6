@@ -14,7 +14,7 @@ import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/n
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
 import { jumpToRule } from "@/lib/ruleJump";
-import { addLinkedRuleId } from "@/lib/verify/runState";
+import { addLinkedRuleId, parseLinkedRuleId } from "@/lib/verify/runState";
 import { decodeShareState, encodeShareState } from "@/lib/shareLink";
 import {
   clearProofMapStorage,
@@ -940,6 +940,18 @@ export default function MethodDetailPane({
       await openRule(initialRuleId);
     })();
   }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule, setTabParam]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const seedFromUrl = () => {
+      const ruleId = parseLinkedRuleId({ ruleParam: searchParams.get("rule"), hash: window.location.hash });
+      if (!ruleId) return;
+      setVerifyLinkedRuleIds((current) => addLinkedRuleId(current, ruleId));
+    };
+    seedFromUrl();
+    window.addEventListener("hashchange", seedFromUrl);
+    return () => window.removeEventListener("hashchange", seedFromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     if (isEvidenceMode) return;

@@ -25,7 +25,7 @@ import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { deriveRunKpis } from "@/lib/verify/kpis";
-import { SNAPSHOT_SCHEMA_VERSION, addLinkedRuleId, buildRunSummary, createTicketTemplate, extractStacQuery } from "@/lib/verify/runState";
+import { SNAPSHOT_SCHEMA_VERSION, addLinkedRuleId, buildRunSummary, createTicketTemplate, extractStacQuery, parseLinkedRuleId } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
 
 type ProofMapTabProps = {
@@ -142,17 +142,7 @@ function hostnamePathFromUrl(value: string): string {
 function ruleIdFromLocation(): string | null {
   if (typeof window === "undefined") return null;
   const params = new URLSearchParams(window.location.search);
-  const ruleParam = params.get("rule")?.trim();
-  if (ruleParam) return ruleParam;
-  const rawHash = (window.location.hash || "").replace(/^#/, "").trim();
-  if (!rawHash) return null;
-  if (rawHash.startsWith("r-")) {
-    const trimmed = rawHash.slice(2).trim();
-    return trimmed || null;
-  }
-  if (rawHash.startsWith("s-")) return null;
-  if (rawHash.startsWith("R-")) return rawHash;
-  return null;
+  return parseLinkedRuleId({ ruleParam: params.get("rule"), hash: window.location.hash });
 }
 
 function parseBbox(value: unknown): [number, number, number, number] | null {

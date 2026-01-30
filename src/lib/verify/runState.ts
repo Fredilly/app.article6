@@ -52,6 +52,21 @@ export function addLinkedRuleId(current: string[] | undefined | null, ruleId: st
   return uniqSorted([...(current ?? []), ruleId]);
 }
 
+export function parseLinkedRuleId(input: { ruleParam?: string | null; hash?: string | null }): string | null {
+  const ruleParam = (input.ruleParam ?? "").trim();
+  if (ruleParam) return ruleParam;
+  const rawHash = (input.hash ?? "").replace(/^#/, "").trim();
+  if (!rawHash) return null;
+  if (rawHash.startsWith("R-")) return rawHash;
+  const lower = rawHash.toLowerCase();
+  if (lower.startsWith("r-")) {
+    const trimmed = rawHash.slice(2).trim();
+    return trimmed || null;
+  }
+  if (lower.startsWith("s-")) return null;
+  return null;
+}
+
 function parseDatetimeRange(value: unknown): { start?: string; end?: string } | null {
   const raw = asNonEmptyString(value);
   if (!raw) return null;

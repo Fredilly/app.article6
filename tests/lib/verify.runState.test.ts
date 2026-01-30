@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { addLinkedRuleId, buildRunSummary } from "@/lib/verify/runState";
+import { addLinkedRuleId, buildRunSummary, parseLinkedRuleId } from "@/lib/verify/runState";
 
 describe("buildRunSummary", () => {
   it("dedupes and sorts item and rule ids", () => {
@@ -22,5 +22,14 @@ describe("addLinkedRuleId", () => {
     expect(first).toEqual(["R-1"]);
     expect(second).toEqual(["R-1", "R-2"]);
     expect(duplicate).toEqual(["R-1", "R-2"]);
+  });
+});
+
+describe("parseLinkedRuleId", () => {
+  it("prefers rule param and parses hash rules", () => {
+    expect(parseLinkedRuleId({ ruleParam: "R-100", hash: "#r-R-2" })).toBe("R-100");
+    expect(parseLinkedRuleId({ ruleParam: null, hash: "#r-R-2" })).toBe("R-2");
+    expect(parseLinkedRuleId({ ruleParam: null, hash: "#R-3" })).toBe("R-3");
+    expect(parseLinkedRuleId({ ruleParam: null, hash: "#s-S-1" })).toBeNull();
   });
 });
