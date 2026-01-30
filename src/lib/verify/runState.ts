@@ -83,34 +83,70 @@ function getLocalStorage(): Storage | null {
   return null;
 }
 
-export function buildLinkedRulesKey(methodCode: string, version: string): string {
-  return `verifyLinkedRules:${methodCode}:${version}`;
+export function normalizeMethodCode(raw: string): string {
+  const trimmed = (raw ?? "").trim();
+  if (!trimmed) return "";
+  const atIndex = trimmed.indexOf("@");
+  return atIndex >= 0 ? trimmed.slice(0, atIndex).trim() : trimmed;
 }
 
-function legacyLinkedRulesKeys(methodCode: string, version: string): string[] {
-  return [
-    `verifyLinkedRules:${methodCode}@${version}`,
-    `verifyLinkedRules:${methodCode}v${version}`,
-  ];
+export function normalizeVersion(raw: string): string {
+  let trimmed = (raw ?? "").trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("v/")) trimmed = trimmed.slice(2);
+  if (!trimmed.startsWith("v")) trimmed = `v${trimmed}`;
+  return trimmed;
+}
+
+export function buildLinkedRulesKey(methodCode: string, version: string): string {
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  return `verifyLinkedRules:${normalizedMethod}:${normalizedVersion}`;
 }
 
 function migrateLinkedRulesKey(methodCode: string, version: string): void {
   const storage = getLocalStorage();
   if (!storage) return;
-  const canonical = buildLinkedRulesKey(methodCode, version);
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const canonical = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
   if (storage.getItem(canonical)) return;
-  for (const legacy of legacyLinkedRulesKeys(methodCode, version)) {
-    const legacyValue = storage.getItem(legacy);
-    if (!legacyValue) continue;
-    storage.setItem(canonical, legacyValue);
-    storage.removeItem(legacy);
-    break;
+  const keysToMerge: string[] = [];
+  for (let index = 0; index < storage.length; index += 1) {
+    const key = storage.key(index);
+    if (!key) continue;
+    if (key === canonical) continue;
+    if (key.startsWith(`verifyLinkedRules:${normalizedMethod}:`)) keysToMerge.push(key);
+    if (key.startsWith(`verifyLinkedRules:${normalizedMethod}@`)) keysToMerge.push(key);
+    if (key.startsWith(`verifyLinkedRules:${normalizedMethod}v`)) keysToMerge.push(key);
   }
+  if (!keysToMerge.length) return;
+  const merged = new Set<string>();
+  for (const key of keysToMerge) {
+    const raw = storage.getItem(key);
+    if (!raw) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        for (const value of parsed) {
+          if (typeof value === "string") merged.add(value.trim());
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const next = Array.from(merged).filter(Boolean).sort((a, b) => a.localeCompare(b));
+  if (!next.length) return;
+  storage.setItem(canonical, JSON.stringify(next));
+  for (const key of keysToMerge) storage.removeItem(key);
 }
 
 export function readLinkedRuleIdsFromStorage(methodCode: string, version: string): string[] {
-  migrateLinkedRulesKey(methodCode, version);
-  return loadLinkedRuleIds(buildLinkedRulesKey(methodCode, version));
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  migrateLinkedRulesKey(normalizedMethod, normalizedVersion);
+  return loadLinkedRuleIds(buildLinkedRulesKey(normalizedMethod, normalizedVersion));
 }
 
 export function loadLinkedRuleIds(key: string): string[] {
@@ -149,7 +185,9 @@ export function addLinkedRuleIdToStorage(
   version: string,
   ruleId: string | null | undefined,
 ): string[] {
-  const key = buildLinkedRulesKey(methodCode, version);
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const key = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
   return addLinkedRuleIdToKey(key, ruleId);
 }
 

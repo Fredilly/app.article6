@@ -4,6 +4,8 @@ import {
   addLinkedRuleIdToStorage,
   buildLinkedRulesKey,
   buildRunSummary,
+  normalizeMethodCode,
+  normalizeVersion,
   readLinkedRuleIdsFromStorage,
   parseLinkedRuleId,
   subscribeLinkedRuleIds,
@@ -65,6 +67,14 @@ describe("parseLinkedRuleId", () => {
   });
 });
 
+describe("normalizeLinkedRules", () => {
+  it("normalizes method codes and versions", () => {
+    expect(normalizeMethodCode("AR-AMS0003@v03-0")).toBe("AR-AMS0003");
+    expect(normalizeVersion("03-0")).toBe("v03-0");
+    expect(normalizeVersion("v/v03-0")).toBe("v03-0");
+  });
+});
+
 describe("addLinkedRuleIdToStorage", () => {
   it("dedupes and persists linked rule ids", () => {
     const storage = ensureLocalStorage();
@@ -87,6 +97,16 @@ describe("readLinkedRuleIdsFromStorage", () => {
     expect(readLinkedRuleIdsFromStorage("VM-3", "v1")).toEqual(["R-9"]);
     expect(storage.getItem(legacyKey)).toBeNull();
     expect(storage.getItem(buildLinkedRulesKey("VM-3", "v1"))).toBe(JSON.stringify(["R-9"]));
+  });
+
+  it("merges legacy keys for the same method", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    storage.setItem("verifyLinkedRules:VM-4@v03-0", JSON.stringify(["R-2"]));
+    storage.setItem("verifyLinkedRules:VM-4v03-0", JSON.stringify(["R-1"]));
+
+    expect(readLinkedRuleIdsFromStorage("VM-4", "03-0")).toEqual(["R-1", "R-2"]);
+    expect(storage.getItem(buildLinkedRulesKey("VM-4", "v03-0"))).toBe(JSON.stringify(["R-1", "R-2"]));
   });
 });
 
