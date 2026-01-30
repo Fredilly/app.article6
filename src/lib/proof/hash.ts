@@ -5,7 +5,8 @@ function hexFromBytes(bytes: Uint8Array): string {
 }
 
 export async function sha256ArrayBuffer(buf: ArrayBuffer): Promise<string> {
-  if (globalThis.crypto?.subtle?.digest) {
+  const forceNode = Boolean(process.env.CI || process.env.JEST_WORKER_ID);
+  if (!forceNode && globalThis.crypto?.subtle?.digest) {
     const digest = await globalThis.crypto.subtle.digest("SHA-256", buf);
     return hexFromBytes(new Uint8Array(digest));
   }
@@ -23,4 +24,3 @@ export async function sha256Text(input: string): Promise<string> {
         new Uint8Array(Buffer.from(input, "utf8"));
   return sha256ArrayBuffer(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
 }
-
