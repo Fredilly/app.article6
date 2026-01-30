@@ -921,6 +921,32 @@ export default function MethodDetailPane({
     setRuleParam(undefined);
   }, [setRuleParam]);
 
+  const verifyLinkedRulesKey = useMemo(() => {
+    if (!method.code || !activeVersion) return null;
+    return `verifyLinkedRules:${method.code}@${activeVersion}`;
+  }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    if (!verifyLinkedRulesKey) return;
+    if (typeof window === "undefined") return;
+    const raw = window.localStorage.getItem(verifyLinkedRulesKey);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setVerifyLinkedRuleIds(parsed.filter((value) => typeof value === "string"));
+      }
+    } catch {
+      // ignore
+    }
+  }, [verifyLinkedRulesKey]);
+
+  useEffect(() => {
+    if (!verifyLinkedRulesKey) return;
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(verifyLinkedRulesKey, JSON.stringify(verifyLinkedRuleIds));
+  }, [verifyLinkedRuleIds, verifyLinkedRulesKey]);
+
   useEffect(() => {
     if (!initialRuleId) return;
     if (!activeVersion) return;
@@ -1039,6 +1065,7 @@ export default function MethodDetailPane({
 
   const handleJumpToRule = useCallback(
     (ruleId: string) => {
+      setVerifyLinkedRuleIds((current) => addLinkedRuleId(current, ruleId));
       jumpToRule(router, ruleId);
       appendAuditEvent({ kind: "rule.jump", payload: { rule_id: ruleId } });
     },
