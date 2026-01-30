@@ -23,10 +23,17 @@ test("persists stac items in evidence snapshot export (DEMO-002)", async () => {
     method: { code: "AR-1", version: "v1" },
     evidence_source: { type: "stac_url", ref: "https://example.test" },
     stacItemsJson,
+    outcome: {
+      aoi: { hash: "aoi-hash", bbox: [0, 0, 1, 1], areaKm2: 12.5 },
+      stac: { query: { collection: "c-1" }, itemIds: ["stac-1", "stac-2"] },
+      linkage: { linkedRuleIds: ["rule-1"] },
+      provenance: { methodCode: "AR-1", version: "v1", snapshotSchemaVersion: "evidence-snapshot/v2" },
+    },
   });
 
   expect(Array.isArray(snapshot.stacItemsJson?.items)).toBe(true);
   expect(snapshot.stacItemsJson?.items.map((item) => item.id)).toEqual(["stac-1", "stac-2"]);
+  expect(snapshot.outcome?.stac.itemIds).toEqual(["stac-1", "stac-2"]);
 });
 
 test("populates legacy items from stacItemsJson", async () => {

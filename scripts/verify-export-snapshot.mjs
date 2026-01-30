@@ -53,6 +53,9 @@ async function main() {
     stacItems: stac.stac_items_json,
     evidence: stac.stac_evidence_geojson,
     snapshotItems: Array.isArray(stac?.stac_items_json?.items) ? stac.stac_items_json.items : [],
+    outcomeItemIds: Array.isArray(stac?.stac_items_json?.items)
+      ? stac.stac_items_json.items.map((item) => String(item.id ?? "")).filter(Boolean)
+      : [],
   });
 }
 

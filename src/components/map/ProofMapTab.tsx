@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
+import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
@@ -17,11 +18,13 @@ import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { canonicalJsonStringify as canonicalAuditJsonStringify } from "@/lib/auditTrail/canonicalJson";
 import { sha256Hex as auditSha256Hex } from "@/lib/auditTrail/hash";
 import type { AuditTrailEvent, AuditTrailEventInput } from "@/lib/auditTrail/types";
-import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
 import { getWorkspaceWorkFlags } from "@/lib/proofMap/workspace";
 import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
+import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
+import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
+import { SNAPSHOT_SCHEMA_VERSION, buildRunSummary, createTicketTemplate, extractStacQuery } from "@/lib/verify/runState";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -241,6 +244,7 @@ export default function ProofMapTab({
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>([]);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -252,10 +256,10 @@ export default function ProofMapTab({
   });
   const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
 
-  const showToast = (message: string) => {
+  const showToast = useCallback((message: string) => {
     setToast(message);
     window.setTimeout(() => setToast((current) => (current === message ? null : current)), 900);
-  };
+  }, []);
 
   useEffect(() => {
     if (!applyToken) return;
@@ -264,14 +268,31 @@ export default function ProofMapTab({
     return () => window.clearTimeout(timer);
   }, [applyToken]);
 
-  const copyToClipboard = async (value: string) => {
+  const copyToClipboard = useCallback(async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
       showToast("Copied");
     } catch {
       showToast("Copy failed");
     }
-  };
+  }, [showToast]);
+
+  const trackLinkedRule = useCallback((id: string) => {
+    if (!id) return;
+    setLinkedRuleIds((current) => {
+      if (current.includes(id)) return current;
+      return [...current, id].sort((a, b) => a.localeCompare(b));
+    });
+  }, []);
+
+  const handleNavigateEvidence = useCallback(
+    async (type: "rule" | "section", id: string) => {
+      const ok = await onNavigateEvidence(type, id);
+      if (ok && type === "rule") trackLinkedRule(id);
+      return ok;
+    },
+    [onNavigateEvidence, trackLinkedRule],
+  );
 
   const selectEvidence = (id: string, source: "pin" | "polygon") => {
     onSelectStacItemId(id);
@@ -405,6 +426,10 @@ export default function ProofMapTab({
   useEffect(() => {
     onSelectStacItemId(null);
   }, [methodCode, onSelectStacItemId, version]);
+
+  useEffect(() => {
+    setLinkedRuleIds([]);
+  }, [currentAoiFingerprint, methodCode, version]);
 
   const currentRuns = useMemo(() => {
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
@@ -561,6 +586,8 @@ export default function ProofMapTab({
     return endpoint && endpoint.trim() ? endpoint.trim() : null;
   }, [currentStacEvidence?.source, latestStacRun]);
 
+  const stacQuery = useMemo(() => extractStacQuery(latestStacRun?.result_json), [latestStacRun]);
+
   const localEvidenceHashInputs = useMemo(() => {
     const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
     const attachmentSha = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
@@ -571,6 +598,40 @@ export default function ProofMapTab({
   const trustPicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
   const auditHashes = trustPicked.auditHashes;
   const appCommit = shortCommitSha(process.env.NEXT_PUBLIC_GIT_SHA || "");
+
+  const runSummary = useMemo(
+    () =>
+      buildRunSummary({
+        aoi: {
+          hash: currentAoiFingerprint,
+          bbox: aoi?.bbox ?? null,
+          areaKm2: typeof aoi?.area_km2 === "number" ? aoi.area_km2 : null,
+        },
+        stac: {
+          query: stacQuery,
+          itemIds: stacFeatureIds,
+        },
+        linkage: {
+          linkedRuleIds,
+        },
+        provenance: {
+          methodCode,
+          version,
+          repoCommit: process.env.NEXT_PUBLIC_GIT_SHA ?? null,
+          snapshotSchemaVersion: SNAPSHOT_SCHEMA_VERSION,
+        },
+      }),
+    [
+      aoi?.area_km2,
+      aoi?.bbox,
+      currentAoiFingerprint,
+      linkedRuleIds,
+      methodCode,
+      stacFeatureIds,
+      stacQuery,
+      version,
+    ],
+  );
 
   const evidenceChip = useMemo(() => {
     if (stacEndpointUrl) {
@@ -588,6 +649,119 @@ export default function ProofMapTab({
     const hasSnapshots = (evidenceSnapshots ?? []).length > 0;
     return hasAoi || hasPins || hasSelection || hasEvidence || hasRuns || hasSnapshots;
   }, [aoi, currentStacEvidence?.fc?.features?.length, evidencePins.length, evidenceSnapshots, selectedStacItemId, verificationRuns.length]);
+
+  const handleExportSnapshot = useCallback(async () => {
+    const selectedItem =
+      selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
+        ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
+        : null;
+
+    const linkedRules = selectedItem
+      ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
+      : [];
+    const minimalItem = selectedItem
+      ? {
+          id: selectedStacItemId ?? undefined,
+          datetime:
+            isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
+              ? selectedItem.properties.datetime
+              : typeof selectedItem.datetime === "string"
+                ? selectedItem.datetime
+                : undefined,
+          bbox: selectedItem.bbox,
+          geometry: selectedItem.geometry,
+          linked_rules: linkedRules,
+        }
+      : undefined;
+    const snapshotItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
+
+    const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+    const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
+
+    const evidenceSource =
+      stacEndpointUrl
+        ? { type: "stac_url" as const, ref: stacEndpointUrl }
+        : localEvidenceHashInputs
+          ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
+          : { type: "unknown" as const, ref: "unknown" };
+
+    const stacItemsJson = (() => {
+      if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] };
+      if (!latestStacRun.result_json) return { items: [] };
+      const normalized = normalizeStacItems(latestStacRun.result_json);
+      const items = Object.values(normalized.itemsById).map((item) => {
+        const props = isRecord(item.properties) ? item.properties : null;
+        const collection = props && typeof props.collection === "string" ? props.collection : undefined;
+        const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
+        return {
+          id: item.id,
+          datetime: item.datetime,
+          bbox: item.bbox,
+          collection,
+          cloud_cover: cloudCover,
+        };
+      });
+      return { items };
+    })();
+
+    const outcome = buildRunSummary({
+      ...runSummary,
+      provenance: {
+        ...runSummary.provenance,
+        generatedAt: new Date().toISOString(),
+      },
+    });
+
+    const snap = await buildOutcomeSnapshot({
+      method: { code: methodCode, version },
+      aoi: aoi
+        ? {
+            bbox: aoi.bbox,
+            geojson: aoi.geojson,
+          }
+        : undefined,
+      evidence_source: evidenceSource,
+      selected: {
+        id: selectedStacItemId ?? undefined,
+        ids: selectedIds,
+        item: minimalItem ?? undefined,
+      },
+      items: snapshotItems,
+      app: {
+        commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
+        env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
+        version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
+      },
+      stacItemsJson,
+      outcome,
+    });
+
+    const snapshotWithLegacyItems = {
+      ...snap,
+      items: stacItemsJson.items ?? [],
+    };
+    const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
+    downloadJson(snapshotWithLegacyItems, filename);
+    showToast("Snapshot downloaded");
+  }, [
+    aoi,
+    currentStacEvidence?.itemsById,
+    evidencePins,
+    latestStacRun,
+    localEvidenceHashInputs,
+    methodCode,
+    runSummary,
+    selectedStacItemId,
+    showToast,
+    stacEndpointUrl,
+    version,
+  ]);
+
+  const handleCreateTicket = useCallback(async () => {
+    const template = createTicketTemplate(runSummary);
+    await copyToClipboard(template);
+    showToast("Ticket template copied");
+  }, [copyToClipboard, runSummary, showToast]);
 
   const runStartOver = useCallback(async () => {
     if (startOverBusy) return;
@@ -612,6 +786,7 @@ export default function ProofMapTab({
       setStacInspectOpen(false);
       setLastSelectionSource(null);
       setStacCentroidsEnabled(true);
+      setLinkedRuleIds([]);
       try {
         mapRef.current?.jumpTo?.({ center: [0, 0], zoom: 1 });
       } catch {
@@ -625,6 +800,7 @@ export default function ProofMapTab({
   }, [
     evidencePins,
     onStartOver,
+    showToast,
     startOverBusy,
   ]);
 
@@ -807,7 +983,7 @@ export default function ProofMapTab({
                           className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                           onClick={async () => {
                             if (!type) return void showToast("Unsupported id");
-                            const ok = await onNavigateEvidence(type, id);
+                            const ok = await handleNavigateEvidence(type, id);
                             if (ok) return;
                             const matchSnapshot = (evidenceSnapshots ?? []).find((item) => item.id === id);
                             if (matchSnapshot) setSnapshot(matchSnapshot);
@@ -1069,7 +1245,7 @@ export default function ProofMapTab({
                             type="button"
                             className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                             onClick={async () => {
-                              const ok = await onNavigateEvidence("rule", id);
+                              const ok = await handleNavigateEvidence("rule", id);
                               if (!ok) showToast("Rule not found");
                             }}
                             title={`Open rule ${id}`}
@@ -1095,7 +1271,7 @@ export default function ProofMapTab({
                               type="button"
                               className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                               onClick={async () => {
-                                const ok = await onNavigateEvidence("section", id);
+                                const ok = await handleNavigateEvidence("section", id);
                                 if (!ok) showToast("Section not found");
                               }}
                               title={`Open section ${id}`}
@@ -1213,7 +1389,7 @@ export default function ProofMapTab({
     <div className="mt-4 grid gap-4">
       <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <button
               type="button"
               className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
@@ -1259,7 +1435,7 @@ export default function ProofMapTab({
                 type="button"
                 className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
                 onClick={async () => {
-                  const snapshot = await buildEvidenceSnapshot({
+                  const snapshot = await buildOutcomeSnapshot({
                     method: { code: methodCode, version },
                     evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
                   });
@@ -1300,97 +1476,15 @@ export default function ProofMapTab({
             ) : null}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <button
               type="button"
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={async () => {
-                const selectedItem =
-                  selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
-                    ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
-                    : null;
-
-                const linkedRules = selectedItem
-                  ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
-                  : [];
-                const minimalItem = selectedItem
-                  ? {
-                      id: selectedStacItemId ?? undefined,
-                      datetime:
-                        isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
-                          ? selectedItem.properties.datetime
-                          : typeof selectedItem.datetime === "string"
-                            ? selectedItem.datetime
-                            : undefined,
-                      bbox: selectedItem.bbox,
-                      geometry: selectedItem.geometry,
-                      linked_rules: linkedRules,
-                    }
-                  : undefined;
-                const snapshotItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
-
-                const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-                const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
-
-                const evidenceSource =
-                  stacEndpointUrl
-                    ? { type: "stac_url" as const, ref: stacEndpointUrl }
-                    : localEvidenceHashInputs
-                      ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
-                      : { type: "unknown" as const, ref: "unknown" };
-
-                const stacItemsJson = (() => {
-                  if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] };
-                  if (!latestStacRun.result_json) return { items: [] };
-                  const normalized = normalizeStacItems(latestStacRun.result_json);
-                  const items = Object.values(normalized.itemsById).map((item) => {
-                    const props = isRecord(item.properties) ? item.properties : null;
-                    const collection = props && typeof props.collection === "string" ? props.collection : undefined;
-                    const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
-                    return {
-                      id: item.id,
-                      datetime: item.datetime,
-                      bbox: item.bbox,
-                      collection,
-                      cloud_cover: cloudCover,
-                    };
-                  });
-                  return { items };
-                })();
-
-                const snap = await buildEvidenceSnapshot({
-                  method: { code: methodCode, version },
-                  aoi: aoi
-                    ? {
-                        bbox: aoi.bbox,
-                        geojson: aoi.geojson,
-                      }
-                    : undefined,
-                  evidence_source: evidenceSource,
-                  selected: {
-                    id: selectedStacItemId ?? undefined,
-                    ids: selectedIds,
-                    item: minimalItem ?? undefined,
-                  },
-                  items: snapshotItems,
-                  app: {
-                    commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
-                    env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
-                    version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
-                  },
-                  stacItemsJson,
-                });
-
-                const snapshotWithLegacyItems = {
-                  ...snap,
-                  items: stacItemsJson.items ?? [],
-                };
-                const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
-                downloadJson(snapshotWithLegacyItems, filename);
-                showToast("Snapshot downloaded");
+              onClick={() => {
+                document.getElementById("verify-outcome")?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
             >
-              Export snapshot
+              Outcome
             </button>
           </div>
         </div>
@@ -1503,11 +1597,11 @@ export default function ProofMapTab({
       ) : null}
 
       <div
-        className={`grid gap-4 ${
+        className={`grid gap-4 min-w-0 ${
           panelCollapsed ? "lg:grid-cols-[minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
         }`}
       >
-        <div className="grid gap-3">
+        <div className="grid min-w-0 gap-3">
           {panelCollapsed ? (
             <div className="hidden justify-end lg:flex">
               <button
@@ -1550,8 +1644,20 @@ export default function ProofMapTab({
           </div>
         </div>
 
-        <div className={`grid gap-3 rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
-        <div className="flex items-start justify-between gap-2">
+        <div className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
+          <OutcomeWidget
+            summary={runSummary}
+            onCopy={copyToClipboard}
+            onExportSnapshot={handleExportSnapshot}
+            onCreateTicket={handleCreateTicket}
+            showCreateTicket={TICKETS_FEATURE_ENABLED}
+            provenance={{
+              repo: trustPicked.repo ?? null,
+              sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
+              generatedAt: trustPicked.generatedAt ?? null,
+            }}
+          />
+          <div className="flex items-start justify-between gap-2">
           <div>
             <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
             <div className="mt-1 text-xs text-slate-500">Stored locally for this method/version.</div>

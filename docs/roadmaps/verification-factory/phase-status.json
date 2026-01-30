@@ -6,5 +6,7 @@
   "PR26": "planned",
   "PR27": "planned",
   "PR28": "done",
-  "pr_evidence": {}
+  "pr_evidence": {
+    "PR28": [387]
+  }
 }
