@@ -68,8 +68,19 @@ export default function OutcomeWidget({
     return `Outcome • ${aoiLabel} • ${stacLabel} • ${ruleLabel}`;
   }, [aoiReady, linkedCount, stacCount]);
 
+  const fullQuery = useMemo(() => summarizeQuery(summary.stac.query), [summary.stac.query]);
+  const sourceHost = useMemo(() => {
+    const source = summary.stac.query.source;
+    if (!source) return "";
+    try {
+      return new URL(source).host;
+    } catch {
+      return source;
+    }
+  }, [summary.stac.query.source]);
+
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div id="verify-outcome" className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm font-semibold text-slate-900">Outcome</div>
         <button
@@ -100,7 +111,11 @@ export default function OutcomeWidget({
                   Copy hash
                 </button>
               </div>
-              <div className="break-words font-mono text-[11px] text-slate-600">{summary.aoi.hash ?? "—"}</div>
+              <div className="min-w-0">
+                <div className="truncate font-mono text-[11px] text-slate-600" title={summary.aoi.hash ?? "—"}>
+                  {summary.aoi.hash ?? "—"}
+                </div>
+              </div>
               <div className="text-[11px] text-slate-600">BBox: {formatBbox(summary.aoi.bbox)}</div>
               <div className="text-[11px] text-slate-600">Area: {formatNum(summary.aoi.areaKm2)} km²</div>
             </div>
@@ -108,12 +123,16 @@ export default function OutcomeWidget({
 
           <div className="grid gap-2">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">STAC</div>
-            <div className="text-[11px] text-slate-600">Query: {summarizeQuery(summary.stac.query)}</div>
-            <div className="flex items-center justify-between gap-2 text-xs text-slate-700">
-              <span>
+            <div className="min-w-0 text-[11px] text-slate-600" title={fullQuery}>
+              <span className="font-semibold text-slate-700">Source:</span>{" "}
+              <span className="font-mono">{sourceHost || "—"}</span>
+              <div className="truncate text-[11px] text-slate-600">Query: {fullQuery}</div>
+            </div>
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs text-slate-700">
+              <span className="min-w-0">
                 Items: <span className="font-semibold text-slate-900">{stacCount}</span>
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <button
                   type="button"
                   className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm hover:bg-slate-50"
@@ -133,30 +152,20 @@ export default function OutcomeWidget({
               </div>
             </div>
             {showIds && stacCount ? (
-              <div className="max-h-28 overflow-auto rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                <div className="grid gap-1">
-                  {summary.stac.itemIds.slice(0, 30).map((id) => (
-                    <div key={id} className="font-mono text-[11px] text-slate-700">
-                      {id}
-                    </div>
-                  ))}
-                  {summary.stac.itemIds.length > 30 ? (
-                    <div className="text-[11px] text-slate-500">
-                      Showing first 30 of {summary.stac.itemIds.length}.
-                    </div>
-                  ) : null}
-                </div>
+              <div className="max-h-32 overflow-auto rounded-md border border-slate-100 bg-slate-50 px-2 py-2 font-mono text-[11px] text-slate-700">
+                {summary.stac.itemIds.slice(0, 60).join("\n")}
+                {summary.stac.itemIds.length > 60 ? `\nShowing first 60 of ${summary.stac.itemIds.length}.` : ""}
               </div>
             ) : null}
           </div>
 
           <div className="grid gap-2">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Linked rules</div>
-            <div className="flex items-center justify-between gap-2 text-xs text-slate-700">
-              <span>
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs text-slate-700">
+              <span className="min-w-0">
                 Count: <span className="font-semibold text-slate-900">{linkedCount}</span>
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <button
                   type="button"
                   className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm hover:bg-slate-50"
@@ -177,11 +186,9 @@ export default function OutcomeWidget({
             </div>
             {showRules && linkedCount ? (
               <div className="max-h-24 overflow-auto rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                {summary.linkage.linkedRuleIds.map((id) => (
-                  <div key={id} className="font-mono text-[11px] text-slate-700">
-                    {id}
-                  </div>
-                ))}
+                <div className="font-mono text-[11px] text-slate-700">
+                  {summary.linkage.linkedRuleIds.join("\n")}
+                </div>
               </div>
             ) : null}
           </div>

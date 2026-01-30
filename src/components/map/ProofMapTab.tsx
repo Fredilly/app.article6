@@ -1389,7 +1389,7 @@ export default function ProofMapTab({
     <div className="mt-4 grid gap-4">
       <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <button
               type="button"
               className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
@@ -1476,13 +1476,15 @@ export default function ProofMapTab({
             ) : null}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <button
               type="button"
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={handleExportSnapshot}
+              onClick={() => {
+                document.getElementById("verify-outcome")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
             >
-              Export snapshot
+              Outcome
             </button>
           </div>
         </div>
@@ -1595,11 +1597,11 @@ export default function ProofMapTab({
       ) : null}
 
       <div
-        className={`grid gap-4 ${
+        className={`grid gap-4 min-w-0 ${
           panelCollapsed ? "lg:grid-cols-[minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
         }`}
       >
-        <div className="grid gap-3">
+        <div className="grid min-w-0 gap-3">
           {panelCollapsed ? (
             <div className="hidden justify-end lg:flex">
               <button
@@ -1642,7 +1644,7 @@ export default function ProofMapTab({
           </div>
         </div>
 
-        <div className={`grid gap-3 rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
+        <div className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
           <OutcomeWidget
             summary={runSummary}
             onCopy={copyToClipboard}
