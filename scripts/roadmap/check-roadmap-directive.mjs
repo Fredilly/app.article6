@@ -37,7 +37,9 @@ if (!isRoadmapTracked) {
 async function fetchPrBody(prNumber, repoFallback) {
   const repo = process.env.GITHUB_REPOSITORY || repoFallback;
   const token = process.env.GITHUB_TOKEN;
-  if (!repo || !token || !prNumber) return null;
+  if (!repo || !token || !prNumber) {
+    return { body: null, status: null, error: "missing repo/token/number" };
+  }
   const apiBase = process.env.GITHUB_API_URL || "https://api.github.com";
   try {
     const resp = await fetch(`${apiBase}/repos/${repo}/pulls/${prNumber}`, {
@@ -48,24 +50,19 @@ async function fetchPrBody(prNumber, repoFallback) {
       },
     });
     const data = await resp.json().catch(() => null);
-    return {
-      body: data?.body ?? null,
-      status: resp.status,
-    };
+    return { body: data?.body ?? null, status: resp.status, error: null };
   } catch (error) {
-    return {
-      body: null,
-      status: null,
-      error: error?.message ?? String(error),
-    };
+    return { body: null, status: null, error: error?.message ?? String(error) };
   }
 }
 
 let body = pr.body ?? "";
 let directive = parseRoadmapDirective(body);
 let fetchMeta = null;
-if (!directive && pr.number) {
-  fetchMeta = await fetchPrBody(pr.number, pr?.base?.repo?.full_name);
+const prNumber = pr?.number ?? event?.number;
+const repoName = pr?.base?.repo?.full_name ?? event?.repository?.full_name;
+if (!directive && prNumber) {
+  fetchMeta = await fetchPrBody(prNumber, repoName);
   if (fetchMeta?.body) {
     body = fetchMeta.body;
     directive = parseRoadmapDirective(body);
@@ -78,7 +75,7 @@ if (directive && !(hasPhase && hasPr)) {
 if (!directive) {
   const bodyLength = body ? String(body).length : 0;
   const fetchDetails = fetchMeta
-    ? ` fetchStatus=${fetchMeta.status ?? "n/a"} fetchBodyLength=${fetchMeta.body?.length ?? 0} fetchError=${fetchMeta.error ?? "none"}`
+    ? ` fetchStatus=${fetchMeta.status ?? "n/a"} fetchBodyLength=${fetchMeta.body?.length ?? 0} fetchError=${fetchMeta.error ?? "none"} prNumber=${prNumber ?? "n/a"} repo=${repoName ?? "n/a"} hasToken=${Boolean(process.env.GITHUB_TOKEN)}`
     : "";
   fail(
     `Missing '### Roadmap-Update' block in PR body (roadmap-tracked PR). bodyLength=${bodyLength}${fetchDetails}`
