@@ -169,6 +169,10 @@ export default function MethodDetailPane({
   const [rules, setRules] = useState<RuleListItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(Boolean(initialRuleId));
   const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
+  const verifyLinkedRulesKey = useMemo(() => {
+    if (!method.code || !activeVersion) return null;
+    return buildLinkedRulesKey(method.code, activeVersion);
+  }, [activeVersion, method.code]);
   const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [traceError, setTraceError] = useState<string | null>(null);
@@ -916,11 +920,6 @@ export default function MethodDetailPane({
     setRuleDetailError(null);
     setRuleParam(undefined);
   }, [setRuleParam]);
-
-  const verifyLinkedRulesKey = useMemo(() => {
-    if (!method.code || !activeVersion) return null;
-    return buildLinkedRulesKey(method.code, activeVersion);
-  }, [activeVersion, method.code]);
 
   useEffect(() => {
     if (!initialRuleId) return;
