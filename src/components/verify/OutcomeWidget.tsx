@@ -7,6 +7,8 @@ type OutcomeWidgetProps = {
   onCopy: (value: string) => void;
   onExportSnapshot: () => void;
   onCreateTicket?: () => void;
+  debugKey?: string | null;
+  debugLinkedCount?: number;
   provenance?: {
     repo?: string | null;
     sha?: string | null;
@@ -44,6 +46,8 @@ export default function OutcomeWidget({
   onCopy,
   onExportSnapshot,
   onCreateTicket,
+  debugKey = null,
+  debugLinkedCount,
   provenance,
   showCreateTicket = false,
 }: OutcomeWidgetProps) {
@@ -167,6 +171,8 @@ export default function OutcomeWidget({
               <div className="text-[11px] text-slate-400">
                 Debug linked ids: {linkedCount}
                 {debugLinked ? ` (${debugLinked})` : ""}
+                {debugKey ? ` • key=${debugKey}` : ""}
+                {typeof debugLinkedCount === "number" ? ` • linked=${debugLinkedCount}` : ""}
               </div>
             ) : null}
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs text-slate-700">

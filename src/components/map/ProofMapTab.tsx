@@ -1552,7 +1552,7 @@ export default function ProofMapTab({
           </div>
 
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <ProofCoverageChip kpis={runKpis} />
+            <ProofCoverageChip kpis={runKpis} linkedRulesCount={linkedRuleIds.length} />
             <button
               type="button"
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
@@ -1727,6 +1727,8 @@ export default function ProofMapTab({
             onExportSnapshot={handleExportSnapshot}
             onCreateTicket={handleCreateTicket}
             showCreateTicket={TICKETS_FEATURE_ENABLED}
+            debugKey={linkedRulesKey}
+            debugLinkedCount={linkedRuleIds.length}
             provenance={{
               repo: trustPicked.repo ?? null,
               sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
