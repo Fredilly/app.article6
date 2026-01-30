@@ -59,7 +59,10 @@ jobs:
           git checkout -b "$BR"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/roadmaps docs/projects/ROADMAP.md
+          git add docs/roadmaps
+          if [ -f docs/projects/ROADMAP.md ]; then
+            git add docs/projects/ROADMAP.md
+          fi
           git commit -m "chore(roadmap): autopilot mark ${{ steps.autopilot.outputs.prKey }} done"
           git push -u origin "$BR"
           gh pr create -B main -H "$BR" \
