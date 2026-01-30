@@ -114,10 +114,12 @@ export function assertVerificationSnapshotInvariants(input: {
   stacItems: unknown[] | { features?: unknown[]; items?: unknown[] };
   evidence: { type: "FeatureCollection"; features: unknown[] };
   snapshotItems?: unknown[] | null;
+  outcomeItemIds?: string[] | null;
 }): void {
   const expected = idsFromStacLike(input.selectedRun.result_json);
   const stacItems = idsFromStacLike(input.stacItems);
   const snapshotItems = idsFromItems(input.snapshotItems ?? []);
+  const outcomeItems = idsFromItems((input.outcomeItemIds ?? []).map((id) => ({ id })));
 
   const evidenceFeatures = Array.isArray(input.evidence?.features) ? input.evidence.features : [];
   const evidenceIds = new Set<string>();
@@ -179,6 +181,22 @@ export function assertVerificationSnapshotInvariants(input: {
         `Invariant failed: items back-compat mismatch (missing=${JSON.stringify(
           diffSnapshot.missing.slice(0, 20),
         )}, extra=${JSON.stringify(diffSnapshot.extra.slice(0, 20))}).`,
+      );
+    }
+  }
+
+  if (stacItems.count > 0 && input.outcomeItemIds) {
+    if (outcomeItems.count !== stacItems.count) {
+      throw new Error(
+        `Invariant failed: outcome itemIds mismatch (outcome=${outcomeItems.count}, stacItems=${stacItems.count}).`,
+      );
+    }
+    const diffOutcome = diffSets(stacItems.ids, outcomeItems.ids);
+    if (diffOutcome.missing.length || diffOutcome.extra.length) {
+      throw new Error(
+        `Invariant failed: outcome itemIds mismatch (missing=${JSON.stringify(
+          diffOutcome.missing.slice(0, 20),
+        )}, extra=${JSON.stringify(diffOutcome.extra.slice(0, 20))}).`,
       );
     }
   }

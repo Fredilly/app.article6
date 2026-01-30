@@ -39,6 +39,7 @@ describe("assertVerificationSnapshotInvariants", () => {
         stacItems: stac.stac_items_json as unknown[] | { features?: unknown[]; items?: unknown[] },
         evidence: stac.stac_evidence_geojson as unknown as { type: "FeatureCollection"; features: unknown[] },
         snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
+        outcomeItemIds: (stac.stac_items_json as { items?: { id?: string }[] }).items?.map((item) => item.id ?? "") ?? [],
       }),
     ).not.toThrow();
   });
@@ -62,6 +63,7 @@ describe("assertVerificationSnapshotInvariants", () => {
         stacItems: stac.stac_items_json as unknown[] | { features?: unknown[]; items?: unknown[] },
         evidence: evidence as unknown as { type: "FeatureCollection"; features: unknown[] },
         snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
+        outcomeItemIds: (stac.stac_items_json as { items?: { id?: string }[] }).items?.map((item) => item.id ?? "") ?? [],
       }),
     ).toThrow(/item count mismatch/i);
   });
@@ -85,6 +87,7 @@ describe("assertVerificationSnapshotInvariants", () => {
         stacItems: stacItems as unknown as { items?: unknown[] },
         evidence: stac.stac_evidence_geojson as unknown as { type: "FeatureCollection"; features: unknown[] },
         snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
+        outcomeItemIds: (stac.stac_items_json as { items?: { id?: string }[] }).items?.map((item) => item.id ?? "") ?? [],
       }),
     ).toThrow(/DEMO-002/i);
   });
@@ -112,8 +115,33 @@ describe("assertVerificationSnapshotInvariants", () => {
         stacItems: stac.stac_items_json as unknown[] | { features?: unknown[]; items?: unknown[] },
         evidence: evidence as unknown as { type: "FeatureCollection"; features: unknown[] },
         snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
+        outcomeItemIds: (stac.stac_items_json as { items?: { id?: string }[] }).items?.map((item) => item.id ?? "") ?? [],
       }),
     ).toThrow(/id set mismatch/i);
+  });
+
+  test("fails if outcome item ids mismatch", () => {
+    const stac = extractStacArtifacts({ runsForAoi: [typedRun] });
+    const provenanceText = buildFixtureProvenance(stac);
+    const outcomeIds = (stac.stac_items_json as { items?: { id?: string }[] }).items?.map((item) => item.id ?? "") ?? [];
+    outcomeIds.pop();
+
+    expect(() =>
+      assertVerificationSnapshotInvariants({
+        selectedRun: {
+          id: typedRun.id,
+          status: typedRun.status,
+          created_at: typedRun.created_at,
+          ended_at: typedRun.ended_at,
+          result_json: typedRun.result_json,
+        },
+        provenanceText,
+        stacItems: stac.stac_items_json as unknown[] | { features?: unknown[]; items?: unknown[] },
+        evidence: stac.stac_evidence_geojson as unknown as { type: "FeatureCollection"; features: unknown[] },
+        snapshotItems: (stac.stac_items_json as { items?: unknown[] }).items ?? [],
+        outcomeItemIds: outcomeIds,
+      }),
+    ).toThrow(/outcome itemIds mismatch/i);
   });
 
   test("includes bbox-only item in evidence (centroid/bbox path)", () => {

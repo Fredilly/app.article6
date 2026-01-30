@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { sha256Text } from "@/lib/proof/hash";
+import { buildRunSummary, type RunSummary } from "@/lib/verify/runState";
 
 export const EvidenceSnapshotSchema = z
   .object({
@@ -45,6 +46,40 @@ export const EvidenceSnapshotSchema = z
     stacItemsJson: z
       .object({
         items: z.array(z.record(z.unknown())),
+      })
+      .optional(),
+    outcome: z
+      .object({
+        aoi: z.object({
+          hash: z.string().nullable(),
+          bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).nullable(),
+          areaKm2: z.number().nullable(),
+        }),
+        stac: z.object({
+          query: z.object({
+            source: z.string().nullable().optional(),
+            collection: z.string().nullable().optional(),
+            datetime: z
+              .object({
+                start: z.string().nullable().optional(),
+                end: z.string().nullable().optional(),
+              })
+              .optional(),
+            limit: z.number().nullable().optional(),
+            filters: z.record(z.unknown()).nullable().optional(),
+          }),
+          itemIds: z.array(z.string()),
+        }),
+        linkage: z.object({
+          linkedRuleIds: z.array(z.string()),
+        }),
+        provenance: z.object({
+          methodCode: z.string().nullable().optional(),
+          version: z.string().nullable().optional(),
+          repoCommit: z.string().nullable().optional(),
+          generatedAt: z.string().nullable().optional(),
+          snapshotSchemaVersion: z.string().nullable().optional(),
+        }),
       })
       .optional(),
   })
@@ -107,6 +142,7 @@ export async function buildEvidenceSnapshot(input: {
   app?: { commit?: string | null; env?: string | null; version?: string | null };
   items?: Array<{ id?: string | null; linked_rules?: string[] | null }> | null;
   stacItemsJson?: { items: Array<Record<string, unknown>> } | null;
+  outcome?: RunSummary | null;
 }): Promise<EvidenceSnapshot> {
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
   const evidenceType = input.evidence_source.type;
@@ -158,6 +194,7 @@ export async function buildEvidenceSnapshot(input: {
         : undefined,
       items: normalizeItems((input.items ?? undefined) ?? undefined),
       stacItemsJson: input.stacItemsJson ?? undefined,
+      outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
     }),
   );
 
