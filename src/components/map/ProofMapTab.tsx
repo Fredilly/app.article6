@@ -1435,7 +1435,7 @@ export default function ProofMapTab({
                 type="button"
                 className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
                 onClick={async () => {
-                  const snapshot = await buildEvidenceSnapshot({
+                  const snapshot = await buildOutcomeSnapshot({
                     method: { code: methodCode, version },
                     evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
                   });
