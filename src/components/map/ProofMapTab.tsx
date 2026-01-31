@@ -78,7 +78,7 @@ type ProofMapTabProps = {
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
   onUploadAoi: (aoi: AOI) => void;
-  onApplyDraftAoi: () => void;
+  onApplyDraftAoi: (options?: { resetDerived?: boolean }) => void;
   onCancelDraftAoi: () => void;
   onUndoApplyAoi: () => void;
   applyToken: number;
@@ -269,6 +269,9 @@ export default function ProofMapTab({
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<string | null>(null);
+  const [currentAoiHashForCompare, setCurrentAoiHashForCompare] = useState<string | null>(null);
+  const [draftAoiFingerprint, setDraftAoiFingerprint] = useState<string | null>(null);
+  const [showSameAoiPrompt, setShowSameAoiPrompt] = useState(false);
   const [draftTask, setDraftTask] = useState("");
   const [showDraftTask, setShowDraftTask] = useState(false);
   const draftTaskInputRef = useRef<HTMLInputElement | null>(null);
@@ -640,6 +643,25 @@ export default function ProofMapTab({
     version,
   ]);
 
+  const handleApplyDraftAoiClick = useCallback(() => {
+    if (isSameAoi) {
+      setShowSameAoiPrompt(true);
+      return;
+    }
+    setShowSameAoiPrompt(false);
+    onApplyDraftAoi({ resetDerived: true });
+  }, [isSameAoi, onApplyDraftAoi]);
+
+  const handleKeepSameAoi = useCallback(() => {
+    onApplyDraftAoi({ resetDerived: false });
+    setShowSameAoiPrompt(false);
+  }, [onApplyDraftAoi]);
+
+  const handleResetSameAoi = useCallback(() => {
+    onApplyDraftAoi({ resetDerived: true });
+    setShowSameAoiPrompt(false);
+  }, [onApplyDraftAoi]);
+
   const handleNewRun = useCallback(() => {
     handleSaveRunHistory();
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
@@ -741,6 +763,7 @@ export default function ProofMapTab({
   }, [isListMode]);
 
   const isPreview = Boolean(draftAoi);
+  const isSameAoi = Boolean(draftAoiFingerprint && currentAoiHashForCompare && draftAoiFingerprint === currentAoiHashForCompare);
   const { willClearWork } = useMemo(
     () =>
       getWorkspaceWorkFlags({
@@ -783,6 +806,57 @@ export default function ProofMapTab({
       cancelled = true;
     };
   }, [aoi, onSelectStacItemId, onSetAoi]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!currentAoi) {
+      setCurrentAoiHashForCompare(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+    if (currentAoi.aoi_fingerprint) {
+      setCurrentAoiHashForCompare(currentAoi.aoi_fingerprint);
+      return () => {
+        cancelled = true;
+      };
+    }
+    (async () => {
+      try {
+        const fp = await aoiFingerprint(currentAoi.geojson);
+        if (cancelled) return;
+        setCurrentAoiHashForCompare(fp);
+      } catch {
+        if (!cancelled) setCurrentAoiHashForCompare(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentAoi]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!draftAoi) {
+      setDraftAoiFingerprint(null);
+      setShowSameAoiPrompt(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+    (async () => {
+      try {
+        const fp = await aoiFingerprint(draftAoi.geojson);
+        if (cancelled) return;
+        setDraftAoiFingerprint(fp);
+      } catch {
+        if (!cancelled) setDraftAoiFingerprint(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [draftAoi]);
 
   useEffect(() => {
     if (!aoi || !currentAoiFingerprint) return;
@@ -2277,18 +2351,42 @@ export default function ProofMapTab({
                       <button
                         type="button"
                         className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
-                        onClick={onApplyDraftAoi}
+                        onClick={handleApplyDraftAoiClick}
                       >
                         Replace AOI
                       </button>
                       <button
                         type="button"
                         className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={onCancelDraftAoi}
+                        onClick={() => {
+                          setShowSameAoiPrompt(false);
+                          onCancelDraftAoi();
+                        }}
                       >
                         Keep current
                       </button>
                     </div>
+                    {isSameAoi && showSameAoiPrompt ? (
+                      <div className="mt-2 rounded-md border border-slate-200 bg-white px-2 py-2 text-[11px] text-slate-700">
+                        <div className="font-semibold text-slate-800">Same AOI detected. Keep current links?</div>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                            onClick={handleKeepSameAoi}
+                          >
+                            Keep
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
+                            onClick={handleResetSameAoi}
+                          >
+                            Reset anyway
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
                 <div className="mt-2 grid gap-1 text-xs text-slate-600">

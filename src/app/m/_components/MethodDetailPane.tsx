@@ -14,8 +14,9 @@ import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/n
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
 import { jumpToRule } from "@/lib/ruleJump";
-import { addLinkedRuleIdToStorage, parseLinkedRuleId } from "@/lib/verify/runState";
+import { addLinkedRuleIdToStorage, clearLinkedRuleIdsFromStorage, parseLinkedRuleId } from "@/lib/verify/runState";
 import { decodeShareState, encodeShareState } from "@/lib/shareLink";
+import { shouldResetDerivedState } from "@/lib/proofMap/aoiApply";
 import {
   clearProofMapStorage,
   clearStoredMapView,
@@ -416,7 +417,7 @@ export default function MethodDetailPane({
   );
 
   const applyAoiToWorkspace = useCallback(
-    (nextAoi: AOI) => {
+    (nextAoi: AOI, options?: { resetDerived?: boolean }) => {
       const snapshot: WorkspaceSnapshot = {
         currentAoi,
         evidencePins,
@@ -425,13 +426,23 @@ export default function MethodDetailPane({
         selectedStacItemId,
       };
       setUndoSnapshot(snapshot);
+      const shouldResetDerived = shouldResetDerivedState({
+        currentHash: currentAoi?.aoi_fingerprint,
+        nextHash: nextAoi.aoi_fingerprint,
+        resetDerived: options?.resetDerived,
+      });
       setCurrentAoiAndPersist(nextAoi);
       setDraftAoiAndPersist(null);
-      setEvidencePinsAndPersist([]);
-      setEvidenceSnapshotsAndPersist([]);
-      setVerificationRunsAndPersist([]);
-      setSelectedStacItemId(null);
-      setEvidenceLinkSelection(null);
+      if (shouldResetDerived) {
+        setEvidencePinsAndPersist([]);
+        setEvidenceSnapshotsAndPersist([]);
+        setVerificationRunsAndPersist([]);
+        setSelectedStacItemId(null);
+        setEvidenceLinkSelection(null);
+        if (activeVersion) {
+          clearLinkedRuleIdsFromStorage(method.code, activeVersion);
+        }
+      }
       setApplyToken((value) => value + 1);
       void (async () => {
         try {
@@ -446,6 +457,7 @@ export default function MethodDetailPane({
       })();
     },
     [
+      activeVersion,
       currentAoi,
       evidencePins,
       evidenceSnapshots,
@@ -457,6 +469,7 @@ export default function MethodDetailPane({
       setEvidenceSnapshotsAndPersist,
       setVerificationRunsAndPersist,
       appendAuditEvent,
+      method.code,
     ],
   );
 
@@ -471,10 +484,13 @@ export default function MethodDetailPane({
     [applyAoiToWorkspace, hasWorkspaceState, setDraftAoiAndPersist],
   );
 
-  const handleApplyDraftAoi = useCallback(() => {
-    if (!draftAoi) return;
-    applyAoiToWorkspace(draftAoi);
-  }, [applyAoiToWorkspace, draftAoi]);
+  const handleApplyDraftAoi = useCallback(
+    (options?: { resetDerived?: boolean }) => {
+      if (!draftAoi) return;
+      applyAoiToWorkspace(draftAoi, options);
+    },
+    [applyAoiToWorkspace, draftAoi],
+  );
 
   const handleCancelDraftAoi = useCallback(() => {
     if (!draftAoi) return;
