@@ -44,7 +44,8 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 1) PR22 — KPI SSOT + CI Snapshot + Proof/Coverage chip: Done (PR #397)
 2) PR23 — Eval harness Hard Set v0: Done (PR #391)
 3) PR24 — Verifier minutes + checklist: Done (PR #394)
-4) PR25 — Delta→Impact→Tasks pipeline: Planned
-5) PR26 — Coverage ratchet + link resolver gates: Planned
-6) PR27 — Pilot loop + hard-case intake: Planned
+4) PR25 — Local run history (last N runs): Done (PR #405)
+5) PR26 — Delta→Impact→Tasks pipeline: Planned
+6) PR27 — Coverage ratchet + link resolver gates: Planned
 7) PR28 — Flywheel v1: Outcomes + Moat export: Done (PR #387)
+8) PR29 — Pilot loop + hard-case intake: Planned
