@@ -6,12 +6,16 @@ import {
   buildVerifyRunKey,
   buildRunSummary,
   createVerifierRunBundle,
+  deleteRunFromHistory,
   normalizeMethodCode,
   normalizeVersion,
   persistVerifierRunBundle,
   readLinkedRuleIdsFromStorage,
+  readRunHistory,
   readVerifierRunBundle,
   parseLinkedRuleId,
+  saveCurrentRunToHistory,
+  loadRunFromHistory,
   subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
 
@@ -149,5 +153,65 @@ describe("verifier run bundle storage", () => {
     const read = readVerifierRunBundle("AR-2", "v2");
     expect(read.minutes).toBe("Checked AOI and evidence.");
     expect(storage.getItem(buildVerifyRunKey("AR-2", "v2"))).toBeTruthy();
+  });
+});
+
+describe("run history storage", () => {
+  it("caps run history at 10 entries", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+
+    const base = createVerifierRunBundle("AR-1", "v1");
+    for (let i = 0; i < 12; i += 1) {
+      saveCurrentRunToHistory("AR-1", "v1", {
+        ...base,
+        runContext: { runId: `run-${i}`, createdAt: `2026-01-01T00:00:${String(i).padStart(2, "0")}Z` },
+        linkedRuleIds: [],
+        aoi: null,
+        evidencePins: [],
+        verificationRuns: [],
+        selectedStacItemId: null,
+      });
+    }
+
+    const history = readRunHistory("AR-1", "v1");
+    expect(history).toHaveLength(10);
+    expect(history[0]?.runId).toBe("run-11");
+  });
+
+  it("loads run bundle by runId", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    const base = createVerifierRunBundle("AR-2", "v2");
+    saveCurrentRunToHistory("AR-2", "v2", {
+      ...base,
+      runContext: { runId: "run-xyz", createdAt: "2026-01-02T00:00:00Z" },
+      minutes: "Loaded run",
+      linkedRuleIds: ["R-1"],
+      aoi: null,
+      evidencePins: [],
+      verificationRuns: [],
+      selectedStacItemId: null,
+    });
+
+    const loaded = loadRunFromHistory("AR-2", "v2", "run-xyz");
+    expect(loaded?.runContext.runId).toBe("run-xyz");
+    expect(loaded?.minutes).toBe("Loaded run");
+  });
+
+  it("deletes a run from history", () => {
+    ensureLocalStorage();
+    saveCurrentRunToHistory("AR-3", "v3", {
+      ...createVerifierRunBundle("AR-3", "v3"),
+      runContext: { runId: "run-del", createdAt: "2026-01-03T00:00:00Z" },
+      linkedRuleIds: [],
+      aoi: null,
+      evidencePins: [],
+      verificationRuns: [],
+      selectedStacItemId: null,
+    });
+
+    const afterDelete = deleteRunFromHistory("AR-3", "v3", "run-del");
+    expect(afterDelete.find((entry) => entry.runId === "run-del")).toBeUndefined();
   });
 });

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
+import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import VerifierMinutesPanel from "@/components/verify/VerifierMinutesPanel";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
@@ -34,11 +35,16 @@ import {
   clearLinkedRuleIdsFromStorage,
   createVerifierRunBundle,
   createTicketTemplate,
+  deleteRunFromHistory,
   extractStacQuery,
+  loadRunFromHistory,
   readLinkedRuleIdsFromStorage,
   parseLinkedRuleId,
   persistVerifierRunBundle,
+  readRunHistory,
   readVerifierRunBundle,
+  saveCurrentRunToHistory,
+  setLinkedRuleIdsInStorage,
   subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
@@ -274,6 +280,7 @@ export default function ProofMapTab({
   const linkedRulesKey = useMemo(() => buildLinkedRulesKey(methodCode, version), [methodCode, version]);
   const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => readLinkedRuleIdsFromStorage(methodCode, version));
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
+  const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -337,6 +344,10 @@ export default function ProofMapTab({
   }, [methodCode, version]);
 
   useEffect(() => {
+    setRunHistory(readRunHistory(methodCode, version));
+  }, [methodCode, version]);
+
+  useEffect(() => {
     const timer = window.setTimeout(() => {
       persistVerifierRunBundle(methodCode, version, verifierBundle);
     }, 300);
@@ -354,6 +365,53 @@ export default function ProofMapTab({
     setVerifierBundle((current) => ({ ...current, minutes: value }));
   }, []);
 
+  const buildHistoryBundle = useCallback(() => {
+    return {
+      runContext: verifierBundle.runContext,
+      minutes: verifierBundle.minutes,
+      checklist: verifierBundle.checklist,
+      linkedRuleIds,
+      aoi,
+      evidencePins,
+      verificationRuns,
+      selectedStacItemId,
+    };
+  }, [aoi, evidencePins, linkedRuleIds, selectedStacItemId, verificationRuns, verifierBundle]);
+
+  const handleSaveRunHistory = useCallback(
+    (bundleOverride?: ReturnType<typeof buildHistoryBundle>) => {
+      const bundle = bundleOverride ?? buildHistoryBundle();
+      setRunHistory(saveCurrentRunToHistory(methodCode, version, bundle));
+    },
+    [buildHistoryBundle, methodCode, version],
+  );
+
+  const handleLoadRunHistory = useCallback(
+    (runId: string) => {
+      const loaded = loadRunFromHistory(methodCode, version, runId);
+      if (!loaded) return;
+      setVerifierBundle({
+        runContext: loaded.runContext,
+        minutes: loaded.minutes,
+        checklist: loaded.checklist,
+      });
+      setLinkedRuleIds(setLinkedRuleIdsInStorage(methodCode, version, loaded.linkedRuleIds));
+      onSetAoi(loaded.aoi ?? null);
+      onSetEvidencePins(loaded.evidencePins as EvidencePin[]);
+      onSetVerificationRuns(loaded.verificationRuns as VerificationRun[]);
+      onSelectStacItemId(loaded.selectedStacItemId ?? null);
+      setSnapshotExportedAt(null);
+    },
+    [methodCode, onSelectStacItemId, onSetAoi, onSetEvidencePins, onSetVerificationRuns, version],
+  );
+
+  const handleDeleteRunHistory = useCallback(
+    (runId: string) => {
+      setRunHistory(deleteRunFromHistory(methodCode, version, runId));
+    },
+    [methodCode, version],
+  );
+
   const handleToggleChecklist = useCallback((id: string) => {
     const timestamp = new Date().toISOString();
     setVerifierBundle((current) => ({
@@ -370,9 +428,10 @@ export default function ProofMapTab({
   }, [methodCode, version]);
 
   const handleNewRun = useCallback(() => {
+    handleSaveRunHistory();
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
     setSnapshotExportedAt(null);
-  }, [methodCode, version]);
+  }, [handleSaveRunHistory, methodCode, version]);
 
   useEffect(() => {
     if (!activeRuleId) return;
@@ -826,6 +885,16 @@ export default function ProofMapTab({
 
     setSnapshotExportedAt(exportedAt);
     setVerifierBundle((current) => ({ ...current, checklist: checklistAfterExport }));
+    handleSaveRunHistory({
+      runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
+      minutes: verifierSnapshot.minutes,
+      checklist: verifierSnapshot.checklist,
+      linkedRuleIds,
+      aoi,
+      evidencePins,
+      verificationRuns,
+      selectedStacItemId,
+    });
 
     const outcome = buildRunSummary({
       ...runSummary,
@@ -878,7 +947,9 @@ export default function ProofMapTab({
     aoi,
     currentStacEvidence?.itemsById,
     evidencePins,
+    handleSaveRunHistory,
     latestStacRun,
+    linkedRuleIds,
     localEvidenceHashInputs,
     methodCode,
     runSummary,
@@ -887,6 +958,7 @@ export default function ProofMapTab({
     stacEndpointUrl,
     totalRules,
     verifierBundle,
+    verificationRuns,
     version,
   ]);
 
@@ -1813,6 +1885,7 @@ export default function ProofMapTab({
             onCreateTicket={handleCreateTicket}
             showCreateTicket={TICKETS_FEATURE_ENABLED}
           />
+          <RunHistoryPanel items={runHistory} onLoad={handleLoadRunHistory} onDelete={handleDeleteRunHistory} />
           <div className="flex items-start justify-between gap-2">
           <div>
             <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
