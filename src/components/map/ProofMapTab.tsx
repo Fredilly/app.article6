@@ -872,9 +872,11 @@ export default function ProofMapTab({
     }
   }, [
     evidencePins,
+    methodCode,
     onStartOver,
     showToast,
     startOverBusy,
+    version,
   ]);
 
   useEffect(() => {
