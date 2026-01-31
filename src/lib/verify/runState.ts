@@ -1,3 +1,5 @@
+import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
+
 export type RunSummary = {
   aoi: {
     hash: string | null;
@@ -51,6 +53,20 @@ export type VerifierRunBundle = {
   runContext: VerifierRunContext;
   minutes: string;
   checklist: VerifierChecklistItem[];
+};
+
+export type VerifyRunHistoryBundle = VerifierRunBundle & {
+  linkedRuleIds: string[];
+  aoi: AOI | null;
+  evidencePins: EvidencePin[];
+  verificationRuns: VerificationRun[];
+  selectedStacItemId: string | null;
+};
+
+export type VerifyRunHistoryEntry = {
+  runId: string;
+  createdAt: string;
+  bundle: VerifyRunHistoryBundle;
 };
 
 export const SNAPSHOT_SCHEMA_VERSION = "evidence-snapshot/v2";
@@ -176,6 +192,12 @@ export function buildVerifyRunKey(methodCode: string, version: string): string {
   return `verify:${normalizedMethod}:${normalizedVersion}`;
 }
 
+function buildRunHistoryKey(methodCode: string, version: string): string {
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  return `verifyRunHistory:${normalizedMethod}:${normalizedVersion}`;
+}
+
 export function buildLinkedRulesKey(methodCode: string, version: string): string {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
@@ -269,6 +291,14 @@ export function addLinkedRuleIdToStorage(
   return addLinkedRuleIdToKey(key, ruleId);
 }
 
+export function setLinkedRuleIdsInStorage(methodCode: string, version: string, ids: string[]): string[] {
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const key = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  persistLinkedRuleIds(key, ids);
+  return loadLinkedRuleIds(key);
+}
+
 export function createVerifierRunBundle(methodCode: string, version: string): VerifierRunBundle {
   const createdAt = nowIso();
   return {
@@ -328,6 +358,70 @@ export function persistVerifierRunBundle(methodCode: string, version: string, bu
   const normalizedVersion = normalizeVersion(version);
   const key = buildVerifyRunKey(normalizedMethod, normalizedVersion);
   storage.setItem(key, JSON.stringify(bundle));
+}
+
+function normalizeRunHistory(raw: unknown): VerifyRunHistoryEntry[] {
+  if (!Array.isArray(raw)) return [];
+  const entries: VerifyRunHistoryEntry[] = [];
+  raw.forEach((value) => {
+    if (!value || typeof value !== "object") return;
+    const record = value as Record<string, unknown>;
+    const runId = asNonEmptyString(record.runId);
+    const createdAt = asNonEmptyString(record.createdAt);
+    const bundle = record.bundle && typeof record.bundle === "object" ? (record.bundle as VerifyRunHistoryBundle) : null;
+    if (!runId || !createdAt || !bundle) return;
+    entries.push({ runId, createdAt, bundle });
+  });
+  return entries;
+}
+
+export function readRunHistory(methodCode: string, version: string): VerifyRunHistoryEntry[] {
+  const storage = getLocalStorage();
+  if (!storage) return [];
+  const key = buildRunHistoryKey(methodCode, version);
+  const raw = storage.getItem(key);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return normalizeRunHistory(parsed).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  } catch {
+    return [];
+  }
+}
+
+export function saveCurrentRunToHistory(
+  methodCode: string,
+  version: string,
+  bundle: VerifyRunHistoryBundle,
+): VerifyRunHistoryEntry[] {
+  const storage = getLocalStorage();
+  if (!storage) return [];
+  const key = buildRunHistoryKey(methodCode, version);
+  const createdAt = bundle.runContext.createdAt || nowIso();
+  const entry: VerifyRunHistoryEntry = { runId: bundle.runContext.runId, createdAt, bundle };
+  const existing = readRunHistory(methodCode, version);
+  const without = existing.filter((item) => item.runId !== entry.runId);
+  const next = [entry, ...without].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 10);
+  storage.setItem(key, JSON.stringify(next));
+  return next;
+}
+
+export function loadRunFromHistory(
+  methodCode: string,
+  version: string,
+  runId: string,
+): VerifyRunHistoryBundle | null {
+  const history = readRunHistory(methodCode, version);
+  const match = history.find((entry) => entry.runId === runId);
+  return match ? match.bundle : null;
+}
+
+export function deleteRunFromHistory(methodCode: string, version: string, runId: string): VerifyRunHistoryEntry[] {
+  const storage = getLocalStorage();
+  if (!storage) return [];
+  const next = readRunHistory(methodCode, version).filter((entry) => entry.runId !== runId);
+  storage.setItem(buildRunHistoryKey(methodCode, version), JSON.stringify(next));
+  return next;
 }
 
 export function shortRunId(runId: string, length = 8): string {
