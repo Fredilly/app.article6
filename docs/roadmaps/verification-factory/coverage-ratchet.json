@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "mode": "overall",
+  "baseline": { "overall_min": 0.166667 },
+  "tolerance": 0.001
+}

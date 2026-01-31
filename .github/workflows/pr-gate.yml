@@ -30,8 +30,25 @@ jobs:
       - name: Build verify run summary
         run: node scripts/ci-verify-run-summary.mjs
 
+      - name: Compute coverage report
+        run: npm run ci:coverage
+
+      - name: Enforce coverage ratchet
+        run: npm run ci:ratchet
+
+      - name: Resolve evidence links
+        run: npm run ci:links
+
       - name: Upload verify run summary
         uses: actions/upload-artifact@v4
         with:
           name: verify-ci-run-summary
           path: artifacts/verify/ci-run-summary.json
+
+      - name: Upload CI gate artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-gate-artifacts
+          path: |
+            artifacts/ci/coverage.json
+            artifacts/ci/link-resolver.json
