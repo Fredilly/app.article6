@@ -643,6 +643,8 @@ export default function ProofMapTab({
     version,
   ]);
 
+  const isSameAoi = Boolean(draftAoiFingerprint && currentAoiHashForCompare && draftAoiFingerprint === currentAoiHashForCompare);
+
   const handleApplyDraftAoiClick = useCallback(() => {
     if (isSameAoi) {
       setShowSameAoiPrompt(true);
@@ -763,7 +765,6 @@ export default function ProofMapTab({
   }, [isListMode]);
 
   const isPreview = Boolean(draftAoi);
-  const isSameAoi = Boolean(draftAoiFingerprint && currentAoiHashForCompare && draftAoiFingerprint === currentAoiHashForCompare);
   const { willClearWork } = useMemo(
     () =>
       getWorkspaceWorkFlags({
