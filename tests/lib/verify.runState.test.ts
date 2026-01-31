@@ -187,6 +187,17 @@ describe("run history storage", () => {
       ...base,
       runContext: { runId: "run-xyz", createdAt: "2026-01-02T00:00:00Z" },
       minutes: "Loaded run",
+      delta: "Changed AOI boundary.",
+      impact: "May reduce coverage.",
+      tasks: [
+        {
+          id: "task-1",
+          text: "Re-run evidence export",
+          done: false,
+          createdAt: "2026-01-02T00:00:00Z",
+          updatedAt: "2026-01-02T00:00:00Z",
+        },
+      ],
       linkedRuleIds: ["R-1"],
       aoi: null,
       evidencePins: [],
@@ -197,6 +208,8 @@ describe("run history storage", () => {
     const loaded = loadRunFromHistory("AR-2", "v2", "run-xyz");
     expect(loaded?.runContext.runId).toBe("run-xyz");
     expect(loaded?.minutes).toBe("Loaded run");
+    expect(loaded?.delta).toBe("Changed AOI boundary.");
+    expect(loaded?.tasks).toHaveLength(1);
   });
 
   it("deletes a run from history", () => {

@@ -28,7 +28,15 @@ test("persists stac items in evidence snapshot export (DEMO-002)", async () => {
       stac: { query: { collection: "c-1" }, itemIds: ["stac-1", "stac-2"] },
       linkage: { linkedRuleIds: ["rule-1"] },
       exportState: { snapshotExportedAt: null },
-      verifier: { runId: "run-1", createdAt: "2026-01-01T00:00:00Z", minutes: "", checklist: [] },
+      verifier: {
+        runId: "run-1",
+        createdAt: "2026-01-01T00:00:00Z",
+        minutes: "",
+        delta: "",
+        impact: "",
+        checklist: [],
+        tasks: [],
+      },
       provenance: { methodCode: "AR-1", version: "v1", snapshotSchemaVersion: "evidence-snapshot/v2" },
     },
   });
@@ -61,13 +69,26 @@ test("includes verifier minutes + checklist in snapshot", async () => {
       runId: "AR-1-v1-20260101010101",
       createdAt: "2026-01-01T01:01:01Z",
       minutes: "Checked inputs.",
+      delta: "Detected new AOI boundaries.",
+      impact: "Risk: mild drift in area coverage.",
       checklist: [
         { id: "read-overview", label: "Read method overview", checked: true, updatedAt: "2026-01-01T01:01:01Z" },
+      ],
+      tasks: [
+        {
+          id: "task-1",
+          text: "Re-run evidence export",
+          done: false,
+          createdAt: "2026-01-01T01:01:01Z",
+          updatedAt: "2026-01-01T01:01:01Z",
+        },
       ],
     },
   });
 
   expect(snapshot.verifier?.runId).toBe("AR-1-v1-20260101010101");
   expect(snapshot.verifier?.minutes).toBe("Checked inputs.");
+  expect(snapshot.verifier?.delta).toBe("Detected new AOI boundaries.");
+  expect(snapshot.verifier?.tasks).toHaveLength(1);
   expect(snapshot.verifier?.checklist).toHaveLength(1);
 });

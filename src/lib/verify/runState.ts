@@ -27,6 +27,9 @@ export type RunSummary = {
     createdAt: string | null;
     minutes: string;
     checklist: VerifierChecklistItem[];
+    delta: string;
+    impact: string;
+    tasks: VerifierTask[];
   };
   provenance: {
     methodCode?: string | null;
@@ -44,6 +47,14 @@ export type VerifierChecklistItem = {
   updatedAt: string;
 };
 
+export type VerifierTask = {
+  id: string;
+  text: string;
+  done: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type VerifierRunContext = {
   runId: string;
   createdAt: string;
@@ -53,6 +64,9 @@ export type VerifierRunBundle = {
   runContext: VerifierRunContext;
   minutes: string;
   checklist: VerifierChecklistItem[];
+  delta: string;
+  impact: string;
+  tasks: VerifierTask[];
 };
 
 export type VerifyRunHistoryBundle = VerifierRunBundle & {
@@ -127,6 +141,22 @@ function normalizeChecklist(
     items.push({ id, label, checked, updatedAt });
   });
   return items.length ? items : fallback;
+}
+
+function normalizeTasks(raw: unknown, timestamp: string): VerifierTask[] {
+  if (!Array.isArray(raw)) return [];
+  const tasks: VerifierTask[] = [];
+  raw.forEach((value, index) => {
+    if (!value || typeof value !== "object") return;
+    const record = value as Record<string, unknown>;
+    const id = asNonEmptyString(record.id) ?? `task-${index + 1}`;
+    const text = asNonEmptyString(record.text) ?? "";
+    const done = typeof record.done === "boolean" ? record.done : false;
+    const createdAt = asNonEmptyString(record.createdAt) ?? timestamp;
+    const updatedAt = asNonEmptyString(record.updatedAt) ?? createdAt;
+    tasks.push({ id, text, done, createdAt, updatedAt });
+  });
+  return tasks;
 }
 
 function uniqSorted(values: string[] | undefined | null): string[] {
@@ -308,6 +338,9 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
     },
     minutes: "",
     checklist: seedChecklist(createdAt),
+    delta: "",
+    impact: "",
+    tasks: [],
   };
 }
 
@@ -337,14 +370,20 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const minutes = typeof parsed.minutes === "string" ? parsed.minutes : "";
+    const delta = typeof parsed.delta === "string" ? parsed.delta : "";
+    const impact = typeof parsed.impact === "string" ? parsed.impact : "";
     const runContextRaw = parsed.runContext && typeof parsed.runContext === "object" ? (parsed.runContext as Record<string, unknown>) : null;
     const runId = asNonEmptyString(runContextRaw?.runId) ?? fallback.runContext.runId;
     const createdAt = asNonEmptyString(runContextRaw?.createdAt) ?? fallback.runContext.createdAt;
     const checklist = normalizeChecklist(parsed.checklist, fallback.checklist, createdAt);
+    const tasks = normalizeTasks(parsed.tasks, createdAt);
     return {
       runContext: { runId, createdAt },
       minutes,
       checklist,
+      delta,
+      impact,
+      tasks,
     };
   } catch {
     return fallback;
@@ -525,6 +564,9 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       createdAt: input.verifier?.createdAt ?? null,
       minutes: input.verifier?.minutes ?? "",
       checklist: input.verifier?.checklist ?? [],
+      delta: input.verifier?.delta ?? "",
+      impact: input.verifier?.impact ?? "",
+      tasks: input.verifier?.tasks ?? [],
     },
     provenance: {
       methodCode: input.provenance?.methodCode ?? null,
@@ -542,6 +584,7 @@ export function createTicketTemplate(summary: RunSummary): string {
   const linked = summary.linkage.linkedRuleIds.length;
   const runId = summary.verifier.runId ?? "unknown";
   const checklistLines = summary.verifier.checklist.map((item) => `- [${item.checked ? "x" : " "}] ${item.label}`);
+  const taskLines = summary.verifier.tasks.map((task) => `- [${task.done ? "x" : " "}] ${task.text || task.id}`);
   const header = `Verify run summary (${summary.provenance.methodCode ?? "unknown"}@${summary.provenance.version ?? "unknown"})`;
   return [
     `# ${header}`,
@@ -555,6 +598,15 @@ export function createTicketTemplate(summary: RunSummary): string {
     "",
     "## Minutes",
     summary.verifier.minutes?.trim() ? summary.verifier.minutes.trim() : "_None_",
+    "",
+    "## Delta",
+    summary.verifier.delta?.trim() ? summary.verifier.delta.trim() : "_None_",
+    "",
+    "## Impact",
+    summary.verifier.impact?.trim() ? summary.verifier.impact.trim() : "_None_",
+    "",
+    "## Tasks",
+    taskLines.length ? taskLines.join("\n") : "- _No tasks_",
     "",
     "## Checklist",
     checklistLines.length ? checklistLines.join("\n") : "- _No checklist items_",
