@@ -7,6 +7,7 @@ type OutcomeWidgetProps = {
   onCopy: (value: string) => void;
   onExportSnapshot: () => void;
   onCreateTicket?: () => void;
+  className?: string;
   debugKey?: string | null;
   debugLinkedCount?: number;
   provenance?: {
@@ -46,6 +47,7 @@ export default function OutcomeWidget({
   onCopy,
   onExportSnapshot,
   onCreateTicket,
+  className,
   debugKey = null,
   debugLinkedCount,
   provenance,
@@ -86,7 +88,7 @@ export default function OutcomeWidget({
   }, [summary.stac.query.source]);
 
   return (
-    <div id="verify-outcome" className="rounded-xl border border-slate-200 bg-white p-4">
+    <div id="verify-outcome" className={`rounded-xl border border-slate-200 bg-white p-4 ${className ?? ""}`}>
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm font-semibold text-slate-900">Outcome</div>
         <button
