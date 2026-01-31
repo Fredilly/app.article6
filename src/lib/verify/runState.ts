@@ -191,6 +191,26 @@ export function addLinkedRuleIdToStorage(
   return addLinkedRuleIdToKey(key, ruleId);
 }
 
+export function clearLinkedRuleIdsFromStorage(methodCode: string, version: string): void {
+  const storage = getLocalStorage();
+  if (!storage) return;
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const canonical = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  storage.removeItem(canonical);
+  const legacyPrefixes = [
+    `verifyLinkedRules:${normalizedMethod}:`,
+    `verifyLinkedRules:${normalizedMethod}@`,
+    `verifyLinkedRules:${normalizedMethod}v`,
+  ];
+  for (let index = storage.length - 1; index >= 0; index -= 1) {
+    const key = storage.key(index);
+    if (!key || key === canonical) continue;
+    if (legacyPrefixes.some((prefix) => key.startsWith(prefix))) storage.removeItem(key);
+  }
+  notifyLinkedRuleListeners();
+}
+
 export function subscribeLinkedRuleIds(listener: LinkedRuleListener): () => void {
   linkedRuleListeners.add(listener);
   return () => {

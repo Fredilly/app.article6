@@ -30,6 +30,7 @@ import {
   addLinkedRuleIdToStorage,
   buildLinkedRulesKey,
   buildRunSummary,
+  clearLinkedRuleIdsFromStorage,
   createTicketTemplate,
   extractStacQuery,
   readLinkedRuleIdsFromStorage,
@@ -486,10 +487,6 @@ export default function ProofMapTab({
     onSelectStacItemId(null);
   }, [methodCode, onSelectStacItemId, version]);
 
-  useEffect(() => {
-    setLinkedRuleIds([]);
-  }, [currentAoiFingerprint, methodCode, version]);
-
   const currentRuns = useMemo(() => {
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
@@ -862,6 +859,7 @@ export default function ProofMapTab({
       setLastSelectionSource(null);
       setStacCentroidsEnabled(true);
       setLinkedRuleIds([]);
+      clearLinkedRuleIdsFromStorage(methodCode, version);
       try {
         mapRef.current?.jumpTo?.({ center: [0, 0], zoom: 1 });
       } catch {
