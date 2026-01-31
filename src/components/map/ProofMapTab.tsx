@@ -28,6 +28,7 @@ import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { deriveRunKpis } from "@/lib/verify/kpis";
+import { addIntakeItem } from "@/lib/intake/storage";
 import {
   SNAPSHOT_SCHEMA_VERSION,
   addLinkedRuleIdToStorage,
@@ -876,6 +877,16 @@ export default function ProofMapTab({
   const currentRuns = useMemo(() => {
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
+  const latestRun = useMemo(() => {
+    return currentRuns.find((run) => run.status !== "queued") ?? null;
+  }, [currentRuns]);
+  const intakeSuggestion = useMemo(() => {
+    if (!latestRun) return null;
+    if (!["warn", "fail", "error"].includes(latestRun.status)) return null;
+    const type = latestRun.status === "warn" ? "ambiguous" : "fail";
+    const summary = latestRun.summary?.trim();
+    return { type, summary, run: latestRun };
+  }, [latestRun]);
 
   const latestStacRun = useMemo(() => {
     return selectLatestOkStacRunForActiveAoi({ runs: verificationRuns, activeAoiFingerprint: currentAoiFingerprint });
@@ -1283,6 +1294,23 @@ export default function ProofMapTab({
       window.open(url, "_blank", "noopener,noreferrer");
     }
   }, [copyToClipboard, runSummary, showToast]);
+
+  const handleCreateIntake = useCallback(() => {
+    if (!intakeSuggestion) return;
+    const ruleId = activeRuleId ?? linkedRuleIds[0] ?? null;
+    const description =
+      intakeSuggestion.summary ??
+      `Run ${intakeSuggestion.run.id} ended with status ${intakeSuggestion.run.status}.`;
+    addIntakeItem({
+      method: methodCode,
+      version,
+      rule_id: ruleId,
+      type: intakeSuggestion.type,
+      description,
+      status: "new",
+    });
+    showToast("Intake item added");
+  }, [activeRuleId, intakeSuggestion, linkedRuleIds, methodCode, showToast, version]);
 
   const runStartOver = useCallback(async () => {
     if (startOverBusy) return;
@@ -2262,6 +2290,23 @@ export default function ProofMapTab({
                 Outcome
               </summary>
               <div className="px-3 pb-3 pt-1">
+                {intakeSuggestion ? (
+                  <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="font-semibold">Hard-case intake suggested</div>
+                      <button
+                        type="button"
+                        className="rounded-full border border-amber-300 bg-amber-200 px-3 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-300"
+                        onClick={handleCreateIntake}
+                      >
+                        Create intake item
+                      </button>
+                    </div>
+                    <div className="mt-1 text-[11px] text-amber-800">
+                      Status {intakeSuggestion.run.status}. {intakeSuggestion.summary ?? "Add this run to the pilot queue."}
+                    </div>
+                  </div>
+                ) : null}
                 <OutcomeWidget
                   className="border-0 p-0"
                   summary={runSummary}

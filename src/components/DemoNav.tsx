@@ -10,6 +10,7 @@ type DemoRoute = {
 };
 
 const demoRoutes: DemoRoute[] = [
+  { href: "/dashboard", title: "Dashboard" },
   { href: "/m", title: "Methods" },
 ];
 
