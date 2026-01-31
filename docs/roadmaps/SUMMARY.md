@@ -41,7 +41,7 @@ Details: `docs/roadmaps/verifier-moat/PLAN.md`
 Status SSOT: `docs/roadmaps/verification-factory/phase-status.json`
 Details: `docs/roadmaps/verification-factory/PLAN.md`
 
-1) PR22 — KPI SSOT + CI Snapshot + Proof/Coverage chip: Done
+1) PR22 — KPI SSOT + CI Snapshot + Proof/Coverage chip: Done (PR #397)
 2) PR23 — Eval harness Hard Set v0: Done (PR #391)
 3) PR24 — Verifier minutes + checklist: Done (PR #394)
 4) PR25 — Delta→Impact→Tasks pipeline: Planned
