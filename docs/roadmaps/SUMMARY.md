@@ -46,6 +46,6 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 3) PR24 — Verifier minutes + checklist: Done (PR #394)
 4) PR25 — Local run history (last N runs): Done (PR #405)
 5) PR26 — Delta→Impact→Tasks pipeline: Done (PR #407)
-6) PR27 — Coverage ratchet + link resolver gates: Planned
+6) PR27 — Coverage ratchet + link resolver gates: Done
 7) PR28 — Flywheel v1: Outcomes + Moat export: Done (PR #387)
 8) PR29 — Pilot loop + hard-case intake: Planned
