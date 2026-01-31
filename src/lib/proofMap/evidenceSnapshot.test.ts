@@ -28,6 +28,7 @@ test("persists stac items in evidence snapshot export (DEMO-002)", async () => {
       stac: { query: { collection: "c-1" }, itemIds: ["stac-1", "stac-2"] },
       linkage: { linkedRuleIds: ["rule-1"] },
       exportState: { snapshotExportedAt: null },
+      verifier: { runId: "run-1", createdAt: "2026-01-01T00:00:00Z", minutes: "", checklist: [] },
       provenance: { methodCode: "AR-1", version: "v1", snapshotSchemaVersion: "evidence-snapshot/v2" },
     },
   });
@@ -50,4 +51,23 @@ test("populates legacy items from stacItemsJson", async () => {
   };
   const legacyItems = (exportedSnapshot.items ?? []).map((item: { id?: string }) => item.id);
   expect(legacyItems).toEqual(["a", "b"]);
+});
+
+test("includes verifier minutes + checklist in snapshot", async () => {
+  const snapshot = await buildEvidenceSnapshot({
+    method: { code: "AR-1", version: "v1" },
+    evidence_source: { type: "stac_url", ref: "https://example.test" },
+    verifier: {
+      runId: "AR-1-v1-20260101010101",
+      createdAt: "2026-01-01T01:01:01Z",
+      minutes: "Checked inputs.",
+      checklist: [
+        { id: "read-overview", label: "Read method overview", checked: true, updatedAt: "2026-01-01T01:01:01Z" },
+      ],
+    },
+  });
+
+  expect(snapshot.verifier?.runId).toBe("AR-1-v1-20260101010101");
+  expect(snapshot.verifier?.minutes).toBe("Checked inputs.");
+  expect(snapshot.verifier?.checklist).toHaveLength(1);
 });

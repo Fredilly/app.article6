@@ -3,10 +3,14 @@ import {
   addLinkedRuleId,
   addLinkedRuleIdToStorage,
   buildLinkedRulesKey,
+  buildVerifyRunKey,
   buildRunSummary,
+  createVerifierRunBundle,
   normalizeMethodCode,
   normalizeVersion,
+  persistVerifierRunBundle,
   readLinkedRuleIdsFromStorage,
+  readVerifierRunBundle,
   parseLinkedRuleId,
   subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
@@ -121,5 +125,29 @@ describe("subscribeLinkedRuleIds", () => {
     unsubscribe();
 
     expect(calls).toBe(1);
+  });
+});
+
+describe("verifier run bundle storage", () => {
+  it("hydrates defaults when storage is empty", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+
+    const bundle = readVerifierRunBundle("AR-1", "v1");
+    expect(bundle.runContext.runId).toContain("AR-1-v1-");
+    expect(bundle.checklist.length).toBeGreaterThan(0);
+  });
+
+  it("persists and reads verifier minutes", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+
+    const bundle = createVerifierRunBundle("AR-2", "v2");
+    const updated = { ...bundle, minutes: "Checked AOI and evidence." };
+    persistVerifierRunBundle("AR-2", "v2", updated);
+
+    const read = readVerifierRunBundle("AR-2", "v2");
+    expect(read.minutes).toBe("Checked AOI and evidence.");
+    expect(storage.getItem(buildVerifyRunKey("AR-2", "v2"))).toBeTruthy();
   });
 });
