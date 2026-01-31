@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
+import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import VerifierMinutesPanel from "@/components/verify/VerifierMinutesPanel";
@@ -30,6 +31,7 @@ import { deriveRunKpis } from "@/lib/verify/kpis";
 import {
   SNAPSHOT_SCHEMA_VERSION,
   addLinkedRuleIdToStorage,
+  addTaskWithText,
   buildLinkedRulesKey,
   buildRunSummary,
   clearLinkedRuleIdsFromStorage,
@@ -267,6 +269,9 @@ export default function ProofMapTab({
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<string | null>(null);
+  const [draftTask, setDraftTask] = useState("");
+  const [showDraftTask, setShowDraftTask] = useState(false);
+  const draftTaskInputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [mapReadyTick, setMapReadyTick] = useState(0);
   const [stacCentroidsEnabled, setStacCentroidsEnabled] = useState(true);
@@ -365,11 +370,62 @@ export default function ProofMapTab({
     setVerifierBundle((current) => ({ ...current, minutes: value }));
   }, []);
 
+  const handleDeltaChange = useCallback((value: string) => {
+    setVerifierBundle((current) => ({ ...current, delta: value }));
+  }, []);
+
+  const handleImpactChange = useCallback((value: string) => {
+    setVerifierBundle((current) => ({ ...current, impact: value }));
+  }, []);
+
+  const commitDraftTask = useCallback(() => {
+    const text = draftTask.trim();
+    if (!text) return;
+    const task = addTaskWithText(text);
+    setVerifierBundle((current) => ({ ...current, tasks: [...current.tasks, task] }));
+    setDraftTask("");
+    setShowDraftTask(false);
+  }, [draftTask]);
+
+  const handleAddTask = useCallback(() => {
+    setShowDraftTask(true);
+    requestAnimationFrame(() => {
+      draftTaskInputRef.current?.focus();
+    });
+  }, []);
+
+  const handleToggleTask = useCallback((id: string) => {
+    const timestamp = new Date().toISOString();
+    setVerifierBundle((current) => ({
+      ...current,
+      tasks: current.tasks.map((task) =>
+        task.id === id ? { ...task, done: !task.done, updatedAt: timestamp } : task,
+      ),
+    }));
+  }, []);
+
+  const handleUpdateTask = useCallback((id: string, value: string) => {
+    const timestamp = new Date().toISOString();
+    setVerifierBundle((current) => ({
+      ...current,
+      tasks: current.tasks.map((task) =>
+        task.id === id ? { ...task, text: value, updatedAt: timestamp } : task,
+      ),
+    }));
+  }, []);
+
+  const handleDeleteTask = useCallback((id: string) => {
+    setVerifierBundle((current) => ({ ...current, tasks: current.tasks.filter((task) => task.id !== id) }));
+  }, []);
+
   const buildHistoryBundle = useCallback(() => {
     return {
       runContext: verifierBundle.runContext,
       minutes: verifierBundle.minutes,
       checklist: verifierBundle.checklist,
+      delta: verifierBundle.delta,
+      impact: verifierBundle.impact,
+      tasks: verifierBundle.tasks,
       linkedRuleIds,
       aoi,
       evidencePins,
@@ -392,8 +448,11 @@ export default function ProofMapTab({
       if (!loaded) return;
       setVerifierBundle({
         runContext: loaded.runContext,
-        minutes: loaded.minutes,
-        checklist: loaded.checklist,
+        minutes: loaded.minutes ?? "",
+        checklist: loaded.checklist ?? [],
+        delta: loaded.delta ?? "",
+        impact: loaded.impact ?? "",
+        tasks: Array.isArray(loaded.tasks) ? loaded.tasks : [],
       });
       setLinkedRuleIds(setLinkedRuleIdsInStorage(methodCode, version, loaded.linkedRuleIds));
       onSetAoi(loaded.aoi ?? null);
@@ -777,6 +836,9 @@ export default function ProofMapTab({
           createdAt: verifierBundle.runContext.createdAt,
           minutes: verifierBundle.minutes,
           checklist: verifierBundle.checklist,
+          delta: verifierBundle.delta,
+          impact: verifierBundle.impact,
+          tasks: verifierBundle.tasks,
         },
         provenance: {
           methodCode,
@@ -880,7 +942,10 @@ export default function ProofMapTab({
       runId: verifierBundle.runContext.runId,
       createdAt: verifierBundle.runContext.createdAt,
       minutes: verifierBundle.minutes,
+      delta: verifierBundle.delta,
+      impact: verifierBundle.impact,
       checklist: checklistAfterExport,
+      tasks: verifierBundle.tasks,
     };
 
     setSnapshotExportedAt(exportedAt);
@@ -888,7 +953,10 @@ export default function ProofMapTab({
     handleSaveRunHistory({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
       minutes: verifierSnapshot.minutes,
+      delta: verifierSnapshot.delta,
+      impact: verifierSnapshot.impact,
       checklist: verifierSnapshot.checklist,
+      tasks: verifierSnapshot.tasks,
       linkedRuleIds,
       aoi,
       evidencePins,
@@ -1884,6 +1952,22 @@ export default function ProofMapTab({
             onNewRun={handleNewRun}
             onCreateTicket={handleCreateTicket}
             showCreateTicket={TICKETS_FEATURE_ENABLED}
+          />
+          <DeltaImpactTasksPanel
+            delta={verifierBundle.delta}
+            impact={verifierBundle.impact}
+            tasks={verifierBundle.tasks}
+            draftTask={draftTask}
+            showDraftTask={showDraftTask || verifierBundle.tasks.length === 0}
+            draftTaskInputRef={draftTaskInputRef}
+            onDraftTaskChange={setDraftTask}
+            onCommitDraftTask={commitDraftTask}
+            onDeltaChange={handleDeltaChange}
+            onImpactChange={handleImpactChange}
+            onAddTask={handleAddTask}
+            onToggleTask={handleToggleTask}
+            onUpdateTask={handleUpdateTask}
+            onDeleteTask={handleDeleteTask}
           />
           <RunHistoryPanel items={runHistory} onLoad={handleLoadRunHistory} onDelete={handleDeleteRunHistory} />
           <div className="flex items-start justify-between gap-2">

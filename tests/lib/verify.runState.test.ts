@@ -2,6 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import {
   addLinkedRuleId,
   addLinkedRuleIdToStorage,
+  addTaskWithText,
   buildLinkedRulesKey,
   buildVerifyRunKey,
   buildRunSummary,
@@ -140,6 +141,7 @@ describe("verifier run bundle storage", () => {
     const bundle = readVerifierRunBundle("AR-1", "v1");
     expect(bundle.runContext.runId).toContain("AR-1-v1-");
     expect(bundle.checklist.length).toBeGreaterThan(0);
+    expect(bundle.tasks).toEqual([]);
   });
 
   it("persists and reads verifier minutes", () => {
@@ -153,6 +155,16 @@ describe("verifier run bundle storage", () => {
     const read = readVerifierRunBundle("AR-2", "v2");
     expect(read.minutes).toBe("Checked AOI and evidence.");
     expect(storage.getItem(buildVerifyRunKey("AR-2", "v2"))).toBeTruthy();
+  });
+});
+
+describe("addTaskWithText", () => {
+  it("creates a task with timestamps and text", () => {
+    const task = addTaskWithText("Review delta");
+    expect(task.text).toBe("Review delta");
+    expect(task.done).toBe(false);
+    expect(task.createdAt).toBeTruthy();
+    expect(task.updatedAt).toBeTruthy();
   });
 });
 
@@ -187,6 +199,17 @@ describe("run history storage", () => {
       ...base,
       runContext: { runId: "run-xyz", createdAt: "2026-01-02T00:00:00Z" },
       minutes: "Loaded run",
+      delta: "Changed AOI boundary.",
+      impact: "May reduce coverage.",
+      tasks: [
+        {
+          id: "task-1",
+          text: "Re-run evidence export",
+          done: false,
+          createdAt: "2026-01-02T00:00:00Z",
+          updatedAt: "2026-01-02T00:00:00Z",
+        },
+      ],
       linkedRuleIds: ["R-1"],
       aoi: null,
       evidencePins: [],
@@ -197,6 +220,8 @@ describe("run history storage", () => {
     const loaded = loadRunFromHistory("AR-2", "v2", "run-xyz");
     expect(loaded?.runContext.runId).toBe("run-xyz");
     expect(loaded?.minutes).toBe("Loaded run");
+    expect(loaded?.delta).toBe("Changed AOI boundary.");
+    expect(loaded?.tasks).toHaveLength(1);
   });
 
   it("deletes a run from history", () => {
