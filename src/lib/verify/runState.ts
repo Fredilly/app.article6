@@ -1,3 +1,5 @@
+import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
+
 export type RunSummary = {
   aoi: {
     hash: string | null;
@@ -55,19 +57,9 @@ export type VerifierRunBundle = {
 
 export type VerifyRunHistoryBundle = VerifierRunBundle & {
   linkedRuleIds: string[];
-  aoi: {
-    id?: string | null;
-    name?: string | null;
-    bbox?: [number, number, number, number] | null;
-    area_km2?: number | null;
-    geojson?: unknown;
-    aoi_fingerprint?: string | null;
-    aoi_source_type?: string | null;
-    aoi_source_feature_count?: number | null;
-    aoi_policy?: string | null;
-  } | null;
-  evidencePins: Array<Record<string, unknown>>;
-  verificationRuns: Array<Record<string, unknown>>;
+  aoi: AOI | null;
+  evidencePins: EvidencePin[];
+  verificationRuns: VerificationRun[];
   selectedStacItemId: string | null;
 };
 
