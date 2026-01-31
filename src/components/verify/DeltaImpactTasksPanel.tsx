@@ -9,7 +9,7 @@ type DeltaImpactTasksPanelProps = {
   tasks: VerifierTask[];
   draftTask: string;
   showDraftTask: boolean;
-  draftTaskInputRef: RefObject<HTMLInputElement>;
+  draftTaskInputRef: RefObject<HTMLInputElement | null>;
   onDraftTaskChange: (value: string) => void;
   onCommitDraftTask: () => void;
   onDeltaChange: (value: string) => void;
