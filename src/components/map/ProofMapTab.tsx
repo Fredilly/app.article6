@@ -764,7 +764,6 @@ export default function ProofMapTab({
   }, [isListMode]);
 
   const isPreview = Boolean(draftAoi);
-  const isSameAoi = Boolean(draftAoiFingerprint && currentAoiHashForCompare && draftAoiFingerprint === currentAoiHashForCompare);
   const { willClearWork } = useMemo(
     () =>
       getWorkspaceWorkFlags({
