@@ -15,6 +15,12 @@ export async function buildOutcomeSnapshot(input: {
   items?: Array<{ id?: string | null; linked_rules?: string[] | null }> | null;
   stacItemsJson?: { items: Array<Record<string, unknown>> } | null;
   outcome?: RunSummary | null;
+  verifier?: {
+    runId: string;
+    createdAt: string;
+    minutes: string;
+    checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
+  } | null;
   kpis?: {
     itemsCount: number;
     linkedRulesCount: number;
@@ -31,6 +37,7 @@ export async function buildOutcomeSnapshot(input: {
     items: input.items,
     stacItemsJson: input.stacItemsJson,
     outcome: input.outcome ?? undefined,
+    verifier: input.verifier ?? undefined,
     kpis: input.kpis ?? undefined,
   });
 }

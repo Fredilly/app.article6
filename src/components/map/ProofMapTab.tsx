@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
+import VerifierMinutesPanel from "@/components/verify/VerifierMinutesPanel";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
@@ -31,10 +32,13 @@ import {
   buildLinkedRulesKey,
   buildRunSummary,
   clearLinkedRuleIdsFromStorage,
+  createVerifierRunBundle,
   createTicketTemplate,
   extractStacQuery,
   readLinkedRuleIdsFromStorage,
   parseLinkedRuleId,
+  persistVerifierRunBundle,
+  readVerifierRunBundle,
   subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
@@ -269,6 +273,7 @@ export default function ProofMapTab({
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const linkedRulesKey = useMemo(() => buildLinkedRulesKey(methodCode, version), [methodCode, version]);
   const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => readLinkedRuleIdsFromStorage(methodCode, version));
+  const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -327,12 +332,47 @@ export default function ProofMapTab({
     };
   }, [linkedRulesKey, methodCode, version]);
 
+  useEffect(() => {
+    setVerifierBundle(readVerifierRunBundle(methodCode, version));
+  }, [methodCode, version]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      persistVerifierRunBundle(methodCode, version, verifierBundle);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [methodCode, verifierBundle, version]);
+
   const trackLinkedRule = useCallback(
     (id: string) => {
       setLinkedRuleIds(addLinkedRuleIdToStorage(methodCode, version, id));
     },
     [methodCode, version],
   );
+
+  const handleMinutesChange = useCallback((value: string) => {
+    setVerifierBundle((current) => ({ ...current, minutes: value }));
+  }, []);
+
+  const handleToggleChecklist = useCallback((id: string) => {
+    const timestamp = new Date().toISOString();
+    setVerifierBundle((current) => ({
+      ...current,
+      checklist: current.checklist.map((item) =>
+        item.id === id ? { ...item, checked: !item.checked, updatedAt: timestamp } : item,
+      ),
+    }));
+  }, []);
+
+  const handleResetChecklist = useCallback(() => {
+    const next = createVerifierRunBundle(methodCode, version);
+    setVerifierBundle((current) => ({ ...current, checklist: next.checklist }));
+  }, [methodCode, version]);
+
+  const handleNewRun = useCallback(() => {
+    setVerifierBundle(createVerifierRunBundle(methodCode, version));
+    setSnapshotExportedAt(null);
+  }, [methodCode, version]);
 
   useEffect(() => {
     if (!activeRuleId) return;
@@ -673,6 +713,12 @@ export default function ProofMapTab({
         exportState: {
           snapshotExportedAt,
         },
+        verifier: {
+          runId: verifierBundle.runContext.runId,
+          createdAt: verifierBundle.runContext.createdAt,
+          minutes: verifierBundle.minutes,
+          checklist: verifierBundle.checklist,
+        },
         provenance: {
           methodCode,
           version,
@@ -689,6 +735,7 @@ export default function ProofMapTab({
       snapshotExportedAt,
       stacFeatureIds,
       stacQuery,
+      verifierBundle,
       version,
     ],
   );
@@ -767,7 +814,18 @@ export default function ProofMapTab({
     })();
 
     const exportedAt = new Date().toISOString();
+    const checklistAfterExport = verifierBundle.checklist.map((item) =>
+      item.id === "exported-snapshot" ? { ...item, checked: true, updatedAt: exportedAt } : item,
+    );
+    const verifierSnapshot = {
+      runId: verifierBundle.runContext.runId,
+      createdAt: verifierBundle.runContext.createdAt,
+      minutes: verifierBundle.minutes,
+      checklist: checklistAfterExport,
+    };
+
     setSnapshotExportedAt(exportedAt);
+    setVerifierBundle((current) => ({ ...current, checklist: checklistAfterExport }));
 
     const outcome = buildRunSummary({
       ...runSummary,
@@ -775,6 +833,7 @@ export default function ProofMapTab({
         ...runSummary.exportState,
         snapshotExportedAt: exportedAt,
       },
+      verifier: verifierSnapshot,
       provenance: {
         ...runSummary.provenance,
         generatedAt: exportedAt,
@@ -805,6 +864,7 @@ export default function ProofMapTab({
       stacItemsJson,
       outcome,
       kpis,
+      verifier: verifierSnapshot,
     });
 
     const snapshotWithLegacyItems = {
@@ -826,6 +886,7 @@ export default function ProofMapTab({
     showToast,
     stacEndpointUrl,
     totalRules,
+    verifierBundle,
     version,
   ]);
 
@@ -833,6 +894,12 @@ export default function ProofMapTab({
     const template = createTicketTemplate(runSummary);
     await copyToClipboard(template);
     showToast("Ticket template copied");
+    const repo = (process.env.NEXT_PUBLIC_GITHUB_REPO ?? "").trim();
+    if (repo && typeof window !== "undefined") {
+      const title = `Verify run ${runSummary.provenance.methodCode ?? "unknown"}@${runSummary.provenance.version ?? "unknown"} (${runSummary.verifier.runId ?? "run"})`;
+      const url = `https://github.com/${repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(template)}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
   }, [copyToClipboard, runSummary, showToast]);
 
   const runStartOver = useCallback(async () => {
@@ -1734,6 +1801,17 @@ export default function ProofMapTab({
               sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
               generatedAt: trustPicked.generatedAt ?? null,
             }}
+          />
+          <VerifierMinutesPanel
+            runContext={verifierBundle.runContext}
+            minutes={verifierBundle.minutes}
+            checklist={verifierBundle.checklist}
+            onMinutesChange={handleMinutesChange}
+            onToggleChecklist={handleToggleChecklist}
+            onResetChecklist={handleResetChecklist}
+            onNewRun={handleNewRun}
+            onCreateTicket={handleCreateTicket}
+            showCreateTicket={TICKETS_FEATURE_ENABLED}
           />
           <div className="flex items-start justify-between gap-2">
           <div>

@@ -85,6 +85,21 @@ export const EvidenceSnapshotSchema = z
         }),
       })
       .optional(),
+    verifier: z
+      .object({
+        runId: z.string().min(1),
+        createdAt: z.string().min(1),
+        minutes: z.string(),
+        checklist: z.array(
+          z.object({
+            id: z.string().min(1),
+            label: z.string().min(1),
+            checked: z.boolean(),
+            updatedAt: z.string().min(1),
+          }),
+        ),
+      })
+      .optional(),
     kpis: z
       .object({
         itemsCount: z.number(),
@@ -159,6 +174,12 @@ export async function buildEvidenceSnapshot(input: {
   items?: Array<{ id?: string | null; linked_rules?: string[] | null }> | null;
   stacItemsJson?: { items: Array<Record<string, unknown>> } | null;
   outcome?: RunSummary | null;
+  verifier?: {
+    runId: string;
+    createdAt: string;
+    minutes: string;
+    checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
+  } | null;
   kpis?: {
     itemsCount: number;
     linkedRulesCount: number;
@@ -217,6 +238,7 @@ export async function buildEvidenceSnapshot(input: {
       items: normalizeItems((input.items ?? undefined) ?? undefined),
       stacItemsJson: input.stacItemsJson ?? undefined,
       outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
+      verifier: input.verifier ?? undefined,
       kpis: input.kpis ?? undefined,
     }),
   );

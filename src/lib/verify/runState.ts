@@ -20,6 +20,12 @@ export type RunSummary = {
   exportState: {
     snapshotExportedAt: string | null;
   };
+  verifier: {
+    runId: string | null;
+    createdAt: string | null;
+    minutes: string;
+    checklist: VerifierChecklistItem[];
+  };
   provenance: {
     methodCode?: string | null;
     version?: string | null;
@@ -27,6 +33,24 @@ export type RunSummary = {
     generatedAt?: string | null;
     snapshotSchemaVersion?: string | null;
   };
+};
+
+export type VerifierChecklistItem = {
+  id: string;
+  label: string;
+  checked: boolean;
+  updatedAt: string;
+};
+
+export type VerifierRunContext = {
+  runId: string;
+  createdAt: string;
+};
+
+export type VerifierRunBundle = {
+  runContext: VerifierRunContext;
+  minutes: string;
+  checklist: VerifierChecklistItem[];
 };
 
 export const SNAPSHOT_SCHEMA_VERSION = "evidence-snapshot/v2";
@@ -39,6 +63,54 @@ function asNonEmptyString(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed ? trimmed : null;
+}
+
+function nowIso(): string {
+  return new Date().toISOString();
+}
+
+function buildRunId(methodCode: string, version: string, date = new Date()): string {
+  const pad2 = (value: number) => String(value).padStart(2, "0");
+  const stamp = [
+    date.getFullYear(),
+    pad2(date.getMonth() + 1),
+    pad2(date.getDate()),
+    pad2(date.getHours()),
+    pad2(date.getMinutes()),
+    pad2(date.getSeconds()),
+  ].join("");
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  return `${normalizedMethod}-${normalizedVersion}-${stamp}`;
+}
+
+function seedChecklist(timestamp: string): VerifierChecklistItem[] {
+  return [
+    { id: "read-overview", label: "Read method overview", checked: false, updatedAt: timestamp },
+    { id: "reviewed-sections", label: "Reviewed relevant sections", checked: false, updatedAt: timestamp },
+    { id: "checked-anchors", label: "Checked rule anchors", checked: false, updatedAt: timestamp },
+    { id: "verified-layer-inputs", label: "Verified spatial evidence layer inputs", checked: false, updatedAt: timestamp },
+    { id: "exported-snapshot", label: "Exported snapshot", checked: false, updatedAt: timestamp },
+  ];
+}
+
+function normalizeChecklist(
+  raw: unknown,
+  fallback: VerifierChecklistItem[],
+  timestamp: string,
+): VerifierChecklistItem[] {
+  if (!Array.isArray(raw)) return fallback;
+  const items: VerifierChecklistItem[] = [];
+  raw.forEach((value, index) => {
+    if (!value || typeof value !== "object") return;
+    const record = value as Record<string, unknown>;
+    const id = asNonEmptyString(record.id) ?? `item-${index + 1}`;
+    const label = asNonEmptyString(record.label) ?? id;
+    const checked = typeof record.checked === "boolean" ? record.checked : false;
+    const updatedAt = asNonEmptyString(record.updatedAt) ?? timestamp;
+    items.push({ id, label, checked, updatedAt });
+  });
+  return items.length ? items : fallback;
 }
 
 function uniqSorted(values: string[] | undefined | null): string[] {
@@ -96,6 +168,12 @@ export function normalizeVersion(raw: string): string {
   if (trimmed.startsWith("v/")) trimmed = trimmed.slice(2);
   if (!trimmed.startsWith("v")) trimmed = `v${trimmed}`;
   return trimmed;
+}
+
+export function buildVerifyRunKey(methodCode: string, version: string): string {
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  return `verify:${normalizedMethod}:${normalizedVersion}`;
 }
 
 export function buildLinkedRulesKey(methodCode: string, version: string): string {
@@ -191,6 +269,72 @@ export function addLinkedRuleIdToStorage(
   return addLinkedRuleIdToKey(key, ruleId);
 }
 
+export function createVerifierRunBundle(methodCode: string, version: string): VerifierRunBundle {
+  const createdAt = nowIso();
+  return {
+    runContext: {
+      runId: buildRunId(methodCode, version, new Date(createdAt)),
+      createdAt,
+    },
+    minutes: "",
+    checklist: seedChecklist(createdAt),
+  };
+}
+
+export function readVerifierRunBundle(methodCode: string, version: string): VerifierRunBundle {
+  const storage = getLocalStorage();
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const canonical = buildVerifyRunKey(normalizedMethod, normalizedVersion);
+  const fallback = createVerifierRunBundle(normalizedMethod, normalizedVersion);
+  if (!storage) return fallback;
+
+  if (!storage.getItem(canonical)) {
+    const legacyKeys = [
+      `verify:${normalizedMethod}@${normalizedVersion}`,
+      `verify:${normalizedMethod}`,
+    ];
+    const legacyKey = legacyKeys.find((key) => storage.getItem(key));
+    if (legacyKey) {
+      const rawLegacy = storage.getItem(legacyKey);
+      if (rawLegacy) storage.setItem(canonical, rawLegacy);
+      storage.removeItem(legacyKey);
+    }
+  }
+
+  const raw = storage.getItem(canonical);
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const minutes = typeof parsed.minutes === "string" ? parsed.minutes : "";
+    const runContextRaw = parsed.runContext && typeof parsed.runContext === "object" ? (parsed.runContext as Record<string, unknown>) : null;
+    const runId = asNonEmptyString(runContextRaw?.runId) ?? fallback.runContext.runId;
+    const createdAt = asNonEmptyString(runContextRaw?.createdAt) ?? fallback.runContext.createdAt;
+    const checklist = normalizeChecklist(parsed.checklist, fallback.checklist, createdAt);
+    return {
+      runContext: { runId, createdAt },
+      minutes,
+      checklist,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+export function persistVerifierRunBundle(methodCode: string, version: string, bundle: VerifierRunBundle): void {
+  const storage = getLocalStorage();
+  if (!storage) return;
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const key = buildVerifyRunKey(normalizedMethod, normalizedVersion);
+  storage.setItem(key, JSON.stringify(bundle));
+}
+
+export function shortRunId(runId: string, length = 8): string {
+  if (!runId) return "";
+  return runId.length <= length ? runId : runId.slice(-length);
+}
+
 export function clearLinkedRuleIdsFromStorage(methodCode: string, version: string): void {
   const storage = getLocalStorage();
   if (!storage) return;
@@ -282,6 +426,12 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
     exportState: {
       snapshotExportedAt: input.exportState?.snapshotExportedAt ?? null,
     },
+    verifier: {
+      runId: input.verifier?.runId ?? null,
+      createdAt: input.verifier?.createdAt ?? null,
+      minutes: input.verifier?.minutes ?? "",
+      checklist: input.verifier?.checklist ?? [],
+    },
     provenance: {
       methodCode: input.provenance?.methodCode ?? null,
       version: input.provenance?.version ?? null,
@@ -296,15 +446,24 @@ export function createTicketTemplate(summary: RunSummary): string {
   const aoi = summary.aoi;
   const stacCount = summary.stac.itemIds.length;
   const linked = summary.linkage.linkedRuleIds.length;
+  const runId = summary.verifier.runId ?? "unknown";
+  const checklistLines = summary.verifier.checklist.map((item) => `- [${item.checked ? "x" : " "}] ${item.label}`);
   const header = `Verify run summary (${summary.provenance.methodCode ?? "unknown"}@${summary.provenance.version ?? "unknown"})`;
   return [
     `# ${header}`,
+    `- Run: ${runId}`,
     "",
     `- AOI hash: ${aoi.hash ?? "n/a"}`,
     `- AOI bbox: ${aoi.bbox ? aoi.bbox.join(", ") : "n/a"}`,
     `- AOI area: ${typeof aoi.areaKm2 === "number" ? `${aoi.areaKm2.toFixed(2)} km^2` : "n/a"}`,
     `- STAC items: ${stacCount}`,
     `- Linked rules: ${linked}`,
+    "",
+    "## Minutes",
+    summary.verifier.minutes?.trim() ? summary.verifier.minutes.trim() : "_None_",
+    "",
+    "## Checklist",
+    checklistLines.length ? checklistLines.join("\n") : "- _No checklist items_",
     "",
     "## Notes",
     "- Outcome snapshot attached.",
