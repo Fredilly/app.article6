@@ -48,4 +48,4 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 5) PR26 — Delta→Impact→Tasks pipeline: Done (PR #407)
 6) PR27 — Coverage ratchet + link resolver gates: Done (PR #411)
 7) PR28 — Flywheel v1: Outcomes + Moat export: Done (PR #387)
-8) PR29 — Pilot loop + hard-case intake: Planned
+8) PR29 — Pilot loop + hard-case intake: Done
