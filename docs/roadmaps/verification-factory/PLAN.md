@@ -77,7 +77,23 @@ Make verification time visible and enforce a checklist gate.
 ### Visible UI change to look for
 - Checklist panel and a verifier minutes timer in Audit Trail.
 
-## PR25 - Delta→Impact→Tasks pipeline
+## PR25 - Local run history (last N runs)
+
+### Goal
+Allow Verify to load and re-export prior runs for a method/version.
+
+### Key changes
+- Persist last N runs locally per method/version.
+- Add run history selector and load controls.
+- Allow re-export of a previously loaded run.
+
+### KPI impact
+- Improves auditability and repeatability of verification runs.
+
+### Visible UI change to look for
+- Verify shows a "Run history" section with Load actions.
+
+## PR26 - Delta→Impact→Tasks pipeline
 
 ### Goal
 Turn detected deltas into impact summaries and actionable tasks.
@@ -93,7 +109,7 @@ Turn detected deltas into impact summaries and actionable tasks.
 ### Visible UI change to look for
 - Delta panel shows impact scores and task list.
 
-## PR26 - Coverage ratchet + link resolver gates
+## PR27 - Coverage ratchet + link resolver gates
 
 ### Goal
 Prevent coverage regressions and enforce link integrity.
@@ -108,22 +124,6 @@ Prevent coverage regressions and enforce link integrity.
 
 ### Visible UI change to look for
 - Coverage ratchet status in CI and Verify header.
-
-## PR27 - Pilot loop + hard-case intake
-
-### Goal
-Create a pilot loop and formal hard-case intake.
-
-### Key changes
-- Add intake registry for hard cases.
-- Add pilot review cadence and checklist integration.
-- Surface backlog in dashboard.
-
-### KPI impact
-- Increases hard-case intake rate and feedback loop strength.
-
-### Visible UI change to look for
-- Intake queue dashboard and pilot cadence indicator.
 
 ## PR28 - Flywheel v1: Outcomes + Moat export
 
@@ -143,3 +143,19 @@ Start compounding moat now by capturing per-rule outcomes + exporting append-onl
 ### Visible UI change to look for
 - Rule modal shows "Outcome" section + Save
 - Verify page has "Export moat" + opt-in toggle
+
+## PR29 - Pilot loop + hard-case intake
+
+### Goal
+Create a pilot loop and formal hard-case intake.
+
+### Key changes
+- Add intake registry for hard cases.
+- Add pilot review cadence and checklist integration.
+- Surface backlog in dashboard.
+
+### KPI impact
+- Increases hard-case intake rate and feedback loop strength.
+
+### Visible UI change to look for
+- Intake queue dashboard and pilot cadence indicator.
