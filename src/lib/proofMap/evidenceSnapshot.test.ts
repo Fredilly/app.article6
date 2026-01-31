@@ -92,3 +92,21 @@ test("includes verifier minutes + checklist in snapshot", async () => {
   expect(snapshot.verifier?.tasks).toHaveLength(1);
   expect(snapshot.verifier?.checklist).toHaveLength(1);
 });
+
+test("keeps verifier tasks empty when none provided", async () => {
+  const snapshot = await buildEvidenceSnapshot({
+    method: { code: "AR-2", version: "v2" },
+    evidence_source: { type: "stac_url", ref: "https://example.test" },
+    verifier: {
+      runId: "AR-2-v2-20260102020202",
+      createdAt: "2026-01-02T02:02:02Z",
+      minutes: "",
+      delta: "",
+      impact: "",
+      checklist: [],
+      tasks: [],
+    },
+  });
+
+  expect(snapshot.verifier?.tasks).toEqual([]);
+});

@@ -55,6 +55,8 @@ export type VerifierTask = {
   updatedAt: string;
 };
 
+let taskCounter = 0;
+
 export type VerifierRunContext = {
   runId: string;
   createdAt: string;
@@ -157,6 +159,20 @@ function normalizeTasks(raw: unknown, timestamp: string): VerifierTask[] {
     tasks.push({ id, text, done, createdAt, updatedAt });
   });
   return tasks;
+}
+
+export function addTaskWithText(text: string): VerifierTask {
+  const trimmed = text.trim();
+  const now = nowIso();
+  taskCounter += 1;
+  const stamp = now.replace(/[:.]/g, "");
+  return {
+    id: `task-${stamp}-${taskCounter}`,
+    text: trimmed,
+    done: false,
+    createdAt: now,
+    updatedAt: now,
+  };
 }
 
 function uniqSorted(values: string[] | undefined | null): string[] {

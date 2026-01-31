@@ -1,12 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import type { VerifierTask } from "@/lib/verify/runState";
 
 type DeltaImpactTasksPanelProps = {
   delta: string;
   impact: string;
   tasks: VerifierTask[];
+  draftTask: string;
+  showDraftTask: boolean;
+  draftTaskInputRef: RefObject<HTMLInputElement>;
+  onDraftTaskChange: (value: string) => void;
+  onCommitDraftTask: () => void;
   onDeltaChange: (value: string) => void;
   onImpactChange: (value: string) => void;
   onAddTask: () => void;
@@ -25,6 +30,11 @@ export default function DeltaImpactTasksPanel({
   delta,
   impact,
   tasks,
+  draftTask,
+  showDraftTask,
+  draftTaskInputRef,
+  onDraftTaskChange,
+  onCommitDraftTask,
   onDeltaChange,
   onImpactChange,
   onAddTask,
@@ -100,9 +110,29 @@ export default function DeltaImpactTasksPanel({
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-xs text-slate-500">No tasks yet.</div>
-          )}
+          ) : null}
+          {showDraftTask ? (
+            <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 px-2 py-2">
+              <input type="checkbox" className="mt-1 h-4 w-4 rounded border-slate-300" disabled />
+              <input
+                ref={draftTaskInputRef}
+                type="text"
+                className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 focus:outline-none"
+                placeholder="Add a task…"
+                value={draftTask}
+                onChange={(event) => onDraftTaskChange(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter") return;
+                  event.preventDefault();
+                  onCommitDraftTask();
+                }}
+                onBlur={() => {
+                  if (!draftTask.trim()) return;
+                  onCommitDraftTask();
+                }}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

@@ -31,6 +31,7 @@ import { deriveRunKpis } from "@/lib/verify/kpis";
 import {
   SNAPSHOT_SCHEMA_VERSION,
   addLinkedRuleIdToStorage,
+  addTaskWithText,
   buildLinkedRulesKey,
   buildRunSummary,
   clearLinkedRuleIdsFromStorage,
@@ -268,7 +269,9 @@ export default function ProofMapTab({
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<string | null>(null);
-  const taskIdCounter = useRef(0);
+  const [draftTask, setDraftTask] = useState("");
+  const [showDraftTask, setShowDraftTask] = useState(false);
+  const draftTaskInputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [mapReadyTick, setMapReadyTick] = useState(0);
   const [stacCentroidsEnabled, setStacCentroidsEnabled] = useState(true);
@@ -375,23 +378,21 @@ export default function ProofMapTab({
     setVerifierBundle((current) => ({ ...current, impact: value }));
   }, []);
 
-  const createTask = useCallback(() => {
-    const timestamp = new Date().toISOString();
-    taskIdCounter.current += 1;
-    const stamp = timestamp.replace(/[:.]/g, "");
-    return {
-      id: `task-${stamp}-${taskIdCounter.current}`,
-      text: "",
-      done: false,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
-  }, []);
+  const commitDraftTask = useCallback(() => {
+    const text = draftTask.trim();
+    if (!text) return;
+    const task = addTaskWithText(text);
+    setVerifierBundle((current) => ({ ...current, tasks: [...current.tasks, task] }));
+    setDraftTask("");
+    setShowDraftTask(false);
+  }, [draftTask]);
 
   const handleAddTask = useCallback(() => {
-    const task = createTask();
-    setVerifierBundle((current) => ({ ...current, tasks: [...current.tasks, task] }));
-  }, [createTask]);
+    setShowDraftTask(true);
+    requestAnimationFrame(() => {
+      draftTaskInputRef.current?.focus();
+    });
+  }, []);
 
   const handleToggleTask = useCallback((id: string) => {
     const timestamp = new Date().toISOString();
@@ -1956,6 +1957,11 @@ export default function ProofMapTab({
             delta={verifierBundle.delta}
             impact={verifierBundle.impact}
             tasks={verifierBundle.tasks}
+            draftTask={draftTask}
+            showDraftTask={showDraftTask || verifierBundle.tasks.length === 0}
+            draftTaskInputRef={draftTaskInputRef}
+            onDraftTaskChange={setDraftTask}
+            onCommitDraftTask={commitDraftTask}
             onDeltaChange={handleDeltaChange}
             onImpactChange={handleImpactChange}
             onAddTask={handleAddTask}
