@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
@@ -282,6 +282,7 @@ export default function ProofMapTab({
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [railMode, setRailMode] = useState<"run" | "evidence">("run");
   const linkedRulesKey = useMemo(() => buildLinkedRulesKey(methodCode, version), [methodCode, version]);
   const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => readLinkedRuleIdsFromStorage(methodCode, version));
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
@@ -369,6 +370,39 @@ export default function ProofMapTab({
   const handleMinutesChange = useCallback((value: string) => {
     setVerifierBundle((current) => ({ ...current, minutes: value }));
   }, []);
+
+  const handleUploadAoiChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+      setError(null);
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text) as unknown;
+        const result = parseAoiGeoJson(parsed, file.name.replace(/\.(geojson|json)$/i, ""));
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
+        if (onAuditEvent) {
+          try {
+            const hash = await aoiFingerprint(result.aoi.geojson);
+            onAuditEvent({
+              kind: "evidence.input",
+              payload: { geojson_hash: hash, aoi_hash: hash },
+            });
+          } catch {
+            // ignore hash failures
+          }
+        }
+        onUploadAoi(result.aoi);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    },
+    [onAuditEvent, onUploadAoi],
+  );
 
   const handleDeltaChange = useCallback((value: string) => {
     setVerifierBundle((current) => ({ ...current, delta: value }));
@@ -485,6 +519,126 @@ export default function ProofMapTab({
     const next = createVerifierRunBundle(methodCode, version);
     setVerifierBundle((current) => ({ ...current, checklist: next.checklist }));
   }, [methodCode, version]);
+
+  const handleSearchStac = useCallback(async () => {
+    if (!aoi) return;
+    setError(null);
+    if (isRunning) return;
+    if (!currentAoiFingerprint) return;
+
+    const cited_ids = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+    const attachment_sha256 = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
+    const input_fingerprint = await runInputFingerprint({
+      aoi_fp: currentAoiFingerprint,
+      cited_ids,
+      attachment_sha256,
+    });
+    if (verificationRuns[0]?.input_fingerprint === input_fingerprint) {
+      showToast("Already ran this exact input.");
+      return;
+    }
+
+    setIsRunning(true);
+    const queued = createQueuedVerificationRun({
+      method: { code: methodCode, version },
+      aoi,
+      pins: evidencePins,
+      aoi_fingerprint: currentAoiFingerprint,
+      input_fingerprint,
+    });
+    onSetVerificationRuns([queued, ...verificationRuns]);
+    try {
+      const res = await runStacEvidenceSearch({
+        method: { code: methodCode, version },
+        aoi,
+        cited_ids: queued.cited_ids,
+        attachment_sha256: queued.attachment_sha256,
+      });
+      const updated: VerificationRun = {
+        ...queued,
+        provider: res.provider,
+        status: res.runStatus,
+        summary: res.summary,
+        result_json: res.result_json,
+        ended_at: new Date().toISOString(),
+      };
+
+      if (res.provider === "stac" && res.runStatus === "ok") {
+        const normalized = normalizeStacItems(res.result_json);
+        const endpoint = (() => {
+          const root = res.result_json && typeof res.result_json === "object" ? (res.result_json as Record<string, unknown>) : null;
+          const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
+          const url = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
+          return url && url.trim() ? url.trim() : null;
+        })();
+
+        onSetStacEvidenceState({
+          aoiFingerprint: currentAoiFingerprint,
+          fc: normalized.featureCollection,
+          itemsById: normalized.itemsById,
+          runId: updated.id,
+          source: endpoint ? { type: "stac_url", ref: endpoint } : { type: "unknown", ref: "unknown" },
+        });
+        onSelectStacItemId(null);
+        if (onAuditEvent) {
+          onAuditEvent({
+            kind: "evidence.input",
+            payload: { stac_url: endpoint ?? "unknown", aoi_hash: currentAoiFingerprint },
+          });
+        }
+
+        let evidenceBbox: [number, number, number, number] | null = null;
+        for (const item of Object.values(normalized.itemsById)) {
+          if (!item || typeof item !== "object") continue;
+          const record = item as Record<string, unknown>;
+          evidenceBbox = unionBbox(evidenceBbox, getFeatureBbox(record));
+        }
+        const targetBbox = unionBbox(parseBbox(aoi.bbox), evidenceBbox) ?? evidenceBbox ?? parseBbox(aoi.bbox);
+        if (targetBbox && mapRef.current?.fitBounds) {
+          try {
+            mapRef.current.fitBounds(
+              [
+                [targetBbox[0], targetBbox[1]],
+                [targetBbox[2], targetBbox[3]],
+              ],
+              { padding: 40, duration: 0 },
+            );
+          } catch {
+            // ignore
+          }
+        }
+      }
+
+      onSetVerificationRuns([updated, ...verificationRuns]);
+      showToast("Search complete");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      const updated: VerificationRun = {
+        ...queued,
+        status: "error",
+        summary: message,
+        result_json: { error: message },
+        ended_at: new Date().toISOString(),
+      };
+      onSetVerificationRuns([updated, ...verificationRuns]);
+      setError(message);
+    } finally {
+      setIsRunning(false);
+    }
+  }, [
+    aoi,
+    currentAoiFingerprint,
+    evidencePins,
+    isRunning,
+    methodCode,
+    onAuditEvent,
+    onSelectStacItemId,
+    onSetStacEvidenceState,
+    onSetVerificationRuns,
+    showToast,
+    verificationRuns,
+    version,
+  ]);
 
   const handleNewRun = useCallback(() => {
     handleSaveRunHistory();
@@ -879,6 +1033,20 @@ export default function ProofMapTab({
     const hasSnapshots = (evidenceSnapshots ?? []).length > 0;
     return hasAoi || hasPins || hasSelection || hasEvidence || hasRuns || hasSnapshots;
   }, [aoi, currentStacEvidence?.fc?.features?.length, evidencePins.length, evidenceSnapshots, selectedStacItemId, verificationRuns.length]);
+
+  const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
+
+  const renderUploadAoiButton = (className?: string) => (
+    <label className={`inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 ${className ?? ""}`}>
+      Upload AOI
+      <input
+        type="file"
+        accept=".json,.geojson,application/json"
+        className="hidden"
+        onChange={handleUploadAoiChange}
+      />
+    </label>
+  );
 
   const handleExportSnapshot = useCallback(async () => {
     const selectedItem =
@@ -1928,316 +2096,257 @@ export default function ProofMapTab({
         </div>
 
         <div className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
-          <OutcomeWidget
-            summary={runSummary}
-            onCopy={copyToClipboard}
-            onExportSnapshot={handleExportSnapshot}
-            onCreateTicket={handleCreateTicket}
-            showCreateTicket={TICKETS_FEATURE_ENABLED}
-            debugKey={linkedRulesKey}
-            debugLinkedCount={linkedRuleIds.length}
-            provenance={{
-              repo: trustPicked.repo ?? null,
-              sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
-              generatedAt: trustPicked.generatedAt ?? null,
-            }}
-          />
-          <VerifierMinutesPanel
-            runContext={verifierBundle.runContext}
-            minutes={verifierBundle.minutes}
-            checklist={verifierBundle.checklist}
-            onMinutesChange={handleMinutesChange}
-            onToggleChecklist={handleToggleChecklist}
-            onResetChecklist={handleResetChecklist}
-            onNewRun={handleNewRun}
-            onCreateTicket={handleCreateTicket}
-            showCreateTicket={TICKETS_FEATURE_ENABLED}
-          />
-          <DeltaImpactTasksPanel
-            delta={verifierBundle.delta}
-            impact={verifierBundle.impact}
-            tasks={verifierBundle.tasks}
-            draftTask={draftTask}
-            showDraftTask={showDraftTask || verifierBundle.tasks.length === 0}
-            draftTaskInputRef={draftTaskInputRef}
-            onDraftTaskChange={setDraftTask}
-            onCommitDraftTask={commitDraftTask}
-            onDeltaChange={handleDeltaChange}
-            onImpactChange={handleImpactChange}
-            onAddTask={handleAddTask}
-            onToggleTask={handleToggleTask}
-            onUpdateTask={handleUpdateTask}
-            onDeleteTask={handleDeleteTask}
-          />
-          <RunHistoryPanel items={runHistory} onLoad={handleLoadRunHistory} onDelete={handleDeleteRunHistory} />
-          <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
-            <div className="mt-1 text-xs text-slate-500">Stored locally for this method/version.</div>
-          </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <button
-              type="button"
-              className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={() => {
-                if (hasStartOverState) setStartOverOpen(true);
-                else showToast("Nothing to clear.");
-              }}
-              disabled={startOverBusy}
-            >
-              Start over
-            </button>
-            <button
-              type="button"
-              className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
-              onClick={() => setPanelCollapsed(true)}
-              aria-label="Collapse Verify panel"
-            >
-              Collapse »
-            </button>
-            <label className="inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-              Upload AOI
-              <input
-                type="file"
-                accept=".json,.geojson,application/json"
-                className="hidden"
-                onChange={async (event) => {
-                  const file = event.target.files?.[0];
-                  event.target.value = "";
-                  if (!file) return;
-                  setError(null);
-                  try {
-                    const text = await file.text();
-                    const parsed = JSON.parse(text) as unknown;
-                    const result = parseAoiGeoJson(parsed, file.name.replace(/\\.(geojson|json)$/i, ""));
-                    if (!result.ok) {
-                      setError(result.error);
-                      return;
-                    }
-                    if (onAuditEvent) {
-                      try {
-                        const hash = await aoiFingerprint(result.aoi.geojson);
-                        onAuditEvent({
-                          kind: "evidence.input",
-                          payload: { geojson_hash: hash, aoi_hash: hash },
-                        });
-                      } catch {
-                        // ignore hash failures
-                      }
-                    }
-                    onUploadAoi(result.aoi);
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : String(e));
-                  }
-                }}
-              />
-            </label>
-          </div>
-        </div>
-        <div className="text-xs text-slate-500">Clears AOI, pins, and evidence selections.</div>
-
-        {error ? (
-          <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-            {error}
-          </div>
-        ) : null}
-
-        {aoi ? (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
-              {isPreview ? (
-                <span className="rounded-full border border-sky-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-sky-700">
-                  Preview
-                </span>
-              ) : currentAoi ? (
-                <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                  Current
-                </span>
-              ) : null}
+          <div className="flex items-center justify-between gap-2">
+            <div className="inline-flex rounded-full border border-slate-200 bg-white p-1 shadow-sm">
+              {(["run", "evidence"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${railMode === mode ? "bg-slate-900 text-white" : "text-slate-600 hover:text-slate-900"}`}
+                  onClick={() => setRailMode(mode)}
+                >
+                  {mode}
+                </button>
+              ))}
             </div>
-            {isPreview ? (
-              <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs text-slate-700">
-                <div className="font-semibold text-slate-900">New AOI ready</div>
-                <div className="mt-1">
-                  Replace the current AOI with <span className="font-semibold">{aoi.name}</span>?
-                </div>
-                {willClearWork ? (
-                  <div className="mt-1 text-[11px] text-slate-600">
-                    This will clear pins and evidence selections.
-                  </div>
-                ) : null}
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
-                    onClick={onApplyDraftAoi}
-                  >
-                    Replace AOI
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                    onClick={onCancelDraftAoi}
-                  >
-                    Keep current
-                  </button>
-                </div>
-              </div>
-            ) : null}
-            <div className="mt-2 grid gap-1 text-xs text-slate-600">
-              <div>area: {formatNum(aoi.area_km2)} km²</div>
-              <div className="break-words">bbox: {bboxLabel}</div>
-            </div>
-            <div className="mt-3">
+            {railMode === "run" ? (
+              <span className="text-xs text-slate-500">Run tools</span>
+            ) : (
+              <span className="text-xs text-slate-500">Evidence tools</span>
+            )}
+          </div>
+
+          <div className="sticky top-0 z-10 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+            <div className={railMode === "run" ? "flex flex-wrap items-center gap-2" : "hidden"}>
               <button
                 type="button"
-                className="w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins })}
-                onClick={async () => {
-                  if (!aoi) return;
-                  setError(null);
-                  if (isRunning) return;
-                  if (!currentAoiFingerprint) return;
-
-                  const cited_ids = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-                  const attachment_sha256 = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
-                  const input_fingerprint = await runInputFingerprint({
-                    aoi_fp: currentAoiFingerprint,
-                    cited_ids,
-                    attachment_sha256,
-                  });
-                  if (verificationRuns[0]?.input_fingerprint === input_fingerprint) {
-                    showToast("Already ran this exact input.");
-                    return;
-                  }
-
-                  setIsRunning(true);
-                  const queued = createQueuedVerificationRun({
-                    method: { code: methodCode, version },
-                    aoi,
-                    pins: evidencePins,
-                    aoi_fingerprint: currentAoiFingerprint,
-                    input_fingerprint,
-                  });
-                  onSetVerificationRuns([queued, ...verificationRuns]);
-                  try {
-                    const res = await runStacEvidenceSearch({
-                      method: { code: methodCode, version },
-                      aoi,
-                      cited_ids: queued.cited_ids,
-                      attachment_sha256: queued.attachment_sha256,
-                    });
-                    const updated: VerificationRun = {
-                      ...queued,
-                      provider: res.provider,
-                      status: res.runStatus,
-                      summary: res.summary,
-                      result_json: res.result_json,
-                      ended_at: new Date().toISOString(),
-                    };
-
-                    if (res.provider === "stac" && res.runStatus === "ok") {
-                      const normalized = normalizeStacItems(res.result_json);
-                      const endpoint = (() => {
-                        const root = res.result_json && typeof res.result_json === "object" ? (res.result_json as Record<string, unknown>) : null;
-                        const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
-                        const url = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
-                        return url && url.trim() ? url.trim() : null;
-                      })();
-
-                      onSetStacEvidenceState({
-                        aoiFingerprint: currentAoiFingerprint,
-                        fc: normalized.featureCollection,
-                        itemsById: normalized.itemsById,
-                        runId: updated.id,
-                        source: endpoint ? { type: "stac_url", ref: endpoint } : { type: "unknown", ref: "unknown" },
-                      });
-                      onSelectStacItemId(null);
-                      if (onAuditEvent) {
-                        onAuditEvent({
-                          kind: "evidence.input",
-                          payload: { stac_url: endpoint ?? "unknown", aoi_hash: currentAoiFingerprint },
-                        });
-                      }
-
-                      let evidenceBbox: [number, number, number, number] | null = null;
-                      for (const item of Object.values(normalized.itemsById)) {
-                        if (!item || typeof item !== "object") continue;
-                        const record = item as Record<string, unknown>;
-                        evidenceBbox = unionBbox(evidenceBbox, getFeatureBbox(record));
-                      }
-                      const targetBbox = unionBbox(parseBbox(aoi.bbox), evidenceBbox) ?? evidenceBbox ?? parseBbox(aoi.bbox);
-                      if (targetBbox && mapRef.current?.fitBounds) {
-                        try {
-                          mapRef.current.fitBounds(
-                            [
-                              [targetBbox[0], targetBbox[1]],
-                              [targetBbox[2], targetBbox[3]],
-                            ],
-                            { padding: 40, duration: 0 },
-                          );
-                        } catch {
-                          // ignore
-                        }
-                      }
-                    }
-
-                    onSetVerificationRuns([updated, ...verificationRuns]);
-                    showToast("Search complete");
-                  } catch (e) {
-                    const message = e instanceof Error ? e.message : String(e);
-                    const updated: VerificationRun = {
-                      ...queued,
-                      status: "error",
-                      summary: message,
-                      result_json: { error: message },
-                      ended_at: new Date().toISOString(),
-                    };
-                    onSetVerificationRuns([updated, ...verificationRuns]);
-                    setError(message);
-                  } finally {
-                    setIsRunning(false);
-                  }
-                }}
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={handleNewRun}
               >
-                {isRunning ? "Searching…" : "Search STAC evidence"}
+                New run
+              </button>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
+                onClick={handleExportSnapshot}
+              >
+                Export snapshot
+              </button>
+            </div>
+            <div className={railMode === "evidence" ? "flex flex-wrap items-center gap-2" : "hidden"}>
+              {renderUploadAoiButton()}
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={searchDisabled}
+                onClick={handleSearchStac}
+              >
+                {isRunning ? "Searching…" : "Search STAC"}
               </button>
             </div>
           </div>
-        ) : (
-          <div className="rounded-lg border border-dashed border-slate-200 bg-white px-3 py-3 text-xs text-slate-500">
-            {isListMode
-              ? "No evidence loaded yet. Add STAC link or upload AOI to begin."
-              : "No evidence loaded yet. This is the spatial view of evidence—upload an AOI to begin."}
+
+          <div className={railMode === "run" ? "grid gap-3" : "hidden"}>
+            <VerifierMinutesPanel
+              runContext={verifierBundle.runContext}
+              minutes={verifierBundle.minutes}
+              checklist={verifierBundle.checklist}
+              onMinutesChange={handleMinutesChange}
+              onToggleChecklist={handleToggleChecklist}
+              onResetChecklist={handleResetChecklist}
+              onNewRun={handleNewRun}
+              onCreateTicket={handleCreateTicket}
+              showCreateTicket={TICKETS_FEATURE_ENABLED}
+            />
+            <DeltaImpactTasksPanel
+              delta={verifierBundle.delta}
+              impact={verifierBundle.impact}
+              tasks={verifierBundle.tasks}
+              draftTask={draftTask}
+              showDraftTask={showDraftTask || verifierBundle.tasks.length === 0}
+              draftTaskInputRef={draftTaskInputRef}
+              onDraftTaskChange={setDraftTask}
+              onCommitDraftTask={commitDraftTask}
+              onDeltaChange={handleDeltaChange}
+              onImpactChange={handleImpactChange}
+              onAddTask={handleAddTask}
+              onToggleTask={handleToggleTask}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+            />
+            <details className="rounded-xl border border-slate-200 bg-white">
+              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                Run history
+                <span className="ml-2 text-[11px] font-medium text-slate-500">{runHistory.length} runs</span>
+              </summary>
+              <div className="px-3 pb-3">
+                <RunHistoryPanel items={runHistory} onLoad={handleLoadRunHistory} onDelete={handleDeleteRunHistory} showTitle={false} />
+              </div>
+            </details>
+            <details className="rounded-xl border border-slate-200 bg-white">
+              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                Outcome
+              </summary>
+              <div className="px-3 pb-3 pt-1">
+                <OutcomeWidget
+                  className="border-0 p-0"
+                  summary={runSummary}
+                  onCopy={copyToClipboard}
+                  onExportSnapshot={handleExportSnapshot}
+                  onCreateTicket={handleCreateTicket}
+                  showCreateTicket={TICKETS_FEATURE_ENABLED}
+                  debugKey={linkedRulesKey}
+                  debugLinkedCount={linkedRuleIds.length}
+                  provenance={{
+                    repo: trustPicked.repo ?? null,
+                    sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
+                    generatedAt: trustPicked.generatedAt ?? null,
+                  }}
+                />
+              </div>
+            </details>
           </div>
-        )}
 
-        {verifierMode && auditTrail ? (
-          <details className="rounded-lg border border-slate-200 bg-white">
-            <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-              Audit trail
-              <span className="ml-2 text-[11px] font-medium text-slate-500">
-                {auditTrail.events.length} events
-              </span>
-            </summary>
-            <div className="px-3 pb-3">
-              <AuditTrailPanel
-                events={auditTrail.events}
-                exportJson={auditTrail.exportJson}
-                exportSha256={auditTrail.exportSha256}
-                onClear={auditTrail.onClear}
-                onExport={auditTrail.onExport}
-                onJumpToRule={auditTrail.onJumpToRule}
-                onOpenEvidence={auditTrail.onOpenEvidence}
-                onNotify={showToast}
-              />
+          <div className={railMode === "evidence" ? "grid gap-3" : "hidden"}>
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <div className="text-sm font-semibold text-slate-900">Upload AOI</div>
+              <div className="mt-1 text-xs text-slate-500">Add a GeoJSON AOI to start evidence search.</div>
+              <div className="mt-3">{renderUploadAoiButton()}</div>
             </div>
-          </details>
-        ) : null}
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
+                <div className="mt-1 text-xs text-slate-500">Stored locally for this method/version.</div>
+              </div>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => {
+                    if (hasStartOverState) setStartOverOpen(true);
+                    else showToast("Nothing to clear.");
+                  }}
+                  disabled={startOverBusy}
+                >
+                  Start over
+                </button>
+                <button
+                  type="button"
+                  className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+                  onClick={() => setPanelCollapsed(true)}
+                  aria-label="Collapse Verify panel"
+                >
+                  Collapse »
+                </button>
+              </div>
+            </div>
+            <div className="text-xs text-slate-500">Clears AOI, pins, and evidence selections.</div>
 
-        {isListMode ? null : listContent}
-      </div>
+            {error ? (
+              <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+                {error}
+              </div>
+            ) : null}
+
+            {aoi ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
+                  {isPreview ? (
+                    <span className="rounded-full border border-sky-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                      Preview
+                    </span>
+                  ) : currentAoi ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                      Current
+                    </span>
+                  ) : null}
+                </div>
+                {isPreview ? (
+                  <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs text-slate-700">
+                    <div className="font-semibold text-slate-900">New AOI ready</div>
+                    <div className="mt-1">
+                      Replace the current AOI with <span className="font-semibold">{aoi.name}</span>?
+                    </div>
+                    {willClearWork ? (
+                      <div className="mt-1 text-[11px] text-slate-600">
+                        This will clear pins and evidence selections.
+                      </div>
+                    ) : null}
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
+                        onClick={onApplyDraftAoi}
+                      >
+                        Replace AOI
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={onCancelDraftAoi}
+                      >
+                        Keep current
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+                <div className="mt-2 grid gap-1 text-xs text-slate-600">
+                  <div>area: {formatNum(aoi.area_km2)} km²</div>
+                  <div className="break-words">bbox: {bboxLabel}</div>
+                </div>
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    className="w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={searchDisabled}
+                    onClick={handleSearchStac}
+                  >
+                    {isRunning ? "Searching…" : "Search STAC evidence"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-slate-200 bg-white px-3 py-3 text-xs text-slate-500">
+                {isListMode
+                  ? "No evidence loaded yet. Add STAC link or upload AOI to begin."
+                  : "No evidence loaded yet. This is the spatial view of evidence—upload an AOI to begin."}
+              </div>
+            )}
+
+            {verifierMode && auditTrail ? (
+              <details className="rounded-lg border border-slate-200 bg-white">
+                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                  Audit trail
+                  <span className="ml-2 text-[11px] font-medium text-slate-500">
+                    {auditTrail.events.length} events
+                  </span>
+                </summary>
+                <div className="px-3 pb-3">
+                  <AuditTrailPanel
+                    events={auditTrail.events}
+                    exportJson={auditTrail.exportJson}
+                    exportSha256={auditTrail.exportSha256}
+                    onClear={auditTrail.onClear}
+                    onExport={auditTrail.onExport}
+                    onJumpToRule={auditTrail.onJumpToRule}
+                    onOpenEvidence={auditTrail.onOpenEvidence}
+                    onNotify={showToast}
+                  />
+                </div>
+              </details>
+            ) : null}
+
+            {isListMode ? null : (
+              <details className="rounded-lg border border-slate-200 bg-white">
+                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                  Evidence list
+                </summary>
+                <div className="px-3 pb-3">{listContent}</div>
+              </details>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
