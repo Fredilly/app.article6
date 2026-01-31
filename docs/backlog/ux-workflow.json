@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "UX-0001",
+      "title": "Verifier notes UX hardening (template + export-time validation)",
+      "type": "ux",
+      "status": "idea",
+      "priority": "p3",
+      "createdAt": "2026-01-31",
+      "notes": [
+        "Template insertion (Goal / Method refs / Evidence inputs / Spot checks / Decision / Uncertainties / Next)",
+        "Character counter + min/max",
+        "Enforce required only on Export/Finalize (not while exploring)",
+        "Light prefill from run context (method/version/runId, itemsCount, linkedRulesCount)"
+      ]
+    }
+  ]
+}
