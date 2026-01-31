@@ -24,7 +24,20 @@ import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
-import { SNAPSHOT_SCHEMA_VERSION, addLinkedRuleId, buildRunSummary, createTicketTemplate, extractStacQuery } from "@/lib/verify/runState";
+import { deriveRunKpis } from "@/lib/verify/kpis";
+import {
+  SNAPSHOT_SCHEMA_VERSION,
+  addLinkedRuleIdToStorage,
+  buildLinkedRulesKey,
+  buildRunSummary,
+  clearLinkedRuleIdsFromStorage,
+  createTicketTemplate,
+  extractStacQuery,
+  readLinkedRuleIdsFromStorage,
+  parseLinkedRuleId,
+  subscribeLinkedRuleIds,
+} from "@/lib/verify/runState";
+import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -34,6 +47,7 @@ type ProofMapTabProps = {
   viewMode?: "list" | "map";
   verifierMode?: boolean;
   activeRuleId?: string | null;
+  totalRules?: number | null;
   aoi: AOI | null;
   currentAoi: AOI | null;
   draftAoi: AOI | null;
@@ -138,17 +152,7 @@ function hostnamePathFromUrl(value: string): string {
 function ruleIdFromLocation(): string | null {
   if (typeof window === "undefined") return null;
   const params = new URLSearchParams(window.location.search);
-  const ruleParam = params.get("rule")?.trim();
-  if (ruleParam) return ruleParam;
-  const rawHash = (window.location.hash || "").replace(/^#/, "").trim();
-  if (!rawHash) return null;
-  if (rawHash.startsWith("r-")) {
-    const trimmed = rawHash.slice(2).trim();
-    return trimmed || null;
-  }
-  if (rawHash.startsWith("s-")) return null;
-  if (rawHash.startsWith("R-")) return rawHash;
-  return null;
+  return parseLinkedRuleId({ ruleParam: params.get("rule"), hash: window.location.hash });
 }
 
 function parseBbox(value: unknown): [number, number, number, number] | null {
@@ -219,6 +223,7 @@ export default function ProofMapTab({
   viewMode = "map",
   verifierMode = false,
   activeRuleId = null,
+  totalRules = null,
   aoi,
   currentAoi,
   draftAoi,
@@ -262,7 +267,9 @@ export default function ProofMapTab({
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
-  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>([]);
+  const linkedRulesKey = useMemo(() => buildLinkedRulesKey(methodCode, version), [methodCode, version]);
+  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => readLinkedRuleIdsFromStorage(methodCode, version));
+  const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -295,9 +302,37 @@ export default function ProofMapTab({
     }
   }, [showToast]);
 
-  const trackLinkedRule = useCallback((id: string) => {
-    setLinkedRuleIds((current) => addLinkedRuleId(current, id));
-  }, []);
+  useEffect(() => {
+    const readNext = () => {
+      const next = readLinkedRuleIdsFromStorage(methodCode, version);
+      setLinkedRuleIds((current) => {
+        if (current.length === next.length && current.every((value, idx) => value === next[idx])) return current;
+        return next;
+      });
+    };
+    readNext();
+    const unsubscribe = subscribeLinkedRuleIds(readNext);
+    const onStorage = (event: StorageEvent) => {
+      if (!event.key || event.key !== linkedRulesKey) return;
+      readNext();
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", onStorage);
+    }
+    return () => {
+      unsubscribe();
+      if (typeof window !== "undefined") {
+        window.removeEventListener("storage", onStorage);
+      }
+    };
+  }, [linkedRulesKey, methodCode, version]);
+
+  const trackLinkedRule = useCallback(
+    (id: string) => {
+      setLinkedRuleIds(addLinkedRuleIdToStorage(methodCode, version, id));
+    },
+    [methodCode, version],
+  );
 
   useEffect(() => {
     if (!activeRuleId) return;
@@ -451,10 +486,6 @@ export default function ProofMapTab({
   useEffect(() => {
     onSelectStacItemId(null);
   }, [methodCode, onSelectStacItemId, version]);
-
-  useEffect(() => {
-    setLinkedRuleIds([]);
-  }, [currentAoiFingerprint, methodCode, version]);
 
   const currentRuns = useMemo(() => {
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
@@ -639,6 +670,9 @@ export default function ProofMapTab({
         linkage: {
           linkedRuleIds,
         },
+        exportState: {
+          snapshotExportedAt,
+        },
         provenance: {
           methodCode,
           version,
@@ -652,11 +686,14 @@ export default function ProofMapTab({
       currentAoiFingerprint,
       linkedRuleIds,
       methodCode,
+      snapshotExportedAt,
       stacFeatureIds,
       stacQuery,
       version,
     ],
   );
+
+  const runKpis = useMemo(() => deriveRunKpis(runSummary, { totalRules }), [runSummary, totalRules]);
 
   const evidenceChip = useMemo(() => {
     if (stacEndpointUrl) {
@@ -729,13 +766,21 @@ export default function ProofMapTab({
       return { items };
     })();
 
+    const exportedAt = new Date().toISOString();
+    setSnapshotExportedAt(exportedAt);
+
     const outcome = buildRunSummary({
       ...runSummary,
+      exportState: {
+        ...runSummary.exportState,
+        snapshotExportedAt: exportedAt,
+      },
       provenance: {
         ...runSummary.provenance,
-        generatedAt: new Date().toISOString(),
+        generatedAt: exportedAt,
       },
     });
+    const kpis = deriveRunKpis(outcome, { totalRules });
 
     const snap = await buildOutcomeSnapshot({
       method: { code: methodCode, version },
@@ -759,6 +804,7 @@ export default function ProofMapTab({
       },
       stacItemsJson,
       outcome,
+      kpis,
     });
 
     const snapshotWithLegacyItems = {
@@ -779,6 +825,7 @@ export default function ProofMapTab({
     selectedStacItemId,
     showToast,
     stacEndpointUrl,
+    totalRules,
     version,
   ]);
 
@@ -812,6 +859,7 @@ export default function ProofMapTab({
       setLastSelectionSource(null);
       setStacCentroidsEnabled(true);
       setLinkedRuleIds([]);
+      clearLinkedRuleIdsFromStorage(methodCode, version);
       try {
         mapRef.current?.jumpTo?.({ center: [0, 0], zoom: 1 });
       } catch {
@@ -824,9 +872,11 @@ export default function ProofMapTab({
     }
   }, [
     evidencePins,
+    methodCode,
     onStartOver,
     showToast,
     startOverBusy,
+    version,
   ]);
 
   useEffect(() => {
@@ -1502,6 +1552,7 @@ export default function ProofMapTab({
           </div>
 
           <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <ProofCoverageChip kpis={runKpis} linkedRulesCount={linkedRuleIds.length} />
             <button
               type="button"
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
@@ -1676,6 +1727,8 @@ export default function ProofMapTab({
             onExportSnapshot={handleExportSnapshot}
             onCreateTicket={handleCreateTicket}
             showCreateTicket={TICKETS_FEATURE_ENABLED}
+            debugKey={linkedRulesKey}
+            debugLinkedCount={linkedRuleIds.length}
             provenance={{
               repo: trustPicked.repo ?? null,
               sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,

@@ -7,6 +7,8 @@ type OutcomeWidgetProps = {
   onCopy: (value: string) => void;
   onExportSnapshot: () => void;
   onCreateTicket?: () => void;
+  debugKey?: string | null;
+  debugLinkedCount?: number;
   provenance?: {
     repo?: string | null;
     sha?: string | null;
@@ -44,6 +46,8 @@ export default function OutcomeWidget({
   onCopy,
   onExportSnapshot,
   onCreateTicket,
+  debugKey = null,
+  debugLinkedCount,
   provenance,
   showCreateTicket = false,
 }: OutcomeWidgetProps) {
@@ -60,6 +64,8 @@ export default function OutcomeWidget({
   const aoiReady = Boolean(summary.aoi.hash);
   const stacCount = summary.stac.itemIds.length;
   const linkedCount = summary.linkage.linkedRuleIds.length;
+  const showDebug = process.env.NODE_ENV !== "production";
+  const debugLinked = summary.linkage.linkedRuleIds[0] ?? "";
 
   const collapsedLine = useMemo(() => {
     const aoiLabel = aoiReady ? "AOI ✓" : "AOI —";
@@ -161,6 +167,14 @@ export default function OutcomeWidget({
 
           <div className="grid gap-2">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Linked rules</div>
+            {showDebug ? (
+              <div className="text-[11px] text-slate-400">
+                Debug linked ids: {linkedCount}
+                {debugLinked ? ` (${debugLinked})` : ""}
+                {debugKey ? ` • key=${debugKey}` : ""}
+                {typeof debugLinkedCount === "number" ? ` • linked=${debugLinkedCount}` : ""}
+              </div>
+            ) : null}
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs text-slate-700">
               <span className="min-w-0">
                 Count: <span className="font-semibold text-slate-900">{linkedCount}</span>

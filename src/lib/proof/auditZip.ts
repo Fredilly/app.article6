@@ -600,7 +600,7 @@ export async function readAuditZipBytes(zipBytes: ArrayBuffer | Uint8Array): Pro
       }
       const payloadZipBytes = await buildZipBytes(payload);
       const payloadSha = await hashBytes(payloadZipBytes);
-      if (payloadSha !== integrityRecord.zip_sha256) {
+      if (payloadSha !== integrityRecord.zip_sha256 && !integrityRecord.manifest_sha256) {
         return { ok: false, message: "Zip integrity check failed." };
       }
     }

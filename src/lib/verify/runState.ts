@@ -17,6 +17,9 @@ export type RunSummary = {
   linkage: {
     linkedRuleIds: string[];
   };
+  exportState: {
+    snapshotExportedAt: string | null;
+  };
   provenance: {
     methodCode?: string | null;
     version?: string | null;
@@ -47,6 +50,172 @@ function uniqSorted(values: string[] | undefined | null): string[] {
 export function addLinkedRuleId(current: string[] | undefined | null, ruleId: string | null | undefined): string[] {
   if (!ruleId) return uniqSorted(current);
   return uniqSorted([...(current ?? []), ruleId]);
+}
+
+export function parseLinkedRuleId(input: { ruleParam?: string | null; hash?: string | null }): string | null {
+  const ruleParam = (input.ruleParam ?? "").trim();
+  if (ruleParam) return ruleParam;
+  const rawHash = (input.hash ?? "").replace(/^#/, "").trim();
+  if (!rawHash) return null;
+  if (rawHash.startsWith("R-")) return rawHash;
+  const lower = rawHash.toLowerCase();
+  if (lower.startsWith("r-")) {
+    const trimmed = rawHash.slice(2).trim();
+    return trimmed || null;
+  }
+  if (lower.startsWith("s-")) return null;
+  return null;
+}
+
+type LinkedRuleListener = () => void;
+const linkedRuleListeners = new Set<LinkedRuleListener>();
+
+function notifyLinkedRuleListeners(): void {
+  if (linkedRuleListeners.size === 0) return;
+  for (const listener of linkedRuleListeners) listener();
+}
+
+function getLocalStorage(): Storage | null {
+  if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+  if (typeof globalThis !== "undefined" && "localStorage" in globalThis) {
+    return (globalThis as unknown as { localStorage?: Storage }).localStorage ?? null;
+  }
+  return null;
+}
+
+export function normalizeMethodCode(raw: string): string {
+  const trimmed = (raw ?? "").trim();
+  if (!trimmed) return "";
+  const atIndex = trimmed.indexOf("@");
+  return atIndex >= 0 ? trimmed.slice(0, atIndex).trim() : trimmed;
+}
+
+export function normalizeVersion(raw: string): string {
+  let trimmed = (raw ?? "").trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("v/")) trimmed = trimmed.slice(2);
+  if (!trimmed.startsWith("v")) trimmed = `v${trimmed}`;
+  return trimmed;
+}
+
+export function buildLinkedRulesKey(methodCode: string, version: string): string {
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  return `verifyLinkedRules:${normalizedMethod}:${normalizedVersion}`;
+}
+
+function migrateLinkedRulesKey(methodCode: string, version: string): void {
+  const storage = getLocalStorage();
+  if (!storage) return;
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const canonical = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  if (storage.getItem(canonical)) return;
+  const keysToMerge: string[] = [];
+  for (let index = 0; index < storage.length; index += 1) {
+    const key = storage.key(index);
+    if (!key) continue;
+    if (key === canonical) continue;
+    if (key.startsWith(`verifyLinkedRules:${normalizedMethod}:`)) keysToMerge.push(key);
+    if (key.startsWith(`verifyLinkedRules:${normalizedMethod}@`)) keysToMerge.push(key);
+    if (key.startsWith(`verifyLinkedRules:${normalizedMethod}v`)) keysToMerge.push(key);
+  }
+  if (!keysToMerge.length) return;
+  const merged = new Set<string>();
+  for (const key of keysToMerge) {
+    const raw = storage.getItem(key);
+    if (!raw) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        for (const value of parsed) {
+          if (typeof value === "string") merged.add(value.trim());
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const next = Array.from(merged).filter(Boolean).sort((a, b) => a.localeCompare(b));
+  if (!next.length) return;
+  storage.setItem(canonical, JSON.stringify(next));
+  for (const key of keysToMerge) storage.removeItem(key);
+}
+
+export function readLinkedRuleIdsFromStorage(methodCode: string, version: string): string[] {
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  migrateLinkedRulesKey(normalizedMethod, normalizedVersion);
+  return loadLinkedRuleIds(buildLinkedRulesKey(normalizedMethod, normalizedVersion));
+}
+
+export function loadLinkedRuleIds(key: string): string[] {
+  const storage = getLocalStorage();
+  if (!storage) return [];
+  const raw = storage.getItem(key);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return uniqSorted(parsed.filter((value) => typeof value === "string"));
+  } catch {
+    return [];
+  }
+}
+
+export function persistLinkedRuleIds(key: string, ids: string[]): void {
+  const storage = getLocalStorage();
+  if (!storage) return;
+  const next = uniqSorted(ids);
+  const current = loadLinkedRuleIds(key);
+  if (current.length === next.length && current.every((value, idx) => value === next[idx])) return;
+  storage.setItem(key, JSON.stringify(next));
+  notifyLinkedRuleListeners();
+}
+
+function addLinkedRuleIdToKey(key: string, ruleId: string | null | undefined): string[] {
+  const current = loadLinkedRuleIds(key);
+  const next = addLinkedRuleId(current, ruleId);
+  persistLinkedRuleIds(key, next);
+  return next;
+}
+
+export function addLinkedRuleIdToStorage(
+  methodCode: string,
+  version: string,
+  ruleId: string | null | undefined,
+): string[] {
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const key = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  return addLinkedRuleIdToKey(key, ruleId);
+}
+
+export function clearLinkedRuleIdsFromStorage(methodCode: string, version: string): void {
+  const storage = getLocalStorage();
+  if (!storage) return;
+  const normalizedMethod = normalizeMethodCode(methodCode);
+  const normalizedVersion = normalizeVersion(version);
+  const canonical = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  storage.removeItem(canonical);
+  const legacyPrefixes = [
+    `verifyLinkedRules:${normalizedMethod}:`,
+    `verifyLinkedRules:${normalizedMethod}@`,
+    `verifyLinkedRules:${normalizedMethod}v`,
+  ];
+  for (let index = storage.length - 1; index >= 0; index -= 1) {
+    const key = storage.key(index);
+    if (!key || key === canonical) continue;
+    if (legacyPrefixes.some((prefix) => key.startsWith(prefix))) storage.removeItem(key);
+  }
+  notifyLinkedRuleListeners();
+}
+
+export function subscribeLinkedRuleIds(listener: LinkedRuleListener): () => void {
+  linkedRuleListeners.add(listener);
+  return () => {
+    linkedRuleListeners.delete(listener);
+  };
 }
 
 function parseDatetimeRange(value: unknown): { start?: string; end?: string } | null {
@@ -109,6 +278,9 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
     },
     linkage: {
       linkedRuleIds: uniqSorted(input.linkage?.linkedRuleIds),
+    },
+    exportState: {
+      snapshotExportedAt: input.exportState?.snapshotExportedAt ?? null,
     },
     provenance: {
       methodCode: input.provenance?.methodCode ?? null,
