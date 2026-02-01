@@ -2,7 +2,89 @@
   "version": 1,
   "overall": {
     "covered": 2,
-    "total": 12,
-    "ratio": 0.166667
-  }
+    "total": 8,
+    "ratio": 0.25
+  },
+  "rules": [
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0001",
+      "status": "covered",
+      "strength": 1,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    },
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0002",
+      "status": "covered",
+      "strength": 1,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    },
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0003",
+      "status": "uncovered",
+      "strength": 0,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    },
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0004",
+      "status": "uncovered",
+      "strength": 0,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    },
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0005",
+      "status": "uncovered",
+      "strength": 0,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    },
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0006",
+      "status": "uncovered",
+      "strength": 0,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    },
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0007",
+      "status": "uncovered",
+      "strength": 0,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    },
+    {
+      "method_code": "AR-ACM0003",
+      "version": "v02-0",
+      "ruleId": "R-1-0008",
+      "status": "uncovered",
+      "strength": 0,
+      "source": "linkage",
+      "updated_at": null,
+      "notes": null
+    }
+  ]
 }

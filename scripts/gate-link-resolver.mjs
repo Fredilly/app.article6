@@ -98,6 +98,7 @@ async function main() {
   const manifestPath = path.join(process.cwd(), "public", "manifest", "index.json");
   const manifest = await readJson(manifestPath);
   if (!Array.isArray(manifest)) throw new Error("Manifest index missing or invalid.");
+  const coveragePath = path.join(process.cwd(), "artifacts", "ci", "coverage.json");
 
   const cache = new Map();
   const broken = [];
@@ -154,6 +155,42 @@ async function main() {
         new URL(url);
       } catch {
         broken.push({ ref: url, reason: "invalid external URL" });
+      }
+    }
+  }
+
+  if (await fileExists(coveragePath)) {
+    const coverage = await readJson(coveragePath);
+    const records = Array.isArray(coverage?.rules) ? coverage.rules : [];
+    if (records.length) {
+      const sample = records[0] ?? {};
+      const methodCode = typeof sample.method_code === "string" ? sample.method_code : null;
+      const methodVersion = typeof sample.version === "string" ? sample.version : null;
+      total += 1;
+      if (!methodCode || !methodVersion) {
+        broken.push({ ref: "coverage.rules", reason: "coverage records missing method_code/version" });
+      } else {
+        const entry = manifest.find(
+          (item) => item?.methodology === methodCode && item?.version === methodVersion && typeof item?.path === "string",
+        );
+        if (!entry?.path) {
+          broken.push({ ref: `${methodCode}@${methodVersion}`, reason: "coverage method/version not found in manifest" });
+        } else {
+          const rulesPath = path.join(process.cwd(), "public", entry.path);
+          if (!(await fileExists(rulesPath))) {
+            broken.push({ ref: rulesPath, reason: "coverage rules.json missing on disk" });
+          } else {
+            const rulesJson = await readJson(rulesPath);
+            const ruleIds = collectRuleIds(rulesJson);
+            for (const record of records) {
+              total += 1;
+              const ruleId = typeof record?.ruleId === "string" ? record.ruleId : null;
+              if (!ruleId || !ruleIds.has(ruleId)) {
+                broken.push({ ref: `coverage ruleId:${ruleId ?? "missing"}`, reason: "coverage ruleId not found in rules.json" });
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -1,8 +1,8 @@
 {
   "method": {
-    "code": "VM-001",
-    "version": "v1",
-    "totalRules": 12
+    "code": "AR-ACM0003",
+    "version": "v02-0",
+    "totalRules": 8
   },
   "summary": {
     "aoi": {
@@ -37,14 +37,14 @@
       ]
     },
     "linkage": {
-      "linkedRuleIds": ["R-1", "R-2"]
+      "linkedRuleIds": ["R-1-0001", "R-1-0002"]
     },
     "exportState": {
       "snapshotExportedAt": null
     },
     "provenance": {
-      "methodCode": "VM-001",
-      "version": "v1",
+      "methodCode": "AR-ACM0003",
+      "version": "v02-0",
       "snapshotSchemaVersion": "evidence-snapshot/v2"
     }
   }

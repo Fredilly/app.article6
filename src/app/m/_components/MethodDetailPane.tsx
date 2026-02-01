@@ -10,6 +10,7 @@ import ProofMapTab from "@/components/map/ProofMapTab";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
 import ShareLinkButton from "@/components/actions/ShareLinkButton";
+import CoveragePanel from "@/components/coverage/CoveragePanel";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
@@ -269,6 +270,10 @@ export default function MethodDetailPane({
       return haystack.includes(q);
     });
   }, [ruleQuery, rules]);
+  const coverageRules = useMemo(
+    () => rules.map((rule) => ({ id: rule.id, title: rule.title, tags: rule.tags ?? [] })),
+    [rules],
+  );
 
   const ruleCitationSectionIds = useMemo(() => {
     if (!ruleDetail) return [];
@@ -1330,6 +1335,16 @@ export default function MethodDetailPane({
                 />
               </div>
             </div>
+
+            {activeVersion ? (
+              <CoveragePanel
+                methodCode={method.code}
+                version={activeVersion}
+                rules={coverageRules}
+                activeRuleId={activeRuleId}
+                onOpenRule={openRule}
+              />
+            ) : null}
 
             {rulesDeeplinkWarning ? (
               <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
