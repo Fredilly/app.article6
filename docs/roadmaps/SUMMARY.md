@@ -49,7 +49,7 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 6) PR27 — Coverage ratchet + link resolver gates: Done (PR #411)
 7) PR28 — Flywheel v1: Outcomes + Moat export: Done (PR #387)
 8) PR29 — Pilot loop + hard-case intake: Done (PR #414)
-9) PR30 — Make coverage actionable (real rule IDs): Next
+9) PR30 — Make coverage actionable (real rule IDs): Done
 10) PR31 — Baseline uplift discipline: Planned
 11) PR32 — Pairwise evidence preference events (Midjourney-style): Planned
 12) PR33 — Adjudication templates + Promote to Gold labels: Planned
