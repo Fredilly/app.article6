@@ -159,3 +159,137 @@ Create a pilot loop and formal hard-case intake.
 
 ### Visible UI change to look for
 - Intake queue dashboard and pilot cadence indicator.
+
+## Verification Factory v2
+
+## PR30 - Make coverage actionable (real rule IDs)
+
+### Goal
+Resolve coverage denominators to real rule IDs so coverage gaps are actionable.
+
+### Scope
+- Resolve rule IDs from manifest + rules.json for coverage reporting.
+- Emit debug lists of covered/uncovered rule IDs.
+- Keep ratio computation stable.
+
+### Non-goals
+- No new UI surfaces.
+- No changes to coverage math.
+
+### Acceptance criteria
+- Coverage debug output lists real rule IDs.
+- Uncovered list contains real rule IDs with reasons.
+- Coverage ratio unchanged from prior computation.
+
+### Visible UI change to look for
+- No UI; CI-only.
+
+## PR31 - Baseline uplift discipline
+
+### Goal
+Make raising coverage baselines a consistent, low-friction habit.
+
+### Scope
+- Define a baseline uplift checklist and cadence.
+- Add a lightweight baseline update workflow.
+- Track uplift history in SSOT metadata.
+
+### Non-goals
+- No automated baseline changes.
+- No new verification logic.
+
+### Acceptance criteria
+- Baseline uplift steps documented and repeatable.
+- Baseline updates recorded with owner + rationale.
+- CI ratchet continues to block regressions.
+
+### Visible UI change to look for
+- No UI; CI-only.
+
+## PR32 - Pairwise evidence preference events (Midjourney-style)
+
+### Goal
+Capture pairwise evidence preferences to guide ranking and QA.
+
+### Scope
+- Add a pairwise preference event schema.
+- Store preference events in the local registry.
+- Provide a minimal capture UI in Verify.
+
+### Non-goals
+- No model training.
+- No external integrations.
+
+### Acceptance criteria
+- Users can record a preference between two evidence items.
+- Events are persisted locally and exportable.
+- Preference capture is deterministic and auditable.
+
+### Visible UI change to look for
+- Verify shows a simple pairwise preference prompt.
+
+## PR33 - Adjudication templates + Promote to Gold labels
+
+### Goal
+Standardize adjudication outcomes and tag gold-standard evidence.
+
+### Scope
+- Define adjudication templates (approve/reject/needs more).
+- Add "Promote to Gold" tagging for evidence items.
+- Persist adjudication decisions in the audit trail.
+
+### Non-goals
+- No permissions or role management.
+- No external labeling tools.
+
+### Acceptance criteria
+- Adjudication templates are selectable and saved.
+- Gold labels are visible on tagged evidence.
+- Decisions appear in audit trail exports.
+
+### Visible UI change to look for
+- Evidence cards show adjudication actions and gold labels.
+
+## PR34 - Precedent matching (case-law memory)
+
+### Goal
+Surface similar prior cases to speed verification decisions.
+
+### Scope
+- Define precedent matching metadata in snapshots.
+- Add a lightweight local index of prior cases.
+- Show top matches for the active rule.
+
+### Non-goals
+- No server-side search.
+- No ML embeddings.
+
+### Acceptance criteria
+- Prior cases can be linked to the active rule.
+- Top matches render with links to evidence.
+- Matches are deterministic given the local index.
+
+### Visible UI change to look for
+- Verify shows a "Precedents" panel with top matches.
+
+## PR35 - Investor-safe Moat Export v2 (redacted)
+
+### Goal
+Export redacted moat bundles suitable for investor review.
+
+### Scope
+- Add redaction rules for sensitive evidence.
+- Produce a v2 moat export bundle.
+- Include redaction manifest in the export.
+
+### Non-goals
+- No changes to existing v1 exports.
+- No external sharing workflows.
+
+### Acceptance criteria
+- Redacted export omits sensitive fields.
+- Export includes redaction manifest and hash.
+- Export passes existing determinism checks.
+
+### Visible UI change to look for
+- Export action includes a "Redacted v2" option.
