@@ -7,38 +7,12 @@
   "PR27": "done",
   "PR28": "done",
   "PR29": "done",
-  "PR30": "next",
+  "PR30": "done",
   "PR31": "planned",
   "PR32": "planned",
   "PR33": "planned",
   "PR34": "planned",
   "PR35": "planned",
-  "pr_meta": {
-    "PR30": {
-      "title": "Make coverage actionable (real rule IDs)",
-      "summary": "Resolve coverage denominators from manifest rule IDs instead of synthetic placeholders."
-    },
-    "PR31": {
-      "title": "Baseline uplift discipline",
-      "summary": "Codify a workflow for raising coverage baselines without regressions."
-    },
-    "PR32": {
-      "title": "Pairwise evidence preference events",
-      "summary": "Capture preference comparisons to guide evidence ranking and QA."
-    },
-    "PR33": {
-      "title": "Adjudication templates + Promote to Gold labels",
-      "summary": "Standardize adjudication outcomes and label gold-standard evidence."
-    },
-    "PR34": {
-      "title": "Precedent matching (case-law memory)",
-      "summary": "Surface similar prior cases to speed verification decisions."
-    },
-    "PR35": {
-      "title": "Investor-safe Moat Export v2 (redacted)",
-      "summary": "Export redacted moat bundles suitable for investor distribution."
-    }
-  },
   "pr_evidence": {
     "PR22": [
       397
@@ -64,5 +38,31 @@
     "PR29": [
       414
     ]
+  },
+  "pr_meta": {
+    "PR30": {
+      "title": "Make coverage actionable (real rule IDs)",
+      "summary": "Resolve coverage denominators from manifest rule IDs instead of synthetic placeholders."
+    },
+    "PR31": {
+      "title": "Baseline uplift discipline",
+      "summary": "Codify a workflow for raising coverage baselines without regressions."
+    },
+    "PR32": {
+      "title": "Pairwise evidence preference events",
+      "summary": "Capture preference comparisons to guide evidence ranking and QA."
+    },
+    "PR33": {
+      "title": "Adjudication templates + Promote to Gold labels",
+      "summary": "Standardize adjudication outcomes and label gold-standard evidence."
+    },
+    "PR34": {
+      "title": "Precedent matching (case-law memory)",
+      "summary": "Surface similar prior cases to speed verification decisions."
+    },
+    "PR35": {
+      "title": "Investor-safe Moat Export v2 (redacted)",
+      "summary": "Export redacted moat bundles suitable for investor distribution."
+    }
   }
 }
