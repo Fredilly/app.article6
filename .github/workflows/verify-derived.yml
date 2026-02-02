@@ -14,5 +14,7 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
+      - name: Fetch datasets
+        run: npm run prebuild
       - name: Verify derived artifacts
         run: npm run derive:all
