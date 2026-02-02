@@ -18,3 +18,5 @@ jobs:
         run: npm run prebuild
       - name: Verify derived artifacts
         run: npm run derive:all
+      - name: Assert derived present
+        run: npm run assert:derived
