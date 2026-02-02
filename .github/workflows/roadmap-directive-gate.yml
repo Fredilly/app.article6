@@ -14,3 +14,5 @@ jobs:
           node-version: 20
       - name: Roadmap directive gate
         run: node scripts/roadmap/check-roadmap-directive.mjs
+      - name: Roadmap monotonic gate
+        run: node scripts/roadmap/gate-roadmap-monotonic.mjs

@@ -43,6 +43,7 @@
     "audit-pack:diff": "node scripts/audit-pack/diff-manifests.mjs",
     "prepare": "husky install",
     "roadmap:gen": "node scripts/roadmap/gen-roadmap.mjs",
+    "roadmap:update": "node scripts/roadmap/roadmap-update.mjs",
     "test:audit-pack:trail-smoke": "node scripts/test-audit-pack-trail-smoke.mjs"
   },
   "engines": {

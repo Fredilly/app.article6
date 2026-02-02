@@ -222,6 +222,7 @@ export function parseRoadmapDirective(body) {
   }
 
   let slug = null;
+  let ack = null;
   const items = [];
   for (const rawLine of directiveLines) {
     const line = rawLine.trim();
@@ -229,6 +230,11 @@ export function parseRoadmapDirective(body) {
     const slugMatch = line.match(/^\-?\s*slug:\s*(.+)$/i);
     if (slugMatch) {
       slug = slugMatch[1].trim();
+      continue;
+    }
+    const ackMatch = line.match(/^\-?\s*ack:\s*(.+)$/i);
+    if (ackMatch) {
+      ack = ackMatch[1].trim();
       continue;
     }
     const itemMatch = line.match(/^\-?\s*(PR\d+(?:[._]\d+)?)\s*:\s*([a-zA-Z_-]+)\s*$/i);
@@ -239,5 +245,5 @@ export function parseRoadmapDirective(body) {
     }
   }
 
-  return { slug, items };
+  return { slug, items, ack };
 }
