@@ -100,6 +100,7 @@ type ProofMapTabProps = {
   onStartOver: () => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
   onAuditEvent?: (event: AuditTrailEventInput) => void;
+  onOpenCoverageDrawer?: () => void;
   auditTrail?: {
     events: AuditTrailEvent[];
     exportJson: string;
@@ -258,6 +259,7 @@ export default function ProofMapTab({
   onStartOver,
   onNavigateEvidence,
   onAuditEvent,
+  onOpenCoverageDrawer,
   auditTrail,
   onEvidenceSelectionChange,
 }: ProofMapTabProps) {
@@ -2029,7 +2031,11 @@ export default function ProofMapTab({
           </div>
 
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <ProofCoverageChip kpis={runKpis} linkedRulesCount={linkedRuleIds.length} />
+            <ProofCoverageChip
+              kpis={runKpis}
+              linkedRulesCount={linkedRuleIds.length}
+              onViewCoverage={onOpenCoverageDrawer}
+            />
             <button
               type="button"
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"

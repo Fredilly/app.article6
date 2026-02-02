@@ -11,11 +11,20 @@ import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
 import ShareLinkButton from "@/components/actions/ShareLinkButton";
 import CoveragePanel from "@/components/coverage/CoveragePanel";
+import CoverageDrawer from "@/components/coverage/CoverageDrawer";
+import { buildCoverageQueue } from "@/lib/coverage/queue";
+import { addCoverageTask } from "@/lib/coverage/tasks";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
 import { jumpToRule } from "@/lib/ruleJump";
-import { addLinkedRuleIdToStorage, clearLinkedRuleIdsFromStorage, parseLinkedRuleId } from "@/lib/verify/runState";
+import {
+  addLinkedRuleIdToStorage,
+  clearLinkedRuleIdsFromStorage,
+  parseLinkedRuleId,
+  readLinkedRuleIdsFromStorage,
+  subscribeLinkedRuleIds,
+} from "@/lib/verify/runState";
 import { decodeShareState, encodeShareState } from "@/lib/shareLink";
 import { shouldResetDerivedState } from "@/lib/proofMap/aoiApply";
 import {
@@ -239,6 +248,8 @@ export default function MethodDetailPane({
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
   const lastEvidenceParam = useRef<string | null>(null);
+  const [coverageDrawerOpen, setCoverageDrawerOpen] = useState(false);
+  const [coverageLinkedRuleIds, setCoverageLinkedRuleIds] = useState<string[]>([]);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richEvidence, setRichEvidence] = useState<NormalizedRichEvidence | null>(null);
@@ -274,6 +285,13 @@ export default function MethodDetailPane({
     () => rules.map((rule) => ({ id: rule.id, title: rule.title, tags: rule.tags ?? [] })),
     [rules],
   );
+  const coverageSummary = useMemo(() => {
+    return buildCoverageQueue({
+      rules: coverageRules,
+      coveredRuleIds: new Set(coverageLinkedRuleIds),
+      limit: 10,
+    });
+  }, [coverageLinkedRuleIds, coverageRules]);
 
   const ruleCitationSectionIds = useMemo(() => {
     if (!ruleDetail) return [];
@@ -316,6 +334,17 @@ export default function MethodDetailPane({
     setTraceError(null);
     setTraceLoading(false);
     lastRuleFromQuery.current = null;
+  }, [activeVersion, method.code]);
+
+  useEffect(() => {
+    if (!activeVersion) {
+      setCoverageLinkedRuleIds([]);
+      return;
+    }
+    setCoverageLinkedRuleIds(readLinkedRuleIdsFromStorage(method.code, activeVersion));
+    return subscribeLinkedRuleIds(() => {
+      setCoverageLinkedRuleIds(readLinkedRuleIdsFromStorage(method.code, activeVersion));
+    });
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -1066,6 +1095,14 @@ export default function MethodDetailPane({
     [activeVersion, appendAuditEvent, method.code, router],
   );
 
+  const handleCoverageTask = useCallback(
+    (ruleId: string) => {
+      if (!activeVersion) return { storedIn: "coverage", action: "added" as const };
+      return addCoverageTask({ methodCode: method.code, version: activeVersion, ruleId });
+    },
+    [activeVersion, method.code],
+  );
+
   const handleExportAuditTrail = useCallback(() => {
     if (!exportSha256) return;
     appendAuditEvent({ kind: "export.audit_trail", payload: { audit_trail_sha256: exportSha256 } });
@@ -1162,6 +1199,7 @@ export default function MethodDetailPane({
           if (type === "section") return await navigateToSection(id);
           return false;
         }}
+        onOpenCoverageDrawer={() => setCoverageDrawerOpen(true)}
       />
     </div>
   );
@@ -1338,11 +1376,20 @@ export default function MethodDetailPane({
 
             {activeVersion ? (
               <CoveragePanel
-                methodCode={method.code}
-                version={activeVersion}
-                rules={coverageRules}
+                summary={coverageSummary}
+                onView={() => setCoverageDrawerOpen(true)}
+              />
+            ) : null}
+
+            {activeVersion ? (
+              <CoverageDrawer
+                open={coverageDrawerOpen}
+                title={`${coverageSummary.uncovered} uncovered rules`}
+                rules={coverageSummary.allUncovered}
                 activeRuleId={activeRuleId}
+                onClose={() => setCoverageDrawerOpen(false)}
                 onOpenRule={openRule}
+                onAddTask={handleCoverageTask}
               />
             ) : null}
 
