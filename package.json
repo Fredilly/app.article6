@@ -21,7 +21,9 @@
     "fetch:methodologies-pack": "bash scripts/fetch-methodologies-pack.sh",
     "check:golden": "bash scripts/check-golden-rich.sh",
     "build:audit-pack": "node scripts/build-audit-pack.mjs",
+    "build:derived": "node scripts/build-derived-artifacts.mjs",
     "verify:audit-pack": "node scripts/verify-audit-pack.mjs",
+    "verify:derived": "node scripts/verify-derived-artifacts.mjs",
     "verify:artifacts": "node scripts/verify-artifacts.mjs",
     "validate:artifacts": "node scripts/validate-artifacts.mjs",
     "drift:artifacts": "node scripts/drift-artifacts.mjs",
@@ -40,10 +42,13 @@
     "ci:coverage": "node scripts/compute-coverage.mjs",
     "ci:ratchet": "node scripts/gate-coverage-ratchet.mjs",
     "ci:links": "node scripts/gate-link-resolver.mjs",
+    "manifest:derived": "node scripts/build-derived-manifest.mjs",
+    "derive:all": "npm run build:derived && npm run manifest:derived && npm run verify:derived",
     "audit-pack:diff": "node scripts/audit-pack/diff-manifests.mjs",
     "prepare": "husky install",
     "roadmap:gen": "node scripts/roadmap/gen-roadmap.mjs",
     "roadmap:update": "node scripts/roadmap/roadmap-update.mjs",
+    "test:derived:determinism": "node scripts/test-derived-determinism.mjs",
     "test:audit-pack:trail-smoke": "node scripts/test-audit-pack-trail-smoke.mjs"
   },
   "engines": {

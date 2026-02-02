@@ -1,0 +1,20 @@
+name: verify-derived
+
+on:
+  pull_request:
+
+jobs:
+  verify-derived:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Fetch datasets
+        run: npm run prebuild
+      - name: Verify derived artifacts
+        run: npm run derive:all

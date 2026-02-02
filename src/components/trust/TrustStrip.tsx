@@ -102,6 +102,15 @@ async function checkExists(url: string): Promise<boolean> {
   }
 }
 
+async function sha256Text(text: string): Promise<string | null> {
+  if (!globalThis.crypto?.subtle) return null;
+  const data = new TextEncoder().encode(text);
+  const hash = await globalThis.crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 function ChipButton({
   label,
   value,
@@ -162,10 +171,13 @@ export default function TrustStrip({
   const metaUrl = useMemo(() => (baseDir ? `${baseDir}/META.json` : null), [baseDir]);
   const sectionsUrl = useMemo(() => (rulesUrl ? rulesUrl.replace(/rules\.json$/i, "sections.json") : null), [rulesUrl]);
   const richUrl = useMemo(() => (baseDir ? `${baseDir}/rich.json` : null), [baseDir]);
+  const derivedManifestUrl = useMemo(() => (baseDir ? `${baseDir}/derived/manifest.json` : null), [baseDir]);
 
   const [metaPicked, setMetaPicked] = useState(() => pickProvenanceFields(null));
   const [metaAvailable, setMetaAvailable] = useState(false);
   const [richAvailable, setRichAvailable] = useState(false);
+  const [derivedAvailable, setDerivedAvailable] = useState(false);
+  const [derivedManifestSha, setDerivedManifestSha] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [importStatus, setImportStatus] = useState<{
     kind: "idle" | "error" | "switch";
@@ -206,6 +218,25 @@ export default function TrustStrip({
       cancelled = true;
     };
   }, [richUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setDerivedAvailable(false);
+      setDerivedManifestSha(null);
+      if (!derivedManifestUrl) return;
+      const text = await fetchJsonText(derivedManifestUrl);
+      if (cancelled) return;
+      if (!text) return;
+      setDerivedAvailable(true);
+      const sha = await sha256Text(text);
+      if (cancelled) return;
+      if (sha) setDerivedManifestSha(sha);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [derivedManifestUrl]);
 
   const audit = metaPicked.auditHashes;
 
@@ -275,6 +306,24 @@ export default function TrustStrip({
             Trust strip
           </span>
           <span className="text-sm font-semibold text-slate-900">Audit pack & provenance</span>
+        </div>
+
+        <div className="flex min-w-[180px] flex-col gap-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            Derived
+          </span>
+          {derivedManifestSha ? (
+            <ChipButton
+              label="derived"
+              value={derivedManifestSha}
+              display={shortSha(derivedManifestSha)}
+              onCopied={() => handleCopied("derived_manifest")}
+            />
+          ) : (
+            <span className="text-xs text-slate-400">
+              Derived: {derivedAvailable ? "hash unavailable" : "not available"}
+            </span>
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-2">
