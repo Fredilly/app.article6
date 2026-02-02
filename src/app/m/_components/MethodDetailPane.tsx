@@ -285,6 +285,13 @@ export default function MethodDetailPane({
     () => rules.map((rule) => ({ id: rule.id, title: rule.title, tags: rule.tags ?? [] })),
     [rules],
   );
+  const coverageRulesWithStatus = useMemo(() => {
+    const linked = new Set(coverageLinkedRuleIds);
+    return coverageRules.map((rule) => ({
+      ...rule,
+      status: linked.has(rule.id) ? ("covered" as const) : ("uncovered" as const),
+    }));
+  }, [coverageLinkedRuleIds, coverageRules]);
   const coverageSummary = useMemo(() => {
     return buildCoverageQueue({
       rules: coverageRules,
@@ -1385,7 +1392,7 @@ export default function MethodDetailPane({
               <CoverageDrawer
                 open={coverageDrawerOpen}
                 title={`${coverageSummary.uncovered} uncovered rules`}
-                rules={coverageSummary.allUncovered}
+                rules={coverageRulesWithStatus}
                 activeRuleId={activeRuleId}
                 onClose={() => setCoverageDrawerOpen(false)}
                 onOpenRule={openRule}

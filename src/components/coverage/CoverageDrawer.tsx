@@ -24,6 +24,7 @@ export default function CoverageDrawer({
 }: CoverageDrawerProps) {
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const [view, setView] = useState<"uncovered" | "covered">("uncovered");
 
   useEffect(() => {
     if (!open) return;
@@ -35,14 +36,24 @@ export default function CoverageDrawer({
     };
   }, [open]);
 
+  const uncoveredRules = useMemo(
+    () => rules.filter((rule) => (rule.status ?? "uncovered") !== "covered"),
+    [rules],
+  );
+  const coveredRules = useMemo(
+    () => rules.filter((rule) => (rule.status ?? "uncovered") === "covered"),
+    [rules],
+  );
+  const activeRules = view === "uncovered" ? uncoveredRules : coveredRules;
+
   const filteredRules = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return rules;
-    return rules.filter((rule) => {
+    if (!q) return activeRules;
+    return activeRules.filter((rule) => {
       const haystack = `${rule.id} ${rule.title} ${(rule.tags ?? []).join(" ")}`.toLowerCase();
       return haystack.includes(q);
     });
-  }, [query, rules]);
+  }, [activeRules, query]);
 
   const handleAddTask = (ruleId: string) => {
     const result = onAddTask(ruleId);
@@ -63,6 +74,22 @@ export default function CoverageDrawer({
             <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Coverage queue</div>
             <div className="mt-1 text-sm font-semibold text-slate-900">{title}</div>
             <div className="mt-1 text-xs text-slate-500">Uncovered rules (linked evidence coverage)</div>
+            <div className="mt-3 inline-flex rounded-full border border-slate-200 bg-slate-50 p-0.5 text-[11px] font-semibold text-slate-600">
+              <button
+                type="button"
+                onClick={() => setView("uncovered")}
+                className={`rounded-full px-2.5 py-1 ${view === "uncovered" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
+              >
+                Uncovered ({uncoveredRules.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("covered")}
+                className={`rounded-full px-2.5 py-1 ${view === "covered" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
+              >
+                Covered ({coveredRules.length})
+              </button>
+            </div>
           </div>
           <button
             type="button"
@@ -78,7 +105,7 @@ export default function CoverageDrawer({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search uncovered rules…"
+            placeholder="Search rules…"
             className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
           />
           {toast ? (
@@ -91,7 +118,7 @@ export default function CoverageDrawer({
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {rules.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
-              All rules are covered.
+              No rules available.
             </div>
           ) : filteredRules.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
