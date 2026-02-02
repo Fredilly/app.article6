@@ -7,7 +7,7 @@
   "PR27": "done",
   "PR28": "done",
   "PR29": "done",
-  "PR30": "in-progress",
+  "PR30": "done",
   "PR31": "planned",
   "PR32": "planned",
   "PR33": "planned",
@@ -34,6 +34,9 @@
     ],
     "PR27": [
       411
+    ],
+    "PR30": [
+      427
     ],
     "PR29": [
       414
