@@ -9,6 +9,7 @@ type RunHistoryPanelProps = {
   onLoad: (runId: string) => void;
   onDelete?: (runId: string) => void;
   showTitle?: boolean;
+  badgeForRun?: (entry: VerifyRunHistoryEntry) => { label: string; title?: string; className?: string } | null;
 };
 
 function formatLocalTime(value: string): string {
@@ -17,7 +18,13 @@ function formatLocalTime(value: string): string {
   return date.toLocaleString();
 }
 
-export default function RunHistoryPanel({ items, onLoad, onDelete, showTitle = true }: RunHistoryPanelProps) {
+export default function RunHistoryPanel({
+  items,
+  onLoad,
+  onDelete,
+  showTitle = true,
+  badgeForRun,
+}: RunHistoryPanelProps) {
   const rows = useMemo(() => items.slice(0, 10), [items]);
   const containerClass = showTitle ? "rounded-xl border border-slate-200 bg-white p-4" : "bg-transparent";
 
@@ -33,6 +40,20 @@ export default function RunHistoryPanel({ items, onLoad, onDelete, showTitle = t
                 <div className="text-[11px] text-slate-500">{formatLocalTime(item.createdAt)}</div>
               </div>
               <div className="flex items-center gap-2">
+                {typeof badgeForRun === "function" ? (() => {
+                  const badge = badgeForRun(item);
+                  if (!badge) return null;
+                  return (
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                        badge.className ?? "border-slate-200 bg-white text-slate-600"
+                      }`}
+                      title={badge.title}
+                    >
+                      {badge.label}
+                    </span>
+                  );
+                })() : null}
                 <button
                   type="button"
                   className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm hover:bg-slate-50"

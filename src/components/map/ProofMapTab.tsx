@@ -28,6 +28,9 @@ import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { deriveRunKpis } from "@/lib/verify/kpis";
+import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
+import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
+import { computeUplift, isComparable } from "@/lib/baseline/uplift";
 import { addIntakeItem } from "@/lib/intake/storage";
 import {
   SNAPSHOT_SCHEMA_VERSION,
@@ -41,6 +44,7 @@ import {
   deleteRunFromHistory,
   extractStacQuery,
   loadRunFromHistory,
+  type VerifyRunHistoryEntry,
   readLinkedRuleIdsFromStorage,
   parseLinkedRuleId,
   persistVerifierRunBundle,
@@ -48,6 +52,7 @@ import {
   readVerifierRunBundle,
   saveCurrentRunToHistory,
   setLinkedRuleIdsInStorage,
+  shortRunId,
   subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
@@ -187,6 +192,26 @@ function formatLocalDateTime(iso: string): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 }
 
+function formatDelta(value: number, suffix = "", digits = 0): string {
+  const sign = value > 0 ? "+" : value < 0 ? "" : "";
+  const rounded = digits > 0 ? value.toFixed(digits) : String(Math.trunc(value));
+  return `${sign}${rounded}${suffix}`;
+}
+
+function extractItemIdsFromRuns(runs: VerificationRun[]): string[] {
+  for (const run of runs ?? []) {
+    if (run.status !== "ok") continue;
+    if (!run.result_json || typeof run.result_json !== "object") continue;
+    try {
+      const normalized = normalizeStacItems(run.result_json);
+      return Object.keys(normalized.itemsById);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 function zoomToBbox(map: MapLibreMap | null, bbox: [number, number, number, number] | null, padding = 70) {
   if (!map?.fitBounds) return;
   if (!bbox) return;
@@ -293,7 +318,9 @@ export default function ProofMapTab({
   const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => readLinkedRuleIdsFromStorage(methodCode, version));
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
+  const [baselineTick, setBaselineTick] = useState(0);
   const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
+  const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -316,6 +343,28 @@ export default function ProofMapTab({
     const timer = window.setTimeout(() => setUndoVisible(false), 4500);
     return () => window.clearTimeout(timer);
   }, [applyToken]);
+
+  useEffect(() => {
+    let active = true;
+    if (!currentAoiFingerprint) {
+      setCurrentInputFingerprint(null);
+      return () => {
+        active = false;
+      };
+    }
+    const cited_ids = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+    const attachment_sha256 = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
+    runInputFingerprint({ aoi_fp: currentAoiFingerprint, cited_ids, attachment_sha256 })
+      .then((hash) => {
+        if (active) setCurrentInputFingerprint(hash);
+      })
+      .catch(() => {
+        if (active) setCurrentInputFingerprint(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [currentAoiFingerprint, evidencePins]);
 
   const copyToClipboard = useCallback(async (value: string) => {
     try {
@@ -1104,6 +1153,121 @@ export default function ProofMapTab({
 
   const runKpis = useMemo(() => deriveRunKpis(runSummary, { totalRules }), [runSummary, totalRules]);
 
+  const currentBaselineProvenance = useMemo<BaselineKey>(
+    () => ({
+      methodId: methodCode.trim(),
+      versionId: version.trim(),
+      harnessVersion: (process.env.NEXT_PUBLIC_GIT_SHA ?? "").trim(),
+      datasetHash: (currentInputFingerprint ?? "").trim(),
+    }),
+    [currentInputFingerprint, methodCode, version],
+  );
+
+  const baselineMissing = useMemo(() => {
+    const missing: string[] = [];
+    if (!currentBaselineProvenance.methodId || !currentBaselineProvenance.versionId) missing.push("method/version");
+    if (!currentBaselineProvenance.harnessVersion) missing.push("harness version");
+    if (!currentBaselineProvenance.datasetHash) missing.push("dataset hash");
+    return missing;
+  }, [currentBaselineProvenance]);
+
+  const latestBaseline = useMemo(
+    () => {
+      void baselineTick;
+      return getLatestBaselineForMethod(methodCode.trim(), version.trim());
+    },
+    [baselineTick, methodCode, version],
+  );
+
+  const baselineComparable = useMemo(() => {
+    if (!latestBaseline) return { ok: false, reasons: [] as string[] };
+    return isComparable(latestBaseline.baselineProvenance, currentBaselineProvenance);
+  }, [currentBaselineProvenance, latestBaseline]);
+
+  const upliftSummary = useMemo(() => {
+    if (!latestBaseline || !baselineComparable.ok) return null;
+    return computeUplift(latestBaseline.baselineKpis, runKpis);
+  }, [baselineComparable.ok, latestBaseline, runKpis]);
+
+  const badgeForRun = useCallback(
+    (entry: VerifyRunHistoryEntry) => {
+      if (!latestBaseline) return null;
+      const runs = entry.bundle.verificationRuns ?? [];
+      const datasetHash = runs.find((run) => typeof run.input_fingerprint === "string")?.input_fingerprint ?? "";
+      const entryProv: BaselineKey = {
+        methodId: currentBaselineProvenance.methodId,
+        versionId: currentBaselineProvenance.versionId,
+        harnessVersion: currentBaselineProvenance.harnessVersion,
+        datasetHash,
+      };
+      const comparable = isComparable(latestBaseline.baselineProvenance, entryProv);
+      if (!comparable.ok) {
+        return {
+          label: "≠",
+          title: `Not comparable (${comparable.reasons.join(", ") || "unknown"})`,
+          className: "border-amber-200 bg-amber-50 text-amber-700",
+        };
+      }
+      const itemIds = extractItemIdsFromRuns(runs);
+      const entryKpis = deriveRunKpis(
+        buildRunSummary({
+          stac: { query: {}, itemIds },
+          linkage: { linkedRuleIds: entry.bundle.linkedRuleIds ?? [] },
+          exportState: { snapshotExportedAt: entry.createdAt },
+          provenance: {
+            methodCode: currentBaselineProvenance.methodId,
+            version: currentBaselineProvenance.versionId,
+            repoCommit: currentBaselineProvenance.harnessVersion,
+            snapshotSchemaVersion: SNAPSHOT_SCHEMA_VERSION,
+          },
+        }),
+        { totalRules },
+      );
+      const uplift = computeUplift(latestBaseline.baselineKpis, entryKpis);
+      if (uplift.coverageDeltaPct != null) {
+        const delta = uplift.coverageDeltaPct;
+        return {
+          label: `${formatDelta(delta, "%", 1)} cov`,
+          title: "Uplift vs baseline (coverage)",
+          className:
+            delta > 0
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : delta < 0
+                ? "border-rose-200 bg-rose-50 text-rose-700"
+                : "border-slate-200 bg-white text-slate-600",
+        };
+      }
+      if (uplift.linkedRulesDelta != null) {
+        const delta = uplift.linkedRulesDelta;
+        return {
+          label: `${formatDelta(delta)} rules`,
+          title: "Uplift vs baseline (linked rules)",
+          className:
+            delta > 0
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : delta < 0
+                ? "border-rose-200 bg-rose-50 text-rose-700"
+                : "border-slate-200 bg-white text-slate-600",
+        };
+      }
+      if (uplift.itemsDelta != null) {
+        const delta = uplift.itemsDelta;
+        return {
+          label: `${formatDelta(delta)} items`,
+          title: "Uplift vs baseline (items)",
+          className:
+            delta > 0
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : delta < 0
+                ? "border-rose-200 bg-rose-50 text-rose-700"
+                : "border-slate-200 bg-white text-slate-600",
+        };
+      }
+      return null;
+    },
+    [currentBaselineProvenance, latestBaseline, totalRules],
+  );
+
   const evidenceChip = useMemo(() => {
     if (stacEndpointUrl) {
       return { label: "evidence", display: hostnamePathFromUrl(stacEndpointUrl), value: stacEndpointUrl };
@@ -1296,6 +1460,49 @@ export default function ProofMapTab({
       window.open(url, "_blank", "noopener,noreferrer");
     }
   }, [copyToClipboard, runSummary, showToast]);
+
+  const handleSetBaseline = useCallback(() => {
+    if (baselineMissing.length) {
+      showToast(`Cannot set baseline (${baselineMissing.join(", ")})`);
+      return;
+    }
+    const baseline: BaselineRecord = {
+      baselineRunId: runSummary.verifier.runId ?? "run",
+      baselineTs: new Date().toISOString(),
+      baselineKpis: runKpis,
+      baselineProvenance: currentBaselineProvenance,
+    };
+    setBaseline(currentBaselineProvenance, baseline);
+    setBaselineTick((value) => value + 1);
+    showToast("Baseline set");
+  }, [baselineMissing, currentBaselineProvenance, runKpis, runSummary.verifier.runId, showToast]);
+
+  const handleRotateBaseline = useCallback(() => {
+    if (baselineMissing.length) {
+      showToast(`Cannot rotate baseline (${baselineMissing.join(", ")})`);
+      return;
+    }
+    const reason = typeof window !== "undefined" ? window.prompt("Reason for baseline rotation?") : null;
+    if (!reason || !reason.trim()) return;
+    const next: BaselineRecord = {
+      baselineRunId: runSummary.verifier.runId ?? "run",
+      baselineTs: new Date().toISOString(),
+      baselineKpis: runKpis,
+      baselineProvenance: currentBaselineProvenance,
+    };
+    rotateBaseline(currentBaselineProvenance, next, reason.trim());
+    setBaselineTick((value) => value + 1);
+    showToast("Baseline rotated");
+  }, [baselineMissing, currentBaselineProvenance, runKpis, runSummary.verifier.runId, showToast]);
+
+  const handleClearBaseline = useCallback(() => {
+    if (!latestBaseline) return;
+    const confirmed = typeof window !== "undefined" ? window.confirm("Clear baseline?") : false;
+    if (!confirmed) return;
+    clearBaseline(latestBaseline.baselineProvenance);
+    setBaselineTick((value) => value + 1);
+    showToast("Baseline cleared");
+  }, [latestBaseline, showToast]);
 
   const handleCreateIntake = useCallback(() => {
     if (!intakeSuggestion) return;
@@ -2255,6 +2462,83 @@ export default function ProofMapTab({
           </div>
 
           <div className={railMode === "run" ? "grid gap-3" : "hidden"}>
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-sm font-semibold text-slate-900">Baseline</div>
+                {latestBaseline ? (
+                  <div className="text-[11px] text-slate-500">Run {shortRunId(latestBaseline.baselineRunId)}</div>
+                ) : null}
+              </div>
+              <div className="mt-1 text-xs text-slate-500">
+                {latestBaseline ? `Set ${formatLocalDateTime(latestBaseline.baselineTs)}` : "No baseline set"}
+              </div>
+              {latestBaseline ? (
+                <div className="mt-2 text-xs text-slate-600">
+                  {baselineComparable.ok ? (
+                    <span className="font-semibold text-emerald-700">Comparable ✅</span>
+                  ) : (
+                    <span
+                      className="font-semibold text-amber-700"
+                      title={baselineComparable.reasons.join(", ") || "Not comparable"}
+                    >
+                      Not comparable
+                      {baselineComparable.reasons[0] ? ` (${baselineComparable.reasons[0]})` : ""}
+                    </span>
+                  )}
+                </div>
+              ) : null}
+              {latestBaseline && baselineComparable.ok && upliftSummary ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {upliftSummary.coverageDeltaPct != null ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                      Coverage {formatDelta(upliftSummary.coverageDeltaPct, "%", 1)}
+                    </span>
+                  ) : null}
+                  {upliftSummary.linkedRulesDelta != null ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                      Linked {formatDelta(upliftSummary.linkedRulesDelta)}
+                    </span>
+                  ) : null}
+                  {upliftSummary.itemsDelta != null ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                      Items {formatDelta(upliftSummary.itemsDelta)}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {!latestBaseline ? (
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={handleSetBaseline}
+                    disabled={baselineMissing.length > 0}
+                    title={baselineMissing.length ? `Missing ${baselineMissing.join(", ")}` : "Set baseline"}
+                  >
+                    Set baseline
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={handleRotateBaseline}
+                      disabled={baselineMissing.length > 0}
+                      title={baselineMissing.length ? `Missing ${baselineMissing.join(", ")}` : "Rotate baseline"}
+                    >
+                      Rotate baseline
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
+                      onClick={handleClearBaseline}
+                    >
+                      Clear baseline
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
             <VerifierMinutesPanel
               runContext={verifierBundle.runContext}
               minutes={verifierBundle.minutes}
@@ -2288,7 +2572,13 @@ export default function ProofMapTab({
                 <span className="ml-2 text-[11px] font-medium text-slate-500">{runHistory.length} runs</span>
               </summary>
               <div className="px-3 pb-3">
-                <RunHistoryPanel items={runHistory} onLoad={handleLoadRunHistory} onDelete={handleDeleteRunHistory} showTitle={false} />
+                <RunHistoryPanel
+                  items={runHistory}
+                  onLoad={handleLoadRunHistory}
+                  onDelete={handleDeleteRunHistory}
+                  showTitle={false}
+                  badgeForRun={badgeForRun}
+                />
               </div>
             </details>
             <details className="rounded-xl border border-slate-200 bg-white">
