@@ -14,17 +14,11 @@ import CoveragePanel from "@/components/coverage/CoveragePanel";
 import CoverageDrawer from "@/components/coverage/CoverageDrawer";
 import { buildCoverageQueue } from "@/lib/coverage/queue";
 import { addCoverageTask } from "@/lib/coverage/tasks";
+import { linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import { normalizeRichEvidence, type NormalizedRichEvidence } from "@/lib/rich/normalize";
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
 import { jumpToRule } from "@/lib/ruleJump";
-import {
-  addLinkedRuleIdToStorage,
-  clearLinkedRuleIdsFromStorage,
-  parseLinkedRuleId,
-  readLinkedRuleIdsFromStorage,
-  subscribeLinkedRuleIds,
-} from "@/lib/verify/runState";
 import { decodeShareState, encodeShareState } from "@/lib/shareLink";
 import { shouldResetDerivedState } from "@/lib/proofMap/aoiApply";
 import {
@@ -249,7 +243,6 @@ export default function MethodDetailPane({
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
   const lastEvidenceParam = useRef<string | null>(null);
   const [coverageDrawerOpen, setCoverageDrawerOpen] = useState(false);
-  const [coverageLinkedRuleIds, setCoverageLinkedRuleIds] = useState<string[]>([]);
 
   const [richLoading, setRichLoading] = useState(false);
   const [richEvidence, setRichEvidence] = useState<NormalizedRichEvidence | null>(null);
@@ -285,6 +278,7 @@ export default function MethodDetailPane({
     () => rules.map((rule) => ({ id: rule.id, title: rule.title, tags: rule.tags ?? [] })),
     [rules],
   );
+  const coverageLinkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
   const coverageRulesWithStatus = useMemo(() => {
     const linked = new Set(coverageLinkedRuleIds);
     return coverageRules.map((rule) => ({
@@ -341,17 +335,6 @@ export default function MethodDetailPane({
     setTraceError(null);
     setTraceLoading(false);
     lastRuleFromQuery.current = null;
-  }, [activeVersion, method.code]);
-
-  useEffect(() => {
-    if (!activeVersion) {
-      setCoverageLinkedRuleIds([]);
-      return;
-    }
-    setCoverageLinkedRuleIds(readLinkedRuleIdsFromStorage(method.code, activeVersion));
-    return subscribeLinkedRuleIds(() => {
-      setCoverageLinkedRuleIds(readLinkedRuleIdsFromStorage(method.code, activeVersion));
-    });
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -480,9 +463,6 @@ export default function MethodDetailPane({
         setVerificationRunsAndPersist([]);
         setSelectedStacItemId(null);
         setEvidenceLinkSelection(null);
-        if (activeVersion) {
-          clearLinkedRuleIdsFromStorage(method.code, activeVersion);
-        }
       }
       setApplyToken((value) => value + 1);
       void (async () => {
@@ -498,7 +478,6 @@ export default function MethodDetailPane({
       })();
     },
     [
-      activeVersion,
       currentAoi,
       evidencePins,
       evidenceSnapshots,
@@ -510,7 +489,6 @@ export default function MethodDetailPane({
       setEvidenceSnapshotsAndPersist,
       setVerificationRunsAndPersist,
       appendAuditEvent,
-      method.code,
     ],
   );
 
@@ -950,7 +928,6 @@ export default function MethodDetailPane({
   }, [drawerCitationsOpen, drawerOpen, drawerSourceOpen, ensureRichLoaded, ensureSectionsLoaded, method.hasRich]);
 
   const openRule = useCallback(async (ruleId: string) => {
-    if (activeVersion) addLinkedRuleIdToStorage(method.code, activeVersion, ruleId);
     setTabParam("rules");
     setRulesDeeplinkWarning(null);
     const list = await ensureRulesLoaded();
@@ -964,7 +941,7 @@ export default function MethodDetailPane({
     setRuleParam(ruleId);
     await loadRuleDetail(ruleId);
     return true;
-  }, [activeVersion, ensureRulesLoaded, loadRuleDetail, method.code, setRuleParam, setTabParam]);
+  }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam]);
 
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
@@ -993,21 +970,6 @@ export default function MethodDetailPane({
       await openRule(initialRuleId);
     })();
   }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule, setTabParam]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const seedFromUrl = () => {
-      const ruleParam = searchParams.get("rule");
-      const fromParam = typeof ruleParam === "string" && /^R-/.test(ruleParam.trim()) ? ruleParam.trim() : null;
-      const ruleId = fromParam ?? parseLinkedRuleId({ ruleParam: null, hash: window.location.hash });
-      if (!ruleId) return;
-      if (!activeVersion) return;
-      addLinkedRuleIdToStorage(method.code, activeVersion, ruleId);
-    };
-    seedFromUrl();
-    window.addEventListener("hashchange", seedFromUrl);
-    return () => window.removeEventListener("hashchange", seedFromUrl);
-  }, [activeVersion, method.code, searchParams]);
 
   useEffect(() => {
     if (isEvidenceMode) return;
@@ -1095,11 +1057,10 @@ export default function MethodDetailPane({
 
   const handleJumpToRule = useCallback(
     (ruleId: string) => {
-      if (activeVersion) addLinkedRuleIdToStorage(method.code, activeVersion, ruleId);
       jumpToRule(router, ruleId);
       appendAuditEvent({ kind: "rule.jump", payload: { rule_id: ruleId } });
     },
-    [activeVersion, appendAuditEvent, method.code, router],
+    [appendAuditEvent, router],
   );
 
   const handleCoverageTask = useCallback(

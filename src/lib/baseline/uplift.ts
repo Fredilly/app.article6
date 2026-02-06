@@ -12,10 +12,19 @@ export type UpliftSummary = {
 export function isComparable(baselineProv: BaselineKey, currentProv: BaselineKey): ComparableResult {
   const reasons: string[] = [];
 
-  if (baselineProv.methodId !== currentProv.methodId) reasons.push("method/version mismatch");
-  if (baselineProv.versionId !== currentProv.versionId) reasons.push("method/version mismatch");
-  if (baselineProv.harnessVersion !== currentProv.harnessVersion) reasons.push("harness version changed");
-  if (baselineProv.datasetHash !== currentProv.datasetHash) reasons.push("dataset hash changed");
+  if (!baselineProv.methodId || !baselineProv.versionId) reasons.push("baseline method/version missing");
+  if (!currentProv.methodId || !currentProv.versionId) reasons.push("current method/version missing");
+  if (baselineProv.methodId !== currentProv.methodId || baselineProv.versionId !== currentProv.versionId) {
+    reasons.push("method/version mismatch");
+  }
+
+  if (!baselineProv.harnessVersion) reasons.push("baseline harness version missing");
+  if (!currentProv.harnessVersion) reasons.push("harness version missing");
+  else if (baselineProv.harnessVersion !== currentProv.harnessVersion) reasons.push("harness version changed");
+
+  if (!baselineProv.datasetHash) reasons.push("baseline dataset hash missing");
+  if (!currentProv.datasetHash) reasons.push("dataset hash missing");
+  else if (baselineProv.datasetHash !== currentProv.datasetHash) reasons.push("dataset hash changed");
 
   return { ok: reasons.length === 0, reasons };
 }

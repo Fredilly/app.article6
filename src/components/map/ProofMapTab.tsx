@@ -11,6 +11,7 @@ import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
+import Tooltip from "@/components/ui/Tooltip";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
 import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
 import type { Map as MapLibreMap } from "maplibre-gl";
@@ -27,33 +28,26 @@ import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
-import { deriveRunKpis } from "@/lib/verify/kpis";
+import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
 import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
 import { computeUplift, isComparable } from "@/lib/baseline/uplift";
 import { addIntakeItem } from "@/lib/intake/storage";
 import {
   SNAPSHOT_SCHEMA_VERSION,
-  addLinkedRuleIdToStorage,
   addTaskWithText,
-  buildLinkedRulesKey,
   buildRunSummary,
-  clearLinkedRuleIdsFromStorage,
   createVerifierRunBundle,
   createTicketTemplate,
   deleteRunFromHistory,
   extractStacQuery,
   loadRunFromHistory,
   type VerifyRunHistoryEntry,
-  readLinkedRuleIdsFromStorage,
-  parseLinkedRuleId,
   persistVerifierRunBundle,
   readRunHistory,
   readVerifierRunBundle,
   saveCurrentRunToHistory,
-  setLinkedRuleIdsInStorage,
   shortRunId,
-  subscribeLinkedRuleIds,
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
 
@@ -166,12 +160,6 @@ function hostnamePathFromUrl(value: string): string {
   } catch {
     return value;
   }
-}
-
-function ruleIdFromLocation(): string | null {
-  if (typeof window === "undefined") return null;
-  const params = new URLSearchParams(window.location.search);
-  return parseLinkedRuleId({ ruleParam: params.get("rule"), hash: window.location.hash });
 }
 
 function parseBbox(value: unknown): [number, number, number, number] | null {
@@ -314,8 +302,7 @@ export default function ProofMapTab({
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [railMode, setRailMode] = useState<"run" | "evidence">("run");
-  const linkedRulesKey = useMemo(() => buildLinkedRulesKey(methodCode, version), [methodCode, version]);
-  const [linkedRuleIds, setLinkedRuleIds] = useState<string[]>(() => readLinkedRuleIdsFromStorage(methodCode, version));
+  const [loadedRunId, setLoadedRunId] = useState<string | null>(null);
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
@@ -331,6 +318,7 @@ export default function ProofMapTab({
     return [parts[0], parts[1], parts[2], parts[3]];
   });
   const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
+  const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
 
   const showToast = useCallback((message: string) => {
     setToast(message);
@@ -376,32 +364,8 @@ export default function ProofMapTab({
   }, [showToast]);
 
   useEffect(() => {
-    const readNext = () => {
-      const next = readLinkedRuleIdsFromStorage(methodCode, version);
-      setLinkedRuleIds((current) => {
-        if (current.length === next.length && current.every((value, idx) => value === next[idx])) return current;
-        return next;
-      });
-    };
-    readNext();
-    const unsubscribe = subscribeLinkedRuleIds(readNext);
-    const onStorage = (event: StorageEvent) => {
-      if (!event.key || event.key !== linkedRulesKey) return;
-      readNext();
-    };
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", onStorage);
-    }
-    return () => {
-      unsubscribe();
-      if (typeof window !== "undefined") {
-        window.removeEventListener("storage", onStorage);
-      }
-    };
-  }, [linkedRulesKey, methodCode, version]);
-
-  useEffect(() => {
     setVerifierBundle(readVerifierRunBundle(methodCode, version));
+    setLoadedRunId(null);
   }, [methodCode, version]);
 
   useEffect(() => {
@@ -415,14 +379,8 @@ export default function ProofMapTab({
     return () => window.clearTimeout(timer);
   }, [methodCode, verifierBundle, version]);
 
-  const trackLinkedRule = useCallback(
-    (id: string) => {
-      setLinkedRuleIds(addLinkedRuleIdToStorage(methodCode, version, id));
-    },
-    [methodCode, version],
-  );
-
   const handleMinutesChange = useCallback((value: string) => {
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, minutes: value }));
   }, []);
 
@@ -451,6 +409,7 @@ export default function ProofMapTab({
             // ignore hash failures
           }
         }
+        setLoadedRunId(null);
         onUploadAoi(result.aoi);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -460,16 +419,19 @@ export default function ProofMapTab({
   );
 
   const handleDeltaChange = useCallback((value: string) => {
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, delta: value }));
   }, []);
 
   const handleImpactChange = useCallback((value: string) => {
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, impact: value }));
   }, []);
 
   const commitDraftTask = useCallback(() => {
     const text = draftTask.trim();
     if (!text) return;
+    setLoadedRunId(null);
     const task = addTaskWithText(text);
     setVerifierBundle((current) => ({ ...current, tasks: [...current.tasks, task] }));
     setDraftTask("");
@@ -485,6 +447,7 @@ export default function ProofMapTab({
 
   const handleToggleTask = useCallback((id: string) => {
     const timestamp = new Date().toISOString();
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({
       ...current,
       tasks: current.tasks.map((task) =>
@@ -495,6 +458,7 @@ export default function ProofMapTab({
 
   const handleUpdateTask = useCallback((id: string, value: string) => {
     const timestamp = new Date().toISOString();
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({
       ...current,
       tasks: current.tasks.map((task) =>
@@ -504,6 +468,7 @@ export default function ProofMapTab({
   }, []);
 
   const handleDeleteTask = useCallback((id: string) => {
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, tasks: current.tasks.filter((task) => task.id !== id) }));
   }, []);
 
@@ -543,12 +508,12 @@ export default function ProofMapTab({
         impact: loaded.impact ?? "",
         tasks: Array.isArray(loaded.tasks) ? loaded.tasks : [],
       });
-      setLinkedRuleIds(setLinkedRuleIdsInStorage(methodCode, version, loaded.linkedRuleIds));
       onSetAoi(loaded.aoi ?? null);
       onSetEvidencePins(loaded.evidencePins as EvidencePin[]);
       onSetVerificationRuns(loaded.verificationRuns as VerificationRun[]);
       onSelectStacItemId(loaded.selectedStacItemId ?? null);
       setSnapshotExportedAt(null);
+      setLoadedRunId(runId);
     },
     [methodCode, onSelectStacItemId, onSetAoi, onSetEvidencePins, onSetVerificationRuns, version],
   );
@@ -562,6 +527,7 @@ export default function ProofMapTab({
 
   const handleToggleChecklist = useCallback((id: string) => {
     const timestamp = new Date().toISOString();
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({
       ...current,
       checklist: current.checklist.map((item) =>
@@ -572,11 +538,13 @@ export default function ProofMapTab({
 
   const handleResetChecklist = useCallback(() => {
     const next = createVerifierRunBundle(methodCode, version);
+    setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, checklist: next.checklist }));
   }, [methodCode, version]);
 
   const handleSearchStac = useCallback(async () => {
     if (!aoi) return;
+    setLoadedRunId(null);
     setError(null);
     if (isRunning) return;
     if (!currentAoiFingerprint) return;
@@ -719,29 +687,18 @@ export default function ProofMapTab({
     handleSaveRunHistory();
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
     setSnapshotExportedAt(null);
+    setLoadedRunId(null);
   }, [handleSaveRunHistory, methodCode, version]);
-
-  useEffect(() => {
-    if (!activeRuleId) return;
-    trackLinkedRule(activeRuleId);
-  }, [activeRuleId, trackLinkedRule]);
-
-  useEffect(() => {
-    const ruleId = ruleIdFromLocation();
-    if (!ruleId) return;
-    trackLinkedRule(ruleId);
-  }, [trackLinkedRule]);
 
   const handleNavigateEvidence = useCallback(
     async (type: "rule" | "section", id: string) => {
-      const ok = await onNavigateEvidence(type, id);
-      if (ok && type === "rule") trackLinkedRule(id);
-      return ok;
+      return await onNavigateEvidence(type, id);
     },
-    [onNavigateEvidence, trackLinkedRule],
+    [onNavigateEvidence],
   );
 
   const selectEvidence = (id: string, source: "pin" | "polygon") => {
+    setLoadedRunId(null);
     onSelectStacItemId(id);
     setLastSelectionSource(source);
     setStacInspectOpen(true);
@@ -1102,6 +1059,11 @@ export default function ProofMapTab({
   const trustPicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
   const auditHashes = trustPicked.auditHashes;
   const appCommit = shortCommitSha(process.env.NEXT_PUBLIC_GIT_SHA || "");
+  const selectedEvidenceItemIds = useMemo(() => {
+    if (selectedStacItemId) return [selectedStacItemId];
+    if (stacFeatureIds.length === 1) return [stacFeatureIds[0]];
+    return [];
+  }, [selectedStacItemId, stacFeatureIds]);
 
   const runSummary = useMemo(
     () =>
@@ -1151,7 +1113,16 @@ export default function ProofMapTab({
     ],
   );
 
-  const runKpis = useMemo(() => deriveRunKpis(runSummary, { totalRules }), [runSummary, totalRules]);
+  const runKpis = useMemo(
+    () =>
+      computeKpis({
+        pins: evidencePins,
+        totalRules,
+        selectedEvidenceItemIds,
+        snapshotExportedAt: runSummary.exportState.snapshotExportedAt,
+      }),
+    [evidencePins, runSummary.exportState.snapshotExportedAt, selectedEvidenceItemIds, totalRules],
+  );
 
   const currentBaselineProvenance = useMemo<BaselineKey>(
     () => ({
@@ -1165,11 +1136,12 @@ export default function ProofMapTab({
 
   const baselineMissing = useMemo(() => {
     const missing: string[] = [];
+    if (!currentAoiFingerprint) missing.push("AOI");
     if (!currentBaselineProvenance.methodId || !currentBaselineProvenance.versionId) missing.push("method/version");
     if (!currentBaselineProvenance.harnessVersion) missing.push("harness version");
     if (!currentBaselineProvenance.datasetHash) missing.push("dataset hash");
     return missing;
-  }, [currentBaselineProvenance]);
+  }, [currentAoiFingerprint, currentBaselineProvenance]);
 
   const latestBaseline = useMemo(
     () => {
@@ -1188,6 +1160,9 @@ export default function ProofMapTab({
     if (!latestBaseline || !baselineComparable.ok) return null;
     return computeUplift(latestBaseline.baselineKpis, runKpis);
   }, [baselineComparable.ok, latestBaseline, runKpis]);
+  const baselineActionsDisabled = baselineMissing.length > 0;
+  const baselineDisabledTooltip = "Load AOI to enable baseline comparisons";
+  const compareTargetLabel = loadedRunId ? `Loaded run ${loadedRunId}` : "Workspace (unsaved)";
 
   const badgeForRun = useCallback(
     (entry: VerifyRunHistoryEntry) => {
@@ -1209,20 +1184,18 @@ export default function ProofMapTab({
         };
       }
       const itemIds = extractItemIdsFromRuns(runs);
-      const entryKpis = deriveRunKpis(
-        buildRunSummary({
-          stac: { query: {}, itemIds },
-          linkage: { linkedRuleIds: entry.bundle.linkedRuleIds ?? [] },
-          exportState: { snapshotExportedAt: entry.createdAt },
-          provenance: {
-            methodCode: currentBaselineProvenance.methodId,
-            version: currentBaselineProvenance.versionId,
-            repoCommit: currentBaselineProvenance.harnessVersion,
-            snapshotSchemaVersion: SNAPSHOT_SCHEMA_VERSION,
-          },
-        }),
-        { totalRules },
-      );
+      const historyItemId =
+        typeof entry.bundle.selectedStacItemId === "string" && entry.bundle.selectedStacItemId.trim()
+          ? entry.bundle.selectedStacItemId
+          : itemIds.length === 1
+            ? itemIds[0]
+            : null;
+      const entryKpis = computeKpis({
+        pins: (entry.bundle.evidencePins as EvidencePin[]) ?? [],
+        totalRules,
+        selectedEvidenceItemIds: historyItemId ? [historyItemId] : [],
+        snapshotExportedAt: entry.createdAt,
+      });
       const uplift = computeUplift(latestBaseline.baselineKpis, entryKpis);
       if (uplift.coverageDeltaPct != null) {
         const delta = uplift.coverageDeltaPct;
@@ -1286,6 +1259,12 @@ export default function ProofMapTab({
   }, [aoi, currentStacEvidence?.fc?.features?.length, evidencePins.length, evidenceSnapshots, selectedStacItemId, verificationRuns.length]);
 
   const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
+  const currentPinItemId = selectedEvidenceItemIds[0] ?? null;
+  const canCreatePin = Boolean(activeRuleId && (currentAoiFingerprint || currentInputFingerprint) && currentPinItemId);
+  const createPinDisabledReason =
+    !activeRuleId || !currentPinItemId || (!currentAoiFingerprint && !currentInputFingerprint)
+      ? "Pin requires a selected rule, AOI provenance, and an evidence item."
+      : "Pin = durable link between a rule and an evidence item. Drives Linked/Coverage.";
 
   const renderUploadAoiButton = (className?: string) => (
     <label className={`inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 ${className ?? ""}`}>
@@ -1298,6 +1277,44 @@ export default function ProofMapTab({
       />
     </label>
   );
+
+  const handleCreatePin = useCallback(() => {
+    if (!activeRuleId || !currentPinItemId) return;
+    if (!currentAoiFingerprint && !currentInputFingerprint) return;
+    const ts = new Date().toISOString();
+    const id =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
+    const pin: EvidencePin = {
+      id,
+      kind: "note",
+      title: `Pin ${activeRuleId} ↔ ${currentPinItemId}`,
+      ts,
+      ruleId: activeRuleId,
+      itemId: currentPinItemId,
+      note: "",
+      aoi_id: aoi?.id ?? null,
+      aoi_fingerprint: currentAoiFingerprint ?? undefined,
+      cited_ids: [activeRuleId],
+      stac_item_ids: [currentPinItemId],
+      stac_run_id: currentStacEvidence?.runId,
+      created_at: ts,
+    };
+    setLoadedRunId(null);
+    onSetEvidencePins([pin, ...evidencePins]);
+    showToast("Pinned evidence to rule");
+  }, [
+    activeRuleId,
+    aoi?.id,
+    currentAoiFingerprint,
+    currentInputFingerprint,
+    currentPinItemId,
+    currentStacEvidence?.runId,
+    evidencePins,
+    onSetEvidencePins,
+    showToast,
+  ]);
 
   const handleExportSnapshot = useCallback(async () => {
     const selectedItem =
@@ -1395,7 +1412,12 @@ export default function ProofMapTab({
         generatedAt: exportedAt,
       },
     });
-    const kpis = deriveRunKpis(outcome, { totalRules });
+    const kpis = computeKpis({
+      pins: evidencePins,
+      totalRules,
+      selectedEvidenceItemIds,
+      snapshotExportedAt: outcome.exportState.snapshotExportedAt,
+    });
 
     const snap = await buildOutcomeSnapshot({
       method: { code: methodCode, version },
@@ -1444,6 +1466,7 @@ export default function ProofMapTab({
     showToast,
     stacEndpointUrl,
     totalRules,
+    selectedEvidenceItemIds,
     verifierBundle,
     verificationRuns,
     version,
@@ -1544,8 +1567,6 @@ export default function ProofMapTab({
       setStacInspectOpen(false);
       setLastSelectionSource(null);
       setStacCentroidsEnabled(true);
-      setLinkedRuleIds([]);
-      clearLinkedRuleIdsFromStorage(methodCode, version);
       try {
         mapRef.current?.jumpTo?.({ center: [0, 0], zoom: 1 });
       } catch {
@@ -1558,11 +1579,9 @@ export default function ProofMapTab({
     }
   }, [
     evidencePins,
-    methodCode,
     onStartOver,
     showToast,
     startOverBusy,
-    version,
   ]);
 
   useEffect(() => {
@@ -2240,7 +2259,6 @@ export default function ProofMapTab({
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <ProofCoverageChip
               kpis={runKpis}
-              linkedRulesCount={linkedRuleIds.length}
               onViewCoverage={onOpenCoverageDrawer}
             />
             <button
@@ -2458,6 +2476,16 @@ export default function ProofMapTab({
               >
                 {isRunning ? "Searching…" : "Search STAC"}
               </button>
+              <Tooltip content={createPinDisabledReason}>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={handleCreatePin}
+                  disabled={!canCreatePin}
+                >
+                  Create pin
+                </button>
+              </Tooltip>
             </div>
           </div>
 
@@ -2472,62 +2500,72 @@ export default function ProofMapTab({
               <div className="mt-1 text-xs text-slate-500">
                 {latestBaseline ? `Set ${formatLocalDateTime(latestBaseline.baselineTs)}` : "No baseline set"}
               </div>
+              <div className="mt-1 text-xs text-slate-500">Comparing to: {compareTargetLabel}</div>
               {latestBaseline ? (
                 <div className="mt-2 text-xs text-slate-600">
                   {baselineComparable.ok ? (
-                    <span className="font-semibold text-emerald-700">Comparable ✅</span>
+                    <Tooltip content="Same method/version + harness + dataset hash">
+                      <span className="font-semibold text-emerald-700">Comparable ✅</span>
+                    </Tooltip>
                   ) : (
-                    <span
-                      className="font-semibold text-amber-700"
-                      title={baselineComparable.reasons.join(", ") || "Not comparable"}
-                    >
-                      Not comparable
-                      {baselineComparable.reasons[0] ? ` (${baselineComparable.reasons[0]})` : ""}
-                    </span>
+                    <Tooltip content={baselineComparable.reasons.join("; ") || "Not comparable"}>
+                      <span className="font-semibold text-amber-700">
+                        Not comparable
+                        {baselineComparable.reasons[0] ? ` (${baselineComparable.reasons[0]})` : ""}
+                      </span>
+                    </Tooltip>
                   )}
                 </div>
               ) : null}
               {latestBaseline && baselineComparable.ok && upliftSummary ? (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {upliftSummary.coverageDeltaPct != null ? (
-                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                      Coverage {formatDelta(upliftSummary.coverageDeltaPct, "%", 1)}
-                    </span>
+                    <Tooltip content="Δ(covered rules / total rules) vs baseline. Based on persisted link artifacts.">
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                        Δ Coverage {formatDelta(upliftSummary.coverageDeltaPct, "%", 1)}
+                      </span>
+                    </Tooltip>
                   ) : null}
                   {upliftSummary.linkedRulesDelta != null ? (
-                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                      Linked {formatDelta(upliftSummary.linkedRulesDelta)}
-                    </span>
+                    <Tooltip content="Δ(# rules with persisted evidence links) vs baseline.">
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                        Δ Linked {formatDelta(upliftSummary.linkedRulesDelta)}
+                      </span>
+                    </Tooltip>
                   ) : null}
                   {upliftSummary.itemsDelta != null ? (
-                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                      Items {formatDelta(upliftSummary.itemsDelta)}
-                    </span>
+                    <Tooltip content="Δ(selected evidence items count) vs baseline.">
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                        Δ Items {formatDelta(upliftSummary.itemsDelta)}
+                      </span>
+                    </Tooltip>
                   ) : null}
                 </div>
               ) : null}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {!latestBaseline ? (
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={handleSetBaseline}
-                    disabled={baselineMissing.length > 0}
-                    title={baselineMissing.length ? `Missing ${baselineMissing.join(", ")}` : "Set baseline"}
-                  >
-                    Set baseline
-                  </button>
-                ) : (
-                  <>
+                  <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Set baseline"}>
                     <button
                       type="button"
                       className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      onClick={handleRotateBaseline}
-                      disabled={baselineMissing.length > 0}
-                      title={baselineMissing.length ? `Missing ${baselineMissing.join(", ")}` : "Rotate baseline"}
+                      onClick={handleSetBaseline}
+                      disabled={baselineActionsDisabled}
                     >
-                      Rotate baseline
+                      Set baseline
                     </button>
+                  </Tooltip>
+                ) : (
+                  <>
+                    <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Rotate baseline"}>
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleRotateBaseline}
+                        disabled={baselineActionsDisabled}
+                      >
+                        Rotate baseline
+                      </button>
+                    </Tooltip>
                     <button
                       type="button"
                       className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
@@ -2610,7 +2648,7 @@ export default function ProofMapTab({
                   onExportSnapshot={handleExportSnapshot}
                   onCreateTicket={handleCreateTicket}
                   showCreateTicket={TICKETS_FEATURE_ENABLED}
-                  debugKey={linkedRulesKey}
+                  debugKey={`${methodCode}@${version}`}
                   debugLinkedCount={linkedRuleIds.length}
                   provenance={{
                     repo: trustPicked.repo ?? null,

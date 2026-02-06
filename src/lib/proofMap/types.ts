@@ -54,6 +54,10 @@ export type EvidencePin = {
   id: string;
   kind: EvidencePinKind;
   title: string;
+  ts?: string;
+  ruleId?: string;
+  itemId?: string;
+  note?: string;
   aoi_id?: string | null;
   aoi_fingerprint?: string;
   cited_ids: string[];
