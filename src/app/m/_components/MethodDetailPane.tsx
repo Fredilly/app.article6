@@ -70,6 +70,17 @@ function sectionIdFromText(value?: string): string | undefined {
   return match ? match[0] : undefined;
 }
 
+function updateRuleParamNoNav(ruleId: string | null) {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  const nextRule = (ruleId ?? "").trim();
+  if (nextRule) url.searchParams.set("rule", nextRule);
+  else url.searchParams.delete("rule");
+  const next = url.toString();
+  const prev = window.location.href;
+  if (next !== prev) window.history.replaceState({}, "", next);
+}
+
 export default function MethodDetailPane({
   method,
   activeVersion,
@@ -975,14 +986,9 @@ export default function MethodDetailPane({
   }, [activeRuleId, searchParams]);
 
   useEffect(() => {
-    if (!pathname) return;
     if (surfaceTab !== "verify" && !isEvidenceMode) return;
-    const next = applyUrlUpdates(new URLSearchParams(searchString), {
-      rule: activeRuleId,
-    });
-    if (next === searchString) return;
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [activeRuleId, isEvidenceMode, pathname, router, searchString, surfaceTab]);
+    updateRuleParamNoNav(activeRuleId);
+  }, [activeRuleId, isEvidenceMode, surfaceTab]);
 
   useEffect(() => {
     if (isEvidenceMode) return;
