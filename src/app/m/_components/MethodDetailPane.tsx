@@ -191,7 +191,6 @@ export default function MethodDetailPane({
   } | null>(null);
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
-  const lastRuleFromQuery = useRef<string | null>(null);
   const lastSectionFromQuery = useRef<string | null>(null);
   const lastMethodSelection = useRef<string | null>(null);
   const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
@@ -334,7 +333,6 @@ export default function MethodDetailPane({
     setTraceIndex(null);
     setTraceError(null);
     setTraceLoading(false);
-    lastRuleFromQuery.current = null;
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -916,6 +914,11 @@ export default function MethodDetailPane({
   }, [effectiveTab, ensureRulesLoaded]);
 
   useEffect(() => {
+    if (effectiveTab !== "verify") return;
+    void ensureRulesLoaded();
+  }, [effectiveTab, ensureRulesLoaded]);
+
+  useEffect(() => {
     if (!activeRuleId) return;
     void ensureTraceLoaded();
   }, [activeRuleId, ensureTraceLoaded]);
@@ -943,6 +946,19 @@ export default function MethodDetailPane({
     return true;
   }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam]);
 
+  const openRuleFromVerify = useCallback(
+    async (ruleId: string) => {
+      setActiveRuleId(ruleId);
+      if (!pathname) return;
+      const params = new URLSearchParams(searchString);
+      params.set("tab", "rules");
+      params.set("rule", ruleId);
+      const query = params.toString();
+      window.open(query ? `${pathname}?${query}` : pathname, "_blank", "noopener,noreferrer");
+    },
+    [pathname, searchString],
+  );
+
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
     setActiveRuleId(null);
@@ -952,24 +968,21 @@ export default function MethodDetailPane({
   }, [setRuleParam]);
 
   useEffect(() => {
-    if (!initialRuleId) return;
-    if (!activeVersion) return;
-    if (lastRuleFromQuery.current === initialRuleId) return;
-    lastRuleFromQuery.current = initialRuleId;
-    (async () => {
-      setTabParam("rules");
-      const list = await ensureRulesLoaded();
-      if (list.length === 0) {
-        return;
-      }
-      const exists = list.some((rule) => rule.id === initialRuleId);
-      if (!exists) {
-        setRulesDeeplinkWarning(`Unknown rule id "${initialRuleId}".`);
-        return;
-      }
-      await openRule(initialRuleId);
-    })();
-  }, [activeVersion, ensureRulesLoaded, initialRuleId, openRule, setTabParam]);
+    const fromQuery = (searchParams.get("rule") ?? "").trim();
+    const nextRule = /^R-/i.test(fromQuery) ? fromQuery : null;
+    if ((activeRuleId ?? null) === nextRule) return;
+    setActiveRuleId(nextRule);
+  }, [activeRuleId, searchParams]);
+
+  useEffect(() => {
+    if (!pathname) return;
+    if (surfaceTab !== "verify" && !isEvidenceMode) return;
+    const next = applyUrlUpdates(new URLSearchParams(searchString), {
+      rule: activeRuleId,
+    });
+    if (next === searchString) return;
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [activeRuleId, isEvidenceMode, pathname, router, searchString, surfaceTab]);
 
   useEffect(() => {
     if (isEvidenceMode) return;
@@ -1117,6 +1130,13 @@ export default function MethodDetailPane({
         viewMode={verifyMode}
         verifierMode={verifierMode}
         activeRuleId={activeRuleId}
+        ruleOptions={rules.map((rule) => ({ id: rule.id, title: rule.title }))}
+        onSelectRuleId={(ruleId) => {
+          setActiveRuleId(ruleId);
+        }}
+        onViewRule={(ruleId) => {
+          void openRuleFromVerify(ruleId);
+        }}
         totalRules={activeVersion ? method.ruleCountByVersion[activeVersion] ?? null : null}
         aoi={effectiveAoi}
         currentAoi={currentAoi}

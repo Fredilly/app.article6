@@ -98,6 +98,9 @@ type ProofMapTabProps = {
   onSelectStacItemId: (id: string | null) => void;
   onStartOver: () => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
+  ruleOptions?: Array<{ id: string; title: string }>;
+  onSelectRuleId?: (ruleId: string | null) => void;
+  onViewRule?: (ruleId: string) => void;
   onAuditEvent?: (event: AuditTrailEventInput) => void;
   onOpenCoverageDrawer?: () => void;
   auditTrail?: {
@@ -271,6 +274,9 @@ export default function ProofMapTab({
   onSelectStacItemId,
   onStartOver,
   onNavigateEvidence,
+  ruleOptions = [],
+  onSelectRuleId,
+  onViewRule,
   onAuditEvent,
   onOpenCoverageDrawer,
   auditTrail,
@@ -280,6 +286,7 @@ export default function ProofMapTab({
   const isListMode = viewMode === "list";
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [pinListOpen, setPinListOpen] = useState(false);
   const [undoVisible, setUndoVisible] = useState(false);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
@@ -319,6 +326,7 @@ export default function ProofMapTab({
   });
   const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
   const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
+  const selectedRuleId = activeRuleId ?? null;
 
   const showToast = useCallback((message: string) => {
     setToast(message);
@@ -1260,11 +1268,15 @@ export default function ProofMapTab({
 
   const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
   const currentPinItemId = selectedEvidenceItemIds[0] ?? null;
-  const canCreatePin = Boolean(activeRuleId && (currentAoiFingerprint || currentInputFingerprint) && currentPinItemId);
-  const createPinDisabledReason =
-    !activeRuleId || !currentPinItemId || (!currentAoiFingerprint && !currentInputFingerprint)
-      ? "Pin requires a selected rule, AOI provenance, and an evidence item."
-      : "Pin = durable link between a rule and an evidence item. Drives Linked/Coverage.";
+  const hasPinProvenance = Boolean(currentAoiFingerprint || currentInputFingerprint);
+  const canCreatePin = Boolean(selectedRuleId && currentPinItemId && hasPinProvenance);
+  const createPinDisabledReason = !selectedRuleId
+    ? "Select a rule to pin evidence."
+    : !currentPinItemId
+      ? "Select an evidence item to pin."
+      : !hasPinProvenance
+        ? "Load AOI to enable baseline comparisons"
+        : "Pin = durable link between a rule and an evidence item. Drives Linked/Coverage.";
 
   const renderUploadAoiButton = (className?: string) => (
     <label className={`inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 ${className ?? ""}`}>
@@ -1279,8 +1291,8 @@ export default function ProofMapTab({
   );
 
   const handleCreatePin = useCallback(() => {
-    if (!activeRuleId || !currentPinItemId) return;
-    if (!currentAoiFingerprint && !currentInputFingerprint) return;
+    if (!selectedRuleId || !currentPinItemId) return;
+    if (!hasPinProvenance) return;
     const ts = new Date().toISOString();
     const id =
       typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
@@ -1289,31 +1301,33 @@ export default function ProofMapTab({
     const pin: EvidencePin = {
       id,
       kind: "note",
-      title: `Pin ${activeRuleId} ↔ ${currentPinItemId}`,
+      title: `Pin ${selectedRuleId} ↔ ${currentPinItemId}`,
       ts,
-      ruleId: activeRuleId,
+      ruleId: selectedRuleId,
       itemId: currentPinItemId,
-      note: "",
+      note: `${methodCode}@${version}`,
       aoi_id: aoi?.id ?? null,
       aoi_fingerprint: currentAoiFingerprint ?? undefined,
-      cited_ids: [activeRuleId],
+      cited_ids: [selectedRuleId],
       stac_item_ids: [currentPinItemId],
       stac_run_id: currentStacEvidence?.runId,
       created_at: ts,
     };
     setLoadedRunId(null);
     onSetEvidencePins([pin, ...evidencePins]);
-    showToast("Pinned evidence to rule");
+    showToast("Pin created");
   }, [
-    activeRuleId,
     aoi?.id,
     currentAoiFingerprint,
-    currentInputFingerprint,
     currentPinItemId,
     currentStacEvidence?.runId,
     evidencePins,
+    hasPinProvenance,
+    methodCode,
     onSetEvidencePins,
+    selectedRuleId,
     showToast,
+    version,
   ]);
 
   const handleExportSnapshot = useCallback(async () => {
@@ -2467,6 +2481,50 @@ export default function ProofMapTab({
               </button>
             </div>
             <div className={railMode === "evidence" ? "flex flex-wrap items-center gap-2" : "hidden"}>
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
+                <span className="text-xs font-semibold text-slate-600">Rule</span>
+                <select
+                  className="max-w-[220px] bg-transparent text-xs text-slate-700 outline-none"
+                  value={selectedRuleId ?? ""}
+                  onChange={(event) => {
+                    const next = event.target.value.trim();
+                    setLoadedRunId(null);
+                    onSelectRuleId?.(next || null);
+                  }}
+                >
+                  <option value="">Select rule…</option>
+                  {ruleOptions.map((rule) => {
+                    const preview = rule.title.trim().slice(0, 60);
+                    return (
+                      <option key={rule.id} value={rule.id}>
+                        {rule.id} {preview ? `- ${preview}` : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              {selectedRuleId ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                  Rule: {selectedRuleId}
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-1 text-[10px] leading-4 text-slate-600 hover:bg-slate-100"
+                    onClick={() => onSelectRuleId?.(null)}
+                    aria-label="Clear selected rule"
+                  >
+                    x
+                  </button>
+                </span>
+              ) : null}
+              {selectedRuleId ? (
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={() => onViewRule?.(selectedRuleId)}
+                >
+                  View rule
+                </button>
+              ) : null}
               {renderUploadAoiButton()}
               <button
                 type="button"
@@ -2486,6 +2544,26 @@ export default function ProofMapTab({
                   Create pin
                 </button>
               </Tooltip>
+              <details
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2"
+                open={pinListOpen}
+                onToggle={(event) => setPinListOpen(event.currentTarget.open)}
+              >
+                <summary className="cursor-pointer text-xs font-semibold text-slate-700">Pins ({evidencePins.length})</summary>
+                <div className="mt-2 grid gap-1">
+                  {evidencePins.length ? (
+                    evidencePins.slice(0, 5).map((pin) => (
+                      <div key={pin.id} className="text-[11px] text-slate-600">
+                        <span className="font-mono">{pin.ruleId ?? pin.cited_ids?.[0] ?? "—"}</span>
+                        {" -> "}
+                        <span className="font-mono">{pin.itemId ?? pin.stac_item_ids?.[0] ?? "—"}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-[11px] text-slate-500">No pins yet.</div>
+                  )}
+                </div>
+              </details>
             </div>
           </div>
 
