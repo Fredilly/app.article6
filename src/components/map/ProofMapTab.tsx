@@ -421,12 +421,13 @@ export default function ProofMapTab({
           }
         }
         setLoadedRunId(null);
+        onSelectStacItemId(null);
         onUploadAoi(result.aoi);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
     },
-    [onAuditEvent, onUploadAoi],
+    [onAuditEvent, onSelectStacItemId, onUploadAoi],
   );
 
   const handleDeltaChange = useCallback((value: string) => {
@@ -1270,11 +1271,17 @@ export default function ProofMapTab({
   }, [aoi, currentStacEvidence?.fc?.features?.length, evidencePins.length, evidenceSnapshots, selectedStacItemId, verificationRuns.length]);
 
   const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
-  const currentPinItemId = selectedEvidenceItemIds[0] ?? null;
-  const canCreatePin = Boolean(selectedRuleId && currentPinItemId);
+  const hasRule = Boolean(selectedRuleId);
+  const hasAoi = Boolean(aoi?.geojson);
+  const hasSearchResults = (stacFeatureIds?.length ?? 0) > 0;
+  const hasSelectedItem = Boolean(selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId]);
+  const currentPinItemId = hasSelectedItem ? selectedStacItemId : null;
+  const canCreatePin = hasRule && hasSelectedItem;
   const createPinDisabledReason = canCreatePin
     ? "Pin = durable link between a rule and an evidence item. Drives Linked/Coverage."
-    : "Select a rule and an evidence item first.";
+    : !hasRule
+      ? "Select a rule to pin evidence."
+      : "Select an evidence item to pin.";
 
   const renderUploadAoiButton = (className?: string) => (
     <label className={`inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 ${className ?? ""}`}>
@@ -2528,15 +2535,53 @@ export default function ProofMapTab({
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
-                  <div className="mt-1 text-xs font-semibold text-slate-900">Pick evidence</div>
+                  <div className="mt-1 text-xs font-semibold text-slate-900">Upload/Confirm AOI</div>
+                  {!hasAoi ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      {renderUploadAoiButton()}
+                      <span className="text-xs text-slate-600">Upload AOI to enable STAC search.</span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                        AOI ready
+                      </span>
+                      {aoi?.name ? <span className="text-xs text-slate-600">{aoi.name}</span> : null}
+                    </div>
+                  )}
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
+                  <div className="mt-1 text-xs font-semibold text-slate-900">Search STAC</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={!hasAoi || searchDisabled}
+                      onClick={handleSearchStac}
+                    >
+                      {isRunning ? "Searching…" : "Search STAC"}
+                    </button>
+                    {!hasAoi ? <span className="text-xs text-slate-500">AOI required first.</span> : null}
+                    {hasAoi && !hasSearchResults ? <span className="text-xs text-slate-500">Run STAC search to load evidence items.</span> : null}
+                    {hasSearchResults ? (
+                      <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                        {stacFeatureIds.length} items
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 4</div>
+                  <div className="mt-1 text-xs font-semibold text-slate-900">Pick STAC item</div>
                   <div className="mt-1 text-xs text-slate-600">Select a STAC item from the list (left) or a footprint/marker on the map.</div>
-                  <div className="mt-1 text-xs text-slate-500">Pick an item → then Create pin.</div>
+                  <div className="mt-1 text-xs text-slate-500">Pick an item -&gt; then Create pin.</div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       className="text-xs font-semibold text-slate-700 underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
                       onClick={() => onChangeViewMode?.("list")}
-                      disabled={isListMode}
+                      disabled={!hasSearchResults || isListMode}
                     >
                       Go to list
                     </button>
@@ -2544,23 +2589,31 @@ export default function ProofMapTab({
                       type="button"
                       className="text-xs font-semibold text-slate-700 underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
                       onClick={() => onChangeViewMode?.("map")}
-                      disabled={!isListMode}
+                      disabled={!hasSearchResults || !isListMode}
                     >
                       Go to map
                     </button>
-                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                      {currentPinItemId ? (
-                        <>
-                          Selected: <span className="ml-1 font-mono">{currentPinItemId}</span>
-                        </>
-                      ) : (
-                        "None selected"
-                      )}
-                    </span>
+                    {!hasSearchResults ? <span className="text-xs text-slate-500">Search STAC first.</span> : null}
+                    {hasSelectedItem ? (
+                      <>
+                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                          Selected: <span className="ml-1 font-mono">{selectedStacItemId}</span>
+                        </span>
+                        <button
+                          type="button"
+                          className="text-xs font-semibold text-slate-700 underline underline-offset-2"
+                          onClick={() => onSelectStacItemId(null)}
+                        >
+                          Change selection
+                        </button>
+                      </>
+                    ) : hasSearchResults ? (
+                      <span className="text-xs text-slate-500">Select an item from list or map.</span>
+                    ) : null}
                   </div>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 5</div>
                   <div className="mt-1 text-xs font-semibold text-slate-900">Create pin</div>
                   <div className="mt-2">
                     <Tooltip content={createPinDisabledReason}>
@@ -2573,6 +2626,11 @@ export default function ProofMapTab({
                         Create pin
                       </button>
                     </Tooltip>
+                    {!canCreatePin ? (
+                      <div className="mt-1 text-[11px] text-slate-500">
+                        {!hasRule ? "Select a rule first." : "Select an evidence item first."}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <details
@@ -2582,15 +2640,14 @@ export default function ProofMapTab({
                 >
                   <summary className="cursor-pointer text-xs font-semibold text-slate-700">Advanced</summary>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {renderUploadAoiButton()}
-                    <button
-                      type="button"
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={searchDisabled}
-                      onClick={handleSearchStac}
-                    >
-                      {isRunning ? "Searching…" : "Search STAC"}
-                    </button>
+                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                      Rendered {stacRenderedCount}
+                    </span>
+                    {evidenceChip ? (
+                      <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                        Source {evidenceChip.display}
+                      </span>
+                    ) : null}
                   </div>
                 </details>
               </div>
