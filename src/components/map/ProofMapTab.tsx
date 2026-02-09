@@ -113,6 +113,7 @@ type ProofMapTabProps = {
     onOpenEvidence: (url: string) => void;
   } | null;
   onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
+  onChangeViewMode?: (mode: "list" | "map") => void;
 };
 
 function formatNum(value: number): string {
@@ -281,6 +282,7 @@ export default function ProofMapTab({
   onOpenCoverageDrawer,
   auditTrail,
   onEvidenceSelectionChange,
+  onChangeViewMode,
 }: ProofMapTabProps) {
   const isEvidenceMode = mode === "evidence";
   const isListMode = viewMode === "list";
@@ -309,6 +311,7 @@ export default function ProofMapTab({
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [railMode, setRailMode] = useState<"run" | "evidence">("run");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [loadedRunId, setLoadedRunId] = useState<string | null>(null);
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
@@ -1268,15 +1271,10 @@ export default function ProofMapTab({
 
   const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
   const currentPinItemId = selectedEvidenceItemIds[0] ?? null;
-  const hasPinProvenance = Boolean(currentAoiFingerprint || currentInputFingerprint);
-  const canCreatePin = Boolean(selectedRuleId && currentPinItemId && hasPinProvenance);
-  const createPinDisabledReason = !selectedRuleId
-    ? "Select a rule to pin evidence."
-    : !currentPinItemId
-      ? "Select an evidence item to pin."
-      : !hasPinProvenance
-        ? "Load AOI to enable baseline comparisons"
-        : "Pin = durable link between a rule and an evidence item. Drives Linked/Coverage.";
+  const canCreatePin = Boolean(selectedRuleId && currentPinItemId);
+  const createPinDisabledReason = canCreatePin
+    ? "Pin = durable link between a rule and an evidence item. Drives Linked/Coverage."
+    : "Select a rule and an evidence item first.";
 
   const renderUploadAoiButton = (className?: string) => (
     <label className={`inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 ${className ?? ""}`}>
@@ -1292,7 +1290,6 @@ export default function ProofMapTab({
 
   const handleCreatePin = useCallback(() => {
     if (!selectedRuleId || !currentPinItemId) return;
-    if (!hasPinProvenance) return;
     const ts = new Date().toISOString();
     const id =
       typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
@@ -1313,16 +1310,14 @@ export default function ProofMapTab({
       stac_run_id: currentStacEvidence?.runId,
       created_at: ts,
     };
-    setLoadedRunId(null);
     onSetEvidencePins([pin, ...evidencePins]);
-    showToast("Pin created");
+    showToast(`Pinned ${currentPinItemId} to ${selectedRuleId}`);
   }, [
     aoi?.id,
     currentAoiFingerprint,
     currentPinItemId,
     currentStacEvidence?.runId,
     evidencePins,
-    hasPinProvenance,
     methodCode,
     onSetEvidencePins,
     selectedRuleId,
@@ -2481,69 +2476,124 @@ export default function ProofMapTab({
               </button>
             </div>
             <div className={railMode === "evidence" ? "flex flex-wrap items-center gap-2" : "hidden"}>
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
-                <span className="text-xs font-semibold text-slate-600">Rule</span>
-                <select
-                  className="max-w-[220px] bg-transparent text-xs text-slate-700 outline-none"
-                  value={selectedRuleId ?? ""}
-                  onChange={(event) => {
-                    const next = event.target.value.trim();
-                    setLoadedRunId(null);
-                    onSelectRuleId?.(next || null);
-                  }}
+              <div className="grid w-full gap-3">
+                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 1</div>
+                  <div className="mt-1 text-xs font-semibold text-slate-900">Pick rule</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
+                      <span className="text-xs font-semibold text-slate-600">Rule</span>
+                      <select
+                        className="max-w-[220px] bg-transparent text-xs text-slate-700 outline-none"
+                        value={selectedRuleId ?? ""}
+                        onChange={(event) => {
+                          const next = event.target.value.trim();
+                          onSelectRuleId?.(next || null);
+                        }}
+                      >
+                        <option value="">Select rule…</option>
+                        {ruleOptions.map((rule) => {
+                          const preview = rule.title.trim().slice(0, 60);
+                          return (
+                            <option key={rule.id} value={rule.id}>
+                              {rule.id} {preview ? `- ${preview}` : ""}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                    {selectedRuleId ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                        Rule: {selectedRuleId}
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-slate-50 px-1 text-[10px] leading-4 text-slate-600 hover:bg-slate-100"
+                          onClick={() => onSelectRuleId?.(null)}
+                          aria-label="Clear selected rule"
+                        >
+                          x
+                        </button>
+                      </span>
+                    ) : null}
+                    {selectedRuleId ? (
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={() => onViewRule?.(selectedRuleId)}
+                      >
+                        View rule
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
+                  <div className="mt-1 text-xs font-semibold text-slate-900">Pick evidence</div>
+                  <div className="mt-1 text-xs text-slate-600">Select a STAC item from the list (left) or a footprint/marker on the map.</div>
+                  <div className="mt-1 text-xs text-slate-500">Pick an item → then Create pin.</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-slate-700 underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
+                      onClick={() => onChangeViewMode?.("list")}
+                      disabled={isListMode}
+                    >
+                      Go to list
+                    </button>
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-slate-700 underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
+                      onClick={() => onChangeViewMode?.("map")}
+                      disabled={!isListMode}
+                    >
+                      Go to map
+                    </button>
+                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                      {currentPinItemId ? (
+                        <>
+                          Selected: <span className="ml-1 font-mono">{currentPinItemId}</span>
+                        </>
+                      ) : (
+                        "None selected"
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
+                  <div className="mt-1 text-xs font-semibold text-slate-900">Create pin</div>
+                  <div className="mt-2">
+                    <Tooltip content={createPinDisabledReason}>
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleCreatePin}
+                        disabled={!canCreatePin}
+                      >
+                        Create pin
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+                <details
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2"
+                  open={advancedOpen}
+                  onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
                 >
-                  <option value="">Select rule…</option>
-                  {ruleOptions.map((rule) => {
-                    const preview = rule.title.trim().slice(0, 60);
-                    return (
-                      <option key={rule.id} value={rule.id}>
-                        {rule.id} {preview ? `- ${preview}` : ""}
-                      </option>
-                    );
-                  })}
-                </select>
+                  <summary className="cursor-pointer text-xs font-semibold text-slate-700">Advanced</summary>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {renderUploadAoiButton()}
+                    <button
+                      type="button"
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={searchDisabled}
+                      onClick={handleSearchStac}
+                    >
+                      {isRunning ? "Searching…" : "Search STAC"}
+                    </button>
+                  </div>
+                </details>
               </div>
-              {selectedRuleId ? (
-                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                  Rule: {selectedRuleId}
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-200 bg-slate-50 px-1 text-[10px] leading-4 text-slate-600 hover:bg-slate-100"
-                    onClick={() => onSelectRuleId?.(null)}
-                    aria-label="Clear selected rule"
-                  >
-                    x
-                  </button>
-                </span>
-              ) : null}
-              {selectedRuleId ? (
-                <button
-                  type="button"
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                  onClick={() => onViewRule?.(selectedRuleId)}
-                >
-                  View rule
-                </button>
-              ) : null}
-              {renderUploadAoiButton()}
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={searchDisabled}
-                onClick={handleSearchStac}
-              >
-                {isRunning ? "Searching…" : "Search STAC"}
-              </button>
-              <Tooltip content={createPinDisabledReason}>
-                <button
-                  type="button"
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={handleCreatePin}
-                  disabled={!canCreatePin}
-                >
-                  Create pin
-                </button>
-              </Tooltip>
               <details
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2"
                 open={pinListOpen}

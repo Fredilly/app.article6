@@ -1100,6 +1100,19 @@ export default function MethodDetailPane({
 
   const linkedRuleIds = useMemo(() => new Set(evidenceLinkSelection?.ruleIds ?? []), [evidenceLinkSelection]);
 
+  const handleSetVerifyViewMode = useCallback(
+    (nextMode: "list" | "map") => {
+      if (!pathname) return;
+      const next = applyUrlUpdates(new URLSearchParams(searchString), {
+        tab: "verify",
+        mode: nextMode,
+      });
+      if (next === searchString) return;
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchString],
+  );
+
   useEffect(() => {
     if (!isEvidenceMode) return;
     const next = (searchParams.get("evidence") ?? "").trim() || null;
@@ -1191,6 +1204,7 @@ export default function MethodDetailPane({
         }}
         onSelectStacItemId={setSelectedStacItemId}
         onEvidenceSelectionChange={setEvidenceLinkSelection}
+        onChangeViewMode={handleSetVerifyViewMode}
         onNavigateEvidence={async (type, id) => {
           if (type === "rule") return await navigateToRule(id);
           if (type === "section") return await navigateToSection(id);
