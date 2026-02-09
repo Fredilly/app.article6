@@ -202,6 +202,7 @@ export default function MethodDetailPane({
   } | null>(null);
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
+  const didInitFromUrl = useRef(false);
   const lastSectionFromQuery = useRef<string | null>(null);
   const lastMethodSelection = useRef<string | null>(null);
   const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
@@ -979,11 +980,13 @@ export default function MethodDetailPane({
   }, [setRuleParam]);
 
   useEffect(() => {
-    const fromQuery = (searchParams.get("rule") ?? "").trim();
-    const nextRule = /^R-/i.test(fromQuery) ? fromQuery : null;
-    if ((activeRuleId ?? null) === nextRule) return;
-    setActiveRuleId(nextRule);
-  }, [activeRuleId, searchParams]);
+    if (didInitFromUrl.current) return;
+    didInitFromUrl.current = true;
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const initial = (url.searchParams.get("rule") ?? "").trim();
+    if (initial) setActiveRuleId(initial);
+  }, []);
 
   useEffect(() => {
     if (surfaceTab !== "verify" && !isEvidenceMode) return;
