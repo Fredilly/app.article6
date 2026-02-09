@@ -22,6 +22,12 @@ describe("baseline uplift", () => {
     expect(result.reasons).toContain("dataset hash changed");
   });
 
+  it("requires non-empty dataset hash for comparability", () => {
+    const result = isComparable(baseProv, { ...baseProv, datasetHash: "" });
+    expect(result.ok).toBe(false);
+    expect(result.reasons).toContain("dataset hash missing");
+  });
+
   it("computes KPI deltas", () => {
     const uplift = computeUplift(
       { itemsCount: 10, linkedRulesCount: 3, coverage: { numerator: 3, denominator: 10 } },

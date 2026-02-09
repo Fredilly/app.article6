@@ -4,7 +4,6 @@ import type { RunKpis } from "@/lib/verify/kpis";
 
 type ProofCoverageChipProps = {
   kpis: RunKpis;
-  linkedRulesCount: number;
   onViewCoverage?: () => void;
 };
 
@@ -16,9 +15,9 @@ function formatSnapshotLabel(value: string | null | undefined): { label: string;
   return { label: `Exported ${time}`, title: date.toISOString() };
 }
 
-export default function ProofCoverageChip({ kpis, linkedRulesCount, onViewCoverage }: ProofCoverageChipProps) {
+export default function ProofCoverageChip({ kpis, onViewCoverage }: ProofCoverageChipProps) {
   const coverage = kpis.coverage;
-  const numerator = linkedRulesCount;
+  const numerator = kpis.linkedRulesCount;
   const denominator = coverage?.denominator;
   const snapshot = formatSnapshotLabel(kpis.snapshotExportedAt ?? null);
   const coverageText = typeof denominator === "number" ? `${numerator}/${denominator}` : String(numerator);
@@ -29,7 +28,7 @@ export default function ProofCoverageChip({ kpis, linkedRulesCount, onViewCovera
         <span className="text-slate-500">Items:</span> {kpis.itemsCount}
       </span>
       <span>
-        <span className="text-slate-500">Linked:</span> {linkedRulesCount}
+        <span className="text-slate-500">Linked:</span> {kpis.linkedRulesCount}
       </span>
       <span title={snapshot.title}>
         <span className="text-slate-500">Snapshot:</span> {snapshot.label}
