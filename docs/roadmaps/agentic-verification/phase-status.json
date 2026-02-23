@@ -1,0 +1,55 @@
+{
+  "PR36": "planned",
+  "PR37": "planned",
+  "PR38": "planned",
+  "PR39": "planned",
+  "PR40": "planned",
+  "PR41": "planned",
+  "PR42": "planned",
+  "PR43": "planned",
+  "PR44": "planned",
+  "PR45": "planned",
+  "pr_evidence": {},
+  "pr_meta": {
+    "PR36": {
+      "title": "Agent primitives spec v1 (Method/Evidence/Run/Exception/Attestation/Approval)",
+      "summary": "Define stable core objects and contract boundaries for agent-native verification runs."
+    },
+    "PR37": {
+      "title": "Skill package spec v1 (signed manifest + capability allowlist)",
+      "summary": "Specify signed skill manifests and explicit capability allowlists for safe extensibility."
+    },
+    "PR38": {
+      "title": "Execution sandbox + guardrails (scoped connectors, read-only default)",
+      "summary": "Enforce connector scoping and least-privilege execution defaults for agent actions."
+    },
+    "PR39": {
+      "title": "Attestation + replay (hash chain, replay run, diff outputs)",
+      "summary": "Produce tamper-evident run attestations and deterministic replay for output validation."
+    },
+    "PR40": {
+      "title": "Agent API v1 (startRun/submitEvidence/evaluate/getExceptions/exportAuditPack/attestRun)",
+      "summary": "Ship first-class APIs for end-to-end orchestration of pre-audit verification workflows."
+    },
+    "PR41": {
+      "title": "Human approval gates (finalization state machine + override notes)",
+      "summary": "Add explicit human approval checkpoints with auditable override rationale."
+    },
+    "PR42": {
+      "title": "Metering hooks (per-run, per-export, org usage ledger)",
+      "summary": "Instrument run and export usage with organization-level ledgers for billing visibility."
+    },
+    "PR43": {
+      "title": "Pre-audit pack prep workflow v1 (end-to-end \"sellable unit\")",
+      "summary": "Deliver a complete pre-audit preparation workflow that packages evidence into a repeatable unit."
+    },
+    "PR44": {
+      "title": "Policy packs + house interpretations overlay (versioned)",
+      "summary": "Version policy packs and house-interpretation overlays to make evaluation policy explicit."
+    },
+    "PR45": {
+      "title": "Exceptions taxonomy v1 + reviewer notes glue (standardized)",
+      "summary": "Standardize exception classes and reviewer-note linkage for consistent adjudication."
+    }
+  }
+}

@@ -55,3 +55,19 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 12) PR33 — Adjudication templates + Promote to Gold labels: Planned
 13) PR34 — Precedent matching (case-law memory): Planned
 14) PR35 — Investor-safe Moat Export v2 (redacted): Planned
+
+## agentic-verification
+
+Status SSOT: `docs/roadmaps/agentic-verification/phase-status.json`
+Details: `docs/roadmaps/agentic-verification/PLAN.md`
+
+1) PR36: Planned
+2) PR37: Planned
+3) PR38: Planned
+4) PR39: Planned
+5) PR40: Planned
+6) PR41: Planned
+7) PR42: Planned
+8) PR43: Planned
+9) PR44: Planned
+10) PR45: Planned
