@@ -55,3 +55,19 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 12) PR33 — Adjudication templates + Promote to Gold labels: Planned
 13) PR34 — Precedent matching (case-law memory): Planned
 14) PR35 — Investor-safe Moat Export v2 (redacted): Planned
+
+## agentic-verification
+
+Status SSOT: `docs/roadmaps/agentic-verification/phase-status.json`
+Details: `docs/roadmaps/agentic-verification/PLAN.md`
+
+1) PR36 — Agent primitives spec v1 (Method/Evidence/Run/Exception/Attestation/Approval): Planned
+2) PR37 — Skill package spec v1 (signed manifest + capability allowlist): Planned
+3) PR38 — Execution sandbox + guardrails (scoped connectors, read-only default): Planned
+4) PR39 — Attestation + replay (hash chain, replay run, diff outputs): Planned
+5) PR40 — Agent API v1 (startRun/submitEvidence/evaluate/getExceptions/exportAuditPack/attestRun): Planned
+6) PR41 — Human approval gates (finalization state machine + override notes): Planned
+7) PR42 — Metering hooks (per-run, per-export, org usage ledger): Planned
+8) PR43 — Pre-audit pack prep workflow v1 (end-to-end sellable unit): Planned
+9) PR44 — Policy packs + house interpretations overlay (versioned): Planned
+10) PR45 — Exceptions taxonomy v1 + reviewer notes glue (standardized): Planned
