@@ -706,7 +706,6 @@ export default function ProofMapTab({
     setRunDetailsOpen(true);
     showToast(`Run started with ${evidencePins.length} pin${evidencePins.length === 1 ? "" : "s"}.`);
   }, [evidencePins.length, handleSaveRunHistory, showToast]);
-
   const handleNavigateEvidence = useCallback(
     async (type: "rule" | "section", id: string) => {
       return await onNavigateEvidence(type, id);
