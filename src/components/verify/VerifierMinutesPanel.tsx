@@ -5,6 +5,8 @@ import type { VerifierChecklistItem, VerifierRunContext } from "@/lib/verify/run
 
 type VerifierMinutesPanelProps = {
   runContext: VerifierRunContext;
+  exportedAt?: string | null;
+  minutesFocusKey?: number;
   minutes: string;
   checklist: VerifierChecklistItem[];
   onMinutesChange: (value: string) => void;
@@ -17,6 +19,8 @@ type VerifierMinutesPanelProps = {
 
 export default function VerifierMinutesPanel({
   runContext,
+  exportedAt = null,
+  minutesFocusKey = 0,
   minutes,
   checklist,
   onMinutesChange,
@@ -27,6 +31,7 @@ export default function VerifierMinutesPanel({
   showCreateTicket = false,
 }: VerifierMinutesPanelProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const isLocked = Boolean(exportedAt);
 
   useEffect(() => {
     const node = textareaRef.current;
@@ -34,6 +39,11 @@ export default function VerifierMinutesPanel({
     node.style.height = "auto";
     node.style.height = `${node.scrollHeight}px`;
   }, [minutes]);
+
+  useEffect(() => {
+    if (!minutesFocusKey) return;
+    textareaRef.current?.focus();
+  }, [minutesFocusKey]);
 
   const shortRunId = useMemo(() => {
     const raw = runContext.runId || "";
@@ -45,7 +55,9 @@ export default function VerifierMinutesPanel({
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="text-sm font-semibold text-slate-900">Verifier minutes</div>
-          <div className="mt-1 text-xs text-slate-500">Run: {shortRunId}</div>
+          <div className="mt-1 text-xs text-slate-500" data-testid="verifier-run-id">Run: {shortRunId}</div>
+          <div className="mt-1 text-xs text-slate-500" data-testid="verifier-run-started-at">Run started at {new Date(runContext.createdAt).toLocaleString()}</div>
+          {isLocked ? <div className="mt-1 text-xs font-semibold text-slate-600">Run exported — start a new run to edit.</div> : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {onNewRun ? (
@@ -72,9 +84,11 @@ export default function VerifierMinutesPanel({
       <div className="mt-3 grid gap-3">
         <textarea
           ref={textareaRef}
+          data-testid="verifier-minutes-textarea"
           className="min-h-[120px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-200"
           placeholder="Write what you checked, what you assume, and what's still uncertain..."
           value={minutes}
+          disabled={isLocked}
           onChange={(event) => onMinutesChange(event.target.value)}
         />
 
@@ -98,6 +112,7 @@ export default function VerifierMinutesPanel({
                   type="checkbox"
                   className="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-200"
                   checked={item.checked}
+                  disabled={isLocked}
                   onChange={() => onToggleChecklist(item.id)}
                 />
                 <span>{item.label}</span>

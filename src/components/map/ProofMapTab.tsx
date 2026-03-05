@@ -316,7 +316,7 @@ export default function ProofMapTab({
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
-  const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
+  const [minutesFocusKey, setMinutesFocusKey] = useState(0);
   const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -391,9 +391,10 @@ export default function ProofMapTab({
   }, [methodCode, verifierBundle, version]);
 
   const handleMinutesChange = useCallback((value: string) => {
+    if (verifierBundle.exportedAt) return;
     setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, minutes: value }));
-  }, []);
+  }, [verifierBundle.exportedAt]);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -487,6 +488,7 @@ export default function ProofMapTab({
   const buildHistoryBundle = useCallback(() => {
     return {
       runContext: verifierBundle.runContext,
+      exportedAt: verifierBundle.exportedAt,
       minutes: verifierBundle.minutes,
       checklist: verifierBundle.checklist,
       delta: verifierBundle.delta,
@@ -514,6 +516,7 @@ export default function ProofMapTab({
       if (!loaded) return;
       setVerifierBundle({
         runContext: loaded.runContext,
+        exportedAt: loaded.exportedAt ?? null,
         minutes: loaded.minutes ?? "",
         checklist: loaded.checklist ?? [],
         delta: loaded.delta ?? "",
@@ -524,7 +527,6 @@ export default function ProofMapTab({
       onSetEvidencePins(loaded.evidencePins as EvidencePin[]);
       onSetVerificationRuns(loaded.verificationRuns as VerificationRun[]);
       onSelectStacItemId(loaded.selectedStacItemId ?? null);
-      setSnapshotExportedAt(null);
       setLoadedRunId(runId);
     },
     [methodCode, onSelectStacItemId, onSetAoi, onSetEvidencePins, onSetVerificationRuns, version],
@@ -538,6 +540,7 @@ export default function ProofMapTab({
   );
 
   const handleToggleChecklist = useCallback((id: string) => {
+    if (verifierBundle.exportedAt) return;
     const timestamp = new Date().toISOString();
     setLoadedRunId(null);
     setVerifierBundle((current) => ({
@@ -546,13 +549,14 @@ export default function ProofMapTab({
         item.id === id ? { ...item, checked: !item.checked, updatedAt: timestamp } : item,
       ),
     }));
-  }, []);
+  }, [verifierBundle.exportedAt]);
 
   const handleResetChecklist = useCallback(() => {
+    if (verifierBundle.exportedAt) return;
     const next = createVerifierRunBundle(methodCode, version);
     setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, checklist: next.checklist }));
-  }, [methodCode, version]);
+  }, [methodCode, verifierBundle.exportedAt, version]);
 
   const handleSearchStac = useCallback(async () => {
     if (!aoi) return;
@@ -697,10 +701,12 @@ export default function ProofMapTab({
 
   const handleNewRun = useCallback(() => {
     handleSaveRunHistory();
+    const pinsCount = evidencePins.length;
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
-    setSnapshotExportedAt(null);
+    setMinutesFocusKey((current) => current + 1);
     setLoadedRunId(null);
-  }, [handleSaveRunHistory, methodCode, version]);
+    showToast(`New run started — pins kept: ${pinsCount}`);
+  }, [evidencePins.length, handleSaveRunHistory, methodCode, showToast, version]);
 
   const handleNavigateEvidence = useCallback(
     async (type: "rule" | "section", id: string) => {
@@ -1093,7 +1099,7 @@ export default function ProofMapTab({
           linkedRuleIds,
         },
         exportState: {
-          snapshotExportedAt,
+          snapshotExportedAt: verifierBundle.exportedAt,
         },
         verifier: {
           runId: verifierBundle.runContext.runId,
@@ -1117,7 +1123,6 @@ export default function ProofMapTab({
       currentAoiFingerprint,
       linkedRuleIds,
       methodCode,
-      snapshotExportedAt,
       stacFeatureIds,
       stacQuery,
       verifierBundle,
@@ -1400,10 +1405,10 @@ export default function ProofMapTab({
       tasks: verifierBundle.tasks,
     };
 
-    setSnapshotExportedAt(exportedAt);
-    setVerifierBundle((current) => ({ ...current, checklist: checklistAfterExport }));
+    setVerifierBundle((current) => ({ ...current, exportedAt, checklist: checklistAfterExport }));
     handleSaveRunHistory({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
+      exportedAt,
       minutes: verifierSnapshot.minutes,
       delta: verifierSnapshot.delta,
       impact: verifierSnapshot.impact,
@@ -1467,7 +1472,7 @@ export default function ProofMapTab({
     };
     const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
     downloadJson(snapshotWithLegacyItems, filename);
-    showToast("Snapshot downloaded");
+    showToast("Snapshot exported");
   }, [
     aoi,
     currentStacEvidence?.itemsById,
@@ -2481,6 +2486,14 @@ export default function ProofMapTab({
               >
                 Export snapshot
               </button>
+              {verifierBundle.exportedAt ? (
+                <span
+                  data-testid="snapshot-exported-badge"
+                  className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+                >
+                  Exported {formatLocalDateTime(verifierBundle.exportedAt)}
+                </span>
+              ) : null}
             </div>
             <div className={railMode === "evidence" ? "flex flex-wrap items-center gap-2" : "hidden"}>
               <div className="grid w-full gap-3">
@@ -2764,6 +2777,8 @@ export default function ProofMapTab({
             </div>
             <VerifierMinutesPanel
               runContext={verifierBundle.runContext}
+              exportedAt={verifierBundle.exportedAt}
+              minutesFocusKey={minutesFocusKey}
               minutes={verifierBundle.minutes}
               checklist={verifierBundle.checklist}
               onMinutesChange={handleMinutesChange}
@@ -2829,6 +2844,7 @@ export default function ProofMapTab({
                 <OutcomeWidget
                   className="border-0 p-0"
                   summary={runSummary}
+                  exportedAt={verifierBundle.exportedAt}
                   onCopy={copyToClipboard}
                   onExportSnapshot={handleExportSnapshot}
                   onCreateTicket={handleCreateTicket}
