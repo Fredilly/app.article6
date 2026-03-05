@@ -1,5 +1,6 @@
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import type { RunSummary } from "@/lib/verify/runState";
+import type { PreferenceEvent } from "@/lib/verify/preferences";
 
 export async function buildOutcomeSnapshot(input: {
   method: { code: string; version: string };
@@ -30,6 +31,7 @@ export async function buildOutcomeSnapshot(input: {
     coverage?: { numerator: number; denominator?: number };
     snapshotExportedAt?: string | null;
   } | null;
+  preferenceEvents?: PreferenceEvent[] | null;
 }) {
   return buildEvidenceSnapshot({
     method: input.method,
@@ -42,5 +44,6 @@ export async function buildOutcomeSnapshot(input: {
     outcome: input.outcome ?? undefined,
     verifier: input.verifier ?? undefined,
     kpis: input.kpis ?? undefined,
+    preferenceEvents: input.preferenceEvents ?? undefined,
   });
 }

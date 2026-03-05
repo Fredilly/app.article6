@@ -110,3 +110,47 @@ test("keeps verifier tasks empty when none provided", async () => {
 
   expect(snapshot.verifier?.tasks).toEqual([]);
 });
+
+test("includes preference events in stable order", async () => {
+  const snapshot = await buildEvidenceSnapshot({
+    method: { code: "AR-3", version: "v3" },
+    evidence_source: { type: "stac_url", ref: "https://example.test" },
+    preferenceEvents: [
+      {
+        eventId: "b-event",
+        runId: "run-3",
+        methodCode: "AR-3",
+        version: "v3",
+        pairKey: "a::b",
+        leftEvidenceKey: "a",
+        rightEvidenceKey: "b",
+        choice: "left",
+        seq: 2,
+      },
+      {
+        eventId: "a-event",
+        runId: "run-3",
+        methodCode: "AR-3",
+        version: "v3",
+        pairKey: "a::b",
+        leftEvidenceKey: "a",
+        rightEvidenceKey: "b",
+        choice: "right",
+        seq: 2,
+      },
+      {
+        eventId: "z-event",
+        runId: "run-3",
+        methodCode: "AR-3",
+        version: "v3",
+        pairKey: "a::b",
+        leftEvidenceKey: "a",
+        rightEvidenceKey: "b",
+        choice: "tie",
+        seq: 1,
+      },
+    ],
+  });
+
+  expect(snapshot.preference_events?.map((event) => event.eventId)).toEqual(["z-event", "a-event", "b-event"]);
+});

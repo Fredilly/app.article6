@@ -2,6 +2,7 @@ import { z } from "zod";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { sha256Text } from "@/lib/proof/hash";
 import { buildRunSummary, type RunSummary } from "@/lib/verify/runState";
+import type { PreferenceEvent } from "@/lib/verify/preferences";
 
 export const EvidenceSnapshotSchema = z
   .object({
@@ -124,6 +125,23 @@ export const EvidenceSnapshotSchema = z
         snapshotExportedAt: z.string().nullable().optional(),
       })
       .optional(),
+    preference_events: z
+      .array(
+        z.object({
+          eventId: z.string().min(1),
+          runId: z.string().min(1),
+          methodCode: z.string().min(1),
+          version: z.string().min(1),
+          ruleId: z.string().min(1).optional(),
+          pairKey: z.string().min(1),
+          leftEvidenceKey: z.string().min(1),
+          rightEvidenceKey: z.string().min(1),
+          choice: z.enum(["left", "right", "tie", "skip"]),
+          rationale: z.string().min(1).optional(),
+          seq: z.number(),
+        }),
+      )
+      .optional(),
   })
   .strict();
 
@@ -171,6 +189,23 @@ function stripUndefined<T extends Record<string, unknown>>(input: T): Partial<T>
   return out as Partial<T>;
 }
 
+function normalizePreferenceEvents(events: PreferenceEvent[] | undefined): PreferenceEvent[] | undefined {
+  if (!events?.length) return undefined;
+  return [...events]
+    .map((event) => ({
+      ...event,
+      ruleId: asNonEmptyString(event.ruleId) ?? undefined,
+      rationale: asNonEmptyString(event.rationale) ?? undefined,
+      seq: Math.trunc(event.seq),
+    }))
+    .filter((event) => event.seq > 0)
+    .sort((a, b) => {
+      const seqCmp = a.seq - b.seq;
+      if (seqCmp !== 0) return seqCmp;
+      return a.eventId.localeCompare(b.eventId);
+    });
+}
+
 export async function buildEvidenceSnapshot(input: {
   method: { code: string; version: string };
   aoi?: { id?: string | null; bbox?: [number, number, number, number] | null; geojson?: unknown };
@@ -200,6 +235,7 @@ export async function buildEvidenceSnapshot(input: {
     coverage?: { numerator: number; denominator?: number };
     snapshotExportedAt?: string | null;
   } | null;
+  preferenceEvents?: PreferenceEvent[] | null;
 }): Promise<EvidenceSnapshot> {
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
   const evidenceType = input.evidence_source.type;
@@ -254,6 +290,7 @@ export async function buildEvidenceSnapshot(input: {
       outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
       verifier: input.verifier ?? undefined,
       kpis: input.kpis ?? undefined,
+      preference_events: normalizePreferenceEvents((input.preferenceEvents ?? undefined) ?? undefined),
     }),
   );
 

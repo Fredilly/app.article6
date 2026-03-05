@@ -8,6 +8,7 @@ import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import VerifierMinutesPanel from "@/components/verify/VerifierMinutesPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
+import PairwisePreferenceWidget, { shouldShowPairwisePreferenceWidget, type PreferenceCandidate } from "@/components/verify/PairwisePreferenceWidget";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
@@ -51,6 +52,14 @@ import {
   shortRunId,
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
+import {
+  PreferenceStorageError,
+  appendPreferenceEvent,
+  listPreferenceEvents,
+  makePairKey,
+  type PreferenceChoice,
+  type PreferenceEvent,
+} from "@/lib/verify/preferences";
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -314,6 +323,7 @@ export default function ProofMapTab({
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
   const [minutesFocusKey, setMinutesFocusKey] = useState(0);
+  const [preferenceEvents, setPreferenceEvents] = useState<PreferenceEvent[]>([]);
   const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
@@ -380,6 +390,14 @@ export default function ProofMapTab({
   useEffect(() => {
     setRunHistory(readRunHistory(methodCode, version));
   }, [methodCode, version]);
+
+  useEffect(() => {
+    try {
+      setPreferenceEvents(listPreferenceEvents(methodCode, version, verifierBundle.runContext.runId));
+    } catch {
+      setPreferenceEvents([]);
+    }
+  }, [methodCode, verifierBundle.runContext.runId, version]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -987,6 +1005,35 @@ export default function ProofMapTab({
     return ids;
   }, [evidenceDiagnostics.byIdBbox]);
 
+  const preferenceCandidates = useMemo<PreferenceCandidate[]>(() => {
+    const candidates: PreferenceCandidate[] = [];
+    for (const id of stacFeatureIds) {
+      const record = currentStacEvidence?.itemsById?.[id];
+      const item = record && typeof record === "object" ? (record as Record<string, unknown>) : null;
+      const props = item && isRecord(item.properties) ? item.properties : null;
+      const title =
+        (props && typeof props.title === "string" && props.title.trim()) ||
+        (props && typeof props.datetime === "string" && props.datetime.trim()) ||
+        id;
+      const summary =
+        (props && typeof props.description === "string" && props.description.trim()) ||
+        (props && typeof props.platform === "string" ? `platform: ${props.platform}` : "") ||
+        null;
+      candidates.push({ evidenceKey: id, title, summary });
+    }
+    return candidates;
+  }, [currentStacEvidence?.itemsById, stacFeatureIds]);
+
+  const preferencePair = useMemo(() => {
+    if (!shouldShowPairwisePreferenceWidget(preferenceCandidates)) return null;
+    if (selectedStacItemId) {
+      const left = preferenceCandidates.find((item) => item.evidenceKey === selectedStacItemId) ?? null;
+      const right = preferenceCandidates.find((item) => item.evidenceKey !== selectedStacItemId) ?? null;
+      if (left && right) return { left, right };
+    }
+    return { left: preferenceCandidates[0], right: preferenceCandidates[1] };
+  }, [preferenceCandidates, selectedStacItemId]);
+
   const selectedStacDetails = useMemo(() => {
     if (!selectedStacItemId) return null;
     const record = currentStacEvidence?.itemsById?.[selectedStacItemId];
@@ -1338,6 +1385,34 @@ export default function ProofMapTab({
     version,
   ]);
 
+  const handleRecordPreference = useCallback(
+    async (choice: PreferenceChoice, rationale?: string | null) => {
+      if (!preferencePair) return;
+      try {
+        const pairKey = makePairKey(preferencePair.left.evidenceKey, preferencePair.right.evidenceKey);
+        await appendPreferenceEvent(verifierBundle.runContext.runId, {
+          methodCode,
+          version,
+          ruleId: selectedRuleId ?? undefined,
+          pairKey,
+          leftEvidenceKey: preferencePair.left.evidenceKey,
+          rightEvidenceKey: preferencePair.right.evidenceKey,
+          choice,
+          rationale: rationale ?? undefined,
+        });
+        setPreferenceEvents(listPreferenceEvents(methodCode, version, verifierBundle.runContext.runId));
+        showToast("Preference recorded");
+      } catch (error) {
+        if (error instanceof PreferenceStorageError) {
+          showToast("Preference save failed");
+          return;
+        }
+        showToast("Preference save failed");
+      }
+    },
+    [methodCode, preferencePair, selectedRuleId, showToast, verifierBundle.runContext.runId, version],
+  );
+
   const handleExportSnapshot = useCallback(async () => {
     const selectedItem =
       selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
@@ -1465,6 +1540,7 @@ export default function ProofMapTab({
       outcome,
       kpis,
       verifier: verifierSnapshot,
+      preferenceEvents,
     });
 
     const snapshotWithLegacyItems = {
@@ -1483,6 +1559,7 @@ export default function ProofMapTab({
     linkedRuleIds,
     localEvidenceHashInputs,
     methodCode,
+    preferenceEvents,
     runSummary,
     selectedStacItemId,
     showToast,
@@ -1875,6 +1952,16 @@ export default function ProofMapTab({
 
       <div>
         <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
+        {preferencePair ? (
+          <div className="mt-2">
+            <PairwisePreferenceWidget
+              left={preferencePair.left}
+              right={preferencePair.right}
+              recent={preferenceEvents}
+              onChoose={handleRecordPreference}
+            />
+          </div>
+        ) : null}
         <div className="mt-2 grid gap-2">
           {aoi && currentAoiFingerprint && stacRenderedCount ? (
             <div ref={stacEvidenceCardRef} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
