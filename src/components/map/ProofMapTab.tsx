@@ -7,6 +7,7 @@ import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import VerifierMinutesPanel from "@/components/verify/VerifierMinutesPanel";
+import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
@@ -113,7 +114,6 @@ type ProofMapTabProps = {
     onOpenEvidence: (url: string) => void;
   } | null;
   onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
-  onChangeViewMode?: (mode: "list" | "map") => void;
 };
 
 function formatNum(value: number): string {
@@ -282,13 +282,11 @@ export default function ProofMapTab({
   onOpenCoverageDrawer,
   auditTrail,
   onEvidenceSelectionChange,
-  onChangeViewMode,
 }: ProofMapTabProps) {
   const isEvidenceMode = mode === "evidence";
   const isListMode = viewMode === "list";
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [pinListOpen, setPinListOpen] = useState(false);
   const [undoVisible, setUndoVisible] = useState(false);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
@@ -310,14 +308,14 @@ export default function ProofMapTab({
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
-  const [railMode, setRailMode] = useState<"run" | "evidence">("run");
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [runDetailsOpen, setRunDetailsOpen] = useState(false);
   const [loadedRunId, setLoadedRunId] = useState<string | null>(null);
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
   const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
   const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
+  const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -702,6 +700,12 @@ export default function ProofMapTab({
     setLoadedRunId(null);
   }, [handleSaveRunHistory, methodCode, version]);
 
+  const handleStartRun = useCallback(() => {
+    if (!evidencePins.length) return;
+    handleSaveRunHistory();
+    setRunDetailsOpen(true);
+    showToast(`Run started with ${evidencePins.length} pin${evidencePins.length === 1 ? "" : "s"}.`);
+  }, [evidencePins.length, handleSaveRunHistory, showToast]);
   const handleNavigateEvidence = useCallback(
     async (type: "rule" | "section", id: string) => {
       return await onNavigateEvidence(type, id);
@@ -1283,42 +1287,39 @@ export default function ProofMapTab({
       ? "Select a rule to pin evidence."
       : "Select an evidence item to pin.";
 
-  const renderUploadAoiButton = (className?: string) => (
-    <label className={`inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 ${className ?? ""}`}>
-      Upload AOI
-      <input
-        type="file"
-        accept=".json,.geojson,application/json"
-        className="hidden"
-        onChange={handleUploadAoiChange}
-      />
-    </label>
-  );
+  const triggerAoiUpload = useCallback(() => {
+    uploadAoiInputRef.current?.click();
+  }, []);
 
   const handleCreatePin = useCallback(() => {
     if (!selectedRuleId || !currentPinItemId) return;
-    const ts = new Date().toISOString();
-    const id =
-      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
-    const pin: EvidencePin = {
-      id,
-      kind: "note",
-      title: `Pin ${selectedRuleId} ↔ ${currentPinItemId}`,
-      ts,
-      ruleId: selectedRuleId,
-      itemId: currentPinItemId,
-      note: `${methodCode}@${version}`,
-      aoi_id: aoi?.id ?? null,
-      aoi_fingerprint: currentAoiFingerprint ?? undefined,
-      cited_ids: [selectedRuleId],
-      stac_item_ids: [currentPinItemId],
-      stac_run_id: currentStacEvidence?.runId,
-      created_at: ts,
-    };
-    onSetEvidencePins([pin, ...evidencePins]);
-    showToast(`Pinned ${currentPinItemId} to ${selectedRuleId}`);
+    try {
+      const ts = new Date().toISOString();
+      const id =
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
+      const pin: EvidencePin = {
+        id,
+        kind: "note",
+        title: `Pin ${selectedRuleId} ↔ ${currentPinItemId}`,
+        ts,
+        ruleId: selectedRuleId,
+        itemId: currentPinItemId,
+        note: `${methodCode}@${version}`,
+        aoi_id: aoi?.id ?? null,
+        aoi_fingerprint: currentAoiFingerprint ?? undefined,
+        cited_ids: [selectedRuleId],
+        stac_item_ids: [currentPinItemId],
+        stac_run_id: currentStacEvidence?.runId,
+        created_at: ts,
+      };
+      onSetEvidencePins([pin, ...evidencePins]);
+      showToast(`Pinned ${currentPinItemId} to ${selectedRuleId}`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("Pin creation failed. Selection kept.");
+    }
   }, [
     aoi?.id,
     currentAoiFingerprint,
@@ -2445,236 +2446,173 @@ export default function ProofMapTab({
         </div>
 
         <div className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
-          <div className="flex items-center justify-between gap-2">
-            <div className="inline-flex rounded-full border border-slate-200 bg-white p-1 shadow-sm">
-              {(["run", "evidence"] as const).map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${railMode === mode ? "bg-slate-900 text-white" : "text-slate-600 hover:text-slate-900"}`}
-                  onClick={() => setRailMode(mode)}
-                >
-                  {mode}
-                </button>
-              ))}
+          <input
+            ref={uploadAoiInputRef}
+            type="file"
+            accept=".json,.geojson,application/json"
+            className="hidden"
+            onChange={handleUploadAoiChange}
+          />
+
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <div className="text-sm font-semibold text-slate-900">Evidence workflow</div>
+              <div className="mt-1 text-xs text-slate-500">Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; run.</div>
             </div>
-            {railMode === "run" ? (
-              <span className="text-xs text-slate-500">Run tools</span>
-            ) : (
-              <span className="text-xs text-slate-500">Evidence tools</span>
-            )}
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => {
+                  if (hasStartOverState) setStartOverOpen(true);
+                  else showToast("Nothing to clear.");
+                }}
+                disabled={startOverBusy}
+              >
+                Start over
+              </button>
+              <button
+                type="button"
+                className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+                onClick={() => setPanelCollapsed(true)}
+                aria-label="Collapse Verify panel"
+              >
+                Collapse »
+              </button>
+            </div>
           </div>
 
-          <div className="sticky top-0 z-10 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
-            <div className={railMode === "run" ? "flex flex-wrap items-center gap-2" : "hidden"}>
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={handleNewRun}
-              >
-                New run
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
-                onClick={handleExportSnapshot}
-              >
-                Export snapshot
-              </button>
+          {error ? (
+            <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {error}
             </div>
-            <div className={railMode === "evidence" ? "flex flex-wrap items-center gap-2" : "hidden"}>
-              <div className="grid w-full gap-3">
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 1</div>
-                  <div className="mt-1 text-xs font-semibold text-slate-900">Pick rule</div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
-                      <span className="text-xs font-semibold text-slate-600">Rule</span>
-                      <select
-                        className="max-w-[220px] bg-transparent text-xs text-slate-700 outline-none"
-                        value={selectedRuleId ?? ""}
-                        onChange={(event) => {
-                          const next = event.target.value.trim();
-                          onSelectRuleId?.(next || null);
-                        }}
-                      >
-                        <option value="">Select rule…</option>
-                        {ruleOptions.map((rule) => {
-                          const preview = rule.title.trim().slice(0, 60);
-                          return (
-                            <option key={rule.id} value={rule.id}>
-                              {rule.id} {preview ? `- ${preview}` : ""}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                    {selectedRuleId ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                        Rule: {selectedRuleId}
-                        <button
-                          type="button"
-                          className="rounded-full border border-slate-200 bg-slate-50 px-1 text-[10px] leading-4 text-slate-600 hover:bg-slate-100"
-                          onClick={() => onSelectRuleId?.(null)}
-                          aria-label="Clear selected rule"
-                        >
-                          x
-                        </button>
-                      </span>
-                    ) : null}
-                    {selectedRuleId ? (
-                      <button
-                        type="button"
-                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={() => onViewRule?.(selectedRuleId)}
-                      >
-                        View rule
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
-                  <div className="mt-1 text-xs font-semibold text-slate-900">Upload/Confirm AOI</div>
-                  {!hasAoi ? (
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      {renderUploadAoiButton()}
-                      <span className="text-xs text-slate-600">Upload AOI to enable STAC search.</span>
-                    </div>
-                  ) : (
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                        AOI ready
-                      </span>
-                      {aoi?.name ? <span className="text-xs text-slate-600">{aoi.name}</span> : null}
-                    </div>
-                  )}
-                </div>
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
-                  <div className="mt-1 text-xs font-semibold text-slate-900">Search STAC</div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={!hasAoi || searchDisabled}
-                      onClick={handleSearchStac}
-                    >
-                      {isRunning ? "Searching…" : "Search STAC"}
-                    </button>
-                    {!hasAoi ? <span className="text-xs text-slate-500">AOI required first.</span> : null}
-                    {hasAoi && !hasSearchResults ? <span className="text-xs text-slate-500">Run STAC search to load evidence items.</span> : null}
-                    {hasSearchResults ? (
-                      <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                        {stacFeatureIds.length} items
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 4</div>
-                  <div className="mt-1 text-xs font-semibold text-slate-900">Pick STAC item</div>
-                  <div className="mt-1 text-xs text-slate-600">Select a STAC item from the list (left) or a footprint/marker on the map.</div>
-                  <div className="mt-1 text-xs text-slate-500">Pick an item -&gt; then Create pin.</div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      className="text-xs font-semibold text-slate-700 underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
-                      onClick={() => onChangeViewMode?.("list")}
-                      disabled={!hasSearchResults || isListMode}
-                    >
-                      Go to list
-                    </button>
-                    <button
-                      type="button"
-                      className="text-xs font-semibold text-slate-700 underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
-                      onClick={() => onChangeViewMode?.("map")}
-                      disabled={!hasSearchResults || !isListMode}
-                    >
-                      Go to map
-                    </button>
-                    {!hasSearchResults ? <span className="text-xs text-slate-500">Search STAC first.</span> : null}
-                    {hasSelectedItem ? (
-                      <>
-                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                          Selected: <span className="ml-1 font-mono">{selectedStacItemId}</span>
-                        </span>
-                        <button
-                          type="button"
-                          className="text-xs font-semibold text-slate-700 underline underline-offset-2"
-                          onClick={() => onSelectStacItemId(null)}
-                        >
-                          Change selection
-                        </button>
-                      </>
-                    ) : hasSearchResults ? (
-                      <span className="text-xs text-slate-500">Select an item from list or map.</span>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 5</div>
-                  <div className="mt-1 text-xs font-semibold text-slate-900">Create pin</div>
-                  <div className="mt-2">
-                    <Tooltip content={createPinDisabledReason}>
-                      <button
-                        type="button"
-                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={handleCreatePin}
-                        disabled={!canCreatePin}
-                      >
-                        Create pin
-                      </button>
-                    </Tooltip>
-                    {!canCreatePin ? (
-                      <div className="mt-1 text-[11px] text-slate-500">
-                        {!hasRule ? "Select a rule first." : "Select an evidence item first."}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-                <details
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-2"
-                  open={advancedOpen}
-                  onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
-                >
-                  <summary className="cursor-pointer text-xs font-semibold text-slate-700">Advanced</summary>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                      Rendered {stacRenderedCount}
-                    </span>
-                    {evidenceChip ? (
-                      <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                        Source {evidenceChip.display}
-                      </span>
-                    ) : null}
-                  </div>
-                </details>
+          ) : null}
+
+          <EvidenceWorkflowStepper
+            ruleOptions={ruleOptions}
+            selectedRuleId={selectedRuleId}
+            onSelectRuleId={onSelectRuleId}
+            onViewRule={onViewRule}
+            hasAoi={hasAoi}
+            aoiLabel={aoi?.name ?? null}
+            searchDisabled={searchDisabled}
+            isRunning={isRunning}
+            hasSearchResults={hasSearchResults}
+            stacResultCount={stacFeatureIds.length}
+            selectedStacItemId={selectedStacItemId}
+            onClearSelectedItem={() => onSelectStacItemId(null)}
+            canCreatePin={canCreatePin}
+            createPinDisabledReason={createPinDisabledReason}
+            pinsCount={evidencePins.length}
+            onUploadAoi={triggerAoiUpload}
+            onSearchStac={() => {
+              void handleSearchStac();
+            }}
+            onCreatePin={handleCreatePin}
+            onStartRun={handleStartRun}
+            onOpenRunDetails={() => setRunDetailsOpen(true)}
+          />
+
+          {aoi ? (
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
+                {isPreview ? (
+                  <span className="rounded-full border border-sky-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                    Preview
+                  </span>
+                ) : currentAoi ? (
+                  <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                    Current
+                  </span>
+                ) : null}
               </div>
-              <details
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2"
-                open={pinListOpen}
-                onToggle={(event) => setPinListOpen(event.currentTarget.open)}
-              >
-                <summary className="cursor-pointer text-xs font-semibold text-slate-700">Pins ({evidencePins.length})</summary>
-                <div className="mt-2 grid gap-1">
-                  {evidencePins.length ? (
-                    evidencePins.slice(0, 5).map((pin) => (
-                      <div key={pin.id} className="text-[11px] text-slate-600">
-                        <span className="font-mono">{pin.ruleId ?? pin.cited_ids?.[0] ?? "—"}</span>
-                        {" -> "}
-                        <span className="font-mono">{pin.itemId ?? pin.stac_item_ids?.[0] ?? "—"}</span>
+              {isPreview ? (
+                <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs text-slate-700">
+                  <div className="font-semibold text-slate-900">New AOI ready</div>
+                  <div className="mt-1">
+                    Replace the current AOI with <span className="font-semibold">{aoi.name}</span>?
+                  </div>
+                  {willClearWork ? (
+                    <div className="mt-1 text-[11px] text-slate-600">
+                      This will clear pins and evidence selections.
+                    </div>
+                  ) : null}
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
+                      onClick={handleApplyDraftAoiClick}
+                    >
+                      Replace AOI
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                      onClick={() => {
+                        setShowSameAoiPrompt(false);
+                        onCancelDraftAoi();
+                      }}
+                    >
+                      Keep current
+                    </button>
+                  </div>
+                  {isSameAoi && showSameAoiPrompt ? (
+                    <div className="mt-2 rounded-md border border-slate-200 bg-white px-2 py-2 text-[11px] text-slate-700">
+                      <div className="font-semibold text-slate-800">Same AOI detected. Keep current links?</div>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                          onClick={handleKeepSameAoi}
+                        >
+                          Keep
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
+                          onClick={handleResetSameAoi}
+                        >
+                          Reset anyway
+                        </button>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-[11px] text-slate-500">No pins yet.</div>
-                  )}
+                    </div>
+                  ) : null}
                 </div>
-              </details>
+              ) : null}
+              <div className="mt-2 grid gap-1 text-xs text-slate-600">
+                <div>area: {formatNum(aoi.area_km2)} km²</div>
+                <div className="break-words">bbox: {bboxLabel}</div>
+              </div>
             </div>
-          </div>
+          ) : null}
 
-          <div className={railMode === "run" ? "grid gap-3" : "hidden"}>
+          <details
+            className="rounded-xl border border-slate-200 bg-white"
+            open={runDetailsOpen}
+            onToggle={(event) => setRunDetailsOpen(event.currentTarget.open)}
+          >
+            <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+              Run details
+            </summary>
+            <div className="grid gap-3 px-3 pb-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={handleNewRun}
+                >
+                  New run
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
+                  onClick={handleExportSnapshot}
+                >
+                  Export snapshot
+                </button>
+              </div>
+
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-sm font-semibold text-slate-900">Baseline</div>
@@ -2843,171 +2781,40 @@ export default function ProofMapTab({
                 />
               </div>
             </details>
-          </div>
-
-          <div className={railMode === "evidence" ? "grid gap-3" : "hidden"}>
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="text-sm font-semibold text-slate-900">Upload AOI</div>
-              <div className="mt-1 text-xs text-slate-500">Add a GeoJSON AOI to start evidence search.</div>
-              <div className="mt-3">{renderUploadAoiButton()}</div>
             </div>
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <div className="text-sm font-semibold text-slate-900">AOI + Evidence</div>
-                <div className="mt-1 text-xs text-slate-500">Stored locally for this method/version.</div>
-              </div>
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <button
-                  type="button"
-                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={() => {
-                    if (hasStartOverState) setStartOverOpen(true);
-                    else showToast("Nothing to clear.");
-                  }}
-                  disabled={startOverBusy}
-                >
-                  Start over
-                </button>
-                <button
-                  type="button"
-                  className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
-                  onClick={() => setPanelCollapsed(true)}
-                  aria-label="Collapse Verify panel"
-                >
-                  Collapse »
-                </button>
-              </div>
-            </div>
-            <div className="text-xs text-slate-500">Clears AOI, pins, and evidence selections.</div>
+          </details>
 
-            {error ? (
-              <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-                {error}
+          {verifierMode && auditTrail ? (
+            <details className="rounded-lg border border-slate-200 bg-white">
+              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                Audit trail
+                <span className="ml-2 text-[11px] font-medium text-slate-500">
+                  {auditTrail.events.length} events
+                </span>
+              </summary>
+              <div className="px-3 pb-3">
+                <AuditTrailPanel
+                  events={auditTrail.events}
+                  exportJson={auditTrail.exportJson}
+                  exportSha256={auditTrail.exportSha256}
+                  onClear={auditTrail.onClear}
+                  onExport={auditTrail.onExport}
+                  onJumpToRule={auditTrail.onJumpToRule}
+                  onOpenEvidence={auditTrail.onOpenEvidence}
+                  onNotify={showToast}
+                />
               </div>
-            ) : null}
+            </details>
+          ) : null}
 
-            {aoi ? (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
-                  {isPreview ? (
-                    <span className="rounded-full border border-sky-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-sky-700">
-                      Preview
-                    </span>
-                  ) : currentAoi ? (
-                    <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                      Current
-                    </span>
-                  ) : null}
-                </div>
-                {isPreview ? (
-                  <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs text-slate-700">
-                    <div className="font-semibold text-slate-900">New AOI ready</div>
-                    <div className="mt-1">
-                      Replace the current AOI with <span className="font-semibold">{aoi.name}</span>?
-                    </div>
-                    {willClearWork ? (
-                      <div className="mt-1 text-[11px] text-slate-600">
-                        This will clear pins and evidence selections.
-                      </div>
-                    ) : null}
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
-                        onClick={handleApplyDraftAoiClick}
-                      >
-                        Replace AOI
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={() => {
-                          setShowSameAoiPrompt(false);
-                          onCancelDraftAoi();
-                        }}
-                      >
-                        Keep current
-                      </button>
-                    </div>
-                    {isSameAoi && showSameAoiPrompt ? (
-                      <div className="mt-2 rounded-md border border-slate-200 bg-white px-2 py-2 text-[11px] text-slate-700">
-                        <div className="font-semibold text-slate-800">Same AOI detected. Keep current links?</div>
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <button
-                            type="button"
-                            className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                            onClick={handleKeepSameAoi}
-                          >
-                            Keep
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
-                            onClick={handleResetSameAoi}
-                          >
-                            Reset anyway
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-                <div className="mt-2 grid gap-1 text-xs text-slate-600">
-                  <div>area: {formatNum(aoi.area_km2)} km²</div>
-                  <div className="break-words">bbox: {bboxLabel}</div>
-                </div>
-                <div className="mt-3">
-                  <button
-                    type="button"
-                    className="w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={searchDisabled}
-                    onClick={handleSearchStac}
-                  >
-                    {isRunning ? "Searching…" : "Search STAC evidence"}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-lg border border-dashed border-slate-200 bg-white px-3 py-3 text-xs text-slate-500">
-                {isListMode
-                  ? "No evidence loaded yet. Add STAC link or upload AOI to begin."
-                  : "No evidence loaded yet. This is the spatial view of evidence—upload an AOI to begin."}
-              </div>
-            )}
-
-            {verifierMode && auditTrail ? (
-              <details className="rounded-lg border border-slate-200 bg-white">
-                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-                  Audit trail
-                  <span className="ml-2 text-[11px] font-medium text-slate-500">
-                    {auditTrail.events.length} events
-                  </span>
-                </summary>
-                <div className="px-3 pb-3">
-                  <AuditTrailPanel
-                    events={auditTrail.events}
-                    exportJson={auditTrail.exportJson}
-                    exportSha256={auditTrail.exportSha256}
-                    onClear={auditTrail.onClear}
-                    onExport={auditTrail.onExport}
-                    onJumpToRule={auditTrail.onJumpToRule}
-                    onOpenEvidence={auditTrail.onOpenEvidence}
-                    onNotify={showToast}
-                  />
-                </div>
-              </details>
-            ) : null}
-
-            {isListMode ? null : (
-              <details className="rounded-lg border border-slate-200 bg-white">
-                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-                  Evidence list
-                </summary>
-                <div className="px-3 pb-3">{listContent}</div>
-              </details>
-            )}
-          </div>
+          {isListMode ? null : (
+            <details className="rounded-lg border border-slate-200 bg-white">
+              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                Evidence list
+              </summary>
+              <div className="px-3 pb-3">{listContent}</div>
+            </details>
+          )}
         </div>
       </div>
     </div>

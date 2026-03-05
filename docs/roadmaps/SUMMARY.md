@@ -61,7 +61,7 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 Status SSOT: `docs/roadmaps/agentic-verification/phase-status.json`
 Details: `docs/roadmaps/agentic-verification/PLAN.md`
 
-1) PR36 — Agent primitives spec v1 (Method/Evidence/Run/Exception/Attestation/Approval): Done
+1) PR36 — Agent primitives spec v1 (Method/Evidence/Run/Exception/Attestation/Approval): Done (PR #438)
 2) PR37 — Skill package spec v1 (signed manifest + capability allowlist): Planned
 3) PR38 — Execution sandbox + guardrails (scoped connectors, read-only default): Planned
 4) PR39 — Attestation + replay (hash chain, replay run, diff outputs): Planned

@@ -9,7 +9,12 @@ const STATUS_ORDER = {
   "in-progress": 3,
   blocked: 3,
   done: 4,
+  merged: 4,
 };
+
+function isTerminalDone(status) {
+  return status === "done" || status === "merged";
+}
 
 function die(message) {
   console.error(message);
@@ -106,7 +111,7 @@ for (const item of directive.items) {
   const newRank = STATUS_ORDER[newStatus] ?? 0;
   const oldRank = STATUS_ORDER[oldStatus] ?? 0;
 
-  if (newStatus === "done") {
+  if (newStatus === "done" && !isTerminalDone(oldStatus)) {
     if (!hasHumanAckLabel) {
       die("roadmap-monotonic: setting done requires label 'roadmap-human-ack'.");
     }
