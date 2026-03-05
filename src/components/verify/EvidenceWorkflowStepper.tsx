@@ -11,6 +11,14 @@ type EvidenceWorkflowStepperProps = {
   onViewRule?: (ruleId: string) => void;
   hasAoi: boolean;
   aoiLabel: string | null;
+  aoiSummary?: {
+    isPreview: boolean;
+    willClearWork: boolean;
+    isSameAoi: boolean;
+    showSameAoiPrompt: boolean;
+    areaKm2: number | null;
+    bboxLabel: string | null;
+  } | null;
   searchDisabled: boolean;
   isRunning: boolean;
   hasSearchResults: boolean;
@@ -21,15 +29,20 @@ type EvidenceWorkflowStepperProps = {
   createPinDisabledReason: string;
   pinsCount: number;
   onUploadAoi: () => void;
+  onApplyDraftAoiClick?: () => void;
+  onCancelDraftAoi?: () => void;
+  onKeepSameAoi?: () => void;
+  onResetSameAoi?: () => void;
   onSearchStac: () => void;
   onCreatePin: () => void;
   onStartRun: () => void;
   onOpenRunDetails: () => void;
 };
 
-function stepStateClass(active: boolean, complete: boolean): string {
-  if (active) return "border-slate-900 bg-slate-50";
-  if (complete) return "border-emerald-200 bg-emerald-50";
+function stepStateClass(input: { active: boolean; complete: boolean; disabled: boolean }): string {
+  if (input.active) return "border-slate-900 bg-slate-50";
+  if (input.complete) return "border-emerald-200 bg-emerald-50";
+  if (input.disabled) return "border-slate-200 bg-slate-50/70 opacity-75";
   return "border-slate-200 bg-white";
 }
 
@@ -40,6 +53,7 @@ export default function EvidenceWorkflowStepper({
   onViewRule,
   hasAoi,
   aoiLabel,
+  aoiSummary = null,
   searchDisabled,
   isRunning,
   hasSearchResults,
@@ -50,6 +64,10 @@ export default function EvidenceWorkflowStepper({
   createPinDisabledReason,
   pinsCount,
   onUploadAoi,
+  onApplyDraftAoiClick,
+  onCancelDraftAoi,
+  onKeepSameAoi,
+  onResetSameAoi,
   onSearchStac,
   onCreatePin,
   onStartRun,
@@ -60,6 +78,12 @@ export default function EvidenceWorkflowStepper({
   const hasPins = pinsCount > 0;
 
   const activeStep = !hasRule ? 1 : !hasAoi ? 2 : !hasSearchResults ? 3 : !hasItem ? 4 : !hasPins ? 5 : 6;
+  const step1 = { active: activeStep === 1, complete: hasRule, disabled: false };
+  const step2 = { active: activeStep === 2, complete: hasAoi, disabled: !hasRule };
+  const step3 = { active: activeStep === 3, complete: hasSearchResults, disabled: !hasAoi };
+  const step4 = { active: activeStep === 4, complete: hasItem, disabled: !hasSearchResults };
+  const step5 = { active: activeStep === 5, complete: hasPins, disabled: !hasRule || !hasItem };
+  const step6 = { active: activeStep === 6, complete: hasPins, disabled: !hasPins };
 
   return (
     <div className="grid gap-3">
@@ -88,7 +112,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(activeStep === 1, hasRule)}`}>
+      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step1)}`}>
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 1</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Pick rule</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -127,14 +151,14 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(activeStep === 2, hasAoi)}`}>
+      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step2)}`}>
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Upload/Confirm AOI</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
             className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${
-              activeStep === 2
+              step2.active
                 ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
                 : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
             }`}
@@ -153,16 +177,73 @@ export default function EvidenceWorkflowStepper({
             <div className="text-[11px] text-slate-500">Upload AOI to continue.</div>
           )}
         </div>
+        {aoiSummary ? (
+          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-700">
+            {aoiSummary.isPreview ? (
+              <>
+                <div className="font-semibold text-slate-900">New AOI ready</div>
+                <div className="mt-1">
+                  Replace the current AOI with <span className="font-semibold">{aoiLabel ?? "uploaded AOI"}</span>?
+                </div>
+                {aoiSummary.willClearWork ? (
+                  <div className="mt-1 text-[11px] text-slate-600">This will clear pins and evidence selections.</div>
+                ) : null}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
+                    onClick={onApplyDraftAoiClick}
+                  >
+                    Replace AOI
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={onCancelDraftAoi}
+                  >
+                    Keep current
+                  </button>
+                </div>
+                {aoiSummary.isSameAoi && aoiSummary.showSameAoiPrompt ? (
+                  <div className="mt-2 rounded-md border border-slate-200 bg-slate-50 px-2 py-2 text-[11px] text-slate-700">
+                    <div className="font-semibold text-slate-800">Same AOI detected. Keep current links?</div>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        onClick={onKeepSameAoi}
+                      >
+                        Keep
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
+                        onClick={onResetSameAoi}
+                      >
+                        Reset anyway
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="grid gap-1 text-[11px] text-slate-600">
+                <div>area: {typeof aoiSummary.areaKm2 === "number" ? aoiSummary.areaKm2.toFixed(2) : "—"} km²</div>
+                <div className="break-words">bbox: {aoiSummary.bboxLabel ?? "—"}</div>
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(activeStep === 3, hasSearchResults)}`}>
+      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step3)}`}>
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Search STAC</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
             className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-60 ${
-              activeStep === 3
+              step3.active
                 ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
                 : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
             }`}
@@ -183,7 +264,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(activeStep === 4, hasItem)}`}>
+      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step4)}`}>
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 4</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Select item</div>
         {hasItem ? (
@@ -204,7 +285,7 @@ export default function EvidenceWorkflowStepper({
         )}
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(activeStep === 5, hasPins)}`}>
+      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step5)}`}>
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 5</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Create pin</div>
         <div className="mt-2">
@@ -212,7 +293,7 @@ export default function EvidenceWorkflowStepper({
             <button
               type="button"
               className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-60 ${
-                activeStep === 5
+                step5.active
                   ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               }`}
@@ -230,7 +311,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(activeStep === 6, hasPins)}`}>
+      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step6)}`}>
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Run</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
