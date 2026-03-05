@@ -1,31 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getVerifyView, isVerifierMode } from "@/lib/mode";
-
 type VerifyMode = "list" | "map";
 
-export default function VerifyHeader() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const mode = getVerifyView(searchParams);
-  const verifierMode = isVerifierMode(searchParams);
+type VerifyHeaderProps = {
+  mode: VerifyMode;
+  verifierMode: boolean;
+  onChangeMode: (mode: VerifyMode) => void;
+  onToggleVerifierMode: () => void;
+};
 
-  useEffect(() => {
-    if (!pathname) return;
-    const params = new URLSearchParams(searchParams);
-    if (verifierMode) {
-      if (params.get("view")) return;
-      params.set("view", mode);
-    } else {
-      if (params.get("mode")) return;
-      params.set("mode", mode);
-    }
-    const next = params.toString();
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [mode, pathname, router, searchParams, verifierMode]);
+export default function VerifyHeader({
+  mode,
+  verifierMode,
+  onChangeMode,
+  onToggleVerifierMode,
+}: VerifyHeaderProps) {
 
   return (
     <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -42,20 +31,7 @@ export default function VerifyHeader() {
               ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
               : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
           }`}
-          onClick={() => {
-            if (!pathname) return;
-            const params = new URLSearchParams(searchParams);
-            if (verifierMode) {
-              params.delete("mode");
-              params.delete("view");
-              params.set("mode", mode);
-            } else {
-              params.set("mode", "verify");
-              if (!params.get("view")) params.set("view", mode);
-            }
-            const next = params.toString();
-            router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-          }}
+          onClick={onToggleVerifierMode}
           aria-pressed={verifierMode}
         >
           Verifier mode
@@ -68,14 +44,7 @@ export default function VerifyHeader() {
             className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
               mode === nextMode ? "bg-slate-900 text-white" : "text-slate-600 hover:text-slate-900"
             }`}
-            onClick={() => {
-              if (!pathname) return;
-              const params = new URLSearchParams(searchParams);
-              if (verifierMode) params.set("view", nextMode);
-              else params.set("mode", nextMode);
-              const next = params.toString();
-              router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-            }}
+            onClick={() => onChangeMode(nextMode)}
             aria-pressed={mode === nextMode}
           >
             {nextMode === "list" ? "List" : "Map"}

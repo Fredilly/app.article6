@@ -1,19 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import DemoNav from "@/components/DemoNav";
 import FooterHealth from "@/components/FooterHealth";
 import HealthBadge from "@/components/HealthBadge";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Article 6 demo",
@@ -27,9 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 antialiased`}
-      >
+      <head>
+        <link rel="preload" href="/fonts/Geist-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/GeistMono-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
+      <body className="bg-slate-50 antialiased">
         <div className="flex min-h-screen flex-col">
           <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-8">

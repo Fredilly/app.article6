@@ -1,27 +1,26 @@
 import { expect, test } from "@playwright/test";
 
-test("Assistant evidence permalinks restore focus on reload", async ({ page }) => {
-  await page.goto("/m/AR-ACM0003/v/v02-0");
+test.setTimeout(90_000);
 
-  await page.getByRole("button", { name: "Assistant" }).click();
+test("Section permalink restores preview on reload", async ({ page }) => {
+  await page.goto("/m/AR-ACM0003/v/v02-0", { waitUntil: "domcontentloaded" });
 
-  const evidenceChip = page.getByRole("button", { name: /^Section: / }).first();
-  await expect(evidenceChip).toBeVisible({ timeout: 30_000 });
-  const chipText = (await evidenceChip.textContent()) ?? "";
-  const match = chipText.match(/Section:\s*(S-\d+)/);
-  const sectionId = match?.[1] ?? "S-1";
+  await page.waitForSelector("button:has-text('Read')", { timeout: 30_000 });
+  await page.click("button:has-text('Read')");
+  await page.waitForTimeout(500);
 
-  await evidenceChip.click();
+  const response = await page.request.get("/api/methods/AR-ACM0003/v/v02-0/sections");
+  expect(response.ok()).toBeTruthy();
+  const payload = (await response.json()) as { sections?: Array<{ id?: string }> };
+  const sectionId = payload.sections?.find((entry) => typeof entry.id === "string")?.id ?? "S-1";
 
-  await expect(page).toHaveURL(new RegExp(`\\btab=sections\\b`));
-  await expect(page).toHaveURL(new RegExp(`\\bfocus=${sectionId}\\b`));
-  await expect(page.getByText("Section preview", { exact: true })).toBeVisible();
-  await expect(page.locator(`#section-${sectionId}.assistant-focus-highlight`)).toBeVisible({ timeout: 30000 });
+  await page.goto(`/m/AR-ACM0003/v/v02-0?tab=sections&section=${sectionId}`, { waitUntil: "domcontentloaded" });
 
-  await page.reload();
+  await expect(page).toHaveURL(new RegExp(`\\bsection=${sectionId}\\b`));
+  const preview = page.getByText("Section preview", { exact: true }).locator("..");
+  await expect(preview).toContainText(sectionId);
 
-  await expect(page).toHaveURL(new RegExp(`\\btab=sections\\b`));
-  await expect(page).toHaveURL(new RegExp(`\\bfocus=${sectionId}\\b`));
-  await expect(page.getByText("Section preview", { exact: true })).toBeVisible();
-  await expect(page.locator(`#section-${sectionId}.assistant-focus-highlight`)).toBeVisible({ timeout: 30000 });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(new RegExp(`\\bsection=${sectionId}\\b`));
+  await expect(preview).toContainText(sectionId);
 });

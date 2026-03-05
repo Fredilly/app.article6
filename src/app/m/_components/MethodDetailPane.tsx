@@ -98,7 +98,8 @@ export default function MethodDetailPane({
   const isEvidenceMode = mode === "evidence" || isEvidenceRoute;
   const methodsLayout = useMethodsLayout();
   const verifierMode = useMemo(() => isVerifierMode(searchParams), [searchParams]);
-  const verifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
+  const urlVerifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
+  const [verifyViewMode, setVerifyViewMode] = useState<"list" | "map">(urlVerifyMode);
   const defaultTab: DetailTab = useMemo(() => (isEvidenceMode ? "verify" : "rules"), [isEvidenceMode]);
   const tab = useMemo(() => {
     if (isEvidenceMode) return "verify";
@@ -252,7 +253,6 @@ export default function MethodDetailPane({
   };
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
-  const lastEvidenceParam = useRef<string | null>(null);
   const [coverageDrawerOpen, setCoverageDrawerOpen] = useState(false);
 
   const [richLoading, setRichLoading] = useState(false);
@@ -374,6 +374,10 @@ export default function MethodDetailPane({
     if (next === searchString) return;
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
   }, [isEvidenceMode, pathname, router, searchString, tab]);
+
+  useEffect(() => {
+    setVerifyViewMode(urlVerifyMode);
+  }, [urlVerifyMode]);
 
   useEffect(() => {
     if (!activeVersion) return;
@@ -1100,56 +1104,44 @@ export default function MethodDetailPane({
 
   const linkedRuleIds = useMemo(() => new Set(evidenceLinkSelection?.ruleIds ?? []), [evidenceLinkSelection]);
 
-  const handleSetVerifyViewMode = useCallback(
-    (nextMode: "list" | "map") => {
-      if (!pathname) return;
-      const next = applyUrlUpdates(new URLSearchParams(searchString), {
-        tab: "verify",
-        mode: nextMode,
-      });
-      if (next === searchString) return;
-      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-    },
-    [pathname, router, searchString],
-  );
+  const handleHeaderViewModeChange = useCallback((nextMode: "list" | "map") => {
+    setVerifyViewMode(nextMode);
+  }, []);
+
+  const handleToggleVerifierMode = useCallback(() => {
+    if (!pathname) return;
+    const params = new URLSearchParams(searchString);
+    if (verifierMode) {
+      params.delete("mode");
+      params.delete("view");
+      params.set("mode", verifyViewMode);
+    } else {
+      params.set("mode", "verify");
+      params.set("view", verifyViewMode);
+    }
+    const next = params.toString();
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [pathname, router, searchString, verifierMode, verifyViewMode]);
 
   useEffect(() => {
     if (!isEvidenceMode) return;
-    const next = (searchParams.get("evidence") ?? "").trim() || null;
-    if (next === lastEvidenceParam.current) return;
-    lastEvidenceParam.current = next;
-    setSelectedStacItemId(next);
+    setSelectedStacItemId((searchParams.get("evidence") ?? "").trim() || null);
   }, [isEvidenceMode, searchParams, searchString]);
-
-  useEffect(() => {
-    if (!isEvidenceMode) return;
-    if (!pathname) return;
-    const next = applyUrlUpdates(new URLSearchParams(searchString), {
-      evidence: selectedStacItemId ?? null,
-    });
-    if (next === searchString) return;
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [isEvidenceMode, pathname, router, searchString, selectedStacItemId]);
-
-  useEffect(() => {
-    if (!isEvidenceMode) return;
-    if (!pathname) return;
-    const next = applyUrlUpdates(new URLSearchParams(searchString), {
-      aoi: effectiveAoi?.id ?? null,
-    });
-    if (next === searchString) return;
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [effectiveAoi?.id, isEvidenceMode, pathname, router, searchString]);
 
   const verifySurface = (
     <div className="mt-4 grid gap-4">
-      <VerifyHeader />
+      <VerifyHeader
+        mode={verifyViewMode}
+        verifierMode={verifierMode}
+        onChangeMode={handleHeaderViewModeChange}
+        onToggleVerifierMode={handleToggleVerifierMode}
+      />
       <ProofMapTab
         methodCode={method.code}
         version={activeVersion ?? ""}
         provenanceJson={provenanceJson}
         mode={isEvidenceMode ? "evidence" : undefined}
-        viewMode={verifyMode}
+        viewMode={verifyViewMode}
         verifierMode={verifierMode}
         activeRuleId={activeRuleId}
         ruleOptions={rules.map((rule) => ({ id: rule.id, title: rule.title }))}
@@ -1204,7 +1196,6 @@ export default function MethodDetailPane({
         }}
         onSelectStacItemId={setSelectedStacItemId}
         onEvidenceSelectionChange={setEvidenceLinkSelection}
-        onChangeViewMode={handleSetVerifyViewMode}
         onNavigateEvidence={async (type, id) => {
           if (type === "rule") return await navigateToRule(id);
           if (type === "section") return await navigateToSection(id);
@@ -1250,7 +1241,7 @@ export default function MethodDetailPane({
       <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
         <ShareLinkButton
           tab={isEvidenceMode ? "verify" : tab}
-          view={verifyMode}
+          view={verifyViewMode}
           ruleId={activeRuleId}
           sectionId={sectionPreview?.id ?? null}
         />
