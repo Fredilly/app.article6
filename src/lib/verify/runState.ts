@@ -64,6 +64,7 @@ export type VerifierRunContext = {
 
 export type VerifierRunBundle = {
   runContext: VerifierRunContext;
+  exportedAt: string | null;
   minutes: string;
   checklist: VerifierChecklistItem[];
   delta: string;
@@ -110,6 +111,7 @@ function buildRunId(methodCode: string, version: string, date = new Date()): str
     pad2(date.getHours()),
     pad2(date.getMinutes()),
     pad2(date.getSeconds()),
+    String(date.getMilliseconds()).padStart(3, "0"),
   ].join("");
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
@@ -352,6 +354,7 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
       runId: buildRunId(methodCode, version, new Date(createdAt)),
       createdAt,
     },
+    exportedAt: null,
     minutes: "",
     checklist: seedChecklist(createdAt),
     delta: "",
@@ -388,6 +391,7 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     const minutes = typeof parsed.minutes === "string" ? parsed.minutes : "";
     const delta = typeof parsed.delta === "string" ? parsed.delta : "";
     const impact = typeof parsed.impact === "string" ? parsed.impact : "";
+    const exportedAt = asNonEmptyString(parsed.exportedAt);
     const runContextRaw = parsed.runContext && typeof parsed.runContext === "object" ? (parsed.runContext as Record<string, unknown>) : null;
     const runId = asNonEmptyString(runContextRaw?.runId) ?? fallback.runContext.runId;
     const createdAt = asNonEmptyString(runContextRaw?.createdAt) ?? fallback.runContext.createdAt;
@@ -395,6 +399,7 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     const tasks = normalizeTasks(parsed.tasks, createdAt);
     return {
       runContext: { runId, createdAt },
+      exportedAt,
       minutes,
       checklist,
       delta,

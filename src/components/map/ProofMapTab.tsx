@@ -313,7 +313,7 @@ export default function ProofMapTab({
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
-  const [snapshotExportedAt, setSnapshotExportedAt] = useState<string | null>(null);
+  const [minutesFocusKey, setMinutesFocusKey] = useState(0);
   const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
@@ -389,9 +389,10 @@ export default function ProofMapTab({
   }, [methodCode, verifierBundle, version]);
 
   const handleMinutesChange = useCallback((value: string) => {
+    if (verifierBundle.exportedAt) return;
     setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, minutes: value }));
-  }, []);
+  }, [verifierBundle.exportedAt]);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -485,6 +486,7 @@ export default function ProofMapTab({
   const buildHistoryBundle = useCallback(() => {
     return {
       runContext: verifierBundle.runContext,
+      exportedAt: verifierBundle.exportedAt,
       minutes: verifierBundle.minutes,
       checklist: verifierBundle.checklist,
       delta: verifierBundle.delta,
@@ -512,6 +514,7 @@ export default function ProofMapTab({
       if (!loaded) return;
       setVerifierBundle({
         runContext: loaded.runContext,
+        exportedAt: loaded.exportedAt ?? null,
         minutes: loaded.minutes ?? "",
         checklist: loaded.checklist ?? [],
         delta: loaded.delta ?? "",
@@ -522,7 +525,6 @@ export default function ProofMapTab({
       onSetEvidencePins(loaded.evidencePins as EvidencePin[]);
       onSetVerificationRuns(loaded.verificationRuns as VerificationRun[]);
       onSelectStacItemId(loaded.selectedStacItemId ?? null);
-      setSnapshotExportedAt(null);
       setLoadedRunId(runId);
     },
     [methodCode, onSelectStacItemId, onSetAoi, onSetEvidencePins, onSetVerificationRuns, version],
@@ -536,6 +538,7 @@ export default function ProofMapTab({
   );
 
   const handleToggleChecklist = useCallback((id: string) => {
+    if (verifierBundle.exportedAt) return;
     const timestamp = new Date().toISOString();
     setLoadedRunId(null);
     setVerifierBundle((current) => ({
@@ -544,13 +547,14 @@ export default function ProofMapTab({
         item.id === id ? { ...item, checked: !item.checked, updatedAt: timestamp } : item,
       ),
     }));
-  }, []);
+  }, [verifierBundle.exportedAt]);
 
   const handleResetChecklist = useCallback(() => {
+    if (verifierBundle.exportedAt) return;
     const next = createVerifierRunBundle(methodCode, version);
     setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, checklist: next.checklist }));
-  }, [methodCode, version]);
+  }, [methodCode, verifierBundle.exportedAt, version]);
 
   const handleSearchStac = useCallback(async () => {
     if (!aoi) return;
@@ -695,10 +699,12 @@ export default function ProofMapTab({
 
   const handleNewRun = useCallback(() => {
     handleSaveRunHistory();
+    const pinsCount = evidencePins.length;
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
-    setSnapshotExportedAt(null);
+    setMinutesFocusKey((current) => current + 1);
     setLoadedRunId(null);
-  }, [handleSaveRunHistory, methodCode, version]);
+    showToast(`New run started — pins kept: ${pinsCount}`);
+  }, [evidencePins.length, handleSaveRunHistory, methodCode, showToast, version]);
 
   const handleStartRun = useCallback(() => {
     if (!evidencePins.length) return;
@@ -1097,7 +1103,7 @@ export default function ProofMapTab({
           linkedRuleIds,
         },
         exportState: {
-          snapshotExportedAt,
+          snapshotExportedAt: verifierBundle.exportedAt,
         },
         verifier: {
           runId: verifierBundle.runContext.runId,
@@ -1121,7 +1127,6 @@ export default function ProofMapTab({
       currentAoiFingerprint,
       linkedRuleIds,
       methodCode,
-      snapshotExportedAt,
       stacFeatureIds,
       stacQuery,
       verifierBundle,
@@ -1401,10 +1406,10 @@ export default function ProofMapTab({
       tasks: verifierBundle.tasks,
     };
 
-    setSnapshotExportedAt(exportedAt);
-    setVerifierBundle((current) => ({ ...current, checklist: checklistAfterExport }));
+    setVerifierBundle((current) => ({ ...current, exportedAt, checklist: checklistAfterExport }));
     handleSaveRunHistory({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
+      exportedAt,
       minutes: verifierSnapshot.minutes,
       delta: verifierSnapshot.delta,
       impact: verifierSnapshot.impact,
@@ -1468,7 +1473,7 @@ export default function ProofMapTab({
     };
     const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
     downloadJson(snapshotWithLegacyItems, filename);
-    showToast("Snapshot downloaded");
+    showToast("Snapshot exported");
   }, [
     aoi,
     currentStacEvidence?.itemsById,
@@ -2495,6 +2500,18 @@ export default function ProofMapTab({
             onViewRule={onViewRule}
             hasAoi={hasAoi}
             aoiLabel={aoi?.name ?? null}
+            aoiSummary={
+              aoi
+                ? {
+                    isPreview,
+                    willClearWork,
+                    isSameAoi,
+                    showSameAoiPrompt,
+                    areaKm2: aoi.area_km2 ?? null,
+                    bboxLabel,
+                  }
+                : null
+            }
             searchDisabled={searchDisabled}
             isRunning={isRunning}
             hasSearchResults={hasSearchResults}
@@ -2505,6 +2522,13 @@ export default function ProofMapTab({
             createPinDisabledReason={createPinDisabledReason}
             pinsCount={evidencePins.length}
             onUploadAoi={triggerAoiUpload}
+            onApplyDraftAoiClick={handleApplyDraftAoiClick}
+            onCancelDraftAoi={() => {
+              setShowSameAoiPrompt(false);
+              onCancelDraftAoi();
+            }}
+            onKeepSameAoi={handleKeepSameAoi}
+            onResetSameAoi={handleResetSameAoi}
             onSearchStac={() => {
               void handleSearchStac();
             }}
@@ -2512,80 +2536,6 @@ export default function ProofMapTab({
             onStartRun={handleStartRun}
             onOpenRunDetails={() => setRunDetailsOpen(true)}
           />
-
-          {aoi ? (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="text-xs font-semibold text-slate-900">{aoi.name}</div>
-                {isPreview ? (
-                  <span className="rounded-full border border-sky-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-sky-700">
-                    Preview
-                  </span>
-                ) : currentAoi ? (
-                  <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                    Current
-                  </span>
-                ) : null}
-              </div>
-              {isPreview ? (
-                <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-2 py-2 text-xs text-slate-700">
-                  <div className="font-semibold text-slate-900">New AOI ready</div>
-                  <div className="mt-1">
-                    Replace the current AOI with <span className="font-semibold">{aoi.name}</span>?
-                  </div>
-                  {willClearWork ? (
-                    <div className="mt-1 text-[11px] text-slate-600">
-                      This will clear pins and evidence selections.
-                    </div>
-                  ) : null}
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
-                      onClick={handleApplyDraftAoiClick}
-                    >
-                      Replace AOI
-                    </button>
-                    <button
-                      type="button"
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                      onClick={() => {
-                        setShowSameAoiPrompt(false);
-                        onCancelDraftAoi();
-                      }}
-                    >
-                      Keep current
-                    </button>
-                  </div>
-                  {isSameAoi && showSameAoiPrompt ? (
-                    <div className="mt-2 rounded-md border border-slate-200 bg-white px-2 py-2 text-[11px] text-slate-700">
-                      <div className="font-semibold text-slate-800">Same AOI detected. Keep current links?</div>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                          onClick={handleKeepSameAoi}
-                        >
-                          Keep
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
-                          onClick={handleResetSameAoi}
-                        >
-                          Reset anyway
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-              <div className="mt-2 grid gap-1 text-xs text-slate-600">
-                <div>area: {formatNum(aoi.area_km2)} km²</div>
-                <div className="break-words">bbox: {bboxLabel}</div>
-              </div>
-            </div>
-          ) : null}
 
           <details
             className="rounded-xl border border-slate-200 bg-white"
@@ -2611,6 +2561,14 @@ export default function ProofMapTab({
                 >
                   Export snapshot
                 </button>
+                {verifierBundle.exportedAt ? (
+                  <span
+                    data-testid="snapshot-exported-badge"
+                    className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+                  >
+                    Exported {formatLocalDateTime(verifierBundle.exportedAt)}
+                  </span>
+                ) : null}
               </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -2702,6 +2660,8 @@ export default function ProofMapTab({
             </div>
             <VerifierMinutesPanel
               runContext={verifierBundle.runContext}
+              exportedAt={verifierBundle.exportedAt}
+              minutesFocusKey={minutesFocusKey}
               minutes={verifierBundle.minutes}
               checklist={verifierBundle.checklist}
               onMinutesChange={handleMinutesChange}
@@ -2767,6 +2727,7 @@ export default function ProofMapTab({
                 <OutcomeWidget
                   className="border-0 p-0"
                   summary={runSummary}
+                  exportedAt={verifierBundle.exportedAt}
                   onCopy={copyToClipboard}
                   onExportSnapshot={handleExportSnapshot}
                   onCreateTicket={handleCreateTicket}

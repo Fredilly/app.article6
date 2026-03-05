@@ -4,6 +4,7 @@ import ProvenanceChip from "./ProvenanceChip";
 
 type OutcomeWidgetProps = {
   summary: RunSummary;
+  exportedAt?: string | null;
   onCopy: (value: string) => void;
   onExportSnapshot: () => void;
   onCreateTicket?: () => void;
@@ -44,6 +45,7 @@ function summarizeQuery(query: RunSummary["stac"]["query"]): string {
 
 export default function OutcomeWidget({
   summary,
+  exportedAt = null,
   onCopy,
   onExportSnapshot,
   onCreateTicket,
@@ -86,6 +88,12 @@ export default function OutcomeWidget({
       return source;
     }
   }, [summary.stac.query.source]);
+  const exportedLabel = useMemo(() => {
+    if (!exportedAt) return null;
+    const date = new Date(exportedAt);
+    if (Number.isNaN(date.getTime())) return exportedAt;
+    return date.toLocaleString();
+  }, [exportedAt]);
 
   return (
     <div id="verify-outcome" className={`rounded-xl border border-slate-200 bg-white p-4 ${className ?? ""}`}>
@@ -226,6 +234,11 @@ export default function OutcomeWidget({
                 >
                   Create ticket
                 </button>
+              ) : null}
+              {exportedLabel ? (
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                  Exported {exportedLabel}
+                </span>
               ) : null}
             </div>
             <ProvenanceChip
