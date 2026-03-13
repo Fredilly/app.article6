@@ -26,6 +26,7 @@ export type RunSummary = {
     runId: string | null;
     createdAt: string | null;
     minutes: string;
+    outcomeNote: string;
     checklist: VerifierChecklistItem[];
     delta: string;
     impact: string;
@@ -66,10 +67,20 @@ export type VerifierRunBundle = {
   runContext: VerifierRunContext;
   exportedAt: string | null;
   minutes: string;
+  outcomeNote: string;
   checklist: VerifierChecklistItem[];
   delta: string;
   impact: string;
   tasks: VerifierTask[];
+};
+
+export type VerifyRunStatus = "in_progress" | "evidence_pack_complete" | "review_complete";
+
+export type VerifyRunStatusDetails = {
+  status: VerifyRunStatus;
+  label: string;
+  missing: string[];
+  nextAction: string | null;
 };
 
 export type VerifyRunHistoryBundle = VerifierRunBundle & {
@@ -356,6 +367,7 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
     },
     exportedAt: null,
     minutes: "",
+    outcomeNote: "",
     checklist: seedChecklist(createdAt),
     delta: "",
     impact: "",
@@ -389,6 +401,7 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const minutes = typeof parsed.minutes === "string" ? parsed.minutes : "";
+    const outcomeNote = typeof parsed.outcomeNote === "string" ? parsed.outcomeNote : "";
     const delta = typeof parsed.delta === "string" ? parsed.delta : "";
     const impact = typeof parsed.impact === "string" ? parsed.impact : "";
     const exportedAt = asNonEmptyString(parsed.exportedAt);
@@ -401,6 +414,7 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
       runContext: { runId, createdAt },
       exportedAt,
       minutes,
+      outcomeNote,
       checklist,
       delta,
       impact,
@@ -584,6 +598,7 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       runId: input.verifier?.runId ?? null,
       createdAt: input.verifier?.createdAt ?? null,
       minutes: input.verifier?.minutes ?? "",
+      outcomeNote: input.verifier?.outcomeNote ?? "",
       checklist: input.verifier?.checklist ?? [],
       delta: input.verifier?.delta ?? "",
       impact: input.verifier?.impact ?? "",
@@ -596,6 +611,54 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       generatedAt: input.provenance?.generatedAt ?? null,
       snapshotSchemaVersion: input.provenance?.snapshotSchemaVersion ?? null,
     },
+  };
+}
+
+export function hasReviewerArtifact(input: { minutes?: string | null; outcomeNote?: string | null }): boolean {
+  return Boolean(input.minutes?.trim() || input.outcomeNote?.trim());
+}
+
+export function getVerifyRunStatusDetails(input: {
+  selectedRuleId?: string | null;
+  aoiHash?: string | null;
+  stacItemIds?: string[] | null;
+  selectedStacItemId?: string | null;
+  linkedRuleIds?: string[] | null;
+  snapshotExportedAt?: string | null;
+  minutes?: string | null;
+  outcomeNote?: string | null;
+}): VerifyRunStatusDetails {
+  const missing: string[] = [];
+  if (!input.selectedRuleId?.trim()) missing.push("Select a rule");
+  if (!input.aoiHash?.trim()) missing.push("Add an AOI");
+  if (!(input.stacItemIds?.length)) missing.push("Search STAC");
+  if (!input.selectedStacItemId?.trim()) missing.push("Select an evidence item");
+  if (!(input.linkedRuleIds?.length)) missing.push("Link evidence to the rule");
+  if (!input.snapshotExportedAt?.trim()) missing.push("Export the evidence pack");
+
+  if (missing.length > 0) {
+    return {
+      status: "in_progress",
+      label: "In progress",
+      missing,
+      nextAction: missing[0] ?? null,
+    };
+  }
+
+  if (!hasReviewerArtifact(input)) {
+    return {
+      status: "evidence_pack_complete",
+      label: "Evidence pack complete",
+      missing: ["Add verifier minutes or an outcome note"],
+      nextAction: "Add verifier minutes or an outcome note",
+    };
+  }
+
+  return {
+    status: "review_complete",
+    label: "Review complete",
+    missing: [],
+    nextAction: null,
   };
 }
 
@@ -619,6 +682,9 @@ export function createTicketTemplate(summary: RunSummary): string {
     "",
     "## Minutes",
     summary.verifier.minutes?.trim() ? summary.verifier.minutes.trim() : "_None_",
+    "",
+    "## Outcome note",
+    summary.verifier.outcomeNote?.trim() ? summary.verifier.outcomeNote.trim() : "_None_",
     "",
     "## Delta",
     summary.verifier.delta?.trim() ? summary.verifier.delta.trim() : "_None_",

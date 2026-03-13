@@ -90,6 +90,7 @@ export const EvidenceSnapshotSchema = z
         runId: z.string().min(1),
         createdAt: z.string().min(1),
         minutes: z.string(),
+        outcomeNote: z.string(),
         delta: z.string(),
         impact: z.string(),
         checklist: z.array(
@@ -189,6 +190,7 @@ export async function buildEvidenceSnapshot(input: {
     runId: string;
     createdAt: string;
     minutes: string;
+    outcomeNote: string;
     delta: string;
     impact: string;
     checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;

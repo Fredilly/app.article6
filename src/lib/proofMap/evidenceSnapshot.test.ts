@@ -32,6 +32,7 @@ test("persists stac items in evidence snapshot export (DEMO-002)", async () => {
         runId: "run-1",
         createdAt: "2026-01-01T00:00:00Z",
         minutes: "",
+        outcomeNote: "",
         delta: "",
         impact: "",
         checklist: [],
@@ -69,6 +70,7 @@ test("includes verifier minutes + checklist in snapshot", async () => {
       runId: "AR-1-v1-20260101010101",
       createdAt: "2026-01-01T01:01:01Z",
       minutes: "Checked inputs.",
+      outcomeNote: "Outcome is stable.",
       delta: "Detected new AOI boundaries.",
       impact: "Risk: mild drift in area coverage.",
       checklist: [
@@ -88,6 +90,7 @@ test("includes verifier minutes + checklist in snapshot", async () => {
 
   expect(snapshot.verifier?.runId).toBe("AR-1-v1-20260101010101");
   expect(snapshot.verifier?.minutes).toBe("Checked inputs.");
+  expect(snapshot.verifier?.outcomeNote).toBe("Outcome is stable.");
   expect(snapshot.verifier?.delta).toBe("Detected new AOI boundaries.");
   expect(snapshot.verifier?.tasks).toHaveLength(1);
   expect(snapshot.verifier?.checklist).toHaveLength(1);
@@ -101,6 +104,7 @@ test("keeps verifier tasks empty when none provided", async () => {
       runId: "AR-2-v2-20260102020202",
       createdAt: "2026-01-02T02:02:02Z",
       minutes: "",
+      outcomeNote: "",
       delta: "",
       impact: "",
       checklist: [],

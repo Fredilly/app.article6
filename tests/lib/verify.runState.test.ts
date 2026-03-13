@@ -8,6 +8,7 @@ import {
   buildRunSummary,
   createVerifierRunBundle,
   deleteRunFromHistory,
+  getVerifyRunStatusDetails,
   normalizeMethodCode,
   normalizeVersion,
   persistVerifierRunBundle,
@@ -52,6 +53,58 @@ describe("buildRunSummary", () => {
 
     expect(summary.stac.itemIds).toEqual(["a", "b", "c"]);
     expect(summary.linkage.linkedRuleIds).toEqual(["r1", "r2"]);
+  });
+});
+
+describe("getVerifyRunStatusDetails", () => {
+  it("returns in progress until export prerequisites are complete", () => {
+    const status = getVerifyRunStatusDetails({
+      selectedRuleId: "R-1",
+      aoiHash: "aoi-1",
+      stacItemIds: ["item-1"],
+      selectedStacItemId: "item-1",
+      linkedRuleIds: [],
+      snapshotExportedAt: null,
+      minutes: "",
+      outcomeNote: "",
+    });
+
+    expect(status.status).toBe("in_progress");
+    expect(status.missing).toEqual(["Link evidence to the rule", "Export the evidence pack"]);
+    expect(status.nextAction).toBe("Link evidence to the rule");
+  });
+
+  it("returns evidence pack complete after export until reviewer artifact exists", () => {
+    const status = getVerifyRunStatusDetails({
+      selectedRuleId: "R-1",
+      aoiHash: "aoi-1",
+      stacItemIds: ["item-1"],
+      selectedStacItemId: "item-1",
+      linkedRuleIds: ["R-1"],
+      snapshotExportedAt: "2026-01-01T00:00:00Z",
+      minutes: "",
+      outcomeNote: "",
+    });
+
+    expect(status.status).toBe("evidence_pack_complete");
+    expect(status.missing).toEqual(["Add verifier minutes or an outcome note"]);
+  });
+
+  it("returns review complete when minutes or outcome note is present", () => {
+    const status = getVerifyRunStatusDetails({
+      selectedRuleId: "R-1",
+      aoiHash: "aoi-1",
+      stacItemIds: ["item-1"],
+      selectedStacItemId: "item-1",
+      linkedRuleIds: ["R-1"],
+      snapshotExportedAt: "2026-01-01T00:00:00Z",
+      minutes: "",
+      outcomeNote: "Outcome stable.",
+    });
+
+    expect(status.status).toBe("review_complete");
+    expect(status.missing).toEqual([]);
+    expect(status.nextAction).toBeNull();
   });
 });
 
@@ -154,6 +207,7 @@ describe("verifier run bundle storage", () => {
 
     const read = readVerifierRunBundle("AR-2", "v2");
     expect(read.minutes).toBe("Checked AOI and evidence.");
+    expect(read.outcomeNote).toBe("");
     expect(storage.getItem(buildVerifyRunKey("AR-2", "v2"))).toBeTruthy();
   });
 });
@@ -199,6 +253,7 @@ describe("run history storage", () => {
       ...base,
       runContext: { runId: "run-xyz", createdAt: "2026-01-02T00:00:00Z" },
       minutes: "Loaded run",
+      outcomeNote: "Outcome note",
       delta: "Changed AOI boundary.",
       impact: "May reduce coverage.",
       tasks: [
@@ -220,6 +275,7 @@ describe("run history storage", () => {
     const loaded = loadRunFromHistory("AR-2", "v2", "run-xyz");
     expect(loaded?.runContext.runId).toBe("run-xyz");
     expect(loaded?.minutes).toBe("Loaded run");
+    expect(loaded?.outcomeNote).toBe("Outcome note");
     expect(loaded?.delta).toBe("Changed AOI boundary.");
     expect(loaded?.tasks).toHaveLength(1);
   });

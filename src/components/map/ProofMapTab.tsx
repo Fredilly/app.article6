@@ -6,6 +6,7 @@ import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
+import RunStatusCard from "@/components/verify/RunStatusCard";
 import VerifierMinutesPanel from "@/components/verify/VerifierMinutesPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
@@ -42,6 +43,7 @@ import {
   createTicketTemplate,
   deleteRunFromHistory,
   extractStacQuery,
+  getVerifyRunStatusDetails,
   loadRunFromHistory,
   type VerifyRunHistoryEntry,
   persistVerifierRunBundle,
@@ -313,7 +315,6 @@ export default function ProofMapTab({
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
-  const [minutesFocusKey, setMinutesFocusKey] = useState(0);
   const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
@@ -389,10 +390,14 @@ export default function ProofMapTab({
   }, [methodCode, verifierBundle, version]);
 
   const handleMinutesChange = useCallback((value: string) => {
-    if (verifierBundle.exportedAt) return;
     setLoadedRunId(null);
     setVerifierBundle((current) => ({ ...current, minutes: value }));
-  }, [verifierBundle.exportedAt]);
+  }, []);
+
+  const handleOutcomeNoteChange = useCallback((value: string) => {
+    setLoadedRunId(null);
+    setVerifierBundle((current) => ({ ...current, outcomeNote: value }));
+  }, []);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -488,6 +493,7 @@ export default function ProofMapTab({
       runContext: verifierBundle.runContext,
       exportedAt: verifierBundle.exportedAt,
       minutes: verifierBundle.minutes,
+      outcomeNote: verifierBundle.outcomeNote,
       checklist: verifierBundle.checklist,
       delta: verifierBundle.delta,
       impact: verifierBundle.impact,
@@ -516,6 +522,7 @@ export default function ProofMapTab({
         runContext: loaded.runContext,
         exportedAt: loaded.exportedAt ?? null,
         minutes: loaded.minutes ?? "",
+        outcomeNote: loaded.outcomeNote ?? "",
         checklist: loaded.checklist ?? [],
         delta: loaded.delta ?? "",
         impact: loaded.impact ?? "",
@@ -536,25 +543,6 @@ export default function ProofMapTab({
     },
     [methodCode, version],
   );
-
-  const handleToggleChecklist = useCallback((id: string) => {
-    if (verifierBundle.exportedAt) return;
-    const timestamp = new Date().toISOString();
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({
-      ...current,
-      checklist: current.checklist.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked, updatedAt: timestamp } : item,
-      ),
-    }));
-  }, [verifierBundle.exportedAt]);
-
-  const handleResetChecklist = useCallback(() => {
-    if (verifierBundle.exportedAt) return;
-    const next = createVerifierRunBundle(methodCode, version);
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, checklist: next.checklist }));
-  }, [methodCode, verifierBundle.exportedAt, version]);
 
   const handleSearchStac = useCallback(async () => {
     if (!aoi) return;
@@ -701,7 +689,6 @@ export default function ProofMapTab({
     handleSaveRunHistory();
     const pinsCount = evidencePins.length;
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
-    setMinutesFocusKey((current) => current + 1);
     setLoadedRunId(null);
     showToast(`New run started — pins kept: ${pinsCount}`);
   }, [evidencePins.length, handleSaveRunHistory, methodCode, showToast, version]);
@@ -1109,6 +1096,7 @@ export default function ProofMapTab({
           runId: verifierBundle.runContext.runId,
           createdAt: verifierBundle.runContext.createdAt,
           minutes: verifierBundle.minutes,
+          outcomeNote: verifierBundle.outcomeNote,
           checklist: verifierBundle.checklist,
           delta: verifierBundle.delta,
           impact: verifierBundle.impact,
@@ -1176,6 +1164,7 @@ export default function ProofMapTab({
     if (!latestBaseline) return { ok: false, reasons: [] as string[] };
     return isComparable(latestBaseline.baselineProvenance, currentBaselineProvenance);
   }, [currentBaselineProvenance, latestBaseline]);
+  const hasComparisonContext = Boolean(latestBaseline && baselineComparable.ok);
 
   const upliftSummary = useMemo(() => {
     if (!latestBaseline || !baselineComparable.ok) return null;
@@ -1184,6 +1173,29 @@ export default function ProofMapTab({
   const baselineActionsDisabled = baselineMissing.length > 0;
   const baselineDisabledTooltip = "Load AOI to enable baseline comparisons";
   const compareTargetLabel = loadedRunId ? `Loaded run ${loadedRunId}` : "Workspace (unsaved)";
+  const runStatusDetails = useMemo(
+    () =>
+      getVerifyRunStatusDetails({
+        selectedRuleId,
+        aoiHash: currentAoiFingerprint,
+        stacItemIds: stacFeatureIds,
+        selectedStacItemId,
+        linkedRuleIds,
+        snapshotExportedAt: verifierBundle.exportedAt,
+        minutes: verifierBundle.minutes,
+        outcomeNote: verifierBundle.outcomeNote,
+      }),
+    [
+      currentAoiFingerprint,
+      linkedRuleIds,
+      selectedRuleId,
+      selectedStacItemId,
+      stacFeatureIds,
+      verifierBundle.exportedAt,
+      verifierBundle.minutes,
+      verifierBundle.outcomeNote,
+    ],
+  );
 
   const badgeForRun = useCallback(
     (entry: VerifyRunHistoryEntry) => {
@@ -1400,6 +1412,7 @@ export default function ProofMapTab({
       runId: verifierBundle.runContext.runId,
       createdAt: verifierBundle.runContext.createdAt,
       minutes: verifierBundle.minutes,
+      outcomeNote: verifierBundle.outcomeNote,
       delta: verifierBundle.delta,
       impact: verifierBundle.impact,
       checklist: checklistAfterExport,
@@ -1411,6 +1424,7 @@ export default function ProofMapTab({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
       exportedAt,
       minutes: verifierSnapshot.minutes,
+      outcomeNote: verifierSnapshot.outcomeNote,
       delta: verifierSnapshot.delta,
       impact: verifierSnapshot.impact,
       checklist: verifierSnapshot.checklist,
@@ -2571,6 +2585,7 @@ export default function ProofMapTab({
                 ) : null}
               </div>
 
+            <RunStatusCard details={runStatusDetails} />
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-sm font-semibold text-slate-900">Baseline</div>
@@ -2658,20 +2673,17 @@ export default function ProofMapTab({
                 )}
               </div>
             </div>
-            <VerifierMinutesPanel
-              runContext={verifierBundle.runContext}
-              exportedAt={verifierBundle.exportedAt}
-              minutesFocusKey={minutesFocusKey}
-              minutes={verifierBundle.minutes}
-              checklist={verifierBundle.checklist}
-              onMinutesChange={handleMinutesChange}
-              onToggleChecklist={handleToggleChecklist}
-              onResetChecklist={handleResetChecklist}
-              onNewRun={handleNewRun}
-              onCreateTicket={handleCreateTicket}
-              showCreateTicket={TICKETS_FEATURE_ENABLED}
-            />
+            {verifierBundle.exportedAt ? (
+              <VerifierMinutesPanel
+                runContext={verifierBundle.runContext}
+                minutes={verifierBundle.minutes}
+                outcomeNote={verifierBundle.outcomeNote}
+                onMinutesChange={handleMinutesChange}
+                onOutcomeNoteChange={handleOutcomeNoteChange}
+              />
+            ) : null}
             <DeltaImpactTasksPanel
+              showComparisonFields={hasComparisonContext}
               delta={verifierBundle.delta}
               impact={verifierBundle.impact}
               tasks={verifierBundle.tasks}
