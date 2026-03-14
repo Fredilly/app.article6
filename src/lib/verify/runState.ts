@@ -57,6 +57,8 @@ export type VerifierTask = {
 };
 
 let taskCounter = 0;
+let lastRunIdStamp = "";
+let runIdSequence = 0;
 
 export type VerifierRunContext = {
   runId: string;
@@ -125,9 +127,15 @@ function buildRunId(methodCode: string, version: string, date = new Date()): str
     pad2(date.getSeconds()),
     String(date.getMilliseconds()).padStart(3, "0"),
   ].join("");
+  if (stamp === lastRunIdStamp) runIdSequence += 1;
+  else {
+    lastRunIdStamp = stamp;
+    runIdSequence = 0;
+  }
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  return `${normalizedMethod}-${normalizedVersion}-${stamp}`;
+  const suffix = runIdSequence > 0 ? `-${String(runIdSequence).padStart(2, "0")}` : "";
+  return `${normalizedMethod}-${normalizedVersion}-${stamp}${suffix}`;
 }
 
 function seedChecklist(timestamp: string): VerifierChecklistItem[] {
