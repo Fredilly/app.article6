@@ -84,6 +84,7 @@ export type VerifyRunStatusDetails = {
 };
 
 export type VerifyRunHistoryBundle = VerifierRunBundle & {
+  selectedRuleId: string | null;
   linkedRuleIds: string[];
   aoi: AOI | null;
   evidencePins: EvidencePin[];

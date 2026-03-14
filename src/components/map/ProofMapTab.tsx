@@ -54,6 +54,11 @@ import {
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
 
+type ToastState = {
+  title: string;
+  subtitle?: string | null;
+};
+
 type ProofMapTabProps = {
   methodCode: string;
   version: string;
@@ -248,6 +253,12 @@ function statusPill(status: VerificationRun["status"]): { label: string; classNa
   return { label: "ERROR", className: "bg-rose-50 text-rose-700 border-rose-200" };
 }
 
+function currentRunStatusClass(status: string): string {
+  if (status === "review_complete") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "evidence_pack_complete") return "border-sky-200 bg-sky-50 text-sky-700";
+  return "border-slate-200 bg-slate-50 text-slate-700";
+}
+
 export default function ProofMapTab({
   methodCode,
   version,
@@ -288,7 +299,7 @@ export default function ProofMapTab({
   const isEvidenceMode = mode === "evidence";
   const isListMode = viewMode === "list";
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const [undoVisible, setUndoVisible] = useState(false);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
@@ -330,9 +341,12 @@ export default function ProofMapTab({
   const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
   const selectedRuleId = activeRuleId ?? null;
 
-  const showToast = useCallback((message: string) => {
-    setToast(message);
-    window.setTimeout(() => setToast((current) => (current === message ? null : current)), 900);
+  const showToast = useCallback((message: string | ToastState) => {
+    const next = typeof message === "string" ? { title: message } : message;
+    setToast(next);
+    window.setTimeout(() => {
+      setToast((current) => (current?.title === next.title && current?.subtitle === next.subtitle ? null : current));
+    }, 1600);
   }, []);
 
   useEffect(() => {
@@ -498,13 +512,70 @@ export default function ProofMapTab({
       delta: verifierBundle.delta,
       impact: verifierBundle.impact,
       tasks: verifierBundle.tasks,
+      selectedRuleId,
       linkedRuleIds,
       aoi,
       evidencePins,
       verificationRuns,
       selectedStacItemId,
     };
-  }, [aoi, evidencePins, linkedRuleIds, selectedStacItemId, verificationRuns, verifierBundle]);
+  }, [aoi, evidencePins, linkedRuleIds, selectedRuleId, selectedStacItemId, verificationRuns, verifierBundle]);
+
+  const currentWorkspaceBundle = useMemo(() => buildHistoryBundle(), [buildHistoryBundle]);
+  const currentRunId = verifierBundle.runContext.runId;
+  const currentRunLabel = shortRunId(currentRunId);
+  const activeHistoryEntry = useMemo(
+    () => runHistory.find((entry) => entry.runId === currentRunId) ?? null,
+    [currentRunId, runHistory],
+  );
+  const hasUnsavedWorkspaceEdits = useMemo(() => {
+    if (!activeHistoryEntry) {
+      return Boolean(
+        aoi ||
+          evidencePins.length ||
+          verificationRuns.length ||
+          selectedStacItemId ||
+          verifierBundle.exportedAt ||
+          verifierBundle.minutes.trim() ||
+          verifierBundle.outcomeNote.trim() ||
+          verifierBundle.delta.trim() ||
+          verifierBundle.impact.trim() ||
+          verifierBundle.tasks.length,
+      );
+    }
+    return canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle);
+  }, [
+    activeHistoryEntry,
+    aoi,
+    currentWorkspaceBundle,
+    evidencePins.length,
+    selectedStacItemId,
+    verificationRuns.length,
+    verifierBundle.delta,
+    verifierBundle.exportedAt,
+    verifierBundle.impact,
+    verifierBundle.minutes,
+    verifierBundle.outcomeNote,
+    verifierBundle.tasks.length,
+  ]);
+
+  const persistCurrentWorkspaceAsDraft = useCallback(() => {
+    const historicalCurrent = runHistory.find((entry) => entry.runId === verifierBundle.runContext.runId) ?? null;
+    const draftBundle =
+      historicalCurrent && canonicalJsonStringify(historicalCurrent.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
+        ? {
+            ...currentWorkspaceBundle,
+            runContext: createVerifierRunBundle(methodCode, version).runContext,
+          }
+        : currentWorkspaceBundle;
+    setVerifierBundle((current) =>
+      current.runContext.runId === draftBundle.runContext.runId
+        ? current
+        : { ...current, runContext: draftBundle.runContext },
+    );
+    setRunHistory(saveCurrentRunToHistory(methodCode, version, draftBundle));
+    return draftBundle.runContext.runId;
+  }, [currentWorkspaceBundle, methodCode, runHistory, verifierBundle.runContext.runId, version]);
 
   const handleSaveRunHistory = useCallback(
     (bundleOverride?: ReturnType<typeof buildHistoryBundle>) => {
@@ -516,6 +587,12 @@ export default function ProofMapTab({
 
   const handleLoadRunHistory = useCallback(
     (runId: string) => {
+      if (runId === verifierBundle.runContext.runId) return;
+      if (hasUnsavedWorkspaceEdits && typeof window !== "undefined") {
+        const confirmed = window.confirm("Save the current workspace as a draft before loading another run?");
+        if (!confirmed) return;
+        persistCurrentWorkspaceAsDraft();
+      }
       const loaded = loadRunFromHistory(methodCode, version, runId);
       if (!loaded) return;
       setVerifierBundle({
@@ -532,9 +609,28 @@ export default function ProofMapTab({
       onSetEvidencePins(loaded.evidencePins as EvidencePin[]);
       onSetVerificationRuns(loaded.verificationRuns as VerificationRun[]);
       onSelectStacItemId(loaded.selectedStacItemId ?? null);
+      onSelectRuleId?.(loaded.selectedRuleId ?? null);
+      onEvidenceSelectionChange?.(null);
       setLoadedRunId(runId);
+      showToast({
+        title: `Loaded run ${shortRunId(runId)}`,
+        subtitle: "Saved evidence and review state restored",
+      });
     },
-    [methodCode, onSelectStacItemId, onSetAoi, onSetEvidencePins, onSetVerificationRuns, version],
+    [
+      hasUnsavedWorkspaceEdits,
+      methodCode,
+      onEvidenceSelectionChange,
+      onSelectRuleId,
+      onSelectStacItemId,
+      onSetAoi,
+      onSetEvidencePins,
+      onSetVerificationRuns,
+      persistCurrentWorkspaceAsDraft,
+      showToast,
+      verifierBundle.runContext.runId,
+      version,
+    ],
   );
 
   const handleDeleteRunHistory = useCallback(
@@ -686,19 +782,35 @@ export default function ProofMapTab({
   }, [onApplyDraftAoi]);
 
   const handleNewRun = useCallback(() => {
-    handleSaveRunHistory();
-    const pinsCount = evidencePins.length;
+    persistCurrentWorkspaceAsDraft();
+    onSetEvidencePins([]);
+    onSetVerificationRuns([]);
+    onSetStacEvidenceState(null);
+    onSelectStacItemId(null);
+    onEvidenceSelectionChange?.(null);
+    onSelectRuleId?.(null);
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
     setLoadedRunId(null);
-    showToast(`New run started — pins kept: ${pinsCount}`);
-  }, [evidencePins.length, handleSaveRunHistory, methodCode, showToast, version]);
+    showToast({ title: "Started new run", subtitle: "Fresh review workspace created" });
+  }, [
+    methodCode,
+    onEvidenceSelectionChange,
+    onSelectRuleId,
+    onSelectStacItemId,
+    onSetEvidencePins,
+    onSetStacEvidenceState,
+    onSetVerificationRuns,
+    persistCurrentWorkspaceAsDraft,
+    showToast,
+    version,
+  ]);
 
   const handleStartRun = useCallback(() => {
     if (!evidencePins.length) return;
-    handleSaveRunHistory();
+    persistCurrentWorkspaceAsDraft();
     setRunDetailsOpen(true);
     showToast(`Run started with ${evidencePins.length} pin${evidencePins.length === 1 ? "" : "s"}.`);
-  }, [evidencePins.length, handleSaveRunHistory, showToast]);
+  }, [evidencePins.length, persistCurrentWorkspaceAsDraft, showToast]);
   const handleNavigateEvidence = useCallback(
     async (type: "rule" | "section", id: string) => {
       return await onNavigateEvidence(type, id);
@@ -1405,12 +1517,16 @@ export default function ProofMapTab({
     })();
 
     const exportedAt = new Date().toISOString();
+    const nextRunContext =
+      activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
+        ? createVerifierRunBundle(methodCode, version).runContext
+        : verifierBundle.runContext;
     const checklistAfterExport = verifierBundle.checklist.map((item) =>
       item.id === "exported-snapshot" ? { ...item, checked: true, updatedAt: exportedAt } : item,
     );
     const verifierSnapshot = {
-      runId: verifierBundle.runContext.runId,
-      createdAt: verifierBundle.runContext.createdAt,
+      runId: nextRunContext.runId,
+      createdAt: nextRunContext.createdAt,
       minutes: verifierBundle.minutes,
       outcomeNote: verifierBundle.outcomeNote,
       delta: verifierBundle.delta,
@@ -1419,7 +1535,7 @@ export default function ProofMapTab({
       tasks: verifierBundle.tasks,
     };
 
-    setVerifierBundle((current) => ({ ...current, exportedAt, checklist: checklistAfterExport }));
+    setVerifierBundle((current) => ({ ...current, runContext: nextRunContext, exportedAt, checklist: checklistAfterExport }));
     handleSaveRunHistory({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
       exportedAt,
@@ -1429,6 +1545,7 @@ export default function ProofMapTab({
       impact: verifierSnapshot.impact,
       checklist: verifierSnapshot.checklist,
       tasks: verifierSnapshot.tasks,
+      selectedRuleId,
       linkedRuleIds,
       aoi,
       evidencePins,
@@ -1489,7 +1606,9 @@ export default function ProofMapTab({
     downloadJson(snapshotWithLegacyItems, filename);
     showToast("Snapshot exported");
   }, [
+    activeHistoryEntry,
     aoi,
+    currentWorkspaceBundle,
     currentStacEvidence?.itemsById,
     evidencePins,
     handleSaveRunHistory,
@@ -1503,6 +1622,7 @@ export default function ProofMapTab({
     stacEndpointUrl,
     totalRules,
     selectedEvidenceItemIds,
+    selectedRuleId,
     verifierBundle,
     verificationRuns,
     version,
@@ -2327,11 +2447,12 @@ export default function ProofMapTab({
       ) : null}
       {toast ? (
         <div
-          className={`fixed right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow ${
+          className={`fixed right-4 z-50 max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow ${
             undoVisible ? "bottom-14" : "bottom-4"
           }`}
         >
-          {toast}
+          <div className="font-semibold text-slate-900">{toast.title}</div>
+          {toast.subtitle ? <div className="mt-0.5 text-[11px] text-slate-500">{toast.subtitle}</div> : null}
         </div>
       ) : null}
       {snapshot ? (
@@ -2585,6 +2706,29 @@ export default function ProofMapTab({
                 ) : null}
               </div>
 
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs text-slate-600">
+                  <span className="font-semibold text-slate-900">Current run:</span>{" "}
+                  <span data-testid="current-run-indicator" className="font-mono text-slate-700" title={currentRunId}>
+                    {currentRunLabel}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${currentRunStatusClass(runStatusDetails.status)}`}
+                  >
+                    {runStatusDetails.label}
+                  </span>
+                  {hasUnsavedWorkspaceEdits ? (
+                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                      Unsaved edits
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
             <RunStatusCard details={runStatusDetails} />
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between gap-2">
@@ -2705,11 +2849,16 @@ export default function ProofMapTab({
                 <span className="ml-2 text-[11px] font-medium text-slate-500">{runHistory.length} runs</span>
               </summary>
               <div className="px-3 pb-3">
+                <div className="mb-3 text-xs text-slate-500">
+                  <div>New run starts a fresh review.</div>
+                  <div>Load restores a saved run.</div>
+                </div>
                 <RunHistoryPanel
                   items={runHistory}
                   onLoad={handleLoadRunHistory}
                   onDelete={handleDeleteRunHistory}
                   showTitle={false}
+                  activeRunId={currentRunId}
                   badgeForRun={badgeForRun}
                 />
               </div>

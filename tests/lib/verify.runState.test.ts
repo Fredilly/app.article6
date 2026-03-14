@@ -197,6 +197,19 @@ describe("verifier run bundle storage", () => {
     expect(bundle.tasks).toEqual([]);
   });
 
+  it("creates a fresh run with a new run id and cleared review state", () => {
+    const first = createVerifierRunBundle("AR-2", "v2");
+    const second = createVerifierRunBundle("AR-2", "v2");
+
+    expect(second.runContext.runId).not.toBe(first.runContext.runId);
+    expect(second.exportedAt).toBeNull();
+    expect(second.minutes).toBe("");
+    expect(second.outcomeNote).toBe("");
+    expect(second.delta).toBe("");
+    expect(second.impact).toBe("");
+    expect(second.tasks).toEqual([]);
+  });
+
   it("persists and reads verifier minutes", () => {
     const storage = ensureLocalStorage();
     storage.clear();
@@ -232,6 +245,7 @@ describe("run history storage", () => {
       saveCurrentRunToHistory("AR-1", "v1", {
         ...base,
         runContext: { runId: `run-${i}`, createdAt: `2026-01-01T00:00:${String(i).padStart(2, "0")}Z` },
+        selectedRuleId: null,
         linkedRuleIds: [],
         aoi: null,
         evidencePins: [],
@@ -252,6 +266,7 @@ describe("run history storage", () => {
     saveCurrentRunToHistory("AR-2", "v2", {
       ...base,
       runContext: { runId: "run-xyz", createdAt: "2026-01-02T00:00:00Z" },
+      selectedRuleId: "R-1",
       minutes: "Loaded run",
       outcomeNote: "Outcome note",
       delta: "Changed AOI boundary.",
@@ -274,6 +289,7 @@ describe("run history storage", () => {
 
     const loaded = loadRunFromHistory("AR-2", "v2", "run-xyz");
     expect(loaded?.runContext.runId).toBe("run-xyz");
+    expect(loaded?.selectedRuleId).toBe("R-1");
     expect(loaded?.minutes).toBe("Loaded run");
     expect(loaded?.outcomeNote).toBe("Outcome note");
     expect(loaded?.delta).toBe("Changed AOI boundary.");
@@ -285,6 +301,7 @@ describe("run history storage", () => {
     saveCurrentRunToHistory("AR-3", "v3", {
       ...createVerifierRunBundle("AR-3", "v3"),
       runContext: { runId: "run-del", createdAt: "2026-01-03T00:00:00Z" },
+      selectedRuleId: null,
       linkedRuleIds: [],
       aoi: null,
       evidencePins: [],
