@@ -14,6 +14,7 @@ describe("RunHistoryPanel", () => {
               runContext: { runId: "run-older", createdAt: "2026-01-01T00:00:00Z" },
               exportedAt: null,
               savedReviewerArtifactAt: null,
+              finalizedAt: null,
               loadedFromRunId: null,
               derivedFromRunId: null,
               isEditedDraft: false,

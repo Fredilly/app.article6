@@ -8,6 +8,7 @@ import {
   buildRunSummary,
   createVerifierRunBundle,
   deleteRunFromHistory,
+  getVerifyWizardStepDetails,
   getVerifyRunStatusDetails,
   normalizeMethodCode,
   normalizeVersion,
@@ -82,6 +83,8 @@ describe("getVerifyRunStatusDetails", () => {
       selectedStacItemId: "item-1",
       linkedRuleIds: ["R-1"],
       snapshotExportedAt: "2026-01-01T00:00:00Z",
+      reviewerArtifactSavedAt: null,
+      finalizedAt: null,
       minutes: "",
       outcomeNote: "",
     });
@@ -99,6 +102,8 @@ describe("getVerifyRunStatusDetails", () => {
       selectedStacItemId: "item-1",
       linkedRuleIds: ["R-1"],
       snapshotExportedAt: "2026-01-01T00:00:00Z",
+      reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
+      finalizedAt: "2026-01-01T00:06:00Z",
       minutes: "",
       outcomeNote: "Outcome stable.",
     });
@@ -106,6 +111,89 @@ describe("getVerifyRunStatusDetails", () => {
     expect(status.status).toBe("review_complete");
     expect(status.missing).toEqual([]);
     expect(status.nextAction).toBeNull();
+  });
+
+  it("requires finalization after a saved reviewer artifact", () => {
+    const status = getVerifyRunStatusDetails({
+      selectedRuleId: "R-1",
+      aoiHash: "aoi-1",
+      stacItemIds: ["item-1"],
+      selectedStacItemId: "item-1",
+      linkedRuleIds: ["R-1"],
+      snapshotExportedAt: "2026-01-01T00:00:00Z",
+      reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
+      finalizedAt: null,
+      minutes: "Saved reviewer text",
+      outcomeNote: "",
+    });
+
+    expect(status.status).toBe("evidence_pack_complete");
+    expect(status.missing).toEqual(["Finalize run"]);
+    expect(status.nextAction).toBe("Finalize run");
+  });
+});
+
+describe("getVerifyWizardStepDetails", () => {
+  it("resolves steps 1 through 8 in order", () => {
+    expect(getVerifyWizardStepDetails({}).activeStep).toBe(1);
+    expect(getVerifyWizardStepDetails({ selectedRuleId: "R-1" }).activeStep).toBe(2);
+    expect(getVerifyWizardStepDetails({ selectedRuleId: "R-1", aoiHash: "aoi" }).activeStep).toBe(3);
+    expect(getVerifyWizardStepDetails({ selectedRuleId: "R-1", aoiHash: "aoi", stacItemIds: ["item-1"] }).activeStep).toBe(4);
+    expect(
+      getVerifyWizardStepDetails({
+        selectedRuleId: "R-1",
+        aoiHash: "aoi",
+        stacItemIds: ["item-1"],
+        selectedStacItemId: "item-1",
+      }).activeStep,
+    ).toBe(5);
+    expect(
+      getVerifyWizardStepDetails({
+        selectedRuleId: "R-1",
+        aoiHash: "aoi",
+        stacItemIds: ["item-1"],
+        selectedStacItemId: "item-1",
+        linkedRuleIds: ["R-1"],
+      }).activeStep,
+    ).toBe(6);
+    expect(
+      getVerifyWizardStepDetails({
+        selectedRuleId: "R-1",
+        aoiHash: "aoi",
+        stacItemIds: ["item-1"],
+        selectedStacItemId: "item-1",
+        linkedRuleIds: ["R-1"],
+        snapshotExportedAt: "2026-01-01T00:00:00Z",
+      }).activeStep,
+    ).toBe(7);
+    expect(
+      getVerifyWizardStepDetails({
+        selectedRuleId: "R-1",
+        aoiHash: "aoi",
+        stacItemIds: ["item-1"],
+        selectedStacItemId: "item-1",
+        linkedRuleIds: ["R-1"],
+        snapshotExportedAt: "2026-01-01T00:00:00Z",
+        reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
+      }).activeStep,
+    ).toBe(8);
+  });
+
+  it("reports completion only after finalization", () => {
+    const details = getVerifyWizardStepDetails({
+      selectedRuleId: "R-1",
+      aoiHash: "aoi",
+      stacItemIds: ["item-1"],
+      selectedStacItemId: "item-1",
+      linkedRuleIds: ["R-1"],
+      snapshotExportedAt: "2026-01-01T00:00:00Z",
+      reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
+      finalizedAt: "2026-01-01T00:06:00Z",
+    });
+
+    expect(details.activeStep).toBeNull();
+    expect(details.isComplete).toBe(true);
+    expect(details.nextAction).toBeNull();
   });
 });
 
@@ -197,6 +285,7 @@ describe("verifier run bundle storage", () => {
     expect(bundle.checklist.length).toBeGreaterThan(0);
     expect(bundle.tasks).toEqual([]);
     expect(bundle.savedReviewerArtifactAt).toBeNull();
+    expect(bundle.finalizedAt).toBeNull();
     expect(bundle.loadedFromRunId).toBeNull();
     expect(bundle.derivedFromRunId).toBeNull();
     expect(bundle.isEditedDraft).toBe(false);
@@ -231,6 +320,7 @@ describe("verifier run bundle storage", () => {
       outcomeNote: "Looks stable.",
       draftOutcomeNote: "Looks stable.",
       savedReviewerArtifactAt: "2026-01-01T00:00:00Z",
+      finalizedAt: "2026-01-01T00:01:00Z",
       loadedFromRunId: "run-source",
       derivedFromRunId: "run-source",
       isEditedDraft: true,
@@ -243,6 +333,7 @@ describe("verifier run bundle storage", () => {
     expect(read.draftMinutes).toBe("Checked AOI and evidence.");
     expect(read.draftOutcomeNote).toBe("Looks stable.");
     expect(read.savedReviewerArtifactAt).toBe("2026-01-01T00:00:00Z");
+    expect(read.finalizedAt).toBe("2026-01-01T00:01:00Z");
     expect(read.loadedFromRunId).toBe("run-source");
     expect(read.derivedFromRunId).toBe("run-source");
     expect(read.isEditedDraft).toBe(true);

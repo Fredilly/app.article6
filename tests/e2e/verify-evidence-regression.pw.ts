@@ -84,6 +84,9 @@ test("Verify evidence workflow creates pin and enables start run CTA", async ({ 
   });
   await page.waitForSelector("text=Evidence workflow", { timeout: 30_000 });
   await page.waitForSelector("text=Pick rule", { timeout: 30_000 });
+  await page.waitForSelector("text=Export evidence pack", { timeout: 30_000 });
+  await page.waitForSelector("text=Save reviewer artifact", { timeout: 30_000 });
+  await page.waitForSelector("text=Finalize run", { timeout: 30_000 });
   await page.waitForTimeout(500);
 
   await expect(page.getByText("AOI ready")).toBeVisible({ timeout: 30_000 });
@@ -101,10 +104,6 @@ test("Verify evidence workflow creates pin and enables start run CTA", async ({ 
 
   await expect(page.getByText(new RegExp(`↔\\s*${stacItemId}`))).toBeVisible({ timeout: 30_000 });
 
-  const startRunButton = page.getByRole("button", { name: /Start run with 1 pin/ }).first();
-  await expect(startRunButton).toBeEnabled({ timeout: 30_000 });
-  await startRunButton.click();
-  await expect(page.getByText("Run details", { exact: true }).first()).toBeVisible();
   const currentRunBefore = await page.getByTestId("current-run-indicator").textContent();
 
   const newRunButton = page.getByRole("button", { name: "New run" }).first();
@@ -153,6 +152,7 @@ test("Verify run history load restores state and highlights current row", async 
         runContext: { runId: "run-current", createdAt: "2026-03-01T00:00:00Z" },
         exportedAt: "2026-03-01T00:05:00Z",
         savedReviewerArtifactAt: "2026-03-01T00:06:00Z",
+        finalizedAt: null,
         loadedFromRunId: null,
         derivedFromRunId: null,
         isEditedDraft: false,
@@ -176,6 +176,7 @@ test("Verify run history load restores state and highlights current row", async 
             runContext: { runId: "run-loaded", createdAt: "2026-02-28T00:00:00Z" },
             exportedAt: "2026-02-28T00:05:00Z",
             savedReviewerArtifactAt: "2026-02-28T00:06:00Z",
+            finalizedAt: "2026-02-28T00:07:00Z",
             loadedFromRunId: null,
             derivedFromRunId: null,
             isEditedDraft: false,
@@ -200,7 +201,7 @@ test("Verify run history load restores state and highlights current row", async 
   }, seededAoi);
 
   await page.goto("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list", { waitUntil: "domcontentloaded" });
-  await page.getByText("Run details", { exact: true }).click();
+  await page.getByTestId("secondary-context-toggle").click();
   await page.getByText("Run history").click();
 
   await page.getByTestId("verifier-minutes-textarea").fill("Unsaved change");
@@ -209,6 +210,7 @@ test("Verify run history load restores state and highlights current row", async 
 
   await expect(page.getByText("Loaded run")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("Saved evidence and review state restored")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("secondary-context")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("active-run-history-row")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("Loaded from Run loaded")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("current-run-indicator")).not.toContainText("loaded");

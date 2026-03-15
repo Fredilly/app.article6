@@ -69,6 +69,7 @@ export type VerifierRunBundle = {
   runContext: VerifierRunContext;
   exportedAt: string | null;
   savedReviewerArtifactAt: string | null;
+  finalizedAt: string | null;
   loadedFromRunId: string | null;
   derivedFromRunId: string | null;
   isEditedDraft: boolean;
@@ -89,6 +90,21 @@ export type VerifyRunStatusDetails = {
   label: string;
   missing: string[];
   nextAction: string | null;
+};
+
+export type VerifyWizardStepId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+export type VerifyWizardStepDetails = {
+  activeStep: VerifyWizardStepId | null;
+  nextAction: string | null;
+  steps: Array<{
+    id: VerifyWizardStepId;
+    label: string;
+    complete: boolean;
+    active: boolean;
+    disabled: boolean;
+  }>;
+  isComplete: boolean;
 };
 
 export type VerifyRunHistoryBundle = VerifierRunBundle & {
@@ -382,6 +398,7 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
     },
     exportedAt: null,
     savedReviewerArtifactAt: null,
+    finalizedAt: null,
     loadedFromRunId: null,
     derivedFromRunId: null,
     isEditedDraft: false,
@@ -429,6 +446,7 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     const impact = typeof parsed.impact === "string" ? parsed.impact : "";
     const exportedAt = asNonEmptyString(parsed.exportedAt);
     const savedReviewerArtifactAt = asNonEmptyString(parsed.savedReviewerArtifactAt);
+    const finalizedAt = asNonEmptyString(parsed.finalizedAt);
     const loadedFromRunId = asNonEmptyString(parsed.loadedFromRunId);
     const derivedFromRunId = asNonEmptyString(parsed.derivedFromRunId);
     const isEditedDraft = typeof parsed.isEditedDraft === "boolean" ? parsed.isEditedDraft : false;
@@ -441,6 +459,7 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
       runContext: { runId, createdAt },
       exportedAt,
       savedReviewerArtifactAt,
+      finalizedAt,
       loadedFromRunId,
       derivedFromRunId,
       isEditedDraft,
@@ -658,6 +677,8 @@ export function getVerifyRunStatusDetails(input: {
   selectedStacItemId?: string | null;
   linkedRuleIds?: string[] | null;
   snapshotExportedAt?: string | null;
+  reviewerArtifactSavedAt?: string | null;
+  finalizedAt?: string | null;
   minutes?: string | null;
   outcomeNote?: string | null;
 }): VerifyRunStatusDetails {
@@ -678,7 +699,8 @@ export function getVerifyRunStatusDetails(input: {
     };
   }
 
-  if (!hasReviewerArtifact(input)) {
+  const reviewerArtifactSaved = Boolean(input.reviewerArtifactSavedAt?.trim() || hasReviewerArtifact(input));
+  if (!reviewerArtifactSaved) {
     return {
       status: "evidence_pack_complete",
       label: "Evidence pack complete",
@@ -687,11 +709,71 @@ export function getVerifyRunStatusDetails(input: {
     };
   }
 
+  if (!input.finalizedAt?.trim()) {
+    return {
+      status: "evidence_pack_complete",
+      label: "Evidence pack complete",
+      missing: ["Finalize run"],
+      nextAction: "Finalize run",
+    };
+  }
+
   return {
     status: "review_complete",
     label: "Review complete",
     missing: [],
     nextAction: null,
+  };
+}
+
+export function getVerifyWizardStepDetails(input: {
+  selectedRuleId?: string | null;
+  aoiHash?: string | null;
+  stacItemIds?: string[] | null;
+  selectedStacItemId?: string | null;
+  linkedRuleIds?: string[] | null;
+  snapshotExportedAt?: string | null;
+  reviewerArtifactSavedAt?: string | null;
+  minutes?: string | null;
+  outcomeNote?: string | null;
+  finalizedAt?: string | null;
+}): VerifyWizardStepDetails {
+  const hasRule = Boolean(input.selectedRuleId?.trim());
+  const hasAoi = Boolean(input.aoiHash?.trim());
+  const hasSearchResults = Boolean(input.stacItemIds?.length);
+  const hasSelectedItem = Boolean(input.selectedStacItemId?.trim());
+  const hasPins = Boolean(input.linkedRuleIds?.length);
+  const hasExport = Boolean(input.snapshotExportedAt?.trim());
+  const hasSavedReviewerArtifact = Boolean(input.reviewerArtifactSavedAt?.trim() || hasReviewerArtifact(input));
+  const isFinalized = Boolean(input.finalizedAt?.trim());
+
+  const activeStep: VerifyWizardStepId | null =
+    !hasRule ? 1 :
+    !hasAoi ? 2 :
+    !hasSearchResults ? 3 :
+    !hasSelectedItem ? 4 :
+    !hasPins ? 5 :
+    !hasExport ? 6 :
+    !hasSavedReviewerArtifact ? 7 :
+    !isFinalized ? 8 :
+    null;
+
+  const steps: VerifyWizardStepDetails["steps"] = [
+    { id: 1, label: "Pick rule", complete: hasRule, active: activeStep === 1, disabled: false },
+    { id: 2, label: "Confirm AOI", complete: hasAoi, active: activeStep === 2, disabled: !hasRule },
+    { id: 3, label: "Search STAC", complete: hasSearchResults, active: activeStep === 3, disabled: !hasAoi },
+    { id: 4, label: "Select item", complete: hasSelectedItem, active: activeStep === 4, disabled: !hasSearchResults },
+    { id: 5, label: "Create/link pin", complete: hasPins, active: activeStep === 5, disabled: !hasSelectedItem || !hasRule },
+    { id: 6, label: "Export evidence pack", complete: hasExport, active: activeStep === 6, disabled: !hasPins },
+    { id: 7, label: "Save reviewer artifact", complete: hasSavedReviewerArtifact, active: activeStep === 7, disabled: !hasExport },
+    { id: 8, label: "Finalize run", complete: isFinalized, active: activeStep === 8, disabled: !hasExport || !hasSavedReviewerArtifact },
+  ];
+
+  return {
+    activeStep,
+    nextAction: steps.find((step) => step.active)?.label ?? null,
+    steps,
+    isComplete: isFinalized,
   };
 }
 
