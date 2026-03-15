@@ -68,8 +68,14 @@ export type VerifierRunContext = {
 export type VerifierRunBundle = {
   runContext: VerifierRunContext;
   exportedAt: string | null;
+  savedReviewerArtifactAt: string | null;
+  loadedFromRunId: string | null;
+  derivedFromRunId: string | null;
+  isEditedDraft: boolean;
   minutes: string;
   outcomeNote: string;
+  draftMinutes: string;
+  draftOutcomeNote: string;
   checklist: VerifierChecklistItem[];
   delta: string;
   impact: string;
@@ -375,8 +381,14 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
       createdAt,
     },
     exportedAt: null,
+    savedReviewerArtifactAt: null,
+    loadedFromRunId: null,
+    derivedFromRunId: null,
+    isEditedDraft: false,
     minutes: "",
     outcomeNote: "",
+    draftMinutes: "",
+    draftOutcomeNote: "",
     checklist: seedChecklist(createdAt),
     delta: "",
     impact: "",
@@ -411,9 +423,15 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const minutes = typeof parsed.minutes === "string" ? parsed.minutes : "";
     const outcomeNote = typeof parsed.outcomeNote === "string" ? parsed.outcomeNote : "";
+    const draftMinutes = typeof parsed.draftMinutes === "string" ? parsed.draftMinutes : minutes;
+    const draftOutcomeNote = typeof parsed.draftOutcomeNote === "string" ? parsed.draftOutcomeNote : outcomeNote;
     const delta = typeof parsed.delta === "string" ? parsed.delta : "";
     const impact = typeof parsed.impact === "string" ? parsed.impact : "";
     const exportedAt = asNonEmptyString(parsed.exportedAt);
+    const savedReviewerArtifactAt = asNonEmptyString(parsed.savedReviewerArtifactAt);
+    const loadedFromRunId = asNonEmptyString(parsed.loadedFromRunId);
+    const derivedFromRunId = asNonEmptyString(parsed.derivedFromRunId);
+    const isEditedDraft = typeof parsed.isEditedDraft === "boolean" ? parsed.isEditedDraft : false;
     const runContextRaw = parsed.runContext && typeof parsed.runContext === "object" ? (parsed.runContext as Record<string, unknown>) : null;
     const runId = asNonEmptyString(runContextRaw?.runId) ?? fallback.runContext.runId;
     const createdAt = asNonEmptyString(runContextRaw?.createdAt) ?? fallback.runContext.createdAt;
@@ -422,8 +440,14 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     return {
       runContext: { runId, createdAt },
       exportedAt,
+      savedReviewerArtifactAt,
+      loadedFromRunId,
+      derivedFromRunId,
+      isEditedDraft,
       minutes,
       outcomeNote,
+      draftMinutes,
+      draftOutcomeNote,
       checklist,
       delta,
       impact,
@@ -658,8 +682,8 @@ export function getVerifyRunStatusDetails(input: {
     return {
       status: "evidence_pack_complete",
       label: "Evidence pack complete",
-      missing: ["Add verifier minutes or an outcome note"],
-      nextAction: "Add verifier minutes or an outcome note",
+      missing: ["Save reviewer artifact"],
+      nextAction: "Save reviewer artifact",
     };
   }
 

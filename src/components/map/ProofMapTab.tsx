@@ -322,7 +322,6 @@ export default function ProofMapTab({
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [runDetailsOpen, setRunDetailsOpen] = useState(false);
-  const [loadedRunId, setLoadedRunId] = useState<string | null>(null);
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
@@ -389,7 +388,6 @@ export default function ProofMapTab({
 
   useEffect(() => {
     setVerifierBundle(readVerifierRunBundle(methodCode, version));
-    setLoadedRunId(null);
   }, [methodCode, version]);
 
   useEffect(() => {
@@ -403,15 +401,65 @@ export default function ProofMapTab({
     return () => window.clearTimeout(timer);
   }, [methodCode, verifierBundle, version]);
 
+  const markBundleEdited = useCallback(
+    (
+      current: typeof verifierBundle,
+      options: { invalidateFinality?: boolean; clearSavedReviewerArtifact?: boolean } = {},
+    ) => {
+      const invalidateFinality = options.invalidateFinality ?? false;
+      const clearSavedReviewerArtifact = options.clearSavedReviewerArtifact ?? invalidateFinality;
+      return {
+        ...current,
+        isEditedDraft:
+          current.isEditedDraft ||
+          Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt),
+        exportedAt: invalidateFinality ? null : current.exportedAt,
+        savedReviewerArtifactAt: clearSavedReviewerArtifact ? null : current.savedReviewerArtifactAt,
+        minutes: clearSavedReviewerArtifact ? "" : current.minutes,
+        outcomeNote: clearSavedReviewerArtifact ? "" : current.outcomeNote,
+      };
+    },
+    [],
+  );
+
   const handleMinutesChange = useCallback((value: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, minutes: value }));
+    setVerifierBundle((current) => ({
+      ...current,
+      draftMinutes: value,
+      isEditedDraft:
+        current.isEditedDraft ||
+        (value !== current.minutes && Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
+    }));
   }, []);
 
   const handleOutcomeNoteChange = useCallback((value: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, outcomeNote: value }));
+    setVerifierBundle((current) => ({
+      ...current,
+      draftOutcomeNote: value,
+      isEditedDraft:
+        current.isEditedDraft ||
+        (value !== current.outcomeNote &&
+          Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
+    }));
   }, []);
+
+  const handleSaveReviewerArtifact = useCallback(() => {
+    const savedAt = new Date().toISOString();
+    setVerifierBundle((current) => {
+      const hasSavedArtifact = Boolean(current.draftMinutes.trim() || current.draftOutcomeNote.trim());
+      return {
+        ...current,
+        minutes: current.draftMinutes,
+        outcomeNote: current.draftOutcomeNote,
+        savedReviewerArtifactAt: hasSavedArtifact ? savedAt : null,
+        isEditedDraft:
+          current.isEditedDraft ||
+          ((current.draftMinutes !== current.minutes || current.draftOutcomeNote !== current.outcomeNote) &&
+            Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
+      };
+    });
+    showToast({ title: "Reviewer artifact saved", subtitle: "Saved text now counts for run completion" });
+  }, [showToast]);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -438,35 +486,35 @@ export default function ProofMapTab({
             // ignore hash failures
           }
         }
-        setLoadedRunId(null);
+        setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
         onSelectStacItemId(null);
         onUploadAoi(result.aoi);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
     },
-    [onAuditEvent, onSelectStacItemId, onUploadAoi],
+    [markBundleEdited, onAuditEvent, onSelectStacItemId, onUploadAoi],
   );
 
   const handleDeltaChange = useCallback((value: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, delta: value }));
-  }, []);
+    setVerifierBundle((current) => ({ ...markBundleEdited(current, { invalidateFinality: true }), delta: value }));
+  }, [markBundleEdited]);
 
   const handleImpactChange = useCallback((value: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, impact: value }));
-  }, []);
+    setVerifierBundle((current) => ({ ...markBundleEdited(current, { invalidateFinality: true }), impact: value }));
+  }, [markBundleEdited]);
 
   const commitDraftTask = useCallback(() => {
     const text = draftTask.trim();
     if (!text) return;
-    setLoadedRunId(null);
     const task = addTaskWithText(text);
-    setVerifierBundle((current) => ({ ...current, tasks: [...current.tasks, task] }));
+    setVerifierBundle((current) => ({
+      ...markBundleEdited(current, { invalidateFinality: true }),
+      tasks: [...current.tasks, task],
+    }));
     setDraftTask("");
     setShowDraftTask(false);
-  }, [draftTask]);
+  }, [draftTask, markBundleEdited]);
 
   const handleAddTask = useCallback(() => {
     setShowDraftTask(true);
@@ -477,37 +525,43 @@ export default function ProofMapTab({
 
   const handleToggleTask = useCallback((id: string) => {
     const timestamp = new Date().toISOString();
-    setLoadedRunId(null);
     setVerifierBundle((current) => ({
-      ...current,
+      ...markBundleEdited(current, { invalidateFinality: true }),
       tasks: current.tasks.map((task) =>
         task.id === id ? { ...task, done: !task.done, updatedAt: timestamp } : task,
       ),
     }));
-  }, []);
+  }, [markBundleEdited]);
 
   const handleUpdateTask = useCallback((id: string, value: string) => {
     const timestamp = new Date().toISOString();
-    setLoadedRunId(null);
     setVerifierBundle((current) => ({
-      ...current,
+      ...markBundleEdited(current, { invalidateFinality: true }),
       tasks: current.tasks.map((task) =>
         task.id === id ? { ...task, text: value, updatedAt: timestamp } : task,
       ),
     }));
-  }, []);
+  }, [markBundleEdited]);
 
   const handleDeleteTask = useCallback((id: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, tasks: current.tasks.filter((task) => task.id !== id) }));
-  }, []);
+    setVerifierBundle((current) => ({
+      ...markBundleEdited(current, { invalidateFinality: true }),
+      tasks: current.tasks.filter((task) => task.id !== id),
+    }));
+  }, [markBundleEdited]);
 
   const buildHistoryBundle = useCallback(() => {
     return {
       runContext: verifierBundle.runContext,
       exportedAt: verifierBundle.exportedAt,
+      savedReviewerArtifactAt: verifierBundle.savedReviewerArtifactAt,
+      loadedFromRunId: verifierBundle.loadedFromRunId,
+      derivedFromRunId: verifierBundle.derivedFromRunId,
+      isEditedDraft: verifierBundle.isEditedDraft,
       minutes: verifierBundle.minutes,
       outcomeNote: verifierBundle.outcomeNote,
+      draftMinutes: verifierBundle.draftMinutes,
+      draftOutcomeNote: verifierBundle.draftOutcomeNote,
       checklist: verifierBundle.checklist,
       delta: verifierBundle.delta,
       impact: verifierBundle.impact,
@@ -524,6 +578,8 @@ export default function ProofMapTab({
   const currentWorkspaceBundle = useMemo(() => buildHistoryBundle(), [buildHistoryBundle]);
   const currentRunId = verifierBundle.runContext.runId;
   const currentRunLabel = shortRunId(currentRunId);
+  const loadedFromRunLabel = verifierBundle.loadedFromRunId ? shortRunId(verifierBundle.loadedFromRunId) : null;
+  const activeHistoryRunId = verifierBundle.loadedFromRunId ?? (runHistory.some((entry) => entry.runId === currentRunId) ? currentRunId : null);
   const activeHistoryEntry = useMemo(
     () => runHistory.find((entry) => entry.runId === currentRunId) ?? null,
     [currentRunId, runHistory],
@@ -558,6 +614,42 @@ export default function ProofMapTab({
     verifierBundle.outcomeNote,
     verifierBundle.tasks.length,
   ]);
+  const mutableWorkspaceFingerprint = useMemo(
+    () =>
+      canonicalJsonStringify({
+        selectedRuleId,
+        aoiId: aoi?.id ?? null,
+        aoiHash: currentAoiFingerprint,
+        selectedStacItemId,
+        pins: evidencePins.map((pin) => ({
+          id: pin.id,
+          ruleId: pin.ruleId ?? null,
+          itemId: pin.itemId ?? null,
+          attachments: (pin.attachments ?? []).length,
+        })),
+        runs: verificationRuns.map((run) => ({ id: run.id, status: run.status, ended_at: run.ended_at ?? null })),
+      }),
+    [aoi?.id, currentAoiFingerprint, evidencePins, selectedRuleId, selectedStacItemId, verificationRuns],
+  );
+  const previousMutableWorkspaceRef = useRef<{ runId: string; fingerprint: string } | null>(null);
+  const ignoredMutableWorkspaceRunIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const previous = previousMutableWorkspaceRef.current;
+    const current = { runId: verifierBundle.runContext.runId, fingerprint: mutableWorkspaceFingerprint };
+    if (!previous || previous.runId !== current.runId) {
+      previousMutableWorkspaceRef.current = current;
+      return;
+    }
+    if (previous.fingerprint === current.fingerprint) return;
+    if (ignoredMutableWorkspaceRunIdRef.current === current.runId) {
+      ignoredMutableWorkspaceRunIdRef.current = null;
+      previousMutableWorkspaceRef.current = current;
+      return;
+    }
+    previousMutableWorkspaceRef.current = current;
+    setVerifierBundle((bundle) => markBundleEdited(bundle, { invalidateFinality: true }));
+  }, [markBundleEdited, mutableWorkspaceFingerprint, verifierBundle.runContext.runId]);
 
   const persistCurrentWorkspaceAsDraft = useCallback(() => {
     const historicalCurrent = runHistory.find((entry) => entry.runId === verifierBundle.runContext.runId) ?? null;
@@ -595,11 +687,19 @@ export default function ProofMapTab({
       }
       const loaded = loadRunFromHistory(methodCode, version, runId);
       if (!loaded) return;
+      const editableRun = createVerifierRunBundle(methodCode, version);
+      ignoredMutableWorkspaceRunIdRef.current = editableRun.runContext.runId;
       setVerifierBundle({
-        runContext: loaded.runContext,
+        runContext: editableRun.runContext,
         exportedAt: loaded.exportedAt ?? null,
+        savedReviewerArtifactAt: loaded.savedReviewerArtifactAt ?? loaded.exportedAt ?? null,
+        loadedFromRunId: runId,
+        derivedFromRunId: runId,
+        isEditedDraft: false,
         minutes: loaded.minutes ?? "",
         outcomeNote: loaded.outcomeNote ?? "",
+        draftMinutes: loaded.minutes ?? "",
+        draftOutcomeNote: loaded.outcomeNote ?? "",
         checklist: loaded.checklist ?? [],
         delta: loaded.delta ?? "",
         impact: loaded.impact ?? "",
@@ -611,11 +711,7 @@ export default function ProofMapTab({
       onSelectStacItemId(loaded.selectedStacItemId ?? null);
       onSelectRuleId?.(loaded.selectedRuleId ?? null);
       onEvidenceSelectionChange?.(null);
-      setLoadedRunId(runId);
-      showToast({
-        title: `Loaded run ${shortRunId(runId)}`,
-        subtitle: "Saved evidence and review state restored",
-      });
+      showToast({ title: `Loaded run ${shortRunId(runId)}`, subtitle: "Saved evidence and review state restored" });
     },
     [
       hasUnsavedWorkspaceEdits,
@@ -642,7 +738,7 @@ export default function ProofMapTab({
 
   const handleSearchStac = useCallback(async () => {
     if (!aoi) return;
-    setLoadedRunId(null);
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     setError(null);
     if (isRunning) return;
     if (!currentAoiFingerprint) return;
@@ -756,6 +852,7 @@ export default function ProofMapTab({
     onSelectStacItemId,
     onSetStacEvidenceState,
     onSetVerificationRuns,
+    markBundleEdited,
     showToast,
     verificationRuns,
     version,
@@ -790,7 +887,6 @@ export default function ProofMapTab({
     onEvidenceSelectionChange?.(null);
     onSelectRuleId?.(null);
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
-    setLoadedRunId(null);
     showToast({ title: "Started new run", subtitle: "Fresh review workspace created" });
   }, [
     methodCode,
@@ -819,7 +915,7 @@ export default function ProofMapTab({
   );
 
   const selectEvidence = (id: string, source: "pin" | "polygon") => {
-    setLoadedRunId(null);
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     onSelectStacItemId(id);
     setLastSelectionSource(source);
     setStacInspectOpen(true);
@@ -1284,7 +1380,25 @@ export default function ProofMapTab({
   }, [baselineComparable.ok, latestBaseline, runKpis]);
   const baselineActionsDisabled = baselineMissing.length > 0;
   const baselineDisabledTooltip = "Load AOI to enable baseline comparisons";
-  const compareTargetLabel = loadedRunId ? `Loaded run ${loadedRunId}` : "Workspace (unsaved)";
+  const compareTargetLabel = verifierBundle.loadedFromRunId
+    ? `Loaded from run ${shortRunId(verifierBundle.loadedFromRunId)}`
+    : "Current workspace";
+  const comparisonUnavailableMessage = useMemo(() => {
+    if (!latestBaseline) return null;
+    if (baselineComparable.ok) return null;
+    if (verifierBundle.isEditedDraft || verifierBundle.loadedFromRunId) {
+      return {
+        title: "Comparison unavailable: current workspace changed since baseline",
+        detail: "AOI, selected evidence, pin changes, or unsaved draft edits can invalidate baseline comparison.",
+      };
+    }
+    return {
+      title: "Comparison unavailable",
+      detail:
+        baselineComparable.reasons.join("; ") ||
+        "Current workspace does not match the method, version, harness, or dataset context used for the baseline.",
+    };
+  }, [baselineComparable, latestBaseline, verifierBundle.isEditedDraft, verifierBundle.loadedFromRunId]);
   const runStatusDetails = useMemo(
     () =>
       getVerifyRunStatusDetails({
@@ -1308,6 +1422,7 @@ export default function ProofMapTab({
       verifierBundle.outcomeNote,
     ],
   );
+  const currentWorkspaceIsFinal = runStatusDetails.status === "review_complete" && !verifierBundle.loadedFromRunId && !verifierBundle.isEditedDraft;
 
   const badgeForRun = useCallback(
     (entry: VerifyRunHistoryEntry) => {
@@ -1444,6 +1559,7 @@ export default function ProofMapTab({
         created_at: ts,
       };
       onSetEvidencePins([pin, ...evidencePins]);
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
       showToast(`Pinned ${currentPinItemId} to ${selectedRuleId}`);
     } catch (error) {
       setError(error instanceof Error ? error.message : String(error));
@@ -1455,6 +1571,7 @@ export default function ProofMapTab({
     currentPinItemId,
     currentStacEvidence?.runId,
     evidencePins,
+    markBundleEdited,
     methodCode,
     onSetEvidencePins,
     selectedRuleId,
@@ -1535,12 +1652,25 @@ export default function ProofMapTab({
       tasks: verifierBundle.tasks,
     };
 
-    setVerifierBundle((current) => ({ ...current, runContext: nextRunContext, exportedAt, checklist: checklistAfterExport }));
+    setVerifierBundle((current) => ({
+      ...current,
+      runContext: nextRunContext,
+      exportedAt,
+      checklist: checklistAfterExport,
+      loadedFromRunId: null,
+      isEditedDraft: false,
+    }));
     handleSaveRunHistory({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
       exportedAt,
+      savedReviewerArtifactAt: verifierBundle.savedReviewerArtifactAt,
+      loadedFromRunId: null,
+      derivedFromRunId: verifierBundle.derivedFromRunId,
+      isEditedDraft: false,
       minutes: verifierSnapshot.minutes,
       outcomeNote: verifierSnapshot.outcomeNote,
+      draftMinutes: verifierBundle.draftMinutes,
+      draftOutcomeNote: verifierBundle.draftOutcomeNote,
       delta: verifierSnapshot.delta,
       impact: verifierSnapshot.impact,
       checklist: verifierSnapshot.checklist,
@@ -1715,6 +1845,9 @@ export default function ProofMapTab({
         }
       }
       onStartOver();
+      onSetStacEvidenceState(null);
+      onSelectRuleId?.(null);
+      setVerifierBundle(createVerifierRunBundle(methodCode, version));
 
       setError(null);
       setSnapshot(null);
@@ -1735,9 +1868,13 @@ export default function ProofMapTab({
     }
   }, [
     evidencePins,
+    methodCode,
     onStartOver,
+    onSelectRuleId,
+    onSetStacEvidenceState,
     showToast,
     startOverBusy,
+    version,
   ]);
 
   useEffect(() => {
@@ -2687,7 +2824,7 @@ export default function ProofMapTab({
                   className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                   onClick={handleNewRun}
                 >
-                  New run
+                  {runStatusDetails.status === "review_complete" ? "Start another run" : "New run"}
                 </button>
                 <button
                   type="button"
@@ -2720,6 +2857,21 @@ export default function ProofMapTab({
                   >
                     {runStatusDetails.label}
                   </span>
+                  {currentWorkspaceIsFinal ? (
+                    <span className="rounded-full border border-slate-300 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                      Final
+                    </span>
+                  ) : null}
+                  {verifierBundle.loadedFromRunId ? (
+                    <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                      Loaded from Run {loadedFromRunLabel}
+                    </span>
+                  ) : null}
+                  {verifierBundle.isEditedDraft ? (
+                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                      Edited draft
+                    </span>
+                  ) : null}
                   {hasUnsavedWorkspaceEdits ? (
                     <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
                       Unsaved edits
@@ -2730,6 +2882,11 @@ export default function ProofMapTab({
             </div>
 
             <RunStatusCard details={runStatusDetails} />
+            {currentWorkspaceIsFinal ? (
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+                This run is final. Start another run to continue editing in a fresh workspace.
+              </div>
+            ) : null}
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-sm font-semibold text-slate-900">Baseline</div>
@@ -2748,12 +2905,12 @@ export default function ProofMapTab({
                       <span className="font-semibold text-emerald-700">Comparable ✅</span>
                     </Tooltip>
                   ) : (
-                    <Tooltip content={baselineComparable.reasons.join("; ") || "Not comparable"}>
-                      <span className="font-semibold text-amber-700">
-                        Not comparable
-                        {baselineComparable.reasons[0] ? ` (${baselineComparable.reasons[0]})` : ""}
-                      </span>
-                    </Tooltip>
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                      <div className="font-semibold text-amber-800">{comparisonUnavailableMessage?.title ?? "Comparison unavailable"}</div>
+                      <div className="mt-1 text-[11px] text-amber-700">
+                        {comparisonUnavailableMessage?.detail ?? "Current workspace cannot be compared to the saved baseline."}
+                      </div>
+                    </div>
                   )}
                 </div>
               ) : null}
@@ -2820,10 +2977,15 @@ export default function ProofMapTab({
             {verifierBundle.exportedAt ? (
               <VerifierMinutesPanel
                 runContext={verifierBundle.runContext}
-                minutes={verifierBundle.minutes}
-                outcomeNote={verifierBundle.outcomeNote}
+                draftMinutes={verifierBundle.draftMinutes}
+                draftOutcomeNote={verifierBundle.draftOutcomeNote}
+                savedMinutes={verifierBundle.minutes}
+                savedOutcomeNote={verifierBundle.outcomeNote}
+                savedAt={verifierBundle.savedReviewerArtifactAt}
+                isFinal={currentWorkspaceIsFinal}
                 onMinutesChange={handleMinutesChange}
                 onOutcomeNoteChange={handleOutcomeNoteChange}
+                onSave={handleSaveReviewerArtifact}
               />
             ) : null}
             <DeltaImpactTasksPanel
@@ -2851,14 +3013,14 @@ export default function ProofMapTab({
               <div className="px-3 pb-3">
                 <div className="mb-3 text-xs text-slate-500">
                   <div>New run starts a fresh review.</div>
-                  <div>Load restores a saved run.</div>
+                  <div>Load restores this run into the editable workspace.</div>
                 </div>
                 <RunHistoryPanel
                   items={runHistory}
                   onLoad={handleLoadRunHistory}
                   onDelete={handleDeleteRunHistory}
                   showTitle={false}
-                  activeRunId={currentRunId}
+                  activeRunId={activeHistoryRunId}
                   badgeForRun={badgeForRun}
                 />
               </div>

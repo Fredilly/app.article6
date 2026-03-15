@@ -152,8 +152,14 @@ test("Verify run history load restores state and highlights current row", async 
       JSON.stringify({
         runContext: { runId: "run-current", createdAt: "2026-03-01T00:00:00Z" },
         exportedAt: "2026-03-01T00:05:00Z",
+        savedReviewerArtifactAt: "2026-03-01T00:06:00Z",
+        loadedFromRunId: null,
+        derivedFromRunId: null,
+        isEditedDraft: false,
         minutes: "Current draft minutes",
+        draftMinutes: "Current draft minutes",
         outcomeNote: "",
+        draftOutcomeNote: "",
         checklist: [],
         delta: "",
         impact: "",
@@ -169,8 +175,14 @@ test("Verify run history load restores state and highlights current row", async 
           bundle: {
             runContext: { runId: "run-loaded", createdAt: "2026-02-28T00:00:00Z" },
             exportedAt: "2026-02-28T00:05:00Z",
+            savedReviewerArtifactAt: "2026-02-28T00:06:00Z",
+            loadedFromRunId: null,
+            derivedFromRunId: null,
+            isEditedDraft: false,
             minutes: "Loaded run minutes",
+            draftMinutes: "Loaded run minutes",
             outcomeNote: "Loaded outcome",
+            draftOutcomeNote: "Loaded outcome",
             checklist: [],
             delta: "",
             impact: "",
@@ -198,5 +210,9 @@ test("Verify run history load restores state and highlights current row", async 
   await expect(page.getByText("Loaded run")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("Saved evidence and review state restored")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("active-run-history-row")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId("current-run-indicator")).toContainText("loaded");
+  await expect(page.getByText("Loaded from Run loaded")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("current-run-indicator")).not.toContainText("loaded");
+  await expect(page.getByTestId("verifier-minutes-textarea")).toHaveValue("Loaded run minutes");
+  await page.getByTestId("verifier-minutes-textarea").fill("Edited loaded run minutes");
+  await expect(page.getByText("Edited draft")).toBeVisible({ timeout: 30_000 });
 });

@@ -87,7 +87,8 @@ describe("getVerifyRunStatusDetails", () => {
     });
 
     expect(status.status).toBe("evidence_pack_complete");
-    expect(status.missing).toEqual(["Add verifier minutes or an outcome note"]);
+    expect(status.missing).toEqual(["Save reviewer artifact"]);
+    expect(status.nextAction).toBe("Save reviewer artifact");
   });
 
   it("returns review complete when minutes or outcome note is present", () => {
@@ -195,6 +196,12 @@ describe("verifier run bundle storage", () => {
     expect(bundle.runContext.runId).toContain("AR-1-v1-");
     expect(bundle.checklist.length).toBeGreaterThan(0);
     expect(bundle.tasks).toEqual([]);
+    expect(bundle.savedReviewerArtifactAt).toBeNull();
+    expect(bundle.loadedFromRunId).toBeNull();
+    expect(bundle.derivedFromRunId).toBeNull();
+    expect(bundle.isEditedDraft).toBe(false);
+    expect(bundle.draftMinutes).toBe("");
+    expect(bundle.draftOutcomeNote).toBe("");
   });
 
   it("creates a fresh run with a new run id and cleared review state", () => {
@@ -205,6 +212,8 @@ describe("verifier run bundle storage", () => {
     expect(second.exportedAt).toBeNull();
     expect(second.minutes).toBe("");
     expect(second.outcomeNote).toBe("");
+    expect(second.draftMinutes).toBe("");
+    expect(second.draftOutcomeNote).toBe("");
     expect(second.delta).toBe("");
     expect(second.impact).toBe("");
     expect(second.tasks).toEqual([]);
@@ -215,12 +224,28 @@ describe("verifier run bundle storage", () => {
     storage.clear();
 
     const bundle = createVerifierRunBundle("AR-2", "v2");
-    const updated = { ...bundle, minutes: "Checked AOI and evidence." };
+    const updated = {
+      ...bundle,
+      minutes: "Checked AOI and evidence.",
+      draftMinutes: "Checked AOI and evidence.",
+      outcomeNote: "Looks stable.",
+      draftOutcomeNote: "Looks stable.",
+      savedReviewerArtifactAt: "2026-01-01T00:00:00Z",
+      loadedFromRunId: "run-source",
+      derivedFromRunId: "run-source",
+      isEditedDraft: true,
+    };
     persistVerifierRunBundle("AR-2", "v2", updated);
 
     const read = readVerifierRunBundle("AR-2", "v2");
     expect(read.minutes).toBe("Checked AOI and evidence.");
-    expect(read.outcomeNote).toBe("");
+    expect(read.outcomeNote).toBe("Looks stable.");
+    expect(read.draftMinutes).toBe("Checked AOI and evidence.");
+    expect(read.draftOutcomeNote).toBe("Looks stable.");
+    expect(read.savedReviewerArtifactAt).toBe("2026-01-01T00:00:00Z");
+    expect(read.loadedFromRunId).toBe("run-source");
+    expect(read.derivedFromRunId).toBe("run-source");
+    expect(read.isEditedDraft).toBe(true);
     expect(storage.getItem(buildVerifyRunKey("AR-2", "v2"))).toBeTruthy();
   });
 });
