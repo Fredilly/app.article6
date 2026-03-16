@@ -23,8 +23,6 @@ describe("EvidenceWorkflowStepper", () => {
         onUploadAoi={() => {}}
         onSearchStac={() => {}}
         onCreatePin={() => {}}
-        onExportEvidencePack={() => {}}
-        exportedAt="2026-01-01T00:00:00Z"
         draftMinutes="Saved reviewer text"
         draftOutcomeNote=""
         savedMinutes="Saved reviewer text"
@@ -45,7 +43,6 @@ describe("EvidenceWorkflowStepper", () => {
           stacItemIds: ["item-1"],
           selectedStacItemId: "item-1",
           linkedRuleIds: ["R-1"],
-          snapshotExportedAt: "2026-01-01T00:00:00Z",
           reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
         })}
         onStartAnotherRun={() => {}}
@@ -54,11 +51,8 @@ describe("EvidenceWorkflowStepper", () => {
     );
 
     expect(html).toContain("Step 6");
-    expect(html).toContain("Evidence pack checkpoint");
-    expect(html).toContain("Optional utility");
-    expect(html).toContain("Step 7");
     expect(html).toContain("Save reviewer artifact");
-    expect(html).toContain("Step 8");
+    expect(html).toContain("Step 7");
     expect(html).toContain("Finalize run");
     expect(html).toContain("Reviewer artifact saved");
     expect(html).toContain("Ready to finalize");
@@ -83,8 +77,6 @@ describe("EvidenceWorkflowStepper", () => {
         onUploadAoi={() => {}}
         onSearchStac={() => {}}
         onCreatePin={() => {}}
-        onExportEvidencePack={() => {}}
-        exportedAt="2026-01-01T00:00:00Z"
         draftMinutes="Saved reviewer text"
         draftOutcomeNote=""
         savedMinutes="Saved reviewer text"
@@ -105,7 +97,6 @@ describe("EvidenceWorkflowStepper", () => {
           stacItemIds: ["item-1"],
           selectedStacItemId: "item-1",
           linkedRuleIds: ["R-1"],
-          snapshotExportedAt: "2026-01-01T00:00:00Z",
           reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
           finalizedAt: "2026-01-01T00:06:00Z",
         })}

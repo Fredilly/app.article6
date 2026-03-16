@@ -151,7 +151,7 @@ describe("getVerifyRunStatusDetails", () => {
 });
 
 describe("getVerifyWizardStepDetails", () => {
-  it("resolves steps 1 through 8 in order", () => {
+  it("resolves steps 1 through 7 in order", () => {
     expect(getVerifyWizardStepDetails({}).activeStep).toBe(1);
     expect(getVerifyWizardStepDetails({ selectedRuleId: "R-1" }).activeStep).toBe(2);
     expect(getVerifyWizardStepDetails({ selectedRuleId: "R-1", aoiHash: "aoi" }).activeStep).toBe(3);
@@ -172,7 +172,7 @@ describe("getVerifyWizardStepDetails", () => {
         selectedStacItemId: "item-1",
         linkedRuleIds: ["R-1"],
       }).activeStep,
-    ).toBe(7);
+    ).toBe(6);
     expect(
       getVerifyWizardStepDetails({
         selectedRuleId: "R-1",
@@ -182,7 +182,7 @@ describe("getVerifyWizardStepDetails", () => {
         linkedRuleIds: ["R-1"],
         snapshotExportedAt: "2026-01-01T00:00:00Z",
       }).activeStep,
-    ).toBe(7);
+    ).toBe(6);
     expect(
       getVerifyWizardStepDetails({
         selectedRuleId: "R-1",
@@ -193,7 +193,7 @@ describe("getVerifyWizardStepDetails", () => {
         snapshotExportedAt: "2026-01-01T00:00:00Z",
         reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
       }).activeStep,
-    ).toBe(8);
+    ).toBe(7);
   });
 
   it("reports completion only after finalization", () => {
@@ -222,8 +222,7 @@ describe("getVerifyWizardStepDetails", () => {
       linkedRuleIds: ["R-1"],
     });
 
-    expect(details.steps.find((step) => step.id === 6)?.active).toBe(false);
-    expect(details.steps.find((step) => step.id === 7)?.active).toBe(true);
+    expect(details.steps.find((step) => step.id === 6)?.active).toBe(true);
     expect(details.nextAction).toBe("Save reviewer artifact");
   });
 });

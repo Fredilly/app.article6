@@ -26,13 +26,15 @@ test("persists stac items in evidence snapshot export (DEMO-002)", async () => {
     outcome: {
       aoi: { hash: "aoi-hash", bbox: [0, 0, 1, 1], areaKm2: 12.5 },
       stac: { query: { collection: "c-1" }, itemIds: ["stac-1", "stac-2"] },
-      linkage: { linkedRuleIds: ["rule-1"] },
+      linkage: { selectedRuleId: "rule-1", linkedRuleIds: ["rule-1"] },
       exportState: { snapshotExportedAt: null },
       verifier: {
         runId: "run-1",
         createdAt: "2026-01-01T00:00:00Z",
         minutes: "",
         outcomeNote: "",
+        finalizedAt: null,
+        finalizedState: "draft",
         delta: "",
         impact: "",
         checklist: [],
@@ -71,6 +73,8 @@ test("includes verifier minutes + checklist in snapshot", async () => {
       createdAt: "2026-01-01T01:01:01Z",
       minutes: "Checked inputs.",
       outcomeNote: "Outcome is stable.",
+      finalizedAt: "2026-01-01T01:05:00Z",
+      finalizedState: "finalized",
       delta: "Detected new AOI boundaries.",
       impact: "Risk: mild drift in area coverage.",
       checklist: [
@@ -91,6 +95,8 @@ test("includes verifier minutes + checklist in snapshot", async () => {
   expect(snapshot.verifier?.runId).toBe("AR-1-v1-20260101010101");
   expect(snapshot.verifier?.minutes).toBe("Checked inputs.");
   expect(snapshot.verifier?.outcomeNote).toBe("Outcome is stable.");
+  expect(snapshot.verifier?.finalizedAt).toBe("2026-01-01T01:05:00Z");
+  expect(snapshot.verifier?.finalizedState).toBe("finalized");
   expect(snapshot.verifier?.delta).toBe("Detected new AOI boundaries.");
   expect(snapshot.verifier?.tasks).toHaveLength(1);
   expect(snapshot.verifier?.checklist).toHaveLength(1);
@@ -105,6 +111,8 @@ test("keeps verifier tasks empty when none provided", async () => {
       createdAt: "2026-01-02T02:02:02Z",
       minutes: "",
       outcomeNote: "",
+      finalizedAt: null,
+      finalizedState: "draft",
       delta: "",
       impact: "",
       checklist: [],
@@ -113,4 +121,33 @@ test("keeps verifier tasks empty when none provided", async () => {
   });
 
   expect(snapshot.verifier?.tasks).toEqual([]);
+});
+
+test("includes selected rule in the final artifact outcome", async () => {
+  const snapshot = await buildEvidenceSnapshot({
+    method: { code: "AR-3", version: "v3" },
+    evidence_source: { type: "stac_url", ref: "https://example.test" },
+    outcome: {
+      aoi: { hash: "aoi-hash", bbox: [0, 0, 1, 1], areaKm2: 10 },
+      stac: { query: { source: "https://example.test" }, itemIds: ["stac-1"] },
+      linkage: { selectedRuleId: "R-9", linkedRuleIds: ["R-9"] },
+      exportState: { snapshotExportedAt: "2026-01-03T00:00:00Z" },
+      verifier: {
+        runId: "run-9",
+        createdAt: "2026-01-03T00:00:00Z",
+        minutes: "Saved reviewer note",
+        outcomeNote: "Stable",
+        finalizedAt: "2026-01-03T00:01:00Z",
+        finalizedState: "finalized",
+        delta: "",
+        impact: "",
+        checklist: [],
+        tasks: [],
+      },
+      provenance: { methodCode: "AR-3", version: "v3", snapshotSchemaVersion: "evidence-snapshot/v2" },
+    },
+  });
+
+  expect(snapshot.outcome?.linkage.selectedRuleId).toBe("R-9");
+  expect(snapshot.verifier?.minutes).toBe("Saved reviewer note");
 });

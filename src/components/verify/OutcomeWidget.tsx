@@ -224,7 +224,7 @@ export default function OutcomeWidget({
                 className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700"
                 onClick={onExportSnapshot}
               >
-                Export snapshot
+                Export checkpoint
               </button>
               {showCreateTicket && onCreateTicket ? (
                 <button

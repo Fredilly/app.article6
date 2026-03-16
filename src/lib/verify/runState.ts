@@ -17,6 +17,7 @@ export type RunSummary = {
     itemIds: string[];
   };
   linkage: {
+    selectedRuleId: string | null;
     linkedRuleIds: string[];
   };
   exportState: {
@@ -27,6 +28,8 @@ export type RunSummary = {
     createdAt: string | null;
     minutes: string;
     outcomeNote: string;
+    finalizedAt: string | null;
+    finalizedState: "draft" | "finalized";
     checklist: VerifierChecklistItem[];
     delta: string;
     impact: string;
@@ -92,7 +95,7 @@ export type VerifyRunStatusDetails = {
   nextAction: string | null;
 };
 
-export type VerifyWizardStepId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type VerifyWizardStepId = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export type VerifyWizardStepDetails = {
   activeStep: VerifyWizardStepId | null;
@@ -641,6 +644,7 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       itemIds: uniqSorted(input.stac?.itemIds),
     },
     linkage: {
+      selectedRuleId: input.linkage?.selectedRuleId ?? null,
       linkedRuleIds: uniqSorted(input.linkage?.linkedRuleIds),
     },
     exportState: {
@@ -651,6 +655,8 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       createdAt: input.verifier?.createdAt ?? null,
       minutes: input.verifier?.minutes ?? "",
       outcomeNote: input.verifier?.outcomeNote ?? "",
+      finalizedAt: input.verifier?.finalizedAt ?? null,
+      finalizedState: input.verifier?.finalizedState ?? "draft",
       checklist: input.verifier?.checklist ?? [],
       delta: input.verifier?.delta ?? "",
       impact: input.verifier?.impact ?? "",
@@ -742,7 +748,6 @@ export function getVerifyWizardStepDetails(input: {
   const hasSearchResults = Boolean(input.stacItemIds?.length);
   const hasSelectedItem = Boolean(input.selectedStacItemId?.trim());
   const hasPins = Boolean(input.linkedRuleIds?.length);
-  const hasExport = Boolean(input.snapshotExportedAt?.trim());
   const hasSavedReviewerArtifact = Boolean(input.reviewerArtifactSavedAt?.trim());
   const isFinalized = Boolean(input.finalizedAt?.trim());
 
@@ -752,8 +757,8 @@ export function getVerifyWizardStepDetails(input: {
     !hasSearchResults ? 3 :
     !hasSelectedItem ? 4 :
     !hasPins ? 5 :
-    !hasSavedReviewerArtifact ? 7 :
-    !isFinalized ? 8 :
+    !hasSavedReviewerArtifact ? 6 :
+    !isFinalized ? 7 :
     null;
 
   const steps: VerifyWizardStepDetails["steps"] = [
@@ -762,9 +767,8 @@ export function getVerifyWizardStepDetails(input: {
     { id: 3, label: "Search STAC", complete: hasSearchResults, active: activeStep === 3, disabled: !hasAoi },
     { id: 4, label: "Select item", complete: hasSelectedItem, active: activeStep === 4, disabled: !hasSearchResults },
     { id: 5, label: "Create/link pin", complete: hasPins, active: activeStep === 5, disabled: !hasSelectedItem || !hasRule },
-    { id: 6, label: "Export evidence pack", complete: hasExport, active: false, disabled: !hasPins },
-    { id: 7, label: "Save reviewer artifact", complete: hasSavedReviewerArtifact, active: activeStep === 7, disabled: !hasPins },
-    { id: 8, label: "Finalize run", complete: isFinalized, active: activeStep === 8, disabled: !hasPins || !hasSavedReviewerArtifact },
+    { id: 6, label: "Save reviewer artifact", complete: hasSavedReviewerArtifact, active: activeStep === 6, disabled: !hasPins },
+    { id: 7, label: "Finalize run", complete: isFinalized, active: activeStep === 7, disabled: !hasPins || !hasSavedReviewerArtifact },
   ];
 
   return {

@@ -681,24 +681,6 @@ export default function ProofMapTab({
     [buildHistoryBundle, methodCode, version],
   );
 
-  const handleFinalizeRun = useCallback(() => {
-    if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
-    const finalizedAt = new Date().toISOString();
-    setVerifierBundle((current) => ({
-      ...current,
-      finalizedAt,
-      loadedFromRunId: null,
-      isEditedDraft: false,
-    }));
-    handleSaveRunHistory({
-      ...buildHistoryBundle(),
-      finalizedAt,
-      loadedFromRunId: null,
-      isEditedDraft: false,
-    });
-    showToast({ title: "Run complete", subtitle: "Finalized run locked in history" });
-  }, [buildHistoryBundle, handleSaveRunHistory, linkedRuleIds.length, showToast, verifierBundle.savedReviewerArtifactAt]);
-
   const handleLoadRunHistory = useCallback(
     (runId: string) => {
       if (runId === verifierBundle.runContext.runId) return;
@@ -1321,6 +1303,7 @@ export default function ProofMapTab({
           itemIds: stacFeatureIds,
         },
         linkage: {
+          selectedRuleId,
           linkedRuleIds,
         },
         exportState: {
@@ -1331,6 +1314,8 @@ export default function ProofMapTab({
           createdAt: verifierBundle.runContext.createdAt,
           minutes: verifierBundle.minutes,
           outcomeNote: verifierBundle.outcomeNote,
+          finalizedAt: verifierBundle.finalizedAt,
+          finalizedState: verifierBundle.finalizedAt ? "finalized" : "draft",
           checklist: verifierBundle.checklist,
           delta: verifierBundle.delta,
           impact: verifierBundle.impact,
@@ -1348,6 +1333,7 @@ export default function ProofMapTab({
       aoi?.bbox,
       currentAoiFingerprint,
       linkedRuleIds,
+      selectedRuleId,
       methodCode,
       stacFeatureIds,
       stacQuery,
@@ -1453,49 +1439,245 @@ export default function ProofMapTab({
     ],
   );
   const currentWorkspaceIsFinal = Boolean(verifierBundle.finalizedAt);
-  const leftPaneFocus = useMemo(() => {
+  const ruleSectionRef = useRef<HTMLDivElement | null>(null);
+  const aoiSectionRef = useRef<HTMLDivElement | null>(null);
+  const stacSectionRef = useRef<HTMLDivElement | null>(null);
+  const selectedItemSectionRef = useRef<HTMLDivElement | null>(null);
+  const pinsSectionRef = useRef<HTMLDivElement | null>(null);
+  const reviewerSectionRef = useRef<HTMLDivElement | null>(null);
+  const finalSummarySectionRef = useRef<HTMLDivElement | null>(null);
+  const activeLeftSection = useMemo(() => {
+    switch (wizardDetails.activeStep) {
+      case 1:
+        return "rule";
+      case 2:
+        return "aoi";
+      case 3:
+        return "stac";
+      case 4:
+        return "selected";
+      case 5:
+        return "pins";
+      case 6:
+        return "reviewer";
+      case 7:
+        return "summary";
+      default:
+        return "summary";
+    }
+  }, [wizardDetails.activeStep]);
+  const leftPaneHeader = useMemo(() => {
     if (wizardDetails.isComplete) {
       return {
         title: "Run complete",
-        detail: "This workspace is finalized. Start another run to continue with a fresh review.",
-        className: "border-emerald-200 bg-emerald-50",
+        instruction: "This workspace is finalized. Start another run to continue with a fresh review.",
+        stepLabel: "Complete",
       };
     }
     switch (wizardDetails.activeStep) {
+      case 1:
+        return { title: "Pick rule", instruction: "Choose the rule you are verifying before building evidence context.", stepLabel: "Step 1 of 7" };
+      case 2:
+        return { title: "Confirm AOI", instruction: "Upload or confirm the AOI so the evidence search has a clear scope.", stepLabel: "Step 2 of 7" };
       case 3:
-        return {
-          title: "Active step: Search STAC",
-          detail: "Use the evidence pane to inspect search results as they load.",
-          className: "border-amber-200 bg-amber-50",
-        };
+        return { title: "Search STAC", instruction: "Run the evidence search and inspect the returned context in the left pane.", stepLabel: "Step 3 of 7" };
       case 4:
-        return {
-          title: "Active step: Select item",
-          detail: "Pick one STAC item from the list or map to continue the wizard.",
-          className: "border-sky-200 bg-sky-50",
-        };
+        return { title: "Select item", instruction: "Pick the most relevant STAC item from the returned evidence set.", stepLabel: "Step 4 of 7" };
       case 5:
-        return {
-          title: "Active step: Create/link pin",
-          detail: "Confirm the selected evidence item here, then link it to the rule in the wizard.",
-          className: "border-sky-200 bg-sky-50",
-        };
+        return { title: "Create/link pin", instruction: "Link the selected evidence item to the rule so the run has durable evidence state.", stepLabel: "Step 5 of 7" };
       case 6:
+        return { title: "Save reviewer artifact", instruction: "Write concise reviewer notes, then save them explicitly before finalization.", stepLabel: "Step 6 of 7" };
       case 7:
-      case 8:
-        return {
-          title: "Primary action moved to the wizard",
-          detail: "The evidence workspace is ready. Finish export, reviewer save, and finalization in the right pane.",
-          className: "border-slate-200 bg-slate-50",
-        };
+        return { title: "Finalize run", instruction: "Finalize to export the single immutable run artifact with evidence and reviewer notes.", stepLabel: "Step 7 of 7" };
       default:
-        return {
-          title: "Primary action is in the wizard",
-          detail: "Use the right pane to pick the rule and confirm the AOI before working in the evidence pane.",
-          className: "border-slate-200 bg-slate-50",
-        };
+        return { title: "Verify run", instruction: "Use the right pane to continue the canonical wizard flow.", stepLabel: "Step" };
     }
   }, [wizardDetails.activeStep, wizardDetails.isComplete]);
+
+  useEffect(() => {
+    const ref =
+      activeLeftSection === "rule" ? ruleSectionRef :
+      activeLeftSection === "aoi" ? aoiSectionRef :
+      activeLeftSection === "stac" ? stacSectionRef :
+      activeLeftSection === "selected" ? selectedItemSectionRef :
+      activeLeftSection === "pins" ? pinsSectionRef :
+      activeLeftSection === "reviewer" ? reviewerSectionRef :
+      finalSummarySectionRef;
+    ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeLeftSection]);
+
+  const handleFinalizeRun = useCallback(() => {
+    if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
+    void (async () => {
+      const selectedItem =
+        selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
+          ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
+          : null;
+      const linkedRules = selectedItem
+        ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
+        : [];
+      const minimalItem = selectedItem
+        ? {
+            id: selectedStacItemId ?? undefined,
+            datetime:
+              isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
+                ? selectedItem.properties.datetime
+                : typeof selectedItem.datetime === "string"
+                  ? selectedItem.datetime
+                  : undefined,
+            bbox: selectedItem.bbox,
+            geometry: selectedItem.geometry,
+            linked_rules: linkedRules,
+          }
+        : undefined;
+      const finalItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
+      const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+      const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
+      const evidenceSource =
+        stacEndpointUrl
+          ? { type: "stac_url" as const, ref: stacEndpointUrl }
+          : localEvidenceHashInputs
+            ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
+            : { type: "unknown" as const, ref: "unknown" };
+      const stacItemsJson = (() => {
+        if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] };
+        if (!latestStacRun.result_json) return { items: [] };
+        const normalized = normalizeStacItems(latestStacRun.result_json);
+        const items = Object.values(normalized.itemsById).map((item) => {
+          const props = isRecord(item.properties) ? item.properties : null;
+          const collection = props && typeof props.collection === "string" ? props.collection : undefined;
+          const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
+          return {
+            id: item.id,
+            datetime: item.datetime,
+            bbox: item.bbox,
+            collection,
+            cloud_cover: cloudCover,
+          };
+        });
+        return { items };
+      })();
+      const finalizedAt = new Date().toISOString();
+      const nextRunContext =
+        activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
+          ? createVerifierRunBundle(methodCode, version).runContext
+          : verifierBundle.runContext;
+      const finalSummary = buildRunSummary({
+        ...runSummary,
+        linkage: {
+          ...runSummary.linkage,
+          selectedRuleId,
+          linkedRuleIds,
+        },
+        exportState: {
+          ...runSummary.exportState,
+          snapshotExportedAt: finalizedAt,
+        },
+        verifier: {
+          ...runSummary.verifier,
+          runId: nextRunContext.runId,
+          createdAt: nextRunContext.createdAt,
+          minutes: verifierBundle.minutes,
+          outcomeNote: verifierBundle.outcomeNote,
+          finalizedAt,
+          finalizedState: "finalized",
+          checklist: verifierBundle.checklist,
+          delta: verifierBundle.delta,
+          impact: verifierBundle.impact,
+          tasks: verifierBundle.tasks,
+        },
+        provenance: {
+          ...runSummary.provenance,
+          generatedAt: finalizedAt,
+        },
+      });
+      const kpis = computeKpis({
+        pins: evidencePins,
+        totalRules,
+        selectedEvidenceItemIds,
+        snapshotExportedAt: finalizedAt,
+      });
+      const artifact = await buildOutcomeSnapshot({
+        method: { code: methodCode, version },
+        aoi: aoi
+          ? {
+              bbox: aoi.bbox,
+              geojson: aoi.geojson,
+            }
+          : undefined,
+        evidence_source: evidenceSource,
+        selected: {
+          id: selectedStacItemId ?? undefined,
+          ids: selectedIds,
+          item: minimalItem ?? undefined,
+        },
+        items: finalItems,
+        app: {
+          commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
+          env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
+          version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
+        },
+        stacItemsJson,
+        outcome: finalSummary,
+        kpis,
+        verifier: {
+          runId: nextRunContext.runId,
+          createdAt: nextRunContext.createdAt,
+          minutes: verifierBundle.minutes,
+          outcomeNote: verifierBundle.outcomeNote,
+          finalizedAt,
+          finalizedState: "finalized",
+          delta: verifierBundle.delta,
+          impact: verifierBundle.impact,
+          checklist: verifierBundle.checklist,
+          tasks: verifierBundle.tasks,
+        },
+      });
+      const filename = `verify-final.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(nextRunContext.runId)}.json`;
+      downloadJson({ ...artifact, items: stacItemsJson.items ?? [] }, filename);
+      setVerifierBundle((current) => ({
+        ...current,
+        runContext: nextRunContext,
+        exportedAt: finalizedAt,
+        finalizedAt,
+        loadedFromRunId: null,
+        isEditedDraft: false,
+      }));
+      handleSaveRunHistory({
+        ...buildHistoryBundle(),
+        runContext: nextRunContext,
+        exportedAt: finalizedAt,
+        finalizedAt,
+        loadedFromRunId: null,
+        isEditedDraft: false,
+      });
+      showToast({ title: "Run complete", subtitle: "Final artifact exported and locked in history" });
+    })().catch((error) => {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("Finalize failed");
+    });
+  }, [
+    activeHistoryEntry,
+    aoi,
+    buildHistoryBundle,
+    currentStacEvidence?.itemsById,
+    currentWorkspaceBundle,
+    evidencePins,
+    handleSaveRunHistory,
+    latestStacRun,
+    linkedRuleIds,
+    localEvidenceHashInputs,
+    methodCode,
+    runSummary,
+    selectedEvidenceItemIds,
+    selectedRuleId,
+    selectedStacItemId,
+    showToast,
+    stacEndpointUrl,
+    totalRules,
+    verifierBundle,
+    version,
+  ]);
 
   const badgeForRun = useCallback(
     (entry: VerifyRunHistoryEntry) => {
@@ -1745,6 +1927,8 @@ export default function ProofMapTab({
       createdAt: nextRunContext.createdAt,
       minutes: verifierBundle.minutes,
       outcomeNote: verifierBundle.outcomeNote,
+      finalizedAt: null,
+      finalizedState: "draft" as const,
       delta: verifierBundle.delta,
       impact: verifierBundle.impact,
       checklist: checklistAfterExport,
@@ -2798,10 +2982,81 @@ export default function ProofMapTab({
           ) : null}
           <div
             data-testid="left-pane-step-focus"
-            className={`rounded-xl border px-4 py-3 text-sm ${leftPaneFocus.className}`}
+            className="sticky top-0 z-10 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
           >
-            <div className="font-semibold text-slate-900">{leftPaneFocus.title}</div>
-            <div className="mt-1 text-xs text-slate-600">{leftPaneFocus.detail}</div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-semibold text-slate-900">{leftPaneHeader.title}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{leftPaneHeader.stepLabel}</div>
+            </div>
+            <div className="mt-1 text-xs text-slate-600">{leftPaneHeader.instruction}</div>
+          </div>
+          <div className="grid gap-2">
+            <div
+              ref={ruleSectionRef}
+              data-testid="left-section-rule"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "rule" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule context</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{selectedRuleId ?? "No rule selected"}</div>
+            </div>
+            <div
+              ref={aoiSectionRef}
+              data-testid="left-section-aoi"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "aoi" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI summary</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{aoi?.name ?? "No AOI loaded"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">{bboxLabel ?? "Upload an AOI to continue."}</div>
+            </div>
+            <div
+              ref={stacSectionRef}
+              data-testid="left-section-stac"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "stac" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">STAC evidence</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{stacFeatureIds.length} item{stacFeatureIds.length === 1 ? "" : "s"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">{stacQuery.source ?? "Run a STAC search to load evidence context."}</div>
+            </div>
+            <div
+              ref={selectedItemSectionRef}
+              data-testid="left-section-selected"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "selected" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Selected item</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{selectedStacItemId ?? "No item selected"}</div>
+            </div>
+            <div
+              ref={pinsSectionRef}
+              data-testid="left-section-pins"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "pins" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence pins</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{evidencePins.length} link{evidencePins.length === 1 ? "" : "s"}</div>
+            </div>
+            <div
+              ref={reviewerSectionRef}
+              data-testid="left-section-reviewer"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "reviewer" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reviewer artifact</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">
+                {verifierBundle.savedReviewerArtifactAt ? "Saved reviewer artifact" : "Draft reviewer artifact"}
+              </div>
+              <div className="mt-1 line-clamp-2 text-[11px] text-slate-500">
+                {(verifierBundle.savedReviewerArtifactAt ? verifierBundle.minutes || verifierBundle.outcomeNote : verifierBundle.draftMinutes || verifierBundle.draftOutcomeNote) || "No reviewer notes yet."}
+              </div>
+            </div>
+            <div
+              ref={finalSummarySectionRef}
+              data-testid="left-section-summary"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "summary" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Final summary</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{currentWorkspaceIsFinal ? "Final artifact written" : "Not finalized yet"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                {currentWorkspaceIsFinal ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}` : "Finalize run to export the single immutable artifact."}
+              </div>
+            </div>
           </div>
           <div
             className={
@@ -2868,7 +3123,7 @@ export default function ProofMapTab({
             <div>
               <div className="text-sm font-semibold text-slate-900">Evidence workflow</div>
               <div className="mt-1 text-xs text-slate-500">
-                Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; export -&gt; reviewer save -&gt; finalize.
+                Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; reviewer save -&gt; finalize.
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -2947,8 +3202,6 @@ export default function ProofMapTab({
               void handleSearchStac();
             }}
             onCreatePin={handleCreatePin}
-            onExportEvidencePack={handleExportSnapshot}
-            exportedAt={verifierBundle.exportedAt}
             draftMinutes={verifierBundle.draftMinutes}
             draftOutcomeNote={verifierBundle.draftOutcomeNote}
             savedMinutes={verifierBundle.minutes}

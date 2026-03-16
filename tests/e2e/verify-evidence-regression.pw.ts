@@ -84,7 +84,6 @@ test("Verify evidence workflow creates pin and enables start run CTA", async ({ 
   });
   await page.waitForSelector("text=Evidence workflow", { timeout: 30_000 });
   await page.waitForSelector("text=Pick rule", { timeout: 30_000 });
-  await page.waitForSelector("text=Export evidence pack", { timeout: 30_000 });
   await page.waitForSelector("text=Save reviewer artifact", { timeout: 30_000 });
   await page.waitForSelector("text=Finalize run", { timeout: 30_000 });
   await page.waitForTimeout(500);

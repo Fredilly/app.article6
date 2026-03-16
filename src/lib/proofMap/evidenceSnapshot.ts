@@ -71,6 +71,7 @@ export const EvidenceSnapshotSchema = z
           itemIds: z.array(z.string()),
         }),
         linkage: z.object({
+          selectedRuleId: z.string().nullable(),
           linkedRuleIds: z.array(z.string()),
         }),
         exportState: z.object({
@@ -91,6 +92,8 @@ export const EvidenceSnapshotSchema = z
         createdAt: z.string().min(1),
         minutes: z.string(),
         outcomeNote: z.string(),
+        finalizedAt: z.string().nullable(),
+        finalizedState: z.enum(["draft", "finalized"]),
         delta: z.string(),
         impact: z.string(),
         checklist: z.array(
@@ -191,6 +194,8 @@ export async function buildEvidenceSnapshot(input: {
     createdAt: string;
     minutes: string;
     outcomeNote: string;
+    finalizedAt?: string | null;
+    finalizedState?: "draft" | "finalized";
     delta: string;
     impact: string;
     checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
