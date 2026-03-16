@@ -4,7 +4,7 @@ import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper
 import { getVerifyWizardStepDetails } from "@/lib/verify/runState";
 
 describe("EvidenceWorkflowStepper", () => {
-  it("renders steps 6 through 8 in the primary wizard flow", () => {
+  it("renders reviewer save and finalize as the main lifecycle actions", () => {
     const html = renderToStaticMarkup(
       <EvidenceWorkflowStepper
         ruleOptions={[{ id: "R-1", title: "Rule" }]}
@@ -54,11 +54,14 @@ describe("EvidenceWorkflowStepper", () => {
     );
 
     expect(html).toContain("Step 6");
-    expect(html).toContain("Export evidence pack");
+    expect(html).toContain("Evidence pack checkpoint");
+    expect(html).toContain("Optional utility");
     expect(html).toContain("Step 7");
     expect(html).toContain("Save reviewer artifact");
     expect(html).toContain("Step 8");
     expect(html).toContain("Finalize run");
+    expect(html).toContain("Reviewer artifact saved");
+    expect(html).toContain("Ready to finalize");
   });
 
   it("shows the completion card only after finalization", () => {

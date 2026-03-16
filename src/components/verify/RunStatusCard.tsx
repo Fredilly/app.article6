@@ -7,8 +7,9 @@ type RunStatusCardProps = {
 };
 
 function toneClass(status: VerifyRunStatusDetails["status"]): string {
-  if (status === "review_complete") return "border-emerald-200 bg-emerald-50 text-emerald-900";
-  if (status === "evidence_pack_complete") return "border-sky-200 bg-sky-50 text-sky-900";
+  if (status === "finalized") return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  if (status === "ready_to_finalize") return "border-sky-200 bg-sky-50 text-sky-900";
+  if (status === "reviewer_artifact_saved") return "border-amber-200 bg-amber-50 text-amber-900";
   return "border-slate-200 bg-white text-slate-900";
 }
 
@@ -22,7 +23,7 @@ export default function RunStatusCard({ details }: RunStatusCardProps) {
         </div>
         {details.status !== "in_progress" ? (
           <span className="rounded-full border border-current/15 bg-white/70 px-2 py-1 text-[11px] font-semibold">
-            {details.status === "review_complete" ? "Done" : "Exported"}
+            {details.status === "finalized" ? "Done" : "Pending"}
           </span>
         ) : null}
       </div>

@@ -682,7 +682,7 @@ export default function ProofMapTab({
   );
 
   const handleFinalizeRun = useCallback(() => {
-    if (!verifierBundle.exportedAt || !verifierBundle.savedReviewerArtifactAt) return;
+    if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
     const finalizedAt = new Date().toISOString();
     setVerifierBundle((current) => ({
       ...current,
@@ -697,7 +697,7 @@ export default function ProofMapTab({
       isEditedDraft: false,
     });
     showToast({ title: "Run complete", subtitle: "Finalized run locked in history" });
-  }, [buildHistoryBundle, handleSaveRunHistory, showToast, verifierBundle.exportedAt, verifierBundle.savedReviewerArtifactAt]);
+  }, [buildHistoryBundle, handleSaveRunHistory, linkedRuleIds.length, showToast, verifierBundle.savedReviewerArtifactAt]);
 
   const handleLoadRunHistory = useCallback(
     (runId: string) => {

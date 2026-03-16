@@ -58,57 +58,74 @@ describe("buildRunSummary", () => {
 });
 
 describe("getVerifyRunStatusDetails", () => {
-  it("returns in progress until export prerequisites are complete", () => {
+  it("returns in progress until evidence prerequisites are complete", () => {
     const status = getVerifyRunStatusDetails({
       selectedRuleId: "R-1",
       aoiHash: "aoi-1",
       stacItemIds: ["item-1"],
       selectedStacItemId: "item-1",
       linkedRuleIds: [],
-      snapshotExportedAt: null,
       minutes: "",
       outcomeNote: "",
     });
 
     expect(status.status).toBe("in_progress");
-    expect(status.missing).toEqual(["Link evidence to the rule", "Export the evidence pack"]);
+    expect(status.label).toBe("In progress");
+    expect(status.missing).toEqual(["Link evidence to the rule"]);
     expect(status.nextAction).toBe("Link evidence to the rule");
   });
 
-  it("returns evidence pack complete after export until reviewer artifact exists", () => {
+  it("requires explicit reviewer save after workspace prerequisites are met", () => {
     const status = getVerifyRunStatusDetails({
       selectedRuleId: "R-1",
       aoiHash: "aoi-1",
       stacItemIds: ["item-1"],
       selectedStacItemId: "item-1",
       linkedRuleIds: ["R-1"],
-      snapshotExportedAt: "2026-01-01T00:00:00Z",
       reviewerArtifactSavedAt: null,
       finalizedAt: null,
       minutes: "",
       outcomeNote: "",
     });
 
-    expect(status.status).toBe("evidence_pack_complete");
+    expect(status.status).toBe("in_progress");
+    expect(status.label).toBe("In progress");
     expect(status.missing).toEqual(["Save reviewer artifact"]);
     expect(status.nextAction).toBe("Save reviewer artifact");
   });
 
-  it("returns review complete when minutes or outcome note is present", () => {
+  it("does not treat typed reviewer text as saved state", () => {
     const status = getVerifyRunStatusDetails({
       selectedRuleId: "R-1",
       aoiHash: "aoi-1",
       stacItemIds: ["item-1"],
       selectedStacItemId: "item-1",
       linkedRuleIds: ["R-1"],
-      snapshotExportedAt: "2026-01-01T00:00:00Z",
+      reviewerArtifactSavedAt: null,
+      finalizedAt: null,
+      minutes: "Typed but not saved",
+      outcomeNote: "",
+    });
+
+    expect(status.status).toBe("in_progress");
+    expect(status.missing).toEqual(["Save reviewer artifact"]);
+  });
+
+  it("returns finalized only after explicit finalization", () => {
+    const status = getVerifyRunStatusDetails({
+      selectedRuleId: "R-1",
+      aoiHash: "aoi-1",
+      stacItemIds: ["item-1"],
+      selectedStacItemId: "item-1",
+      linkedRuleIds: ["R-1"],
       reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
       finalizedAt: "2026-01-01T00:06:00Z",
       minutes: "",
       outcomeNote: "Outcome stable.",
     });
 
-    expect(status.status).toBe("review_complete");
+    expect(status.status).toBe("finalized");
+    expect(status.label).toBe("Finalized");
     expect(status.missing).toEqual([]);
     expect(status.nextAction).toBeNull();
   });
@@ -120,14 +137,14 @@ describe("getVerifyRunStatusDetails", () => {
       stacItemIds: ["item-1"],
       selectedStacItemId: "item-1",
       linkedRuleIds: ["R-1"],
-      snapshotExportedAt: "2026-01-01T00:00:00Z",
       reviewerArtifactSavedAt: "2026-01-01T00:05:00Z",
       finalizedAt: null,
       minutes: "Saved reviewer text",
       outcomeNote: "",
     });
 
-    expect(status.status).toBe("evidence_pack_complete");
+    expect(status.status).toBe("ready_to_finalize");
+    expect(status.label).toBe("Ready to finalize");
     expect(status.missing).toEqual(["Finalize run"]);
     expect(status.nextAction).toBe("Finalize run");
   });
@@ -155,7 +172,7 @@ describe("getVerifyWizardStepDetails", () => {
         selectedStacItemId: "item-1",
         linkedRuleIds: ["R-1"],
       }).activeStep,
-    ).toBe(6);
+    ).toBe(7);
     expect(
       getVerifyWizardStepDetails({
         selectedRuleId: "R-1",
@@ -194,6 +211,20 @@ describe("getVerifyWizardStepDetails", () => {
     expect(details.activeStep).toBeNull();
     expect(details.isComplete).toBe(true);
     expect(details.nextAction).toBeNull();
+  });
+
+  it("keeps export as optional utility instead of a required active step", () => {
+    const details = getVerifyWizardStepDetails({
+      selectedRuleId: "R-1",
+      aoiHash: "aoi",
+      stacItemIds: ["item-1"],
+      selectedStacItemId: "item-1",
+      linkedRuleIds: ["R-1"],
+    });
+
+    expect(details.steps.find((step) => step.id === 6)?.active).toBe(false);
+    expect(details.steps.find((step) => step.id === 7)?.active).toBe(true);
+    expect(details.nextAction).toBe("Save reviewer artifact");
   });
 });
 
@@ -410,6 +441,48 @@ describe("run history storage", () => {
     expect(loaded?.outcomeNote).toBe("Outcome note");
     expect(loaded?.delta).toBe("Changed AOI boundary.");
     expect(loaded?.tasks).toHaveLength(1);
+  });
+
+  it("preserves finalized history when a derived draft is saved as a new run", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    const base = createVerifierRunBundle("AR-5", "v5");
+    saveCurrentRunToHistory("AR-5", "v5", {
+      ...base,
+      runContext: { runId: "run-final", createdAt: "2026-01-05T00:00:00Z" },
+      savedReviewerArtifactAt: "2026-01-05T00:04:00Z",
+      finalizedAt: "2026-01-05T00:05:00Z",
+      minutes: "Final reviewer text",
+      draftMinutes: "Final reviewer text",
+      selectedRuleId: "R-1",
+      linkedRuleIds: ["R-1"],
+      aoi: null,
+      evidencePins: [],
+      verificationRuns: [],
+      selectedStacItemId: "item-1",
+    });
+
+    const loaded = loadRunFromHistory("AR-5", "v5", "run-final");
+    expect(loaded?.finalizedAt).toBe("2026-01-05T00:05:00Z");
+
+    saveCurrentRunToHistory("AR-5", "v5", {
+      ...(loaded as NonNullable<typeof loaded>),
+      runContext: { runId: "run-derived", createdAt: "2026-01-05T00:10:00Z" },
+      loadedFromRunId: "run-final",
+      derivedFromRunId: "run-final",
+      finalizedAt: null,
+      isEditedDraft: true,
+      draftMinutes: "Edited derived text",
+      minutes: "Final reviewer text",
+    });
+
+    const preserved = loadRunFromHistory("AR-5", "v5", "run-final");
+    const derived = loadRunFromHistory("AR-5", "v5", "run-derived");
+    expect(preserved?.finalizedAt).toBe("2026-01-05T00:05:00Z");
+    expect(preserved?.minutes).toBe("Final reviewer text");
+    expect(derived?.loadedFromRunId).toBe("run-final");
+    expect(derived?.isEditedDraft).toBe(true);
+    expect(derived?.draftMinutes).toBe("Edited derived text");
   });
 
   it("deletes a run from history", () => {

@@ -128,6 +128,9 @@ export default function EvidenceWorkflowStepper({
   const step8 = stepMap.get(8)!;
   const hasItem = Boolean(selectedStacItemId);
   const hasDraftArtifactChanges = draftMinutes !== savedMinutes || draftOutcomeNote !== savedOutcomeNote;
+  const reviewerArtifactSaved = Boolean(savedReviewerArtifactAt);
+  const readyToFinalize = step8.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step8.disabled);
+  const inProgress = !currentWorkspaceIsFinal && !readyToFinalize;
 
   return (
     <div className="grid gap-3">
@@ -154,7 +157,22 @@ export default function EvidenceWorkflowStepper({
               ) : null}
               {currentWorkspaceIsFinal ? (
                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                  Run complete
+                  Finalized
+                </span>
+              ) : null}
+              {inProgress ? (
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                  In progress
+                </span>
+              ) : null}
+              {reviewerArtifactSaved && !currentWorkspaceIsFinal ? (
+                <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                  Reviewer artifact saved
+                </span>
+              ) : null}
+              {readyToFinalize ? (
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                  Ready to finalize
                 </span>
               ) : null}
               {hasUnsavedWorkspaceEdits ? (
@@ -373,11 +391,14 @@ export default function EvidenceWorkflowStepper({
 
       <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step6)}`} data-testid="wizard-step-6">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 6</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Export evidence pack</div>
+        <div className="mt-1 text-xs font-semibold text-slate-900">Evidence pack checkpoint</div>
+        <div className="mt-1 text-[11px] text-slate-500">
+          Optional utility. Use this to export a pack for sharing or audit, but finalization is the lifecycle completion action.
+        </div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={onExportEvidencePack}
             disabled={step6.disabled}
           >
@@ -391,7 +412,7 @@ export default function EvidenceWorkflowStepper({
               Exported {formatDate(exportedAt)}
             </span>
           ) : (
-            <div className="text-[11px] text-slate-500">Export after at least one linked pin exists.</div>
+            <div className="text-[11px] text-slate-500">Available after at least one linked pin exists.</div>
           )}
         </div>
       </div>
@@ -442,7 +463,7 @@ export default function EvidenceWorkflowStepper({
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={onFinalizeRun}
             disabled={step8.disabled || currentWorkspaceIsFinal}
           >
@@ -462,7 +483,7 @@ export default function EvidenceWorkflowStepper({
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3" data-testid="wizard-completion-card">
           <div className="text-sm font-semibold text-emerald-900">Run complete</div>
           <div className="mt-1 text-xs text-emerald-800">
-            Locked artifacts: evidence pack, saved reviewer artifact, and finalized run state.
+            Locked artifacts: finalized workspace state and the saved reviewer artifact.
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button

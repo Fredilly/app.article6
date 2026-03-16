@@ -83,7 +83,7 @@ export type VerifierRunBundle = {
   tasks: VerifierTask[];
 };
 
-export type VerifyRunStatus = "in_progress" | "evidence_pack_complete" | "review_complete";
+export type VerifyRunStatus = "in_progress" | "reviewer_artifact_saved" | "ready_to_finalize" | "finalized";
 
 export type VerifyRunStatusDetails = {
   status: VerifyRunStatus;
@@ -682,13 +682,21 @@ export function getVerifyRunStatusDetails(input: {
   minutes?: string | null;
   outcomeNote?: string | null;
 }): VerifyRunStatusDetails {
+  if (input.finalizedAt?.trim()) {
+    return {
+      status: "finalized",
+      label: "Finalized",
+      missing: [],
+      nextAction: null,
+    };
+  }
+
   const missing: string[] = [];
   if (!input.selectedRuleId?.trim()) missing.push("Select a rule");
   if (!input.aoiHash?.trim()) missing.push("Add an AOI");
   if (!(input.stacItemIds?.length)) missing.push("Search STAC");
   if (!input.selectedStacItemId?.trim()) missing.push("Select an evidence item");
   if (!(input.linkedRuleIds?.length)) missing.push("Link evidence to the rule");
-  if (!input.snapshotExportedAt?.trim()) missing.push("Export the evidence pack");
 
   if (missing.length > 0) {
     return {
@@ -699,30 +707,21 @@ export function getVerifyRunStatusDetails(input: {
     };
   }
 
-  const reviewerArtifactSaved = Boolean(input.reviewerArtifactSavedAt?.trim() || hasReviewerArtifact(input));
+  const reviewerArtifactSaved = Boolean(input.reviewerArtifactSavedAt?.trim());
   if (!reviewerArtifactSaved) {
     return {
-      status: "evidence_pack_complete",
-      label: "Evidence pack complete",
+      status: "in_progress",
+      label: "In progress",
       missing: ["Save reviewer artifact"],
       nextAction: "Save reviewer artifact",
     };
   }
 
-  if (!input.finalizedAt?.trim()) {
-    return {
-      status: "evidence_pack_complete",
-      label: "Evidence pack complete",
-      missing: ["Finalize run"],
-      nextAction: "Finalize run",
-    };
-  }
-
   return {
-    status: "review_complete",
-    label: "Review complete",
-    missing: [],
-    nextAction: null,
+    status: "ready_to_finalize",
+    label: "Ready to finalize",
+    missing: ["Finalize run"],
+    nextAction: "Finalize run",
   };
 }
 
@@ -744,7 +743,7 @@ export function getVerifyWizardStepDetails(input: {
   const hasSelectedItem = Boolean(input.selectedStacItemId?.trim());
   const hasPins = Boolean(input.linkedRuleIds?.length);
   const hasExport = Boolean(input.snapshotExportedAt?.trim());
-  const hasSavedReviewerArtifact = Boolean(input.reviewerArtifactSavedAt?.trim() || hasReviewerArtifact(input));
+  const hasSavedReviewerArtifact = Boolean(input.reviewerArtifactSavedAt?.trim());
   const isFinalized = Boolean(input.finalizedAt?.trim());
 
   const activeStep: VerifyWizardStepId | null =
@@ -753,7 +752,6 @@ export function getVerifyWizardStepDetails(input: {
     !hasSearchResults ? 3 :
     !hasSelectedItem ? 4 :
     !hasPins ? 5 :
-    !hasExport ? 6 :
     !hasSavedReviewerArtifact ? 7 :
     !isFinalized ? 8 :
     null;
@@ -764,9 +762,9 @@ export function getVerifyWizardStepDetails(input: {
     { id: 3, label: "Search STAC", complete: hasSearchResults, active: activeStep === 3, disabled: !hasAoi },
     { id: 4, label: "Select item", complete: hasSelectedItem, active: activeStep === 4, disabled: !hasSearchResults },
     { id: 5, label: "Create/link pin", complete: hasPins, active: activeStep === 5, disabled: !hasSelectedItem || !hasRule },
-    { id: 6, label: "Export evidence pack", complete: hasExport, active: activeStep === 6, disabled: !hasPins },
-    { id: 7, label: "Save reviewer artifact", complete: hasSavedReviewerArtifact, active: activeStep === 7, disabled: !hasExport },
-    { id: 8, label: "Finalize run", complete: isFinalized, active: activeStep === 8, disabled: !hasExport || !hasSavedReviewerArtifact },
+    { id: 6, label: "Export evidence pack", complete: hasExport, active: false, disabled: !hasPins },
+    { id: 7, label: "Save reviewer artifact", complete: hasSavedReviewerArtifact, active: activeStep === 7, disabled: !hasPins },
+    { id: 8, label: "Finalize run", complete: isFinalized, active: activeStep === 8, disabled: !hasPins || !hasSavedReviewerArtifact },
   ];
 
   return {
