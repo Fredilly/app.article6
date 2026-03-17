@@ -51,7 +51,7 @@ Details: `docs/roadmaps/verification-factory/PLAN.md`
 8) PR29 — Pilot loop + hard-case intake: Done (PR #414)
 9) PR30 — Make coverage actionable (real rule IDs): Done (PR #427)
 10) PR31 — Baseline uplift discipline: Done (PR #436)
-11) PR32 — Pairwise evidence preference events (Midjourney-style): Planned
+11) PR32 — Pairwise evidence preference events (Midjourney-style): Done
 12) PR33 — Adjudication templates + Promote to Gold labels: Planned
 13) PR34 — Precedent matching (case-law memory): Planned
 14) PR35 — Investor-safe Moat Export v2 (redacted): Planned
