@@ -223,6 +223,22 @@ export async function buildEvidenceSnapshot(input: {
   const selectedId = asNonEmptyString(input.selected?.id ?? undefined);
   const aoiGeojson = input.aoi?.geojson ?? undefined;
   const aoiId = aoiGeojson ? `aoi_${await sha256Text(canonicalJsonStringify(aoiGeojson))}` : undefined;
+  const verifier =
+    input.verifier ??
+    (input.outcome?.verifier.runId && input.outcome.verifier.createdAt
+      ? {
+          runId: input.outcome.verifier.runId,
+          createdAt: input.outcome.verifier.createdAt,
+          minutes: input.outcome.verifier.minutes,
+          outcomeNote: input.outcome.verifier.outcomeNote,
+          finalizedAt: input.outcome.verifier.finalizedAt,
+          finalizedState: input.outcome.verifier.finalizedState,
+          delta: input.outcome.verifier.delta,
+          impact: input.outcome.verifier.impact,
+          checklist: input.outcome.verifier.checklist,
+          tasks: input.outcome.verifier.tasks,
+        }
+      : undefined);
 
   const payload: EvidenceSnapshot = EvidenceSnapshotSchema.parse(
     stripUndefined({
@@ -259,7 +275,7 @@ export async function buildEvidenceSnapshot(input: {
       items: normalizeItems((input.items ?? undefined) ?? undefined),
       stacItemsJson: input.stacItemsJson ?? undefined,
       outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
-      verifier: input.verifier ?? undefined,
+      verifier,
       kpis: input.kpis ?? undefined,
     }),
   );
