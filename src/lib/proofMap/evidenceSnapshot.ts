@@ -71,6 +71,7 @@ export const EvidenceSnapshotSchema = z
           itemIds: z.array(z.string()),
         }),
         linkage: z.object({
+          selectedRuleId: z.string().nullable(),
           linkedRuleIds: z.array(z.string()),
         }),
         exportState: z.object({
@@ -90,6 +91,9 @@ export const EvidenceSnapshotSchema = z
         runId: z.string().min(1),
         createdAt: z.string().min(1),
         minutes: z.string(),
+        outcomeNote: z.string(),
+        finalizedAt: z.string().nullable(),
+        finalizedState: z.enum(["draft", "finalized"]),
         delta: z.string(),
         impact: z.string(),
         checklist: z.array(
@@ -189,6 +193,9 @@ export async function buildEvidenceSnapshot(input: {
     runId: string;
     createdAt: string;
     minutes: string;
+    outcomeNote: string;
+    finalizedAt?: string | null;
+    finalizedState?: "draft" | "finalized";
     delta: string;
     impact: string;
     checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
@@ -216,6 +223,22 @@ export async function buildEvidenceSnapshot(input: {
   const selectedId = asNonEmptyString(input.selected?.id ?? undefined);
   const aoiGeojson = input.aoi?.geojson ?? undefined;
   const aoiId = aoiGeojson ? `aoi_${await sha256Text(canonicalJsonStringify(aoiGeojson))}` : undefined;
+  const verifier =
+    input.verifier ??
+    (input.outcome?.verifier.runId && input.outcome.verifier.createdAt
+      ? {
+          runId: input.outcome.verifier.runId,
+          createdAt: input.outcome.verifier.createdAt,
+          minutes: input.outcome.verifier.minutes,
+          outcomeNote: input.outcome.verifier.outcomeNote,
+          finalizedAt: input.outcome.verifier.finalizedAt,
+          finalizedState: input.outcome.verifier.finalizedState,
+          delta: input.outcome.verifier.delta,
+          impact: input.outcome.verifier.impact,
+          checklist: input.outcome.verifier.checklist,
+          tasks: input.outcome.verifier.tasks,
+        }
+      : undefined);
 
   const payload: EvidenceSnapshot = EvidenceSnapshotSchema.parse(
     stripUndefined({
@@ -252,7 +275,7 @@ export async function buildEvidenceSnapshot(input: {
       items: normalizeItems((input.items ?? undefined) ?? undefined),
       stacItemsJson: input.stacItemsJson ?? undefined,
       outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
-      verifier: input.verifier ?? undefined,
+      verifier,
       kpis: input.kpis ?? undefined,
     }),
   );

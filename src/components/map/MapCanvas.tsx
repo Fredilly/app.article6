@@ -745,8 +745,10 @@ export default function MapCanvas({
     <div className="relative h-[26rem] w-full rounded-xl border border-slate-200 bg-slate-100">
       {mapError ? (
         <div className="absolute left-3 top-3 z-10 max-w-[24rem] rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800 shadow">
-          Map unavailable in this environment (missing token/style).{" "}
-          <span className="block pt-1 font-mono text-[11px] text-rose-700">{mapError}</span>
+          <div className="font-semibold">Map unavailable</div>
+          <div className="pt-1 text-[11px] text-rose-700">
+            Continue with the list-based verification flow while map rendering is unavailable in this environment.
+          </div>
         </div>
       ) : null}
       <div ref={containerRef} className="h-full w-full" />

@@ -19,6 +19,9 @@ export async function buildOutcomeSnapshot(input: {
     runId: string;
     createdAt: string;
     minutes: string;
+    outcomeNote: string;
+    finalizedAt?: string | null;
+    finalizedState?: "draft" | "finalized";
     delta: string;
     impact: string;
     checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;

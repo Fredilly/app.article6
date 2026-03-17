@@ -6,7 +6,6 @@ import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
-import VerifierMinutesPanel from "@/components/verify/VerifierMinutesPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
@@ -42,6 +41,7 @@ import {
   createTicketTemplate,
   deleteRunFromHistory,
   extractStacQuery,
+  getVerifyWizardStepDetails,
   loadRunFromHistory,
   type VerifyRunHistoryEntry,
   persistVerifierRunBundle,
@@ -51,6 +51,11 @@ import {
   shortRunId,
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
+
+type ToastState = {
+  title: string;
+  subtitle?: string | null;
+};
 
 type ProofMapTabProps = {
   methodCode: string;
@@ -286,7 +291,7 @@ export default function ProofMapTab({
   const isEvidenceMode = mode === "evidence";
   const isListMode = viewMode === "list";
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const [undoVisible, setUndoVisible] = useState(false);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
@@ -308,13 +313,13 @@ export default function ProofMapTab({
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
-  const [runDetailsOpen, setRunDetailsOpen] = useState(false);
-  const [loadedRunId, setLoadedRunId] = useState<string | null>(null);
   const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
   const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
   const [baselineTick, setBaselineTick] = useState(0);
-  const [minutesFocusKey, setMinutesFocusKey] = useState(0);
   const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
+  const [secondarySectionOpen, setSecondarySectionOpen] = useState(false);
+  const [runHistoryOpen, setRunHistoryOpen] = useState(false);
+  const [outcomeOpen, setOutcomeOpen] = useState(false);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -329,9 +334,12 @@ export default function ProofMapTab({
   const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
   const selectedRuleId = activeRuleId ?? null;
 
-  const showToast = useCallback((message: string) => {
-    setToast(message);
-    window.setTimeout(() => setToast((current) => (current === message ? null : current)), 900);
+  const showToast = useCallback((message: string | ToastState) => {
+    const next = typeof message === "string" ? { title: message } : message;
+    setToast(next);
+    window.setTimeout(() => {
+      setToast((current) => (current?.title === next.title && current?.subtitle === next.subtitle ? null : current));
+    }, 1600);
   }, []);
 
   useEffect(() => {
@@ -374,7 +382,6 @@ export default function ProofMapTab({
 
   useEffect(() => {
     setVerifierBundle(readVerifierRunBundle(methodCode, version));
-    setLoadedRunId(null);
   }, [methodCode, version]);
 
   useEffect(() => {
@@ -388,11 +395,66 @@ export default function ProofMapTab({
     return () => window.clearTimeout(timer);
   }, [methodCode, verifierBundle, version]);
 
+  const markBundleEdited = useCallback(
+    (
+      current: typeof verifierBundle,
+      options: { invalidateFinality?: boolean; clearSavedReviewerArtifact?: boolean } = {},
+    ) => {
+      const invalidateFinality = options.invalidateFinality ?? false;
+      const clearSavedReviewerArtifact = options.clearSavedReviewerArtifact ?? invalidateFinality;
+      return {
+        ...current,
+        isEditedDraft:
+          current.isEditedDraft ||
+          Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt),
+        exportedAt: invalidateFinality ? null : current.exportedAt,
+        savedReviewerArtifactAt: clearSavedReviewerArtifact ? null : current.savedReviewerArtifactAt,
+        finalizedAt: invalidateFinality ? null : current.finalizedAt,
+        minutes: clearSavedReviewerArtifact ? "" : current.minutes,
+        outcomeNote: clearSavedReviewerArtifact ? "" : current.outcomeNote,
+      };
+    },
+    [],
+  );
+
   const handleMinutesChange = useCallback((value: string) => {
-    if (verifierBundle.exportedAt) return;
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, minutes: value }));
-  }, [verifierBundle.exportedAt]);
+    setVerifierBundle((current) => ({
+      ...current,
+      draftMinutes: value,
+      isEditedDraft:
+        current.isEditedDraft ||
+        (value !== current.minutes && Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
+    }));
+  }, []);
+
+  const handleOutcomeNoteChange = useCallback((value: string) => {
+    setVerifierBundle((current) => ({
+      ...current,
+      draftOutcomeNote: value,
+      isEditedDraft:
+        current.isEditedDraft ||
+        (value !== current.outcomeNote &&
+          Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
+    }));
+  }, []);
+
+  const handleSaveReviewerArtifact = useCallback(() => {
+    const savedAt = new Date().toISOString();
+    setVerifierBundle((current) => {
+      const hasSavedArtifact = Boolean(current.draftMinutes.trim() || current.draftOutcomeNote.trim());
+      return {
+        ...current,
+        minutes: current.draftMinutes,
+        outcomeNote: current.draftOutcomeNote,
+        savedReviewerArtifactAt: hasSavedArtifact ? savedAt : null,
+        isEditedDraft:
+          current.isEditedDraft ||
+          ((current.draftMinutes !== current.minutes || current.draftOutcomeNote !== current.outcomeNote) &&
+            Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
+      };
+    });
+    showToast({ title: "Reviewer artifact saved", subtitle: "Saved text now counts for run completion" });
+  }, [showToast]);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -419,35 +481,35 @@ export default function ProofMapTab({
             // ignore hash failures
           }
         }
-        setLoadedRunId(null);
+        setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
         onSelectStacItemId(null);
         onUploadAoi(result.aoi);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
     },
-    [onAuditEvent, onSelectStacItemId, onUploadAoi],
+    [markBundleEdited, onAuditEvent, onSelectStacItemId, onUploadAoi],
   );
 
   const handleDeltaChange = useCallback((value: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, delta: value }));
-  }, []);
+    setVerifierBundle((current) => ({ ...markBundleEdited(current, { invalidateFinality: true }), delta: value }));
+  }, [markBundleEdited]);
 
   const handleImpactChange = useCallback((value: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, impact: value }));
-  }, []);
+    setVerifierBundle((current) => ({ ...markBundleEdited(current, { invalidateFinality: true }), impact: value }));
+  }, [markBundleEdited]);
 
   const commitDraftTask = useCallback(() => {
     const text = draftTask.trim();
     if (!text) return;
-    setLoadedRunId(null);
     const task = addTaskWithText(text);
-    setVerifierBundle((current) => ({ ...current, tasks: [...current.tasks, task] }));
+    setVerifierBundle((current) => ({
+      ...markBundleEdited(current, { invalidateFinality: true }),
+      tasks: [...current.tasks, task],
+    }));
     setDraftTask("");
     setShowDraftTask(false);
-  }, [draftTask]);
+  }, [draftTask, markBundleEdited]);
 
   const handleAddTask = useCallback(() => {
     setShowDraftTask(true);
@@ -458,47 +520,158 @@ export default function ProofMapTab({
 
   const handleToggleTask = useCallback((id: string) => {
     const timestamp = new Date().toISOString();
-    setLoadedRunId(null);
     setVerifierBundle((current) => ({
-      ...current,
+      ...markBundleEdited(current, { invalidateFinality: true }),
       tasks: current.tasks.map((task) =>
         task.id === id ? { ...task, done: !task.done, updatedAt: timestamp } : task,
       ),
     }));
-  }, []);
+  }, [markBundleEdited]);
 
   const handleUpdateTask = useCallback((id: string, value: string) => {
     const timestamp = new Date().toISOString();
-    setLoadedRunId(null);
     setVerifierBundle((current) => ({
-      ...current,
+      ...markBundleEdited(current, { invalidateFinality: true }),
       tasks: current.tasks.map((task) =>
         task.id === id ? { ...task, text: value, updatedAt: timestamp } : task,
       ),
     }));
-  }, []);
+  }, [markBundleEdited]);
 
   const handleDeleteTask = useCallback((id: string) => {
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, tasks: current.tasks.filter((task) => task.id !== id) }));
-  }, []);
+    setVerifierBundle((current) => ({
+      ...markBundleEdited(current, { invalidateFinality: true }),
+      tasks: current.tasks.filter((task) => task.id !== id),
+    }));
+  }, [markBundleEdited]);
 
   const buildHistoryBundle = useCallback(() => {
     return {
       runContext: verifierBundle.runContext,
       exportedAt: verifierBundle.exportedAt,
+      savedReviewerArtifactAt: verifierBundle.savedReviewerArtifactAt,
+      finalizedAt: verifierBundle.finalizedAt,
+      loadedFromRunId: verifierBundle.loadedFromRunId,
+      derivedFromRunId: verifierBundle.derivedFromRunId,
+      isEditedDraft: verifierBundle.isEditedDraft,
       minutes: verifierBundle.minutes,
+      outcomeNote: verifierBundle.outcomeNote,
+      draftMinutes: verifierBundle.draftMinutes,
+      draftOutcomeNote: verifierBundle.draftOutcomeNote,
       checklist: verifierBundle.checklist,
       delta: verifierBundle.delta,
       impact: verifierBundle.impact,
       tasks: verifierBundle.tasks,
+      selectedRuleId,
       linkedRuleIds,
       aoi,
       evidencePins,
       verificationRuns,
       selectedStacItemId,
     };
-  }, [aoi, evidencePins, linkedRuleIds, selectedStacItemId, verificationRuns, verifierBundle]);
+  }, [aoi, evidencePins, linkedRuleIds, selectedRuleId, selectedStacItemId, verificationRuns, verifierBundle]);
+
+  const currentWorkspaceBundle = useMemo(() => buildHistoryBundle(), [buildHistoryBundle]);
+  const currentRunId = verifierBundle.runContext.runId;
+  const currentRunLabel = shortRunId(currentRunId);
+  const loadedFromRunLabel = verifierBundle.loadedFromRunId ? shortRunId(verifierBundle.loadedFromRunId) : null;
+  const activeHistoryRunId = verifierBundle.loadedFromRunId ?? (runHistory.some((entry) => entry.runId === currentRunId) ? currentRunId : null);
+  const activeHistoryEntry = useMemo(
+    () => runHistory.find((entry) => entry.runId === currentRunId) ?? null,
+    [currentRunId, runHistory],
+  );
+  const hasUnsavedWorkspaceEdits = useMemo(() => {
+    if (!activeHistoryEntry) {
+      return Boolean(
+        aoi ||
+          evidencePins.length ||
+          verificationRuns.length ||
+          selectedStacItemId ||
+          verifierBundle.exportedAt ||
+          verifierBundle.savedReviewerArtifactAt ||
+          verifierBundle.finalizedAt ||
+          verifierBundle.minutes.trim() ||
+          verifierBundle.outcomeNote.trim() ||
+          verifierBundle.draftMinutes.trim() ||
+          verifierBundle.draftOutcomeNote.trim() ||
+          verifierBundle.delta.trim() ||
+          verifierBundle.impact.trim() ||
+          verifierBundle.tasks.length,
+      );
+    }
+    return canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle);
+  }, [
+    activeHistoryEntry,
+    aoi,
+    currentWorkspaceBundle,
+    evidencePins.length,
+    selectedStacItemId,
+    verificationRuns.length,
+    verifierBundle.delta,
+    verifierBundle.exportedAt,
+    verifierBundle.finalizedAt,
+    verifierBundle.impact,
+    verifierBundle.draftMinutes,
+    verifierBundle.draftOutcomeNote,
+    verifierBundle.minutes,
+    verifierBundle.outcomeNote,
+    verifierBundle.savedReviewerArtifactAt,
+    verifierBundle.tasks.length,
+  ]);
+  const mutableWorkspaceFingerprint = useMemo(
+    () =>
+      canonicalJsonStringify({
+        selectedRuleId,
+        aoiId: aoi?.id ?? null,
+        aoiHash: currentAoiFingerprint,
+        selectedStacItemId,
+        pins: evidencePins.map((pin) => ({
+          id: pin.id,
+          ruleId: pin.ruleId ?? null,
+          itemId: pin.itemId ?? null,
+          attachments: (pin.attachments ?? []).length,
+        })),
+        runs: verificationRuns.map((run) => ({ id: run.id, status: run.status, ended_at: run.ended_at ?? null })),
+      }),
+    [aoi?.id, currentAoiFingerprint, evidencePins, selectedRuleId, selectedStacItemId, verificationRuns],
+  );
+  const previousMutableWorkspaceRef = useRef<{ runId: string; fingerprint: string } | null>(null);
+  const ignoredMutableWorkspaceRunIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const previous = previousMutableWorkspaceRef.current;
+    const current = { runId: verifierBundle.runContext.runId, fingerprint: mutableWorkspaceFingerprint };
+    if (!previous || previous.runId !== current.runId) {
+      previousMutableWorkspaceRef.current = current;
+      return;
+    }
+    if (previous.fingerprint === current.fingerprint) return;
+    if (ignoredMutableWorkspaceRunIdRef.current === current.runId) {
+      ignoredMutableWorkspaceRunIdRef.current = null;
+      previousMutableWorkspaceRef.current = current;
+      return;
+    }
+    previousMutableWorkspaceRef.current = current;
+    setVerifierBundle((bundle) => markBundleEdited(bundle, { invalidateFinality: true }));
+  }, [markBundleEdited, mutableWorkspaceFingerprint, verifierBundle.runContext.runId]);
+
+  const persistCurrentWorkspaceAsDraft = useCallback(() => {
+    const historicalCurrent = runHistory.find((entry) => entry.runId === verifierBundle.runContext.runId) ?? null;
+    const draftBundle =
+      historicalCurrent && canonicalJsonStringify(historicalCurrent.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
+        ? {
+            ...currentWorkspaceBundle,
+            runContext: createVerifierRunBundle(methodCode, version).runContext,
+          }
+        : currentWorkspaceBundle;
+    setVerifierBundle((current) =>
+      current.runContext.runId === draftBundle.runContext.runId
+        ? current
+        : { ...current, runContext: draftBundle.runContext },
+    );
+    setRunHistory(saveCurrentRunToHistory(methodCode, version, draftBundle));
+    return draftBundle.runContext.runId;
+  }, [currentWorkspaceBundle, methodCode, runHistory, verifierBundle.runContext.runId, version]);
 
   const handleSaveRunHistory = useCallback(
     (bundleOverride?: ReturnType<typeof buildHistoryBundle>) => {
@@ -510,12 +683,28 @@ export default function ProofMapTab({
 
   const handleLoadRunHistory = useCallback(
     (runId: string) => {
+      if (runId === verifierBundle.runContext.runId) return;
+      if (hasUnsavedWorkspaceEdits && typeof window !== "undefined") {
+        const confirmed = window.confirm("Save the current workspace as a draft before loading another run?");
+        if (!confirmed) return;
+        persistCurrentWorkspaceAsDraft();
+      }
       const loaded = loadRunFromHistory(methodCode, version, runId);
       if (!loaded) return;
+      const editableRun = createVerifierRunBundle(methodCode, version);
+      ignoredMutableWorkspaceRunIdRef.current = editableRun.runContext.runId;
       setVerifierBundle({
-        runContext: loaded.runContext,
+        runContext: editableRun.runContext,
         exportedAt: loaded.exportedAt ?? null,
+        savedReviewerArtifactAt: loaded.savedReviewerArtifactAt ?? loaded.exportedAt ?? null,
+        finalizedAt: null,
+        loadedFromRunId: runId,
+        derivedFromRunId: runId,
+        isEditedDraft: false,
         minutes: loaded.minutes ?? "",
+        outcomeNote: loaded.outcomeNote ?? "",
+        draftMinutes: loaded.minutes ?? "",
+        draftOutcomeNote: loaded.outcomeNote ?? "",
         checklist: loaded.checklist ?? [],
         delta: loaded.delta ?? "",
         impact: loaded.impact ?? "",
@@ -525,9 +714,26 @@ export default function ProofMapTab({
       onSetEvidencePins(loaded.evidencePins as EvidencePin[]);
       onSetVerificationRuns(loaded.verificationRuns as VerificationRun[]);
       onSelectStacItemId(loaded.selectedStacItemId ?? null);
-      setLoadedRunId(runId);
+      onSelectRuleId?.(loaded.selectedRuleId ?? null);
+      onEvidenceSelectionChange?.(null);
+      setSecondarySectionOpen(true);
+      setRunHistoryOpen(true);
+      showToast({ title: `Loaded run ${shortRunId(runId)}`, subtitle: "Saved evidence and review state restored" });
     },
-    [methodCode, onSelectStacItemId, onSetAoi, onSetEvidencePins, onSetVerificationRuns, version],
+    [
+      hasUnsavedWorkspaceEdits,
+      methodCode,
+      onEvidenceSelectionChange,
+      onSelectRuleId,
+      onSelectStacItemId,
+      onSetAoi,
+      onSetEvidencePins,
+      onSetVerificationRuns,
+      persistCurrentWorkspaceAsDraft,
+      showToast,
+      verifierBundle.runContext.runId,
+      version,
+    ],
   );
 
   const handleDeleteRunHistory = useCallback(
@@ -537,28 +743,9 @@ export default function ProofMapTab({
     [methodCode, version],
   );
 
-  const handleToggleChecklist = useCallback((id: string) => {
-    if (verifierBundle.exportedAt) return;
-    const timestamp = new Date().toISOString();
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({
-      ...current,
-      checklist: current.checklist.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked, updatedAt: timestamp } : item,
-      ),
-    }));
-  }, [verifierBundle.exportedAt]);
-
-  const handleResetChecklist = useCallback(() => {
-    if (verifierBundle.exportedAt) return;
-    const next = createVerifierRunBundle(methodCode, version);
-    setLoadedRunId(null);
-    setVerifierBundle((current) => ({ ...current, checklist: next.checklist }));
-  }, [methodCode, verifierBundle.exportedAt, version]);
-
   const handleSearchStac = useCallback(async () => {
     if (!aoi) return;
-    setLoadedRunId(null);
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     setError(null);
     if (isRunning) return;
     if (!currentAoiFingerprint) return;
@@ -672,6 +859,7 @@ export default function ProofMapTab({
     onSelectStacItemId,
     onSetStacEvidenceState,
     onSetVerificationRuns,
+    markBundleEdited,
     showToast,
     verificationRuns,
     version,
@@ -698,20 +886,30 @@ export default function ProofMapTab({
   }, [onApplyDraftAoi]);
 
   const handleNewRun = useCallback(() => {
-    handleSaveRunHistory();
-    const pinsCount = evidencePins.length;
+    persistCurrentWorkspaceAsDraft();
+    onSetEvidencePins([]);
+    onSetVerificationRuns([]);
+    onSetStacEvidenceState(null);
+    onSelectStacItemId(null);
+    onEvidenceSelectionChange?.(null);
+    onSelectRuleId?.(null);
     setVerifierBundle(createVerifierRunBundle(methodCode, version));
-    setMinutesFocusKey((current) => current + 1);
-    setLoadedRunId(null);
-    showToast(`New run started — pins kept: ${pinsCount}`);
-  }, [evidencePins.length, handleSaveRunHistory, methodCode, showToast, version]);
-
-  const handleStartRun = useCallback(() => {
-    if (!evidencePins.length) return;
-    handleSaveRunHistory();
-    setRunDetailsOpen(true);
-    showToast(`Run started with ${evidencePins.length} pin${evidencePins.length === 1 ? "" : "s"}.`);
-  }, [evidencePins.length, handleSaveRunHistory, showToast]);
+    setSecondarySectionOpen(false);
+    setRunHistoryOpen(false);
+    setOutcomeOpen(false);
+    showToast({ title: "Started new run", subtitle: "Fresh review workspace created" });
+  }, [
+    methodCode,
+    onEvidenceSelectionChange,
+    onSelectRuleId,
+    onSelectStacItemId,
+    onSetEvidencePins,
+    onSetStacEvidenceState,
+    onSetVerificationRuns,
+    persistCurrentWorkspaceAsDraft,
+    showToast,
+    version,
+  ]);
   const handleNavigateEvidence = useCallback(
     async (type: "rule" | "section", id: string) => {
       return await onNavigateEvidence(type, id);
@@ -719,8 +917,13 @@ export default function ProofMapTab({
     [onNavigateEvidence],
   );
 
+  const handleViewRunHistory = useCallback(() => {
+    setSecondarySectionOpen(true);
+    setRunHistoryOpen(true);
+  }, []);
+
   const selectEvidence = (id: string, source: "pin" | "polygon") => {
-    setLoadedRunId(null);
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     onSelectStacItemId(id);
     setLastSelectionSource(source);
     setStacInspectOpen(true);
@@ -1100,6 +1303,7 @@ export default function ProofMapTab({
           itemIds: stacFeatureIds,
         },
         linkage: {
+          selectedRuleId,
           linkedRuleIds,
         },
         exportState: {
@@ -1109,6 +1313,9 @@ export default function ProofMapTab({
           runId: verifierBundle.runContext.runId,
           createdAt: verifierBundle.runContext.createdAt,
           minutes: verifierBundle.minutes,
+          outcomeNote: verifierBundle.outcomeNote,
+          finalizedAt: verifierBundle.finalizedAt,
+          finalizedState: verifierBundle.finalizedAt ? "finalized" : "draft",
           checklist: verifierBundle.checklist,
           delta: verifierBundle.delta,
           impact: verifierBundle.impact,
@@ -1126,6 +1333,7 @@ export default function ProofMapTab({
       aoi?.bbox,
       currentAoiFingerprint,
       linkedRuleIds,
+      selectedRuleId,
       methodCode,
       stacFeatureIds,
       stacQuery,
@@ -1176,6 +1384,7 @@ export default function ProofMapTab({
     if (!latestBaseline) return { ok: false, reasons: [] as string[] };
     return isComparable(latestBaseline.baselineProvenance, currentBaselineProvenance);
   }, [currentBaselineProvenance, latestBaseline]);
+  const hasComparisonContext = Boolean(latestBaseline && baselineComparable.ok);
 
   const upliftSummary = useMemo(() => {
     if (!latestBaseline || !baselineComparable.ok) return null;
@@ -1183,7 +1392,292 @@ export default function ProofMapTab({
   }, [baselineComparable.ok, latestBaseline, runKpis]);
   const baselineActionsDisabled = baselineMissing.length > 0;
   const baselineDisabledTooltip = "Load AOI to enable baseline comparisons";
-  const compareTargetLabel = loadedRunId ? `Loaded run ${loadedRunId}` : "Workspace (unsaved)";
+  const compareTargetLabel = verifierBundle.loadedFromRunId
+    ? `Loaded from run ${shortRunId(verifierBundle.loadedFromRunId)}`
+    : "Current workspace";
+  const comparisonUnavailableMessage = useMemo(() => {
+    if (!latestBaseline) return null;
+    if (baselineComparable.ok) return null;
+    if (verifierBundle.isEditedDraft || verifierBundle.loadedFromRunId) {
+      return {
+        title: "Comparison unavailable: current workspace changed since baseline",
+        detail: "AOI, selected evidence, pin changes, or unsaved draft edits can invalidate baseline comparison.",
+      };
+    }
+    return {
+      title: "Comparison unavailable",
+      detail:
+        baselineComparable.reasons.join("; ") ||
+        "Current workspace does not match the method, version, harness, or dataset context used for the baseline.",
+    };
+  }, [baselineComparable, latestBaseline, verifierBundle.isEditedDraft, verifierBundle.loadedFromRunId]);
+  const wizardDetails = useMemo(
+    () =>
+      getVerifyWizardStepDetails({
+        selectedRuleId,
+        aoiHash: currentAoiFingerprint,
+        stacItemIds: stacFeatureIds,
+        selectedStacItemId,
+        linkedRuleIds,
+        snapshotExportedAt: verifierBundle.exportedAt,
+        reviewerArtifactSavedAt: verifierBundle.savedReviewerArtifactAt,
+        minutes: verifierBundle.minutes,
+        outcomeNote: verifierBundle.outcomeNote,
+        finalizedAt: verifierBundle.finalizedAt,
+      }),
+    [
+      currentAoiFingerprint,
+      linkedRuleIds,
+      selectedRuleId,
+      selectedStacItemId,
+      stacFeatureIds,
+      verifierBundle.exportedAt,
+      verifierBundle.finalizedAt,
+      verifierBundle.minutes,
+      verifierBundle.outcomeNote,
+      verifierBundle.savedReviewerArtifactAt,
+    ],
+  );
+  const currentWorkspaceIsFinal = Boolean(verifierBundle.finalizedAt);
+  const ruleSectionRef = useRef<HTMLDivElement | null>(null);
+  const aoiSectionRef = useRef<HTMLDivElement | null>(null);
+  const stacSectionRef = useRef<HTMLDivElement | null>(null);
+  const selectedItemSectionRef = useRef<HTMLDivElement | null>(null);
+  const pinsSectionRef = useRef<HTMLDivElement | null>(null);
+  const reviewerSectionRef = useRef<HTMLDivElement | null>(null);
+  const finalSummarySectionRef = useRef<HTMLDivElement | null>(null);
+  const activeLeftSection = useMemo(() => {
+    switch (wizardDetails.activeStep) {
+      case 1:
+        return "rule";
+      case 2:
+        return "aoi";
+      case 3:
+        return "stac";
+      case 4:
+        return "selected";
+      case 5:
+        return "pins";
+      case 6:
+        return "reviewer";
+      case 7:
+        return "summary";
+      default:
+        return "summary";
+    }
+  }, [wizardDetails.activeStep]);
+  const leftPaneHeader = useMemo(() => {
+    if (wizardDetails.isComplete) {
+      return {
+        title: "Run complete",
+        instruction: "This workspace is finalized. Start another run to continue with a fresh review.",
+        stepLabel: "Complete",
+      };
+    }
+    switch (wizardDetails.activeStep) {
+      case 1:
+        return { title: "Pick rule", instruction: "Choose the rule you are verifying before building evidence context.", stepLabel: "Step 1 of 7" };
+      case 2:
+        return { title: "Confirm AOI", instruction: "Upload or confirm the AOI so the evidence search has a clear scope.", stepLabel: "Step 2 of 7" };
+      case 3:
+        return { title: "Search STAC", instruction: "Run the evidence search and inspect the returned context in the left pane.", stepLabel: "Step 3 of 7" };
+      case 4:
+        return { title: "Select item", instruction: "Pick the most relevant STAC item from the returned evidence set.", stepLabel: "Step 4 of 7" };
+      case 5:
+        return { title: "Create/link pin", instruction: "Link the selected evidence item to the rule so the run has durable evidence state.", stepLabel: "Step 5 of 7" };
+      case 6:
+        return { title: "Save reviewer artifact", instruction: "Write concise reviewer notes, then save them explicitly before finalization.", stepLabel: "Step 6 of 7" };
+      case 7:
+        return { title: "Finalize run", instruction: "Finalize to export the single immutable run artifact with evidence and reviewer notes.", stepLabel: "Step 7 of 7" };
+      default:
+        return { title: "Verify run", instruction: "Use the right pane to continue the canonical wizard flow.", stepLabel: "Step" };
+    }
+  }, [wizardDetails.activeStep, wizardDetails.isComplete]);
+
+  useEffect(() => {
+    const ref =
+      activeLeftSection === "rule" ? ruleSectionRef :
+      activeLeftSection === "aoi" ? aoiSectionRef :
+      activeLeftSection === "stac" ? stacSectionRef :
+      activeLeftSection === "selected" ? selectedItemSectionRef :
+      activeLeftSection === "pins" ? pinsSectionRef :
+      activeLeftSection === "reviewer" ? reviewerSectionRef :
+      finalSummarySectionRef;
+    ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeLeftSection]);
+
+  const handleFinalizeRun = useCallback(() => {
+    if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
+    void (async () => {
+      const selectedItem =
+        selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
+          ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
+          : null;
+      const linkedRules = selectedItem
+        ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
+        : [];
+      const minimalItem = selectedItem
+        ? {
+            id: selectedStacItemId ?? undefined,
+            datetime:
+              isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
+                ? selectedItem.properties.datetime
+                : typeof selectedItem.datetime === "string"
+                  ? selectedItem.datetime
+                  : undefined,
+            bbox: selectedItem.bbox,
+            geometry: selectedItem.geometry,
+            linked_rules: linkedRules,
+          }
+        : undefined;
+      const finalItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
+      const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+      const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
+      const evidenceSource =
+        stacEndpointUrl
+          ? { type: "stac_url" as const, ref: stacEndpointUrl }
+          : localEvidenceHashInputs
+            ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
+            : { type: "unknown" as const, ref: "unknown" };
+      const stacItemsJson = (() => {
+        if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] };
+        if (!latestStacRun.result_json) return { items: [] };
+        const normalized = normalizeStacItems(latestStacRun.result_json);
+        const items = Object.values(normalized.itemsById).map((item) => {
+          const props = isRecord(item.properties) ? item.properties : null;
+          const collection = props && typeof props.collection === "string" ? props.collection : undefined;
+          const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
+          return {
+            id: item.id,
+            datetime: item.datetime,
+            bbox: item.bbox,
+            collection,
+            cloud_cover: cloudCover,
+          };
+        });
+        return { items };
+      })();
+      const finalizedAt = new Date().toISOString();
+      const nextRunContext =
+        activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
+          ? createVerifierRunBundle(methodCode, version).runContext
+          : verifierBundle.runContext;
+      const finalSummary = buildRunSummary({
+        ...runSummary,
+        linkage: {
+          ...runSummary.linkage,
+          selectedRuleId,
+          linkedRuleIds,
+        },
+        exportState: {
+          ...runSummary.exportState,
+          snapshotExportedAt: finalizedAt,
+        },
+        verifier: {
+          ...runSummary.verifier,
+          runId: nextRunContext.runId,
+          createdAt: nextRunContext.createdAt,
+          minutes: verifierBundle.minutes,
+          outcomeNote: verifierBundle.outcomeNote,
+          finalizedAt,
+          finalizedState: "finalized",
+          checklist: verifierBundle.checklist,
+          delta: verifierBundle.delta,
+          impact: verifierBundle.impact,
+          tasks: verifierBundle.tasks,
+        },
+        provenance: {
+          ...runSummary.provenance,
+          generatedAt: finalizedAt,
+        },
+      });
+      const kpis = computeKpis({
+        pins: evidencePins,
+        totalRules,
+        selectedEvidenceItemIds,
+        snapshotExportedAt: finalizedAt,
+      });
+      const artifact = await buildOutcomeSnapshot({
+        method: { code: methodCode, version },
+        aoi: aoi
+          ? {
+              bbox: aoi.bbox,
+              geojson: aoi.geojson,
+            }
+          : undefined,
+        evidence_source: evidenceSource,
+        selected: {
+          id: selectedStacItemId ?? undefined,
+          ids: selectedIds,
+          item: minimalItem ?? undefined,
+        },
+        items: finalItems,
+        app: {
+          commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
+          env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
+          version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
+        },
+        stacItemsJson,
+        outcome: finalSummary,
+        kpis,
+        verifier: {
+          runId: nextRunContext.runId,
+          createdAt: nextRunContext.createdAt,
+          minutes: verifierBundle.minutes,
+          outcomeNote: verifierBundle.outcomeNote,
+          finalizedAt,
+          finalizedState: "finalized",
+          delta: verifierBundle.delta,
+          impact: verifierBundle.impact,
+          checklist: verifierBundle.checklist,
+          tasks: verifierBundle.tasks,
+        },
+      });
+      const filename = `verify-final.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(nextRunContext.runId)}.json`;
+      downloadJson({ ...artifact, items: stacItemsJson.items ?? [] }, filename);
+      setVerifierBundle((current) => ({
+        ...current,
+        runContext: nextRunContext,
+        exportedAt: finalizedAt,
+        finalizedAt,
+        loadedFromRunId: null,
+        isEditedDraft: false,
+      }));
+      handleSaveRunHistory({
+        ...buildHistoryBundle(),
+        runContext: nextRunContext,
+        exportedAt: finalizedAt,
+        finalizedAt,
+        loadedFromRunId: null,
+        isEditedDraft: false,
+      });
+      showToast({ title: "Run complete", subtitle: "Final artifact exported and locked in history" });
+    })().catch((error) => {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("Finalize failed");
+    });
+  }, [
+    activeHistoryEntry,
+    aoi,
+    buildHistoryBundle,
+    currentStacEvidence?.itemsById,
+    currentWorkspaceBundle,
+    evidencePins,
+    handleSaveRunHistory,
+    latestStacRun,
+    linkedRuleIds,
+    localEvidenceHashInputs,
+    methodCode,
+    runSummary,
+    selectedEvidenceItemIds,
+    selectedRuleId,
+    selectedStacItemId,
+    showToast,
+    stacEndpointUrl,
+    totalRules,
+    verifierBundle,
+    version,
+  ]);
 
   const badgeForRun = useCallback(
     (entry: VerifyRunHistoryEntry) => {
@@ -1276,8 +1770,34 @@ export default function ProofMapTab({
     const hasEvidence = (currentStacEvidence?.fc?.features?.length ?? 0) > 0;
     const hasRuns = verificationRuns.length > 0;
     const hasSnapshots = (evidenceSnapshots ?? []).length > 0;
-    return hasAoi || hasPins || hasSelection || hasEvidence || hasRuns || hasSnapshots;
-  }, [aoi, currentStacEvidence?.fc?.features?.length, evidencePins.length, evidenceSnapshots, selectedStacItemId, verificationRuns.length]);
+    const hasReviewerDraft = Boolean(verifierBundle.draftMinutes.trim() || verifierBundle.draftOutcomeNote.trim());
+    const hasComparisonNotes = Boolean(verifierBundle.delta.trim() || verifierBundle.impact.trim() || verifierBundle.tasks.length);
+    const hasWorkspaceRunState = Boolean(
+      verifierBundle.exportedAt ||
+      verifierBundle.savedReviewerArtifactAt ||
+      verifierBundle.finalizedAt ||
+      verifierBundle.loadedFromRunId ||
+      verifierBundle.derivedFromRunId,
+    );
+    return hasAoi || hasPins || hasSelection || hasEvidence || hasRuns || hasSnapshots || hasReviewerDraft || hasComparisonNotes || hasWorkspaceRunState;
+  }, [
+    aoi,
+    currentStacEvidence?.fc?.features?.length,
+    evidencePins.length,
+    evidenceSnapshots,
+    selectedStacItemId,
+    verificationRuns.length,
+    verifierBundle.delta,
+    verifierBundle.derivedFromRunId,
+    verifierBundle.draftMinutes,
+    verifierBundle.draftOutcomeNote,
+    verifierBundle.exportedAt,
+    verifierBundle.finalizedAt,
+    verifierBundle.impact,
+    verifierBundle.loadedFromRunId,
+    verifierBundle.savedReviewerArtifactAt,
+    verifierBundle.tasks.length,
+  ]);
 
   const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
   const hasRule = Boolean(selectedRuleId);
@@ -1320,6 +1840,7 @@ export default function ProofMapTab({
         created_at: ts,
       };
       onSetEvidencePins([pin, ...evidencePins]);
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
       showToast(`Pinned ${currentPinItemId} to ${selectedRuleId}`);
     } catch (error) {
       setError(error instanceof Error ? error.message : String(error));
@@ -1331,6 +1852,7 @@ export default function ProofMapTab({
     currentPinItemId,
     currentStacEvidence?.runId,
     evidencePins,
+    markBundleEdited,
     methodCode,
     onSetEvidencePins,
     selectedRuleId,
@@ -1393,28 +1915,52 @@ export default function ProofMapTab({
     })();
 
     const exportedAt = new Date().toISOString();
+    const nextRunContext =
+      activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
+        ? createVerifierRunBundle(methodCode, version).runContext
+        : verifierBundle.runContext;
     const checklistAfterExport = verifierBundle.checklist.map((item) =>
       item.id === "exported-snapshot" ? { ...item, checked: true, updatedAt: exportedAt } : item,
     );
     const verifierSnapshot = {
-      runId: verifierBundle.runContext.runId,
-      createdAt: verifierBundle.runContext.createdAt,
+      runId: nextRunContext.runId,
+      createdAt: nextRunContext.createdAt,
       minutes: verifierBundle.minutes,
+      outcomeNote: verifierBundle.outcomeNote,
+      finalizedAt: null,
+      finalizedState: "draft" as const,
       delta: verifierBundle.delta,
       impact: verifierBundle.impact,
       checklist: checklistAfterExport,
       tasks: verifierBundle.tasks,
     };
 
-    setVerifierBundle((current) => ({ ...current, exportedAt, checklist: checklistAfterExport }));
+    setVerifierBundle((current) => ({
+      ...current,
+      runContext: nextRunContext,
+      exportedAt,
+      checklist: checklistAfterExport,
+      finalizedAt: null,
+      loadedFromRunId: null,
+      isEditedDraft: false,
+    }));
     handleSaveRunHistory({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
       exportedAt,
+      savedReviewerArtifactAt: verifierBundle.savedReviewerArtifactAt,
+      finalizedAt: null,
+      loadedFromRunId: null,
+      derivedFromRunId: verifierBundle.derivedFromRunId,
+      isEditedDraft: false,
       minutes: verifierSnapshot.minutes,
+      outcomeNote: verifierSnapshot.outcomeNote,
+      draftMinutes: verifierBundle.draftMinutes,
+      draftOutcomeNote: verifierBundle.draftOutcomeNote,
       delta: verifierSnapshot.delta,
       impact: verifierSnapshot.impact,
       checklist: verifierSnapshot.checklist,
       tasks: verifierSnapshot.tasks,
+      selectedRuleId,
       linkedRuleIds,
       aoi,
       evidencePins,
@@ -1475,7 +2021,9 @@ export default function ProofMapTab({
     downloadJson(snapshotWithLegacyItems, filename);
     showToast("Snapshot exported");
   }, [
+    activeHistoryEntry,
     aoi,
+    currentWorkspaceBundle,
     currentStacEvidence?.itemsById,
     evidencePins,
     handleSaveRunHistory,
@@ -1489,6 +2037,7 @@ export default function ProofMapTab({
     stacEndpointUrl,
     totalRules,
     selectedEvidenceItemIds,
+    selectedRuleId,
     verifierBundle,
     verificationRuns,
     version,
@@ -1581,6 +2130,9 @@ export default function ProofMapTab({
         }
       }
       onStartOver();
+      onSetStacEvidenceState(null);
+      onSelectRuleId?.(null);
+      setVerifierBundle(createVerifierRunBundle(methodCode, version));
 
       setError(null);
       setSnapshot(null);
@@ -1589,6 +2141,9 @@ export default function ProofMapTab({
       setStacInspectOpen(false);
       setLastSelectionSource(null);
       setStacCentroidsEnabled(true);
+      setSecondarySectionOpen(false);
+      setRunHistoryOpen(false);
+      setOutcomeOpen(false);
       try {
         mapRef.current?.jumpTo?.({ center: [0, 0], zoom: 1 });
       } catch {
@@ -1601,9 +2156,13 @@ export default function ProofMapTab({
     }
   }, [
     evidencePins,
+    methodCode,
     onStartOver,
+    onSelectRuleId,
+    onSetStacEvidenceState,
     showToast,
     startOverBusy,
+    version,
   ]);
 
   useEffect(() => {
@@ -2313,11 +2872,12 @@ export default function ProofMapTab({
       ) : null}
       {toast ? (
         <div
-          className={`fixed right-4 z-50 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow ${
+          className={`fixed right-4 z-50 max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow ${
             undoVisible ? "bottom-14" : "bottom-4"
           }`}
         >
-          {toast}
+          <div className="font-semibold text-slate-900">{toast.title}</div>
+          {toast.subtitle ? <div className="mt-0.5 text-[11px] text-slate-500">{toast.subtitle}</div> : null}
         </div>
       ) : null}
       {snapshot ? (
@@ -2377,7 +2937,7 @@ export default function ProofMapTab({
             </div>
             <div className="grid gap-4 px-5 py-4">
               <div className="text-sm text-slate-700">
-                This clears the AOI, pins, and evidence selections for this method/version.
+                This clears the current AOI, evidence links, export state, reviewer draft, and comparison notes for this method/version.
               </div>
               <div className="flex items-center justify-end gap-2">
                 <button
@@ -2420,10 +2980,110 @@ export default function ProofMapTab({
               </button>
             </div>
           ) : null}
-          <div className={isListMode ? "grid gap-3 rounded-xl border border-slate-200 bg-white p-4" : "hidden"}>
+          <div
+            data-testid="left-pane-step-focus"
+            className="sticky top-0 z-10 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-semibold text-slate-900">{leftPaneHeader.title}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{leftPaneHeader.stepLabel}</div>
+            </div>
+            <div className="mt-1 text-xs text-slate-600">{leftPaneHeader.instruction}</div>
+          </div>
+          <div className="grid gap-2">
+            <div
+              ref={ruleSectionRef}
+              data-testid="left-section-rule"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "rule" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule context</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{selectedRuleId ?? "No rule selected"}</div>
+            </div>
+            <div
+              ref={aoiSectionRef}
+              data-testid="left-section-aoi"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "aoi" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI summary</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{aoi?.name ?? "No AOI loaded"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">{bboxLabel ?? "Upload an AOI to continue."}</div>
+            </div>
+            <div
+              ref={stacSectionRef}
+              data-testid="left-section-stac"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "stac" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">STAC evidence</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{stacFeatureIds.length} item{stacFeatureIds.length === 1 ? "" : "s"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">{stacQuery.source ?? "Run a STAC search to load evidence context."}</div>
+            </div>
+            <div
+              ref={selectedItemSectionRef}
+              data-testid="left-section-selected"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "selected" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Selected item</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{selectedStacItemId ?? "No item selected"}</div>
+            </div>
+            <div
+              ref={pinsSectionRef}
+              data-testid="left-section-pins"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "pins" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence pins</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{evidencePins.length} link{evidencePins.length === 1 ? "" : "s"}</div>
+            </div>
+            <div
+              ref={reviewerSectionRef}
+              data-testid="left-section-reviewer"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "reviewer" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reviewer artifact</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">
+                {verifierBundle.savedReviewerArtifactAt ? "Saved reviewer artifact" : "Draft reviewer artifact"}
+              </div>
+              <div className="mt-1 line-clamp-2 text-[11px] text-slate-500">
+                {(verifierBundle.savedReviewerArtifactAt ? verifierBundle.minutes || verifierBundle.outcomeNote : verifierBundle.draftMinutes || verifierBundle.draftOutcomeNote) || "No reviewer notes yet."}
+              </div>
+            </div>
+            <div
+              ref={finalSummarySectionRef}
+              data-testid="left-section-summary"
+              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "summary" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Final summary</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{currentWorkspaceIsFinal ? "Final artifact written" : "Not finalized yet"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                {currentWorkspaceIsFinal ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}` : "Finalize run to export the single immutable artifact."}
+              </div>
+            </div>
+          </div>
+          <div
+            className={
+              isListMode
+                ? `grid gap-3 rounded-xl border bg-white p-4 ${
+                    wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
+                      ? "border-sky-300 shadow-sm"
+                      : wizardDetails.activeStep === 3
+                        ? "border-amber-300 shadow-sm"
+                        : "border-slate-200"
+                  }`
+                : "hidden"
+            }
+          >
             {listContent}
           </div>
-          <div className={isListMode ? "hidden" : undefined}>
+          <div
+            className={
+              isListMode
+                ? "hidden"
+                : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
+                  ? "rounded-xl border border-sky-300 shadow-sm"
+                  : wizardDetails.activeStep === 3
+                    ? "rounded-xl border border-amber-300 shadow-sm"
+                    : undefined
+            }
+          >
             <MapCanvas
               aoi={aoi}
               pins={evidencePins}
@@ -2462,7 +3122,9 @@ export default function ProofMapTab({
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="text-sm font-semibold text-slate-900">Evidence workflow</div>
-              <div className="mt-1 text-xs text-slate-500">Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; run.</div>
+              <div className="mt-1 text-xs text-slate-500">
+                Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; reviewer save -&gt; finalize.
+              </div>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <button
@@ -2475,6 +3137,13 @@ export default function ProofMapTab({
                 disabled={startOverBusy}
               >
                 Start over
+              </button>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={handleNewRun}
+              >
+                {currentWorkspaceIsFinal ? "Start another run" : "New run"}
               </button>
               <button
                 type="button"
@@ -2533,217 +3202,220 @@ export default function ProofMapTab({
               void handleSearchStac();
             }}
             onCreatePin={handleCreatePin}
-            onStartRun={handleStartRun}
-            onOpenRunDetails={() => setRunDetailsOpen(true)}
+            draftMinutes={verifierBundle.draftMinutes}
+            draftOutcomeNote={verifierBundle.draftOutcomeNote}
+            savedMinutes={verifierBundle.minutes}
+            savedOutcomeNote={verifierBundle.outcomeNote}
+            savedReviewerArtifactAt={verifierBundle.savedReviewerArtifactAt}
+            onReviewerMinutesChange={handleMinutesChange}
+            onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
+            onSaveReviewerArtifact={handleSaveReviewerArtifact}
+            onFinalizeRun={handleFinalizeRun}
+            finalizedAt={verifierBundle.finalizedAt}
+            currentRunLabel={currentRunLabel}
+            loadedFromRunLabel={loadedFromRunLabel}
+            isEditedDraft={verifierBundle.isEditedDraft}
+            hasUnsavedWorkspaceEdits={hasUnsavedWorkspaceEdits}
+            currentWorkspaceIsFinal={currentWorkspaceIsFinal}
+            wizard={wizardDetails}
+            onStartAnotherRun={handleNewRun}
+            onViewRunHistory={handleViewRunHistory}
           />
 
-          <details
-            className="rounded-xl border border-slate-200 bg-white"
-            open={runDetailsOpen}
-            onToggle={(event) => setRunDetailsOpen(event.currentTarget.open)}
-          >
-            <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-              Run details
-            </summary>
-            <div className="grid gap-3 px-3 pb-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                  onClick={handleNewRun}
-                >
-                  New run
-                </button>
-                <button
-                  type="button"
-                  className="rounded-full border border-slate-200 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
-                  onClick={handleExportSnapshot}
-                >
-                  Export snapshot
-                </button>
-                {verifierBundle.exportedAt ? (
-                  <span
-                    data-testid="snapshot-exported-badge"
-                    className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
-                  >
-                    Exported {formatLocalDateTime(verifierBundle.exportedAt)}
-                  </span>
-                ) : null}
+          <div className="rounded-xl border-t border-dashed border-slate-200 pt-3">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-left"
+              onClick={() => setSecondarySectionOpen((value) => !value)}
+              data-testid="secondary-context-toggle"
+            >
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Secondary context</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">Baseline, comparison notes, run history, and outcome</div>
               </div>
+              <span className="text-xs font-semibold text-slate-500">{secondarySectionOpen ? "Hide" : "Show"}</span>
+            </button>
+          </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">Baseline</div>
+          {secondarySectionOpen ? (
+            <div className="grid gap-3" data-testid="secondary-context">
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm font-semibold text-slate-900">Baseline</div>
+                  {latestBaseline ? (
+                    <div className="text-[11px] text-slate-500">Run {shortRunId(latestBaseline.baselineRunId)}</div>
+                  ) : null}
+                </div>
+                <div className="mt-1 text-xs text-slate-500">
+                  {latestBaseline ? `Set ${formatLocalDateTime(latestBaseline.baselineTs)}` : "No baseline set"}
+                </div>
+                <div className="mt-1 text-xs text-slate-500">Comparing to: {compareTargetLabel}</div>
                 {latestBaseline ? (
-                  <div className="text-[11px] text-slate-500">Run {shortRunId(latestBaseline.baselineRunId)}</div>
+                  <div className="mt-2 text-xs text-slate-600">
+                    {baselineComparable.ok ? (
+                      <Tooltip content="Same method/version + harness + dataset hash">
+                        <span className="font-semibold text-emerald-700">Comparable ✅</span>
+                      </Tooltip>
+                    ) : (
+                      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                        <div className="font-semibold text-amber-800">{comparisonUnavailableMessage?.title ?? "Comparison unavailable"}</div>
+                        <div className="mt-1 text-[11px] text-amber-700">
+                          {comparisonUnavailableMessage?.detail ?? "Current workspace cannot be compared to the saved baseline."}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : null}
-              </div>
-              <div className="mt-1 text-xs text-slate-500">
-                {latestBaseline ? `Set ${formatLocalDateTime(latestBaseline.baselineTs)}` : "No baseline set"}
-              </div>
-              <div className="mt-1 text-xs text-slate-500">Comparing to: {compareTargetLabel}</div>
-              {latestBaseline ? (
-                <div className="mt-2 text-xs text-slate-600">
-                  {baselineComparable.ok ? (
-                    <Tooltip content="Same method/version + harness + dataset hash">
-                      <span className="font-semibold text-emerald-700">Comparable ✅</span>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip content={baselineComparable.reasons.join("; ") || "Not comparable"}>
-                      <span className="font-semibold text-amber-700">
-                        Not comparable
-                        {baselineComparable.reasons[0] ? ` (${baselineComparable.reasons[0]})` : ""}
-                      </span>
-                    </Tooltip>
-                  )}
-                </div>
-              ) : null}
-              {latestBaseline && baselineComparable.ok && upliftSummary ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {upliftSummary.coverageDeltaPct != null ? (
-                    <Tooltip content="Δ(covered rules / total rules) vs baseline. Based on persisted link artifacts.">
-                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                        Δ Coverage {formatDelta(upliftSummary.coverageDeltaPct, "%", 1)}
-                      </span>
-                    </Tooltip>
-                  ) : null}
-                  {upliftSummary.linkedRulesDelta != null ? (
-                    <Tooltip content="Δ(# rules with persisted evidence links) vs baseline.">
-                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                        Δ Linked {formatDelta(upliftSummary.linkedRulesDelta)}
-                      </span>
-                    </Tooltip>
-                  ) : null}
-                  {upliftSummary.itemsDelta != null ? (
-                    <Tooltip content="Δ(selected evidence items count) vs baseline.">
-                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                        Δ Items {formatDelta(upliftSummary.itemsDelta)}
-                      </span>
-                    </Tooltip>
-                  ) : null}
-                </div>
-              ) : null}
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                {!latestBaseline ? (
-                  <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Set baseline"}>
-                    <button
-                      type="button"
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      onClick={handleSetBaseline}
-                      disabled={baselineActionsDisabled}
-                    >
-                      Set baseline
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <>
-                    <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Rotate baseline"}>
+                {latestBaseline && baselineComparable.ok && upliftSummary ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {upliftSummary.coverageDeltaPct != null ? (
+                      <Tooltip content="Δ(covered rules / total rules) vs baseline. Based on persisted link artifacts.">
+                        <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                          Δ Coverage {formatDelta(upliftSummary.coverageDeltaPct, "%", 1)}
+                        </span>
+                      </Tooltip>
+                    ) : null}
+                    {upliftSummary.linkedRulesDelta != null ? (
+                      <Tooltip content="Δ(# rules with persisted evidence links) vs baseline.">
+                        <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                          Δ Linked {formatDelta(upliftSummary.linkedRulesDelta)}
+                        </span>
+                      </Tooltip>
+                    ) : null}
+                    {upliftSummary.itemsDelta != null ? (
+                      <Tooltip content="Δ(selected evidence items count) vs baseline.">
+                        <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                          Δ Items {formatDelta(upliftSummary.itemsDelta)}
+                        </span>
+                      </Tooltip>
+                    ) : null}
+                  </div>
+                ) : null}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {!latestBaseline ? (
+                    <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Set baseline"}>
                       <button
                         type="button"
                         className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={handleRotateBaseline}
+                        onClick={handleSetBaseline}
                         disabled={baselineActionsDisabled}
                       >
-                        Rotate baseline
+                        Set baseline
                       </button>
                     </Tooltip>
-                    <button
-                      type="button"
-                      className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
-                      onClick={handleClearBaseline}
-                    >
-                      Clear baseline
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-            <VerifierMinutesPanel
-              runContext={verifierBundle.runContext}
-              exportedAt={verifierBundle.exportedAt}
-              minutesFocusKey={minutesFocusKey}
-              minutes={verifierBundle.minutes}
-              checklist={verifierBundle.checklist}
-              onMinutesChange={handleMinutesChange}
-              onToggleChecklist={handleToggleChecklist}
-              onResetChecklist={handleResetChecklist}
-              onNewRun={handleNewRun}
-              onCreateTicket={handleCreateTicket}
-              showCreateTicket={TICKETS_FEATURE_ENABLED}
-            />
-            <DeltaImpactTasksPanel
-              delta={verifierBundle.delta}
-              impact={verifierBundle.impact}
-              tasks={verifierBundle.tasks}
-              draftTask={draftTask}
-              showDraftTask={showDraftTask || verifierBundle.tasks.length === 0}
-              draftTaskInputRef={draftTaskInputRef}
-              onDraftTaskChange={setDraftTask}
-              onCommitDraftTask={commitDraftTask}
-              onDeltaChange={handleDeltaChange}
-              onImpactChange={handleImpactChange}
-              onAddTask={handleAddTask}
-              onToggleTask={handleToggleTask}
-              onUpdateTask={handleUpdateTask}
-              onDeleteTask={handleDeleteTask}
-            />
-            <details className="rounded-xl border border-slate-200 bg-white">
-              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-                Run history
-                <span className="ml-2 text-[11px] font-medium text-slate-500">{runHistory.length} runs</span>
-              </summary>
-              <div className="px-3 pb-3">
-                <RunHistoryPanel
-                  items={runHistory}
-                  onLoad={handleLoadRunHistory}
-                  onDelete={handleDeleteRunHistory}
-                  showTitle={false}
-                  badgeForRun={badgeForRun}
-                />
-              </div>
-            </details>
-            <details className="rounded-xl border border-slate-200 bg-white">
-              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-                Outcome
-              </summary>
-              <div className="px-3 pb-3 pt-1">
-                {intakeSuggestion ? (
-                  <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="font-semibold">Hard-case intake suggested</div>
+                  ) : (
+                    <>
+                      <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Rotate baseline"}>
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          onClick={handleRotateBaseline}
+                          disabled={baselineActionsDisabled}
+                        >
+                          Rotate baseline
+                        </button>
+                      </Tooltip>
                       <button
                         type="button"
-                        className="rounded-full border border-amber-300 bg-amber-200 px-3 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-300"
-                        onClick={handleCreateIntake}
+                        className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100"
+                        onClick={handleClearBaseline}
                       >
-                        Create intake item
+                        Clear baseline
                       </button>
-                    </div>
-                    <div className="mt-1 text-[11px] text-amber-800">
-                      Status {intakeSuggestion.run.status}. {intakeSuggestion.summary ?? "Add this run to the pilot queue."}
-                    </div>
-                  </div>
-                ) : null}
-                <OutcomeWidget
-                  className="border-0 p-0"
-                  summary={runSummary}
-                  exportedAt={verifierBundle.exportedAt}
-                  onCopy={copyToClipboard}
-                  onExportSnapshot={handleExportSnapshot}
-                  onCreateTicket={handleCreateTicket}
-                  showCreateTicket={TICKETS_FEATURE_ENABLED}
-                  debugKey={`${methodCode}@${version}`}
-                  debugLinkedCount={linkedRuleIds.length}
-                  provenance={{
-                    repo: trustPicked.repo ?? null,
-                    sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
-                    generatedAt: trustPicked.generatedAt ?? null,
-                  }}
-                />
+                    </>
+                  )}
+                </div>
               </div>
-            </details>
+
+              <DeltaImpactTasksPanel
+                showComparisonFields={hasComparisonContext}
+                delta={verifierBundle.delta}
+                impact={verifierBundle.impact}
+                tasks={verifierBundle.tasks}
+                draftTask={draftTask}
+                showDraftTask={showDraftTask || verifierBundle.tasks.length === 0}
+                draftTaskInputRef={draftTaskInputRef}
+                onDraftTaskChange={setDraftTask}
+                onCommitDraftTask={commitDraftTask}
+                onDeltaChange={handleDeltaChange}
+                onImpactChange={handleImpactChange}
+                onAddTask={handleAddTask}
+                onToggleTask={handleToggleTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+              />
+
+              <details
+                className="rounded-xl border border-slate-200 bg-white"
+                open={runHistoryOpen}
+                onToggle={(event) => setRunHistoryOpen(event.currentTarget.open)}
+              >
+                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                  Run history
+                  <span className="ml-2 text-[11px] font-medium text-slate-500">{runHistory.length} runs</span>
+                </summary>
+                <div className="px-3 pb-3">
+                  <div className="mb-3 text-xs text-slate-500">
+                    <div>New run starts a fresh review.</div>
+                    <div>Load restores this run into the editable workspace.</div>
+                  </div>
+                  <RunHistoryPanel
+                    items={runHistory}
+                    onLoad={handleLoadRunHistory}
+                    onDelete={handleDeleteRunHistory}
+                    showTitle={false}
+                    activeRunId={activeHistoryRunId}
+                    badgeForRun={badgeForRun}
+                  />
+                </div>
+              </details>
+
+              <details
+                className="rounded-xl border border-slate-200 bg-white"
+                open={outcomeOpen}
+                onToggle={(event) => setOutcomeOpen(event.currentTarget.open)}
+              >
+                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                  Outcome
+                </summary>
+                <div className="px-3 pb-3 pt-1">
+                  {intakeSuggestion ? (
+                    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="font-semibold">Hard-case intake suggested</div>
+                        <button
+                          type="button"
+                          className="rounded-full border border-amber-300 bg-amber-200 px-3 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-300"
+                          onClick={handleCreateIntake}
+                        >
+                          Create intake item
+                        </button>
+                      </div>
+                      <div className="mt-1 text-[11px] text-amber-800">
+                        Status {intakeSuggestion.run.status}. {intakeSuggestion.summary ?? "Add this run to the pilot queue."}
+                      </div>
+                    </div>
+                  ) : null}
+                  <OutcomeWidget
+                    className="border-0 p-0"
+                    summary={runSummary}
+                    exportedAt={verifierBundle.exportedAt}
+                    onCopy={copyToClipboard}
+                    onExportSnapshot={handleExportSnapshot}
+                    onCreateTicket={handleCreateTicket}
+                    showCreateTicket={TICKETS_FEATURE_ENABLED}
+                    debugKey={`${methodCode}@${version}`}
+                    debugLinkedCount={linkedRuleIds.length}
+                    provenance={{
+                      repo: trustPicked.repo ?? null,
+                      sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
+                      generatedAt: trustPicked.generatedAt ?? null,
+                    }}
+                  />
+                </div>
+              </details>
             </div>
-          </details>
+          ) : null}
 
           {verifierMode && auditTrail ? (
             <details className="rounded-lg border border-slate-200 bg-white">

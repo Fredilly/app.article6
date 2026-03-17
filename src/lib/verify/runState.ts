@@ -17,6 +17,7 @@ export type RunSummary = {
     itemIds: string[];
   };
   linkage: {
+    selectedRuleId: string | null;
     linkedRuleIds: string[];
   };
   exportState: {
@@ -26,6 +27,9 @@ export type RunSummary = {
     runId: string | null;
     createdAt: string | null;
     minutes: string;
+    outcomeNote: string;
+    finalizedAt: string | null;
+    finalizedState: "draft" | "finalized";
     checklist: VerifierChecklistItem[];
     delta: string;
     impact: string;
@@ -56,6 +60,8 @@ export type VerifierTask = {
 };
 
 let taskCounter = 0;
+let lastRunIdStamp = "";
+let runIdSequence = 0;
 
 export type VerifierRunContext = {
   runId: string;
@@ -65,14 +71,47 @@ export type VerifierRunContext = {
 export type VerifierRunBundle = {
   runContext: VerifierRunContext;
   exportedAt: string | null;
+  savedReviewerArtifactAt: string | null;
+  finalizedAt: string | null;
+  loadedFromRunId: string | null;
+  derivedFromRunId: string | null;
+  isEditedDraft: boolean;
   minutes: string;
+  outcomeNote: string;
+  draftMinutes: string;
+  draftOutcomeNote: string;
   checklist: VerifierChecklistItem[];
   delta: string;
   impact: string;
   tasks: VerifierTask[];
 };
 
+export type VerifyRunStatus = "in_progress" | "reviewer_artifact_saved" | "ready_to_finalize" | "finalized";
+
+export type VerifyRunStatusDetails = {
+  status: VerifyRunStatus;
+  label: string;
+  missing: string[];
+  nextAction: string | null;
+};
+
+export type VerifyWizardStepId = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+export type VerifyWizardStepDetails = {
+  activeStep: VerifyWizardStepId | null;
+  nextAction: string | null;
+  steps: Array<{
+    id: VerifyWizardStepId;
+    label: string;
+    complete: boolean;
+    active: boolean;
+    disabled: boolean;
+  }>;
+  isComplete: boolean;
+};
+
 export type VerifyRunHistoryBundle = VerifierRunBundle & {
+  selectedRuleId: string | null;
   linkedRuleIds: string[];
   aoi: AOI | null;
   evidencePins: EvidencePin[];
@@ -113,9 +152,15 @@ function buildRunId(methodCode: string, version: string, date = new Date()): str
     pad2(date.getSeconds()),
     String(date.getMilliseconds()).padStart(3, "0"),
   ].join("");
+  if (stamp === lastRunIdStamp) runIdSequence += 1;
+  else {
+    lastRunIdStamp = stamp;
+    runIdSequence = 0;
+  }
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  return `${normalizedMethod}-${normalizedVersion}-${stamp}`;
+  const suffix = runIdSequence > 0 ? `-${String(runIdSequence).padStart(2, "0")}` : "";
+  return `${normalizedMethod}-${normalizedVersion}-${stamp}${suffix}`;
 }
 
 function seedChecklist(timestamp: string): VerifierChecklistItem[] {
@@ -355,7 +400,15 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
       createdAt,
     },
     exportedAt: null,
+    savedReviewerArtifactAt: null,
+    finalizedAt: null,
+    loadedFromRunId: null,
+    derivedFromRunId: null,
+    isEditedDraft: false,
     minutes: "",
+    outcomeNote: "",
+    draftMinutes: "",
+    draftOutcomeNote: "",
     checklist: seedChecklist(createdAt),
     delta: "",
     impact: "",
@@ -389,9 +442,17 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const minutes = typeof parsed.minutes === "string" ? parsed.minutes : "";
+    const outcomeNote = typeof parsed.outcomeNote === "string" ? parsed.outcomeNote : "";
+    const draftMinutes = typeof parsed.draftMinutes === "string" ? parsed.draftMinutes : minutes;
+    const draftOutcomeNote = typeof parsed.draftOutcomeNote === "string" ? parsed.draftOutcomeNote : outcomeNote;
     const delta = typeof parsed.delta === "string" ? parsed.delta : "";
     const impact = typeof parsed.impact === "string" ? parsed.impact : "";
     const exportedAt = asNonEmptyString(parsed.exportedAt);
+    const savedReviewerArtifactAt = asNonEmptyString(parsed.savedReviewerArtifactAt);
+    const finalizedAt = asNonEmptyString(parsed.finalizedAt);
+    const loadedFromRunId = asNonEmptyString(parsed.loadedFromRunId);
+    const derivedFromRunId = asNonEmptyString(parsed.derivedFromRunId);
+    const isEditedDraft = typeof parsed.isEditedDraft === "boolean" ? parsed.isEditedDraft : false;
     const runContextRaw = parsed.runContext && typeof parsed.runContext === "object" ? (parsed.runContext as Record<string, unknown>) : null;
     const runId = asNonEmptyString(runContextRaw?.runId) ?? fallback.runContext.runId;
     const createdAt = asNonEmptyString(runContextRaw?.createdAt) ?? fallback.runContext.createdAt;
@@ -400,7 +461,15 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     return {
       runContext: { runId, createdAt },
       exportedAt,
+      savedReviewerArtifactAt,
+      finalizedAt,
+      loadedFromRunId,
+      derivedFromRunId,
+      isEditedDraft,
       minutes,
+      outcomeNote,
+      draftMinutes,
+      draftOutcomeNote,
       checklist,
       delta,
       impact,
@@ -575,6 +644,7 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       itemIds: uniqSorted(input.stac?.itemIds),
     },
     linkage: {
+      selectedRuleId: input.linkage?.selectedRuleId ?? null,
       linkedRuleIds: uniqSorted(input.linkage?.linkedRuleIds),
     },
     exportState: {
@@ -584,6 +654,9 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       runId: input.verifier?.runId ?? null,
       createdAt: input.verifier?.createdAt ?? null,
       minutes: input.verifier?.minutes ?? "",
+      outcomeNote: input.verifier?.outcomeNote ?? "",
+      finalizedAt: input.verifier?.finalizedAt ?? null,
+      finalizedState: input.verifier?.finalizedState ?? "draft",
       checklist: input.verifier?.checklist ?? [],
       delta: input.verifier?.delta ?? "",
       impact: input.verifier?.impact ?? "",
@@ -596,6 +669,113 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       generatedAt: input.provenance?.generatedAt ?? null,
       snapshotSchemaVersion: input.provenance?.snapshotSchemaVersion ?? null,
     },
+  };
+}
+
+export function hasReviewerArtifact(input: { minutes?: string | null; outcomeNote?: string | null }): boolean {
+  return Boolean(input.minutes?.trim() || input.outcomeNote?.trim());
+}
+
+export function getVerifyRunStatusDetails(input: {
+  selectedRuleId?: string | null;
+  aoiHash?: string | null;
+  stacItemIds?: string[] | null;
+  selectedStacItemId?: string | null;
+  linkedRuleIds?: string[] | null;
+  snapshotExportedAt?: string | null;
+  reviewerArtifactSavedAt?: string | null;
+  finalizedAt?: string | null;
+  minutes?: string | null;
+  outcomeNote?: string | null;
+}): VerifyRunStatusDetails {
+  if (input.finalizedAt?.trim()) {
+    return {
+      status: "finalized",
+      label: "Finalized",
+      missing: [],
+      nextAction: null,
+    };
+  }
+
+  const missing: string[] = [];
+  if (!input.selectedRuleId?.trim()) missing.push("Select a rule");
+  if (!input.aoiHash?.trim()) missing.push("Add an AOI");
+  if (!(input.stacItemIds?.length)) missing.push("Search STAC");
+  if (!input.selectedStacItemId?.trim()) missing.push("Select an evidence item");
+  if (!(input.linkedRuleIds?.length)) missing.push("Link evidence to the rule");
+
+  if (missing.length > 0) {
+    return {
+      status: "in_progress",
+      label: "In progress",
+      missing,
+      nextAction: missing[0] ?? null,
+    };
+  }
+
+  const reviewerArtifactSaved = Boolean(input.reviewerArtifactSavedAt?.trim());
+  if (!reviewerArtifactSaved) {
+    return {
+      status: "in_progress",
+      label: "In progress",
+      missing: ["Save reviewer artifact"],
+      nextAction: "Save reviewer artifact",
+    };
+  }
+
+  return {
+    status: "ready_to_finalize",
+    label: "Ready to finalize",
+    missing: ["Finalize run"],
+    nextAction: "Finalize run",
+  };
+}
+
+export function getVerifyWizardStepDetails(input: {
+  selectedRuleId?: string | null;
+  aoiHash?: string | null;
+  stacItemIds?: string[] | null;
+  selectedStacItemId?: string | null;
+  linkedRuleIds?: string[] | null;
+  snapshotExportedAt?: string | null;
+  reviewerArtifactSavedAt?: string | null;
+  minutes?: string | null;
+  outcomeNote?: string | null;
+  finalizedAt?: string | null;
+}): VerifyWizardStepDetails {
+  const hasRule = Boolean(input.selectedRuleId?.trim());
+  const hasAoi = Boolean(input.aoiHash?.trim());
+  const hasSearchResults = Boolean(input.stacItemIds?.length);
+  const hasSelectedItem = Boolean(input.selectedStacItemId?.trim());
+  const hasPins = Boolean(input.linkedRuleIds?.length);
+  const hasSavedReviewerArtifact = Boolean(input.reviewerArtifactSavedAt?.trim());
+  const isFinalized = Boolean(input.finalizedAt?.trim());
+
+  const activeStep: VerifyWizardStepId | null =
+    !hasRule ? 1 :
+    !hasAoi ? 2 :
+    !hasSearchResults ? 3 :
+    !hasSelectedItem ? 4 :
+    !hasPins ? 5 :
+    !hasSavedReviewerArtifact ? 6 :
+    !isFinalized ? 7 :
+    null;
+
+  const steps: VerifyWizardStepDetails["steps"] = [
+    { id: 1, label: "Pick rule", complete: hasRule, active: activeStep === 1, disabled: false },
+    { id: 2, label: "Confirm AOI", complete: hasAoi, active: activeStep === 2, disabled: !hasRule },
+    { id: 3, label: "Search STAC", complete: hasSearchResults, active: activeStep === 3, disabled: !hasAoi },
+    { id: 4, label: "Select item", complete: hasSelectedItem, active: activeStep === 4, disabled: !hasSearchResults },
+    { id: 5, label: "Create/link pin", complete: hasPins, active: activeStep === 5, disabled: !hasSelectedItem || !hasRule },
+    { id: 6, label: "Save reviewer artifact", complete: hasSavedReviewerArtifact, active: activeStep === 6, disabled: !hasPins },
+    { id: 7, label: "Finalize run", complete: isFinalized, active: activeStep === 7, disabled: !hasPins || !hasSavedReviewerArtifact },
+  ];
+
+  return {
+    activeStep,
+    nextAction: steps.find((step) => step.active)?.label ?? null,
+    steps,
+    isComplete: isFinalized,
   };
 }
 
@@ -619,6 +799,9 @@ export function createTicketTemplate(summary: RunSummary): string {
     "",
     "## Minutes",
     summary.verifier.minutes?.trim() ? summary.verifier.minutes.trim() : "_None_",
+    "",
+    "## Outcome note",
+    summary.verifier.outcomeNote?.trim() ? summary.verifier.outcomeNote.trim() : "_None_",
     "",
     "## Delta",
     summary.verifier.delta?.trim() ? summary.verifier.delta.trim() : "_None_",
