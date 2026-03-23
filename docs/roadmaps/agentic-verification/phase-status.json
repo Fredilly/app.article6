@@ -1,15 +1,52 @@
 {
+  "phase_meta": {
+    "status": "frozen",
+    "summary": "Preserved as future optional work; not part of the current active customer-validation roadmap.",
+    "not_active_now": [
+      "This lane is frozen for now",
+      "Future agent platform work remains documented but does not drive current build priority"
+    ]
+  },
   "PR36": "done",
-  "PR37": "planned",
-  "PR38": "planned",
-  "PR39": "planned",
-  "PR40": "planned",
-  "PR41": "planned",
-  "PR42": "planned",
-  "PR43": "planned",
-  "PR44": "planned",
-  "PR45": "planned",
+  "PR37": "frozen",
+  "PR38": "frozen",
+  "PR39": "frozen",
+  "PR40": "frozen",
+  "PR41": "frozen",
+  "PR42": "frozen",
+  "PR43": "frozen",
+  "PR44": "frozen",
+  "PR45": "frozen",
   "pr_evidence": {
     "PR36": [438]
+  },
+  "pr_notes": {
+    "PR37": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR38": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR39": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR40": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR41": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR42": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR43": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR44": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    },
+    "PR45": {
+      "reason": "Frozen with the lane; preserved as future optional work."
+    }
   }
 }

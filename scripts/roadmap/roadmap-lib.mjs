@@ -11,9 +11,13 @@ function toRepoRelPath(filePath) {
 const STATUS_LABELS = {
   planned: "Planned",
   next: "Next",
+  active: "Active",
   "in-progress": "In progress",
   done: "Done",
   blocked: "Blocked",
+  deferred: "Deferred",
+  frozen: "Frozen",
+  parked: "Parked",
   merged: "Done",
 };
 
@@ -45,7 +49,11 @@ export function normalizeStatus(value) {
   if (["done", "complete", "completed"].includes(lowered)) return "done";
   if (["planned"].includes(lowered)) return "planned";
   if (["next"].includes(lowered)) return "next";
+  if (["active"].includes(lowered)) return "active";
   if (["blocked"].includes(lowered)) return "blocked";
+  if (["deferred"].includes(lowered)) return "deferred";
+  if (["frozen"].includes(lowered)) return "frozen";
+  if (["parked"].includes(lowered)) return "parked";
   if (["merged"].includes(lowered)) return "merged";
   return lowered;
 }
@@ -121,6 +129,8 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
     const slug = path.basename(path.dirname(ssotPath));
     const ssot = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
     const evidence = ssot.pr_evidence ?? {};
+    const phaseMeta = ssot.phase_meta ?? {};
+    const prNotes = ssot.pr_notes ?? {};
     const planPath = findPlanPath(docsRoot, slug);
     const planItems = parsePlanTitles(planPath);
     const planOrder = planItems.map((item) => item.id);
@@ -149,7 +159,8 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
       const receipts = hasReceipts ? evidence[item.id] : null;
       const receiptText = receipts && receipts.length ? ` (PR #${receipts.join(", #")})` : "";
       const titlePart = title ? ` — ${title}` : "";
-      return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}${receiptText}`;
+      const note = prNotes[item.id]?.reason ? ` — ${prNotes[item.id].reason}` : "";
+      return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}${receiptText}${note}`;
     });
 
     return {
@@ -158,6 +169,7 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
       planPath,
       items,
       minPr: minPrNumber(ssot),
+      phaseMeta,
     };
   });
 
@@ -177,17 +189,42 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
 
   const renderSection = (section, headingLevel) => {
     const heading = `${"#".repeat(headingLevel)} ${section.slug}`;
+    const laneStatus = section.phaseMeta.status ? `Lane status: ${statusLabel(section.phaseMeta.status)}` : null;
+    const summary = section.phaseMeta.summary ? `${section.phaseMeta.summary}` : null;
+    const currentFocus = Array.isArray(section.phaseMeta.current_focus) ? section.phaseMeta.current_focus : [];
+    const notActiveNow = Array.isArray(section.phaseMeta.not_active_now) ? section.phaseMeta.not_active_now : [];
+    const renderBullets = (title, items) =>
+      items.length ? [title, ...items.map((item) => `- ${item}`), ""] : [];
     const sectionLines = [
       heading,
       "",
       `Status SSOT: \`${toRepoRelPath(section.ssotPath)}\``,
       section.planPath ? `Details: \`${toRepoRelPath(section.planPath)}\`` : null,
       "",
+      laneStatus,
+      summary,
+      ...(laneStatus || summary ? [""] : []),
+      ...renderBullets("Current focus:", currentFocus),
+      ...renderBullets("Not active now:", notActiveNow),
       ...section.items,
       "",
     ].filter((line) => line !== null);
     return sectionLines.join("\n");
   };
+
+  const activeLanes = sortedSections
+    .filter((section) => normalizeStatus(section.phaseMeta.status) === "active")
+    .map((section) => section.slug);
+  const frozenLanes = sortedSections
+    .filter((section) => normalizeStatus(section.phaseMeta.status) === "frozen")
+    .map((section) => section.slug);
+  const deferredItems = sortedSections.flatMap((section) =>
+    Object.entries(section.phaseMeta.deferred_items ?? {}).map(([pr, reason]) => ({
+      pr,
+      reason,
+      slug: section.slug,
+    })),
+  );
 
   for (const section of sortedSections) {
     const parent = PARENT[section.slug];
@@ -203,6 +240,13 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
     "# Roadmaps Summary",
     "",
     "This file is generated from roadmap SSOT JSON. Do not edit manually.",
+    "",
+    "Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.",
+    activeLanes.length ? `Active lanes: ${activeLanes.join(", ")}.` : null,
+    frozenLanes.length ? `Frozen lanes: ${frozenLanes.join(", ")}.` : null,
+    deferredItems.length
+      ? `Deferred items: ${deferredItems.map((item) => `${item.slug}/${item.pr}`).join(", ")}.`
+      : null,
     "",
     ...sections,
   ].join("\n");

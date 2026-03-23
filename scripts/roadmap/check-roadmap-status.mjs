@@ -18,7 +18,17 @@ function readEvent() {
   }
 }
 
-const ALLOWED_STATUSES = new Set(["planned", "next", "in-progress", "done", "blocked"]);
+const ALLOWED_STATUSES = new Set([
+  "planned",
+  "next",
+  "active",
+  "in-progress",
+  "done",
+  "blocked",
+  "deferred",
+  "frozen",
+  "parked",
+]);
 
 const event = readEvent();
 const title = event?.pull_request?.title ?? "";

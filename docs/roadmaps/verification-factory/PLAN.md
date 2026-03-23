@@ -1,5 +1,17 @@
 # Verification Factory (Compounding Moat)
 
+Status is sourced from `docs/roadmaps/verification-factory/phase-status.json`; this lane is now reset around customer validation. Only near-term customer-facing work is active, and deferred items stay documented without driving sequence.
+
+## Current focus
+- Close customer-facing judgment gaps.
+- Improve customer-safe exports and shareable artifacts.
+- Support pre-audit and review prep.
+- Avoid speculative platform expansion.
+
+## Deferred / not active now
+- PR32 Midjourney-style preference capture.
+- Features that require repeated usage across many customers.
+
 ## Always-optimizing pillars
 1) Proof determinism: same inputs => identical outputs, forever.
 2) Coverage compounding: every verification adds reusable coverage.
