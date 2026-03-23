@@ -5,7 +5,7 @@ This file is generated from roadmap SSOT JSON. Do not edit manually.
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
 Active lanes: verification-factory.
 Frozen lanes: agentic-verification.
-Deferred items: verification-factory/PR32.
+
 
 ## data-integrity-exports
 
@@ -56,7 +56,7 @@ Current focus:
 - Avoid speculative platform expansion
 
 Not active now:
-- PR32 Midjourney-style preference capture
+- Precedent memory until repeated customer usage proves it is worth building now
 - Features that depend on repeated multi-customer usage patterns
 
 1) PR22 — KPI SSOT + CI Snapshot + Proof/Coverage chip: Done (PR #397)
@@ -69,7 +69,7 @@ Not active now:
 8) PR29 — Pilot loop + hard-case intake: Done (PR #414)
 9) PR30 — Make coverage actionable (real rule IDs): Done (PR #427)
 10) PR31 — Baseline uplift discipline: Done (PR #436)
-11) PR32 — Pairwise evidence preference events (Midjourney-style): Deferred — Skipped for now. Midjourney reinforcement depends on repeated customer usage patterns and is not part of the current customer-validation roadmap.
+11) PR32 — Pairwise evidence preference events (Midjourney-style): Done (PR #445)
 12) PR33 — Adjudication templates + Promote to Gold labels: Active — Active because it closes customer-facing judgment gaps in live review workflows.
 13) PR34 — Precedent matching (case-law memory): Parked — Parked until repeated customer usage shows precedent memory is worth building now.
 14) PR35 — Investor-safe Moat Export v2 (redacted): Next — Next because customer-safe redacted exports directly support live sharing and review.

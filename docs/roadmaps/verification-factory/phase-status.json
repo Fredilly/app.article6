@@ -9,12 +9,9 @@
       "Avoid speculative platform expansion"
     ],
     "not_active_now": [
-      "PR32 Midjourney-style preference capture",
+      "Precedent memory until repeated customer usage proves it is worth building now",
       "Features that depend on repeated multi-customer usage patterns"
-    ],
-    "deferred_items": {
-      "PR32": "Skipped for now. Midjourney reinforcement depends on repeated customer usage patterns and is not part of the current customer-validation roadmap."
-    }
+    ]
   },
   "PR22": "done",
   "PR23": "done",
@@ -26,7 +23,7 @@
   "PR29": "done",
   "PR30": "done",
   "PR31": "done",
-  "PR32": "deferred",
+  "PR32": "done",
   "PR33": "active",
   "PR34": "parked",
   "PR35": "next",
@@ -60,6 +57,9 @@
     ],
     "PR31": [
       436
+    ],
+    "PR32": [
+      445
     ]
   },
   "pr_meta": {
@@ -89,9 +89,6 @@
     }
   },
   "pr_notes": {
-    "PR32": {
-      "reason": "Skipped for now. Midjourney reinforcement depends on repeated customer usage patterns and is not part of the current customer-validation roadmap."
-    },
     "PR33": {
       "reason": "Active because it closes customer-facing judgment gaps in live review workflows."
     },

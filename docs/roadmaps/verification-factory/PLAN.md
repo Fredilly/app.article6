@@ -1,6 +1,6 @@
 # Verification Factory (Compounding Moat)
 
-Status is sourced from `docs/roadmaps/verification-factory/phase-status.json`; this lane is now reset around customer validation. Only near-term customer-facing work is active, and deferred items stay documented without driving sequence.
+Status is sourced from `docs/roadmaps/verification-factory/phase-status.json`; this lane is now reset around customer validation. Only near-term customer-facing work is active, and historical or parked items stay documented without driving sequence.
 
 ## Current focus
 - Close customer-facing judgment gaps.
@@ -8,8 +8,8 @@ Status is sourced from `docs/roadmaps/verification-factory/phase-status.json`; t
 - Support pre-audit and review prep.
 - Avoid speculative platform expansion.
 
-## Deferred / not active now
-- PR32 Midjourney-style preference capture.
+## Not active now
+- Precedent memory until repeated customer usage proves it is worth building now.
 - Features that require repeated usage across many customers.
 
 ## Always-optimizing pillars
