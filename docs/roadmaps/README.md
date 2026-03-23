@@ -20,7 +20,7 @@ Directive format:
   - PR10: in_progress
 ```
 
-Allowed statuses: planned | next | in_progress | done | blocked
+Allowed statuses: planned | next | active | in_progress | done | blocked | deferred | frozen | parked
 
 On merge, automation updates `docs/roadmaps/<slug>/phase-status.json` and
 regenerates `docs/roadmaps/SUMMARY.md`. `in_progress` is fine while a PR is open,

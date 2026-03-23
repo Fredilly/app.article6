@@ -1,4 +1,18 @@
 {
+  "phase_meta": {
+    "status": "active",
+    "summary": "Customer-validation roadmap. Only near-term customer-facing work is active; historical items remain documented but do not drive sequencing.",
+    "current_focus": [
+      "Close customer-facing judgment gaps",
+      "Improve customer-safe exports and shareable artifacts",
+      "Support pre-audit and review prep",
+      "Avoid speculative platform expansion"
+    ],
+    "not_active_now": [
+      "Precedent memory until repeated customer usage proves it is worth building now",
+      "Features that depend on repeated multi-customer usage patterns"
+    ]
+  },
   "PR22": "done",
   "PR23": "done",
   "PR24": "done",
@@ -10,9 +24,9 @@
   "PR30": "done",
   "PR31": "done",
   "PR32": "done",
-  "PR33": "planned",
-  "PR34": "planned",
-  "PR35": "planned",
+  "PR33": "active",
+  "PR34": "parked",
+  "PR35": "next",
   "pr_evidence": {
     "PR22": [
       397
@@ -43,6 +57,9 @@
     ],
     "PR31": [
       436
+    ],
+    "PR32": [
+      445
     ]
   },
   "pr_meta": {
@@ -69,6 +86,17 @@
     "PR35": {
       "title": "Investor-safe Moat Export v2 (redacted)",
       "summary": "Export redacted moat bundles suitable for investor distribution."
+    }
+  },
+  "pr_notes": {
+    "PR33": {
+      "reason": "Active because it closes customer-facing judgment gaps in live review workflows."
+    },
+    "PR34": {
+      "reason": "Parked until repeated customer usage shows precedent memory is worth building now."
+    },
+    "PR35": {
+      "reason": "Next because customer-safe redacted exports directly support live sharing and review."
     }
   }
 }

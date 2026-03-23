@@ -5,7 +5,11 @@ import { normalizeStatus, parseRoadmapDirective, normalizePrId } from "./roadmap
 
 const STATUS_ORDER = {
   planned: 1,
+  deferred: 1,
+  frozen: 1,
+  parked: 1,
   next: 2,
+  active: 3,
   "in-progress": 3,
   blocked: 3,
   done: 4,
