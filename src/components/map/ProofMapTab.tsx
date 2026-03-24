@@ -8,6 +8,8 @@ import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
+import { buildProofBundleV1 } from "@/lib/proof/bundle";
+import { exportAuditZipFromStorage } from "@/lib/proof/auditZip";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { kindFromCitedId } from "@/lib/proofMap/pins";
@@ -119,6 +121,8 @@ type ProofMapTabProps = {
     onOpenEvidence: (url: string) => void;
   } | null;
   onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
+  exportRules?: Array<{ id: string; title?: string; snippet?: string; tags?: string[] }>;
+  exportSections?: Array<{ id: string; title?: string; anchor?: string; textSnippet?: string }>;
 };
 
 function formatNum(value: number): string {
@@ -147,6 +151,18 @@ function shortSha(value: string): string {
 function downloadJson(value: unknown, filename: string) {
   const text = canonicalJsonStringify(value);
   const blob = new Blob([text], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadBytes(bytes: Uint8Array, filename: string, mime: string) {
+  const blob = new Blob([Uint8Array.from(bytes)], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -287,6 +303,8 @@ export default function ProofMapTab({
   onOpenCoverageDrawer,
   auditTrail,
   onEvidenceSelectionChange,
+  exportRules = [],
+  exportSections = [],
 }: ProofMapTabProps) {
   const isEvidenceMode = mode === "evidence";
   const isListMode = viewMode === "list";
@@ -320,6 +338,7 @@ export default function ProofMapTab({
   const [secondarySectionOpen, setSecondarySectionOpen] = useState(false);
   const [runHistoryOpen, setRunHistoryOpen] = useState(false);
   const [outcomeOpen, setOutcomeOpen] = useState(false);
+  const [redactedExportedAt, setRedactedExportedAt] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -1676,6 +1695,78 @@ export default function ProofMapTab({
     stacEndpointUrl,
     totalRules,
     verifierBundle,
+    version,
+  ]);
+
+  const handleExportRedactedV2 = useCallback(async () => {
+    if (!verifierBundle.finalizedAt?.trim()) {
+      showToast({
+        title: "Finalize run first",
+        subtitle: "Redacted v2 is only available after the run is completed.",
+      });
+      return;
+    }
+    try {
+      const redactedRules = exportRules.map((rule) => ({
+        id: rule.id,
+        title: rule.title ?? "",
+        snippet: rule.snippet ?? "",
+        tags: rule.tags ?? [],
+      }));
+      const redactedSections = exportSections.map((section) => ({
+        id: section.id,
+        title: section.title ?? "",
+        anchor: section.anchor,
+        textSnippet: section.textSnippet,
+      }));
+      const bundle = await buildProofBundleV1({
+        code: methodCode,
+        version,
+        source: "Article6 Methodologies",
+        generated_at: trustPicked.generatedAt,
+        provenance: trustPicked,
+        aoi: aoi ?? undefined,
+        evidence_pins: evidencePins.length ? evidencePins : undefined,
+        rules: redactedRules,
+        sections: redactedSections,
+      });
+      const reviewText = (verifierBundle.outcomeNote || verifierBundle.minutes).trim();
+      const zipBytes = await exportAuditZipFromStorage(bundle, {
+        profile: "redacted-v2",
+        rules: redactedRules,
+        sections: redactedSections,
+        reviewEntry: reviewText
+          ? {
+              actor: "Verifier",
+              action: "note",
+              note: reviewText,
+            }
+          : undefined,
+      });
+      const exportedAt = new Date().toISOString();
+      const filename = `verify-redacted-v2.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.zip`;
+      downloadBytes(zipBytes, filename, "application/zip");
+      setRedactedExportedAt(exportedAt);
+      showToast({
+        title: "Redacted v2 exported",
+        subtitle: "Share-safe bundle includes redaction_manifest.json.",
+      });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("Redacted v2 export failed");
+    }
+  }, [
+    aoi,
+    evidencePins,
+    exportRules,
+    exportSections,
+    methodCode,
+    showToast,
+    trustPicked,
+    verifierBundle.finalizedAt,
+    verifierBundle.minutes,
+    verifierBundle.outcomeNote,
+    verifierBundle.runContext.runId,
     version,
   ]);
 
@@ -3211,6 +3302,9 @@ export default function ProofMapTab({
             onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
             onSaveReviewerArtifact={handleSaveReviewerArtifact}
             onFinalizeRun={handleFinalizeRun}
+            onExportRedactedV2={handleExportRedactedV2}
+            canExportRedactedV2={Boolean(verifierBundle.finalizedAt)}
+            redactedV2ExportedAt={redactedExportedAt}
             finalizedAt={verifierBundle.finalizedAt}
             currentRunLabel={currentRunLabel}
             loadedFromRunLabel={loadedFromRunLabel}

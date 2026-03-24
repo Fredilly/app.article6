@@ -32,6 +32,8 @@ describe("EvidenceWorkflowStepper", () => {
         onReviewerOutcomeNoteChange={() => {}}
         onSaveReviewerArtifact={() => {}}
         onFinalizeRun={() => {}}
+        onExportRedactedV2={() => {}}
+        canExportRedactedV2={false}
         finalizedAt={null}
         currentRunLabel="run-1234"
         isEditedDraft={false}
@@ -56,6 +58,8 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).toContain("Finalize run");
     expect(html).toContain("Reviewer artifact saved");
     expect(html).toContain("Ready to finalize");
+    expect(html).toContain("Export Redacted v2");
+    expect(html).toContain("Finalize run to enable this share-safe bundle.");
   });
 
   it("shows the completion card only after finalization", () => {
@@ -86,6 +90,9 @@ describe("EvidenceWorkflowStepper", () => {
         onReviewerOutcomeNoteChange={() => {}}
         onSaveReviewerArtifact={() => {}}
         onFinalizeRun={() => {}}
+        onExportRedactedV2={() => {}}
+        canExportRedactedV2
+        redactedV2ExportedAt="2026-01-01T00:07:00Z"
         finalizedAt="2026-01-01T00:06:00Z"
         currentRunLabel="run-1234"
         isEditedDraft={false}
@@ -108,5 +115,6 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).toContain("Run complete");
     expect(html).toContain("Start another run");
     expect(html).toContain("View run history");
+    expect(html).toContain("Redacted v2 exported");
   });
 });

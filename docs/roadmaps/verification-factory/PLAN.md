@@ -287,21 +287,49 @@ Surface similar prior cases to speed verification decisions.
 ## PR35 - Investor-safe Moat Export v2 (redacted)
 
 ### Goal
-Export redacted moat bundles suitable for investor review.
+Ship a deterministic share-safe export from Verify that preserves trust and provenance without exposing sensitive evidence.
 
 ### Scope
-- Add redaction rules for sensitive evidence.
-- Produce a v2 moat export bundle.
-- Include redaction manifest in the export.
+- Add a `Redacted v2` export option in the Verify export/finalization area.
+- Produce a deterministic zip bundle that reuses the audit-pack structure but applies a redacted export profile.
+- Include `redaction_manifest.json` so every removed, masked, or replaced surface is explicit and auditable.
+- Preserve rule/section linkage and bundle integrity hashes even when raw content is redacted.
+
+### User flow
+1. Verifier completes the normal workflow and finalizes the run.
+2. Verify shows `Redacted v2` with a short explanation of what is removed or masked.
+3. User exports a share-safe bundle for prospects, investors, or reviewers.
+4. Bundle opens with a clear redacted label plus a redaction manifest describing what changed.
+
+### Redaction rules
+- Remove AOI geometry and raw location detail from the share-safe bundle.
+- Remove raw attachment payloads from the zip.
+- Remove raw STAC geometry and raw run payloads.
+- Mask STAC item identifiers and reviewer free text deterministically.
+- Keep method/version, rule linkage, section linkage, and integrity hashes visible.
+
+### Edge cases
+- Incomplete runs must not produce `Redacted v2`.
+- Redacted export must remain deterministic for identical inputs.
+- Standard checkpoint/final export behavior stays unchanged.
+- Missing optional review text still produces a valid redacted bundle and manifest.
+
+### Scenario evals
+- Finalized run with AOI, STAC evidence, pins, and reviewer notes exports `Redacted v2` with no raw attachments and a populated redaction manifest.
+- Re-running the same redacted export with identical input bytes produces byte-identical output.
+- Attempting to export before finalization keeps the action disabled and explains why.
+- Bundle metadata clearly marks the export profile as redacted and names the manifest path.
 
 ### Non-goals
 - No changes to existing v1 exports.
 - No external sharing workflows.
 
 ### Acceptance criteria
-- Redacted export omits sensitive fields.
-- Export includes redaction manifest and hash.
-- Export passes existing determinism checks.
+- Redacted export omits or masks sensitive fields while keeping provenance verifiable.
+- Export includes `redaction_manifest.json` and bundle metadata that clearly marks the profile as redacted.
+- Verify exposes a clear `Redacted v2` option with a pre-export explanation.
+- Export is blocked until the run is complete.
+- Export passes determinism/export tests without changing the standard export path.
 
 ### Visible UI change to look for
-- Export action includes a "Redacted v2" option.
+- Verify export area includes a `Redacted v2` option, explanatory copy, and a redacted completion badge after download.

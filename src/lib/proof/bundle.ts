@@ -11,9 +11,23 @@ export type ProofEvidenceItem = {
   stable_ref?: string;
 };
 
+export type ProofBundleExportProfile = "standard" | "redacted-v2";
+
+export type ProofBundleRedactionSummary = {
+  profile: "redacted-v2";
+  manifest_path: string;
+  removed_attachments: number;
+  removed_runs: number;
+  removed_geojson_features: number;
+  masked_stac_items: number;
+  masked_review_entries: number;
+};
+
 export type ProofBundleV1 = {
   bundle_version: "proof-bundle@1";
   exported_at: string;
+  export_profile?: ProofBundleExportProfile;
+  export_label?: string;
   method: {
     program?: string;
     sector?: string;
@@ -45,6 +59,7 @@ export type ProofBundleV1 = {
     sha256_meaning?: "bundle_sha256" | "zip_sha256";
     attachments?: Array<{ id: string; sha256: string }>;
   };
+  redaction?: ProofBundleRedactionSummary;
 };
 
 export type ProofBundleIntegrityCheck =

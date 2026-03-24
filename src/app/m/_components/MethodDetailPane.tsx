@@ -1201,6 +1201,18 @@ export default function MethodDetailPane({
           if (type === "section") return await navigateToSection(id);
           return false;
         }}
+        exportRules={rules.map((rule) => ({
+          id: rule.id,
+          title: rule.title,
+          snippet: rule.snippet,
+          tags: rule.tags ?? [],
+        }))}
+        exportSections={sections.map((section) => ({
+          id: section.id,
+          title: section.title,
+          anchor: section.anchor,
+          textSnippet: section.textSnippet,
+        }))}
         onOpenCoverageDrawer={() => setCoverageDrawerOpen(true)}
       />
     </div>

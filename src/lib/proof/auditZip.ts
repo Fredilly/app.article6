@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import type { EvidenceAttachment, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
-import type { ProofBundleV1 } from "@/lib/proof/bundle";
+import type { ProofBundleRedactionSummary, ProofBundleV1 } from "@/lib/proof/bundle";
 import { canonicalizeProofBundleForHash, isProofBundleV1, sha256Hex, verifyProofBundleIntegrity } from "@/lib/proof/bundle";
 import { sha256ArrayBuffer, sha256Text } from "@/lib/proof/hash";
 import { canonicalJson } from "@/lib/proof/fingerprints";
@@ -14,6 +14,8 @@ import selectRunsForAoi from "@/lib/export/selectRunsForAoi";
 type AuditZipEntry = { path: string; bytes: Uint8Array };
 type RuleSummary = { id: string; title?: string; snippet?: string; tags?: string[]; text?: string };
 type SectionSummary = { id: string; title?: string; anchor?: string; textSnippet?: string; text?: string };
+export type AuditExportProfile = "standard" | "redacted-v2";
+const REDACTION_MANIFEST_PATH = "redaction_manifest.json";
 
 export type RuleEvidenceMapItem = {
   evidence_id: string;
@@ -52,6 +54,20 @@ export type ReviewLog = {
   method: { code: string; version: string };
   aoi?: { id?: string; fingerprint?: string } | null;
   entries: ReviewLogEntry[];
+};
+
+export type RedactionManifest = {
+  kind: "article6.redaction_manifest";
+  version: 1;
+  profile: "redacted-v2";
+  generated_at: string;
+  summary: ProofBundleRedactionSummary;
+  actions: Array<{
+    path: string;
+    action: "removed" | "masked" | "replaced";
+    reason: string;
+    count?: number;
+  }>;
 };
 
 const ZIP_ENTRY_DATE = new Date("1980-01-01T00:00:00.000Z");
@@ -277,6 +293,202 @@ export async function buildReviewLog(input: {
   };
 }
 
+async function buildMaskedRef(prefix: string, value: string): Promise<string> {
+  const digest = await sha256Text(`${prefix}:${value}`);
+  return `redacted:${digest.slice(0, 16)}`;
+}
+
+function buildRedactedProvenanceText(input: {
+  methodCode: string;
+  version: string;
+  generatedAt: string;
+  stacItemCount: number;
+  removedAttachmentCount: number;
+}): string {
+  return [
+    "Article6 Redacted v2 export",
+    `method_code=${input.methodCode}`,
+    `method_version=${input.version}`,
+    `generated_at=${input.generatedAt}`,
+    "aoi=redacted",
+    "stac_run_id=redacted",
+    `stac_item_count=${input.stacItemCount}`,
+    `attachments_removed=${input.removedAttachmentCount}`,
+    "reviewer_notes=redacted",
+  ].join("\n");
+}
+
+async function buildRedactedArtifacts(input: {
+  bundle: ProofBundleV1;
+  pins: EvidencePin[];
+  attachments: Array<{ id: string; filename: string; bytes: ArrayBuffer }>;
+  runs: VerificationRun[];
+  verificationSnapshot: {
+    provenanceText: string;
+    stacItemsJson: unknown;
+    stacEvidenceGeojson: GeoJSON.FeatureCollection;
+  };
+  ruleEvidenceMap: RuleEvidenceMap;
+  reviewLog: ReviewLog;
+}): Promise<{
+  bundle: ProofBundleV1;
+  attachments: Array<{ id: string; filename: string; bytes: ArrayBuffer }>;
+  runs?: VerificationRun[];
+  verificationSnapshot: {
+    provenanceText: string;
+    stacItemsJson: unknown;
+    stacEvidenceGeojson: GeoJSON.FeatureCollection;
+  };
+  ruleEvidenceMap: RuleEvidenceMap;
+  reviewLog: ReviewLog;
+  redactionManifest: RedactionManifest;
+}> {
+  const stacItems = Array.isArray((input.verificationSnapshot.stacItemsJson as { items?: unknown[] } | null)?.items)
+    ? ((input.verificationSnapshot.stacItemsJson as { items: unknown[] }).items ?? [])
+    : [];
+  const redactedStacItems = await Promise.all(
+    stacItems.map(async (item, index) => {
+      const record = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+      const itemId = typeof record.id === "string" && record.id.trim() ? record.id.trim() : `item-${index + 1}`;
+      return { ref: await buildMaskedRef("stac-item", itemId) };
+    }),
+  );
+  const redactedPins = await Promise.all(
+    input.pins.map(async (pin) => {
+      const maskedId = await buildMaskedRef("pin", pin.id);
+      const maskedRunId = pin.stac_run_id ? await buildMaskedRef("stac-run", pin.stac_run_id) : undefined;
+      const maskedItemIds = pin.stac_item_ids?.length
+        ? await Promise.all(pin.stac_item_ids.map((itemId) => buildMaskedRef("stac-item", itemId)))
+        : undefined;
+      return {
+        id: maskedId,
+        kind: pin.kind,
+        title: "Redacted evidence link",
+        ruleId: pin.ruleId,
+        cited_ids: [...pin.cited_ids].sort((a, b) => a.localeCompare(b)),
+        note: pin.note ? "[REDACTED FOR SHARE-SAFE EXPORT]" : undefined,
+        stac_item_ids: maskedItemIds,
+        stac_run_id: maskedRunId,
+        created_at: pin.created_at,
+      } satisfies EvidencePin;
+    }),
+  );
+  const redactedRuleEvidenceMap: RuleEvidenceMap = {
+    ...input.ruleEvidenceMap,
+    aoi: null,
+    items: await Promise.all(
+      input.ruleEvidenceMap.items.map(async (item) => ({
+        ...item,
+        evidence_id: await buildMaskedRef("rule-evidence", item.evidence_id),
+        source_ref: "redacted://evidence",
+        justification: "Redacted v2 preserves rule and section linkage while omitting raw evidence identifiers.",
+      })),
+    ),
+  };
+  const redactedReviewEntries = input.reviewLog.entries.map((entry) => ({
+    ...entry,
+    actor: "redacted",
+    note: "[REDACTED FOR SHARE-SAFE EXPORT]",
+    refs: {},
+  }));
+  const redactedReviewLog: ReviewLog = {
+    ...input.reviewLog,
+    aoi: null,
+    entries: redactedReviewEntries,
+  };
+  const removedGeojsonFeatures = input.verificationSnapshot.stacEvidenceGeojson.features?.length ?? 0;
+  const summary: ProofBundleRedactionSummary = {
+    profile: "redacted-v2",
+    manifest_path: REDACTION_MANIFEST_PATH,
+    removed_attachments: input.attachments.length,
+    removed_runs: input.runs.length,
+    removed_geojson_features: removedGeojsonFeatures,
+    masked_stac_items: redactedStacItems.length,
+    masked_review_entries: redactedReviewEntries.length,
+  };
+  const redactionManifest: RedactionManifest = {
+    kind: "article6.redaction_manifest",
+    version: 1,
+    profile: "redacted-v2",
+    generated_at: input.bundle.exported_at,
+    summary,
+    actions: [
+      {
+        path: "attachments/",
+        action: "removed",
+        reason: "Raw attachment payloads are excluded from share-safe exports.",
+        count: input.attachments.length,
+      },
+      {
+        path: "runs.json",
+        action: "removed",
+        reason: "Run payloads can contain raw evidence and execution details.",
+        count: input.runs.length,
+      },
+      {
+        path: "bundle.json#aoi",
+        action: "removed",
+        reason: "AOI geometry and location details are omitted.",
+        count: input.bundle.aoi ? 1 : 0,
+      },
+      {
+        path: "evidence/stac_items.json",
+        action: "masked",
+        reason: "STAC item identifiers are replaced with deterministic masked references.",
+        count: redactedStacItems.length,
+      },
+      {
+        path: "evidence/stac_evidence.geojson",
+        action: "replaced",
+        reason: "Raw evidence geometry is replaced with an empty collection.",
+        count: removedGeojsonFeatures,
+      },
+      {
+        path: "evidence/review_log.json",
+        action: "masked",
+        reason: "Reviewer actor and free text are redacted for sharing.",
+        count: redactedReviewEntries.length,
+      },
+    ],
+  };
+  return {
+    bundle: {
+      ...input.bundle,
+      export_profile: "redacted-v2",
+      export_label: "Redacted v2",
+      aoi: undefined,
+      evidence_pins: redactedPins.length ? redactedPins : undefined,
+      evidence_attachments: undefined,
+      integrity: {
+        ...input.bundle.integrity,
+        attachments: undefined,
+        runs_sha256: undefined,
+      },
+      redaction: summary,
+    },
+    attachments: [],
+    runs: undefined,
+    verificationSnapshot: {
+      provenanceText: buildRedactedProvenanceText({
+        methodCode: input.bundle.method.code,
+        version: input.bundle.method.version,
+        generatedAt: input.bundle.exported_at,
+        stacItemCount: redactedStacItems.length,
+        removedAttachmentCount: input.attachments.length,
+      }),
+      stacItemsJson: {
+        profile: "redacted-v2",
+        item_count: redactedStacItems.length,
+        items: redactedStacItems,
+      },
+      stacEvidenceGeojson: { type: "FeatureCollection", features: [] },
+    },
+    ruleEvidenceMap: redactedRuleEvidenceMap,
+    reviewLog: redactedReviewLog,
+    redactionManifest,
+  };
+}
+
 export async function buildAuditZipBytes(input: {
   bundle: ProofBundleV1;
   attachments: Array<{ id: string; filename: string; bytes: ArrayBuffer }>;
@@ -288,6 +500,7 @@ export async function buildAuditZipBytes(input: {
   };
   ruleEvidenceMap?: RuleEvidenceMap;
   reviewLog?: ReviewLog;
+  redactionManifest?: RedactionManifest;
 }): Promise<Uint8Array> {
   const bundleForZip = cloneBundleWithIntegrity(input.bundle);
   const canonical = canonicalizeProofBundleForHash(bundleForZip);
@@ -354,6 +567,13 @@ export async function buildAuditZipBytes(input: {
     bytes: encodeText(canonicalJsonStringify(reviewLog)),
   });
 
+  if (input.redactionManifest) {
+    payloadEntries.push({
+      path: REDACTION_MANIFEST_PATH,
+      bytes: encodeText(canonicalJsonStringify(input.redactionManifest)),
+    });
+  }
+
   for (const att of input.attachments) {
     payloadEntries.push({
       path: `attachments/${att.id}__${safeFilename(att.filename)}`,
@@ -396,6 +616,7 @@ export async function buildAuditZipBytes(input: {
 export async function exportAuditZipFromStorage(
   bundle: ProofBundleV1,
   options?: {
+    profile?: AuditExportProfile;
     rules?: RuleSummary[];
     sections?: SectionSummary[];
     reviewEntry?: { actor?: string; action?: ReviewLogEntry["action"]; note?: string };
@@ -473,6 +694,31 @@ export async function exportAuditZipFromStorage(
     aoiFingerprint: currentAoiFingerprint,
     entry: options?.reviewEntry,
   });
+
+  if (options?.profile === "redacted-v2") {
+    const redacted = await buildRedactedArtifacts({
+      bundle: bundleWithRunsIntegrity,
+      pins: pinsForExport,
+      attachments: payload,
+      runs: runsForExport,
+      verificationSnapshot: {
+        provenanceText,
+        stacItemsJson: stac.stac_items_json,
+        stacEvidenceGeojson: stac.stac_evidence_geojson,
+      },
+      ruleEvidenceMap,
+      reviewLog,
+    });
+    return await buildAuditZipBytes({
+      bundle: redacted.bundle,
+      attachments: redacted.attachments,
+      runs: redacted.runs,
+      verificationSnapshot: redacted.verificationSnapshot,
+      ruleEvidenceMap: redacted.ruleEvidenceMap,
+      reviewLog: redacted.reviewLog,
+      redactionManifest: redacted.redactionManifest,
+    });
+  }
 
   return await buildAuditZipBytes({
     bundle: bundleWithRunsIntegrity,

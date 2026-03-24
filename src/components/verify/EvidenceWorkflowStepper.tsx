@@ -45,6 +45,9 @@ type EvidenceWorkflowStepperProps = {
   onReviewerOutcomeNoteChange: (value: string) => void;
   onSaveReviewerArtifact: () => void;
   onFinalizeRun: () => void;
+  onExportRedactedV2: () => void;
+  canExportRedactedV2: boolean;
+  redactedV2ExportedAt?: string | null;
   finalizedAt?: string | null;
   currentRunLabel: string;
   loadedFromRunLabel?: string | null;
@@ -103,6 +106,9 @@ export default function EvidenceWorkflowStepper({
   onReviewerOutcomeNoteChange,
   onSaveReviewerArtifact,
   onFinalizeRun,
+  onExportRedactedV2,
+  canExportRedactedV2,
+  redactedV2ExportedAt = null,
   finalizedAt = null,
   currentRunLabel,
   loadedFromRunLabel = null,
@@ -393,6 +399,30 @@ export default function EvidenceWorkflowStepper({
               Finalized {formatDate(finalizedAt)}
             </span>
           ) : null}
+        </div>
+        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Share-safe export</div>
+          <div className="mt-1 text-xs text-slate-700">
+            Redacted v2 removes AOI geometry, raw STAC evidence, attachment payloads, and reviewer free text. The downloaded bundle stays auditable via <span className="font-mono">redaction_manifest.json</span>.
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={onExportRedactedV2}
+              disabled={!canExportRedactedV2}
+            >
+              Export Redacted v2
+            </button>
+            {!canExportRedactedV2 ? (
+              <span className="text-[11px] text-slate-500">Finalize run to enable this share-safe bundle.</span>
+            ) : null}
+            {redactedV2ExportedAt ? (
+              <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                Redacted v2 exported {formatDate(redactedV2ExportedAt)}
+              </span>
+            ) : null}
+          </div>
         </div>
       </div>
 

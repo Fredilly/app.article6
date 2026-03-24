@@ -7,7 +7,7 @@ import { buildAuditZipBytes, exportAuditZipFromStorage, readAuditZipBytes } from
 import { sha256ArrayBuffer } from "@/lib/proof/hash";
 import { importProofBundleFile } from "@/lib/proof/import";
 import { loadPins, loadVerificationRuns, saveVerificationRuns } from "@/lib/proofMap/storage";
-import { getAttachmentBytes } from "@/lib/proofMap/attachments";
+import { getAttachmentBytes, putAttachmentBytes } from "@/lib/proofMap/attachments";
 import { buildVerificationRunInputFromPins } from "@/lib/proofMap/verificationRuns";
 
 describe("evidence attachment hashing", () => {
@@ -389,5 +389,170 @@ describe("audit zip exporter/importer", () => {
     const runs = loadVerificationRuns("AR-ACM0003", "v02-0");
     expect(runs).toHaveLength(1);
     expect(runs[0]?.id).toBe("run-restore-1");
+  });
+
+  test("redacted v2 export omits raw payloads and includes a redaction manifest", async () => {
+    window.localStorage.clear();
+
+    const bytes = new Uint8Array([5, 4, 3, 2]).buffer;
+    const sha = await sha256ArrayBuffer(bytes);
+    await putAttachmentBytes("att-redacted-1", bytes);
+    saveVerificationRuns("AR-ACM0003", "v02-0", [
+      {
+        id: "run-redacted-1",
+        method: { code: "AR-ACM0003", version: "v02-0" },
+        aoi_id: "aoi-1",
+        aoi_fingerprint: "aoi-fp",
+        input_fingerprint: "input-fp",
+        cited_ids: ["R-1"],
+        cited_ids_count: 1,
+        attachment_sha256: [sha],
+        attachment_count: 1,
+        provider: "stac",
+        status: "ok",
+        summary: "Ready",
+        result_json: {
+          items: [
+            {
+              id: "stac-item-1",
+              bbox: [0, 0, 1, 1],
+              geometry: {
+                type: "Polygon",
+                coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+              },
+              properties: {
+                id: "stac-item-1",
+                datetime: "2026-01-01T00:00:00Z",
+              },
+            },
+          ],
+        },
+        created_at: "2026-01-01T00:00:00Z",
+      },
+    ]);
+
+    const bundle = await buildProofBundleV1({
+      code: "AR-ACM0003",
+      version: "v02-0",
+      source: "Article6 Methodologies",
+      provenance: {},
+      aoi: {
+        id: "aoi-1",
+        name: "Sensitive AOI",
+        geojson: {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+          },
+        },
+        bbox: [0, 0, 1, 1],
+        area_km2: 100,
+        aoi_fingerprint: "aoi-fp",
+        created_at: "2026-01-01T00:00:00Z",
+      },
+      rules: [{ id: "R-1", title: "Rule", snippet: "Snippet" }],
+      sections: [{ id: "S-1", title: "Section", textSnippet: "Section snippet" }],
+      evidence_pins: [
+        {
+          id: "pin-redacted-1",
+          kind: "doc",
+          title: "Sensitive link",
+          ruleId: "R-1",
+          itemId: "stac-item-1",
+          note: "Sensitive reviewer note",
+          aoi_id: "aoi-1",
+          aoi_fingerprint: "aoi-fp",
+          cited_ids: ["R-1"],
+          stac_item_ids: ["stac-item-1"],
+          stac_run_id: "run-redacted-1",
+          created_at: "2026-01-01T00:00:00Z",
+          attachments: [
+            {
+              id: "att-redacted-1",
+              pin_id: "pin-redacted-1",
+              filename: "secret.pdf",
+              mime: "application/pdf",
+              size: 4,
+              sha256: sha,
+              created_at: "2026-01-01T00:00:00Z",
+            },
+          ],
+        },
+      ],
+    });
+    bundle.exported_at = "2026-01-01T00:00:00Z";
+
+    const zipBytes = await exportAuditZipFromStorage(bundle, {
+      profile: "redacted-v2",
+      rules: [{ id: "R-1", title: "Rule", snippet: "Snippet" }],
+      sections: [{ id: "S-1", title: "Section", textSnippet: "Section snippet" }],
+      reviewEntry: { actor: "Verifier", action: "note", note: "Sensitive reviewer note" },
+    });
+
+    const zip = await JSZip.loadAsync(zipBytes);
+    expect(zip.file("redaction_manifest.json")).toBeTruthy();
+    expect(zip.file("runs.json")).toBeFalsy();
+    expect(Object.keys(zip.files).some((path) => path.startsWith("attachments/"))).toBe(false);
+
+    const bundleJson = JSON.parse(await zip.file("bundle.json")!.async("text")) as {
+      export_profile?: string;
+      export_label?: string;
+      aoi?: unknown;
+      redaction?: { manifest_path?: string };
+    };
+    expect(bundleJson.export_profile).toBe("redacted-v2");
+    expect(bundleJson.export_label).toBe("Redacted v2");
+    expect(bundleJson.aoi).toBeUndefined();
+    expect(bundleJson.redaction?.manifest_path).toBe("redaction_manifest.json");
+
+    const manifest = JSON.parse(await zip.file("redaction_manifest.json")!.async("text")) as {
+      summary: { removed_attachments: number; removed_runs: number; masked_stac_items: number };
+    };
+    expect(manifest.summary.removed_attachments).toBe(1);
+    expect(manifest.summary.removed_runs).toBe(1);
+    expect(manifest.summary.masked_stac_items).toBe(1);
+
+    const stacItems = JSON.parse(await zip.file("evidence/stac_items.json")!.async("text")) as {
+      items: Array<{ ref?: string }>;
+    };
+    expect(stacItems.items[0]?.ref).toContain("redacted:");
+  });
+
+  test("redacted v2 export is deterministic for identical inputs", async () => {
+    window.localStorage.clear();
+
+    const bundle = await buildProofBundleV1({
+      code: "AR-ACM0003",
+      version: "v02-0",
+      source: "Article6 Methodologies",
+      provenance: {},
+      rules: [{ id: "R-1", title: "Rule", snippet: "Snippet" }],
+      sections: [{ id: "S-1", title: "Section", textSnippet: "Section snippet" }],
+      evidence_pins: [
+        {
+          id: "pin-deterministic-1",
+          kind: "note",
+          title: "Link",
+          ruleId: "R-1",
+          cited_ids: ["R-1"],
+          created_at: "2026-01-01T00:00:00Z",
+        },
+      ],
+    });
+    bundle.exported_at = "2026-01-01T00:00:00Z";
+
+    const options = {
+      profile: "redacted-v2" as const,
+      rules: [{ id: "R-1", title: "Rule", snippet: "Snippet" }],
+      sections: [{ id: "S-1", title: "Section", textSnippet: "Section snippet" }],
+      reviewEntry: { actor: "Verifier", action: "note" as const, note: "Stable note" },
+    };
+
+    const zipA = await exportAuditZipFromStorage(bundle, options);
+    const zipB = await exportAuditZipFromStorage(bundle, options);
+
+    expect(Array.from(zipA)).toEqual(Array.from(zipB));
   });
 });
