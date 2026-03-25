@@ -8,8 +8,8 @@ jest.mock("@/lib/manifest/cards", () => ({
   loadManifestEntries: (...args: unknown[]) => loadManifestEntriesMock(...args),
 }));
 
-import { loadMethodRules } from "@/app/m/_lib/methodRules";
-import { loadMethodSections } from "@/app/m/_lib/methodSections";
+const { loadMethodRules } = require("@/app/m/_lib/methodRules") as typeof import("@/app/m/_lib/methodRules");
+const { loadMethodSections } = require("@/app/m/_lib/methodSections") as typeof import("@/app/m/_lib/methodSections");
 
 const fixtureRelDir = "methodologies/__tests__/METHOD-TEST/v01-0";
 const fixtureAbsDir = path.join(process.cwd(), "public", fixtureRelDir);
