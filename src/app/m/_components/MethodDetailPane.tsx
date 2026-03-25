@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import { IntegrityDiffPanel } from "@/app/m/_components/IntegrityDiffPanel";
@@ -176,6 +176,59 @@ function updateRuleParamNoNav(ruleId: string | null) {
   if (next !== prev) window.history.replaceState({}, "", next);
 }
 
+type RuleViewerBoundaryProps = {
+  resetKey: string;
+  onClose: () => void;
+  children: ReactNode;
+};
+
+type RuleViewerBoundaryState = {
+  hasError: boolean;
+  message: string | null;
+};
+
+class RuleViewerBoundary extends Component<RuleViewerBoundaryProps, RuleViewerBoundaryState> {
+  state: RuleViewerBoundaryState = { hasError: false, message: null };
+
+  static getDerivedStateFromError(error: Error): RuleViewerBoundaryState {
+    return {
+      hasError: true,
+      message: error instanceof Error ? error.message : "Rule viewer failed to render.",
+    };
+  }
+
+  componentDidUpdate(prevProps: RuleViewerBoundaryProps) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false, message: null });
+    }
+  }
+
+  componentDidCatch() {}
+
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    return (
+      <div className="max-h-[78vh] overflow-y-auto px-5 py-4">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <div className="font-semibold text-rose-900">Rule viewer hit a rendering error.</div>
+          <div className="mt-1 text-xs text-rose-700">
+            {this.state.message ?? "The rule detail could not be rendered safely."}
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              className="inline-flex items-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 shadow-sm hover:border-rose-300 hover:text-rose-900"
+              onClick={this.props.onClose}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
 export default function MethodDetailPane({
   method,
   activeVersion,
@@ -300,6 +353,8 @@ export default function MethodDetailPane({
   } | null>(null);
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
+  const ruleDetailRequestRef = useRef(0);
+  const openingRuleIdRef = useRef<string | null>(null);
   const lastSectionFromQuery = useRef<string | null>(null);
   const lastMethodSelection = useRef<string | null>(null);
   const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
@@ -817,8 +872,32 @@ export default function MethodDetailPane({
     [activeVersion, method.code],
   );
 
-  const loadRuleDetail = useCallback(async (ruleId: string) => {
+  const buildRuleDetailFallback = useCallback(
+    (ruleId: string, list: RuleListItem[]) => {
+      const match = list.find((rule) => rule.id === ruleId);
+      if (!match) return null;
+      return {
+        id: match.id,
+        title: match.title || match.id,
+        text: match.snippet || "",
+        logic: undefined,
+        summary: match.snippet || undefined,
+        tags: match.tags,
+        type: match.type,
+        sha256: undefined,
+        sectionId: undefined,
+        anchor: undefined,
+        citations: undefined,
+        sourcePath: undefined,
+      };
+    },
+    [],
+  );
+
+  const loadRuleDetail = useCallback(async (ruleId: string, fallbackDetail?: NonNullable<typeof ruleDetail>) => {
     if (!activeVersion) return;
+    const requestId = ruleDetailRequestRef.current + 1;
+    ruleDetailRequestRef.current = requestId;
     setRuleDetailLoading(true);
     setRuleDetailError(null);
     try {
@@ -851,6 +930,7 @@ export default function MethodDetailPane({
                 value !== null,
             )
         : undefined;
+      if (ruleDetailRequestRef.current !== requestId) return;
       setRuleDetail({
         id: typeof record.id === "string" ? record.id : ruleId,
         title:
@@ -873,12 +953,14 @@ export default function MethodDetailPane({
         sourcePath: typeof record.sourcePath === "string" ? record.sourcePath : undefined,
       });
     } catch (error) {
-      setRuleDetail(null);
+      if (ruleDetailRequestRef.current !== requestId) return;
+      setRuleDetail((current) => (current?.id === ruleId ? current : fallbackDetail ?? current));
       setRuleDetailError(error instanceof Error ? error.message : String(error));
     } finally {
+      if (ruleDetailRequestRef.current !== requestId) return;
       setRuleDetailLoading(false);
     }
-  }, [activeVersion, method.code]);
+  }, [activeVersion, method.code, ruleDetail]);
 
   const setRuleParam = useCallback((
     ruleId?: string,
@@ -1151,40 +1233,60 @@ export default function MethodDetailPane({
     ruleCitationSectionIds,
   ]);
 
-  const openRule = useCallback(async (ruleId: string) => {
-    setRulesDeeplinkWarning(null);
-    const list = await ensureRulesLoaded();
-    if (list.length === 0) return false;
-    if (!list.some((rule) => rule.id === ruleId)) {
-      setRulesDeeplinkWarning(`Unknown rule id "${ruleId}".`);
-      return false;
-    }
-    setActiveRuleId(ruleId);
-    setDrawerOpen(true);
-    setRuleParam(ruleId, { history: "push", nextTab: "rules", openModal: true });
-    await loadRuleDetail(ruleId);
-    return true;
-  }, [ensureRulesLoaded, loadRuleDetail, setRuleParam]);
+  const openRuleViewer = useCallback(
+    async (ruleId: string, options?: { nextTab?: DetailTab }) => {
+      const normalizedRuleId = ruleId.trim();
+      if (!normalizedRuleId || openingRuleIdRef.current === normalizedRuleId) {
+        return false;
+      }
+      if (drawerOpen && activeRuleId === normalizedRuleId) {
+        return true;
+      }
+      openingRuleIdRef.current = normalizedRuleId;
+      setRulesDeeplinkWarning(null);
+      try {
+        const list = await ensureRulesLoaded();
+        if (list.length === 0) return false;
+        if (!list.some((rule) => rule.id === normalizedRuleId)) {
+          setRulesDeeplinkWarning(`Unknown rule id "${normalizedRuleId}".`);
+          return false;
+        }
+        const fallbackDetail = buildRuleDetailFallback(normalizedRuleId, list);
+        setActiveRuleId(normalizedRuleId);
+        setRuleDetail(fallbackDetail);
+        setRuleDetailError(null);
+        setRuleParam(normalizedRuleId, {
+          history: "push",
+          nextTab: options?.nextTab,
+          openModal: true,
+        });
+        void loadRuleDetail(normalizedRuleId, fallbackDetail ?? undefined);
+        return true;
+      } catch (error) {
+        setRulesDeeplinkWarning(error instanceof Error ? error.message : String(error));
+        setRuleDetailError(error instanceof Error ? error.message : String(error));
+        return false;
+      } finally {
+        openingRuleIdRef.current = null;
+      }
+    },
+    [activeRuleId, buildRuleDetailFallback, drawerOpen, ensureRulesLoaded, loadRuleDetail, setRuleParam],
+  );
+
+  const openRule = useCallback(
+    async (ruleId: string) => openRuleViewer(ruleId, { nextTab: "rules" }),
+    [openRuleViewer],
+  );
 
   const openRuleFromVerify = useCallback(
     async (ruleId: string) => {
-      setRulesDeeplinkWarning(null);
-      const list = await ensureRulesLoaded();
-      if (list.length === 0) return;
-      if (!list.some((rule) => rule.id === ruleId)) {
-        setRulesDeeplinkWarning(`Unknown rule id "${ruleId}".`);
-        return;
-      }
-      setActiveRuleId(ruleId);
-      setDrawerOpen(true);
-      setRuleParam(ruleId, { history: "push", openModal: true });
-      await loadRuleDetail(ruleId);
+      void (await openRuleViewer(ruleId));
     },
-    [ensureRulesLoaded, loadRuleDetail, setRuleParam],
+    [openRuleViewer],
   );
 
   const closeDrawer = useCallback(() => {
-    setDrawerOpen(false);
+    ruleDetailRequestRef.current += 1;
     setRuleParam(activeRuleId ?? undefined, { history: "replace", openModal: false });
   }, [activeRuleId, setRuleParam]);
 
@@ -1754,6 +1856,10 @@ export default function MethodDetailPane({
                     </div>
                   </div>
 
+                  <RuleViewerBoundary
+                    resetKey={`${activeRuleId ?? "none"}:${ruleDetail?.id ?? "none"}:${ruleDetailError ?? "ok"}`}
+                    onClose={closeDrawer}
+                  >
                   <div className="max-h-[78vh] overflow-y-auto px-5 py-4">
                     {ruleDetailError ? (
                       <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -1974,7 +2080,13 @@ export default function MethodDetailPane({
                         </section>
                       </div>
                     ) : null}
+                    {!ruleDetail && !ruleDetailLoading && !ruleDetailError ? (
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                        Rule detail is temporarily unavailable. Try reopening the viewer.
+                      </div>
+                    ) : null}
                   </div>
+                  </RuleViewerBoundary>
                 </div>
               </div>
             ) : null}
