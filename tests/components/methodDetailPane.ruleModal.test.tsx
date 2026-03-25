@@ -3,7 +3,6 @@
 import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { createRoot, type Root } from "react-dom/client";
-import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 
 let mockPathname = "/m/AR-TEST0001/v/v1-0";
 let mockSearch = "tab=rules";
@@ -103,6 +102,8 @@ jest.mock("@/lib/proof/import", () => ({
   importProofBundleText: async () => ({ ok: false }),
 }));
 
+const MethodDetailPane = require("@/app/m/_components/MethodDetailPane").default as typeof import("@/app/m/_components/MethodDetailPane").default;
+
 const method = {
   code: "AR-TEST0001",
   program: "AFOLU",
@@ -133,6 +134,7 @@ describe("MethodDetailPane rule modal", () => {
   const fetchMock = jest.fn<typeof fetch>();
 
   beforeEach(() => {
+    (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     routerPush.mockClear();
     routerReplace.mockClear();
     fetchMock.mockReset();
