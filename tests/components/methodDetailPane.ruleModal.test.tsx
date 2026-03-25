@@ -7,8 +7,19 @@ import { createRoot, type Root } from "react-dom/client";
 let mockPathname = "/m/AR-TEST0001/v/v1-0";
 let mockSearch = "tab=rules";
 
-const routerPush = jest.fn<(href: string, options?: { scroll?: boolean }) => void>();
-const routerReplace = jest.fn<(href: string, options?: { scroll?: boolean }) => void>();
+function applyHref(href: string) {
+  const target = href.startsWith("http://") || href.startsWith("https://") ? new URL(href) : new URL(href, window.location.origin);
+  mockPathname = target.pathname;
+  mockSearch = target.search.startsWith("?") ? target.search.slice(1) : target.search;
+  window.history.replaceState({}, "", `${target.pathname}${target.search}${target.hash}`);
+}
+
+const routerPush = jest.fn<(href: string, options?: { scroll?: boolean }) => void>((href) => {
+  applyHref(href);
+});
+const routerReplace = jest.fn<(href: string, options?: { scroll?: boolean }) => void>((href) => {
+  applyHref(href);
+});
 
 jest.mock("next/link", () => ({
   __esModule: true,
