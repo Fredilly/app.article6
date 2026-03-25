@@ -5,6 +5,6 @@ export function jumpToRule(router: AppRouterInstance, ruleId: string): void {
   if (typeof window === "undefined") return;
   const pathname = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
-  const next = applyUrlUpdates(params, { tab: "rules", rule: ruleId });
+  const next = applyUrlUpdates(params, { tab: "rules", rule: ruleId, focus: "rule-detail" });
   router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
 }
