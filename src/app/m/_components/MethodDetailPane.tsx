@@ -171,7 +171,15 @@ export default function MethodDetailPane({
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesError, setRulesError] = useState<string | null>(null);
   const [rulesDeeplinkWarning, setRulesDeeplinkWarning] = useState<string | null>(null);
-  type RuleListItem = { id: string; title: string; snippet: string; tags: string[]; type?: string };
+  type RuleListItem = {
+    id: string;
+    title: string;
+    snippet: string;
+    text: string;
+    tags: string[];
+    type?: string;
+    sectionId?: string;
+  };
   type TraceLink = {
     section_id: string;
     title?: string | null;
@@ -304,6 +312,37 @@ export default function MethodDetailPane({
       limit: 10,
     });
   }, [coverageLinkedRuleIds, coverageRules]);
+  const ruleActivityById = useMemo(() => {
+    const map = new Map<string, { evidenceCount: number; runCount: number }>();
+    for (const pin of evidencePins) {
+      const ids = new Set<string>();
+      if (pin.ruleId?.trim()) ids.add(pin.ruleId.trim());
+      for (const citedId of pin.cited_ids ?? []) {
+        if (citedId?.trim()) ids.add(citedId.trim());
+      }
+      for (const id of ids) {
+        const current = map.get(id) ?? { evidenceCount: 0, runCount: 0 };
+        current.evidenceCount += 1;
+        map.set(id, current);
+      }
+    }
+    for (const run of verificationRuns) {
+      const ids = new Set<string>();
+      for (const citedId of run.cited_ids ?? []) {
+        if (citedId?.trim()) ids.add(citedId.trim());
+      }
+      for (const id of ids) {
+        const current = map.get(id) ?? { evidenceCount: 0, runCount: 0 };
+        current.runCount += 1;
+        map.set(id, current);
+      }
+    }
+    return map;
+  }, [evidencePins, verificationRuns]);
+  const sectionTitleById = useMemo(
+    () => new Map(sections.map((section) => [section.id, section.title])),
+    [sections],
+  );
 
   const ruleCitationSectionIds = useMemo(() => {
     if (!ruleDetail) return [];
@@ -639,11 +678,13 @@ export default function MethodDetailPane({
         if (!id) continue;
         const title = typeof record.title === "string" ? record.title : id;
         const snippet = typeof record.snippet === "string" ? record.snippet : "";
+        const text = typeof record.text === "string" ? record.text : snippet;
         const tags = Array.isArray(record.tags)
           ? record.tags.map((t: unknown) => String(t)).filter(Boolean)
           : [];
         const type = typeof record.type === "string" ? record.type : undefined;
-        nextRules.push({ id, title, snippet, tags, type });
+        const sectionId = typeof record.sectionId === "string" ? record.sectionId : undefined;
+        nextRules.push({ id, title, snippet, text, tags, type, sectionId });
       }
 
       setRules(nextRules);
@@ -928,6 +969,10 @@ export default function MethodDetailPane({
   useEffect(() => {
     if (effectiveTab === "rules") void ensureRulesLoaded();
   }, [effectiveTab, ensureRulesLoaded]);
+
+  useEffect(() => {
+    if (effectiveTab === "rules") void ensureSectionsLoaded();
+  }, [effectiveTab, ensureSectionsLoaded]);
 
   useEffect(() => {
     if (effectiveTab !== "verify") return;
@@ -1421,30 +1466,84 @@ export default function MethodDetailPane({
 
             <ul className="grid gap-2">
               {filteredRules.map((rule) => (
-                <li
-                  key={rule.id}
-                  id={`r-${rule.id}`}
-                  className={
-                    linkedRuleIds.has(rule.id)
-                      ? "rounded-2xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
-                      : ""
-                  }
-                >
+                <li key={rule.id} id={`r-${rule.id}`}>
                   <button
                     type="button"
                     onClick={() => openRule(rule.id)}
-                    className={`flex w-full flex-col gap-1 rounded-xl border px-4 py-3 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${
-                      linkedRuleIds.has(rule.id) ? "border-sky-200 bg-sky-50/30" : "border-slate-200 bg-white"
-                    }`}
+                    className="flex w-full flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs text-slate-500">
-                        {rule.type ? rule.type : rule.tags.length ? rule.tags.slice(0, 2).join(", ") : "—"}
-                      </span>
-                    </div>
-                    <div className="text-sm font-semibold text-slate-900">{rule.title}</div>
-                    <div className="font-mono text-xs text-slate-500">{rule.id}</div>
-                    <div className="text-sm text-slate-600">{rule.snippet || "—"}</div>
+                    {(() => {
+                      const activity = ruleActivityById.get(rule.id);
+                      const evidenceCount = activity?.evidenceCount ?? 0;
+                      const coverageStatus =
+                        activity?.runCount
+                          ? {
+                              label: "Covered",
+                              tone: "border-emerald-200 bg-emerald-50 text-emerald-700",
+                              cta: "Inspect evidence",
+                            }
+                          : evidenceCount > 0 || linkedRuleIds.has(rule.id)
+                            ? {
+                                label: "Partial",
+                                tone: "border-amber-200 bg-amber-50 text-amber-700",
+                                cta: "Inspect evidence",
+                              }
+                            : {
+                                label: "Uncovered",
+                                tone: "border-slate-200 bg-slate-50 text-slate-700",
+                                cta: "Link evidence",
+                              };
+                      const sectionLabel = rule.sectionId
+                        ? sectionTitleById.get(rule.sectionId) ?? rule.sectionId
+                        : null;
+
+                      return (
+                        <>
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div className="flex min-w-0 flex-wrap items-center gap-2">
+                              <span className="font-mono text-xs font-semibold text-slate-700">{rule.id}</span>
+                              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${coverageStatus.tone}`}>
+                                {coverageStatus.label}
+                              </span>
+                              <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] text-slate-600">
+                                {evidenceCount} evidence
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                              {coverageStatus.cta}
+                            </span>
+                          </div>
+                          <div className="text-sm font-semibold leading-snug text-slate-900">
+                            {rule.title}
+                          </div>
+                          <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                            {sectionLabel ? `Section: ${sectionLabel}` : "Section unavailable"}
+                          </div>
+                          <div className="text-sm leading-relaxed text-slate-700">
+                            {rule.text || rule.snippet || "No rule text available."}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                            {rule.type ? (
+                              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-semibold text-slate-700">
+                                {rule.type}
+                              </span>
+                            ) : null}
+                            {rule.tags.length ? (
+                              rule.tags.map((tag) => (
+                                <span
+                                  key={`${rule.id}-${tag}`}
+                                  className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5"
+                                >
+                                  {tag}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-slate-400">No tags</span>
+                            )}
+                          </div>
+                        </>
+                      );
+                    })()}
                   </button>
                 </li>
               ))}
