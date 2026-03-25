@@ -1,56 +1,125 @@
-import { existsSync, readFileSync } from "node:fs";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { describe, expect, it } from "@jest/globals";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from "@jest/globals";
+
+const loadManifestEntriesMock = jest.fn();
+
+jest.mock("@/lib/manifest/cards", () => ({
+  loadManifestEntries: (...args: unknown[]) => loadManifestEntriesMock(...args),
+}));
+
 import { loadMethodRules } from "@/app/m/_lib/methodRules";
 import { loadMethodSections } from "@/app/m/_lib/methodSections";
 
-function findRichFixture(): { methodology: string; version: string } {
-  const manifestPath = path.join(process.cwd(), "public", "manifest", "index.json");
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Array<Record<string, unknown>>;
+const fixtureRelDir = "methodologies/__tests__/METHOD-TEST/v01-0";
+const fixtureAbsDir = path.join(process.cwd(), "public", fixtureRelDir);
+const fixtureManifestPath = `${fixtureRelDir}/rules.json`;
 
-  for (const entry of manifest) {
-    if (typeof entry.methodology !== "string" || typeof entry.version !== "string" || typeof entry.path !== "string") {
-      continue;
-    }
+beforeAll(async () => {
+  await mkdir(fixtureAbsDir, { recursive: true });
+  await writeFile(
+    path.join(fixtureAbsDir, "rules.json"),
+    JSON.stringify([
+      {
+        id: "R-1",
+        text: "Lean rule text fallback.",
+        sectionId: "S-1",
+        path: "method-source.pdf",
+        sha256: "abc123",
+      },
+    ]),
+    "utf8",
+  );
+  await writeFile(
+    path.join(fixtureAbsDir, "rules.rich.json"),
+    JSON.stringify([
+      {
+        id: "R-1",
+        logic: "Projects must satisfy the full quoted rule logic.",
+        summary: "Eligibility logic",
+        refs: { sections: ["S-1"] },
+        path: "method-source.pdf",
+        sha256: "abc123",
+      },
+    ]),
+    "utf8",
+  );
+  await writeFile(
+    path.join(fixtureAbsDir, "sections.rich.json"),
+    JSON.stringify([
+      {
+        id: "S-1",
+        title: "Eligibility requirements",
+        level: 2,
+        excerpt: "Projects shall document eligibility requirements.",
+        order: 1,
+      },
+    ]),
+    "utf8",
+  );
+  await writeFile(
+    path.join(fixtureAbsDir, "sections.json"),
+    JSON.stringify([
+      {
+        id: "S-1",
+        text: "Projects shall document eligibility requirements in the methodology section.",
+        path: "method-source.pdf",
+        order: 1,
+      },
+    ]),
+    "utf8",
+  );
+});
 
-    const basePath = path.join(process.cwd(), "public", entry.path.replace(/^public\//, ""));
-    const rulesRichPath = basePath.replace(/rules\.json$/, "rules.rich.json");
-    const sectionsRichPath = basePath.replace(/rules\.json$/, "sections.rich.json");
-    const sectionsPath = basePath.replace(/rules\.json$/, "sections.json");
+afterAll(async () => {
+  await rm(path.join(process.cwd(), "public", "methodologies", "__tests__"), {
+    recursive: true,
+    force: true,
+  });
+});
 
-    if (existsSync(rulesRichPath) && existsSync(sectionsRichPath) && existsSync(sectionsPath)) {
-      return { methodology: entry.methodology, version: entry.version };
-    }
-  }
-
-  throw new Error("No methodology fixture with rich rules and sections files was found in public/manifest/index.json");
-}
+beforeEach(() => {
+  loadManifestEntriesMock.mockReset();
+  loadManifestEntriesMock.mockResolvedValue([
+    {
+      id: "R-1",
+      methodology: "METHOD-TEST",
+      version: "v01-0",
+      rule: "Lean rule text fallback.",
+      tags: ["eligibility"],
+      path: fixtureManifestPath,
+      sectionId: "S-1",
+      sha256: "abc123",
+    },
+  ]);
+});
 
 describe("methodology pack consumption", () => {
-  const fixture = findRichFixture();
-
   it("keeps rich rule logic and section refs when rules.rich.json is available", async () => {
-    const result = await loadMethodRules(fixture.methodology, fixture.version);
+    const result = await loadMethodRules("METHOD-TEST", "v01-0");
 
     expect(result.source).toBe("rules.rich.json");
     expect(result.rules.length).toBeGreaterThan(0);
 
-    const full = result.byId.get(result.rules[0]?.id ?? "");
+    const full = result.byId.get("R-1");
     expect(full).toBeTruthy();
     expect(full?.text.trim().length).toBeGreaterThan(0);
-    expect(full?.logic?.trim().length ?? 0).toBeGreaterThan(0);
-    expect(full?.sectionId?.trim().length ?? 0).toBeGreaterThan(0);
+    expect(full?.logic?.trim()).toBe("Projects must satisfy the full quoted rule logic.");
+    expect(full?.sectionId).toBe("S-1");
+    expect(full?.sourcePath).toBe("method-source.pdf");
   });
 
   it("merges rich section titles with plain section text when both files exist", async () => {
-    const result = await loadMethodSections(fixture.methodology, fixture.version);
+    const result = await loadMethodSections("METHOD-TEST", "v01-0");
 
     expect(result.source).toBe("sections.rich.json");
     expect(result.sections.length).toBeGreaterThan(0);
 
-    const withText = Array.from(result.byId.values()).find((section) => typeof section.text === "string" && section.text.trim());
-    expect(withText).toBeTruthy();
-    expect(withText?.title.trim().length ?? 0).toBeGreaterThan(0);
-    expect(withText?.text?.trim().length ?? 0).toBeGreaterThan(0);
+    const section = result.byId.get("S-1");
+    expect(section).toBeTruthy();
+    expect(section?.title).toBe("Eligibility requirements");
+    expect(section?.textSnippet).toBe("Projects shall document eligibility requirements.");
+    expect(section?.text).toBe("Projects shall document eligibility requirements in the methodology section.");
+    expect(section?.sourcePath).toBe("method-source.pdf");
   });
 });
