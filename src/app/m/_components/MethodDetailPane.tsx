@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import { IntegrityDiffPanel } from "@/app/m/_components/IntegrityDiffPanel";
@@ -64,21 +64,156 @@ type MethodDetailPaneProps = {
   manifestRulesPath?: string | null;
 };
 
+function ruleStatusFromState(input: {
+  activeRuleId: string | null;
+  linkedRuleIds: Set<string>;
+  evidencePins: EvidencePin[];
+  verificationRuns: VerificationRun[];
+}): { label: string; tone: string; detail: string } {
+  const { activeRuleId, linkedRuleIds, evidencePins, verificationRuns } = input;
+  if (!activeRuleId) {
+    return {
+      label: "No rule selected",
+      tone: "bg-slate-100 text-slate-700",
+      detail: "Select a rule to review its method grounding, project evidence, and provenance.",
+    };
+  }
+  const matchingPins = evidencePins.filter(
+    (pin) => pin.ruleId === activeRuleId || pin.cited_ids.includes(activeRuleId),
+  );
+  const matchingRuns = verificationRuns.filter((run) => {
+    if (matchingPins.some((pin) => pin.id === run.pin_id)) return true;
+    return run.cited_ids.includes(activeRuleId);
+  });
+  if (matchingRuns.length) {
+    const latestRun = [...matchingRuns].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+    return {
+      label: latestRun.status === "ok" ? "Evidence grounded" : "Evidence under review",
+      tone: latestRun.status === "ok" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800",
+      detail:
+        latestRun.summary?.trim() ||
+        `${matchingRuns.length} verification run${matchingRuns.length === 1 ? "" : "s"} linked to this rule.`,
+    };
+  }
+  if (linkedRuleIds.has(activeRuleId) || matchingPins.length) {
+    return {
+      label: "Evidence linked",
+      tone: "bg-sky-100 text-sky-800",
+      detail: `${matchingPins.length} project evidence item${matchingPins.length === 1 ? "" : "s"} linked so far.`,
+    };
+  }
+  return {
+    label: "No project evidence yet",
+    tone: "bg-slate-100 text-slate-700",
+    detail: "This rule is readable now, but it does not yet have linked evidence or a verification assessment.",
+  };
+}
+
+type RuleGroundedPassage = {
+  sectionId?: string;
+  title: string;
+  text: string;
+  source: "rich-passage" | "section-excerpt" | "lean-fallback";
+};
+
+function buildGroundedPassages(input: {
+  ruleDetail: {
+    text: string;
+    summary?: string;
+    sectionId?: string;
+  } | null;
+  sectionOrder: string[];
+  sectionSummaries: Map<string, { title: string; textSnippet?: string }>;
+  sectionDetails: Map<string, { title: string; text?: string; textSnippet?: string }>;
+}): RuleGroundedPassage[] {
+  const { ruleDetail, sectionOrder, sectionSummaries, sectionDetails } = input;
+  if (!ruleDetail) return [];
+
+  const passages: RuleGroundedPassage[] = [];
+  for (const sectionId of sectionOrder) {
+    const detail = sectionDetails.get(sectionId);
+    const summary = sectionSummaries.get(sectionId);
+    const title = detail?.title ?? summary?.title ?? sectionId;
+    const richPassage = detail?.text?.trim();
+    const sectionExcerpt = detail?.textSnippet?.trim() ?? summary?.textSnippet?.trim();
+    if (richPassage) {
+      passages.push({ sectionId, title, text: richPassage, source: "rich-passage" });
+      continue;
+    }
+    if (sectionExcerpt) {
+      passages.push({ sectionId, title, text: sectionExcerpt, source: "section-excerpt" });
+    }
+  }
+
+  if (passages.length) return passages;
+
+  const fallbackText = ruleDetail.summary?.trim() || ruleDetail.text.trim();
+  if (!fallbackText) return [];
+  return [
+    {
+      sectionId: ruleDetail.sectionId ?? sectionOrder[0],
+      title: ruleDetail.sectionId ?? sectionOrder[0] ?? "Method grounding",
+      text: fallbackText,
+      source: "lean-fallback",
+    },
+  ];
+}
+
 function sectionIdFromText(value?: string): string | undefined {
   if (!value) return undefined;
   const match = value.match(/S-\d{1,6}/i);
   return match ? match[0] : undefined;
 }
 
-function updateRuleParamNoNav(ruleId: string | null) {
-  if (typeof window === "undefined") return;
-  const url = new URL(window.location.href);
-  const nextRule = (ruleId ?? "").trim();
-  if (nextRule) url.searchParams.set("rule", nextRule);
-  else url.searchParams.delete("rule");
-  const next = url.toString();
-  const prev = window.location.href;
-  if (next !== prev) window.history.replaceState({}, "", next);
+type RuleViewerBoundaryProps = {
+  resetKey: string;
+  onClose: () => void;
+  children: ReactNode;
+};
+
+type RuleViewerBoundaryState = {
+  hasError: boolean;
+  message: string | null;
+};
+
+class RuleViewerBoundary extends Component<RuleViewerBoundaryProps, RuleViewerBoundaryState> {
+  state: RuleViewerBoundaryState = { hasError: false, message: null };
+
+  static getDerivedStateFromError(error: Error): RuleViewerBoundaryState {
+    return {
+      hasError: true,
+      message: error instanceof Error ? error.message : "Rule viewer failed to render.",
+    };
+  }
+
+  componentDidUpdate(prevProps: RuleViewerBoundaryProps) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false, message: null });
+    }
+  }
+
+  componentDidCatch() {}
+
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    return (
+      <div className="max-h-[78vh] overflow-y-auto px-5 py-4">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <div className="font-semibold text-rose-900">Rule viewer hit a rendering error.</div>
+          <div className="mt-1 text-xs text-rose-700">
+            {this.state.message ?? "The rule detail could not be rendered safely."}
+          </div>
+          <button
+            type="button"
+            className="mt-3 inline-flex items-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 shadow-sm hover:border-rose-300 hover:text-rose-900"
+            onClick={this.props.onClose}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default function MethodDetailPane({
@@ -184,8 +319,14 @@ export default function MethodDetailPane({
     rule_to_sections: Record<string, TraceLink[]>;
   };
   const [rules, setRules] = useState<RuleListItem[]>([]);
-  const [drawerOpen, setDrawerOpen] = useState(Boolean(initialRuleId));
-  const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
+  const activeRuleId = useMemo(() => {
+    const fromUrl = (searchParams.get("rule") ?? "").trim();
+    return fromUrl || initialRuleId || null;
+  }, [initialRuleId, searchParams]);
+  const drawerOpen = useMemo(() => {
+    const focus = (searchParams.get("focus") ?? "").trim();
+    return Boolean(activeRuleId && focus === "rule-detail");
+  }, [activeRuleId, searchParams]);
   const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [traceError, setTraceError] = useState<string | null>(null);
@@ -193,6 +334,8 @@ export default function MethodDetailPane({
     id: string;
     title: string;
     text: string;
+    logic?: string;
+    summary?: string;
     tags: string[];
     type?: string;
     sha256?: string;
@@ -203,12 +346,11 @@ export default function MethodDetailPane({
   } | null>(null);
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
-  const didInitFromUrl = useRef(false);
+  const ruleDetailRequestRef = useRef(0);
+  const openingRuleIdRef = useRef<string | null>(null);
   const lastSectionFromQuery = useRef<string | null>(null);
   const lastMethodSelection = useRef<string | null>(null);
   const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
-  const [drawerSourceOpen, setDrawerSourceOpen] = useState(false);
-  const [drawerCitationsOpen, setDrawerCitationsOpen] = useState(false);
 
   type SectionListItem = {
     id: string;
@@ -217,10 +359,13 @@ export default function MethodDetailPane({
     anchor?: string;
     page?: number;
     textSnippet?: string;
+    text?: string;
+    sourcePath?: string;
   };
 
   const [sectionsLoading, setSectionsLoading] = useState(false);
   const [sections, setSections] = useState<SectionListItem[]>([]);
+  const [sectionDetailsById, setSectionDetailsById] = useState<Record<string, SectionListItem>>({});
   const [sectionPreview, setSectionPreview] = useState<SectionListItem | null>(null);
   const [evidenceLinkSelection, setEvidenceLinkSelection] = useState<{
     kind: "evidence";
@@ -331,20 +476,65 @@ export default function MethodDetailPane({
     return deduped;
   }, [activeRuleId, traceIndex]);
 
+  const activeRuleStatus = useMemo(
+    () =>
+      ruleStatusFromState({
+        activeRuleId,
+        linkedRuleIds: new Set(coverageLinkedRuleIds),
+        evidencePins,
+        verificationRuns,
+      }),
+    [activeRuleId, coverageLinkedRuleIds, evidencePins, verificationRuns],
+  );
+
+  const ruleEvidencePins = useMemo(() => {
+    if (!activeRuleId) return [];
+    return evidencePins.filter((pin) => pin.ruleId === activeRuleId || pin.cited_ids.includes(activeRuleId));
+  }, [activeRuleId, evidencePins]);
+
+  const ruleEvidenceRuns = useMemo(() => {
+    if (!activeRuleId) return [];
+    return verificationRuns
+      .filter((run) => {
+        if (ruleEvidencePins.some((pin) => pin.id === run.pin_id)) return true;
+        return run.cited_ids.includes(activeRuleId);
+      })
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  }, [activeRuleId, ruleEvidencePins, verificationRuns]);
+
+  const groundedPassages = useMemo(
+    () =>
+      buildGroundedPassages({
+        ruleDetail,
+        sectionOrder: ruleCitationSectionIds.length
+          ? ruleCitationSectionIds
+          : linkedTraceSections.map((link) => link.section_id),
+        sectionSummaries: new Map(
+          sections.map((section) => [section.id, { title: section.title, textSnippet: section.textSnippet }]),
+        ),
+        sectionDetails: new Map(
+          Object.values(sectionDetailsById).map((section) => [
+            section.id,
+            { title: section.title, text: section.text, textSnippet: section.textSnippet },
+          ]),
+        ),
+      }),
+    [linkedTraceSections, ruleCitationSectionIds, ruleDetail, sectionDetailsById, sections],
+  );
+
   useEffect(() => {
     setRules([]);
     setRulesError(null);
     setRulesLoading(false);
     setRulesDeeplinkWarning(null);
     setRuleQuery("");
-    setDrawerOpen(false);
-    setActiveRuleId(null);
     setRuleDetail(null);
     setRuleDetailError(null);
     setRuleDetailLoading(false);
     setTraceIndex(null);
     setTraceError(null);
     setTraceLoading(false);
+    setSectionDetailsById({});
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -666,6 +856,7 @@ export default function MethodDetailPane({
       if (tab) params.set("tab", tab);
       if (rule) params.set("rule", rule);
       if (section) params.set("section", section);
+      params.set("focus", "rule-detail");
       const query = params.toString();
       const suffix = `${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
       return `${origin}${path}${suffix}`;
@@ -673,8 +864,32 @@ export default function MethodDetailPane({
     [activeVersion, method.code],
   );
 
-  const loadRuleDetail = useCallback(async (ruleId: string) => {
+  const buildRuleDetailFallback = useCallback(
+    (ruleId: string, list: RuleListItem[]) => {
+      const match = list.find((rule) => rule.id === ruleId);
+      if (!match) return null;
+      return {
+        id: match.id,
+        title: match.title || match.id,
+        text: match.snippet || "",
+        logic: undefined,
+        summary: match.snippet || undefined,
+        tags: match.tags,
+        type: match.type,
+        sha256: undefined,
+        sectionId: undefined,
+        anchor: undefined,
+        citations: undefined,
+        sourcePath: undefined,
+      };
+    },
+    [],
+  );
+
+  const loadRuleDetail = useCallback(async (ruleId: string, fallbackDetail?: NonNullable<typeof ruleDetail>) => {
     if (!activeVersion) return;
+    const requestId = ruleDetailRequestRef.current + 1;
+    ruleDetailRequestRef.current = requestId;
     setRuleDetailLoading(true);
     setRuleDetailError(null);
     try {
@@ -707,6 +922,7 @@ export default function MethodDetailPane({
                 value !== null,
             )
         : undefined;
+      if (ruleDetailRequestRef.current !== requestId) return;
       setRuleDetail({
         id: typeof record.id === "string" ? record.id : ruleId,
         title:
@@ -716,6 +932,8 @@ export default function MethodDetailPane({
               ? record.id
               : ruleId,
         text: typeof record.text === "string" ? record.text : "",
+        logic: typeof record.logic === "string" ? record.logic : undefined,
+        summary: typeof record.summary === "string" ? record.summary : undefined,
         tags: Array.isArray(record.tags)
           ? record.tags.map((t: unknown) => String(t)).filter(Boolean)
           : [],
@@ -727,27 +945,40 @@ export default function MethodDetailPane({
         sourcePath: typeof record.sourcePath === "string" ? record.sourcePath : undefined,
       });
     } catch (error) {
-      setRuleDetail(null);
+      if (ruleDetailRequestRef.current !== requestId) return;
+      setRuleDetail((current) => (current?.id === ruleId ? current : fallbackDetail ?? current));
       setRuleDetailError(error instanceof Error ? error.message : String(error));
     } finally {
+      if (ruleDetailRequestRef.current !== requestId) return;
       setRuleDetailLoading(false);
     }
-  }, [activeVersion, method.code]);
+  }, [activeVersion, method.code, ruleDetail]);
 
-  const setRuleParam = useCallback((ruleId?: string) => {
+  const setRuleParam = useCallback((
+    ruleId?: string,
+    options?: { history?: "push" | "replace"; nextTab?: DetailTab | null; openModal?: boolean },
+  ) => {
     if (!pathname) return;
-    if (isEvidenceMode) return;
     const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
     if (ruleId) {
       params.set("rule", ruleId);
       params.delete("section");
+      if (options?.openModal) params.set("focus", "rule-detail");
+      else params.delete("focus");
     } else {
       params.delete("rule");
+      params.delete("focus");
     }
+    if (options?.nextTab) params.set("tab", options.nextTab);
     const search = params.toString();
-    const hash = ruleId ? `#r-${ruleId}` : "";
-    router.replace(search ? `${pathname}?${search}${hash}` : `${pathname}${hash}`, { scroll: false });
-  }, [isEvidenceMode, pathname, router]);
+    const hash = options?.openModal && ruleId ? `#r-${ruleId}` : "";
+    const href = search ? `${pathname}?${search}${hash}` : `${pathname}${hash}`;
+    if (options?.history === "push") {
+      router.push(href, { scroll: false });
+      return;
+    }
+    router.replace(href, { scroll: false });
+  }, [pathname, router]);
 
   const setSectionParam = useCallback(
     (sectionId?: string) => {
@@ -818,6 +1049,39 @@ export default function MethodDetailPane({
       setSectionsLoading(false);
     }
   }, [activeVersion, method.code, sections, sectionsLoading]);
+
+  const ensureSectionDetailLoaded = useCallback(async (sectionId: string): Promise<SectionListItem | null> => {
+    const normalizedSectionId = sectionId.trim();
+    if (!normalizedSectionId || !activeVersion) return null;
+    if (sectionDetailsById[normalizedSectionId]) return sectionDetailsById[normalizedSectionId];
+    try {
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/sections?id=${encodeURIComponent(
+          normalizedSectionId,
+        )}`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error(`Section request failed with ${response.status}`);
+      const payload = (await response.json()) as { section?: unknown };
+      const section = payload.section;
+      if (!section || typeof section !== "object") throw new Error("Section payload missing");
+      const record = section as Record<string, unknown>;
+      const next: SectionListItem = {
+        id: typeof record.id === "string" ? record.id : normalizedSectionId,
+        title: typeof record.title === "string" ? record.title : normalizedSectionId,
+        level: typeof record.level === "number" ? record.level : 1,
+        anchor: typeof record.anchor === "string" ? record.anchor : undefined,
+        page: typeof record.page === "number" ? record.page : undefined,
+        textSnippet: typeof record.textSnippet === "string" ? record.textSnippet : undefined,
+        text: typeof record.text === "string" ? record.text : undefined,
+        sourcePath: typeof record.sourcePath === "string" ? record.sourcePath : undefined,
+      };
+      setSectionDetailsById((prev) => ({ ...prev, [next.id]: next }));
+      return next;
+    } catch {
+      return null;
+    }
+  }, [activeVersion, method.code, sectionDetailsById]);
 
   const goToSectionFromTrace = useCallback(
     (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
@@ -941,61 +1205,92 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!drawerOpen) return;
-    if (!drawerSourceOpen && !drawerCitationsOpen) return;
     void ensureSectionsLoaded();
     if (method.hasRich) void ensureRichLoaded();
-  }, [drawerCitationsOpen, drawerOpen, drawerSourceOpen, ensureRichLoaded, ensureSectionsLoaded, method.hasRich]);
+    const sectionIds = ruleCitationSectionIds.length
+      ? ruleCitationSectionIds
+      : linkedTraceSections.map((link) => link.section_id);
+    sectionIds.slice(0, 4).forEach((sectionId) => {
+      void ensureSectionDetailLoaded(sectionId);
+    });
+  }, [
+    drawerOpen,
+    ensureRichLoaded,
+    ensureSectionDetailLoaded,
+    ensureSectionsLoaded,
+    linkedTraceSections,
+    method.hasRich,
+    ruleCitationSectionIds,
+  ]);
 
-  const openRule = useCallback(async (ruleId: string) => {
-    setTabParam("rules");
-    setRulesDeeplinkWarning(null);
-    const list = await ensureRulesLoaded();
-    if (list.length === 0) return false;
-    if (!list.some((rule) => rule.id === ruleId)) {
-      setRulesDeeplinkWarning(`Unknown rule id "${ruleId}".`);
-      return false;
-    }
-    setActiveRuleId(ruleId);
-    setDrawerOpen(true);
-    setRuleParam(ruleId);
-    await loadRuleDetail(ruleId);
-    return true;
-  }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam]);
+  const openRuleViewer = useCallback(
+    async (ruleId: string, options?: { nextTab?: DetailTab }) => {
+      const normalizedRuleId = ruleId.trim();
+      if (!normalizedRuleId || openingRuleIdRef.current === normalizedRuleId) return false;
+      if (drawerOpen && activeRuleId === normalizedRuleId) return true;
+      openingRuleIdRef.current = normalizedRuleId;
+      setRulesDeeplinkWarning(null);
+      try {
+        const list = await ensureRulesLoaded();
+        if (list.length === 0) return false;
+        if (!list.some((rule) => rule.id === normalizedRuleId)) {
+          setRulesDeeplinkWarning(`Unknown rule id "${normalizedRuleId}".`);
+          return false;
+        }
+        const fallbackDetail = buildRuleDetailFallback(normalizedRuleId, list);
+        setRuleDetail(fallbackDetail);
+        setRuleDetailError(null);
+        setRuleParam(normalizedRuleId, {
+          history: "push",
+          nextTab: options?.nextTab,
+          openModal: true,
+        });
+        void loadRuleDetail(normalizedRuleId, fallbackDetail ?? undefined);
+        return true;
+      } catch (error) {
+        setRuleDetailError(error instanceof Error ? error.message : String(error));
+        return false;
+      } finally {
+        openingRuleIdRef.current = null;
+      }
+    },
+    [activeRuleId, buildRuleDetailFallback, drawerOpen, ensureRulesLoaded, loadRuleDetail, setRuleParam],
+  );
+
+  const openRule = useCallback(
+    async (ruleId: string) => openRuleViewer(ruleId, { nextTab: "rules" }),
+    [openRuleViewer],
+  );
 
   const openRuleFromVerify = useCallback(
-    async (ruleId: string) => {
-      setActiveRuleId(ruleId);
-      if (!pathname) return;
-      const params = new URLSearchParams(searchString);
-      params.set("tab", "rules");
-      params.set("rule", ruleId);
-      const query = params.toString();
-      window.open(query ? `${pathname}?${query}` : pathname, "_blank", "noopener,noreferrer");
-    },
-    [pathname, searchString],
+    async (ruleId: string) => openRuleViewer(ruleId),
+    [openRuleViewer],
   );
 
   const closeDrawer = useCallback(() => {
-    setDrawerOpen(false);
-    setActiveRuleId(null);
-    setRuleDetail(null);
-    setRuleDetailError(null);
-    setRuleParam(undefined);
-  }, [setRuleParam]);
+    ruleDetailRequestRef.current += 1;
+    setRuleParam(activeRuleId ?? undefined, { history: "replace", openModal: false });
+  }, [activeRuleId, setRuleParam]);
 
   useEffect(() => {
-    if (didInitFromUrl.current) return;
-    didInitFromUrl.current = true;
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    const initial = (url.searchParams.get("rule") ?? "").trim();
-    if (initial) setActiveRuleId(initial);
-  }, []);
-
-  useEffect(() => {
-    if (surfaceTab !== "verify" && !isEvidenceMode) return;
-    updateRuleParamNoNav(activeRuleId);
-  }, [activeRuleId, isEvidenceMode, surfaceTab]);
+    if (!drawerOpen || !activeRuleId) return;
+    void (async () => {
+      setRulesDeeplinkWarning(null);
+      const list = await ensureRulesLoaded();
+      if (!list.some((rule) => rule.id === activeRuleId)) {
+        setRulesDeeplinkWarning(`Unknown rule id "${activeRuleId}".`);
+        setRuleDetail(null);
+        setRuleDetailError(null);
+        closeDrawer();
+        return;
+      }
+      const fallbackDetail = buildRuleDetailFallback(activeRuleId, list);
+      if (!ruleDetail || ruleDetail.id !== activeRuleId) {
+        setRuleDetail(fallbackDetail);
+      }
+      await loadRuleDetail(activeRuleId, fallbackDetail ?? undefined);
+    })();
+  }, [activeRuleId, buildRuleDetailFallback, closeDrawer, drawerOpen, ensureRulesLoaded, loadRuleDetail, ruleDetail]);
 
   useEffect(() => {
     if (isEvidenceMode) return;
@@ -1018,8 +1313,6 @@ export default function MethodDetailPane({
     })();
   }, [ensureSectionsLoaded, isEvidenceMode, searchParams]);
 
-  const sectionsById = useMemo(() => new Map(sections.map((section) => [section.id, section])), [sections]);
-
   useEffect(() => {
     if (tab !== "rules") return;
     if (!activeRuleId) return;
@@ -1029,9 +1322,17 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!drawerOpen) return;
-    setDrawerSourceOpen(false);
-    setDrawerCitationsOpen(false);
-  }, [activeRuleId, drawerOpen]);
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeDrawer();
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [closeDrawer, drawerOpen]);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -1146,7 +1447,7 @@ export default function MethodDetailPane({
         activeRuleId={activeRuleId}
         ruleOptions={rules.map((rule) => ({ id: rule.id, title: rule.title }))}
         onSelectRuleId={(ruleId) => {
-          setActiveRuleId(ruleId);
+          setRuleParam(ruleId ?? undefined, { history: "replace", openModal: false });
         }}
         onViewRule={(ruleId) => {
           void openRuleFromVerify(ruleId);
@@ -1455,14 +1756,24 @@ export default function MethodDetailPane({
                 className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center"
                 role="dialog"
                 aria-modal="true"
+                aria-label="Rule detail"
+                onClick={closeDrawer}
               >
-                <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-xl">
+                <div
+                  className="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white shadow-xl"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
                     <div className="min-w-0">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        Rule{" "}
-                        <span className="break-words font-mono text-xs text-slate-600">
-                          {activeRuleId ?? "—"}
+                      <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        <span>
+                          Rule{" "}
+                          <span className="break-words font-mono text-xs text-slate-600">
+                            {activeRuleId ?? "—"}
+                          </span>
+                        </span>
+                        <span className={`rounded-full px-2.5 py-1 normal-case tracking-normal ${activeRuleStatus.tone}`}>
+                          {activeRuleStatus.label}
                         </span>
                       </div>
                       <div
@@ -1496,178 +1807,240 @@ export default function MethodDetailPane({
                     </div>
                   </div>
 
-                  <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
-                    {ruleDetailError ? (
-                      <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                        <div className="font-semibold text-rose-900">Failed to load rule.</div>
-                        <div className="mt-1 text-xs text-rose-700">{ruleDetailError}</div>
-                        <button
-                          type="button"
-                          className="mt-3 inline-flex items-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 shadow-sm hover:border-rose-300 hover:text-rose-900"
-                          onClick={() => {
-                            if (activeRuleId) {
-                              void loadRuleDetail(activeRuleId);
-                            }
-                          }}
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    ) : null}
-                    {ruleDetailLoading ? (
-                      <div className="text-sm text-slate-600">Loading rule…</div>
-                    ) : null}
-
-                    {ruleDetail ? (
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap gap-2 text-xs text-slate-600">
-                          {ruleDetail.tags.length ? (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 font-medium">
-                              tags: {ruleDetail.tags.slice(0, 4).join(", ")}
-                            </span>
-                          ) : null}
-                          {ruleDetail.type ? (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 font-medium">
-                              type: {ruleDetail.type}
-                            </span>
-                          ) : null}
-                          {ruleDetail.sectionId ? (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 font-medium">
-                              section: {ruleDetail.sectionId}
-                            </span>
-                          ) : null}
+                  <RuleViewerBoundary
+                    resetKey={`${activeRuleId ?? "none"}:${ruleDetail?.id ?? "none"}:${ruleDetailError ?? "ok"}`}
+                    onClose={closeDrawer}
+                  >
+                    <div className="max-h-[78vh] overflow-y-auto px-5 py-4">
+                      {ruleDetailError ? (
+                        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                          <div className="font-semibold text-rose-900">Failed to load rule.</div>
+                          <div className="mt-1 text-xs text-rose-700">{ruleDetailError}</div>
+                          <button
+                            type="button"
+                            className="mt-3 inline-flex items-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 shadow-sm hover:border-rose-300 hover:text-rose-900"
+                            onClick={() => {
+                              if (activeRuleId) {
+                                void loadRuleDetail(activeRuleId, ruleDetail ?? undefined);
+                              }
+                            }}
+                          >
+                            Retry
+                          </button>
                         </div>
+                      ) : null}
+                      {ruleDetailLoading ? (
+                        <div className="text-sm text-slate-600">Loading rule…</div>
+                      ) : null}
 
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-800">
-                          {ruleDetail.text || "—"}
-                        </div>
+                      {ruleDetail ? (
+                        <div className="space-y-4">
+                          <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <div className="flex flex-wrap gap-2 text-xs text-slate-600">
+                              {ruleDetail.tags.length ? (
+                                <span className="rounded-full bg-white px-3 py-1 font-medium shadow-sm">
+                                  tags: {ruleDetail.tags.slice(0, 4).join(", ")}
+                                </span>
+                              ) : null}
+                              {ruleDetail.type ? (
+                                <span className="rounded-full bg-white px-3 py-1 font-medium shadow-sm">
+                                  type: {ruleDetail.type}
+                                </span>
+                              ) : null}
+                              {ruleDetail.sectionId ? (
+                                <span className="rounded-full bg-white px-3 py-1 font-medium shadow-sm">
+                                  section: {ruleDetail.sectionId}
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="mt-3 text-sm text-slate-700">{activeRuleStatus.detail}</div>
+                          </section>
 
-                        <details
-                          className="rounded-xl border border-slate-200 bg-white p-4"
-                          open={drawerSourceOpen}
-                          onToggle={(event) => setDrawerSourceOpen(event.currentTarget.open)}
-                        >
-                          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Source
-                          </summary>
-                          <div className="mt-3 space-y-3">
-                            {traceError ? (
-                              <div className="text-xs text-rose-700">Trace unavailable: {traceError}</div>
-                            ) : traceLoading ? (
-                              <div className="text-xs text-slate-600">Loading links…</div>
-                            ) : linkedTraceSections.length ? (
-                              <div className="grid gap-2">
-                                {linkedTraceSections.slice(0, 6).map((link) => {
-                                  const section = sectionsById.get(link.section_id);
-                                  return (
-                                    <div key={link.section_id} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
-                                      <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <span className="font-mono text-xs text-slate-700">{link.section_id}</span>
+                          <section className="rounded-2xl border border-slate-200 bg-white p-5">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Rule text</div>
+                            <div className="mt-3 text-sm leading-relaxed text-slate-800">
+                              {ruleDetail.logic?.trim() || ruleDetail.text || "—"}
+                            </div>
+                          </section>
+
+                          <section className="rounded-2xl border border-slate-200 bg-white p-5">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                              Grounded method passage
+                            </div>
+                            <div className="mt-3 space-y-3">
+                              {traceError ? (
+                                <div className="text-xs text-rose-700">Trace unavailable: {traceError}</div>
+                              ) : traceLoading && groundedPassages.length === 0 ? (
+                                <div className="text-sm text-slate-600">Loading linked method sections…</div>
+                              ) : groundedPassages.length ? (
+                                groundedPassages.slice(0, 4).map((passage) => (
+                                  <div
+                                    key={`${passage.sectionId ?? "fallback"}-${passage.source}`}
+                                    className="rounded-xl border border-slate-100 bg-slate-50 p-4"
+                                  >
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                      <div>
+                                        <div className="font-mono text-xs text-slate-700">
+                                          {passage.sectionId ?? "method"}
+                                        </div>
+                                        <div className="mt-1 text-sm font-semibold text-slate-900">
+                                          {passage.title}
+                                        </div>
+                                      </div>
+                                      {passage.sectionId ? (
                                         <button
                                           type="button"
                                           className="text-xs font-semibold text-slate-600 hover:text-slate-900"
-                                          onClick={(event) => goToSectionFromTrace(event, link.section_id)}
+                                          onClick={(event) => goToSectionFromTrace(event, passage.sectionId!)}
                                         >
-                                          Preview
+                                          Preview section
                                         </button>
-                                      </div>
-                                      <div className="mt-1 text-sm font-semibold text-slate-900">
-                                        {section?.title ?? link.title ?? "Section"}
-                                      </div>
-                                      {section?.textSnippet ? (
-                                        <div className="mt-1 text-xs text-slate-600">{section.textSnippet}</div>
                                       ) : null}
                                     </div>
-                                  );
-                                })}
-                              </div>
-                            ) : (
-                              <div className="text-sm text-slate-600">No linked sections yet.</div>
-                            )}
-
-                            <div className="grid gap-2 text-xs text-slate-600">
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="font-semibold text-slate-700">source</span>
-                                <span className="break-all font-mono text-slate-700">
-                                  {ruleDetail.sourcePath ?? "—"}
-                                </span>
-                              </div>
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="font-semibold text-slate-700">sha256</span>
-                                <span className="break-all font-mono text-slate-700">
-                                  {ruleDetail.sha256 ?? "—"}
-                                </span>
-                              </div>
+                                    <div className="mt-2 text-sm leading-relaxed text-slate-700">{passage.text}</div>
+                                    <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                                      {passage.source === "rich-passage"
+                                        ? "Rich passage"
+                                        : passage.source === "section-excerpt"
+                                          ? "Section excerpt"
+                                          : "Lean fallback"}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-sm text-slate-600">No grounded section links are available yet.</div>
+                              )}
                             </div>
-                          </div>
-                        </details>
+                          </section>
 
-                        <details
-                          className="rounded-xl border border-slate-200 bg-white p-4"
-                          open={drawerCitationsOpen}
-                          onToggle={(event) => setDrawerCitationsOpen(event.currentTarget.open)}
-                        >
-                          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Citations
-                          </summary>
-                          <div className="mt-3 space-y-3">
-                            {ruleCitationSectionIds.length ? (
-                              <div className="grid gap-2">
-                                {ruleCitationSectionIds.map((target) => {
-                                  const section = sectionsById.get(target);
-                                  return (
-                                    <div key={target} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
-                                      <div className="font-mono text-xs text-slate-700">{target}</div>
-                                      <div className="mt-1 text-sm font-semibold text-slate-900">
-                                        {section?.title ?? "Section"}
+                          <section className="rounded-2xl border border-slate-200 bg-white p-5">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                              Project evidence
+                            </div>
+                            <div className="mt-3 space-y-3">
+                              {ruleEvidencePins.length ? (
+                                ruleEvidencePins.slice(0, 6).map((pin) => (
+                                  <div key={pin.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                      <div>
+                                        <div className="text-sm font-semibold text-slate-900">{pin.title || pin.id}</div>
+                                        <div className="mt-1 text-xs text-slate-500">
+                                          {pin.kind} • {pin.created_at}
+                                        </div>
+                                      </div>
+                                      <div className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm">
+                                        {pin.attachments?.length ?? 0} attachment{(pin.attachments?.length ?? 0) === 1 ? "" : "s"}
                                       </div>
                                     </div>
-                                  );
-                                })}
-                              </div>
-                            ) : (
-                              <div className="text-sm text-slate-600">No citations recorded yet.</div>
-                            )}
+                                    <div className="mt-2 text-sm text-slate-700">
+                                      {pin.note?.trim() || "No reviewer note saved."}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-sm text-slate-600">No project evidence is linked to this rule yet.</div>
+                              )}
+                            </div>
+                          </section>
 
-                            {method.hasRich && richEvidence?.citations.length ? (
-                              <div>
+                          <section className="rounded-2xl border border-slate-200 bg-white p-5">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                              Reasoning and assessment
+                            </div>
+                            <div className="mt-3 space-y-3">
+                              {ruleEvidenceRuns.length ? (
+                                ruleEvidenceRuns.slice(0, 4).map((run) => (
+                                  <div key={run.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                      <div className="text-sm font-semibold text-slate-900">{run.id}</div>
+                                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium uppercase text-slate-700 shadow-sm">
+                                        {run.status}
+                                      </span>
+                                    </div>
+                                    <div className="mt-2 text-sm text-slate-700">
+                                      {run.summary?.trim() || "No assessment summary saved."}
+                                    </div>
+                                    <div className="mt-2 text-xs text-slate-500">
+                                      Created {run.created_at}
+                                      {run.ended_at ? ` • Ended ${run.ended_at}` : ""}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-sm text-slate-600">
+                                  No verification assessment has been recorded for this rule yet.
+                                </div>
+                              )}
+                            </div>
+                          </section>
+
+                          <section className="rounded-2xl border border-slate-200 bg-white p-5">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Provenance</div>
+                            <div className="mt-3 grid gap-3 text-sm text-slate-700">
+                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                                 <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                  Rich citations
+                                  Source metadata
                                 </div>
-                                <div className="mt-2 grid gap-2">
-                                  {richEvidence.citations.slice(0, 6).map((citation, index) => (
-                                    <div key={`rich-citation-${index}`} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-700">
-                                      <div className="font-semibold text-slate-900">
-                                        {citation.sectionId ? `${citation.label} (${citation.sectionId})` : citation.label}
-                                      </div>
-                                      {citation.sectionId ? (
-                                        <div className="mt-1 font-mono text-[11px] text-slate-600">{citation.sectionId}</div>
-                                      ) : null}
-                                    </div>
-                                  ))}
+                                <div className="mt-3 grid gap-2 text-xs text-slate-600">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="font-semibold text-slate-700">sha256</span>
+                                    <span className="break-all font-mono text-slate-700">{ruleDetail.sha256 ?? "—"}</span>
+                                  </div>
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="font-semibold text-slate-700">source</span>
+                                    <span className="break-all font-mono text-slate-700">{ruleDetail.sourcePath ?? "—"}</span>
+                                  </div>
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="font-semibold text-slate-700">anchor</span>
+                                    <span className="break-all font-mono text-slate-700">{ruleDetail.anchor ?? "—"}</span>
+                                  </div>
                                 </div>
                               </div>
-                            ) : null}
-                          </div>
-                        </details>
-
-                        <div className="grid gap-2 text-xs text-slate-600">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="font-semibold text-slate-700">sha256</span>
-                            <span className="break-all font-mono text-slate-700">
-                              {ruleDetail.sha256 ?? "—"}
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="font-semibold text-slate-700">source</span>
-                            <span className="break-all font-mono text-slate-700">
-                              {ruleDetail.sourcePath ?? "—"}
-                            </span>
-                          </div>
+                              {ruleCitationSectionIds.length ? (
+                                <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                    Cited sections
+                                  </div>
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    {ruleCitationSectionIds.map((target) => (
+                                      <span key={target} className="rounded-full bg-white px-3 py-1 font-mono text-xs text-slate-700 shadow-sm">
+                                        {target}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : null}
+                              {method.hasRich && richEvidence?.citations.length ? (
+                                <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                    Rich citations
+                                  </div>
+                                  <div className="mt-3 grid gap-2">
+                                    {richEvidence.citations.slice(0, 6).map((citation, index) => (
+                                      <div key={`rich-citation-${index}`} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
+                                        <div className="font-semibold text-slate-900">
+                                          {citation.sectionId ? `${citation.label} (${citation.sectionId})` : citation.label}
+                                        </div>
+                                        {citation.sectionId ? (
+                                          <div className="mt-1 font-mono text-[11px] text-slate-600">{citation.sectionId}</div>
+                                        ) : null}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : null}
+                            </div>
+                          </section>
                         </div>
-                      </div>
-                    ) : null}
-                  </div>
+                      ) : null}
+
+                      {!ruleDetail && !ruleDetailLoading && !ruleDetailError ? (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                          Rule detail is temporarily unavailable. Try reopening the viewer.
+                        </div>
+                      ) : null}
+                    </div>
+                  </RuleViewerBoundary>
                 </div>
               </div>
             ) : null}

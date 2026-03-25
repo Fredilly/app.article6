@@ -72,9 +72,10 @@ async function readJsonFile(filePath: string): Promise<unknown> {
   }
 }
 
-async function tryLoadSectionsFile(manifestPath: string): Promise<{
+async function tryLoadSectionsFiles(manifestPath: string): Promise<{
   source: "sections.rich.json" | "sections.json";
-  parsed: unknown;
+  richParsed?: unknown;
+  plainParsed?: unknown;
 } | null> {
   const normalized = path.normalize(manifestPath);
   if (path.isAbsolute(normalized)) return null;
@@ -85,19 +86,55 @@ async function tryLoadSectionsFile(manifestPath: string): Promise<{
   const richPath = base.replace(/rules\.json$/, "sections.rich.json");
   const plainPath = base.replace(/rules\.json$/, "sections.json");
 
-  for (const candidate of [richPath, plainPath]) {
-    try {
-      await stat(candidate);
-      const parsed = await readJsonFile(candidate);
-      const source = candidate.endsWith("sections.rich.json") ? "sections.rich.json" : "sections.json";
-      return { source, parsed };
-    } catch (error) {
-      const err = error as NodeJS.ErrnoException;
-      if (err?.code === "ENOENT") continue;
-    }
+  let richParsed: unknown;
+  let plainParsed: unknown;
+
+  try {
+    await stat(richPath);
+    richParsed = await readJsonFile(richPath);
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err?.code !== "ENOENT") throw error;
   }
 
-  return null;
+  try {
+    await stat(plainPath);
+    plainParsed = await readJsonFile(plainPath);
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err?.code !== "ENOENT") throw error;
+  }
+
+  if (!richParsed && !plainParsed) return null;
+  return {
+    source: richParsed ? "sections.rich.json" : "sections.json",
+    richParsed,
+    plainParsed,
+  };
+}
+
+function mergeSections(richSections: SectionFull[], plainSections: SectionFull[]): SectionFull[] {
+  const merged = new Map<string, SectionFull>();
+
+  for (const section of plainSections) {
+    merged.set(section.id, { ...section });
+  }
+
+  for (const section of richSections) {
+    const current = merged.get(section.id);
+    merged.set(section.id, {
+      ...current,
+      ...section,
+      text: current?.text ?? section.text,
+      textSnippet: section.textSnippet ?? current?.textSnippet,
+      sourcePath: current?.sourcePath ?? section.sourcePath,
+      title: section.title || current?.title || section.id,
+      level: section.level ?? current?.level ?? 1,
+      order: section.order ?? current?.order,
+    });
+  }
+
+  return Array.from(merged.values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
 function coerceSectionsFromUnknown(parsed: unknown): SectionFull[] {
@@ -210,9 +247,11 @@ export async function loadMethodSections(code: string, version: string): Promise
       .find((value): value is string => Boolean(value)) ?? undefined;
 
   if (manifestPath) {
-    const loaded = await tryLoadSectionsFile(manifestPath);
+    const loaded = await tryLoadSectionsFiles(manifestPath);
     if (loaded) {
-      const full = coerceSectionsFromUnknown(loaded.parsed);
+      const richSections = loaded.richParsed ? coerceSectionsFromUnknown(loaded.richParsed) : [];
+      const plainSections = loaded.plainParsed ? coerceSectionsFromUnknown(loaded.plainParsed) : [];
+      const full = mergeSections(richSections, plainSections);
       const byId = new Map(full.map((section) => [section.id, section]));
       const sections = full.map(({ id, title, level, anchor, page, textSnippet, order }) => ({
         id,
