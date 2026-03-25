@@ -7,7 +7,7 @@ describe("EvidenceWorkflowStepper", () => {
   it("renders reviewer save and finalize as the main lifecycle actions", () => {
     const html = renderToStaticMarkup(
       <EvidenceWorkflowStepper
-        ruleOptions={[{ id: "R-1", title: "Rule" }]}
+        ruleOptions={[{ id: "R-1", title: "Rule", summary: "One line summary", type: "eligibility", tags: ["tag-a"] }]}
         selectedRuleId="R-1"
         hasAoi
         aoiLabel="AOI"
@@ -56,12 +56,14 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).toContain("Finalize run");
     expect(html).toContain("Reviewer artifact saved");
     expect(html).toContain("Ready to finalize");
+    expect(html).toContain("One line summary");
+    expect(html).toContain("eligibility");
   });
 
   it("shows the completion card only after finalization", () => {
     const html = renderToStaticMarkup(
       <EvidenceWorkflowStepper
-        ruleOptions={[{ id: "R-1", title: "Rule" }]}
+        ruleOptions={[{ id: "R-1", title: "Rule", summary: "One line summary" }]}
         selectedRuleId="R-1"
         hasAoi
         aoiLabel="AOI"

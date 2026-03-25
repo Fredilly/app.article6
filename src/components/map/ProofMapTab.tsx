@@ -104,7 +104,7 @@ type ProofMapTabProps = {
   onSelectStacItemId: (id: string | null) => void;
   onStartOver: () => void;
   onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
-  ruleOptions?: Array<{ id: string; title: string }>;
+  ruleOptions?: Array<{ id: string; title: string; summary?: string; type?: string; tags?: string[] }>;
   onSelectRuleId?: (ruleId: string | null) => void;
   onViewRule?: (ruleId: string) => void;
   onAuditEvent?: (event: AuditTrailEventInput) => void;

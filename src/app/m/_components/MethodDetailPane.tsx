@@ -319,14 +319,8 @@ export default function MethodDetailPane({
     rule_to_sections: Record<string, TraceLink[]>;
   };
   const [rules, setRules] = useState<RuleListItem[]>([]);
-  const activeRuleId = useMemo(() => {
-    const fromUrl = (searchParams.get("rule") ?? "").trim();
-    return fromUrl || initialRuleId || null;
-  }, [initialRuleId, searchParams]);
-  const drawerOpen = useMemo(() => {
-    const focus = (searchParams.get("focus") ?? "").trim();
-    return Boolean(activeRuleId && focus === "rule-detail");
-  }, [activeRuleId, searchParams]);
+  const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [traceError, setTraceError] = useState<string | null>(null);
@@ -348,6 +342,7 @@ export default function MethodDetailPane({
   const [ruleDetailError, setRuleDetailError] = useState<string | null>(null);
   const ruleDetailRequestRef = useRef(0);
   const openingRuleIdRef = useRef<string | null>(null);
+  const didHydrateRuleViewerRef = useRef(false);
   const lastSectionFromQuery = useRef<string | null>(null);
   const lastMethodSelection = useRef<string | null>(null);
   const ruleHeaderRef = useRef<HTMLDivElement | null>(null);
@@ -528,6 +523,8 @@ export default function MethodDetailPane({
     setRulesLoading(false);
     setRulesDeeplinkWarning(null);
     setRuleQuery("");
+    setDrawerOpen(false);
+    setActiveRuleId(null);
     setRuleDetail(null);
     setRuleDetailError(null);
     setRuleDetailLoading(false);
@@ -564,6 +561,24 @@ export default function MethodDetailPane({
     if (next === searchString) return;
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
   }, [isEvidenceMode, pathname, router, searchString, tab]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const syncFromLocation = (useInitialRule: boolean) => {
+      const url = new URL(window.location.href);
+      const nextRuleId = (url.searchParams.get("rule") ?? "").trim() || (useInitialRule ? initialRuleId ?? "" : "");
+      const focus = (url.searchParams.get("focus") ?? "").trim();
+      setActiveRuleId(nextRuleId || null);
+      setDrawerOpen(Boolean(nextRuleId && focus === "rule-detail"));
+    };
+
+    syncFromLocation(!didHydrateRuleViewerRef.current);
+    didHydrateRuleViewerRef.current = true;
+
+    const handlePopState = () => syncFromLocation(false);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [initialRuleId]);
 
   useEffect(() => {
     setVerifyViewMode(urlVerifyMode);
@@ -958,8 +973,8 @@ export default function MethodDetailPane({
     ruleId?: string,
     options?: { history?: "push" | "replace"; nextTab?: DetailTab | null; openModal?: boolean },
   ) => {
-    if (!pathname) return;
-    const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
     if (ruleId) {
       params.set("rule", ruleId);
       params.delete("section");
@@ -972,13 +987,12 @@ export default function MethodDetailPane({
     if (options?.nextTab) params.set("tab", options.nextTab);
     const search = params.toString();
     const hash = options?.openModal && ruleId ? `#r-${ruleId}` : "";
-    const href = search ? `${pathname}?${search}${hash}` : `${pathname}${hash}`;
-    if (options?.history === "push") {
-      router.push(href, { scroll: false });
-      return;
-    }
-    router.replace(href, { scroll: false });
-  }, [pathname, router]);
+    const href = search ? `${window.location.pathname}?${search}${hash}` : `${window.location.pathname}${hash}`;
+    if (options?.history === "push") window.history.pushState({}, "", href);
+    else window.history.replaceState({}, "", href);
+    setActiveRuleId(ruleId?.trim() || null);
+    setDrawerOpen(Boolean(ruleId && options?.openModal));
+  }, []);
 
   const setSectionParam = useCallback(
     (sectionId?: string) => {
@@ -1445,7 +1459,13 @@ export default function MethodDetailPane({
         viewMode={verifyViewMode}
         verifierMode={verifierMode}
         activeRuleId={activeRuleId}
-        ruleOptions={rules.map((rule) => ({ id: rule.id, title: rule.title }))}
+        ruleOptions={rules.map((rule) => ({
+          id: rule.id,
+          title: rule.title,
+          summary: rule.snippet,
+          type: rule.type,
+          tags: rule.tags,
+        }))}
         onSelectRuleId={(ruleId) => {
           setRuleParam(ruleId ?? undefined, { history: "replace", openModal: false });
         }}

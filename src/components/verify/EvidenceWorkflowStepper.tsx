@@ -3,7 +3,13 @@
 import Tooltip from "@/components/ui/Tooltip";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
-type RuleOption = { id: string; title: string };
+type RuleOption = {
+  id: string;
+  title: string;
+  summary?: string;
+  type?: string;
+  tags?: string[];
+};
 
 type EvidenceWorkflowStepperProps = {
   ruleOptions: RuleOption[];
@@ -125,6 +131,7 @@ export default function EvidenceWorkflowStepper({
   const reviewerArtifactSaved = Boolean(savedReviewerArtifactAt);
   const readyToFinalize = step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled);
   const inProgress = !currentWorkspaceIsFinal && !readyToFinalize;
+  const selectedRule = ruleOptions.find((rule) => rule.id === selectedRuleId) ?? null;
 
   return (
     <div className="grid gap-3">
@@ -214,6 +221,29 @@ export default function EvidenceWorkflowStepper({
             <div className="text-[11px] text-slate-500">Select a rule to unlock the rest of the workflow.</div>
           )}
         </div>
+        {selectedRule ? (
+          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono font-semibold text-slate-900">{selectedRule.id}</span>
+              {selectedRule.type ? (
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                  {selectedRule.type}
+                </span>
+              ) : null}
+              {selectedRule.tags?.slice(0, 2).map((tag) => (
+                <span
+                  key={`${selectedRule.id}-${tag}`}
+                  className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-600"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div className="mt-1 text-slate-600">
+              {selectedRule.summary?.trim() || "Open the rule viewer for requirement text, citations, and methodology grounding."}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step2)}`} data-testid="wizard-step-2">

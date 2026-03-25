@@ -88,6 +88,16 @@ test("Verify evidence workflow creates pin and enables start run CTA", async ({ 
   await page.waitForSelector("text=Finalize run", { timeout: 30_000 });
   await page.waitForTimeout(500);
 
+  const startingPath = page.url();
+  await page.getByRole("button", { name: "View rule" }).click();
+  const ruleDialog = page.getByRole("dialog", { name: "Rule detail" });
+  await expect(ruleDialog).toBeVisible({ timeout: 30_000 });
+  await expect(ruleDialog.getByText(ruleId)).toBeVisible({ timeout: 30_000 });
+  await ruleDialog.click({ position: { x: 20, y: 20 } });
+  await expect(ruleDialog).toBeHidden({ timeout: 30_000 });
+  await expect(page).toHaveURL(/\/m\/AR-ACM0003\/v\/v02-0\?/);
+  expect(new URL(page.url()).pathname).toBe(new URL(startingPath).pathname);
+
   await expect(page.getByText("AOI ready")).toBeVisible({ timeout: 30_000 });
   const searchButton = page.getByRole("button", { name: /^Search STAC$/ }).first();
   await expect(searchButton).toBeEnabled({ timeout: 30_000 });
