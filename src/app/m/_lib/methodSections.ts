@@ -125,7 +125,7 @@ function mergeSections(richSections: SectionFull[], plainSections: SectionFull[]
       ...current,
       ...section,
       text: current?.text ?? section.text,
-      textSnippet: current?.textSnippet ?? section.textSnippet,
+      textSnippet: section.textSnippet ?? current?.textSnippet,
       sourcePath: current?.sourcePath ?? section.sourcePath,
       title: section.title || current?.title || section.id,
       level: section.level ?? current?.level ?? 1,
