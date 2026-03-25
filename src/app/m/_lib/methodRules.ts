@@ -13,6 +13,8 @@ export type RuleSummary = {
 
 export type RuleFull = RuleSummary & {
   text: string;
+  logic?: string;
+  summary?: string;
   sha256?: string;
   sectionId?: string;
   anchor?: string;
@@ -66,6 +68,7 @@ function pickCitations(entry: Record<string, unknown>): RuleFull["citations"] {
   const raw =
     entry.citations ??
     entry.references ??
+    entry.refs ??
     entry.anchors ??
     entry.anchor ??
     entry.evidence;
@@ -89,6 +92,18 @@ function pickCitations(entry: Record<string, unknown>): RuleFull["citations"] {
 
     if (typeof item === "object") {
       const record = item as Record<string, unknown>;
+      const sections = Array.isArray(record.sections)
+        ? record.sections
+        : Array.isArray((record as { refs?: { sections?: unknown[] } }).refs?.sections)
+          ? (record as { refs?: { sections?: unknown[] } }).refs?.sections
+          : null;
+      if (sections?.length) {
+        for (const section of sections) {
+          if (typeof section !== "string" || !section.trim()) continue;
+          citations.push({ sectionId: section.trim(), label: section.trim() });
+        }
+        continue;
+      }
       const anchor = pickString(record, ["anchor", "href", "url"]);
       const sectionId =
         pickString(record, ["sectionId", "section_id", "id"]) ?? sectionIdFromAnchor(anchor);
@@ -157,9 +172,15 @@ function coerceRulesFromUnknown(parsed: unknown): RuleFull[] {
     if (!item || typeof item !== "object") continue;
     const record = item as Record<string, unknown>;
     const rawId = pickString(record, ["id", "rule_id", "ruleId", "key"]);
-    const title = pickString(record, ["title", "label", "name"]) ?? rawId;
+    const logic = pickString(record, ["logic"]);
+    const summary = pickString(record, ["summary"]);
+    const title = pickString(record, ["title", "label", "name"]) ?? summary ?? rawId;
     const text =
-      pickString(record, ["text", "rule", "content", "body", "description", "summary"]) ?? "";
+      pickString(record, ["text", "rule", "logic", "content", "body", "description", "summary"]) ?? "";
+    const refs = record.refs && typeof record.refs === "object" ? (record.refs as Record<string, unknown>) : null;
+    const refsSections = Array.isArray(refs?.sections)
+      ? refs?.sections.map((value) => (typeof value === "string" ? value.trim() : "")).filter(Boolean)
+      : [];
     const id =
       rawId ??
       (title
@@ -172,8 +193,10 @@ function coerceRulesFromUnknown(parsed: unknown): RuleFull[] {
       snippet: snippetFromText(text || title || id),
       tags: pickStringArray(record, ["tags", "labels"]),
       type: pickString(record, ["type", "kind", "category"]),
+      logic: logic ?? undefined,
+      summary: summary ?? undefined,
       sha256: pickString(record, ["sha256", "hash"]),
-      sectionId: pickString(record, ["sectionId", "section_id"]),
+      sectionId: pickString(record, ["sectionId", "section_id"]) ?? refsSections[0],
       anchor: pickString(record, ["anchor", "href"]),
       citations: pickCitations(record),
       sourcePath: pickString(record, ["path", "sourcePath", "source_path"]),

@@ -109,6 +109,56 @@ function ruleStatusFromState(input: {
   };
 }
 
+type RuleGroundedPassage = {
+  sectionId?: string;
+  title: string;
+  text: string;
+  source: "rich-passage" | "section-excerpt" | "lean-fallback";
+};
+
+function buildGroundedPassages(input: {
+  ruleDetail: {
+    text: string;
+    summary?: string;
+    sectionId?: string;
+  } | null;
+  sectionOrder: string[];
+  sectionSummaries: Map<string, { title: string; textSnippet?: string }>;
+  sectionDetails: Map<string, { title: string; text?: string; textSnippet?: string }>;
+}): RuleGroundedPassage[] {
+  const { ruleDetail, sectionOrder, sectionSummaries, sectionDetails } = input;
+  if (!ruleDetail) return [];
+
+  const passages: RuleGroundedPassage[] = [];
+  for (const sectionId of sectionOrder) {
+    const detail = sectionDetails.get(sectionId);
+    const summary = sectionSummaries.get(sectionId);
+    const title = detail?.title ?? summary?.title ?? sectionId;
+    const richPassage = detail?.text?.trim();
+    const sectionExcerpt = detail?.textSnippet?.trim() ?? summary?.textSnippet?.trim();
+    if (richPassage) {
+      passages.push({ sectionId, title, text: richPassage, source: "rich-passage" });
+      continue;
+    }
+    if (sectionExcerpt) {
+      passages.push({ sectionId, title, text: sectionExcerpt, source: "section-excerpt" });
+    }
+  }
+
+  if (passages.length) return passages;
+
+  const fallbackText = ruleDetail.summary?.trim() || ruleDetail.text.trim();
+  if (!fallbackText) return [];
+  return [
+    {
+      sectionId: ruleDetail.sectionId ?? sectionOrder[0],
+      title: ruleDetail.sectionId ?? sectionOrder[0] ?? "Method grounding",
+      text: fallbackText,
+      source: "lean-fallback",
+    },
+  ];
+}
+
 function sectionIdFromText(value?: string): string | undefined {
   if (!value) return undefined;
   const match = value.match(/S-\d{1,6}/i);
@@ -238,6 +288,8 @@ export default function MethodDetailPane({
     id: string;
     title: string;
     text: string;
+    logic?: string;
+    summary?: string;
     tags: string[];
     type?: string;
     sha256?: string;
@@ -259,10 +311,13 @@ export default function MethodDetailPane({
     anchor?: string;
     page?: number;
     textSnippet?: string;
+    text?: string;
+    sourcePath?: string;
   };
 
   const [sectionsLoading, setSectionsLoading] = useState(false);
   const [sections, setSections] = useState<SectionListItem[]>([]);
+  const [sectionDetailsById, setSectionDetailsById] = useState<Record<string, SectionListItem>>({});
   const [sectionPreview, setSectionPreview] = useState<SectionListItem | null>(null);
   const [evidenceLinkSelection, setEvidenceLinkSelection] = useState<{
     kind: "evidence";
@@ -399,6 +454,26 @@ export default function MethodDetailPane({
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
   }, [activeRuleId, ruleEvidencePins, verificationRuns]);
 
+  const groundedPassages = useMemo(
+    () =>
+      buildGroundedPassages({
+        ruleDetail,
+        sectionOrder: ruleCitationSectionIds.length
+          ? ruleCitationSectionIds
+          : linkedTraceSections.map((link) => link.section_id),
+        sectionSummaries: new Map(
+          sections.map((section) => [section.id, { title: section.title, textSnippet: section.textSnippet }]),
+        ),
+        sectionDetails: new Map(
+          Object.values(sectionDetailsById).map((section) => [
+            section.id,
+            { title: section.title, text: section.text, textSnippet: section.textSnippet },
+          ]),
+        ),
+      }),
+    [linkedTraceSections, ruleCitationSectionIds, ruleDetail, sectionDetailsById, sections],
+  );
+
   useEffect(() => {
     setRules([]);
     setRulesError(null);
@@ -413,6 +488,7 @@ export default function MethodDetailPane({
     setTraceIndex(null);
     setTraceError(null);
     setTraceLoading(false);
+    setSectionDetailsById({});
   }, [activeVersion, method.code]);
 
   useEffect(() => {
@@ -784,6 +860,8 @@ export default function MethodDetailPane({
               ? record.id
               : ruleId,
         text: typeof record.text === "string" ? record.text : "",
+        logic: typeof record.logic === "string" ? record.logic : undefined,
+        summary: typeof record.summary === "string" ? record.summary : undefined,
         tags: Array.isArray(record.tags)
           ? record.tags.map((t: unknown) => String(t)).filter(Boolean)
           : [],
@@ -899,6 +977,39 @@ export default function MethodDetailPane({
       setSectionsLoading(false);
     }
   }, [activeVersion, method.code, sections, sectionsLoading]);
+
+  const ensureSectionDetailLoaded = useCallback(async (sectionId: string): Promise<SectionListItem | null> => {
+    const normalizedSectionId = sectionId.trim();
+    if (!normalizedSectionId || !activeVersion) return null;
+    if (sectionDetailsById[normalizedSectionId]) return sectionDetailsById[normalizedSectionId];
+    try {
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion)}/sections?id=${encodeURIComponent(
+          normalizedSectionId,
+        )}`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error(`Section request failed with ${response.status}`);
+      const payload = (await response.json()) as { section?: unknown };
+      const section = payload.section;
+      if (!section || typeof section !== "object") throw new Error("Section payload missing");
+      const record = section as Record<string, unknown>;
+      const next: SectionListItem = {
+        id: typeof record.id === "string" ? record.id : normalizedSectionId,
+        title: typeof record.title === "string" ? record.title : normalizedSectionId,
+        level: typeof record.level === "number" ? record.level : 1,
+        anchor: typeof record.anchor === "string" ? record.anchor : undefined,
+        page: typeof record.page === "number" ? record.page : undefined,
+        textSnippet: typeof record.textSnippet === "string" ? record.textSnippet : undefined,
+        text: typeof record.text === "string" ? record.text : undefined,
+        sourcePath: typeof record.sourcePath === "string" ? record.sourcePath : undefined,
+      };
+      setSectionDetailsById((prev) => ({ ...prev, [next.id]: next }));
+      return next;
+    } catch {
+      return null;
+    }
+  }, [activeVersion, method.code, sectionDetailsById]);
 
   const goToSectionFromTrace = useCallback(
     (event: MouseEvent<HTMLButtonElement>, sectionId: string) => {
@@ -1024,7 +1135,21 @@ export default function MethodDetailPane({
     if (!drawerOpen) return;
     void ensureSectionsLoaded();
     if (method.hasRich) void ensureRichLoaded();
-  }, [drawerOpen, ensureRichLoaded, ensureSectionsLoaded, method.hasRich]);
+    const sectionIds = ruleCitationSectionIds.length
+      ? ruleCitationSectionIds
+      : linkedTraceSections.map((link) => link.section_id);
+    sectionIds.slice(0, 4).forEach((sectionId) => {
+      void ensureSectionDetailLoaded(sectionId);
+    });
+  }, [
+    drawerOpen,
+    ensureRichLoaded,
+    ensureSectionDetailLoaded,
+    ensureSectionsLoaded,
+    linkedTraceSections,
+    method.hasRich,
+    ruleCitationSectionIds,
+  ]);
 
   const openRule = useCallback(async (ruleId: string) => {
     setRulesDeeplinkWarning(null);
@@ -1136,8 +1261,6 @@ export default function MethodDetailPane({
       }
     })();
   }, [ensureSectionsLoaded, isEvidenceMode, searchParams]);
-
-  const sectionsById = useMemo(() => new Map(sections.map((section) => [section.id, section])), [sections]);
 
   useEffect(() => {
     if (tab !== "rules") return;
@@ -1678,7 +1801,9 @@ export default function MethodDetailPane({
 
                         <section className="rounded-2xl border border-slate-200 bg-white p-5">
                           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Rule text</div>
-                          <div className="mt-3 text-sm leading-relaxed text-slate-800">{ruleDetail.text || "—"}</div>
+                          <div className="mt-3 text-sm leading-relaxed text-slate-800">
+                            {ruleDetail.logic?.trim() || ruleDetail.text || "—"}
+                          </div>
                         </section>
 
                         <section className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -1688,49 +1813,45 @@ export default function MethodDetailPane({
                           <div className="mt-3 space-y-3">
                             {traceError ? (
                               <div className="text-xs text-rose-700">Trace unavailable: {traceError}</div>
-                            ) : traceLoading ? (
+                            ) : traceLoading && groundedPassages.length === 0 ? (
                               <div className="text-sm text-slate-600">Loading linked method sections…</div>
-                            ) : linkedTraceSections.length ? (
-                              linkedTraceSections.slice(0, 6).map((link) => {
-                                const section = sectionsById.get(link.section_id);
-                                return (
-                                  <div key={link.section_id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                      <div>
-                                        <div className="font-mono text-xs text-slate-700">{link.section_id}</div>
-                                        <div className="mt-1 text-sm font-semibold text-slate-900">
-                                          {section?.title ?? link.title ?? "Section"}
-                                        </div>
+                            ) : groundedPassages.length ? (
+                              groundedPassages.slice(0, 4).map((passage) => (
+                                <div
+                                  key={`${passage.sectionId ?? "fallback"}-${passage.source}`}
+                                  className="rounded-xl border border-slate-100 bg-slate-50 p-4"
+                                >
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <div>
+                                      <div className="font-mono text-xs text-slate-700">
+                                        {passage.sectionId ?? "method"}
                                       </div>
+                                      <div className="mt-1 text-sm font-semibold text-slate-900">
+                                        {passage.title}
+                                      </div>
+                                    </div>
+                                    {passage.sectionId ? (
                                       <button
                                         type="button"
                                         className="text-xs font-semibold text-slate-600 hover:text-slate-900"
-                                        onClick={(event) => goToSectionFromTrace(event, link.section_id)}
+                                        onClick={(event) => goToSectionFromTrace(event, passage.sectionId!)}
                                       >
                                         Preview section
                                       </button>
-                                    </div>
-                                    <div className="mt-2 text-sm text-slate-700">
-                                      {section?.textSnippet ?? "No section snippet available."}
-                                    </div>
+                                    ) : null}
                                   </div>
-                                );
-                              })
-                            ) : ruleCitationSectionIds.length ? (
-                              ruleCitationSectionIds.map((target) => {
-                                const section = sectionsById.get(target);
-                                return (
-                                  <div key={target} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                                    <div className="font-mono text-xs text-slate-700">{target}</div>
-                                    <div className="mt-1 text-sm font-semibold text-slate-900">
-                                      {section?.title ?? "Section"}
-                                    </div>
-                                    <div className="mt-2 text-sm text-slate-700">
-                                      {section?.textSnippet ?? "No section snippet available."}
-                                    </div>
+                                  <div className="mt-2 text-sm leading-relaxed text-slate-700">
+                                    {passage.text}
                                   </div>
-                                );
-                              })
+                                  <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                                    {passage.source === "rich-passage"
+                                      ? "Rich passage"
+                                      : passage.source === "section-excerpt"
+                                        ? "Section excerpt"
+                                        : "Lean fallback"}
+                                  </div>
+                                </div>
+                              ))
                             ) : (
                               <div className="text-sm text-slate-600">No grounded section links are available yet.</div>
                             )}
