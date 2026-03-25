@@ -12,7 +12,7 @@ const { loadMethodRules } = require("@/app/m/_lib/methodRules") as typeof import
 const { loadMethodSections } = require("@/app/m/_lib/methodSections") as typeof import("@/app/m/_lib/methodSections");
 
 const fixtureRelDir = "methodologies/__tests__/METHOD-TEST/v01-0";
-const fixtureAbsDir = path.join(process.cwd(), "public", fixtureRelDir);
+const fixtureAbsDir = path.join(process.cwd(), fixtureRelDir);
 const fixtureManifestPath = `${fixtureRelDir}/rules.json`;
 
 beforeAll(async () => {
@@ -72,7 +72,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await rm(path.join(process.cwd(), "public", "methodologies", "__tests__"), {
+  await rm(path.join(process.cwd(), "methodologies", "__tests__"), {
     recursive: true,
     force: true,
   });
