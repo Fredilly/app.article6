@@ -151,3 +151,52 @@ test("includes selected rule in the final artifact outcome", async () => {
   expect(snapshot.outcome?.linkage.selectedRuleId).toBe("R-9");
   expect(snapshot.verifier?.minutes).toBe("Saved reviewer note");
 });
+
+test("adds a top-level review summary without changing the raw snapshot shape", async () => {
+  const snapshot = await buildEvidenceSnapshot({
+    method: { code: "AR-4", version: "v4" },
+    evidence_source: { type: "stac_url", ref: "https://example.test" },
+    selected: {
+      id: "stac-9",
+      item: {
+        id: "stac-9",
+        properties: {
+          datetime: "2026-03-25T00:00:00Z",
+          "eo:cloud_cover": 8.2,
+        },
+      },
+    },
+    verifier: {
+      runId: "run-4",
+      createdAt: "2026-03-25T00:00:00Z",
+      minutes: "Saved note",
+      outcomeNote: "Outcome",
+      finalizedAt: "2026-03-25T00:01:00Z",
+      finalizedState: "finalized",
+      delta: "",
+      impact: "",
+      checklist: [],
+      tasks: [],
+    },
+    summary: {
+      methodCode: "AR-4",
+      version: "v4",
+      ruleId: "R-4",
+      ruleSection: "Section 4",
+      ruleText: "Rule text",
+      selectedEvidenceId: "stac-9",
+      selectedEvidenceDatetime: "2026-03-25T00:00:00Z",
+      cloudCover: 8.2,
+      aoiLabel: "AOI",
+      reviewState: "finalized",
+      generatedAt: "2026-03-25T00:01:00Z",
+      outcomeNote: "Outcome",
+    },
+  });
+
+  expect(snapshot.method.code).toBe("AR-4");
+  expect(snapshot.evidence_source.ref).toBe("https://example.test");
+  expect(snapshot.summary?.ruleId).toBe("R-4");
+  expect(snapshot.summary?.selectedEvidenceId).toBe("stac-9");
+  expect(snapshot.verifier?.runId).toBe("run-4");
+});
