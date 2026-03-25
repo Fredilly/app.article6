@@ -304,6 +304,33 @@ export default function MethodDetailPane({
       limit: 10,
     });
   }, [coverageLinkedRuleIds, coverageRules]);
+  const ruleActivityById = useMemo(() => {
+    const map = new Map<string, { evidenceCount: number; runCount: number }>();
+    for (const pin of evidencePins) {
+      const ids = new Set<string>();
+      if (pin.ruleId?.trim()) ids.add(pin.ruleId.trim());
+      for (const citedId of pin.cited_ids ?? []) {
+        if (citedId?.trim()) ids.add(citedId.trim());
+      }
+      for (const id of ids) {
+        const current = map.get(id) ?? { evidenceCount: 0, runCount: 0 };
+        current.evidenceCount += 1;
+        map.set(id, current);
+      }
+    }
+    for (const run of verificationRuns) {
+      const ids = new Set<string>();
+      for (const citedId of run.cited_ids ?? []) {
+        if (citedId?.trim()) ids.add(citedId.trim());
+      }
+      for (const id of ids) {
+        const current = map.get(id) ?? { evidenceCount: 0, runCount: 0 };
+        current.runCount += 1;
+        map.set(id, current);
+      }
+    }
+    return map;
+  }, [evidencePins, verificationRuns]);
 
   const ruleCitationSectionIds = useMemo(() => {
     if (!ruleDetail) return [];
@@ -1421,30 +1448,69 @@ export default function MethodDetailPane({
 
             <ul className="grid gap-2">
               {filteredRules.map((rule) => (
-                <li
-                  key={rule.id}
-                  id={`r-${rule.id}`}
-                  className={
-                    linkedRuleIds.has(rule.id)
-                      ? "rounded-2xl ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
-                      : ""
-                  }
-                >
+                <li key={rule.id} id={`r-${rule.id}`}>
                   <button
                     type="button"
                     onClick={() => openRule(rule.id)}
-                    className={`flex w-full flex-col gap-1 rounded-xl border px-4 py-3 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${
-                      linkedRuleIds.has(rule.id) ? "border-sky-200 bg-sky-50/30" : "border-slate-200 bg-white"
+                    className={`flex w-full flex-col gap-3 rounded-2xl border px-4 py-4 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${
+                      linkedRuleIds.has(rule.id)
+                        ? "border-sky-200 bg-sky-50/40 ring-1 ring-sky-200 ring-offset-2 ring-offset-slate-50"
+                        : "border-slate-200 bg-white"
                     }`}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs text-slate-500">
-                        {rule.type ? rule.type : rule.tags.length ? rule.tags.slice(0, 2).join(", ") : "—"}
-                      </span>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-mono text-[11px] font-semibold text-slate-600">{rule.id}</span>
+                          {rule.type ? (
+                            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                              {rule.type}
+                            </span>
+                          ) : null}
+                          {linkedRuleIds.has(rule.id) ? (
+                            <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                              Linked in workspace
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="mt-2 text-sm font-semibold leading-snug text-slate-900">{rule.title}</div>
+                      </div>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Open</span>
                     </div>
-                    <div className="text-sm font-semibold text-slate-900">{rule.title}</div>
-                    <div className="font-mono text-xs text-slate-500">{rule.id}</div>
-                    <div className="text-sm text-slate-600">{rule.snippet || "—"}</div>
+                    <div className="text-sm leading-relaxed text-slate-600">
+                      {rule.snippet || "No preview text is available for this rule yet."}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                      {rule.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={`${rule.id}-${tag}`}
+                          className="rounded-full border border-slate-200 bg-white px-2 py-0.5"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {(() => {
+                        const activity = ruleActivityById.get(rule.id);
+                        if (!activity) return null;
+                        return (
+                          <>
+                            {activity.evidenceCount ? (
+                              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-700">
+                                {activity.evidenceCount} evidence link{activity.evidenceCount === 1 ? "" : "s"}
+                              </span>
+                            ) : null}
+                            {activity.runCount ? (
+                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-700">
+                                {activity.runCount} review run{activity.runCount === 1 ? "" : "s"}
+                              </span>
+                            ) : null}
+                          </>
+                        );
+                      })()}
+                      {!rule.tags.length && !ruleActivityById.get(rule.id) ? (
+                        <span className="text-slate-400">Open to inspect requirement text and citations.</span>
+                      ) : null}
+                    </div>
                   </button>
                 </li>
               ))}
