@@ -23,12 +23,14 @@ describe("ReviewSummaryCard", () => {
         artifact={null}
         onDownloadJson={() => {}}
         onDownloadPdf={() => {}}
+        onCopyLink={() => {}}
       />,
     );
 
     expect(html).toContain("Review Summary");
-    expect(html).toContain("Download PDF summary");
-    expect(html).toContain("Download JSON artifact");
+    expect(html).toContain("Download PDF");
+    expect(html).toContain("Download JSON");
+    expect(html).toContain("Copy link");
     expect(html).toContain("Monitoring period");
     expect(html).toContain("Stable result.");
     expect(html).toContain("Raw evidence details");

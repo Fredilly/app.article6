@@ -8,6 +8,7 @@ type ReviewSummaryCardProps = {
   artifact: EvidenceSnapshot | null;
   onDownloadJson: () => void;
   onDownloadPdf: () => void;
+  onCopyLink?: () => void;
   pdfError?: string | null;
   pdfBusy?: boolean;
 };
@@ -20,30 +21,72 @@ function prettyJson(value: unknown): string {
   }
 }
 
+function formatTimestamp(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function truncateMiddle(value: string, max = 28): string {
+  if (value.length <= max) return value;
+  const side = Math.max(8, Math.floor((max - 1) / 2));
+  return `${value.slice(0, side)}…${value.slice(-side)}`;
+}
+
+function normalizeAoiLabel(value: string): string {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => (part.toUpperCase() === "AOI" ? "AOI" : `${part.slice(0, 1).toUpperCase()}${part.slice(1).toLowerCase()}`))
+    .join(" ");
+}
+
+function compactSentence(value: string, max = 140): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (!normalized) return "Unavailable";
+  return normalized.length > max ? `${normalized.slice(0, max - 3).trimEnd()}...` : normalized;
+}
+
 export default function ReviewSummaryCard({
   summary,
   artifact,
   onDownloadJson,
   onDownloadPdf,
+  onCopyLink,
   pdfError = null,
   pdfBusy = false,
 }: ReviewSummaryCardProps) {
   const display = formatReviewSummaryDisplay(summary);
+  const generatedLabel = formatTimestamp(display.generatedAt);
+  const evidenceTimeLabel = formatTimestamp(display.selectedEvidenceDatetime);
+  const evidenceIdLabel = truncateMiddle(display.selectedEvidenceId);
+  const cloudCoverLabel = display.cloudCover === "Unavailable" ? display.cloudCover : `${Number(display.cloudCover).toFixed(1)}%`;
+  const aoiLabel = display.aoiLabel === "Unnamed AOI" ? display.aoiLabel : normalizeAoiLabel(display.aoiLabel);
+  const ruleSummary = compactSentence(display.ruleText);
 
   return (
     <section
       data-testid="review-summary-card"
-      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      className="rounded-[28px] border border-emerald-200 bg-gradient-to-br from-white via-emerald-50/70 to-slate-50 p-5 shadow-sm shadow-emerald-100"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Review Summary</div>
-          <div className="mt-1 text-lg font-semibold text-slate-900">
-            {display.methodCode} @ {display.version}
+      <div className="flex flex-col gap-4 border-b border-emerald-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+              Finalized
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review summary</span>
           </div>
-          <div className="mt-1 text-sm text-slate-600">
-            Rule {display.ruleId} • {display.ruleSection}
+          <div className="mt-3 text-xl font-semibold tracking-tight text-slate-950">
+            {display.methodCode} <span className="text-slate-400">@</span> {display.version}
           </div>
+          <div className="mt-1 text-sm text-slate-600">Finalized {generatedLabel}</div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -53,7 +96,7 @@ export default function ReviewSummaryCard({
             onClick={onDownloadPdf}
             disabled={pdfBusy}
           >
-            {pdfBusy ? "Generating PDF…" : "Download PDF summary"}
+            {pdfBusy ? "Generating PDF..." : "Download PDF"}
           </button>
           <button
             type="button"
@@ -61,8 +104,17 @@ export default function ReviewSummaryCard({
             className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
             onClick={onDownloadJson}
           >
-            Download JSON artifact
+            Download JSON
           </button>
+          {onCopyLink ? (
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={onCopyLink}
+            >
+              Copy link
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -72,35 +124,43 @@ export default function ReviewSummaryCard({
         </div>
       ) : null}
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule</div>
-          <div className="mt-1 text-sm font-semibold text-slate-900">{display.ruleId}</div>
-          <div className="mt-1 text-xs text-slate-500">{display.ruleSection}</div>
-          <div className="mt-2 text-sm leading-relaxed text-slate-700">{display.ruleText}</div>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence</div>
-          <div className="mt-1 text-sm font-semibold text-slate-900">{display.selectedEvidenceId}</div>
-          <div className="mt-1 text-xs text-slate-500">
-            Datetime {display.selectedEvidenceDatetime} • Cloud cover {display.cloudCover}
+      <div className="mt-5 grid gap-4">
+        <div className="rounded-2xl bg-white/85 px-4 py-4 shadow-sm ring-1 ring-inset ring-white">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule applied</div>
+          <div className="mt-1 text-sm font-semibold text-slate-950">
+            {display.ruleId} <span className="font-normal text-slate-400">•</span> <span className="font-medium text-slate-700">{display.ruleSection}</span>
           </div>
-          <div className="mt-2 text-sm text-slate-700">
-            AOI {display.aoiLabel}
+          <div className="mt-2 text-sm leading-relaxed text-slate-700">{ruleSummary}</div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200/80 bg-white">
+          <div className="grid gap-1 px-4 py-3 sm:grid-cols-[160px_1fr] sm:gap-4">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence used</div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-slate-900" title={display.selectedEvidenceId}>
+                {evidenceIdLabel}
+              </div>
+              <div className="mt-1 text-sm text-slate-600">
+                {evidenceTimeLabel} <span className="text-slate-300">•</span> Cloud cover {cloudCoverLabel}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review state</div>
-          <div className="mt-1 text-sm font-semibold text-slate-900">{display.reviewState}</div>
-          <div className="mt-1 text-xs text-slate-500">Generated {display.generatedAt}</div>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Outcome note</div>
-          <div className="mt-1 text-sm leading-relaxed text-slate-700">{display.outcomeNote}</div>
+          <div className="border-t border-slate-100 px-4 py-3 sm:grid sm:grid-cols-[160px_1fr] sm:gap-4">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI</div>
+            <div className="mt-1 text-sm text-slate-700 sm:mt-0">{aoiLabel}</div>
+          </div>
+          <div className="border-t border-slate-100 px-4 py-3 sm:grid sm:grid-cols-[160px_1fr] sm:gap-4">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Outcome note</div>
+            <div className="mt-1 text-sm leading-relaxed text-slate-700 sm:mt-0">{display.outcomeNote}</div>
+          </div>
+          <div className="border-t border-slate-100 px-4 py-3 sm:grid sm:grid-cols-[160px_1fr] sm:gap-4">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review state</div>
+            <div className="mt-1 text-sm font-semibold text-slate-900 sm:mt-0">{display.reviewState}</div>
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3">
+      <div className="mt-5 grid gap-3">
         <details className="rounded-xl border border-slate-200 bg-white">
           <summary className="cursor-pointer list-none px-3 py-2 text-sm font-semibold text-slate-900">
             Raw evidence details

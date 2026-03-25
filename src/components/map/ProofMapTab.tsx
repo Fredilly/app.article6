@@ -2193,6 +2193,11 @@ export default function ProofMapTab({
     }
   }, [buildFinalReviewArtifact, methodCode, reviewArtifact, reviewSummary, verifierBundle, version]);
 
+  const handleCopyReviewSummaryLink = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    await copyToClipboard(window.location.href);
+  }, [copyToClipboard]);
+
   const handleCreateTicket = useCallback(async () => {
     const template = createTicketTemplate(runSummary);
     await copyToClipboard(template);
@@ -3132,15 +3137,19 @@ export default function ProofMapTab({
           ) : null}
           <div
             data-testid="left-pane-step-focus"
-            className="sticky top-0 z-10 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
+            className={`sticky top-0 z-10 rounded-xl border px-4 py-3 text-sm shadow-sm transition ${
+              currentWorkspaceIsFinal
+                ? "border-slate-200/70 bg-slate-50/90 text-slate-500 shadow-none"
+                : "border-slate-200 bg-white"
+            }`}
           >
             <div className="flex items-center justify-between gap-2">
-              <div className="font-semibold text-slate-900">{leftPaneHeader.title}</div>
+              <div className={`font-semibold ${currentWorkspaceIsFinal ? "text-slate-700" : "text-slate-900"}`}>{leftPaneHeader.title}</div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{leftPaneHeader.stepLabel}</div>
             </div>
             <div className="mt-1 text-xs text-slate-600">{leftPaneHeader.instruction}</div>
           </div>
-          <div className="grid gap-2">
+          <div className={`grid gap-2 transition ${currentWorkspaceIsFinal ? "opacity-55" : ""}`}>
             <div
               ref={ruleSectionRef}
               data-testid="left-section-rule"
@@ -3211,8 +3220,10 @@ export default function ProofMapTab({
           <div
             className={
               isListMode
-                ? `grid gap-3 rounded-xl border bg-white p-4 ${
-                    wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
+                ? `grid gap-3 rounded-xl border bg-white p-4 transition ${
+                    currentWorkspaceIsFinal
+                      ? "border-slate-200/70 bg-slate-50/80 opacity-45 shadow-none"
+                      : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
                       ? "border-sky-300 shadow-sm"
                       : wizardDetails.activeStep === 3
                         ? "border-amber-300 shadow-sm"
@@ -3227,6 +3238,8 @@ export default function ProofMapTab({
             className={
               isListMode
                 ? "hidden"
+                : currentWorkspaceIsFinal
+                  ? "rounded-xl border border-slate-200/70 opacity-45 shadow-none"
                 : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
                   ? "rounded-xl border border-sky-300 shadow-sm"
                   : wizardDetails.activeStep === 3
@@ -3260,7 +3273,13 @@ export default function ProofMapTab({
           </div>
         </div>
 
-        <div className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
+        <div
+          className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border p-4 transition ${
+            currentWorkspaceIsFinal
+              ? "border-emerald-200 bg-white/95 shadow-sm shadow-emerald-100"
+              : "border-slate-200 bg-white"
+          } ${panelCollapsed ? "lg:hidden" : ""}`}
+        >
           <input
             ref={uploadAoiInputRef}
             type="file"
@@ -3269,7 +3288,7 @@ export default function ProofMapTab({
             onChange={handleUploadAoiChange}
           />
 
-          <div className="flex items-start justify-between gap-2">
+          <div className={`flex items-start justify-between gap-2 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}>
             <div>
               <div className="text-sm font-semibold text-slate-900">Evidence workflow</div>
               <div className="mt-1 text-xs text-slate-500">
@@ -3312,66 +3331,6 @@ export default function ProofMapTab({
             </div>
           ) : null}
 
-          <EvidenceWorkflowStepper
-            ruleOptions={ruleOptions}
-            selectedRuleId={selectedRuleId}
-            onSelectRuleId={onSelectRuleId}
-            onViewRule={onViewRule}
-            hasAoi={hasAoi}
-            aoiLabel={aoi?.name ?? null}
-            aoiSummary={
-              aoi
-                ? {
-                    isPreview,
-                    willClearWork,
-                    isSameAoi,
-                    showSameAoiPrompt,
-                    areaKm2: aoi.area_km2 ?? null,
-                    bboxLabel,
-                  }
-                : null
-            }
-            searchDisabled={searchDisabled}
-            isRunning={isRunning}
-            hasSearchResults={hasSearchResults}
-            stacResultCount={stacFeatureIds.length}
-            selectedStacItemId={selectedStacItemId}
-            onClearSelectedItem={() => onSelectStacItemId(null)}
-            canCreatePin={canCreatePin}
-            createPinDisabledReason={createPinDisabledReason}
-            pinsCount={evidencePins.length}
-            onUploadAoi={triggerAoiUpload}
-            onApplyDraftAoiClick={handleApplyDraftAoiClick}
-            onCancelDraftAoi={() => {
-              setShowSameAoiPrompt(false);
-              onCancelDraftAoi();
-            }}
-            onKeepSameAoi={handleKeepSameAoi}
-            onResetSameAoi={handleResetSameAoi}
-            onSearchStac={() => {
-              void handleSearchStac();
-            }}
-            onCreatePin={handleCreatePin}
-            draftMinutes={verifierBundle.draftMinutes}
-            draftOutcomeNote={verifierBundle.draftOutcomeNote}
-            savedMinutes={verifierBundle.minutes}
-            savedOutcomeNote={verifierBundle.outcomeNote}
-            savedReviewerArtifactAt={verifierBundle.savedReviewerArtifactAt}
-            onReviewerMinutesChange={handleMinutesChange}
-            onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
-            onSaveReviewerArtifact={handleSaveReviewerArtifact}
-            onFinalizeRun={handleFinalizeRun}
-            finalizedAt={verifierBundle.finalizedAt}
-            currentRunLabel={currentRunLabel}
-            loadedFromRunLabel={loadedFromRunLabel}
-            isEditedDraft={verifierBundle.isEditedDraft}
-            hasUnsavedWorkspaceEdits={hasUnsavedWorkspaceEdits}
-            currentWorkspaceIsFinal={currentWorkspaceIsFinal}
-            wizard={wizardDetails}
-            onStartAnotherRun={handleNewRun}
-            onViewRunHistory={handleViewRunHistory}
-          />
-
           {currentWorkspaceIsFinal ? (
             <ReviewSummaryCard
               summary={reviewArtifact?.summary ?? reviewSummary}
@@ -3382,10 +3341,75 @@ export default function ProofMapTab({
               onDownloadPdf={() => {
                 void handleDownloadReviewSummaryPdf();
               }}
+              onCopyLink={() => {
+                void handleCopyReviewSummaryLink();
+              }}
               pdfBusy={reviewPdfBusy}
               pdfError={reviewPdfError}
             />
           ) : null}
+
+          <div className={currentWorkspaceIsFinal ? "opacity-50 transition" : "transition"}>
+            <EvidenceWorkflowStepper
+              ruleOptions={ruleOptions}
+              selectedRuleId={selectedRuleId}
+              onSelectRuleId={onSelectRuleId}
+              onViewRule={onViewRule}
+              hasAoi={hasAoi}
+              aoiLabel={aoi?.name ?? null}
+              aoiSummary={
+                aoi
+                  ? {
+                      isPreview,
+                      willClearWork,
+                      isSameAoi,
+                      showSameAoiPrompt,
+                      areaKm2: aoi.area_km2 ?? null,
+                      bboxLabel,
+                    }
+                  : null
+              }
+              searchDisabled={searchDisabled}
+              isRunning={isRunning}
+              hasSearchResults={hasSearchResults}
+              stacResultCount={stacFeatureIds.length}
+              selectedStacItemId={selectedStacItemId}
+              onClearSelectedItem={() => onSelectStacItemId(null)}
+              canCreatePin={canCreatePin}
+              createPinDisabledReason={createPinDisabledReason}
+              pinsCount={evidencePins.length}
+              onUploadAoi={triggerAoiUpload}
+              onApplyDraftAoiClick={handleApplyDraftAoiClick}
+              onCancelDraftAoi={() => {
+                setShowSameAoiPrompt(false);
+                onCancelDraftAoi();
+              }}
+              onKeepSameAoi={handleKeepSameAoi}
+              onResetSameAoi={handleResetSameAoi}
+              onSearchStac={() => {
+                void handleSearchStac();
+              }}
+              onCreatePin={handleCreatePin}
+              draftMinutes={verifierBundle.draftMinutes}
+              draftOutcomeNote={verifierBundle.draftOutcomeNote}
+              savedMinutes={verifierBundle.minutes}
+              savedOutcomeNote={verifierBundle.outcomeNote}
+              savedReviewerArtifactAt={verifierBundle.savedReviewerArtifactAt}
+              onReviewerMinutesChange={handleMinutesChange}
+              onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
+              onSaveReviewerArtifact={handleSaveReviewerArtifact}
+              onFinalizeRun={handleFinalizeRun}
+              finalizedAt={verifierBundle.finalizedAt}
+              currentRunLabel={currentRunLabel}
+              loadedFromRunLabel={loadedFromRunLabel}
+              isEditedDraft={verifierBundle.isEditedDraft}
+              hasUnsavedWorkspaceEdits={hasUnsavedWorkspaceEdits}
+              currentWorkspaceIsFinal={currentWorkspaceIsFinal}
+              wizard={wizardDetails}
+              onStartAnotherRun={handleNewRun}
+              onViewRunHistory={handleViewRunHistory}
+            />
+          </div>
 
           <div className="rounded-xl border-t border-dashed border-slate-200 pt-3">
             <button
