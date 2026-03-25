@@ -1807,12 +1807,6 @@ export default function ProofMapTab({
       selectedStacItemRecord,
       totalRules,
       verifierBundle,
-      verifierBundle.checklist,
-      verifierBundle.delta,
-      verifierBundle.impact,
-      verifierBundle.minutes,
-      verifierBundle.outcomeNote,
-      verifierBundle.tasks,
       version,
     ],
   );
