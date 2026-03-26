@@ -3331,25 +3331,7 @@ export default function ProofMapTab({
             </div>
           ) : null}
 
-          {currentWorkspaceIsFinal ? (
-            <ReviewSummaryCard
-              summary={reviewArtifact?.summary ?? reviewSummary}
-              artifact={reviewArtifact}
-              onDownloadJson={() => {
-                void handleDownloadReviewSummaryJson();
-              }}
-              onDownloadPdf={() => {
-                void handleDownloadReviewSummaryPdf();
-              }}
-              onCopyLink={() => {
-                void handleCopyReviewSummaryLink();
-              }}
-              pdfBusy={reviewPdfBusy}
-              pdfError={reviewPdfError}
-            />
-          ) : null}
-
-          <div className={currentWorkspaceIsFinal ? "opacity-50 transition" : "transition"}>
+          <div className="transition">
             <EvidenceWorkflowStepper
               ruleOptions={ruleOptions}
               selectedRuleId={selectedRuleId}
@@ -3408,6 +3390,25 @@ export default function ProofMapTab({
               wizard={wizardDetails}
               onStartAnotherRun={handleNewRun}
               onViewRunHistory={handleViewRunHistory}
+              finalizedResult={
+                currentWorkspaceIsFinal ? (
+                  <ReviewSummaryCard
+                    summary={reviewArtifact?.summary ?? reviewSummary}
+                    artifact={reviewArtifact}
+                    onDownloadJson={() => {
+                      void handleDownloadReviewSummaryJson();
+                    }}
+                    onDownloadPdf={() => {
+                      void handleDownloadReviewSummaryPdf();
+                    }}
+                    onCopyLink={() => {
+                      void handleCopyReviewSummaryLink();
+                    }}
+                    pdfBusy={reviewPdfBusy}
+                    pdfError={reviewPdfError}
+                  />
+                ) : null
+              }
             />
           </div>
 

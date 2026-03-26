@@ -102,10 +102,12 @@ describe("EvidenceWorkflowStepper", () => {
         })}
         onStartAnotherRun={() => {}}
         onViewRunHistory={() => {}}
+        finalizedResult={<div data-testid="finalized-result">Summary lives here</div>}
       />,
     );
 
     expect(html).toContain("Run complete");
+    expect(html).toContain("Summary lives here");
     expect(html).toContain("Start another run");
     expect(html).toContain("View run history");
   });

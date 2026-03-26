@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Tooltip from "@/components/ui/Tooltip";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
@@ -54,6 +55,7 @@ type EvidenceWorkflowStepperProps = {
   wizard: VerifyWizardStepDetails;
   onStartAnotherRun: () => void;
   onViewRunHistory: () => void;
+  finalizedResult?: ReactNode;
 };
 
 function stepStateClass(input: { active: boolean; complete: boolean; disabled: boolean }): string {
@@ -112,6 +114,7 @@ export default function EvidenceWorkflowStepper({
   wizard,
   onStartAnotherRun,
   onViewRunHistory,
+  finalizedResult = null,
 }: EvidenceWorkflowStepperProps) {
   const stepMap = new Map(wizard.steps.map((step) => [step.id, step]));
   const step1 = stepMap.get(1)!;
@@ -125,6 +128,7 @@ export default function EvidenceWorkflowStepper({
   const reviewerArtifactSaved = Boolean(savedReviewerArtifactAt);
   const readyToFinalize = step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled);
   const inProgress = !currentWorkspaceIsFinal && !readyToFinalize;
+  const stepShellClass = currentWorkspaceIsFinal ? "opacity-45 transition" : "transition";
 
   return (
     <div className="grid gap-3">
@@ -183,7 +187,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step1)}`} data-testid="wizard-step-1">
+      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step1)}`} data-testid="wizard-step-1">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 1</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Pick rule</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -216,7 +220,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step2)}`} data-testid="wizard-step-2">
+      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step2)}`} data-testid="wizard-step-2">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Confirm AOI</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -272,7 +276,7 @@ export default function EvidenceWorkflowStepper({
         ) : null}
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step3)}`} data-testid="wizard-step-3">
+      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step3)}`} data-testid="wizard-step-3">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Search STAC</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -298,7 +302,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step4)}`} data-testid="wizard-step-4">
+      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step4)}`} data-testid="wizard-step-4">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 4</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Select item</div>
         {selectedStacItemId ? (
@@ -313,7 +317,7 @@ export default function EvidenceWorkflowStepper({
         )}
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step5)}`} data-testid="wizard-step-5">
+      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step5)}`} data-testid="wizard-step-5">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 5</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Create/link pin</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -337,7 +341,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step6)}`} data-testid="wizard-step-6">
+      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step6)}`} data-testid="wizard-step-6">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 6</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Save reviewer artifact</div>
         <div className="mt-2 grid gap-3">
@@ -375,7 +379,7 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`rounded-lg border px-3 py-2 ${stepStateClass(step7)}`} data-testid="wizard-step-7">
+      <div className={`${currentWorkspaceIsFinal ? "opacity-70 transition" : "transition"} rounded-lg border px-3 py-2 ${stepStateClass(step7)}`} data-testid="wizard-step-7">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 7</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Finalize run</div>
         <div className="mt-1 text-[11px] text-slate-500">This is the single completion/export action. Finalization writes the immutable run artifact with evidence and reviewer notes.</div>
@@ -397,9 +401,10 @@ export default function EvidenceWorkflowStepper({
       </div>
 
       {wizard.isComplete ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3" data-testid="wizard-completion-card">
+        <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-slate-50 px-4 py-4 shadow-sm shadow-emerald-100" data-testid="wizard-completion-card">
           <div className="text-sm font-semibold text-emerald-900">Run complete</div>
           <div className="mt-1 text-xs text-emerald-800">Locked artifacts: finalized workspace state and the saved reviewer artifact.</div>
+          {finalizedResult ? <div className="mt-4">{finalizedResult}</div> : null}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800" onClick={onStartAnotherRun}>Start another run</button>
             <button type="button" className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm hover:bg-emerald-100" onClick={onViewRunHistory}>View run history</button>
