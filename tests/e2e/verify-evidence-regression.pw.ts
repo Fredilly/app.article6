@@ -217,3 +217,102 @@ test("Verify run history load restores state and highlights current row", async 
   await page.getByTestId("verifier-minutes-textarea").fill("Edited loaded run minutes");
   await expect(page.getByText("Edited draft")).toBeVisible({ timeout: 30_000 });
 });
+
+test("Finalize lands on a readable review summary and keeps it after refresh", async ({ page }) => {
+  const rulesResponse = await page.request.get("/api/methods/AR-ACM0003/v/v02-0/rules");
+  expect(rulesResponse.ok()).toBeTruthy();
+  const rulesPayload = (await rulesResponse.json()) as { rules?: Array<{ id?: string }> };
+  const ruleId = rulesPayload.rules?.find((entry) => typeof entry.id === "string")?.id ?? "R-1";
+
+  const seededAoi = {
+    id: "aoi_review_summary",
+    name: "Review Summary AOI",
+    geojson: {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-122.5, 37.7],
+            [-122.3, 37.7],
+            [-122.3, 37.9],
+            [-122.5, 37.9],
+            [-122.5, 37.7],
+          ],
+        ],
+      },
+    },
+    bbox: [-122.5, 37.7, -122.3, 37.9],
+    area_km2: 391.77,
+    aoi_source_type: "Feature",
+    aoi_source_feature_count: 1,
+    aoi_policy: "reject_multi",
+    created_at: "2026-02-25T00:00:00.000Z",
+  };
+
+  await page.addInitScript((aoi) => {
+    window.localStorage.setItem("aoi:v2:AR-ACM0003:v02-0:current", JSON.stringify(aoi));
+    window.localStorage.removeItem("pins:AR-ACM0003:v02-0");
+    window.localStorage.removeItem("runs:AR-ACM0003:v02-0");
+    window.localStorage.removeItem("snapshots:AR-ACM0003:v02-0");
+    window.localStorage.removeItem("verifyRunHistory:AR-ACM0003:v02-0");
+  }, seededAoi);
+
+  await page.route("**/api/stac/search", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        items: [
+          {
+            id: stacItemId,
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [-122.5, 37.7],
+                  [-122.3, 37.7],
+                  [-122.3, 37.9],
+                  [-122.5, 37.9],
+                  [-122.5, 37.7],
+                ],
+              ],
+            },
+            bbox: [-122.5, 37.7, -122.3, 37.9],
+            properties: {
+              id: stacItemId,
+              datetime: "2024-01-01T00:00:00Z",
+              "eo:cloud_cover": 5.5,
+            },
+          },
+        ],
+        provenance: {
+          endpoint: "https://stac.example/search",
+        },
+      }),
+    });
+  });
+
+  await page.goto(`/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=${encodeURIComponent(ruleId)}`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.getByRole("button", { name: /^Search STAC$/ }).first().click();
+  await page.getByRole("button", { name: stacItemId }).first().click();
+  await page.getByRole("button", { name: "Create pin" }).first().click();
+  await page.getByTestId("verifier-minutes-textarea").fill("Saved review summary note");
+  await page.getByPlaceholder("Outcome note: one concise sentence if minutes are unnecessary.").fill("Outcome is stable");
+  await page.getByRole("button", { name: "Save reviewer artifact" }).click();
+  await page.getByRole("button", { name: "Finalize run" }).click();
+
+  await expect(page.getByTestId("review-summary-card")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Review Summary")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Saved review summary note")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Download JSON artifact" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Download PDF summary" })).toBeVisible({ timeout: 30_000 });
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("review-summary-card")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Saved review summary note")).toBeVisible({ timeout: 30_000 });
+});

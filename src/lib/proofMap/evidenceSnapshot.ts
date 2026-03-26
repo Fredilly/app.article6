@@ -2,6 +2,22 @@ import { z } from "zod";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { sha256Text } from "@/lib/proof/hash";
 import { buildRunSummary, type RunSummary } from "@/lib/verify/runState";
+import type { ReviewSummary } from "@/lib/verify/buildReviewSummary";
+
+export const ReviewSummarySchema = z.object({
+  methodCode: z.string().nullable(),
+  version: z.string().nullable(),
+  ruleId: z.string().nullable(),
+  ruleSection: z.string().nullable(),
+  ruleText: z.string().nullable(),
+  selectedEvidenceId: z.string().nullable(),
+  selectedEvidenceDatetime: z.string().nullable(),
+  cloudCover: z.number().nullable(),
+  aoiLabel: z.string().nullable(),
+  reviewState: z.string().nullable(),
+  generatedAt: z.string().nullable(),
+  outcomeNote: z.string().nullable(),
+});
 
 export const EvidenceSnapshotSchema = z
   .object({
@@ -128,6 +144,7 @@ export const EvidenceSnapshotSchema = z
         snapshotExportedAt: z.string().nullable().optional(),
       })
       .optional(),
+    summary: ReviewSummarySchema.optional(),
   })
   .strict();
 
@@ -207,6 +224,7 @@ export async function buildEvidenceSnapshot(input: {
     coverage?: { numerator: number; denominator?: number };
     snapshotExportedAt?: string | null;
   } | null;
+  summary?: ReviewSummary | null;
 }): Promise<EvidenceSnapshot> {
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
   const evidenceType = input.evidence_source.type;
@@ -277,6 +295,7 @@ export async function buildEvidenceSnapshot(input: {
       outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
       verifier,
       kpis: input.kpis ?? undefined,
+      summary: input.summary ?? undefined,
     }),
   );
 

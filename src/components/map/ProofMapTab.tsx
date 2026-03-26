@@ -5,6 +5,7 @@ import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
+import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
@@ -28,6 +29,8 @@ import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
+import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReviewSummary";
+import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
 import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
@@ -51,6 +54,7 @@ import {
   shortRunId,
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
+import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 
 type ToastState = {
   title: string;
@@ -147,6 +151,19 @@ function shortSha(value: string): string {
 function downloadJson(value: unknown, filename: string) {
   const text = canonicalJsonStringify(value);
   const blob = new Blob([text], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadBytes(bytes: Uint8Array, filename: string, mimeType: string) {
+  const blobPart = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  const blob = new Blob([blobPart], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -320,6 +337,15 @@ export default function ProofMapTab({
   const [secondarySectionOpen, setSecondarySectionOpen] = useState(false);
   const [runHistoryOpen, setRunHistoryOpen] = useState(false);
   const [outcomeOpen, setOutcomeOpen] = useState(false);
+  const [selectedRuleContext, setSelectedRuleContext] = useState<{
+    id: string | null;
+    text: string | null;
+    sectionId: string | null;
+    sectionTitle: string | null;
+  } | null>(null);
+  const [reviewArtifact, setReviewArtifact] = useState<EvidenceSnapshot | null>(null);
+  const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
+  const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
@@ -379,6 +405,68 @@ export default function ProofMapTab({
       showToast("Copy failed");
     }
   }, [showToast]);
+
+  const fetchSelectedRuleContext = useCallback(
+    async (ruleId: string | null) => {
+      if (!ruleId) return null;
+      const fallback = {
+        id: ruleId,
+        text: null,
+        sectionId: null,
+        sectionTitle: null,
+      };
+      try {
+        const ruleResponse = await fetch(
+          `/api/methods/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}/rules?id=${encodeURIComponent(ruleId)}`,
+          { cache: "no-store" },
+        );
+        if (!ruleResponse.ok) return fallback;
+        const rulePayload = (await ruleResponse.json()) as { rule?: Record<string, unknown> };
+        const ruleRecord = rulePayload.rule;
+        if (!ruleRecord || typeof ruleRecord !== "object") return fallback;
+        const sectionId = asNonEmptyString(ruleRecord.sectionId) ?? null;
+        let sectionTitle: string | null = null;
+        if (sectionId) {
+          try {
+            const sectionsResponse = await fetch(
+              `/api/methods/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}/sections`,
+              { cache: "no-store" },
+            );
+            if (sectionsResponse.ok) {
+              const sectionsPayload = (await sectionsResponse.json()) as { sections?: Array<Record<string, unknown>> };
+              const match =
+                sectionsPayload.sections?.find((item) => asNonEmptyString(item.id) === sectionId) ?? null;
+              sectionTitle = match ? asNonEmptyString(match.title) ?? sectionId : sectionId;
+            } else {
+              sectionTitle = sectionId;
+            }
+          } catch {
+            sectionTitle = sectionId;
+          }
+        }
+        return {
+          id: asNonEmptyString(ruleRecord.id) ?? ruleId,
+          text: asNonEmptyString(ruleRecord.text) ?? null,
+          sectionId,
+          sectionTitle,
+        };
+      } catch {
+        return fallback;
+      }
+    },
+    [methodCode, version],
+  );
+
+  useEffect(() => {
+    let active = true;
+    void fetchSelectedRuleContext(selectedRuleId).then((next) => {
+      if (!active) return;
+      setSelectedRuleContext(next);
+    });
+    return () => {
+      active = false;
+    };
+  }, [fetchSelectedRuleContext, selectedRuleId]);
 
   useEffect(() => {
     setVerifierBundle(readVerifierRunBundle(methodCode, version));
@@ -1439,6 +1527,48 @@ export default function ProofMapTab({
     ],
   );
   const currentWorkspaceIsFinal = Boolean(verifierBundle.finalizedAt);
+  const selectedStacItemRecord = useMemo(() => {
+    if (!selectedStacItemId) return null;
+    const candidate = currentStacEvidence?.itemsById?.[selectedStacItemId];
+    return candidate && typeof candidate === "object" ? (candidate as Record<string, unknown>) : null;
+  }, [currentStacEvidence?.itemsById, selectedStacItemId]);
+  const reviewSummary = useMemo<ReviewSummary>(
+    () =>
+      buildReviewSummary({
+        method: { code: methodCode, version },
+        aoi: {
+          id: aoi?.id ?? null,
+          label: aoi?.name ?? null,
+          bbox: aoi?.bbox ?? null,
+        },
+        selected: {
+          id: selectedStacItemId,
+          item: selectedStacItemRecord,
+        },
+        outcome: runSummary,
+        verifier: {
+          outcomeNote: verifierBundle.outcomeNote,
+          finalizedAt: verifierBundle.finalizedAt,
+          finalizedState: verifierBundle.finalizedAt ? "finalized" : "draft",
+        },
+        rule: selectedRuleContext,
+        generatedAt: verifierBundle.finalizedAt ?? verifierBundle.exportedAt ?? runSummary.provenance.generatedAt ?? null,
+      }),
+    [
+      aoi?.bbox,
+      aoi?.id,
+      aoi?.name,
+      methodCode,
+      runSummary,
+      selectedRuleContext,
+      selectedStacItemId,
+      selectedStacItemRecord,
+      verifierBundle.exportedAt,
+      verifierBundle.finalizedAt,
+      verifierBundle.outcomeNote,
+      version,
+    ],
+  );
   const ruleSectionRef = useRef<HTMLDivElement | null>(null);
   const aoiSectionRef = useRef<HTMLDivElement | null>(null);
   const stacSectionRef = useRef<HTMLDivElement | null>(null);
@@ -1506,63 +1636,89 @@ export default function ProofMapTab({
     ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [activeLeftSection]);
 
-  const handleFinalizeRun = useCallback(() => {
-    if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
-    void (async () => {
-      const selectedItem =
-        selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
-          ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
-          : null;
-      const linkedRules = selectedItem
-        ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
-        : [];
-      const minimalItem = selectedItem
-        ? {
-            id: selectedStacItemId ?? undefined,
-            datetime:
-              isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
-                ? selectedItem.properties.datetime
-                : typeof selectedItem.datetime === "string"
-                  ? selectedItem.datetime
-                  : undefined,
-            bbox: selectedItem.bbox,
-            geometry: selectedItem.geometry,
-            linked_rules: linkedRules,
-          }
-        : undefined;
-      const finalItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
-      const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-      const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
-      const evidenceSource =
-        stacEndpointUrl
-          ? { type: "stac_url" as const, ref: stacEndpointUrl }
-          : localEvidenceHashInputs
-            ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
-            : { type: "unknown" as const, ref: "unknown" };
-      const stacItemsJson = (() => {
-        if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] };
-        if (!latestStacRun.result_json) return { items: [] };
-        const normalized = normalizeStacItems(latestStacRun.result_json);
-        const items = Object.values(normalized.itemsById).map((item) => {
-          const props = isRecord(item.properties) ? item.properties : null;
-          const collection = props && typeof props.collection === "string" ? props.collection : undefined;
-          const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
-          return {
-            id: item.id,
-            datetime: item.datetime,
-            bbox: item.bbox,
-            collection,
-            cloud_cover: cloudCover,
-          };
-        });
-        return { items };
-      })();
-      const finalizedAt = new Date().toISOString();
-      const nextRunContext =
-        activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
-          ? createVerifierRunBundle(methodCode, version).runContext
-          : verifierBundle.runContext;
-      const finalSummary = buildRunSummary({
+  useEffect(() => {
+    if (currentWorkspaceIsFinal) return;
+    setReviewArtifact(null);
+    setReviewPdfError(null);
+    setReviewPdfBusy(false);
+  }, [currentWorkspaceIsFinal]);
+
+  const buildStacItemsJson = useCallback(() => {
+    if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] as Array<Record<string, unknown>> };
+    if (!latestStacRun.result_json) return { items: [] as Array<Record<string, unknown>> };
+    const normalized = normalizeStacItems(latestStacRun.result_json);
+    const items = Object.values(normalized.itemsById).map((item) => {
+      const props = isRecord(item.properties) ? item.properties : null;
+      const collection = props && typeof props.collection === "string" ? props.collection : undefined;
+      const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
+      return {
+        id: item.id,
+        datetime: item.datetime,
+        bbox: item.bbox,
+        collection,
+        cloud_cover: cloudCover,
+      };
+    });
+    return { items };
+  }, [latestStacRun]);
+
+  const buildSelectedItemPayload = useCallback(() => {
+    const selectedItem = selectedStacItemRecord;
+    const linkedRules = selectedItem
+      ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
+      : [];
+    const minimalItem = selectedItem
+      ? {
+          id: selectedStacItemId ?? undefined,
+          datetime:
+            isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
+              ? selectedItem.properties.datetime
+              : typeof selectedItem.datetime === "string"
+                ? selectedItem.datetime
+                : undefined,
+          bbox: selectedItem.bbox,
+          geometry: selectedItem.geometry,
+          linked_rules: linkedRules,
+        }
+      : undefined;
+    const finalItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
+    const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
+    const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
+    return { selectedItem, linkedRules, minimalItem, finalItems, selectedIds };
+  }, [evidencePins, selectedStacItemId, selectedStacItemRecord]);
+
+  const buildEvidenceSource = useCallback(() => {
+    return stacEndpointUrl
+      ? { type: "stac_url" as const, ref: stacEndpointUrl }
+      : localEvidenceHashInputs
+        ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
+        : { type: "unknown" as const, ref: "unknown" };
+  }, [localEvidenceHashInputs, stacEndpointUrl]);
+
+  const buildFinalReviewArtifact = useCallback(
+    async (options: {
+      finalizedAt: string;
+      runContext: { runId: string; createdAt: string };
+      summaryState: "draft" | "finalized";
+      checklist: typeof verifierBundle.checklist;
+      snapshotExportedAt: string | null;
+    }) => {
+      const { minimalItem, finalItems, selectedIds } = buildSelectedItemPayload();
+      const evidenceSource = buildEvidenceSource();
+      const stacItemsJson = buildStacItemsJson();
+      const verifierSnapshot = {
+        runId: options.runContext.runId,
+        createdAt: options.runContext.createdAt,
+        minutes: verifierBundle.minutes,
+        outcomeNote: verifierBundle.outcomeNote,
+        finalizedAt: options.summaryState === "finalized" ? options.finalizedAt : null,
+        finalizedState: options.summaryState,
+        delta: verifierBundle.delta,
+        impact: verifierBundle.impact,
+        checklist: options.checklist,
+        tasks: verifierBundle.tasks,
+      };
+      const outcome = buildRunSummary({
         ...runSummary,
         linkage: {
           ...runSummary.linkage,
@@ -1571,31 +1727,36 @@ export default function ProofMapTab({
         },
         exportState: {
           ...runSummary.exportState,
-          snapshotExportedAt: finalizedAt,
+          snapshotExportedAt: options.snapshotExportedAt,
         },
-        verifier: {
-          ...runSummary.verifier,
-          runId: nextRunContext.runId,
-          createdAt: nextRunContext.createdAt,
-          minutes: verifierBundle.minutes,
-          outcomeNote: verifierBundle.outcomeNote,
-          finalizedAt,
-          finalizedState: "finalized",
-          checklist: verifierBundle.checklist,
-          delta: verifierBundle.delta,
-          impact: verifierBundle.impact,
-          tasks: verifierBundle.tasks,
-        },
+        verifier: verifierSnapshot,
         provenance: {
           ...runSummary.provenance,
-          generatedAt: finalizedAt,
+          generatedAt: options.finalizedAt,
         },
       });
       const kpis = computeKpis({
         pins: evidencePins,
         totalRules,
         selectedEvidenceItemIds,
-        snapshotExportedAt: finalizedAt,
+        snapshotExportedAt: options.snapshotExportedAt,
+      });
+      const ruleContext = await fetchSelectedRuleContext(selectedRuleId);
+      const summary = buildReviewSummary({
+        method: { code: methodCode, version },
+        aoi: {
+          id: aoi?.id ?? null,
+          label: aoi?.name ?? null,
+          bbox: aoi?.bbox ?? null,
+        },
+        selected: {
+          id: selectedStacItemId,
+          item: selectedStacItemRecord,
+        },
+        outcome,
+        verifier: verifierSnapshot,
+        rule: ruleContext,
+        generatedAt: options.finalizedAt,
       });
       const artifact = await buildOutcomeSnapshot({
         method: { code: methodCode, version },
@@ -1618,23 +1779,76 @@ export default function ProofMapTab({
           version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
         },
         stacItemsJson,
-        outcome: finalSummary,
+        outcome,
         kpis,
-        verifier: {
-          runId: nextRunContext.runId,
-          createdAt: nextRunContext.createdAt,
-          minutes: verifierBundle.minutes,
-          outcomeNote: verifierBundle.outcomeNote,
-          finalizedAt,
-          finalizedState: "finalized",
-          delta: verifierBundle.delta,
-          impact: verifierBundle.impact,
-          checklist: verifierBundle.checklist,
-          tasks: verifierBundle.tasks,
-        },
+        verifier: verifierSnapshot,
+        summary,
       });
-      const filename = `verify-final.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(nextRunContext.runId)}.json`;
-      downloadJson({ ...artifact, items: stacItemsJson.items ?? [] }, filename);
+
+      return {
+        artifact: { ...artifact, items: stacItemsJson.items ?? [] } as EvidenceSnapshot,
+        summary,
+        verifierSnapshot,
+      };
+    },
+    [
+      aoi,
+      buildEvidenceSource,
+      buildSelectedItemPayload,
+      buildStacItemsJson,
+      evidencePins,
+      fetchSelectedRuleContext,
+      linkedRuleIds,
+      methodCode,
+      runSummary,
+      selectedEvidenceItemIds,
+      selectedRuleId,
+      selectedStacItemId,
+      selectedStacItemRecord,
+      totalRules,
+      verifierBundle,
+      version,
+    ],
+  );
+
+  useEffect(() => {
+    if (!currentWorkspaceIsFinal || reviewArtifact || !verifierBundle.finalizedAt) return;
+    let active = true;
+    void buildFinalReviewArtifact({
+      finalizedAt: verifierBundle.finalizedAt,
+      runContext: verifierBundle.runContext,
+      summaryState: "finalized",
+      checklist: verifierBundle.checklist,
+      snapshotExportedAt: verifierBundle.finalizedAt,
+    })
+      .then(({ artifact }) => {
+        if (active) setReviewArtifact(artifact);
+      })
+      .catch(() => {
+        if (active) setReviewArtifact(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [buildFinalReviewArtifact, currentWorkspaceIsFinal, reviewArtifact, verifierBundle]);
+
+  const handleFinalizeRun = useCallback(() => {
+    if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
+    void (async () => {
+      const finalizedAt = new Date().toISOString();
+      const nextRunContext =
+        activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
+          ? createVerifierRunBundle(methodCode, version).runContext
+          : verifierBundle.runContext;
+      const { artifact } = await buildFinalReviewArtifact({
+        finalizedAt,
+        runContext: nextRunContext,
+        summaryState: "finalized",
+        checklist: verifierBundle.checklist,
+        snapshotExportedAt: finalizedAt,
+      });
+      setReviewArtifact(artifact);
+      setReviewPdfError(null);
       setVerifierBundle((current) => ({
         ...current,
         runContext: nextRunContext,
@@ -1651,30 +1865,21 @@ export default function ProofMapTab({
         loadedFromRunId: null,
         isEditedDraft: false,
       });
-      showToast({ title: "Run complete", subtitle: "Final artifact exported and locked in history" });
+      setSecondarySectionOpen(true);
+      showToast({ title: "Run complete", subtitle: "Review summary ready. Download JSON or PDF from the result card." });
     })().catch((error) => {
       setError(error instanceof Error ? error.message : String(error));
       showToast("Finalize failed");
     });
   }, [
     activeHistoryEntry,
-    aoi,
+    buildFinalReviewArtifact,
     buildHistoryBundle,
-    currentStacEvidence?.itemsById,
     currentWorkspaceBundle,
-    evidencePins,
     handleSaveRunHistory,
-    latestStacRun,
     linkedRuleIds,
-    localEvidenceHashInputs,
     methodCode,
-    runSummary,
-    selectedEvidenceItemIds,
-    selectedRuleId,
-    selectedStacItemId,
     showToast,
-    stacEndpointUrl,
-    totalRules,
     verifierBundle,
     version,
   ]);
@@ -1861,59 +2066,6 @@ export default function ProofMapTab({
   ]);
 
   const handleExportSnapshot = useCallback(async () => {
-    const selectedItem =
-      selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId] && typeof currentStacEvidence.itemsById[selectedStacItemId] === "object"
-        ? (currentStacEvidence.itemsById[selectedStacItemId] as Record<string, unknown>)
-        : null;
-
-    const linkedRules = selectedItem
-      ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
-      : [];
-    const minimalItem = selectedItem
-      ? {
-          id: selectedStacItemId ?? undefined,
-          datetime:
-            isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
-              ? selectedItem.properties.datetime
-              : typeof selectedItem.datetime === "string"
-                ? selectedItem.datetime
-                : undefined,
-          bbox: selectedItem.bbox,
-          geometry: selectedItem.geometry,
-          linked_rules: linkedRules,
-        }
-      : undefined;
-    const snapshotItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
-
-    const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-    const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
-
-    const evidenceSource =
-      stacEndpointUrl
-        ? { type: "stac_url" as const, ref: stacEndpointUrl }
-        : localEvidenceHashInputs
-          ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
-          : { type: "unknown" as const, ref: "unknown" };
-
-    const stacItemsJson = (() => {
-      if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] };
-      if (!latestStacRun.result_json) return { items: [] };
-      const normalized = normalizeStacItems(latestStacRun.result_json);
-      const items = Object.values(normalized.itemsById).map((item) => {
-        const props = isRecord(item.properties) ? item.properties : null;
-        const collection = props && typeof props.collection === "string" ? props.collection : undefined;
-        const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
-        return {
-          id: item.id,
-          datetime: item.datetime,
-          bbox: item.bbox,
-          collection,
-          cloud_cover: cloudCover,
-        };
-      });
-      return { items };
-    })();
-
     const exportedAt = new Date().toISOString();
     const nextRunContext =
       activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
@@ -1967,81 +2119,84 @@ export default function ProofMapTab({
       verificationRuns,
       selectedStacItemId,
     });
-
-    const outcome = buildRunSummary({
-      ...runSummary,
-      exportState: {
-        ...runSummary.exportState,
-        snapshotExportedAt: exportedAt,
-      },
-      verifier: verifierSnapshot,
-      provenance: {
-        ...runSummary.provenance,
-        generatedAt: exportedAt,
-      },
+    const { artifact } = await buildFinalReviewArtifact({
+      finalizedAt: exportedAt,
+      runContext: nextRunContext,
+      summaryState: "draft",
+      checklist: checklistAfterExport,
+      snapshotExportedAt: exportedAt,
     });
-    const kpis = computeKpis({
-      pins: evidencePins,
-      totalRules,
-      selectedEvidenceItemIds,
-      snapshotExportedAt: outcome.exportState.snapshotExportedAt,
-    });
-
-    const snap = await buildOutcomeSnapshot({
-      method: { code: methodCode, version },
-      aoi: aoi
-        ? {
-            bbox: aoi.bbox,
-            geojson: aoi.geojson,
-          }
-        : undefined,
-      evidence_source: evidenceSource,
-      selected: {
-        id: selectedStacItemId ?? undefined,
-        ids: selectedIds,
-        item: minimalItem ?? undefined,
-      },
-      items: snapshotItems,
-      app: {
-        commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
-        env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
-        version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
-      },
-      stacItemsJson,
-      outcome,
-      kpis,
-      verifier: verifierSnapshot,
-    });
-
-    const snapshotWithLegacyItems = {
-      ...snap,
-      items: stacItemsJson.items ?? [],
-    };
     const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
-    downloadJson(snapshotWithLegacyItems, filename);
+    downloadJson(artifact, filename);
     showToast("Snapshot exported");
   }, [
     activeHistoryEntry,
     aoi,
+    buildFinalReviewArtifact,
     currentWorkspaceBundle,
-    currentStacEvidence?.itemsById,
     evidencePins,
     handleSaveRunHistory,
-    latestStacRun,
     linkedRuleIds,
-    localEvidenceHashInputs,
     methodCode,
-    runSummary,
+    selectedRuleId,
     selectedStacItemId,
     showToast,
-    stacEndpointUrl,
-    totalRules,
-    selectedEvidenceItemIds,
-    selectedRuleId,
     verifierBundle,
     verificationRuns,
     version,
   ]);
+
+  const handleDownloadReviewSummaryJson = useCallback(async () => {
+    const finalizedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
+    if (!finalizedAt) return;
+    const artifact =
+      reviewArtifact ??
+      (
+        await buildFinalReviewArtifact({
+          finalizedAt,
+          runContext: verifierBundle.runContext,
+          summaryState: "finalized",
+          checklist: verifierBundle.checklist,
+          snapshotExportedAt: finalizedAt,
+        })
+      ).artifact;
+    setReviewArtifact(artifact);
+    const filename = `verify-final.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.json`;
+    downloadJson(artifact, filename);
+  }, [buildFinalReviewArtifact, methodCode, reviewArtifact, verifierBundle, version]);
+
+  const handleDownloadReviewSummaryPdf = useCallback(async () => {
+    const finalizedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
+    if (!finalizedAt) return;
+    setReviewPdfBusy(true);
+    setReviewPdfError(null);
+    try {
+      const artifact =
+        reviewArtifact ??
+        (
+          await buildFinalReviewArtifact({
+            finalizedAt,
+            runContext: verifierBundle.runContext,
+            summaryState: "finalized",
+            checklist: verifierBundle.checklist,
+            snapshotExportedAt: finalizedAt,
+          })
+        ).artifact;
+      setReviewArtifact(artifact);
+      const pdf = buildReviewSummaryPdf(artifact.summary ?? reviewSummary);
+      const filename = `verify-review-summary.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.pdf`;
+      downloadBytes(pdf, filename, "application/pdf");
+    } catch (error) {
+      setReviewPdfError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setReviewPdfBusy(false);
+    }
+  }, [buildFinalReviewArtifact, methodCode, reviewArtifact, reviewSummary, verifierBundle, version]);
+
+  const handleCopyReviewSummaryLink = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    await copyToClipboard(window.location.href);
+  }, [copyToClipboard]);
 
   const handleCreateTicket = useCallback(async () => {
     const template = createTicketTemplate(runSummary);
@@ -2982,15 +3137,19 @@ export default function ProofMapTab({
           ) : null}
           <div
             data-testid="left-pane-step-focus"
-            className="sticky top-0 z-10 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
+            className={`sticky top-0 z-10 rounded-xl border px-4 py-3 text-sm shadow-sm transition ${
+              currentWorkspaceIsFinal
+                ? "border-slate-200/70 bg-slate-50/90 text-slate-500 shadow-none"
+                : "border-slate-200 bg-white"
+            }`}
           >
             <div className="flex items-center justify-between gap-2">
-              <div className="font-semibold text-slate-900">{leftPaneHeader.title}</div>
+              <div className={`font-semibold ${currentWorkspaceIsFinal ? "text-slate-700" : "text-slate-900"}`}>{leftPaneHeader.title}</div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{leftPaneHeader.stepLabel}</div>
             </div>
             <div className="mt-1 text-xs text-slate-600">{leftPaneHeader.instruction}</div>
           </div>
-          <div className="grid gap-2">
+          <div className={`grid gap-2 transition ${currentWorkspaceIsFinal ? "opacity-55" : ""}`}>
             <div
               ref={ruleSectionRef}
               data-testid="left-section-rule"
@@ -3061,8 +3220,10 @@ export default function ProofMapTab({
           <div
             className={
               isListMode
-                ? `grid gap-3 rounded-xl border bg-white p-4 ${
-                    wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
+                ? `grid gap-3 rounded-xl border bg-white p-4 transition ${
+                    currentWorkspaceIsFinal
+                      ? "border-slate-200/70 bg-slate-50/80 opacity-45 shadow-none"
+                      : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
                       ? "border-sky-300 shadow-sm"
                       : wizardDetails.activeStep === 3
                         ? "border-amber-300 shadow-sm"
@@ -3077,6 +3238,8 @@ export default function ProofMapTab({
             className={
               isListMode
                 ? "hidden"
+                : currentWorkspaceIsFinal
+                  ? "rounded-xl border border-slate-200/70 opacity-45 shadow-none"
                 : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
                   ? "rounded-xl border border-sky-300 shadow-sm"
                   : wizardDetails.activeStep === 3
@@ -3110,7 +3273,13 @@ export default function ProofMapTab({
           </div>
         </div>
 
-        <div className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 ${panelCollapsed ? "lg:hidden" : ""}`}>
+        <div
+          className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border p-4 transition ${
+            currentWorkspaceIsFinal
+              ? "border-emerald-200 bg-white/95 shadow-sm shadow-emerald-100"
+              : "border-slate-200 bg-white"
+          } ${panelCollapsed ? "lg:hidden" : ""}`}
+        >
           <input
             ref={uploadAoiInputRef}
             type="file"
@@ -3119,7 +3288,7 @@ export default function ProofMapTab({
             onChange={handleUploadAoiChange}
           />
 
-          <div className="flex items-start justify-between gap-2">
+          <div className={`flex items-start justify-between gap-2 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}>
             <div>
               <div className="text-sm font-semibold text-slate-900">Evidence workflow</div>
               <div className="mt-1 text-xs text-slate-500">
@@ -3162,65 +3331,86 @@ export default function ProofMapTab({
             </div>
           ) : null}
 
-          <EvidenceWorkflowStepper
-            ruleOptions={ruleOptions}
-            selectedRuleId={selectedRuleId}
-            onSelectRuleId={onSelectRuleId}
-            onViewRule={onViewRule}
-            hasAoi={hasAoi}
-            aoiLabel={aoi?.name ?? null}
-            aoiSummary={
-              aoi
-                ? {
-                    isPreview,
-                    willClearWork,
-                    isSameAoi,
-                    showSameAoiPrompt,
-                    areaKm2: aoi.area_km2 ?? null,
-                    bboxLabel,
-                  }
-                : null
-            }
-            searchDisabled={searchDisabled}
-            isRunning={isRunning}
-            hasSearchResults={hasSearchResults}
-            stacResultCount={stacFeatureIds.length}
-            selectedStacItemId={selectedStacItemId}
-            onClearSelectedItem={() => onSelectStacItemId(null)}
-            canCreatePin={canCreatePin}
-            createPinDisabledReason={createPinDisabledReason}
-            pinsCount={evidencePins.length}
-            onUploadAoi={triggerAoiUpload}
-            onApplyDraftAoiClick={handleApplyDraftAoiClick}
-            onCancelDraftAoi={() => {
-              setShowSameAoiPrompt(false);
-              onCancelDraftAoi();
-            }}
-            onKeepSameAoi={handleKeepSameAoi}
-            onResetSameAoi={handleResetSameAoi}
-            onSearchStac={() => {
-              void handleSearchStac();
-            }}
-            onCreatePin={handleCreatePin}
-            draftMinutes={verifierBundle.draftMinutes}
-            draftOutcomeNote={verifierBundle.draftOutcomeNote}
-            savedMinutes={verifierBundle.minutes}
-            savedOutcomeNote={verifierBundle.outcomeNote}
-            savedReviewerArtifactAt={verifierBundle.savedReviewerArtifactAt}
-            onReviewerMinutesChange={handleMinutesChange}
-            onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
-            onSaveReviewerArtifact={handleSaveReviewerArtifact}
-            onFinalizeRun={handleFinalizeRun}
-            finalizedAt={verifierBundle.finalizedAt}
-            currentRunLabel={currentRunLabel}
-            loadedFromRunLabel={loadedFromRunLabel}
-            isEditedDraft={verifierBundle.isEditedDraft}
-            hasUnsavedWorkspaceEdits={hasUnsavedWorkspaceEdits}
-            currentWorkspaceIsFinal={currentWorkspaceIsFinal}
-            wizard={wizardDetails}
-            onStartAnotherRun={handleNewRun}
-            onViewRunHistory={handleViewRunHistory}
-          />
+          <div className="transition">
+            <EvidenceWorkflowStepper
+              ruleOptions={ruleOptions}
+              selectedRuleId={selectedRuleId}
+              onSelectRuleId={onSelectRuleId}
+              onViewRule={onViewRule}
+              hasAoi={hasAoi}
+              aoiLabel={aoi?.name ?? null}
+              aoiSummary={
+                aoi
+                  ? {
+                      isPreview,
+                      willClearWork,
+                      isSameAoi,
+                      showSameAoiPrompt,
+                      areaKm2: aoi.area_km2 ?? null,
+                      bboxLabel,
+                    }
+                  : null
+              }
+              searchDisabled={searchDisabled}
+              isRunning={isRunning}
+              hasSearchResults={hasSearchResults}
+              stacResultCount={stacFeatureIds.length}
+              selectedStacItemId={selectedStacItemId}
+              onClearSelectedItem={() => onSelectStacItemId(null)}
+              canCreatePin={canCreatePin}
+              createPinDisabledReason={createPinDisabledReason}
+              pinsCount={evidencePins.length}
+              onUploadAoi={triggerAoiUpload}
+              onApplyDraftAoiClick={handleApplyDraftAoiClick}
+              onCancelDraftAoi={() => {
+                setShowSameAoiPrompt(false);
+                onCancelDraftAoi();
+              }}
+              onKeepSameAoi={handleKeepSameAoi}
+              onResetSameAoi={handleResetSameAoi}
+              onSearchStac={() => {
+                void handleSearchStac();
+              }}
+              onCreatePin={handleCreatePin}
+              draftMinutes={verifierBundle.draftMinutes}
+              draftOutcomeNote={verifierBundle.draftOutcomeNote}
+              savedMinutes={verifierBundle.minutes}
+              savedOutcomeNote={verifierBundle.outcomeNote}
+              savedReviewerArtifactAt={verifierBundle.savedReviewerArtifactAt}
+              onReviewerMinutesChange={handleMinutesChange}
+              onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
+              onSaveReviewerArtifact={handleSaveReviewerArtifact}
+              onFinalizeRun={handleFinalizeRun}
+              finalizedAt={verifierBundle.finalizedAt}
+              currentRunLabel={currentRunLabel}
+              loadedFromRunLabel={loadedFromRunLabel}
+              isEditedDraft={verifierBundle.isEditedDraft}
+              hasUnsavedWorkspaceEdits={hasUnsavedWorkspaceEdits}
+              currentWorkspaceIsFinal={currentWorkspaceIsFinal}
+              wizard={wizardDetails}
+              onStartAnotherRun={handleNewRun}
+              onViewRunHistory={handleViewRunHistory}
+              finalizedResult={
+                currentWorkspaceIsFinal ? (
+                  <ReviewSummaryCard
+                    summary={reviewArtifact?.summary ?? reviewSummary}
+                    artifact={reviewArtifact}
+                    onDownloadJson={() => {
+                      void handleDownloadReviewSummaryJson();
+                    }}
+                    onDownloadPdf={() => {
+                      void handleDownloadReviewSummaryPdf();
+                    }}
+                    onCopyLink={() => {
+                      void handleCopyReviewSummaryLink();
+                    }}
+                    pdfBusy={reviewPdfBusy}
+                    pdfError={reviewPdfError}
+                  />
+                ) : null
+              }
+            />
+          </div>
 
           <div className="rounded-xl border-t border-dashed border-slate-200 pt-3">
             <button
