@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import type { GeoJSONSource, Map as MapLibreMap, StyleSpecification } from "maplibre-gl";
 
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -58,6 +59,19 @@ function safeCall(label: string, context: Record<string, unknown>, fn: () => voi
   } catch (error) {
     console.warn(`[map] ${label} failed`, { ...context, error });
   }
+}
+
+function hasVisibleSize(node: HTMLDivElement | null): boolean {
+  if (!node) return false;
+  return node.clientWidth > 0 && node.clientHeight > 0;
+}
+
+function filterRenderableEvidence(fc: GeoJSON.FeatureCollection | null | undefined): GeoJSON.FeatureCollection {
+  const features = Array.isArray(fc?.features) ? fc.features : [];
+  return {
+    type: "FeatureCollection",
+    features: features.filter((feature) => Boolean(getFeatureBbox(feature))),
+  };
 }
 
 function isFatalMapError(message: string): boolean {
@@ -187,6 +201,7 @@ export default function MapCanvas({
   const mapRef = useRef<MapLibreMap | null>(null);
   const [mapReadyTick, setMapReadyTick] = useState(0);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [overlayError, setOverlayError] = useState<string | null>(null);
   const onMapReadyRef = useRef(onMapReady);
   const onMapDestroyedRef = useRef(onMapDestroyed);
   const onSelectStacItemIdRef = useRef(onSelectStacItemId);
@@ -328,11 +343,13 @@ export default function MapCanvas({
 
   useEffect(() => {
     let cancelled = false;
+    let initObserver: ResizeObserver | null = null;
     if (!containerRef.current) return;
     if (mapRef.current) return;
 
-    (async () => {
+    const initMap = async () => {
       try {
+        if (!containerRef.current || !hasVisibleSize(containerRef.current)) return false;
         const maplibregl = await import("maplibre-gl");
         if (cancelled || !containerRef.current) return;
 
@@ -400,15 +417,32 @@ export default function MapCanvas({
             setMapError((prev) => prev ?? "Map style did not finish loading.");
           }
         }, 8000);
+        return true;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         setMapError(message);
         console.warn("[map] init failed", error);
+        return true;
       }
+    };
+
+    void (async () => {
+      const initialized = await initMap();
+      if (initialized || cancelled || !containerRef.current) return;
+
+      initObserver = new ResizeObserver(() => {
+        if (cancelled || mapRef.current) return;
+        if (!hasVisibleSize(containerRef.current)) return;
+        void initMap().then((done) => {
+          if (done) initObserver?.disconnect();
+        });
+      });
+      initObserver.observe(containerRef.current);
     })();
 
     return () => {
       cancelled = true;
+      initObserver?.disconnect();
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -486,11 +520,19 @@ export default function MapCanvas({
     const apply = () => {
       const context = { runId: stacEvidenceRunIdRef.current ?? null, featureCount: stacEvidence?.features?.length ?? 0 };
       upsertStacEvidence(map, context);
+      const totalFeatures = Array.isArray(stacEvidence?.features) ? stacEvidence.features.length : 0;
+      const sanitized = filterRenderableEvidence(stacEvidence);
+      const renderableFeatures = sanitized.features.length;
+      if (totalFeatures > 0 && renderableFeatures === 0) {
+        setOverlayError("Evidence layer data is present but has no valid geometry or bbox to render on the map.");
+      } else {
+        setOverlayError(null);
+      }
       safeCall("set STAC evidence data", context, () => {
         const source = map.getSource?.(STAC_SOURCE_ID) as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
         const data: GeoJSON.FeatureCollection =
-          stacEvidence?.features?.length ? stacEvidence : { type: "FeatureCollection", features: [] };
+          totalFeatures && renderableFeatures ? sanitized : { type: "FeatureCollection", features: [] };
         source.setData(data);
       });
     };
@@ -724,7 +766,7 @@ export default function MapCanvas({
     if (!containerRef.current) return;
 
     const node = containerRef.current;
-    const observer = new IntersectionObserver(
+    const visibilityObserver = new IntersectionObserver(
       (entries) => {
         const visible = entries.some((entry) => entry.isIntersecting);
         if (!visible) return;
@@ -737,9 +779,23 @@ export default function MapCanvas({
       { root: null, threshold: 0.01 },
     );
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      if (width <= 0 || height <= 0) return;
+      requestAnimationFrame(() => {
+        safeCall("resize on container size change", { width, height }, () => map.resize?.());
+      });
+    });
+
+    visibilityObserver.observe(node);
+    resizeObserver.observe(node);
+    return () => {
+      visibilityObserver.disconnect();
+      resizeObserver.disconnect();
+    };
+  }, [mapReadyTick]);
 
   return (
     <div className="relative h-[26rem] w-full rounded-xl border border-slate-200 bg-slate-100">
@@ -749,6 +805,11 @@ export default function MapCanvas({
           <div className="pt-1 text-[11px] text-rose-700">
             Continue with the list-based verification flow while map rendering is unavailable in this environment.
           </div>
+        </div>
+      ) : overlayError ? (
+        <div className="absolute left-3 top-3 z-10 max-w-[24rem] rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 shadow">
+          <div className="font-semibold">Evidence layer unavailable</div>
+          <div className="pt-1 text-[11px] text-amber-800">{overlayError}</div>
         </div>
       ) : null}
       <div ref={containerRef} className="h-full w-full" />
