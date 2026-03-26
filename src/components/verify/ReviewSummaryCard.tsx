@@ -75,25 +75,14 @@ export default function ReviewSummaryCard({
       data-testid="review-summary-card"
       className="min-w-0 overflow-hidden rounded-[24px] border border-emerald-200 bg-gradient-to-br from-white via-emerald-50/70 to-slate-50 p-4 shadow-sm shadow-emerald-100 sm:p-5"
     >
-      <div className="flex min-w-0 flex-col gap-4 border-b border-emerald-100 pb-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
-              Finalized
-            </span>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review summary</span>
-          </div>
-          <div className="mt-3 min-w-0">
-            <div className="truncate text-xl font-semibold tracking-tight text-slate-950" title={display.methodCode}>
-              {display.methodCode}
-            </div>
-            <div className="mt-1 truncate text-sm font-medium text-slate-500" title={display.version}>
-              {display.version}
-            </div>
-          </div>
-          <div className="mt-1 text-sm text-slate-600">Finalized {generatedLabel}</div>
+      <div className="min-w-0 border-b border-emerald-100 pb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+            Finalized
+          </span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review summary</span>
         </div>
-        <div className="flex w-full shrink-0 flex-wrap items-center gap-2 lg:w-auto lg:max-w-[18rem] lg:justify-end">
+        <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
             data-testid="download-review-summary-pdf"
@@ -121,6 +110,15 @@ export default function ReviewSummaryCard({
             </button>
           ) : null}
         </div>
+        <div className="mt-4 min-w-0">
+          <div className="truncate text-xl font-semibold tracking-tight text-slate-950" title={display.methodCode}>
+            {display.methodCode}
+          </div>
+          <div className="mt-1 truncate text-sm font-medium text-slate-500" title={display.version}>
+            {display.version}
+          </div>
+          <div className="mt-2 text-sm text-slate-600">Finalized {generatedLabel}</div>
+        </div>
       </div>
 
       {pdfError ? (
@@ -129,10 +127,10 @@ export default function ReviewSummaryCard({
         </div>
       ) : null}
 
-      <div className="mt-5 grid min-w-0 gap-4">
+      <div className="mt-5 grid min-w-0 gap-3">
         <div className="min-w-0 rounded-2xl bg-white/85 px-4 py-4 shadow-sm ring-1 ring-inset ring-white">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule applied</div>
-          <div className="mt-1 min-w-0 break-words text-sm font-semibold text-slate-950">
+          <div className="mt-2 min-w-0 break-words text-sm font-semibold text-slate-950">
             {display.ruleId} <span className="font-normal text-slate-400">•</span> <span className="font-medium text-slate-700">{display.ruleSection}</span>
           </div>
           <div className="mt-2 truncate text-sm leading-relaxed text-slate-700" title={display.ruleText}>
@@ -140,32 +138,31 @@ export default function ReviewSummaryCard({
           </div>
         </div>
 
-        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
-          <div className="grid min-w-0 gap-1 px-4 py-3 sm:grid-cols-[160px_1fr] sm:gap-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence used</div>
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold text-slate-900" title={display.selectedEvidenceId}>
-                {evidenceIdLabel}
-              </div>
-              <div className="mt-1 break-words text-sm text-slate-600">
-                {evidenceTimeLabel} <span className="text-slate-300">•</span> Cloud cover {cloudCoverLabel}
-              </div>
-            </div>
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence used</div>
+          <div className="mt-2 min-w-0 truncate text-sm font-semibold text-slate-900" title={display.selectedEvidenceId}>
+            {evidenceIdLabel}
           </div>
-          <div className="border-t border-slate-100 px-4 py-3 sm:grid sm:grid-cols-[160px_1fr] sm:gap-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI</div>
-            <div className="mt-1 break-words text-sm text-slate-700 sm:mt-0">{aoiLabel}</div>
-          </div>
-          <div className="border-t border-slate-100 px-4 py-3 sm:grid sm:grid-cols-[160px_1fr] sm:gap-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Outcome note</div>
-            <div className="mt-1 break-words text-sm leading-relaxed text-slate-700 sm:mt-0">{display.outcomeNote}</div>
-          </div>
-          <div className="border-t border-slate-100 px-4 py-3 sm:grid sm:grid-cols-[160px_1fr] sm:gap-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review state</div>
-            <div className="mt-1 text-sm font-semibold text-slate-900 sm:mt-0">{display.reviewState}</div>
+          <div className="mt-2 break-words text-sm text-slate-600">
+            {evidenceTimeLabel} <span className="text-slate-300">•</span> Cloud cover {cloudCoverLabel}
           </div>
         </div>
-      </div>
+
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI</div>
+          <div className="mt-2 break-words text-sm text-slate-700">{aoiLabel}</div>
+        </div>
+
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Outcome note</div>
+          <div className="mt-2 break-words text-sm leading-relaxed text-slate-700">{display.outcomeNote}</div>
+        </div>
+
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review state</div>
+          <div className="mt-2 text-sm font-semibold text-slate-900">{display.reviewState}</div>
+        </div>
+          </div>
 
       <div className="mt-5 grid gap-3">
         <details className="rounded-xl border border-slate-200 bg-white">
