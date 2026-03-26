@@ -845,7 +845,7 @@ export default function MapCanvas({
         const visible = entries.some((entry) => entry.isIntersecting);
         if (!visible) return;
         requestAnimationFrame(() => {
-          if (mapState !== "ready") setMapState("initializing");
+          setMapState((prev) => (prev === "ready" ? prev : "initializing"));
           safeCall("resize on resume", {}, () => map.resize?.());
           upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null, reason: "resume" });
           setMapReadyTick((value) => value + 1);
@@ -860,7 +860,7 @@ export default function MapCanvas({
       const { width, height } = entry.contentRect;
       if (width <= 0 || height <= 0) return;
       requestAnimationFrame(() => {
-        if (mapState !== "ready") setMapState("initializing");
+        setMapState((prev) => (prev === "ready" ? prev : "initializing"));
         safeCall("resize on container size change", { width, height }, () => map.resize?.());
       });
     });
