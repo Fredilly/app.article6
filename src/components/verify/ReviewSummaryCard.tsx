@@ -75,20 +75,25 @@ export default function ReviewSummaryCard({
       data-testid="review-summary-card"
       className="min-w-0 overflow-hidden rounded-[24px] border border-emerald-200 bg-gradient-to-br from-white via-emerald-50/70 to-slate-50 p-4 shadow-sm shadow-emerald-100 sm:p-5"
     >
-      <div className="flex min-w-0 flex-col gap-4 border-b border-emerald-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 flex-col gap-4 border-b border-emerald-100 pb-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
               Finalized
             </span>
             <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review summary</span>
           </div>
-          <div className="mt-3 break-words text-xl font-semibold tracking-tight text-slate-950">
-            {display.methodCode} <span className="text-slate-400">@</span> {display.version}
+          <div className="mt-3 min-w-0">
+            <div className="truncate text-xl font-semibold tracking-tight text-slate-950" title={display.methodCode}>
+              {display.methodCode}
+            </div>
+            <div className="mt-1 truncate text-sm font-medium text-slate-500" title={display.version}>
+              {display.version}
+            </div>
           </div>
           <div className="mt-1 text-sm text-slate-600">Finalized {generatedLabel}</div>
         </div>
-        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+        <div className="flex w-full shrink-0 flex-wrap items-center gap-2 lg:w-auto lg:max-w-[18rem] lg:justify-end">
           <button
             type="button"
             data-testid="download-review-summary-pdf"
@@ -127,7 +132,7 @@ export default function ReviewSummaryCard({
       <div className="mt-5 grid min-w-0 gap-4">
         <div className="min-w-0 rounded-2xl bg-white/85 px-4 py-4 shadow-sm ring-1 ring-inset ring-white">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule applied</div>
-          <div className="mt-1 break-words text-sm font-semibold text-slate-950">
+          <div className="mt-1 min-w-0 break-words text-sm font-semibold text-slate-950">
             {display.ruleId} <span className="font-normal text-slate-400">•</span> <span className="font-medium text-slate-700">{display.ruleSection}</span>
           </div>
           <div className="mt-2 truncate text-sm leading-relaxed text-slate-700" title={display.ruleText}>
