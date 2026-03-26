@@ -27,7 +27,7 @@ describe("ReviewSummaryCard", () => {
       />,
     );
 
-    expect(html).toContain("Review summary");
+    expect(html).toContain("Finalized");
     expect(html).toContain("AR-ACM0003");
     expect(html).toContain("v02-0");
     expect(html).toContain("Download PDF");

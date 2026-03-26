@@ -73,16 +73,24 @@ export default function ReviewSummaryCard({
   return (
     <section
       data-testid="review-summary-card"
-      className="min-w-0 overflow-hidden rounded-[24px] border border-emerald-200 bg-gradient-to-br from-white via-emerald-50/70 to-slate-50 p-4 shadow-sm shadow-emerald-100 sm:p-5"
+      className="min-w-0 overflow-hidden rounded-[24px] border border-emerald-200 bg-white p-4 shadow-sm sm:p-5"
     >
-      <div className="min-w-0 border-b border-emerald-100 pb-4">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="min-w-0 rounded-2xl border border-emerald-100 bg-emerald-50/45 px-4 py-4">
+        <div className="flex items-center">
           <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
             Finalized
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review summary</span>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-4 min-w-0">
+          <div className="truncate text-xl font-semibold tracking-tight text-slate-950" title={display.methodCode}>
+            {display.methodCode}
+          </div>
+          <div className="mt-1 truncate text-sm font-medium text-slate-500" title={display.version}>
+            {display.version}
+          </div>
+          <div className="mt-2 text-sm text-slate-600">Finalized {generatedLabel}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
             data-testid="download-review-summary-pdf"
@@ -109,15 +117,6 @@ export default function ReviewSummaryCard({
               Copy link
             </button>
           ) : null}
-        </div>
-        <div className="mt-4 min-w-0">
-          <div className="truncate text-xl font-semibold tracking-tight text-slate-950" title={display.methodCode}>
-            {display.methodCode}
-          </div>
-          <div className="mt-1 truncate text-sm font-medium text-slate-500" title={display.version}>
-            {display.version}
-          </div>
-          <div className="mt-2 text-sm text-slate-600">Finalized {generatedLabel}</div>
         </div>
       </div>
 
