@@ -27,7 +27,7 @@ describe("ReviewSummaryCard", () => {
       />,
     );
 
-    expect(html).toContain("Review Summary");
+    expect(html).toContain("Review summary");
     expect(html).toContain("Download PDF");
     expect(html).toContain("Download JSON");
     expect(html).toContain("Copy link");
