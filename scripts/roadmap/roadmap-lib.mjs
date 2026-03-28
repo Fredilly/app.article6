@@ -122,6 +122,23 @@ function minPrNumber(ssot) {
   return min;
 }
 
+function buildPhaseItems(ssot) {
+  const phases = ssot?.phases;
+  if (!phases || typeof phases !== "object" || Array.isArray(phases)) return [];
+
+  return Object.entries(phases).map(([key, value], idx) => {
+    const record = value && typeof value === "object" ? value : {};
+    const match = key.match(/^phase_(\d+)(?:_|$)/i);
+    const phaseNumber = match ? Number(match[1]) : idx + 1;
+    return {
+      id: `RC${phaseNumber}`,
+      title: typeof record.title === "string" ? record.title : null,
+      status: normalizeStatus(record.status),
+      summary: typeof record.summary === "string" ? record.summary : null,
+    };
+  });
+}
+
 export function generateRoadmapContent(ssotRoot, docsRoot) {
   const ssotFiles = listSsotFiles(ssotRoot);
   const sections = [];
@@ -165,11 +182,20 @@ export function generateRoadmapContent(ssotRoot, docsRoot) {
       return `${idx + 1}) ${formatPrId(item.id)}${titlePart}: ${label}${receiptText}${note}`;
     });
 
+    const fallbackPhaseItems = items.length
+      ? []
+      : buildPhaseItems(ssot).map((item, idx) => {
+          const label = statusLabel(item.status);
+          const titlePart = item.title ? ` — ${item.title}` : "";
+          const note = item.summary ? ` — ${item.summary}` : "";
+          return `${idx + 1}) ${item.id}${titlePart}: ${label}${note}`;
+        });
+
     return {
       slug,
       ssotPath,
       planPath,
-      items,
+      items: items.length ? items : fallbackPhaseItems,
       minPr: minPrNumber(ssot),
       phaseMeta,
     };
