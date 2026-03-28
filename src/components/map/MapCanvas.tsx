@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
+import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import type { GeoJSONSource, Map as MapLibreMap, StyleSpecification } from "maplibre-gl";
 
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -31,6 +32,15 @@ type LayerClickEvent = {
   features?: Array<{ id?: unknown; properties?: Record<string, unknown> | null }>;
 };
 
+type MapFailureCode = "env_unsupported" | "container_not_ready" | "init_failed" | "style_failed" | "webgl_failed";
+
+type MapFailure = {
+  code: MapFailureCode;
+  message: string;
+};
+
+type MapState = "waiting_container" | "initializing" | "ready" | "failed";
+
 const STAC_SOURCE_ID = "stac-evidence";
 const STAC_LAYER_FILL = "stac-evidence-fill";
 const STAC_LAYER_OUTLINE = "stac-evidence-outline";
@@ -44,9 +54,8 @@ const STAC_CENTROID_LAYER_SELECTED = "stac-evidence-centroids-selected";
 
 function isStyleReady(map: MapLibreMap): boolean {
   try {
-    const loaded = typeof map.loaded === "function" ? map.loaded() : true;
     const styleLoaded = typeof map.isStyleLoaded === "function" ? map.isStyleLoaded() : true;
-    return Boolean(loaded && styleLoaded);
+    return Boolean(styleLoaded);
   } catch {
     return false;
   }
@@ -60,18 +69,60 @@ function safeCall(label: string, context: Record<string, unknown>, fn: () => voi
   }
 }
 
-function isFatalMapError(message: string): boolean {
+function hasVisibleSize(node: HTMLDivElement | null): boolean {
+  if (!node) return false;
+  return node.clientWidth > 0 && node.clientHeight > 0;
+}
+
+function filterRenderableEvidence(fc: GeoJSON.FeatureCollection | null | undefined): GeoJSON.FeatureCollection {
+  const features = Array.isArray(fc?.features) ? fc.features : [];
+  return {
+    type: "FeatureCollection",
+    features: features.filter((feature) => Boolean(getFeatureBbox(feature))),
+  };
+}
+
+function classifyMapError(message: string): MapFailureCode | null {
   const lower = message.toLowerCase();
-  return (
+  if (lower.includes("webgl") || lower.includes("context lost") || lower.includes("failed to initialize webgl")) {
+    return "webgl_failed";
+  }
+  if (
     lower.includes("token") ||
     lower.includes("unauthorized") ||
     lower.includes("forbidden") ||
     lower.includes("401") ||
     lower.includes("403") ||
-    lower.includes("failed to fetch") ||
-    lower.includes("style") ||
-    lower.includes("not done loading")
-  );
+    lower.includes("failed to fetch")
+  ) {
+    return "init_failed";
+  }
+  return null;
+}
+
+function browserSupportsWebgl(): boolean {
+  if (typeof window === "undefined" || typeof document === "undefined") return false;
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
+function failureCopy(failure: MapFailure): { title: string; detail: string } {
+  switch (failure.code) {
+    case "env_unsupported":
+      return { title: "Map unsupported", detail: failure.message };
+    case "webgl_failed":
+      return { title: "WebGL unavailable", detail: failure.message };
+    case "style_failed":
+      return { title: "Map could not initialize.", detail: failure.message };
+    case "init_failed":
+      return { title: "Map could not initialize.", detail: failure.message };
+    case "container_not_ready":
+      return { title: "Map container is not ready yet.", detail: failure.message };
+  }
 }
 
 function upsertStacEvidence(map: MapLibreMap, context: Record<string, unknown>) {
@@ -186,7 +237,9 @@ export default function MapCanvas({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [mapReadyTick, setMapReadyTick] = useState(0);
-  const [mapError, setMapError] = useState<string | null>(null);
+  const [mapState, setMapState] = useState<MapState>("waiting_container");
+  const [mapFailure, setMapFailure] = useState<MapFailure | null>(null);
+  const [overlayError, setOverlayError] = useState<string | null>(null);
   const onMapReadyRef = useRef(onMapReady);
   const onMapDestroyedRef = useRef(onMapDestroyed);
   const onSelectStacItemIdRef = useRef(onSelectStacItemId);
@@ -199,6 +252,14 @@ export default function MapCanvas({
   const saveTimerRef = useRef<number | null>(null);
   const pendingViewRef = useRef<{ center: { lng: number; lat: number }; zoom: number; bbox: [number, number, number, number] } | null>(null);
   const applyInitialViewportRef = useRef<(map: MapLibreMap) => void>(() => {});
+  const loadFiredRef = useRef(false);
+  const styleLoadFiredRef = useRef(false);
+  const errorEventFiredRef = useRef(false);
+
+  const reportFailure = (failure: MapFailure) => {
+    setMapState("failed");
+    setMapFailure((prev) => prev ?? failure);
+  };
 
   useEffect(() => {
     onMapReadyRef.current = onMapReady;
@@ -328,11 +389,27 @@ export default function MapCanvas({
 
   useEffect(() => {
     let cancelled = false;
+    let initObserver: ResizeObserver | null = null;
     if (!containerRef.current) return;
     if (mapRef.current) return;
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      reportFailure({ code: "env_unsupported", message: "Browser DOM APIs are unavailable for map rendering." });
+      return;
+    }
+    if (!browserSupportsWebgl()) {
+      reportFailure({ code: "webgl_failed", message: "This browser does not provide the WebGL support required for the map." });
+      return;
+    }
 
-    (async () => {
+    const initMap = async () => {
       try {
+        if (!containerRef.current || !hasVisibleSize(containerRef.current)) {
+          setMapState("waiting_container");
+          setMapFailure(null);
+          return false;
+        }
+        setMapState("initializing");
+        setMapFailure(null);
         const maplibregl = await import("maplibre-gl");
         if (cancelled || !containerRef.current) return;
 
@@ -368,23 +445,32 @@ export default function MapCanvas({
         map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
 
         map.on?.("error", (event: unknown) => {
+          errorEventFiredRef.current = true;
           const message =
             event && typeof event === "object" && "error" in event && (event as { error?: unknown }).error instanceof Error
               ? (event as { error: Error }).error.message
               : "Map failed to load.";
-          console.warn("[map] error event", event);
-          if (isFatalMapError(message)) setMapError((prev) => prev ?? message);
+          const code = classifyMapError(message);
+          if (code) {
+            reportFailure({ code, message });
+          }
         });
 
         map.on?.("load", () => {
+          loadFiredRef.current = true;
           upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null });
           safeCall("resize after load", {}, () => map.resize?.());
           applyInitialViewportRef.current(map);
+          setMapState("ready");
+          setMapFailure(null);
           setMapReadyTick((value) => value + 1);
         });
 
         map.on?.("style.load", () => {
+          styleLoadFiredRef.current = true;
           upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null });
+          setMapState("ready");
+          setMapFailure(null);
           setMapReadyTick((value) => value + 1);
         });
 
@@ -396,23 +482,45 @@ export default function MapCanvas({
         window.setTimeout(() => {
           if (cancelled) return;
           if (!mapRef.current) return;
-          if (!isStyleReady(mapRef.current)) {
-            setMapError((prev) => prev ?? "Map style did not finish loading.");
+          if (!styleLoadFiredRef.current && !loadFiredRef.current) {
+            reportFailure({ code: "style_failed", message: "Map style did not finish loading." });
           }
         }, 8000);
+        return true;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        setMapError(message);
-        console.warn("[map] init failed", error);
+        reportFailure({ code: "init_failed", message });
+        return true;
       }
+    };
+
+    void (async () => {
+      const initialized = await initMap();
+      if (initialized || cancelled || !containerRef.current) return;
+
+      initObserver = new ResizeObserver(() => {
+        if (cancelled || mapRef.current) return;
+        if (!hasVisibleSize(containerRef.current)) {
+          setMapState("waiting_container");
+          return;
+        }
+        void initMap().then((done) => {
+          if (done) initObserver?.disconnect();
+        });
+      });
+      initObserver.observe(containerRef.current);
     })();
 
     return () => {
       cancelled = true;
+      initObserver?.disconnect();
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
+      loadFiredRef.current = false;
+      styleLoadFiredRef.current = false;
+      errorEventFiredRef.current = false;
       setMapReadyTick((value) => value + 1);
       onMapDestroyedRef.current?.();
 
@@ -486,11 +594,19 @@ export default function MapCanvas({
     const apply = () => {
       const context = { runId: stacEvidenceRunIdRef.current ?? null, featureCount: stacEvidence?.features?.length ?? 0 };
       upsertStacEvidence(map, context);
+      const totalFeatures = Array.isArray(stacEvidence?.features) ? stacEvidence.features.length : 0;
+      const sanitized = filterRenderableEvidence(stacEvidence);
+      const renderableFeatures = sanitized.features.length;
+      if (totalFeatures > 0 && renderableFeatures === 0) {
+        setOverlayError("Evidence layer data is present but has no valid geometry or bbox to render on the map.");
+      } else {
+        setOverlayError(null);
+      }
       safeCall("set STAC evidence data", context, () => {
         const source = map.getSource?.(STAC_SOURCE_ID) as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
         const data: GeoJSON.FeatureCollection =
-          stacEvidence?.features?.length ? stacEvidence : { type: "FeatureCollection", features: [] };
+          totalFeatures && renderableFeatures ? sanitized : { type: "FeatureCollection", features: [] };
         source.setData(data);
       });
     };
@@ -724,11 +840,12 @@ export default function MapCanvas({
     if (!containerRef.current) return;
 
     const node = containerRef.current;
-    const observer = new IntersectionObserver(
+    const visibilityObserver = new IntersectionObserver(
       (entries) => {
         const visible = entries.some((entry) => entry.isIntersecting);
         if (!visible) return;
         requestAnimationFrame(() => {
+          setMapState((prev) => (prev === "ready" ? prev : "initializing"));
           safeCall("resize on resume", {}, () => map.resize?.());
           upsertStacEvidence(map, { runId: stacEvidenceRunIdRef.current ?? null, reason: "resume" });
           setMapReadyTick((value) => value + 1);
@@ -737,18 +854,46 @@ export default function MapCanvas({
       { root: null, threshold: 0.01 },
     );
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      if (width <= 0 || height <= 0) return;
+      requestAnimationFrame(() => {
+        setMapState((prev) => (prev === "ready" ? prev : "initializing"));
+        safeCall("resize on container size change", { width, height }, () => map.resize?.());
+      });
+    });
+
+    visibilityObserver.observe(node);
+    resizeObserver.observe(node);
+    return () => {
+      visibilityObserver.disconnect();
+      resizeObserver.disconnect();
+    };
+  }, [mapReadyTick]);
+
+  const visibleFailure = mapFailure ? failureCopy(mapFailure) : null;
 
   return (
     <div className="relative h-[26rem] w-full rounded-xl border border-slate-200 bg-slate-100">
-      {mapError ? (
-        <div className="absolute left-3 top-3 z-10 max-w-[24rem] rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800 shadow">
-          <div className="font-semibold">Map unavailable</div>
-          <div className="pt-1 text-[11px] text-rose-700">
-            Continue with the list-based verification flow while map rendering is unavailable in this environment.
+      {mapState !== "ready" && !visibleFailure ? (
+        <div className="absolute left-3 top-3 z-10 max-w-[24rem] rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-xs text-slate-800 shadow">
+          <div className="font-semibold">{mapState === "waiting_container" ? "Initializing map..." : "Loading map..."}</div>
+          <div className="pt-1 text-[11px] text-slate-600">
+            {mapState === "waiting_container" ? "Waiting for the map panel to finish sizing." : "Preparing the base map."}
           </div>
+        </div>
+      ) : null}
+      {visibleFailure ? (
+        <div className="absolute left-3 top-3 z-10 max-w-[24rem] rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800 shadow">
+          <div className="font-semibold">{visibleFailure.title}</div>
+          <div className="pt-1 text-[11px] text-rose-700">{visibleFailure.detail}</div>
+        </div>
+      ) : overlayError ? (
+        <div className="absolute left-3 top-3 z-10 max-w-[24rem] rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 shadow">
+          <div className="font-semibold">Evidence layer unavailable</div>
+          <div className="pt-1 text-[11px] text-amber-800">{overlayError}</div>
         </div>
       ) : null}
       <div ref={containerRef} className="h-full w-full" />
