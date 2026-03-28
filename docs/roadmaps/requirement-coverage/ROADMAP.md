@@ -17,7 +17,7 @@ The methodology repo remains the canonical source for covered methods. Raw metho
 
 ## Phases
 
-## Phase 1 - Requirement coverage UI
+## RC1 — Requirement coverage UI
 
 Objective: establish rule-by-rule reconciliation as the primary workspace.
 
@@ -31,7 +31,7 @@ Acceptance:
 - Statuses are explicit: `missing`, `partial`, `linked`, `needs-review`.
 - Current method/version flows continue to work.
 
-## Phase 2 - Evidence inventory
+## RC2 — Evidence inventory
 
 Objective: create a normalized inventory of evidence assets available for reconciliation.
 
@@ -39,7 +39,7 @@ Scope:
 - Track uploaded/imported evidence with stable IDs, type labels, provenance, and link state.
 - Separate inventory from adjudication so evidence can exist before it is linked to a requirement.
 
-## Phase 3 - Spreadsheet/workbook intake
+## RC3 — Spreadsheet/workbook intake
 
 Objective: ingest structured workbook evidence into the inventory and reconciliation workflow.
 
@@ -47,7 +47,7 @@ Scope:
 - Accept workbook metadata and tabsheets relevant to methodology requirements.
 - Map workbook-derived records into expected evidence types.
 
-## Phase 4 - Monitoring report intake
+## RC4 — Monitoring report intake
 
 Objective: ingest monitoring report evidence into the same coverage workflow.
 
@@ -55,7 +55,7 @@ Scope:
 - Preserve report provenance and reporting period metadata.
 - Support requirement rows that expect monitoring narrative, metrics, or appendices.
 
-## Phase 5 - PDD intake
+## RC5 — PDD intake
 
 Objective: ingest project design documentation as first-class evidence.
 
@@ -63,7 +63,7 @@ Scope:
 - Capture section/page provenance for PDD claims.
 - Support linking one PDD fragment to multiple requirements where appropriate.
 
-## Phase 6 - Methodology version diff / impact mode
+## RC6 — Methodology version diff / impact mode
 
 Objective: show how methodology changes affect requirement coverage and linked evidence.
 
@@ -71,7 +71,7 @@ Scope:
 - Compare covered methodology versions.
 - Identify rows whose evidence links or expected evidence types may need review after a diff.
 
-## Phase 7 - Fallback raw methodology PDF intake for uncovered methods
+## RC7 — Fallback raw methodology PDF intake for uncovered methods
 
 Objective: support uncovered methods without making PDF parsing the main path for covered ones.
 
@@ -82,7 +82,7 @@ Scope:
 Non-goals:
 - Do not let raw PDFs become the primary path for covered methods.
 
-## Phase 8 - Additional GIS formats later
+## RC8 — Additional GIS formats later
 
 Objective: broaden geospatial evidence intake after the reconciliation workflow is stable.
 
