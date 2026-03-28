@@ -4,7 +4,7 @@ Start here: `docs/roadmaps/SUMMARY.md`.
 
 Each roadmap lives at `docs/roadmaps/<slug>/` and must include:
 
-- `PLAN.md`
+- `PLAN.md` or `ROADMAP.md`
 - `phase-status.json`
 
 If a PR is part of a roadmap, include a machine-parseable directive in the PR body.

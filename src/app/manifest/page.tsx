@@ -5,7 +5,7 @@ import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 
 export const metadata: Metadata = {
   title: "Manifest | app.article6",
-  description: "Browse methods first, then drill into rules and anchored evidence.",
+  description: "Load covered methodologies and reconcile each requirement against evidence with explicit provenance.",
 };
 
 export default async function ManifestPage() {

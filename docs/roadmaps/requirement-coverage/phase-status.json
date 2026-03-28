@@ -1,0 +1,79 @@
+{
+  "phase_meta": {
+    "status": "active",
+    "summary": "Primary product direction. Methodology-to-evidence reconciliation becomes the default workflow before validation, verification, or diligence.",
+    "current_focus": [
+      "Make requirement coverage the main workspace narrative",
+      "Keep the methodology repo canonical for covered methods",
+      "Add workflow foundations before building more ingestion paths",
+      "Keep current verification/export flows working while they are reframed around reconciliation"
+    ],
+    "not_active_now": [
+      "Overbuilding spreadsheet or PDF parsing in the initial foundation PR",
+      "Letting fallback raw methodology PDFs become the main path for covered methods",
+      "Additional GIS formats before requirement coverage is stable"
+    ]
+  },
+  "phases": {
+    "phase_1_requirement_coverage_ui": {
+      "status": "active",
+      "title": "Requirement coverage UI",
+      "summary": "Define and render rule coverage rows with provenance, expected evidence, linked evidence, and reconciliation status."
+    },
+    "phase_2_evidence_inventory": {
+      "status": "next",
+      "title": "Evidence inventory",
+      "summary": "Normalize evidence assets before deeper ingestion work."
+    },
+    "phase_3_spreadsheet_workbook_intake": {
+      "status": "planned",
+      "title": "Spreadsheet/workbook intake",
+      "summary": "Bring workbook evidence into the coverage workflow."
+    },
+    "phase_4_monitoring_report_intake": {
+      "status": "planned",
+      "title": "Monitoring report intake",
+      "summary": "Capture monitoring report evidence with stable provenance."
+    },
+    "phase_5_pdd_intake": {
+      "status": "planned",
+      "title": "PDD intake",
+      "summary": "Treat project design documentation as first-class evidence."
+    },
+    "phase_6_methodology_version_diff_impact_mode": {
+      "status": "planned",
+      "title": "Methodology version diff / impact mode",
+      "summary": "Connect methodology deltas to coverage impact and evidence review."
+    },
+    "phase_7_fallback_raw_methodology_pdf_intake": {
+      "status": "planned",
+      "title": "Fallback raw methodology PDF intake for uncovered methods",
+      "summary": "Enable a fallback path without displacing the canonical methodology repo for covered methods."
+    },
+    "phase_8_additional_gis_formats_later": {
+      "status": "deferred",
+      "title": "Additional GIS formats later",
+      "summary": "Defer broader GIS intake until reconciliation fundamentals are stable."
+    }
+  },
+  "triage": {
+    "keep": [
+      "Deterministic exports and manifest integrity",
+      "Audit trail and provenance explainability",
+      "Methodology version diff capabilities",
+      "Coverage ratchet and link resolver quality gates"
+    ],
+    "fold_into_requirement_coverage": [
+      "Evidence map and evidence panel as supporting views of selected requirement rows",
+      "Verifier checklist, run history, and delta-to-task work starting from unresolved requirement coverage",
+      "Gold/adjudication/export features attached to linked requirement rows and evidence inventory items",
+      "Pre-audit and review-prep flows reframed around reconciliation completeness"
+    ],
+    "scrap_or_defer": [
+      "Speculative platform expansion not needed for reconciliation now",
+      "Precedent/case-law memory until real usage justifies it",
+      "Map/chat/assistant polish that does not improve reconciliation",
+      "Heavy parsing work in this PR beyond the minimum workflow foundation"
+    ]
+  }
+}

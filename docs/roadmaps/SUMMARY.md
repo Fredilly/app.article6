@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory.
+Active lanes: verification-factory, requirement-coverage.
 Frozen lanes: agentic-verification.
 
 
@@ -96,3 +96,23 @@ Not active now:
 8) PR43 — Pre-audit pack prep workflow v1 (end-to-end sellable unit): Frozen — Frozen with the lane; preserved as future optional work.
 9) PR44 — Policy packs + house interpretations overlay (versioned): Frozen — Frozen with the lane; preserved as future optional work.
 10) PR45 — Exceptions taxonomy v1 + reviewer notes glue (standardized): Frozen — Frozen with the lane; preserved as future optional work.
+
+## requirement-coverage
+
+Status SSOT: `docs/roadmaps/requirement-coverage/phase-status.json`
+Details: `docs/roadmaps/requirement-coverage/ROADMAP.md`
+
+Lane status: Active
+Primary product direction. Methodology-to-evidence reconciliation becomes the default workflow before validation, verification, or diligence.
+
+Current focus:
+- Make requirement coverage the main workspace narrative
+- Keep the methodology repo canonical for covered methods
+- Add workflow foundations before building more ingestion paths
+- Keep current verification/export flows working while they are reframed around reconciliation
+
+Not active now:
+- Overbuilding spreadsheet or PDF parsing in the initial foundation PR
+- Letting fallback raw methodology PDFs become the main path for covered methods
+- Additional GIS formats before requirement coverage is stable
+
