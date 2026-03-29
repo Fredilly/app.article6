@@ -7,10 +7,16 @@ export type RuleSummary = {
   id: string;
   title: string;
   snippet: string;
-  text: string;
   tags: string[];
   type?: string;
+  text?: string;
   sectionId?: string;
+  anchor?: string;
+  citations?: Array<{
+    sectionId?: string;
+    anchor?: string;
+    label?: string;
+  }>;
 };
 
 export type RuleFull = RuleSummary & {
@@ -242,14 +248,16 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
     if (loaded) {
       const full = coerceRulesFromUnknown(loaded.parsed);
       const byId = new Map(full.map((rule) => [rule.id, rule]));
-      const rules = full.map(({ id, title, snippet, text, tags, type, sectionId }) => ({
+      const rules = full.map(({ id, title, snippet, tags, type, text, sectionId, anchor, citations }) => ({
         id,
         title,
         snippet,
-        text,
         tags,
         type,
+        text,
         sectionId,
+        anchor,
+        citations,
       }));
       rules.sort((a, b) => a.id.localeCompare(b.id));
       return { rules, byId, source: loaded.source };
@@ -258,14 +266,16 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
 
   const full = coerceRulesFromManifest(entries);
   const byId = new Map(full.map((rule) => [rule.id, rule]));
-  const rules = full.map(({ id, title, snippet, text, tags, type, sectionId }) => ({
+  const rules = full.map(({ id, title, snippet, tags, type, text, sectionId, anchor, citations }) => ({
     id,
     title,
     snippet,
-    text,
     tags,
     type,
+    text,
     sectionId,
+    anchor,
+    citations,
   }));
   rules.sort((a, b) => a.id.localeCompare(b.id));
   return { rules, byId, source: "manifest" };

@@ -1,4 +1,18 @@
-import type { RuleFull } from "@/app/m/_lib/methodRules";
+type RequirementCoverageRuleInput = {
+  id: string;
+  title: string;
+  snippet: string;
+  text?: string;
+  type?: string;
+  tags: string[];
+  sectionId?: string;
+  anchor?: string;
+  citations?: Array<{
+    sectionId?: string;
+    anchor?: string;
+    label?: string;
+  }>;
+};
 
 export const REQUIREMENT_COVERAGE_STATUSES = ["missing", "partial", "linked", "needs-review"] as const;
 
@@ -55,17 +69,17 @@ type RequirementCoverageLinkInput = {
 };
 
 type BuildRequirementCoverageRowsInput = {
-  rules: RuleFull[];
+  rules: RequirementCoverageRuleInput[];
   sectionTitleById?: Map<string, string>;
   linkedEvidenceByRuleId?: Map<string, RequirementCoverageLinkInput[]>;
   statusesByRuleId?: Map<string, RequirementCoverageStatus>;
 };
 
-function normalizeSnippet(rule: RuleFull): string {
+function normalizeSnippet(rule: RequirementCoverageRuleInput): string {
   return rule.snippet?.trim() || rule.text?.replace(/\s+/g, " ").trim() || "No rule summary available.";
 }
 
-function expectedEvidenceTypesForRule(rule: RuleFull): RequirementCoverageExpectedEvidenceType[] {
+function expectedEvidenceTypesForRule(rule: RequirementCoverageRuleInput): RequirementCoverageExpectedEvidenceType[] {
   const haystack = `${rule.title} ${rule.text} ${rule.tags.join(" ")} ${rule.type ?? ""}`.toLowerCase();
   const expected = new Set<RequirementCoverageExpectedEvidenceType>();
 
@@ -79,7 +93,6 @@ function expectedEvidenceTypesForRule(rule: RuleFull): RequirementCoverageExpect
     expected.add("calculation-support");
   }
 
-  if (!expected.size) expected.add("other");
   return Array.from(expected);
 }
 

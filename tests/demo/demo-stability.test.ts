@@ -1,6 +1,8 @@
 import { describe, expect, test } from "@jest/globals";
 import fs from "node:fs";
 import path from "node:path";
+import type { ProofEvidenceItem } from "@/lib/proof/bundle";
+import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import {
   clearProofMapStorage,
   clearStoredMapView,
@@ -37,6 +39,12 @@ describe("demo stability regression harness", () => {
     expect(detail).not.toMatch(/\bconst\s+\[tab,\s*setTab\]/);
   });
 
+  test("method detail prioritizes requirement coverage in the default workspace", () => {
+    const detail = read("src/app/m/_components/MethodDetailPane.tsx");
+    expect(detail).toContain("RequirementCoverageWorkspace");
+    expect(detail).toContain(">Coverage<");
+  });
+
   test("map view state does not write bbox into URL", () => {
     const detail = read("src/app/m/_components/MethodDetailPane.tsx");
     expect(detail).not.toContain("bbox");
@@ -61,16 +69,46 @@ describe("demo stability regression harness", () => {
 
     const code = "AR-AM0014";
     const version = "v03-0";
-    saveAoi(code, version, {
+    const aoi: AOI = {
       id: "aoi-1",
       name: "AOI",
       bbox: [0, 0, 1, 1],
       area_km2: 1,
-      geojson: { type: "Feature", geometry: { type: "Polygon", coordinates: [] }, properties: {} } as any,
-    });
-    savePins(code, version, [{ id: "pin-1", title: "pin", kind: "rule", cited_ids: ["R-1"] } as any]);
-    saveVerificationRuns(code, version, [{ id: "run-1" } as any]);
-    saveEvidenceSnapshots(code, version, [{ id: "snap-1" } as any]);
+      created_at: "2026-01-01T00:00:00Z",
+      geojson: {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]],
+        },
+        properties: {},
+      },
+    };
+    const pin: EvidencePin = {
+      id: "pin-1",
+      title: "pin",
+      kind: "note",
+      cited_ids: ["R-1"],
+      created_at: "2026-01-01T00:00:00Z",
+    };
+    const run: VerificationRun = {
+      id: "run-1",
+      method: { code, version },
+      aoi_fingerprint: "aoi-hash",
+      input_fingerprint: "input-hash",
+      cited_ids: ["R-1"],
+      cited_ids_count: 1,
+      attachment_sha256: [],
+      attachment_count: 0,
+      provider: "stac",
+      status: "ok",
+      created_at: "2026-01-01T00:00:00Z",
+    };
+    const snapshot: ProofEvidenceItem = { id: "snap-1", kind: "rule", title: "Snapshot" };
+    saveAoi(code, version, aoi);
+    savePins(code, version, [pin]);
+    saveVerificationRuns(code, version, [run]);
+    saveEvidenceSnapshots(code, version, [snapshot]);
     local.set(`a6:mapview:${code}@${version}`, JSON.stringify({ zoom: 4 }));
 
     clearProofMapStorage(code, version);
@@ -85,4 +123,3 @@ describe("demo stability regression harness", () => {
     (globalThis as unknown as { window?: unknown }).window = originalWindow;
   });
 });
-
