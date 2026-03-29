@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import type {
-  RequirementCoverageExpectedEvidenceType,
-  RequirementCoverageLinkedEvidence,
-  RequirementCoverageRow,
-  RequirementCoverageStatus,
+import {
+  EXPECTED_EVIDENCE_LABELS,
+  REQUIREMENT_COVERAGE_STATUS_META,
+  requirementProvenanceHint,
+  summarizeExpectedEvidence,
+  summarizeLinkedEvidence,
+  type RequirementCoverageRow,
 } from "@/app/m/_lib/requirementCoverage";
 
 export type RequirementCoverageFilter = "all" | "unresolved" | "linked" | "needs-review";
@@ -27,64 +29,6 @@ type RequirementCoverageWorkspaceProps = {
   onCopyRequirementLink?: (ruleId: string) => void;
   supportingEvidence?: ReactNode;
 };
-
-const STATUS_META: Record<
-  RequirementCoverageStatus,
-  { label: string; tone: string; description: string }
-> = {
-  missing: {
-    label: "Unresolved",
-    tone: "border-slate-200 bg-slate-50 text-slate-700",
-    description: "No linked evidence yet.",
-  },
-  partial: {
-    label: "Linked",
-    tone: "border-amber-200 bg-amber-50 text-amber-800",
-    description: "Evidence is linked but still needs reconciliation.",
-  },
-  linked: {
-    label: "Complete",
-    tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    description: "Evidence and verification activity exist.",
-  },
-  "needs-review": {
-    label: "Needs review",
-    tone: "border-rose-200 bg-rose-50 text-rose-800",
-    description: "Linked evidence needs reviewer attention.",
-  },
-};
-
-const EXPECTED_EVIDENCE_LABELS: Record<RequirementCoverageExpectedEvidenceType, string> = {
-  "monitoring-report": "Monitoring report",
-  "spreadsheet-workbook": "Spreadsheet workbook",
-  pdd: "PDD",
-  gis: "GIS or map evidence",
-  "qa-qc-record": "QA/QC record",
-  "eligibility-proof": "Eligibility proof",
-  "calculation-support": "Calculation support",
-  other: "Other evidence",
-};
-
-function summarizeExpectedEvidence(types: RequirementCoverageExpectedEvidenceType[]): string {
-  if (!types.length) return "No expected evidence metadata";
-  return types.map((type) => EXPECTED_EVIDENCE_LABELS[type] ?? type).join(", ");
-}
-
-function summarizeLinkedEvidence(items: RequirementCoverageLinkedEvidence[]): string {
-  if (!items.length) return "No linked evidence yet";
-  if (items.length === 1) {
-    const item = items[0];
-    return `${item.title} (${item.type})`;
-  }
-  return `${items.length} linked evidence items`;
-}
-
-function provenanceHint(row: RequirementCoverageRow): string {
-  const sectionLabel = row.provenance.sectionTitle ?? row.provenance.sectionId ?? null;
-  const pageLabel = typeof row.provenance.page === "number" ? `p. ${row.provenance.page}` : null;
-  const anchorLabel = row.provenance.anchor ? row.provenance.anchor.replace(/^#/, "") : null;
-  return [sectionLabel, pageLabel, anchorLabel].filter(Boolean).join(" • ") || "Provenance pending";
-}
 
 function matchesFilter(row: RequirementCoverageRow, filter: RequirementCoverageFilter): boolean {
   if (filter === "all") return true;
@@ -214,7 +158,7 @@ export default function RequirementCoverageWorkspace({
             </div>
           ) : (
             filteredRows.map((row) => {
-              const status = STATUS_META[row.status];
+              const status = REQUIREMENT_COVERAGE_STATUS_META[row.status];
               const selected = row.ruleId === selectedRow?.ruleId;
               return (
                 <button
@@ -234,13 +178,13 @@ export default function RequirementCoverageWorkspace({
                         {status.label}
                       </span>
                     </div>
-                    <span className="text-xs text-slate-500">{provenanceHint(row)}</span>
+                    <span className="text-xs text-slate-500">{requirementProvenanceHint(row)}</span>
                   </div>
                   <div className="text-sm font-semibold leading-snug text-slate-900">{row.ruleSummary.snippet}</div>
                   <div className="grid gap-2 text-xs text-slate-600 md:grid-cols-3">
                     <div>
                       <div className="font-semibold uppercase tracking-wide text-slate-400">Provenance</div>
-                      <div className="mt-1">{provenanceHint(row)}</div>
+                      <div className="mt-1">{requirementProvenanceHint(row)}</div>
                     </div>
                     <div>
                       <div className="font-semibold uppercase tracking-wide text-slate-400">Expected evidence</div>
@@ -269,9 +213,9 @@ export default function RequirementCoverageWorkspace({
                     <div className="mt-1 font-mono text-xs font-semibold text-slate-700">{selectedRow.ruleId}</div>
                   </div>
                   <span
-                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${STATUS_META[selectedRow.status].tone}`}
+                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${REQUIREMENT_COVERAGE_STATUS_META[selectedRow.status].tone}`}
                   >
-                    {STATUS_META[selectedRow.status].label}
+                    {REQUIREMENT_COVERAGE_STATUS_META[selectedRow.status].label}
                   </span>
                 </div>
 
@@ -285,7 +229,7 @@ export default function RequirementCoverageWorkspace({
                 <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Methodology provenance</div>
                   <div className="mt-2 space-y-2 text-sm text-slate-700">
-                    <div>{provenanceHint(selectedRow)}</div>
+                    <div>{requirementProvenanceHint(selectedRow)}</div>
                     {selectedRow.provenance.citations.length ? (
                       <ul className="grid gap-2">
                         {selectedRow.provenance.citations.slice(0, 4).map((citation, index) => (
@@ -384,7 +328,7 @@ export default function RequirementCoverageWorkspace({
                     <span className="break-all font-mono text-slate-700">{selectedRequirementSha256 ?? "—"}</span>
                   </div>
                   <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
-                    {STATUS_META[selectedRow.status].description}
+                    {REQUIREMENT_COVERAGE_STATUS_META[selectedRow.status].description}
                   </div>
                 </section>
               </div>

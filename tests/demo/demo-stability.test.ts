@@ -39,10 +39,12 @@ describe("demo stability regression harness", () => {
     expect(detail).not.toMatch(/\bconst\s+\[tab,\s*setTab\]/);
   });
 
-  test("method detail prioritizes requirement coverage in the default workspace", () => {
+  test("method detail keeps the rich rule modal in the existing workflow", () => {
     const detail = read("src/app/m/_components/MethodDetailPane.tsx");
     expect(detail).toContain("RequirementCoverageWorkspace");
-    expect(detail).toMatch(/>\s*Coverage\s*</);
+    expect(detail).toContain("RuleDetailModal");
+    expect(detail).toContain("openRuleModal");
+    expect(detail).not.toContain("window.open(");
   });
 
   test("map view state does not write bbox into URL", () => {

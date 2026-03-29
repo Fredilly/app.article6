@@ -1,4 +1,10 @@
-import { buildRequirementCoverageRows, REQUIREMENT_COVERAGE_STATUSES } from "@/app/m/_lib/requirementCoverage";
+import {
+  buildRequirementCoverageRows,
+  REQUIREMENT_COVERAGE_STATUSES,
+  requirementProvenanceHint,
+  summarizeExpectedEvidence,
+  summarizeLinkedEvidence,
+} from "@/app/m/_lib/requirementCoverage";
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
 
 describe("buildRequirementCoverageRows", () => {
@@ -103,5 +109,22 @@ describe("buildRequirementCoverageRows", () => {
     expect(rows[0]?.expectedEvidenceTypes).toEqual([]);
     expect(rows[0]?.linkedEvidence).toEqual([]);
     expect(rows[0]?.status).toBe("missing");
+  });
+
+  test("formats reviewer-facing summaries for sparse metadata safely", () => {
+    const rows = buildRequirementCoverageRows({
+      rules: [
+        {
+          id: "R-9",
+          title: "Sparse requirement",
+          snippet: "Keep records available for review.",
+          tags: [],
+        },
+      ],
+    });
+
+    expect(summarizeExpectedEvidence(rows[0]?.expectedEvidenceTypes ?? [])).toBe("No expected evidence metadata");
+    expect(summarizeLinkedEvidence(rows[0]?.linkedEvidence ?? [])).toBe("No linked evidence yet");
+    expect(requirementProvenanceHint(rows[0]!)).toBe("Provenance pending");
   });
 });

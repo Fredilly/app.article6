@@ -6,7 +6,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import VersionSelector from "@/app/m/_components/VersionSelector";
 import { IntegrityDiffPanel } from "@/app/m/_components/IntegrityDiffPanel";
 import RequirementCoverageWorkspace from "@/app/m/_components/RequirementCoverageWorkspace";
-import { buildRequirementCoverageRows, type RequirementCoverageStatus } from "@/app/m/_lib/requirementCoverage";
+import RuleDetailModal from "@/app/m/_components/RuleDetailModal";
+import {
+  buildRequirementCoverageRows,
+  requirementProvenanceHint,
+  summarizeExpectedEvidence,
+  summarizeLinkedEvidence,
+  type RequirementCoverageStatus,
+} from "@/app/m/_lib/requirementCoverage";
 import TrustStrip from "@/components/TrustStrip";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
@@ -192,6 +199,7 @@ export default function MethodDetailPane({
   const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [, setTraceError] = useState<string | null>(null);
+  const [ruleDetailModalOpen, setRuleDetailModalOpen] = useState(false);
   const [ruleDetail, setRuleDetail] = useState<{
     id: string;
     title: string;
@@ -383,6 +391,11 @@ export default function MethodDetailPane({
     return deduped;
   }, [activeRuleId, traceIndex]);
 
+  const activeRequirementRow = useMemo(
+    () => requirementRows.find((row) => row.ruleId === activeRuleId) ?? null,
+    [activeRuleId, requirementRows],
+  );
+
   useEffect(() => {
     setRules([]);
     setRulesError(null);
@@ -392,6 +405,7 @@ export default function MethodDetailPane({
     setRuleDetail(null);
     setRuleDetailError(null);
     setRuleDetailLoading(false);
+    setRuleDetailModalOpen(false);
     setTraceIndex(null);
     setTraceError(null);
     setTraceLoading(false);
@@ -956,17 +970,21 @@ export default function MethodDetailPane({
     return true;
   }, [ensureRulesLoaded, loadRuleDetail, setRuleParam, setTabParam]);
 
-  const openRuleFromVerify = useCallback(
+  const openRuleModal = useCallback(
     async (ruleId: string) => {
+      setRulesDeeplinkWarning(null);
+      const list = await ensureRulesLoaded();
+      if (list.length === 0) return false;
+      if (!list.some((rule) => rule.id === ruleId)) {
+        setRulesDeeplinkWarning(`Unknown rule id "${ruleId}".`);
+        return false;
+      }
       setActiveRuleId(ruleId);
-      if (!pathname) return;
-      const params = new URLSearchParams(searchString);
-      params.set("tab", "rules");
-      params.set("rule", ruleId);
-      const query = params.toString();
-      window.open(query ? `${pathname}?${query}` : pathname, "_blank", "noopener,noreferrer");
+      await Promise.all([loadRuleDetail(ruleId), ensureTraceLoaded(), ensureSectionsLoaded()]);
+      setRuleDetailModalOpen(true);
+      return true;
     },
-    [pathname, searchString],
+    [ensureRulesLoaded, ensureSectionsLoaded, ensureTraceLoaded, loadRuleDetail],
   );
 
   useEffect(() => {
@@ -1116,7 +1134,7 @@ export default function MethodDetailPane({
         void openRule(ruleId);
       }}
       onViewRule={(ruleId) => {
-        void openRuleFromVerify(ruleId);
+        void openRuleModal(ruleId);
       }}
       totalRules={activeVersion ? method.ruleCountByVersion[activeVersion] ?? null : null}
       aoi={effectiveAoi}
@@ -1253,6 +1271,33 @@ export default function MethodDetailPane({
         </div>
       ) : null}
 
+      <RuleDetailModal
+        open={ruleDetailModalOpen}
+        row={activeRequirementRow}
+        ruleTitle={ruleDetail?.title ?? activeRequirementRow?.ruleSummary.title ?? null}
+        ruleText={
+          ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
+            ? "Loading requirement details…"
+            : (ruleDetail?.text ?? activeRequirementRow?.ruleSummary.snippet ?? null)
+        }
+        sourcePath={ruleDetail?.sourcePath ?? null}
+        sha256={ruleDetail?.sha256 ?? null}
+        traceSections={linkedTraceSections.map((link) => {
+          const section = sectionsById.get(link.section_id);
+          return {
+            sectionId: link.section_id,
+            title: section?.title ?? link.title ?? null,
+            textSnippet: section?.textSnippet ?? null,
+            match: link.match,
+          };
+        })}
+        onClose={() => setRuleDetailModalOpen(false)}
+        onOpenSourceContext={(sectionId) => {
+          void navigateToSection(sectionId);
+          setRuleDetailModalOpen(false);
+        }}
+      />
+
       {sectionPreview ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
           <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-xl">
@@ -1372,74 +1417,158 @@ export default function MethodDetailPane({
           ) : null}
 
           {!rulesLoading && !rulesError && requirementRows.length ? (
-            <RequirementCoverageWorkspace
-              rows={requirementRows}
-              activeRuleId={activeRuleId}
-              selectedRequirementText={
-                ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
-                  ? "Loading requirement details…"
-                  : (ruleDetail?.text ?? null)
-              }
-              selectedRequirementSourcePath={ruleDetail?.sourcePath ?? null}
-              selectedRequirementSha256={ruleDetail?.sha256 ?? null}
-              selectedTraceSections={linkedTraceSections.map((link) => {
-                const section = sectionsById.get(link.section_id);
-                return {
-                  sectionId: link.section_id,
-                  title: section?.title ?? link.title ?? null,
-                  textSnippet: section?.textSnippet ?? null,
-                  match: link.match,
-                };
-              })}
-              onSelectRule={(ruleId) => {
-                void openRule(ruleId);
-              }}
-              onOpenSourceContext={(sectionId) => {
-                void navigateToSection(sectionId);
-              }}
-              onCopyRequirementLink={async (ruleId) => {
-                if (!activeVersion) return;
-                try {
-                  await navigator.clipboard.writeText(buildRuleLink(ruleId));
-                } catch {
-                  // ignore
-                }
-              }}
-              supportingEvidence={
-                <div className="grid gap-3">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-sm text-slate-600">
-                      Supporting views stay attached to the selected requirement while verification and export remain available.
+            <>
+              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-2">
+                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Methodology detail
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold text-slate-600">
-                        {(["list", "map"] as const).map((modeOption) => (
-                          <button
-                            key={modeOption}
-                            type="button"
-                            className={`rounded-full px-3 py-1 ${
-                              verifyViewMode === modeOption ? "bg-white text-slate-900 shadow-sm" : ""
-                            }`}
-                            onClick={() => setVerifyViewMode(modeOption)}
-                            aria-pressed={verifyViewMode === modeOption}
-                          >
-                            {modeOption === "list" ? "Evidence" : "Map"}
-                          </button>
-                        ))}
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      Keep the workflow simple and open richer methodology detail only when needed.
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      View rule now opens a richer modal from the existing verification flow without sending the reviewer to a separate workspace.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
+                    <span className="rounded-full bg-slate-100 px-3 py-1">Rules {requirementRows.length}</span>
+                    <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-800">
+                      Unresolved {requirementRows.filter((row) => row.status === "missing" || row.status === "partial").length}
+                    </span>
+                  </div>
+                </div>
+
+                {activeRequirementRow ? (
+                  <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <div className="font-mono text-xs font-semibold text-slate-700">{activeRequirementRow.ruleId}</div>
+                          <h4 className="mt-2 text-base font-semibold text-slate-900">
+                            {ruleDetail?.title ?? activeRequirementRow.ruleSummary.title}
+                          </h4>
+                        </div>
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                          onClick={() => setRuleDetailModalOpen(true)}
+                        >
+                          View rule
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => navigateToVerify(verifyViewMode)}
-                        className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                      >
-                        Open full verify workspace
-                      </button>
+                      <p className="mt-3 text-sm leading-6 text-slate-700">
+                        {ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
+                          ? "Loading requirement details…"
+                          : (ruleDetail?.text ?? activeRequirementRow.ruleSummary.snippet)}
+                      </p>
+                    </div>
+
+                    <div className="grid gap-3">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Provenance</div>
+                        <div className="mt-2 text-sm text-slate-700">
+                          {requirementProvenanceHint(activeRequirementRow)}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Expected evidence</div>
+                        <div className="mt-2 text-sm text-slate-700">
+                          {summarizeExpectedEvidence(activeRequirementRow.expectedEvidenceTypes)}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Linked evidence</div>
+                        <div className="mt-2 text-sm text-slate-700">
+                          {summarizeLinkedEvidence(activeRequirementRow.linkedEvidence)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  {proofMapSurface}
+                ) : (
+                  <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                    Select a rule from the verification workflow to inspect richer methodology detail.
+                  </div>
+                )}
+              </section>
+
+              <details className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-slate-900">
+                  Requirement coverage workspace
+                  <span className="ml-2 text-xs font-normal text-slate-500">Secondary review surface</span>
+                </summary>
+                <div className="border-t border-slate-100 px-4 py-4">
+                  <RequirementCoverageWorkspace
+                    rows={requirementRows}
+                    activeRuleId={activeRuleId}
+                    selectedRequirementText={
+                      ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
+                        ? "Loading requirement details…"
+                        : (ruleDetail?.text ?? null)
+                    }
+                    selectedRequirementSourcePath={ruleDetail?.sourcePath ?? null}
+                    selectedRequirementSha256={ruleDetail?.sha256 ?? null}
+                    selectedTraceSections={linkedTraceSections.map((link) => {
+                      const section = sectionsById.get(link.section_id);
+                      return {
+                        sectionId: link.section_id,
+                        title: section?.title ?? link.title ?? null,
+                        textSnippet: section?.textSnippet ?? null,
+                        match: link.match,
+                      };
+                    })}
+                    onSelectRule={(ruleId) => {
+                      void openRule(ruleId);
+                    }}
+                    onOpenSourceContext={(sectionId) => {
+                      void navigateToSection(sectionId);
+                    }}
+                    onCopyRequirementLink={async (ruleId) => {
+                      if (!activeVersion) return;
+                      try {
+                        await navigator.clipboard.writeText(buildRuleLink(ruleId));
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                    supportingEvidence={
+                      <div className="grid gap-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="text-sm text-slate-600">
+                            Supporting views stay attached to the selected requirement while verify, finalize, and export stay available.
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold text-slate-600">
+                              {(["list", "map"] as const).map((modeOption) => (
+                                <button
+                                  key={modeOption}
+                                  type="button"
+                                  className={`rounded-full px-3 py-1 ${
+                                    verifyViewMode === modeOption ? "bg-white text-slate-900 shadow-sm" : ""
+                                  }`}
+                                  onClick={() => setVerifyViewMode(modeOption)}
+                                  aria-pressed={verifyViewMode === modeOption}
+                                >
+                                  {modeOption === "list" ? "Evidence" : "Map"}
+                                </button>
+                              ))}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => navigateToVerify(verifyViewMode)}
+                              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                            >
+                              Open full verify workspace
+                            </button>
+                          </div>
+                        </div>
+                        {proofMapSurface}
+                      </div>
+                    }
+                  />
                 </div>
-              }
-            />
+              </details>
+            </>
           ) : null}
         </div>
       )}
