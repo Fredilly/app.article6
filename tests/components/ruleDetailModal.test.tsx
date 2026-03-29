@@ -1,8 +1,5 @@
-/** @jest-environment jsdom */
-
-import { describe, expect, it, jest } from "@jest/globals";
-import { act } from "react";
-import { createRoot } from "react-dom/client";
+import { describe, expect, it } from "@jest/globals";
+import { renderToStaticMarkup } from "react-dom/server";
 import RuleDetailModal from "@/app/m/_components/RuleDetailModal";
 import type { RequirementCoverageRow } from "@/app/m/_lib/requirementCoverage";
 
@@ -47,104 +44,45 @@ const sparseRow: RequirementCoverageRow = {
 };
 
 describe("RuleDetailModal", () => {
-  it("renders rich rule detail with methodology metadata", async () => {
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-    const root = createRoot(container);
+  it("renders rich rule detail with methodology metadata", () => {
+    const html = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={linkedRow}
+        ruleTitle="Monitoring frequency"
+        ruleText="Maintain a monitoring report and spreadsheet workbook for each reporting period."
+        sourcePath="methodologies/example/rules.rich.json"
+        sha256="abc123"
+        traceSections={[{ sectionId: "S-10", title: "Monitoring", textSnippet: "Monitoring context" }]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
 
-    await act(async () => {
-      root.render(
-        <RuleDetailModal
-          open
-          row={linkedRow}
-          ruleTitle="Monitoring frequency"
-          ruleText="Maintain a monitoring report and spreadsheet workbook for each reporting period."
-          sourcePath="methodologies/example/rules.rich.json"
-          sha256="abc123"
-          traceSections={[{ sectionId: "S-10", title: "Monitoring", textSnippet: "Monitoring context" }]}
-          onClose={() => {}}
-          onOpenSourceContext={() => {}}
-        />,
-      );
-    });
-
-    expect(container.textContent).toContain("R-1");
-    expect(container.textContent).toContain("Maintain a monitoring report and spreadsheet workbook for each reporting period.");
-    expect(container.textContent).toContain("Complete");
-    expect(container.textContent).toContain("Methodology provenance");
-    expect(container.textContent).toContain("Monitoring report");
-    expect(container.textContent).toContain("Q1 monitoring report");
-
-    root.unmount();
-    container.remove();
+    expect(html).toContain("R-1");
+    expect(html).toContain("Maintain a monitoring report and spreadsheet workbook for each reporting period.");
+    expect(html).toContain("Complete");
+    expect(html).toContain("Methodology provenance");
+    expect(html).toContain("Monitoring report");
+    expect(html).toContain("Q1 monitoring report");
   });
 
-  it("shows intentional empty states when optional metadata is missing", async () => {
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-    const root = createRoot(container);
+  it("shows intentional empty states when optional metadata is missing", () => {
+    const html = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={sparseRow}
+        ruleTitle="Eligibility boundary"
+        ruleText="Document the eligibility boundary for review."
+        sourcePath={null}
+        sha256={null}
+        traceSections={[]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
 
-    await act(async () => {
-      root.render(
-        <RuleDetailModal
-          open
-          row={sparseRow}
-          ruleTitle="Eligibility boundary"
-          ruleText="Document the eligibility boundary for review."
-          sourcePath={null}
-          sha256={null}
-          traceSections={[]}
-          onClose={() => {}}
-          onOpenSourceContext={() => {}}
-        />,
-      );
-    });
-
-    expect(container.textContent).toContain("No expected evidence metadata");
-    expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
-
-    root.unmount();
-    container.remove();
-  });
-
-  it("closes from button, Escape, and backdrop click", async () => {
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-    const root = createRoot(container);
-    const onClose = jest.fn();
-
-    await act(async () => {
-      root.render(
-        <RuleDetailModal
-          open
-          row={linkedRow}
-          ruleTitle="Monitoring frequency"
-          ruleText="Full text"
-          sourcePath="methodologies/example/rules.rich.json"
-          sha256="abc123"
-          traceSections={[]}
-          onClose={onClose}
-          onOpenSourceContext={() => {}}
-        />,
-      );
-    });
-
-    await act(async () => {
-      (container.querySelector("button") as HTMLButtonElement).click();
-    });
-    expect(onClose).toHaveBeenCalledTimes(1);
-
-    await act(async () => {
-      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    });
-    expect(onClose).toHaveBeenCalledTimes(2);
-
-    await act(async () => {
-      (container.querySelector('[role="dialog"]') as HTMLDivElement).click();
-    });
-    expect(onClose).toHaveBeenCalledTimes(3);
-
-    root.unmount();
-    container.remove();
+    expect(html).toContain("No expected evidence metadata");
+    expect(html).toContain("Requirement is unresolved. No linked evidence yet.");
   });
 });

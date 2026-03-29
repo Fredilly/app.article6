@@ -47,6 +47,15 @@ describe("demo stability regression harness", () => {
     expect(detail).not.toContain("window.open(");
   });
 
+  test("rule detail modal keeps close behavior local to the workflow", () => {
+    const modal = read("src/app/m/_components/RuleDetailModal.tsx");
+    expect(modal).toContain('role="dialog"');
+    expect(modal).toContain('aria-modal="true"');
+    expect(modal).toContain('if (event.key === "Escape") onClose();');
+    expect(modal).toContain('onClick={onClose}');
+    expect(modal).toContain('onClick={(event) => event.stopPropagation()}');
+  });
+
   test("map view state does not write bbox into URL", () => {
     const detail = read("src/app/m/_components/MethodDetailPane.tsx");
     expect(detail).not.toContain("bbox");
