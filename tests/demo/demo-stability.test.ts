@@ -42,7 +42,7 @@ describe("demo stability regression harness", () => {
   test("method detail prioritizes requirement coverage in the default workspace", () => {
     const detail = read("src/app/m/_components/MethodDetailPane.tsx");
     expect(detail).toContain("RequirementCoverageWorkspace");
-    expect(detail).toContain(">Coverage<");
+    expect(detail).toMatch(/>\s*Coverage\s*</);
   });
 
   test("map view state does not write bbox into URL", () => {
