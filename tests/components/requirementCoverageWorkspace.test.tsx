@@ -118,7 +118,9 @@ describe("RequirementCoverageWorkspace", () => {
     expect(container.querySelector("#r-R-2")?.getAttribute("aria-pressed")).toBe("true");
     expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
 
-    root.unmount();
+    await act(async () => {
+      root.unmount();
+    });
     container.remove();
   });
 });
