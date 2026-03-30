@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_COVERAGE_STATUS_META,
@@ -258,6 +259,7 @@ export default function RuleDetailModal({
                     {row.linkedEvidence.map((item) => (
                       <li key={`${item.source}:${item.id}`} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
                         <div className="font-semibold text-slate-900">{item.title}</div>
+                        <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.id)}</div>
                         <div className="mt-1 text-xs text-slate-600">
                           {item.type} • {item.source}
                         </div>

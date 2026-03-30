@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { formatEvidenceInventoryId, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_COVERAGE_STATUS_META,
@@ -27,8 +28,23 @@ type RequirementCoverageWorkspaceProps = {
   onSelectRule: (ruleId: string) => void;
   onOpenSourceContext: (sectionId: string) => void;
   onCopyRequirementLink?: (ruleId: string) => void;
+  inventoryItems?: EvidenceInventoryItem[];
+  onLinkInventoryItem?: (evidenceId: string, ruleId: string) => void;
+  onUnlinkInventoryItem?: (evidenceId: string, ruleId: string) => void;
   supportingEvidence?: ReactNode;
 };
+
+function formatInventoryTime(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString();
+}
+
+function inventoryLinkStateLabel(item: EvidenceInventoryItem): string {
+  if (!item.linked_requirement_ids.length) return "Unlinked";
+  if (item.linked_requirement_ids.length === 1) return "Linked to 1 requirement";
+  return `Linked to ${item.linked_requirement_ids.length} requirements`;
+}
 
 function matchesFilter(row: RequirementCoverageRow, filter: RequirementCoverageFilter): boolean {
   if (filter === "all") return true;
@@ -47,6 +63,9 @@ export default function RequirementCoverageWorkspace({
   onSelectRule,
   onOpenSourceContext,
   onCopyRequirementLink,
+  inventoryItems = [],
+  onLinkInventoryItem,
+  onUnlinkInventoryItem,
   supportingEvidence = null,
 }: RequirementCoverageWorkspaceProps) {
   const [filter, setFilter] = useState<RequirementCoverageFilter>("all");
@@ -101,6 +120,17 @@ export default function RequirementCoverageWorkspace({
     selectedRow?.provenance.citations.find((citation) => citation.sectionId)?.sectionId ??
     selectedTraceSections[0]?.sectionId ??
     null;
+  const inventoryCounts = useMemo(() => {
+    return inventoryItems.reduce(
+      (acc, item) => {
+        acc.total += 1;
+        if (item.link_state === "unlinked") acc.unlinked += 1;
+        else acc.linked += 1;
+        return acc;
+      },
+      { total: 0, linked: 0, unlinked: 0 },
+    );
+  }, [inventoryItems]);
 
   return (
     <div className="grid gap-4">
@@ -306,9 +336,21 @@ export default function RequirementCoverageWorkspace({
                         {selectedRow.linkedEvidence.map((item) => (
                           <li key={`${item.source}:${item.id}`} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                             <div className="font-semibold text-slate-900">{item.title}</div>
+                            <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.id)}</div>
                             <div className="mt-1 text-xs text-slate-600">
                               {item.type} • {item.source}
                             </div>
+                            {onUnlinkInventoryItem ? (
+                              <div className="mt-2">
+                                <button
+                                  type="button"
+                                  onClick={() => onUnlinkInventoryItem(item.id, selectedRow.ruleId)}
+                                  className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                                >
+                                  Unlink from {selectedRow.ruleId}
+                                </button>
+                              </div>
+                            ) : null}
                           </li>
                         ))}
                       </ul>
@@ -329,6 +371,84 @@ export default function RequirementCoverageWorkspace({
                   </div>
                   <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
                     {REQUIREMENT_COVERAGE_STATUS_META[selectedRow.status].description}
+                  </div>
+                </section>
+
+                <section className="rounded-xl border border-slate-200 bg-slate-50 p-3" data-testid="evidence-inventory-panel">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Evidence inventory</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">Active workspace evidence</div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-slate-700">
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5">Total {inventoryCounts.total}</span>
+                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
+                        Unlinked {inventoryCounts.unlinked}
+                      </span>
+                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-800">
+                        Linked {inventoryCounts.linked}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-3 text-sm text-slate-700">
+                    {inventoryItems.length ? (
+                      <ul className="grid gap-2">
+                        {inventoryItems.map((item) => {
+                          const linkedToSelected = Boolean(selectedRow && item.linked_requirement_ids.includes(selectedRow.ruleId));
+                          return (
+                            <li key={item.evidence_id} className="rounded-lg border border-slate-200 bg-white px-3 py-3">
+                              <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="font-semibold text-slate-900">{item.display_name}</span>
+                                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                                      {inventoryLinkStateLabel(item)}
+                                    </span>
+                                  </div>
+                                  <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.evidence_id)}</div>
+                                </div>
+                                {selectedRow ? (
+                                  linkedToSelected ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => onUnlinkInventoryItem?.(item.evidence_id, selectedRow.ruleId)}
+                                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                                      data-testid={`inventory-unlink-${item.evidence_id}`}
+                                    >
+                                      Unlink
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => onLinkInventoryItem?.(item.evidence_id, selectedRow.ruleId)}
+                                      className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                                      data-testid={`inventory-link-${item.evidence_id}`}
+                                    >
+                                      Link to {selectedRow.ruleId}
+                                    </button>
+                                  )
+                                ) : null}
+                              </div>
+                              <div className="mt-2 grid gap-2 text-xs text-slate-600">
+                                <div>{item.type}</div>
+                                <div>{item.source}</div>
+                                <div>{item.provenance_summary}</div>
+                                <div>Added {formatInventoryTime(item.added_at)}</div>
+                                <div>
+                                  {item.linked_requirement_ids.length
+                                    ? `Requirements: ${item.linked_requirement_ids.join(", ")}`
+                                    : "Requirements: none yet"}
+                                </div>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-slate-200 bg-white px-3 py-3 text-sm text-slate-500">
+                        No evidence inventory yet.
+                      </div>
+                    )}
                   </div>
                 </section>
               </div>

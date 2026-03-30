@@ -7,6 +7,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { useMemo, useState } from "react";
 import RequirementCoverageWorkspace from "@/app/m/_components/RequirementCoverageWorkspace";
 import type { RequirementCoverageRow } from "@/app/m/_lib/requirementCoverage";
+import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
 
 const rows: RequirementCoverageRow[] = [
   {
@@ -49,6 +50,29 @@ const rows: RequirementCoverageRow[] = [
   },
 ];
 
+const inventoryItems: EvidenceInventoryItem[] = [
+  {
+    evidence_id: "ev-1",
+    display_name: "Q1 monitoring report",
+    type: "Upload",
+    source: "Upload q1-monitoring.pdf",
+    provenance_summary: "Attachment q1-monitoring.pdf",
+    added_at: "2026-03-01T00:00:00Z",
+    link_state: "linked",
+    linked_requirement_ids: ["R-1"],
+  },
+  {
+    evidence_id: "ev-2",
+    display_name: "Boundary worksheet",
+    type: "STAC item",
+    source: "Workspace evidence",
+    provenance_summary: "Provenance pending",
+    added_at: "2026-03-02T00:00:00Z",
+    link_state: "unlinked",
+    linked_requirement_ids: [],
+  },
+];
+
 describe("RequirementCoverageWorkspace", () => {
   it("renders requirement row metadata and empty expected-evidence state", () => {
     const html = renderToStaticMarkup(
@@ -61,6 +85,7 @@ describe("RequirementCoverageWorkspace", () => {
         selectedTraceSections={[{ sectionId: "S-10", title: "Monitoring", textSnippet: "Monitoring context" }]}
         onSelectRule={() => {}}
         onOpenSourceContext={() => {}}
+        inventoryItems={inventoryItems}
         supportingEvidence={<div>supporting evidence marker</div>}
       />,
     );
@@ -73,6 +98,11 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Complete");
     expect(html).toContain("No expected evidence metadata");
     expect(html).toContain("No linked evidence yet");
+    expect(html).toContain("Evidence inventory");
+    expect(html).toContain("Boundary worksheet");
+    expect(html).toContain("Provenance pending");
+    expect(html).toContain("EV-EV1");
+    expect(html).toContain("Unlinked");
     expect(html).toContain("supporting evidence marker");
   });
 
@@ -83,14 +113,36 @@ describe("RequirementCoverageWorkspace", () => {
 
     function Harness() {
       const [activeRuleId, setActiveRuleId] = useState<string | null>("R-1");
+      const [inventory, setInventory] = useState<EvidenceInventoryItem[]>(inventoryItems);
       const activeRow = useMemo(
         () => rows.find((row) => row.ruleId === activeRuleId) ?? null,
         [activeRuleId],
       );
+      const computedRows = useMemo<RequirementCoverageRow[]>(
+        () =>
+          rows.map((row) => ({
+            ...row,
+            linkedEvidence: inventory
+              .filter((item) => item.linked_requirement_ids.includes(row.ruleId))
+              .map((item) => ({
+                id: item.evidence_id,
+                title: item.display_name,
+                type: item.type,
+                source: "inventory" as const,
+              })),
+            status:
+              inventory.filter((item) => item.linked_requirement_ids.includes(row.ruleId)).length > 1
+                ? "linked"
+                : inventory.some((item) => item.linked_requirement_ids.includes(row.ruleId))
+                  ? "partial"
+                  : "missing",
+          })),
+        [inventory],
+      );
 
       return (
         <RequirementCoverageWorkspace
-          rows={rows}
+          rows={computedRows}
           activeRuleId={activeRuleId}
           selectedRequirementText={activeRow?.ruleId === "R-1" ? "Full monitoring requirement text." : "Full eligibility requirement text."}
           selectedRequirementSourcePath="methodologies/example/rules.json"
@@ -98,6 +150,34 @@ describe("RequirementCoverageWorkspace", () => {
           selectedTraceSections={[{ sectionId: activeRow?.provenance.sectionId ?? "S-10", title: activeRow?.provenance.sectionTitle ?? "Section" }]}
           onSelectRule={setActiveRuleId}
           onOpenSourceContext={() => {}}
+          inventoryItems={inventory}
+          onLinkInventoryItem={(evidenceId, ruleId) =>
+            setInventory((current) =>
+              current.map((item) =>
+                item.evidence_id === evidenceId
+                  ? {
+                      ...item,
+                      linked_requirement_ids: Array.from(new Set([...item.linked_requirement_ids, ruleId])).sort(),
+                      link_state: "linked",
+                    }
+                  : item,
+              ),
+            )
+          }
+          onUnlinkInventoryItem={(evidenceId, ruleId) =>
+            setInventory((current) =>
+              current.map((item) =>
+                item.evidence_id === evidenceId
+                  ? {
+                      ...item,
+                      linked_requirement_ids: item.linked_requirement_ids.filter((id) => id !== ruleId),
+                      link_state:
+                        item.linked_requirement_ids.filter((id) => id !== ruleId).length > 0 ? "linked" : "unlinked",
+                    }
+                  : item,
+              ),
+            )
+          }
           supportingEvidence={<div>supporting evidence marker</div>}
         />
       );
@@ -116,6 +196,19 @@ describe("RequirementCoverageWorkspace", () => {
 
     expect(container.textContent).toContain("Full eligibility requirement text.");
     expect(container.querySelector("#r-R-2")?.getAttribute("aria-pressed")).toBe("true");
+    expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
+
+    await act(async () => {
+      (container.querySelector('[data-testid="inventory-link-ev-2"]') as HTMLButtonElement).click();
+    });
+
+    expect(container.textContent).toContain("Boundary worksheet");
+    expect(container.textContent).toContain("Requirements: R-2");
+
+    await act(async () => {
+      (container.querySelector('[data-testid="inventory-unlink-ev-2"]') as HTMLButtonElement).click();
+    });
+
     expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
 
     await act(async () => {

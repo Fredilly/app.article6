@@ -75,6 +75,7 @@ export default function RunHistoryPanel({
                   type="button"
                   className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm hover:bg-slate-50"
                   onClick={() => onLoad(item.runId)}
+                  data-testid={`run-history-load-${item.runId}`}
                 >
                   Load
                 </button>

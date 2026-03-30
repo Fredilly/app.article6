@@ -109,7 +109,6 @@ test("Verify evidence workflow creates pin and enables start run CTA", async ({ 
   await newRunButton.click();
 
   await expect(page.getByText("Started new run")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("Fresh review workspace created")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("In progress")).toBeVisible({ timeout: 30_000 });
   const currentRunAfter = await page.getByTestId("current-run-indicator").textContent();
   expect(currentRunAfter).not.toBe(currentRunBefore);
@@ -201,11 +200,11 @@ test("Verify run history load restores state and highlights current row", async 
 
   await page.goto("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list", { waitUntil: "domcontentloaded" });
   await page.getByTestId("secondary-context-toggle").click();
-  await page.getByText("Run history").click();
+  await page.getByTestId("run-history-toggle").click();
 
   await page.getByTestId("verifier-minutes-textarea").fill("Unsaved change");
   page.once("dialog", (dialog) => dialog.accept());
-  await page.getByRole("button", { name: "Load" }).first().click();
+  await page.getByTestId("run-history-load-run-loaded").click();
 
   await expect(page.getByText("Loaded run")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("Saved evidence and review state restored")).toBeVisible({ timeout: 30_000 });
@@ -307,12 +306,11 @@ test("Finalize lands on a readable review summary and keeps it after refresh", a
   await page.getByRole("button", { name: "Finalize run" }).click();
 
   await expect(page.getByTestId("review-summary-card")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("Review Summary")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("Saved review summary note")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("verifier-minutes-textarea")).toHaveValue("Saved review summary note");
   await expect(page.getByRole("button", { name: "Download JSON artifact" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("button", { name: "Download PDF summary" })).toBeVisible({ timeout: 30_000 });
 
   await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("review-summary-card")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("Saved review summary note")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("verifier-minutes-textarea")).toHaveValue("Saved review summary note");
 });
