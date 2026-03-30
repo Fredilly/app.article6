@@ -1288,6 +1288,7 @@ export default function MethodDetailPane({
             sectionId: link.section_id,
             title: section?.title ?? link.title ?? null,
             textSnippet: section?.textSnippet ?? null,
+            page: section?.page ?? null,
             match: link.match,
           };
         })}

@@ -19,11 +19,41 @@ type RuleDetailModalProps = {
     sectionId: string;
     title?: string | null;
     textSnippet?: string | null;
+    page?: number | null;
     match?: "explicit" | "text";
   }>;
   onClose: () => void;
   onOpenSourceContext: (sectionId: string) => void;
 };
+
+function sectionNumberFromId(sectionId?: string | null): string | null {
+  if (!sectionId) return null;
+  const match = sectionId.match(/^S-(\d+)$/i);
+  return match ? match[1] : null;
+}
+
+function formatSectionLabel(input: { sectionId?: string | null; title?: string | null }): string {
+  const sectionNumber = sectionNumberFromId(input.sectionId);
+  if (sectionNumber && input.title?.trim()) {
+    return `Section ${sectionNumber} · ${input.title.trim()}`;
+  }
+  if (input.title?.trim()) return input.title.trim();
+  if (input.sectionId?.trim()) return input.sectionId.trim();
+  return "Methodology section";
+}
+
+function formatPageLabel(page?: number | null): string | null {
+  return typeof page === "number" ? `p. ${page}` : null;
+}
+
+function unresolvedNextStep(row: RequirementCoverageRow): string {
+  const firstExpectedType = row.expectedEvidenceTypes[0];
+  if (firstExpectedType) {
+    const label = (EXPECTED_EVIDENCE_LABELS[firstExpectedType] ?? firstExpectedType).toLowerCase();
+    return `Next: link ${label}.`;
+  }
+  return "Next: link supporting evidence or leave a reviewer note.";
+}
 
 export default function RuleDetailModal({
   open,
@@ -55,11 +85,22 @@ export default function RuleDetailModal({
   if (!open || !row) return null;
 
   const status = REQUIREMENT_COVERAGE_STATUS_META[row.status];
+  const primaryTraceSection =
+    traceSections[0] ??
+    (row.provenance.sectionId || row.provenance.sectionTitle || typeof row.provenance.page === "number"
+      ? {
+          sectionId: row.provenance.sectionId ?? "",
+          title: row.provenance.sectionTitle ?? null,
+          page: row.provenance.page,
+          textSnippet: null,
+        }
+      : null);
   const primarySourceSectionId =
+    primaryTraceSection?.sectionId ??
     row.provenance.sectionId ??
     row.provenance.citations.find((citation) => citation.sectionId)?.sectionId ??
-    traceSections[0]?.sectionId ??
     null;
+  const categoryLabel = row.ruleSummary.type?.trim() || null;
 
   return (
     <div
@@ -81,6 +122,11 @@ export default function RuleDetailModal({
               <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${status.tone}`}>
                 {status.label}
               </span>
+              {categoryLabel ? (
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold capitalize text-slate-700">
+                  {categoryLabel}
+                </span>
+              ) : null}
             </div>
             <h2 className="mt-3 text-lg font-semibold text-slate-900">{ruleTitle?.trim() || row.ruleSummary.title}</h2>
           </div>
@@ -105,7 +151,29 @@ export default function RuleDetailModal({
             <section className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Methodology provenance</div>
               <div className="mt-3 space-y-3 text-sm text-slate-700">
-                <div>{requirementProvenanceHint(row)}</div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+                  <div className="font-semibold text-slate-900">
+                    {formatSectionLabel({
+                      sectionId: primaryTraceSection?.sectionId ?? row.provenance.sectionId,
+                      title: primaryTraceSection?.title ?? row.provenance.sectionTitle,
+                    })}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
+                    {formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) ? (
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
+                        {formatPageLabel(primaryTraceSection?.page ?? row.provenance.page)}
+                      </span>
+                    ) : null}
+                    {row.provenance.anchor ? (
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
+                        {row.provenance.anchor.replace(/^#/, "")}
+                      </span>
+                    ) : null}
+                    {!formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) && !row.provenance.anchor ? (
+                      <span>{requirementProvenanceHint(row)}</span>
+                    ) : null}
+                  </div>
+                </div>
                 {row.provenance.citations.length ? (
                   <ul className="grid gap-2">
                     {row.provenance.citations.slice(0, 4).map((citation, index) => (
@@ -113,7 +181,10 @@ export default function RuleDetailModal({
                         key={`${citation.sectionId ?? citation.anchor ?? "citation"}-${index}`}
                         className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600"
                       >
-                        {citation.label ?? citation.sectionId ?? citation.anchor ?? "Methodology citation"}
+                        {citation.label ??
+                          formatSectionLabel({ sectionId: citation.sectionId, title: null }) ??
+                          citation.anchor ??
+                          "Methodology citation"}
                       </li>
                     ))}
                   </ul>
@@ -131,9 +202,12 @@ export default function RuleDetailModal({
                         className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left hover:border-slate-300"
                         onClick={() => onOpenSourceContext(section.sectionId)}
                       >
-                        <div className="font-mono text-[11px] text-slate-600">{section.sectionId}</div>
                         <div className="mt-1 text-sm font-semibold text-slate-900">
-                          {section.title ?? "Methodology section"}
+                          {formatSectionLabel({ sectionId: section.sectionId, title: section.title })}
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-slate-600">
+                          <span className="font-mono">{section.sectionId}</span>
+                          {formatPageLabel(section.page) ? <span>{formatPageLabel(section.page)}</span> : null}
                         </div>
                         {section.textSnippet ? (
                           <div className="mt-1 text-xs text-slate-600">{section.textSnippet}</div>
@@ -192,25 +266,31 @@ export default function RuleDetailModal({
                   </ul>
                 ) : (
                   <div className="rounded-xl border border-dashed border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                    Requirement is unresolved. No linked evidence yet.
+                    <div>Requirement is unresolved. No linked evidence yet.</div>
+                    <div className="mt-2 text-xs font-semibold uppercase tracking-wide text-amber-800">
+                      {unresolvedNextStep(row)}
+                    </div>
                   </div>
                 )}
+                <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-600">
+                  {status.description}
+                </div>
               </div>
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-semibold text-slate-700">Source path</span>
-                <span className="break-all font-mono text-slate-700">{sourcePath ?? "—"}</span>
+            <details className="rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
+              <summary className="cursor-pointer list-none font-semibold text-slate-700">Audit details</summary>
+              <div className="mt-3 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-semibold text-slate-700">Source path</span>
+                  <span className="break-all font-mono text-slate-700">{sourcePath ?? "—"}</span>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-semibold text-slate-700">sha256</span>
+                  <span className="break-all font-mono text-slate-700">{sha256 ?? "—"}</span>
+                </div>
               </div>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                <span className="font-semibold text-slate-700">sha256</span>
-                <span className="break-all font-mono text-slate-700">{sha256 ?? "—"}</span>
-              </div>
-              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
-                {status.description}
-              </div>
-            </section>
+            </details>
           </aside>
         </div>
       </div>
