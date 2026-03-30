@@ -3,10 +3,10 @@
     "status": "active",
     "summary": "Primary product direction. Methodology-to-evidence reconciliation becomes the default workflow before validation, verification, or diligence.",
     "current_focus": [
-      "Make requirement coverage the main workspace narrative",
+      "Build evidence inventory on top of the requirement coverage UI foundation",
       "Keep the methodology repo canonical for covered methods",
-      "Add workflow foundations before building more ingestion paths",
-      "Keep current verification/export flows working while they are reframed around reconciliation"
+      "Normalize evidence assets before deeper ingestion work",
+      "Keep current verification/export flows working while reconciliation expands"
     ],
     "not_active_now": [
       "Overbuilding spreadsheet or PDF parsing in the initial foundation PR",
@@ -16,12 +16,12 @@
   },
   "phases": {
     "phase_1_requirement_coverage_ui": {
-      "status": "active",
+      "status": "done",
       "title": "Requirement coverage UI",
       "summary": "Define and render rule coverage rows with provenance, expected evidence, linked evidence, and reconciliation status."
     },
     "phase_2_evidence_inventory": {
-      "status": "next",
+      "status": "active",
       "title": "Evidence inventory",
       "summary": "Normalize evidence assets before deeper ingestion work."
     },

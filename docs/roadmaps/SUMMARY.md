@@ -106,18 +106,18 @@ Lane status: Active
 Primary product direction. Methodology-to-evidence reconciliation becomes the default workflow before validation, verification, or diligence.
 
 Current focus:
-- Make requirement coverage the main workspace narrative
+- Build evidence inventory on top of the requirement coverage UI foundation
 - Keep the methodology repo canonical for covered methods
-- Add workflow foundations before building more ingestion paths
-- Keep current verification/export flows working while they are reframed around reconciliation
+- Normalize evidence assets before deeper ingestion work
+- Keep current verification/export flows working while reconciliation expands
 
 Not active now:
 - Overbuilding spreadsheet or PDF parsing in the initial foundation PR
 - Letting fallback raw methodology PDFs become the main path for covered methods
 - Additional GIS formats before requirement coverage is stable
 
-1) RC1 — Requirement coverage UI: Active — Define and render rule coverage rows with provenance, expected evidence, linked evidence, and reconciliation status.
-2) RC2 — Evidence inventory: Next — Normalize evidence assets before deeper ingestion work.
+1) RC1 — Requirement coverage UI: Done — Define and render rule coverage rows with provenance, expected evidence, linked evidence, and reconciliation status.
+2) RC2 — Evidence inventory: Active — Normalize evidence assets before deeper ingestion work.
 3) RC3 — Spreadsheet/workbook intake: Planned — Bring workbook evidence into the coverage workflow.
 4) RC4 — Monitoring report intake: Planned — Capture monitoring report evidence with stable provenance.
 5) RC5 — PDD intake: Planned — Treat project design documentation as first-class evidence.
