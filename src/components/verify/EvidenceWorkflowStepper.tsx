@@ -351,14 +351,14 @@ export default function EvidenceWorkflowStepper({
             className="min-h-[96px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-200 disabled:opacity-60"
             placeholder="Verifier minutes: what you checked, what you assume, what remains uncertain."
             value={draftMinutes}
-            disabled={step6.disabled || currentWorkspaceIsFinal}
+            disabled={currentWorkspaceIsFinal}
             onChange={(event) => onReviewerMinutesChange(event.target.value)}
           />
           <textarea
             className="min-h-[72px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-200 disabled:opacity-60"
             placeholder="Outcome note: one concise sentence if minutes are unnecessary."
             value={draftOutcomeNote}
-            disabled={step6.disabled || currentWorkspaceIsFinal}
+            disabled={currentWorkspaceIsFinal}
             onChange={(event) => onReviewerOutcomeNoteChange(event.target.value)}
           />
           <div className="flex flex-wrap items-center gap-2">

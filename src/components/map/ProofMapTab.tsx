@@ -358,6 +358,10 @@ export default function ProofMapTab({
   });
   const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
   const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
+  const linkedPinsCount = useMemo(
+    () => evidencePins.filter((pin) => linkedRuleIdsFromPins([pin]).length > 0).length,
+    [evidencePins],
+  );
   const selectedRuleId = activeRuleId ?? null;
 
   const showToast = useCallback((message: string | ToastState) => {
@@ -2011,11 +2015,15 @@ export default function ProofMapTab({
   const hasSelectedItem = Boolean(selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId]);
   const currentPinItemId = hasSelectedItem ? selectedStacItemId : null;
   const canCreatePin = hasRule && hasSelectedItem;
+  const canAddSelectedItemToInventory = Boolean(currentPinItemId);
   const createPinDisabledReason = canCreatePin
     ? "Pin = durable link between a rule and an evidence item. Drives Linked/Coverage."
     : !hasRule
       ? "Select a rule to pin evidence."
       : "Select an evidence item to pin.";
+  const addInventoryDisabledReason = canAddSelectedItemToInventory
+    ? "Add the selected evidence item to inventory without linking it yet."
+    : "Select an evidence item to add it to inventory.";
 
   const triggerAoiUpload = useCallback(() => {
     uploadAoiInputRef.current?.click();
@@ -2061,6 +2069,48 @@ export default function ProofMapTab({
     methodCode,
     onSetEvidencePins,
     selectedRuleId,
+    showToast,
+    version,
+  ]);
+
+  const handleAddSelectedItemToInventory = useCallback(() => {
+    if (!currentPinItemId) return;
+    try {
+      const ts = new Date().toISOString();
+      const id =
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
+      const pin: EvidencePin = {
+        id,
+        kind: "note",
+        title: `Evidence ${currentPinItemId}`,
+        ts,
+        itemId: currentPinItemId,
+        note: `${methodCode}@${version}`,
+        aoi_id: aoi?.id ?? null,
+        aoi_fingerprint: currentAoiFingerprint ?? undefined,
+        cited_ids: [],
+        stac_item_ids: [currentPinItemId],
+        stac_run_id: currentStacEvidence?.runId,
+        created_at: ts,
+      };
+      onSetEvidencePins([pin, ...evidencePins]);
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+      showToast(`Added ${currentPinItemId} to inventory`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("Inventory capture failed. Selection kept.");
+    }
+  }, [
+    aoi?.id,
+    currentAoiFingerprint,
+    currentPinItemId,
+    currentStacEvidence?.runId,
+    evidencePins,
+    markBundleEdited,
+    methodCode,
+    onSetEvidencePins,
     showToast,
     version,
   ]);
@@ -2727,6 +2777,28 @@ export default function ProofMapTab({
                     </div>
                     <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
                   </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Tooltip content={addInventoryDisabledReason}>
+                      <button
+                        type="button"
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleAddSelectedItemToInventory}
+                        disabled={!canAddSelectedItemToInventory}
+                      >
+                        Add to inventory
+                      </button>
+                    </Tooltip>
+                    <Tooltip content={createPinDisabledReason}>
+                      <button
+                        type="button"
+                        className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 shadow-sm hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleCreatePin}
+                        disabled={!canCreatePin}
+                      >
+                        Link to selected rule
+                      </button>
+                    </Tooltip>
+                  </div>
                   <div className="grid gap-1 text-xs text-slate-700">
                     <div className="font-semibold text-slate-900">BBox</div>
                     <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.bbox}</div>
@@ -3359,7 +3431,7 @@ export default function ProofMapTab({
               onClearSelectedItem={() => onSelectStacItemId(null)}
               canCreatePin={canCreatePin}
               createPinDisabledReason={createPinDisabledReason}
-              pinsCount={evidencePins.length}
+              pinsCount={linkedPinsCount}
               onUploadAoi={triggerAoiUpload}
               onApplyDraftAoiClick={handleApplyDraftAoiClick}
               onCancelDraftAoi={() => {
@@ -3540,7 +3612,7 @@ export default function ProofMapTab({
                 open={runHistoryOpen}
                 onToggle={(event) => setRunHistoryOpen(event.currentTarget.open)}
               >
-                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900" data-testid="run-history-toggle">
                   Run history
                   <span className="ml-2 text-[11px] font-medium text-slate-500">{runHistory.length} runs</span>
                 </summary>

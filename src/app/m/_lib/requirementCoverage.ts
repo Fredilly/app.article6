@@ -45,6 +45,8 @@ export type RequirementCoverageLinkedEvidence = {
   title: string;
   type: string;
   source: "pin" | "run" | "inventory" | "unknown";
+  linkedRequirementIds?: string[];
+  provenanceSummary?: string;
 };
 
 export type RequirementCoverageRow = {
@@ -109,6 +111,7 @@ type BuildRequirementCoverageRowsInput = {
   rules: RequirementCoverageRuleInput[];
   sectionTitleById?: Map<string, string>;
   linkedEvidenceByRuleId?: Map<string, RequirementCoverageLinkInput[]>;
+  inventoryItems?: EvidenceInventoryItem[];
   statusesByRuleId?: Map<string, RequirementCoverageStatus>;
 };
 
@@ -145,6 +148,27 @@ function normalizeLinkedEvidence(
   }));
 }
 
+function buildLinkedEvidenceByRuleIdFromInventory(
+  inventoryItems: EvidenceInventoryItem[],
+): Map<string, RequirementCoverageLinkInput[]> {
+  const next = new Map<string, RequirementCoverageLinkInput[]>();
+
+  for (const item of inventoryItems) {
+    for (const ruleId of item.linked_requirement_ids ?? []) {
+      const current = next.get(ruleId) ?? [];
+      current.push({
+        id: item.evidence_id,
+        title: item.display_name,
+        type: item.type,
+        source: "inventory",
+      });
+      next.set(ruleId, current);
+    }
+  }
+
+  return next;
+}
+
 function deriveStatus(
   explicitStatus: RequirementCoverageStatus | undefined,
   linkedEvidence: RequirementCoverageLinkedEvidence[],
@@ -178,7 +202,10 @@ export function requirementProvenanceHint(row: RequirementCoverageRow): string {
 
 export function buildRequirementCoverageRows(input: BuildRequirementCoverageRowsInput): RequirementCoverageRow[] {
   const sectionTitleById = input.sectionTitleById ?? new Map<string, string>();
-  const linkedEvidenceByRuleId = input.linkedEvidenceByRuleId ?? new Map<string, RequirementCoverageLinkInput[]>();
+  const linkedEvidenceByRuleId =
+    input.inventoryItems?.length
+      ? buildLinkedEvidenceByRuleIdFromInventory(input.inventoryItems)
+      : (input.linkedEvidenceByRuleId ?? new Map<string, RequirementCoverageLinkInput[]>());
   const statusesByRuleId = input.statusesByRuleId ?? new Map<string, RequirementCoverageStatus>();
 
   return [...input.rules]
@@ -208,3 +235,4 @@ export function buildRequirementCoverageRows(input: BuildRequirementCoverageRows
     })
     .sort((a, b) => a.ruleId.localeCompare(b.ruleId));
 }
+import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";

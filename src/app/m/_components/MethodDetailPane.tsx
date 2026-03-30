@@ -23,6 +23,11 @@ import CoveragePanel from "@/components/coverage/CoveragePanel";
 import CoverageDrawer from "@/components/coverage/CoverageDrawer";
 import { buildCoverageQueue } from "@/lib/coverage/queue";
 import { addCoverageTask } from "@/lib/coverage/tasks";
+import {
+  buildEvidenceInventory,
+  linkEvidencePinToRequirement,
+  unlinkEvidencePinFromRequirement,
+} from "@/lib/evidence/inventory";
 import { linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
 import { getVerifyView, isVerifierMode } from "@/lib/mode";
@@ -305,54 +310,7 @@ export default function MethodDetailPane({
     () => new Map(sections.map((section) => [section.id, section.title])),
     [sections],
   );
-  const requirementLinkedEvidenceByRuleId = useMemo(() => {
-    const next = new Map<
-      string,
-      Array<{ id: string; title?: string | null; type?: string | null; source?: "pin" | "run" | "inventory" | "unknown" }>
-    >();
-
-    const append = (
-      ruleId: string,
-      item: { id: string; title?: string | null; type?: string | null; source?: "pin" | "run" | "inventory" | "unknown" },
-    ) => {
-      const normalizedRuleId = ruleId.trim();
-      if (!normalizedRuleId) return;
-      const current = next.get(normalizedRuleId) ?? [];
-      if (current.some((entry) => entry.id === item.id && entry.source === item.source)) return;
-      current.push(item);
-      next.set(normalizedRuleId, current);
-    };
-
-    for (const pin of evidencePins) {
-      const ruleIds = new Set<string>();
-      if (pin.ruleId?.trim()) ruleIds.add(pin.ruleId.trim());
-      for (const citedId of pin.cited_ids ?? []) {
-        if (typeof citedId === "string" && /^R-/i.test(citedId.trim())) ruleIds.add(citedId.trim());
-      }
-      for (const ruleId of ruleIds) {
-        append(ruleId, {
-          id: pin.id,
-          title: pin.title,
-          type: pin.kind,
-          source: "pin",
-        });
-      }
-    }
-
-    for (const run of verificationRuns) {
-      for (const citedId of run.cited_ids ?? []) {
-        if (typeof citedId !== "string" || !/^R-/i.test(citedId.trim())) continue;
-        append(citedId, {
-          id: run.id,
-          title: run.summary?.trim() || `Verification run ${run.id}`,
-          type: `verification-${run.status}`,
-          source: "run",
-        });
-      }
-    }
-
-    return next;
-  }, [evidencePins, verificationRuns]);
+  const evidenceInventory = useMemo(() => buildEvidenceInventory(evidencePins), [evidencePins]);
   const requirementStatusesByRuleId = useMemo(() => {
     const next = new Map<string, RequirementCoverageStatus>();
 
@@ -373,10 +331,10 @@ export default function MethodDetailPane({
     return buildRequirementCoverageRows({
       rules,
       sectionTitleById,
-      linkedEvidenceByRuleId: requirementLinkedEvidenceByRuleId,
+      inventoryItems: evidenceInventory,
       statusesByRuleId: requirementStatusesByRuleId,
     });
-  }, [requirementLinkedEvidenceByRuleId, requirementStatusesByRuleId, rules, sectionTitleById]);
+  }, [evidenceInventory, requirementStatusesByRuleId, rules, sectionTitleById]);
 
   const linkedTraceSections = useMemo(() => {
     if (!traceIndex || !activeRuleId) return [];
@@ -489,6 +447,18 @@ export default function MethodDetailPane({
       savePins(method.code, activeVersion, nextPins);
     },
     [activeVersion, method.code],
+  );
+  const handleLinkInventoryItem = useCallback(
+    (evidenceId: string, ruleId: string) => {
+      setEvidencePinsAndPersist(linkEvidencePinToRequirement(evidencePins, evidenceId, ruleId));
+    },
+    [evidencePins, setEvidencePinsAndPersist],
+  );
+  const handleUnlinkInventoryItem = useCallback(
+    (evidenceId: string, ruleId: string) => {
+      setEvidencePinsAndPersist(unlinkEvidencePinFromRequirement(evidencePins, evidenceId, ruleId));
+    },
+    [evidencePins, setEvidencePinsAndPersist],
   );
 
   const setEvidenceSnapshotsAndPersist = useCallback(
@@ -1531,6 +1501,9 @@ export default function MethodDetailPane({
                         // ignore
                       }
                     }}
+                    inventoryItems={evidenceInventory}
+                    onLinkInventoryItem={handleLinkInventoryItem}
+                    onUnlinkInventoryItem={handleUnlinkInventoryItem}
                     supportingEvidence={
                       <div className="grid gap-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
