@@ -32,15 +32,21 @@ const sparseRow: RequirementCoverageRow = {
     tags: [],
   },
   provenance: {
-    sectionId: undefined,
+    sectionId: "S-4",
     sectionTitle: undefined,
     page: undefined,
     anchor: undefined,
     citations: [],
   },
-  expectedEvidenceTypes: [],
+  expectedEvidenceTypes: ["eligibility-proof"],
   linkedEvidence: [],
   status: "missing",
+};
+
+const missingExpectedEvidenceRow: RequirementCoverageRow = {
+  ...sparseRow,
+  ruleId: "R-3",
+  expectedEvidenceTypes: [],
 };
 
 describe("RuleDetailModal", () => {
@@ -63,11 +69,36 @@ describe("RuleDetailModal", () => {
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook for each reporting period.");
     expect(html).toContain("Complete");
     expect(html).toContain("Methodology provenance");
+    expect(html).toContain("Section 10 · Monitoring");
+    expect(html).toContain("p. 12");
+    expect(html).toContain("operational");
+    expect(html).toContain("Audit details");
+    expect(html).not.toContain("<details open");
     expect(html).toContain("Monitoring report");
     expect(html).toContain("Q1 monitoring report");
   });
 
   it("shows intentional empty states when optional metadata is missing", () => {
+    const html = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={missingExpectedEvidenceRow}
+        ruleTitle="Eligibility boundary"
+        ruleText="Document the eligibility boundary for review."
+        sourcePath={null}
+        sha256={null}
+        traceSections={[]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
+
+    expect(html).toContain("No expected evidence metadata");
+    expect(html).toContain("Next: link supporting evidence or leave a reviewer note.");
+    expect(html).toContain("S-4");
+  });
+
+  it("keeps unresolved linked-evidence states actionable with sparse provenance", () => {
     const html = renderToStaticMarkup(
       <RuleDetailModal
         open
@@ -82,7 +113,9 @@ describe("RuleDetailModal", () => {
       />,
     );
 
-    expect(html).toContain("No expected evidence metadata");
+    expect(html).toContain("Eligibility proof");
     expect(html).toContain("Requirement is unresolved. No linked evidence yet.");
+    expect(html).toContain("Next: link eligibility proof.");
+    expect(html).toContain("S-4");
   });
 });
