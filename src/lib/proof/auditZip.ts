@@ -107,7 +107,8 @@ async function buildZipBytes(entries: AuditZipEntry[]): Promise<Uint8Array> {
   const zip = new JSZip();
   const sorted = [...entries].sort((a, b) => a.path.localeCompare(b.path));
   for (const entry of sorted) {
-    zip.file(entry.path, entry.bytes, { date: ZIP_ENTRY_DATE });
+    const zipBytes = Uint8Array.from(entry.bytes).buffer;
+    zip.file(entry.path, zipBytes, { date: ZIP_ENTRY_DATE });
   }
   return await zip.generateAsync({ type: "uint8array", compression: "DEFLATE", compressionOptions: { level: 6 } });
 }

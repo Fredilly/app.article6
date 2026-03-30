@@ -1,4 +1,18 @@
-import type { RuleFull } from "@/app/m/_lib/methodRules";
+type RequirementCoverageRuleInput = {
+  id: string;
+  title: string;
+  snippet: string;
+  text?: string;
+  type?: string;
+  tags: string[];
+  sectionId?: string;
+  anchor?: string;
+  citations?: Array<{
+    sectionId?: string;
+    anchor?: string;
+    label?: string;
+  }>;
+};
 
 export const REQUIREMENT_COVERAGE_STATUSES = ["missing", "partial", "linked", "needs-review"] as const;
 
@@ -47,6 +61,43 @@ export type RequirementCoverageRow = {
   status: RequirementCoverageStatus;
 };
 
+export const REQUIREMENT_COVERAGE_STATUS_META: Record<
+  RequirementCoverageStatus,
+  { label: string; tone: string; description: string }
+> = {
+  missing: {
+    label: "Unresolved",
+    tone: "border-slate-200 bg-slate-50 text-slate-700",
+    description: "No linked evidence yet.",
+  },
+  partial: {
+    label: "Linked",
+    tone: "border-amber-200 bg-amber-50 text-amber-800",
+    description: "Evidence is linked but still needs reconciliation.",
+  },
+  linked: {
+    label: "Complete",
+    tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    description: "Evidence and verification activity exist.",
+  },
+  "needs-review": {
+    label: "Needs review",
+    tone: "border-rose-200 bg-rose-50 text-rose-800",
+    description: "Linked evidence needs reviewer attention.",
+  },
+};
+
+export const EXPECTED_EVIDENCE_LABELS: Record<RequirementCoverageExpectedEvidenceType, string> = {
+  "monitoring-report": "Monitoring report",
+  "spreadsheet-workbook": "Spreadsheet workbook",
+  pdd: "PDD",
+  gis: "GIS or map evidence",
+  "qa-qc-record": "QA/QC record",
+  "eligibility-proof": "Eligibility proof",
+  "calculation-support": "Calculation support",
+  other: "Other evidence",
+};
+
 type RequirementCoverageLinkInput = {
   id: string;
   title?: string | null;
@@ -55,17 +106,17 @@ type RequirementCoverageLinkInput = {
 };
 
 type BuildRequirementCoverageRowsInput = {
-  rules: RuleFull[];
+  rules: RequirementCoverageRuleInput[];
   sectionTitleById?: Map<string, string>;
   linkedEvidenceByRuleId?: Map<string, RequirementCoverageLinkInput[]>;
   statusesByRuleId?: Map<string, RequirementCoverageStatus>;
 };
 
-function normalizeSnippet(rule: RuleFull): string {
+function normalizeSnippet(rule: RequirementCoverageRuleInput): string {
   return rule.snippet?.trim() || rule.text?.replace(/\s+/g, " ").trim() || "No rule summary available.";
 }
 
-function expectedEvidenceTypesForRule(rule: RuleFull): RequirementCoverageExpectedEvidenceType[] {
+function expectedEvidenceTypesForRule(rule: RequirementCoverageRuleInput): RequirementCoverageExpectedEvidenceType[] {
   const haystack = `${rule.title} ${rule.text} ${rule.tags.join(" ")} ${rule.type ?? ""}`.toLowerCase();
   const expected = new Set<RequirementCoverageExpectedEvidenceType>();
 
@@ -79,7 +130,6 @@ function expectedEvidenceTypesForRule(rule: RuleFull): RequirementCoverageExpect
     expected.add("calculation-support");
   }
 
-  if (!expected.size) expected.add("other");
   return Array.from(expected);
 }
 
@@ -103,6 +153,27 @@ function deriveStatus(
   if (linkedEvidence.length > 1) return "linked";
   if (linkedEvidence.length === 1) return "partial";
   return "missing";
+}
+
+export function summarizeExpectedEvidence(types: RequirementCoverageExpectedEvidenceType[]): string {
+  if (!types.length) return "No expected evidence metadata";
+  return types.map((type) => EXPECTED_EVIDENCE_LABELS[type] ?? type).join(", ");
+}
+
+export function summarizeLinkedEvidence(items: RequirementCoverageLinkedEvidence[]): string {
+  if (!items.length) return "No linked evidence yet";
+  if (items.length === 1) {
+    const item = items[0];
+    return `${item.title} (${item.type})`;
+  }
+  return `${items.length} linked evidence items`;
+}
+
+export function requirementProvenanceHint(row: RequirementCoverageRow): string {
+  const sectionLabel = row.provenance.sectionTitle ?? row.provenance.sectionId ?? null;
+  const pageLabel = typeof row.provenance.page === "number" ? `p. ${row.provenance.page}` : null;
+  const anchorLabel = row.provenance.anchor ? row.provenance.anchor.replace(/^#/, "") : null;
+  return [sectionLabel, pageLabel, anchorLabel].filter(Boolean).join(" • ") || "Provenance pending";
 }
 
 export function buildRequirementCoverageRows(input: BuildRequirementCoverageRowsInput): RequirementCoverageRow[] {

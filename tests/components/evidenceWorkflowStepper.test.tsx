@@ -111,4 +111,53 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).toContain("Start another run");
     expect(html).toContain("View run history");
   });
+
+  it("renders the Step 1 rich rule viewer affordance", () => {
+    const html = renderToStaticMarkup(
+      <EvidenceWorkflowStepper
+        ruleOptions={[{ id: "R-1", title: "Rule" }]}
+        selectedRuleId="R-1"
+        onViewRule={() => {}}
+        hasAoi
+        aoiLabel="AOI"
+        searchDisabled={false}
+        isRunning={false}
+        hasSearchResults
+        stacResultCount={1}
+        selectedStacItemId="item-1"
+        onClearSelectedItem={() => {}}
+        canCreatePin
+        createPinDisabledReason=""
+        pinsCount={1}
+        onUploadAoi={() => {}}
+        onSearchStac={() => {}}
+        onCreatePin={() => {}}
+        draftMinutes=""
+        draftOutcomeNote=""
+        savedMinutes=""
+        savedOutcomeNote=""
+        onReviewerMinutesChange={() => {}}
+        onReviewerOutcomeNoteChange={() => {}}
+        onSaveReviewerArtifact={() => {}}
+        onFinalizeRun={() => {}}
+        currentRunLabel="run-1234"
+        isEditedDraft={false}
+        hasUnsavedWorkspaceEdits={false}
+        currentWorkspaceIsFinal={false}
+        wizard={getVerifyWizardStepDetails({
+          selectedRuleId: "R-1",
+          aoiHash: null,
+          stacItemIds: [],
+          selectedStacItemId: null,
+          linkedRuleIds: [],
+          reviewerArtifactSavedAt: null,
+        })}
+        onStartAnotherRun={() => {}}
+        onViewRunHistory={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Step 1");
+    expect(html).toContain("View rule");
+  });
 });
