@@ -44,7 +44,7 @@ describe("evidence inventory", () => {
     expect(inventory[0]).toMatchObject({
       evidence_id: "pin-2",
       display_name: "S2A-001",
-      type: "stac item",
+      type: "STAC item",
       source: "STAC run run-22",
       provenance_summary: "STAC S2A-001",
       link_state: "unlinked",
@@ -53,7 +53,7 @@ describe("evidence inventory", () => {
     expect(inventory[1]).toMatchObject({
       evidence_id: "pin-1",
       display_name: "Q1 monitoring report",
-      type: "uploaded document",
+      type: "Upload",
       source: "Upload q1-monitoring.pdf",
       provenance_summary: "Attachment q1-monitoring.pdf",
       link_state: "linked",

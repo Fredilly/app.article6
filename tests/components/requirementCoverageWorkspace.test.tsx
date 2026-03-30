@@ -54,7 +54,7 @@ const inventoryItems: EvidenceInventoryItem[] = [
   {
     evidence_id: "ev-1",
     display_name: "Q1 monitoring report",
-    type: "monitoring-report",
+    type: "Upload",
     source: "Upload q1-monitoring.pdf",
     provenance_summary: "Attachment q1-monitoring.pdf",
     added_at: "2026-03-01T00:00:00Z",
@@ -64,7 +64,7 @@ const inventoryItems: EvidenceInventoryItem[] = [
   {
     evidence_id: "ev-2",
     display_name: "Boundary worksheet",
-    type: "spreadsheet-workbook",
+    type: "STAC item",
     source: "Workspace evidence",
     provenance_summary: "Provenance pending",
     added_at: "2026-03-02T00:00:00Z",
@@ -101,6 +101,8 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Evidence inventory");
     expect(html).toContain("Boundary worksheet");
     expect(html).toContain("Provenance pending");
+    expect(html).toContain("EV-EV1");
+    expect(html).toContain("Unlinked");
     expect(html).toContain("supporting evidence marker");
   });
 

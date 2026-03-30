@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
+import { formatEvidenceInventoryId, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_COVERAGE_STATUS_META,
@@ -38,6 +38,12 @@ function formatInventoryTime(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
+}
+
+function inventoryLinkStateLabel(item: EvidenceInventoryItem): string {
+  if (!item.linked_requirement_ids.length) return "Unlinked";
+  if (item.linked_requirement_ids.length === 1) return "Linked to 1 requirement";
+  return `Linked to ${item.linked_requirement_ids.length} requirements`;
 }
 
 function matchesFilter(row: RequirementCoverageRow, filter: RequirementCoverageFilter): boolean {
@@ -330,6 +336,7 @@ export default function RequirementCoverageWorkspace({
                         {selectedRow.linkedEvidence.map((item) => (
                           <li key={`${item.source}:${item.id}`} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                             <div className="font-semibold text-slate-900">{item.title}</div>
+                            <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.id)}</div>
                             <div className="mt-1 text-xs text-slate-600">
                               {item.type} • {item.source}
                             </div>
@@ -395,10 +402,10 @@ export default function RequirementCoverageWorkspace({
                                   <div className="flex flex-wrap items-center gap-2">
                                     <span className="font-semibold text-slate-900">{item.display_name}</span>
                                     <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                                      {item.link_state === "linked" ? `${item.linked_requirement_ids.length} linked` : "unlinked"}
+                                      {inventoryLinkStateLabel(item)}
                                     </span>
                                   </div>
-                                  <div className="mt-1 font-mono text-[11px] text-slate-600">{item.evidence_id}</div>
+                                  <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.evidence_id)}</div>
                                 </div>
                                 {selectedRow ? (
                                   linkedToSelected ? (
@@ -423,7 +430,8 @@ export default function RequirementCoverageWorkspace({
                                 ) : null}
                               </div>
                               <div className="mt-2 grid gap-2 text-xs text-slate-600">
-                                <div>{item.type} • {item.source}</div>
+                                <div>{item.type}</div>
+                                <div>{item.source}</div>
                                 <div>{item.provenance_summary}</div>
                                 <div>Added {formatInventoryTime(item.added_at)}</div>
                                 <div>

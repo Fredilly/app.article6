@@ -13,6 +13,12 @@ export type EvidenceInventoryItem = {
   linked_requirement_ids: string[];
 };
 
+export function formatEvidenceInventoryId(value: string): string {
+  const compact = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+  const suffix = compact.slice(0, 6) || "000000";
+  return `EV-${suffix}`;
+}
+
 function uniqSorted(values: string[] | undefined | null, matcher?: RegExp): string[] {
   if (!values?.length) return [];
   const set = new Set<string>();
@@ -29,13 +35,11 @@ function evidenceTypeLabel(pin: EvidencePin): string {
   const attachments = pin.attachments ?? [];
   const hasPdf = attachments.some((attachment) => attachment.mime === "application/pdf");
   const hasImage = attachments.some((attachment) => attachment.mime.startsWith("image/"));
-  if ((pin.stac_item_ids?.length ?? 0) > 0 && attachments.length > 0) return "stac evidence bundle";
-  if ((pin.stac_item_ids?.length ?? 0) > 0) return "stac item";
-  if (hasPdf) return "uploaded document";
-  if (hasImage) return "uploaded image";
-  if (pin.kind === "doc") return "document";
-  if (pin.kind === "photo") return "photo";
-  return "note";
+  if ((pin.stac_item_ids?.length ?? 0) > 0) return "STAC item";
+  if (hasPdf || hasImage || (attachments.length ?? 0) > 0) return "Upload";
+  if (pin.kind === "doc") return "Document";
+  if (pin.kind === "photo") return "Photo";
+  return "Note";
 }
 
 function sourceSummary(pin: EvidencePin): string {

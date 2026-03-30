@@ -11,7 +11,6 @@ import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
-import { kindFromCitedId } from "@/lib/proofMap/pins";
 import Tooltip from "@/components/ui/Tooltip";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
 import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
@@ -32,6 +31,12 @@ import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
+import {
+  buildEvidenceInventory,
+  formatEvidenceInventoryId,
+  linkEvidencePinToRequirement,
+  unlinkEvidencePinFromRequirement,
+} from "@/lib/evidence/inventory";
 import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
 import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
 import { computeUplift, isComparable } from "@/lib/baseline/uplift";
@@ -129,19 +134,6 @@ function formatNum(value: number): string {
   return Number.isFinite(value) ? value.toFixed(2) : "—";
 }
 
-function formatBytes(value: number): string {
-  if (!Number.isFinite(value) || value <= 0) return "0 B";
-  const units = ["B", "KB", "MB", "GB"];
-  let bytes = value;
-  let unit = 0;
-  while (bytes >= 1024 && unit < units.length - 1) {
-    bytes /= 1024;
-    unit += 1;
-  }
-  const rounded = unit === 0 ? `${Math.round(bytes)}` : bytes.toFixed(1);
-  return `${rounded} ${units[unit]}`;
-}
-
 function shortSha(value: string): string {
   const trimmed = value.trim();
   if (trimmed.length <= 12) return trimmed;
@@ -204,6 +196,12 @@ function formatLocalDateTime(iso: string): string {
   if (Number.isNaN(date.getTime())) return iso;
   const pad2 = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
+}
+
+function inventoryLinkStateLabel(linkedRequirementIds: string[]): string {
+  if (!linkedRequirementIds.length) return "Unlinked";
+  if (linkedRequirementIds.length === 1) return "Linked to 1 requirement";
+  return `Linked to ${linkedRequirementIds.length} requirements`;
 }
 
 function formatDelta(value: number, suffix = "", digits = 0): string {
@@ -362,6 +360,8 @@ export default function ProofMapTab({
     () => evidencePins.filter((pin) => linkedRuleIdsFromPins([pin]).length > 0).length,
     [evidencePins],
   );
+  const evidenceInventory = useMemo(() => buildEvidenceInventory(evidencePins), [evidencePins]);
+  const evidencePinsById = useMemo(() => new Map(evidencePins.map((pin) => [pin.id, pin])), [evidencePins]);
   const selectedRuleId = activeRuleId ?? null;
 
   const showToast = useCallback((message: string | ToastState) => {
@@ -1618,7 +1618,11 @@ export default function ProofMapTab({
       case 4:
         return { title: "Select item", instruction: "Pick the most relevant STAC item from the returned evidence set.", stepLabel: "Step 4 of 7" };
       case 5:
-        return { title: "Create/link pin", instruction: "Link the selected evidence item to the rule so the run has durable evidence state.", stepLabel: "Step 5 of 7" };
+        return {
+          title: "Evidence inventory",
+          instruction: "Create an evidence object first, then link or unlink it against the selected rule.",
+          stepLabel: "Step 5 of 7",
+        };
       case 6:
         return { title: "Save reviewer artifact", instruction: "Write concise reviewer notes, then save them explicitly before finalization.", stepLabel: "Step 6 of 7" };
       case 7:
@@ -2463,175 +2467,170 @@ export default function ProofMapTab({
     <>
       {isEvidenceMode ? null : (
         <div>
-          <div className="text-xs font-semibold text-slate-700">Evidence pins</div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-xs font-semibold text-slate-700">Evidence inventory</div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                Evidence items exist here before linking. Inventory identity is separate from rule linkage.
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600">
+              <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5">
+                {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
+              </span>
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
+                {evidenceInventory.filter((item) => item.link_state === "unlinked").length} unlinked
+              </span>
+            </div>
+          </div>
           <div className="mt-2 grid gap-2">
-            {evidencePins.length ? (
-              evidencePins.map((pin) => (
-                <div key={pin.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="text-xs font-semibold text-slate-900">{pin.title}</div>
-                        {!aoi ? (
-                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                            Unbound (no AOI)
+            {evidenceInventory.length ? (
+              evidenceInventory.map((item) => {
+                const pin = evidencePinsById.get(item.evidence_id);
+                if (!pin) return null;
+                const linkedToSelectedRule = Boolean(selectedRuleId && item.linked_requirement_ids.includes(selectedRuleId));
+                return (
+                  <div key={item.evidence_id} className="rounded-lg border border-slate-200 bg-white px-3 py-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[11px] font-semibold text-slate-700">
+                            {formatEvidenceInventoryId(item.evidence_id)}
                           </span>
-                        ) : null}
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500">{formatLocalDateTime(pin.created_at)}</div>
-                    </div>
-                    <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-                      Attach file
-                      <input
-                        type="file"
-                        accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
-                        className="hidden"
-                        onChange={async (event) => {
-                          const file = event.target.files?.[0];
-                          event.target.value = "";
-                          if (!file) return;
-                          setError(null);
-                          try {
-                            const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
-                            if (!result.ok) {
-                              setError(result.message);
-                              return;
-                            }
-                            onSetEvidencePins(
-                              evidencePins.map((existing) =>
-                                existing.id === pin.id
-                                  ? {
-                                      ...existing,
-                                      attachments: [...(existing.attachments ?? []), result.attachment],
-                                    }
-                                  : existing,
-                              ),
-                            );
-                            showToast("Attachment saved");
-                          } catch (e) {
-                            setError(e instanceof Error ? e.message : String(e));
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                  {currentStacEvidence?.runId && selectedStacItemId ? (
-                    <button
-                      type="button"
-                      className="mt-2 w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                      onClick={() => {
-                        const existing = new Set(pin.stac_item_ids ?? []);
-                        existing.add(selectedStacItemId);
-                        onSetEvidencePins(
-                          evidencePins.map((item) =>
-                            item.id === pin.id
-                              ? {
-                                  ...item,
-                                  stac_item_ids: Array.from(existing),
-                                  stac_run_id: item.stac_run_id ?? currentStacEvidence.runId,
-                                }
-                              : item,
-                          ),
-                        );
-                        showToast("STAC item attached");
-                      }}
-                    >
-                      Attach selected STAC item
-                    </button>
-                  ) : null}
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {(pin.cited_ids ?? []).map((id) => {
-                      const type = kindFromCitedId(id);
-                      return (
-                        <button
-                          key={`${pin.id}:${id}`}
-                          type="button"
-                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                          onClick={async () => {
-                            if (!type) return void showToast("Unsupported id");
-                            const ok = await handleNavigateEvidence(type, id);
-                            if (ok) return;
-                            const matchSnapshot = (evidenceSnapshots ?? []).find((item) => item.id === id);
-                            if (matchSnapshot) setSnapshot(matchSnapshot);
-                            else showToast("Evidence not found");
-                          }}
-                        >
-                          {id}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {(pin.stac_item_ids ?? []).length ? (
-                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        STAC items
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {(pin.stac_item_ids ?? []).map((id) => (
-                          <button
-                            key={id}
-                            type="button"
-                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                            onClick={() => onSelectStacItemId(id)}
+                          <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                            {item.type}
+                          </span>
+                          <span
+                            className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                              item.link_state === "linked"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                : "border-amber-200 bg-amber-50 text-amber-800"
+                            }`}
                           >
-                            {id}
-                          </button>
-                        ))}
+                            {inventoryLinkStateLabel(item.linked_requirement_ids)}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-sm font-semibold text-slate-900">{item.display_name}</div>
+                        <div className="mt-1 grid gap-1 text-[11px] text-slate-600">
+                          <div>Source: {item.source}</div>
+                          <div>Provenance: {item.provenance_summary}</div>
+                          <div>Added: {formatLocalDateTime(item.added_at)}</div>
+                          <div>
+                            Requirements: {item.linked_requirement_ids.length ? item.linked_requirement_ids.join(", ") : "None yet"}
+                          </div>
+                          <div>
+                            Attachments: {(pin.attachments ?? []).length} • STAC items: {(pin.stac_item_ids ?? []).length}
+                          </div>
+                        </div>
                       </div>
-                      {pin.stac_run_id ? (
-                        <div className="mt-1 font-mono text-[11px] text-slate-500">run: {pin.stac_run_id}</div>
-                      ) : null}
-                    </div>
-                  ) : null}
-                  {(pin.attachments ?? []).length ? (
-                    <div className="mt-3 grid gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        Attachments
-                      </div>
-                      <div className="grid gap-1">
-                        {(pin.attachments ?? []).map((att) => (
-                          <div key={att.id} className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <div className="truncate text-xs font-semibold text-slate-800">
-                                {att.filename}{" "}
-                                <span className="font-normal text-slate-500">({formatBytes(att.size)})</span>
-                              </div>
-                              <div className="font-mono text-[11px] text-slate-600">{shortSha(att.sha256)}</div>
-                            </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {selectedRuleId ? (
+                          linkedToSelectedRule ? (
                             <button
                               type="button"
-                              className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                              onClick={async () => {
-                                setError(null);
-                                try {
-                                  await deleteAttachmentBytes(att.id);
-                                } catch {
-                                  // ignore (metadata removal still matters)
+                              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                              onClick={() => {
+                                onSetEvidencePins(unlinkEvidencePinFromRequirement(evidencePins, pin.id, selectedRuleId));
+                                showToast(`Unlinked ${formatEvidenceInventoryId(pin.id)} from ${selectedRuleId}`);
+                              }}
+                            >
+                              Unlink from selected rule
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                              onClick={() => {
+                                onSetEvidencePins(linkEvidencePinToRequirement(evidencePins, pin.id, selectedRuleId));
+                                showToast(`Linked ${formatEvidenceInventoryId(pin.id)} to ${selectedRuleId}`);
+                              }}
+                            >
+                              Link to selected rule
+                            </button>
+                          )
+                        ) : null}
+                        <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                          Attach file
+                          <input
+                            type="file"
+                            accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={async (event) => {
+                              const file = event.target.files?.[0];
+                              event.target.value = "";
+                              if (!file) return;
+                              setError(null);
+                              try {
+                                const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
+                                if (!result.ok) {
+                                  setError(result.message);
+                                  return;
                                 }
                                 onSetEvidencePins(
                                   evidencePins.map((existing) =>
                                     existing.id === pin.id
                                       ? {
                                           ...existing,
-                                          attachments: (existing.attachments ?? []).filter((item) => item.id !== att.id),
+                                          attachments: [...(existing.attachments ?? []), result.attachment],
                                         }
                                       : existing,
                                   ),
                                 );
-                                showToast("Attachment removed");
-                              }}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
+                                showToast("Attachment saved");
+                              } catch (e) {
+                                setError(e instanceof Error ? e.message : String(e));
+                              }
+                            }}
+                          />
+                        </label>
+                        {currentStacEvidence?.runId && selectedStacItemId ? (
+                          <button
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                            onClick={() => {
+                              const existing = new Set(pin.stac_item_ids ?? []);
+                              existing.add(selectedStacItemId);
+                              onSetEvidencePins(
+                                evidencePins.map((entry) =>
+                                  entry.id === pin.id
+                                    ? {
+                                        ...entry,
+                                        stac_item_ids: Array.from(existing),
+                                        stac_run_id: entry.stac_run_id ?? currentStacEvidence.runId,
+                                      }
+                                    : entry,
+                                ),
+                              );
+                              showToast("STAC item attached");
+                            }}
+                          >
+                            Attach selected STAC item
+                          </button>
+                        ) : null}
                       </div>
                     </div>
-                  ) : null}
-                </div>
-              ))
+                    {item.linked_requirement_ids.length ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {item.linked_requirement_ids.map((id) => (
+                          <button
+                            key={`${pin.id}:${id}`}
+                            type="button"
+                            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                            onClick={async () => {
+                              const ok = await handleNavigateEvidence("rule", id);
+                              if (!ok) showToast("Rule not found");
+                            }}
+                          >
+                            {id}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })
             ) : (
-              <div className="text-xs text-slate-500">No pins yet. Add pins from Assistant if needed.</div>
+              <div className="text-xs text-slate-500">No evidence inventory yet. Add a STAC item to inventory to create the first evidence object.</div>
             )}
           </div>
         </div>
@@ -3261,8 +3260,10 @@ export default function ProofMapTab({
               data-testid="left-section-pins"
               className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "pins" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
             >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence pins</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{evidencePins.length} link{evidencePins.length === 1 ? "" : "s"}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence inventory</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">
+                {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
+              </div>
             </div>
             <div
               ref={reviewerSectionRef}
