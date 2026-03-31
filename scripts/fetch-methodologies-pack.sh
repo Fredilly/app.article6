@@ -5,6 +5,7 @@ CFG="config/methodologies_pack.json"
 REPO="$(node -p "require('./${CFG}').repo")"
 TAG="$(node -p "require('./${CFG}').tag")"
 ASSET="$(node -p "require('./${CFG}').asset")"
+TAG_SHA="${TAG#methodologies-pack-}"
 
 if [[ -z "$TAG" || -z "$ASSET" ]]; then
   echo "❌ Set config/methodologies_pack.json tag + asset (pinned release)."
@@ -15,6 +16,15 @@ URL="https://github.com/${REPO}/releases/download/${TAG}/${ASSET}"
 WORK=".cache/methodologies-pack/${TAG}"
 TAR="${WORK}/${ASSET}"
 DEST="public/methodologies"
+PROV_DEST="public/_provenance/methodologies_PROVENANCE.json"
+
+if [[ -d "$DEST" && -f "$PROV_DEST" ]]; then
+  EXISTING_SHA="$(node -p "try { const p = require('./${PROV_DEST}'); typeof p.sha === 'string' ? p.sha : '' } catch { '' }")"
+  if [[ -n "$EXISTING_SHA" && "${EXISTING_SHA}" == "${TAG_SHA}"* ]] && find "$DEST" -mindepth 1 -print -quit >/dev/null 2>&1; then
+    echo "[pack] using existing pinned methodologies in $DEST (${EXISTING_SHA})"
+    exit 0
+  fi
+fi
 
 rm -rf "$WORK"
 mkdir -p "$WORK"
@@ -44,6 +54,6 @@ fi
 
 # Optional: store provenance somewhere app can show later
 mkdir -p public/_provenance
-cp -f "$WORK/methodologies-pack/PROVENANCE.json" public/_provenance/methodologies_PROVENANCE.json
+cp -f "$WORK/methodologies-pack/PROVENANCE.json" "$PROV_DEST"
 
 echo "✅ methodologies copied to $DEST"
