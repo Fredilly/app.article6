@@ -124,6 +124,8 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).toContain("View outcome");
     expect(html).toContain("Start another run");
     expect(html).toContain("Expand workflow");
+    expect(html).not.toContain("Current workspace");
+    expect(html).not.toContain("Next required action");
   });
 
   it("renders the Step 1 rich rule viewer affordance", () => {
@@ -251,8 +253,14 @@ describe("EvidenceWorkflowStepper", () => {
     });
 
     expect(container.textContent).toContain("Collapse workflow");
+    expect(container.textContent).toContain("Completed audit detail");
+    expect(container.textContent).toContain("Audit history");
     expect(container.textContent).toContain("Summary lives here");
-    expect(container.textContent).toContain("Run complete");
+    expect(container.textContent).toContain("View run history");
+    expect(container.textContent).not.toContain("Current workspace");
+    expect(container.textContent).not.toContain("Next required action");
+    expect(Array.from(container.querySelectorAll("button")).map((button) => button.textContent)).not.toContain("Finalize run");
+    expect(container.querySelector("select")).toBeNull();
 
     await act(async () => {
       root.unmount();
