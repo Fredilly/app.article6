@@ -1,7 +1,140 @@
 {
+  "$defs": {
+    "monitoringReport": {
+      "additionalProperties": true,
+      "properties": {
+        "appendices_expectation": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "metrics_expectation": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "narrative_expectation": {
+          "type": "string"
+        },
+        "report_provenance": {
+          "additionalProperties": true,
+          "properties": {
+            "methodology_section_ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "methodology_source_ref": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "reporting_period": {
+          "additionalProperties": true,
+          "properties": {
+            "cadence": {
+              "type": "string"
+            },
+            "timing_basis": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "rule": {
+      "additionalProperties": true,
+      "properties": {
+        "anchor": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string"
+        },
+        "monitoring_report": {
+          "$ref": "#/$defs/monitoringReport"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "refs": {
+          "type": "object"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "sectionId": {
+          "type": "string"
+        },
+        "section_id": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "text": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "when": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "rules.rich.json",
-  "type": ["object", "array"],
   "additionalProperties": true,
-  "items": {}
+  "oneOf": [
+    {
+      "items": {
+        "$ref": "#/$defs/rule"
+      },
+      "type": "array"
+    },
+    {
+      "properties": {
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/rule"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "rules.rich.json"
 }

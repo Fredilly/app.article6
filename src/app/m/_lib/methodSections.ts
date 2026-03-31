@@ -72,20 +72,22 @@ async function readJsonFile(filePath: string): Promise<unknown> {
   }
 }
 
+function resolveRepoRelativeCandidates(manifestPath: string): string[] {
+  const normalized = path.normalize(manifestPath);
+  if (!normalized || path.isAbsolute(normalized)) return [];
+  const direct = path.join(process.cwd(), normalized);
+  const publicPrefixed = normalized.startsWith(`public${path.sep}`) ? null : path.join(process.cwd(), "public", normalized);
+  return Array.from(new Set([direct, publicPrefixed].filter(Boolean) as string[]));
+}
+
 async function tryLoadSectionsFile(manifestPath: string): Promise<{
   source: "sections.rich.json" | "sections.json";
   parsed: unknown;
 } | null> {
-  const normalized = path.normalize(manifestPath);
-  if (path.isAbsolute(normalized)) return null;
+  const bases = resolveRepoRelativeCandidates(manifestPath).filter((candidate) => candidate.endsWith("rules.json"));
+  if (!bases.length) return null;
 
-  const base = path.join(process.cwd(), normalized);
-  if (!base.endsWith("rules.json")) return null;
-
-  const richPath = base.replace(/rules\.json$/, "sections.rich.json");
-  const plainPath = base.replace(/rules\.json$/, "sections.json");
-
-  for (const candidate of [richPath, plainPath]) {
+  for (const candidate of bases.flatMap((base) => [base.replace(/rules\.json$/, "sections.rich.json"), base.replace(/rules\.json$/, "sections.json")])) {
     try {
       await stat(candidate);
       const parsed = await readJsonFile(candidate);

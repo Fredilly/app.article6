@@ -9,6 +9,7 @@ export type RuleSummary = {
   snippet: string;
   tags: string[];
   type?: string;
+  monitoringReport?: MonitoringReportExpectation;
   text?: string;
   sectionId?: string;
   anchor?: string;
@@ -17,6 +18,21 @@ export type RuleSummary = {
     anchor?: string;
     label?: string;
   }>;
+};
+
+export type MonitoringReportExpectation = {
+  narrative_expectation?: string;
+  metrics_expectation?: string[];
+  appendices_expectation?: string[];
+  report_provenance?: {
+    methodology_source_ref?: string;
+    methodology_section_ids?: string[];
+    summary?: string;
+  };
+  reporting_period?: {
+    cadence?: string;
+    timing_basis?: string;
+  };
 };
 
 export type RuleFull = RuleSummary & {
@@ -62,6 +78,51 @@ function pickStringArray(entry: Record<string, unknown>, keys: string[]): string
     if (Array.isArray(value)) return value.map((item) => String(item)).filter(Boolean);
   }
   return [];
+}
+
+function pickNestedStringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const items = value.map((item) => String(item).trim()).filter(Boolean);
+  return items.length ? items : undefined;
+}
+
+function pickMonitoringReportExpectation(entry: Record<string, unknown>): MonitoringReportExpectation | undefined {
+  const raw = entry.monitoring_report;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const record = raw as Record<string, unknown>;
+  const provenanceRaw =
+    record.report_provenance && typeof record.report_provenance === "object" && !Array.isArray(record.report_provenance)
+      ? (record.report_provenance as Record<string, unknown>)
+      : null;
+  const reportingPeriodRaw =
+    record.reporting_period && typeof record.reporting_period === "object" && !Array.isArray(record.reporting_period)
+      ? (record.reporting_period as Record<string, unknown>)
+      : null;
+
+  const expectation: MonitoringReportExpectation = {
+    narrative_expectation: pickString(record, ["narrative_expectation"]),
+    metrics_expectation: pickNestedStringArray(record.metrics_expectation),
+    appendices_expectation: pickNestedStringArray(record.appendices_expectation),
+    report_provenance: provenanceRaw
+      ? {
+          methodology_source_ref: pickString(provenanceRaw, ["methodology_source_ref"]),
+          methodology_section_ids: pickNestedStringArray(provenanceRaw.methodology_section_ids),
+          summary: pickString(provenanceRaw, ["summary"]),
+        }
+      : undefined,
+    reporting_period: reportingPeriodRaw
+      ? {
+          cadence: pickString(reportingPeriodRaw, ["cadence"]),
+          timing_basis: pickString(reportingPeriodRaw, ["timing_basis"]),
+        }
+      : undefined,
+  };
+
+  return Object.values(expectation).some((value) =>
+    Array.isArray(value) ? value.length > 0 : value && typeof value === "object" ? Object.values(value).some(Boolean) : Boolean(value),
+  )
+    ? expectation
+    : undefined;
 }
 
 function sectionIdFromAnchor(value?: string): string | undefined {
@@ -126,16 +187,22 @@ async function readJsonFile(filePath: string): Promise<unknown> {
   }
 }
 
+function resolveRepoRelativeCandidates(manifestPath: string): string[] {
+  const normalized = path.normalize(manifestPath);
+  if (!normalized || path.isAbsolute(normalized)) return [];
+  const direct = path.join(process.cwd(), normalized);
+  const publicPrefixed = normalized.startsWith(`public${path.sep}`) ? null : path.join(process.cwd(), "public", normalized);
+  return Array.from(new Set([direct, publicPrefixed].filter(Boolean) as string[]));
+}
+
 async function tryLoadRulesFile(manifestPath: string): Promise<{
   source: "rules.rich.json" | "rules.json";
   parsed: unknown;
 } | null> {
-  const normalized = path.normalize(manifestPath);
-  if (path.isAbsolute(normalized)) return null;
+  const bases = resolveRepoRelativeCandidates(manifestPath).filter((candidate) => candidate.endsWith("rules.json"));
+  if (!bases.length) return null;
 
-  const base = path.join(process.cwd(), normalized);
-  const richPath = base.endsWith("rules.json") ? base.replace(/rules\.json$/, "rules.rich.json") : "";
-  const candidates = [richPath, base].filter(Boolean);
+  const candidates = bases.flatMap((base) => [base.replace(/rules\.json$/, "rules.rich.json"), base]);
 
   for (const candidate of candidates) {
     try {
@@ -180,6 +247,7 @@ function coerceRulesFromUnknown(parsed: unknown): RuleFull[] {
       snippet: snippetFromText(text || title || id),
       tags: pickStringArray(record, ["tags", "labels"]),
       type: pickString(record, ["type", "kind", "category"]),
+      monitoringReport: pickMonitoringReportExpectation(record),
       sha256: pickString(record, ["sha256", "hash"]),
       sectionId: pickString(record, ["sectionId", "section_id"]),
       anchor: pickString(record, ["anchor", "href"]),
@@ -248,12 +316,13 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
     if (loaded) {
       const full = coerceRulesFromUnknown(loaded.parsed);
       const byId = new Map(full.map((rule) => [rule.id, rule]));
-      const rules = full.map(({ id, title, snippet, tags, type, text, sectionId, anchor, citations }) => ({
+      const rules = full.map(({ id, title, snippet, tags, type, monitoringReport, text, sectionId, anchor, citations }) => ({
         id,
         title,
         snippet,
         tags,
         type,
+        monitoringReport,
         text,
         sectionId,
         anchor,
@@ -266,12 +335,13 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
 
   const full = coerceRulesFromManifest(entries);
   const byId = new Map(full.map((rule) => [rule.id, rule]));
-  const rules = full.map(({ id, title, snippet, tags, type, text, sectionId, anchor, citations }) => ({
+  const rules = full.map(({ id, title, snippet, tags, type, monitoringReport, text, sectionId, anchor, citations }) => ({
     id,
     title,
     snippet,
     tags,
     type,
+    monitoringReport,
     text,
     sectionId,
     anchor,
