@@ -5,6 +5,7 @@ import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
+import FinalReviewSummaryPanel from "@/components/verify/FinalReviewSummaryPanel";
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
@@ -3383,13 +3384,17 @@ export default function ProofMapTab({
           <div className={`flex items-start justify-between gap-2 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}>
             <div>
               <div className="text-sm font-semibold text-slate-900">
-                {currentWorkspaceIsFinal ? "Completed workflow" : "Evidence workflow"}
+                {currentWorkspaceIsFinal ? "Final Review Summary" : "Evidence workflow"}
               </div>
               {!currentWorkspaceIsFinal ? (
                 <div className="mt-1 text-xs text-slate-500">
                   Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; reviewer save -&gt; finalize.
                 </div>
-              ) : null}
+              ) : (
+                <div className="mt-1 text-xs text-slate-500">
+                  Finalized result, exports, and summary are now the primary right-panel surface.
+                </div>
+              )}
             </div>
             {!currentWorkspaceIsFinal ? (
               <div className="flex flex-wrap items-center justify-end gap-2">
@@ -3430,71 +3435,95 @@ export default function ProofMapTab({
           ) : null}
 
           <div className="transition">
-            <EvidenceWorkflowStepper
-              ruleOptions={ruleOptions}
-              selectedRuleId={selectedRuleId}
-              onSelectRuleId={onSelectRuleId}
-              onViewRule={onViewRule}
-              hasAoi={hasAoi}
-              aoiLabel={aoi?.name ?? null}
-              aoiSummary={
-                aoi
-                  ? {
-                      isPreview,
-                      willClearWork,
-                      isSameAoi,
-                      showSameAoiPrompt,
-                      areaKm2: aoi.area_km2 ?? null,
-                      bboxLabel,
-                    }
-                  : null
-              }
-              searchDisabled={searchDisabled}
-              isRunning={isRunning}
-              hasSearchResults={hasSearchResults}
-              stacResultCount={stacFeatureIds.length}
-              selectedStacItemId={selectedStacItemId}
-              onClearSelectedItem={() => onSelectStacItemId(null)}
-              canCreatePin={canCreatePin}
-              createPinDisabledReason={createPinDisabledReason}
-              pinsCount={linkedPinsCount}
-              onUploadAoi={triggerAoiUpload}
-              onApplyDraftAoiClick={handleApplyDraftAoiClick}
-              onCancelDraftAoi={() => {
-                setShowSameAoiPrompt(false);
-                onCancelDraftAoi();
-              }}
-              onKeepSameAoi={handleKeepSameAoi}
-              onResetSameAoi={handleResetSameAoi}
-              onSearchStac={() => {
-                void handleSearchStac();
-              }}
-              onCreatePin={handleCreatePin}
-              draftMinutes={verifierBundle.draftMinutes}
-              draftOutcomeNote={verifierBundle.draftOutcomeNote}
-              savedMinutes={verifierBundle.minutes}
-              savedOutcomeNote={verifierBundle.outcomeNote}
-              savedReviewerArtifactAt={verifierBundle.savedReviewerArtifactAt}
-              onReviewerMinutesChange={handleMinutesChange}
-              onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
-              onSaveReviewerArtifact={handleSaveReviewerArtifact}
-              onFinalizeRun={handleFinalizeRun}
-              finalizedAt={verifierBundle.finalizedAt}
-              currentRunLabel={currentRunLabel}
-              loadedFromRunLabel={loadedFromRunLabel}
-              isEditedDraft={verifierBundle.isEditedDraft}
-              hasUnsavedWorkspaceEdits={hasUnsavedWorkspaceEdits}
-              currentWorkspaceIsFinal={currentWorkspaceIsFinal}
-              wizard={wizardDetails}
-              onStartAnotherRun={handleNewRun}
-              onViewRunHistory={handleViewRunHistory}
-              onViewOutcome={() => setOutcomeOpen(true)}
-              methodCode={methodCode}
-              version={version}
-              reviewedRuleCount={linkedRuleIds.length}
-              linkedEvidenceCount={evidenceInventory.filter((item) => item.link_state === "linked").length}
-              finalizedResult={
-                currentWorkspaceIsFinal ? (
+            {currentWorkspaceIsFinal ? (
+              <FinalReviewSummaryPanel
+                summary={reviewArtifact?.summary ?? reviewSummary}
+                artifact={reviewArtifact}
+                currentRunLabel={currentRunLabel}
+                loadedFromRunLabel={loadedFromRunLabel}
+                finalizedAt={verifierBundle.finalizedAt}
+                reviewedRuleCount={linkedRuleIds.length}
+                linkedEvidenceCount={evidenceInventory.filter((item) => item.link_state === "linked").length}
+                wizard={wizardDetails}
+                onDownloadJson={() => {
+                  void handleDownloadReviewSummaryJson();
+                }}
+                onDownloadPdf={() => {
+                  void handleDownloadReviewSummaryPdf();
+                }}
+                onCopyLink={() => {
+                  void handleCopyReviewSummaryLink();
+                }}
+                onStartAnotherRun={handleNewRun}
+                onViewRunHistory={handleViewRunHistory}
+                pdfBusy={reviewPdfBusy}
+                pdfError={reviewPdfError}
+              />
+            ) : (
+              <EvidenceWorkflowStepper
+                ruleOptions={ruleOptions}
+                selectedRuleId={selectedRuleId}
+                onSelectRuleId={onSelectRuleId}
+                onViewRule={onViewRule}
+                hasAoi={hasAoi}
+                aoiLabel={aoi?.name ?? null}
+                aoiSummary={
+                  aoi
+                    ? {
+                        isPreview,
+                        willClearWork,
+                        isSameAoi,
+                        showSameAoiPrompt,
+                        areaKm2: aoi.area_km2 ?? null,
+                        bboxLabel,
+                      }
+                    : null
+                }
+                searchDisabled={searchDisabled}
+                isRunning={isRunning}
+                hasSearchResults={hasSearchResults}
+                stacResultCount={stacFeatureIds.length}
+                selectedStacItemId={selectedStacItemId}
+                onClearSelectedItem={() => onSelectStacItemId(null)}
+                canCreatePin={canCreatePin}
+                createPinDisabledReason={createPinDisabledReason}
+                pinsCount={linkedPinsCount}
+                onUploadAoi={triggerAoiUpload}
+                onApplyDraftAoiClick={handleApplyDraftAoiClick}
+                onCancelDraftAoi={() => {
+                  setShowSameAoiPrompt(false);
+                  onCancelDraftAoi();
+                }}
+                onKeepSameAoi={handleKeepSameAoi}
+                onResetSameAoi={handleResetSameAoi}
+                onSearchStac={() => {
+                  void handleSearchStac();
+                }}
+                onCreatePin={handleCreatePin}
+                draftMinutes={verifierBundle.draftMinutes}
+                draftOutcomeNote={verifierBundle.draftOutcomeNote}
+                savedMinutes={verifierBundle.minutes}
+                savedOutcomeNote={verifierBundle.outcomeNote}
+                savedReviewerArtifactAt={verifierBundle.savedReviewerArtifactAt}
+                onReviewerMinutesChange={handleMinutesChange}
+                onReviewerOutcomeNoteChange={handleOutcomeNoteChange}
+                onSaveReviewerArtifact={handleSaveReviewerArtifact}
+                onFinalizeRun={handleFinalizeRun}
+                finalizedAt={verifierBundle.finalizedAt}
+                currentRunLabel={currentRunLabel}
+                loadedFromRunLabel={loadedFromRunLabel}
+                isEditedDraft={verifierBundle.isEditedDraft}
+                hasUnsavedWorkspaceEdits={hasUnsavedWorkspaceEdits}
+                currentWorkspaceIsFinal={currentWorkspaceIsFinal}
+                wizard={wizardDetails}
+                onStartAnotherRun={handleNewRun}
+                onViewRunHistory={handleViewRunHistory}
+                onViewOutcome={() => setOutcomeOpen(true)}
+                methodCode={methodCode}
+                version={version}
+                reviewedRuleCount={linkedRuleIds.length}
+                linkedEvidenceCount={evidenceInventory.filter((item) => item.link_state === "linked").length}
+                finalizedResult={
                   <ReviewSummaryCard
                     summary={reviewArtifact?.summary ?? reviewSummary}
                     artifact={reviewArtifact}
@@ -3510,9 +3539,9 @@ export default function ProofMapTab({
                     pdfBusy={reviewPdfBusy}
                     pdfError={reviewPdfError}
                   />
-                ) : null
-              }
-            />
+                }
+              />
+            )}
           </div>
 
           <div className="rounded-xl border-t border-dashed border-slate-200 pt-3">
