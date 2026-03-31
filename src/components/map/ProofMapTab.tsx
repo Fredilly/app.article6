@@ -33,6 +33,8 @@ import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import {
   buildEvidenceInventory,
+  coalesceEvidencePins,
+  evidencePinDedupeKey,
   formatEvidenceInventoryId,
   linkEvidencePinToRequirement,
   unlinkEvidencePinFromRequirement,
@@ -2037,14 +2039,13 @@ export default function ProofMapTab({
     if (!selectedRuleId || !currentPinItemId) return;
     try {
       const ts = new Date().toISOString();
-      const id =
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
-      const pin: EvidencePin = {
-        id,
+      const candidate: EvidencePin = {
+        id:
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `pin_${ts}_${Math.random().toString(16).slice(2)}`,
         kind: "note",
-        title: `Pin ${selectedRuleId} ↔ ${currentPinItemId}`,
+        title: currentPinItemId,
         ts,
         ruleId: selectedRuleId,
         itemId: currentPinItemId,
@@ -2056,12 +2057,17 @@ export default function ProofMapTab({
         stac_run_id: currentStacEvidence?.runId,
         created_at: ts,
       };
-      onSetEvidencePins([pin, ...evidencePins]);
+      const dedupeKey = evidencePinDedupeKey(candidate);
+      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+      const nextPins = existing
+        ? linkEvidencePinToRequirement(evidencePins, existing.id, selectedRuleId)
+        : coalesceEvidencePins([candidate, ...evidencePins]);
+      onSetEvidencePins(nextPins);
       setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
-      showToast(`Pinned ${currentPinItemId} to ${selectedRuleId}`);
+      showToast(existing ? `Updated ${currentPinItemId} in inventory` : `Added ${currentPinItemId} and linked it to ${selectedRuleId}`);
     } catch (error) {
       setError(error instanceof Error ? error.message : String(error));
-      showToast("Pin creation failed. Selection kept.");
+      showToast("Inventory update failed. Selection kept.");
     }
   }, [
     aoi?.id,
@@ -2081,14 +2087,13 @@ export default function ProofMapTab({
     if (!currentPinItemId) return;
     try {
       const ts = new Date().toISOString();
-      const id =
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
-      const pin: EvidencePin = {
-        id,
+      const candidate: EvidencePin = {
+        id:
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `pin_${ts}_${Math.random().toString(16).slice(2)}`,
         kind: "note",
-        title: `Evidence ${currentPinItemId}`,
+        title: currentPinItemId,
         ts,
         itemId: currentPinItemId,
         note: `${methodCode}@${version}`,
@@ -2099,9 +2104,11 @@ export default function ProofMapTab({
         stac_run_id: currentStacEvidence?.runId,
         created_at: ts,
       };
-      onSetEvidencePins([pin, ...evidencePins]);
+      const dedupeKey = evidencePinDedupeKey(candidate);
+      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+      onSetEvidencePins(existing ? coalesceEvidencePins(evidencePins) : coalesceEvidencePins([candidate, ...evidencePins]));
       setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
-      showToast(`Added ${currentPinItemId} to inventory`);
+      showToast(existing ? `${currentPinItemId} is already in inventory` : `Added ${currentPinItemId} to inventory`);
     } catch (error) {
       setError(error instanceof Error ? error.message : String(error));
       showToast("Inventory capture failed. Selection kept.");
@@ -2512,14 +2519,12 @@ export default function ProofMapTab({
                         </div>
                         <div className="mt-2 text-sm font-semibold text-slate-900">{item.display_name}</div>
                         <div className="mt-1 grid gap-1 text-[11px] text-slate-600">
-                          <div>Source: {item.source}</div>
-                          <div>Provenance: {item.provenance_summary}</div>
-                          <div>Added: {formatLocalDateTime(item.added_at)}</div>
                           <div>
-                            Requirements: {item.linked_requirement_ids.length ? item.linked_requirement_ids.join(", ") : "None yet"}
-                          </div>
-                          <div>
-                            Attachments: {(pin.attachments ?? []).length} • STAC items: {(pin.stac_item_ids ?? []).length}
+                            {item.source_summary} · added {formatLocalDateTime(item.added_at)} · {(pin.stac_item_ids ?? []).length} STAC item
+                            {(pin.stac_item_ids ?? []).length === 1 ? "" : "s"}
+                            {" · "}
+                            {(pin.attachments ?? []).length} attachment
+                            {(pin.attachments ?? []).length === 1 ? "" : "s"}
                           </div>
                         </div>
                       </div>
@@ -2567,13 +2572,15 @@ export default function ProofMapTab({
                                   return;
                                 }
                                 onSetEvidencePins(
-                                  evidencePins.map((existing) =>
-                                    existing.id === pin.id
-                                      ? {
-                                          ...existing,
-                                          attachments: [...(existing.attachments ?? []), result.attachment],
-                                        }
-                                      : existing,
+                                  coalesceEvidencePins(
+                                    evidencePins.map((existing) =>
+                                      existing.id === pin.id
+                                        ? {
+                                            ...existing,
+                                            attachments: [...(existing.attachments ?? []), result.attachment],
+                                          }
+                                        : existing,
+                                    ),
                                   ),
                                 );
                                 showToast("Attachment saved");
@@ -2591,14 +2598,16 @@ export default function ProofMapTab({
                               const existing = new Set(pin.stac_item_ids ?? []);
                               existing.add(selectedStacItemId);
                               onSetEvidencePins(
-                                evidencePins.map((entry) =>
-                                  entry.id === pin.id
-                                    ? {
-                                        ...entry,
-                                        stac_item_ids: Array.from(existing),
-                                        stac_run_id: entry.stac_run_id ?? currentStacEvidence.runId,
-                                      }
-                                    : entry,
+                                coalesceEvidencePins(
+                                  evidencePins.map((entry) =>
+                                    entry.id === pin.id
+                                      ? {
+                                          ...entry,
+                                          stac_item_ids: Array.from(existing),
+                                          stac_run_id: entry.stac_run_id ?? currentStacEvidence.runId,
+                                        }
+                                      : entry,
+                                  ),
                                 ),
                               );
                               showToast("STAC item attached");
@@ -2626,6 +2635,21 @@ export default function ProofMapTab({
                         ))}
                       </div>
                     ) : null}
+                    <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50">
+                      <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        Details
+                      </summary>
+                      <div className="grid gap-1 px-3 pb-3 text-[11px] text-slate-600">
+                        <div>Provenance: {item.provenance_summary}</div>
+                        {pin.stac_run_id ? <div>Run: {pin.stac_run_id}</div> : null}
+                        {(pin.stac_item_ids ?? []).length ? <div>STAC items: {(pin.stac_item_ids ?? []).join(", ")}</div> : null}
+                        {(pin.attachments ?? []).length ? (
+                          <div>
+                            Attachments: {(pin.attachments ?? []).map((attachment) => attachment.filename).join(", ")}
+                          </div>
+                        ) : null}
+                      </div>
+                    </details>
                   </div>
                 );
               })

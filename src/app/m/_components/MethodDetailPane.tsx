@@ -25,6 +25,7 @@ import { buildCoverageQueue } from "@/lib/coverage/queue";
 import { addCoverageTask } from "@/lib/coverage/tasks";
 import {
   buildEvidenceInventory,
+  coalesceEvidencePins,
   linkEvidencePinToRequirement,
   unlinkEvidencePinFromRequirement,
 } from "@/lib/evidence/inventory";
@@ -405,7 +406,7 @@ export default function MethodDetailPane({
     if (!activeVersion) return;
     setCurrentAoi(loadAoi(method.code, activeVersion));
     setDraftAoi(loadDraftAoi(method.code, activeVersion));
-    setEvidencePins(loadPins(method.code, activeVersion));
+    setEvidencePins(coalesceEvidencePins(loadPins(method.code, activeVersion)));
     setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
     setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
     setUndoSnapshot(null);
@@ -442,9 +443,10 @@ export default function MethodDetailPane({
 
   const setEvidencePinsAndPersist = useCallback(
     (nextPins: EvidencePin[]) => {
-      setEvidencePins(nextPins);
+      const normalizedPins = coalesceEvidencePins(nextPins);
+      setEvidencePins(normalizedPins);
       if (!activeVersion) return;
-      savePins(method.code, activeVersion, nextPins);
+      savePins(method.code, activeVersion, normalizedPins);
     },
     [activeVersion, method.code],
   );
@@ -612,7 +614,7 @@ export default function MethodDetailPane({
     if (!activeVersion) return;
     setCurrentAoi(loadAoi(method.code, activeVersion));
     setDraftAoi(loadDraftAoi(method.code, activeVersion));
-    setEvidencePins(loadPins(method.code, activeVersion));
+    setEvidencePins(coalesceEvidencePins(loadPins(method.code, activeVersion)));
     setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
     setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
   }, [activeVersion, method.code]);

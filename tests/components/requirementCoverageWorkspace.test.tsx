@@ -53,9 +53,10 @@ const rows: RequirementCoverageRow[] = [
 const inventoryItems: EvidenceInventoryItem[] = [
   {
     evidence_id: "ev-1",
+    dedupe_key: "stac:S2A-001",
     display_name: "Q1 monitoring report",
     type: "Upload",
-    source: "Upload q1-monitoring.pdf",
+    source_summary: "Upload",
     provenance_summary: "Attachment q1-monitoring.pdf",
     added_at: "2026-03-01T00:00:00Z",
     link_state: "linked",
@@ -63,9 +64,10 @@ const inventoryItems: EvidenceInventoryItem[] = [
   },
   {
     evidence_id: "ev-2",
+    dedupe_key: "title:boundary worksheet",
     display_name: "Boundary worksheet",
     type: "STAC item",
-    source: "Workspace evidence",
+    source_summary: "Workspace evidence",
     provenance_summary: "Provenance pending",
     added_at: "2026-03-02T00:00:00Z",
     link_state: "unlinked",
@@ -103,7 +105,10 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Provenance pending");
     expect(html).toContain("EV-EV1");
     expect(html).toContain("Unlinked");
+    expect(html).toContain("Upload · added");
+    expect(html).toContain("Details");
     expect(html).toContain("supporting evidence marker");
+    expect(html).not.toContain("Pin R-1");
   });
 
   it("updates the detail panel and selected row when selection changes", async () => {
@@ -203,7 +208,7 @@ describe("RequirementCoverageWorkspace", () => {
     });
 
     expect(container.textContent).toContain("Boundary worksheet");
-    expect(container.textContent).toContain("Requirements: R-2");
+    expect(container.textContent).toContain("Linked to 1 requirement");
 
     await act(async () => {
       (container.querySelector('[data-testid="inventory-unlink-ev-2"]') as HTMLButtonElement).click();
