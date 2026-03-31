@@ -66,6 +66,7 @@ describe("buildRequirementCoverageRows", () => {
           { id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "inventory" },
           { id: "ev-2", title: "Workbook tab A", type: "spreadsheet-workbook", source: "inventory" },
         ],
+        candidateEvidence: [],
         status: "linked",
       },
       {
@@ -85,6 +86,7 @@ describe("buildRequirementCoverageRows", () => {
         },
         expectedEvidenceTypes: ["eligibility-proof"],
         linkedEvidence: [],
+        candidateEvidence: [],
         status: "needs-review",
       },
     ]);
@@ -108,6 +110,7 @@ describe("buildRequirementCoverageRows", () => {
 
     expect(rows[0]?.expectedEvidenceTypes).toEqual([]);
     expect(rows[0]?.linkedEvidence).toEqual([]);
+    expect(rows[0]?.candidateEvidence).toEqual([]);
     expect(rows[0]?.status).toBe("missing");
   });
 

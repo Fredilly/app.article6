@@ -354,6 +354,7 @@ export default function ProofMapTab({
   const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
   const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadWorkbookInputRef = useRef<HTMLInputElement | null>(null);
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -2133,6 +2134,52 @@ export default function ProofMapTab({
     version,
   ]);
 
+  const handleWorkbookUpload = useCallback(async (file: File | null) => {
+    if (!file) return;
+    setError(null);
+    const ts = new Date().toISOString();
+    const pinId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
+    try {
+      const result = await createAndStoreEvidenceAttachment({ pin_id: pinId, file });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      const candidate: EvidencePin = {
+        id: pinId,
+        kind: "doc",
+        title: file.name,
+        ts,
+        note: `${methodCode}@${version}`,
+        aoi_id: aoi?.id ?? null,
+        aoi_fingerprint: currentAoiFingerprint ?? undefined,
+        cited_ids: [],
+        attachments: [result.attachment],
+        created_at: ts,
+      };
+      const dedupeKey = evidencePinDedupeKey(candidate);
+      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+      onSetEvidencePins(existing ? coalesceEvidencePins(evidencePins) : coalesceEvidencePins([candidate, ...evidencePins]));
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+      showToast(existing ? `${file.name} is already in inventory` : `Added workbook ${file.name} to inventory`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("Workbook intake failed.");
+    }
+  }, [
+    aoi?.id,
+    currentAoiFingerprint,
+    evidencePins,
+    markBundleEdited,
+    methodCode,
+    onSetEvidencePins,
+    showToast,
+    version,
+  ]);
+
   const handleExportSnapshot = useCallback(async () => {
     const exportedAt = new Date().toISOString();
     const nextRunContext =
@@ -2485,7 +2532,21 @@ export default function ProofMapTab({
             <div>
               <div className="text-xs font-semibold text-slate-700">Evidence inventory</div>
             </div>
-            <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-600">
+              <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                Add workbook
+                <input
+                  ref={uploadWorkbookInputRef}
+                  type="file"
+                  accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/vnd.ms-excel"
+                  className="hidden"
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    event.target.value = "";
+                    await handleWorkbookUpload(file);
+                  }}
+                />
+              </label>
               <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5">
                 {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
               </span>
@@ -2552,20 +2613,50 @@ export default function ProofMapTab({
                       <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-700">
                         More
                       </summary>
-                      <div className="grid gap-2 px-3 pb-3 text-[11px] text-slate-600">
-                        <div>ID: {formatEvidenceInventoryId(item.evidence_id)}</div>
-                        <div>Type: {item.type}</div>
-                        <div>
-                          {item.source_summary} · added {formatLocalDateTime(item.added_at)} · {(pin.stac_item_ids ?? []).length} STAC item
-                          {(pin.stac_item_ids ?? []).length === 1 ? "" : "s"}
-                          {" · "}
-                          {(pin.attachments ?? []).length} attachment
-                          {(pin.attachments ?? []).length === 1 ? "" : "s"}
-                        </div>
-                        <div>Provenance: {item.provenance_summary}</div>
-                        {item.linked_requirement_ids.length ? (
-                          <div className="flex flex-wrap gap-2">
-                            {item.linked_requirement_ids.map((id) => (
+                        <div className="grid gap-2 px-3 pb-3 text-[11px] text-slate-600">
+                          <div>ID: {formatEvidenceInventoryId(item.evidence_id)}</div>
+                          <div>Type: {item.type}</div>
+                          <div>{item.source_summary} · added {formatLocalDateTime(item.added_at)}</div>
+                          {item.workbook_assets?.length ? (
+                            <div>
+                              Workbook summary: {item.workbook_assets[0]?.sheet_count ?? 0} sheet{item.workbook_assets[0]?.sheet_count === 1 ? "" : "s"} •{" "}
+                              {item.workbook_record_groups?.length ?? 0} candidate group{(item.workbook_record_groups?.length ?? 0) === 1 ? "" : "s"}
+                            </div>
+                          ) : (
+                            <div>
+                              {(pin.stac_item_ids ?? []).length} STAC item
+                              {(pin.stac_item_ids ?? []).length === 1 ? "" : "s"}
+                              {" · "}
+                              {(pin.attachments ?? []).length} attachment
+                              {(pin.attachments ?? []).length === 1 ? "" : "s"}
+                            </div>
+                          )}
+                          <div>Provenance: {item.provenance_summary}</div>
+                          {item.workbook_assets?.length ? (
+                            <div className="grid gap-1">
+                              {item.workbook_assets.flatMap((asset) =>
+                                asset.sheets.map((sheet) => (
+                                  <div key={`${asset.workbook_id}:${sheet.sheet_name}`}>
+                                    Sheet {sheet.sheet_name} • {sheet.row_count} row{sheet.row_count === 1 ? "" : "s"} • {sheet.column_count} column{sheet.column_count === 1 ? "" : "s"}
+                                    {sheet.bounds_ref ? ` • ${sheet.bounds_ref}` : ""}
+                                  </div>
+                                )),
+                              )}
+                            </div>
+                          ) : null}
+                          {item.workbook_record_groups?.length ? (
+                            <div className="grid gap-1">
+                              {item.workbook_record_groups.map((group) => (
+                                <div key={group.group_id}>
+                                  {group.display_name} • {group.group_type} • {group.source_sheet}
+                                  {group.source_range ? ` • ${group.source_range}` : ""}
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                          {item.linked_requirement_ids.length ? (
+                            <div className="flex flex-wrap gap-2">
+                              {item.linked_requirement_ids.map((id) => (
                               <button
                                 key={`${pin.id}:${id}`}
                                 type="button"
@@ -2585,7 +2676,7 @@ export default function ProofMapTab({
                             Attach file
                             <input
                               type="file"
-                              accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
+                              accept="application/pdf,image/jpeg,image/png,text/csv,application/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.pdf,.jpg,.jpeg,.png,.csv,.xlsx"
                               className="hidden"
                               onChange={async (event) => {
                                 const file = event.target.files?.[0];

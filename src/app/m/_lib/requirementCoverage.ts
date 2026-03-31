@@ -1,3 +1,5 @@
+import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
+
 type RequirementCoverageRuleInput = {
   id: string;
   title: string;
@@ -60,6 +62,7 @@ export type RequirementCoverageRow = {
   provenance: RequirementCoverageProvenance;
   expectedEvidenceTypes: RequirementCoverageExpectedEvidenceType[];
   linkedEvidence: RequirementCoverageLinkedEvidence[];
+  candidateEvidence: RequirementCoverageLinkedEvidence[];
   status: RequirementCoverageStatus;
 };
 
@@ -169,6 +172,35 @@ function buildLinkedEvidenceByRuleIdFromInventory(
   return next;
 }
 
+function buildCandidateEvidenceByRuleIdFromInventory(
+  inventoryItems: EvidenceInventoryItem[],
+  rules: RequirementCoverageRuleInput[],
+): Map<string, RequirementCoverageLinkInput[]> {
+  const expectedTypesByRuleId = new Map(
+    rules.map((rule) => [rule.id, expectedEvidenceTypesForRule(rule)]),
+  );
+  const next = new Map<string, RequirementCoverageLinkInput[]>();
+
+  for (const item of inventoryItems) {
+    for (const group of item.workbook_record_groups ?? []) {
+      for (const [ruleId, expectedTypes] of expectedTypesByRuleId.entries()) {
+        const candidateTypes = new Set<string>(group.candidate_evidence_types);
+        if (!expectedTypes.some((type) => candidateTypes.has(type))) continue;
+        const current = next.get(ruleId) ?? [];
+        current.push({
+          id: group.group_id,
+          title: `${item.display_name} · ${group.display_name}`,
+          type: group.group_type,
+          source: "inventory",
+        });
+        next.set(ruleId, current);
+      }
+    }
+  }
+
+  return next;
+}
+
 function deriveStatus(
   explicitStatus: RequirementCoverageStatus | undefined,
   linkedEvidence: RequirementCoverageLinkedEvidence[],
@@ -206,11 +238,16 @@ export function buildRequirementCoverageRows(input: BuildRequirementCoverageRows
     input.inventoryItems?.length
       ? buildLinkedEvidenceByRuleIdFromInventory(input.inventoryItems)
       : (input.linkedEvidenceByRuleId ?? new Map<string, RequirementCoverageLinkInput[]>());
+  const candidateEvidenceByRuleId =
+    input.inventoryItems?.length
+      ? buildCandidateEvidenceByRuleIdFromInventory(input.inventoryItems, input.rules)
+      : new Map<string, RequirementCoverageLinkInput[]>();
   const statusesByRuleId = input.statusesByRuleId ?? new Map<string, RequirementCoverageStatus>();
 
   return [...input.rules]
     .map((rule) => {
       const linkedEvidence = normalizeLinkedEvidence(linkedEvidenceByRuleId, rule.id);
+      const candidateEvidence = normalizeLinkedEvidence(candidateEvidenceByRuleId, rule.id);
       const primarySectionId =
         rule.sectionId ?? rule.citations?.find((citation) => citation.sectionId)?.sectionId;
       return {
@@ -230,9 +267,9 @@ export function buildRequirementCoverageRows(input: BuildRequirementCoverageRows
         },
         expectedEvidenceTypes: expectedEvidenceTypesForRule(rule),
         linkedEvidence,
+        candidateEvidence,
         status: deriveStatus(statusesByRuleId.get(rule.id), linkedEvidence),
       } satisfies RequirementCoverageRow;
     })
     .sort((a, b) => a.ruleId.localeCompare(b.ruleId));
 }
-import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";

@@ -27,6 +27,7 @@ const rows: RequirementCoverageRow[] = [
     },
     expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
     linkedEvidence: [{ id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" }],
+    candidateEvidence: [],
     status: "linked",
   },
   {
@@ -46,6 +47,7 @@ const rows: RequirementCoverageRow[] = [
     },
     expectedEvidenceTypes: [],
     linkedEvidence: [],
+    candidateEvidence: [],
     status: "missing",
   },
 ];
@@ -100,6 +102,7 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Complete");
     expect(html).toContain("No expected evidence metadata");
     expect(html).toContain("No linked evidence yet");
+    expect(html).toContain("No workbook-derived candidates for this requirement yet.");
     expect(html).toContain("Evidence inventory");
     expect(html).toContain("Boundary worksheet");
     expect(html).toContain("Provenance pending");
@@ -133,6 +136,15 @@ describe("RequirementCoverageWorkspace", () => {
                 id: item.evidence_id,
                 title: item.display_name,
                 type: item.type,
+                source: "inventory" as const,
+              })),
+            candidateEvidence: inventory
+              .flatMap((item) => item.workbook_record_groups ?? [])
+              .filter((group) => group.candidate_evidence_types.includes("spreadsheet-workbook"))
+              .map((group) => ({
+                id: group.group_id,
+                title: group.display_name,
+                type: group.group_type,
                 source: "inventory" as const,
               })),
             status:
@@ -202,6 +214,7 @@ describe("RequirementCoverageWorkspace", () => {
     expect(container.textContent).toContain("Full eligibility requirement text.");
     expect(container.querySelector("#r-R-2")?.getAttribute("aria-pressed")).toBe("true");
     expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
+    expect(container.textContent).toContain("Workbook-derived candidates");
 
     await act(async () => {
       (container.querySelector('[data-testid="inventory-link-ev-2"]') as HTMLButtonElement).click();

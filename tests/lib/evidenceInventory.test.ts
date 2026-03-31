@@ -1,6 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import {
   buildEvidenceInventory,
+  candidateEvidenceTypesForWorkbookGroup,
   coalesceEvidencePins,
   evidencePinDedupeKey,
   linkEvidencePinToRequirement,
@@ -24,6 +25,53 @@ const pins: EvidencePin[] = [
         size: 1024,
         sha256: "sha-1",
         created_at: "2026-03-01T00:00:00Z",
+      },
+      {
+        id: "att-2",
+        pin_id: "pin-1",
+        filename: "monitoring-log.csv",
+        mime: "text/csv",
+        size: 2048,
+        sha256: "sha-workbook",
+        created_at: "2026-03-01T00:00:00Z",
+        workbook_asset: {
+          workbook_id: "wbk_sha_workbo",
+          file_kind: "csv",
+          file_name: "monitoring-log.csv",
+          file_sha256: "sha-workbook",
+          sheet_count: 1,
+          sheets: [
+            {
+              sheet_name: "monitoring-log",
+              sheet_index: 0,
+              row_count: 3,
+              column_count: 3,
+              bounds_ref: "A1:C3",
+              header_row_ref: 1,
+              header_columns: ["monitoring_period", "sample_id", "value"],
+              warnings: [],
+            },
+          ],
+          record_groups: [
+            {
+              group_id: "wbg_001",
+              group_type: "sampling_log",
+              display_name: "monitoring-log · sampling log",
+              workbook_id: "wbk_sha_workbo",
+              workbook_filename: "monitoring-log.csv",
+              source_sheet: "monitoring-log",
+              source_range: "A1:C3",
+              row_count: 2,
+              column_names: ["monitoring_period", "sample_id", "value"],
+              rows: [
+                { monitoring_period: "2026-Q1", sample_id: "S-1", value: "10" },
+                { monitoring_period: "2026-Q1", sample_id: "S-2", value: "12" },
+              ],
+              provenance_summary: "monitoring-log.csv • monitoring-log • A1:C3",
+            },
+          ],
+          warnings: [],
+        },
       },
     ],
     created_at: "2026-03-01T00:00:00Z",
@@ -67,14 +115,15 @@ describe("evidence inventory", () => {
     });
     expect(inventory[1]).toMatchObject({
       evidence_id: "pin-1",
-      dedupe_key: "attachment:sha-1",
+      dedupe_key: "attachment:sha-1|sha-workbook",
       display_name: "q1-monitoring.pdf",
-      type: "Upload",
-      source_summary: "Upload",
-      provenance_summary: "Attachment q1-monitoring.pdf",
+      type: "Workbook",
+      source_summary: "Workbook upload",
       link_state: "linked",
       linked_requirement_ids: ["R-1"],
     });
+    expect(inventory[1]?.provenance_summary).toContain("monitoring-log.csv");
+    expect(inventory[1]?.workbook_record_groups?.[0]?.group_type).toBe("sampling_log");
   });
 
   it("supports one evidence item linked to multiple requirements without duplicate records", () => {
@@ -141,11 +190,31 @@ describe("evidence inventory", () => {
       rules: [
         { id: "R-1", title: "Rule 1", snippet: "Rule one", tags: [] },
         { id: "R-2", title: "Rule 2", snippet: "Rule two", tags: [] },
+        { id: "R-3", title: "Workbook rule", snippet: "Spreadsheet workbook table", tags: [] },
       ],
       inventoryItems: inventory,
     });
 
     expect(rows.find((row) => row.ruleId === "R-1")?.linkedEvidence.map((item) => item.id)).toEqual(["pin-1"]);
     expect(rows.find((row) => row.ruleId === "R-2")?.linkedEvidence.map((item) => item.id)).toEqual(["pin-2"]);
+    expect(rows.find((row) => row.ruleId === "R-3")?.candidateEvidence.map((item) => item.id)).toEqual(["wbg_001"]);
+  });
+
+  it("maps workbook groups into controlled candidate evidence types", () => {
+    expect(
+      candidateEvidenceTypesForWorkbookGroup({
+        group_id: "wbg_calc",
+        group_type: "calculation_table",
+        display_name: "calc",
+        workbook_id: "wbk",
+        workbook_filename: "calc.xlsx",
+        source_sheet: "Calculations",
+        source_range: "A1:C5",
+        row_count: 4,
+        column_names: ["formula", "result"],
+        rows: [{ formula: "a+b", result: "2" }],
+        provenance_summary: "calc.xlsx • Calculations • A1:C5",
+      }),
+    ).toEqual(["spreadsheet-workbook", "calculation-support"]);
   });
 });
