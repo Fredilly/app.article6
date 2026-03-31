@@ -13,6 +13,49 @@ export type AOI = {
 
 export type EvidencePinKind = "photo" | "doc" | "note";
 
+export type WorkbookRecordGroupType =
+  | "activity_data_table"
+  | "parameter_source_table"
+  | "calculation_table"
+  | "sampling_log"
+  | "monitoring_period_table";
+
+export type WorkbookSheetSummary = {
+  sheet_name: string;
+  sheet_index: number;
+  row_count: number;
+  column_count: number;
+  bounds_ref: string | null;
+  header_row_ref: number | null;
+  header_columns: string[];
+  warnings: string[];
+};
+
+export type WorkbookRecordGroup = {
+  group_id: string;
+  group_type: WorkbookRecordGroupType;
+  display_name: string;
+  workbook_id: string;
+  workbook_filename: string;
+  source_sheet: string;
+  source_range: string | null;
+  row_count: number;
+  column_names: string[];
+  rows: Array<Record<string, string>>;
+  provenance_summary: string;
+};
+
+export type WorkbookEvidenceAsset = {
+  workbook_id: string;
+  file_kind: "xlsx" | "csv";
+  file_name: string;
+  file_sha256: string;
+  sheet_count: number;
+  sheets: WorkbookSheetSummary[];
+  record_groups: WorkbookRecordGroup[];
+  warnings: string[];
+};
+
 export type EvidenceAttachment = {
   id: string;
   pin_id: string;
@@ -21,6 +64,7 @@ export type EvidenceAttachment = {
   size: number;
   sha256: string;
   created_at: string;
+  workbook_asset?: WorkbookEvidenceAsset | null;
 };
 
 export type VerificationRun = {

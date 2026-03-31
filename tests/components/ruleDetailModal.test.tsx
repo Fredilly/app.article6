@@ -20,6 +20,7 @@ const linkedRow: RequirementCoverageRow = {
   },
   expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
   linkedEvidence: [{ id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" }],
+  candidateEvidence: [],
   status: "linked",
 };
 
@@ -40,6 +41,7 @@ const sparseRow: RequirementCoverageRow = {
   },
   expectedEvidenceTypes: ["eligibility-proof"],
   linkedEvidence: [],
+  candidateEvidence: [],
   status: "missing",
 };
 

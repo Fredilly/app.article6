@@ -366,6 +366,25 @@ export default function RequirementCoverageWorkspace({
                   </div>
                 </section>
 
+                <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Workbook-derived candidates</div>
+                  <div className="mt-2 text-sm text-slate-700">
+                    {selectedRow.candidateEvidence.length ? (
+                      <ul className="grid gap-2">
+                        {selectedRow.candidateEvidence.map((item) => (
+                          <li key={`${item.source}:${item.id}`} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                            <div className="font-semibold text-slate-900">{item.title}</div>
+                            <div className="mt-1 font-mono text-[11px] text-slate-600">{item.id}</div>
+                            <div className="mt-1 text-xs text-slate-600">{item.type} • candidate only</div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div>No workbook-derived candidates for this requirement yet.</div>
+                    )}
+                  </div>
+                </section>
+
                 <section className="grid gap-2 text-xs text-slate-600">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-semibold text-slate-700">Source path</span>
@@ -445,6 +464,22 @@ export default function RequirementCoverageWorkspace({
                                   <div>Source: {item.source_summary}</div>
                                   <div>Added: {formatInventoryTime(item.added_at)}</div>
                                   <div>Provenance: {item.provenance_summary}</div>
+                                  {item.workbook_assets?.length ? (
+                                    <div>
+                                      Workbook: {item.workbook_assets[0]?.sheet_count ?? 0} sheet{item.workbook_assets[0]?.sheet_count === 1 ? "" : "s"} •{" "}
+                                      {item.workbook_record_groups?.length ?? 0} derived group{(item.workbook_record_groups?.length ?? 0) === 1 ? "" : "s"}
+                                    </div>
+                                  ) : null}
+                                  {item.workbook_record_groups?.length ? (
+                                    <div className="grid gap-1">
+                                      {item.workbook_record_groups.map((group) => (
+                                        <div key={group.group_id}>
+                                          {group.display_name} • {group.source_sheet}
+                                          {group.source_range ? ` • ${group.source_range}` : ""}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : null}
                                   {item.linked_requirement_ids.length ? (
                                     <div>Requirements: {item.linked_requirement_ids.join(", ")}</div>
                                   ) : null}

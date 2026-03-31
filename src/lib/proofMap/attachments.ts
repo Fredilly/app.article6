@@ -1,5 +1,6 @@
 import type { EvidenceAttachment } from "@/lib/proofMap/types";
 import { sha256ArrayBuffer } from "@/lib/proof/hash";
+import { isSupportedWorkbookUpload, parseWorkbookEvidenceAsset } from "@/lib/evidence/workbook";
 
 const DB_NAME = "article6-proof";
 const DB_VERSION = 1;
@@ -10,6 +11,10 @@ export const ALLOWED_EVIDENCE_ATTACHMENT_MIME_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
   "image/png",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
+  "text/csv",
+  "application/csv",
 ]);
 
 function openDb(): Promise<IDBDatabase> {
@@ -74,6 +79,8 @@ function normalizeMime(file: File): string {
   if (lower.endsWith(".pdf")) return "application/pdf";
   if (lower.endsWith(".png")) return "image/png";
   if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  if (lower.endsWith(".csv")) return "text/csv";
   return "application/octet-stream";
 }
 
@@ -92,8 +99,8 @@ export async function createAndStoreEvidenceAttachment(input: {
   }
 
   const mime = normalizeMime(file);
-  if (!ALLOWED_EVIDENCE_ATTACHMENT_MIME_TYPES.has(mime)) {
-    return { ok: false, message: "Unsupported file type (allowed: pdf, jpg, png)." };
+  if (!ALLOWED_EVIDENCE_ATTACHMENT_MIME_TYPES.has(mime) && !isSupportedWorkbookUpload({ filename: file.name, mime })) {
+    return { ok: false, message: "Unsupported file type (allowed: pdf, jpg, png, csv, xlsx)." };
   }
 
   const bytes =
@@ -101,6 +108,12 @@ export async function createAndStoreEvidenceAttachment(input: {
       ? await (file as File & { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer()
       : await new Response(file).arrayBuffer();
   const sha256 = await sha256ArrayBuffer(bytes);
+  const workbook_asset = await parseWorkbookEvidenceAsset({
+    bytes,
+    filename: file.name || "evidence",
+    mime,
+    fileSha256: sha256,
+  });
   const id = newId("att");
   await putAttachmentBytes(id, bytes);
 
@@ -114,6 +127,7 @@ export async function createAndStoreEvidenceAttachment(input: {
       size: file.size,
       sha256,
       created_at: nowIso(),
+      workbook_asset,
     },
   };
 }
