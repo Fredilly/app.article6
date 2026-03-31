@@ -105,8 +105,8 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Provenance pending");
     expect(html).toContain("EV-EV1");
     expect(html).toContain("Unlinked");
-    expect(html).toContain("Upload · added");
-    expect(html).toContain("Details");
+    expect(html).toContain("Not linked yet");
+    expect(html).toContain("More");
     expect(html).toContain("supporting evidence marker");
     expect(html).not.toContain("Pin R-1");
   });
