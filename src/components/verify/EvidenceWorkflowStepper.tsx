@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Tooltip from "@/components/ui/Tooltip";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
@@ -55,6 +55,11 @@ type EvidenceWorkflowStepperProps = {
   wizard: VerifyWizardStepDetails;
   onStartAnotherRun: () => void;
   onViewRunHistory: () => void;
+  onViewOutcome?: () => void;
+  methodCode?: string;
+  version?: string;
+  reviewedRuleCount?: number | null;
+  linkedEvidenceCount?: number | null;
   finalizedResult?: ReactNode;
 };
 
@@ -114,6 +119,11 @@ export default function EvidenceWorkflowStepper({
   wizard,
   onStartAnotherRun,
   onViewRunHistory,
+  onViewOutcome,
+  methodCode,
+  version,
+  reviewedRuleCount = null,
+  linkedEvidenceCount = null,
   finalizedResult = null,
 }: EvidenceWorkflowStepperProps) {
   const stepMap = new Map(wizard.steps.map((step) => [step.id, step]));
@@ -129,9 +139,92 @@ export default function EvidenceWorkflowStepper({
   const readyToFinalize = step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled);
   const inProgress = !currentWorkspaceIsFinal && !readyToFinalize;
   const stepShellClass = currentWorkspaceIsFinal ? "opacity-45 transition" : "transition";
+  const [completedWorkflowExpanded, setCompletedWorkflowExpanded] = useState(false);
+  const completedCounts = [
+    typeof reviewedRuleCount === "number"
+      ? `${reviewedRuleCount} reviewed rule${reviewedRuleCount === 1 ? "" : "s"}`
+      : null,
+    typeof linkedEvidenceCount === "number"
+      ? `${linkedEvidenceCount} linked evidence item${linkedEvidenceCount === 1 ? "" : "s"}`
+      : null,
+  ].filter(Boolean) as string[];
+  const finalizedLabel = formatDate(finalizedAt);
+
+  useEffect(() => {
+    if (currentWorkspaceIsFinal) {
+      setCompletedWorkflowExpanded(false);
+      return;
+    }
+    setCompletedWorkflowExpanded(true);
+  }, [currentWorkspaceIsFinal, currentRunLabel]);
+
+  if (currentWorkspaceIsFinal && !completedWorkflowExpanded) {
+    return (
+      <div
+        className="rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-slate-50 px-4 py-3 shadow-sm shadow-emerald-100"
+        data-testid="wizard-completed-summary"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+                Finalized
+              </span>
+              {methodCode && version ? (
+                <span className="text-xs font-medium text-slate-600">
+                  {methodCode}@{version}
+                </span>
+              ) : null}
+            </div>
+            <div className="mt-2 text-sm font-semibold text-slate-900">Workflow completed</div>
+            <div className="mt-1 text-xs text-slate-600">
+              {finalizedLabel ? `Finalized ${finalizedLabel}` : "Run finalized."}
+            </div>
+            <div className="mt-1 text-xs text-slate-600">
+              {completedCounts.length ? completedCounts.join(" · ") : "Outcome and exports are now the primary surface."}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800"
+              onClick={() => onViewOutcome?.()}
+            >
+              View outcome
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={onStartAnotherRun}
+            >
+              Start another run
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={() => setCompletedWorkflowExpanded(true)}
+            >
+              Expand workflow
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-3">
+      {currentWorkspaceIsFinal && completedWorkflowExpanded ? (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            onClick={() => setCompletedWorkflowExpanded(false)}
+          >
+            Collapse workflow
+          </button>
+        </div>
+      ) : null}
       <div className="sticky top-0 z-10 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
@@ -407,6 +500,9 @@ export default function EvidenceWorkflowStepper({
           {finalizedResult ? <div className="mt-4">{finalizedResult}</div> : null}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800" onClick={onStartAnotherRun}>Start another run</button>
+            {onViewOutcome ? (
+              <button type="button" className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm hover:bg-emerald-100" onClick={onViewOutcome}>View outcome</button>
+            ) : null}
             <button type="button" className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm hover:bg-emerald-100" onClick={onViewRunHistory}>View run history</button>
           </div>
         </div>

@@ -3382,39 +3382,45 @@ export default function ProofMapTab({
 
           <div className={`flex items-start justify-between gap-2 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}>
             <div>
-              <div className="text-sm font-semibold text-slate-900">Evidence workflow</div>
-              <div className="mt-1 text-xs text-slate-500">
-                Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; reviewer save -&gt; finalize.
+              <div className="text-sm font-semibold text-slate-900">
+                {currentWorkspaceIsFinal ? "Completed workflow" : "Evidence workflow"}
               </div>
+              {!currentWorkspaceIsFinal ? (
+                <div className="mt-1 text-xs text-slate-500">
+                  Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; reviewer save -&gt; finalize.
+                </div>
+              ) : null}
             </div>
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              <button
-                type="button"
-                className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={() => {
-                  if (hasStartOverState) setStartOverOpen(true);
-                  else showToast("Nothing to clear.");
-                }}
-                disabled={startOverBusy}
-              >
-                Start over
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={handleNewRun}
-              >
-                {currentWorkspaceIsFinal ? "Start another run" : "New run"}
-              </button>
-              <button
-                type="button"
-                className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
-                onClick={() => setPanelCollapsed(true)}
-                aria-label="Collapse Verify panel"
-              >
-                Collapse »
-              </button>
-            </div>
+            {!currentWorkspaceIsFinal ? (
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => {
+                    if (hasStartOverState) setStartOverOpen(true);
+                    else showToast("Nothing to clear.");
+                  }}
+                  disabled={startOverBusy}
+                >
+                  Start over
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={handleNewRun}
+                >
+                  New run
+                </button>
+                <button
+                  type="button"
+                  className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+                  onClick={() => setPanelCollapsed(true)}
+                  aria-label="Collapse Verify panel"
+                >
+                  Collapse »
+                </button>
+              </div>
+            ) : null}
           </div>
 
           {error ? (
@@ -3482,6 +3488,11 @@ export default function ProofMapTab({
               wizard={wizardDetails}
               onStartAnotherRun={handleNewRun}
               onViewRunHistory={handleViewRunHistory}
+              onViewOutcome={() => setOutcomeOpen(true)}
+              methodCode={methodCode}
+              version={version}
+              reviewedRuleCount={linkedRuleIds.length}
+              linkedEvidenceCount={evidenceInventory.filter((item) => item.link_state === "linked").length}
               finalizedResult={
                 currentWorkspaceIsFinal ? (
                   <ReviewSummaryCard
