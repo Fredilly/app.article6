@@ -26,7 +26,7 @@
       "summary": "Normalize evidence assets before deeper ingestion work."
     },
     "phase_3_spreadsheet_workbook_intake": {
-      "status": "active",
+      "status": "done",
       "title": "Spreadsheet/workbook intake",
       "summary": "Bring workbook evidence into the coverage workflow."
     },
