@@ -46,6 +46,12 @@ function inventoryLinkStateLabel(item: EvidenceInventoryItem): string {
   return `Linked to ${item.linked_requirement_ids.length} requirements`;
 }
 
+function inventoryRelationshipSummary(item: EvidenceInventoryItem): string {
+  if (!item.linked_requirement_ids.length) return "Not linked yet";
+  if (item.linked_requirement_ids.length === 1) return `Linked to ${item.linked_requirement_ids[0]}`;
+  return `Linked to ${item.linked_requirement_ids.join(", ")}`;
+}
+
 function matchesFilter(row: RequirementCoverageRow, filter: RequirementCoverageFilter): boolean {
   if (filter === "all") return true;
   if (filter === "unresolved") return row.status === "missing" || row.status === "partial";
@@ -405,7 +411,7 @@ export default function RequirementCoverageWorkspace({
                                       {inventoryLinkStateLabel(item)}
                                     </span>
                                   </div>
-                                  <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.evidence_id)}</div>
+                                  <div className="mt-2 text-xs text-slate-600">{inventoryRelationshipSummary(item)}</div>
                                 </div>
                                 {selectedRow ? (
                                   linkedToSelected ? (
@@ -424,37 +430,24 @@ export default function RequirementCoverageWorkspace({
                                       className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
                                       data-testid={`inventory-link-${item.evidence_id}`}
                                     >
-                                      Link to {selectedRow.ruleId}
+                                      Link
                                     </button>
                                   )
                                 ) : null}
                               </div>
-                              <div className="mt-2 grid gap-2 text-xs text-slate-600">
-                                <div>{item.source_summary} · added {formatInventoryTime(item.added_at)}</div>
-                              </div>
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {item.linked_requirement_ids.length ? (
-                                  item.linked_requirement_ids.map((ruleId) => (
-                                    <span
-                                      key={`${item.evidence_id}:${ruleId}`}
-                                      className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[11px] text-slate-700"
-                                    >
-                                      {ruleId}
-                                    </span>
-                                  ))
-                                ) : (
-                                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                                    Unlinked
-                                  </span>
-                                )}
-                              </div>
                               <details className="mt-2 rounded-lg border border-slate-200 bg-slate-50">
-                                <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                  Details
+                                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-700">
+                                  More
                                 </summary>
                                 <div className="grid gap-1 px-3 pb-3 text-[11px] text-slate-600">
+                                  <div>ID: {formatEvidenceInventoryId(item.evidence_id)}</div>
+                                  <div>Type: {item.type}</div>
                                   <div>Source: {item.source_summary}</div>
+                                  <div>Added: {formatInventoryTime(item.added_at)}</div>
                                   <div>Provenance: {item.provenance_summary}</div>
+                                  {item.linked_requirement_ids.length ? (
+                                    <div>Requirements: {item.linked_requirement_ids.join(", ")}</div>
+                                  ) : null}
                                 </div>
                               </details>
                             </li>

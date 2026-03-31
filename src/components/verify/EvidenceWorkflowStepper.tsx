@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Tooltip from "@/components/ui/Tooltip";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
@@ -55,6 +55,11 @@ type EvidenceWorkflowStepperProps = {
   wizard: VerifyWizardStepDetails;
   onStartAnotherRun: () => void;
   onViewRunHistory: () => void;
+  onViewOutcome?: () => void;
+  methodCode?: string;
+  version?: string;
+  reviewedRuleCount?: number | null;
+  linkedEvidenceCount?: number | null;
   finalizedResult?: ReactNode;
 };
 
@@ -70,6 +75,229 @@ function formatDate(value: string | null | undefined): string | null {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
+}
+
+function CompletedWorkflowSummary(props: {
+  methodCode?: string;
+  version?: string;
+  finalizedLabel: string | null;
+  completedCounts: string[];
+  onViewOutcome?: () => void;
+  onStartAnotherRun: () => void;
+  onExpand: () => void;
+}) {
+  const { methodCode, version, finalizedLabel, completedCounts, onViewOutcome, onStartAnotherRun, onExpand } = props;
+
+  return (
+    <div
+      className="rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-slate-50 px-4 py-3 shadow-sm shadow-emerald-100"
+      data-testid="wizard-completed-summary"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+              Finalized
+            </span>
+            {methodCode && version ? (
+              <span className="text-xs font-medium text-slate-600">
+                {methodCode}@{version}
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-2 text-sm font-semibold text-slate-900">Workflow completed</div>
+          <div className="mt-1 text-xs text-slate-600">
+            {finalizedLabel ? `Finalized ${finalizedLabel}` : "Run finalized."}
+          </div>
+          <div className="mt-1 text-xs text-slate-600">
+            {completedCounts.length ? completedCounts.join(" · ") : "Outcome and exports are now the primary surface."}
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {onViewOutcome ? (
+            <button
+              type="button"
+              className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800"
+              onClick={onViewOutcome}
+            >
+              View outcome
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            onClick={onStartAnotherRun}
+          >
+            Start another run
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            onClick={onExpand}
+          >
+            Expand workflow
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CompletedWorkflowDetail(props: {
+  currentRunLabel: string;
+  loadedFromRunLabel?: string | null;
+  finalizedLabel: string | null;
+  savedReviewerArtifactAt?: string | null;
+  methodCode?: string;
+  version?: string;
+  reviewedRuleCount?: number | null;
+  linkedEvidenceCount?: number | null;
+  stacResultCount: number;
+  savedMinutes: string;
+  savedOutcomeNote: string;
+  wizard: VerifyWizardStepDetails;
+  finalizedResult?: ReactNode;
+  onViewOutcome?: () => void;
+  onViewRunHistory: () => void;
+  onStartAnotherRun: () => void;
+  onCollapse: () => void;
+}) {
+  const {
+    currentRunLabel,
+    loadedFromRunLabel = null,
+    finalizedLabel,
+    savedReviewerArtifactAt = null,
+    methodCode,
+    version,
+    reviewedRuleCount = null,
+    linkedEvidenceCount = null,
+    stacResultCount,
+    savedMinutes,
+    savedOutcomeNote,
+    wizard,
+    finalizedResult = null,
+    onViewOutcome,
+    onViewRunHistory,
+    onStartAnotherRun,
+    onCollapse,
+  } = props;
+  const savedArtifactLabel = formatDate(savedReviewerArtifactAt);
+  const reviewerSummary = savedMinutes.trim() || savedOutcomeNote.trim() || "No reviewer note captured.";
+
+  return (
+    <div className="grid gap-3" data-testid="wizard-completed-detail">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          onClick={onCollapse}
+        >
+          Collapse workflow
+        </button>
+      </div>
+
+      <div className="rounded-xl border border-emerald-200 bg-white px-4 py-4 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+                Completed workflow
+              </span>
+              {methodCode && version ? (
+                <span className="text-xs font-medium text-slate-600">
+                  {methodCode}@{version}
+                </span>
+              ) : null}
+            </div>
+            <div className="mt-2 text-sm font-semibold text-slate-900">Completed audit detail</div>
+            <div className="mt-1 text-xs text-slate-600">
+              {finalizedLabel ? `Finalized ${finalizedLabel}` : "Run finalized."}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {onViewOutcome ? (
+              <button
+                type="button"
+                className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800"
+                onClick={onViewOutcome}
+              >
+                View outcome
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={onStartAnotherRun}
+            >
+              Start another run
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              onClick={onViewRunHistory}
+            >
+              View run history
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Run record</div>
+            <div className="mt-2 grid gap-1 text-xs">
+              <div><span className="font-semibold text-slate-900">Run:</span> <span className="font-mono">{currentRunLabel}</span></div>
+              {loadedFromRunLabel ? <div><span className="font-semibold text-slate-900">Loaded from:</span> <span className="font-mono">{loadedFromRunLabel}</span></div> : null}
+              <div><span className="font-semibold text-slate-900">Reviewer artifact:</span> {savedArtifactLabel ?? "Saved in run history"}</div>
+              <div><span className="font-semibold text-slate-900">Search results reviewed:</span> {stacResultCount}</div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Completion scope</div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {typeof reviewedRuleCount === "number" ? (
+                <span className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700">
+                  {reviewedRuleCount} reviewed rule{reviewedRuleCount === 1 ? "" : "s"}
+                </span>
+              ) : null}
+              {typeof linkedEvidenceCount === "number" ? (
+                <span className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700">
+                  {linkedEvidenceCount} linked evidence item{linkedEvidenceCount === 1 ? "" : "s"}
+                </span>
+              ) : null}
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700">
+                {wizard.steps.filter((step) => step.complete).length} steps completed
+              </span>
+            </div>
+            <div className="mt-3 text-xs text-slate-600">{reviewerSummary}</div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-lg border border-slate-200 bg-white px-3 py-3">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Audit history</div>
+          <div className="mt-3 grid gap-2">
+            {wizard.steps.map((step) => (
+              <div key={step.id} className="flex items-start justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <div>
+                  <div className="text-xs font-semibold text-slate-900">Step {step.id} · {step.label}</div>
+                  <div className="mt-1 text-[11px] text-slate-600">
+                    {step.complete ? "Recorded in the finalized run history." : "Not completed in this run."}
+                  </div>
+                </div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                  step.complete ? "border border-emerald-200 bg-emerald-50 text-emerald-700" : "border border-slate-200 bg-white text-slate-600"
+                }`}>
+                  {step.complete ? "Completed" : "Not used"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {finalizedResult ? <div className="mt-4">{finalizedResult}</div> : null}
+      </div>
+    </div>
+  );
 }
 
 export default function EvidenceWorkflowStepper({
@@ -114,6 +342,11 @@ export default function EvidenceWorkflowStepper({
   wizard,
   onStartAnotherRun,
   onViewRunHistory,
+  onViewOutcome,
+  methodCode,
+  version,
+  reviewedRuleCount = null,
+  linkedEvidenceCount = null,
   finalizedResult = null,
 }: EvidenceWorkflowStepperProps) {
   const stepMap = new Map(wizard.steps.map((step) => [step.id, step]));
@@ -129,6 +362,58 @@ export default function EvidenceWorkflowStepper({
   const readyToFinalize = step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled);
   const inProgress = !currentWorkspaceIsFinal && !readyToFinalize;
   const stepShellClass = currentWorkspaceIsFinal ? "opacity-45 transition" : "transition";
+  const [completedWorkflowExpanded, setCompletedWorkflowExpanded] = useState(false);
+  const completedCounts = [
+    typeof reviewedRuleCount === "number"
+      ? `${reviewedRuleCount} reviewed rule${reviewedRuleCount === 1 ? "" : "s"}`
+      : null,
+    typeof linkedEvidenceCount === "number"
+      ? `${linkedEvidenceCount} linked evidence item${linkedEvidenceCount === 1 ? "" : "s"}`
+      : null,
+  ].filter(Boolean) as string[];
+  const finalizedLabel = formatDate(finalizedAt);
+
+  useEffect(() => {
+    setCompletedWorkflowExpanded(false);
+  }, [currentWorkspaceIsFinal, currentRunLabel]);
+
+  if (currentWorkspaceIsFinal && !completedWorkflowExpanded) {
+    return (
+      <CompletedWorkflowSummary
+        methodCode={methodCode}
+        version={version}
+        finalizedLabel={finalizedLabel}
+        completedCounts={completedCounts}
+        onViewOutcome={onViewOutcome}
+        onStartAnotherRun={onStartAnotherRun}
+        onExpand={() => setCompletedWorkflowExpanded(true)}
+      />
+    );
+  }
+
+  if (currentWorkspaceIsFinal) {
+    return (
+      <CompletedWorkflowDetail
+        currentRunLabel={currentRunLabel}
+        loadedFromRunLabel={loadedFromRunLabel}
+        finalizedLabel={finalizedLabel}
+        savedReviewerArtifactAt={savedReviewerArtifactAt}
+        methodCode={methodCode}
+        version={version}
+        reviewedRuleCount={reviewedRuleCount}
+        linkedEvidenceCount={linkedEvidenceCount}
+        stacResultCount={stacResultCount}
+        savedMinutes={savedMinutes}
+        savedOutcomeNote={savedOutcomeNote}
+        wizard={wizard}
+        finalizedResult={finalizedResult}
+        onViewOutcome={onViewOutcome}
+        onViewRunHistory={onViewRunHistory}
+        onStartAnotherRun={onStartAnotherRun}
+        onCollapse={() => setCompletedWorkflowExpanded(false)}
+      />
+    );
+  }
 
   return (
     <div className="grid gap-3">
@@ -407,6 +692,9 @@ export default function EvidenceWorkflowStepper({
           {finalizedResult ? <div className="mt-4">{finalizedResult}</div> : null}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800" onClick={onStartAnotherRun}>Start another run</button>
+            {onViewOutcome ? (
+              <button type="button" className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm hover:bg-emerald-100" onClick={onViewOutcome}>View outcome</button>
+            ) : null}
             <button type="button" className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm hover:bg-emerald-100" onClick={onViewRunHistory}>View run history</button>
           </div>
         </div>
