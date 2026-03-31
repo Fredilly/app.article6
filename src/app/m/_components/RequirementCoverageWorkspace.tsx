@@ -430,16 +430,33 @@ export default function RequirementCoverageWorkspace({
                                 ) : null}
                               </div>
                               <div className="mt-2 grid gap-2 text-xs text-slate-600">
-                                <div>{item.type}</div>
-                                <div>{item.source}</div>
-                                <div>{item.provenance_summary}</div>
-                                <div>Added {formatInventoryTime(item.added_at)}</div>
-                                <div>
-                                  {item.linked_requirement_ids.length
-                                    ? `Requirements: ${item.linked_requirement_ids.join(", ")}`
-                                    : "Requirements: none yet"}
-                                </div>
+                                <div>{item.source_summary} · added {formatInventoryTime(item.added_at)}</div>
                               </div>
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {item.linked_requirement_ids.length ? (
+                                  item.linked_requirement_ids.map((ruleId) => (
+                                    <span
+                                      key={`${item.evidence_id}:${ruleId}`}
+                                      className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[11px] text-slate-700"
+                                    >
+                                      {ruleId}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                                    Unlinked
+                                  </span>
+                                )}
+                              </div>
+                              <details className="mt-2 rounded-lg border border-slate-200 bg-slate-50">
+                                <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                  Details
+                                </summary>
+                                <div className="grid gap-1 px-3 pb-3 text-[11px] text-slate-600">
+                                  <div>Source: {item.source_summary}</div>
+                                  <div>Provenance: {item.provenance_summary}</div>
+                                </div>
+                              </details>
                             </li>
                           );
                         })}

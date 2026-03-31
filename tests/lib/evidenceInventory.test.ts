@@ -1,6 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 import {
   buildEvidenceInventory,
+  coalesceEvidencePins,
+  evidencePinDedupeKey,
   linkEvidencePinToRequirement,
   unlinkEvidencePinFromRequirement,
 } from "@/lib/evidence/inventory";
@@ -38,23 +40,37 @@ const pins: EvidencePin[] = [
 ];
 
 describe("evidence inventory", () => {
+  it("builds a stable dedupe key for the same STAC-backed evidence", () => {
+    expect(evidencePinDedupeKey(pins[1]!)).toBe("stac:S2A-001");
+    expect(
+      evidencePinDedupeKey({
+        ...pins[1]!,
+        id: "pin-2b",
+        title: "Pin R-2 ↔ S2A-001",
+        cited_ids: ["R-2"],
+      }),
+    ).toBe("stac:S2A-001");
+  });
+
   it("normalizes current workflow evidence with stable ids and fallback provenance", () => {
     const inventory = buildEvidenceInventory(pins);
 
     expect(inventory[0]).toMatchObject({
       evidence_id: "pin-2",
+      dedupe_key: "stac:S2A-001",
       display_name: "S2A-001",
       type: "STAC item",
-      source: "STAC run run-22",
+      source_summary: "STAC run",
       provenance_summary: "STAC S2A-001",
       link_state: "unlinked",
       linked_requirement_ids: [],
     });
     expect(inventory[1]).toMatchObject({
       evidence_id: "pin-1",
-      display_name: "Q1 monitoring report",
+      dedupe_key: "attachment:sha-1",
+      display_name: "q1-monitoring.pdf",
       type: "Upload",
-      source: "Upload q1-monitoring.pdf",
+      source_summary: "Upload",
       provenance_summary: "Attachment q1-monitoring.pdf",
       link_state: "linked",
       linked_requirement_ids: ["R-1"],
@@ -70,6 +86,42 @@ describe("evidence inventory", () => {
     expect(item?.linked_requirement_ids).toEqual(["R-1", "R-2"]);
     expect(item?.link_state).toBe("linked");
     expect(relinkedPins.find((pin) => pin.id === "pin-1")?.cited_ids).toEqual(["R-1", "R-2"]);
+  });
+
+  it("coalesces duplicate logical evidence assets into one inventory item", () => {
+    const duplicates: EvidencePin[] = [
+      pins[1]!,
+      {
+        ...pins[1]!,
+        id: "pin-2b",
+        title: "Pin R-2 ↔ S2A-001",
+        cited_ids: ["R-2"],
+        created_at: "2026-03-03T00:00:00Z",
+      },
+    ];
+
+    const inventory = buildEvidenceInventory(duplicates);
+    expect(inventory).toHaveLength(1);
+    expect(inventory[0]?.display_name).toBe("S2A-001");
+    expect(inventory[0]?.linked_requirement_ids).toEqual(["R-2"]);
+  });
+
+  it("coalesces duplicate logical pins into one stored evidence object", () => {
+    const duplicates: EvidencePin[] = [
+      pins[1]!,
+      {
+        ...pins[1]!,
+        id: "pin-2b",
+        title: "Pin R-2 ↔ S2A-001",
+        cited_ids: ["R-2"],
+        created_at: "2026-03-03T00:00:00Z",
+      },
+    ];
+
+    const merged = coalesceEvidencePins(duplicates);
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.title).toBe("S2A-001");
+    expect(merged[0]?.cited_ids).toEqual(["R-2"]);
   });
 
   it("unlinks requirement links without affecting unrelated evidence metadata", () => {
