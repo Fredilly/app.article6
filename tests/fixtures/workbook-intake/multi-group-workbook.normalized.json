@@ -1,0 +1,112 @@
+{
+  "workbook_id": "wbk_9de17d219d59",
+  "file_kind": "xlsx",
+  "file_name": "multi-group-workbook.xlsx",
+  "file_sha256": "9de17d219d599e7f522ed66e1d6fc671dbc61fba5b180cda0144809f9a9f2ac7",
+  "sheet_count": 3,
+  "sheets": [
+    {
+      "sheet_name": "Activity Data",
+      "sheet_index": 0,
+      "row_count": 3,
+      "column_count": 3,
+      "bounds_ref": "A1:C3",
+      "header_row_ref": 1,
+      "header_columns": [
+        "monitoring_period",
+        "activity_volume",
+        "sample_id"
+      ],
+      "warnings": []
+    },
+    {
+      "sheet_name": "Calculations",
+      "sheet_index": 1,
+      "row_count": 3,
+      "column_count": 3,
+      "bounds_ref": "A1:C3",
+      "header_row_ref": 1,
+      "header_columns": [
+        "formula",
+        "input_value",
+        "result"
+      ],
+      "warnings": []
+    },
+    {
+      "sheet_name": "Notes",
+      "sheet_index": 2,
+      "row_count": 1,
+      "column_count": 1,
+      "bounds_ref": "A1:A1",
+      "header_row_ref": 1,
+      "header_columns": [
+        "freeform_note"
+      ],
+      "warnings": [
+        "Structured table not detected"
+      ]
+    }
+  ],
+  "record_groups": [
+    {
+      "group_id": "wbg_41dd3d74d716",
+      "group_type": "calculation_table",
+      "display_name": "Calculations · calculation table",
+      "workbook_id": "wbk_9de17d219d59",
+      "workbook_filename": "multi-group-workbook.xlsx",
+      "source_sheet": "Calculations",
+      "source_range": "A1:C3",
+      "row_count": 2,
+      "column_names": [
+        "formula",
+        "input_value",
+        "result"
+      ],
+      "rows": [
+        {
+          "formula": "a+b",
+          "input_value": "10",
+          "result": "12"
+        },
+        {
+          "formula": "a-b",
+          "input_value": "10",
+          "result": "8"
+        }
+      ],
+      "provenance_summary": "multi-group-workbook.xlsx • Calculations • A1:C3"
+    },
+    {
+      "group_id": "wbg_ed6a354de117",
+      "group_type": "activity_data_table",
+      "display_name": "Activity Data · activity data table",
+      "workbook_id": "wbk_9de17d219d59",
+      "workbook_filename": "multi-group-workbook.xlsx",
+      "source_sheet": "Activity Data",
+      "source_range": "A1:C3",
+      "row_count": 2,
+      "column_names": [
+        "monitoring_period",
+        "activity_volume",
+        "sample_id"
+      ],
+      "rows": [
+        {
+          "monitoring_period": "2026-Q1",
+          "activity_volume": "10",
+          "sample_id": "S-1"
+        },
+        {
+          "monitoring_period": "2026-Q1",
+          "activity_volume": "11",
+          "sample_id": "S-2"
+        }
+      ],
+      "provenance_summary": "multi-group-workbook.xlsx • Activity Data • A1:C3"
+    }
+  ],
+  "warnings": [
+    "Structured table not detected"
+  ]
+}

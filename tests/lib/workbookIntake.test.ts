@@ -1,4 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
+import fs from "node:fs";
+import path from "node:path";
 import JSZip from "jszip";
 import { parseWorkbookEvidenceAsset } from "@/lib/evidence/workbook";
 
@@ -61,6 +63,41 @@ async function buildMinimalWorkbook(): Promise<ArrayBuffer> {
 }
 
 describe("workbook intake", () => {
+  it("parses the checked-in workbook fixture into the checked-in normalized artifact", async () => {
+    const fixturePath = path.join(process.cwd(), "tests/fixtures/workbook-intake/multi-group-workbook.xlsx");
+    const artifactPath = path.join(process.cwd(), "tests/fixtures/workbook-intake/multi-group-workbook.normalized.json");
+    const bytes = fs.readFileSync(fixturePath);
+    const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8")) as Awaited<ReturnType<typeof parseWorkbookEvidenceAsset>>;
+    const parsed = await parseWorkbookEvidenceAsset({
+      bytes: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+      filename: "multi-group-workbook.xlsx",
+      mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      fileSha256: "9de17d219d599e7f522ed66e1d6fc671dbc61fba5b180cda0144809f9a9f2ac7",
+    });
+
+    expect(parsed).toEqual(artifact);
+  });
+
+  it("extracts multiple candidate evidence groups from one workbook fixture", async () => {
+    const fixturePath = path.join(process.cwd(), "tests/fixtures/workbook-intake/multi-group-workbook.xlsx");
+    const bytes = fs.readFileSync(fixturePath);
+    const parsed = await parseWorkbookEvidenceAsset({
+      bytes: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+      filename: "multi-group-workbook.xlsx",
+      mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      fileSha256: "9de17d219d599e7f522ed66e1d6fc671dbc61fba5b180cda0144809f9a9f2ac7",
+    });
+
+    expect(parsed?.record_groups.map((group) => group.group_type)).toEqual([
+      "calculation_table",
+      "activity_data_table",
+    ]);
+    expect(parsed?.record_groups.map((group) => group.source_sheet)).toEqual([
+      "Calculations",
+      "Activity Data",
+    ]);
+  });
+
   it("parses csv into deterministic workbook-derived groups", async () => {
     const csv = "monitoring_period,activity_volume,sample_id\n2026-Q1,10,S-1\n2026-Q1,11,S-2\n";
     const bytes = new TextEncoder().encode(csv);
