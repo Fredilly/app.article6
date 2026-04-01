@@ -15,6 +15,8 @@ app.article6 should no longer behave primarily like a methodology/evidence viewe
 
 The methodology repo remains the canonical source for covered methods. Raw methodology PDF intake is a fallback path only for uncovered methods and must not become the default workflow for methods already covered in the pack.
 
+RC3 and RC4 remain app-side intake and reconciliation phases. Any new canonical `rules.rich` / `sections.rich` fields required by those phases must land upstream in the methodology repo before app.article6 adds consumer support.
+
 ## Phases
 
 ## RC1 — Requirement coverage UI

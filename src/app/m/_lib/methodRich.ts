@@ -66,14 +66,20 @@ async function loadManifestCached(): Promise<ManifestEntry[]> {
   }
 }
 
-function resolveCandidate(manifestPath: string, candidateFileName: string): { absolute: string; relative: string } | null {
+function resolveCandidates(manifestPath: string, candidateFileName: string): Array<{ absolute: string; relative: string }> {
   const normalized = path.normalize(manifestPath);
-  if (!normalized || path.isAbsolute(normalized)) return null;
-  const absolute = path.join(process.cwd(), normalized);
-  const dir = path.dirname(absolute);
-  const candidateAbs = path.join(dir, candidateFileName);
-  const relative = path.relative(process.cwd(), candidateAbs);
-  return { absolute: candidateAbs, relative };
+  if (!normalized || path.isAbsolute(normalized)) return [];
+  const bases = [
+    path.join(process.cwd(), normalized),
+    normalized.startsWith(`public${path.sep}`) ? null : path.join(process.cwd(), "public", normalized),
+  ].filter(Boolean) as string[];
+
+  return bases.map((absolute) => {
+    const dir = path.dirname(absolute);
+    const candidateAbs = path.join(dir, candidateFileName);
+    const relative = path.relative(process.cwd(), candidateAbs);
+    return { absolute: candidateAbs, relative };
+  });
 }
 
 export async function probeMethodRich(code: string, version: string): Promise<MethodRichProbeResult> {
@@ -106,51 +112,54 @@ export async function probeMethodRich(code: string, version: string): Promise<Me
     };
   }
 
-  const richCandidate = resolveCandidate(manifestPath, "rich.json");
-  const rulesRichCandidate =
-    resolveCandidate(manifestPath, "rules.rich.json") ??
-    (manifestPath.endsWith("rules.json")
-      ? (() => {
-          const absolute = path.join(process.cwd(), path.normalize(manifestPath).replace(/rules\.json$/, "rules.rich.json"));
-          return { absolute, relative: path.relative(process.cwd(), absolute) };
-        })()
-      : null);
-  const sectionsRichCandidate = resolveCandidate(manifestPath, "sections.rich.json");
+  const richCandidates = resolveCandidates(manifestPath, "rich.json");
+  const rulesRichCandidates = resolveCandidates(manifestPath, "rules.rich.json");
+  const sectionsRichCandidates = resolveCandidates(manifestPath, "sections.rich.json");
 
   const attempted: string[] = [];
   const missing: string[] = [];
   const sources: string[] = [];
   const data: NonNullable<MethodRichProbeResult["data"]> = {};
 
-  if (richCandidate) {
-    attempted.push(richCandidate.relative);
-    const parsed = await tryRead(richCandidate.absolute);
-    if (parsed) {
-      data.rich = parsed;
-      sources.push("rich.json");
-      return { ok: true, sources, attempted, missing, data };
+  if (richCandidates.length) {
+    for (const richCandidate of richCandidates) {
+      attempted.push(richCandidate.relative);
+      const parsed = await tryRead(richCandidate.absolute);
+      if (parsed) {
+        data.rich = parsed;
+        sources.push("rich.json");
+        return { ok: true, sources, attempted, missing, data };
+      }
     }
     missing.push("rich.json");
   }
 
-  if (rulesRichCandidate) {
-    attempted.push(rulesRichCandidate.relative);
-    const parsed = await tryRead(rulesRichCandidate.absolute);
-    if (parsed) {
-      data.rulesRich = parsed;
-      sources.push("rules.rich.json");
-    } else {
+  if (rulesRichCandidates.length) {
+    for (const rulesRichCandidate of rulesRichCandidates) {
+      attempted.push(rulesRichCandidate.relative);
+      const parsed = await tryRead(rulesRichCandidate.absolute);
+      if (parsed) {
+        data.rulesRich = parsed;
+        sources.push("rules.rich.json");
+        break;
+      }
+    }
+    if (!data.rulesRich) {
       missing.push("rules.rich.json");
     }
   }
 
-  if (sectionsRichCandidate) {
-    attempted.push(sectionsRichCandidate.relative);
-    const parsed = await tryRead(sectionsRichCandidate.absolute);
-    if (parsed) {
-      data.sectionsRich = parsed;
-      sources.push("sections.rich.json");
-    } else {
+  if (sectionsRichCandidates.length) {
+    for (const sectionsRichCandidate of sectionsRichCandidates) {
+      attempted.push(sectionsRichCandidate.relative);
+      const parsed = await tryRead(sectionsRichCandidate.absolute);
+      if (parsed) {
+        data.sectionsRich = parsed;
+        sources.push("sections.rich.json");
+        break;
+      }
+    }
+    if (!data.sectionsRich) {
       missing.push("sections.rich.json");
     }
   }
