@@ -119,7 +119,7 @@ Not active now:
 1) RC1 — Requirement coverage UI: Done — Define and render rule coverage rows with provenance, expected evidence, linked evidence, and reconciliation status.
 2) RC2 — Evidence inventory: Done — Normalize evidence assets before deeper ingestion work.
 3) RC3 — Spreadsheet/workbook intake: Done — Bring workbook evidence into the coverage workflow.
-4) RC4 — Monitoring report intake: Planned — Capture monitoring report evidence with stable provenance.
+4) RC4 — Monitoring report intake: Done — Capture monitoring report evidence with stable provenance.
 5) RC5 — PDD intake: Planned — Treat project design documentation as first-class evidence.
 6) RC6 — Methodology version diff / impact mode: Planned — Connect methodology deltas to coverage impact and evidence review.
 7) RC7 — Fallback raw methodology PDF intake for uncovered methods: Planned — Enable a fallback path without displacing the canonical methodology repo for covered methods.
