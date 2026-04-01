@@ -1,0 +1,10 @@
+[
+  {
+    "id": "S-1",
+    "provenance": {
+      "source_hash": "fixture-source-hash",
+      "source_ref": "TEST/EXAMPLE-METHOD@v01-0"
+    },
+    "title": "Monitoring requirements"
+  }
+]

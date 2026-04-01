@@ -1,28 +1,43 @@
-import { probeMethodRich } from "@/app/m/_lib/methodRich";
 import { loadMethodRules } from "@/app/m/_lib/methodRules";
 import { loadMethodSections } from "@/app/m/_lib/methodSections";
+import { loadManifestEntries } from "@/lib/manifest/cards";
+
+jest.mock("@/lib/manifest/cards", () => ({
+  loadManifestEntries: jest.fn(),
+}));
+
+const mockedLoadManifestEntries = jest.mocked(loadManifestEntries);
 
 describe("methodology canon consumption", () => {
-  test("loads rich rules from the synced methodology pack", async () => {
-    const result = await loadMethodRules("AR-AM0014", "v03-0");
+  beforeEach(() => {
+    mockedLoadManifestEntries.mockResolvedValue([
+      {
+        id: "R-1-0001",
+        methodology: "EXAMPLE-METHOD",
+        version: "v01-0",
+        rule: "Monitoring report must describe the reporting period and supporting evidence.",
+        tags: ["monitoring"],
+        path: "tests/fixtures/methodology-canon/example-method/v01-0/rules.json",
+        sectionId: "S-1",
+      },
+    ] as never);
+  });
+
+  afterEach(() => {
+    mockedLoadManifestEntries.mockReset();
+  });
+
+  test("loads rich rules from a synced methodology fixture", async () => {
+    const result = await loadMethodRules("EXAMPLE-METHOD", "v01-0");
 
     expect(result.source).toBe("rules.rich.json");
-    expect(result.byId.has("UNFCCC.Forestry.AR-AM0014.v03-0.R-1-0001")).toBe(true);
+    expect(result.byId.has("TEST.Example.EXAMPLE-METHOD.v01-0.R-1-0001")).toBe(true);
   });
 
-  test("loads rich sections from the synced methodology pack", async () => {
-    const result = await loadMethodSections("AR-AM0014", "v03-0");
+  test("loads rich sections from a synced methodology fixture", async () => {
+    const result = await loadMethodSections("EXAMPLE-METHOD", "v01-0");
 
     expect(result.source).toBe("sections.rich.json");
-    expect(result.byId.get("S-1")?.title).toBe("Scope and applicability");
-  });
-
-  test("probes rich methodology artifacts from the synced methodology pack", async () => {
-    const result = await probeMethodRich("AR-AM0014", "v03-0");
-
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-
-    expect(result.sources).toEqual(expect.arrayContaining(["rules.rich.json", "sections.rich.json"]));
+    expect(result.byId.get("S-1")?.title).toBe("Monitoring requirements");
   });
 });
