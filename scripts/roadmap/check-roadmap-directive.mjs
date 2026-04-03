@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { parseRoadmapDirective, normalizePrId } from "./roadmap-lib.mjs";
+import { normalizePhaseId, normalizePrId, parseRoadmapDirective } from "./roadmap-lib.mjs";
 
 function extractPrNumberFromRef(ref) {
   const match = String(ref ?? "").match(/refs\/pull\/(\d+)\//);
@@ -38,7 +38,7 @@ async function fetchPrBody({ repoName, prNumber, token }) {
 
 /**
  * Fail-closed rule:
- * If PR is roadmap-tracked (has phase:* label), require a valid Roadmap-Update block.
+ * If PR is roadmap-tracked, require a valid Roadmap-Update block.
  *
  * We read PR metadata from the GitHub event payload (pull_request).
  */
@@ -68,19 +68,18 @@ const token = process.env.GITHUB_TOKEN;
 const labels = (pr.labels ?? []).map((l) => l?.name).filter(Boolean);
 const hasPhase = labels.some((n) => String(n).startsWith("phase:"));
 const hasPr = labels.some((n) => String(n).startsWith("pr:PR"));
-const isRoadmapTracked = hasPhase || hasPr;
-
-if (!isRoadmapTracked) {
-  // Not a roadmap-tracked PR -> no requirement.
-  process.exit(0);
-}
-
 const eventBody = pr?.body ?? "";
 let body = eventBody;
 let directive = parseRoadmapDirective(body);
+const isRoadmapTrackedFromEvent = hasPhase || hasPr || Boolean(directive);
 let fetchedBodyLength = body.length;
 console.log("[roadmap-directive] eventBodyLength=", eventBody.length);
 console.log("[roadmap-directive] prNumber=", prNumber, "repo=", repoName);
+
+if (!isRoadmapTrackedFromEvent) {
+  process.exit(0);
+}
+
 if (!directive && prNumber && repoName) {
   try {
     const fetchedBody = await fetchPrBody({ repoName, prNumber, token });
@@ -94,10 +93,6 @@ if (!directive && prNumber && repoName) {
   }
 }
 console.log("[roadmap-directive] fetchedBodyLength=", fetchedBodyLength);
-
-if (directive && !(hasPhase && hasPr)) {
-  fail("Roadmap-Update is only allowed on roadmap PRs (requires phase:* and pr:PRxx labels).");
-}
 
 if (!directive) {
   fail("Missing '### Roadmap-Update' block in PR body (roadmap-tracked PR).");
@@ -116,6 +111,12 @@ if (prLabel) {
   const has = items.some((it) => normalizePrId(it.id) === expected);
   if (!has) {
     fail(`PR has label '${prLabel}' but Roadmap-Update items do not include ${expected}.`);
+  }
+}
+
+for (const item of items) {
+  if (!normalizePrId(item.id) && !normalizePhaseId(item.id)) {
+    fail(`Roadmap-Update item '${item.id}' must be PRxx or RCn.`);
   }
 }
 

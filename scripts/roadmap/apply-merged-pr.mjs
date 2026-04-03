@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { generateRoadmapContent, normalizePrId, normalizeStatus, parseRoadmapDirective } from "./roadmap-lib.mjs";
+import {
+  generateRoadmapContent,
+  getRoadmapItemStatus,
+  normalizePrId,
+  normalizeStatus,
+  parseRoadmapDirective,
+  setRoadmapItemStatus,
+} from "./roadmap-lib.mjs";
 import { finalizeMergedItems } from "./finalize-merged.mjs";
 
 const ALLOWED_STATUSES = new Set(["planned", "next", "in-progress", "done", "blocked"]);
@@ -21,9 +28,11 @@ function readEvent(eventPath) {
 }
 
 function updateSsotStatus(ssot, ssotPath, updates) {
-  const next = { ...ssot };
+  const next = JSON.parse(JSON.stringify(ssot));
   for (const { id, status } of updates) {
-    next[id] = status;
+    if (!setRoadmapItemStatus(next, id, status)) {
+      die(`roadmap: cannot map ${id} into ${ssotPath}`);
+    }
   }
 
   const entries = Object.entries(next);
@@ -35,14 +44,18 @@ function updateSsotStatus(ssot, ssotPath, updates) {
   fs.writeFileSync(ssotPath, JSON.stringify(ordered, null, 2) + "\n", "utf8");
 }
 
-function getPhaseSlug(labels) {
+function getPhaseSlug(labels, directiveSlug) {
   const phaseLabels = labels.filter((label) => label.startsWith("phase:"));
+  if (phaseLabels.length === 1) {
+    const slug = phaseLabels[0].slice("phase:".length).trim();
+    if (!slug) die("roadmap: phase label missing slug.");
+    return slug;
+  }
+  if (directiveSlug?.trim()) return directiveSlug.trim();
   if (phaseLabels.length !== 1) {
     die(`roadmap: expected exactly one phase:* label, found ${phaseLabels.length}.`);
   }
-  const slug = phaseLabels[0].slice("phase:".length).trim();
-  if (!slug) die("roadmap: phase label missing slug.");
-  return slug;
+  return null;
 }
 
 const args = process.argv.slice(2);
@@ -63,8 +76,6 @@ if (!hasDirective) {
   process.exit(0);
 }
 const prNumber = pr?.number ?? "unknown";
-const phaseSlug = getPhaseSlug(labels);
-
 const directive = parseRoadmapDirective(body);
 if (!directive) {
   console.log("roadmap: no Roadmap-Update block found; skipping");
@@ -80,6 +91,8 @@ if (!slug || ["n/a", "na", "none"].includes(slug.toLowerCase())) {
 if (!directive.items.length) {
   die("roadmap: Roadmap-Update requires at least one item.");
 }
+
+const phaseSlug = getPhaseSlug(labels, slug);
 
 const ssotPath = path.join("docs", "roadmaps", phaseSlug, "phase-status.json");
 if (!fs.existsSync(ssotPath)) {
@@ -108,7 +121,7 @@ if (!updates.length) {
 }
 
 const existing = JSON.parse(fs.readFileSync(ssotPath, "utf8"));
-const changed = updates.some(({ id, status }) => normalizeStatus(existing[id]) !== status);
+const changed = updates.some(({ id, status }) => getRoadmapItemStatus(existing, id) !== status);
 if (!changed) {
   console.log("roadmap: no status changes needed; skipping");
   process.exit(0);

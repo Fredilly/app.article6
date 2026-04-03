@@ -17,15 +17,18 @@ Directive format:
 ### Roadmap-Update
 - slug: <slug>
 - items:
+  - RC5: in_progress
   - PR10: in_progress
 ```
 
 Allowed statuses: planned | next | active | in_progress | done | blocked | deferred | frozen | parked
 
-On merge, automation updates `docs/roadmaps/<slug>/phase-status.json` and
-regenerates `docs/roadmaps/SUMMARY.md`. `in_progress` is fine while a PR is open,
-but merged PR items are finalized to `done` automatically. Manual edits to those
-files should be avoided.
+Use `RC<n>` to update a roadmap phase directly when the SSOT is phase-based, and
+use `PR<n>` when the roadmap tracks explicit PR items. On merge, automation
+updates `docs/roadmaps/<slug>/phase-status.json` and regenerates
+`docs/roadmaps/SUMMARY.md`. `in_progress` is fine while a PR is open, but merged
+items are finalized to `done` automatically. Manual edits to those files should
+be avoided.
 If no status changes are needed, the automation skips creating a bot PR.
 
 Invariants:

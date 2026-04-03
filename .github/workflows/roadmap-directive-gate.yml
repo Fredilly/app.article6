@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 20
       - name: Roadmap directive gate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/roadmap/check-roadmap-directive.mjs
       - name: Roadmap monotonic gate
         run: node scripts/roadmap/gate-roadmap-monotonic.mjs

@@ -25,6 +25,23 @@ jobs:
         run: |
           node scripts/roadmap/infer-pr-key.mjs --title "$PR_TITLE" --body "$PR_BODY" --branch "$PR_BRANCH" --output "$GITHUB_OUTPUT" || true
 
+      - name: Parse roadmap directive
+        id: directive
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import { parseRoadmapDirective } from "./scripts/roadmap/roadmap-lib.mjs";
+            const body = process.env.PR_BODY ?? "";
+            const output = process.env.GITHUB_OUTPUT;
+            const directive = parseRoadmapDirective(body);
+            const slug = directive?.slug && !["n/a","na","none"].includes(String(directive.slug).trim().toLowerCase())
+              ? String(directive.slug).trim()
+              : "";
+            fs.appendFileSync(output, `slug=${slug}\n`, "utf8");
+          '
+
       - name: Find SSOT
         id: ssot
         if: steps.infer.outputs.prKey != ''
@@ -32,19 +49,17 @@ jobs:
           node scripts/roadmap/find-ssot-for-pr.mjs --pr "${{ steps.infer.outputs.prKey }}" --output "$GITHUB_OUTPUT" --allow-missing
 
       - name: Apply labels
-        if: steps.infer.outputs.prKey != '' && steps.ssot.outputs.slug != ''
+        if: steps.ssot.outputs.slug != '' || steps.directive.outputs.slug != ''
         uses: actions/github-script@v7
         env:
           PR_KEY: ${{ steps.infer.outputs.prKey }}
-          PHASE_SLUG: ${{ steps.ssot.outputs.slug }}
+          PHASE_SLUG: ${{ steps.ssot.outputs.slug || steps.directive.outputs.slug }}
         with:
           script: |
             const prKey = process.env.PR_KEY;
             const slug = process.env.PHASE_SLUG;
             const prNumber = context.payload.pull_request?.number;
-            if (!prKey || !slug || !prNumber) return;
-
-            const prLabel = `pr:${prKey}`;
+            if (!slug || !prNumber) return;
             const phaseLabel = `phase:${slug}`;
 
             const files = await github.paginate(github.rest.pulls.listFiles, {
@@ -76,7 +91,7 @@ jobs:
             });
             const existing = new Set(existingLabels.map((label) => label.name));
 
-            for (const label of [prLabel, phaseLabel]) {
+            for (const label of [phaseLabel, ...(prKey ? [`pr:${prKey}`] : [])]) {
               if (!existing.has(label)) {
                 await github.rest.issues.createLabel({
                   owner: context.repo.owner,
@@ -89,7 +104,8 @@ jobs:
               }
             }
 
-            const labelsToApply = [prLabel, phaseLabel];
+            const labelsToApply = [phaseLabel];
+            if (prKey) labelsToApply.push(`pr:${prKey}`);
             for (const label of areaLabels) {
               if (label === "area:ui" && !existing.has(label)) continue;
               if (existing.has(label)) labelsToApply.push(label);
