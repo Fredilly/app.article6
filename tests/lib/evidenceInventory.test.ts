@@ -5,7 +5,10 @@ import {
   coalesceEvidencePins,
   evidencePinDedupeKey,
   linkEvidencePinToRequirement,
+  linkPddFragmentToRequirement,
   unlinkEvidencePinFromRequirement,
+  unlinkPddFragmentFromRequirement,
+  upsertPddFragmentOnEvidencePin,
 } from "@/lib/evidence/inventory";
 import type { EvidencePin } from "@/lib/proofMap/types";
 import { buildRequirementCoverageRows } from "@/app/m/_lib/requirementCoverage";
@@ -107,6 +110,7 @@ describe("evidence inventory", () => {
       evidence_id: "pin-2",
       dedupe_key: "stac:S2A-001",
       display_name: "S2A-001",
+      kind: "stac-item",
       type: "STAC item",
       source_summary: "STAC run",
       provenance_summary: "STAC S2A-001",
@@ -117,6 +121,7 @@ describe("evidence inventory", () => {
       evidence_id: "pin-1",
       dedupe_key: "attachment:sha-1|sha-workbook",
       display_name: "q1-monitoring.pdf",
+      kind: "workbook",
       type: "Workbook",
       source_summary: "Workbook upload",
       link_state: "linked",
@@ -216,5 +221,142 @@ describe("evidence inventory", () => {
         provenance_summary: "calc.xlsx • Calculations • A1:C5",
       }),
     ).toEqual(["spreadsheet-workbook", "calculation-support"]);
+  });
+
+  it("supports reusable PDD fragments linked to multiple requirements", () => {
+    const pddPins = upsertPddFragmentOnEvidencePin(
+      [
+        {
+          id: "pdd-1",
+          kind: "pdd",
+          title: "project-design.pdf",
+          cited_ids: [],
+          attachments: [
+            {
+              id: "att-pdd",
+              pin_id: "pdd-1",
+              filename: "project-design.pdf",
+              mime: "application/pdf",
+              size: 4096,
+              sha256: "sha-pdd",
+              created_at: "2026-03-03T00:00:00Z",
+            },
+          ],
+          pdd_document: {
+            evidence_id: "pdd-1",
+            attachment_id: "att-pdd",
+            file_name: "project-design.pdf",
+            mime: "application/pdf",
+            added_at: "2026-03-03T00:00:00Z",
+            sha256: "sha-pdd",
+          },
+          created_at: "2026-03-03T00:00:00Z",
+        },
+      ],
+      "pdd-1",
+      {
+        page_start: 3,
+        page_end: 4,
+        section_label: "3.1",
+        section_heading: "Project boundary",
+        excerpt: "The project boundary covers compartments 1 through 4.",
+      },
+    );
+    const fragmentId = pddPins[0]?.pdd_fragments?.[0]?.fragment_id ?? "";
+    const linkedPins = linkPddFragmentToRequirement(
+      linkPddFragmentToRequirement(pddPins, "pdd-1", fragmentId, "R-1"),
+      "pdd-1",
+      fragmentId,
+      "R-2",
+    );
+    const inventory = buildEvidenceInventory(linkedPins);
+    const item = inventory.find((entry) => entry.evidence_id === "pdd-1");
+
+    expect(item?.kind).toBe("pdd");
+    expect(item?.type).toBe("PDD");
+    expect(item?.linked_requirement_ids).toEqual(["R-1", "R-2"]);
+    expect(item?.pdd_fragments?.[0]).toMatchObject({
+      fragment_id: fragmentId,
+      section_heading: "Project boundary",
+      page_start: 3,
+      page_end: 4,
+    });
+    expect(linkedPins[0]?.cited_ids).toEqual(["R-1", "R-2"]);
+  });
+
+  it("treats namespaced rule ids as linked immediately", () => {
+    const namespacedRuleId = "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002";
+    const linkedPins = linkEvidencePinToRequirement(pins, "pin-2", namespacedRuleId);
+    const inventory = buildEvidenceInventory(linkedPins);
+    const item = inventory.find((entry) => entry.evidence_id === "pin-2");
+
+    expect(item?.linked_requirement_ids).toEqual([namespacedRuleId]);
+    expect(item?.link_state).toBe("linked");
+  });
+
+  it("keeps workbook and monitoring-report linkage behavior intact for canonical namespaced ids", () => {
+    const namespacedRuleId = "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0003";
+    const inventory = buildEvidenceInventory(linkEvidencePinToRequirement(pins, "pin-1", namespacedRuleId));
+    const rows = buildRequirementCoverageRows({
+      rules: [
+        { id: "R-1", title: "Report rule", snippet: "Maintain a monitoring report.", tags: [] },
+        {
+          id: namespacedRuleId,
+          title: "Workbook rule",
+          snippet: "Maintain a monitoring report and spreadsheet workbook.",
+          tags: [],
+        },
+      ],
+      sectionTitleById: new Map(),
+      inventoryItems: inventory,
+    });
+
+    expect(inventory.find((entry) => entry.evidence_id === "pin-1")?.linked_requirement_ids).toEqual(["R-1", namespacedRuleId]);
+    expect(rows.find((row) => row.ruleId === namespacedRuleId)?.linkedEvidence.map((item) => item.id)).toEqual(["pin-1"]);
+    expect(rows.find((row) => row.ruleId === namespacedRuleId)?.candidateEvidence.map((item) => item.id)).toEqual(["wbg_001"]);
+  });
+
+  it("unlinks one requirement from a shared PDD fragment without removing the fragment", () => {
+    const seeded = coalesceEvidencePins([
+      {
+        id: "pdd-2",
+        kind: "pdd",
+        title: "project-design.pdf",
+        cited_ids: ["R-1", "R-2"],
+        attachments: [
+          {
+            id: "att-pdd-2",
+            pin_id: "pdd-2",
+            filename: "project-design.pdf",
+            mime: "application/pdf",
+            size: 4096,
+            sha256: "sha-pdd-2",
+            created_at: "2026-03-03T00:00:00Z",
+          },
+        ],
+        pdd_fragments: [
+          {
+            fragment_id: "pdd-2:frag:1",
+            evidence_id: "pdd-2",
+            page_start: 9,
+            page_end: 9,
+            section_heading: "Design summary",
+          },
+        ],
+        pdd_fragment_links: [
+          { fragment_id: "pdd-2:frag:1", rule_id: "R-1", linked_at: "2026-03-03T00:00:00Z" },
+          { fragment_id: "pdd-2:frag:1", rule_id: "R-2", linked_at: "2026-03-03T00:00:00Z" },
+        ],
+        created_at: "2026-03-03T00:00:00Z",
+      },
+    ]);
+
+    const nextPins = unlinkPddFragmentFromRequirement(seeded, "pdd-2", "pdd-2:frag:1", "R-2");
+
+    expect(nextPins[0]?.pdd_fragments).toHaveLength(1);
+    expect(nextPins[0]?.pdd_fragment_links).toEqual([
+      { fragment_id: "pdd-2:frag:1", rule_id: "R-1", linked_at: "2026-03-03T00:00:00Z" },
+    ]);
+    expect(nextPins[0]?.cited_ids).toEqual(["R-1"]);
   });
 });

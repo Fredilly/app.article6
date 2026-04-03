@@ -11,7 +11,41 @@ export type AOI = {
   created_at: string;
 };
 
-export type EvidencePinKind = "photo" | "doc" | "note";
+export type EvidencePinKind = "photo" | "doc" | "note" | "pdd";
+
+export type PddFragmentBboxHint = {
+  page?: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type PddDocumentAsset = {
+  evidence_id: string;
+  attachment_id?: string | null;
+  file_name: string;
+  mime: string;
+  added_at: string;
+  sha256?: string | null;
+};
+
+export type PddFragment = {
+  fragment_id: string;
+  evidence_id: string;
+  page_start?: number;
+  page_end?: number;
+  section_label?: string;
+  section_heading?: string;
+  excerpt?: string;
+  bbox_hint?: PddFragmentBboxHint | null;
+};
+
+export type PddFragmentLink = {
+  fragment_id: string;
+  rule_id: string;
+  linked_at?: string;
+};
 
 export type WorkbookRecordGroupType =
   | "activity_data_table"
@@ -107,6 +141,9 @@ export type EvidencePin = {
   cited_ids: string[];
   location?: { lng: number; lat: number };
   attachments?: EvidenceAttachment[];
+  pdd_document?: PddDocumentAsset | null;
+  pdd_fragments?: PddFragment[];
+  pdd_fragment_links?: PddFragmentLink[];
   stac_item_ids?: string[];
   stac_run_id?: string;
   created_at: string;

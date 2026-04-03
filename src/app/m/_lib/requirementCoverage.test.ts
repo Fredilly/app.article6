@@ -6,6 +6,7 @@ import {
   summarizeLinkedEvidence,
 } from "@/app/m/_lib/requirementCoverage";
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
+import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
 
 describe("buildRequirementCoverageRows", () => {
   test("builds deterministic requirement coverage rows with provenance and expected evidence", () => {
@@ -129,5 +130,70 @@ describe("buildRequirementCoverageRows", () => {
     expect(summarizeExpectedEvidence(rows[0]?.expectedEvidenceTypes ?? [])).toBe("No expected evidence metadata");
     expect(summarizeLinkedEvidence(rows[0]?.linkedEvidence ?? [])).toBe("No linked evidence yet");
     expect(requirementProvenanceHint(rows[0]!)).toBe("Provenance pending");
+  });
+
+  test("maps linked PDD fragments into requirement-row provenance", () => {
+    const inventoryItems: EvidenceInventoryItem[] = [
+      {
+        evidence_id: "ev-pdd",
+        dedupe_key: "attachment:sha-pdd",
+        display_name: "project-design.pdf",
+        kind: "pdd",
+        type: "PDD",
+        source_summary: "PDD upload",
+        provenance_summary: "project-design.pdf • 1 fragment",
+        added_at: "2026-03-03T00:00:00Z",
+        link_state: "linked",
+        linked_requirement_ids: ["R-2"],
+        pdd_document: {
+          evidence_id: "ev-pdd",
+          attachment_id: "att-pdd",
+          file_name: "project-design.pdf",
+          mime: "application/pdf",
+          added_at: "2026-03-03T00:00:00Z",
+          sha256: "sha-pdd",
+        },
+        pdd_fragments: [
+          {
+            fragment_id: "ev-pdd:frag:1",
+            evidence_id: "ev-pdd",
+            page_start: 7,
+            page_end: 8,
+            section_label: "2.3",
+            section_heading: "Project design",
+            excerpt: "The project uses grouped activity boundaries.",
+          },
+        ],
+        pdd_fragment_links: [
+          { fragment_id: "ev-pdd:frag:1", rule_id: "R-2", linked_at: "2026-03-03T00:00:00Z" },
+        ],
+      },
+    ];
+
+    const rows = buildRequirementCoverageRows({
+      rules: [{ id: "R-2", title: "Project design", snippet: "Maintain PDD evidence.", tags: [] }],
+      inventoryItems,
+    });
+
+    expect(rows[0]?.linkedEvidence).toEqual([
+      {
+        id: "ev-pdd:frag:1",
+        evidenceId: "ev-pdd",
+        fragmentId: "ev-pdd:frag:1",
+        title: "project-design.pdf",
+        type: "PDD",
+        source: "inventory",
+        provenanceSummary: "project-design.pdf • Project design • p. 7-8",
+        documentLabel: "project-design.pdf",
+        pageStart: 7,
+        pageEnd: 8,
+        sectionLabel: "2.3",
+        sectionHeading: "Project design",
+        excerpt: "The project uses grouped activity boundaries.",
+      },
+    ]);
+    expect(summarizeLinkedEvidence(rows[0]?.linkedEvidence ?? [])).toBe(
+      "project-design.pdf (PDD • project-design.pdf • Project design • p. 7-8)",
+    );
   });
 });

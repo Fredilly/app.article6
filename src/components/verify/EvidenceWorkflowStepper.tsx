@@ -6,6 +6,23 @@ import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
 type RuleOption = { id: string; title: string };
 
+function shortRuleLabel(ruleId: string): string {
+  const trimmed = ruleId.trim();
+  if (!trimmed) return "";
+  const dotSegments = trimmed.split(".");
+  const lastSegment = dotSegments[dotSegments.length - 1]?.trim() ?? "";
+  if (/^R-\d/i.test(lastSegment)) return lastSegment;
+  const match = trimmed.match(/(^|[.-])(R-\d[\w-]*)$/i);
+  return match?.[2] ?? trimmed;
+}
+
+function formatRuleOptionLabel(rule: RuleOption): string {
+  const shortId = shortRuleLabel(rule.id);
+  const title = rule.title.trim();
+  if (!title || title === rule.id || title === shortId) return shortId || rule.id;
+  return `${shortId || rule.id} - ${title.slice(0, 60)}`;
+}
+
 type EvidenceWorkflowStepperProps = {
   ruleOptions: RuleOption[];
   selectedRuleId: string | null;
@@ -485,8 +502,8 @@ export default function EvidenceWorkflowStepper({
             >
               <option value="">Select rule…</option>
               {ruleOptions.map((rule) => (
-                <option key={rule.id} value={rule.id}>
-                  {rule.id} {rule.title.trim().slice(0, 60) ? `- ${rule.title.trim().slice(0, 60)}` : ""}
+                <option key={rule.id} value={rule.id} title={rule.id}>
+                  {formatRuleOptionLabel(rule)}
                 </option>
               ))}
             </select>

@@ -27,7 +27,9 @@ import {
   buildEvidenceInventory,
   coalesceEvidencePins,
   linkEvidencePinToRequirement,
+  linkPddFragmentToRequirement,
   unlinkEvidencePinFromRequirement,
+  unlinkPddFragmentFromRequirement,
 } from "@/lib/evidence/inventory";
 import { linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
@@ -52,6 +54,7 @@ import {
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import { aoiFingerprint } from "@/lib/proofMap/verificationRuns";
+import { isRuleLikeId } from "@/lib/proofMap/pins";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
 import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlState";
@@ -321,7 +324,7 @@ export default function MethodDetailPane({
 
     for (const run of verificationRuns) {
       for (const citedId of run.cited_ids ?? []) {
-        if (typeof citedId !== "string" || !/^R-/i.test(citedId.trim())) continue;
+        if (typeof citedId !== "string" || !isRuleLikeId(citedId.trim())) continue;
         next.set(citedId.trim(), run.status === "ok" ? "linked" : "needs-review");
       }
     }
@@ -442,25 +445,35 @@ export default function MethodDetailPane({
   );
 
   const setEvidencePinsAndPersist = useCallback(
-    (nextPins: EvidencePin[]) => {
-      const normalizedPins = coalesceEvidencePins(nextPins);
-      setEvidencePins(normalizedPins);
-      if (!activeVersion) return;
-      savePins(method.code, activeVersion, normalizedPins);
+    (nextPins: EvidencePin[] | ((current: EvidencePin[]) => EvidencePin[])) => {
+      setEvidencePins((current) => {
+        const resolved = typeof nextPins === "function" ? nextPins(current) : nextPins;
+        const normalizedPins = coalesceEvidencePins(resolved);
+        if (activeVersion) savePins(method.code, activeVersion, normalizedPins);
+        return normalizedPins;
+      });
     },
     [activeVersion, method.code],
   );
   const handleLinkInventoryItem = useCallback(
-    (evidenceId: string, ruleId: string) => {
-      setEvidencePinsAndPersist(linkEvidencePinToRequirement(evidencePins, evidenceId, ruleId));
+    (evidenceId: string, ruleId: string, fragmentId?: string) => {
+      setEvidencePinsAndPersist((current) =>
+        fragmentId
+          ? linkPddFragmentToRequirement(current, evidenceId, fragmentId, ruleId)
+          : linkEvidencePinToRequirement(current, evidenceId, ruleId),
+      );
     },
-    [evidencePins, setEvidencePinsAndPersist],
+    [setEvidencePinsAndPersist],
   );
   const handleUnlinkInventoryItem = useCallback(
-    (evidenceId: string, ruleId: string) => {
-      setEvidencePinsAndPersist(unlinkEvidencePinFromRequirement(evidencePins, evidenceId, ruleId));
+    (evidenceId: string, ruleId: string, fragmentId?: string) => {
+      setEvidencePinsAndPersist((current) =>
+        fragmentId
+          ? unlinkPddFragmentFromRequirement(current, evidenceId, fragmentId, ruleId)
+          : unlinkEvidencePinFromRequirement(current, evidenceId, ruleId),
+      );
     },
-    [evidencePins, setEvidencePinsAndPersist],
+    [setEvidencePinsAndPersist],
   );
 
   const setEvidenceSnapshotsAndPersist = useCallback(
