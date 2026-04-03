@@ -177,6 +177,65 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).toContain("View rule");
   });
 
+  it("renders short rule picker labels without duplicating canonical prefixes", () => {
+    const html = renderToStaticMarkup(
+      <EvidenceWorkflowStepper
+        ruleOptions={[
+          {
+            id: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001",
+            title: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001",
+          },
+          {
+            id: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002",
+            title: "Project boundary",
+          },
+        ]}
+        selectedRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001"
+        onViewRule={() => {}}
+        hasAoi
+        aoiLabel="AOI"
+        searchDisabled={false}
+        isRunning={false}
+        hasSearchResults={false}
+        stacResultCount={0}
+        selectedStacItemId={null}
+        onClearSelectedItem={() => {}}
+        canCreatePin={false}
+        createPinDisabledReason=""
+        pinsCount={0}
+        onUploadAoi={() => {}}
+        onSearchStac={() => {}}
+        onCreatePin={() => {}}
+        draftMinutes=""
+        draftOutcomeNote=""
+        savedMinutes=""
+        savedOutcomeNote=""
+        onReviewerMinutesChange={() => {}}
+        onReviewerOutcomeNoteChange={() => {}}
+        onSaveReviewerArtifact={() => {}}
+        onFinalizeRun={() => {}}
+        currentRunLabel="run-1234"
+        isEditedDraft={false}
+        hasUnsavedWorkspaceEdits={false}
+        currentWorkspaceIsFinal={false}
+        wizard={getVerifyWizardStepDetails({
+          selectedRuleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001",
+          aoiHash: null,
+          stacItemIds: [],
+          selectedStacItemId: null,
+          linkedRuleIds: [],
+          reviewerArtifactSavedAt: null,
+        })}
+        onStartAnotherRun={() => {}}
+        onViewRunHistory={() => {}}
+      />,
+    );
+
+    expect(html).toContain(">R-1-0001<");
+    expect(html).toContain(">R-1-0002 - Project boundary<");
+    expect(html).not.toContain("R-1-0001 - UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
+  });
+
   it("reopens the completed workflow on demand after finalization", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
