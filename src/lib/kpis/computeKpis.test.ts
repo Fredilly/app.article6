@@ -29,12 +29,12 @@ describe("computeKpis", () => {
         id: "p3",
         kind: "note",
         title: "three",
-        cited_ids: ["UNFCCC.Forestry.AR-ACM0003.v02-0-R-1-0002"],
+        cited_ids: ["UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002"],
         created_at: "2026-01-01T00:00:00Z",
       },
     ];
 
-    expect(linkedRuleIdsFromPins(pins)).toEqual(["UNFCCC.Forestry.AR-ACM0003.v02-0-R-1-0002"]);
+    expect(linkedRuleIdsFromPins(pins)).toEqual(["UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002"]);
     expect(computeKpis({ pins, totalRules: 10 }).linkedRulesCount).toBe(1);
   });
 });

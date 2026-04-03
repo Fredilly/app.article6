@@ -1,4 +1,5 @@
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
+import { isRuleLikeId } from "@/lib/proofMap/pins";
 
 export type RunSummary = {
   aoi: {
@@ -238,13 +239,12 @@ export function parseLinkedRuleId(input: { ruleParam?: string | null; hash?: str
   if (ruleParam) return ruleParam;
   const rawHash = (input.hash ?? "").replace(/^#/, "").trim();
   if (!rawHash) return null;
-  if (rawHash.startsWith("R-")) return rawHash;
-  const lower = rawHash.toLowerCase();
-  if (lower.startsWith("r-")) {
+  if (rawHash.startsWith("r-")) {
     const trimmed = rawHash.slice(2).trim();
     return trimmed || null;
   }
-  if (lower.startsWith("s-")) return null;
+  if (isRuleLikeId(rawHash)) return rawHash;
+  if (rawHash.startsWith("s-")) return null;
   return null;
 }
 

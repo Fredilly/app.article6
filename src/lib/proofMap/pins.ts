@@ -16,12 +16,12 @@ export function dedupeStrings(values: string[]): string[] {
 
 export function isRuleLikeId(id: string): boolean {
   const value = id.trim();
-  return /^R-/i.test(value) || /-R-\d/i.test(value);
+  return /(^|[.-])R-\d/i.test(value);
 }
 
 export function isSectionLikeId(id: string): boolean {
   const value = id.trim();
-  return /^S-/i.test(value) || /-S-\d/i.test(value);
+  return /(^|[.-])S-\d/i.test(value);
 }
 
 export function kindFromCitedId(id: string): "rule" | "section" | null {

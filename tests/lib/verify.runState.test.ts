@@ -244,6 +244,9 @@ describe("parseLinkedRuleId", () => {
     expect(parseLinkedRuleId({ ruleParam: "R-100", hash: "#r-R-2" })).toBe("R-100");
     expect(parseLinkedRuleId({ ruleParam: null, hash: "#r-R-2" })).toBe("R-2");
     expect(parseLinkedRuleId({ ruleParam: null, hash: "#R-3" })).toBe("R-3");
+    expect(parseLinkedRuleId({ ruleParam: null, hash: "#UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002" })).toBe(
+      "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002",
+    );
     expect(parseLinkedRuleId({ ruleParam: null, hash: "#s-S-1" })).toBeNull();
   });
 });

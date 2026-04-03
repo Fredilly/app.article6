@@ -285,13 +285,35 @@ describe("evidence inventory", () => {
   });
 
   it("treats namespaced rule ids as linked immediately", () => {
-    const namespacedRuleId = "UNFCCC.Forestry.AR-ACM0003.v02-0-R-1-0002";
+    const namespacedRuleId = "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002";
     const linkedPins = linkEvidencePinToRequirement(pins, "pin-2", namespacedRuleId);
     const inventory = buildEvidenceInventory(linkedPins);
     const item = inventory.find((entry) => entry.evidence_id === "pin-2");
 
     expect(item?.linked_requirement_ids).toEqual([namespacedRuleId]);
     expect(item?.link_state).toBe("linked");
+  });
+
+  it("keeps workbook and monitoring-report linkage behavior intact for canonical namespaced ids", () => {
+    const namespacedRuleId = "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0003";
+    const inventory = buildEvidenceInventory(linkEvidencePinToRequirement(pins, "pin-1", namespacedRuleId));
+    const rows = buildRequirementCoverageRows({
+      rules: [
+        { id: "R-1", title: "Report rule", snippet: "Maintain a monitoring report.", tags: [] },
+        {
+          id: namespacedRuleId,
+          title: "Workbook rule",
+          snippet: "Maintain a monitoring report and spreadsheet workbook.",
+          tags: [],
+        },
+      ],
+      sectionTitleById: new Map(),
+      inventoryItems: inventory,
+    });
+
+    expect(inventory.find((entry) => entry.evidence_id === "pin-1")?.linked_requirement_ids).toEqual(["R-1", namespacedRuleId]);
+    expect(rows.find((row) => row.ruleId === namespacedRuleId)?.linkedEvidence.map((item) => item.id)).toEqual(["pin-1"]);
+    expect(rows.find((row) => row.ruleId === namespacedRuleId)?.candidateEvidence.map((item) => item.id)).toEqual(["wbg_001"]);
   });
 
   it("unlinks one requirement from a shared PDD fragment without removing the fragment", () => {

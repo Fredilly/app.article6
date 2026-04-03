@@ -362,6 +362,7 @@ export default function ProofMapTab({
   const stacEvidenceCardRef = useRef<HTMLDivElement | null>(null);
   const [stacInspectOpen, setStacInspectOpen] = useState(false);
   const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
+  const lastAoiSelectionResetKeyRef = useRef<string | null>(null);
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
@@ -1160,7 +1161,6 @@ export default function ProofMapTab({
         const fp = await aoiFingerprint(aoi.geojson);
         if (cancelled) return;
         setCurrentAoiFingerprint(fp);
-        onSelectStacItemId(null);
         if (aoi.aoi_fingerprint !== fp) {
           onSetAoi({ ...aoi, aoi_fingerprint: fp });
         }
@@ -1172,6 +1172,20 @@ export default function ProofMapTab({
       cancelled = true;
     };
   }, [aoi, onSelectStacItemId, onSetAoi]);
+
+  useEffect(() => {
+    const nextKey = aoi
+      ? JSON.stringify({
+          id: aoi.id,
+          created_at: aoi.created_at,
+          bbox: aoi.bbox,
+          area_km2: aoi.area_km2,
+        })
+      : null;
+    if (lastAoiSelectionResetKeyRef.current === nextKey) return;
+    lastAoiSelectionResetKeyRef.current = nextKey;
+    onSelectStacItemId(null);
+  }, [aoi, onSelectStacItemId]);
 
   useEffect(() => {
     let cancelled = false;
