@@ -19,6 +19,11 @@ describe("ReviewSummaryCard", () => {
           reviewState: "finalized",
           generatedAt: "2026-03-25T00:10:00Z",
           outcomeNote: "Stable result.",
+          stacSearchResultCount: 3,
+          linkedRuleCount: 1,
+          selectedEvidenceLinkedRules: ["R-1"],
+          checklistStatus: "unused",
+          narrative: "Finalized verify review.",
         }}
         artifact={null}
         onDownloadJson={() => {}}
@@ -35,6 +40,8 @@ describe("ReviewSummaryCard", () => {
     expect(html).toContain("Copy link");
     expect(html).toContain("Monitoring period");
     expect(html).toContain("Stable result.");
+    expect(html).toContain("What happened");
+    expect(html).toContain("Linked rules R-1");
     expect(html).toContain("Raw evidence details");
   });
 
@@ -54,6 +61,11 @@ describe("ReviewSummaryCard", () => {
           reviewState: "finalized",
           generatedAt: "2026-03-25T00:10:00Z",
           outcomeNote: "Stable result.",
+          stacSearchResultCount: 5,
+          linkedRuleCount: 2,
+          selectedEvidenceLinkedRules: ["R-7"],
+          checklistStatus: "1/2 completed",
+          narrative: "Finalized verify review.",
         }}
         artifact={null}
         onDownloadJson={() => {}}
@@ -83,6 +95,11 @@ describe("ReviewSummaryCard", () => {
           reviewState: null,
           generatedAt: null,
           outcomeNote: null,
+          stacSearchResultCount: null,
+          linkedRuleCount: null,
+          selectedEvidenceLinkedRules: [],
+          checklistStatus: null,
+          narrative: null,
         }}
         artifact={null}
         onDownloadJson={() => {}}

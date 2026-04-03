@@ -31,6 +31,7 @@ import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
+import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import {
   buildEvidenceInventory,
@@ -770,6 +771,12 @@ export default function ProofMapTab({
   );
   const previousMutableWorkspaceRef = useRef<{ runId: string; fingerprint: string } | null>(null);
   const ignoredMutableWorkspaceRunIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!verifierBundle.finalizedAt) return;
+    if (ignoredMutableWorkspaceRunIdRef.current === verifierBundle.runContext.runId) return;
+    ignoredMutableWorkspaceRunIdRef.current = verifierBundle.runContext.runId;
+  }, [verifierBundle.finalizedAt, verifierBundle.runContext.runId]);
 
   useEffect(() => {
     const previous = previousMutableWorkspaceRef.current;
@@ -1725,28 +1732,14 @@ export default function ProofMapTab({
   }, [latestStacRun]);
 
   const buildSelectedItemPayload = useCallback(() => {
-    const selectedItem = selectedStacItemRecord;
-    const linkedRules = selectedItem
-      ? deriveLinksFromProperties(isRecord(selectedItem.properties) ? selectedItem.properties : null).ruleIds
-      : [];
-    const minimalItem = selectedItem
-      ? {
-          id: selectedStacItemId ?? undefined,
-          datetime:
-            isRecord(selectedItem.properties) && typeof selectedItem.properties.datetime === "string"
-              ? selectedItem.properties.datetime
-              : typeof selectedItem.datetime === "string"
-                ? selectedItem.datetime
-                : undefined,
-          bbox: selectedItem.bbox,
-          geometry: selectedItem.geometry,
-          linked_rules: linkedRules,
-        }
-      : undefined;
-    const finalItems = selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: linkedRules }] : [];
+    const minimalItem = buildSelectedStacExport({
+      selectedStacItemId,
+      selectedStacItemRecord,
+      evidencePins,
+    });
     const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
     const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
-    return { selectedItem, linkedRules, minimalItem, finalItems, selectedIds };
+    return { minimalItem, selectedIds };
   }, [evidencePins, selectedStacItemId, selectedStacItemRecord]);
 
   const buildEvidenceSource = useCallback(() => {
@@ -1765,9 +1758,9 @@ export default function ProofMapTab({
       checklist: typeof verifierBundle.checklist;
       snapshotExportedAt: string | null;
     }) => {
-      const { minimalItem, finalItems, selectedIds } = buildSelectedItemPayload();
+      const { minimalItem, selectedIds } = buildSelectedItemPayload();
       const evidenceSource = buildEvidenceSource();
-      const stacItemsJson = buildStacItemsJson();
+      const checklistExport = prepareChecklistExport(options.checklist);
       const verifierSnapshot = {
         runId: options.runContext.runId,
         createdAt: options.runContext.createdAt,
@@ -1779,6 +1772,11 @@ export default function ProofMapTab({
         impact: verifierBundle.impact,
         checklist: options.checklist,
         tasks: verifierBundle.tasks,
+      };
+      const exportVerifierSnapshot = {
+        ...verifierSnapshot,
+        checklistStatus: checklistExport.checklistStatus,
+        checklist: checklistExport.checklist,
       };
       const outcome = buildRunSummary({
         ...runSummary,
@@ -1797,10 +1795,11 @@ export default function ProofMapTab({
           generatedAt: options.finalizedAt,
         },
       });
-      const kpis = computeKpis({
-        pins: evidencePins,
-        totalRules,
+      const kpis = buildFinalizedExportKpis({
+        stacSearchResultIds: outcome.stac.itemIds,
         selectedEvidenceItemIds,
+        linkedRuleIds,
+        totalRules,
         snapshotExportedAt: options.snapshotExportedAt,
       });
       const ruleContext = await fetchSelectedRuleContext(selectedRuleId);
@@ -1816,7 +1815,7 @@ export default function ProofMapTab({
           item: selectedStacItemRecord,
         },
         outcome,
-        verifier: verifierSnapshot,
+        verifier: exportVerifierSnapshot,
         rule: ruleContext,
         generatedAt: options.finalizedAt,
       });
@@ -1831,24 +1830,24 @@ export default function ProofMapTab({
         evidence_source: evidenceSource,
         selected: {
           id: selectedStacItemId ?? undefined,
-          ids: selectedIds,
+          ids: options.summaryState === "finalized" ? undefined : selectedIds,
           item: minimalItem ?? undefined,
         },
-        items: finalItems,
         app: {
           commit: asNonEmptyString(process.env.NEXT_PUBLIC_GIT_SHA),
           env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
           version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
         },
-        stacItemsJson,
+        items: options.summaryState === "finalized" ? undefined : selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: minimalItem?.linked_rules ?? [] }] : [],
+        stacItemsJson: options.summaryState === "finalized" ? undefined : buildStacItemsJson(),
         outcome,
         kpis,
-        verifier: verifierSnapshot,
+        verifier: exportVerifierSnapshot,
         summary,
       });
 
       return {
-        artifact: { ...artifact, items: stacItemsJson.items ?? [] } as EvidenceSnapshot,
+        artifact: artifact as EvidenceSnapshot,
         summary,
         verifierSnapshot,
       };
@@ -1858,7 +1857,6 @@ export default function ProofMapTab({
       buildEvidenceSource,
       buildSelectedItemPayload,
       buildStacItemsJson,
-      evidencePins,
       fetchSelectedRuleContext,
       linkedRuleIds,
       methodCode,

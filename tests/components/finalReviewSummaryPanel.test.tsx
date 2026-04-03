@@ -20,6 +20,11 @@ describe("FinalReviewSummaryPanel", () => {
           reviewState: "finalized",
           generatedAt: "2026-03-25T00:10:00Z",
           outcomeNote: "Stable result.",
+          stacSearchResultCount: 3,
+          linkedRuleCount: 1,
+          selectedEvidenceLinkedRules: ["R-1"],
+          checklistStatus: "unused",
+          narrative: "Finalized verify review.",
         }}
         artifact={null}
         currentRunLabel="run-1234"
@@ -50,6 +55,8 @@ describe("FinalReviewSummaryPanel", () => {
     expect(html).toContain("Rule applied");
     expect(html).toContain("Evidence used");
     expect(html).toContain("AOI");
+    expect(html).toContain("What happened");
+    expect(html).toContain("Review scope");
     expect(html).toContain("Outcome note");
     expect(html).toContain("Review state");
     expect(html).toContain("Start another run");

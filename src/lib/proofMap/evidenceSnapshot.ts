@@ -17,6 +17,11 @@ export const ReviewSummarySchema = z.object({
   reviewState: z.string().nullable(),
   generatedAt: z.string().nullable(),
   outcomeNote: z.string().nullable(),
+  stacSearchResultCount: z.number().nullable(),
+  linkedRuleCount: z.number().nullable(),
+  selectedEvidenceLinkedRules: z.array(z.string()),
+  checklistStatus: z.string().nullable(),
+  narrative: z.string().nullable(),
 });
 
 export const EvidenceSnapshotSchema = z
@@ -41,7 +46,17 @@ export const EvidenceSnapshotSchema = z
       .object({
         id: z.string().min(1).optional(),
         ids: z.array(z.string().min(1)).optional(),
-        item: z.record(z.unknown()).optional(),
+        item: z
+          .object({
+            id: z.string().min(1),
+            datetime: z.string().optional(),
+            bbox: z.unknown().optional(),
+            geometry: z.unknown().optional(),
+            collection: z.string().optional(),
+            cloud_cover: z.number().nullable().optional(),
+            linked_rules: z.array(z.string().min(1)),
+          })
+          .optional(),
       })
       .optional(),
     app: z
@@ -112,14 +127,17 @@ export const EvidenceSnapshotSchema = z
         finalizedState: z.enum(["draft", "finalized"]),
         delta: z.string(),
         impact: z.string(),
-        checklist: z.array(
-          z.object({
-            id: z.string().min(1),
-            label: z.string().min(1),
-            checked: z.boolean(),
-            updatedAt: z.string().min(1),
-          }),
-        ),
+        checklistStatus: z.string().nullable().optional(),
+        checklist: z
+          .array(
+            z.object({
+              id: z.string().min(1),
+              label: z.string().min(1),
+              checked: z.boolean(),
+              updatedAt: z.string().min(1),
+            }),
+          )
+          .optional(),
         tasks: z.array(
           z.object({
             id: z.string().min(1),
@@ -133,8 +151,9 @@ export const EvidenceSnapshotSchema = z
       .optional(),
     kpis: z
       .object({
-        itemsCount: z.number(),
-        linkedRulesCount: z.number(),
+        stacSearchResultCount: z.number(),
+        selectedEvidenceCount: z.number(),
+        linkedRuleCount: z.number(),
         coverage: z
           .object({
             numerator: z.number(),
@@ -161,6 +180,53 @@ function uniqSorted(values: string[] | undefined): string[] | undefined {
   const set = new Set(values.map((v) => v.trim()).filter(Boolean));
   if (!set.size) return undefined;
   return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function normalizeSelectedItem(
+  item: Record<string, unknown> | null | undefined,
+): {
+  id: string;
+  datetime?: string;
+  bbox?: unknown;
+  geometry?: unknown;
+  collection?: string;
+  cloud_cover?: number | null;
+  linked_rules: string[];
+} | undefined {
+  if (!item) return undefined;
+  const id = asNonEmptyString(item.id);
+  if (!id) return undefined;
+  const props = item.properties && typeof item.properties === "object" && !Array.isArray(item.properties)
+    ? (item.properties as Record<string, unknown>)
+    : null;
+  const linked_rules =
+    uniqSorted(Array.isArray(item.linked_rules) ? item.linked_rules.filter((value): value is string => typeof value === "string") : undefined) ?? [];
+  return stripUndefined({
+    id,
+    datetime: asNonEmptyString(item.datetime) ?? asNonEmptyString(props?.datetime),
+    bbox: item.bbox,
+    geometry: item.geometry,
+    collection: asNonEmptyString(item.collection) ?? asNonEmptyString(props?.collection),
+    cloud_cover:
+      typeof item.cloud_cover === "number" && Number.isFinite(item.cloud_cover)
+        ? item.cloud_cover
+        : item.cloud_cover === null
+          ? null
+          : typeof props?.["eo:cloud_cover"] === "number" && Number.isFinite(props["eo:cloud_cover"])
+            ? (props["eo:cloud_cover"] as number)
+            : props?.["eo:cloud_cover"] === null
+              ? null
+          : undefined,
+    linked_rules,
+  }) as {
+    id: string;
+    datetime?: string;
+    bbox?: unknown;
+    geometry?: unknown;
+    collection?: string;
+    cloud_cover?: number | null;
+    linked_rules: string[];
+  };
 }
 
 function normalizeItems(
@@ -206,21 +272,23 @@ export async function buildEvidenceSnapshot(input: {
   items?: Array<{ id?: string | null; linked_rules?: string[] | null }> | null;
   stacItemsJson?: { items: Array<Record<string, unknown>> } | null;
   outcome?: RunSummary | null;
-  verifier?: {
+    verifier?: {
     runId: string;
     createdAt: string;
     minutes: string;
     outcomeNote: string;
-    finalizedAt?: string | null;
-    finalizedState?: "draft" | "finalized";
-    delta: string;
-    impact: string;
-    checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
-    tasks: Array<{ id: string; text: string; done: boolean; createdAt: string; updatedAt: string }>;
-  } | null;
+      finalizedAt?: string | null;
+      finalizedState?: "draft" | "finalized";
+      delta: string;
+      impact: string;
+      checklistStatus?: string | null;
+      checklist?: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
+      tasks: Array<{ id: string; text: string; done: boolean; createdAt: string; updatedAt: string }>;
+    } | null;
   kpis?: {
-    itemsCount: number;
-    linkedRulesCount: number;
+    stacSearchResultCount: number;
+    selectedEvidenceCount: number;
+    linkedRuleCount: number;
     coverage?: { numerator: number; denominator?: number };
     snapshotExportedAt?: string | null;
   } | null;
@@ -253,6 +321,7 @@ export async function buildEvidenceSnapshot(input: {
           finalizedState: input.outcome.verifier.finalizedState,
           delta: input.outcome.verifier.delta,
           impact: input.outcome.verifier.impact,
+          checklistStatus: null,
           checklist: input.outcome.verifier.checklist,
           tasks: input.outcome.verifier.tasks,
         }
@@ -278,11 +347,11 @@ export async function buildEvidenceSnapshot(input: {
       }),
       selected: input.selected
         ? stripUndefined({
-            id: selectedId,
-            ids: selectedIds,
-            item: input.selected.item ?? undefined,
-          })
-        : undefined,
+          id: selectedId,
+          ids: selectedIds,
+          item: normalizeSelectedItem(input.selected.item ?? undefined),
+        })
+      : undefined,
       app: input.app
         ? stripUndefined({
             commit: asNonEmptyString(input.app.commit ?? undefined),
