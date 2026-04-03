@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { buildEvidencePin, dedupeStrings, kindFromCitedId } from "@/lib/proofMap/pins";
+import { buildEvidencePin, dedupeStrings, kindFromCitedId, isRuleLikeId } from "@/lib/proofMap/pins";
 
 describe("proofMap pins", () => {
   test("dedupes cited ids preserving order", () => {
@@ -19,7 +19,13 @@ describe("proofMap pins", () => {
   test("kindFromCitedId routes S-* and R-* only", () => {
     expect(kindFromCitedId("S-10")).toBe("section");
     expect(kindFromCitedId("R-1-0001")).toBe("rule");
+    expect(kindFromCitedId("UNFCCC.Forestry.AR-ACM0003.v02-0-R-1-0002")).toBe("rule");
     expect(kindFromCitedId("X-1")).toBeNull();
   });
-});
 
+  test("isRuleLikeId accepts namespaced method rule ids", () => {
+    expect(isRuleLikeId("R-1")).toBe(true);
+    expect(isRuleLikeId("UNFCCC.Forestry.AR-ACM0003.v02-0-R-1-0002")).toBe(true);
+    expect(isRuleLikeId("S2A-001")).toBe(false);
+  });
+});

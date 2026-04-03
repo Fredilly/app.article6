@@ -7,6 +7,7 @@ import type {
   WorkbookEvidenceAsset,
   WorkbookRecordGroup,
 } from "@/lib/proofMap/types";
+import { isRuleLikeId } from "@/lib/proofMap/pins";
 
 export type EvidenceInventoryLinkState = "unlinked" | "linked";
 export type EvidenceInventoryKind = "stac-item" | "workbook" | "pdd" | "upload" | "document" | "photo" | "note";
@@ -126,7 +127,7 @@ function normalizePddFragmentLinks(pin: EvidencePin, fragments?: PddFragment[]):
   for (const raw of pin.pdd_fragment_links ?? []) {
     const fragment_id = trimOrUndefined(raw.fragment_id);
     const rule_id = trimOrUndefined(raw.rule_id);
-    if (!fragment_id || !rule_id || !/^R-/i.test(rule_id) || !fragmentIds.has(fragment_id)) continue;
+    if (!fragment_id || !rule_id || !isRuleLikeId(rule_id) || !fragmentIds.has(fragment_id)) continue;
     const key = `${fragment_id}::${rule_id}`;
     next.set(key, {
       fragment_id,
@@ -145,14 +146,14 @@ function syncPddRuleLinks(pin: EvidencePin): EvidencePin {
   if (pin.kind !== "pdd" && !pin.pdd_document && !pdd_fragment_links.length && !fragments.length) {
     return pin;
   }
-  const ruleIds = uniqSorted(pdd_fragment_links.map((link) => link.rule_id), /^R-/i);
-  const preservedCitations = uniqSorted((pin.cited_ids ?? []).filter((value) => !/^R-/i.test(value)));
+  const ruleIds = uniqSorted(pdd_fragment_links.map((link) => link.rule_id)).filter((value) => isRuleLikeId(value));
+  const preservedCitations = uniqSorted((pin.cited_ids ?? []).filter((value) => !isRuleLikeId(value)));
   return {
     ...pin,
     pdd_document: normalizePddDocument(pin) ?? pin.pdd_document ?? undefined,
     pdd_fragments: fragments.length ? fragments : undefined,
     pdd_fragment_links: pdd_fragment_links.length ? pdd_fragment_links : undefined,
-    ruleId: ruleIds[0] ?? (pin.ruleId && /^R-/i.test(pin.ruleId) ? pin.ruleId : undefined),
+    ruleId: ruleIds[0] ?? (pin.ruleId && isRuleLikeId(pin.ruleId) ? pin.ruleId : undefined),
     cited_ids: uniqSorted([...preservedCitations, ...ruleIds]),
   };
 }
@@ -255,7 +256,7 @@ export function formatEvidenceInventoryId(value: string): string {
 export function linkedRequirementIdsForEvidence(pin: EvidencePin): string[] {
   const pddLinks = normalizePddFragmentLinks(pin).map((link) => link.rule_id);
   const explicitRuleId = pin.ruleId ? [pin.ruleId] : [];
-  return uniqSorted([...explicitRuleId, ...(pin.cited_ids ?? []), ...pddLinks], /^R-/i);
+  return uniqSorted([...explicitRuleId, ...(pin.cited_ids ?? []), ...pddLinks]).filter((value) => isRuleLikeId(value));
 }
 
 export function evidencePinDedupeKey(pin: EvidencePin): string {

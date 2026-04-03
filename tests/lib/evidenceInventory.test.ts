@@ -284,6 +284,16 @@ describe("evidence inventory", () => {
     expect(linkedPins[0]?.cited_ids).toEqual(["R-1", "R-2"]);
   });
 
+  it("treats namespaced rule ids as linked immediately", () => {
+    const namespacedRuleId = "UNFCCC.Forestry.AR-ACM0003.v02-0-R-1-0002";
+    const linkedPins = linkEvidencePinToRequirement(pins, "pin-2", namespacedRuleId);
+    const inventory = buildEvidenceInventory(linkedPins);
+    const item = inventory.find((entry) => entry.evidence_id === "pin-2");
+
+    expect(item?.linked_requirement_ids).toEqual([namespacedRuleId]);
+    expect(item?.link_state).toBe("linked");
+  });
+
   it("unlinks one requirement from a shared PDD fragment without removing the fragment", () => {
     const seeded = coalesceEvidencePins([
       {

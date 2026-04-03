@@ -1,9 +1,6 @@
 import type { EvidencePin } from "@/lib/proofMap/types";
 import type { RunKpis } from "@/lib/verify/kpis";
-
-function isRuleId(value: string): boolean {
-  return /^R-/i.test(value.trim());
-}
+import { isRuleLikeId } from "@/lib/proofMap/pins";
 
 function normalizeId(value: string): string {
   return value.trim();
@@ -13,10 +10,10 @@ export function linkedRuleIdsFromPins(pins: EvidencePin[]): string[] {
   const ids = new Set<string>();
   for (const pin of pins ?? []) {
     const ruleId = typeof pin.ruleId === "string" ? pin.ruleId : null;
-    if (ruleId && isRuleId(ruleId)) ids.add(normalizeId(ruleId));
+    if (ruleId && isRuleLikeId(ruleId)) ids.add(normalizeId(ruleId));
     for (const citedId of pin.cited_ids ?? []) {
       if (typeof citedId !== "string") continue;
-      if (!isRuleId(citedId)) continue;
+      if (!isRuleLikeId(citedId)) continue;
       ids.add(normalizeId(citedId));
     }
   }

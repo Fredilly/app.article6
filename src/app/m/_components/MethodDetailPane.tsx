@@ -54,6 +54,7 @@ import {
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import { aoiFingerprint } from "@/lib/proofMap/verificationRuns";
+import { isRuleLikeId } from "@/lib/proofMap/pins";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
 import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlState";
@@ -323,7 +324,7 @@ export default function MethodDetailPane({
 
     for (const run of verificationRuns) {
       for (const citedId of run.cited_ids ?? []) {
-        if (typeof citedId !== "string" || !/^R-/i.test(citedId.trim())) continue;
+        if (typeof citedId !== "string" || !isRuleLikeId(citedId.trim())) continue;
         next.set(citedId.trim(), run.status === "ok" ? "linked" : "needs-review");
       }
     }
