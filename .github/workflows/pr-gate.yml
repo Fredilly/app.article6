@@ -24,6 +24,9 @@ jobs:
       - name: Validate roadmap SSOT
         run: npm run roadmap:validate
 
+      - name: Enforce app vs methodologies boundary
+        run: npm run guard:methodology-boundary
+
       - name: CI
         run: npm run ci
 

@@ -1,0 +1,19 @@
+[
+  {
+    "id": "TEST.Example.EXAMPLE-METHOD.v01-0.R-1-0001",
+    "logic": "Monitoring report requirements are carried in the rich rule artifact.",
+    "refs": {
+      "sections": [
+        "S-1"
+      ],
+      "tools": [
+        "TEST/EXAMPLE-METHOD@v01-0"
+      ]
+    },
+    "summary": "Monitoring report must describe the reporting period and supporting evidence.",
+    "type": "monitoring",
+    "when": [
+      "Prepared for the active reporting period."
+    ]
+  }
+]

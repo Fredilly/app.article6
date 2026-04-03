@@ -126,16 +126,22 @@ async function readJsonFile(filePath: string): Promise<unknown> {
   }
 }
 
+function resolveRepoRelativeCandidates(manifestPath: string): string[] {
+  const normalized = path.normalize(manifestPath);
+  if (!normalized || path.isAbsolute(normalized)) return [];
+  const direct = path.join(process.cwd(), normalized);
+  const publicPrefixed = normalized.startsWith(`public${path.sep}`) ? null : path.join(process.cwd(), "public", normalized);
+  return Array.from(new Set([direct, publicPrefixed].filter(Boolean) as string[]));
+}
+
 async function tryLoadRulesFile(manifestPath: string): Promise<{
   source: "rules.rich.json" | "rules.json";
   parsed: unknown;
 } | null> {
-  const normalized = path.normalize(manifestPath);
-  if (path.isAbsolute(normalized)) return null;
+  const bases = resolveRepoRelativeCandidates(manifestPath).filter((candidate) => candidate.endsWith("rules.json"));
+  if (!bases.length) return null;
 
-  const base = path.join(process.cwd(), normalized);
-  const richPath = base.endsWith("rules.json") ? base.replace(/rules\.json$/, "rules.rich.json") : "";
-  const candidates = [richPath, base].filter(Boolean);
+  const candidates = bases.flatMap((base) => [base.replace(/rules\.json$/, "rules.rich.json"), base]);
 
   for (const candidate of candidates) {
     try {
