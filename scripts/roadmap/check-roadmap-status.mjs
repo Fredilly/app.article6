@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeStatus, parseRoadmapDirective } from "./roadmap-lib.mjs";
+import { normalizePhaseId, normalizeStatus, parseRoadmapDirective, getPhaseKeyForId } from "./roadmap-lib.mjs";
 
 function die(message) {
   console.error(message);
@@ -67,10 +67,16 @@ if (!fs.existsSync(statusPath)) {
   die(`roadmap: missing ${statusPath}`);
 }
 
+const ssot = JSON.parse(fs.readFileSync(statusPath, "utf8"));
+
 for (const item of directive.items) {
   const normalized = normalizeStatus(item.status);
   if (!normalized || !ALLOWED_STATUSES.has(normalized)) {
     die(`roadmap: invalid status for ${item.id} (${item.status}).`);
+  }
+  const phaseId = normalizePhaseId(item.id);
+  if (phaseId && !getPhaseKeyForId(ssot, phaseId)) {
+    die(`roadmap: ${statusPath} does not define ${phaseId}.`);
   }
 }
 

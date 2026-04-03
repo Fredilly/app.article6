@@ -1,7 +1,7 @@
-import { normalizePrId, normalizeStatus } from "./roadmap-lib.mjs";
+import { normalizePrId, normalizeRoadmapItemId, normalizeStatus } from "./roadmap-lib.mjs";
 
 function normalizeItem(item) {
-  const id = normalizePrId(item?.id) ?? item?.id ?? null;
+  const id = normalizeRoadmapItemId(item?.id) ?? item?.id ?? null;
   const status = normalizeStatus(item?.status) ?? item?.status ?? null;
   return { id, status };
 }

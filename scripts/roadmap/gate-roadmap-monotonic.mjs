@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeStatus, parseRoadmapDirective, normalizePrId } from "./roadmap-lib.mjs";
+import { getRoadmapItemStatus, normalizePrId, normalizeStatus, parseRoadmapDirective } from "./roadmap-lib.mjs";
 
 const STATUS_ORDER = {
   planned: 1,
@@ -174,6 +174,30 @@ for (const item of directive.items) {
     if (!hasOverrideEntry({ slug, pr: prKey, revertOf, reason })) {
       die("roadmap-monotonic: OVERRIDES.md entry missing or invalid for this rollback.");
     }
+  }
+}
+
+for (const item of directive.items) {
+  if (normalizePrId(item.id)) continue;
+  const itemId = item.id;
+  const newStatus = normalizeStatus(item.status);
+  const oldStatus = getRoadmapItemStatus(ssot, itemId);
+
+  if (!newStatus || !oldStatus) continue;
+  const newRank = STATUS_ORDER[newStatus] ?? 0;
+  const oldRank = STATUS_ORDER[oldStatus] ?? 0;
+
+  if (newStatus === "done" && !isTerminalDone(oldStatus)) {
+    if (!hasHumanAckLabel) {
+      die("roadmap-monotonic: setting done requires label 'roadmap-human-ack'.");
+    }
+    if (String(directive.ack ?? "").trim().toLowerCase() !== "human") {
+      die("roadmap-monotonic: Roadmap-Update must include 'ack: human' when setting done.");
+    }
+  }
+
+  if (newRank < oldRank) {
+    die(`roadmap-monotonic: ${itemId} regressed from ${oldStatus} to ${newStatus} without supported override flow.`);
   }
 }
 

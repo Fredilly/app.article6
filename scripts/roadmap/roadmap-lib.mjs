@@ -29,6 +29,16 @@ export function normalizePrId(value) {
   return sub ? `PR${main}_${sub}` : `PR${main}`;
 }
 
+export function normalizePhaseId(value) {
+  const match = String(value ?? "").trim().toUpperCase().match(/^RC(\d+)$/);
+  if (!match) return null;
+  return `RC${Number(match[1])}`;
+}
+
+export function normalizeRoadmapItemId(value) {
+  return normalizePrId(value) ?? normalizePhaseId(value) ?? null;
+}
+
 export function formatPrId(value) {
   const normalized = normalizePrId(value);
   if (!normalized) return String(value ?? "");
@@ -62,6 +72,42 @@ export function statusLabel(value) {
   if (!value) return "Unknown";
   const normalized = normalizeStatus(value);
   return STATUS_LABELS[normalized] ?? "Unknown";
+}
+
+export function getPhaseKeyForId(ssot, phaseId) {
+  const normalized = normalizePhaseId(phaseId);
+  if (!normalized) return null;
+  const phaseNumber = Number(normalized.slice(2));
+  const phases = ssot?.phases;
+  if (!phases || typeof phases !== "object" || Array.isArray(phases)) return null;
+  const matches = Object.keys(phases).filter((key) => {
+    const match = key.match(/^phase_(\d+)(?:_|$)/i);
+    return match ? Number(match[1]) === phaseNumber : false;
+  });
+  if (matches.length !== 1) return null;
+  return matches[0];
+}
+
+export function getRoadmapItemStatus(ssot, itemId) {
+  const prId = normalizePrId(itemId);
+  if (prId) return normalizeStatus(ssot?.[prId]);
+  const phaseKey = getPhaseKeyForId(ssot, itemId);
+  if (!phaseKey) return null;
+  return normalizeStatus(ssot?.phases?.[phaseKey]?.status);
+}
+
+export function setRoadmapItemStatus(ssot, itemId, status) {
+  const normalizedStatus = normalizeStatus(status);
+  if (!normalizedStatus) return false;
+  const prId = normalizePrId(itemId);
+  if (prId) {
+    ssot[prId] = normalizedStatus;
+    return true;
+  }
+  const phaseKey = getPhaseKeyForId(ssot, itemId);
+  if (!phaseKey || !ssot?.phases?.[phaseKey] || typeof ssot.phases[phaseKey] !== "object") return false;
+  ssot.phases[phaseKey] = { ...ssot.phases[phaseKey], status: normalizedStatus };
+  return true;
 }
 
 function listFiles(root, matcher) {
@@ -309,9 +355,9 @@ export function parseRoadmapDirective(body) {
       ack = ackMatch[1].trim();
       continue;
     }
-    const itemMatch = line.match(/^\-?\s*(PR\d+(?:[._]\d+)?)\s*:\s*([a-zA-Z_-]+)\s*$/i);
+    const itemMatch = line.match(/^\-?\s*((?:PR\d+(?:[._]\d+)?)|(?:RC\d+))\s*:\s*([a-zA-Z_-]+)\s*$/i);
     if (itemMatch) {
-      const id = normalizePrId(itemMatch[1]);
+      const id = normalizeRoadmapItemId(itemMatch[1]);
       if (!id) continue;
       items.push({ id, status: itemMatch[2].trim() });
     }

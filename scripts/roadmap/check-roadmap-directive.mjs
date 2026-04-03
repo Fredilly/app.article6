@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { parseRoadmapDirective, normalizePrId } from "./roadmap-lib.mjs";
+import { normalizePhaseId, normalizePrId, parseRoadmapDirective } from "./roadmap-lib.mjs";
 
 function extractPrNumberFromRef(ref) {
   const match = String(ref ?? "").match(/refs\/pull\/(\d+)\//);
@@ -68,13 +68,6 @@ const token = process.env.GITHUB_TOKEN;
 const labels = (pr.labels ?? []).map((l) => l?.name).filter(Boolean);
 const hasPhase = labels.some((n) => String(n).startsWith("phase:"));
 const hasPr = labels.some((n) => String(n).startsWith("pr:PR"));
-const isRoadmapTracked = hasPhase || hasPr;
-
-if (!isRoadmapTracked) {
-  // Not a roadmap-tracked PR -> no requirement.
-  process.exit(0);
-}
-
 const eventBody = pr?.body ?? "";
 let body = eventBody;
 let directive = parseRoadmapDirective(body);
@@ -95,8 +88,10 @@ if (!directive && prNumber && repoName) {
 }
 console.log("[roadmap-directive] fetchedBodyLength=", fetchedBodyLength);
 
-if (directive && !(hasPhase && hasPr)) {
-  fail("Roadmap-Update is only allowed on roadmap PRs (requires phase:* and pr:PRxx labels).");
+const isRoadmapTracked = hasPhase || hasPr || Boolean(directive);
+
+if (!isRoadmapTracked) {
+  process.exit(0);
 }
 
 if (!directive) {
@@ -116,6 +111,12 @@ if (prLabel) {
   const has = items.some((it) => normalizePrId(it.id) === expected);
   if (!has) {
     fail(`PR has label '${prLabel}' but Roadmap-Update items do not include ${expected}.`);
+  }
+}
+
+for (const item of items) {
+  if (!normalizePrId(item.id) && !normalizePhaseId(item.id)) {
+    fail(`Roadmap-Update item '${item.id}' must be PRxx or RCn.`);
   }
 }
 
