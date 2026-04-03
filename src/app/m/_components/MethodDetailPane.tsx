@@ -445,33 +445,35 @@ export default function MethodDetailPane({
   );
 
   const setEvidencePinsAndPersist = useCallback(
-    (nextPins: EvidencePin[]) => {
-      const normalizedPins = coalesceEvidencePins(nextPins);
-      setEvidencePins(normalizedPins);
-      if (!activeVersion) return;
-      savePins(method.code, activeVersion, normalizedPins);
+    (nextPins: EvidencePin[] | ((current: EvidencePin[]) => EvidencePin[])) => {
+      setEvidencePins((current) => {
+        const resolved = typeof nextPins === "function" ? nextPins(current) : nextPins;
+        const normalizedPins = coalesceEvidencePins(resolved);
+        if (activeVersion) savePins(method.code, activeVersion, normalizedPins);
+        return normalizedPins;
+      });
     },
     [activeVersion, method.code],
   );
   const handleLinkInventoryItem = useCallback(
     (evidenceId: string, ruleId: string, fragmentId?: string) => {
-      setEvidencePinsAndPersist(
+      setEvidencePinsAndPersist((current) =>
         fragmentId
-          ? linkPddFragmentToRequirement(evidencePins, evidenceId, fragmentId, ruleId)
-          : linkEvidencePinToRequirement(evidencePins, evidenceId, ruleId),
+          ? linkPddFragmentToRequirement(current, evidenceId, fragmentId, ruleId)
+          : linkEvidencePinToRequirement(current, evidenceId, ruleId),
       );
     },
-    [evidencePins, setEvidencePinsAndPersist],
+    [setEvidencePinsAndPersist],
   );
   const handleUnlinkInventoryItem = useCallback(
     (evidenceId: string, ruleId: string, fragmentId?: string) => {
-      setEvidencePinsAndPersist(
+      setEvidencePinsAndPersist((current) =>
         fragmentId
-          ? unlinkPddFragmentFromRequirement(evidencePins, evidenceId, fragmentId, ruleId)
-          : unlinkEvidencePinFromRequirement(evidencePins, evidenceId, ruleId),
+          ? unlinkPddFragmentFromRequirement(current, evidenceId, fragmentId, ruleId)
+          : unlinkEvidencePinFromRequirement(current, evidenceId, ruleId),
       );
     },
-    [evidencePins, setEvidencePinsAndPersist],
+    [setEvidencePinsAndPersist],
   );
 
   const setEvidenceSnapshotsAndPersist = useCallback(

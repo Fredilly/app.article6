@@ -103,7 +103,7 @@ type ProofMapTabProps = {
   onCancelDraftAoi: () => void;
   onUndoApplyAoi: () => void;
   applyToken: number;
-  onSetEvidencePins: (pins: EvidencePin[]) => void;
+  onSetEvidencePins: (pins: EvidencePin[] | ((current: EvidencePin[]) => EvidencePin[])) => void;
   onSetVerificationRuns: (runs: VerificationRun[]) => void;
   onSetStacEvidenceState: (
     next:
@@ -2097,10 +2097,12 @@ export default function ProofMapTab({
       };
       const dedupeKey = evidencePinDedupeKey(candidate);
       const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
-      const nextPins = existing
-        ? linkEvidencePinToRequirement(evidencePins, existing.id, selectedRuleId)
-        : coalesceEvidencePins([candidate, ...evidencePins]);
-      onSetEvidencePins(nextPins);
+      onSetEvidencePins((current) => {
+        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+        return existingPin
+          ? linkEvidencePinToRequirement(current, existingPin.id, selectedRuleId)
+          : coalesceEvidencePins([candidate, ...current]);
+      });
       setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
       showToast(existing ? `Updated ${currentPinItemId} in inventory` : `Added ${currentPinItemId} and linked it to ${selectedRuleId}`);
     } catch (error) {
@@ -2144,7 +2146,10 @@ export default function ProofMapTab({
       };
       const dedupeKey = evidencePinDedupeKey(candidate);
       const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
-      onSetEvidencePins(existing ? coalesceEvidencePins(evidencePins) : coalesceEvidencePins([candidate, ...evidencePins]));
+      onSetEvidencePins((current) => {
+        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+        return existingPin ? coalesceEvidencePins(current) : coalesceEvidencePins([candidate, ...current]);
+      });
       setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
       showToast(existing ? `${currentPinItemId} is already in inventory` : `Added ${currentPinItemId} to inventory`);
     } catch (error) {
@@ -2192,7 +2197,10 @@ export default function ProofMapTab({
       };
       const dedupeKey = evidencePinDedupeKey(candidate);
       const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
-      onSetEvidencePins(existing ? coalesceEvidencePins(evidencePins) : coalesceEvidencePins([candidate, ...evidencePins]));
+      onSetEvidencePins((current) => {
+        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+        return existingPin ? coalesceEvidencePins(current) : coalesceEvidencePins([candidate, ...current]);
+      });
       setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
       showToast(existing ? `${file.name} is already in inventory` : `Added workbook ${file.name} to inventory`);
     } catch (error) {
@@ -2256,7 +2264,10 @@ export default function ProofMapTab({
       };
       const dedupeKey = evidencePinDedupeKey(candidate);
       const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
-      onSetEvidencePins(existing ? coalesceEvidencePins(evidencePins) : coalesceEvidencePins([candidate, ...evidencePins]));
+      onSetEvidencePins((current) => {
+        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+        return existingPin ? coalesceEvidencePins(current) : coalesceEvidencePins([candidate, ...current]);
+      });
       setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
       showToast(existing ? `${file.name} is already in inventory` : `Added PDD ${file.name} to inventory`);
     } catch (error) {
@@ -2291,8 +2302,8 @@ export default function ProofMapTab({
       setError("Add at least one fragment field before saving.");
       return;
     }
-    onSetEvidencePins(
-      upsertPddFragmentOnEvidencePin(evidencePins, pin.id, {
+    onSetEvidencePins((current) =>
+      upsertPddFragmentOnEvidencePin(current, pin.id, {
         page_start: pageStart,
         page_end: pageEnd,
         section_label: sectionLabel || undefined,
@@ -2303,7 +2314,7 @@ export default function ProofMapTab({
     setPddFragmentDrafts((current) => ({ ...current, [pin.id]: EMPTY_PDD_FRAGMENT_DRAFT }));
     setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     showToast("PDD fragment saved");
-  }, [evidencePins, markBundleEdited, onSetEvidencePins, pddFragmentDrafts, showToast]);
+  }, [markBundleEdited, onSetEvidencePins, pddFragmentDrafts, showToast]);
 
   const handleExportSnapshot = useCallback(async () => {
     const exportedAt = new Date().toISOString();
@@ -2728,7 +2739,7 @@ export default function ProofMapTab({
                               type="button"
                               className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                               onClick={() => {
-                                onSetEvidencePins(unlinkEvidencePinFromRequirement(evidencePins, pin.id, selectedRuleId));
+                                onSetEvidencePins((current) => unlinkEvidencePinFromRequirement(current, pin.id, selectedRuleId));
                                 showToast(`Unlinked ${formatEvidenceInventoryId(pin.id)} from ${selectedRuleId}`);
                               }}
                             >
@@ -2739,7 +2750,7 @@ export default function ProofMapTab({
                               type="button"
                               className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
                               onClick={() => {
-                                onSetEvidencePins(linkEvidencePinToRequirement(evidencePins, pin.id, selectedRuleId));
+                                onSetEvidencePins((current) => linkEvidencePinToRequirement(current, pin.id, selectedRuleId));
                                 showToast(`Linked ${formatEvidenceInventoryId(pin.id)} to ${selectedRuleId}`);
                               }}
                             >
@@ -2897,8 +2908,8 @@ export default function ProofMapTab({
                                                 type="button"
                                                 className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                                                 onClick={() => {
-                                                  onSetEvidencePins(
-                                                    unlinkPddFragmentFromRequirement(evidencePins, pin.id, fragment.fragment_id, selectedRuleId),
+                                                  onSetEvidencePins((current) =>
+                                                    unlinkPddFragmentFromRequirement(current, pin.id, fragment.fragment_id, selectedRuleId),
                                                   );
                                                   showToast(`Unlinked ${fragment.fragment_id} from ${selectedRuleId}`);
                                                 }}
@@ -2910,8 +2921,8 @@ export default function ProofMapTab({
                                                 type="button"
                                                 className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
                                                 onClick={() => {
-                                                  onSetEvidencePins(
-                                                    linkPddFragmentToRequirement(evidencePins, pin.id, fragment.fragment_id, selectedRuleId),
+                                                  onSetEvidencePins((current) =>
+                                                    linkPddFragmentToRequirement(current, pin.id, fragment.fragment_id, selectedRuleId),
                                                   );
                                                   showToast(`Linked ${fragment.fragment_id} to ${selectedRuleId}`);
                                                 }}
@@ -2963,9 +2974,9 @@ export default function ProofMapTab({
                                     setError(result.message);
                                     return;
                                   }
-                                  onSetEvidencePins(
+                                  onSetEvidencePins((current) =>
                                     coalesceEvidencePins(
-                                      evidencePins.map((existing) =>
+                                      current.map((existing) =>
                                         existing.id === pin.id
                                           ? {
                                               ...existing,
@@ -2987,19 +2998,18 @@ export default function ProofMapTab({
                               type="button"
                               className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                               onClick={() => {
-                                const existing = new Set(pin.stac_item_ids ?? []);
-                                existing.add(selectedStacItemId);
-                                onSetEvidencePins(
+                                onSetEvidencePins((current) =>
                                   coalesceEvidencePins(
-                                    evidencePins.map((entry) =>
-                                      entry.id === pin.id
-                                        ? {
-                                            ...entry,
-                                            stac_item_ids: Array.from(existing),
-                                            stac_run_id: entry.stac_run_id ?? currentStacEvidence.runId,
-                                          }
-                                        : entry,
-                                    ),
+                                    current.map((entry) => {
+                                      if (entry.id !== pin.id) return entry;
+                                      const existing = new Set(entry.stac_item_ids ?? []);
+                                      existing.add(selectedStacItemId);
+                                      return {
+                                        ...entry,
+                                        stac_item_ids: Array.from(existing),
+                                        stac_run_id: entry.stac_run_id ?? currentStacEvidence.runId,
+                                      };
+                                    }),
                                   ),
                                 );
                                 showToast("STAC item attached");
