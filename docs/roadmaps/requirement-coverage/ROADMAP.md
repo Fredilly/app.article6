@@ -15,7 +15,18 @@ app.article6 should no longer behave primarily like a methodology/evidence viewe
 
 The methodology repo remains the canonical source for covered methods. Raw methodology PDF intake is a fallback path only for uncovered methods and must not become the default workflow for methods already covered in the pack.
 
-RC3 and RC4 remain app-side intake and reconciliation phases. Any new canonical `rules.rich` / `sections.rich` fields required by those phases must land upstream in the methodology repo before app.article6 adds consumer support.
+The canonical methodology support required for the current covered-method requirement-coverage workflow is already available from `article6-methodologies`.
+
+The remaining phases in this roadmap are `app.article6` phases focused on:
+- evidence intake
+- evidence normalization
+- requirement linking
+- impact review
+- fallback handling for uncovered methods
+
+If implementation reveals a specific missing canonical field or relationship upstream, handle that as a separate scoped change in `article6-methodologies` rather than folding it into these app phases.
+
+RC3 through RC7 are app-side intake, reconciliation, and review phases. Any newly discovered canonical `rules.rich.json` / `sections.rich.json` gap required by these phases should be handled as a separate scoped follow-on in `article6-methodologies` before `app.article6` adds consumer support.
 
 ## Phases
 
@@ -59,27 +70,30 @@ Scope:
 
 ## RC5 — PDD intake
 
-Objective: ingest project design documentation as first-class evidence.
+Objective: ingest uploaded project design documentation into the app evidence inventory as first-class evidence.
 
 Scope:
-- Capture section/page provenance for PDD claims.
-- Support linking one PDD fragment to multiple requirements where appropriate.
+- Preserve section/page/fragment provenance for PDD-derived claims in `app.article6`.
+- Support linking one PDD fragment to multiple requirement rows where appropriate.
+- Keep covered-method methodology consumption on the canonical pack path.
 
 ## RC6 — Methodology version diff / impact mode
 
-Objective: show how methodology changes affect requirement coverage and linked evidence.
+Objective: use canonical methodology version and diff metadata to show coverage impact and review needs in `app.article6`.
 
 Scope:
-- Compare covered methodology versions.
-- Identify rows whose evidence links or expected evidence types may need review after a diff.
+- Compare covered methodology versions using canonical metadata already provided upstream.
+- Identify requirement rows whose evidence links or expected evidence may need review after a diff.
+- Do not assume new upstream methodology work unless a concrete gap is discovered.
 
 ## RC7 — Fallback raw methodology PDF intake for uncovered methods
 
-Objective: support uncovered methods without making PDF parsing the main path for covered ones.
+Objective: support uncovered methods in `app.article6` without making raw PDF parsing the default path.
 
 Scope:
-- Allow raw PDF audit/intake only when the methodology repo does not already provide the method/version.
-- Keep the fallback clearly labeled as lower-confidence and temporary.
+- Allow fallback raw PDF intake only when the methodology repo does not provide the method/version.
+- Keep the fallback clearly labeled as temporary and lower-confidence.
+- Continue to prefer canonical methodology outputs for covered methods.
 
 Non-goals:
 - Do not let raw PDFs become the primary path for covered methods.

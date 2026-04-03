@@ -38,17 +38,17 @@
     "phase_5_pdd_intake": {
       "status": "planned",
       "title": "PDD intake",
-      "summary": "Treat project design documentation as first-class evidence."
+      "summary": "Ingest uploaded project design documentation into the app evidence inventory with stable section/page/fragment provenance and support one-to-many requirement linking."
     },
     "phase_6_methodology_version_diff_impact_mode": {
       "status": "planned",
       "title": "Methodology version diff / impact mode",
-      "summary": "Connect methodology deltas to coverage impact and evidence review."
+      "summary": "Use canonical methodology version and diff metadata to identify coverage rows and linked evidence that may need review in the app."
     },
     "phase_7_fallback_raw_methodology_pdf_intake": {
       "status": "planned",
       "title": "Fallback raw methodology PDF intake for uncovered methods",
-      "summary": "Enable a fallback path without displacing the canonical methodology repo for covered methods."
+      "summary": "Enable lower-confidence fallback raw methodology PDF intake only for uncovered methods while preserving canonical methodology outputs as the default for covered methods."
     },
     "phase_8_additional_gis_formats_later": {
       "status": "deferred",
