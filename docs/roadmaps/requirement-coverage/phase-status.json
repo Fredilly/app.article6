@@ -36,7 +36,7 @@
       "summary": "Capture monitoring report evidence with stable provenance."
     },
     "phase_5_pdd_intake": {
-      "status": "planned",
+      "status": "done",
       "title": "PDD intake",
       "summary": "Ingest uploaded project design documentation into the app evidence inventory with stable section/page/fragment provenance and support one-to-many requirement linking."
     },
