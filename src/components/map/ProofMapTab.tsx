@@ -1812,7 +1812,7 @@ export default function ProofMapTab({
         },
         selected: {
           id: selectedStacItemId,
-          item: selectedStacItemRecord,
+          item: minimalItem ?? selectedStacItemRecord,
         },
         outcome,
         verifier: exportVerifierSnapshot,

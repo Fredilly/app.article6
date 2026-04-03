@@ -63,6 +63,34 @@ describe("buildReviewSummary", () => {
     });
   });
 
+  test("prefers the finalized selected item linkage when building summary linkage", () => {
+    const summary = buildReviewSummary({
+      selected: {
+        id: "stac-1",
+        item: {
+          id: "stac-1",
+          linked_rules: ["UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001"],
+          properties: {
+            linked_rules: [],
+          },
+        },
+      },
+      outcome: {
+        stac: { itemIds: ["stac-1"] },
+        linkage: { selectedRuleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001", linkedRuleIds: ["UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001"] },
+        verifier: { outcomeNote: "" },
+        provenance: { methodCode: "AR-ACM0003", version: "v02-0", generatedAt: "2026-03-25T00:10:00Z" },
+      } as any,
+      verifier: {
+        finalizedAt: "2026-03-25T00:10:00Z",
+        finalizedState: "finalized",
+        checklistStatus: "unused",
+      },
+    });
+
+    expect(summary.selectedEvidenceLinkedRules).toEqual(["UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001"]);
+  });
+
   test("renders clean fallback labels for missing optional fields", () => {
     const summary = buildReviewSummary({
       method: { code: "AR-ACM0003", version: "v02-0" },
