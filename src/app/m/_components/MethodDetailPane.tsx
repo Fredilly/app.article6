@@ -27,7 +27,9 @@ import {
   buildEvidenceInventory,
   coalesceEvidencePins,
   linkEvidencePinToRequirement,
+  linkPddFragmentToRequirement,
   unlinkEvidencePinFromRequirement,
+  unlinkPddFragmentFromRequirement,
 } from "@/lib/evidence/inventory";
 import { linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import { useAuditTrail, type AuditTrailEventInput } from "@/lib/auditTrail/store";
@@ -451,14 +453,22 @@ export default function MethodDetailPane({
     [activeVersion, method.code],
   );
   const handleLinkInventoryItem = useCallback(
-    (evidenceId: string, ruleId: string) => {
-      setEvidencePinsAndPersist(linkEvidencePinToRequirement(evidencePins, evidenceId, ruleId));
+    (evidenceId: string, ruleId: string, fragmentId?: string) => {
+      setEvidencePinsAndPersist(
+        fragmentId
+          ? linkPddFragmentToRequirement(evidencePins, evidenceId, fragmentId, ruleId)
+          : linkEvidencePinToRequirement(evidencePins, evidenceId, ruleId),
+      );
     },
     [evidencePins, setEvidencePinsAndPersist],
   );
   const handleUnlinkInventoryItem = useCallback(
-    (evidenceId: string, ruleId: string) => {
-      setEvidencePinsAndPersist(unlinkEvidencePinFromRequirement(evidencePins, evidenceId, ruleId));
+    (evidenceId: string, ruleId: string, fragmentId?: string) => {
+      setEvidencePinsAndPersist(
+        fragmentId
+          ? unlinkPddFragmentFromRequirement(evidencePins, evidenceId, fragmentId, ruleId)
+          : unlinkEvidencePinFromRequirement(evidencePins, evidenceId, ruleId),
+      );
     },
     [evidencePins, setEvidencePinsAndPersist],
   );

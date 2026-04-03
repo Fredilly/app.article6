@@ -47,8 +47,16 @@ export type RequirementCoverageLinkedEvidence = {
   title: string;
   type: string;
   source: "pin" | "run" | "inventory" | "unknown";
+  evidenceId?: string;
+  fragmentId?: string;
   linkedRequirementIds?: string[];
   provenanceSummary?: string;
+  documentLabel?: string;
+  pageStart?: number;
+  pageEnd?: number;
+  sectionLabel?: string;
+  sectionHeading?: string;
+  excerpt?: string;
 };
 
 export type RequirementCoverageRow = {
@@ -108,6 +116,15 @@ type RequirementCoverageLinkInput = {
   title?: string | null;
   type?: string | null;
   source?: RequirementCoverageLinkedEvidence["source"];
+  evidenceId?: string | null;
+  fragmentId?: string | null;
+  provenanceSummary?: string | null;
+  documentLabel?: string | null;
+  pageStart?: number | null;
+  pageEnd?: number | null;
+  sectionLabel?: string | null;
+  sectionHeading?: string | null;
+  excerpt?: string | null;
 };
 
 type BuildRequirementCoverageRowsInput = {
@@ -148,7 +165,48 @@ function normalizeLinkedEvidence(
     title: item.title?.trim() || item.id,
     type: item.type?.trim() || "evidence",
     source: item.source ?? "unknown",
+    evidenceId: item.evidenceId?.trim() || undefined,
+    fragmentId: item.fragmentId?.trim() || undefined,
+    provenanceSummary: item.provenanceSummary?.trim() || undefined,
+    documentLabel: item.documentLabel?.trim() || undefined,
+    pageStart: typeof item.pageStart === "number" ? item.pageStart : undefined,
+    pageEnd: typeof item.pageEnd === "number" ? item.pageEnd : undefined,
+    sectionLabel: item.sectionLabel?.trim() || undefined,
+    sectionHeading: item.sectionHeading?.trim() || undefined,
+    excerpt: item.excerpt?.trim() || undefined,
   }));
+}
+
+function formatPddPageLabel(pageStart?: number, pageEnd?: number): string | null {
+  if (typeof pageStart === "number" && typeof pageEnd === "number" && pageStart !== pageEnd) {
+    return `p. ${pageStart}-${pageEnd}`;
+  }
+  if (typeof pageStart === "number") return `p. ${pageStart}`;
+  if (typeof pageEnd === "number") return `p. ${pageEnd}`;
+  return null;
+}
+
+function buildPddProvenanceSummary(item: EvidenceInventoryItem, fragmentId: string): RequirementCoverageLinkInput | null {
+  const fragment = item.pdd_fragments?.find((entry) => entry.fragment_id === fragmentId);
+  if (!fragment) return null;
+  const pageLabel = formatPddPageLabel(fragment.page_start, fragment.page_end);
+  const sectionLabel = fragment.section_heading ?? fragment.section_label ?? null;
+  const provenanceSummary = [item.display_name, sectionLabel, pageLabel].filter(Boolean).join(" • ");
+  return {
+    id: fragment.fragment_id,
+    evidenceId: item.evidence_id,
+    fragmentId: fragment.fragment_id,
+    title: item.display_name,
+    type: item.type,
+    source: "inventory",
+    provenanceSummary,
+    documentLabel: item.display_name,
+    pageStart: fragment.page_start,
+    pageEnd: fragment.page_end,
+    sectionLabel: fragment.section_label,
+    sectionHeading: fragment.section_heading,
+    excerpt: fragment.excerpt,
+  };
 }
 
 function buildLinkedEvidenceByRuleIdFromInventory(
@@ -157,6 +215,15 @@ function buildLinkedEvidenceByRuleIdFromInventory(
   const next = new Map<string, RequirementCoverageLinkInput[]>();
 
   for (const item of inventoryItems) {
+    if (item.kind === "pdd" && item.pdd_fragment_links?.length) {
+      for (const link of item.pdd_fragment_links) {
+        const current = next.get(link.rule_id) ?? [];
+        const fragmentEvidence = buildPddProvenanceSummary(item, link.fragment_id);
+        if (fragmentEvidence) current.push(fragmentEvidence);
+        next.set(link.rule_id, current);
+      }
+      continue;
+    }
     for (const ruleId of item.linked_requirement_ids ?? []) {
       const current = next.get(ruleId) ?? [];
       current.push({
@@ -164,6 +231,7 @@ function buildLinkedEvidenceByRuleIdFromInventory(
         title: item.display_name,
         type: item.type,
         source: "inventory",
+        evidenceId: item.evidence_id,
       });
       next.set(ruleId, current);
     }
@@ -220,7 +288,8 @@ export function summarizeLinkedEvidence(items: RequirementCoverageLinkedEvidence
   if (!items.length) return "No linked evidence yet";
   if (items.length === 1) {
     const item = items[0];
-    return `${item.title} (${item.type})`;
+    const detail = item.provenanceSummary?.trim();
+    return detail ? `${item.title} (${item.type} • ${detail})` : `${item.title} (${item.type})`;
   }
   return `${items.length} linked evidence items`;
 }

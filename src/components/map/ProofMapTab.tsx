@@ -38,7 +38,10 @@ import {
   evidencePinDedupeKey,
   formatEvidenceInventoryId,
   linkEvidencePinToRequirement,
+  linkPddFragmentToRequirement,
+  unlinkPddFragmentFromRequirement,
   unlinkEvidencePinFromRequirement,
+  upsertPddFragmentOnEvidencePin,
 } from "@/lib/evidence/inventory";
 import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
 import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
@@ -213,6 +216,31 @@ function inventoryRelationshipSummary(linkedRequirementIds: string[]): string {
   return `Linked to ${linkedRequirementIds.join(", ")}`;
 }
 
+function formatPddPageLabel(pageStart?: number, pageEnd?: number): string | null {
+  if (typeof pageStart === "number" && typeof pageEnd === "number" && pageStart !== pageEnd) {
+    return `p. ${pageStart}-${pageEnd}`;
+  }
+  if (typeof pageStart === "number") return `p. ${pageStart}`;
+  if (typeof pageEnd === "number") return `p. ${pageEnd}`;
+  return null;
+}
+
+type PddFragmentDraft = {
+  pageStart: string;
+  pageEnd: string;
+  sectionLabel: string;
+  sectionHeading: string;
+  excerpt: string;
+};
+
+const EMPTY_PDD_FRAGMENT_DRAFT: PddFragmentDraft = {
+  pageStart: "",
+  pageEnd: "",
+  sectionLabel: "",
+  sectionHeading: "",
+  excerpt: "",
+};
+
 function formatDelta(value: number, suffix = "", digits = 0): string {
   const sign = value > 0 ? "+" : value < 0 ? "" : "";
   const rounded = digits > 0 ? value.toFixed(digits) : String(Math.trunc(value));
@@ -355,6 +383,8 @@ export default function ProofMapTab({
   const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const uploadWorkbookInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadPddInputRef = useRef<HTMLInputElement | null>(null);
+  const [pddFragmentDrafts, setPddFragmentDrafts] = useState<Record<string, PddFragmentDraft>>({});
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
@@ -2180,6 +2210,101 @@ export default function ProofMapTab({
     version,
   ]);
 
+  const updatePddFragmentDraft = useCallback((evidenceId: string, patch: Partial<PddFragmentDraft>) => {
+    setPddFragmentDrafts((current) => ({
+      ...current,
+      [evidenceId]: {
+        ...(current[evidenceId] ?? EMPTY_PDD_FRAGMENT_DRAFT),
+        ...patch,
+      },
+    }));
+  }, []);
+
+  const handlePddUpload = useCallback(async (file: File | null) => {
+    if (!file) return;
+    setError(null);
+    const ts = new Date().toISOString();
+    const pinId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
+    try {
+      const result = await createAndStoreEvidenceAttachment({ pin_id: pinId, file });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      const candidate: EvidencePin = {
+        id: pinId,
+        kind: "pdd",
+        title: file.name,
+        ts,
+        note: `${methodCode}@${version}`,
+        aoi_id: aoi?.id ?? null,
+        aoi_fingerprint: currentAoiFingerprint ?? undefined,
+        cited_ids: [],
+        attachments: [result.attachment],
+        pdd_document: {
+          evidence_id: pinId,
+          attachment_id: result.attachment.id,
+          file_name: result.attachment.filename,
+          mime: result.attachment.mime,
+          added_at: result.attachment.created_at,
+          sha256: result.attachment.sha256,
+        },
+        created_at: ts,
+      };
+      const dedupeKey = evidencePinDedupeKey(candidate);
+      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+      onSetEvidencePins(existing ? coalesceEvidencePins(evidencePins) : coalesceEvidencePins([candidate, ...evidencePins]));
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+      showToast(existing ? `${file.name} is already in inventory` : `Added PDD ${file.name} to inventory`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("PDD intake failed.");
+    }
+  }, [
+    aoi?.id,
+    currentAoiFingerprint,
+    evidencePins,
+    markBundleEdited,
+    methodCode,
+    onSetEvidencePins,
+    showToast,
+    version,
+  ]);
+
+  const handleSavePddFragment = useCallback((pin: EvidencePin) => {
+    const draft = pddFragmentDrafts[pin.id] ?? EMPTY_PDD_FRAGMENT_DRAFT;
+    const parsePage = (value: string): number | undefined => {
+      const trimmed = value.trim();
+      if (!trimmed) return undefined;
+      const parsed = Number(trimmed);
+      return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+    };
+    const pageStart = parsePage(draft.pageStart);
+    const pageEnd = parsePage(draft.pageEnd) ?? pageStart;
+    const sectionLabel = draft.sectionLabel.trim();
+    const sectionHeading = draft.sectionHeading.trim();
+    const excerpt = draft.excerpt.trim();
+    if (!pageStart && !pageEnd && !sectionLabel && !sectionHeading && !excerpt) {
+      setError("Add at least one fragment field before saving.");
+      return;
+    }
+    onSetEvidencePins(
+      upsertPddFragmentOnEvidencePin(evidencePins, pin.id, {
+        page_start: pageStart,
+        page_end: pageEnd,
+        section_label: sectionLabel || undefined,
+        section_heading: sectionHeading || undefined,
+        excerpt: excerpt || undefined,
+      }),
+    );
+    setPddFragmentDrafts((current) => ({ ...current, [pin.id]: EMPTY_PDD_FRAGMENT_DRAFT }));
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+    showToast("PDD fragment saved");
+  }, [evidencePins, markBundleEdited, onSetEvidencePins, pddFragmentDrafts, showToast]);
+
   const handleExportSnapshot = useCallback(async () => {
     const exportedAt = new Date().toISOString();
     const nextRunContext =
@@ -2547,6 +2672,20 @@ export default function ProofMapTab({
                   }}
                 />
               </label>
+              <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                Add PDD
+                <input
+                  ref={uploadPddInputRef}
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  className="hidden"
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    event.target.value = "";
+                    await handlePddUpload(file);
+                  }}
+                />
+              </label>
               <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5">
                 {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
               </span>
@@ -2561,6 +2700,7 @@ export default function ProofMapTab({
                 const pin = evidencePinsById.get(item.evidence_id);
                 if (!pin) return null;
                 const linkedToSelectedRule = Boolean(selectedRuleId && item.linked_requirement_ids.includes(selectedRuleId));
+                const pddDraft = pddFragmentDrafts[pin.id] ?? EMPTY_PDD_FRAGMENT_DRAFT;
                 return (
                   <div key={item.evidence_id} className="rounded-lg border border-slate-200 bg-white px-3 py-3">
                     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -2582,7 +2722,7 @@ export default function ProofMapTab({
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        {selectedRuleId ? (
+                        {selectedRuleId && !item.pdd_document ? (
                           linkedToSelectedRule ? (
                             <button
                               type="button"
@@ -2606,10 +2746,14 @@ export default function ProofMapTab({
                               Link
                             </button>
                           )
+                        ) : selectedRuleId && item.pdd_document ? (
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                            Use fragment links below
+                          </span>
                         ) : null}
                       </div>
                     </div>
-                    <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50">
+                      <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50">
                       <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-700">
                         More
                       </summary>
@@ -2652,6 +2796,136 @@ export default function ProofMapTab({
                                   {group.source_range ? ` • ${group.source_range}` : ""}
                                 </div>
                               ))}
+                            </div>
+                          ) : null}
+                          {item.pdd_document ? (
+                            <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-2">
+                              <div className="font-semibold text-slate-700">PDD document</div>
+                              <div>
+                                {item.pdd_document.file_name} • {item.pdd_document.mime}
+                                {item.pdd_document.sha256 ? ` • ${shortSha(item.pdd_document.sha256)}` : ""}
+                              </div>
+                              <div className="grid gap-2 md:grid-cols-2">
+                                <label className="grid gap-1">
+                                  <span>Section label</span>
+                                  <input
+                                    type="text"
+                                    value={pddDraft.sectionLabel}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { sectionLabel: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span>Section heading</span>
+                                  <input
+                                    type="text"
+                                    value={pddDraft.sectionHeading}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { sectionHeading: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span>Page start</span>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={pddDraft.pageStart}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { pageStart: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span>Page end</span>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={pddDraft.pageEnd}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { pageEnd: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                              </div>
+                              <label className="grid gap-1">
+                                <span>Excerpt</span>
+                                <textarea
+                                  value={pddDraft.excerpt}
+                                  onChange={(event) => updatePddFragmentDraft(pin.id, { excerpt: event.target.value })}
+                                  rows={3}
+                                  className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                />
+                              </label>
+                              <div>
+                                <button
+                                  type="button"
+                                  className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                                  onClick={() => handleSavePddFragment(pin)}
+                                >
+                                  Save fragment
+                                </button>
+                              </div>
+                              {item.pdd_fragments?.length ? (
+                                <div className="grid gap-2">
+                                  {item.pdd_fragments.map((fragment) => {
+                                    const linkedRuleIds = (pin.pdd_fragment_links ?? [])
+                                      .filter((link) => link.fragment_id === fragment.fragment_id)
+                                      .map((link) => link.rule_id);
+                                    const linkedToSelectedFragment = Boolean(
+                                      selectedRuleId && linkedRuleIds.includes(selectedRuleId),
+                                    );
+                                    return (
+                                      <div key={fragment.fragment_id} className="rounded border border-slate-200 bg-slate-50 p-2">
+                                        <div className="font-medium text-slate-800">
+                                          {fragment.section_heading ?? fragment.section_label ?? "PDD fragment"}
+                                        </div>
+                                        <div className="mt-1">
+                                          {[formatPddPageLabel(fragment.page_start, fragment.page_end), fragment.excerpt]
+                                            .filter(Boolean)
+                                            .join(" • ") || "Fragment metadata pending"}
+                                        </div>
+                                        {fragment.excerpt ? (
+                                          <div className="mt-1 rounded border border-slate-200 bg-white px-2 py-1 text-slate-700">
+                                            {fragment.excerpt}
+                                          </div>
+                                        ) : null}
+                                        {linkedRuleIds.length ? (
+                                          <div className="mt-1">Linked to: {linkedRuleIds.join(", ")}</div>
+                                        ) : null}
+                                        {selectedRuleId ? (
+                                          <div className="mt-2">
+                                            {linkedToSelectedFragment ? (
+                                              <button
+                                                type="button"
+                                                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                                                onClick={() => {
+                                                  onSetEvidencePins(
+                                                    unlinkPddFragmentFromRequirement(evidencePins, pin.id, fragment.fragment_id, selectedRuleId),
+                                                  );
+                                                  showToast(`Unlinked ${fragment.fragment_id} from ${selectedRuleId}`);
+                                                }}
+                                              >
+                                                Unlink fragment
+                                              </button>
+                                            ) : (
+                                              <button
+                                                type="button"
+                                                className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                                                onClick={() => {
+                                                  onSetEvidencePins(
+                                                    linkPddFragmentToRequirement(evidencePins, pin.id, fragment.fragment_id, selectedRuleId),
+                                                  );
+                                                  showToast(`Linked ${fragment.fragment_id} to ${selectedRuleId}`);
+                                                }}
+                                              >
+                                                Link fragment
+                                              </button>
+                                            )}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              ) : null}
                             </div>
                           ) : null}
                           {item.linked_requirement_ids.length ? (

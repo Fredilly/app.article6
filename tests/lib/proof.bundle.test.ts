@@ -86,4 +86,47 @@ describe("proof bundle exporter", () => {
     const computed2 = await sha256Hex(canonical2);
     expect(computed2).not.toBe(bundle.integrity.bundle_sha256);
   });
+
+  test("preserves PDD fragment metadata in exported bundles", async () => {
+    const bundle = await buildProofBundleV1({
+      code: "AR-ACM0003",
+      version: "v02-0",
+      source: "Article6 Methodologies",
+      provenance: {},
+      rules: [{ id: "R-5", title: "PDD rule", snippet: "Use PDD evidence." }],
+      sections: [],
+      evidence_pins: [
+        {
+          id: "pdd-1",
+          kind: "pdd",
+          title: "project-design.pdf",
+          cited_ids: ["R-5"],
+          created_at: "2026-03-03T00:00:00Z",
+          pdd_document: {
+            evidence_id: "pdd-1",
+            attachment_id: "att-pdd",
+            file_name: "project-design.pdf",
+            mime: "application/pdf",
+            added_at: "2026-03-03T00:00:00Z",
+            sha256: "sha-pdd",
+          },
+          pdd_fragments: [
+            {
+              fragment_id: "pdd-1:frag:1",
+              evidence_id: "pdd-1",
+              page_start: 3,
+              page_end: 4,
+              section_heading: "Project boundary",
+              excerpt: "Boundary summary",
+            },
+          ],
+          pdd_fragment_links: [{ fragment_id: "pdd-1:frag:1", rule_id: "R-5", linked_at: "2026-03-03T00:00:00Z" }],
+        },
+      ],
+    });
+
+    expect(bundle.evidence_pins?.[0]?.pdd_document?.file_name).toBe("project-design.pdf");
+    expect(bundle.evidence_pins?.[0]?.pdd_fragments?.[0]?.fragment_id).toBe("pdd-1:frag:1");
+    expect(bundle.evidence_pins?.[0]?.pdd_fragment_links?.[0]?.rule_id).toBe("R-5");
+  });
 });

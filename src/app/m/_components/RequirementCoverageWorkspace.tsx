@@ -29,8 +29,8 @@ type RequirementCoverageWorkspaceProps = {
   onOpenSourceContext: (sectionId: string) => void;
   onCopyRequirementLink?: (ruleId: string) => void;
   inventoryItems?: EvidenceInventoryItem[];
-  onLinkInventoryItem?: (evidenceId: string, ruleId: string) => void;
-  onUnlinkInventoryItem?: (evidenceId: string, ruleId: string) => void;
+  onLinkInventoryItem?: (evidenceId: string, ruleId: string, fragmentId?: string) => void;
+  onUnlinkInventoryItem?: (evidenceId: string, ruleId: string, fragmentId?: string) => void;
   supportingEvidence?: ReactNode;
 };
 
@@ -50,6 +50,21 @@ function inventoryRelationshipSummary(item: EvidenceInventoryItem): string {
   if (!item.linked_requirement_ids.length) return "Not linked yet";
   if (item.linked_requirement_ids.length === 1) return `Linked to ${item.linked_requirement_ids[0]}`;
   return `Linked to ${item.linked_requirement_ids.join(", ")}`;
+}
+
+function formatPddPageLabel(pageStart?: number, pageEnd?: number): string | null {
+  if (typeof pageStart === "number" && typeof pageEnd === "number" && pageStart !== pageEnd) {
+    return `Pages ${pageStart}-${pageEnd}`;
+  }
+  if (typeof pageStart === "number") return `Page ${pageStart}`;
+  if (typeof pageEnd === "number") return `Page ${pageEnd}`;
+  return null;
+}
+
+function linkedEvidenceProvenance(item: RequirementCoverageRow["linkedEvidence"][number]): string | null {
+  const section = item.sectionHeading ?? item.sectionLabel ?? null;
+  const pageLabel = formatPddPageLabel(item.pageStart, item.pageEnd);
+  return ([item.documentLabel, section, pageLabel].filter(Boolean).join(" • ") || item.provenanceSummary) ?? null;
 }
 
 function matchesFilter(row: RequirementCoverageRow, filter: RequirementCoverageFilter): boolean {
@@ -346,11 +361,19 @@ export default function RequirementCoverageWorkspace({
                             <div className="mt-1 text-xs text-slate-600">
                               {item.type} • {item.source}
                             </div>
+                            {linkedEvidenceProvenance(item) ? (
+                              <div className="mt-1 text-xs text-slate-600">{linkedEvidenceProvenance(item)}</div>
+                            ) : null}
+                            {item.excerpt ? (
+                              <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs text-slate-700">
+                                {item.excerpt}
+                              </div>
+                            ) : null}
                             {onUnlinkInventoryItem ? (
                               <div className="mt-2">
                                 <button
                                   type="button"
-                                  onClick={() => onUnlinkInventoryItem(item.id, selectedRow.ruleId)}
+                                  onClick={() => onUnlinkInventoryItem(item.evidenceId ?? item.id, selectedRow.ruleId, item.fragmentId)}
                                   className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                                 >
                                   Unlink from {selectedRow.ruleId}
@@ -433,7 +456,11 @@ export default function RequirementCoverageWorkspace({
                                   <div className="mt-2 text-xs text-slate-600">{inventoryRelationshipSummary(item)}</div>
                                 </div>
                                 {selectedRow ? (
-                                  linkedToSelected ? (
+                                  item.pdd_document ? (
+                                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                                      Link PDD fragments from the evidence panel
+                                    </span>
+                                  ) : linkedToSelected ? (
                                     <button
                                       type="button"
                                       onClick={() => onUnlinkInventoryItem?.(item.evidence_id, selectedRow.ruleId)}
@@ -464,6 +491,24 @@ export default function RequirementCoverageWorkspace({
                                   <div>Source: {item.source_summary}</div>
                                   <div>Added: {formatInventoryTime(item.added_at)}</div>
                                   <div>Provenance: {item.provenance_summary}</div>
+                                  {item.pdd_document ? (
+                                    <div>
+                                      PDD: {item.pdd_document.file_name} • {item.pdd_document.mime}
+                                      {item.pdd_document.sha256 ? ` • ${item.pdd_document.sha256.slice(0, 12)}…` : ""}
+                                    </div>
+                                  ) : null}
+                                  {item.pdd_fragments?.length ? (
+                                    <div className="grid gap-1">
+                                      {item.pdd_fragments.map((fragment) => (
+                                        <div key={fragment.fragment_id}>
+                                          {fragment.section_heading ?? fragment.section_label ?? "PDD fragment"}
+                                          {fragment.page_start
+                                            ? ` • p. ${fragment.page_start}${fragment.page_end && fragment.page_end !== fragment.page_start ? `-${fragment.page_end}` : ""}`
+                                            : ""}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : null}
                                   {item.workbook_assets?.length ? (
                                     <div>
                                       Workbook: {item.workbook_assets[0]?.sheet_count ?? 0} sheet{item.workbook_assets[0]?.sheet_count === 1 ? "" : "s"} •{" "}

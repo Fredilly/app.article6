@@ -26,7 +26,24 @@ const rows: RequirementCoverageRow[] = [
       citations: [{ sectionId: "S-10", label: "Section 10" }],
     },
     expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
-    linkedEvidence: [{ id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" }],
+    linkedEvidence: [
+      { id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" },
+      {
+        id: "ev-3:frag:1",
+        evidenceId: "ev-3",
+        fragmentId: "ev-3:frag:1",
+        title: "project-design.pdf",
+        type: "PDD",
+        source: "inventory",
+        documentLabel: "project-design.pdf",
+        sectionLabel: "3.1",
+        sectionHeading: "Project boundary",
+        pageStart: 4,
+        pageEnd: 5,
+        excerpt: "The project boundary covers compartments 1 through 4.",
+        provenanceSummary: "project-design.pdf • Project boundary • p. 4-5",
+      },
+    ],
     candidateEvidence: [],
     status: "linked",
   },
@@ -57,6 +74,7 @@ const inventoryItems: EvidenceInventoryItem[] = [
     evidence_id: "ev-1",
     dedupe_key: "stac:S2A-001",
     display_name: "Q1 monitoring report",
+    kind: "upload",
     type: "Upload",
     source_summary: "Upload",
     provenance_summary: "Attachment q1-monitoring.pdf",
@@ -68,12 +86,45 @@ const inventoryItems: EvidenceInventoryItem[] = [
     evidence_id: "ev-2",
     dedupe_key: "title:boundary worksheet",
     display_name: "Boundary worksheet",
+    kind: "stac-item",
     type: "STAC item",
     source_summary: "Workspace evidence",
     provenance_summary: "Provenance pending",
     added_at: "2026-03-02T00:00:00Z",
     link_state: "unlinked",
     linked_requirement_ids: [],
+  },
+  {
+    evidence_id: "ev-3",
+    dedupe_key: "attachment:sha-pdd",
+    display_name: "project-design.pdf",
+    kind: "pdd",
+    type: "PDD",
+    source_summary: "PDD upload",
+    provenance_summary: "project-design.pdf • 1 fragment",
+    added_at: "2026-03-03T00:00:00Z",
+    link_state: "linked",
+    linked_requirement_ids: ["R-1"],
+    pdd_document: {
+      evidence_id: "ev-3",
+      attachment_id: "att-pdd",
+      file_name: "project-design.pdf",
+      mime: "application/pdf",
+      added_at: "2026-03-03T00:00:00Z",
+      sha256: "sha-pdd",
+    },
+    pdd_fragments: [
+      {
+        fragment_id: "ev-3:frag:1",
+        evidence_id: "ev-3",
+        page_start: 4,
+        page_end: 5,
+        section_label: "3.1",
+        section_heading: "Project boundary",
+        excerpt: "The project boundary covers compartments 1 through 4.",
+      },
+    ],
+    pdd_fragment_links: [{ fragment_id: "ev-3:frag:1", rule_id: "R-1", linked_at: "2026-03-03T00:00:00Z" }],
   },
 ];
 
@@ -99,12 +150,17 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Monitoring");
     expect(html).toContain("Monitoring report");
     expect(html).toContain("Q1 monitoring report");
+    expect(html).toContain("project-design.pdf");
+    expect(html).toContain("Project boundary");
+    expect(html).toContain("Pages 4-5");
+    expect(html).toContain("The project boundary covers compartments 1 through 4.");
     expect(html).toContain("Complete");
     expect(html).toContain("No expected evidence metadata");
     expect(html).toContain("No linked evidence yet");
     expect(html).toContain("No workbook-derived candidates for this requirement yet.");
     expect(html).toContain("Evidence inventory");
     expect(html).toContain("Boundary worksheet");
+    expect(html).toContain("PDD: project-design.pdf");
     expect(html).toContain("Provenance pending");
     expect(html).toContain("EV-EV1");
     expect(html).toContain("Unlinked");
@@ -131,13 +187,38 @@ describe("RequirementCoverageWorkspace", () => {
           rows.map((row) => ({
             ...row,
             linkedEvidence: inventory
-              .filter((item) => item.linked_requirement_ids.includes(row.ruleId))
-              .map((item) => ({
-                id: item.evidence_id,
-                title: item.display_name,
-                type: item.type,
-                source: "inventory" as const,
-              })),
+              .flatMap((item) => {
+                if (item.kind === "pdd") {
+                  return (item.pdd_fragment_links ?? [])
+                    .filter((link) => link.rule_id === row.ruleId)
+                    .map((link) => {
+                      const fragment = item.pdd_fragments?.find((entry) => entry.fragment_id === link.fragment_id);
+                      return {
+                        id: link.fragment_id,
+                        evidenceId: item.evidence_id,
+                        fragmentId: link.fragment_id,
+                        title: item.display_name,
+                        type: item.type,
+                        source: "inventory" as const,
+                        documentLabel: item.display_name,
+                        sectionLabel: fragment?.section_label,
+                        sectionHeading: fragment?.section_heading,
+                        pageStart: fragment?.page_start,
+                        pageEnd: fragment?.page_end,
+                        excerpt: fragment?.excerpt,
+                      };
+                    });
+                }
+                if (!item.linked_requirement_ids.includes(row.ruleId)) return [];
+                return [
+                  {
+                    id: item.evidence_id,
+                    title: item.display_name,
+                    type: item.type,
+                    source: "inventory" as const,
+                  },
+                ];
+              }),
             candidateEvidence: inventory
               .flatMap((item) => item.workbook_record_groups ?? [])
               .filter((group) => group.candidate_evidence_types.includes("spreadsheet-workbook"))
