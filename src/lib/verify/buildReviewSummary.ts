@@ -13,6 +13,11 @@ export type ReviewSummary = {
   reviewState: string | null;
   generatedAt: string | null;
   outcomeNote: string | null;
+  stacSearchResultCount: number | null;
+  linkedRuleCount: number | null;
+  selectedEvidenceLinkedRules: string[];
+  checklistStatus: string | null;
+  narrative: string | null;
 };
 
 type BuildReviewSummaryInput = {
@@ -31,6 +36,7 @@ type BuildReviewSummaryInput = {
     outcomeNote?: string | null;
     finalizedAt?: string | null;
     finalizedState?: "draft" | "finalized" | string | null;
+    checklistStatus?: string | null;
   } | null;
   rule?: {
     id?: string | null;
@@ -54,6 +60,11 @@ function asNumber(value: unknown): number | null {
     if (Number.isFinite(parsed)) return parsed;
   }
   return null;
+}
+
+function uniqSorted(values: string[] | null | undefined): string[] {
+  if (!values?.length) return [];
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
 }
 
 function bboxLabel(bbox?: [number, number, number, number] | null): string | null {
@@ -104,6 +115,25 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
     asTrimmed(input.verifier?.outcomeNote) ??
     asTrimmed(input.outcome?.verifier.outcomeNote) ??
     null;
+  const stacSearchResultCount = input.outcome?.stac.itemIds.length ?? null;
+  const linkedRuleCount = input.outcome?.linkage.linkedRuleIds.length ?? null;
+  const selectedEvidenceLinkedRules = uniqSorted(
+    Array.isArray(readSelectedItemField(selectedItem, "linked_rules"))
+      ? ((readSelectedItemField(selectedItem, "linked_rules") as unknown[]) ?? []).filter((value): value is string => typeof value === "string")
+      : [],
+  );
+  const checklistStatus = asTrimmed(input.verifier?.checklistStatus) ?? null;
+  const narrativeParts = [
+    reviewState === "finalized" ? "Finalized verify review." : "Verify review artifact.",
+    ruleId ? `Rule ${ruleId}${ruleSection ? ` (${ruleSection})` : ""}.` : null,
+    selectedEvidenceId ? `Selected evidence ${selectedEvidenceId}${selectedEvidenceLinkedRules.length ? ` linked to ${selectedEvidenceLinkedRules.join(", ")}` : ""}.` : null,
+    typeof stacSearchResultCount === "number" ? `STAC search returned ${stacSearchResultCount} candidate item${stacSearchResultCount === 1 ? "" : "s"}.` : null,
+    typeof linkedRuleCount === "number" ? `${linkedRuleCount} linked rule${linkedRuleCount === 1 ? "" : "s"} in the finalized scope.` : null,
+    outcomeNote ? `Reviewer note: ${outcomeNote}` : null,
+    checklistStatus ? `Checklist: ${checklistStatus}.` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return {
     methodCode,
@@ -118,6 +148,11 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
     reviewState,
     generatedAt,
     outcomeNote,
+    stacSearchResultCount,
+    linkedRuleCount,
+    selectedEvidenceLinkedRules,
+    checklistStatus,
+    narrative: narrativeParts || null,
   };
 }
 
@@ -139,6 +174,11 @@ export function formatReviewSummaryDisplay(summary: ReviewSummary): Record<keyof
     reviewState: fallback(summary.reviewState, "Unavailable"),
     generatedAt: fallback(summary.generatedAt, "Unavailable"),
     outcomeNote: fallback(summary.outcomeNote, "No reviewer note provided"),
+    stacSearchResultCount: summary.stacSearchResultCount == null ? "Unavailable" : `${summary.stacSearchResultCount}`,
+    linkedRuleCount: summary.linkedRuleCount == null ? "Unavailable" : `${summary.linkedRuleCount}`,
+    selectedEvidenceLinkedRules: summary.selectedEvidenceLinkedRules.length ? summary.selectedEvidenceLinkedRules.join(", ") : "Unavailable",
+    checklistStatus: fallback(summary.checklistStatus, "Unavailable"),
+    narrative: fallback(summary.narrative, "Unavailable"),
   };
 }
 
@@ -155,7 +195,12 @@ export function reviewSummaryRows(summary: ReviewSummary): Array<{ label: string
     { label: "Cloud cover", value: display.cloudCover },
     { label: "AOI", value: display.aoiLabel },
     { label: "Review state", value: display.reviewState },
+    { label: "Search results", value: display.stacSearchResultCount },
+    { label: "Linked rules", value: display.linkedRuleCount },
+    { label: "Selected evidence linkage", value: display.selectedEvidenceLinkedRules },
+    { label: "Checklist status", value: display.checklistStatus },
     { label: "Generated", value: display.generatedAt },
     { label: "Outcome note", value: display.outcomeNote },
+    { label: "Narrative", value: display.narrative },
   ];
 }

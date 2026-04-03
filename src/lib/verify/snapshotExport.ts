@@ -25,12 +25,14 @@ export async function buildOutcomeSnapshot(input: {
     finalizedState?: "draft" | "finalized";
     delta: string;
     impact: string;
-    checklist: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
+    checklistStatus?: string | null;
+    checklist?: Array<{ id: string; label: string; checked: boolean; updatedAt: string }>;
     tasks: Array<{ id: string; text: string; done: boolean; createdAt: string; updatedAt: string }>;
   } | null;
   kpis?: {
-    itemsCount: number;
-    linkedRulesCount: number;
+    stacSearchResultCount: number;
+    selectedEvidenceCount: number;
+    linkedRuleCount: number;
     coverage?: { numerator: number; denominator?: number };
     snapshotExportedAt?: string | null;
   } | null;

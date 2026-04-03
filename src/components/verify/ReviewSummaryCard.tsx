@@ -69,6 +69,7 @@ export default function ReviewSummaryCard({
   const cloudCoverLabel = display.cloudCover === "Unavailable" ? display.cloudCover : `${Number(display.cloudCover).toFixed(1)}%`;
   const aoiLabel = display.aoiLabel === "Unnamed AOI" ? display.aoiLabel : normalizeAoiLabel(display.aoiLabel);
   const ruleSummary = compactSentence(display.ruleText);
+  const narrative = compactSentence(display.narrative, 220);
 
   return (
     <section
@@ -126,7 +127,12 @@ export default function ReviewSummaryCard({
         </div>
       ) : null}
 
-      <div className="mt-5 grid min-w-0 gap-3">
+        <div className="mt-5 grid min-w-0 gap-3">
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">What happened</div>
+          <div className="mt-2 break-words text-sm leading-relaxed text-slate-700">{narrative}</div>
+        </div>
+
         <div className="min-w-0 rounded-2xl bg-white/85 px-4 py-4 shadow-sm ring-1 ring-inset ring-white">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule applied</div>
           <div className="mt-2 min-w-0 break-words text-sm font-semibold text-slate-950">
@@ -145,11 +151,24 @@ export default function ReviewSummaryCard({
           <div className="mt-2 break-words text-sm text-slate-600">
             {evidenceTimeLabel} <span className="text-slate-300">•</span> Cloud cover {cloudCoverLabel}
           </div>
+          <div className="mt-2 break-words text-sm text-slate-600">
+            Linked rules {display.selectedEvidenceLinkedRules}
+          </div>
         </div>
 
         <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI</div>
           <div className="mt-2 break-words text-sm text-slate-700">{aoiLabel}</div>
+        </div>
+
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review scope</div>
+          <div className="mt-2 break-words text-sm leading-relaxed text-slate-700">
+            {display.stacSearchResultCount} candidate item(s) <span className="text-slate-300">•</span> {display.linkedRuleCount} linked rule(s)
+          </div>
+          <div className="mt-2 break-words text-sm leading-relaxed text-slate-700">
+            Checklist {display.checklistStatus}
+          </div>
         </div>
 
         <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
@@ -161,7 +180,7 @@ export default function ReviewSummaryCard({
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Review state</div>
           <div className="mt-2 text-sm font-semibold text-slate-900">{display.reviewState}</div>
         </div>
-          </div>
+      </div>
 
       <div className="mt-5 grid gap-3">
         <details className="rounded-xl border border-slate-200 bg-white">
@@ -172,7 +191,7 @@ export default function ReviewSummaryCard({
             <pre className="overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-50 p-3 font-mono text-[11px] text-slate-700">
               {prettyJson({
                 selected: artifact?.selected ?? null,
-                items: artifact?.items ?? null,
+                linkage: artifact?.outcome?.linkage ?? null,
                 evidence_source: artifact?.evidence_source ?? null,
               })}
             </pre>
@@ -204,7 +223,7 @@ export default function ReviewSummaryCard({
             <pre className="overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-50 p-3 font-mono text-[11px] text-slate-700">
               {prettyJson({
                 aoi: artifact?.aoi ?? null,
-                stacItemsJson: artifact?.stacItemsJson ?? null,
+                stac: artifact?.outcome?.stac ?? null,
                 kpis: artifact?.kpis ?? null,
               })}
             </pre>

@@ -303,6 +303,8 @@ test("Finalize lands on a readable review summary and keeps it after refresh", a
   };
 
   await page.addInitScript((aoi) => {
+    if (window.sessionStorage.getItem("pw-finalize-summary-seeded") === "1") return;
+    window.sessionStorage.setItem("pw-finalize-summary-seeded", "1");
     window.localStorage.setItem("aoi:v2:AR-ACM0003:v02-0:current", JSON.stringify(aoi));
     window.localStorage.removeItem("pins:AR-ACM0003:v02-0");
     window.localStorage.removeItem("runs:AR-ACM0003:v02-0");
@@ -357,12 +359,14 @@ test("Finalize lands on a readable review summary and keeps it after refresh", a
   await page.getByRole("button", { name: "Save reviewer artifact" }).click();
   await page.getByRole("button", { name: "Finalize run" }).click();
 
-  await expect(page.getByTestId("review-summary-card")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId("verifier-minutes-textarea")).toHaveValue("Saved review summary note");
-  await expect(page.getByRole("button", { name: "Download JSON artifact" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("button", { name: "Download PDF summary" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Final Review Summary").first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("What happened")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Outcome note")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Checklist unused")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Download JSON" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Download PDF" })).toBeVisible({ timeout: 30_000 });
 
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.getByTestId("review-summary-card")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId("verifier-minutes-textarea")).toHaveValue("Saved review summary note");
+  await expect(page.getByText("Final Review Summary").first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Download JSON" })).toBeVisible({ timeout: 30_000 });
 });

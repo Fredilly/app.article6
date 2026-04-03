@@ -77,6 +77,7 @@ test("includes verifier minutes + checklist in snapshot", async () => {
       finalizedState: "finalized",
       delta: "Detected new AOI boundaries.",
       impact: "Risk: mild drift in area coverage.",
+      checklistStatus: "1/1 completed",
       checklist: [
         { id: "read-overview", label: "Read method overview", checked: true, updatedAt: "2026-01-01T01:01:01Z" },
       ],
@@ -99,6 +100,7 @@ test("includes verifier minutes + checklist in snapshot", async () => {
   expect(snapshot.verifier?.finalizedState).toBe("finalized");
   expect(snapshot.verifier?.delta).toBe("Detected new AOI boundaries.");
   expect(snapshot.verifier?.tasks).toHaveLength(1);
+  expect(snapshot.verifier?.checklistStatus).toBe("1/1 completed");
   expect(snapshot.verifier?.checklist).toHaveLength(1);
 });
 
@@ -115,12 +117,15 @@ test("keeps verifier tasks empty when none provided", async () => {
       finalizedState: "draft",
       delta: "",
       impact: "",
-      checklist: [],
+      checklistStatus: "unused",
+      checklist: undefined,
       tasks: [],
     },
   });
 
+  expect(snapshot.verifier?.checklistStatus).toBe("unused");
   expect(snapshot.verifier?.tasks).toEqual([]);
+  expect(snapshot.verifier?.checklist).toBeUndefined();
 });
 
 test("includes selected rule in the final artifact outcome", async () => {
@@ -160,6 +165,7 @@ test("adds a top-level review summary without changing the raw snapshot shape", 
       id: "stac-9",
       item: {
         id: "stac-9",
+        linked_rules: ["R-4"],
         properties: {
           datetime: "2026-03-25T00:00:00Z",
           "eo:cloud_cover": 8.2,
@@ -175,7 +181,8 @@ test("adds a top-level review summary without changing the raw snapshot shape", 
       finalizedState: "finalized",
       delta: "",
       impact: "",
-      checklist: [],
+      checklistStatus: "unused",
+      checklist: undefined,
       tasks: [],
     },
     summary: {
@@ -191,6 +198,11 @@ test("adds a top-level review summary without changing the raw snapshot shape", 
       reviewState: "finalized",
       generatedAt: "2026-03-25T00:01:00Z",
       outcomeNote: "Outcome",
+      stacSearchResultCount: 1,
+      linkedRuleCount: 1,
+      selectedEvidenceLinkedRules: ["R-4"],
+      checklistStatus: "unused",
+      narrative: "Finalized verify review.",
     },
   });
 
@@ -198,5 +210,80 @@ test("adds a top-level review summary without changing the raw snapshot shape", 
   expect(snapshot.evidence_source.ref).toBe("https://example.test");
   expect(snapshot.summary?.ruleId).toBe("R-4");
   expect(snapshot.summary?.selectedEvidenceId).toBe("stac-9");
+  expect(snapshot.selected?.item?.linked_rules).toEqual(["R-4"]);
   expect(snapshot.verifier?.runId).toBe("run-4");
+});
+
+test("supports finalized export with one canonical selected item and lightweight search results", async () => {
+  const snapshot = await buildEvidenceSnapshot({
+    method: { code: "AR-5", version: "v5" },
+    evidence_source: { type: "stac_url", ref: "https://example.test" },
+    selected: {
+      id: "stac-5",
+      item: {
+        id: "stac-5",
+        datetime: "2026-03-25T00:00:00Z",
+        collection: "sentinel-2",
+        cloud_cover: 1.5,
+        linked_rules: ["R-5"],
+      },
+    },
+    outcome: {
+      aoi: { hash: "aoi-hash", bbox: [0, 0, 1, 1], areaKm2: 10 },
+      stac: { query: { source: "https://example.test" }, itemIds: ["stac-5", "stac-6"] },
+      linkage: { selectedRuleId: "R-5", linkedRuleIds: ["R-5"] },
+      exportState: { snapshotExportedAt: "2026-01-03T00:00:00Z" },
+      verifier: {
+        runId: "run-5",
+        createdAt: "2026-01-03T00:00:00Z",
+        minutes: "Saved reviewer note",
+        outcomeNote: "Stable",
+        finalizedAt: "2026-01-03T00:01:00Z",
+        finalizedState: "finalized",
+        delta: "",
+        impact: "",
+        checklist: [],
+        tasks: [],
+      },
+      provenance: { methodCode: "AR-5", version: "v5", snapshotSchemaVersion: "evidence-snapshot/v2" },
+    },
+    verifier: {
+      runId: "run-5",
+      createdAt: "2026-01-03T00:00:00Z",
+      minutes: "Saved reviewer note",
+      outcomeNote: "Stable",
+      finalizedAt: "2026-01-03T00:01:00Z",
+      finalizedState: "finalized",
+      delta: "",
+      impact: "",
+      checklistStatus: "unused",
+      checklist: undefined,
+      tasks: [],
+    },
+    kpis: {
+      stacSearchResultCount: 2,
+      selectedEvidenceCount: 1,
+      linkedRuleCount: 1,
+      coverage: { numerator: 1, denominator: 8 },
+      snapshotExportedAt: "2026-01-03T00:01:00Z",
+    },
+  });
+
+  expect(snapshot.selected?.item).toEqual({
+    id: "stac-5",
+    datetime: "2026-03-25T00:00:00Z",
+    collection: "sentinel-2",
+    cloud_cover: 1.5,
+    linked_rules: ["R-5"],
+  });
+  expect(snapshot.outcome?.stac.itemIds).toEqual(["stac-5", "stac-6"]);
+  expect(snapshot.items).toBeUndefined();
+  expect(snapshot.stacItemsJson).toBeUndefined();
+  expect(snapshot.kpis).toEqual({
+    stacSearchResultCount: 2,
+    selectedEvidenceCount: 1,
+    linkedRuleCount: 1,
+    coverage: { numerator: 1, denominator: 8 },
+    snapshotExportedAt: "2026-01-03T00:01:00Z",
+  });
 });
