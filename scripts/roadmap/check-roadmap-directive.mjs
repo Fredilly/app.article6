@@ -38,7 +38,7 @@ async function fetchPrBody({ repoName, prNumber, token }) {
 
 /**
  * Fail-closed rule:
- * If PR is roadmap-tracked (has phase:* label), require a valid Roadmap-Update block.
+ * If PR is roadmap-tracked, require a valid Roadmap-Update block.
  *
  * We read PR metadata from the GitHub event payload (pull_request).
  */
@@ -71,9 +71,15 @@ const hasPr = labels.some((n) => String(n).startsWith("pr:PR"));
 const eventBody = pr?.body ?? "";
 let body = eventBody;
 let directive = parseRoadmapDirective(body);
+const isRoadmapTrackedFromEvent = hasPhase || hasPr || Boolean(directive);
 let fetchedBodyLength = body.length;
 console.log("[roadmap-directive] eventBodyLength=", eventBody.length);
 console.log("[roadmap-directive] prNumber=", prNumber, "repo=", repoName);
+
+if (!isRoadmapTrackedFromEvent) {
+  process.exit(0);
+}
+
 if (!directive && prNumber && repoName) {
   try {
     const fetchedBody = await fetchPrBody({ repoName, prNumber, token });
@@ -87,12 +93,6 @@ if (!directive && prNumber && repoName) {
   }
 }
 console.log("[roadmap-directive] fetchedBodyLength=", fetchedBodyLength);
-
-const isRoadmapTracked = hasPhase || hasPr || Boolean(directive);
-
-if (!isRoadmapTracked) {
-  process.exit(0);
-}
 
 if (!directive) {
   fail("Missing '### Roadmap-Update' block in PR body (roadmap-tracked PR).");
