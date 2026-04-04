@@ -202,6 +202,8 @@ test("adds a top-level review summary without changing the raw snapshot shape", 
       linkedRuleCount: 1,
       selectedEvidenceLinkedRules: ["R-4"],
       checklistStatus: "unused",
+      reconciliationStatus: "Supported",
+      reconciliationReason: "All expected evidence is linked.",
       narrative: "Finalized verify review.",
     },
   });

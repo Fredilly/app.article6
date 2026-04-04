@@ -24,6 +24,8 @@ describe("FinalReviewSummaryPanel", () => {
           linkedRuleCount: 1,
           selectedEvidenceLinkedRules: ["R-1"],
           checklistStatus: "unused",
+          reconciliationStatus: "Supported",
+          reconciliationReason: "All expected evidence is linked.",
           narrative: "Finalized verify review.",
         }}
         artifact={null}

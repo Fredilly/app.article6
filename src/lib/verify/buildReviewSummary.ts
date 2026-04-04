@@ -1,3 +1,4 @@
+import type { RequirementReconciliation } from "@/app/m/_lib/requirementCoverage";
 import type { RunSummary } from "@/lib/verify/runState";
 
 export type ReviewSummary = {
@@ -17,6 +18,8 @@ export type ReviewSummary = {
   linkedRuleCount: number | null;
   selectedEvidenceLinkedRules: string[];
   checklistStatus: string | null;
+  reconciliationStatus: string | null;
+  reconciliationReason: string | null;
   narrative: string | null;
 };
 
@@ -38,6 +41,7 @@ type BuildReviewSummaryInput = {
     finalizedState?: "draft" | "finalized" | string | null;
     checklistStatus?: string | null;
   } | null;
+  reconciliation?: RequirementReconciliation | null;
   rule?: {
     id?: string | null;
     text?: string | null;
@@ -123,12 +127,15 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
       : [],
   );
   const checklistStatus = asTrimmed(input.verifier?.checklistStatus) ?? null;
+  const reconciliationStatus = asTrimmed(input.reconciliation?.label) ?? null;
+  const reconciliationReason = asTrimmed(input.reconciliation?.reason) ?? null;
   const narrativeParts = [
     reviewState === "finalized" ? "Finalized verify review." : "Verify review artifact.",
     ruleId ? `Rule ${ruleId}${ruleSection ? ` (${ruleSection})` : ""}.` : null,
     selectedEvidenceId ? `Selected evidence ${selectedEvidenceId}${selectedEvidenceLinkedRules.length ? ` linked to ${selectedEvidenceLinkedRules.join(", ")}` : ""}.` : null,
     typeof stacSearchResultCount === "number" ? `STAC search returned ${stacSearchResultCount} candidate item${stacSearchResultCount === 1 ? "" : "s"}.` : null,
     typeof linkedRuleCount === "number" ? `${linkedRuleCount} linked rule${linkedRuleCount === 1 ? "" : "s"} in the finalized scope.` : null,
+    reconciliationStatus ? `Reconciliation: ${reconciliationStatus}${reconciliationReason ? ` (${reconciliationReason})` : ""}.` : null,
     outcomeNote ? `Reviewer note: ${outcomeNote}` : null,
     checklistStatus ? `Checklist: ${checklistStatus}.` : null,
   ]
@@ -152,6 +159,8 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
     linkedRuleCount,
     selectedEvidenceLinkedRules,
     checklistStatus,
+    reconciliationStatus,
+    reconciliationReason,
     narrative: narrativeParts || null,
   };
 }
@@ -178,6 +187,8 @@ export function formatReviewSummaryDisplay(summary: ReviewSummary): Record<keyof
     linkedRuleCount: summary.linkedRuleCount == null ? "Unavailable" : `${summary.linkedRuleCount}`,
     selectedEvidenceLinkedRules: summary.selectedEvidenceLinkedRules.length ? summary.selectedEvidenceLinkedRules.join(", ") : "Unavailable",
     checklistStatus: fallback(summary.checklistStatus, "Unavailable"),
+    reconciliationStatus: fallback(summary.reconciliationStatus, "Unavailable"),
+    reconciliationReason: fallback(summary.reconciliationReason, "Unavailable"),
     narrative: fallback(summary.narrative, "Unavailable"),
   };
 }
@@ -199,6 +210,8 @@ export function reviewSummaryRows(summary: ReviewSummary): Array<{ label: string
     { label: "Linked rules", value: display.linkedRuleCount },
     { label: "Selected evidence linkage", value: display.selectedEvidenceLinkedRules },
     { label: "Checklist status", value: display.checklistStatus },
+    { label: "Reconciliation status", value: display.reconciliationStatus },
+    { label: "Reconciliation reason", value: display.reconciliationReason },
     { label: "Generated", value: display.generatedAt },
     { label: "Outcome note", value: display.outcomeNote },
     { label: "Narrative", value: display.narrative },

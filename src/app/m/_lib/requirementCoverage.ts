@@ -94,6 +94,16 @@ export type RequirementCoverageRow = {
   status: RequirementCoverageStatus;
 };
 
+export type RequirementReconciliationStatus = "supported" | "partial" | "needs-review" | "missing-evidence";
+
+export type RequirementReconciliation = {
+  status: RequirementReconciliationStatus;
+  label: "Supported" | "Partial" | "Needs review" | "Missing evidence";
+  reason: string;
+  satisfiedExpectedEvidenceTypes: RequirementCoverageExpectedEvidenceType[];
+  missingExpectedEvidenceTypes: RequirementCoverageExpectedEvidenceType[];
+};
+
 export const REQUIREMENT_COVERAGE_STATUS_META: Record<
   RequirementCoverageStatus,
   { label: string; tone: string; description: string }
@@ -129,6 +139,28 @@ export const EXPECTED_EVIDENCE_LABELS: Record<RequirementCoverageExpectedEvidenc
   "eligibility-proof": "Eligibility proof",
   "calculation-support": "Calculation support",
   other: "Other evidence",
+};
+
+export const REQUIREMENT_RECONCILIATION_META: Record<
+  RequirementReconciliationStatus,
+  { label: RequirementReconciliation["label"]; tone: string }
+> = {
+  supported: {
+    label: "Supported",
+    tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  },
+  partial: {
+    label: "Partial",
+    tone: "border-amber-200 bg-amber-50 text-amber-800",
+  },
+  "needs-review": {
+    label: "Needs review",
+    tone: "border-rose-200 bg-rose-50 text-rose-800",
+  },
+  "missing-evidence": {
+    label: "Missing evidence",
+    tone: "border-slate-200 bg-slate-50 text-slate-700",
+  },
 };
 
 type RequirementCoverageLinkInput = {
@@ -315,6 +347,109 @@ export function summarizeLinkedEvidence(items: RequirementCoverageLinkedEvidence
     return detail ? `${item.title} (${item.type} • ${detail})` : `${item.title} (${item.type})`;
   }
   return `${items.length} linked evidence items`;
+}
+
+function linkedEvidenceTypesForReconciliation(
+  item: RequirementCoverageLinkedEvidence,
+): RequirementCoverageExpectedEvidenceType[] {
+  const haystack = [
+    item.type,
+    item.title,
+    item.documentLabel,
+    item.provenanceSummary,
+    item.fragmentLabel,
+    item.sectionHeading,
+    item.sectionLabel,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const matched = new Set<RequirementCoverageExpectedEvidenceType>();
+  if (haystack.includes("monitoring-report") || haystack.includes("monitoring report")) matched.add("monitoring-report");
+  if (haystack.includes("spreadsheet-workbook") || haystack.includes("spreadsheet workbook") || haystack.includes("workbook")) {
+    matched.add("spreadsheet-workbook");
+  }
+  if (haystack.includes("calculation-support") || haystack.includes("calculation support") || haystack.includes("calculation")) {
+    matched.add("calculation-support");
+  }
+  if (haystack.includes("pdd")) matched.add("pdd");
+  if (haystack.includes("gis") || haystack.includes("stac") || haystack.includes("map evidence")) matched.add("gis");
+  if (haystack.includes("qa/qc") || haystack.includes("qa-qc") || haystack.includes("qa qc")) matched.add("qa-qc-record");
+  if (haystack.includes("eligibility")) matched.add("eligibility-proof");
+  return Array.from(matched);
+}
+
+function hasReviewerArtifact(input: { minutes?: string | null; outcomeNote?: string | null }): boolean {
+  return Boolean(input.minutes?.trim() || input.outcomeNote?.trim());
+}
+
+export function reconcileRequirement(input: {
+  linkedEvidence: RequirementCoverageLinkedEvidence[];
+  expectedEvidenceTypes?: RequirementCoverageExpectedEvidenceType[];
+  reviewerMinutes?: string | null;
+  reviewerOutcomeNote?: string | null;
+}): RequirementReconciliation {
+  const linkedEvidence = input.linkedEvidence ?? [];
+  const expected = Array.from(new Set(input.expectedEvidenceTypes ?? [])).sort((a, b) => a.localeCompare(b));
+  const reviewerSaved = hasReviewerArtifact({ minutes: input.reviewerMinutes, outcomeNote: input.reviewerOutcomeNote });
+
+  if (!linkedEvidence.length) {
+    return {
+      status: "missing-evidence",
+      label: REQUIREMENT_RECONCILIATION_META["missing-evidence"].label,
+      reason: "No linked evidence for this rule.",
+      satisfiedExpectedEvidenceTypes: [],
+      missingExpectedEvidenceTypes: expected,
+    };
+  }
+
+  const satisfied = new Set<RequirementCoverageExpectedEvidenceType>();
+  for (const item of linkedEvidence) {
+    for (const matchedType of linkedEvidenceTypesForReconciliation(item)) satisfied.add(matchedType);
+  }
+  const satisfiedExpectedEvidenceTypes = expected.filter((type) => satisfied.has(type));
+  const missingExpectedEvidenceTypes = expected.filter((type) => !satisfied.has(type));
+
+  if (expected.length) {
+    if (missingExpectedEvidenceTypes.length) {
+      const missingLabels = missingExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ");
+      const satisfiedLabels = satisfiedExpectedEvidenceTypes.length
+        ? ` Satisfied: ${satisfiedExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")}.`
+        : "";
+      return {
+        status: "partial",
+        label: REQUIREMENT_RECONCILIATION_META.partial.label,
+        reason: `Missing expected evidence: ${missingLabels}.${satisfiedLabels}`,
+        satisfiedExpectedEvidenceTypes,
+        missingExpectedEvidenceTypes,
+      };
+    }
+    return {
+      status: "supported",
+      label: REQUIREMENT_RECONCILIATION_META.supported.label,
+      reason: reviewerSaved ? "All expected evidence is linked and reviewer artifact is saved." : "All expected evidence is linked.",
+      satisfiedExpectedEvidenceTypes,
+      missingExpectedEvidenceTypes: [],
+    };
+  }
+
+  if (reviewerSaved) {
+    return {
+      status: "supported",
+      label: REQUIREMENT_RECONCILIATION_META.supported.label,
+      reason: "Linked evidence is present and reviewer artifact is saved.",
+      satisfiedExpectedEvidenceTypes: [],
+      missingExpectedEvidenceTypes: [],
+    };
+  }
+
+  return {
+    status: "needs-review",
+    label: REQUIREMENT_RECONCILIATION_META["needs-review"].label,
+    reason: "Linked evidence is present, but no reviewer artifact is saved yet.",
+    satisfiedExpectedEvidenceTypes: [],
+    missingExpectedEvidenceTypes: [],
+  };
 }
 
 export function requirementProvenanceHint(row: RequirementCoverageRow): string {

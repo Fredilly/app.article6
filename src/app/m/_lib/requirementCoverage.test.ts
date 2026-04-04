@@ -1,6 +1,7 @@
 import {
   buildRequirementCoverageRows,
   REQUIREMENT_COVERAGE_STATUSES,
+  reconcileRequirement,
   requirementProvenanceHint,
   summarizeExpectedEvidence,
   summarizeLinkedEvidence,
@@ -225,5 +226,56 @@ describe("buildRequirementCoverageRows", () => {
     expect(summarizeLinkedEvidence(rows[0]?.linkedEvidence ?? [])).toBe(
       "Grouped activity boundary excerpt (PDD • project-design.pdf • Grouped activity boundary excerpt • p. 7-8)",
     );
+  });
+});
+
+describe("reconcileRequirement", () => {
+  test("returns missing evidence when nothing is linked", () => {
+    const result = reconcileRequirement({
+      linkedEvidence: [],
+      expectedEvidenceTypes: ["monitoring-report"],
+    });
+
+    expect(result.status).toBe("missing-evidence");
+    expect(result.reason).toBe("No linked evidence for this rule.");
+    expect(result.missingExpectedEvidenceTypes).toEqual(["monitoring-report"]);
+  });
+
+  test("returns partial when expected evidence is only partly satisfied", () => {
+    const result = reconcileRequirement({
+      linkedEvidence: [{ id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "inventory" }],
+      expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
+    });
+
+    expect(result.status).toBe("partial");
+    expect(result.satisfiedExpectedEvidenceTypes).toEqual(["monitoring-report"]);
+    expect(result.missingExpectedEvidenceTypes).toEqual(["spreadsheet-workbook"]);
+  });
+
+  test("returns supported when all expected evidence is linked", () => {
+    const result = reconcileRequirement({
+      linkedEvidence: [
+        { id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "inventory" },
+        { id: "ev-2", title: "Workbook tab", type: "Workbook", source: "inventory" },
+      ],
+      expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
+    });
+
+    expect(result.status).toBe("supported");
+    expect(result.missingExpectedEvidenceTypes).toEqual([]);
+  });
+
+  test("falls back to reviewer artifact when no expected evidence exists", () => {
+    expect(
+      reconcileRequirement({
+        linkedEvidence: [{ id: "ev-1", title: "Boundary map", type: "STAC item", source: "inventory" }],
+      }).status,
+    ).toBe("needs-review");
+    expect(
+      reconcileRequirement({
+        linkedEvidence: [{ id: "ev-1", title: "Boundary map", type: "STAC item", source: "inventory" }],
+        reviewerOutcomeNote: "Reviewed",
+      }).status,
+    ).toBe("supported");
   });
 });

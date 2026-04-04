@@ -32,6 +32,7 @@ import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
+import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import {
   buildEvidenceInventory,
@@ -394,6 +395,7 @@ export default function ProofMapTab({
     text: string | null;
     sectionId: string | null;
     sectionTitle: string | null;
+    expectedEvidence: string[];
   } | null>(null);
   const [reviewArtifact, setReviewArtifact] = useState<EvidenceSnapshot | null>(null);
   const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
@@ -475,6 +477,7 @@ export default function ProofMapTab({
         text: null,
         sectionId: null,
         sectionTitle: null,
+        expectedEvidence: [],
       };
       try {
         const ruleResponse = await fetch(
@@ -510,6 +513,13 @@ export default function ProofMapTab({
           text: asNonEmptyString(ruleRecord.text) ?? null,
           sectionId,
           sectionTitle,
+          expectedEvidence: Array.isArray(ruleRecord.expectedEvidence)
+            ? ruleRecord.expectedEvidence.filter((value): value is string => typeof value === "string")
+            : Array.isArray((ruleRecord.requirement_coverage as { expected_evidence?: unknown } | undefined)?.expected_evidence)
+              ? ((ruleRecord.requirement_coverage as { expected_evidence?: unknown[] }).expected_evidence ?? []).filter(
+                  (value): value is string => typeof value === "string",
+                )
+              : [],
         };
       } catch {
         return fallback;
@@ -1682,6 +1692,35 @@ export default function ProofMapTab({
     const candidate = currentStacEvidence?.itemsById?.[selectedStacItemId];
     return candidate && typeof candidate === "object" ? (candidate as Record<string, unknown>) : null;
   }, [currentStacEvidence?.itemsById, selectedStacItemId]);
+  const selectedRuleCoverageRow = useMemo(() => {
+    if (!selectedRuleId) return null;
+    return (
+      buildRequirementCoverageRows({
+        rules: [
+          {
+            id: selectedRuleId,
+            title: selectedRuleId,
+            snippet: selectedRuleContext?.text ?? selectedRuleId,
+            text: selectedRuleContext?.text ?? undefined,
+            expectedEvidence: selectedRuleContext?.expectedEvidence ?? [],
+            tags: [],
+            sectionId: selectedRuleContext?.sectionId ?? undefined,
+          },
+        ],
+        inventoryItems: evidenceInventory,
+      })[0] ?? null
+    );
+  }, [evidenceInventory, selectedRuleContext, selectedRuleId]);
+  const selectedRuleReconciliation = useMemo(
+    () =>
+      reconcileRequirement({
+        linkedEvidence: selectedRuleCoverageRow?.linkedEvidence ?? [],
+        expectedEvidenceTypes: selectedRuleCoverageRow?.expectedEvidenceTypes ?? [],
+        reviewerMinutes: verifierBundle.minutes,
+        reviewerOutcomeNote: verifierBundle.outcomeNote,
+      }),
+    [selectedRuleCoverageRow, verifierBundle.minutes, verifierBundle.outcomeNote],
+  );
   const reviewSummary = useMemo<ReviewSummary>(
     () =>
       buildReviewSummary({
@@ -1701,6 +1740,7 @@ export default function ProofMapTab({
           finalizedAt: verifierBundle.finalizedAt,
           finalizedState: verifierBundle.finalizedAt ? "finalized" : "draft",
         },
+        reconciliation: selectedRuleReconciliation,
         rule: selectedRuleContext,
         generatedAt: verifierBundle.finalizedAt ?? verifierBundle.exportedAt ?? runSummary.provenance.generatedAt ?? null,
       }),
@@ -1710,6 +1750,7 @@ export default function ProofMapTab({
       aoi?.name,
       methodCode,
       runSummary,
+      selectedRuleReconciliation,
       selectedRuleContext,
       selectedStacItemId,
       selectedStacItemRecord,
@@ -1910,6 +1951,29 @@ export default function ProofMapTab({
         snapshotExportedAt: options.snapshotExportedAt,
       });
       const ruleContext = await fetchSelectedRuleContext(selectedRuleId);
+      const ruleCoverageRow =
+        selectedRuleId && ruleContext
+          ? buildRequirementCoverageRows({
+              rules: [
+                {
+                  id: selectedRuleId,
+                  title: selectedRuleId,
+                  snippet: ruleContext.text ?? selectedRuleId,
+                  text: ruleContext.text ?? undefined,
+                  expectedEvidence: ruleContext.expectedEvidence ?? [],
+                  tags: [],
+                  sectionId: ruleContext.sectionId ?? undefined,
+                },
+              ],
+              inventoryItems: evidenceInventory,
+            })[0] ?? null
+          : null;
+      const reconciliation = reconcileRequirement({
+        linkedEvidence: ruleCoverageRow?.linkedEvidence ?? [],
+        expectedEvidenceTypes: ruleCoverageRow?.expectedEvidenceTypes ?? [],
+        reviewerMinutes: verifierBundle.minutes,
+        reviewerOutcomeNote: verifierBundle.outcomeNote,
+      });
       const summary = buildReviewSummary({
         method: { code: methodCode, version },
         aoi: {
@@ -1923,6 +1987,7 @@ export default function ProofMapTab({
         },
         outcome,
         verifier: exportVerifierSnapshot,
+        reconciliation,
         rule: ruleContext,
         generatedAt: options.finalizedAt,
       });
@@ -1972,6 +2037,7 @@ export default function ProofMapTab({
       linkedRuleIds,
       methodCode,
       runSummary,
+      evidenceInventory,
       selectedEvidenceItemIds,
       selectedRuleId,
       selectedStacItemId,
