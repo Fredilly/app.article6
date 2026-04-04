@@ -31,7 +31,6 @@ export default function ChatApp() {
   const [results, setResults] = useState<QueryResponse["results"]>([]);
   const [metrics, setMetrics] = useState<QueryResponse["metrics"]>([]);
   const [engineTag, setEngineTag] = useState<string>(DEFAULT_ENGINE_TAG);
-  const [quickCheckOpen, setQuickCheckOpen] = useState(false);
 
   async function onSend(text: string) {
     const next: ChatMessage[] = [...messages, { role: "user", content: text }];
@@ -91,16 +90,7 @@ export default function ChatApp() {
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setQuickCheckOpen((value) => !value)}
-              className="rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800"
-            >
-              Check one requirement
-            </button>
-            <PanelsTopLeft className="h-6 w-6 text-gray-300" />
-          </div>
+          <PanelsTopLeft className="h-6 w-6 text-gray-300" />
         </header>
 
         {selectedMethod || deeplinkWarnings.length ? (
@@ -145,17 +135,20 @@ export default function ChatApp() {
           </div>
         ) : null}
 
+        <section className="rounded-[1.5rem] border border-gray-200/70 bg-white/85 p-4 shadow-sm backdrop-blur md:p-5">
+          <QuickCheckPanel initialMethod={selectedMethod} initialVersion={selectedVersion} />
+          <div className="mt-3 text-sm text-gray-600">
+            Ask in chat instead
+          </div>
+        </section>
+
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3.5fr)_minmax(0,2fr)]">
           <section
             className={cn(
               "flex h-[70vh] flex-col rounded-[1.5rem] border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur lg:h-[72vh]",
             )}
           >
-            <MessageList messages={messages}>
-              {quickCheckOpen ? (
-                <QuickCheckPanel initialMethod={selectedMethod} initialVersion={selectedVersion} />
-              ) : null}
-            </MessageList>
+            <MessageList messages={messages} />
             <Composer disabled={busy} onSend={onSend} onUploadImage={onUploadImage} />
           </section>
 

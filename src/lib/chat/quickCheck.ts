@@ -13,6 +13,7 @@ export type QuickCheckDraft = {
   requirementId: string;
   evidenceIds: string[];
   status: QuickCheckDraftStatus;
+  result?: QuickCheckResult | null;
   resultId?: string;
   linkedRunId?: string;
   createdAt: string;
@@ -88,6 +89,7 @@ export function createQuickCheckDraft(seed?: Partial<Pick<QuickCheckDraft, "meth
     requirementId: "",
     evidenceIds: [],
     status: "draft",
+    result: null,
     createdAt: timestamp,
     updatedAt: timestamp,
   };
@@ -125,6 +127,26 @@ export function loadQuickCheckSession(seed?: Partial<Pick<QuickCheckDraft, "meth
         requirementId: typeof draft.requirementId === "string" ? draft.requirementId : "",
         evidenceIds: Array.isArray(draft.evidenceIds) ? draft.evidenceIds.map((item) => String(item)).filter(Boolean) : [],
         status: draft.status === "checked" ? "checked" : "draft",
+        result:
+          draft.result && typeof draft.result === "object"
+            ? {
+                id: typeof draft.result.id === "string" ? draft.result.id : newId("quick-result"),
+                requirementId: typeof draft.result.requirementId === "string" ? draft.result.requirementId : "",
+                requirementLabel: typeof draft.result.requirementLabel === "string" ? draft.result.requirementLabel : "",
+                verdict:
+                  draft.result.verdict === "Supported" ||
+                  draft.result.verdict === "Partial" ||
+                  draft.result.verdict === "Needs review" ||
+                  draft.result.verdict === "Missing evidence"
+                    ? draft.result.verdict
+                    : "Needs review",
+                explanation: typeof draft.result.explanation === "string" ? draft.result.explanation : "",
+                citations: Array.isArray(draft.result.citations)
+                  ? draft.result.citations.map((item) => String(item)).filter(Boolean)
+                  : [],
+                nextStepHint: typeof draft.result.nextStepHint === "string" ? draft.result.nextStepHint : "",
+              }
+            : null,
         resultId: typeof draft.resultId === "string" ? draft.resultId : undefined,
         linkedRunId: typeof draft.linkedRunId === "string" ? draft.linkedRunId : undefined,
         createdAt: typeof draft.createdAt === "string" ? draft.createdAt : fallback.draft.createdAt,

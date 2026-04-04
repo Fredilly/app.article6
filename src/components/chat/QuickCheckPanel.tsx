@@ -84,6 +84,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setSession((current) => {
       const nextDraft = {
         ...mutator(current.draft),
+        result: nextResult ?? current.result ?? current.draft.result ?? null,
         updatedAt: nowIso(),
       };
       const next = { draft: nextDraft, result: nextResult ?? current.result };
@@ -267,6 +268,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const nextDraft: QuickCheckDraft = {
         ...draft,
         status: "checked",
+        result: nextResult,
         resultId: nextResult.id,
         updatedAt: nowIso(),
       };
@@ -293,12 +295,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const availableInventory = inventoryItems.filter((item) => !draft.evidenceIds.includes(item.evidence_id));
 
   return (
-    <div className="mr-auto max-w-[88%]">
+    <div className="w-full">
       <div className="rounded-3xl border border-gray-200 bg-white px-5 py-4 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Quick check</div>
-            <div className="mt-1 text-sm text-gray-700">Check one requirement against one or more evidence items, then continue into the Review Workspace.</div>
+            <div className="text-lg font-semibold text-gray-900">Verify one requirement</div>
+            <div className="mt-1 text-sm text-gray-700">
+              Pick one methodology requirement, attach one evidence item, and get a compact grounded result before entering the full Review Workspace.
+            </div>
           </div>
           {loadingMethods || loadingRules || submitting ? <Loader2 className="h-4 w-4 animate-spin text-gray-400" /> : null}
         </div>

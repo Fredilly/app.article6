@@ -64,33 +64,27 @@ describe("ChatApp quick check entry", () => {
     jest.clearAllMocks();
   });
 
-  it("renders the starter affordance and keeps quick check collapsed by default", async () => {
+  it("renders the command card above chat by default", async () => {
     await act(async () => {
       root.render(<ChatApp />);
     });
 
-    expect(container.textContent).toContain("Check one requirement");
-    expect(container.textContent).not.toContain("Quick check");
+    expect(container.textContent).toContain("Verify one requirement");
+    expect(container.textContent).toContain("Ask in chat instead");
+    expect(container.textContent).toContain("Check requirement");
     expect(container.textContent).toContain("Send");
   });
 
-  it("opens the lightweight quick check block from the landing action", async () => {
+  it("keeps chat visible below the command card", async () => {
     await act(async () => {
       root.render(<ChatApp />);
     });
 
-    const button = Array.from(container.querySelectorAll("button")).find((node) =>
-      node.textContent?.includes("Check one requirement"),
-    );
-    expect(button).toBeTruthy();
-
-    await act(async () => {
-      button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-
-    expect(container.textContent).toContain("Quick check");
+    const pageText = container.textContent ?? "";
+    expect(pageText).toContain("Verify one requirement");
     expect(container.textContent).toContain("Methodology");
     expect(container.textContent).toContain("Requirement");
     expect(container.textContent).toContain("Check requirement");
+    expect(pageText.indexOf("Verify one requirement")).toBeLessThan(pageText.indexOf("Welcome to Article6"));
   });
 });
