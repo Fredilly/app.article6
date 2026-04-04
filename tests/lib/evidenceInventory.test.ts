@@ -195,7 +195,13 @@ describe("evidence inventory", () => {
       rules: [
         { id: "R-1", title: "Rule 1", snippet: "Rule one", tags: [] },
         { id: "R-2", title: "Rule 2", snippet: "Rule two", tags: [] },
-        { id: "R-3", title: "Workbook rule", snippet: "Spreadsheet workbook table", tags: [] },
+        {
+          id: "R-3",
+          title: "Workbook rule",
+          snippet: "Spreadsheet workbook table",
+          expectedEvidence: ["spreadsheet-workbook"],
+          tags: [],
+        },
       ],
       inventoryItems: inventory,
     });
@@ -304,6 +310,7 @@ describe("evidence inventory", () => {
           id: namespacedRuleId,
           title: "Workbook rule",
           snippet: "Maintain a monitoring report and spreadsheet workbook.",
+          expectedEvidence: ["spreadsheet-workbook"],
           tags: [],
         },
       ],
