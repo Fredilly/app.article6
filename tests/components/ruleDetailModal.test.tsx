@@ -104,7 +104,7 @@ describe("RuleDetailModal", () => {
     expect(html).toContain("Rule R-1");
     expect(html).toContain("UNFCCC Forestry · AR-ACM0003 · v02-0");
     expect(html).toContain("UNFCCC.Forestry.AR-ACM0003.v02-0.R-1");
-    expect(html).toContain("Rule brief");
+    expect(html).not.toContain("Rule brief");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook.");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook for each reporting period.");
     expect(html).toContain("Retain the workbook appendices.");

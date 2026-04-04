@@ -201,8 +201,7 @@ export default function RuleDetailModal({
         <div className="grid items-start gap-5 px-6 py-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
           <section className="space-y-4">
             <div className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-sm">
-              <div className="text-sm font-semibold text-slate-900">Rule brief</div>
-              <div className="mt-4 space-y-5">
+              <div className="space-y-5">
                 <section className="border-b border-slate-100 pb-5">
                   <div className="text-sm font-semibold text-slate-900">Rule summary</div>
                   <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-slate-800">
