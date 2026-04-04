@@ -6,6 +6,7 @@ import MethodsFinderShell from "@/app/m/_components/MethodsFinderShell";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 import { probeMethodRich } from "@/app/m/_lib/methodRich";
+import { loadMethodVersionLineage, resolveMethodVersionFiles } from "@/app/m/_lib/methodVersionMetadata";
 import { normalizeRichEvidence } from "@/lib/rich/normalize";
 import { loadManifestEntries } from "@/lib/manifest/cards";
 import packConfig from "../../../../config/methodologies_pack.json";
@@ -29,10 +30,13 @@ async function loadPackProvenanceJson(): Promise<unknown | null> {
 async function resolveManifestRulesPath(code: string, version: string): Promise<string | null> {
   const entries = await loadManifestEntries();
   const match = entries.find((entry) => entry.methodology === code && entry.version === version);
-  if (!match) return null;
-  const record = match as unknown as Record<string, unknown>;
-  const manifestPath = typeof record.path === "string" ? record.path : null;
-  return manifestPath && manifestPath.trim() ? manifestPath.trim() : null;
+  if (match) {
+    const record = match as unknown as Record<string, unknown>;
+    const manifestPath = typeof record.path === "string" ? record.path : null;
+    if (manifestPath && manifestPath.trim()) return manifestPath.trim();
+  }
+  const resolved = await resolveMethodVersionFiles(code, version);
+  return resolved ? path.relative(process.cwd(), path.join(resolved.dir, "rules.json")) : null;
 }
 
 export default async function MethodsFinder({
@@ -83,6 +87,10 @@ export default async function MethodsFinder({
   const manifestRulesPath =
     selectedMethod && effectiveVersion
       ? await resolveManifestRulesPath(selectedMethod.code, effectiveVersion)
+      : null;
+  const versionLineage =
+    selectedMethod && effectiveVersion
+      ? await loadMethodVersionLineage(selectedMethod.code, effectiveVersion, selectedMethod.versions)
       : null;
 
   return (
@@ -159,6 +167,7 @@ export default async function MethodsFinder({
                     hasRich: selectedMethod.hasRich,
                     hasPrevious: selectedMethod.hasPrevious,
                     ruleCountByVersion: selectedMethod.ruleCountByVersion,
+                    lineage: versionLineage,
                   }}
                   activeVersion={effectiveVersion}
                   initialRuleId={selectedRuleId}

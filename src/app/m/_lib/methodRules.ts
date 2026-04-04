@@ -2,6 +2,21 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { loadManifestEntries, type ManifestEntry } from "@/lib/manifest/cards";
+import { resolveMethodVersionFiles } from "@/app/m/_lib/methodVersionMetadata";
+
+export type RuleCitation = {
+  sectionId?: string;
+  anchor?: string;
+  label?: string;
+};
+
+export type RuleReference = {
+  primarySection?: string;
+  sectionAnchor?: string;
+  sectionStableId?: string;
+  sections: string[];
+  tools: string[];
+};
 
 export type RuleSummary = {
   id: string;
@@ -10,13 +25,15 @@ export type RuleSummary = {
   tags: string[];
   type?: string;
   text?: string;
+  summary?: string;
+  logic?: string;
+  notes?: string;
+  when?: string[];
+  expectedEvidence?: string[];
   sectionId?: string;
   anchor?: string;
-  citations?: Array<{
-    sectionId?: string;
-    anchor?: string;
-    label?: string;
-  }>;
+  citations?: RuleCitation[];
+  refs?: RuleReference;
 };
 
 export type RuleFull = RuleSummary & {
@@ -24,11 +41,8 @@ export type RuleFull = RuleSummary & {
   sha256?: string;
   sectionId?: string;
   anchor?: string;
-  citations?: Array<{
-    sectionId?: string;
-    anchor?: string;
-    label?: string;
-  }>;
+  citations?: RuleCitation[];
+  refs?: RuleReference;
   sourcePath?: string;
 };
 
@@ -64,10 +78,47 @@ function pickStringArray(entry: Record<string, unknown>, keys: string[]): string
   return [];
 }
 
+function pickNestedStringArray(entry: Record<string, unknown>, keyPaths: string[][]): string[] {
+  for (const keys of keyPaths) {
+    let current: unknown = entry;
+    let valid = true;
+    for (const key of keys) {
+      if (!current || typeof current !== "object") {
+        valid = false;
+        break;
+      }
+      current = (current as Record<string, unknown>)[key];
+    }
+    if (valid && Array.isArray(current)) {
+      return current.map((item) => String(item).trim()).filter(Boolean);
+    }
+  }
+  return [];
+}
+
 function sectionIdFromAnchor(value?: string): string | undefined {
   if (!value) return undefined;
   const match = value.match(/S-\d{1,6}/i);
   return match ? match[0] : undefined;
+}
+
+function pickRefs(entry: Record<string, unknown>): RuleReference | undefined {
+  const refs = entry.refs && typeof entry.refs === "object" ? (entry.refs as Record<string, unknown>) : null;
+  const sections = refs && Array.isArray(refs.sections) ? refs.sections.map((item) => String(item).trim()).filter(Boolean) : [];
+  const tools = refs && Array.isArray(refs.tools) ? refs.tools.map((item) => String(item).trim()).filter(Boolean) : [];
+  const primarySection = refs ? pickString(refs, ["primary_section", "primarySection"]) : undefined;
+  const sectionAnchor = refs ? pickString(refs, ["section_anchor", "sectionAnchor", "anchor"]) : undefined;
+  const sectionStableId = refs ? pickString(refs, ["section_stable_id", "sectionStableId"]) : undefined;
+
+  if (!primarySection && !sectionAnchor && !sectionStableId && !sections.length && !tools.length) return undefined;
+
+  return {
+    primarySection: primarySection ?? sections[0] ?? undefined,
+    sectionAnchor: sectionAnchor ?? undefined,
+    sectionStableId: sectionStableId ?? primarySection ?? sections[0] ?? undefined,
+    sections,
+    tools,
+  };
 }
 
 function pickCitations(entry: Record<string, unknown>): RuleFull["citations"] {
@@ -108,6 +159,13 @@ function pickCitations(entry: Record<string, unknown>): RuleFull["citations"] {
   }
 
   return citations.length ? citations : undefined;
+}
+
+function pickExpectedEvidence(entry: Record<string, unknown>): string[] {
+  return pickNestedStringArray(entry, [
+    ["requirement_coverage", "expected_evidence"],
+    ["requirementCoverage", "expectedEvidence"],
+  ]);
 }
 
 function stableDerivedId(seed: string): string {
@@ -172,8 +230,13 @@ function coerceRulesFromUnknown(parsed: unknown): RuleFull[] {
     const record = item as Record<string, unknown>;
     const rawId = pickString(record, ["id", "rule_id", "ruleId", "key"]);
     const title = pickString(record, ["title", "label", "name"]) ?? rawId;
-    const text =
-      pickString(record, ["text", "rule", "content", "body", "description", "summary"]) ?? "";
+    const summary = pickString(record, ["summary", "title", "label", "name"]);
+    const logic = pickString(record, ["logic", "text", "rule", "content", "body", "description"]);
+    const notes = pickString(record, ["notes", "note"]);
+    const when = pickStringArray(record, ["when", "conditions"]);
+    const refs = pickRefs(record);
+    const citations = pickCitations(record) ?? refs?.sections.map((sectionId) => ({ sectionId, label: sectionId }));
+    const text = logic ?? summary ?? "";
     const id =
       rawId ??
       (title
@@ -183,13 +246,19 @@ function coerceRulesFromUnknown(parsed: unknown): RuleFull[] {
       id,
       title: title ?? id,
       text,
-      snippet: snippetFromText(text || title || id),
+      summary: summary ?? undefined,
+      logic: logic ?? undefined,
+      notes: notes ?? undefined,
+      when,
+      expectedEvidence: pickExpectedEvidence(record),
+      snippet: snippetFromText(summary || text || title || id),
       tags: pickStringArray(record, ["tags", "labels"]),
       type: pickString(record, ["type", "kind", "category"]),
       sha256: pickString(record, ["sha256", "hash"]),
-      sectionId: pickString(record, ["sectionId", "section_id"]),
-      anchor: pickString(record, ["anchor", "href"]),
-      citations: pickCitations(record),
+      sectionId: pickString(record, ["sectionId", "section_id"]) ?? refs?.primarySection ?? refs?.sectionStableId,
+      anchor: pickString(record, ["anchor", "href"]) ?? refs?.sectionAnchor,
+      citations,
+      refs,
       sourcePath: pickString(record, ["path", "sourcePath", "source_path"]),
     });
   }
@@ -211,6 +280,11 @@ function coerceRulesFromManifest(entries: ManifestEntry[]): RuleFull[] {
         id,
         title,
         text,
+        summary: text,
+        logic: undefined,
+        notes: undefined,
+        when: [],
+        expectedEvidence: [],
         snippet: snippetFromText(text || title),
         tags: Array.isArray(entry.tags) ? entry.tags : [],
         type: undefined,
@@ -240,7 +314,7 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
       Boolean(entry.id),
   );
 
-  const manifestPath =
+  let manifestPath =
     entries
       .map((entry) =>
         typeof (entry as Record<string, unknown>).path === "string"
@@ -249,21 +323,34 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
       )
       .find((value): value is string => Boolean(value)) ?? undefined;
 
+  if (!manifestPath) {
+    const resolved = await resolveMethodVersionFiles(normalizedCode, normalizedVersion);
+    if (resolved) {
+      manifestPath = path.relative(process.cwd(), path.join(resolved.dir, "rules.json"));
+    }
+  }
+
   if (manifestPath) {
     const loaded = await tryLoadRulesFile(manifestPath);
     if (loaded) {
       const full = coerceRulesFromUnknown(loaded.parsed);
       const byId = new Map(full.map((rule) => [rule.id, rule]));
-      const rules = full.map(({ id, title, snippet, tags, type, text, sectionId, anchor, citations }) => ({
+      const rules = full.map(({ id, title, snippet, tags, type, text, summary, logic, notes, when, expectedEvidence, sectionId, anchor, citations, refs }) => ({
         id,
         title,
         snippet,
         tags,
         type,
         text,
+        summary,
+        logic,
+        notes,
+        when,
+        expectedEvidence,
         sectionId,
         anchor,
         citations,
+        refs,
       }));
       rules.sort((a, b) => a.id.localeCompare(b.id));
       return { rules, byId, source: loaded.source };
@@ -272,16 +359,22 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
 
   const full = coerceRulesFromManifest(entries);
   const byId = new Map(full.map((rule) => [rule.id, rule]));
-  const rules = full.map(({ id, title, snippet, tags, type, text, sectionId, anchor, citations }) => ({
+  const rules = full.map(({ id, title, snippet, tags, type, text, summary, logic, notes, when, expectedEvidence, sectionId, anchor, citations, refs }) => ({
     id,
     title,
     snippet,
     tags,
     type,
     text,
+    summary,
+    logic,
+    notes,
+    when,
+    expectedEvidence,
     sectionId,
     anchor,
     citations,
+    refs,
   }));
   rules.sort((a, b) => a.id.localeCompare(b.id));
   return { rules, byId, source: "manifest" };

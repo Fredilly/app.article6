@@ -23,6 +23,10 @@ const rows: RequirementCoverageRow[] = [
       sectionTitle: "Monitoring",
       page: 12,
       anchor: "#S-10",
+      primarySection: "S-10",
+      sectionAnchor: "#S-10",
+      sectionStableId: "S-10",
+      tools: ["UNFCCC/TOOL-1"],
       citations: [{ sectionId: "S-10", label: "Section 10" }],
     },
     expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
@@ -60,6 +64,10 @@ const rows: RequirementCoverageRow[] = [
       sectionTitle: "Eligibility",
       page: undefined,
       anchor: "#S-20",
+      primarySection: "S-20",
+      sectionAnchor: "#S-20",
+      sectionStableId: "S-20",
+      tools: [],
       citations: [{ sectionId: "S-20", label: "Section 20" }],
     },
     expectedEvidenceTypes: [],
@@ -155,7 +163,7 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Pages 4-5");
     expect(html).toContain("The project boundary covers compartments 1 through 4.");
     expect(html).toContain("Complete");
-    expect(html).toContain("No expected evidence metadata");
+    expect(html).toContain("No expected evidence defined for this rule.");
     expect(html).toContain("No linked evidence yet");
     expect(html).toContain("No workbook-derived candidates for this requirement yet.");
     expect(html).toContain("Evidence inventory");

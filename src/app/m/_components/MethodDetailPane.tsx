@@ -58,6 +58,7 @@ import { isRuleLikeId } from "@/lib/proofMap/pins";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
 import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlState";
+import type { MethodVersionLineage } from "@/app/m/_lib/methodVersionMetadata";
 
 type MethodDetail = {
   code: string;
@@ -69,6 +70,7 @@ type MethodDetail = {
   hasRich: boolean;
   hasPrevious: boolean;
   ruleCountByVersion: Record<string, number | undefined>;
+  lineage?: MethodVersionLineage | null;
 };
 
 type MethodDetailPaneProps = {
@@ -186,11 +188,23 @@ export default function MethodDetailPane({
     title: string;
     snippet: string;
     text?: string;
+    summary?: string;
+    logic?: string;
+    notes?: string;
+    when?: string[];
+    expectedEvidence?: string[];
     tags: string[];
     type?: string;
     sectionId?: string;
     anchor?: string;
     citations?: Array<{ sectionId: string | undefined; anchor: string | undefined; label: string | undefined }>;
+    refs?: {
+      primarySection?: string;
+      sectionAnchor?: string;
+      sectionStableId?: string;
+      sections: string[];
+      tools: string[];
+    };
   };
   type TraceLink = {
     section_id: string;
@@ -213,12 +227,24 @@ export default function MethodDetailPane({
     id: string;
     title: string;
     text: string;
+    summary?: string;
+    logic?: string;
+    notes?: string;
+    when?: string[];
+    expectedEvidence?: string[];
     tags: string[];
     type?: string;
     sha256?: string;
     sectionId?: string;
     anchor?: string;
     citations?: Array<{ sectionId: string | undefined; anchor: string | undefined; label: string | undefined }>;
+    refs?: {
+      primarySection?: string;
+      sectionAnchor?: string;
+      sectionStableId?: string;
+      sections: string[];
+      tools: string[];
+    };
     sourcePath?: string;
   } | null>(null);
   const [ruleDetailLoading, setRuleDetailLoading] = useState(false);
@@ -272,9 +298,12 @@ export default function MethodDetailPane({
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
   const [coverageDrawerOpen, setCoverageDrawerOpen] = useState(false);
 
-  const sortedVersionsNewestFirst = useMemo(() => {
-    return [...method.versions].reverse();
-  }, [method.versions]);
+  const lineageVersions = method.lineage?.lineage?.length ? method.lineage.lineage : method.versions;
+  const versionBadges = [
+    method.lineage?.previousVersion ? `Previous ${method.lineage.previousVersion}` : null,
+    method.lineage?.currentVersion ? `Current ${method.lineage.currentVersion}` : null,
+    method.lineage?.nextVersion ? `Next ${method.lineage.nextVersion}` : null,
+  ].filter(Boolean);
 
   const effectiveAoi = draftAoi ?? currentAoi;
   const evidenceKey = useMemo(() => {
@@ -687,6 +716,12 @@ export default function MethodDetailPane({
         const tags = Array.isArray(record.tags)
           ? record.tags.map((t: unknown) => String(t)).filter(Boolean)
           : [];
+        const when = Array.isArray(record.when)
+          ? record.when.map((item: unknown) => String(item).trim()).filter(Boolean)
+          : [];
+        const expectedEvidence = Array.isArray(record.expectedEvidence)
+          ? record.expectedEvidence.map((item: unknown) => String(item).trim()).filter(Boolean)
+          : [];
         const type = typeof record.type === "string" ? record.type : undefined;
         const sectionId = typeof record.sectionId === "string" ? record.sectionId : undefined;
         const anchor = typeof record.anchor === "string" ? record.anchor : undefined;
@@ -708,7 +743,46 @@ export default function MethodDetailPane({
                   value !== null,
               )
           : undefined;
-        nextRules.push({ id, title, snippet, text, tags, type, sectionId, anchor, citations });
+        const refs =
+          record.refs && typeof record.refs === "object"
+            ? {
+                primarySection:
+                  typeof (record.refs as Record<string, unknown>).primarySection === "string"
+                    ? ((record.refs as Record<string, unknown>).primarySection as string)
+                    : undefined,
+                sectionAnchor:
+                  typeof (record.refs as Record<string, unknown>).sectionAnchor === "string"
+                    ? ((record.refs as Record<string, unknown>).sectionAnchor as string)
+                    : undefined,
+                sectionStableId:
+                  typeof (record.refs as Record<string, unknown>).sectionStableId === "string"
+                    ? ((record.refs as Record<string, unknown>).sectionStableId as string)
+                    : undefined,
+                sections: Array.isArray((record.refs as Record<string, unknown>).sections)
+                  ? ((record.refs as Record<string, unknown>).sections as unknown[]).map((item) => String(item))
+                  : [],
+                tools: Array.isArray((record.refs as Record<string, unknown>).tools)
+                  ? ((record.refs as Record<string, unknown>).tools as unknown[]).map((item) => String(item))
+                  : [],
+              }
+            : undefined;
+        nextRules.push({
+          id,
+          title,
+          snippet,
+          text,
+          summary: typeof record.summary === "string" ? record.summary : undefined,
+          logic: typeof record.logic === "string" ? record.logic : undefined,
+          notes: typeof record.notes === "string" ? record.notes : undefined,
+          when,
+          expectedEvidence,
+          tags,
+          type,
+          sectionId,
+          anchor,
+          citations,
+          refs,
+        });
       }
 
       setRules(nextRules);
@@ -772,6 +846,29 @@ export default function MethodDetailPane({
                 value !== null,
             )
         : undefined;
+      const refs =
+        record.refs && typeof record.refs === "object"
+          ? {
+              primarySection:
+                typeof (record.refs as Record<string, unknown>).primarySection === "string"
+                  ? ((record.refs as Record<string, unknown>).primarySection as string)
+                  : undefined,
+              sectionAnchor:
+                typeof (record.refs as Record<string, unknown>).sectionAnchor === "string"
+                  ? ((record.refs as Record<string, unknown>).sectionAnchor as string)
+                  : undefined,
+              sectionStableId:
+                typeof (record.refs as Record<string, unknown>).sectionStableId === "string"
+                  ? ((record.refs as Record<string, unknown>).sectionStableId as string)
+                  : undefined,
+              sections: Array.isArray((record.refs as Record<string, unknown>).sections)
+                ? ((record.refs as Record<string, unknown>).sections as unknown[]).map((item) => String(item))
+                : [],
+              tools: Array.isArray((record.refs as Record<string, unknown>).tools)
+                ? ((record.refs as Record<string, unknown>).tools as unknown[]).map((item) => String(item))
+                : [],
+            }
+          : undefined;
       setRuleDetail({
         id: typeof record.id === "string" ? record.id : ruleId,
         title:
@@ -781,6 +878,13 @@ export default function MethodDetailPane({
               ? record.id
               : ruleId,
         text: typeof record.text === "string" ? record.text : "",
+        summary: typeof record.summary === "string" ? record.summary : undefined,
+        logic: typeof record.logic === "string" ? record.logic : undefined,
+        notes: typeof record.notes === "string" ? record.notes : undefined,
+        when: Array.isArray(record.when) ? record.when.map((item: unknown) => String(item)).filter(Boolean) : [],
+        expectedEvidence: Array.isArray(record.expectedEvidence)
+          ? record.expectedEvidence.map((item: unknown) => String(item)).filter(Boolean)
+          : [],
         tags: Array.isArray(record.tags)
           ? record.tags.map((t: unknown) => String(t)).filter(Boolean)
           : [],
@@ -789,6 +893,7 @@ export default function MethodDetailPane({
         sectionId: typeof record.sectionId === "string" ? record.sectionId : undefined,
         anchor: typeof record.anchor === "string" ? record.anchor : undefined,
         citations,
+        refs,
         sourcePath: typeof record.sourcePath === "string" ? record.sourcePath : undefined,
       });
     } catch (error) {
@@ -1198,12 +1303,22 @@ export default function MethodDetailPane({
           <p className="text-xs text-slate-500">
             Latest: {method.latestVersion ?? "—"} • Versions: {method.versionCount}
           </p>
+          {versionBadges.length ? (
+            <div className="mt-1 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600">
+              {versionBadges.map((label) => (
+                <span key={label} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                  {label}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
         <div className="w-full sm:max-w-xs">
           <VersionSelector
             methodCode={method.code}
-            versions={sortedVersionsNewestFirst}
+            versions={[...lineageVersions].reverse()}
             selectedVersion={activeVersion}
+            lineage={method.lineage}
           />
         </div>
       </div>
@@ -1263,8 +1378,11 @@ export default function MethodDetailPane({
         ruleText={
           ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
             ? "Loading requirement details…"
-            : (ruleDetail?.text ?? activeRequirementRow?.ruleSummary.snippet ?? null)
+            : (ruleDetail?.summary ?? activeRequirementRow?.ruleSummary.summary ?? activeRequirementRow?.ruleSummary.snippet ?? null)
         }
+        ruleLogic={ruleDetail?.logic ?? activeRequirementRow?.ruleSummary.logic ?? null}
+        ruleNotes={ruleDetail?.notes ?? activeRequirementRow?.ruleSummary.notes ?? null}
+        ruleWhen={ruleDetail?.when ?? activeRequirementRow?.ruleSummary.when ?? null}
         sourcePath={ruleDetail?.sourcePath ?? null}
         sha256={ruleDetail?.sha256 ?? null}
         traceSections={linkedTraceSections.map((link) => {
@@ -1446,7 +1564,7 @@ export default function MethodDetailPane({
                       <p className="mt-3 text-sm leading-6 text-slate-700">
                         {ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
                           ? "Loading requirement details…"
-                          : (ruleDetail?.text ?? activeRequirementRow.ruleSummary.snippet)}
+                          : (ruleDetail?.summary ?? activeRequirementRow.ruleSummary.summary ?? activeRequirementRow.ruleSummary.snippet)}
                       </p>
                     </div>
 
@@ -1490,7 +1608,7 @@ export default function MethodDetailPane({
                     selectedRequirementText={
                       ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
                         ? "Loading requirement details…"
-                        : (ruleDetail?.text ?? null)
+                        : (ruleDetail?.summary ?? null)
                     }
                     selectedRequirementSourcePath={ruleDetail?.sourcePath ?? null}
                     selectedRequirementSha256={ruleDetail?.sha256 ?? null}

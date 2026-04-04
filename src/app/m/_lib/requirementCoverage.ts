@@ -5,10 +5,21 @@ type RequirementCoverageRuleInput = {
   title: string;
   snippet: string;
   text?: string;
+  summary?: string;
+  logic?: string;
+  notes?: string;
+  when?: string[];
+  expectedEvidence?: string[];
   type?: string;
   tags: string[];
   sectionId?: string;
   anchor?: string;
+  refs?: {
+    primarySection?: string;
+    sectionAnchor?: string;
+    sectionStableId?: string;
+    tools?: string[];
+  };
   citations?: Array<{
     sectionId?: string;
     anchor?: string;
@@ -35,6 +46,10 @@ export type RequirementCoverageProvenance = {
   sectionTitle?: string;
   page?: number;
   anchor?: string;
+  primarySection?: string;
+  sectionAnchor?: string;
+  sectionStableId?: string;
+  tools: string[];
   citations: Array<{
     sectionId?: string;
     anchor?: string;
@@ -64,6 +79,10 @@ export type RequirementCoverageRow = {
   ruleSummary: {
     title: string;
     snippet: string;
+    summary?: string;
+    logic?: string;
+    notes?: string;
+    when: string[];
     type?: string;
     tags: string[];
   };
@@ -140,20 +159,19 @@ function normalizeSnippet(rule: RequirementCoverageRuleInput): string {
 }
 
 function expectedEvidenceTypesForRule(rule: RequirementCoverageRuleInput): RequirementCoverageExpectedEvidenceType[] {
-  const haystack = `${rule.title} ${rule.text} ${rule.tags.join(" ")} ${rule.type ?? ""}`.toLowerCase();
-  const expected = new Set<RequirementCoverageExpectedEvidenceType>();
-
-  if (/(monitor|report|frequency|sampling|inspection)/.test(haystack)) expected.add("monitoring-report");
-  if (/(sheet|spreadsheet|table|workbook|ledger)/.test(haystack)) expected.add("spreadsheet-workbook");
-  if (/\bpdd\b|project design document|project description/.test(haystack)) expected.add("pdd");
-  if (/(gis|geojson|shape|shapefile|stac|aoi|spatial|map)/.test(haystack)) expected.add("gis");
-  if (/(qa|qc|quality|checklist|inspection record)/.test(haystack)) expected.add("qa-qc-record");
-  if (/(eligib|boundary|ownership|legal|title|attestation)/.test(haystack)) expected.add("eligibility-proof");
-  if (/(calculate|formula|equation|parameter|input data|emission factor)/.test(haystack)) {
-    expected.add("calculation-support");
+  const normalized = new Set<RequirementCoverageExpectedEvidenceType>();
+  for (const value of rule.expectedEvidence ?? []) {
+    const key = value.trim().toLowerCase();
+    if (key === "monitoring-report" || key === "monitoring_report") normalized.add("monitoring-report");
+    else if (key === "spreadsheet-workbook" || key === "spreadsheet_workbook" || key === "workbook") normalized.add("spreadsheet-workbook");
+    else if (key === "pdd") normalized.add("pdd");
+    else if (key === "gis") normalized.add("gis");
+    else if (key === "qa-qc-record" || key === "qa_qc_record") normalized.add("qa-qc-record");
+    else if (key === "eligibility-proof" || key === "eligibility_proof") normalized.add("eligibility-proof");
+    else if (key === "calculation-support" || key === "calculation_support") normalized.add("calculation-support");
+    else if (key) normalized.add("other");
   }
-
-  return Array.from(expected);
+  return Array.from(normalized);
 }
 
 function normalizeLinkedEvidence(
@@ -280,7 +298,7 @@ function deriveStatus(
 }
 
 export function summarizeExpectedEvidence(types: RequirementCoverageExpectedEvidenceType[]): string {
-  if (!types.length) return "No expected evidence metadata";
+  if (!types.length) return "No expected evidence defined for this rule.";
   return types.map((type) => EXPECTED_EVIDENCE_LABELS[type] ?? type).join(", ");
 }
 
@@ -295,9 +313,14 @@ export function summarizeLinkedEvidence(items: RequirementCoverageLinkedEvidence
 }
 
 export function requirementProvenanceHint(row: RequirementCoverageRow): string {
-  const sectionLabel = row.provenance.sectionTitle ?? row.provenance.sectionId ?? null;
+  const sectionLabel =
+    row.provenance.primarySection ??
+    row.provenance.sectionTitle ??
+    row.provenance.sectionStableId ??
+    row.provenance.sectionId ??
+    null;
   const pageLabel = typeof row.provenance.page === "number" ? `p. ${row.provenance.page}` : null;
-  const anchorLabel = row.provenance.anchor ? row.provenance.anchor.replace(/^#/, "") : null;
+  const anchorLabel = (row.provenance.sectionAnchor ?? row.provenance.anchor)?.replace(/^#/, "") ?? null;
   return [sectionLabel, pageLabel, anchorLabel].filter(Boolean).join(" • ") || "Provenance pending";
 }
 
@@ -324,6 +347,10 @@ export function buildRequirementCoverageRows(input: BuildRequirementCoverageRows
         ruleSummary: {
           title: rule.title,
           snippet: normalizeSnippet(rule),
+          summary: rule.summary?.trim() || undefined,
+          logic: rule.logic?.trim() || undefined,
+          notes: rule.notes?.trim() || undefined,
+          when: (rule.when ?? []).map((item) => item.trim()).filter(Boolean),
           type: rule.type,
           tags: rule.tags,
         },
@@ -332,6 +359,10 @@ export function buildRequirementCoverageRows(input: BuildRequirementCoverageRows
           sectionTitle: primarySectionId ? sectionTitleById.get(primarySectionId) : undefined,
           page: undefined,
           anchor: rule.anchor,
+          primarySection: rule.refs?.primarySection,
+          sectionAnchor: rule.refs?.sectionAnchor,
+          sectionStableId: rule.refs?.sectionStableId,
+          tools: rule.refs?.tools ?? [],
           citations: rule.citations ?? [],
         },
         expectedEvidenceTypes: expectedEvidenceTypesForRule(rule),

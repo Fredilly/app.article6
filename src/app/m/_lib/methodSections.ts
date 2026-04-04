@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { loadManifestEntries, type ManifestEntry } from "@/lib/manifest/cards";
+import { resolveMethodVersionFiles } from "@/app/m/_lib/methodVersionMetadata";
 
 export type SectionSummary = {
   id: string;
@@ -202,7 +203,7 @@ export async function loadMethodSections(code: string, version: string): Promise
     (entry) => entry.methodology === normalizedCode && entry.version === normalizedVersion,
   );
 
-  const manifestPath =
+  let manifestPath =
     entries
       .map((entry) =>
         typeof (entry as Record<string, unknown>).path === "string"
@@ -210,6 +211,13 @@ export async function loadMethodSections(code: string, version: string): Promise
           : null,
       )
       .find((value): value is string => Boolean(value)) ?? undefined;
+
+  if (!manifestPath) {
+    const resolved = await resolveMethodVersionFiles(normalizedCode, normalizedVersion);
+    if (resolved) {
+      manifestPath = path.relative(process.cwd(), path.join(resolved.dir, "rules.json"));
+    }
+  }
 
   if (manifestPath) {
     const loaded = await tryLoadSectionsFile(manifestPath);

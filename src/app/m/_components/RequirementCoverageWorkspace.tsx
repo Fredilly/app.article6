@@ -281,6 +281,15 @@ export default function RequirementCoverageWorkspace({
                   <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Methodology provenance</div>
                   <div className="mt-2 space-y-2 text-sm text-slate-700">
                     <div>{requirementProvenanceHint(selectedRow)}</div>
+                    {selectedRow.provenance.tools.length ? (
+                      <ul className="grid gap-2">
+                        {selectedRow.provenance.tools.map((tool) => (
+                          <li key={tool} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+                            {tool}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                     {selectedRow.provenance.citations.length ? (
                       <ul className="grid gap-2">
                         {selectedRow.provenance.citations.slice(0, 4).map((citation, index) => (
@@ -344,7 +353,7 @@ export default function RequirementCoverageWorkspace({
                         ))}
                       </ul>
                     ) : (
-                      <div>No expected evidence metadata</div>
+                      <div>No expected evidence defined for this rule.</div>
                     )}
                   </div>
                 </section>

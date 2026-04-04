@@ -8,6 +8,10 @@ const linkedRow: RequirementCoverageRow = {
   ruleSummary: {
     title: "Monitoring frequency",
     snippet: "Maintain a monitoring report and spreadsheet workbook.",
+    summary: "Maintain a monitoring report and spreadsheet workbook.",
+    logic: "Maintain a monitoring report and spreadsheet workbook for each reporting period.",
+    notes: "Retain the workbook appendices.",
+    when: ["Each reporting period."],
     type: "operational",
     tags: ["monitoring"],
   },
@@ -16,6 +20,10 @@ const linkedRow: RequirementCoverageRow = {
     sectionTitle: "Monitoring",
     page: 12,
     anchor: "#S-10",
+    primarySection: "S-10",
+    sectionAnchor: "#S-10",
+    sectionStableId: "S-10",
+    tools: ["UNFCCC/TOOL-1"],
     citations: [{ sectionId: "S-10", label: "Section 10" }],
   },
   expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
@@ -37,6 +45,10 @@ const sparseRow: RequirementCoverageRow = {
     sectionTitle: undefined,
     page: undefined,
     anchor: undefined,
+    primarySection: undefined,
+    sectionAnchor: undefined,
+    sectionStableId: undefined,
+    tools: [],
     citations: [],
   },
   expectedEvidenceTypes: ["eligibility-proof"],
@@ -58,7 +70,10 @@ describe("RuleDetailModal", () => {
         open
         row={linkedRow}
         ruleTitle="Monitoring frequency"
-        ruleText="Maintain a monitoring report and spreadsheet workbook for each reporting period."
+        ruleText="Maintain a monitoring report and spreadsheet workbook."
+        ruleLogic="Maintain a monitoring report and spreadsheet workbook for each reporting period."
+        ruleNotes="Retain the workbook appendices."
+        ruleWhen={["Each reporting period."]}
         sourcePath="methodologies/example/rules.rich.json"
         sha256="abc123"
         traceSections={[{ sectionId: "S-10", title: "Monitoring", textSnippet: "Monitoring context" }]}
@@ -68,12 +83,16 @@ describe("RuleDetailModal", () => {
     );
 
     expect(html).toContain("R-1");
+    expect(html).toContain("Maintain a monitoring report and spreadsheet workbook.");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook for each reporting period.");
+    expect(html).toContain("Retain the workbook appendices.");
+    expect(html).toContain("Each reporting period.");
     expect(html).toContain("Complete");
     expect(html).toContain("Methodology provenance");
     expect(html).toContain("Section 10 · Monitoring");
     expect(html).toContain("p. 12");
     expect(html).toContain("operational");
+    expect(html).toContain("UNFCCC/TOOL-1");
     expect(html).toContain("Audit details");
     expect(html).not.toContain("<details open");
     expect(html).toContain("Monitoring report");
@@ -95,7 +114,7 @@ describe("RuleDetailModal", () => {
       />,
     );
 
-    expect(html).toContain("No expected evidence metadata");
+    expect(html).toContain("This rule does not define expected evidence.");
     expect(html).toContain("Next: link supporting evidence or leave a reviewer note.");
     expect(html).toContain("S-4");
   });
