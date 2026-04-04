@@ -4,7 +4,9 @@ import { useEffect } from "react";
 import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
 import {
   EXPECTED_EVIDENCE_LABELS,
+  REQUIREMENT_RECONCILIATION_META,
   REQUIREMENT_COVERAGE_STATUS_META,
+  reconcileRequirement,
   requirementProvenanceHint,
   type RequirementCoverageRow,
 } from "@/app/m/_lib/requirementCoverage";
@@ -17,6 +19,8 @@ type RuleDetailModalProps = {
   ruleLogic?: string | null;
   ruleNotes?: string | null;
   ruleWhen?: string[] | null;
+  reviewerMinutes?: string | null;
+  reviewerOutcomeNote?: string | null;
   sourcePath?: string | null;
   sha256?: string | null;
   traceSections?: Array<{
@@ -59,6 +63,18 @@ function unresolvedNextStep(row: RequirementCoverageRow): string {
   return "Next: link supporting evidence or leave a reviewer note.";
 }
 
+function formatPddLinkedEvidenceMeta(item: RequirementCoverageRow["linkedEvidence"][number]): string | null {
+  const details = [item.documentLabel, item.sectionHeading, item.sectionLabel].filter(Boolean);
+  if (typeof item.pageStart === "number" && typeof item.pageEnd === "number" && item.pageStart !== item.pageEnd) {
+    details.push(`p. ${item.pageStart}-${item.pageEnd}`);
+  } else if (typeof item.pageStart === "number") {
+    details.push(`p. ${item.pageStart}`);
+  } else if (typeof item.pageEnd === "number") {
+    details.push(`p. ${item.pageEnd}`);
+  }
+  return details.join(" • ") || item.provenanceSummary || null;
+}
+
 export default function RuleDetailModal({
   open,
   row,
@@ -67,6 +83,8 @@ export default function RuleDetailModal({
   ruleLogic,
   ruleNotes,
   ruleWhen,
+  reviewerMinutes,
+  reviewerOutcomeNote,
   sourcePath,
   sha256,
   traceSections = [],
@@ -110,6 +128,13 @@ export default function RuleDetailModal({
   const categoryLabel = row.ruleSummary.type?.trim() || null;
   const provenanceTools = row.provenance.tools ?? [];
   const renderedWhen = ruleWhen?.length ? ruleWhen : row.ruleSummary.when;
+  const reconciliation = reconcileRequirement({
+    linkedEvidence: row.linkedEvidence,
+    expectedEvidenceTypes: row.expectedEvidenceTypes,
+    reviewerMinutes,
+    reviewerOutcomeNote,
+  });
+  const reconciliationMeta = REQUIREMENT_RECONCILIATION_META[reconciliation.status];
 
   return (
     <div
@@ -187,91 +212,44 @@ export default function RuleDetailModal({
 
             <section className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Methodology provenance</div>
-              <div className="mt-3 space-y-3 text-sm text-slate-700">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
-                  <div className="font-semibold text-slate-900">
-                    {formatSectionLabel({
-                      sectionId: primaryTraceSection?.sectionId ?? row.provenance.sectionId,
-                      title: primaryTraceSection?.title ?? row.provenance.sectionTitle,
-                    })}
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
-                    {formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) ? (
-                      <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
-                        {formatPageLabel(primaryTraceSection?.page ?? row.provenance.page)}
-                      </span>
-                    ) : null}
-                    {row.provenance.sectionStableId ? (
-                      <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
-                        {row.provenance.sectionStableId}
-                      </span>
-                    ) : null}
-                    {row.provenance.sectionAnchor || row.provenance.anchor ? (
-                      <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
-                        {(row.provenance.sectionAnchor ?? row.provenance.anchor ?? "").replace(/^#/, "")}
-                      </span>
-                    ) : null}
-                    {!formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) &&
-                    !row.provenance.sectionAnchor &&
-                    !row.provenance.anchor &&
-                    !row.provenance.sectionStableId ? (
-                      <span>{requirementProvenanceHint(row)}</span>
-                    ) : null}
-                  </div>
+              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
+                <div className="font-semibold text-slate-900">
+                  {formatSectionLabel({
+                    sectionId: primaryTraceSection?.sectionId ?? row.provenance.sectionId,
+                    title: primaryTraceSection?.title ?? row.provenance.sectionTitle,
+                  })}
                 </div>
-                {provenanceTools.length ? (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tools</div>
-                    <ul className="mt-2 grid gap-2">
-                      {provenanceTools.map((tool) => (
-                        <li key={tool} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
-                          {tool}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-                {row.provenance.citations.length ? (
-                  <ul className="grid gap-2">
-                    {row.provenance.citations.slice(0, 4).map((citation, index) => (
-                      <li
-                        key={`${citation.sectionId ?? citation.anchor ?? "citation"}-${index}`}
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600"
-                      >
-                        {citation.label ??
-                          formatSectionLabel({ sectionId: citation.sectionId, title: null }) ??
-                          citation.anchor ??
-                          "Methodology citation"}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-500">
-                    No methodology refs were provided for this rule.
-                  </div>
-                )}
-                {traceSections.length ? (
-                  <div className="grid gap-2">
-                    {traceSections.slice(0, 3).map((section) => (
-                      <button
-                        key={section.sectionId}
-                        type="button"
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left hover:border-slate-300"
-                        onClick={() => onOpenSourceContext(section.sectionId)}
-                      >
-                        <div className="mt-1 text-sm font-semibold text-slate-900">
-                          {formatSectionLabel({ sectionId: section.sectionId, title: section.title })}
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-slate-600">
-                          <span className="font-mono">{section.sectionId}</span>
-                          {formatPageLabel(section.page) ? <span>{formatPageLabel(section.page)}</span> : null}
-                        </div>
-                        {section.textSnippet ? (
-                          <div className="mt-1 text-xs text-slate-600">{section.textSnippet}</div>
-                        ) : null}
-                      </button>
-                    ))}
-                  </div>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
+                  {formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
+                      {formatPageLabel(primaryTraceSection?.page ?? row.provenance.page)}
+                    </span>
+                  ) : null}
+                  {row.provenance.sectionAnchor || row.provenance.anchor ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
+                      Anchor {(row.provenance.sectionAnchor ?? row.provenance.anchor ?? "").replace(/^#/, "")}
+                    </span>
+                  ) : null}
+                  {row.provenance.sectionStableId ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
+                      {row.provenance.sectionStableId}
+                    </span>
+                  ) : null}
+                  {provenanceTools.length ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
+                      Tools {provenanceTools.join(", ")}
+                    </span>
+                  ) : null}
+                  {!formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) &&
+                  !row.provenance.sectionAnchor &&
+                  !row.provenance.anchor &&
+                  !row.provenance.sectionStableId &&
+                  !provenanceTools.length ? (
+                    <span>{requirementProvenanceHint(row)}</span>
+                  ) : null}
+                </div>
+                {primaryTraceSection?.textSnippet ? (
+                  <div className="mt-2 text-xs text-slate-600">{primaryTraceSection.textSnippet}</div>
                 ) : null}
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -288,6 +266,34 @@ export default function RuleDetailModal({
           </section>
 
           <aside className="space-y-4">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Reconciliation</div>
+              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reconciliationMeta.tone}`}>
+                    {reconciliationMeta.label}
+                  </span>
+                </div>
+                <div className="mt-2 text-sm text-slate-700">{reconciliation.reason}</div>
+                {row.expectedEvidenceTypes.length ? (
+                  <div className="mt-3 grid gap-2 text-xs text-slate-600">
+                    <div>
+                      <span className="font-semibold text-slate-700">Satisfied:</span>{" "}
+                      {reconciliation.satisfiedExpectedEvidenceTypes.length
+                        ? reconciliation.satisfiedExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")
+                        : "None"}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-slate-700">Missing:</span>{" "}
+                      {reconciliation.missingExpectedEvidenceTypes.length
+                        ? reconciliation.missingExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")
+                        : "None"}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </section>
+
             <section className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Expected evidence</div>
               <div className="mt-3 text-sm text-slate-700">
@@ -315,10 +321,20 @@ export default function RuleDetailModal({
                     {row.linkedEvidence.map((item) => (
                       <li key={`${item.source}:${item.id}`} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
                         <div className="font-semibold text-slate-900">{item.title}</div>
-                        <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.id)}</div>
+                        <div className="mt-1 font-mono text-[11px] text-slate-600">
+                          {item.fragmentId ? item.fragmentId : formatEvidenceInventoryId(item.id)}
+                        </div>
                         <div className="mt-1 text-xs text-slate-600">
                           {item.type} • {item.source}
                         </div>
+                        {formatPddLinkedEvidenceMeta(item) ? (
+                          <div className="mt-1 text-xs text-slate-600">{formatPddLinkedEvidenceMeta(item)}</div>
+                        ) : null}
+                        {item.excerpt ? (
+                          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700">
+                            {item.excerpt}
+                          </div>
+                        ) : null}
                       </li>
                     ))}
                   </ul>

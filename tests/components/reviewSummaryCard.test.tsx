@@ -23,6 +23,8 @@ describe("ReviewSummaryCard", () => {
           linkedRuleCount: 1,
           selectedEvidenceLinkedRules: ["R-1"],
           checklistStatus: "unused",
+          reconciliationStatus: "Supported",
+          reconciliationReason: "All expected evidence is linked.",
           narrative: "Finalized verify review.",
         }}
         artifact={null}
@@ -65,6 +67,8 @@ describe("ReviewSummaryCard", () => {
           linkedRuleCount: 2,
           selectedEvidenceLinkedRules: ["R-7"],
           checklistStatus: "1/2 completed",
+          reconciliationStatus: "Partial",
+          reconciliationReason: "Missing expected evidence: Spreadsheet workbook.",
           narrative: "Finalized verify review.",
         }}
         artifact={null}
@@ -99,6 +103,8 @@ describe("ReviewSummaryCard", () => {
           linkedRuleCount: null,
           selectedEvidenceLinkedRules: [],
           checklistStatus: null,
+          reconciliationStatus: null,
+          reconciliationReason: null,
           narrative: null,
         }}
         artifact={null}

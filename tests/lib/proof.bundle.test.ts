@@ -114,6 +114,7 @@ describe("proof bundle exporter", () => {
             {
               fragment_id: "pdd-1:frag:1",
               evidence_id: "pdd-1",
+              label: "Boundary overview",
               page_start: 3,
               page_end: 4,
               section_heading: "Project boundary",
@@ -127,6 +128,7 @@ describe("proof bundle exporter", () => {
 
     expect(bundle.evidence_pins?.[0]?.pdd_document?.file_name).toBe("project-design.pdf");
     expect(bundle.evidence_pins?.[0]?.pdd_fragments?.[0]?.fragment_id).toBe("pdd-1:frag:1");
+    expect(bundle.evidence_pins?.[0]?.pdd_fragments?.[0]?.label).toBe("Boundary overview");
     expect(bundle.evidence_pins?.[0]?.pdd_fragment_links?.[0]?.rule_id).toBe("R-5");
   });
 });

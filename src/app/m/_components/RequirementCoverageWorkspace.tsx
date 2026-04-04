@@ -64,7 +64,7 @@ function formatPddPageLabel(pageStart?: number, pageEnd?: number): string | null
 function linkedEvidenceProvenance(item: RequirementCoverageRow["linkedEvidence"][number]): string | null {
   const section = item.sectionHeading ?? item.sectionLabel ?? null;
   const pageLabel = formatPddPageLabel(item.pageStart, item.pageEnd);
-  return ([item.documentLabel, section, pageLabel].filter(Boolean).join(" • ") || item.provenanceSummary) ?? null;
+  return ([item.documentLabel, item.fragmentLabel, section, pageLabel].filter(Boolean).join(" • ") || item.provenanceSummary) ?? null;
 }
 
 function matchesFilter(row: RequirementCoverageRow, filter: RequirementCoverageFilter): boolean {
@@ -366,10 +366,17 @@ export default function RequirementCoverageWorkspace({
                         {selectedRow.linkedEvidence.map((item) => (
                           <li key={`${item.source}:${item.id}`} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                             <div className="font-semibold text-slate-900">{item.title}</div>
-                            <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.id)}</div>
+                            <div className="mt-1 font-mono text-[11px] text-slate-600">
+                              {item.fragmentId ? item.fragmentId : formatEvidenceInventoryId(item.id)}
+                            </div>
                             <div className="mt-1 text-xs text-slate-600">
                               {item.type} • {item.source}
                             </div>
+                            {item.documentLabel && item.fragmentLabel ? (
+                              <div className="mt-1 text-xs text-slate-600">
+                                {item.documentLabel}
+                              </div>
+                            ) : null}
                             {linkedEvidenceProvenance(item) ? (
                               <div className="mt-1 text-xs text-slate-600">{linkedEvidenceProvenance(item)}</div>
                             ) : null}
@@ -510,7 +517,7 @@ export default function RequirementCoverageWorkspace({
                                     <div className="grid gap-1">
                                       {item.pdd_fragments.map((fragment) => (
                                         <div key={fragment.fragment_id}>
-                                          {fragment.section_heading ?? fragment.section_label ?? "PDD fragment"}
+                                          {fragment.label ?? fragment.section_heading ?? fragment.section_label ?? "PDD fragment"}
                                           {fragment.page_start
                                             ? ` • p. ${fragment.page_start}${fragment.page_end && fragment.page_end !== fragment.page_start ? `-${fragment.page_end}` : ""}`
                                             : ""}

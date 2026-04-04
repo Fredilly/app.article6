@@ -21,6 +21,8 @@ export const ReviewSummarySchema = z.object({
   linkedRuleCount: z.number().nullable(),
   selectedEvidenceLinkedRules: z.array(z.string()),
   checklistStatus: z.string().nullable(),
+  reconciliationStatus: z.string().nullable(),
+  reconciliationReason: z.string().nullable(),
   narrative: z.string().nullable(),
 });
 

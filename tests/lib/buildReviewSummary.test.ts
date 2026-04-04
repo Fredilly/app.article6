@@ -28,6 +28,13 @@ describe("buildReviewSummary", () => {
         finalizedState: "finalized",
         checklistStatus: "unused",
       },
+      reconciliation: {
+        status: "supported",
+        label: "Supported",
+        reason: "All expected evidence is linked and reviewer artifact is saved.",
+        satisfiedExpectedEvidenceTypes: ["monitoring-report"],
+        missingExpectedEvidenceTypes: [],
+      },
       outcome: {
         stac: { itemIds: ["stac-1", "stac-2"] },
         linkage: { selectedRuleId: "R-12", linkedRuleIds: ["R-12"] },
@@ -58,8 +65,10 @@ describe("buildReviewSummary", () => {
       linkedRuleCount: 1,
       selectedEvidenceLinkedRules: ["R-12"],
       checklistStatus: "unused",
+      reconciliationStatus: "Supported",
+      reconciliationReason: "All expected evidence is linked and reviewer artifact is saved.",
       narrative:
-        "Finalized verify review. Rule R-12 (Monitoring period). Selected evidence stac-1 linked to R-12. STAC search returned 2 candidate items. 1 linked rule in the finalized scope. Reviewer note: Ready for external review. Checklist: unused.",
+        "Finalized verify review. Rule R-12 (Monitoring period). Selected evidence stac-1 linked to R-12. STAC search returned 2 candidate items. 1 linked rule in the finalized scope. Reconciliation: Supported (All expected evidence is linked and reviewer artifact is saved.). Reviewer note: Ready for external review. Checklist: unused.",
     });
   });
 
@@ -105,6 +114,7 @@ describe("buildReviewSummary", () => {
     expect(display.selectedEvidenceDatetime).toBe("Unavailable");
     expect(display.aoiLabel).toBe("BBox 10.00, 11.00, 12.00, 13.00");
     expect(display.cloudCover).toBe("Unavailable");
+    expect(display.reconciliationStatus).toBe("Unavailable");
     expect(display.narrative).toContain("Verify review artifact.");
   });
 
@@ -113,6 +123,13 @@ describe("buildReviewSummary", () => {
       method: { code: "AR-ACM0003", version: "v02-0" },
       rule: { id: "R-1", text: "Rule text", sectionTitle: "Section title" },
       verifier: { outcomeNote: "Note", finalizedAt: "2026-03-25T00:10:00Z", finalizedState: "finalized", checklistStatus: "unused" },
+      reconciliation: {
+        status: "needs-review",
+        label: "Needs review",
+        reason: "Linked evidence is present, but no reviewer artifact is saved yet.",
+        satisfiedExpectedEvidenceTypes: [],
+        missingExpectedEvidenceTypes: [],
+      },
       outcome: {
         stac: { itemIds: ["stac-1"] },
         linkage: { selectedRuleId: "R-1", linkedRuleIds: ["R-1"] },
@@ -125,6 +142,7 @@ describe("buildReviewSummary", () => {
         { label: "Method code", value: "AR-ACM0003" },
         { label: "Rule ID", value: "R-1" },
         { label: "Checklist status", value: "unused" },
+        { label: "Reconciliation status", value: "Needs review" },
       ]),
     );
     expect(pdfText).toContain("Review Summary");

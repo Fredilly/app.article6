@@ -27,7 +27,24 @@ const linkedRow: RequirementCoverageRow = {
     citations: [{ sectionId: "S-10", label: "Section 10" }],
   },
   expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
-  linkedEvidence: [{ id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" }],
+  linkedEvidence: [
+    { id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" },
+    {
+      id: "ev-pdd:frag:1",
+      title: "Boundary overview",
+      type: "PDD",
+      source: "inventory",
+      evidenceId: "ev-pdd",
+      fragmentId: "ev-pdd:frag:1",
+      fragmentLabel: "Boundary overview",
+      documentLabel: "project-design.pdf",
+      pageStart: 4,
+      pageEnd: 5,
+      sectionLabel: "3.1",
+      sectionHeading: "Project boundary",
+      excerpt: "The project boundary covers compartments 1 through 4.",
+    },
+  ],
   candidateEvidence: [],
   status: "linked",
 };
@@ -91,12 +108,21 @@ describe("RuleDetailModal", () => {
     expect(html).toContain("Methodology provenance");
     expect(html).toContain("Section 10 · Monitoring");
     expect(html).toContain("p. 12");
+    expect(html).toContain("Anchor S-10");
     expect(html).toContain("operational");
-    expect(html).toContain("UNFCCC/TOOL-1");
+    expect(html).toContain("Tools UNFCCC/TOOL-1");
+    expect(html).toContain("Reconciliation");
+    expect(html).toContain("Partial");
+    expect(html).toContain("Missing expected evidence: Spreadsheet workbook.");
     expect(html).toContain("Audit details");
     expect(html).not.toContain("<details open");
     expect(html).toContain("Monitoring report");
     expect(html).toContain("Q1 monitoring report");
+    expect(html).toContain("Boundary overview");
+    expect(html).toContain("ev-pdd:frag:1");
+    expect(html).toContain("project-design.pdf");
+    expect(html).toContain("Project boundary");
+    expect(html).toContain("The project boundary covers compartments 1 through 4.");
   });
 
   it("shows intentional empty states when optional metadata is missing", () => {
@@ -115,6 +141,8 @@ describe("RuleDetailModal", () => {
     );
 
     expect(html).toContain("This rule does not define expected evidence.");
+    expect(html).toContain("Missing evidence");
+    expect(html).toContain("No linked evidence for this rule.");
     expect(html).toContain("Next: link supporting evidence or leave a reviewer note.");
     expect(html).toContain("S-4");
   });
@@ -135,6 +163,7 @@ describe("RuleDetailModal", () => {
     );
 
     expect(html).toContain("Eligibility proof");
+    expect(html).toContain("Missing evidence");
     expect(html).toContain("Requirement is unresolved. No linked evidence yet.");
     expect(html).toContain("Next: link eligibility proof.");
     expect(html).toContain("S-4");
