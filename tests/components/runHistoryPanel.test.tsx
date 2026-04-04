@@ -12,6 +12,8 @@ describe("RunHistoryPanel", () => {
             createdAt: "2026-01-01T00:00:00Z",
             bundle: {
               runContext: { runId: "run-older", createdAt: "2026-01-01T00:00:00Z" },
+              reviewerContext: { methodCode: "AR-1", version: "v1", ruleId: null, runId: "run-older" },
+              savedReviewerArtifactContext: null,
               exportedAt: null,
               savedReviewerArtifactAt: null,
               finalizedAt: null,

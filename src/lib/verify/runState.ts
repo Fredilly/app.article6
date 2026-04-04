@@ -69,8 +69,26 @@ export type VerifierRunContext = {
   createdAt: string;
 };
 
+export type ReviewerArtifactContext = {
+  methodCode: string;
+  version: string;
+  ruleId: string | null;
+  runId: string;
+};
+
+export type ReviewerArtifactState = {
+  context: ReviewerArtifactContext;
+  savedReviewerArtifactAt: string | null;
+  minutes: string;
+  outcomeNote: string;
+  draftMinutes: string;
+  draftOutcomeNote: string;
+};
+
 export type VerifierRunBundle = {
   runContext: VerifierRunContext;
+  reviewerContext: ReviewerArtifactContext;
+  savedReviewerArtifactContext: ReviewerArtifactContext | null;
   exportedAt: string | null;
   savedReviewerArtifactAt: string | null;
   finalizedAt: string | null;
@@ -291,10 +309,101 @@ function buildRunHistoryKey(methodCode: string, version: string): string {
   return `verifyRunHistory:${normalizedMethod}:${normalizedVersion}`;
 }
 
+function buildReviewerArtifactStorageKey(context: ReviewerArtifactContext): string {
+  const normalizedMethod = normalizeMethodCode(context.methodCode);
+  const normalizedVersion = normalizeVersion(context.version);
+  const normalizedRuleId = (context.ruleId ?? "").trim() || "__no_rule__";
+  const normalizedRunId = context.runId.trim();
+  return `verifyReviewerArtifact:${normalizedMethod}:${normalizedVersion}:${normalizedRuleId}:${normalizedRunId}`;
+}
+
 export function buildLinkedRulesKey(methodCode: string, version: string): string {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
   return `verifyLinkedRules:${normalizedMethod}:${normalizedVersion}`;
+}
+
+export function createReviewerArtifactContext(input: {
+  methodCode: string;
+  version: string;
+  ruleId: string | null;
+  runId: string;
+}): ReviewerArtifactContext {
+  return {
+    methodCode: normalizeMethodCode(input.methodCode),
+    version: normalizeVersion(input.version),
+    ruleId: asNonEmptyString(input.ruleId) ?? null,
+    runId: input.runId.trim(),
+  };
+}
+
+export function reviewerArtifactContextMatches(
+  left: ReviewerArtifactContext | null | undefined,
+  right: ReviewerArtifactContext | null | undefined,
+): boolean {
+  if (!left || !right) return false;
+  return (
+    normalizeMethodCode(left.methodCode) === normalizeMethodCode(right.methodCode) &&
+    normalizeVersion(left.version) === normalizeVersion(right.version) &&
+    (asNonEmptyString(left.ruleId) ?? null) === (asNonEmptyString(right.ruleId) ?? null) &&
+    left.runId.trim() === right.runId.trim()
+  );
+}
+
+function normalizeReviewerArtifactContext(raw: unknown, fallback: ReviewerArtifactContext): ReviewerArtifactContext {
+  const record = asRecord(raw);
+  if (!record) return fallback;
+  return {
+    methodCode: asNonEmptyString(record.methodCode) ?? fallback.methodCode,
+    version: asNonEmptyString(record.version) ?? fallback.version,
+    ruleId: asNonEmptyString(record.ruleId) ?? null,
+    runId: asNonEmptyString(record.runId) ?? fallback.runId,
+  };
+}
+
+function normalizeReviewerArtifactState(raw: unknown, fallback: ReviewerArtifactContext): ReviewerArtifactState | null {
+  const record = asRecord(raw);
+  if (!record) return null;
+  const context = normalizeReviewerArtifactContext(record.context, fallback);
+  return {
+    context,
+    savedReviewerArtifactAt: asNonEmptyString(record.savedReviewerArtifactAt),
+    minutes: typeof record.minutes === "string" ? record.minutes : "",
+    outcomeNote: typeof record.outcomeNote === "string" ? record.outcomeNote : "",
+    draftMinutes: typeof record.draftMinutes === "string" ? record.draftMinutes : "",
+    draftOutcomeNote: typeof record.draftOutcomeNote === "string" ? record.draftOutcomeNote : "",
+  };
+}
+
+export function readReviewerArtifactState(context: ReviewerArtifactContext): ReviewerArtifactState | null {
+  const storage = getLocalStorage();
+  if (!storage) return null;
+  const key = buildReviewerArtifactStorageKey(context);
+  const raw = storage.getItem(key);
+  if (!raw) return null;
+  try {
+    return normalizeReviewerArtifactState(JSON.parse(raw), context);
+  } catch {
+    return null;
+  }
+}
+
+export function persistReviewerArtifactState(state: ReviewerArtifactState): void {
+  const storage = getLocalStorage();
+  if (!storage) return;
+  const key = buildReviewerArtifactStorageKey(state.context);
+  const hasContent = Boolean(
+    state.savedReviewerArtifactAt ||
+      state.minutes.trim() ||
+      state.outcomeNote.trim() ||
+      state.draftMinutes.trim() ||
+      state.draftOutcomeNote.trim(),
+  );
+  if (!hasContent) {
+    storage.removeItem(key);
+    return;
+  }
+  storage.setItem(key, JSON.stringify(state));
 }
 
 function migrateLinkedRulesKey(methodCode: string, version: string): void {
@@ -394,11 +503,19 @@ export function setLinkedRuleIdsInStorage(methodCode: string, version: string, i
 
 export function createVerifierRunBundle(methodCode: string, version: string): VerifierRunBundle {
   const createdAt = nowIso();
+  const runId = buildRunId(methodCode, version, new Date(createdAt));
   return {
     runContext: {
-      runId: buildRunId(methodCode, version, new Date(createdAt)),
+      runId,
       createdAt,
     },
+    reviewerContext: createReviewerArtifactContext({
+      methodCode,
+      version,
+      ruleId: null,
+      runId,
+    }),
+    savedReviewerArtifactContext: null,
     exportedAt: null,
     savedReviewerArtifactAt: null,
     finalizedAt: null,
@@ -456,10 +573,23 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     const runContextRaw = parsed.runContext && typeof parsed.runContext === "object" ? (parsed.runContext as Record<string, unknown>) : null;
     const runId = asNonEmptyString(runContextRaw?.runId) ?? fallback.runContext.runId;
     const createdAt = asNonEmptyString(runContextRaw?.createdAt) ?? fallback.runContext.createdAt;
+    const reviewerContextFallback = createReviewerArtifactContext({
+      methodCode: normalizedMethod,
+      version: normalizedVersion,
+      ruleId: null,
+      runId,
+    });
+    const reviewerContext = normalizeReviewerArtifactContext(parsed.reviewerContext, reviewerContextFallback);
+    const savedReviewerArtifactContextRaw = normalizeReviewerArtifactState(
+      parsed.savedReviewerArtifactContext ? { context: parsed.savedReviewerArtifactContext } : null,
+      reviewerContext,
+    )?.context;
     const checklist = normalizeChecklist(parsed.checklist, fallback.checklist, createdAt);
     const tasks = normalizeTasks(parsed.tasks, createdAt);
     return {
       runContext: { runId, createdAt },
+      reviewerContext,
+      savedReviewerArtifactContext: savedReviewerArtifactContextRaw ?? null,
       exportedAt,
       savedReviewerArtifactAt,
       finalizedAt,
