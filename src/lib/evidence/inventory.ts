@@ -110,6 +110,7 @@ function normalizePddFragments(pin: EvidencePin): PddFragment[] {
     next.set(fragment_id, {
       fragment_id,
       evidence_id: pin.id,
+      label: trimOrUndefined(raw.label),
       page_start,
       page_end: page_end ?? page_start,
       section_label: trimOrUndefined(raw.section_label),
@@ -433,6 +434,7 @@ export function upsertPddFragmentOnEvidencePin(
     const entry: PddFragment = {
       fragment_id,
       evidence_id: evidenceId,
+      label: trimOrUndefined(fragment.label),
       page_start,
       page_end,
       section_label: trimOrUndefined(fragment.section_label),

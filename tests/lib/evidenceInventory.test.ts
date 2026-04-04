@@ -261,6 +261,7 @@ describe("evidence inventory", () => {
       ],
       "pdd-1",
       {
+        label: "Boundary overview",
         page_start: 3,
         page_end: 4,
         section_label: "3.1",
@@ -283,10 +284,12 @@ describe("evidence inventory", () => {
     expect(item?.linked_requirement_ids).toEqual(["R-1", "R-2"]);
     expect(item?.pdd_fragments?.[0]).toMatchObject({
       fragment_id: fragmentId,
+      label: "Boundary overview",
       section_heading: "Project boundary",
       page_start: 3,
       page_end: 4,
     });
+    expect(item?.pdd_fragments).toHaveLength(1);
     expect(linkedPins[0]?.cited_ids).toEqual(["R-1", "R-2"]);
   });
 
@@ -345,6 +348,7 @@ describe("evidence inventory", () => {
           {
             fragment_id: "pdd-2:frag:1",
             evidence_id: "pdd-2",
+            label: "Design summary excerpt",
             page_start: 9,
             page_end: 9,
             section_heading: "Design summary",

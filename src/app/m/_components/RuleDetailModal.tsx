@@ -59,6 +59,18 @@ function unresolvedNextStep(row: RequirementCoverageRow): string {
   return "Next: link supporting evidence or leave a reviewer note.";
 }
 
+function formatPddLinkedEvidenceMeta(item: RequirementCoverageRow["linkedEvidence"][number]): string | null {
+  const details = [item.documentLabel, item.sectionHeading, item.sectionLabel].filter(Boolean);
+  if (typeof item.pageStart === "number" && typeof item.pageEnd === "number" && item.pageStart !== item.pageEnd) {
+    details.push(`p. ${item.pageStart}-${item.pageEnd}`);
+  } else if (typeof item.pageStart === "number") {
+    details.push(`p. ${item.pageStart}`);
+  } else if (typeof item.pageEnd === "number") {
+    details.push(`p. ${item.pageEnd}`);
+  }
+  return details.join(" • ") || item.provenanceSummary || null;
+}
+
 export default function RuleDetailModal({
   open,
   row,
@@ -315,10 +327,20 @@ export default function RuleDetailModal({
                     {row.linkedEvidence.map((item) => (
                       <li key={`${item.source}:${item.id}`} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
                         <div className="font-semibold text-slate-900">{item.title}</div>
-                        <div className="mt-1 font-mono text-[11px] text-slate-600">{formatEvidenceInventoryId(item.id)}</div>
+                        <div className="mt-1 font-mono text-[11px] text-slate-600">
+                          {item.fragmentId ? item.fragmentId : formatEvidenceInventoryId(item.id)}
+                        </div>
                         <div className="mt-1 text-xs text-slate-600">
                           {item.type} • {item.source}
                         </div>
+                        {formatPddLinkedEvidenceMeta(item) ? (
+                          <div className="mt-1 text-xs text-slate-600">{formatPddLinkedEvidenceMeta(item)}</div>
+                        ) : null}
+                        {item.excerpt ? (
+                          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700">
+                            {item.excerpt}
+                          </div>
+                        ) : null}
                       </li>
                     ))}
                   </ul>

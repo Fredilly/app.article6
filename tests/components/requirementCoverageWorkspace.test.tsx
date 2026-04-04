@@ -125,6 +125,7 @@ const inventoryItems: EvidenceInventoryItem[] = [
       {
         fragment_id: "ev-3:frag:1",
         evidence_id: "ev-3",
+        label: "Boundary overview",
         page_start: 4,
         page_end: 5,
         section_label: "3.1",
@@ -159,6 +160,7 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Monitoring report");
     expect(html).toContain("Q1 monitoring report");
     expect(html).toContain("project-design.pdf");
+    expect(html).toContain("Boundary overview");
     expect(html).toContain("Project boundary");
     expect(html).toContain("Pages 4-5");
     expect(html).toContain("The project boundary covers compartments 1 through 4.");
@@ -205,9 +207,10 @@ describe("RequirementCoverageWorkspace", () => {
                         id: link.fragment_id,
                         evidenceId: item.evidence_id,
                         fragmentId: link.fragment_id,
-                        title: item.display_name,
+                        title: fragment?.label ?? item.display_name,
                         type: item.type,
                         source: "inventory" as const,
+                        fragmentLabel: fragment?.label,
                         documentLabel: item.display_name,
                         sectionLabel: fragment?.section_label,
                         sectionHeading: fragment?.section_heading,

@@ -33,6 +33,7 @@ export type PddDocumentAsset = {
 export type PddFragment = {
   fragment_id: string;
   evidence_id: string;
+  label?: string;
   page_start?: number;
   page_end?: number;
   section_label?: string;

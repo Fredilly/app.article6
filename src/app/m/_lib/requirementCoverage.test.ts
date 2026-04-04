@@ -185,6 +185,7 @@ describe("buildRequirementCoverageRows", () => {
           {
             fragment_id: "ev-pdd:frag:1",
             evidence_id: "ev-pdd",
+            label: "Grouped activity boundary excerpt",
             page_start: 7,
             page_end: 8,
             section_label: "2.3",
@@ -208,10 +209,11 @@ describe("buildRequirementCoverageRows", () => {
         id: "ev-pdd:frag:1",
         evidenceId: "ev-pdd",
         fragmentId: "ev-pdd:frag:1",
-        title: "project-design.pdf",
+        title: "Grouped activity boundary excerpt",
         type: "PDD",
         source: "inventory",
-        provenanceSummary: "project-design.pdf • Project design • p. 7-8",
+        fragmentLabel: "Grouped activity boundary excerpt",
+        provenanceSummary: "project-design.pdf • Grouped activity boundary excerpt • p. 7-8",
         documentLabel: "project-design.pdf",
         pageStart: 7,
         pageEnd: 8,
@@ -221,7 +223,7 @@ describe("buildRequirementCoverageRows", () => {
       },
     ]);
     expect(summarizeLinkedEvidence(rows[0]?.linkedEvidence ?? [])).toBe(
-      "project-design.pdf (PDD • project-design.pdf • Project design • p. 7-8)",
+      "Grouped activity boundary excerpt (PDD • project-design.pdf • Grouped activity boundary excerpt • p. 7-8)",
     );
   });
 });

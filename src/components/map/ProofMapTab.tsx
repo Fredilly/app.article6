@@ -231,6 +231,7 @@ function formatPddPageLabel(pageStart?: number, pageEnd?: number): string | null
 }
 
 type PddFragmentDraft = {
+  label: string;
   pageStart: string;
   pageEnd: string;
   sectionLabel: string;
@@ -239,12 +240,22 @@ type PddFragmentDraft = {
 };
 
 const EMPTY_PDD_FRAGMENT_DRAFT: PddFragmentDraft = {
+  label: "",
   pageStart: "",
   pageEnd: "",
   sectionLabel: "",
   sectionHeading: "",
   excerpt: "",
 };
+
+function formatPddFragmentDisplayLabel(fragment: {
+  label?: string;
+  section_heading?: string;
+  section_label?: string;
+  fragment_id: string;
+}): string {
+  return fragment.label?.trim() || fragment.section_heading?.trim() || fragment.section_label?.trim() || fragment.fragment_id;
+}
 
 function formatDelta(value: number, suffix = "", digits = 0): string {
   const sign = value > 0 ? "+" : value < 0 ? "" : "";
@@ -2407,15 +2418,17 @@ export default function ProofMapTab({
     };
     const pageStart = parsePage(draft.pageStart);
     const pageEnd = parsePage(draft.pageEnd) ?? pageStart;
+    const label = draft.label.trim();
     const sectionLabel = draft.sectionLabel.trim();
     const sectionHeading = draft.sectionHeading.trim();
     const excerpt = draft.excerpt.trim();
-    if (!pageStart && !pageEnd && !sectionLabel && !sectionHeading && !excerpt) {
+    if (!label && !pageStart && !pageEnd && !sectionLabel && !sectionHeading && !excerpt) {
       setError("Add at least one fragment field before saving.");
       return;
     }
     onSetEvidencePins((current) =>
       upsertPddFragmentOnEvidencePin(current, pin.id, {
+        label: label || undefined,
         page_start: pageStart,
         page_end: pageEnd,
         section_label: sectionLabel || undefined,
@@ -2939,6 +2952,16 @@ export default function ProofMapTab({
                                 {item.pdd_document.sha256 ? ` • ${shortSha(item.pdd_document.sha256)}` : ""}
                               </div>
                               <div className="grid gap-2 md:grid-cols-2">
+                                <label className="grid gap-1 md:col-span-2">
+                                  <span>Fragment label</span>
+                                  <input
+                                    type="text"
+                                    value={pddDraft.label}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { label: event.target.value })}
+                                    placeholder="Boundary overview"
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
                                 <label className="grid gap-1">
                                   <span>Section label</span>
                                   <input
@@ -3008,10 +3031,10 @@ export default function ProofMapTab({
                                     return (
                                       <div key={fragment.fragment_id} className="rounded border border-slate-200 bg-slate-50 p-2">
                                         <div className="font-medium text-slate-800">
-                                          {fragment.section_heading ?? fragment.section_label ?? "PDD fragment"}
+                                          {formatPddFragmentDisplayLabel(fragment)}
                                         </div>
                                         <div className="mt-1">
-                                          {[formatPddPageLabel(fragment.page_start, fragment.page_end), fragment.excerpt]
+                                          {[fragment.section_heading, fragment.section_label, formatPddPageLabel(fragment.page_start, fragment.page_end)]
                                             .filter(Boolean)
                                             .join(" • ") || "Fragment metadata pending"}
                                         </div>
@@ -3046,10 +3069,10 @@ export default function ProofMapTab({
                                                   onSetEvidencePins((current) =>
                                                     linkPddFragmentToRequirement(current, pin.id, fragment.fragment_id, selectedRuleId),
                                                   );
-                                                  showToast(`Linked ${fragment.fragment_id} to ${selectedRuleId}`);
+                                                  showToast(`Reused ${formatPddFragmentDisplayLabel(fragment)} for ${selectedRuleId}`);
                                                 }}
                                               >
-                                                Link fragment
+                                                Reuse for {selectedRuleId}
                                               </button>
                                             )}
                                           </div>

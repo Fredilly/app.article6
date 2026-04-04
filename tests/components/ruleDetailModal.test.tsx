@@ -27,7 +27,24 @@ const linkedRow: RequirementCoverageRow = {
     citations: [{ sectionId: "S-10", label: "Section 10" }],
   },
   expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
-  linkedEvidence: [{ id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" }],
+  linkedEvidence: [
+    { id: "ev-1", title: "Q1 monitoring report", type: "monitoring-report", source: "pin" },
+    {
+      id: "ev-pdd:frag:1",
+      title: "Boundary overview",
+      type: "PDD",
+      source: "inventory",
+      evidenceId: "ev-pdd",
+      fragmentId: "ev-pdd:frag:1",
+      fragmentLabel: "Boundary overview",
+      documentLabel: "project-design.pdf",
+      pageStart: 4,
+      pageEnd: 5,
+      sectionLabel: "3.1",
+      sectionHeading: "Project boundary",
+      excerpt: "The project boundary covers compartments 1 through 4.",
+    },
+  ],
   candidateEvidence: [],
   status: "linked",
 };
@@ -97,6 +114,11 @@ describe("RuleDetailModal", () => {
     expect(html).not.toContain("<details open");
     expect(html).toContain("Monitoring report");
     expect(html).toContain("Q1 monitoring report");
+    expect(html).toContain("Boundary overview");
+    expect(html).toContain("ev-pdd:frag:1");
+    expect(html).toContain("project-design.pdf");
+    expect(html).toContain("Project boundary");
+    expect(html).toContain("The project boundary covers compartments 1 through 4.");
   });
 
   it("shows intentional empty states when optional metadata is missing", () => {

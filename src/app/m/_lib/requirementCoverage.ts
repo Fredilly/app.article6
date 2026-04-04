@@ -64,6 +64,7 @@ export type RequirementCoverageLinkedEvidence = {
   source: "pin" | "run" | "inventory" | "unknown";
   evidenceId?: string;
   fragmentId?: string;
+  fragmentLabel?: string;
   linkedRequirementIds?: string[];
   provenanceSummary?: string;
   documentLabel?: string;
@@ -137,6 +138,7 @@ type RequirementCoverageLinkInput = {
   source?: RequirementCoverageLinkedEvidence["source"];
   evidenceId?: string | null;
   fragmentId?: string | null;
+  fragmentLabel?: string | null;
   provenanceSummary?: string | null;
   documentLabel?: string | null;
   pageStart?: number | null;
@@ -185,6 +187,7 @@ function normalizeLinkedEvidence(
     source: item.source ?? "unknown",
     evidenceId: item.evidenceId?.trim() || undefined,
     fragmentId: item.fragmentId?.trim() || undefined,
+    fragmentLabel: item.fragmentLabel?.trim() || undefined,
     provenanceSummary: item.provenanceSummary?.trim() || undefined,
     documentLabel: item.documentLabel?.trim() || undefined,
     pageStart: typeof item.pageStart === "number" ? item.pageStart : undefined,
@@ -209,14 +212,16 @@ function buildPddProvenanceSummary(item: EvidenceInventoryItem, fragmentId: stri
   if (!fragment) return null;
   const pageLabel = formatPddPageLabel(fragment.page_start, fragment.page_end);
   const sectionLabel = fragment.section_heading ?? fragment.section_label ?? null;
-  const provenanceSummary = [item.display_name, sectionLabel, pageLabel].filter(Boolean).join(" • ");
+  const fragmentLabel = fragment.label?.trim() || sectionLabel || fragment.fragment_id;
+  const provenanceSummary = [item.display_name, fragmentLabel, pageLabel].filter(Boolean).join(" • ");
   return {
     id: fragment.fragment_id,
     evidenceId: item.evidence_id,
     fragmentId: fragment.fragment_id,
-    title: item.display_name,
+    title: fragmentLabel,
     type: item.type,
     source: "inventory",
+    fragmentLabel,
     provenanceSummary,
     documentLabel: item.display_name,
     pageStart: fragment.page_start,
