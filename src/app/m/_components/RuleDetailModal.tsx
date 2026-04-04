@@ -56,6 +56,13 @@ function formatPageLabel(page?: number | null): string | null {
   return typeof page === "number" ? `p. ${page}` : null;
 }
 
+function shortRuleId(input?: string | null): string | null {
+  const value = input?.trim();
+  if (!value) return null;
+  const match = value.match(/(R-\d+(?:-\d+)*)$/i);
+  return match ? match[1] : value;
+}
+
 function unresolvedNextStep(row: RequirementCoverageRow): string {
   const firstExpectedType = row.expectedEvidenceTypes[0];
   if (firstExpectedType) {
@@ -148,6 +155,7 @@ export default function RuleDetailModal({
   const categoryLabel = row.ruleSummary.type?.trim() || null;
   const provenanceTools = row.provenance.tools ?? [];
   const renderedWhen = ruleWhen?.length ? ruleWhen : row.ruleSummary.when;
+  const displayRuleId = shortRuleId(row.ruleId) ?? shortRuleId(canonicalRuleId) ?? row.ruleId;
   const reconciliation = reconcileRequirement({
     linkedEvidence: row.linkedEvidence,
     expectedEvidenceTypes: row.expectedEvidenceTypes,
@@ -171,7 +179,7 @@ export default function RuleDetailModal({
         <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur">
           <div className="min-w-0">
             <div className="text-xs font-medium text-slate-500">View rule</div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Rule {row.ruleId}</h2>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Rule {displayRuleId}</h2>
             <div className="mt-1 text-sm text-slate-600">
               {methodologyLabel?.trim() || sourcePath?.trim() || "Methodology rule detail"}
             </div>

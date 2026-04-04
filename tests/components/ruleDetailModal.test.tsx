@@ -131,6 +131,28 @@ describe("RuleDetailModal", () => {
     expect(html).toContain("The project boundary covers compartments 1 through 4.");
   });
 
+  it("uses only the short rule id in the header title when the rule id is canonical", () => {
+    const html = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={{ ...linkedRow, ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001" }}
+        canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001"
+        ruleText="Maintain a monitoring report and spreadsheet workbook."
+        methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        sourcePath="methodologies/example/rules.rich.json"
+        sha256="abc123"
+        traceSections={[]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Rule R-1-0001");
+    expect(html).toContain("UNFCCC Forestry · AR-ACM0003 · v02-0");
+    expect(html).toContain("UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
+    expect(html).not.toContain("Rule UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
+  });
+
   it("shows intentional empty states when optional metadata is missing", () => {
     const html = renderToStaticMarkup(
       <RuleDetailModal
