@@ -12,18 +12,7 @@ export default function ChatApp() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(226,232,240,0.75),_rgba(255,255,255,1)_55%)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-8 md:py-12">
-        <header className="mx-auto w-full max-w-3xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Article 6 Evidence</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
-            Run one grounded check before opening the full review workspace.
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-slate-600 md:text-base">
-            The landing page now starts with a single claim-first verification step. Once the claim is grounded, the
-            existing Review Workspace picks up the same methodology, requirement, evidence, and run context.
-          </p>
-        </header>
-
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-10">
         {selectedMethod || deeplinkWarnings.length ? (
           <div className="mx-auto w-full max-w-3xl rounded-3xl border border-slate-200 bg-white/85 p-4 text-sm text-slate-700 shadow-sm backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-2">

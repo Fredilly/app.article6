@@ -177,21 +177,35 @@ describe("QuickCheckPanel claim-first flow", () => {
     return container.querySelector("textarea") as HTMLTextAreaElement;
   }
 
+  function primaryCta(): HTMLButtonElement {
+    return Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Run quick check")) as HTMLButtonElement;
+  }
+
   function clickButton(label: string) {
     const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
     expect(button).toBeTruthy();
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
-  it("populates the claim input from a suggested claim chip and keeps upload as the primary evidence action", async () => {
+  it("renders a minimal default state with secondary controls collapsed", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
     });
 
     const pageText = container.textContent ?? "";
+    expect(pageText).toContain("Check one claim");
     expect(pageText).toContain("Upload evidence");
-    expect(pageText).toContain("Choose existing evidence");
-    expect(pageText.indexOf("Upload evidence")).toBeLessThan(pageText.indexOf("Choose existing evidence"));
+    expect(pageText).toContain("Use saved evidence instead");
+    expect(pageText).toContain("Narrow by methodology");
+    expect(pageText).not.toContain("Select saved evidence");
+    expect(pageText).not.toContain("MethodologyAny methodology");
+    expect(primaryCta().disabled).toBe(true);
+  });
+
+  it("populates the claim input from a suggested claim chip and keeps upload as the primary evidence action", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
 
     const chip = Array.from(container.querySelectorAll("button")).find((node) =>
       node.textContent?.includes("The monitoring report covers the full reporting period."),
@@ -205,17 +219,37 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(claimInput().value).toBe("The monitoring report covers the full reporting period.");
   });
 
-  it("shows inline validation when claim or evidence is missing", async () => {
+  it("keeps the CTA disabled until claim and evidence are both present", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
     });
 
+    expect(primaryCta().disabled).toBe(true);
+  });
+
+  it("enables the CTA only when one claim and one evidence item are present", async () => {
     await act(async () => {
-      clickButton("Run quick check");
+      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
     });
 
-    expect(container.textContent).toContain("Enter a claim to check.");
-    expect(container.textContent).toContain("Upload or select one evidence item.");
+    expect(primaryCta().disabled).toBe(true);
+
+    await act(async () => {
+      clickButton("The monitoring report covers the full reporting period.");
+    });
+    expect(primaryCta().disabled).toBe(true);
+
+    await act(async () => {
+      clickButton("Use saved evidence instead");
+    });
+
+    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    await act(async () => {
+      inventorySelect.value = "ev-1";
+      inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    expect(primaryCta().disabled).toBe(false);
   });
 
   it("renders a compact result card and hands off into the review workspace", async () => {
@@ -223,13 +257,16 @@ describe("QuickCheckPanel claim-first flow", () => {
       root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" onContinueToWorkspace={pushMock} />);
     });
 
-    const inventorySelect = container.querySelectorAll("select")[0] as HTMLSelectElement;
+    await act(async () => {
+      clickButton("Use saved evidence instead");
+    });
+
+    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
 
     await act(async () => {
       clickButton("The monitoring report covers the full reporting period.");
       inventorySelect.value = "ev-1";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
-      clickButton("Add selected evidence");
     });
 
     await act(async () => {
@@ -237,14 +274,17 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
+    expect(container.textContent).toContain("Methodology");
+    expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("R-1-0001 · Monitoring frequency");
     expect(container.textContent).toContain("Supported");
     expect(container.textContent).toContain("All expected evidence is linked.");
     expect(container.textContent).toContain("Section 10");
-    expect(container.textContent).toContain("Continue to Review Workspace");
+    expect(container.textContent).toContain("monitoring-report.pdf");
+    expect(container.textContent).toContain("Open review workspace");
 
     await act(async () => {
-      clickButton("Continue to Review Workspace");
+      clickButton("Open review workspace");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
@@ -291,6 +331,8 @@ describe("QuickCheckPanel claim-first flow", () => {
       root.render(<QuickCheckPanel />);
     });
 
+    expect(primaryCta().disabled).toBe(false);
+
     await act(async () => {
       clickButton("Run quick check");
     });
@@ -300,7 +342,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("Likely requirement matches");
-    expect(container.textContent).toContain("Multiple likely requirements match this claim.");
+    expect(container.textContent).toContain("Multiple requirements could fit this claim.");
     expect(container.textContent).toContain("R-1-0002 · Boundary consistency");
     expect(container.textContent).toContain("R-2-0001 · Boundary delineation");
   });

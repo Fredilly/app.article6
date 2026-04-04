@@ -4,13 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
   CheckCircle2,
-  FilePlus2,
+  ChevronDown,
+  ChevronRight,
   FolderOpen,
   Loader2,
   SearchCheck,
-  Sparkles,
   TriangleAlert,
   Upload,
+  X,
 } from "lucide-react";
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
 import { retrieveQuery, type QueryResponse } from "@/lib/chat/client";
@@ -152,10 +153,6 @@ function inventoryEvidenceLabel(item: EvidenceInventoryItem): string {
   return `${item.display_name} · ${item.type}`;
 }
 
-function uploadChipLabel(upload: QuickCheckStagedUpload): string {
-  return `${upload.filename} · Upload`;
-}
-
 function asPinForUpload(upload: QuickCheckStagedUpload): EvidencePin {
   return {
     id: upload.evidenceId,
@@ -169,6 +166,7 @@ function asPinForUpload(upload: QuickCheckStagedUpload): EvidencePin {
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
 
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
@@ -177,6 +175,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [matchCandidates, setMatchCandidates] = useState<MatchCandidate[]>([]);
   const [pendingInventoryId, setPendingInventoryId] = useState("");
+  const [showSavedEvidence, setShowSavedEvidence] = useState(false);
+  const [showMethodology, setShowMethodology] = useState(false);
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -285,6 +285,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }, [draft.evidenceIds, inventoryItems, stagedUploads, updateDraft]);
 
   const selectedMethodRecord = methods.find((item) => item.code === draft.methodologyId);
+  const selectedEvidenceCount = draft.evidenceIds.length;
+  const selectedUpload = selectedUploadEvidence[0] ?? null;
+  const selectedInventoryItem = selectedInventoryEvidence[0] ?? null;
+  const selectedEvidenceLabel = selectedUpload
+    ? selectedUpload.filename
+    : selectedInventoryItem
+    ? selectedInventoryItem.display_name
+    : "";
+  const selectedEvidenceMeta = selectedUpload
+    ? "Uploaded evidence"
+    : selectedInventoryItem
+    ? `${selectedInventoryItem.type} from saved evidence`
+    : "";
+  const canRunQuickCheck = Boolean(draft.claimText.trim()) && selectedEvidenceCount === 1 && !submitting;
+
+  useEffect(() => {
+    if (!result?.id) return;
+    resultRef.current?.focus();
+  }, [result?.id]);
 
   async function fetchRules(methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> {
     const cacheKey = `${methodologyId}@@${methodologyVersion}`;
@@ -399,7 +418,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         ...current,
         draft: {
           ...current.draft,
-          evidenceIds: Array.from(new Set([...current.draft.evidenceIds, evidenceId])),
+          evidenceIds: [evidenceId],
           status: "draft",
           result: null,
           resultId: undefined,
@@ -407,7 +426,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         },
         result: null,
         stagedUploads: [
-          ...current.stagedUploads,
           {
             evidenceId,
             filename: attachmentResult.attachment.filename,
@@ -423,20 +441,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
-  function addExistingEvidence() {
-    if (!pendingInventoryId) return;
-    updateDraft(
-      (current) => ({
-        ...current,
-        evidenceIds: Array.from(new Set([...current.evidenceIds, pendingInventoryId])),
+  function selectExistingEvidence(evidenceId: string) {
+    if (!evidenceId) return;
+    updateSession((current) => ({
+      ...current,
+      draft: {
+        ...current.draft,
+        evidenceIds: [evidenceId],
         status: "draft",
+        result: null,
         resultId: undefined,
-      }),
-      null,
-    );
+        updatedAt: nowIso(),
+      },
+      result: null,
+      stagedUploads: [],
+    }));
     setPendingInventoryId("");
     setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
     setMatchCandidates([]);
+    setShowSavedEvidence(false);
   }
 
   function removeEvidence(evidenceId: string) {
@@ -474,18 +497,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const response = await retrieveQuery(draft.claimText.trim());
       const candidates = buildMatchCandidates(response.results ?? [], methods, draft.methodologyId);
       if (!candidates.length) {
+        if (!draft.methodologyId.trim()) setShowMethodology(true);
         setFieldErrors({
           general: draft.methodologyId
             ? "No likely requirement match was found for the selected methodology. Try another methodology or adjust the claim."
-            : "No likely requirement match was found. Add a methodology to narrow the match or rewrite the claim.",
+            : "We could not find a clear match. Try narrowing by methodology or rewriting the claim.",
         });
         return;
       }
 
       if (isAmbiguousMatch(candidates)) {
         setMatchCandidates(candidates);
+        if (!draft.methodologyId.trim()) setShowMethodology(true);
         setFieldErrors({
-          general: "Multiple likely requirements match this claim. Pick the closest one or narrow with methodology.",
+          general: "Multiple requirements could fit this claim. Pick the closest match or narrow by methodology.",
         });
         return;
       }
@@ -512,22 +537,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-3xl rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_-32px_rgba(15,23,42,0.35)] md:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="mx-auto w-full max-w-3xl rounded-[2rem] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.4)] md:px-7 md:py-6">
+        <div className="flex items-start justify-between gap-4">
           <div className="max-w-2xl">
-            <div className="text-sm font-semibold text-slate-500">Check one claim</div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
-              Start with one plain-language claim and one evidence item.
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Article 6 quick check</div>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 md:text-[2rem]">
+              Check one claim
             </h1>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Describe the claim you want to test, upload one evidence item, and the app will map it into the existing
-              requirement-based review flow before opening the full Review Workspace.
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Add one piece of evidence. We&apos;ll find the best matching requirement and open the full review.
             </p>
           </div>
           {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
         </div>
 
-        <div className="mt-6 grid gap-6">
+        <div className="mt-5 grid gap-4">
           <label className="grid gap-2 text-sm text-slate-700">
             <span className="font-medium text-slate-900">Claim</span>
             <textarea
@@ -548,15 +572,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 setFieldErrors((current) => ({ ...current, claim: undefined, general: undefined }));
                 setMatchCandidates([]);
               }}
-              rows={4}
+              rows={3}
               placeholder="Example: The monitoring report covers the full reporting period."
-              className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+              className="w-full rounded-[1.6rem] border border-slate-200 bg-slate-50/70 px-4 py-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
             />
             {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
           </label>
 
           <div className="flex flex-wrap gap-2">
-            {CLAIM_SUGGESTIONS.map((suggestion) => (
+            {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
               <button
                 key={suggestion}
                 type="button"
@@ -575,19 +599,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   setFieldErrors((current) => ({ ...current, claim: undefined, general: undefined }));
                   setMatchCandidates([]);
                 }}
-                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
               >
                 {suggestion}
               </button>
             ))}
           </div>
 
-          <div className="grid gap-4 rounded-3xl border border-slate-200 bg-slate-50/70 p-4 md:p-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <div className="text-sm font-medium text-slate-900">Evidence</div>
+          <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50/75 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-slate-900">Add one piece of evidence</div>
                 <div className="mt-1 text-sm text-slate-600">
-                  Upload one evidence item first. Reusing existing evidence stays available when you want to narrow to a methodology.
+                  Upload one file to run the check.
                 </div>
               </div>
               <input
@@ -600,117 +624,142 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
               >
                 <Upload className="h-4 w-4" />
                 Upload evidence
               </button>
             </div>
 
-            <div className="grid gap-2">
-              <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Choose existing evidence</div>
-              <div className="flex flex-col gap-2 md:flex-row">
-                <select
-                  value={pendingInventoryId}
-                  onChange={(event) => setPendingInventoryId(event.target.value)}
-                  disabled={!draft.methodologyId || !draft.methodologyVersion}
-                  className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
+            {selectedEvidenceLabel ? (
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium text-slate-900">{selectedEvidenceLabel}</div>
+                  <div className="mt-1 text-xs text-slate-500">{selectedEvidenceMeta}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeEvidence(draft.evidenceIds[0] ?? "")}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-800"
+                  aria-label="Remove selected evidence"
                 >
-                  <option value="">
-                    {draft.methodologyId ? "Select existing evidence" : "Choose a methodology to reuse saved evidence"}
-                  </option>
-                  {availableInventory.map((item) => (
-                    <option key={item.evidence_id} value={item.evidence_id}>
-                      {inventoryEvidenceLabel(item)}
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : null}
+            {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSavedEvidence((value) => !value)}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                aria-expanded={showSavedEvidence}
+              >
+                {showSavedEvidence ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                Use saved evidence instead
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowMethodology((value) => !value)}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                aria-expanded={showMethodology}
+              >
+                {showMethodology ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                Narrow by methodology
+              </button>
+            </div>
+
+            <button
+              type="button"
+              disabled={!canRunQuickCheck}
+              onClick={() => void runQuickCheck()}
+              className="inline-flex min-w-[13rem] items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Run quick check
+            </button>
+          </div>
+
+          {showSavedEvidence ? (
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+              <div className="text-sm font-medium text-slate-900">Use saved evidence</div>
+              {!draft.methodologyId || !draft.methodologyVersion ? (
+                <div className="mt-2 text-sm text-slate-600">Choose a methodology first to reuse saved evidence.</div>
+              ) : (
+                <div className="mt-3">
+                  <select
+                    value={pendingInventoryId}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setPendingInventoryId(value);
+                      if (value) selectExistingEvidence(value);
+                    }}
+                    className="min-w-0 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
+                  >
+                    <option value="">Select saved evidence</option>
+                    {availableInventory.map((item) => (
+                      <option key={item.evidence_id} value={item.evidence_id}>
+                        {inventoryEvidenceLabel(item)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {showMethodology ? (
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+              <label className="grid gap-2 text-sm text-slate-700">
+                <span className="font-medium text-slate-900">Methodology</span>
+                <select
+                  value={draft.methodologyId}
+                  onChange={(event) => {
+                    const methodologyId = event.target.value;
+                    const method = methods.find((item) => item.code === methodologyId);
+                    const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
+                    updateSession((current) => {
+                      const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
+                      return {
+                        ...current,
+                        draft: {
+                          ...current.draft,
+                          methodologyId,
+                          methodologyVersion,
+                          evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
+                          matchedRequirementId: undefined,
+                          matchedRequirementLabel: undefined,
+                          status: "draft",
+                          result: null,
+                          resultId: undefined,
+                          updatedAt: nowIso(),
+                        },
+                        result: null,
+                      };
+                    });
+                    setPendingInventoryId("");
+                    setFieldErrors((current) => ({ ...current, general: undefined }));
+                    setMatchCandidates([]);
+                  }}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
+                >
+                  <option value="">Any methodology</option>
+                  {methods.map((method) => (
+                    <option key={method.code} value={method.code}>
+                      {methodOptionLabel(method)}
                     </option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  onClick={addExistingEvidence}
-                  disabled={!pendingInventoryId}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 disabled:opacity-50"
-                >
-                  <FilePlus2 className="h-4 w-4" />
-                  Add selected evidence
-                </button>
-              </div>
-              {fieldErrors.evidence ? <span className="text-sm text-rose-700">{fieldErrors.evidence}</span> : null}
+                <span className="text-xs text-slate-500">Optional. Use this only when you want to narrow the match.</span>
+              </label>
             </div>
-
-            {selectedUploadEvidence.length || selectedInventoryEvidence.length ? (
-              <div className="flex flex-wrap gap-2">
-                {selectedUploadEvidence.map((upload) => (
-                  <button
-                    key={upload.evidenceId}
-                    type="button"
-                    onClick={() => removeEvidence(upload.evidenceId)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300"
-                  >
-                    {uploadChipLabel(upload)} ×
-                  </button>
-                ))}
-                {selectedInventoryEvidence.map((item) => (
-                  <button
-                    key={item.evidence_id}
-                    type="button"
-                    onClick={() => removeEvidence(item.evidence_id)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300"
-                  >
-                    {inventoryEvidenceLabel(item)} ×
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          <label className="grid gap-2 text-sm text-slate-700">
-            <span className="font-medium text-slate-900">Methodology (optional)</span>
-            <select
-              value={draft.methodologyId}
-              onChange={(event) => {
-                const methodologyId = event.target.value;
-                const method = methods.find((item) => item.code === methodologyId);
-                const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
-                updateSession((current) => {
-                  const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
-                  return {
-                    ...current,
-                    draft: {
-                      ...current.draft,
-                      methodologyId,
-                      methodologyVersion,
-                      evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
-                      matchedRequirementId: undefined,
-                      matchedRequirementLabel: undefined,
-                      status: "draft",
-                      result: null,
-                      resultId: undefined,
-                      updatedAt: nowIso(),
-                    },
-                    result: null,
-                  };
-                });
-                setPendingInventoryId("");
-                setFieldErrors((current) => ({ ...current, general: undefined }));
-                setMatchCandidates([]);
-              }}
-              className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-            >
-              <option value="">Any methodology</option>
-              {methods.map((method) => (
-                <option key={method.code} value={method.code}>
-                  {methodOptionLabel(method)}
-                </option>
-              ))}
-            </select>
-            <span className="text-xs text-slate-500">
-              Leave this open to let the matcher search broadly, or choose a methodology to narrow likely matches.
-            </span>
-          </label>
+          ) : null}
 
           {fieldErrors.general ? (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900" role="status" aria-live="polite">
               <div className="flex items-start gap-2.5">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
                 <div>{fieldErrors.general}</div>
@@ -719,13 +768,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           ) : null}
 
           {matchCandidates.length ? (
-            <div className="rounded-3xl border border-sky-200 bg-sky-50/80 p-4">
+            <div className="rounded-2xl border border-sky-200 bg-sky-50/80 p-4">
               <div className="flex items-start gap-3">
                 <SearchCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" />
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-slate-900">Likely requirement matches</div>
                   <div className="mt-1 text-sm text-slate-600">
-                    Choose the closest match, or narrow the claim with a methodology and run the quick check again.
+                    Choose the best match for this claim.
                   </div>
                   <div className="mt-3 grid gap-2">
                     {matchCandidates.map((candidate) => (
@@ -754,18 +803,36 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           ) : null}
 
           {result ? (
-            <div className="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5">
+            <div
+              ref={resultRef}
+              tabIndex={-1}
+              className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50/75 p-5 outline-none"
+              role="status"
+              aria-live="polite"
+            >
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">Quick check result</div>
-                  <div className="mt-2 text-sm font-medium text-slate-900">{result.claimText}</div>
-                  <div className="mt-3 text-sm text-slate-600">Matched requirement</div>
-                  <div className="mt-1 text-base font-semibold text-slate-950">{result.requirementLabel}</div>
-                  <div className="mt-3 inline-flex rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-800">
-                    {result.verdict}
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">Result</div>
+                  <div className="mt-2 text-lg font-semibold text-slate-950">{result.verdict}</div>
+                  <div className="mt-2 text-sm text-slate-700">{result.claimText}</div>
+                  <div className="mt-4 grid gap-3 md:grid-cols-3">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">
+                        {draft.methodologyId} {draft.methodologyVersion ? `· ${draft.methodologyVersion}` : ""}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Requirement</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">{result.requirementLabel}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">{selectedEvidenceLabel || "1 item selected"}</div>
+                    </div>
                   </div>
-                  <div className="mt-3 text-sm text-slate-700">{result.explanation}</div>
+                  <div className="mt-4 text-sm text-slate-700">{result.explanation}</div>
                   {result.citations.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {result.citations.map((citation) => (
@@ -775,27 +842,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       ))}
                     </div>
                   ) : null}
-                  <div className="mt-3 flex items-start gap-2 text-sm text-slate-600">
-                    <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-                    <span>{result.nextStepHint}</span>
-                  </div>
+                  <div className="mt-3 text-sm text-slate-600">{result.nextStepHint}</div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => {
-                        updateDraft(
-                          (current) => ({
-                            ...current,
-                            status: "draft",
-                            resultId: undefined,
-                          }),
-                          null,
-                        );
-                        setFieldErrors({});
-                      }}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700"
+                      onClick={handleContinueToWorkspace}
+                      className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
                     >
-                      Upload another evidence item
+                      <FolderOpen className="h-4 w-4" />
+                      Open review workspace
                     </button>
                     <button
                       type="button"
@@ -814,39 +869,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         setFieldErrors({});
                         setMatchCandidates([]);
                       }}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700"
+                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
                     >
-                      Check another claim
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleContinueToWorkspace}
-                      className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white"
-                    >
-                      <FolderOpen className="h-4 w-4" />
-                      Continue to Review Workspace
+                      Run another quick check
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          ) : (
-            <div>
-              <button
-                type="button"
-                disabled={submitting}
-                onClick={() => void runQuickCheck()}
-                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Run quick check
-              </button>
-            </div>
-          )}
+          ) : null}
 
           {selectedMethodRecord && draft.methodologyVersion ? (
-            <div className="text-xs text-slate-500">
-              Existing evidence is being reused from {selectedMethodRecord.code} · {draft.methodologyVersion}.
+            <div className="text-xs text-slate-500" aria-live="polite">
+              Narrowing matches to {selectedMethodRecord.code} · {draft.methodologyVersion}.
             </div>
           ) : null}
         </div>
