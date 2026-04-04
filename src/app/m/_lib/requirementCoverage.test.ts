@@ -16,11 +16,23 @@ describe("buildRequirementCoverageRows", () => {
         title: "Monitoring frequency",
         snippet: "Maintain a monitoring report and spreadsheet workbook.",
         text: "Maintain a monitoring report and spreadsheet workbook for each reporting period.",
+        summary: "Maintain a monitoring report and spreadsheet workbook.",
+        logic: "Maintain a monitoring report and spreadsheet workbook for each reporting period.",
+        notes: "Retain the workbook appendices.",
+        when: ["Each reporting period."],
+        expectedEvidence: ["monitoring-report", "spreadsheet-workbook"],
         tags: ["monitoring"],
         type: "operational",
         sectionId: "S-10",
         anchor: "#S-10",
         citations: [{ sectionId: "S-10", label: "Section 10" }],
+        refs: {
+          primarySection: "S-10",
+          sectionAnchor: "#S-10",
+          sectionStableId: "S-10",
+          sections: ["S-10"],
+          tools: ["UNFCCC/TOOL-1"],
+        },
       },
       {
         id: "R-2",
@@ -52,6 +64,10 @@ describe("buildRequirementCoverageRows", () => {
         ruleSummary: {
           title: "Monitoring frequency",
           snippet: "Maintain a monitoring report and spreadsheet workbook.",
+          summary: "Maintain a monitoring report and spreadsheet workbook.",
+          logic: "Maintain a monitoring report and spreadsheet workbook for each reporting period.",
+          notes: "Retain the workbook appendices.",
+          when: ["Each reporting period."],
           type: "operational",
           tags: ["monitoring"],
         },
@@ -60,6 +76,10 @@ describe("buildRequirementCoverageRows", () => {
           sectionTitle: "Monitoring",
           page: undefined,
           anchor: "#S-10",
+          primarySection: "S-10",
+          sectionAnchor: "#S-10",
+          sectionStableId: "S-10",
+          tools: ["UNFCCC/TOOL-1"],
           citations: [{ sectionId: "S-10", label: "Section 10" }],
         },
         expectedEvidenceTypes: ["monitoring-report", "spreadsheet-workbook"],
@@ -75,6 +95,10 @@ describe("buildRequirementCoverageRows", () => {
         ruleSummary: {
           title: "Eligibility boundary",
           snippet: "Document eligibility and ownership evidence.",
+          summary: undefined,
+          logic: undefined,
+          notes: undefined,
+          when: [],
           type: undefined,
           tags: [],
         },
@@ -83,9 +107,13 @@ describe("buildRequirementCoverageRows", () => {
           sectionTitle: undefined,
           page: undefined,
           anchor: undefined,
+          primarySection: undefined,
+          sectionAnchor: undefined,
+          sectionStableId: undefined,
+          tools: [],
           citations: [],
         },
-        expectedEvidenceTypes: ["eligibility-proof"],
+        expectedEvidenceTypes: [],
         linkedEvidence: [],
         candidateEvidence: [],
         status: "needs-review",
@@ -127,7 +155,7 @@ describe("buildRequirementCoverageRows", () => {
       ],
     });
 
-    expect(summarizeExpectedEvidence(rows[0]?.expectedEvidenceTypes ?? [])).toBe("No expected evidence metadata");
+    expect(summarizeExpectedEvidence(rows[0]?.expectedEvidenceTypes ?? [])).toBe("No expected evidence defined for this rule.");
     expect(summarizeLinkedEvidence(rows[0]?.linkedEvidence ?? [])).toBe("No linked evidence yet");
     expect(requirementProvenanceHint(rows[0]!)).toBe("Provenance pending");
   });

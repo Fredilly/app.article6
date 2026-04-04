@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import MethodDetailPane from "@/app/m/_components/MethodDetailPane";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
+import { loadMethodVersionLineage, resolveMethodVersionFiles } from "@/app/m/_lib/methodVersionMetadata";
 import { loadManifestEntries } from "@/lib/manifest/cards";
 import packConfig from "../../../../config/methodologies_pack.json";
 
@@ -23,10 +24,13 @@ async function loadPackProvenanceJson(): Promise<unknown | null> {
 async function resolveManifestRulesPath(code: string, version: string): Promise<string | null> {
   const entries = await loadManifestEntries();
   const match = entries.find((entry) => entry.methodology === code && entry.version === version);
-  if (!match) return null;
-  const record = match as unknown as Record<string, unknown>;
-  const manifestPath = typeof record.path === "string" ? record.path : null;
-  return manifestPath && manifestPath.trim() ? manifestPath.trim() : null;
+  if (match) {
+    const record = match as unknown as Record<string, unknown>;
+    const manifestPath = typeof record.path === "string" ? record.path : null;
+    if (manifestPath && manifestPath.trim()) return manifestPath.trim();
+  }
+  const resolved = await resolveMethodVersionFiles(code, version);
+  return resolved ? path.relative(process.cwd(), path.join(resolved.dir, "rules.json")) : null;
 }
 
 export default async function EvidenceView({ selectedCode, selectedVersion }: EvidenceViewProps) {
@@ -47,6 +51,10 @@ export default async function EvidenceView({ selectedCode, selectedVersion }: Ev
     selectedMethod && effectiveVersion
       ? await resolveManifestRulesPath(selectedMethod.code, effectiveVersion)
       : null;
+  const versionLineage =
+    selectedMethod && effectiveVersion
+      ? await loadMethodVersionLineage(selectedMethod.code, effectiveVersion, selectedMethod.versions)
+      : null;
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -63,6 +71,7 @@ export default async function EvidenceView({ selectedCode, selectedVersion }: Ev
               hasRich: selectedMethod.hasRich,
               hasPrevious: selectedMethod.hasPrevious,
               ruleCountByVersion: selectedMethod.ruleCountByVersion,
+              lineage: versionLineage,
             }}
             activeVersion={effectiveVersion}
             packTag={typeof packConfig?.tag === "string" ? packConfig.tag : null}

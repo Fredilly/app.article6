@@ -14,6 +14,9 @@ type RuleDetailModalProps = {
   row: RequirementCoverageRow | null;
   ruleTitle?: string | null;
   ruleText?: string | null;
+  ruleLogic?: string | null;
+  ruleNotes?: string | null;
+  ruleWhen?: string[] | null;
   sourcePath?: string | null;
   sha256?: string | null;
   traceSections?: Array<{
@@ -61,6 +64,9 @@ export default function RuleDetailModal({
   row,
   ruleTitle,
   ruleText,
+  ruleLogic,
+  ruleNotes,
+  ruleWhen,
   sourcePath,
   sha256,
   traceSections = [],
@@ -102,6 +108,8 @@ export default function RuleDetailModal({
     row.provenance.citations.find((citation) => citation.sectionId)?.sectionId ??
     null;
   const categoryLabel = row.ruleSummary.type?.trim() || null;
+  const provenanceTools = row.provenance.tools ?? [];
+  const renderedWhen = ruleWhen?.length ? ruleWhen : row.ruleSummary.when;
 
   return (
     <div
@@ -143,10 +151,38 @@ export default function RuleDetailModal({
         <div className="grid gap-4 px-5 py-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
           <section className="space-y-4">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Full rule text</div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Rule summary</div>
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-800">
-                {ruleText?.trim() || row.ruleSummary.snippet}
+                {ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
               </p>
+              {ruleLogic?.trim() || row.ruleSummary.logic ? (
+                <div className="mt-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Logic</div>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-800">
+                    {ruleLogic?.trim() || row.ruleSummary.logic}
+                  </p>
+                </div>
+              ) : null}
+              {ruleNotes?.trim() || row.ruleSummary.notes ? (
+                <div className="mt-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Notes</div>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-800">
+                    {ruleNotes?.trim() || row.ruleSummary.notes}
+                  </p>
+                </div>
+              ) : null}
+              {renderedWhen?.length ? (
+                <div className="mt-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">When</div>
+                  <ul className="mt-2 grid gap-2 text-sm text-slate-800">
+                    {renderedWhen.map((item) => (
+                      <li key={item} className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-4">
@@ -165,16 +201,36 @@ export default function RuleDetailModal({
                         {formatPageLabel(primaryTraceSection?.page ?? row.provenance.page)}
                       </span>
                     ) : null}
-                    {row.provenance.anchor ? (
+                    {row.provenance.sectionStableId ? (
                       <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
-                        {row.provenance.anchor.replace(/^#/, "")}
+                        {row.provenance.sectionStableId}
                       </span>
                     ) : null}
-                    {!formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) && !row.provenance.anchor ? (
+                    {row.provenance.sectionAnchor || row.provenance.anchor ? (
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-1">
+                        {(row.provenance.sectionAnchor ?? row.provenance.anchor ?? "").replace(/^#/, "")}
+                      </span>
+                    ) : null}
+                    {!formatPageLabel(primaryTraceSection?.page ?? row.provenance.page) &&
+                    !row.provenance.sectionAnchor &&
+                    !row.provenance.anchor &&
+                    !row.provenance.sectionStableId ? (
                       <span>{requirementProvenanceHint(row)}</span>
                     ) : null}
                   </div>
                 </div>
+                {provenanceTools.length ? (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tools</div>
+                    <ul className="mt-2 grid gap-2">
+                      {provenanceTools.map((tool) => (
+                        <li key={tool} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
+                          {tool}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 {row.provenance.citations.length ? (
                   <ul className="grid gap-2">
                     {row.provenance.citations.slice(0, 4).map((citation, index) => (
@@ -191,7 +247,7 @@ export default function RuleDetailModal({
                   </ul>
                 ) : (
                   <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-500">
-                    No provenance citations available.
+                    No methodology refs were provided for this rule.
                   </div>
                 )}
                 {traceSections.length ? (
@@ -245,7 +301,7 @@ export default function RuleDetailModal({
                   </ul>
                 ) : (
                   <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-500">
-                    No expected evidence metadata
+                    This rule does not define expected evidence.
                   </div>
                 )}
               </div>

@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { collectMethodVersionsFromPack, sortVersions } from "@/app/m/_lib/methodVersionMetadata";
 
 export type MethodInventoryItem = {
   code: string;
@@ -29,6 +30,7 @@ type MethodAccumulator = {
   program?: string;
   sector?: string;
   versions: Set<string>;
+  manifestPaths: Set<string>;
   hashesByVersion: Map<string, string[]>;
   allHashes: string[];
   ruleCountByVersion: Map<string, number>;
@@ -54,23 +56,6 @@ function pickString(entry: Record<string, unknown>, keys: string[]): string | un
     if (typeof value === "string" && value.trim()) return value.trim();
   }
   return undefined;
-}
-
-function versionKey(version: string): [number, number, string] {
-  const trimmed = version.trim();
-  const match = /^v(\d+)[.-](\d+)$/.exec(trimmed);
-  if (!match) return [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, trimmed];
-  return [Number(match[1] ?? 0), Number(match[2] ?? 0), trimmed];
-}
-
-function sortVersions(versions: string[]): string[] {
-  return [...versions].sort((a, b) => {
-    const [amaj, amin, astr] = versionKey(a);
-    const [bmaj, bmin, bstr] = versionKey(b);
-    if (amaj !== bmaj) return amaj - bmaj;
-    if (amin !== bmin) return amin - bmin;
-    return astr.localeCompare(bstr);
-  });
 }
 
 async function loadManifest(): Promise<Cache> {
@@ -131,6 +116,7 @@ export async function getMethodInventory(): Promise<{
       current = {
         code,
         versions: new Set<string>(),
+        manifestPaths: new Set<string>(),
         hashesByVersion: new Map<string, string[]>(),
         allHashes: [],
         ruleCountByVersion: new Map<string, number>(),
@@ -141,6 +127,8 @@ export async function getMethodInventory(): Promise<{
     current.versions.add(version);
     if (!current.program && program) current.program = program;
     if (!current.sector && sector) current.sector = sector;
+    const manifestPath = pickString(record, ["path"]);
+    if (manifestPath) current.manifestPaths.add(manifestPath);
 
     if (sha) {
       current.allHashes.push(sha);
@@ -158,8 +146,9 @@ export async function getMethodInventory(): Promise<{
     process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ??
     undefined;
 
-  const methods = Array.from(map.values()).map((method) => {
-    const versions = sortVersions(Array.from(method.versions));
+  const methods = await Promise.all(Array.from(map.values()).map(async (method) => {
+    const packVersions = await collectMethodVersionsFromPack(method.code, Array.from(method.manifestPaths));
+    const versions = sortVersions(Array.from(new Set([...method.versions, ...packVersions.versions])));
     const latestVersion = versions.at(-1);
 
     const versionAuditHashes: Record<string, string | undefined> = {};
@@ -180,7 +169,7 @@ export async function getMethodInventory(): Promise<{
       versionCount: versions.length,
       ruleCountByVersion,
       hasRich: false,
-      hasPrevious: false,
+      hasPrevious: packVersions.hasPrevious,
       generated_at: generatedAt,
       source_sha: sourceSha,
       audit_hashes: {
@@ -189,7 +178,7 @@ export async function getMethodInventory(): Promise<{
       },
       versionAuditHashes,
     } satisfies MethodInventoryItem;
-  });
+  }));
 
   methods.sort((a, b) => {
     const program = a.program.localeCompare(b.program);
