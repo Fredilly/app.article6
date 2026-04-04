@@ -1374,7 +1374,6 @@ export default function MethodDetailPane({
       <RuleDetailModal
         open={ruleDetailModalOpen}
         row={activeRequirementRow}
-        ruleTitle={ruleDetail?.title ?? activeRequirementRow?.ruleSummary.title ?? null}
         canonicalRuleId={ruleDetail?.id ?? null}
         ruleText={
           ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId

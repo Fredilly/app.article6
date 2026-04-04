@@ -86,7 +86,6 @@ describe("RuleDetailModal", () => {
       <RuleDetailModal
         open
         row={linkedRow}
-        ruleTitle="Monitoring frequency"
         canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-1"
         ruleText="Maintain a monitoring report and spreadsheet workbook."
         ruleLogic="Maintain a monitoring report and spreadsheet workbook for each reporting period."
@@ -137,7 +136,6 @@ describe("RuleDetailModal", () => {
       <RuleDetailModal
         open
         row={missingExpectedEvidenceRow}
-        ruleTitle="Eligibility boundary"
         canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-3"
         ruleText="Document the eligibility boundary for review."
         methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
@@ -162,7 +160,6 @@ describe("RuleDetailModal", () => {
       <RuleDetailModal
         open
         row={sparseRow}
-        ruleTitle="Eligibility boundary"
         canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-2"
         ruleText="Document the eligibility boundary for review."
         methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"

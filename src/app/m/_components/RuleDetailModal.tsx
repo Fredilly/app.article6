@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertCircle, CheckCircle2, FileSearch, FileText, Link2, NotebookText, Scale, Shapes, ShieldAlert } from "lucide-react";
+import { AlertCircle, CheckCircle2, ChevronDown, FileSearch, FileText, Link2, NotebookText, Scale, Shapes, ShieldAlert } from "lucide-react";
 import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
 import {
   EXPECTED_EVIDENCE_LABELS,
@@ -15,7 +15,6 @@ import {
 type RuleDetailModalProps = {
   open: boolean;
   row: RequirementCoverageRow | null;
-  ruleTitle?: string | null;
   canonicalRuleId?: string | null;
   ruleText?: string | null;
   ruleLogic?: string | null;
@@ -98,7 +97,6 @@ function evidenceSecondaryLabel(item: RequirementCoverageRow["linkedEvidence"][n
 export default function RuleDetailModal({
   open,
   row,
-  ruleTitle,
   canonicalRuleId,
   ruleText,
   ruleLogic,
@@ -200,13 +198,10 @@ export default function RuleDetailModal({
           </button>
         </div>
 
-        <div className="grid gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)]">
+        <div className="grid items-start gap-5 px-6 py-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
           <section className="space-y-4">
             <div className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-sm">
               <div className="text-sm font-semibold text-slate-900">Rule brief</div>
-              {ruleTitle?.trim() || row.ruleSummary.title ? (
-                <div className="mt-2 text-lg font-semibold text-slate-950">{ruleTitle?.trim() || row.ruleSummary.title}</div>
-              ) : null}
               <div className="mt-4 space-y-5">
                 <section className="border-b border-slate-100 pb-5">
                   <div className="text-sm font-semibold text-slate-900">Rule summary</div>
@@ -228,9 +223,9 @@ export default function RuleDetailModal({
                 {renderedWhen?.length ? (
                   <section className={`${ruleNotes?.trim() || row.ruleSummary.notes ? "border-b border-slate-100 pb-5" : ""}`}>
                     <div className="text-sm font-semibold text-slate-900">Conditions</div>
-                    <ul className="mt-3 grid gap-2 text-sm text-slate-800">
+                    <ul className="mt-3 grid gap-1.5 text-sm text-slate-800">
                       {renderedWhen.map((item) => (
-                        <li key={item} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                        <li key={item} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
                           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
                           <span>{item}</span>
                         </li>
@@ -253,9 +248,9 @@ export default function RuleDetailModal({
           </section>
 
           <aside className="space-y-4">
-            <section className="rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm">
+            <section className="rounded-3xl border border-slate-200/90 bg-white p-3.5 shadow-sm">
               <div className="text-sm font-semibold text-slate-900">Reconciliation</div>
-              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3.5">
+              <div className="mt-2.5 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
                 <div className="flex items-start gap-2.5">
                   {reconciliation.status === "supported" ? (
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
@@ -293,9 +288,9 @@ export default function RuleDetailModal({
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm">
+            <section className="rounded-3xl border border-slate-200/90 bg-white p-3.5 shadow-sm">
               <div className="text-sm font-semibold text-slate-900">Expected evidence</div>
-              <div className="mt-3 text-sm text-slate-700">
+              <div className="mt-2.5 text-sm text-slate-700">
                 {row.expectedEvidenceTypes.length ? (
                   <ul className="grid gap-2">
                     {row.expectedEvidenceTypes.map((type) => (
@@ -305,7 +300,7 @@ export default function RuleDetailModal({
                     ))}
                   </ul>
                 ) : (
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3.5 text-sm text-slate-600">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-600">
                     <div className="flex items-start gap-2.5">
                       <FileSearch className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                       <div>
@@ -320,13 +315,13 @@ export default function RuleDetailModal({
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <section className="rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm">
               <div className="text-sm font-semibold text-slate-900">Linked evidence</div>
-              <div className="mt-3 text-sm text-slate-700">
+              <div className="mt-2.5 text-sm text-slate-700">
                 {row.linkedEvidence.length ? (
-                  <ul className="grid gap-3">
+                  <ul className="grid gap-2.5">
                     {row.linkedEvidence.map((item) => (
-                      <li key={`${item.source}:${item.id}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                      <li key={`${item.source}:${item.id}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3.5">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 items-start gap-3">
                             {(() => {
@@ -346,10 +341,10 @@ export default function RuleDetailModal({
                             </span>
                           ) : null}
                         </div>
-                        <div className="mt-3 font-mono text-[11px] text-slate-500">
+                        <div className="mt-2.5 font-mono text-[11px] text-slate-500">
                           {item.fragmentId ? item.fragmentId : formatEvidenceInventoryId(item.id)}
                         </div>
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="mt-2.5 flex flex-wrap gap-2">
                           <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
                             {item.type}
                           </span>
@@ -358,10 +353,10 @@ export default function RuleDetailModal({
                           </span>
                         </div>
                         {formatPddLinkedEvidenceMeta(item) ? (
-                          <div className="mt-3 text-xs text-slate-600">{formatPddLinkedEvidenceMeta(item)}</div>
+                          <div className="mt-2.5 text-xs text-slate-600">{formatPddLinkedEvidenceMeta(item)}</div>
                         ) : null}
                         {item.excerpt ? (
-                          <div className="mt-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs leading-6 text-slate-700">
+                          <div className="mt-2.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs leading-6 text-slate-700">
                             {item.excerpt}
                           </div>
                         ) : null}
@@ -376,14 +371,17 @@ export default function RuleDetailModal({
                     </div>
                   </div>
                 )}
-                <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-600">
+                <div className="mt-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
                   {status.description}
                 </div>
               </div>
             </section>
 
-            <details className="rounded-3xl border border-slate-200 bg-white p-5 text-xs text-slate-600 shadow-sm">
-              <summary className="cursor-pointer list-none text-sm font-semibold text-slate-700">Methodology provenance</summary>
+            <details className="group rounded-3xl border border-slate-200/90 bg-white p-4 text-xs text-slate-600 shadow-sm">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-700 marker:hidden">
+                <span>Methodology provenance</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
+              </summary>
               <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
                 <div className="font-medium text-slate-900">
                   {formatSectionLabel({
@@ -436,16 +434,22 @@ export default function RuleDetailModal({
               </div>
               <div className="mt-4 space-y-3">
                 <div className="text-sm font-semibold text-slate-700">Audit details</div>
-              <div className="mt-3 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-semibold text-slate-700">Source path</span>
-                  <span className="break-all font-mono text-slate-700">{sourcePath ?? "—"}</span>
+                <div className="mt-3 space-y-3">
+                  {canonicalRuleId?.trim() ? (
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-semibold text-slate-700">Canonical rule id</span>
+                      <span className="break-all font-mono text-slate-700">{canonicalRuleId.trim()}</span>
+                    </div>
+                  ) : null}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-700">Source path</span>
+                    <span className="break-all font-mono text-slate-700">{sourcePath ?? "—"}</span>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-700">sha256</span>
+                    <span className="break-all font-mono text-slate-700">{sha256 ?? "—"}</span>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-semibold text-slate-700">sha256</span>
-                  <span className="break-all font-mono text-slate-700">{sha256 ?? "—"}</span>
-                </div>
-              </div>
               </div>
             </details>
           </aside>
