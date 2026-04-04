@@ -20,7 +20,7 @@ type State = {
 
 export default function useDeeplinkMethodVersion(): State {
   const searchParams = useSearchParams();
-  const context = useMemo(() => parseDeeplinkContext(searchParams), [searchParams]);
+  const context = useMemo(() => parseDeeplinkContext(searchParams ?? new URLSearchParams()), [searchParams]);
   const [state, setState] = useState<State>({ loading: false, resolved: { warnings: [] } });
   const lastKeyRef = useRef<string | null>(null);
 
