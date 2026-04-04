@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { AlertCircle, CheckCircle2, FileSearch, FileText, Link2, NotebookText, Scale, Shapes, ShieldAlert } from "lucide-react";
 import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
 import {
   EXPECTED_EVIDENCE_LABELS,
@@ -21,6 +22,7 @@ type RuleDetailModalProps = {
   ruleWhen?: string[] | null;
   reviewerMinutes?: string | null;
   reviewerOutcomeNote?: string | null;
+  methodologyLabel?: string | null;
   sourcePath?: string | null;
   sha256?: string | null;
   traceSections?: Array<{
@@ -75,6 +77,23 @@ function formatPddLinkedEvidenceMeta(item: RequirementCoverageRow["linkedEvidenc
   return details.join(" • ") || item.provenanceSummary || null;
 }
 
+function evidenceKindIcon(item: RequirementCoverageRow["linkedEvidence"][number]) {
+  const type = item.type.toLowerCase();
+  if (type.includes("pdd")) return FileText;
+  if (type.includes("workbook") || type.includes("spreadsheet")) return NotebookText;
+  if (type.includes("stac")) return Shapes;
+  return Link2;
+}
+
+function evidencePrimaryLabel(item: RequirementCoverageRow["linkedEvidence"][number]): string {
+  return item.documentLabel ?? item.title;
+}
+
+function evidenceSecondaryLabel(item: RequirementCoverageRow["linkedEvidence"][number]): string | null {
+  if (item.documentLabel && item.title !== item.documentLabel) return item.title;
+  return null;
+}
+
 export default function RuleDetailModal({
   open,
   row,
@@ -85,6 +104,7 @@ export default function RuleDetailModal({
   ruleWhen,
   reviewerMinutes,
   reviewerOutcomeNote,
+  methodologyLabel,
   sourcePath,
   sha256,
   traceSections = [],
@@ -145,14 +165,17 @@ export default function RuleDetailModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-2xl"
+        className="max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-[28px] border border-slate-200 bg-white shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-100 bg-white/95 px-5 py-4 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur">
           <div className="min-w-0">
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">View rule</div>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <span className="font-mono text-xs font-semibold text-slate-700">{row.ruleId}</span>
+            <div className="text-xs font-medium text-slate-500">View rule</div>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Rule {row.ruleId}</h2>
+            <div className="mt-1 text-sm text-slate-600">
+              {methodologyLabel?.trim() || sourcePath?.trim() || "Methodology rule detail"}
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${status.tone}`}>
                 {status.label}
               </span>
@@ -162,58 +185,199 @@ export default function RuleDetailModal({
                 </span>
               ) : null}
             </div>
-            <h2 className="mt-3 text-lg font-semibold text-slate-900">{ruleTitle?.trim() || row.ruleSummary.title}</h2>
           </div>
           <button
             type="button"
-            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
             onClick={onClose}
           >
             Close
           </button>
         </div>
 
-        <div className="grid gap-4 px-5 py-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+        <div className="grid gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)]">
           <section className="space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Rule summary</div>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-800">
-                {ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
-              </p>
+            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="text-xl font-semibold text-slate-950">{ruleTitle?.trim() || row.ruleSummary.title}</div>
+              <div className="mt-5 space-y-5">
+                <section className="border-b border-slate-100 pb-5">
+                  <div className="text-sm font-semibold text-slate-900">Rule summary</div>
+                  <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-slate-800">
+                    {ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
+                  </p>
+                </section>
               {ruleLogic?.trim() || row.ruleSummary.logic ? (
-                <div className="mt-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Logic</div>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-800">
+                <section className="border-b border-slate-100 pb-5">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                    <Scale className="h-4 w-4 text-slate-500" />
+                    <span>Logic</span>
+                  </div>
+                  <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-slate-800">
                     {ruleLogic?.trim() || row.ruleSummary.logic}
                   </p>
-                </div>
-              ) : null}
-              {ruleNotes?.trim() || row.ruleSummary.notes ? (
-                <div className="mt-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Notes</div>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-800">
-                    {ruleNotes?.trim() || row.ruleSummary.notes}
-                  </p>
-                </div>
+                </section>
               ) : null}
               {renderedWhen?.length ? (
-                <div className="mt-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">When</div>
-                  <ul className="mt-2 grid gap-2 text-sm text-slate-800">
+                <section className={`${ruleNotes?.trim() || row.ruleSummary.notes ? "border-b border-slate-100 pb-5" : ""}`}>
+                  <div className="text-sm font-semibold text-slate-900">Conditions</div>
+                  <ul className="mt-3 grid gap-2 text-sm text-slate-800">
                     {renderedWhen.map((item) => (
-                      <li key={item} className="rounded-xl border border-slate-200 bg-white px-3 py-2">
-                        {item}
+                      <li key={item} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                        <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </section>
               ) : null}
+              {ruleNotes?.trim() || row.ruleSummary.notes ? (
+                <section>
+                  <div className="text-sm font-semibold text-slate-700">Notes</div>
+                  <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                      {ruleNotes?.trim() || row.ruleSummary.notes}
+                    </p>
+                  </div>
+                </section>
+              ) : null}
+              </div>
             </div>
+          </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Methodology provenance</div>
-              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
-                <div className="font-semibold text-slate-900">
+          <aside className="space-y-4">
+            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="text-sm font-semibold text-slate-900">Reconciliation</div>
+              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <div className="flex items-start gap-3">
+                  {reconciliation.status === "supported" ? (
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                  ) : reconciliation.status === "missing-evidence" ? (
+                    <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
+                  ) : (
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                  )}
+                  <div className="min-w-0">
+                    <div className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reconciliationMeta.tone}`}>
+                    {reconciliationMeta.label}
+                    </div>
+                    <div className="mt-2 text-sm font-medium text-slate-900">
+                      {reconciliation.status === "supported" ? "Rule is supported" : reconciliation.status === "missing-evidence" ? "Evidence is still missing" : "Needs reconciliation"}
+                    </div>
+                    <div className="mt-1 text-sm text-slate-700">{reconciliation.reason}</div>
+                  </div>
+                </div>
+                {row.expectedEvidenceTypes.length ? (
+                  <div className="mt-3 grid gap-2 text-xs text-slate-600">
+                    <div>
+                      <span className="font-semibold text-slate-700">Satisfied:</span>{" "}
+                      {reconciliation.satisfiedExpectedEvidenceTypes.length
+                        ? reconciliation.satisfiedExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")
+                        : "None"}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-slate-700">Missing:</span>{" "}
+                      {reconciliation.missingExpectedEvidenceTypes.length
+                        ? reconciliation.missingExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")
+                        : "None"}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="text-sm font-semibold text-slate-900">Expected evidence</div>
+              <div className="mt-3 text-sm text-slate-700">
+                {row.expectedEvidenceTypes.length ? (
+                  <ul className="grid gap-2">
+                    {row.expectedEvidenceTypes.map((type) => (
+                      <li key={type} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                        {EXPECTED_EVIDENCE_LABELS[type] ?? type}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
+                    <div className="flex items-start gap-3">
+                      <FileSearch className="mt-0.5 h-5 w-5 shrink-0 text-slate-400" />
+                      <div>
+                        <div className="font-medium text-slate-900">No expected evidence defined</div>
+                        <div className="mt-1 text-sm text-slate-600">
+                          This rule does not specify methodology-owned expected evidence types.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="text-sm font-semibold text-slate-900">Linked evidence</div>
+              <div className="mt-3 text-sm text-slate-700">
+                {row.linkedEvidence.length ? (
+                  <ul className="grid gap-3">
+                    {row.linkedEvidence.map((item) => (
+                      <li key={`${item.source}:${item.id}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-start gap-3">
+                            {(() => {
+                              const Icon = evidenceKindIcon(item);
+                              return <Icon className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />;
+                            })()}
+                            <div className="min-w-0">
+                              <div className="truncate font-semibold text-slate-900">{evidencePrimaryLabel(item)}</div>
+                              {evidenceSecondaryLabel(item) ? (
+                                <div className="mt-1 text-xs text-slate-600">{evidenceSecondaryLabel(item)}</div>
+                              ) : null}
+                            </div>
+                          </div>
+                          {item.fragmentId ? (
+                            <span className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600">
+                              Fragment
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="mt-3 font-mono text-[11px] text-slate-500">
+                          {item.fragmentId ? item.fragmentId : formatEvidenceInventoryId(item.id)}
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                            {item.type}
+                          </span>
+                          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 capitalize">
+                            {item.source}
+                          </span>
+                        </div>
+                        {formatPddLinkedEvidenceMeta(item) ? (
+                          <div className="mt-3 text-xs text-slate-600">{formatPddLinkedEvidenceMeta(item)}</div>
+                        ) : null}
+                        {item.excerpt ? (
+                          <div className="mt-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs leading-6 text-slate-700">
+                            {item.excerpt}
+                          </div>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
+                    <div>Requirement is unresolved. No linked evidence yet.</div>
+                    <div className="mt-2 text-xs font-semibold text-amber-800">
+                      {unresolvedNextStep(row)}
+                    </div>
+                  </div>
+                )}
+                <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-600">
+                  {status.description}
+                </div>
+              </div>
+            </section>
+
+            <details className="rounded-3xl border border-slate-200 bg-white p-5 text-xs text-slate-600 shadow-sm">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-slate-700">Methodology provenance</summary>
+              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
+                <div className="font-medium text-slate-900">
                   {formatSectionLabel({
                     sectionId: primaryTraceSection?.sectionId ?? row.provenance.sectionId,
                     title: primaryTraceSection?.title ?? row.provenance.sectionTitle,
@@ -251,109 +415,19 @@ export default function RuleDetailModal({
                 {primaryTraceSection?.textSnippet ? (
                   <div className="mt-2 text-xs text-slate-600">{primaryTraceSection.textSnippet}</div>
                 ) : null}
-                <div className="flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => primarySourceSectionId && onOpenSourceContext(primarySourceSectionId)}
                     disabled={!primarySourceSectionId}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-slate-300 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Open source context
                   </button>
                 </div>
               </div>
-            </section>
-          </section>
-
-          <aside className="space-y-4">
-            <section className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Reconciliation</div>
-              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reconciliationMeta.tone}`}>
-                    {reconciliationMeta.label}
-                  </span>
-                </div>
-                <div className="mt-2 text-sm text-slate-700">{reconciliation.reason}</div>
-                {row.expectedEvidenceTypes.length ? (
-                  <div className="mt-3 grid gap-2 text-xs text-slate-600">
-                    <div>
-                      <span className="font-semibold text-slate-700">Satisfied:</span>{" "}
-                      {reconciliation.satisfiedExpectedEvidenceTypes.length
-                        ? reconciliation.satisfiedExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")
-                        : "None"}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-slate-700">Missing:</span>{" "}
-                      {reconciliation.missingExpectedEvidenceTypes.length
-                        ? reconciliation.missingExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")
-                        : "None"}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Expected evidence</div>
-              <div className="mt-3 text-sm text-slate-700">
-                {row.expectedEvidenceTypes.length ? (
-                  <ul className="grid gap-2">
-                    {row.expectedEvidenceTypes.map((type) => (
-                      <li key={type} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                        {EXPECTED_EVIDENCE_LABELS[type] ?? type}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-500">
-                    This rule does not define expected evidence.
-                  </div>
-                )}
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Linked evidence</div>
-              <div className="mt-3 text-sm text-slate-700">
-                {row.linkedEvidence.length ? (
-                  <ul className="grid gap-2">
-                    {row.linkedEvidence.map((item) => (
-                      <li key={`${item.source}:${item.id}`} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
-                        <div className="font-semibold text-slate-900">{item.title}</div>
-                        <div className="mt-1 font-mono text-[11px] text-slate-600">
-                          {item.fragmentId ? item.fragmentId : formatEvidenceInventoryId(item.id)}
-                        </div>
-                        <div className="mt-1 text-xs text-slate-600">
-                          {item.type} • {item.source}
-                        </div>
-                        {formatPddLinkedEvidenceMeta(item) ? (
-                          <div className="mt-1 text-xs text-slate-600">{formatPddLinkedEvidenceMeta(item)}</div>
-                        ) : null}
-                        {item.excerpt ? (
-                          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700">
-                            {item.excerpt}
-                          </div>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="rounded-xl border border-dashed border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                    <div>Requirement is unresolved. No linked evidence yet.</div>
-                    <div className="mt-2 text-xs font-semibold uppercase tracking-wide text-amber-800">
-                      {unresolvedNextStep(row)}
-                    </div>
-                  </div>
-                )}
-                <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-600">
-                  {status.description}
-                </div>
-              </div>
-            </section>
-
-            <details className="rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
-              <summary className="cursor-pointer list-none font-semibold text-slate-700">Audit details</summary>
+              <div className="mt-4 space-y-3">
+                <div className="text-sm font-semibold text-slate-700">Audit details</div>
               <div className="mt-3 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-semibold text-slate-700">Source path</span>
@@ -363,6 +437,7 @@ export default function RuleDetailModal({
                   <span className="font-semibold text-slate-700">sha256</span>
                   <span className="break-all font-mono text-slate-700">{sha256 ?? "—"}</span>
                 </div>
+              </div>
               </div>
             </details>
           </aside>

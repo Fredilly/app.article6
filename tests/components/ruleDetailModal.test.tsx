@@ -91,6 +91,7 @@ describe("RuleDetailModal", () => {
         ruleLogic="Maintain a monitoring report and spreadsheet workbook for each reporting period."
         ruleNotes="Retain the workbook appendices."
         ruleWhen={["Each reporting period."]}
+        methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
         sourcePath="methodologies/example/rules.rich.json"
         sha256="abc123"
         traceSections={[{ sectionId: "S-10", title: "Monitoring", textSnippet: "Monitoring context" }]}
@@ -99,12 +100,15 @@ describe("RuleDetailModal", () => {
       />,
     );
 
-    expect(html).toContain("R-1");
+    expect(html).toContain("View rule");
+    expect(html).toContain("Rule R-1");
+    expect(html).toContain("UNFCCC Forestry · AR-ACM0003 · v02-0");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook.");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook for each reporting period.");
     expect(html).toContain("Retain the workbook appendices.");
     expect(html).toContain("Each reporting period.");
     expect(html).toContain("Complete");
+    expect(html).toContain("Conditions");
     expect(html).toContain("Methodology provenance");
     expect(html).toContain("Section 10 · Monitoring");
     expect(html).toContain("p. 12");
@@ -132,6 +136,7 @@ describe("RuleDetailModal", () => {
         row={missingExpectedEvidenceRow}
         ruleTitle="Eligibility boundary"
         ruleText="Document the eligibility boundary for review."
+        methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
         sourcePath={null}
         sha256={null}
         traceSections={[]}
@@ -140,7 +145,8 @@ describe("RuleDetailModal", () => {
       />,
     );
 
-    expect(html).toContain("This rule does not define expected evidence.");
+    expect(html).toContain("No expected evidence defined");
+    expect(html).toContain("This rule does not specify methodology-owned expected evidence types.");
     expect(html).toContain("Missing evidence");
     expect(html).toContain("No linked evidence for this rule.");
     expect(html).toContain("Next: link supporting evidence or leave a reviewer note.");
@@ -154,6 +160,7 @@ describe("RuleDetailModal", () => {
         row={sparseRow}
         ruleTitle="Eligibility boundary"
         ruleText="Document the eligibility boundary for review."
+        methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
         sourcePath={null}
         sha256={null}
         traceSections={[]}
