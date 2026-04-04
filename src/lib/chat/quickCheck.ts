@@ -1,18 +1,31 @@
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
-import { buildEvidenceInventory, coalesceEvidencePins, linkEvidencePinToRequirement, linkPddFragmentToRequirement, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
-import { createVerifierRunBundle, createReviewerArtifactContext, persistVerifierRunBundle, readVerifierRunBundle } from "@/lib/verify/runState";
+import {
+  buildEvidenceInventory,
+  coalesceEvidencePins,
+  linkEvidencePinToRequirement,
+  linkPddFragmentToRequirement,
+  type EvidenceInventoryItem,
+} from "@/lib/evidence/inventory";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
-import type { EvidencePin } from "@/lib/proofMap/types";
+import type { EvidenceAttachment, EvidencePin } from "@/lib/proofMap/types";
+import {
+  createReviewerArtifactContext,
+  createVerifierRunBundle,
+  persistVerifierRunBundle,
+  readVerifierRunBundle,
+} from "@/lib/verify/runState";
 
 export type QuickCheckDraftStatus = "draft" | "checked";
 
 export type QuickCheckDraft = {
   id: string;
+  claimText: string;
   methodologyId: string;
   methodologyVersion: string;
-  requirementId: string;
   evidenceIds: string[];
   status: QuickCheckDraftStatus;
+  matchedRequirementId?: string;
+  matchedRequirementLabel?: string;
   result?: QuickCheckResult | null;
   resultId?: string;
   linkedRunId?: string;
@@ -24,6 +37,7 @@ export type QuickCheckResultVerdict = "Supported" | "Partial" | "Needs review" |
 
 export type QuickCheckResult = {
   id: string;
+  claimText: string;
   requirementId: string;
   requirementLabel: string;
   verdict: QuickCheckResultVerdict;
@@ -32,9 +46,18 @@ export type QuickCheckResult = {
   nextStepHint: string;
 };
 
+export type QuickCheckStagedUpload = {
+  evidenceId: string;
+  filename: string;
+  mime: string;
+  createdAt: string;
+  attachment: EvidenceAttachment;
+};
+
 type QuickCheckSession = {
   draft: QuickCheckDraft;
   result: QuickCheckResult | null;
+  stagedUploads: QuickCheckStagedUpload[];
 };
 
 type QuickCheckRule = {
@@ -64,7 +87,7 @@ type QuickCheckRule = {
   }>;
 };
 
-const QUICK_CHECK_STORAGE_KEY = "a6:chat:quick-check:v1";
+const QUICK_CHECK_STORAGE_KEY = "a6:quick-check:claim-first:v1";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -80,13 +103,15 @@ function getStorage(): Storage | null {
   return window.localStorage;
 }
 
-export function createQuickCheckDraft(seed?: Partial<Pick<QuickCheckDraft, "methodologyId" | "methodologyVersion">>): QuickCheckDraft {
+export function createQuickCheckDraft(
+  seed?: Partial<Pick<QuickCheckDraft, "methodologyId" | "methodologyVersion" | "claimText">>,
+): QuickCheckDraft {
   const timestamp = nowIso();
   return {
     id: newId("quick-check"),
+    claimText: seed?.claimText?.trim() ?? "",
     methodologyId: seed?.methodologyId?.trim() ?? "",
     methodologyVersion: seed?.methodologyVersion?.trim() ?? "",
-    requirementId: "",
     evidenceIds: [],
     status: "draft",
     result: null,
@@ -95,23 +120,69 @@ export function createQuickCheckDraft(seed?: Partial<Pick<QuickCheckDraft, "meth
   };
 }
 
-export function validateQuickCheckDraft(draft: QuickCheckDraft): string[] {
+export function validateQuickCheckDraft(
+  draft: QuickCheckDraft,
+  options?: { stagedEvidenceCount?: number },
+): string[] {
   const errors: string[] = [];
-  if (!draft.methodologyId.trim() || !draft.methodologyVersion.trim()) {
-    errors.push("Choose a methodology before running a quick check.");
+  if (!draft.claimText.trim()) {
+    errors.push("Enter a claim to check.");
   }
-  if (!draft.requirementId.trim()) {
-    errors.push("Choose a requirement before running a quick check.");
-  }
-  if (!draft.evidenceIds.length) {
-    errors.push("Attach or select at least one evidence item before running a quick check.");
+  const evidenceCount = draft.evidenceIds.length + (options?.stagedEvidenceCount ?? 0);
+  if (!evidenceCount) {
+    errors.push("Upload or select one evidence item.");
   }
   return errors;
 }
 
-export function loadQuickCheckSession(seed?: Partial<Pick<QuickCheckDraft, "methodologyId" | "methodologyVersion">>): QuickCheckSession {
+function normalizeResult(raw: unknown): QuickCheckResult | null {
+  if (!raw || typeof raw !== "object") return null;
+  const record = raw as Record<string, unknown>;
+  return {
+    id: typeof record.id === "string" ? record.id : newId("quick-result"),
+    claimText: typeof record.claimText === "string" ? record.claimText : "",
+    requirementId: typeof record.requirementId === "string" ? record.requirementId : "",
+    requirementLabel: typeof record.requirementLabel === "string" ? record.requirementLabel : "",
+    verdict:
+      record.verdict === "Supported" ||
+      record.verdict === "Partial" ||
+      record.verdict === "Needs review" ||
+      record.verdict === "Missing evidence"
+        ? record.verdict
+        : "Needs review",
+    explanation: typeof record.explanation === "string" ? record.explanation : "",
+    citations: Array.isArray(record.citations) ? record.citations.map((item) => String(item)).filter(Boolean) : [],
+    nextStepHint: typeof record.nextStepHint === "string" ? record.nextStepHint : "",
+  };
+}
+
+function normalizeStagedUploads(raw: unknown): QuickCheckStagedUpload[] {
+  if (!Array.isArray(raw)) return [];
+  const uploads: QuickCheckStagedUpload[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const record = item as Record<string, unknown>;
+    const evidenceId = typeof record.evidenceId === "string" ? record.evidenceId : "";
+    const attachment = record.attachment && typeof record.attachment === "object"
+      ? (record.attachment as EvidenceAttachment)
+      : null;
+    if (!evidenceId || !attachment) continue;
+    uploads.push({
+      evidenceId,
+      filename: typeof record.filename === "string" ? record.filename : attachment.filename,
+      mime: typeof record.mime === "string" ? record.mime : attachment.mime,
+      createdAt: typeof record.createdAt === "string" ? record.createdAt : attachment.created_at,
+      attachment,
+    });
+  }
+  return uploads;
+}
+
+export function loadQuickCheckSession(
+  seed?: Partial<Pick<QuickCheckDraft, "methodologyId" | "methodologyVersion" | "claimText">>,
+): QuickCheckSession {
   const storage = getStorage();
-  const fallback = { draft: createQuickCheckDraft(seed), result: null };
+  const fallback = { draft: createQuickCheckDraft(seed), result: null, stagedUploads: [] };
   if (!storage) return fallback;
   const raw = storage.getItem(QUICK_CHECK_STORAGE_KEY);
   if (!raw) return fallback;
@@ -119,59 +190,27 @@ export function loadQuickCheckSession(seed?: Partial<Pick<QuickCheckDraft, "meth
     const parsed = JSON.parse(raw) as Partial<QuickCheckSession> | null;
     const draft = parsed?.draft;
     if (!draft || typeof draft !== "object") return fallback;
+    const normalizedResult = normalizeResult(parsed?.result);
     return {
       draft: {
         id: typeof draft.id === "string" ? draft.id : fallback.draft.id,
+        claimText: typeof draft.claimText === "string" ? draft.claimText : fallback.draft.claimText,
         methodologyId: typeof draft.methodologyId === "string" ? draft.methodologyId : fallback.draft.methodologyId,
-        methodologyVersion: typeof draft.methodologyVersion === "string" ? draft.methodologyVersion : fallback.draft.methodologyVersion,
-        requirementId: typeof draft.requirementId === "string" ? draft.requirementId : "",
+        methodologyVersion:
+          typeof draft.methodologyVersion === "string" ? draft.methodologyVersion : fallback.draft.methodologyVersion,
         evidenceIds: Array.isArray(draft.evidenceIds) ? draft.evidenceIds.map((item) => String(item)).filter(Boolean) : [],
         status: draft.status === "checked" ? "checked" : "draft",
-        result:
-          draft.result && typeof draft.result === "object"
-            ? {
-                id: typeof draft.result.id === "string" ? draft.result.id : newId("quick-result"),
-                requirementId: typeof draft.result.requirementId === "string" ? draft.result.requirementId : "",
-                requirementLabel: typeof draft.result.requirementLabel === "string" ? draft.result.requirementLabel : "",
-                verdict:
-                  draft.result.verdict === "Supported" ||
-                  draft.result.verdict === "Partial" ||
-                  draft.result.verdict === "Needs review" ||
-                  draft.result.verdict === "Missing evidence"
-                    ? draft.result.verdict
-                    : "Needs review",
-                explanation: typeof draft.result.explanation === "string" ? draft.result.explanation : "",
-                citations: Array.isArray(draft.result.citations)
-                  ? draft.result.citations.map((item) => String(item)).filter(Boolean)
-                  : [],
-                nextStepHint: typeof draft.result.nextStepHint === "string" ? draft.result.nextStepHint : "",
-              }
-            : null,
+        matchedRequirementId: typeof draft.matchedRequirementId === "string" ? draft.matchedRequirementId : undefined,
+        matchedRequirementLabel:
+          typeof draft.matchedRequirementLabel === "string" ? draft.matchedRequirementLabel : undefined,
+        result: normalizeResult(draft.result),
         resultId: typeof draft.resultId === "string" ? draft.resultId : undefined,
         linkedRunId: typeof draft.linkedRunId === "string" ? draft.linkedRunId : undefined,
         createdAt: typeof draft.createdAt === "string" ? draft.createdAt : fallback.draft.createdAt,
         updatedAt: typeof draft.updatedAt === "string" ? draft.updatedAt : fallback.draft.updatedAt,
       },
-      result:
-        parsed?.result && typeof parsed.result === "object"
-          ? {
-              id: typeof parsed.result.id === "string" ? parsed.result.id : newId("quick-result"),
-              requirementId: typeof parsed.result.requirementId === "string" ? parsed.result.requirementId : "",
-              requirementLabel: typeof parsed.result.requirementLabel === "string" ? parsed.result.requirementLabel : "",
-              verdict:
-                parsed.result.verdict === "Supported" ||
-                parsed.result.verdict === "Partial" ||
-                parsed.result.verdict === "Needs review" ||
-                parsed.result.verdict === "Missing evidence"
-                  ? parsed.result.verdict
-                  : "Needs review",
-              explanation: typeof parsed.result.explanation === "string" ? parsed.result.explanation : "",
-              citations: Array.isArray(parsed.result.citations)
-                ? parsed.result.citations.map((item) => String(item)).filter(Boolean)
-                : [],
-              nextStepHint: typeof parsed.result.nextStepHint === "string" ? parsed.result.nextStepHint : "",
-            }
-          : null,
+      result: normalizedResult,
+      stagedUploads: normalizeStagedUploads(parsed?.stagedUploads),
     };
   } catch {
     return fallback;
@@ -189,6 +228,8 @@ export function buildQuickCheckResult(input: {
   rule: QuickCheckRule;
   inventoryItems: EvidenceInventoryItem[];
 }): QuickCheckResult {
+  const requirementId = input.draft.matchedRequirementId ?? input.rule.id;
+  const requirementLabel = input.draft.matchedRequirementLabel?.trim() || `${requirementId} · ${input.rule.title}`;
   const linkedSelection = input.inventoryItems
     .filter((item) => input.draft.evidenceIds.includes(item.evidence_id))
     .map((item) => {
@@ -197,14 +238,14 @@ export function buildQuickCheckResult(input: {
         return {
           ...item,
           link_state: "linked" as const,
-          linked_requirement_ids: [input.draft.requirementId],
-          pdd_fragment_links: [{ fragment_id: fragment.fragment_id, rule_id: input.draft.requirementId }],
+          linked_requirement_ids: [requirementId],
+          pdd_fragment_links: [{ fragment_id: fragment.fragment_id, rule_id: requirementId }],
         };
       }
       return {
         ...item,
         link_state: "linked" as const,
-        linked_requirement_ids: [input.draft.requirementId],
+        linked_requirement_ids: [requirementId],
       };
     });
 
@@ -221,8 +262,9 @@ export function buildQuickCheckResult(input: {
 
   return {
     id: newId("quick-result"),
-    requirementId: input.draft.requirementId,
-    requirementLabel: `${input.draft.requirementId} · ${input.rule.title}`,
+    claimText: input.draft.claimText,
+    requirementId,
+    requirementLabel,
     verdict: reconciliation.label,
     explanation: reconciliation.reason,
     citations: compactCitations(row),
@@ -249,8 +291,8 @@ function compactCitations(row: ReturnType<typeof buildRequirementCoverageRows>[n
 
 function quickCheckNextStepHint(status: "supported" | "partial" | "needs-review" | "missing-evidence"): string {
   if (status === "supported") return "Continue to Review Workspace to preserve this check and expand the review.";
-  if (status === "partial") return "Add another evidence item or continue to Review Workspace to close the gap.";
-  if (status === "missing-evidence") return "Attach stronger evidence, then run the check again.";
+  if (status === "partial") return "Upload another evidence item or continue to Review Workspace to close the gap.";
+  if (status === "missing-evidence") return "Upload stronger evidence, then run the check again.";
   return "Continue to Review Workspace to add reviewer context or attach stronger evidence.";
 }
 
@@ -261,7 +303,7 @@ export function buildQuickCheckWorkspaceUrl(methodCode: string, version: string,
 export function ensureQuickCheckWorkspaceHandoff(draft: QuickCheckDraft): { draft: QuickCheckDraft; url: string } {
   const methodCode = draft.methodologyId.trim();
   const version = draft.methodologyVersion.trim();
-  const ruleId = draft.requirementId.trim();
+  const ruleId = draft.matchedRequirementId?.trim() ?? "";
   const currentPins = coalesceEvidencePins(loadPins(methodCode, version));
 
   let nextPins: EvidencePin[] = currentPins;

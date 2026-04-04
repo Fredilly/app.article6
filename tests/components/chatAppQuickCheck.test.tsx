@@ -10,14 +10,9 @@ jest.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-jest.mock("@/lib/chat/client", () => ({
-  sendChat: jest.fn(),
-  retrieveQuery: jest.fn(),
-}));
-
 import ChatApp from "@/components/chat/ChatApp";
 
-describe("ChatApp quick check entry", () => {
+describe("ChatApp claim-first landing", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
 
@@ -35,22 +30,6 @@ describe("ChatApp quick check entry", () => {
           { status: 200 },
         );
       }
-      if (url.includes("/api/methods/AR-ACM0003/v/v02-0/rules")) {
-        return new Response(
-          JSON.stringify({
-            rules: [
-              {
-                id: "R-1-0001",
-                title: "Monitoring frequency",
-                snippet: "Maintain a monitoring report.",
-                tags: [],
-                expectedEvidence: ["monitoring-report"],
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
       throw new Error(`Unhandled fetch ${url}`);
     }) as typeof fetch;
   });
@@ -64,27 +43,16 @@ describe("ChatApp quick check entry", () => {
     jest.clearAllMocks();
   });
 
-  it("renders the command card above chat by default", async () => {
+  it("renders the claim-first command card and removes chat from the landing page", async () => {
     await act(async () => {
       root.render(<ChatApp />);
     });
 
-    expect(container.textContent).toContain("Verify one requirement");
-    expect(container.textContent).toContain("Ask in chat instead");
-    expect(container.textContent).toContain("Check requirement");
-    expect(container.textContent).toContain("Send");
-  });
-
-  it("keeps chat visible below the command card", async () => {
-    await act(async () => {
-      root.render(<ChatApp />);
-    });
-
-    const pageText = container.textContent ?? "";
-    expect(pageText).toContain("Verify one requirement");
-    expect(container.textContent).toContain("Methodology");
-    expect(container.textContent).toContain("Requirement");
-    expect(container.textContent).toContain("Check requirement");
-    expect(pageText.indexOf("Verify one requirement")).toBeLessThan(pageText.indexOf("Welcome to Article6"));
+    expect(container.textContent).toContain("Check one claim");
+    expect(container.textContent).toContain("Run quick check");
+    expect(container.textContent).toContain("Upload evidence");
+    expect(container.textContent).not.toContain("Ask in chat instead");
+    expect(container.textContent).not.toContain("Send");
+    expect(container.textContent).not.toContain("Welcome to Article6");
   });
 });

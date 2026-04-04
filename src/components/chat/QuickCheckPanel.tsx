@@ -1,10 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, FilePlus2, FolderOpen, Loader2, Plus, TriangleAlert } from "lucide-react";
-import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
-import { loadPins, savePins } from "@/lib/proofMap/storage";
-import type { EvidencePin } from "@/lib/proofMap/types";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  FilePlus2,
+  FolderOpen,
+  Loader2,
+  SearchCheck,
+  Sparkles,
+  TriangleAlert,
+  Upload,
+} from "lucide-react";
+import type { RuleSummary } from "@/app/m/_lib/methodRules";
+import { retrieveQuery, type QueryResponse } from "@/lib/chat/client";
 import {
   buildQuickCheckResult,
   ensureQuickCheckWorkspaceHandoff,
@@ -14,9 +23,12 @@ import {
   validateQuickCheckDraft,
   type QuickCheckDraft,
   type QuickCheckResult,
+  type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
-import type { RuleSummary } from "@/app/m/_lib/methodRules";
+import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
+import { loadPins, savePins } from "@/lib/proofMap/storage";
+import type { EvidencePin } from "@/lib/proofMap/types";
 
 type MethodInventoryRecord = {
   code: string;
@@ -30,6 +42,33 @@ type QuickCheckPanelProps = {
   onContinueToWorkspace?: (url: string) => void;
 };
 
+type MatchCandidate = {
+  key: string;
+  methodologyId: string;
+  methodologyVersion: string;
+  requirementId: string;
+  requirementLabel: string;
+  score: number | null;
+};
+
+type QuickCheckSessionState = {
+  draft: QuickCheckDraft;
+  result: QuickCheckResult | null;
+  stagedUploads: QuickCheckStagedUpload[];
+};
+
+type FieldErrors = {
+  claim?: string;
+  evidence?: string;
+  general?: string;
+};
+
+const CLAIM_SUGGESTIONS = [
+  "The monitoring report covers the full reporting period.",
+  "The boundary description matches the mapped project area.",
+  "The baseline methodology is clearly justified by the evidence.",
+];
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -39,59 +78,166 @@ function newPinId(): string {
   return `pin-${nowIso()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function pickVersion(method: MethodInventoryRecord | undefined, preferred?: string | null): string {
+  if (!method) return preferred?.trim() ?? "";
+  if (preferred?.trim() && method.versions.includes(preferred.trim())) return preferred.trim();
+  return method.latestVersion ?? method.versions[0] ?? "";
+}
+
+function pickRequirementLabel(result: QueryResponse["results"][number]): string {
+  const explicit =
+    (typeof result.section_title === "string" && result.section_title.trim()) ||
+    (typeof result.sectionTitle === "string" && result.sectionTitle.trim()) ||
+    (typeof result.text === "string" && result.text.trim()) ||
+    "";
+  return explicit || result.id;
+}
+
+function buildMatchCandidates(
+  results: QueryResponse["results"],
+  methods: MethodInventoryRecord[],
+  selectedMethodologyId: string,
+): MatchCandidate[] {
+  const selectedMethod = selectedMethodologyId.trim();
+  const unique = new Map<string, MatchCandidate>();
+
+  for (const result of results) {
+    const methodologyId =
+      (typeof result.methodology_id === "string" && result.methodology_id.trim()) ||
+      (typeof result.methodologyId === "string" && result.methodologyId.trim()) ||
+      "";
+    if (!methodologyId) continue;
+    if (selectedMethod && methodologyId !== selectedMethod) continue;
+
+    const methodRecord = methods.find((item) => item.code === methodologyId);
+    const methodologyVersion =
+      (typeof result.methodology_version === "string" && result.methodology_version.trim()) ||
+      (typeof result.methodologyVersion === "string" && result.methodologyVersion.trim()) ||
+      pickVersion(methodRecord);
+    if (!methodologyVersion) continue;
+
+    const requirementId = result.id?.trim();
+    if (!requirementId) continue;
+
+    const key = `${methodologyId}@@${methodologyVersion}@@${requirementId}`;
+    if (unique.has(key)) continue;
+    unique.set(key, {
+      key,
+      methodologyId,
+      methodologyVersion,
+      requirementId,
+      requirementLabel: `${requirementId} · ${pickRequirementLabel(result)}`,
+      score: typeof result.score === "number" ? result.score : null,
+    });
+  }
+
+  return Array.from(unique.values())
+    .sort((a, b) => (b.score ?? -1) - (a.score ?? -1) || a.requirementLabel.localeCompare(b.requirementLabel))
+    .slice(0, 4);
+}
+
+function isAmbiguousMatch(candidates: MatchCandidate[]): boolean {
+  if (candidates.length <= 1) return false;
+  const [first, second] = candidates;
+  if (!first || !second) return false;
+  if (first.score == null || second.score == null) return true;
+  return Math.abs(first.score - second.score) < 0.05;
+}
+
 function methodOptionLabel(method: MethodInventoryRecord): string {
-  return `${method.code} · ${method.latestVersion ?? method.versions[0] ?? "latest"}`;
+  return `${method.code} · ${pickVersion(method, null)}`;
 }
 
-function ruleOptionLabel(rule: RuleSummary): string {
-  return `${rule.id} · ${rule.title}`;
-}
-
-function selectedEvidenceLabel(item: EvidenceInventoryItem): string {
+function inventoryEvidenceLabel(item: EvidenceInventoryItem): string {
   return `${item.display_name} · ${item.type}`;
+}
+
+function uploadChipLabel(upload: QuickCheckStagedUpload): string {
+  return `${upload.filename} · Upload`;
+}
+
+function asPinForUpload(upload: QuickCheckStagedUpload): EvidencePin {
+  return {
+    id: upload.evidenceId,
+    kind: upload.mime === "application/pdf" ? "pdd" : "doc",
+    title: upload.filename || "evidence",
+    cited_ids: [],
+    attachments: [upload.attachment],
+    created_at: upload.createdAt,
+  };
 }
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const rulesCache = useRef(new Map<string, RuleSummary[]>());
+
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
-  const [rules, setRules] = useState<RuleSummary[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
-  const [loadingRules, setLoadingRules] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
-  const [session, setSession] = useState(() =>
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [matchCandidates, setMatchCandidates] = useState<MatchCandidate[]>([]);
+  const [pendingInventoryId, setPendingInventoryId] = useState("");
+  const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
       methodologyVersion: initialVersion?.trim() || undefined,
     }),
   );
-  const [pendingInventoryId, setPendingInventoryId] = useState("");
 
   const draft = session.draft;
   const result = session.result;
+  const stagedUploads = session.stagedUploads;
 
   const inventoryItems = useMemo(
     () => loadQuickCheckInventory(draft.methodologyId, draft.methodologyVersion),
     [draft.methodologyId, draft.methodologyVersion],
   );
 
-  const selectedEvidence = useMemo(
+  const selectedInventoryEvidence = useMemo(
     () => inventoryItems.filter((item) => draft.evidenceIds.includes(item.evidence_id)),
     [draft.evidenceIds, inventoryItems],
   );
 
-  const updateDraft = useCallback((mutator: (current: QuickCheckDraft) => QuickCheckDraft, nextResult?: QuickCheckResult | null) => {
+  const selectedUploadEvidence = useMemo(
+    () => stagedUploads.filter((upload) => draft.evidenceIds.includes(upload.evidenceId)),
+    [draft.evidenceIds, stagedUploads],
+  );
+
+  const availableInventory = useMemo(
+    () => inventoryItems.filter((item) => !draft.evidenceIds.includes(item.evidence_id)),
+    [draft.evidenceIds, inventoryItems],
+  );
+
+  const updateSession = useCallback((mutator: (current: QuickCheckSessionState) => QuickCheckSessionState) => {
     setSession((current) => {
-      const nextDraft = {
-        ...mutator(current.draft),
-        result: nextResult ?? current.result ?? current.draft.result ?? null,
-        updatedAt: nowIso(),
-      };
-      const next = { draft: nextDraft, result: nextResult ?? current.result };
+      const next = mutator(current);
       saveQuickCheckSession(next);
       return next;
     });
   }, []);
+
+  const updateDraft = useCallback(
+    (
+      mutator: (draft: QuickCheckDraft, current: QuickCheckSessionState) => QuickCheckDraft,
+      nextResult?: QuickCheckResult | null,
+    ) => {
+      updateSession((current) => {
+        const resolvedResult = nextResult === undefined ? current.result : nextResult;
+        const mutatedDraft = mutator(current.draft, current);
+        const nextDraft: QuickCheckDraft = {
+          ...mutatedDraft,
+          result: resolvedResult ?? mutatedDraft.result ?? null,
+          updatedAt: nowIso(),
+        };
+        return {
+          ...current,
+          draft: nextDraft,
+          result: resolvedResult ?? null,
+        };
+      });
+    },
+    [updateSession],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -106,7 +252,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       })
       .catch((error) => {
         if (cancelled) return;
-        setErrors([error instanceof Error ? error.message : String(error)]);
+        setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
       })
       .finally(() => {
         if (!cancelled) setLoadingMethods(false);
@@ -117,134 +263,84 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }, []);
 
   useEffect(() => {
-    if (!methods.length) return;
-    if (draft.methodologyId.trim() && draft.methodologyVersion.trim()) return;
-    const fallback =
-      methods.find((item) => item.code === initialMethod && (initialVersion ? item.versions.includes(initialVersion) : true)) ??
-      methods[0];
-    if (!fallback) return;
+    if (!methods.length || !initialMethod?.trim()) return;
+    const matchedMethod = methods.find((item) => item.code === initialMethod.trim());
+    if (!matchedMethod) return;
+    const version = pickVersion(matchedMethod, initialVersion);
+    if (!version) return;
+    if (draft.methodologyId.trim() || draft.methodologyVersion.trim()) return;
     updateDraft((current) => ({
       ...current,
-      methodologyId: fallback.code,
-      methodologyVersion: initialVersion && fallback.versions.includes(initialVersion)
-        ? initialVersion
-        : (fallback.latestVersion ?? fallback.versions[0] ?? ""),
+      methodologyId: matchedMethod.code,
+      methodologyVersion: version,
     }));
   }, [draft.methodologyId, draft.methodologyVersion, initialMethod, initialVersion, methods, updateDraft]);
 
   useEffect(() => {
-    const methodCode = draft.methodologyId.trim();
-    const version = draft.methodologyVersion.trim();
-    if (!methodCode || !version) {
-      setRules([]);
-      return;
-    }
-    let cancelled = false;
-    setLoadingRules(true);
-    fetch(`/api/methods/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}/rules`, { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Rules request failed with ${response.status}`);
-        const payload = (await response.json()) as { rules?: RuleSummary[] };
-        if (cancelled) return;
-        setRules(Array.isArray(payload.rules) ? payload.rules : []);
-      })
-      .catch((error) => {
-        if (!cancelled) setErrors([error instanceof Error ? error.message : String(error)]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingRules(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [draft.methodologyId, draft.methodologyVersion]);
-
-  useEffect(() => {
-    const validEvidenceIds = new Set(inventoryItems.map((item) => item.evidence_id));
-    const filteredIds = draft.evidenceIds.filter((id) => validEvidenceIds.has(id));
+    const stagedIds = new Set(stagedUploads.map((upload) => upload.evidenceId));
+    const validInventoryIds = new Set(inventoryItems.map((item) => item.evidence_id));
+    const filteredIds = draft.evidenceIds.filter((id) => stagedIds.has(id) || validInventoryIds.has(id));
     if (filteredIds.length === draft.evidenceIds.length) return;
     updateDraft((current) => ({ ...current, evidenceIds: filteredIds }), null);
-  }, [draft.evidenceIds, inventoryItems, updateDraft]);
+  }, [draft.evidenceIds, inventoryItems, stagedUploads, updateDraft]);
 
-  async function handleUpload(file: File | null) {
-    if (!file) return;
-    const methodCode = draft.methodologyId.trim();
-    const version = draft.methodologyVersion.trim();
-    if (!methodCode || !version) {
-      setErrors(["Choose a methodology before attaching evidence."]);
-      return;
-    }
+  const selectedMethodRecord = methods.find((item) => item.code === draft.methodologyId);
 
+  async function fetchRules(methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> {
+    const cacheKey = `${methodologyId}@@${methodologyVersion}`;
+    const cached = rulesCache.current.get(cacheKey);
+    if (cached) return cached;
+    const response = await fetch(
+      `/api/methods/${encodeURIComponent(methodologyId)}/v/${encodeURIComponent(methodologyVersion)}/rules`,
+      { cache: "no-store" },
+    );
+    if (!response.ok) throw new Error(`Rules request failed with ${response.status}`);
+    const payload = (await response.json()) as { rules?: RuleSummary[] };
+    const rules = Array.isArray(payload.rules) ? payload.rules : [];
+    rulesCache.current.set(cacheKey, rules);
+    return rules;
+  }
+
+  async function materializeUploads(methodologyId: string, methodologyVersion: string): Promise<string[]> {
+    if (!stagedUploads.length) return draft.evidenceIds;
+    const currentPins = coalesceEvidencePins(loadPins(methodologyId, methodologyVersion));
+    const existingIds = new Set(currentPins.map((item) => item.id));
+    const nextPins = coalesceEvidencePins([
+      ...currentPins,
+      ...stagedUploads.filter((upload) => !existingIds.has(upload.evidenceId)).map(asPinForUpload),
+    ]);
+    savePins(methodologyId, methodologyVersion, nextPins);
+    updateSession((current) => ({
+      ...current,
+      stagedUploads: current.stagedUploads.filter((upload) => !current.draft.evidenceIds.includes(upload.evidenceId)),
+    }));
+    return draft.evidenceIds;
+  }
+
+  async function completeQuickCheck(candidate: MatchCandidate) {
     setSubmitting(true);
-    setErrors([]);
+    setFieldErrors({});
     try {
-      const pinId = newPinId();
-      const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: pinId, file });
-      if (!attachmentResult.ok) {
-        setErrors([attachmentResult.message]);
+      await materializeUploads(candidate.methodologyId, candidate.methodologyVersion);
+      const rules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
+      const selectedRule = rules.find((item) => item.id === candidate.requirementId) ?? null;
+      if (!selectedRule) {
+        setFieldErrors({ general: "The matched requirement could not be loaded." });
         return;
       }
-      const currentPins = coalesceEvidencePins(loadPins(methodCode, version));
-      const nextPins = coalesceEvidencePins([
-        ...currentPins,
-        {
-          id: pinId,
-          kind: file.type === "application/pdf" ? "pdd" : "doc",
-          title: file.name || "evidence",
-          cited_ids: [],
-          attachments: [attachmentResult.attachment],
-          created_at: attachmentResult.attachment.created_at,
-        } satisfies EvidencePin,
-      ]);
-      savePins(methodCode, version, nextPins);
-      updateDraft((current) => ({
-        ...current,
-        evidenceIds: Array.from(new Set([...current.evidenceIds, pinId])),
+
+      const nextDraft: QuickCheckDraft = {
+        ...draft,
+        methodologyId: candidate.methodologyId,
+        methodologyVersion: candidate.methodologyVersion,
+        matchedRequirementId: candidate.requirementId,
+        matchedRequirementLabel: candidate.requirementLabel,
         status: "draft",
-        resultId: undefined,
-      }), null);
-    } finally {
-      setSubmitting(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  }
+      };
 
-  function addExistingEvidence() {
-    if (!pendingInventoryId) return;
-    updateDraft((current) => ({
-      ...current,
-      evidenceIds: Array.from(new Set([...current.evidenceIds, pendingInventoryId])),
-      status: "draft",
-      resultId: undefined,
-    }), null);
-    setPendingInventoryId("");
-  }
-
-  function removeEvidence(evidenceId: string) {
-    updateDraft((current) => ({
-      ...current,
-      evidenceIds: current.evidenceIds.filter((id) => id !== evidenceId),
-      status: "draft",
-      resultId: undefined,
-    }), null);
-  }
-
-  async function runQuickCheck() {
-    const validationErrors = validateQuickCheckDraft(draft);
-    if (validationErrors.length) {
-      setErrors(validationErrors);
-      return;
-    }
-    const selectedRule = rules.find((item) => item.id === draft.requirementId) ?? null;
-    if (!selectedRule) {
-      setErrors(["The selected requirement could not be loaded."]);
-      return;
-    }
-    setSubmitting(true);
-    setErrors([]);
-    try {
+      const inventory = loadQuickCheckInventory(candidate.methodologyId, candidate.methodologyVersion);
       const nextResult = buildQuickCheckResult({
-        draft,
+        draft: nextDraft,
         rule: {
           id: selectedRule.id,
           title: selectedRule.title,
@@ -262,19 +358,141 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           refs: selectedRule.refs,
           citations: selectedRule.citations,
         },
-        inventoryItems,
+        inventoryItems: inventory,
       });
 
-      const nextDraft: QuickCheckDraft = {
-        ...draft,
+      const checkedDraft: QuickCheckDraft = {
+        ...nextDraft,
         status: "checked",
         result: nextResult,
         resultId: nextResult.id,
         updatedAt: nowIso(),
       };
-      const nextSession = { draft: nextDraft, result: nextResult };
+      const nextSession = {
+        draft: checkedDraft,
+        result: nextResult,
+        stagedUploads: [] as QuickCheckStagedUpload[],
+      };
       saveQuickCheckSession(nextSession);
       setSession(nextSession);
+      setMatchCandidates([]);
+    } catch (error) {
+      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleUpload(file: File | null) {
+    if (!file) return;
+
+    setSubmitting(true);
+    setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
+    try {
+      const evidenceId = newPinId();
+      const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file });
+      if (!attachmentResult.ok) {
+        setFieldErrors({ evidence: attachmentResult.message });
+        return;
+      }
+      updateSession((current) => ({
+        ...current,
+        draft: {
+          ...current.draft,
+          evidenceIds: Array.from(new Set([...current.draft.evidenceIds, evidenceId])),
+          status: "draft",
+          result: null,
+          resultId: undefined,
+          updatedAt: nowIso(),
+        },
+        result: null,
+        stagedUploads: [
+          ...current.stagedUploads,
+          {
+            evidenceId,
+            filename: attachmentResult.attachment.filename,
+            mime: attachmentResult.attachment.mime,
+            createdAt: attachmentResult.attachment.created_at,
+            attachment: attachmentResult.attachment,
+          },
+        ],
+      }));
+    } finally {
+      setSubmitting(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  function addExistingEvidence() {
+    if (!pendingInventoryId) return;
+    updateDraft(
+      (current) => ({
+        ...current,
+        evidenceIds: Array.from(new Set([...current.evidenceIds, pendingInventoryId])),
+        status: "draft",
+        resultId: undefined,
+      }),
+      null,
+    );
+    setPendingInventoryId("");
+    setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
+    setMatchCandidates([]);
+  }
+
+  function removeEvidence(evidenceId: string) {
+    updateSession((current) => ({
+      ...current,
+      draft: {
+        ...current.draft,
+        evidenceIds: current.draft.evidenceIds.filter((id) => id !== evidenceId),
+        status: "draft",
+        result: null,
+        resultId: undefined,
+        updatedAt: nowIso(),
+      },
+      result: null,
+      stagedUploads: current.stagedUploads.filter((upload) => upload.evidenceId !== evidenceId),
+    }));
+    setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
+    setMatchCandidates([]);
+  }
+
+  async function runQuickCheck() {
+    const validationErrors = validateQuickCheckDraft(draft, { stagedEvidenceCount: stagedUploads.length });
+    if (validationErrors.length) {
+      setFieldErrors({
+        claim: validationErrors.find((item) => item.includes("claim")),
+        evidence: validationErrors.find((item) => item.includes("evidence")),
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    setFieldErrors({});
+    setMatchCandidates([]);
+    try {
+      const response = await retrieveQuery(draft.claimText.trim());
+      const candidates = buildMatchCandidates(response.results ?? [], methods, draft.methodologyId);
+      if (!candidates.length) {
+        setFieldErrors({
+          general: draft.methodologyId
+            ? "No likely requirement match was found for the selected methodology. Try another methodology or adjust the claim."
+            : "No likely requirement match was found. Add a methodology to narrow the match or rewrite the claim.",
+        });
+        return;
+      }
+
+      if (isAmbiguousMatch(candidates)) {
+        setMatchCandidates(candidates);
+        setFieldErrors({
+          general: "Multiple likely requirements match this claim. Pick the closest one or narrow with methodology.",
+        });
+        return;
+      }
+
+      await completeQuickCheck(candidates[0]!);
+    } catch (error) {
+      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
     } finally {
       setSubmitting(false);
     }
@@ -282,7 +500,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   function handleContinueToWorkspace() {
     const handoff = ensureQuickCheckWorkspaceHandoff(draft);
-    const nextSession = { draft: handoff.draft, result };
+    const nextSession = { draft: handoff.draft, result, stagedUploads };
     saveQuickCheckSession(nextSession);
     setSession(nextSession);
     if (onContinueToWorkspace) {
@@ -292,226 +510,346 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (typeof window !== "undefined") window.location.assign(handoff.url);
   }
 
-  const availableInventory = inventoryItems.filter((item) => !draft.evidenceIds.includes(item.evidence_id));
-
   return (
     <div className="w-full">
-      <div className="rounded-3xl border border-gray-200 bg-white px-5 py-4 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <div className="text-lg font-semibold text-gray-900">Verify one requirement</div>
-            <div className="mt-1 text-sm text-gray-700">
-              Pick one methodology requirement, attach one evidence item, and get a compact grounded result before entering the full Review Workspace.
-            </div>
+      <div className="mx-auto w-full max-w-3xl rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_-32px_rgba(15,23,42,0.35)] md:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="max-w-2xl">
+            <div className="text-sm font-semibold text-slate-500">Check one claim</div>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+              Start with one plain-language claim and one evidence item.
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              Describe the claim you want to test, upload one evidence item, and the app will map it into the existing
+              requirement-based review flow before opening the full Review Workspace.
+            </p>
           </div>
-          {loadingMethods || loadingRules || submitting ? <Loader2 className="h-4 w-4 animate-spin text-gray-400" /> : null}
+          {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2 text-sm text-gray-700">
-            <span className="font-medium text-gray-900">Methodology</span>
-            <select
-              value={draft.methodologyId && draft.methodologyVersion ? `${draft.methodologyId}@@${draft.methodologyVersion}` : ""}
+        <div className="mt-6 grid gap-6">
+          <label className="grid gap-2 text-sm text-slate-700">
+            <span className="font-medium text-slate-900">Claim</span>
+            <textarea
+              value={draft.claimText}
               onChange={(event) => {
-                const [methodologyId, methodologyVersion] = event.target.value.split("@@");
-                updateDraft((current) => ({
-                  ...current,
-                  methodologyId: methodologyId ?? "",
-                  methodologyVersion: methodologyVersion ?? "",
-                  requirementId: "",
-                  evidenceIds: [],
-                  status: "draft",
-                  resultId: undefined,
-                }), null);
-              }}
-              className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-gray-400"
-            >
-              <option value="">Select methodology</option>
-              {methods.map((method) => {
-                const version = method.latestVersion ?? method.versions[0] ?? "";
-                return (
-                  <option key={`${method.code}-${version}`} value={`${method.code}@@${version}`}>
-                    {methodOptionLabel(method)}
-                  </option>
+                const value = event.target.value;
+                updateDraft(
+                  (current) => ({
+                    ...current,
+                    claimText: value,
+                    matchedRequirementId: undefined,
+                    matchedRequirementLabel: undefined,
+                    status: "draft",
+                    resultId: undefined,
+                  }),
+                  null,
                 );
-              })}
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm text-gray-700">
-            <span className="font-medium text-gray-900">Requirement</span>
-            <select
-              value={draft.requirementId}
-              onChange={(event) =>
-                updateDraft((current) => ({
-                  ...current,
-                  requirementId: event.target.value,
-                  status: "draft",
-                  resultId: undefined,
-                }), null)
-              }
-              disabled={!draft.methodologyId || !draft.methodologyVersion || loadingRules}
-              className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-gray-400 disabled:bg-gray-50 disabled:text-gray-400"
-            >
-              <option value="">Select requirement</option>
-              {rules.map((rule) => (
-                <option key={rule.id} value={rule.id}>
-                  {ruleOptionLabel(rule)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div className="mt-4 rounded-2xl border border-gray-200 bg-gray-50/70 p-3.5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="text-sm font-medium text-gray-900">Evidence</div>
-              <div className="mt-1 text-xs text-gray-600">Select an existing item or attach a new file for this quick check.</div>
-            </div>
-            <input
-              ref={fileRef}
-              type="file"
-              className="hidden"
-              accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
-              onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
+                setFieldErrors((current) => ({ ...current, claim: undefined, general: undefined }));
+                setMatchCandidates([]);
+              }}
+              rows={4}
+              placeholder="Example: The monitoring report covers the full reporting period."
+              className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
             />
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-gray-300 hover:text-gray-900"
-            >
-              <FilePlus2 className="h-4 w-4" />
-              Attach evidence
-            </button>
+            {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
+          </label>
+
+          <div className="flex flex-wrap gap-2">
+            {CLAIM_SUGGESTIONS.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => {
+                  updateDraft(
+                    (current) => ({
+                      ...current,
+                      claimText: suggestion,
+                      matchedRequirementId: undefined,
+                      matchedRequirementLabel: undefined,
+                      status: "draft",
+                      resultId: undefined,
+                    }),
+                    null,
+                  );
+                  setFieldErrors((current) => ({ ...current, claim: undefined, general: undefined }));
+                  setMatchCandidates([]);
+                }}
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
+              >
+                {suggestion}
+              </button>
+            ))}
           </div>
 
-          <div className="mt-3 flex flex-col gap-2 md:flex-row">
+          <div className="grid gap-4 rounded-3xl border border-slate-200 bg-slate-50/70 p-4 md:p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="text-sm font-medium text-slate-900">Evidence</div>
+                <div className="mt-1 text-sm text-slate-600">
+                  Upload one evidence item first. Reusing existing evidence stays available when you want to narrow to a methodology.
+                </div>
+              </div>
+              <input
+                ref={fileRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
+                onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
+              />
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                <Upload className="h-4 w-4" />
+                Upload evidence
+              </button>
+            </div>
+
+            <div className="grid gap-2">
+              <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Choose existing evidence</div>
+              <div className="flex flex-col gap-2 md:flex-row">
+                <select
+                  value={pendingInventoryId}
+                  onChange={(event) => setPendingInventoryId(event.target.value)}
+                  disabled={!draft.methodologyId || !draft.methodologyVersion}
+                  className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  <option value="">
+                    {draft.methodologyId ? "Select existing evidence" : "Choose a methodology to reuse saved evidence"}
+                  </option>
+                  {availableInventory.map((item) => (
+                    <option key={item.evidence_id} value={item.evidence_id}>
+                      {inventoryEvidenceLabel(item)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={addExistingEvidence}
+                  disabled={!pendingInventoryId}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 disabled:opacity-50"
+                >
+                  <FilePlus2 className="h-4 w-4" />
+                  Add selected evidence
+                </button>
+              </div>
+              {fieldErrors.evidence ? <span className="text-sm text-rose-700">{fieldErrors.evidence}</span> : null}
+            </div>
+
+            {selectedUploadEvidence.length || selectedInventoryEvidence.length ? (
+              <div className="flex flex-wrap gap-2">
+                {selectedUploadEvidence.map((upload) => (
+                  <button
+                    key={upload.evidenceId}
+                    type="button"
+                    onClick={() => removeEvidence(upload.evidenceId)}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300"
+                  >
+                    {uploadChipLabel(upload)} ×
+                  </button>
+                ))}
+                {selectedInventoryEvidence.map((item) => (
+                  <button
+                    key={item.evidence_id}
+                    type="button"
+                    onClick={() => removeEvidence(item.evidence_id)}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300"
+                  >
+                    {inventoryEvidenceLabel(item)} ×
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <label className="grid gap-2 text-sm text-slate-700">
+            <span className="font-medium text-slate-900">Methodology (optional)</span>
             <select
-              value={pendingInventoryId}
-              onChange={(event) => setPendingInventoryId(event.target.value)}
-              className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-gray-400"
+              value={draft.methodologyId}
+              onChange={(event) => {
+                const methodologyId = event.target.value;
+                const method = methods.find((item) => item.code === methodologyId);
+                const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
+                updateSession((current) => {
+                  const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
+                  return {
+                    ...current,
+                    draft: {
+                      ...current.draft,
+                      methodologyId,
+                      methodologyVersion,
+                      evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
+                      matchedRequirementId: undefined,
+                      matchedRequirementLabel: undefined,
+                      status: "draft",
+                      result: null,
+                      resultId: undefined,
+                      updatedAt: nowIso(),
+                    },
+                    result: null,
+                  };
+                });
+                setPendingInventoryId("");
+                setFieldErrors((current) => ({ ...current, general: undefined }));
+                setMatchCandidates([]);
+              }}
+              className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400"
             >
-              <option value="">Select existing evidence</option>
-              {availableInventory.map((item) => (
-                <option key={item.evidence_id} value={item.evidence_id}>
-                  {selectedEvidenceLabel(item)}
+              <option value="">Any methodology</option>
+              {methods.map((method) => (
+                <option key={method.code} value={method.code}>
+                  {methodOptionLabel(method)}
                 </option>
               ))}
             </select>
-            <button
-              type="button"
-              onClick={addExistingEvidence}
-              disabled={!pendingInventoryId}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 disabled:opacity-50"
-            >
-              <Plus className="h-4 w-4" />
-              Add evidence item
-            </button>
-          </div>
+            <span className="text-xs text-slate-500">
+              Leave this open to let the matcher search broadly, or choose a methodology to narrow likely matches.
+            </span>
+          </label>
 
-          {selectedEvidence.length ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {selectedEvidence.map((item) => (
-                <button
-                  key={item.evidence_id}
-                  type="button"
-                  onClick={() => removeEvidence(item.evidence_id)}
-                  className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-gray-300"
-                >
-                  {item.display_name} · {item.type} ×
-                </button>
-              ))}
+          {fieldErrors.general ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900">
+              <div className="flex items-start gap-2.5">
+                <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>{fieldErrors.general}</div>
+              </div>
+            </div>
+          ) : null}
+
+          {matchCandidates.length ? (
+            <div className="rounded-3xl border border-sky-200 bg-sky-50/80 p-4">
+              <div className="flex items-start gap-3">
+                <SearchCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" />
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-slate-900">Likely requirement matches</div>
+                  <div className="mt-1 text-sm text-slate-600">
+                    Choose the closest match, or narrow the claim with a methodology and run the quick check again.
+                  </div>
+                  <div className="mt-3 grid gap-2">
+                    {matchCandidates.map((candidate) => (
+                      <button
+                        key={candidate.key}
+                        type="button"
+                        onClick={() => void completeQuickCheck(candidate)}
+                        className="flex items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-white px-3 py-3 text-left transition hover:border-sky-300"
+                      >
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium text-slate-900">{candidate.requirementLabel}</div>
+                          <div className="mt-1 text-xs text-slate-500">
+                            {candidate.methodologyId} · {candidate.methodologyVersion}
+                          </div>
+                        </div>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-700">
+                          Use match
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {result ? (
+            <div className="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">Quick check result</div>
+                  <div className="mt-2 text-sm font-medium text-slate-900">{result.claimText}</div>
+                  <div className="mt-3 text-sm text-slate-600">Matched requirement</div>
+                  <div className="mt-1 text-base font-semibold text-slate-950">{result.requirementLabel}</div>
+                  <div className="mt-3 inline-flex rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-800">
+                    {result.verdict}
+                  </div>
+                  <div className="mt-3 text-sm text-slate-700">{result.explanation}</div>
+                  {result.citations.length ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {result.citations.map((citation) => (
+                        <span key={citation} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                          {citation}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="mt-3 flex items-start gap-2 text-sm text-slate-600">
+                    <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                    <span>{result.nextStepHint}</span>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateDraft(
+                          (current) => ({
+                            ...current,
+                            status: "draft",
+                            resultId: undefined,
+                          }),
+                          null,
+                        );
+                        setFieldErrors({});
+                      }}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700"
+                    >
+                      Upload another evidence item
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateDraft(
+                          (current) => ({
+                            ...current,
+                            claimText: "",
+                            matchedRequirementId: undefined,
+                            matchedRequirementLabel: undefined,
+                            status: "draft",
+                            resultId: undefined,
+                          }),
+                          null,
+                        );
+                        setFieldErrors({});
+                        setMatchCandidates([]);
+                      }}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700"
+                    >
+                      Check another claim
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleContinueToWorkspace}
+                      className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white"
+                    >
+                      <FolderOpen className="h-4 w-4" />
+                      Continue to Review Workspace
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => void runQuickCheck()}
+                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Run quick check
+              </button>
+            </div>
+          )}
+
+          {selectedMethodRecord && draft.methodologyVersion ? (
+            <div className="text-xs text-slate-500">
+              Existing evidence is being reused from {selectedMethodRecord.code} · {draft.methodologyVersion}.
             </div>
           ) : null}
         </div>
-
-        {errors.length ? (
-          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900">
-            <div className="flex items-start gap-2.5">
-              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-              <div className="space-y-1">
-                {errors.map((error) => (
-                  <div key={error}>{error}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {result ? (
-          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-3.5">
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
-              <div className="min-w-0">
-                <div className="text-sm font-semibold text-gray-900">{result.requirementLabel}</div>
-                <div className="mt-1 inline-flex rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-800">
-                  {result.verdict}
-                </div>
-                <div className="mt-2 text-sm text-gray-700">{result.explanation}</div>
-                {result.citations.length ? (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {result.citations.map((citation) => (
-                      <span key={citation} className="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-700">
-                        {citation}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-                <div className="mt-3 text-xs text-gray-600">{result.nextStepHint}</div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateDraft((current) => ({
-                        ...current,
-                        status: "draft",
-                        resultId: undefined,
-                      }), null)
-                    }
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700"
-                  >
-                    Add another evidence item
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateDraft((current) => ({
-                        ...current,
-                        requirementId: "",
-                        status: "draft",
-                        resultId: undefined,
-                      }), null)
-                    }
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700"
-                  >
-                    Check another requirement
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleContinueToWorkspace}
-                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white"
-                  >
-                    <FolderOpen className="h-4 w-4" />
-                    Continue to Review Workspace
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-4">
-            <button
-              type="button"
-              disabled={submitting}
-              onClick={() => void runQuickCheck()}
-              className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Check requirement
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

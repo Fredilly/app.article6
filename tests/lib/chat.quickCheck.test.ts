@@ -32,32 +32,33 @@ describe("chat quick check helpers", () => {
     );
   });
 
-  it("validates required methodology, requirement, and evidence", () => {
-    const errors = validateQuickCheckDraft({
-      id: "draft-1",
-      methodologyId: "",
-      methodologyVersion: "",
-      requirementId: "",
-      evidenceIds: [],
-      status: "draft",
-      createdAt: "2026-04-04T00:00:00Z",
-      updatedAt: "2026-04-04T00:00:00Z",
-    });
+  it("validates required claim text and evidence", () => {
+    const errors = validateQuickCheckDraft(
+      {
+        id: "draft-1",
+        claimText: "",
+        methodologyId: "",
+        methodologyVersion: "",
+        evidenceIds: [],
+        status: "draft",
+        createdAt: "2026-04-04T00:00:00Z",
+        updatedAt: "2026-04-04T00:00:00Z",
+      },
+      { stagedEvidenceCount: 0 },
+    );
 
-    expect(errors).toEqual([
-      "Choose a methodology before running a quick check.",
-      "Choose a requirement before running a quick check.",
-      "Attach or select at least one evidence item before running a quick check.",
-    ]);
+    expect(errors).toEqual(["Enter a claim to check.", "Upload or select one evidence item."]);
   });
 
   it("reuses the linked run id on repeated workspace handoff", () => {
     const draft: QuickCheckDraft = {
       id: "draft-1",
+      claimText: "The monitoring report covers the reporting period.",
       methodologyId: "AR-ACM0003",
       methodologyVersion: "v02-0",
-      requirementId: "R-1-0001",
       evidenceIds: ["ev-1"],
+      matchedRequirementId: "R-1-0001",
+      matchedRequirementLabel: "R-1-0001 · Monitoring frequency",
       status: "checked",
       createdAt: "2026-04-04T00:00:00Z",
       updatedAt: "2026-04-04T00:00:00Z",
