@@ -6,14 +6,17 @@ import {
   buildLinkedRulesKey,
   buildVerifyRunKey,
   buildRunSummary,
+  createReviewerArtifactContext,
   createVerifierRunBundle,
   deleteRunFromHistory,
   getVerifyWizardStepDetails,
   getVerifyRunStatusDetails,
   normalizeMethodCode,
   normalizeVersion,
+  persistReviewerArtifactState,
   persistVerifierRunBundle,
   readLinkedRuleIdsFromStorage,
+  readReviewerArtifactState,
   readRunHistory,
   readVerifierRunBundle,
   parseLinkedRuleId,
@@ -315,6 +318,11 @@ describe("verifier run bundle storage", () => {
 
     const bundle = readVerifierRunBundle("AR-1", "v1");
     expect(bundle.runContext.runId).toContain("AR-1-v1-");
+    expect(bundle.reviewerContext.methodCode).toBe("AR-1");
+    expect(bundle.reviewerContext.version).toBe("v1");
+    expect(bundle.reviewerContext.ruleId).toBeNull();
+    expect(bundle.reviewerContext.runId).toBe(bundle.runContext.runId);
+    expect(bundle.savedReviewerArtifactContext).toBeNull();
     expect(bundle.checklist.length).toBeGreaterThan(0);
     expect(bundle.tasks).toEqual([]);
     expect(bundle.savedReviewerArtifactAt).toBeNull();
@@ -348,6 +356,18 @@ describe("verifier run bundle storage", () => {
     const bundle = createVerifierRunBundle("AR-2", "v2");
     const updated = {
       ...bundle,
+      reviewerContext: createReviewerArtifactContext({
+        methodCode: "AR-2",
+        version: "v2",
+        ruleId: "R-1",
+        runId: bundle.runContext.runId,
+      }),
+      savedReviewerArtifactContext: createReviewerArtifactContext({
+        methodCode: "AR-2",
+        version: "v2",
+        ruleId: "R-1",
+        runId: bundle.runContext.runId,
+      }),
       minutes: "Checked AOI and evidence.",
       draftMinutes: "Checked AOI and evidence.",
       outcomeNote: "Looks stable.",
@@ -363,6 +383,7 @@ describe("verifier run bundle storage", () => {
     const read = readVerifierRunBundle("AR-2", "v2");
     expect(read.minutes).toBe("Checked AOI and evidence.");
     expect(read.outcomeNote).toBe("Looks stable.");
+    expect(read.savedReviewerArtifactContext).toEqual(updated.savedReviewerArtifactContext);
     expect(read.draftMinutes).toBe("Checked AOI and evidence.");
     expect(read.draftOutcomeNote).toBe("Looks stable.");
     expect(read.savedReviewerArtifactAt).toBe("2026-01-01T00:00:00Z");
@@ -371,6 +392,53 @@ describe("verifier run bundle storage", () => {
     expect(read.derivedFromRunId).toBe("run-source");
     expect(read.isEditedDraft).toBe(true);
     expect(storage.getItem(buildVerifyRunKey("AR-2", "v2"))).toBeTruthy();
+  });
+
+  it("stores reviewer artifact state per method version rule and run", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    const ruleA = createReviewerArtifactContext({
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      ruleId: "R-1-0001",
+      runId: "run-a",
+    });
+    const ruleB = createReviewerArtifactContext({
+      methodCode: "AR-AMS0007",
+      version: "v01-0",
+      ruleId: "R-2-0001",
+      runId: "run-b",
+    });
+
+    persistReviewerArtifactState({
+      context: ruleA,
+      savedReviewerArtifactAt: "2026-04-04T00:00:00Z",
+      minutes: "AR-ACM0003 baseline notes",
+      outcomeNote: "A note",
+      draftMinutes: "AR-ACM0003 baseline notes",
+      draftOutcomeNote: "A note",
+    });
+    persistReviewerArtifactState({
+      context: ruleB,
+      savedReviewerArtifactAt: "2026-04-04T00:01:00Z",
+      minutes: "AR-AMS0007 boundary notes",
+      outcomeNote: "B note",
+      draftMinutes: "AR-AMS0007 boundary notes",
+      draftOutcomeNote: "B note",
+    });
+
+    expect(readReviewerArtifactState(ruleA)?.minutes).toBe("AR-ACM0003 baseline notes");
+    expect(readReviewerArtifactState(ruleB)?.minutes).toBe("AR-AMS0007 boundary notes");
+    expect(
+      readReviewerArtifactState(
+        createReviewerArtifactContext({
+          methodCode: "AR-AMS0007",
+          version: "v01-0",
+          ruleId: "R-2-0001",
+          runId: "run-c",
+        }),
+      ),
+    ).toBeNull();
   });
 });
 

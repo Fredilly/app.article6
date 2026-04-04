@@ -53,15 +53,19 @@ import {
   addTaskWithText,
   buildRunSummary,
   createVerifierRunBundle,
+  createReviewerArtifactContext,
   createTicketTemplate,
   deleteRunFromHistory,
   extractStacQuery,
   getVerifyWizardStepDetails,
   loadRunFromHistory,
+  persistReviewerArtifactState,
   type VerifyRunHistoryEntry,
   persistVerifierRunBundle,
   readRunHistory,
+  readReviewerArtifactState,
   readVerifierRunBundle,
+  reviewerArtifactContextMatches,
   saveCurrentRunToHistory,
   shortRunId,
 } from "@/lib/verify/runState";
@@ -529,6 +533,57 @@ export default function ProofMapTab({
     return () => window.clearTimeout(timer);
   }, [methodCode, verifierBundle, version]);
 
+  const currentReviewerContext = useMemo(
+    () =>
+      createReviewerArtifactContext({
+        methodCode,
+        version,
+        ruleId: selectedRuleId,
+        runId: verifierBundle.runContext.runId,
+      }),
+    [methodCode, selectedRuleId, verifierBundle.runContext.runId, version],
+  );
+
+  useEffect(() => {
+    setVerifierBundle((current) => {
+      if (reviewerArtifactContextMatches(current.reviewerContext, currentReviewerContext)) return current;
+      const scopedState = readReviewerArtifactState(currentReviewerContext);
+      return {
+        ...current,
+        reviewerContext: currentReviewerContext,
+        savedReviewerArtifactContext: scopedState?.savedReviewerArtifactAt ? scopedState.context : null,
+        minutes: scopedState?.minutes ?? "",
+        outcomeNote: scopedState?.outcomeNote ?? "",
+        draftMinutes: scopedState?.draftMinutes ?? "",
+        draftOutcomeNote: scopedState?.draftOutcomeNote ?? "",
+        savedReviewerArtifactAt: scopedState?.savedReviewerArtifactAt ?? null,
+      };
+    });
+  }, [currentReviewerContext]);
+
+  useEffect(() => {
+    persistReviewerArtifactState({
+      context: verifierBundle.reviewerContext,
+      savedReviewerArtifactAt:
+        verifierBundle.savedReviewerArtifactContext &&
+        reviewerArtifactContextMatches(verifierBundle.savedReviewerArtifactContext, verifierBundle.reviewerContext)
+          ? verifierBundle.savedReviewerArtifactAt
+          : null,
+      minutes: verifierBundle.minutes,
+      outcomeNote: verifierBundle.outcomeNote,
+      draftMinutes: verifierBundle.draftMinutes,
+      draftOutcomeNote: verifierBundle.draftOutcomeNote,
+    });
+  }, [
+    verifierBundle.draftMinutes,
+    verifierBundle.draftOutcomeNote,
+    verifierBundle.minutes,
+    verifierBundle.outcomeNote,
+    verifierBundle.reviewerContext,
+    verifierBundle.savedReviewerArtifactAt,
+    verifierBundle.savedReviewerArtifactContext,
+  ]);
+
   const markBundleEdited = useCallback(
     (
       current: typeof verifierBundle,
@@ -543,6 +598,7 @@ export default function ProofMapTab({
           Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt),
         exportedAt: invalidateFinality ? null : current.exportedAt,
         savedReviewerArtifactAt: clearSavedReviewerArtifact ? null : current.savedReviewerArtifactAt,
+        savedReviewerArtifactContext: clearSavedReviewerArtifact ? null : current.savedReviewerArtifactContext,
         finalizedAt: invalidateFinality ? null : current.finalizedAt,
         minutes: clearSavedReviewerArtifact ? "" : current.minutes,
         outcomeNote: clearSavedReviewerArtifact ? "" : current.outcomeNote,
@@ -576,8 +632,16 @@ export default function ProofMapTab({
     const savedAt = new Date().toISOString();
     setVerifierBundle((current) => {
       const hasSavedArtifact = Boolean(current.draftMinutes.trim() || current.draftOutcomeNote.trim());
+      const reviewerContext = createReviewerArtifactContext({
+        methodCode,
+        version,
+        ruleId: selectedRuleId,
+        runId: current.runContext.runId,
+      });
       return {
         ...current,
+        reviewerContext,
+        savedReviewerArtifactContext: hasSavedArtifact ? reviewerContext : null,
         minutes: current.draftMinutes,
         outcomeNote: current.draftOutcomeNote,
         savedReviewerArtifactAt: hasSavedArtifact ? savedAt : null,
@@ -588,7 +652,7 @@ export default function ProofMapTab({
       };
     });
     showToast({ title: "Reviewer artifact saved", subtitle: "Saved text now counts for run completion" });
-  }, [showToast]);
+  }, [methodCode, selectedRuleId, showToast, version]);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -682,6 +746,8 @@ export default function ProofMapTab({
   const buildHistoryBundle = useCallback(() => {
     return {
       runContext: verifierBundle.runContext,
+      reviewerContext: verifierBundle.reviewerContext,
+      savedReviewerArtifactContext: verifierBundle.savedReviewerArtifactContext,
       exportedAt: verifierBundle.exportedAt,
       savedReviewerArtifactAt: verifierBundle.savedReviewerArtifactAt,
       finalizedAt: verifierBundle.finalizedAt,
@@ -832,19 +898,27 @@ export default function ProofMapTab({
       const loaded = loadRunFromHistory(methodCode, version, runId);
       if (!loaded) return;
       const editableRun = createVerifierRunBundle(methodCode, version);
+      const loadedReviewerContext = createReviewerArtifactContext({
+        methodCode,
+        version,
+        ruleId: loaded.selectedRuleId ?? null,
+        runId: editableRun.runContext.runId,
+      });
       ignoredMutableWorkspaceRunIdRef.current = editableRun.runContext.runId;
       setVerifierBundle({
         runContext: editableRun.runContext,
+        reviewerContext: loadedReviewerContext,
+        savedReviewerArtifactContext: null,
         exportedAt: loaded.exportedAt ?? null,
-        savedReviewerArtifactAt: loaded.savedReviewerArtifactAt ?? loaded.exportedAt ?? null,
+        savedReviewerArtifactAt: null,
         finalizedAt: null,
         loadedFromRunId: runId,
         derivedFromRunId: runId,
         isEditedDraft: false,
-        minutes: loaded.minutes ?? "",
-        outcomeNote: loaded.outcomeNote ?? "",
-        draftMinutes: loaded.minutes ?? "",
-        draftOutcomeNote: loaded.outcomeNote ?? "",
+        minutes: "",
+        outcomeNote: "",
+        draftMinutes: loaded.draftMinutes ?? loaded.minutes ?? "",
+        draftOutcomeNote: loaded.draftOutcomeNote ?? loaded.outcomeNote ?? "",
         checklist: loaded.checklist ?? [],
         delta: loaded.delta ?? "",
         impact: loaded.impact ?? "",
@@ -1750,6 +1824,27 @@ export default function ProofMapTab({
         : { type: "unknown" as const, ref: "unknown" };
   }, [localEvidenceHashInputs, stacEndpointUrl]);
 
+  const assertReviewerArtifactContext = useCallback(
+    (runContext: { runId: string; createdAt: string }) => {
+      if (!verifierBundle.savedReviewerArtifactAt) return;
+      const expectedContext = createReviewerArtifactContext({
+        methodCode,
+        version,
+        ruleId: selectedRuleId,
+        runId: runContext.runId,
+      });
+      if (!verifierBundle.savedReviewerArtifactContext) {
+        throw new Error("Reviewer artifact context is missing. Save reviewer artifact again for the current rule before finalizing.");
+      }
+      if (!reviewerArtifactContextMatches(verifierBundle.savedReviewerArtifactContext, expectedContext)) {
+        throw new Error(
+          `Reviewer artifact mismatch. Current context is ${methodCode}@${version} ${selectedRuleId ?? "no-rule"} ${shortRunId(runContext.runId)}, but saved notes belong to ${verifierBundle.savedReviewerArtifactContext.methodCode}@${verifierBundle.savedReviewerArtifactContext.version} ${verifierBundle.savedReviewerArtifactContext.ruleId ?? "no-rule"} ${shortRunId(verifierBundle.savedReviewerArtifactContext.runId)}. Save reviewer artifact again for the current rule before finalizing or exporting.`,
+        );
+      }
+    },
+    [methodCode, selectedRuleId, verifierBundle.savedReviewerArtifactAt, verifierBundle.savedReviewerArtifactContext, version],
+  );
+
   const buildFinalReviewArtifact = useCallback(
     async (options: {
       finalizedAt: string;
@@ -1761,6 +1856,7 @@ export default function ProofMapTab({
       const { minimalItem, selectedIds } = buildSelectedItemPayload();
       const evidenceSource = buildEvidenceSource();
       const checklistExport = prepareChecklistExport(options.checklist);
+      assertReviewerArtifactContext(options.runContext);
       const verifierSnapshot = {
         runId: options.runContext.runId,
         createdAt: options.runContext.createdAt,
@@ -1819,6 +1915,9 @@ export default function ProofMapTab({
         rule: ruleContext,
         generatedAt: options.finalizedAt,
       });
+      if ((summary.ruleId ?? null) !== (selectedRuleId ?? null)) {
+        throw new Error("Review summary rule context mismatch. Refresh the current rule context and save reviewer artifact again before finalizing.");
+      }
       const artifact = await buildOutcomeSnapshot({
         method: { code: methodCode, version },
         aoi: aoi
@@ -1854,6 +1953,7 @@ export default function ProofMapTab({
     },
     [
       aoi,
+      assertReviewerArtifactContext,
       buildEvidenceSource,
       buildSelectedItemPayload,
       buildStacItemsJson,
@@ -2349,10 +2449,25 @@ export default function ProofMapTab({
       checklist: checklistAfterExport,
       tasks: verifierBundle.tasks,
     };
+    const nextReviewerContext = createReviewerArtifactContext({
+      methodCode,
+      version,
+      ruleId: selectedRuleId,
+      runId: nextRunContext.runId,
+    });
+
+    const { artifact } = await buildFinalReviewArtifact({
+      finalizedAt: exportedAt,
+      runContext: nextRunContext,
+      summaryState: "draft",
+      checklist: checklistAfterExport,
+      snapshotExportedAt: exportedAt,
+    });
 
     setVerifierBundle((current) => ({
       ...current,
       runContext: nextRunContext,
+      reviewerContext: nextReviewerContext,
       exportedAt,
       checklist: checklistAfterExport,
       finalizedAt: null,
@@ -2361,6 +2476,8 @@ export default function ProofMapTab({
     }));
     handleSaveRunHistory({
       runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
+      reviewerContext: nextReviewerContext,
+      savedReviewerArtifactContext: verifierBundle.savedReviewerArtifactContext,
       exportedAt,
       savedReviewerArtifactAt: verifierBundle.savedReviewerArtifactAt,
       finalizedAt: null,
@@ -2381,13 +2498,6 @@ export default function ProofMapTab({
       evidencePins,
       verificationRuns,
       selectedStacItemId,
-    });
-    const { artifact } = await buildFinalReviewArtifact({
-      finalizedAt: exportedAt,
-      runContext: nextRunContext,
-      summaryState: "draft",
-      checklist: checklistAfterExport,
-      snapshotExportedAt: exportedAt,
     });
     const filename = `evidence-snapshot.${safeFilename(methodCode)}.${safeFilename(version)}.json`;
     downloadJson(artifact, filename);
