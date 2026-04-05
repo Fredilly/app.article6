@@ -112,6 +112,16 @@ describe("QuickCheckPanel claim-first flow", () => {
             { status: 200 },
           );
         }
+        if (decoded.includes("unsupported claim")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [],
+            }),
+            { status: 200 },
+          );
+        }
         return new Response(
           JSON.stringify({
             engineTag: "test",
@@ -276,15 +286,18 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
     expect(container.textContent).toContain("Methodology");
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
-    expect(container.textContent).toContain("R-1-0001 · Monitoring frequency");
+    expect(container.textContent).toContain("Monitoring frequency");
+    expect(container.textContent).toContain("R-1-0001");
     expect(container.textContent).toContain("Supported");
     expect(container.textContent).toContain("All expected evidence is linked.");
     expect(container.textContent).toContain("Section 10");
     expect(container.textContent).toContain("monitoring-report.pdf");
-    expect(container.textContent).toContain("Open review workspace");
+    expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).toContain("Change evidence");
+    expect(container.textContent).toContain("Check another claim");
 
     await act(async () => {
-      clickButton("Open review workspace");
+      clickButton("Open full review");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
@@ -343,7 +356,58 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).toContain("Multiple requirements could fit this claim.");
-    expect(container.textContent).toContain("R-1-0002 · Boundary consistency");
-    expect(container.textContent).toContain("R-2-0001 · Boundary delineation");
+    expect(container.textContent).toContain("Boundary consistency");
+    expect(container.textContent).toContain("R-1-0002");
+    expect(container.textContent).toContain("Boundary delineation");
+    expect(container.textContent).toContain("R-2-0001");
+  });
+
+  it("renders recovery actions when no clear match is found", async () => {
+    window.localStorage.setItem(
+      "a6:quick-check:claim-first:v1",
+      JSON.stringify({
+        draft: {
+          id: "draft-no-match",
+          claimText: "unsupported claim",
+          methodologyId: "",
+          methodologyVersion: "",
+          evidenceIds: ["upload-1"],
+          status: "draft",
+          createdAt: "2026-04-04T00:00:00Z",
+          updatedAt: "2026-04-04T00:00:00Z",
+        },
+        result: null,
+        stagedUploads: [
+          {
+            evidenceId: "upload-1",
+            filename: "baseline.pdf",
+            mime: "application/pdf",
+            createdAt: "2026-04-04T00:00:00Z",
+            attachment: {
+              id: "att-upload-1",
+              pin_id: "upload-1",
+              filename: "baseline.pdf",
+              mime: "application/pdf",
+              size: 256,
+              sha256: "sha-upload-1",
+              created_at: "2026-04-04T00:00:00Z",
+            },
+          },
+        ],
+      }),
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    expect(container.textContent).toContain("No clear match yet");
+    expect(container.textContent).toContain("Try another methodology");
+    expect(container.textContent).toContain("Edit claim");
+    expect(container.textContent).toContain("Open Methods");
   });
 });

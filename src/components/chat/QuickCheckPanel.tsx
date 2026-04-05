@@ -64,6 +64,8 @@ type FieldErrors = {
   general?: string;
 };
 
+type RecoveryState = "no-match" | null;
+
 const CLAIM_SUGGESTIONS = [
   "The monitoring report covers the full reporting period.",
   "The boundary description matches the mapped project area.",
@@ -149,6 +151,19 @@ function methodOptionLabel(method: MethodInventoryRecord): string {
   return `${method.code} · ${pickVersion(method, null)}`;
 }
 
+function splitRequirementLabel(label: string): { title: string; id: string | null } {
+  const trimmed = label.trim();
+  if (!trimmed) return { title: "", id: null };
+  const parts = trimmed.split("·").map((part) => part.trim()).filter(Boolean);
+  if (parts.length >= 2) {
+    const [first, ...rest] = parts;
+    if (/^R-\d/i.test(first)) {
+      return { title: rest.join(" · "), id: first };
+    }
+  }
+  return { title: trimmed, id: null };
+}
+
 function inventoryEvidenceLabel(item: EvidenceInventoryItem): string {
   return `${item.display_name} · ${item.type}`;
 }
@@ -166,6 +181,7 @@ function asPinForUpload(upload: QuickCheckStagedUpload): EvidencePin {
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
 
@@ -173,6 +189,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [loadingMethods, setLoadingMethods] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [recoveryState, setRecoveryState] = useState<RecoveryState>(null);
   const [matchCandidates, setMatchCandidates] = useState<MatchCandidate[]>([]);
   const [pendingInventoryId, setPendingInventoryId] = useState("");
   const [showSavedEvidence, setShowSavedEvidence] = useState(false);
@@ -299,11 +316,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     ? `${selectedInventoryItem.type} from saved evidence`
     : "";
   const canRunQuickCheck = Boolean(draft.claimText.trim()) && selectedEvidenceCount === 1 && !submitting;
+  const resultRequirement = splitRequirementLabel(result?.requirementLabel ?? "");
 
   useEffect(() => {
     if (!result?.id) return;
     resultRef.current?.focus();
   }, [result?.id]);
+
+  function clearDecisionState() {
+    setFieldErrors({});
+    setRecoveryState(null);
+    setMatchCandidates([]);
+  }
 
   async function fetchRules(methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> {
     const cacheKey = `${methodologyId}@@${methodologyVersion}`;
@@ -339,6 +363,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   async function completeQuickCheck(candidate: MatchCandidate) {
     setSubmitting(true);
     setFieldErrors({});
+    setRecoveryState(null);
     try {
       await materializeUploads(candidate.methodologyId, candidate.methodologyVersion);
       const rules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
@@ -395,6 +420,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       saveQuickCheckSession(nextSession);
       setSession(nextSession);
       setMatchCandidates([]);
+      setRecoveryState(null);
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -407,6 +433,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
     setSubmitting(true);
     setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
+    setRecoveryState(null);
     try {
       const evidenceId = newPinId();
       const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file });
@@ -457,8 +484,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       stagedUploads: [],
     }));
     setPendingInventoryId("");
-    setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
-    setMatchCandidates([]);
+    clearDecisionState();
     setShowSavedEvidence(false);
   }
 
@@ -476,8 +502,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       result: null,
       stagedUploads: current.stagedUploads.filter((upload) => upload.evidenceId !== evidenceId),
     }));
-    setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
-    setMatchCandidates([]);
+    clearDecisionState();
   }
 
   async function runQuickCheck() {
@@ -492,23 +517,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
     setSubmitting(true);
     setFieldErrors({});
+    setRecoveryState(null);
     setMatchCandidates([]);
     try {
       const response = await retrieveQuery(draft.claimText.trim());
       const candidates = buildMatchCandidates(response.results ?? [], methods, draft.methodologyId);
       if (!candidates.length) {
         if (!draft.methodologyId.trim()) setShowMethodology(true);
-        setFieldErrors({
-          general: draft.methodologyId
-            ? "No likely requirement match was found for the selected methodology. Try another methodology or adjust the claim."
-            : "We could not find a clear match. Try narrowing by methodology or rewriting the claim.",
-        });
+        setFieldErrors({});
+        setRecoveryState("no-match");
         return;
       }
 
       if (isAmbiguousMatch(candidates)) {
         setMatchCandidates(candidates);
         if (!draft.methodologyId.trim()) setShowMethodology(true);
+        setRecoveryState(null);
         setFieldErrors({
           general: "Multiple requirements could fit this claim. Pick the closest match or narrow by methodology.",
         });
@@ -533,6 +557,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       return;
     }
     if (typeof window !== "undefined") window.location.assign(handoff.url);
+  }
+
+  function handleTryAnotherMethodology() {
+    setShowMethodology(true);
+    setRecoveryState(null);
+    setFieldErrors({});
+  }
+
+  function handleEditClaim() {
+    setRecoveryState(null);
+    setFieldErrors({});
+    claimRef.current?.focus();
   }
 
   return (
@@ -569,12 +605,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   }),
                   null,
                 );
-                setFieldErrors((current) => ({ ...current, claim: undefined, general: undefined }));
-                setMatchCandidates([]);
+                clearDecisionState();
               }}
               rows={3}
               placeholder="Example: The monitoring report covers the full reporting period."
               className="w-full rounded-[1.6rem] border border-slate-200 bg-slate-50/70 px-4 py-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
+              ref={claimRef}
             />
             {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
           </label>
@@ -596,8 +632,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     }),
                     null,
                   );
-                  setFieldErrors((current) => ({ ...current, claim: undefined, general: undefined }));
-                  setMatchCandidates([]);
+                  clearDecisionState();
                 }}
                 className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
               >
@@ -723,9 +758,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
                     updateSession((current) => {
                       const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
-                      return {
-                        ...current,
-                        draft: {
+                  return {
+                    ...current,
+                    draft: {
                           ...current.draft,
                           methodologyId,
                           methodologyVersion,
@@ -736,14 +771,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           result: null,
                           resultId: undefined,
                           updatedAt: nowIso(),
-                        },
-                        result: null,
-                      };
-                    });
-                    setPendingInventoryId("");
-                    setFieldErrors((current) => ({ ...current, general: undefined }));
-                    setMatchCandidates([]);
-                  }}
+                    },
+                    result: null,
+                  };
+                });
+                setPendingInventoryId("");
+                clearDecisionState();
+              }}
                   className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
                 >
                   <option value="">Any methodology</option>
@@ -755,6 +789,40 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 </select>
                 <span className="text-xs text-slate-500">Optional. Use this only when you want to narrow the match.</span>
               </label>
+            </div>
+          ) : null}
+
+          {recoveryState === "no-match" ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4">
+              <div className="text-sm font-semibold text-slate-900">No clear match yet</div>
+              <div className="mt-1 text-sm text-slate-700">
+                We couldn&apos;t find a requirement to check from this claim and evidence yet.
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleTryAnotherMethodology}
+                  className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Try another methodology
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEditClaim}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                >
+                  Edit claim
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined") window.location.assign("/m");
+                  }}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                >
+                  Open Methods
+                </button>
+              </div>
             </div>
           ) : null}
 
@@ -785,9 +853,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         className="flex items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-white px-3 py-3 text-left transition hover:border-sky-300"
                       >
                         <div className="min-w-0">
-                          <div className="text-sm font-medium text-slate-900">{candidate.requirementLabel}</div>
+                          <div className="text-sm font-medium text-slate-900">
+                            {splitRequirementLabel(candidate.requirementLabel).title}
+                          </div>
                           <div className="mt-1 text-xs text-slate-500">
                             {candidate.methodologyId} · {candidate.methodologyVersion}
+                            {splitRequirementLabel(candidate.requirementLabel).id
+                              ? ` · ${splitRequirementLabel(candidate.requirementLabel).id}`
+                              : ""}
                           </div>
                         </div>
                         <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-700">
@@ -825,7 +898,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     </div>
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Requirement</div>
-                      <div className="mt-1 text-sm font-medium text-slate-900">{result.requirementLabel}</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">{resultRequirement.title}</div>
+                      {resultRequirement.id ? (
+                        <div className="mt-1 text-xs font-mono text-slate-500">{resultRequirement.id}</div>
+                      ) : null}
                     </div>
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence</div>
@@ -850,7 +926,27 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
                     >
                       <FolderOpen className="h-4 w-4" />
-                      Open review workspace
+                      Open full review
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateDraft(
+                          (current) => ({
+                            ...current,
+                            matchedRequirementId: undefined,
+                            matchedRequirementLabel: undefined,
+                            evidenceIds: [],
+                            status: "draft",
+                            resultId: undefined,
+                          }),
+                          null,
+                        );
+                        clearDecisionState();
+                      }}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                    >
+                      Change evidence
                     </button>
                     <button
                       type="button"
@@ -861,17 +957,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             claimText: "",
                             matchedRequirementId: undefined,
                             matchedRequirementLabel: undefined,
+                            evidenceIds: [],
                             status: "draft",
                             resultId: undefined,
                           }),
                           null,
                         );
-                        setFieldErrors({});
-                        setMatchCandidates([]);
+                        clearDecisionState();
                       }}
                       className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
                     >
-                      Run another quick check
+                      Check another claim
                     </button>
                   </div>
                 </div>
