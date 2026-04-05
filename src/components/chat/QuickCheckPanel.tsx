@@ -34,6 +34,7 @@ import {
 } from "@/lib/chat/quickCheck";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
+import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
 
@@ -134,9 +135,11 @@ function buildMatchCandidates(
   results: QueryResultWithSignals[],
   methods: MethodInventoryRecord[],
   selectedMethodologyId: string,
+  selectedMethodologyVersion: string,
   analysis: QuickCheckEvidenceAnalysis,
 ): MatchCandidate[] {
   const selectedMethod = selectedMethodologyId.trim();
+  const selectedVersion = selectedMethodologyVersion.trim();
   const unique = new Map<string, MatchCandidate>();
 
   for (const result of results) {
@@ -153,9 +156,11 @@ function buildMatchCandidates(
       (typeof result.methodologyVersion === "string" && result.methodologyVersion.trim()) ||
       pickVersion(methodRecord);
     if (!methodologyVersion) continue;
+    if (selectedMethod && selectedVersion && methodologyVersion !== selectedVersion) continue;
 
     const requirementId = result.id?.trim();
     if (!requirementId) continue;
+    if (!isRuleLikeId(requirementId)) continue;
 
     const key = `${methodologyId}@@${methodologyVersion}@@${requirementId}`;
     if (unique.has(key)) continue;
@@ -684,8 +689,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         })),
       );
       const mergedResults = mergeQueryResults(responses);
-      const allCandidates = buildMatchCandidates(mergedResults, methods, "", evidenceAnalysis);
-      let candidates = buildMatchCandidates(mergedResults, methods, draft.methodologyId, evidenceAnalysis);
+      const allCandidates = buildMatchCandidates(mergedResults, methods, "", "", evidenceAnalysis);
+      let candidates = buildMatchCandidates(
+        mergedResults,
+        methods,
+        draft.methodologyId,
+        draft.methodologyVersion,
+        evidenceAnalysis,
+      );
 
       if (!candidates.length) {
         const methodSubset = draft.methodologyId.trim()

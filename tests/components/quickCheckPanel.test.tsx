@@ -322,6 +322,13 @@ describe("QuickCheckPanel claim-first flow", () => {
             metrics: [],
             results: [
               {
+                id: "baseline-carbon-44-12",
+                section_title: "Baseline carbon memo",
+                methodology_id: "AR-ACM0003",
+                methodology_version: "v02-0",
+                score: 0.99,
+              },
+              {
                 id: "R-1-0002",
                 section_title: "Boundary consistency",
                 methodology_id: "AR-ACM0003",
@@ -577,6 +584,8 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("R-1-0002");
     expect(container.textContent).toContain("Boundary delineation");
     expect(container.textContent).toContain("R-2-0001");
+    expect(container.textContent).not.toContain("baseline-carbon-44-12");
+    expect(container.textContent).not.toContain("Baseline carbon memo");
   });
 
   it("renders recovery actions when no clear match is found", async () => {
@@ -792,5 +801,59 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("Boundary delineation");
+    expect(container.textContent).not.toContain("baseline-carbon-44-12");
+  });
+
+  it("keeps narrowed shortlist entries scoped to in-method requirement candidates only", async () => {
+    window.localStorage.setItem(
+      "a6:quick-check:claim-first:v1",
+      JSON.stringify({
+        draft: {
+          id: "draft-narrowed-shortlist",
+          claimText: "The boundary description matches the mapped project area.",
+          methodologyId: "AR-ACM0003",
+          methodologyVersion: "v02-0",
+          evidenceIds: ["upload-1"],
+          status: "draft",
+          createdAt: "2026-04-04T00:00:00Z",
+          updatedAt: "2026-04-04T00:00:00Z",
+        },
+        result: null,
+        stagedUploads: [
+          {
+            evidenceId: "upload-1",
+            filename: "boundary.pdf",
+            mime: "application/pdf",
+            createdAt: "2026-04-04T00:00:00Z",
+            attachment: {
+              id: "att-upload-1",
+              pin_id: "upload-1",
+              filename: "boundary.pdf",
+              mime: "application/pdf",
+              size: 256,
+              sha256: "sha-upload-1",
+              created_at: "2026-04-04T00:00:00Z",
+            },
+          },
+        ],
+      }),
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Boundary delineation");
+    expect(text).not.toContain("baseline-carbon-44-12");
+    expect(text).not.toContain("Baseline carbon memo");
   });
 });
