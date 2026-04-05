@@ -75,7 +75,6 @@ type RecoveryState =
       kind: "no-match";
       title: string;
       description: string;
-      detectedFacts: string[];
       note?: string;
     }
   | null;
@@ -241,43 +240,21 @@ function mergeQueryResults(responses: Array<{ query: string; results: QueryRespo
 }
 
 function buildRecoveryState(input: {
-  analysis: QuickCheckEvidenceAnalysis;
   selectedMethodologyId: string;
-  narrowingSuppressed: boolean;
 }): RecoveryState {
-  const detectedFacts = input.analysis.facts.map((fact) => fact.summary).slice(0, 4);
-  if (input.narrowingSuppressed && input.selectedMethodologyId.trim()) {
+  if (input.selectedMethodologyId.trim()) {
     return {
       kind: "no-match",
       title: `No clear match in ${input.selectedMethodologyId} yet`,
       description: "The current methodology narrowing is stricter than the evidence signals we found.",
-      detectedFacts,
       note: "Try another methodology or keep the claim and broaden the check.",
-    };
-  }
-  if (detectedFacts.length) {
-    return {
-      kind: "no-match",
-      title: "No clear match yet",
-      description: "We found signals in the selected evidence, but not a confident requirement match from them yet.",
-      detectedFacts,
-      note: "Refine the claim or narrow by methodology to turn these evidence facts into a requirement match.",
-    };
-  }
-  if (input.analysis.parsedEvidenceLabels.length) {
-    return {
-      kind: "no-match",
-      title: "No clear match yet",
-      description: "We parsed the selected evidence, but it did not surface enough requirement signals to match confidently.",
-      detectedFacts: [],
-      note: "Edit the claim or try another methodology to guide the check.",
     };
   }
   return {
     kind: "no-match",
     title: "No clear match yet",
     description: "We couldn't find a requirement to check from this claim and evidence yet.",
-    detectedFacts: [],
+    note: "Edit the claim or try another methodology to guide the check.",
   };
 }
 
@@ -495,6 +472,33 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     return rules;
   }
 
+  async function buildLocalFallbackCandidates(methodSubset: MethodInventoryRecord[], analysis: QuickCheckEvidenceAnalysis): Promise<MatchCandidate[]> {
+    const perMethodCandidates = await Promise.all(
+      methodSubset.map(async (method) => {
+        const methodologyVersion = pickVersion(method, draft.methodologyId === method.code ? draft.methodologyVersion : null);
+        if (!methodologyVersion) return [];
+        const rules = await fetchRules(method.code, methodologyVersion);
+        return buildLocalRuleCandidates({
+          claimText: draft.claimText.trim(),
+          facts: analysis.facts,
+          rules,
+        }).map((candidate) => ({
+          key: `${method.code}@@${methodologyVersion}@@${candidate.requirementId}`,
+          methodologyId: method.code,
+          methodologyVersion,
+          requirementId: candidate.requirementId,
+          requirementLabel: candidate.requirementLabel,
+          score: candidate.score,
+        }));
+      }),
+    );
+
+    return perMethodCandidates
+      .flat()
+      .sort((a, b) => (b.score ?? -1) - (a.score ?? -1) || a.requirementLabel.localeCompare(b.requirementLabel))
+      .slice(0, 4);
+  }
+
   async function materializeUploads(methodologyId: string, methodologyVersion: string): Promise<string[]> {
     if (!stagedUploads.length) return draft.evidenceIds;
     const currentPins = coalesceEvidencePins(loadPins(methodologyId, methodologyVersion));
@@ -683,21 +687,24 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const allCandidates = buildMatchCandidates(mergedResults, methods, "", evidenceAnalysis);
       let candidates = buildMatchCandidates(mergedResults, methods, draft.methodologyId, evidenceAnalysis);
 
-      if (!candidates.length && draft.methodologyId.trim() && draft.methodologyVersion.trim()) {
-        const narrowedRules = await fetchRules(draft.methodologyId, draft.methodologyVersion);
-        const localCandidates = buildLocalRuleCandidates({
-          claimText: draft.claimText.trim(),
-          facts: evidenceAnalysis.facts,
-          rules: narrowedRules,
-        }).map((candidate) => ({
-          key: `${draft.methodologyId}@@${draft.methodologyVersion}@@${candidate.requirementId}`,
-          methodologyId: draft.methodologyId,
-          methodologyVersion: draft.methodologyVersion,
-          requirementId: candidate.requirementId,
-          requirementLabel: candidate.requirementLabel,
-          score: candidate.score,
-        }));
-        candidates = localCandidates;
+      if (!candidates.length) {
+        const methodSubset = draft.methodologyId.trim()
+          ? methods.filter((method) => method.code === draft.methodologyId)
+          : methods;
+        candidates = await buildLocalFallbackCandidates(methodSubset, evidenceAnalysis);
+      }
+
+      if (!candidates.length && draft.methodologyId.trim()) {
+        const broaderCandidates =
+          allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
+        if (broaderCandidates.length) {
+          setMatchCandidates(broaderCandidates);
+          setRecoveryState(null);
+          setFieldErrors({
+            general: "This methodology filter removed closer matches. Pick a likely match below or try another methodology.",
+          });
+          return;
+        }
       }
 
       if (!candidates.length) {
@@ -705,9 +712,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setFieldErrors({});
         setRecoveryState(
           buildRecoveryState({
-            analysis: evidenceAnalysis,
             selectedMethodologyId: draft.methodologyId,
-            narrowingSuppressed: Boolean(draft.methodologyId.trim() && allCandidates.length),
           }),
         );
         return;
@@ -980,18 +985,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4">
               <div className="text-sm font-semibold text-slate-900">{recoveryState.title}</div>
               <div className="mt-1 text-sm text-slate-700">{recoveryState.description}</div>
-              {recoveryState.detectedFacts.length ? (
-                <div className="mt-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Detected from evidence</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {recoveryState.detectedFacts.map((fact) => (
-                      <span key={fact} className="rounded-full border border-amber-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                        {fact}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
               {recoveryState.note ? <div className="mt-3 text-sm text-slate-600">{recoveryState.note}</div> : null}
               <div className="mt-4 flex flex-wrap gap-2">
                 <button

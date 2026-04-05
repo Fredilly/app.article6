@@ -208,6 +208,16 @@ describe("QuickCheckPanel claim-first flow", () => {
           );
         }
         if (lower.includes("project boundary described")) {
+          if (window.localStorage.getItem("a6:quick-check:claim-first:v1")?.includes("local-fallback")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [],
+              }),
+              { status: 200 },
+            );
+          }
           return new Response(
             JSON.stringify({
               engineTag: "test",
@@ -585,8 +595,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("No clear match yet");
-    expect(container.textContent).toContain("Detected from evidence");
-    expect(container.textContent).toContain("The workbook is referenced in the PDD");
+    expect(container.textContent).not.toContain("Detected from evidence");
     expect(container.textContent).toContain("Try another methodology");
     expect(container.textContent).toContain("Edit claim");
     expect(container.textContent).toContain("Open Methods");
@@ -606,6 +615,23 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     expect(container.textContent).toContain("Boundary consistency");
     expect(container.textContent).toContain("Open full review");
+  });
+
+  it("falls back to a likely boundary match when retrieval misses but evidence facts are strong", async () => {
+    seedSession({ claimText: "local-fallback: The project boundary is described in the PDD", filename: "malawi-pdd.pdf" });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    expect(container.textContent).toContain("Boundary consistency");
+    expect(container.textContent).toContain("Likely requirement matches");
+    expect(container.textContent).not.toContain("No clear match yet");
   });
 
   it("returns a plausible result for a monitoring-plan claim using parsed uploaded evidence", async () => {
