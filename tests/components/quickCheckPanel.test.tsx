@@ -190,6 +190,63 @@ describe("QuickCheckPanel claim-first flow", () => {
             { status: 200 },
           );
         }
+        if (lower.includes("invalid top candidate")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-9-9999",
+                  section_title: "Broken top result",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.97,
+                },
+                {
+                  id: "R-1-0001",
+                  section_title: "Monitoring frequency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.91,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (lower.includes("shortlist with unresolved")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-9-9999",
+                  section_title: "Broken top result",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.95,
+                },
+                {
+                  id: "R-1-0002",
+                  section_title: "Boundary consistency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.85,
+                },
+                {
+                  id: "R-2-0001",
+                  section_title: "Boundary delineation",
+                  methodology_id: "AR-AMS0007",
+                  methodology_version: "v01-0",
+                  score: 0.84,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
         if (lower.includes("the boundary description matches the mapped project area")) {
           if (
             window.localStorage.getItem("a6:quick-check:claim-first:v1")?.includes("synthetic-malawi-pdd.pdf") ||
@@ -688,6 +745,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("R-2-0001");
     expect(container.textContent).not.toContain("baseline-carbon-44-12");
     expect(container.textContent).not.toContain("Baseline carbon memo");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("renders recovery actions when no clear match is found", async () => {
@@ -715,6 +773,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Edit claim");
     expect(container.textContent).toContain("Open Methods");
     expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("returns a plausible result for a PDD boundary claim using parsed uploaded evidence", async () => {
@@ -966,6 +1025,56 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("Boundary delineation");
     expect(text).not.toContain("baseline-carbon-44-12");
     expect(text).not.toContain("Baseline carbon memo");
+    expect(text).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("falls back safely when the top direct-match candidate is unresolved", async () => {
+    seedSession({ claimText: "invalid top candidate", filename: "monitoring-report.pdf" });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Monitoring report for the reporting period.)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Monitoring frequency");
+    expect(text).toMatch(/Open full review|Likely requirement matches/);
+    expect(text).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("filters unresolved shortlist entries before rendering them", async () => {
+    seedSession({ claimText: "shortlist with unresolved", filename: "boundary.pdf" });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Boundary consistency");
+    expect(text).toMatch(/Likely requirement matches|Open full review/);
+    if (text.includes("Likely requirement matches")) {
+      expect(text).toContain("Boundary delineation");
+    }
+    expect(text).not.toContain("Broken top result");
+    expect(text).not.toContain("R-9-9999");
+    expect(text).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("uses boundary/location PDD facts to recover a narrowed AR-ACM0003 boundary claim", async () => {
@@ -1002,6 +1111,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("Baseline carbon memo");
     expect(text).toContain("Boundary consistency");
     expect(text).toContain("AR-ACM0003 · v02-0");
+    expect(text).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("keeps narrowed monitoring-plan checks plausible against the same PDD", async () => {
@@ -1037,6 +1147,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).toMatch(/Monitoring plan|Likely requirement matches/);
     expect(text).not.toContain("Boundary delineation");
     expect(text).not.toContain("Baseline carbon memo");
+    expect(text).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("shows evidence-aware narrowed no-match copy when boundary evidence exists but mapping stays weak", async () => {
@@ -1079,6 +1190,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).toContain("Edit claim");
     expect(text).toContain("Open Methods");
     expect(text).toContain("Open full review");
+    expect(text).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("runs the deterministic demo flow in one click and shows the normal success state", async () => {
@@ -1100,6 +1212,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("Change evidence");
     expect(container.textContent).toContain("Start your own check");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("preserves demo context when opening the full review", async () => {
@@ -1122,6 +1235,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
     expect(loadPins("AR-ACM0003", "v02-0").find((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId)?.ruleId).toBe("R-1-0001");
     expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain("R-1-0001");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("keeps the uploaded-evidence path working after adding the demo shortcut", async () => {
@@ -1147,6 +1261,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("monitoring-report.pdf");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
   it("keeps repeated demo runs deterministic", async () => {
@@ -1180,5 +1295,6 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).not.toContain("Likely requirement matches");
     expect(container.textContent).not.toContain("No clear match yet");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 });

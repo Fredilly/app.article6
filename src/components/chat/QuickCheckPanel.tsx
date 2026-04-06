@@ -35,6 +35,11 @@ import {
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
 import { prepareQuickCheckDemo, QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
+import {
+  resolveQuickCheckCandidate,
+  resolveQuickCheckCandidates,
+  type QuickCheckResolvedCandidate,
+} from "@/lib/chat/quickCheckResolver";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
@@ -61,6 +66,8 @@ type MatchCandidate = {
   requirementLabel: string;
   score: number | null;
 };
+
+type ResolvedMatchCandidate = QuickCheckResolvedCandidate<MatchCandidate>;
 
 type QuickCheckSessionState = {
   draft: QuickCheckDraft;
@@ -360,10 +367,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [recoveryState, setRecoveryState] = useState<RecoveryState>(null);
-  const [matchCandidates, setMatchCandidates] = useState<MatchCandidate[]>([]);
+  const [matchCandidates, setMatchCandidates] = useState<ResolvedMatchCandidate[]>([]);
   const [pendingInventoryId, setPendingInventoryId] = useState("");
   const [showSavedEvidence, setShowSavedEvidence] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
+  const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -493,6 +501,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     : "";
   const canRunQuickCheck = Boolean(draft.claimText.trim()) && selectedEvidenceCount === 1 && !submitting;
   const resultRequirement = splitRequirementLabel(result?.requirementLabel ?? "");
+  const activeResultKey =
+    result && draft.methodologyId.trim() && draft.methodologyVersion.trim() && draft.matchedRequirementId?.trim()
+      ? `${draft.methodologyId.trim()}@@${draft.methodologyVersion.trim()}@@${draft.matchedRequirementId.trim()}`
+      : null;
+  const canRenderResult = Boolean(result && activeResultKey && validatedResultKey === activeResultKey);
   const selectedEvidenceSources = useMemo(() => {
     const sources = new Map<string, { evidenceId: string; sourceLabel: string; attachments: EvidencePin["attachments"]; pddFragments?: PddFragment[] }>();
 
@@ -531,9 +544,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setFieldErrors({});
     setRecoveryState(null);
     setMatchCandidates([]);
+    setValidatedResultKey(null);
   }
 
-  async function fetchRules(methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> {
+  const fetchRules = useCallback(async (methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> => {
     const cacheKey = `${methodologyId}@@${methodologyVersion}`;
     const cached = rulesCache.current.get(cacheKey);
     if (cached) return cached;
@@ -546,7 +560,72 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const rules = Array.isArray(payload.rules) ? payload.rules : [];
     rulesCache.current.set(cacheKey, rules);
     return rules;
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!activeResultKey || !result) {
+      setValidatedResultKey(null);
+      return;
+    }
+    if (validatedResultKey === activeResultKey) return;
+    if (!methods.length) return;
+
+    let cancelled = false;
+    const candidate: MatchCandidate = {
+      key: activeResultKey,
+      methodologyId: draft.methodologyId,
+      methodologyVersion: draft.methodologyVersion,
+      requirementId: draft.matchedRequirementId ?? result.requirementId,
+      requirementLabel: result.requirementLabel,
+      score: null,
+    };
+
+    void resolveQuickCheckCandidate({
+      candidate,
+      methods,
+      loadRules: fetchRules,
+    }).then((resolved) => {
+      if (cancelled) return;
+      if (resolved) {
+        setValidatedResultKey(activeResultKey);
+        return;
+      }
+      setValidatedResultKey(null);
+      updateDraft(
+        (current) => ({
+          ...current,
+          matchedRequirementId: undefined,
+          matchedRequirementLabel: undefined,
+          status: "draft",
+          resultId: undefined,
+        }),
+        null,
+      );
+      setRecoveryState(
+        buildRecoveryState({
+          selectedMethodologyId: draft.methodologyId,
+          evidenceAnalysis: undefined,
+          claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
+        }),
+      );
+      setFieldErrors({});
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    activeResultKey,
+    draft.claimText,
+    draft.matchedRequirementId,
+    draft.methodologyId,
+    draft.methodologyVersion,
+    fetchRules,
+    methods,
+    result,
+    updateDraft,
+    validatedResultKey,
+  ]);
 
   async function buildLocalFallbackCandidates(methodSubset: MethodInventoryRecord[], analysis: QuickCheckEvidenceAnalysis): Promise<MatchCandidate[]> {
     const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
@@ -614,7 +693,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   async function completeQuickCheck(
-    candidate: MatchCandidate,
+    candidate: ResolvedMatchCandidate,
     activeSession: QuickCheckSessionState = session,
     options?: { manageSubmitting?: boolean },
   ) {
@@ -625,12 +704,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setRecoveryState(null);
     try {
       await materializeUploads(candidate.methodologyId, candidate.methodologyVersion, activeSession);
-      const rules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
-      const selectedRule = rules.find((item) => item.id === candidate.requirementId) ?? null;
-      if (!selectedRule) {
-        setFieldErrors({ general: "The matched requirement could not be loaded." });
-        return;
-      }
 
       const nextDraft: QuickCheckDraft = {
         ...activeDraft,
@@ -645,21 +718,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const nextResult = buildQuickCheckResult({
         draft: nextDraft,
         rule: {
-          id: selectedRule.id,
-          title: selectedRule.title,
-          snippet: selectedRule.snippet,
-          text: selectedRule.text,
-          summary: selectedRule.summary,
-          logic: selectedRule.logic,
-          notes: selectedRule.notes,
-          when: selectedRule.when,
-          expectedEvidence: selectedRule.expectedEvidence,
-          type: selectedRule.type,
-          tags: selectedRule.tags,
-          sectionId: selectedRule.sectionId,
-          anchor: selectedRule.anchor,
-          refs: selectedRule.refs,
-          citations: selectedRule.citations,
+          id: candidate.rule.id,
+          title: candidate.rule.title,
+          snippet: candidate.rule.snippet,
+          text: candidate.rule.text,
+          summary: candidate.rule.summary,
+          logic: candidate.rule.logic,
+          notes: candidate.rule.notes,
+          when: candidate.rule.when,
+          expectedEvidence: candidate.rule.expectedEvidence,
+          type: candidate.rule.type,
+          tags: candidate.rule.tags,
+          sectionId: candidate.rule.sectionId,
+          anchor: candidate.rule.anchor,
+          refs: candidate.rule.refs,
+          citations: candidate.rule.citations,
         },
         inventoryItems: inventory,
       });
@@ -678,6 +751,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
       saveQuickCheckSession(nextSession);
       setSession(nextSession);
+      setValidatedResultKey(candidate.key);
       setMatchCandidates([]);
       setRecoveryState(null);
     } catch (error) {
@@ -806,11 +880,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         candidates = await buildLocalFallbackCandidates(methodSubset, evidenceAnalysis);
       }
 
-      if (!candidates.length && !draft.methodologyId.trim()) {
+      let resolvedCandidates = await resolveQuickCheckCandidates({
+        candidates,
+        methods,
+        loadRules: fetchRules,
+      });
+
+      if (!resolvedCandidates.length && !draft.methodologyId.trim()) {
         const broaderCandidates =
           allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
-        if (broaderCandidates.length) {
-          setMatchCandidates(broaderCandidates);
+        resolvedCandidates = await resolveQuickCheckCandidates({
+          candidates: broaderCandidates,
+          methods,
+          loadRules: fetchRules,
+        });
+        if (resolvedCandidates.length) {
+          setMatchCandidates(resolvedCandidates);
           setRecoveryState(null);
           setFieldErrors({
             general: "This methodology filter removed closer matches. Pick a likely match below or try another methodology.",
@@ -819,7 +904,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         }
       }
 
-      if (!candidates.length) {
+      if (!resolvedCandidates.length) {
         if (!draft.methodologyId.trim()) setShowMethodology(true);
         setFieldErrors({});
         setRecoveryState(
@@ -832,8 +917,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      if (isAmbiguousMatch(candidates)) {
-        setMatchCandidates(candidates);
+      if (isAmbiguousMatch(resolvedCandidates)) {
+        setMatchCandidates(resolvedCandidates);
         if (!draft.methodologyId.trim()) setShowMethodology(true);
         setRecoveryState(null);
         setFieldErrors({
@@ -842,7 +927,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      await completeQuickCheck(candidates[0]!);
+      await completeQuickCheck(resolvedCandidates[0]!);
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -865,10 +950,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         result: null,
         stagedUploads: [demo.stagedUpload],
       };
-      saveQuickCheckSession(nextSession);
-      setSession(nextSession);
-      await completeQuickCheck(
-        {
+      const resolvedDemoCandidate = await resolveQuickCheckCandidate({
+        candidate: {
           key: `${QUICK_CHECK_DEMO.methodologyId}@@${QUICK_CHECK_DEMO.methodologyVersion}@@${QUICK_CHECK_DEMO.requirementId}`,
           methodologyId: QUICK_CHECK_DEMO.methodologyId,
           methodologyVersion: QUICK_CHECK_DEMO.methodologyVersion,
@@ -876,6 +959,24 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           requirementLabel: QUICK_CHECK_DEMO.requirementLabel,
           score: 1,
         },
+        methods,
+        loadRules: fetchRules,
+      });
+      if (!resolvedDemoCandidate) {
+        saveQuickCheckSession(nextSession);
+        setSession(nextSession);
+        setRecoveryState(
+          buildRecoveryState({
+            selectedMethodologyId: QUICK_CHECK_DEMO.methodologyId,
+            claimIntents: classifyQuickCheckClaimIntents(QUICK_CHECK_DEMO.claimText),
+          }),
+        );
+        return;
+      }
+      saveQuickCheckSession(nextSession);
+      setSession(nextSession);
+      await completeQuickCheck(
+        resolvedDemoCandidate,
         nextSession,
         { manageSubmitting: false },
       );
@@ -1241,7 +1342,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
-          {result ? (
+          {canRenderResult ? (
             <div
               ref={resultRef}
               tabIndex={-1}
