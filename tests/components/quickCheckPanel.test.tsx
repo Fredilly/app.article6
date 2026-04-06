@@ -14,6 +14,7 @@ jest.mock("@/lib/proofMap/attachments", () => ({
 }));
 
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
+import { QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
 import { loadPins } from "@/lib/proofMap/storage";
 
 describe("QuickCheckPanel claim-first flow", () => {
@@ -189,6 +190,21 @@ describe("QuickCheckPanel claim-first flow", () => {
             { status: 200 },
           );
         }
+        if (lower.includes("the boundary description matches the mapped project area")) {
+          if (
+            window.localStorage.getItem("a6:quick-check:claim-first:v1")?.includes("synthetic-malawi-pdd.pdf") ||
+            window.localStorage.getItem("pins:AR-ACM0003:v02-0")?.includes("synthetic-malawi-pdd.pdf")
+          ) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [],
+              }),
+              { status: 200 },
+            );
+          }
+        }
         if (lower.includes("documented monitoring plan")) {
           return new Response(
             JSON.stringify({
@@ -229,6 +245,49 @@ describe("QuickCheckPanel claim-first flow", () => {
                   methodology_id: "AR-ACM0003",
                   methodology_version: "v02-0",
                   score: 0.86,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (lower.includes("project coordinates present") || lower.includes("mapped project area referenced") || lower.includes("project location described")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-1-0002",
+                  section_title: "Boundary consistency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.84,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (lower.includes("mapped area boundary") || lower.includes("project coordinates boundary") || lower.includes("project location boundary")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-1-0002",
+                  section_title: "Boundary consistency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.82,
+                },
+                {
+                  id: "R-2-0001",
+                  section_title: "Boundary delineation",
+                  methodology_id: "AR-AMS0007",
+                  methodology_version: "v01-0",
+                  score: 0.78,
                 },
               ],
             }),
@@ -371,6 +430,24 @@ describe("QuickCheckPanel claim-first flow", () => {
           ],
           created_at: "2026-04-04T00:00:00Z",
         },
+        {
+          id: "ev-pdd-malawi",
+          kind: "pdd",
+          title: "Synthetic Malawi PDD",
+          cited_ids: [],
+          attachments: [
+            {
+              id: "att-pdd-malawi",
+              pin_id: "ev-pdd-malawi",
+              filename: "synthetic-malawi-pdd.pdf",
+              mime: "application/pdf",
+              size: 256,
+              sha256: "sha-pdd-malawi",
+              created_at: "2026-04-04T00:00:00Z",
+            },
+          ],
+          created_at: "2026-04-04T00:00:00Z",
+        },
       ]),
     );
     window.localStorage.setItem(
@@ -421,6 +498,21 @@ describe("QuickCheckPanel claim-first flow", () => {
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
+  function setClaimValue(value: string) {
+    const input = claimInput();
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+    setter?.call(input, value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  async function flushUi() {
+    await act(async () => {
+      await Promise.resolve();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+  }
+
   it("renders a minimal default state with secondary controls collapsed", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -429,10 +521,22 @@ describe("QuickCheckPanel claim-first flow", () => {
     const pageText = container.textContent ?? "";
     expect(pageText).toContain("Check one claim");
     expect(pageText).toContain("Upload evidence");
+    expect(pageText).toContain("Try demo check");
     expect(pageText).toContain("Use saved evidence instead");
     expect(pageText).toContain("Narrow by methodology");
     expect(pageText).not.toContain("Select saved evidence");
     expect(pageText).not.toContain("MethodologyAny methodology");
+    expect(primaryCta().disabled).toBe(true);
+  });
+
+  it("renders Try demo check as an always-available primary shortcut", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    const demoButton = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Try demo check"));
+    expect(demoButton).toBeTruthy();
+    expect((demoButton as HTMLButtonElement).disabled).toBe(false);
     expect(primaryCta().disabled).toBe(true);
   });
 
@@ -518,7 +622,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("monitoring-report.pdf");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("Change evidence");
-    expect(container.textContent).toContain("Check another claim");
+    expect(container.textContent).toContain("Start your own check");
 
     await act(async () => {
       clickButton("Open full review");
@@ -574,9 +678,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Run quick check");
     });
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushUi();
 
     expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).toContain("Multiple requirements could fit this claim.");
@@ -599,6 +701,10 @@ describe("QuickCheckPanel claim-first flow", () => {
       root.render(<QuickCheckPanel />);
     });
 
+    await flushUi();
+
+    expect(primaryCta().disabled).toBe(false);
+
     await act(async () => {
       clickButton("Run quick check");
     });
@@ -608,6 +714,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Try another methodology");
     expect(container.textContent).toContain("Edit claim");
     expect(container.textContent).toContain("Open Methods");
+    expect(container.textContent).toContain("Open full review");
   });
 
   it("returns a plausible result for a PDD boundary claim using parsed uploaded evidence", async () => {
@@ -617,6 +724,10 @@ describe("QuickCheckPanel claim-first flow", () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
     });
+
+    await flushUi();
+
+    expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
       clickButton("Run quick check");
@@ -633,6 +744,10 @@ describe("QuickCheckPanel claim-first flow", () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
     });
+
+    await flushUi();
+
+    expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
       clickButton("Run quick check");
@@ -796,9 +911,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Run quick check");
     });
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushUi();
 
     expect(container.textContent).toContain("Boundary delineation");
     expect(container.textContent).not.toContain("baseline-carbon-44-12");
@@ -847,13 +960,225 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Run quick check");
     });
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushUi();
 
     const text = container.textContent ?? "";
     expect(text).not.toContain("Boundary delineation");
     expect(text).not.toContain("baseline-carbon-44-12");
     expect(text).not.toContain("Baseline carbon memo");
+  });
+
+  it("uses boundary/location PDD facts to recover a narrowed AR-ACM0003 boundary claim", async () => {
+    await seedAttachmentText(
+      "att-pdd-malawi",
+      "%PDF-1.4\n(Project boundary description for the Malawi grouped activity.)\n(Project location: Machinga District, Malawi.)\n(Project coordinates: -15.2345, 35.6789.)\n(The mapped project area polygon and AOI are referenced in the boundary map.)\n%%EOF",
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+    });
+
+    await act(async () => {
+      clickButton("Use saved evidence instead");
+    });
+    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    await act(async () => {
+      inventorySelect.value = "ev-pdd-malawi";
+      inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await act(async () => {
+      setClaimValue("The boundary description matches the mapped project area");
+    });
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("No clear match in AR-ACM0003 yet");
+    expect(text).not.toContain("Boundary delineation");
+    expect(text).not.toContain("Baseline carbon memo");
+    expect(text).toContain("Boundary consistency");
+    expect(text).toContain("AR-ACM0003 · v02-0");
+  });
+
+  it("keeps narrowed monitoring-plan checks plausible against the same PDD", async () => {
+    await seedAttachmentText(
+      "att-pdd-malawi",
+      "%PDF-1.4\n(Project boundary description for the Malawi grouped activity.)\n(Project location: Machinga District, Malawi.)\n(Project coordinates: -15.2345, 35.6789.)\n(The mapped project area polygon and AOI are referenced in the boundary map.)\n(Documented monitoring plan for the project.)\n%%EOF",
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+    });
+
+    await act(async () => {
+      clickButton("Use saved evidence instead");
+    });
+    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    await act(async () => {
+      inventorySelect.value = "ev-pdd-malawi";
+      inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await act(async () => {
+      setClaimValue("The project has a documented monitoring plan");
+    });
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("No clear match in AR-ACM0003 yet");
+    expect(text).toMatch(/Monitoring plan|Likely requirement matches/);
+    expect(text).not.toContain("Boundary delineation");
+    expect(text).not.toContain("Baseline carbon memo");
+  });
+
+  it("shows evidence-aware narrowed no-match copy when boundary evidence exists but mapping stays weak", async () => {
+    await seedAttachmentText(
+      "att-pdd-malawi",
+      "%PDF-1.4\n(Project boundary description for the Malawi grouped activity.)\n(Project location: Machinga District, Malawi.)\n(Project coordinates: -15.2345, 35.6789.)\n(The mapped project area polygon and AOI are referenced in the boundary map.)\n%%EOF",
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+    });
+
+    await act(async () => {
+      clickButton("Use saved evidence instead");
+    });
+    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    await act(async () => {
+      inventorySelect.value = "ev-pdd-malawi";
+      inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await act(async () => {
+      setClaimValue("The location coordinates map to the project area");
+    });
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    if (text.includes("Likely requirement matches") || text.includes("Boundary consistency")) {
+      expect(text).not.toContain("Boundary delineation");
+      expect(text).not.toContain("Baseline carbon memo");
+      return;
+    }
+
+    expect(text).toContain("We found project boundary/location evidence in your uploaded PDD, but no confident AR-ACM0003 requirement match yet.");
+    expect(text).toContain("Try another methodology");
+    expect(text).toContain("Edit claim");
+    expect(text).toContain("Open Methods");
+    expect(text).toContain("Open full review");
+  });
+
+  it("runs the deterministic demo flow in one click and shows the normal success state", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await flushUi();
+
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
+    expect(container.textContent).toContain("Supported");
+    expect(container.textContent).toContain("Monitoring frequency");
+    expect(container.textContent).toContain("R-1-0001");
+    expect(container.textContent).toContain("Section 10");
+    expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).toContain("Change evidence");
+    expect(container.textContent).toContain("Start your own check");
+  });
+
+  it("preserves demo context when opening the full review", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel onContinueToWorkspace={pushMock} />);
+    });
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      clickButton("Open full review");
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
+    expect(loadPins("AR-ACM0003", "v02-0").find((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId)?.ruleId).toBe("R-1-0001");
+    expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain("R-1-0001");
+  });
+
+  it("keeps the uploaded-evidence path working after adding the demo shortcut", async () => {
+    seedSession({ claimText: "The monitoring report covers the full reporting period.", filename: "monitoring-report.pdf" });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(primaryCta().disabled).toBe(false);
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).toContain("monitoring-report.pdf");
+  });
+
+  it("keeps repeated demo runs deterministic", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const firstPins = loadPins("AR-ACM0003", "v02-0").filter((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId);
+    expect(firstPins).toHaveLength(1);
+    expect(container.textContent).toContain("Monitoring frequency");
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const repeatedPins = loadPins("AR-ACM0003", "v02-0").filter((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId);
+    expect(repeatedPins).toHaveLength(1);
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
+    expect(container.textContent).toContain("Monitoring frequency");
+    expect(container.textContent).not.toContain("Likely requirement matches");
+    expect(container.textContent).not.toContain("No clear match yet");
   });
 });

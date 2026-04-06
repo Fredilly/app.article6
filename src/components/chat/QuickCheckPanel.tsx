@@ -19,6 +19,8 @@ import {
   analyzeQuickCheckEvidence,
   buildLocalRuleCandidates,
   buildQuickCheckQueryTexts,
+  classifyQuickCheckClaimIntents,
+  type QuickCheckClaimIntent,
   type QuickCheckEvidenceAnalysis,
 } from "@/lib/chat/quickCheckEvidence";
 import {
@@ -32,6 +34,7 @@ import {
   type QuickCheckResult,
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
+import { prepareQuickCheckDemo, QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
@@ -115,20 +118,51 @@ function pickRequirementLabel(result: QueryResponse["results"][number]): string 
   return explicit || result.id;
 }
 
-function boostForEvidenceFacts(result: QueryResultWithSignals, analysis: QuickCheckEvidenceAnalysis): number {
+function boostForEvidenceFacts(
+  result: QueryResultWithSignals,
+  analysis: QuickCheckEvidenceAnalysis,
+  claimIntents: QuickCheckClaimIntent[],
+): number {
   const haystack = `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
   let boost = 0;
+  const prefersBoundaryLocation = claimIntents.some((intent) =>
+    intent === "boundary" ||
+    intent === "project-area" ||
+    intent === "mapped-area" ||
+    intent === "aoi" ||
+    intent === "coordinates" ||
+    intent === "location",
+  );
+  const prefersMonitoring = claimIntents.includes("monitoring-plan");
   for (const fact of analysis.facts) {
-    if (fact.category === "boundary" && haystack.includes("boundary")) boost += 0.16;
-    if (fact.category === "monitoring-plan" && haystack.includes("monitoring")) boost += 0.16;
-    if (fact.category === "workbook-reference" && (haystack.includes("workbook") || haystack.includes("spreadsheet"))) boost += 0.12;
-    if (fact.category === "monitoring-evidence" && haystack.includes("monitoring")) boost += 0.1;
+    if (fact.category === "boundary" && haystack.includes("boundary")) boost += prefersMonitoring ? 0.04 : 0.16;
+    if (fact.category === "coordinates" && (haystack.includes("coordinate") || haystack.includes("location") || haystack.includes("boundary"))) boost += prefersMonitoring ? 0.04 : 0.16;
+    if (fact.category === "mapped-area" && (haystack.includes("mapped area") || haystack.includes("project area") || haystack.includes("aoi") || haystack.includes("polygon") || haystack.includes("map") || haystack.includes("boundary"))) boost += prefersMonitoring ? 0.05 : 0.18;
+    if (fact.category === "project-location" && (haystack.includes("location") || haystack.includes("boundary") || haystack.includes("area") || haystack.includes("map"))) boost += prefersMonitoring ? 0.04 : 0.14;
+    if (fact.category === "monitoring-plan" && haystack.includes("monitoring")) boost += prefersBoundaryLocation ? 0.1 : 0.16;
+    if (fact.category === "workbook-reference" && (haystack.includes("workbook") || haystack.includes("spreadsheet"))) boost += prefersBoundaryLocation ? 0.08 : 0.12;
+    if (fact.category === "monitoring-evidence" && haystack.includes("monitoring")) boost += prefersBoundaryLocation ? 0.06 : 0.1;
     if (fact.category === "plot-count" && (haystack.includes("plot") || haystack.includes("sampling") || haystack.includes("monitoring"))) boost += 0.12;
     if (fact.category === "reporting-period" && (haystack.includes("period") || haystack.includes("monitoring"))) boost += 0.12;
-    if (fact.category === "monitoring-records" && (haystack.includes("monitoring") || haystack.includes("workbook"))) boost += 0.1;
+    if (fact.category === "monitoring-records" && (haystack.includes("monitoring") || haystack.includes("workbook"))) boost += prefersBoundaryLocation ? 0.06 : 0.1;
     if (fact.category === "qa-summary" && (haystack.includes("quality") || haystack.includes("review") || haystack.includes("qa"))) boost += 0.08;
   }
   return Math.min(boost, 0.4);
+}
+
+function boostForClaimIntents(result: QueryResultWithSignals, claimIntents: QuickCheckClaimIntent[]): number {
+  const haystack = `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
+  let boost = 0;
+  for (const intent of claimIntents) {
+    if (intent === "boundary" && haystack.includes("boundary")) boost += 0.16;
+    if (intent === "project-area" && (haystack.includes("project area") || haystack.includes("boundary") || haystack.includes("area"))) boost += 0.12;
+    if (intent === "mapped-area" && (haystack.includes("mapped area") || haystack.includes("map") || haystack.includes("boundary") || haystack.includes("aoi"))) boost += 0.15;
+    if (intent === "aoi" && (haystack.includes("aoi") || haystack.includes("area of interest") || haystack.includes("polygon") || haystack.includes("boundary"))) boost += 0.14;
+    if (intent === "coordinates" && (haystack.includes("coordinate") || haystack.includes("location") || haystack.includes("boundary"))) boost += 0.14;
+    if (intent === "location" && (haystack.includes("location") || haystack.includes("site") || haystack.includes("boundary"))) boost += 0.12;
+    if (intent === "monitoring-plan" && haystack.includes("monitoring")) boost += 0.12;
+  }
+  return Math.min(boost, 0.36);
 }
 
 function buildMatchCandidates(
@@ -137,6 +171,7 @@ function buildMatchCandidates(
   selectedMethodologyId: string,
   selectedMethodologyVersion: string,
   analysis: QuickCheckEvidenceAnalysis,
+  claimIntents: QuickCheckClaimIntent[],
 ): MatchCandidate[] {
   const selectedMethod = selectedMethodologyId.trim();
   const selectedVersion = selectedMethodologyVersion.trim();
@@ -165,7 +200,7 @@ function buildMatchCandidates(
     const key = `${methodologyId}@@${methodologyVersion}@@${requirementId}`;
     if (unique.has(key)) continue;
     const baseScore = typeof result.score === "number" ? result.score : 0;
-    const score = Number((baseScore + result._signalBoost + boostForEvidenceFacts(result, analysis)).toFixed(4));
+    const score = Number((baseScore + result._signalBoost + boostForEvidenceFacts(result, analysis, claimIntents) + boostForClaimIntents(result, claimIntents)).toFixed(4));
     unique.set(key, {
       key,
       methodologyId,
@@ -246,13 +281,49 @@ function mergeQueryResults(responses: Array<{ query: string; results: QueryRespo
 
 function buildRecoveryState(input: {
   selectedMethodologyId: string;
+  evidenceAnalysis?: QuickCheckEvidenceAnalysis;
+  claimIntents?: QuickCheckClaimIntent[];
 }): RecoveryState {
+  const evidenceFacts = input.evidenceAnalysis?.facts ?? [];
+  const claimIntents = input.claimIntents ?? [];
+  const hasBoundaryLocationSignals =
+    evidenceFacts.some((fact) =>
+      fact.category === "boundary" ||
+      fact.category === "coordinates" ||
+      fact.category === "mapped-area" ||
+      fact.category === "project-location",
+    ) ||
+    claimIntents.some((intent) =>
+      intent === "boundary" ||
+      intent === "project-area" ||
+      intent === "mapped-area" ||
+      intent === "aoi" ||
+      intent === "coordinates" ||
+      intent === "location",
+    );
+
   if (input.selectedMethodologyId.trim()) {
+    if (hasBoundaryLocationSignals) {
+      return {
+        kind: "no-match",
+        title: `No clear match in ${input.selectedMethodologyId} yet`,
+        description: `We found project boundary/location evidence in your uploaded PDD, but no confident ${input.selectedMethodologyId} requirement match yet.`,
+        note: "Try another methodology, edit the claim, or open the full review to inspect the evidence in context.",
+      };
+    }
     return {
       kind: "no-match",
       title: `No clear match in ${input.selectedMethodologyId} yet`,
       description: "The current methodology narrowing is stricter than the evidence signals we found.",
       note: "Try another methodology or keep the claim and broaden the check.",
+    };
+  }
+  if (hasBoundaryLocationSignals) {
+    return {
+      kind: "no-match",
+      title: "No clear match yet",
+      description: "We found project boundary/location evidence in your uploaded PDD, but no confident requirement match yet.",
+      note: "Edit the claim or try another methodology to guide the check.",
     };
   }
   return {
@@ -478,6 +549,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   async function buildLocalFallbackCandidates(methodSubset: MethodInventoryRecord[], analysis: QuickCheckEvidenceAnalysis): Promise<MatchCandidate[]> {
+    const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
+    const hasBoundaryLocationSignals =
+      analysis.facts.some((fact) =>
+        fact.category === "boundary" ||
+        fact.category === "coordinates" ||
+        fact.category === "mapped-area" ||
+        fact.category === "project-location",
+      ) ||
+      claimIntents.some((intent) =>
+        intent === "boundary" ||
+        intent === "project-area" ||
+        intent === "mapped-area" ||
+        intent === "aoi" ||
+        intent === "coordinates" ||
+        intent === "location",
+      );
     const perMethodCandidates = await Promise.all(
       methodSubset.map(async (method) => {
         const methodologyVersion = pickVersion(method, draft.methodologyId === method.code ? draft.methodologyVersion : null);
@@ -487,6 +574,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           claimText: draft.claimText.trim(),
           facts: analysis.facts,
           rules,
+          claimIntents,
+          minimumScore: hasBoundaryLocationSignals ? 0.85 : 1.2,
         }).map((candidate) => ({
           key: `${method.code}@@${methodologyVersion}@@${candidate.requirementId}`,
           methodologyId: method.code,
@@ -504,28 +593,38 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       .slice(0, 4);
   }
 
-  async function materializeUploads(methodologyId: string, methodologyVersion: string): Promise<string[]> {
-    if (!stagedUploads.length) return draft.evidenceIds;
+  async function materializeUploads(
+    methodologyId: string,
+    methodologyVersion: string,
+    activeSession: QuickCheckSessionState = session,
+  ): Promise<string[]> {
+    if (!activeSession.stagedUploads.length) return activeSession.draft.evidenceIds;
     const currentPins = coalesceEvidencePins(loadPins(methodologyId, methodologyVersion));
     const existingIds = new Set(currentPins.map((item) => item.id));
     const nextPins = coalesceEvidencePins([
       ...currentPins,
-      ...stagedUploads.filter((upload) => !existingIds.has(upload.evidenceId)).map(asPinForUpload),
+      ...activeSession.stagedUploads.filter((upload) => !existingIds.has(upload.evidenceId)).map(asPinForUpload),
     ]);
     savePins(methodologyId, methodologyVersion, nextPins);
     updateSession((current) => ({
       ...current,
-      stagedUploads: current.stagedUploads.filter((upload) => !current.draft.evidenceIds.includes(upload.evidenceId)),
+      stagedUploads: current.stagedUploads.filter((upload) => !activeSession.draft.evidenceIds.includes(upload.evidenceId)),
     }));
-    return draft.evidenceIds;
+    return activeSession.draft.evidenceIds;
   }
 
-  async function completeQuickCheck(candidate: MatchCandidate) {
-    setSubmitting(true);
+  async function completeQuickCheck(
+    candidate: MatchCandidate,
+    activeSession: QuickCheckSessionState = session,
+    options?: { manageSubmitting?: boolean },
+  ) {
+    const shouldManageSubmitting = options?.manageSubmitting !== false;
+    const activeDraft = activeSession.draft;
+    if (shouldManageSubmitting) setSubmitting(true);
     setFieldErrors({});
     setRecoveryState(null);
     try {
-      await materializeUploads(candidate.methodologyId, candidate.methodologyVersion);
+      await materializeUploads(candidate.methodologyId, candidate.methodologyVersion, activeSession);
       const rules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
       const selectedRule = rules.find((item) => item.id === candidate.requirementId) ?? null;
       if (!selectedRule) {
@@ -534,7 +633,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
 
       const nextDraft: QuickCheckDraft = {
-        ...draft,
+        ...activeDraft,
         methodologyId: candidate.methodologyId,
         methodologyVersion: candidate.methodologyVersion,
         matchedRequirementId: candidate.requirementId,
@@ -584,7 +683,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
     } finally {
-      setSubmitting(false);
+      if (shouldManageSubmitting) setSubmitting(false);
     }
   }
 
@@ -681,7 +780,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setMatchCandidates([]);
     try {
       const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources);
-      const queryTexts = buildQuickCheckQueryTexts(draft.claimText.trim(), evidenceAnalysis.facts);
+      const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
+      const queryTexts = buildQuickCheckQueryTexts(draft.claimText.trim(), evidenceAnalysis.facts, claimIntents);
       const responses = await Promise.all(
         queryTexts.map(async (query) => ({
           query,
@@ -689,13 +789,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         })),
       );
       const mergedResults = mergeQueryResults(responses);
-      const allCandidates = buildMatchCandidates(mergedResults, methods, "", "", evidenceAnalysis);
+      const allCandidates = buildMatchCandidates(mergedResults, methods, "", "", evidenceAnalysis, claimIntents);
       let candidates = buildMatchCandidates(
         mergedResults,
         methods,
         draft.methodologyId,
         draft.methodologyVersion,
         evidenceAnalysis,
+        claimIntents,
       );
 
       if (!candidates.length) {
@@ -705,7 +806,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         candidates = await buildLocalFallbackCandidates(methodSubset, evidenceAnalysis);
       }
 
-      if (!candidates.length && draft.methodologyId.trim()) {
+      if (!candidates.length && !draft.methodologyId.trim()) {
         const broaderCandidates =
           allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
         if (broaderCandidates.length) {
@@ -724,6 +825,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setRecoveryState(
           buildRecoveryState({
             selectedMethodologyId: draft.methodologyId,
+            evidenceAnalysis,
+            claimIntents,
           }),
         );
         return;
@@ -740,6 +843,42 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
 
       await completeQuickCheck(candidates[0]!);
+    } catch (error) {
+      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleTryDemoCheck() {
+    setSubmitting(true);
+    setFieldErrors({});
+    setRecoveryState(null);
+    setMatchCandidates([]);
+    setPendingInventoryId("");
+    setShowSavedEvidence(false);
+    setShowMethodology(false);
+    try {
+      const demo = await prepareQuickCheckDemo();
+      const nextSession: QuickCheckSessionState = {
+        draft: demo.draft,
+        result: null,
+        stagedUploads: [demo.stagedUpload],
+      };
+      saveQuickCheckSession(nextSession);
+      setSession(nextSession);
+      await completeQuickCheck(
+        {
+          key: `${QUICK_CHECK_DEMO.methodologyId}@@${QUICK_CHECK_DEMO.methodologyVersion}@@${QUICK_CHECK_DEMO.requirementId}`,
+          methodologyId: QUICK_CHECK_DEMO.methodologyId,
+          methodologyVersion: QUICK_CHECK_DEMO.methodologyVersion,
+          requirementId: QUICK_CHECK_DEMO.requirementId,
+          requirementLabel: QUICK_CHECK_DEMO.requirementLabel,
+          score: 1,
+        },
+        nextSession,
+        { manageSubmitting: false },
+      );
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -889,6 +1028,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
+                onClick={() => void handleTryDemoCheck()}
+                disabled={submitting}
+                className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-950 transition hover:border-sky-300 hover:bg-sky-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Try demo check
+              </button>
+              <button
+                type="button"
                 onClick={() => setShowSavedEvidence((value) => !value)}
                 className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                 aria-expanded={showSavedEvidence}
@@ -1020,6 +1168,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
                 >
                   Open Methods
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (draft.methodologyId.trim() && draft.methodologyVersion.trim() && onContinueToWorkspace) {
+                      onContinueToWorkspace(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+                      return;
+                    }
+                    if (draft.methodologyId.trim() && draft.methodologyVersion.trim()) {
+                      if (typeof window !== "undefined") {
+                        window.location.assign(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+                      }
+                      return;
+                    }
+                    if (typeof window !== "undefined") window.location.assign("/m");
+                  }}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                >
+                  Open full review
                 </button>
               </div>
             </div>
@@ -1166,7 +1333,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       }}
                       className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
                     >
-                      Check another claim
+                      Start your own check
                     </button>
                   </div>
                 </div>

@@ -4,6 +4,9 @@ import type { EvidenceAttachment, PddFragment, WorkbookEvidenceAsset, WorkbookRe
 
 export type QuickCheckEvidenceFactCategory =
   | "boundary"
+  | "coordinates"
+  | "mapped-area"
+  | "project-location"
   | "monitoring-plan"
   | "workbook-reference"
   | "monitoring-evidence"
@@ -25,6 +28,15 @@ export type QuickCheckEvidenceAnalysis = {
   facts: QuickCheckEvidenceFact[];
   parsedEvidenceLabels: string[];
 };
+
+export type QuickCheckClaimIntent =
+  | "boundary"
+  | "project-area"
+  | "mapped-area"
+  | "aoi"
+  | "coordinates"
+  | "location"
+  | "monitoring-plan";
 
 type QuickCheckEvidenceSource = {
   evidenceId: string;
@@ -181,6 +193,36 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
     });
   }
 
+  if (
+    /(latitude|longitude|coordinates?|lat[./ ]*long|geographic coordinates?|decimal degrees?)/.test(haystack) ||
+    /\b-?\d{1,3}\.\d{2,}\s*,\s*-?\d{1,3}\.\d{2,}\b/.test(haystack)
+  ) {
+    addFact(next, {
+      category: "coordinates",
+      summary: "Project coordinates are present in the PDD",
+      matchText: "project coordinates present",
+      sourceLabel,
+    });
+  }
+
+  if (/(area of interest|aoi|polygon|mapped area|project area map|shape file|shapefile|geojson|boundary map)/.test(haystack)) {
+    addFact(next, {
+      category: "mapped-area",
+      summary: "The PDD references the mapped project area or AOI",
+      matchText: "mapped project area referenced",
+      sourceLabel,
+    });
+  }
+
+  if (/(project location|located in|district|province|municipality|coordinates of the project location|site location)/.test(haystack)) {
+    addFact(next, {
+      category: "project-location",
+      summary: "The project location is described in the PDD",
+      matchText: "project location described",
+      sourceLabel,
+    });
+  }
+
   if (/(monitoring plan|monitoring procedures|monitoring approach|plan for monitoring)/.test(haystack)) {
     addFact(next, {
       category: "monitoring-plan",
@@ -209,6 +251,21 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
   }
 
   return Array.from(next.values());
+}
+
+export function classifyQuickCheckClaimIntents(claimText: string): QuickCheckClaimIntent[] {
+  const haystack = asLower(claimText);
+  const intents = new Set<QuickCheckClaimIntent>();
+
+  if (/(boundary|delineat|perimeter)/.test(haystack)) intents.add("boundary");
+  if (/(project area|project boundary area)/.test(haystack)) intents.add("project-area");
+  if (/(mapped area|map area|mapped project area|map boundary)/.test(haystack)) intents.add("mapped-area");
+  if (/(^|\W)aoi(\W|$)|area of interest/.test(haystack)) intents.add("aoi");
+  if (/(coordinate|latitude|longitude|lat\/long|lat long)/.test(haystack)) intents.add("coordinates");
+  if (/(location|located|district|province|municipality|site)/.test(haystack)) intents.add("location");
+  if (/(monitoring plan|monitoring approach|monitoring procedures)/.test(haystack)) intents.add("monitoring-plan");
+
+  return Array.from(intents).sort((a, b) => a.localeCompare(b));
 }
 
 function derivePddFragmentFacts(fragments: PddFragment[], sourceLabel: string): QuickCheckEvidenceFact[] {
@@ -337,12 +394,29 @@ export async function analyzeQuickCheckEvidence(
   };
 }
 
-export function buildQuickCheckQueryTexts(claimText: string, facts: QuickCheckEvidenceFact[]): string[] {
+function queryTextForIntent(intent: QuickCheckClaimIntent): string {
+  if (intent === "boundary") return "project boundary requirement";
+  if (intent === "project-area") return "project area requirement";
+  if (intent === "mapped-area") return "mapped area boundary";
+  if (intent === "aoi") return "area of interest boundary";
+  if (intent === "coordinates") return "project coordinates boundary";
+  if (intent === "location") return "project location boundary";
+  return "documented monitoring plan";
+}
+
+export function buildQuickCheckQueryTexts(
+  claimText: string,
+  facts: QuickCheckEvidenceFact[],
+  claimIntents: QuickCheckClaimIntent[] = classifyQuickCheckClaimIntents(claimText),
+): string[] {
   const next = new Set<string>();
   const claim = normalizeWhitespace(claimText);
   if (claim) next.add(claim);
   for (const fact of facts.slice(0, 4)) {
     if (fact.matchText) next.add(fact.matchText);
+  }
+  for (const intent of claimIntents) {
+    next.add(queryTextForIntent(intent));
   }
   return Array.from(next);
 }
@@ -373,6 +447,24 @@ function scoreRuleAgainstFacts(rule: QuickCheckRuleLike, facts: QuickCheckEviden
 
   for (const fact of facts) {
     if (fact.category === "boundary" && haystack.includes("boundary")) score += 1.25;
+    if (
+      fact.category === "coordinates" &&
+      (haystack.includes("coordinate") || haystack.includes("location") || haystack.includes("boundary") || haystack.includes("map"))
+    ) {
+      score += 1.05;
+    }
+    if (
+      fact.category === "mapped-area" &&
+      (haystack.includes("mapped area") || haystack.includes("project area") || haystack.includes("aoi") || haystack.includes("polygon") || haystack.includes("boundary") || haystack.includes("map"))
+    ) {
+      score += 1.2;
+    }
+    if (
+      fact.category === "project-location" &&
+      (haystack.includes("location") || haystack.includes("boundary") || haystack.includes("area") || haystack.includes("map"))
+    ) {
+      score += 1;
+    }
     if (fact.category === "monitoring-plan" && haystack.includes("monitoring") && (haystack.includes("plan") || haystack.includes("report"))) {
       score += 1.15;
     }
@@ -387,12 +479,46 @@ function scoreRuleAgainstFacts(rule: QuickCheckRuleLike, facts: QuickCheckEviden
   return score;
 }
 
+function scoreRuleAgainstClaimIntents(rule: QuickCheckRuleLike, claimIntents: QuickCheckClaimIntent[]): number {
+  const haystack = asLower(
+    [
+      rule.id,
+      rule.title,
+      rule.snippet,
+      rule.summary,
+      rule.logic,
+      rule.notes,
+      ...(rule.when ?? []),
+      ...(rule.expectedEvidence ?? []),
+      ...(rule.tags ?? []),
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+  let score = 0;
+
+  for (const intent of claimIntents) {
+    if (intent === "boundary" && haystack.includes("boundary")) score += 0.9;
+    if (intent === "project-area" && (haystack.includes("project area") || haystack.includes("boundary") || haystack.includes("area"))) score += 0.8;
+    if (intent === "mapped-area" && (haystack.includes("mapped area") || haystack.includes("map") || haystack.includes("boundary"))) score += 0.9;
+    if (intent === "aoi" && (haystack.includes("aoi") || haystack.includes("area of interest") || haystack.includes("polygon") || haystack.includes("boundary"))) score += 0.85;
+    if (intent === "coordinates" && (haystack.includes("coordinate") || haystack.includes("location") || haystack.includes("boundary"))) score += 0.85;
+    if (intent === "location" && (haystack.includes("location") || haystack.includes("site") || haystack.includes("district") || haystack.includes("boundary"))) score += 0.75;
+    if (intent === "monitoring-plan" && haystack.includes("monitoring") && (haystack.includes("plan") || haystack.includes("report"))) score += 0.8;
+  }
+
+  return score;
+}
+
 export function buildLocalRuleCandidates(input: {
   claimText: string;
   facts: QuickCheckEvidenceFact[];
   rules: QuickCheckRuleLike[];
+  claimIntents?: QuickCheckClaimIntent[];
+  minimumScore?: number;
 }): QuickCheckLocalRuleCandidate[] {
   const claimKeywords = tokenize(input.claimText);
+  const claimIntents = input.claimIntents ?? classifyQuickCheckClaimIntents(input.claimText);
 
   return input.rules
     .map((rule) => {
@@ -412,6 +538,7 @@ export function buildLocalRuleCandidates(input: {
           .join(" "),
       );
       let score = scoreRuleAgainstFacts(rule, input.facts);
+      score += scoreRuleAgainstClaimIntents(rule, claimIntents);
       for (const keyword of claimKeywords) {
         if (haystack.includes(keyword)) score += keyword.length >= 7 ? 0.45 : 0.25;
       }
@@ -421,7 +548,7 @@ export function buildLocalRuleCandidates(input: {
         score,
       };
     })
-    .filter((candidate) => candidate.score >= 1.2)
+    .filter((candidate) => candidate.score >= (input.minimumScore ?? 1.2))
     .sort((a, b) => b.score - a.score || a.requirementLabel.localeCompare(b.requirementLabel))
     .slice(0, 4);
 }
