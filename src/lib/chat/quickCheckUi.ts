@@ -1,5 +1,5 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
-import type { QuickCheckExtractionSnapshot, QuickCheckResult } from "@/lib/chat/quickCheck";
+import type { QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 
@@ -19,6 +19,7 @@ export type QuickCheckUiResult = {
   status: QuickCheckUiStatus;
   claim: string;
   evidenceFileName: string;
+  sourceMode: QuickCheckSourceMode | null;
   extraction: QuickCheckUiExtraction;
   match: QuickCheckUiMatch | null;
 };
@@ -83,6 +84,7 @@ export function buildQuickCheckExtractionSnapshot(input: {
 export function normalizeQuickCheckUiResult(input: {
   claim: string;
   evidenceFileName: string;
+  sourceMode?: QuickCheckSourceMode | null;
   extraction: QuickCheckExtractionSnapshot | null;
   methodologyCode?: string | null;
   methodologyVersion?: string | null;
@@ -102,6 +104,7 @@ export function normalizeQuickCheckUiResult(input: {
       status: "extraction_failed",
       claim: input.claim.trim(),
       evidenceFileName: input.evidenceFileName.trim(),
+      sourceMode: input.sourceMode ?? null,
       extraction,
       match: null,
     };
@@ -112,6 +115,7 @@ export function normalizeQuickCheckUiResult(input: {
       status: "no_reliable_match",
       claim: input.claim.trim(),
       evidenceFileName: input.evidenceFileName.trim(),
+      sourceMode: input.sourceMode ?? null,
       extraction,
       match: null,
     };
@@ -121,6 +125,7 @@ export function normalizeQuickCheckUiResult(input: {
     status: "preliminary_match_found",
     claim: input.claim.trim(),
     evidenceFileName: input.evidenceFileName.trim(),
+    sourceMode: input.sourceMode ?? input.result.sourceMode ?? null,
     extraction,
     match: {
       methodologyCode: input.methodologyCode?.trim() ?? "",

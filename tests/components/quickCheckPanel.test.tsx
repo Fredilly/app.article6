@@ -656,8 +656,11 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).toContain("Source");
+    expect(container.textContent).toContain("Uploaded file");
     expect(container.textContent).toContain("The project has documented monitoring evidence");
     expect(container.textContent).toContain("AR-ACM0003");
+    expect(container.textContent).toContain("fresh-monitoring-report.pdf");
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
@@ -668,11 +671,14 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     expect(container.textContent).toContain("Preliminary match found");
     expect(container.textContent).toContain("fresh-monitoring-report.pdf");
+    expect(container.textContent).toContain("Uploaded file");
     expect(container.textContent).toContain("Match confidence");
     expect(container.textContent).toContain("What matched");
     expect(container.textContent).toContain("What we found in the file");
     expect(container.textContent).toContain("What remains unresolved");
     expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).not.toContain("Saved evidence");
+    expect(container.textContent).not.toContain(QUICK_CHECK_DEMO.filename);
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
@@ -739,6 +745,10 @@ describe("QuickCheckPanel claim-first flow", () => {
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
     });
 
+    expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).toContain("Saved evidence");
+    expect(container.textContent).toContain("monitoring-report.pdf");
+
     await act(async () => {
       clickButton("Analyze claim");
     });
@@ -748,6 +758,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
+    expect(container.textContent).toContain("Saved evidence");
     expect(container.textContent).toContain("Match confidence");
     expect(container.textContent).toContain("All expected evidence is linked.");
     expect(container.textContent).toContain("Section 10");
@@ -760,7 +771,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
+    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=saved_evidence");
     expect(loadPins("AR-ACM0003", "v02-0")[0]?.ruleId).toBe("R-1-0001");
     expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain("R-1-0001");
   });
@@ -1290,6 +1301,8 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Preliminary match found");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
+    expect(container.textContent).toContain("Demo evidence");
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.filename);
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.citation);
     expect(container.textContent).toContain("What matched");
     expect(container.textContent).toContain("What we found in the file");
@@ -1317,7 +1330,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
+    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=demo_evidence");
     expect(loadPins("AR-ACM0003", "v02-0").find((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId)?.ruleId).toBe("R-1-0001");
     expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain("R-1-0001");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
@@ -1422,7 +1435,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenLastCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
+    expect(pushMock).toHaveBeenLastCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=demo_evidence");
   });
 
   it("ignores prior manual edits when running the demo", async () => {

@@ -33,6 +33,7 @@ import {
   type QuickCheckDraft,
   type QuickCheckExtractionSnapshot,
   type QuickCheckResult,
+  type QuickCheckSourceMode,
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
 import { buildQuickCheckDemoCandidate, prepareQuickCheckDemo, QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
@@ -404,6 +405,13 @@ function buildUnresolvedItems(input: {
   return Array.from(next).slice(0, 4);
 }
 
+function sourceModeLabel(sourceMode: QuickCheckSourceMode | null | undefined): string {
+  if (sourceMode === "uploaded_file") return "Uploaded file";
+  if (sourceMode === "saved_evidence") return "Saved evidence";
+  if (sourceMode === "demo_evidence") return "Demo evidence";
+  return "Unknown source";
+}
+
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
@@ -500,7 +508,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   const resetMethodologyForUserInput = useCallback(
     (draftState: QuickCheckDraft) => {
-      if (draftState.inputSource !== "demo") {
+      if (draftState.sourceMode !== "demo_evidence") {
         return {
           methodologyId: draftState.methodologyId,
           methodologyVersion: draftState.methodologyVersion,
@@ -574,16 +582,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const selectedEvidenceCount = draft.evidenceIds.length;
   const selectedUpload = selectedUploadEvidence[0] ?? null;
   const selectedInventoryItem = selectedInventoryEvidence[0] ?? null;
-  const selectedEvidenceLabel = selectedUpload
+  const selectedEvidenceLabel = draft.evidenceFileName || (selectedUpload
     ? selectedUpload.filename
     : selectedInventoryItem
     ? selectedInventoryItem.display_name
-    : "";
-  const selectedEvidenceMeta = selectedUpload
-    ? "Uploaded evidence"
-    : selectedInventoryItem
-    ? `${selectedInventoryItem.type} from saved evidence`
-    : "";
+    : "");
+  const activeSourceMode: QuickCheckSourceMode | null =
+    draft.sourceMode ??
+    (selectedUpload ? "uploaded_file" : selectedInventoryItem ? "saved_evidence" : null);
+  const selectedEvidenceMeta = activeSourceMode ? sourceModeLabel(activeSourceMode) : "";
   const canRunQuickCheck = Boolean(draft.claimText.trim()) && selectedEvidenceCount === 1 && !submitting;
   const activeResultKey =
     result && draft.methodologyId.trim() && draft.methodologyVersion.trim() && draft.matchedRequirementId?.trim()
@@ -600,14 +607,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       renderedResult
         ? normalizeQuickCheckUiResult({
             claim: renderedResult.claimText,
-            evidenceFileName: selectedEvidenceLabel || "Uploaded evidence",
+            evidenceFileName: renderedResult.evidenceFileName || selectedEvidenceLabel || "evidence",
+            sourceMode: renderedResult.sourceMode ?? activeSourceMode,
             extraction: renderedResult.extraction ?? extractionPreview,
             methodologyCode: draft.methodologyId,
             methodologyVersion: draft.methodologyVersion,
             result: renderedResult,
           })
         : null,
-    [draft.methodologyId, draft.methodologyVersion, extractionPreview, renderedResult, selectedEvidenceLabel],
+    [activeSourceMode, draft.methodologyId, draft.methodologyVersion, extractionPreview, renderedResult, selectedEvidenceLabel],
   );
   const normalizedRequirement = normalizedResult?.match ? splitRequirementLabel(normalizedResult.match.requirementLabel) : null;
   const selectedEvidenceSources = useMemo(() => {
@@ -617,7 +625,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const pin = selectedPins.find((candidate) => candidate.id === item.evidence_id) ?? null;
       sources.set(item.evidence_id, {
         evidenceId: item.evidence_id,
-        sourceLabel: item.display_name,
+        sourceLabel: draft.evidenceFileName || item.display_name,
         attachments: pin?.attachments ?? [],
         pddFragments: item.pdd_fragments,
       });
@@ -626,7 +634,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     for (const upload of selectedUploadEvidence) {
       sources.set(upload.evidenceId, {
         evidenceId: upload.evidenceId,
-        sourceLabel: upload.filename,
+        sourceLabel: draft.evidenceFileName || upload.filename,
         attachments: [upload.attachment],
       });
     }
@@ -637,7 +645,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       attachments: source.attachments ?? [],
       pddFragments: source.pddFragments,
     }));
-  }, [selectedInventoryEvidence, selectedPins, selectedUploadEvidence]);
+  }, [draft.evidenceFileName, selectedInventoryEvidence, selectedPins, selectedUploadEvidence]);
 
   useEffect(() => {
     if (!selectedEvidenceSources.length) {
@@ -951,7 +959,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           return {
             ...current.draft,
             ...nextMethodology,
-            inputSource: "user",
+            sourceMode: "uploaded_file",
+            evidenceFileName: attachmentResult.attachment.filename,
             evidenceIds: [evidenceId],
             status: "draft",
             result: null,
@@ -978,6 +987,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   function selectExistingEvidence(evidenceId: string) {
     if (!evidenceId) return;
+    const selectedItem = inventoryItems.find((item) => item.evidence_id === evidenceId) ?? null;
+    const selectedPin = selectedPins.find((item) => item.id === evidenceId) ?? null;
+    const evidenceFileName = selectedPin?.attachments?.[0]?.filename ?? selectedItem?.display_name ?? evidenceId;
     updateSession((current) => ({
       ...current,
       draft: (() => {
@@ -985,7 +997,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return {
           ...current.draft,
           ...nextMethodology,
-          inputSource: "user",
+          sourceMode: "saved_evidence",
+          evidenceFileName,
           evidenceIds: [evidenceId],
           status: "draft",
           result: null,
@@ -1006,7 +1019,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       ...current,
       draft: {
         ...current.draft,
-        inputSource: "user",
+        sourceMode: undefined,
+        evidenceFileName: undefined,
         evidenceIds: current.draft.evidenceIds.filter((id) => id !== evidenceId),
         status: "draft",
         result: null,
@@ -1246,7 +1260,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       matchedRequirementLabel: undefined,
                       status: "draft",
                       resultId: undefined,
-                      inputSource: "user",
                     };
                   },
                   null,
@@ -1278,7 +1291,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         matchedRequirementLabel: undefined,
                         status: "draft",
                         resultId: undefined,
-                        inputSource: "user",
                       };
                     },
                     null,
@@ -1350,6 +1362,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   ) : extractionPreview ? (
                     <div className="mt-4 grid gap-4 md:grid-cols-2">
                       <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
+                        <div className="mt-1 text-sm font-medium text-slate-900">{sourceModeLabel(activeSourceMode)}</div>
+                        <div className="mt-1 text-xs text-slate-500">{selectedEvidenceLabel || "No file selected"}</div>
+                      </div>
+                      <div>
                         <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Document type</div>
                         <div className="mt-1 text-sm font-medium text-slate-900">{extractionPreview.documentType}</div>
                       </div>
@@ -1386,7 +1403,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <div>
                         <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>
                         <div className="mt-2 grid gap-2">
-                          {(extractionPreview.warnings.length ? extractionPreview.warnings : ["No extraction warnings."]).map((warning) => (
+                          {(extractionPreview.warnings.length ? extractionPreview.warnings : ["No extraction warnings from the active source."]).map((warning) => (
                             <div key={warning} className="text-sm text-slate-600">
                               {warning}
                             </div>
@@ -1647,6 +1664,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                     </div>
                     <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">{sourceModeLabel(normalizedResult.sourceMode)}</div>
+                      <div className="mt-1 text-xs text-slate-500">{normalizedResult.evidenceFileName || "1 item selected"}</div>
+                    </div>
+                    <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Match confidence</div>
                       <div className="mt-1 text-sm font-medium text-slate-900">{formatConfidence(normalizedResult.match.matchConfidence)}</div>
                       <div className="mt-1 text-xs text-slate-500">Quick Check returns a preliminary requirement match, not a final review decision.</div>
@@ -1719,7 +1741,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         updateDraft(
                           (current) => ({
                             ...current,
-                            inputSource: "user",
+                            sourceMode: undefined,
+                            evidenceFileName: undefined,
                             matchedRequirementId: undefined,
                             matchedRequirementLabel: undefined,
                             evidenceIds: [],
@@ -1740,7 +1763,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         updateDraft(
                           (current) => ({
                             ...current,
-                            inputSource: "user",
+                            sourceMode: undefined,
+                            evidenceFileName: undefined,
                             claimText: "",
                             methodologyId: initialMethod?.trim() ?? "",
                             methodologyVersion: initialVersion?.trim() ?? "",

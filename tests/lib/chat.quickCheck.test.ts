@@ -57,6 +57,8 @@ describe("chat quick check helpers", () => {
       methodologyId: "AR-ACM0003",
       methodologyVersion: "v02-0",
       evidenceIds: ["ev-1"],
+      sourceMode: "uploaded_file",
+      evidenceFileName: "monitoring-report.pdf",
       matchedRequirementId: "R-1-0001",
       matchedRequirementLabel: "R-1-0001 · Monitoring frequency",
       status: "checked",
@@ -69,7 +71,7 @@ describe("chat quick check helpers", () => {
 
     expect(first.draft.linkedRunId).toBeTruthy();
     expect(second.draft.linkedRunId).toBe(first.draft.linkedRunId);
-    expect(second.url).toBe("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
+    expect(second.url).toBe("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=uploaded_file");
     expect(loadPins("AR-ACM0003", "v02-0")[0]?.ruleId).toBe("R-1-0001");
     expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain(first.draft.linkedRunId as string);
   });

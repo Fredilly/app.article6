@@ -16,7 +16,7 @@ import {
 } from "@/lib/verify/runState";
 
 export type QuickCheckDraftStatus = "draft" | "checked";
-export type QuickCheckDraftInputSource = "user" | "demo";
+export type QuickCheckSourceMode = "uploaded_file" | "saved_evidence" | "demo_evidence";
 
 export type QuickCheckExtractionSnapshot = {
   documentType: string;
@@ -38,7 +38,8 @@ export type QuickCheckDraft = {
   result?: QuickCheckResult | null;
   resultId?: string;
   linkedRunId?: string;
-  inputSource?: QuickCheckDraftInputSource;
+  sourceMode?: QuickCheckSourceMode;
+  evidenceFileName?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -57,6 +58,8 @@ export type QuickCheckResult = {
   matchConfidence?: number;
   unresolved?: string[];
   extraction?: QuickCheckExtractionSnapshot | null;
+  sourceMode?: QuickCheckSourceMode;
+  evidenceFileName?: string;
 };
 
 export type QuickCheckStagedUpload = {
@@ -128,10 +131,17 @@ export function createQuickCheckDraft(
     evidenceIds: [],
     status: "draft",
     result: null,
-    inputSource: "user",
+    sourceMode: undefined,
+    evidenceFileName: undefined,
     createdAt: timestamp,
     updatedAt: timestamp,
   };
+}
+
+function normalizeSourceMode(value: unknown): QuickCheckSourceMode | undefined {
+  if (value === "uploaded_file" || value === "saved_evidence" || value === "demo_evidence") return value;
+  if (value === "demo") return "demo_evidence";
+  return undefined;
 }
 
 export function validateQuickCheckDraft(
@@ -193,6 +203,8 @@ function normalizeResult(raw: unknown): QuickCheckResult | null {
     matchConfidence: typeof record.matchConfidence === "number" ? Math.max(0, Math.min(1, record.matchConfidence)) : undefined,
     unresolved: Array.isArray(record.unresolved) ? record.unresolved.map((item) => String(item)).filter(Boolean) : [],
     extraction,
+    sourceMode: normalizeSourceMode(record.sourceMode),
+    evidenceFileName: typeof record.evidenceFileName === "string" ? record.evidenceFileName : undefined,
   };
 }
 
@@ -231,6 +243,15 @@ export function loadQuickCheckSession(
     const draft = parsed?.draft;
     if (!draft || typeof draft !== "object") return fallback;
     const normalizedResult = normalizeResult(parsed?.result);
+    const normalizedStagedUploads = normalizeStagedUploads(parsed?.stagedUploads);
+    const inferredSourceMode =
+      normalizeSourceMode((draft as Record<string, unknown>).sourceMode) ??
+      normalizeSourceMode((draft as Record<string, unknown>).inputSource) ??
+      (normalizedStagedUploads.length ? "uploaded_file" : Array.isArray(draft.evidenceIds) && draft.evidenceIds.length ? "saved_evidence" : undefined);
+    const inferredEvidenceFileName =
+      typeof (draft as Record<string, unknown>).evidenceFileName === "string"
+        ? (draft as Record<string, unknown>).evidenceFileName as string
+        : normalizedStagedUploads[0]?.filename;
     return {
       draft: {
         id: typeof draft.id === "string" ? draft.id : fallback.draft.id,
@@ -246,12 +267,13 @@ export function loadQuickCheckSession(
         result: normalizeResult(draft.result),
         resultId: typeof draft.resultId === "string" ? draft.resultId : undefined,
         linkedRunId: typeof draft.linkedRunId === "string" ? draft.linkedRunId : undefined,
-        inputSource: draft.inputSource === "demo" ? "demo" : "user",
+        sourceMode: inferredSourceMode,
+        evidenceFileName: inferredEvidenceFileName,
         createdAt: typeof draft.createdAt === "string" ? draft.createdAt : fallback.draft.createdAt,
         updatedAt: typeof draft.updatedAt === "string" ? draft.updatedAt : fallback.draft.updatedAt,
       },
       result: normalizedResult,
-      stagedUploads: normalizeStagedUploads(parsed?.stagedUploads),
+      stagedUploads: normalizedStagedUploads,
     };
   } catch {
     return fallback;
@@ -271,6 +293,8 @@ export function buildQuickCheckResult(input: {
   matchConfidence?: number | null;
   unresolved?: string[];
   extraction?: QuickCheckExtractionSnapshot | null;
+  sourceMode?: QuickCheckSourceMode;
+  evidenceFileName?: string;
 }): QuickCheckResult {
   const requirementId = input.draft.matchedRequirementId ?? input.rule.id;
   const requirementLabel = input.draft.matchedRequirementLabel?.trim() || `${requirementId} · ${input.rule.title}`;
@@ -316,6 +340,8 @@ export function buildQuickCheckResult(input: {
     matchConfidence: typeof input.matchConfidence === "number" ? Math.max(0, Math.min(1, input.matchConfidence)) : undefined,
     unresolved: (input.unresolved ?? []).map((item) => item.trim()).filter(Boolean),
     extraction: input.extraction ?? null,
+    sourceMode: input.sourceMode ?? input.draft.sourceMode,
+    evidenceFileName: input.evidenceFileName ?? input.draft.evidenceFileName,
   };
 }
 
@@ -343,8 +369,19 @@ function quickCheckNextStepHint(status: "supported" | "partial" | "needs-review"
   return "Continue to Review Workspace to add reviewer context or attach stronger evidence.";
 }
 
-export function buildQuickCheckWorkspaceUrl(methodCode: string, version: string, ruleId: string): string {
-  return `/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}?tab=verify&mode=list&rule=${encodeURIComponent(ruleId)}`;
+export function buildQuickCheckWorkspaceUrl(
+  methodCode: string,
+  version: string,
+  ruleId: string,
+  sourceMode?: QuickCheckSourceMode,
+): string {
+  const params = new URLSearchParams({
+    tab: "verify",
+    mode: "list",
+    rule: ruleId,
+  });
+  if (sourceMode) params.set("quickCheckSource", sourceMode);
+  return `/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}?${params.toString()}`;
 }
 
 export function ensureQuickCheckWorkspaceHandoff(draft: QuickCheckDraft): { draft: QuickCheckDraft; url: string } {
@@ -403,7 +440,7 @@ export function ensureQuickCheckWorkspaceHandoff(draft: QuickCheckDraft): { draf
   };
   return {
     draft: nextDraft,
-    url: buildQuickCheckWorkspaceUrl(methodCode, version, ruleId),
+    url: buildQuickCheckWorkspaceUrl(methodCode, version, ruleId, draft.sourceMode),
   };
 }
 

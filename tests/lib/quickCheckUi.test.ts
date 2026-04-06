@@ -39,6 +39,7 @@ describe("quick check ui helpers", () => {
     const view = normalizeQuickCheckUiResult({
       claim: "The monitoring report covers the full reporting period.",
       evidenceFileName: "monitoring-report.pdf",
+      sourceMode: "uploaded_file",
       extraction: {
         documentType: "PDD / PDF",
         extractedFacts: ["The project has documented monitoring evidence"],
@@ -64,6 +65,7 @@ describe("quick check ui helpers", () => {
     });
 
     expect(view.status).toBe("preliminary_match_found");
+    expect(view.sourceMode).toBe("uploaded_file");
     expect(view.match?.methodologyCode).toBe("AR-ACM0003");
     expect(view.match?.matchConfidence).toBe(0.84);
     expect(view.match?.unresolved).toEqual(["Quick Check is preliminary."]);
