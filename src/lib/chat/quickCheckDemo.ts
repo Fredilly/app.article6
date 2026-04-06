@@ -15,10 +15,25 @@ export const QUICK_CHECK_DEMO = {
   createdAt: "2026-04-05T00:00:00Z",
   sha256: "sha-demo-monitoring-report",
   pdfText: "%PDF-1.4\n(Monitoring report for the full reporting period.)\n%%EOF",
+  expectedResult: {
+    verdict: "Supported",
+    citation: "Section 10",
+  },
 } as const;
 
 function asArrayBuffer(value: Uint8Array): ArrayBuffer {
   return new Uint8Array(value).buffer.slice(0);
+}
+
+export function buildQuickCheckDemoCandidate() {
+  return {
+    key: `${QUICK_CHECK_DEMO.methodologyId}@@${QUICK_CHECK_DEMO.methodologyVersion}@@${QUICK_CHECK_DEMO.requirementId}`,
+    methodologyId: QUICK_CHECK_DEMO.methodologyId,
+    methodologyVersion: QUICK_CHECK_DEMO.methodologyVersion,
+    requirementId: QUICK_CHECK_DEMO.requirementId,
+    requirementLabel: QUICK_CHECK_DEMO.requirementLabel,
+    score: 1,
+  };
 }
 
 export async function prepareQuickCheckDemo(): Promise<{

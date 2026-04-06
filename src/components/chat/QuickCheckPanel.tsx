@@ -34,7 +34,7 @@ import {
   type QuickCheckResult,
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
-import { prepareQuickCheckDemo, QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
+import { buildQuickCheckDemoCandidate, prepareQuickCheckDemo, QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
 import {
   resolveQuickCheckCandidate,
   resolveQuickCheckCandidates,
@@ -417,6 +417,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     });
   }, []);
 
+  const replaceSession = useCallback((nextSession: QuickCheckSessionState) => {
+    saveQuickCheckSession(nextSession);
+    setSession(nextSession);
+  }, []);
+
   const updateDraft = useCallback(
     (
       mutator: (draft: QuickCheckDraft, current: QuickCheckSessionState) => QuickCheckDraft,
@@ -440,16 +445,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [updateSession],
   );
 
+  const fetchMethodInventory = useCallback(async (): Promise<MethodInventoryRecord[]> => {
+    const response = await fetch("/api/methods/inventory", { cache: "no-store" });
+    if (!response.ok) throw new Error(`Method inventory request failed with ${response.status}`);
+    const payload = (await response.json()) as { methods?: MethodInventoryRecord[] };
+    const nextMethods = Array.isArray(payload.methods) ? payload.methods : [];
+    return nextMethods.sort((a, b) => a.code.localeCompare(b.code));
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     setLoadingMethods(true);
-    fetch("/api/methods/inventory", { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Method inventory request failed with ${response.status}`);
-        const payload = (await response.json()) as { methods?: MethodInventoryRecord[] };
+    fetchMethodInventory()
+      .then((nextMethods) => {
         if (cancelled) return;
-        const nextMethods = Array.isArray(payload.methods) ? payload.methods : [];
-        setMethods(nextMethods.sort((a, b) => a.code.localeCompare(b.code)));
+        setMethods(nextMethods);
       })
       .catch((error) => {
         if (cancelled) return;
@@ -461,7 +471,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fetchMethodInventory]);
 
   useEffect(() => {
     if (!methods.length || !initialMethod?.trim()) return;
@@ -548,6 +558,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setValidatedResultKey(null);
   }
 
+  function resetQuickCheckUi() {
+    clearDecisionState();
+    setPendingInventoryId("");
+    setShowSavedEvidence(false);
+    setShowMethodology(false);
+  }
+
   const fetchRules = useCallback(async (methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> => {
     const cacheKey = `${methodologyId}@@${methodologyVersion}`;
     const cached = rulesCache.current.get(cacheKey);
@@ -562,6 +579,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     rulesCache.current.set(cacheKey, rules);
     return rules;
   }, []);
+
+  const ensureMethodsReady = useCallback(
+    async (methodologyId: string, methodologyVersion: string): Promise<MethodInventoryRecord[]> => {
+      const hasMethod = methods.some(
+        (method) => method.code === methodologyId && Array.isArray(method.versions) && method.versions.includes(methodologyVersion),
+      );
+      if (hasMethod) return methods;
+      const nextMethods = await fetchMethodInventory();
+      setMethods(nextMethods);
+      return nextMethods;
+    },
+    [fetchMethodInventory, methods],
+  );
 
   useEffect(() => {
     if (!activeResultKey || !result) {
@@ -938,44 +968,36 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   async function handleTryDemoCheck() {
     setSubmitting(true);
-    setFieldErrors({});
-    setRecoveryState(null);
-    setMatchCandidates([]);
-    setPendingInventoryId("");
-    setShowSavedEvidence(false);
-    setShowMethodology(false);
+    resetQuickCheckUi();
     try {
       const demo = await prepareQuickCheckDemo();
+      const readyMethods = await ensureMethodsReady(QUICK_CHECK_DEMO.methodologyId, QUICK_CHECK_DEMO.methodologyVersion);
       const nextSession: QuickCheckSessionState = {
         draft: demo.draft,
         result: null,
         stagedUploads: [demo.stagedUpload],
       };
+      replaceSession(nextSession);
       const resolvedDemoCandidate = await resolveQuickCheckCandidate({
-        candidate: {
-          key: `${QUICK_CHECK_DEMO.methodologyId}@@${QUICK_CHECK_DEMO.methodologyVersion}@@${QUICK_CHECK_DEMO.requirementId}`,
-          methodologyId: QUICK_CHECK_DEMO.methodologyId,
-          methodologyVersion: QUICK_CHECK_DEMO.methodologyVersion,
-          requirementId: QUICK_CHECK_DEMO.requirementId,
-          requirementLabel: QUICK_CHECK_DEMO.requirementLabel,
-          score: 1,
-        },
-        methods,
+        candidate: buildQuickCheckDemoCandidate(),
+        methods: readyMethods,
         loadRules: fetchRules,
       });
       if (!resolvedDemoCandidate) {
-        saveQuickCheckSession(nextSession);
-        setSession(nextSession);
+        if (process.env.NODE_ENV !== "production") {
+          console.error("Quick Check demo fixture could not be resolved.", buildQuickCheckDemoCandidate());
+        }
         setRecoveryState(
           buildRecoveryState({
             selectedMethodologyId: QUICK_CHECK_DEMO.methodologyId,
             claimIntents: classifyQuickCheckClaimIntents(QUICK_CHECK_DEMO.claimText),
           }),
         );
+        setFieldErrors({
+          general: "Demo check is unavailable right now. Try your own claim or upload evidence.",
+        });
         return;
       }
-      saveQuickCheckSession(nextSession);
-      setSession(nextSession);
       await completeQuickCheck(
         resolvedDemoCandidate,
         nextSession,

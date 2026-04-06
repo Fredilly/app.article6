@@ -1205,10 +1205,10 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toContain("Supported");
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.verdict);
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
-    expect(container.textContent).toContain("Section 10");
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.citation);
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("Change evidence");
     expect(container.textContent).toContain("Start your own check");
@@ -1294,6 +1294,110 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).not.toContain("Likely requirement matches");
+    expect(container.textContent).not.toContain("No clear match yet");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("keeps the demo result stable across a reload", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel onContinueToWorkspace={pushMock} />);
+    });
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await flushUi();
+
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
+    expect(container.textContent).toContain("Monitoring frequency");
+
+    await act(async () => {
+      root.unmount();
+    });
+
+    root = createRoot(container);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel onContinueToWorkspace={pushMock} />);
+    });
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await flushUi();
+
+    expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.verdict);
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.citation);
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+
+    await act(async () => {
+      clickButton("Open full review");
+    });
+
+    expect(pushMock).toHaveBeenLastCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001");
+  });
+
+  it("ignores prior manual edits when running the demo", async () => {
+    seedSession({
+      claimText: "A manual claim that should not survive the demo.",
+      methodologyId: "AR-AMS0007",
+      methodologyVersion: "v01-0",
+      filename: "manual-boundary-note.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      setClaimValue("An edited manual claim that should be discarded.");
+    });
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await flushUi();
+
+    expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.filename);
+    expect(container.textContent).not.toContain("manual-boundary-note.pdf");
+    expect(container.textContent).toContain("Monitoring frequency");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("replaces a prior no-match state with the same demo result", async () => {
+    seedSession({ claimText: "unsupported claim", filename: "baseline.pdf" });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Spreadsheet workbook annex referenced for evidence.)\n%%EOF",
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    expect(container.textContent).toContain("No clear match yet");
+
+    await act(async () => {
+      clickButton("Try demo check");
+    });
+
+    await flushUi();
+
+    expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
+    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.verdict);
+    expect(container.textContent).toContain("Monitoring frequency");
+    expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain("No clear match yet");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
