@@ -506,6 +506,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       ? `${draft.methodologyId.trim()}@@${draft.methodologyVersion.trim()}@@${draft.matchedRequirementId.trim()}`
       : null;
   const canRenderResult = Boolean(result && activeResultKey && validatedResultKey === activeResultKey);
+  const renderedResult = canRenderResult ? result : null;
   const selectedEvidenceSources = useMemo(() => {
     const sources = new Map<string, { evidenceId: string; sourceLabel: string; attachments: EvidencePin["attachments"]; pddFragments?: PddFragment[] }>();
 
@@ -1342,7 +1343,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
-          {canRenderResult ? (
+          {renderedResult ? (
             <div
               ref={resultRef}
               tabIndex={-1}
@@ -1354,8 +1355,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
                 <div className="min-w-0">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">Result</div>
-                  <div className="mt-2 text-lg font-semibold text-slate-950">{result.verdict}</div>
-                  <div className="mt-2 text-sm text-slate-700">{result.claimText}</div>
+                  <div className="mt-2 text-lg font-semibold text-slate-950">{renderedResult.verdict}</div>
+                  <div className="mt-2 text-sm text-slate-700">{renderedResult.claimText}</div>
                   <div className="mt-4 grid gap-3 md:grid-cols-3">
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology</div>
@@ -1375,17 +1376,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <div className="mt-1 text-sm font-medium text-slate-900">{selectedEvidenceLabel || "1 item selected"}</div>
                     </div>
                   </div>
-                  <div className="mt-4 text-sm text-slate-700">{result.explanation}</div>
-                  {result.citations.length ? (
+                  <div className="mt-4 text-sm text-slate-700">{renderedResult.explanation}</div>
+                  {renderedResult.citations.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {result.citations.map((citation) => (
+                      {renderedResult.citations.map((citation) => (
                         <span key={citation} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
                           {citation}
                         </span>
                       ))}
                     </div>
                   ) : null}
-                  <div className="mt-3 text-sm text-slate-600">{result.nextStepHint}</div>
+                  <div className="mt-3 text-sm text-slate-600">{renderedResult.nextStepHint}</div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button
                       type="button"
