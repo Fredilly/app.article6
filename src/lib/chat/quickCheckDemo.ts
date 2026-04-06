@@ -61,6 +61,7 @@ export async function prepareQuickCheckDemo(): Promise<{
       methodologyVersion: QUICK_CHECK_DEMO.methodologyVersion,
       evidenceIds: [QUICK_CHECK_DEMO.evidenceId],
       status: "draft",
+      inputSource: "demo",
       createdAt: QUICK_CHECK_DEMO.createdAt,
       updatedAt: QUICK_CHECK_DEMO.createdAt,
     },

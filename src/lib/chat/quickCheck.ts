@@ -16,6 +16,15 @@ import {
 } from "@/lib/verify/runState";
 
 export type QuickCheckDraftStatus = "draft" | "checked";
+export type QuickCheckDraftInputSource = "user" | "demo";
+
+export type QuickCheckExtractionSnapshot = {
+  documentType: string;
+  extractedFacts: string[];
+  methodologyMentions: string[];
+  extractionConfidence: number;
+  warnings: string[];
+};
 
 export type QuickCheckDraft = {
   id: string;
@@ -29,6 +38,7 @@ export type QuickCheckDraft = {
   result?: QuickCheckResult | null;
   resultId?: string;
   linkedRunId?: string;
+  inputSource?: QuickCheckDraftInputSource;
   createdAt: string;
   updatedAt: string;
 };
@@ -44,6 +54,9 @@ export type QuickCheckResult = {
   explanation: string;
   citations: string[];
   nextStepHint: string;
+  matchConfidence?: number;
+  unresolved?: string[];
+  extraction?: QuickCheckExtractionSnapshot | null;
 };
 
 export type QuickCheckStagedUpload = {
@@ -115,6 +128,7 @@ export function createQuickCheckDraft(
     evidenceIds: [],
     status: "draft",
     result: null,
+    inputSource: "user",
     createdAt: timestamp,
     updatedAt: timestamp,
   };
@@ -138,6 +152,29 @@ export function validateQuickCheckDraft(
 function normalizeResult(raw: unknown): QuickCheckResult | null {
   if (!raw || typeof raw !== "object") return null;
   const record = raw as Record<string, unknown>;
+  const rawExtraction = record.extraction;
+  const extraction =
+    rawExtraction && typeof rawExtraction === "object"
+      ? {
+          documentType:
+            typeof (rawExtraction as Record<string, unknown>).documentType === "string"
+              ? (rawExtraction as Record<string, unknown>).documentType as string
+              : "Unknown document",
+          extractedFacts: Array.isArray((rawExtraction as Record<string, unknown>).extractedFacts)
+            ? ((rawExtraction as Record<string, unknown>).extractedFacts as unknown[]).map((item) => String(item)).filter(Boolean)
+            : [],
+          methodologyMentions: Array.isArray((rawExtraction as Record<string, unknown>).methodologyMentions)
+            ? ((rawExtraction as Record<string, unknown>).methodologyMentions as unknown[]).map((item) => String(item)).filter(Boolean)
+            : [],
+          extractionConfidence:
+            typeof (rawExtraction as Record<string, unknown>).extractionConfidence === "number"
+              ? Math.max(0, Math.min(1, (rawExtraction as Record<string, unknown>).extractionConfidence as number))
+              : 0,
+          warnings: Array.isArray((rawExtraction as Record<string, unknown>).warnings)
+            ? ((rawExtraction as Record<string, unknown>).warnings as unknown[]).map((item) => String(item)).filter(Boolean)
+            : [],
+        }
+      : null;
   return {
     id: typeof record.id === "string" ? record.id : newId("quick-result"),
     claimText: typeof record.claimText === "string" ? record.claimText : "",
@@ -153,6 +190,9 @@ function normalizeResult(raw: unknown): QuickCheckResult | null {
     explanation: typeof record.explanation === "string" ? record.explanation : "",
     citations: Array.isArray(record.citations) ? record.citations.map((item) => String(item)).filter(Boolean) : [],
     nextStepHint: typeof record.nextStepHint === "string" ? record.nextStepHint : "",
+    matchConfidence: typeof record.matchConfidence === "number" ? Math.max(0, Math.min(1, record.matchConfidence)) : undefined,
+    unresolved: Array.isArray(record.unresolved) ? record.unresolved.map((item) => String(item)).filter(Boolean) : [],
+    extraction,
   };
 }
 
@@ -206,6 +246,7 @@ export function loadQuickCheckSession(
         result: normalizeResult(draft.result),
         resultId: typeof draft.resultId === "string" ? draft.resultId : undefined,
         linkedRunId: typeof draft.linkedRunId === "string" ? draft.linkedRunId : undefined,
+        inputSource: draft.inputSource === "demo" ? "demo" : "user",
         createdAt: typeof draft.createdAt === "string" ? draft.createdAt : fallback.draft.createdAt,
         updatedAt: typeof draft.updatedAt === "string" ? draft.updatedAt : fallback.draft.updatedAt,
       },
@@ -227,6 +268,9 @@ export function buildQuickCheckResult(input: {
   draft: QuickCheckDraft;
   rule: QuickCheckRule;
   inventoryItems: EvidenceInventoryItem[];
+  matchConfidence?: number | null;
+  unresolved?: string[];
+  extraction?: QuickCheckExtractionSnapshot | null;
 }): QuickCheckResult {
   const requirementId = input.draft.matchedRequirementId ?? input.rule.id;
   const requirementLabel = input.draft.matchedRequirementLabel?.trim() || `${requirementId} · ${input.rule.title}`;
@@ -269,6 +313,9 @@ export function buildQuickCheckResult(input: {
     explanation: reconciliation.reason,
     citations: compactCitations(row),
     nextStepHint: quickCheckNextStepHint(reconciliation.status),
+    matchConfidence: typeof input.matchConfidence === "number" ? Math.max(0, Math.min(1, input.matchConfidence)) : undefined,
+    unresolved: (input.unresolved ?? []).map((item) => item.trim()).filter(Boolean),
+    extraction: input.extraction ?? null,
   };
 }
 

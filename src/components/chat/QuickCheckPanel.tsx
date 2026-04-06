@@ -31,6 +31,7 @@ import {
   saveQuickCheckSession,
   validateQuickCheckDraft,
   type QuickCheckDraft,
+  type QuickCheckExtractionSnapshot,
   type QuickCheckResult,
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
@@ -40,6 +41,7 @@ import {
   resolveQuickCheckCandidates,
   type QuickCheckResolvedCandidate,
 } from "@/lib/chat/quickCheckResolver";
+import { buildQuickCheckExtractionSnapshot, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
@@ -73,6 +75,12 @@ type QuickCheckSessionState = {
   draft: QuickCheckDraft;
   result: QuickCheckResult | null;
   stagedUploads: QuickCheckStagedUpload[];
+};
+
+type ExtractionState = {
+  loading: boolean;
+  analysis: QuickCheckEvidenceAnalysis | null;
+  error: string | null;
 };
 
 type FieldErrors = {
@@ -172,11 +180,24 @@ function boostForClaimIntents(result: QueryResultWithSignals, claimIntents: Quic
   return Math.min(boost, 0.36);
 }
 
+function boostForClaimPhrases(result: QueryResultWithSignals, claimText: string): number {
+  const haystack = `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
+  const claim = claimText.trim().toLowerCase();
+  let boost = 0;
+
+  if (claim.includes("monitoring report") && haystack.includes("report")) boost += 0.12;
+  if (claim.includes("reporting period") && (haystack.includes("period") || haystack.includes("frequency"))) boost += 0.09;
+  if (claim.includes("mapped project area") && (haystack.includes("mapped area") || haystack.includes("boundary"))) boost += 0.06;
+
+  return Math.min(boost, 0.24);
+}
+
 function buildMatchCandidates(
   results: QueryResultWithSignals[],
   methods: MethodInventoryRecord[],
   selectedMethodologyId: string,
   selectedMethodologyVersion: string,
+  claimText: string,
   analysis: QuickCheckEvidenceAnalysis,
   claimIntents: QuickCheckClaimIntent[],
 ): MatchCandidate[] {
@@ -207,7 +228,15 @@ function buildMatchCandidates(
     const key = `${methodologyId}@@${methodologyVersion}@@${requirementId}`;
     if (unique.has(key)) continue;
     const baseScore = typeof result.score === "number" ? result.score : 0;
-    const score = Number((baseScore + result._signalBoost + boostForEvidenceFacts(result, analysis, claimIntents) + boostForClaimIntents(result, claimIntents)).toFixed(4));
+    const score = Number(
+      (
+        baseScore +
+        result._signalBoost +
+        boostForEvidenceFacts(result, analysis, claimIntents) +
+        boostForClaimIntents(result, claimIntents) +
+        boostForClaimPhrases(result, claimText)
+      ).toFixed(4),
+    );
     unique.set(key, {
       key,
       methodologyId,
@@ -228,7 +257,7 @@ function isAmbiguousMatch(candidates: MatchCandidate[]): boolean {
   const [first, second] = candidates;
   if (!first || !second) return false;
   if (first.score == null || second.score == null) return true;
-  return Math.abs(first.score - second.score) < 0.05;
+  return Math.abs(first.score - second.score) < 0.035;
 }
 
 function methodOptionLabel(method: MethodInventoryRecord): string {
@@ -356,6 +385,25 @@ function asPinForUpload(upload: QuickCheckStagedUpload): EvidencePin {
   };
 }
 
+function formatConfidence(value: number): string {
+  return `${Math.round(Math.max(0, Math.min(1, value)) * 100)}%`;
+}
+
+function buildUnresolvedItems(input: {
+  extraction: QuickCheckExtractionSnapshot | null;
+  result: QuickCheckResult;
+}): string[] {
+  const next = new Set<string>();
+  for (const warning of input.extraction?.warnings ?? []) {
+    if (warning.trim()) next.add(warning.trim());
+  }
+  for (const item of input.result.unresolved ?? []) {
+    if (item.trim()) next.add(item.trim());
+  }
+  if (input.result.nextStepHint.trim()) next.add(input.result.nextStepHint.trim());
+  return Array.from(next).slice(0, 4);
+}
+
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
@@ -372,6 +420,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showSavedEvidence, setShowSavedEvidence] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
+  const [extractionState, setExtractionState] = useState<ExtractionState>({
+    loading: false,
+    analysis: null,
+    error: null,
+  });
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -445,6 +498,28 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [updateSession],
   );
 
+  const resetMethodologyForUserInput = useCallback(
+    (draftState: QuickCheckDraft) => {
+      if (draftState.inputSource !== "demo") {
+        return {
+          methodologyId: draftState.methodologyId,
+          methodologyVersion: draftState.methodologyVersion,
+        };
+      }
+      if (initialMethod?.trim()) {
+        return {
+          methodologyId: initialMethod.trim(),
+          methodologyVersion: initialVersion?.trim() || draftState.methodologyVersion,
+        };
+      }
+      return {
+        methodologyId: "",
+        methodologyVersion: "",
+      };
+    },
+    [initialMethod, initialVersion],
+  );
+
   const fetchMethodInventory = useCallback(async (): Promise<MethodInventoryRecord[]> => {
     const response = await fetch("/api/methods/inventory", { cache: "no-store" });
     if (!response.ok) throw new Error(`Method inventory request failed with ${response.status}`);
@@ -510,13 +585,31 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     ? `${selectedInventoryItem.type} from saved evidence`
     : "";
   const canRunQuickCheck = Boolean(draft.claimText.trim()) && selectedEvidenceCount === 1 && !submitting;
-  const resultRequirement = splitRequirementLabel(result?.requirementLabel ?? "");
   const activeResultKey =
     result && draft.methodologyId.trim() && draft.methodologyVersion.trim() && draft.matchedRequirementId?.trim()
       ? `${draft.methodologyId.trim()}@@${draft.methodologyVersion.trim()}@@${draft.matchedRequirementId.trim()}`
       : null;
   const canRenderResult = Boolean(result && activeResultKey && validatedResultKey === activeResultKey);
   const renderedResult = canRenderResult ? result : null;
+  const extractionPreview = useMemo(
+    () => (extractionState.analysis ? buildQuickCheckExtractionSnapshot({ claimText: draft.claimText, analysis: extractionState.analysis }) : null),
+    [draft.claimText, extractionState.analysis],
+  );
+  const normalizedResult = useMemo(
+    () =>
+      renderedResult
+        ? normalizeQuickCheckUiResult({
+            claim: renderedResult.claimText,
+            evidenceFileName: selectedEvidenceLabel || "Uploaded evidence",
+            extraction: renderedResult.extraction ?? extractionPreview,
+            methodologyCode: draft.methodologyId,
+            methodologyVersion: draft.methodologyVersion,
+            result: renderedResult,
+          })
+        : null,
+    [draft.methodologyId, draft.methodologyVersion, extractionPreview, renderedResult, selectedEvidenceLabel],
+  );
+  const normalizedRequirement = normalizedResult?.match ? splitRequirementLabel(normalizedResult.match.requirementLabel) : null;
   const selectedEvidenceSources = useMemo(() => {
     const sources = new Map<string, { evidenceId: string; sourceLabel: string; attachments: EvidencePin["attachments"]; pddFragments?: PddFragment[] }>();
 
@@ -545,6 +638,38 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       pddFragments: source.pddFragments,
     }));
   }, [selectedInventoryEvidence, selectedPins, selectedUploadEvidence]);
+
+  useEffect(() => {
+    if (!selectedEvidenceSources.length) {
+      setExtractionState({ loading: false, analysis: null, error: null });
+      return;
+    }
+
+    let cancelled = false;
+    setExtractionState((current) => ({
+      loading: true,
+      analysis: current.analysis,
+      error: null,
+    }));
+
+    void analyzeQuickCheckEvidence(selectedEvidenceSources)
+      .then((analysis) => {
+        if (cancelled) return;
+        setExtractionState({ loading: false, analysis, error: null });
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setExtractionState({
+          loading: false,
+          analysis: null,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedEvidenceSources]);
 
   useEffect(() => {
     if (!result?.id) return;
@@ -726,7 +851,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   async function completeQuickCheck(
     candidate: ResolvedMatchCandidate,
     activeSession: QuickCheckSessionState = session,
-    options?: { manageSubmitting?: boolean },
+    options?: { manageSubmitting?: boolean; analysis?: QuickCheckEvidenceAnalysis | null; matchConfidence?: number | null },
   ) {
     const shouldManageSubmitting = options?.manageSubmitting !== false;
     const activeDraft = activeSession.draft;
@@ -746,6 +871,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
 
       const inventory = loadQuickCheckInventory(candidate.methodologyId, candidate.methodologyVersion);
+      const extraction = options?.analysis
+        ? buildQuickCheckExtractionSnapshot({
+            claimText: activeDraft.claimText,
+            analysis: options.analysis,
+          })
+        : null;
       const nextResult = buildQuickCheckResult({
         draft: nextDraft,
         rule: {
@@ -766,6 +897,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           citations: candidate.rule.citations,
         },
         inventoryItems: inventory,
+        matchConfidence: options?.matchConfidence ?? candidate.score,
+        unresolved: extraction
+          ? [
+              ...extraction.warnings,
+              "Quick Check is preliminary. Open full review to confirm the requirement against the full methodology context.",
+            ]
+          : ["Quick Check is preliminary. Open full review to confirm the requirement against the full methodology context."],
+        extraction,
       });
 
       const checkedDraft: QuickCheckDraft = {
@@ -807,14 +946,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
       updateSession((current) => ({
         ...current,
-        draft: {
-          ...current.draft,
-          evidenceIds: [evidenceId],
-          status: "draft",
-          result: null,
-          resultId: undefined,
-          updatedAt: nowIso(),
-        },
+        draft: (() => {
+          const nextMethodology = resetMethodologyForUserInput(current.draft);
+          return {
+            ...current.draft,
+            ...nextMethodology,
+            inputSource: "user",
+            evidenceIds: [evidenceId],
+            status: "draft",
+            result: null,
+            resultId: undefined,
+            updatedAt: nowIso(),
+          };
+        })(),
         result: null,
         stagedUploads: [
           {
@@ -836,14 +980,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (!evidenceId) return;
     updateSession((current) => ({
       ...current,
-      draft: {
-        ...current.draft,
-        evidenceIds: [evidenceId],
-        status: "draft",
-        result: null,
-        resultId: undefined,
-        updatedAt: nowIso(),
-      },
+      draft: (() => {
+        const nextMethodology = resetMethodologyForUserInput(current.draft);
+        return {
+          ...current.draft,
+          ...nextMethodology,
+          inputSource: "user",
+          evidenceIds: [evidenceId],
+          status: "draft",
+          result: null,
+          resultId: undefined,
+          updatedAt: nowIso(),
+        };
+      })(),
       result: null,
       stagedUploads: [],
     }));
@@ -857,6 +1006,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       ...current,
       draft: {
         ...current.draft,
+        inputSource: "user",
         evidenceIds: current.draft.evidenceIds.filter((id) => id !== evidenceId),
         status: "draft",
         result: null,
@@ -886,6 +1036,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     try {
       const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources);
       const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
+      if (!evidenceAnalysis.facts.length) {
+        setFieldErrors({
+          general: "We couldn't extract enough usable data from this file for a reliable preliminary match yet.",
+        });
+        setRecoveryState(
+          buildRecoveryState({
+            selectedMethodologyId: draft.methodologyId,
+            evidenceAnalysis,
+            claimIntents,
+          }),
+        );
+        return;
+      }
       const queryTexts = buildQuickCheckQueryTexts(draft.claimText.trim(), evidenceAnalysis.facts, claimIntents);
       const responses = await Promise.all(
         queryTexts.map(async (query) => ({
@@ -894,12 +1057,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         })),
       );
       const mergedResults = mergeQueryResults(responses);
-      const allCandidates = buildMatchCandidates(mergedResults, methods, "", "", evidenceAnalysis, claimIntents);
+      const allCandidates = buildMatchCandidates(mergedResults, methods, "", "", draft.claimText.trim(), evidenceAnalysis, claimIntents);
       let candidates = buildMatchCandidates(
         mergedResults,
         methods,
         draft.methodologyId,
         draft.methodologyVersion,
+        draft.claimText.trim(),
         evidenceAnalysis,
         claimIntents,
       );
@@ -958,7 +1122,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      await completeQuickCheck(resolvedCandidates[0]!);
+      await completeQuickCheck(resolvedCandidates[0]!, session, {
+        analysis: evidenceAnalysis,
+        matchConfidence: resolvedCandidates[0]?.score ?? null,
+      });
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -977,6 +1144,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         result: null,
         stagedUploads: [demo.stagedUpload],
       };
+      const demoAnalysis = await analyzeQuickCheckEvidence([
+        {
+          evidenceId: demo.stagedUpload.evidenceId,
+          sourceLabel: demo.stagedUpload.filename,
+          attachments: [demo.stagedUpload.attachment],
+        },
+      ]);
       replaceSession(nextSession);
       const resolvedDemoCandidate = await resolveQuickCheckCandidate({
         candidate: buildQuickCheckDemoCandidate(),
@@ -1001,7 +1175,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       await completeQuickCheck(
         resolvedDemoCandidate,
         nextSession,
-        { manageSubmitting: false },
+        {
+          manageSubmitting: false,
+          analysis: demoAnalysis,
+          matchConfidence: resolvedDemoCandidate.score ?? 1,
+        },
       );
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
@@ -1058,14 +1236,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               onChange={(event) => {
                 const value = event.target.value;
                 updateDraft(
-                  (current) => ({
-                    ...current,
-                    claimText: value,
-                    matchedRequirementId: undefined,
-                    matchedRequirementLabel: undefined,
-                    status: "draft",
-                    resultId: undefined,
-                  }),
+                  (current) => {
+                    const nextMethodology = resetMethodologyForUserInput(current);
+                    return {
+                      ...current,
+                      ...nextMethodology,
+                      claimText: value,
+                      matchedRequirementId: undefined,
+                      matchedRequirementLabel: undefined,
+                      status: "draft",
+                      resultId: undefined,
+                      inputSource: "user",
+                    };
+                  },
                   null,
                 );
                 clearDecisionState();
@@ -1085,14 +1268,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 type="button"
                 onClick={() => {
                   updateDraft(
-                    (current) => ({
-                      ...current,
-                      claimText: suggestion,
-                      matchedRequirementId: undefined,
-                      matchedRequirementLabel: undefined,
-                      status: "draft",
-                      resultId: undefined,
-                    }),
+                    (current) => {
+                      const nextMethodology = resetMethodologyForUserInput(current);
+                      return {
+                        ...current,
+                        ...nextMethodology,
+                        claimText: suggestion,
+                        matchedRequirementId: undefined,
+                        matchedRequirementLabel: undefined,
+                        status: "draft",
+                        resultId: undefined,
+                        inputSource: "user",
+                      };
+                    },
                     null,
                   );
                   clearDecisionState();
@@ -1130,20 +1318,85 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
 
             {selectedEvidenceLabel ? (
-              <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3">
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-slate-900">{selectedEvidenceLabel}</div>
-                  <div className="mt-1 text-xs text-slate-500">{selectedEvidenceMeta}</div>
+              <>
+                <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-slate-900">{selectedEvidenceLabel}</div>
+                    <div className="mt-1 text-xs text-slate-500">{selectedEvidenceMeta}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeEvidence(draft.evidenceIds[0] ?? "")}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-800"
+                    aria-label="Remove selected evidence"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeEvidence(draft.evidenceIds[0] ?? "")}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-800"
-                  aria-label="Remove selected evidence"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+                <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-medium text-slate-900">Extraction preview</div>
+                      <div className="mt-1 text-sm text-slate-600">
+                        Review what Quick Check could extract from the uploaded file before analysis.
+                      </div>
+                    </div>
+                    {extractionState.loading ? <Loader2 className="h-4 w-4 animate-spin text-slate-400" /> : null}
+                  </div>
+                  {extractionState.error ? (
+                    <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+                      Extraction preview is unavailable right now. {extractionState.error}
+                    </div>
+                  ) : extractionPreview ? (
+                    <div className="mt-4 grid gap-4 md:grid-cols-2">
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Document type</div>
+                        <div className="mt-1 text-sm font-medium text-slate-900">{extractionPreview.documentType}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction confidence</div>
+                        <div className="mt-1 text-sm font-medium text-slate-900">{formatConfidence(extractionPreview.extractionConfidence)}</div>
+                      </div>
+                      <div className="md:col-span-2">
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extracted facts relevant to the claim</div>
+                        {extractionPreview.extractedFacts.length ? (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {extractionPreview.extractedFacts.map((fact) => (
+                              <span key={fact} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                {fact}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="mt-2 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+                            We couldn&apos;t extract enough usable data from this file for a reliable preliminary match yet.
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology mentions</div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {(extractionPreview.methodologyMentions.length ? extractionPreview.methodologyMentions : ["None detected"]).map((mention) => (
+                            <span key={mention} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                              {mention}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>
+                        <div className="mt-2 grid gap-2">
+                          {(extractionPreview.warnings.length ? extractionPreview.warnings : ["No extraction warnings."]).map((warning) => (
+                            <div key={warning} className="text-sm text-slate-600">
+                              {warning}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </>
             ) : null}
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
@@ -1154,7 +1407,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 type="button"
                 onClick={() => void handleTryDemoCheck()}
                 disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-950 transition hover:border-sky-300 hover:bg-sky-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Try demo check
@@ -1186,7 +1439,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               className="inline-flex min-w-[13rem] items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Run quick check
+              Analyze claim
             </button>
           </div>
 
@@ -1365,7 +1618,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
-          {renderedResult ? (
+          {renderedResult && normalizedResult?.match ? (
             <div
               ref={resultRef}
               tabIndex={-1}
@@ -1377,38 +1630,80 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
                 <div className="min-w-0">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">Result</div>
-                  <div className="mt-2 text-lg font-semibold text-slate-950">{renderedResult.verdict}</div>
-                  <div className="mt-2 text-sm text-slate-700">{renderedResult.claimText}</div>
-                  <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  <div className="mt-2 text-lg font-semibold text-slate-950">Preliminary match found</div>
+                  <div className="mt-2 text-sm text-slate-700">{normalizedResult.claim}</div>
+                  <div className="mt-4 grid gap-4 rounded-2xl border border-emerald-200/80 bg-white/75 p-4 md:grid-cols-3">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What matched</div>
                       <div className="mt-1 text-sm font-medium text-slate-900">
-                        {draft.methodologyId} {draft.methodologyVersion ? `· ${draft.methodologyVersion}` : ""}
+                        {normalizedRequirement?.title || normalizedResult.match.requirementLabel}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {normalizedResult.match.methodologyCode}
+                        {normalizedResult.match.methodologyVersion ? ` · ${normalizedResult.match.methodologyVersion}` : ""}
+                        {(normalizedRequirement?.id || normalizedResult.match.requirementId)
+                          ? ` · ${normalizedRequirement?.id || normalizedResult.match.requirementId}`
+                          : ""}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Requirement</div>
-                      <div className="mt-1 text-sm font-medium text-slate-900">{resultRequirement.title}</div>
-                      {resultRequirement.id ? (
-                        <div className="mt-1 text-xs font-mono text-slate-500">{resultRequirement.id}</div>
-                      ) : null}
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Match confidence</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">{formatConfidence(normalizedResult.match.matchConfidence)}</div>
+                      <div className="mt-1 text-xs text-slate-500">Quick Check returns a preliminary requirement match, not a final review decision.</div>
                     </div>
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence</div>
-                      <div className="mt-1 text-sm font-medium text-slate-900">{selectedEvidenceLabel || "1 item selected"}</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">{normalizedResult.evidenceFileName || "1 item selected"}</div>
+                      <div className="mt-1 text-xs text-slate-500">{normalizedResult.extraction.documentType}</div>
                     </div>
                   </div>
-                  <div className="mt-4 text-sm text-slate-700">{renderedResult.explanation}</div>
-                  {renderedResult.citations.length ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {renderedResult.citations.map((citation) => (
-                        <span key={citation} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                          {citation}
-                        </span>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What matched</div>
+                      <div className="mt-2 text-sm text-slate-700">{normalizedResult.match.rationale}</div>
+                      {renderedResult.citations.length ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {renderedResult.citations.map((citation) => (
+                            <span key={citation} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                              {citation}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What we found in the file</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {normalizedResult.extraction.extractedFacts.map((fact) => (
+                          <span key={fact} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                            {fact}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="mt-3 text-xs text-slate-500">
+                        Extraction confidence {formatConfidence(normalizedResult.extraction.extractionConfidence)}
+                      </div>
+                      {normalizedResult.extraction.methodologyMentions.length ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {normalizedResult.extraction.methodologyMentions.map((citation) => (
+                            <span key={citation} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                              {citation}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="mt-4 rounded-2xl border border-slate-200 bg-white/70 p-4">
+                    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What remains unresolved</div>
+                    <div className="mt-2 grid gap-2">
+                      {buildUnresolvedItems({ extraction: normalizedResult.extraction, result: renderedResult }).map((item) => (
+                        <div key={item} className="text-sm text-slate-700">
+                          {item}
+                        </div>
                       ))}
                     </div>
-                  ) : null}
-                  <div className="mt-3 text-sm text-slate-600">{renderedResult.nextStepHint}</div>
+                  </div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -1424,6 +1719,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         updateDraft(
                           (current) => ({
                             ...current,
+                            inputSource: "user",
                             matchedRequirementId: undefined,
                             matchedRequirementLabel: undefined,
                             evidenceIds: [],
@@ -1444,7 +1740,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         updateDraft(
                           (current) => ({
                             ...current,
+                            inputSource: "user",
                             claimText: "",
+                            methodologyId: initialMethod?.trim() ?? "",
+                            methodologyVersion: initialVersion?.trim() ?? "",
                             matchedRequirementId: undefined,
                             matchedRequirementLabel: undefined,
                             evidenceIds: [],

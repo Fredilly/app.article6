@@ -27,6 +27,10 @@ export type QuickCheckEvidenceFact = {
 export type QuickCheckEvidenceAnalysis = {
   facts: QuickCheckEvidenceFact[];
   parsedEvidenceLabels: string[];
+  documentTypes: string[];
+  methodologyMentions: string[];
+  extractionConfidence: number;
+  warnings: string[];
 };
 
 export type QuickCheckClaimIntent =
@@ -178,6 +182,21 @@ function extractPdfText(bytes: ArrayBuffer): string {
   const raw = new TextDecoder("latin1").decode(new Uint8Array(bytes));
   const segments = [...extractPdfLiteralStrings(raw), ...extractPrintableSequences(raw)];
   return normalizeWhitespace(Array.from(new Set(segments)).join(" "));
+}
+
+function extractMethodologyMentions(text: string): string[] {
+  return Array.from(new Set(text.match(/\b[A-Z]{2}-[A-Z]{3,}\d{4}\b/g) ?? [])).sort((a, b) => a.localeCompare(b));
+}
+
+function classifyDocumentType(source: QuickCheckEvidenceSource): string {
+  const attachmentMimes = source.attachments.map((attachment) => attachment.mime);
+  if (source.pddFragments?.length || attachmentMimes.includes("application/pdf")) return "PDD / PDF";
+  if (source.attachments.some((attachment) => attachment.workbook_asset) || attachmentMimes.some((mime) => /(sheet|excel|csv)/i.test(mime))) {
+    return "Workbook";
+  }
+  if (attachmentMimes.some((mime) => mime.startsWith("image/"))) return "Image";
+  if (attachmentMimes.length > 0) return "Document";
+  return "Unknown document";
 }
 
 function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEvidenceFact[] {
@@ -357,11 +376,19 @@ export async function analyzeQuickCheckEvidence(
 ): Promise<QuickCheckEvidenceAnalysis> {
   const facts = new Map<string, QuickCheckEvidenceFact>();
   const parsedEvidenceLabels = new Set<string>();
+  const documentTypes = new Set<string>();
+  const methodologyMentions = new Set<string>();
   const resolveAttachmentBytes = options?.resolveAttachmentBytes ?? getAttachmentBytes;
 
   for (const source of sources) {
+    documentTypes.add(classifyDocumentType(source));
     if (source.pddFragments?.length) {
       parsedEvidenceLabels.add(source.sourceLabel);
+      for (const mention of extractMethodologyMentions(source.pddFragments.map((fragment) =>
+        [fragment.label, fragment.section_label, fragment.section_heading, fragment.excerpt].filter(Boolean).join(" "),
+      ).join(" "))) {
+        methodologyMentions.add(mention);
+      }
       for (const fact of derivePddFragmentFacts(source.pddFragments, source.sourceLabel)) {
         addFact(facts, fact);
       }
@@ -370,6 +397,9 @@ export async function analyzeQuickCheckEvidence(
     const workbookAssets = source.attachments.map((attachment) => attachment.workbook_asset).filter(Boolean) as WorkbookEvidenceAsset[];
     for (const asset of workbookAssets) {
       parsedEvidenceLabels.add(source.sourceLabel);
+      for (const mention of extractMethodologyMentions(JSON.stringify(asset))) {
+        methodologyMentions.add(mention);
+      }
       for (const fact of deriveWorkbookFactsFromAsset(asset, source.sourceLabel)) {
         addFact(facts, fact);
       }
@@ -382,15 +412,39 @@ export async function analyzeQuickCheckEvidence(
       const text = extractPdfText(bytes);
       if (!text) continue;
       parsedEvidenceLabels.add(source.sourceLabel);
+      for (const mention of extractMethodologyMentions(text)) {
+        methodologyMentions.add(mention);
+      }
       for (const fact of derivePdfFactsFromText(text, source.sourceLabel)) {
         addFact(facts, fact);
       }
     }
   }
 
+  const warnings: string[] = [];
+  if (!parsedEvidenceLabels.size) {
+    warnings.push("We couldn't extract usable text from this file yet.");
+  } else if (!facts.size) {
+    warnings.push("We parsed the file, but couldn't extract enough requirement-relevant facts yet.");
+  }
+  if (parsedEvidenceLabels.size && !methodologyMentions.size) {
+    warnings.push("No methodology mentions were detected in the uploaded evidence.");
+  }
+
+  const extractionConfidence =
+    !parsedEvidenceLabels.size
+      ? 0.12
+      : !facts.size
+      ? 0.28
+      : Math.min(0.92, 0.42 + Math.min(facts.size, 4) * 0.11 + (methodologyMentions.size ? 0.06 : 0));
+
   return {
     facts: Array.from(facts.values()),
     parsedEvidenceLabels: Array.from(parsedEvidenceLabels).sort((a, b) => a.localeCompare(b)),
+    documentTypes: Array.from(documentTypes).sort((a, b) => a.localeCompare(b)),
+    methodologyMentions: Array.from(methodologyMentions).sort((a, b) => a.localeCompare(b)),
+    extractionConfidence,
+    warnings,
   };
 }
 

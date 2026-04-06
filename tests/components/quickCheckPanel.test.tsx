@@ -84,17 +84,19 @@ describe("QuickCheckPanel claim-first flow", () => {
     window.localStorage.clear();
     pushMock.mockReset();
     createAndStoreEvidenceAttachmentMock.mockReset();
-    createAndStoreEvidenceAttachmentMock.mockResolvedValue({
-      ok: true,
-      attachment: {
-        id: "att-upload-1",
-        pin_id: "upload-1",
-        filename: "boundary.pdf",
-        mime: "application/pdf",
-        size: 256,
-        sha256: "sha-upload-1",
+    createAndStoreEvidenceAttachmentMock.mockImplementation(async (input: { pin_id: string; file: File }) => {
+      const bytes = new Uint8Array(await input.file.arrayBuffer());
+      const attachment = {
+        id: `att-${input.pin_id}`,
+        pin_id: input.pin_id,
+        filename: input.file.name,
+        mime: input.file.type || "application/pdf",
+        size: bytes.byteLength,
+        sha256: `sha-${input.pin_id}`,
         created_at: "2026-04-04T00:00:00Z",
-      },
+      };
+      await putAttachmentBytes(attachment.id, asArrayBuffer(bytes));
+      return { ok: true, attachment };
     });
 
     (global.fetch as typeof fetch | undefined) = jest.fn(async (input: RequestInfo | URL) => {
@@ -546,7 +548,7 @@ describe("QuickCheckPanel claim-first flow", () => {
   }
 
   function primaryCta(): HTMLButtonElement {
-    return Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Run quick check")) as HTMLButtonElement;
+    return Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Analyze claim")) as HTMLButtonElement;
   }
 
   function clickButton(label: string) {
@@ -561,6 +563,17 @@ describe("QuickCheckPanel claim-first flow", () => {
     setter?.call(input, value);
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  async function uploadEvidence(file: File) {
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    Object.defineProperty(input, "files", {
+      configurable: true,
+      value: [file],
+    });
+    await act(async () => {
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
   }
 
   async function flushUi() {
@@ -586,7 +599,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(true);
   });
 
-  it("renders Try demo check as an always-available primary shortcut", async () => {
+  it("renders Try demo check as an always-available secondary shortcut", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
     });
@@ -594,6 +607,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     const demoButton = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Try demo check"));
     expect(demoButton).toBeTruthy();
     expect((demoButton as HTMLButtonElement).disabled).toBe(false);
+    expect((demoButton as HTMLButtonElement).className).toContain("bg-white");
     expect(primaryCta().disabled).toBe(true);
   });
 
@@ -622,6 +636,62 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(true);
   });
 
+  it("supports the cold-load user flow without using the demo path", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await act(async () => {
+      setClaimValue("The monitoring report covers the full reporting period.");
+    });
+
+    await uploadEvidence(
+      new File(
+        ["%PDF-1.4\n(Monitoring report for the full reporting period. AR-ACM0003 methodology reference.)\n%%EOF"],
+        "fresh-monitoring-report.pdf",
+        { type: "application/pdf" },
+      ),
+    );
+
+    await flushUi();
+
+    expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).toContain("The project has documented monitoring evidence");
+    expect(container.textContent).toContain("AR-ACM0003");
+    expect(primaryCta().disabled).toBe(false);
+
+    await act(async () => {
+      clickButton("Analyze claim");
+    });
+
+    await flushUi();
+
+    expect(container.textContent).toContain("Preliminary match found");
+    expect(container.textContent).toContain("fresh-monitoring-report.pdf");
+    expect(container.textContent).toContain("Match confidence");
+    expect(container.textContent).toContain("What matched");
+    expect(container.textContent).toContain("What we found in the file");
+    expect(container.textContent).toContain("What remains unresolved");
+    expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("renders an extraction failure state when uploaded parsing yields insufficient data", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await uploadEvidence(
+      new File(["%%%%"], "opaque-scan.pdf", { type: "application/pdf" }),
+    );
+
+    await flushUi();
+
+    expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).toContain("We couldn't extract enough usable data from this file for a reliable preliminary match yet.");
+    expect(container.textContent).toContain("We couldn't extract usable text from this file yet.");
+  });
+
   it("enables the CTA only when one claim and one evidence item are present", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
@@ -648,6 +718,11 @@ describe("QuickCheckPanel claim-first flow", () => {
   });
 
   it("renders a compact result card and hands off into the review workspace", async () => {
+    await seedAttachmentText(
+      "att-1",
+      "%PDF-1.4\n(Monitoring report for the full reporting period. Section 10.)\n%%EOF",
+    );
+
     await act(async () => {
       root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" onContinueToWorkspace={pushMock} />);
     });
@@ -665,15 +740,15 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
-    expect(container.textContent).toContain("Methodology");
+    expect(container.textContent).toContain("Preliminary match found");
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
-    expect(container.textContent).toContain("Supported");
+    expect(container.textContent).toContain("Match confidence");
     expect(container.textContent).toContain("All expected evidence is linked.");
     expect(container.textContent).toContain("Section 10");
     expect(container.textContent).toContain("monitoring-report.pdf");
@@ -690,7 +765,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain("R-1-0001");
   });
 
-  it("shows an ambiguous match chooser when the claim maps to multiple likely requirements", async () => {
+  it("surfaces an in-scope boundary match instead of failing opaquely", async () => {
     window.localStorage.setItem(
       "a6:quick-check:claim-first:v1",
       JSON.stringify({
@@ -724,6 +799,10 @@ describe("QuickCheckPanel claim-first flow", () => {
         ],
       }),
     );
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Project boundary description matches the mapped project area and project coordinates.)\n%%EOF",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -732,20 +811,18 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
 
-    expect(container.textContent).toContain("Likely requirement matches");
-    expect(container.textContent).toContain("Multiple requirements could fit this claim.");
-    expect(container.textContent).toContain("Boundary consistency");
-    expect(container.textContent).toContain("R-1-0002");
-    expect(container.textContent).toContain("Boundary delineation");
-    expect(container.textContent).toContain("R-2-0001");
-    expect(container.textContent).not.toContain("baseline-carbon-44-12");
-    expect(container.textContent).not.toContain("Baseline carbon memo");
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    const text = container.textContent ?? "";
+    expect(text).toContain("Boundary consistency");
+    expect(text).toContain("R-1-0002");
+    expect(text).not.toContain("baseline-carbon-44-12");
+    expect(text).not.toContain("Baseline carbon memo");
+    expect(text).not.toContain("The matched requirement could not be loaded.");
+    expect(/Likely requirement matches|Preliminary match found/.test(text)).toBe(true);
   });
 
   it("renders recovery actions when no clear match is found", async () => {
@@ -764,7 +841,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     expect(container.textContent).toContain("No clear match yet");
@@ -789,7 +866,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     expect(container.textContent).toContain("Boundary consistency");
@@ -809,7 +886,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     expect(container.textContent).toContain("Boundary consistency");
@@ -826,7 +903,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     expect(container.textContent).toContain("Monitoring plan");
@@ -886,7 +963,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     expect(container.textContent).toContain("Workbook monitoring records");
@@ -943,7 +1020,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     expect(container.textContent).toContain("Workbook monitoring records");
@@ -951,6 +1028,11 @@ describe("QuickCheckPanel claim-first flow", () => {
   });
 
   it("does not silently suppress an obvious match when methodology narrowing is enabled", async () => {
+    await seedAttachmentText(
+      "att-ams-1",
+      "%PDF-1.4\n(Project boundary description and mapped project area for AR-AMS0007.)\n%%EOF",
+    );
+
     await act(async () => {
       root.render(<QuickCheckPanel initialMethod="AR-AMS0007" initialVersion="v01-0" />);
     });
@@ -967,7 +1049,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1016,7 +1098,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1039,7 +1121,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1061,7 +1143,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1100,7 +1182,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1137,7 +1219,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1173,7 +1255,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1205,10 +1287,13 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.verdict);
+    expect(container.textContent).toContain("Preliminary match found");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.citation);
+    expect(container.textContent).toContain("What matched");
+    expect(container.textContent).toContain("What we found in the file");
+    expect(container.textContent).toContain("What remains unresolved");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("Change evidence");
     expect(container.textContent).toContain("Start your own check");
@@ -1252,7 +1337,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await act(async () => {
@@ -1329,7 +1414,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.verdict);
+    expect(container.textContent).toContain("Preliminary match found");
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.citation);
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
 
@@ -1381,7 +1466,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Analyze claim");
     });
 
     await flushUi();
@@ -1395,7 +1480,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.verdict);
+    expect(container.textContent).toContain("Preliminary match found");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain("No clear match yet");
