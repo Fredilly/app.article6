@@ -18,7 +18,7 @@ export const QUICK_CHECK_DEMO = {
 } as const;
 
 function asArrayBuffer(value: Uint8Array): ArrayBuffer {
-  return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
+  return new Uint8Array(value).buffer.slice(0);
 }
 
 export async function prepareQuickCheckDemo(): Promise<{
