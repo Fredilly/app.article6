@@ -1,4 +1,5 @@
 import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
+import { unzlibSync } from "fflate";
 import { getAttachmentBytes } from "@/lib/proofMap/attachments";
 import type { EvidenceAttachment, PddFragment, WorkbookEvidenceAsset, WorkbookRecordGroup } from "@/lib/proofMap/types";
 
@@ -132,6 +133,254 @@ function decodePdfLiteral(value: string): string {
     .replace(/\\\r?\n/g, "");
 }
 
+function latin1BytesToString(bytes: Uint8Array): string {
+  return new TextDecoder("latin1").decode(bytes);
+}
+
+function latin1StringToBytes(value: string): Uint8Array {
+  const bytes = new Uint8Array(value.length);
+  for (let index = 0; index < value.length; index += 1) bytes[index] = value.charCodeAt(index) & 0xff;
+  return bytes;
+}
+
+function hexToBytes(value: string): Uint8Array {
+  const normalized = value.replace(/[^0-9A-Fa-f]/g, "");
+  const bytes = new Uint8Array(Math.floor(normalized.length / 2));
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = parseInt(normalized.slice(index * 2, index * 2 + 2), 16);
+  }
+  return bytes;
+}
+
+function decodePdfUnicodeHex(value: string): string {
+  if (!value) return "";
+  const bytes = hexToBytes(value);
+  let output = "";
+
+  for (let index = 0; index + 1 < bytes.length; index += 2) {
+    const codeUnit = (bytes[index]! << 8) | bytes[index + 1]!;
+    if (codeUnit >= 0xd800 && codeUnit <= 0xdbff && index + 3 < bytes.length) {
+      const lowSurrogate = (bytes[index + 2]! << 8) | bytes[index + 3]!;
+      output += String.fromCodePoint(((codeUnit - 0xd800) << 10) + (lowSurrogate - 0xdc00) + 0x10000);
+      index += 2;
+      continue;
+    }
+    output += String.fromCharCode(codeUnit);
+  }
+
+  return output;
+}
+
+type PdfObjectRecord = {
+  id: string;
+  body: string;
+  dict: string;
+  stream: string | null;
+};
+
+function parsePdfObjects(raw: string): PdfObjectRecord[] {
+  const next: PdfObjectRecord[] = [];
+  for (const match of raw.matchAll(/(\d+)\s+\d+\s+obj([\s\S]*?)endobj/g)) {
+    const id = match[1] ?? "";
+    const body = match[2] ?? "";
+    const dict = body.match(/<<([\s\S]*?)>>/)?.[1] ?? "";
+    const stream = body.match(/>>(?:\s*)stream\r?\n([\s\S]*?)\r?\nendstream/)?.[1] ?? null;
+    next.push({ id, body, dict, stream });
+  }
+  return next;
+}
+
+function inflatePdfStream(record: PdfObjectRecord): string | null {
+  if (!record.stream) return null;
+  try {
+    const bytes = latin1StringToBytes(record.stream);
+    return /FlateDecode/.test(record.dict)
+      ? latin1BytesToString(unzlibSync(bytes))
+      : record.stream;
+  } catch {
+    return null;
+  }
+}
+
+function decodePdfHexText(value: string, cmap: Map<string, string>): string {
+  if (!value || !cmap.size) return "";
+  const keyLengths = Array.from(new Set(Array.from(cmap.keys()).map((key) => key.length))).sort((a, b) => b - a);
+  const input = value.toUpperCase();
+  let cursor = 0;
+  let output = "";
+
+  while (cursor < input.length) {
+    let matched = false;
+    for (const keyLength of keyLengths) {
+      const chunk = input.slice(cursor, cursor + keyLength);
+      if (chunk.length !== keyLength) continue;
+      const resolved = cmap.get(chunk);
+      if (!resolved) continue;
+      output += resolved;
+      cursor += keyLength;
+      matched = true;
+      break;
+    }
+    if (matched) continue;
+    cursor += 2;
+  }
+
+  return output;
+}
+
+function buildPdfToUnicodeMaps(objects: PdfObjectRecord[]): Map<string, Map<string, string>> {
+  const maps = new Map<string, Map<string, string>>();
+
+  for (const object of objects) {
+    const stream = inflatePdfStream(object);
+    if (!stream || !stream.includes("begincmap")) continue;
+    const cmap = new Map<string, string>();
+
+    for (const block of stream.matchAll(/beginbfchar([\s\S]*?)endbfchar/g)) {
+      for (const bfchar of block[1]!.matchAll(/<([0-9A-Fa-f]+)>\s+<([0-9A-Fa-f]+)>/g)) {
+        cmap.set(bfchar[1]!.toUpperCase(), decodePdfUnicodeHex(bfchar[2]!));
+      }
+    }
+
+    for (const block of stream.matchAll(/beginbfrange([\s\S]*?)endbfrange/g)) {
+      for (const range of block[1]!.matchAll(/<([0-9A-Fa-f]+)>\s+<([0-9A-Fa-f]+)>\s+<([0-9A-Fa-f]+)>/g)) {
+        const [start, end, dest] = [range[1]!, range[2]!, range[3]!];
+        if (dest.length > 4) continue;
+        const width = start.length;
+        let source = parseInt(start, 16);
+        const sourceEnd = parseInt(end, 16);
+        let destCodePoint = parseInt(dest, 16);
+        if (!Number.isFinite(destCodePoint) || destCodePoint > 0x10ffff) continue;
+        while (source <= sourceEnd && destCodePoint <= 0x10ffff) {
+          cmap.set(source.toString(16).toUpperCase().padStart(width, "0"), String.fromCodePoint(destCodePoint));
+          source += 1;
+          destCodePoint += 1;
+        }
+      }
+    }
+
+    if (cmap.size) maps.set(object.id, cmap);
+  }
+
+  return maps;
+}
+
+function buildPdfResourceFontMaps(
+  objects: PdfObjectRecord[],
+  toUnicodeMaps: Map<string, Map<string, string>>,
+): Map<string, Map<string, Map<string, string>>> {
+  const byObjectId = new Map(objects.map((object) => [object.id, object]));
+  const resourceMaps = new Map<string, Map<string, Map<string, string>>>();
+
+  function resolveFontMaps(objectId: string, seen = new Set<string>()): Map<string, Map<string, string>> {
+    if (seen.has(objectId)) return new Map();
+    seen.add(objectId);
+
+    const object = byObjectId.get(objectId);
+    if (!object) return new Map();
+
+    const fontMaps = new Map<string, Map<string, string>>();
+
+    for (const match of object.body.matchAll(/\/(F\d+)\s+(\d+)\s+0\s+R/g)) {
+      const alias = match[1] ?? "";
+      const fontObject = byObjectId.get(match[2] ?? "");
+      const toUnicodeId = fontObject?.dict.match(/\/ToUnicode\s+(\d+)\s+0\s+R/)?.[1] ?? null;
+      if (!alias || !toUnicodeId) continue;
+      const cmap = toUnicodeMaps.get(toUnicodeId);
+      if (cmap?.size) fontMaps.set(alias, cmap);
+    }
+
+    for (const match of object.body.matchAll(/\/Font\s+(\d+)\s+0\s+R/g)) {
+      const nested = resolveFontMaps(match[1] ?? "", seen);
+      for (const [alias, cmap] of nested) {
+        if (cmap.size) fontMaps.set(alias, cmap);
+      }
+    }
+
+    return fontMaps;
+  }
+
+  for (const object of objects) {
+    const fontMaps = resolveFontMaps(object.id);
+    if (fontMaps.size) resourceMaps.set(object.id, fontMaps);
+  }
+
+  return resourceMaps;
+}
+
+function extractPageContentObjectIds(body: string): string[] {
+  const direct = body.match(/\/Contents\s+(\d+)\s+0\s+R/)?.[1];
+  if (direct) return [direct];
+
+  const arrayBody = body.match(/\/Contents\s*\[([\s\S]*?)\]/)?.[1] ?? "";
+  return Array.from(arrayBody.matchAll(/(\d+)\s+0\s+R/g)).map((match) => match[1] ?? "").filter(Boolean);
+}
+
+function extractEncodedPdfText(bytes: ArrayBuffer): string {
+  const raw = latin1BytesToString(new Uint8Array(bytes));
+  const objects = parsePdfObjects(raw);
+  if (!objects.length) return "";
+
+  const objectMap = new Map(objects.map((object) => [object.id, object]));
+  const toUnicodeMaps = buildPdfToUnicodeMaps(objects);
+  const resourceFontMaps = buildPdfResourceFontMaps(objects, toUnicodeMaps);
+  const parts: string[] = [];
+
+  for (const object of objects) {
+    if (!/\/Type\/Page\b/.test(object.body)) continue;
+    const resourceId = object.body.match(/\/Resources\s+(\d+)\s+0\s+R/)?.[1] ?? null;
+    const contentIds = extractPageContentObjectIds(object.body);
+    if (!resourceId || !contentIds.length) continue;
+    const fontMaps = resourceFontMaps.get(resourceId) ?? new Map<string, Map<string, string>>();
+
+    for (const contentId of contentIds) {
+      const contentObject = objectMap.get(contentId);
+      if (!contentObject) continue;
+      const stream = inflatePdfStream(contentObject);
+      if (!stream) continue;
+
+      let inTextBlock = false;
+      let currentFont: string | null = null;
+      const textTokens: string[] = [];
+      const tokenPattern = /BT|ET|\/(F\d+)\s+\d+(?:\.\d+)?\s+Tf|<([0-9A-Fa-f]+)>|\(([^()]*)\)/g;
+
+      for (const match of stream.matchAll(tokenPattern)) {
+        if (match[0] === "BT") {
+          inTextBlock = true;
+          continue;
+        }
+        if (match[0] === "ET") {
+          inTextBlock = false;
+          currentFont = null;
+          if (textTokens.length) {
+            parts.push(textTokens.join(""));
+            textTokens.length = 0;
+          }
+          continue;
+        }
+        if (!inTextBlock) continue;
+        if (match[1]) {
+          currentFont = match[1];
+          continue;
+        }
+        if (match[2] && currentFont) {
+          const decoded = decodePdfHexText(match[2], fontMaps.get(currentFont) ?? new Map());
+          if (decoded.trim()) textTokens.push(decoded);
+          continue;
+        }
+        if (match[3]) {
+          const decoded = normalizeWhitespace(decodePdfLiteral(match[3]));
+          if (decoded) textTokens.push(decoded);
+        }
+      }
+
+      if (textTokens.length) parts.push(textTokens.join(""));
+    }
+  }
+
+  return normalizeWhitespace(parts.join(" "));
+}
+
 function extractPdfLiteralStrings(raw: string): string[] {
   const next: string[] = [];
   let buffer = "";
@@ -178,14 +427,32 @@ function extractPrintableSequences(raw: string): string[] {
   );
 }
 
-function extractPdfText(bytes: ArrayBuffer): string {
+export function extractPdfText(bytes: ArrayBuffer): string {
   const raw = new TextDecoder("latin1").decode(new Uint8Array(bytes));
-  const segments = [...extractPdfLiteralStrings(raw), ...extractPrintableSequences(raw)];
+  const encodedText = extractEncodedPdfText(bytes);
+  const segments = encodedText
+    ? [encodedText]
+    : [...extractPdfLiteralStrings(raw), ...extractPrintableSequences(raw)];
   return normalizeWhitespace(Array.from(new Set(segments)).join(" "));
 }
 
 function extractMethodologyMentions(text: string): string[] {
-  return Array.from(new Set(text.match(/\b[A-Z]{2}-[A-Z]{3,}\d{4}\b/g) ?? [])).sort((a, b) => a.localeCompare(b));
+  const mentions = new Set<string>(text.match(/\b[A-Z]{2}-[A-Z]{3,}\d{4}\b/g) ?? []);
+
+  for (const match of text.matchAll(/\b([A-Z]{2,})[\s/]+([A-Z]{2,}\d{4})\b/g)) {
+    const prefix = match[1]?.trim();
+    const suffix = match[2]?.trim();
+    if (prefix && suffix) mentions.add(`${prefix}-${suffix}`);
+  }
+
+  for (const match of text.matchAll(
+    /\b((?:Gold Standard|Verified Carbon Standard|Climate Action Reserve|American Carbon Registry)[A-Za-z0-9,./() -]{0,80}?(?:version|v)\s*\d+(?:\.\d+)*)\b/gi,
+  )) {
+    const phrase = normalizeWhitespace(match[1] ?? "");
+    if (phrase) mentions.add(phrase);
+  }
+
+  return Array.from(mentions).sort((a, b) => a.localeCompare(b));
 }
 
 function classifyDocumentType(source: QuickCheckEvidenceSource): string {
@@ -224,7 +491,7 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
     });
   }
 
-  if (/(area of interest|aoi|polygon|mapped area|project area map|shape file|shapefile|geojson|boundary map)/.test(haystack)) {
+  if (/(area of interest|aoi|polygon|mapped area|project area|project geography|geographic area|shape file|shapefile|geojson|boundary map)/.test(haystack)) {
     addFact(next, {
       category: "mapped-area",
       summary: "The PDD references the mapped project area or AOI",
@@ -247,6 +514,15 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
       category: "monitoring-plan",
       summary: "The project has a documented monitoring plan",
       matchText: "documented monitoring plan",
+      sourceLabel,
+    });
+  }
+
+  if (/(reporting period|monitoring period|period covered|coverage period|\b20\d{2}\s*[-/]?\s*q[1-4]\b|\bq[1-4]\s*20\d{2}\b)/.test(haystack)) {
+    addFact(next, {
+      category: "reporting-period",
+      summary: "The PDF states a monitoring or reporting period",
+      matchText: "reporting period stated",
       sourceLabel,
     });
   }

@@ -1,7 +1,10 @@
 /** @jest-environment jsdom */
 
+import fs from "fs";
+import path from "path";
 import { describe, expect, it } from "@jest/globals";
-import { analyzeQuickCheckEvidence, buildLocalRuleCandidates, buildQuickCheckQueryTexts, classifyQuickCheckClaimIntents } from "@/lib/chat/quickCheckEvidence";
+import { analyzeQuickCheckEvidence, buildLocalRuleCandidates, buildQuickCheckQueryTexts, classifyQuickCheckClaimIntents, extractPdfText } from "@/lib/chat/quickCheckEvidence";
+import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState } from "@/lib/chat/quickCheckUi";
 import { parseWorkbookEvidenceAsset } from "@/lib/evidence/workbook";
 import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 
@@ -9,7 +12,60 @@ function asArrayBuffer(value: Uint8Array): ArrayBuffer {
   return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
 }
 
+function compactText(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
 describe("quick check evidence analysis", () => {
+  it("extracts real text and usable claim-support signals from a strong-signal PDF fixture", async () => {
+    const fixturePath = path.join(process.cwd(), "tests/fixtures/quick-check/malawi-strong-signal-evidence.pdf");
+    const bytes = fs.readFileSync(fixturePath);
+    const arrayBuffer = asArrayBuffer(bytes);
+
+    await putAttachmentBytes("att-pdf-strong-1", arrayBuffer);
+
+    const extractedText = extractPdfText(arrayBuffer);
+    const compactExtractedText = compactText(extractedText);
+    expect(compactExtractedText).toContain(compactText("Gold Standard TPDD TEC Version 4.0"));
+    expect(compactExtractedText).toContain(compactText("1 January 2025 to 31 December 2025"));
+    expect(compactExtractedText).toContain(compactText("Project area Lilongwe District and Machinga District"));
+    expect(compactExtractedText).toContain(compactText("Claim support The monitoring report covers the full reporting period"));
+
+    const analysis = await analyzeQuickCheckEvidence([
+      {
+        evidenceId: "ev-pdf-strong-1",
+        sourceLabel: "malawi-strong-signal-evidence.pdf",
+        attachments: [
+          {
+            id: "att-pdf-strong-1",
+            pin_id: "ev-pdf-strong-1",
+            filename: "malawi-strong-signal-evidence.pdf",
+            mime: "application/pdf",
+            size: bytes.byteLength,
+            sha256: "sha-pdf-strong-1",
+            created_at: "2026-04-08T00:00:00Z",
+          },
+        ],
+      },
+    ]);
+
+    expect(analysis.methodologyMentions.some((mention) => compactText(mention).includes(compactText("Gold Standard TPDD TEC Version 4.0")))).toBe(true);
+    expect(analysis.facts.map((fact) => fact.summary)).toEqual(
+      expect.arrayContaining([
+        "The PDD references the mapped project area or AOI",
+        "The PDF states a monitoring or reporting period",
+        "The project location is described in the PDD",
+        "The project has documented monitoring evidence",
+      ]),
+    );
+
+    const extraction = buildQuickCheckExtractionSnapshot({
+      claimText: "The monitoring report covers the full reporting period and documents monitored stove usage for the project area.",
+      analysis,
+    });
+    expect(deriveQuickCheckExtractionState(extraction).value).not.toBe("weak");
+  });
+
   it("extracts grounded PDD facts from uploaded pdf evidence", async () => {
     const bytes = asArrayBuffer(
       new TextEncoder().encode(
@@ -175,5 +231,34 @@ describe("quick check evidence analysis", () => {
         "The workbook includes QA summary evidence",
       ]),
     );
+  });
+
+  it("keeps a low-signal PDF in the weak path", async () => {
+    const bytes = asArrayBuffer(new TextEncoder().encode("%%%%"));
+    await putAttachmentBytes("att-pdf-weak-1", bytes);
+
+    const extractedText = extractPdfText(bytes);
+    expect(extractedText).toBe("");
+
+    const analysis = await analyzeQuickCheckEvidence([
+      {
+        evidenceId: "ev-pdf-weak-1",
+        sourceLabel: "opaque-scan.pdf",
+        attachments: [
+          {
+            id: "att-pdf-weak-1",
+            pin_id: "ev-pdf-weak-1",
+            filename: "opaque-scan.pdf",
+            mime: "application/pdf",
+            size: bytes.byteLength,
+            sha256: "sha-pdf-weak-1",
+            created_at: "2026-04-08T00:00:00Z",
+          },
+        ],
+      },
+    ]);
+
+    expect(analysis.facts).toEqual([]);
+    expect(analysis.warnings).toContain("We couldn't extract usable text from this file yet.");
   });
 });
