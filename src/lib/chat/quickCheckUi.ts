@@ -1,7 +1,8 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
-import type { QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
+import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
+export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
 
 export type QuickCheckUiExtraction = QuickCheckExtractionSnapshot;
 
@@ -10,9 +11,14 @@ export type QuickCheckUiMatch = {
   methodologyVersion: string;
   requirementId: string;
   requirementLabel: string;
-  matchConfidence: number;
   rationale: string;
   unresolved: string[];
+};
+
+export type QuickCheckUiExtractionState = {
+  value: QuickCheckUiExtractionStateValue;
+  label: string;
+  description: string;
 };
 
 export type QuickCheckUiResult = {
@@ -21,15 +27,22 @@ export type QuickCheckUiResult = {
   evidenceFileName: string;
   sourceMode: QuickCheckSourceMode | null;
   extraction: QuickCheckUiExtraction;
+  extractionState: QuickCheckUiExtractionState;
   match: QuickCheckUiMatch | null;
 };
 
-function clamp(value: number): number {
-  return Math.max(0, Math.min(1, value));
-}
-
 function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function normalizeSignals(extraction: QuickCheckExtractionSnapshot): QuickCheckExtractionSignals {
+  return {
+    parsedEvidenceCount: Math.max(0, extraction.signals?.parsedEvidenceCount ?? (extraction.extractedFacts.length || extraction.methodologyMentions.length ? 1 : 0)),
+    factCount: Math.max(0, extraction.signals?.factCount ?? extraction.extractedFacts.length),
+    relevantFactCount: Math.max(0, extraction.signals?.relevantFactCount ?? extraction.extractedFacts.length),
+    methodologyMentionCount: Math.max(0, extraction.signals?.methodologyMentionCount ?? extraction.methodologyMentions.length),
+    warningCount: Math.max(0, extraction.signals?.warningCount ?? extraction.warnings.length),
+  };
 }
 
 function categoriesForClaim(claimText: string): Set<QuickCheckEvidenceFact["category"]> {
@@ -76,8 +89,40 @@ export function buildQuickCheckExtractionSnapshot(input: {
     documentType: input.analysis.documentTypes[0] ?? "Unknown document",
     extractedFacts,
     methodologyMentions: dedupe(input.analysis.methodologyMentions).slice(0, 4),
-    extractionConfidence: clamp(input.analysis.extractionConfidence),
     warnings,
+    signals: {
+      parsedEvidenceCount: input.analysis.parsedEvidenceLabels.length,
+      factCount: input.analysis.facts.length,
+      relevantFactCount: extractedFacts.length,
+      methodologyMentionCount: input.analysis.methodologyMentions.length,
+      warningCount: warnings.length,
+    },
+  };
+}
+
+export function deriveQuickCheckExtractionState(extraction: QuickCheckExtractionSnapshot): QuickCheckUiExtractionState {
+  const signals = normalizeSignals(extraction);
+
+  if (!signals.parsedEvidenceCount || !signals.relevantFactCount) {
+    return {
+      value: "weak",
+      label: "Weak",
+      description: "We couldn't extract enough claim-relevant facts from this file yet.",
+    };
+  }
+
+  if (signals.warningCount > 0 || !signals.methodologyMentionCount) {
+    return {
+      value: "partial",
+      label: "Partial",
+      description: "We parsed the file and found relevant facts, but the extraction is still incomplete.",
+    };
+  }
+
+  return {
+    value: "grounded",
+    label: "Grounded",
+    description: "We parsed the file and found claim-relevant facts with no active extraction warnings.",
   };
 }
 
@@ -95,9 +140,16 @@ export function normalizeQuickCheckUiResult(input: {
       documentType: "Unknown document",
       extractedFacts: [],
       methodologyMentions: [],
-      extractionConfidence: 0,
       warnings: ["We couldn't extract usable data from this file yet."],
+      signals: {
+        parsedEvidenceCount: 0,
+        factCount: 0,
+        relevantFactCount: 0,
+        methodologyMentionCount: 0,
+        warningCount: 1,
+      },
     };
+  const extractionState = deriveQuickCheckExtractionState(extraction);
 
   if (!extraction.extractedFacts.length) {
     return {
@@ -106,6 +158,7 @@ export function normalizeQuickCheckUiResult(input: {
       evidenceFileName: input.evidenceFileName.trim(),
       sourceMode: input.sourceMode ?? null,
       extraction,
+      extractionState,
       match: null,
     };
   }
@@ -117,6 +170,7 @@ export function normalizeQuickCheckUiResult(input: {
       evidenceFileName: input.evidenceFileName.trim(),
       sourceMode: input.sourceMode ?? null,
       extraction,
+      extractionState,
       match: null,
     };
   }
@@ -127,12 +181,12 @@ export function normalizeQuickCheckUiResult(input: {
     evidenceFileName: input.evidenceFileName.trim(),
     sourceMode: input.sourceMode ?? input.result.sourceMode ?? null,
     extraction,
+    extractionState,
     match: {
       methodologyCode: input.methodologyCode?.trim() ?? "",
       methodologyVersion: input.methodologyVersion?.trim() ?? "",
       requirementId: input.result.requirementId.trim(),
       requirementLabel: input.result.requirementLabel.trim() || input.result.requirementId.trim(),
-      matchConfidence: clamp(input.result.matchConfidence ?? 0.62),
       rationale: input.result.explanation.trim(),
       unresolved: dedupe(input.result.unresolved ?? []),
     },

@@ -42,7 +42,7 @@ import {
   resolveQuickCheckCandidates,
   type QuickCheckResolvedCandidate,
 } from "@/lib/chat/quickCheckResolver";
-import { buildQuickCheckExtractionSnapshot, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
+import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
@@ -93,6 +93,12 @@ type FieldErrors = {
 type RecoveryState =
   | {
       kind: "no-match";
+      title: string;
+      description: string;
+      note?: string;
+    }
+  | {
+      kind: "weak-extraction";
       title: string;
       description: string;
       note?: string;
@@ -386,8 +392,10 @@ function asPinForUpload(upload: QuickCheckStagedUpload): EvidencePin {
   };
 }
 
-function formatConfidence(value: number): string {
-  return `${Math.round(Math.max(0, Math.min(1, value)) * 100)}%`;
+function extractionStateBadgeClass(value: "grounded" | "partial" | "weak"): string {
+  if (value === "grounded") return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  if (value === "partial") return "border-amber-200 bg-amber-50 text-amber-800";
+  return "border-rose-200 bg-rose-50 text-rose-800";
 }
 
 function buildUnresolvedItems(input: {
@@ -410,6 +418,15 @@ function sourceModeLabel(sourceMode: QuickCheckSourceMode | null | undefined): s
   if (sourceMode === "saved_evidence") return "Saved evidence";
   if (sourceMode === "demo_evidence") return "Demo evidence";
   return "Unknown source";
+}
+
+function buildWeakExtractionRecoveryState(): RecoveryState {
+  return {
+    kind: "weak-extraction",
+    title: "Weak extraction",
+    description: "Quick Check couldn't extract enough claim-relevant facts from this file yet.",
+    note: "Open full review to inspect the evidence manually or continue with a broader workflow.",
+  };
 }
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
@@ -602,6 +619,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     () => (extractionState.analysis ? buildQuickCheckExtractionSnapshot({ claimText: draft.claimText, analysis: extractionState.analysis }) : null),
     [draft.claimText, extractionState.analysis],
   );
+  const extractionPreviewState = useMemo(
+    () => (extractionPreview ? deriveQuickCheckExtractionState(extractionPreview) : null),
+    [extractionPreview],
+  );
   const normalizedResult = useMemo(
     () =>
       renderedResult
@@ -696,6 +717,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setPendingInventoryId("");
     setShowSavedEvidence(false);
     setShowMethodology(false);
+  }
+
+  function openFullReviewFromRecovery() {
+    if (draft.methodologyId.trim() && draft.methodologyVersion.trim() && onContinueToWorkspace) {
+      onContinueToWorkspace(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+      return;
+    }
+    if (draft.methodologyId.trim() && draft.methodologyVersion.trim()) {
+      if (typeof window !== "undefined") {
+        window.location.assign(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+      }
+      return;
+    }
+    if (typeof window !== "undefined") window.location.assign("/m");
   }
 
   const fetchRules = useCallback(async (methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> => {
@@ -859,7 +894,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   async function completeQuickCheck(
     candidate: ResolvedMatchCandidate,
     activeSession: QuickCheckSessionState = session,
-    options?: { manageSubmitting?: boolean; analysis?: QuickCheckEvidenceAnalysis | null; matchConfidence?: number | null },
+    options?: { manageSubmitting?: boolean; analysis?: QuickCheckEvidenceAnalysis | null },
   ) {
     const shouldManageSubmitting = options?.manageSubmitting !== false;
     const activeDraft = activeSession.draft;
@@ -905,7 +940,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           citations: candidate.rule.citations,
         },
         inventoryItems: inventory,
-        matchConfidence: options?.matchConfidence ?? candidate.score,
         unresolved: extraction
           ? [
               ...extraction.warnings,
@@ -1051,16 +1085,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources);
       const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
       if (!evidenceAnalysis.facts.length) {
-        setFieldErrors({
-          general: "We couldn't extract enough usable data from this file for a reliable preliminary match yet.",
-        });
-        setRecoveryState(
-          buildRecoveryState({
-            selectedMethodologyId: draft.methodologyId,
-            evidenceAnalysis,
-            claimIntents,
-          }),
-        );
+        setFieldErrors({});
+        setRecoveryState(buildWeakExtractionRecoveryState());
         return;
       }
       const queryTexts = buildQuickCheckQueryTexts(draft.claimText.trim(), evidenceAnalysis.facts, claimIntents);
@@ -1138,7 +1164,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
       await completeQuickCheck(resolvedCandidates[0]!, session, {
         analysis: evidenceAnalysis,
-        matchConfidence: resolvedCandidates[0]?.score ?? null,
       });
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
@@ -1192,7 +1217,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         {
           manageSubmitting: false,
           analysis: demoAnalysis,
-          matchConfidence: resolvedDemoCandidate.score ?? 1,
         },
       );
     } catch (error) {
@@ -1371,8 +1395,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         <div className="mt-1 text-sm font-medium text-slate-900">{extractionPreview.documentType}</div>
                       </div>
                       <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction confidence</div>
-                        <div className="mt-1 text-sm font-medium text-slate-900">{formatConfidence(extractionPreview.extractionConfidence)}</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction signal</div>
+                        {extractionPreviewState ? (
+                          <>
+                            <span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
+                              {extractionPreviewState.label}
+                            </span>
+                            <div className="mt-2 text-xs text-slate-500">{extractionPreviewState.description}</div>
+                          </>
+                        ) : null}
                       </div>
                       <div className="md:col-span-2">
                         <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extracted facts relevant to the claim</div>
@@ -1540,48 +1571,48 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <div className="mt-1 text-sm text-slate-700">{recoveryState.description}</div>
               {recoveryState.note ? <div className="mt-3 text-sm text-slate-600">{recoveryState.note}</div> : null}
               <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handleTryAnotherMethodology}
-                  className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
-                >
-                  Try another methodology
-                </button>
-                <button
-                  type="button"
-                  onClick={handleEditClaim}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
-                >
-                  Edit claim
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof window !== "undefined") window.location.assign("/m");
-                  }}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
-                >
-                  Open Methods
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (draft.methodologyId.trim() && draft.methodologyVersion.trim() && onContinueToWorkspace) {
-                      onContinueToWorkspace(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
-                      return;
-                    }
-                    if (draft.methodologyId.trim() && draft.methodologyVersion.trim()) {
-                      if (typeof window !== "undefined") {
-                        window.location.assign(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
-                      }
-                      return;
-                    }
-                    if (typeof window !== "undefined") window.location.assign("/m");
-                  }}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
-                >
-                  Open full review
-                </button>
+                {recoveryState.kind === "weak-extraction" ? (
+                  <button
+                    type="button"
+                    onClick={openFullReviewFromRecovery}
+                    className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    Open full review
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleTryAnotherMethodology}
+                      className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      Try another methodology
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleEditClaim}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                    >
+                      Edit claim
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== "undefined") window.location.assign("/m");
+                      }}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                    >
+                      Open Methods
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openFullReviewFromRecovery}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                    >
+                      Open full review
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ) : null}
@@ -1669,9 +1700,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <div className="mt-1 text-xs text-slate-500">{normalizedResult.evidenceFileName || "1 item selected"}</div>
                     </div>
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Match confidence</div>
-                      <div className="mt-1 text-sm font-medium text-slate-900">{formatConfidence(normalizedResult.match.matchConfidence)}</div>
-                      <div className="mt-1 text-xs text-slate-500">Quick Check returns a preliminary requirement match, not a final review decision.</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence signal</div>
+                      <span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(normalizedResult.extractionState.value)}`}>
+                        {normalizedResult.extractionState.label}
+                      </span>
+                      <div className="mt-2 text-xs text-slate-500">
+                        {normalizedResult.extractionState.description} Quick Check returns a preliminary requirement match, not a final review decision.
+                      </div>
                     </div>
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence</div>
@@ -1701,9 +1736,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             {fact}
                           </span>
                         ))}
-                      </div>
-                      <div className="mt-3 text-xs text-slate-500">
-                        Extraction confidence {formatConfidence(normalizedResult.extraction.extractionConfidence)}
                       </div>
                       {normalizedResult.extraction.methodologyMentions.length ? (
                         <div className="mt-3 flex flex-wrap gap-2">

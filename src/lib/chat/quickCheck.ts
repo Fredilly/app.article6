@@ -18,12 +18,20 @@ import {
 export type QuickCheckDraftStatus = "draft" | "checked";
 export type QuickCheckSourceMode = "uploaded_file" | "saved_evidence" | "demo_evidence";
 
+export type QuickCheckExtractionSignals = {
+  parsedEvidenceCount: number;
+  factCount: number;
+  relevantFactCount: number;
+  methodologyMentionCount: number;
+  warningCount: number;
+};
+
 export type QuickCheckExtractionSnapshot = {
   documentType: string;
   extractedFacts: string[];
   methodologyMentions: string[];
-  extractionConfidence: number;
   warnings: string[];
+  signals: QuickCheckExtractionSignals;
 };
 
 export type QuickCheckDraft = {
@@ -144,6 +152,31 @@ function normalizeSourceMode(value: unknown): QuickCheckSourceMode | undefined {
   return undefined;
 }
 
+function normalizeSignalCount(value: unknown): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+  return Math.max(0, Math.floor(value));
+}
+
+function normalizeExtractionSignals(input: {
+  extractedFacts: string[];
+  methodologyMentions: string[];
+  warnings: string[];
+  rawSignals?: unknown;
+}): QuickCheckExtractionSignals {
+  const rawSignals =
+    input.rawSignals && typeof input.rawSignals === "object"
+      ? input.rawSignals as Record<string, unknown>
+      : null;
+
+  return {
+    parsedEvidenceCount: normalizeSignalCount(rawSignals?.parsedEvidenceCount) || (input.extractedFacts.length || input.methodologyMentions.length ? 1 : 0),
+    factCount: normalizeSignalCount(rawSignals?.factCount) || input.extractedFacts.length,
+    relevantFactCount: normalizeSignalCount(rawSignals?.relevantFactCount) || input.extractedFacts.length,
+    methodologyMentionCount: normalizeSignalCount(rawSignals?.methodologyMentionCount) || input.methodologyMentions.length,
+    warningCount: normalizeSignalCount(rawSignals?.warningCount) || input.warnings.length,
+  };
+}
+
 export function validateQuickCheckDraft(
   draft: QuickCheckDraft,
   options?: { stagedEvidenceCount?: number },
@@ -165,25 +198,33 @@ function normalizeResult(raw: unknown): QuickCheckResult | null {
   const rawExtraction = record.extraction;
   const extraction =
     rawExtraction && typeof rawExtraction === "object"
-      ? {
-          documentType:
-            typeof (rawExtraction as Record<string, unknown>).documentType === "string"
-              ? (rawExtraction as Record<string, unknown>).documentType as string
+      ? (() => {
+          const extractionRecord = rawExtraction as Record<string, unknown>;
+          const extractedFacts = Array.isArray(extractionRecord.extractedFacts)
+            ? (extractionRecord.extractedFacts as unknown[]).map((item) => String(item)).filter(Boolean)
+            : [];
+          const methodologyMentions = Array.isArray(extractionRecord.methodologyMentions)
+            ? (extractionRecord.methodologyMentions as unknown[]).map((item) => String(item)).filter(Boolean)
+            : [];
+          const warnings = Array.isArray(extractionRecord.warnings)
+            ? (extractionRecord.warnings as unknown[]).map((item) => String(item)).filter(Boolean)
+            : [];
+          return {
+            documentType:
+              typeof extractionRecord.documentType === "string"
+                ? extractionRecord.documentType as string
               : "Unknown document",
-          extractedFacts: Array.isArray((rawExtraction as Record<string, unknown>).extractedFacts)
-            ? ((rawExtraction as Record<string, unknown>).extractedFacts as unknown[]).map((item) => String(item)).filter(Boolean)
-            : [],
-          methodologyMentions: Array.isArray((rawExtraction as Record<string, unknown>).methodologyMentions)
-            ? ((rawExtraction as Record<string, unknown>).methodologyMentions as unknown[]).map((item) => String(item)).filter(Boolean)
-            : [],
-          extractionConfidence:
-            typeof (rawExtraction as Record<string, unknown>).extractionConfidence === "number"
-              ? Math.max(0, Math.min(1, (rawExtraction as Record<string, unknown>).extractionConfidence as number))
-              : 0,
-          warnings: Array.isArray((rawExtraction as Record<string, unknown>).warnings)
-            ? ((rawExtraction as Record<string, unknown>).warnings as unknown[]).map((item) => String(item)).filter(Boolean)
-            : [],
-        }
+            extractedFacts,
+            methodologyMentions,
+            warnings,
+            signals: normalizeExtractionSignals({
+              extractedFacts,
+              methodologyMentions,
+              warnings,
+              rawSignals: extractionRecord.signals,
+            }),
+          };
+        })()
       : null;
   return {
     id: typeof record.id === "string" ? record.id : newId("quick-result"),
@@ -290,7 +331,6 @@ export function buildQuickCheckResult(input: {
   draft: QuickCheckDraft;
   rule: QuickCheckRule;
   inventoryItems: EvidenceInventoryItem[];
-  matchConfidence?: number | null;
   unresolved?: string[];
   extraction?: QuickCheckExtractionSnapshot | null;
   sourceMode?: QuickCheckSourceMode;
@@ -337,7 +377,6 @@ export function buildQuickCheckResult(input: {
     explanation: reconciliation.reason,
     citations: compactCitations(row),
     nextStepHint: quickCheckNextStepHint(reconciliation.status),
-    matchConfidence: typeof input.matchConfidence === "number" ? Math.max(0, Math.min(1, input.matchConfidence)) : undefined,
     unresolved: (input.unresolved ?? []).map((item) => item.trim()).filter(Boolean),
     extraction: input.extraction ?? null,
     sourceMode: input.sourceMode ?? input.draft.sourceMode,

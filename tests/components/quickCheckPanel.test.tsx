@@ -658,6 +658,8 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Source");
     expect(container.textContent).toContain("Uploaded file");
+    expect(container.textContent).toContain("Extraction signal");
+    expect(container.textContent).toContain("Grounded");
     expect(container.textContent).toContain("The project has documented monitoring evidence");
     expect(container.textContent).toContain("AR-ACM0003");
     expect(container.textContent).toContain("fresh-monitoring-report.pdf");
@@ -672,13 +674,15 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Preliminary match found");
     expect(container.textContent).toContain("fresh-monitoring-report.pdf");
     expect(container.textContent).toContain("Uploaded file");
-    expect(container.textContent).toContain("Match confidence");
+    expect(container.textContent).toContain("Evidence signal");
+    expect(container.textContent).toContain("Grounded");
     expect(container.textContent).toContain("What matched");
     expect(container.textContent).toContain("What we found in the file");
     expect(container.textContent).toContain("What remains unresolved");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain("Saved evidence");
     expect(container.textContent).not.toContain(QUICK_CHECK_DEMO.filename);
+    expect(container.textContent).not.toContain("Match confidence");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
@@ -694,8 +698,34 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).toContain("Extraction signal");
+    expect(container.textContent).toContain("Weak");
     expect(container.textContent).toContain("We couldn't extract enough usable data from this file for a reliable preliminary match yet.");
     expect(container.textContent).toContain("We couldn't extract usable text from this file yet.");
+  });
+
+  it("shows a single fallback path when extraction stays weak", async () => {
+    seedSession({ claimText: "The monitoring report covers the full reporting period.", filename: "opaque-scan.pdf" });
+    await seedAttachmentText("att-upload-1", "%%%%");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Analyze claim");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Weak extraction");
+    expect(text).toContain("Open full review");
+    expect(text).not.toContain("Try another methodology");
+    expect(text).not.toContain("Edit claim");
+    expect(text).not.toContain("Open Methods");
   });
 
   it("enables the CTA only when one claim and one evidence item are present", async () => {
@@ -759,13 +789,14 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
     expect(container.textContent).toContain("Saved evidence");
-    expect(container.textContent).toContain("Match confidence");
+    expect(container.textContent).toContain("Evidence signal");
     expect(container.textContent).toContain("All expected evidence is linked.");
     expect(container.textContent).toContain("Section 10");
     expect(container.textContent).toContain("monitoring-report.pdf");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("Change evidence");
     expect(container.textContent).toContain("Start your own check");
+    expect(container.textContent).not.toContain("Match confidence");
 
     await act(async () => {
       clickButton("Open full review");
