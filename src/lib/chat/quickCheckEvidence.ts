@@ -134,7 +134,13 @@ function decodePdfLiteral(value: string): string {
 }
 
 function latin1BytesToString(bytes: Uint8Array): string {
-  return new TextDecoder("latin1").decode(bytes);
+  let output = "";
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    output += String.fromCharCode(...chunk);
+  }
+  return output;
 }
 
 function latin1StringToBytes(value: string): Uint8Array {
@@ -428,7 +434,7 @@ function extractPrintableSequences(raw: string): string[] {
 }
 
 export function extractPdfText(bytes: ArrayBuffer): string {
-  const raw = new TextDecoder("latin1").decode(new Uint8Array(bytes));
+  const raw = latin1BytesToString(new Uint8Array(bytes));
   const encodedText = extractEncodedPdfText(bytes);
   const segments = encodedText
     ? [encodedText]
