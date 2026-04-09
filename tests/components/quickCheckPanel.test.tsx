@@ -1,5 +1,7 @@
 /** @jest-environment jsdom */
 
+import fs from "fs";
+import path from "path";
 import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
@@ -27,6 +29,11 @@ describe("QuickCheckPanel claim-first flow", () => {
 
   async function seedAttachmentText(attachmentId: string, text: string) {
     await putAttachmentBytes(attachmentId, asArrayBuffer(new TextEncoder().encode(text)));
+  }
+
+  async function seedAttachmentFixture(attachmentId: string, fixtureName: string) {
+    const bytes = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check", fixtureName));
+    await putAttachmentBytes(attachmentId, asArrayBuffer(bytes));
   }
 
   function seedSession(input: {
@@ -106,6 +113,7 @@ describe("QuickCheckPanel claim-first flow", () => {
           JSON.stringify({
             methods: [
               { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
+              { code: "AR-AM0014", latestVersion: "v03-0", versions: ["v03-0"] },
               { code: "AR-AMS0007", latestVersion: "v01-0", versions: ["v01-0"] },
             ],
           }),
@@ -156,6 +164,24 @@ describe("QuickCheckPanel claim-first flow", () => {
           { status: 200 },
         );
       }
+      if (url.includes("/api/methods/AR-AM0014/v/v03-0/rules")) {
+        return new Response(
+          JSON.stringify({
+            rules: [
+              {
+                id: "R-1-0008",
+                title: "Monitoring report consolidation",
+                snippet: "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
+                summary: "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
+                logic: "Use monitoring reports to confirm mapped-area, inventory, and QA/QC evidence are consolidated.",
+                tags: ["monitoring", "reporting", "maps"],
+                expectedEvidence: ["monitoring-report"],
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
       if (url.includes("/api/methods/AR-AMS0007/v/v01-0/rules")) {
         return new Response(
           JSON.stringify({
@@ -174,6 +200,51 @@ describe("QuickCheckPanel claim-first flow", () => {
       if (url.includes("/api/query?text=")) {
         const decoded = decodeURIComponent(url.split("text=")[1] ?? "");
         const lower = decoded.toLowerCase();
+        const quickCheckSession = window.localStorage.getItem("a6:quick-check:claim-first:v1") ?? "";
+        const kenyaSecondCheck = quickCheckSession.includes("kenya-second-check-evidence.pdf");
+        if (kenyaSecondCheck && quickCheckSession.includes("kenya no valid analysis path")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-9-9999",
+                  section_title: "Wrong AR-AM0014 candidate",
+                  methodology_id: "AR-AM0014",
+                  methodology_version: "v03-0",
+                  score: 0.94,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (kenyaSecondCheck && quickCheckSession.includes("kenya cross-method confirmation")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-1-0008",
+                  section_title: "Monitoring report consolidation",
+                  methodology_id: "AR-AM0014",
+                  methodology_version: "v03-0",
+                  score: 0.92,
+                },
+                {
+                  id: "R-1-0001",
+                  section_title: "Monitoring frequency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.86,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
         if (lower.includes("monitoring report")) {
           return new Response(
             JSON.stringify({
@@ -1162,7 +1233,7 @@ describe("QuickCheckPanel claim-first flow", () => {
   it("shows a blocked state when usable extraction is narrowed to an unsupported methodology", async () => {
     seedSession({
       claimText: "The monitoring report covers the full reporting period.",
-      methodologyId: "AR-AM0014",
+      methodologyId: "AR-UNKNOWN9999",
       methodologyVersion: "v03-0",
       filename: "kenya-second-check-evidence.pdf",
     });
@@ -1188,10 +1259,40 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     const text = container.textContent ?? "";
-    expect(text).toContain("Unsupported methodology: AR-AM0014");
+    expect(text).toContain("Unsupported methodology: AR-UNKNOWN9999");
     expect(text).toContain("We extracted usable evidence");
     expect(text).toContain("not available in the supported Quick Check methods");
     expect(text).toContain("Try another methodology");
+    expect(text).not.toContain("Preliminary match found");
+  });
+
+  it("shows a blocked state when Kenya extraction is usable but AR-AM0014 has no valid analysis path", async () => {
+    seedSession({
+      claimText: "kenya no valid analysis path: The monitoring report covers the full reporting period.",
+      methodologyId: "AR-AM0014",
+      methodologyVersion: "v03-0",
+      filename: "kenya-second-check-evidence.pdf",
+    });
+    await seedAttachmentFixture("att-upload-1", "kenya-second-check-evidence.pdf");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("The PDF states a monitoring or reporting period");
+
+    await act(async () => {
+      clickButton("Analyze claim");
+    });
+
+    await flushUi();
+    await flushUntilText("No valid analysis path in AR-AM0014");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("No valid analysis path in AR-AM0014");
+    expect(text).toContain("did not clearly confirm AR-AM0014");
+    expect(text).toContain("unsupported, mismatched, or unrelated");
     expect(text).not.toContain("Preliminary match found");
   });
 
@@ -1227,6 +1328,36 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).toContain("selected methodology did not produce a valid requirement match");
     expect(text).toContain("Likely requirement matches");
     expect(text).toContain("Monitoring frequency");
+    expect(text).toContain("AR-ACM0003 · v02-0");
+    expect(text).not.toContain("Preliminary match found");
+  });
+
+  it("asks for methodology confirmation instead of auto-narrowing Kenya evidence across methods", async () => {
+    seedSession({
+      claimText: "kenya cross-method confirmation: The monitoring report covers the full reporting period.",
+      filename: "kenya-second-check-evidence.pdf",
+    });
+    await seedAttachmentFixture("att-upload-1", "kenya-second-check-evidence.pdf");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("The PDF states a monitoring or reporting period");
+
+    await act(async () => {
+      clickButton("Analyze claim");
+    });
+
+    await flushUi();
+    await flushUntilText("Methodology needs confirmation");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Methodology needs confirmation");
+    expect(text).toContain("closest supported matches still span multiple methodologies");
+    expect(text).toContain("Likely requirement matches");
+    expect(text).toContain("AR-AM0014 · v03-0");
     expect(text).toContain("AR-ACM0003 · v02-0");
     expect(text).not.toContain("Preliminary match found");
   });

@@ -110,6 +110,12 @@ type QueryResultWithSignals = QueryResponse["results"][number] & {
   _matchedQueries: string[];
 };
 
+type MethodologyEvidenceSignals =
+  | Pick<QuickCheckEvidenceAnalysis, "methodologyMentions">
+  | Pick<QuickCheckExtractionSnapshot, "methodologyMentions">
+  | null
+  | undefined;
+
 const CLAIM_SUGGESTIONS = [
   "The monitoring report covers the full reporting period.",
   "The boundary description matches the mapped project area.",
@@ -276,6 +282,16 @@ function isAmbiguousMatch(candidates: MatchCandidate[]): boolean {
   return Math.abs(first.score - second.score) < 0.035;
 }
 
+function requiresMethodologyConfirmation(candidates: MatchCandidate[]): boolean {
+  if (candidates.length <= 1) return false;
+  const [first] = candidates;
+  if (!first) return false;
+  const closestOtherMethod = candidates.find((candidate) => candidate.methodologyId !== first.methodologyId) ?? null;
+  if (!closestOtherMethod) return false;
+  if (first.score == null || closestOtherMethod.score == null) return true;
+  return Math.abs(first.score - closestOtherMethod.score) < 0.12;
+}
+
 function methodOptionLabel(method: MethodInventoryRecord): string {
   return `${method.code} · ${pickVersion(method, null)}`;
 }
@@ -401,6 +417,38 @@ function buildMismatchedMethodRecoveryState(methodologyId: string): RecoveryStat
     title: `No valid match in ${methodologyId}`,
     description: "We extracted usable evidence, but the selected methodology did not produce a valid requirement match.",
     note: "The likely matches shown below are from other supported methodologies. Pick one only if it is the intended methodology, or change the methodology filter.",
+  };
+}
+
+function evidenceMentionsMethodologyCode(evidenceSignals: MethodologyEvidenceSignals, methodologyId: string): boolean {
+  const normalizedMethodologyId = methodologyId.trim().toUpperCase();
+  if (!normalizedMethodologyId) return false;
+  return (evidenceSignals?.methodologyMentions ?? []).some((mention) => mention.trim().toUpperCase() === normalizedMethodologyId);
+}
+
+function buildNoValidAnalysisPathRecoveryState(input: {
+  methodologyId: string;
+  evidenceSignals?: MethodologyEvidenceSignals;
+}): RecoveryState {
+  const methodologyId = input.methodologyId.trim();
+  const methodConfirmedByEvidence = evidenceMentionsMethodologyCode(input.evidenceSignals, methodologyId);
+
+  return {
+    kind: "no-match",
+    title: `No valid analysis path in ${methodologyId}`,
+    description: methodConfirmedByEvidence
+      ? "We extracted usable evidence, but Quick Check could not confirm a valid requirement match for this methodology."
+      : `We extracted usable evidence, but the uploaded file did not clearly confirm ${methodologyId} and Quick Check could not confirm a valid requirement match for it.`,
+    note: "This narrowing may be unsupported, mismatched, or unrelated to the uploaded evidence. Try another methodology, clear the methodology filter, or open the full review to inspect the file without a preliminary match.",
+  };
+}
+
+function buildMethodologyConfirmationRecoveryState(): RecoveryState {
+  return {
+    kind: "no-match",
+    title: "Methodology needs confirmation",
+    description: "We extracted usable evidence, but the closest supported matches still span multiple methodologies.",
+    note: "Quick Check will not auto-narrow to one methodology without clearer evidence. Pick the intended match below or narrow by methodology first.",
   };
 }
 
@@ -827,13 +875,23 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         }),
         null,
       );
-      setRecoveryState(
-        buildRecoveryState({
-          selectedMethodologyId: draft.methodologyId,
-          evidenceAnalysis: undefined,
-          claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
-        }),
-      );
+      if (draft.methodologyId.trim()) {
+        setShowMethodology(true);
+        setRecoveryState(
+          buildNoValidAnalysisPathRecoveryState({
+            methodologyId: draft.methodologyId,
+            evidenceSignals: result.extraction ?? extractionPreview,
+          }),
+        );
+      } else {
+        setRecoveryState(
+          buildRecoveryState({
+            selectedMethodologyId: draft.methodologyId,
+            evidenceAnalysis: undefined,
+            claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
+          }),
+        );
+      }
       setFieldErrors({});
     });
 
@@ -846,6 +904,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     draft.matchedRequirementId,
     draft.methodologyId,
     draft.methodologyVersion,
+    extractionPreview,
     fetchRules,
     methods,
     result,
@@ -1212,6 +1271,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         }
       }
 
+      if (!resolvedCandidates.length && draft.methodologyId.trim()) {
+        setShowMethodology(true);
+        setFieldErrors({});
+        setRecoveryState(
+          buildNoValidAnalysisPathRecoveryState({
+            methodologyId: draft.methodologyId.trim(),
+            evidenceSignals: evidenceAnalysis,
+          }),
+        );
+        return;
+      }
+
       if (!resolvedCandidates.length && !draft.methodologyId.trim()) {
         const broaderCandidates =
           allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
@@ -1240,6 +1311,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             claimIntents,
           }),
         );
+        return;
+      }
+
+      if (!draft.methodologyId.trim() && requiresMethodologyConfirmation(resolvedCandidates)) {
+        setShowMethodology(true);
+        setMatchCandidates(resolvedCandidates);
+        setFieldErrors({});
+        setRecoveryState(buildMethodologyConfirmationRecoveryState());
         return;
       }
 
