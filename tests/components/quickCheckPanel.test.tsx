@@ -583,6 +583,13 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
   }
 
+  async function flushUntilText(text: string, attempts = 10) {
+    for (let index = 0; index < attempts; index += 1) {
+      if (container.textContent?.includes(text)) return;
+      await flushUi();
+    }
+  }
+
   it("renders a minimal default state with secondary controls collapsed", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1150,6 +1157,78 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("baseline-carbon-44-12");
     expect(text).not.toContain("Baseline carbon memo");
     expect(text).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("shows a blocked state when usable extraction is narrowed to an unsupported methodology", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "AR-AM0014",
+      methodologyVersion: "v03-0",
+      filename: "kenya-second-check-evidence.pdf",
+    });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Project area: Makueni County and Kitui County, Kenya.)\n(Reporting period: 1 April 2024 - 31 March 2025.)\n(The monitoring report covers the full reporting period.)\n%%EOF",
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("The PDF states a monitoring or reporting period");
+
+    expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).not.toContain("Weak");
+
+    await act(async () => {
+      clickButton("Analyze claim");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Unsupported methodology: AR-AM0014");
+    expect(text).toContain("We extracted usable evidence");
+    expect(text).toContain("not available in the supported Quick Check methods");
+    expect(text).toContain("Try another methodology");
+    expect(text).not.toContain("Preliminary match found");
+  });
+
+  it("shows a truthful mismatch state when selected methodology removes valid supported matches", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "AR-AMS0007",
+      methodologyVersion: "v01-0",
+      filename: "kenya-second-check-evidence.pdf",
+    });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Project area: Makueni County and Kitui County, Kenya.)\n(Reporting period: 1 April 2024 - 31 March 2025.)\n(The monitoring report covers the full reporting period.)\n%%EOF",
+    );
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("The PDF states a monitoring or reporting period");
+    expect(primaryCta().disabled).toBe(false);
+
+    await act(async () => {
+      clickButton("Analyze claim");
+    });
+
+    await flushUi();
+    await flushUntilText("No valid match in AR-AMS0007");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("No valid match in AR-AMS0007");
+    expect(text).toContain("selected methodology did not produce a valid requirement match");
+    expect(text).toContain("Likely requirement matches");
+    expect(text).toContain("Monitoring frequency");
+    expect(text).toContain("AR-ACM0003 · v02-0");
+    expect(text).not.toContain("Preliminary match found");
   });
 
   it("falls back safely when the top direct-match candidate is unresolved", async () => {

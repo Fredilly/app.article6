@@ -259,6 +259,15 @@ function buildMatchCandidates(
     .slice(0, 4);
 }
 
+function claimPrefersMonitoringRequirement(claimText: string, claimIntents: QuickCheckClaimIntent[]): boolean {
+  const normalized = claimText.toLowerCase();
+  return claimIntents.includes("monitoring-plan") || /monitoring\s+(report|plan|approach|procedure|evidence)|reporting period/.test(normalized);
+}
+
+function candidateLooksMonitoringAligned(candidate: MatchCandidate): boolean {
+  return /monitoring|reporting period|report\b|workbook|sampling|plot/.test(candidate.requirementLabel.toLowerCase());
+}
+
 function isAmbiguousMatch(candidates: MatchCandidate[]): boolean {
   if (candidates.length <= 1) return false;
   const [first, second] = candidates;
@@ -374,6 +383,24 @@ function buildRecoveryState(input: {
     title: "No clear match yet",
     description: "We couldn't find a requirement to check from this claim and evidence yet.",
     note: "Edit the claim or try another methodology to guide the check.",
+  };
+}
+
+function buildUnsupportedMethodRecoveryState(methodologyId: string): RecoveryState {
+  return {
+    kind: "no-match",
+    title: `Unsupported methodology: ${methodologyId}`,
+    description: "We extracted usable evidence, but this methodology is not available in the supported Quick Check methods for this workspace.",
+    note: "Choose a supported methodology, clear the methodology filter, or open the full review to inspect the evidence without a preliminary match.",
+  };
+}
+
+function buildMismatchedMethodRecoveryState(methodologyId: string): RecoveryState {
+  return {
+    kind: "no-match",
+    title: `No valid match in ${methodologyId}`,
+    description: "We extracted usable evidence, but the selected methodology did not produce a valid requirement match.",
+    note: "The likely matches shown below are from other supported methodologies. Pick one only if it is the intended methodology, or change the methodology filter.",
   };
 }
 
@@ -1089,6 +1116,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setRecoveryState(buildWeakExtractionRecoveryState());
         return;
       }
+      const selectedMethodologyId = draft.methodologyId.trim();
+      if (selectedMethodologyId && !methods.some((method) => method.code === selectedMethodologyId)) {
+        setShowMethodology(true);
+        setFieldErrors({});
+        setRecoveryState(buildUnsupportedMethodRecoveryState(selectedMethodologyId));
+        return;
+      }
       const queryTexts = buildQuickCheckQueryTexts(draft.claimText.trim(), evidenceAnalysis.facts, claimIntents);
       const responses = await Promise.all(
         queryTexts.map(async (query) => ({
@@ -1108,6 +1142,46 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         claimIntents,
       );
 
+      if (draft.methodologyId.trim() && !candidates.length && allCandidates.length) {
+        const broaderResolvedCandidates = await resolveQuickCheckCandidates({
+          candidates: allCandidates,
+          methods,
+          loadRules: fetchRules,
+        });
+        if (broaderResolvedCandidates.length) {
+          setShowMethodology(true);
+          setMatchCandidates(broaderResolvedCandidates);
+          setRecoveryState(buildMismatchedMethodRecoveryState(draft.methodologyId.trim()));
+          setFieldErrors({});
+          return;
+        }
+      }
+
+      if (
+        draft.methodologyId.trim() &&
+        candidates.length &&
+        claimPrefersMonitoringRequirement(draft.claimText.trim(), claimIntents) &&
+        !candidates.some(candidateLooksMonitoringAligned)
+      ) {
+        const broaderMonitoringCandidates = allCandidates.filter(
+          (candidate) => candidate.methodologyId !== draft.methodologyId.trim() && candidateLooksMonitoringAligned(candidate),
+        );
+        if (broaderMonitoringCandidates.length) {
+          const broaderResolvedCandidates = await resolveQuickCheckCandidates({
+            candidates: broaderMonitoringCandidates,
+            methods,
+            loadRules: fetchRules,
+          });
+          if (broaderResolvedCandidates.length) {
+            setShowMethodology(true);
+            setMatchCandidates(broaderResolvedCandidates);
+            setRecoveryState(buildMismatchedMethodRecoveryState(draft.methodologyId.trim()));
+            setFieldErrors({});
+            return;
+          }
+        }
+      }
+
       if (!candidates.length) {
         const methodSubset = draft.methodologyId.trim()
           ? methods.filter((method) => method.code === draft.methodologyId)
@@ -1120,6 +1194,23 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         methods,
         loadRules: fetchRules,
       });
+
+      if (!resolvedCandidates.length && draft.methodologyId.trim()) {
+        const broaderCandidates =
+          allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
+        const broaderResolvedCandidates = await resolveQuickCheckCandidates({
+          candidates: broaderCandidates,
+          methods,
+          loadRules: fetchRules,
+        });
+        if (broaderResolvedCandidates.length) {
+          setShowMethodology(true);
+          setMatchCandidates(broaderResolvedCandidates);
+          setRecoveryState(buildMismatchedMethodRecoveryState(draft.methodologyId.trim()));
+          setFieldErrors({});
+          return;
+        }
+      }
 
       if (!resolvedCandidates.length && !draft.methodologyId.trim()) {
         const broaderCandidates =
