@@ -66,6 +66,53 @@ describe("quick check evidence analysis", () => {
     expect(deriveQuickCheckExtractionState(extraction).value).not.toBe("weak");
   });
 
+  it("extracts text from chained ASCII85 + Flate PDF content streams and keeps Kenya out of the weak path", async () => {
+    const fixturePath = path.join(process.cwd(), "tests/fixtures/quick-check/kenya-second-check-evidence.pdf");
+    const bytes = fs.readFileSync(fixturePath);
+    const arrayBuffer = asArrayBuffer(bytes);
+
+    await putAttachmentBytes("att-pdf-kenya-1", arrayBuffer);
+
+    const extractedText = extractPdfText(arrayBuffer);
+    const compactExtractedText = compactText(extractedText);
+    expect(compactExtractedText).toContain(compactText("Reporting period 1 April 2024 - 31 March 2025"));
+    expect(compactExtractedText).toContain(compactText("Project area Makueni County and Kitui County"));
+    expect(compactExtractedText).toContain(compactText("The monitoring report covers the full reporting period"));
+
+    const analysis = await analyzeQuickCheckEvidence([
+      {
+        evidenceId: "ev-pdf-kenya-1",
+        sourceLabel: "kenya-second-check-evidence.pdf",
+        attachments: [
+          {
+            id: "att-pdf-kenya-1",
+            pin_id: "ev-pdf-kenya-1",
+            filename: "kenya-second-check-evidence.pdf",
+            mime: "application/pdf",
+            size: bytes.byteLength,
+            sha256: "sha-pdf-kenya-1",
+            created_at: "2026-04-09T00:00:00Z",
+          },
+        ],
+      },
+    ]);
+
+    expect(analysis.parsedEvidenceLabels).toEqual(["kenya-second-check-evidence.pdf"]);
+    expect(analysis.facts.map((fact) => fact.summary)).toEqual(
+      expect.arrayContaining([
+        "The PDD references the mapped project area or AOI",
+        "The PDF states a monitoring or reporting period",
+        "The project has documented monitoring evidence",
+      ]),
+    );
+
+    const extraction = buildQuickCheckExtractionSnapshot({
+      claimText: "The monitoring report covers the full reporting period and the boundary description matches the mapped project area.",
+      analysis,
+    });
+    expect(deriveQuickCheckExtractionState(extraction).value).not.toBe("weak");
+  });
+
   it("extracts grounded PDD facts from uploaded pdf evidence", async () => {
     const bytes = asArrayBuffer(
       new TextEncoder().encode(

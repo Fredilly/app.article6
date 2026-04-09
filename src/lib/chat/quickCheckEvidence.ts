@@ -149,6 +149,53 @@ function latin1StringToBytes(value: string): Uint8Array {
   return bytes;
 }
 
+function ascii85DigitValue(charCode: number): number {
+  return charCode - 33;
+}
+
+function decodeAscii85(input: Uint8Array): Uint8Array {
+  const output: number[] = [];
+  const chunk: number[] = [];
+  let index = 0;
+
+  while (index < input.length) {
+    const charCode = input[index]!;
+    index += 1;
+
+    if (charCode === 0x7e) break;
+    if (charCode === 0x3c && input[index] === 0x7e) {
+      index += 1;
+      continue;
+    }
+    if (charCode === 0x7a) {
+      if (chunk.length) throw new Error("Invalid ASCII85 zero shortcut");
+      output.push(0, 0, 0, 0);
+      continue;
+    }
+    if (charCode <= 32) continue;
+    if (charCode < 33 || charCode > 117) throw new Error("Invalid ASCII85 digit");
+
+    chunk.push(ascii85DigitValue(charCode));
+    if (chunk.length < 5) continue;
+
+    let value = 0;
+    for (const digit of chunk) value = value * 85 + digit;
+    output.push((value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff);
+    chunk.length = 0;
+  }
+
+  if (chunk.length) {
+    const originalLength = chunk.length;
+    while (chunk.length < 5) chunk.push(84);
+    let value = 0;
+    for (const digit of chunk) value = value * 85 + digit;
+    const tail = [(value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff];
+    output.push(...tail.slice(0, originalLength - 1));
+  }
+
+  return new Uint8Array(output);
+}
+
 function hexToBytes(value: string): Uint8Array {
   const normalized = value.replace(/[^0-9A-Fa-f]/g, "");
   const bytes = new Uint8Array(Math.floor(normalized.length / 2));
@@ -184,28 +231,58 @@ type PdfObjectRecord = {
   stream: string | null;
 };
 
+function extractPdfObjectStream(body: string): string | null {
+  const marker = /stream\r?\n/.exec(body);
+  if (!marker?.index && marker?.index !== 0) return null;
+  const start = marker.index + marker[0].length;
+  const end = body.indexOf("endstream", start);
+  if (end === -1) return null;
+  return body.slice(start, end).replace(/\r?\n$/, "");
+}
+
 function parsePdfObjects(raw: string): PdfObjectRecord[] {
   const next: PdfObjectRecord[] = [];
   for (const match of raw.matchAll(/(\d+)\s+\d+\s+obj([\s\S]*?)endobj/g)) {
     const id = match[1] ?? "";
     const body = match[2] ?? "";
     const dict = body.match(/<<([\s\S]*?)>>/)?.[1] ?? "";
-    const stream = body.match(/>>(?:\s*)stream\r?\n([\s\S]*?)\r?\nendstream/)?.[1] ?? null;
+    const stream = extractPdfObjectStream(body);
     next.push({ id, body, dict, stream });
   }
   return next;
 }
 
-function inflatePdfStream(record: PdfObjectRecord): string | null {
+function parsePdfStreamFilters(dict: string): string[] {
+  const filterBlock = dict.match(/\/Filter\s*(\[[^\]]+\]|\/[A-Za-z0-9]+)/)?.[1] ?? "";
+  if (!filterBlock) return [];
+  return Array.from(filterBlock.matchAll(/\/([A-Za-z0-9]+)/g)).map((match) => match[1] ?? "").filter(Boolean);
+}
+
+function decodePdfStreamBytes(record: PdfObjectRecord): Uint8Array | null {
   if (!record.stream) return null;
+
   try {
-    const bytes = latin1StringToBytes(record.stream);
-    return /FlateDecode/.test(record.dict)
-      ? latin1BytesToString(unzlibSync(bytes))
-      : record.stream;
+    let bytes = latin1StringToBytes(record.stream);
+    for (const filter of parsePdfStreamFilters(record.dict)) {
+      if (filter === "ASCII85Decode" || filter === "A85") {
+        bytes = decodeAscii85(bytes);
+        continue;
+      }
+      if (filter === "FlateDecode" || filter === "Fl") {
+        bytes = unzlibSync(bytes);
+        continue;
+      }
+      return null;
+    }
+    return bytes;
   } catch {
     return null;
   }
+}
+
+function inflatePdfStream(record: PdfObjectRecord): string | null {
+  const bytes = decodePdfStreamBytes(record);
+  return bytes ? latin1BytesToString(bytes) : null;
 }
 
 function decodePdfHexText(value: string, cmap: Map<string, string>): string {
@@ -333,11 +410,11 @@ function extractEncodedPdfText(bytes: ArrayBuffer): string {
   const parts: string[] = [];
 
   for (const object of objects) {
-    if (!/\/Type\/Page\b/.test(object.body)) continue;
+    if (!/\/Type\s*\/Page\b/.test(object.body)) continue;
     const resourceId = object.body.match(/\/Resources\s+(\d+)\s+0\s+R/)?.[1] ?? null;
     const contentIds = extractPageContentObjectIds(object.body);
-    if (!resourceId || !contentIds.length) continue;
-    const fontMaps = resourceFontMaps.get(resourceId) ?? new Map<string, Map<string, string>>();
+    if (!contentIds.length) continue;
+    const fontMaps = resourceId ? (resourceFontMaps.get(resourceId) ?? new Map<string, Map<string, string>>()) : new Map<string, Map<string, string>>();
 
     for (const contentId of contentIds) {
       const contentObject = objectMap.get(contentId);
