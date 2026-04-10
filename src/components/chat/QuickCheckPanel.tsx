@@ -714,6 +714,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [activeSourceMode, draft.methodologyId, draft.methodologyVersion, extractionPreview, renderedResult, selectedEvidenceLabel],
   );
   const normalizedRequirement = normalizedResult?.match ? splitRequirementLabel(normalizedResult.match.requirementLabel) : null;
+  const isGroundedResult = normalizedResult?.match?.grounding === "methodology_grounded";
+  const resultToneClass = isGroundedResult ? "border-emerald-200 bg-emerald-50/75" : "border-sky-200 bg-sky-50/80";
+  const resultIconClass = isGroundedResult ? "text-emerald-700" : "text-sky-700";
+  const resultEyebrowClass = isGroundedResult ? "text-emerald-800" : "text-sky-800";
+  const resultTitle = isGroundedResult ? "Preliminary match found" : "Candidate from current catalog";
+  const resultSignalNote = isGroundedResult
+    ? `${normalizedResult?.extractionState.description ?? ""} Quick Check returns a methodology-grounded preliminary requirement match, not a final review decision.`
+    : `${normalizedResult?.extractionState.description ?? ""} Evidence was found, but this file did not detect methodology text, so this is only a catalog candidate and not a methodology-grounded preliminary match.`;
+  const resultMatchLabel = isGroundedResult ? "What matched" : "Catalog candidate";
   const selectedEvidenceSources = useMemo(() => {
     const sources = new Map<string, { evidenceId: string; sourceLabel: string; attachments: EvidencePin["attachments"]; pddFragments?: PddFragment[] }>();
 
@@ -1840,19 +1849,24 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             <div
               ref={resultRef}
               tabIndex={-1}
-              className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50/75 p-5 outline-none"
+              className={`rounded-[1.6rem] border p-5 outline-none ${resultToneClass}`}
               role="status"
               aria-live="polite"
             >
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+                <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${resultIconClass}`} />
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">Result</div>
-                  <div className="mt-2 text-lg font-semibold text-slate-950">Preliminary match found</div>
+                  <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${resultEyebrowClass}`}>Result</div>
+                  <div className="mt-2 text-lg font-semibold text-slate-950">{resultTitle}</div>
                   <div className="mt-2 text-sm text-slate-700">{normalizedResult.claim}</div>
-                  <div className="mt-4 grid gap-4 rounded-2xl border border-emerald-200/80 bg-white/75 p-4 md:grid-cols-3">
+                  {!isGroundedResult ? (
+                    <div className="mt-3 text-sm text-slate-700">
+                      Evidence found, but not grounded to detected methodology.
+                    </div>
+                  ) : null}
+                  <div className={`mt-4 grid gap-4 rounded-2xl border bg-white/75 p-4 md:grid-cols-3 ${isGroundedResult ? "border-emerald-200/80" : "border-sky-200/80"}`}>
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What matched</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{resultMatchLabel}</div>
                       <div className="mt-1 text-sm font-medium text-slate-900">
                         {normalizedRequirement?.title || normalizedResult.match.requirementLabel}
                       </div>
@@ -1875,7 +1889,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         {normalizedResult.extractionState.label}
                       </span>
                       <div className="mt-2 text-xs text-slate-500">
-                        {normalizedResult.extractionState.description} Quick Check returns a preliminary requirement match, not a final review decision.
+                        {resultSignalNote}
                       </div>
                     </div>
                     <div>
@@ -1886,7 +1900,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   </div>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What matched</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{resultMatchLabel}</div>
                       <div className="mt-2 text-sm text-slate-700">{normalizedResult.match.rationale}</div>
                       {renderedResult.citations.length ? (
                         <div className="mt-3 flex flex-wrap gap-2">

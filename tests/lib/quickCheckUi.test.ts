@@ -82,6 +82,7 @@ describe("quick check ui helpers", () => {
     expect(view.sourceMode).toBe("uploaded_file");
     expect(view.match?.methodologyCode).toBe("AR-ACM0003");
     expect(view.match?.unresolved).toEqual(["Quick Check is preliminary."]);
+    expect(view.match?.grounding).toBe("methodology_grounded");
     expect(view.extractionState.value).toBe("grounded");
   });
 
@@ -108,6 +109,47 @@ describe("quick check ui helpers", () => {
     expect(view.status).toBe("extraction_failed");
     expect(view.match).toBeNull();
     expect(view.extractionState.value).toBe("weak");
+  });
+
+  it("marks a specific rule as a catalog candidate when methodology grounding is absent", () => {
+    const view = normalizeQuickCheckUiResult({
+      claim: "The monitoring report covers the full reporting period.",
+      evidenceFileName: "kenya-second-check-evidence.pdf",
+      extraction: {
+        documentType: "PDD / PDF",
+        extractedFacts: [
+          "The PDF states a monitoring or reporting period",
+          "The project has documented monitoring evidence",
+        ],
+        methodologyMentions: [],
+        warnings: ["No methodology mentions were detected in the uploaded evidence."],
+        signals: {
+          parsedEvidenceCount: 1,
+          factCount: 3,
+          relevantFactCount: 2,
+          methodologyMentionCount: 0,
+          warningCount: 1,
+        },
+      },
+      methodologyCode: "AR-AM0014",
+      methodologyVersion: "v03-0",
+      result: {
+        id: "quick-result-kenya",
+        claimText: "The monitoring report covers the full reporting period.",
+        requirementId: "R-1-0008",
+        requirementLabel: "R-1-0008 · Monitoring report consolidation",
+        verdict: "Supported",
+        explanation: "Evidence is semantically similar to the current catalog rule, but no methodology text was detected.",
+        citations: [],
+        nextStepHint: "Open full review.",
+        unresolved: ["No methodology mentions were detected in the uploaded evidence."],
+        extraction: null,
+      },
+    });
+
+    expect(view.status).toBe("preliminary_match_found");
+    expect(view.match?.grounding).toBe("catalog_candidate");
+    expect(view.extractionState.value).toBe("partial");
   });
 
   it("marks extraction as partial when facts exist but signals are incomplete", () => {

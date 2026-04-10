@@ -13,6 +13,7 @@ export type QuickCheckUiMatch = {
   requirementLabel: string;
   rationale: string;
   unresolved: string[];
+  grounding: "methodology_grounded" | "catalog_candidate";
 };
 
 export type QuickCheckUiExtractionState = {
@@ -30,6 +31,10 @@ export type QuickCheckUiResult = {
   extractionState: QuickCheckUiExtractionState;
   match: QuickCheckUiMatch | null;
 };
+
+function isMethodologyGrounded(extraction: QuickCheckExtractionSnapshot): boolean {
+  return normalizeSignals(extraction).methodologyMentionCount > 0;
+}
 
 function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
@@ -189,6 +194,7 @@ export function normalizeQuickCheckUiResult(input: {
       requirementLabel: input.result.requirementLabel.trim() || input.result.requirementId.trim(),
       rationale: input.result.explanation.trim(),
       unresolved: dedupe(input.result.unresolved ?? []),
+      grounding: isMethodologyGrounded(extraction) ? "methodology_grounded" : "catalog_candidate",
     },
   };
 }

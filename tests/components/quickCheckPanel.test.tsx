@@ -862,7 +862,8 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
-    expect(container.textContent).toContain("Preliminary match found");
+    expect(container.textContent).toContain("Candidate from current catalog");
+    expect(container.textContent).toContain("Evidence found, but not grounded to detected methodology.");
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
@@ -942,7 +943,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("baseline-carbon-44-12");
     expect(text).not.toContain("Baseline carbon memo");
     expect(text).not.toContain("The matched requirement could not be loaded.");
-    expect(/Likely requirement matches|Preliminary match found/.test(text)).toBe(true);
+    expect(/Likely requirement matches|Preliminary match found|Candidate from current catalog/.test(text)).toBe(true);
   });
 
   it("renders recovery actions when no clear match is found", async () => {
@@ -1362,6 +1363,34 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("Preliminary match found");
   });
 
+  it("shows Kenya usable extraction as a catalog candidate instead of a grounded preliminary match", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "kenya-second-check-evidence.pdf",
+    });
+    await seedAttachmentFixture("att-upload-1", "kenya-second-check-evidence.pdf");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("The PDF states a monitoring or reporting period");
+
+    await act(async () => {
+      clickButton("Analyze claim");
+    });
+
+    await flushUi();
+    await flushUntilText("Candidate from current catalog");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Candidate from current catalog");
+    expect(text).toContain("Evidence found, but not grounded to detected methodology.");
+    expect(/Monitoring frequency|Boundary consistency/.test(text)).toBe(true);
+    expect(text).not.toContain("Preliminary match found");
+  });
+
   it("falls back safely when the top direct-match candidate is unresolved", async () => {
     seedSession({ claimText: "invalid top candidate", filename: "monitoring-report.pdf" });
     await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Monitoring report for the reporting period.)\n%%EOF");
@@ -1539,13 +1568,14 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toContain("Preliminary match found");
+    expect(container.textContent).toContain("Candidate from current catalog");
+    expect(container.textContent).toContain("Evidence found, but not grounded to detected methodology.");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
     expect(container.textContent).toContain("Demo evidence");
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.filename);
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.citation);
-    expect(container.textContent).toContain("What matched");
+    expect(container.textContent).toContain("Catalog candidate");
     expect(container.textContent).toContain("What we found in the file");
     expect(container.textContent).toContain("What remains unresolved");
     expect(container.textContent).toContain("Open full review");
@@ -1598,6 +1628,8 @@ describe("QuickCheckPanel claim-first flow", () => {
       await Promise.resolve();
     });
 
+    expect(container.textContent).toContain("Candidate from current catalog");
+    expect(container.textContent).toContain("Evidence found, but not grounded to detected methodology.");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("monitoring-report.pdf");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
@@ -1668,7 +1700,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toContain("Preliminary match found");
+    expect(container.textContent).toContain("Candidate from current catalog");
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.expectedResult.citation);
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
 
@@ -1734,7 +1766,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toContain("Preliminary match found");
+    expect(container.textContent).toContain("Candidate from current catalog");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain("No clear match yet");
