@@ -25,7 +25,7 @@ export default function DemoNav() {
           (route.href !== "/" && pathname.startsWith(`${route.href}/`));
         const base = "inline-flex items-center rounded-full border px-3 py-1.5 font-medium transition";
         const appearance = isActive
-          ? "border-slate-900 bg-slate-900 text-white shadow-sm hover:bg-slate-800"
+          ? "border-black bg-black text-white hover:bg-neutral-900"
           : "border-slate-200 bg-white/85 text-slate-700 hover:border-slate-300 hover:bg-white hover:text-slate-900";
 
         return (

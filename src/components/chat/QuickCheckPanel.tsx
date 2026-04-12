@@ -9,7 +9,6 @@ import {
   FolderOpen,
   Loader2,
   SearchCheck,
-  SlidersHorizontal,
   TriangleAlert,
   Upload,
   X,
@@ -1450,7 +1449,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-xl">
+      <div className="mx-auto w-full max-w-2xl px-4 md:px-0">
         <div className="flex flex-col items-center text-center">
           <div className="flex w-full items-start justify-center">
             <div className="w-full">
@@ -1695,9 +1694,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 type="button"
                 onClick={() => void handleTryDemoCheck()}
                 disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
               >
-                <CheckCircle2 className="h-4 w-4" />
                 Try demo check
               </button>
               <button
@@ -1710,12 +1708,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     setShowMethodology(false);
                   }
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600"
                 aria-expanded={showAdvancedOptions}
               >
-                <SlidersHorizontal className="h-4 w-4" />
                 Options
-                {showAdvancedOptions ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
               </button>
             </div>
           </div>
