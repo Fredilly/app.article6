@@ -781,11 +781,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
 
     let cancelled = false;
-    setExtractionState((current) => ({
+    setExtractionState({
       loading: true,
       analysis: null,
       error: null,
-    }));
+    });
 
     void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
