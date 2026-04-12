@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { jest, describe, expect, it, beforeEach } from "@jest/globals";
 import { extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
 
@@ -54,5 +56,19 @@ describe("quick check pdf-parse extractor", () => {
         PdfParseClass: PdfParseClassMock as never,
       }),
     ).rejects.toThrow("broken pdf");
+  });
+
+  it("extracts the strong-signal Malawi fixture through the real helper-backed parser path", async () => {
+    const fixturePath = path.join(process.cwd(), "tests/fixtures/quick-check/malawi-strong-signal-evidence.pdf");
+    const bytes = fs.readFileSync(fixturePath);
+    const arrayBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+
+    const result = await extractPdfTextWithPdfParse({
+      bytes: arrayBuffer,
+    });
+
+    expect(result.engine).toBe("pdf-parse");
+    expect(result.text).toContain("Gold Standard TPDDTEC, Version 4.0");
+    expect(result.text).toContain("The monitoring report covers the full reporting period");
   });
 });
