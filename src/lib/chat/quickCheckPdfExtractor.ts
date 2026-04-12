@@ -1,5 +1,3 @@
-import { PDFParse } from "pdf-parse";
-
 export type QuickCheckPdfExtractionResult = {
   text: string;
   engine: "pdf-parse" | "heuristic";
@@ -7,7 +5,7 @@ export type QuickCheckPdfExtractionResult = {
     parser: "pdf-parse" | "heuristic";
   };
 };
-type PdfParseLike = new (options: { data: Uint8Array }) => {
+export type PdfParseLike = new (options: { data: Uint8Array }) => {
   getText: () => Promise<{ text?: string }>;
   destroy: () => Promise<void>;
 };
@@ -20,7 +18,9 @@ export async function extractPdfTextWithPdfParse(input: {
   bytes: ArrayBuffer;
   PdfParseClass?: PdfParseLike;
 }): Promise<QuickCheckPdfExtractionResult> {
-  const Parser = input.PdfParseClass ?? PDFParse;
+  const Parser =
+    input.PdfParseClass ??
+    ((await import("pdf-parse")).PDFParse as PdfParseLike);
   const parser = new Parser({
     data: new Uint8Array(input.bytes),
   });
