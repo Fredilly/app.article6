@@ -10,7 +10,6 @@ import {
   Loader2,
   SearchCheck,
   SlidersHorizontal,
-  Sparkles,
   TriangleAlert,
   Upload,
   X,
@@ -1451,54 +1450,30 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-4xl rounded-[2.2rem] border border-[#d7d3ca] bg-[linear-gradient(180deg,rgba(252,251,247,0.98),rgba(255,255,255,0.96))] px-5 py-5 shadow-[0_38px_120px_-46px_rgba(15,23,42,0.45)] md:px-7 md:py-7">
-        <div className="rounded-[1.9rem] border border-slate-900/10 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.24),_rgba(15,23,42,0.96)_60%)] px-5 py-5 text-white md:px-6">
+      <div className="mx-auto w-full max-w-4xl rounded-[2rem] border border-slate-200 bg-white px-5 py-5 shadow-sm md:px-7 md:py-7">
+        <div className="px-1 py-1 md:px-2">
           <div className="flex items-start justify-between gap-4">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-200">
-                <Sparkles className="h-3.5 w-3.5" />
-                First win flow
-              </div>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-[2.4rem]">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick Check</div>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.4rem]">
                 Check one claim
               </h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300 md:text-[15px]">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 md:text-[15px]">
                 Start with one claim and one file. Quick Check returns a clean preliminary match, then opens the full review only if you want to keep going.
               </p>
             </div>
-            {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-300" /> : null}
+            {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/7 px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Beat 01</div>
-              <div className="mt-1 text-sm font-medium text-white">Write the claim</div>
-              <div className="mt-1 text-sm text-slate-300">Keep it short and concrete.</div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/7 px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Beat 02</div>
-              <div className="mt-1 text-sm font-medium text-white">Add one file</div>
-              <div className="mt-1 text-sm text-slate-300">PDF, photo, workbook, or CSV.</div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/7 px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Beat 03</div>
-              <div className="mt-1 text-sm font-medium text-white">Get the next step</div>
-              <div className="mt-1 text-sm text-slate-300">Preliminary match first, full review second.</div>
-            </div>
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
+            <div>Write the claim</div>
+            <div>Add one file</div>
+            <div>Review the next step</div>
           </div>
         </div>
 
         <div className="mt-5 grid gap-4">
-          <div className="rounded-[1.8rem] border border-[#e3ddd2] bg-white/90 p-4 md:p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">01 Claim</div>
-                <div className="mt-1 text-lg font-semibold text-slate-950">Say the thing you want checked</div>
-              </div>
-              <div className="hidden rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 md:block">
-                Keep it to one sentence
-              </div>
-            </div>
-            <label className="mt-4 grid gap-2 text-sm text-slate-700">
+          <div className="rounded-[1.6rem] border border-slate-200 bg-[#faf8f3] p-4 md:p-5">
+            <label className="grid gap-2 text-sm text-slate-700">
               <span className="font-medium text-slate-900">Claim</span>
               <textarea
                 value={draft.claimText}
@@ -1518,18 +1493,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       };
                     },
                     null,
-                  );
-                  clearDecisionState();
-                }}
-                rows={3}
-                placeholder="Example: The monitoring report covers the full reporting period."
-                className="w-full rounded-[1.4rem] border border-slate-200 bg-[#fbfaf6] px-4 py-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
+                );
+                clearDecisionState();
+              }}
+              rows={3}
+              placeholder="Example: The monitoring report covers the full reporting period."
+                className="w-full rounded-[1.25rem] border border-slate-200 bg-white px-4 py-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
                 ref={claimRef}
               />
               {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
             </label>
             <div className="mt-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Example claims</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Examples</div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
                   <button
@@ -1560,16 +1535,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className="rounded-[1.8rem] border border-[#e3ddd2] bg-[#f8f5ed] p-4 md:p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="mt-5 flex flex-wrap items-start justify-between gap-3 border-t border-slate-200 pt-5">
               <div className="min-w-0">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">02 Evidence</div>
-                <div className="mt-1 text-lg font-semibold text-slate-950">Add one piece of evidence</div>
-                <div className="mt-1 text-sm text-slate-600">
-                  Upload one file to run the check.
-                </div>
+                <div className="text-sm font-medium text-slate-900">Evidence</div>
+                <div className="mt-1 text-sm text-slate-600">Upload one file to run the check.</div>
               </div>
               <input
                 ref={fileRef}
@@ -1581,7 +1550,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                className="inline-flex items-center gap-2 rounded-full border border-black bg-black px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-900"
               >
                 <Upload className="h-4 w-4" />
                 Upload evidence
@@ -1589,12 +1558,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
 
             {!selectedEvidenceLabel ? (
-              <div className="mt-4 rounded-[1.5rem] border border-dashed border-slate-300 bg-white/80 px-4 py-5 text-sm text-slate-600">
+              <div className="mt-4 rounded-[1.25rem] border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-600">
                 Drop in one file or use the upload button. Quick Check works best when the file directly supports the claim you wrote above.
               </div>
             ) : (
               <>
-                <div className="mt-4 flex items-center justify-between gap-3 rounded-[1.4rem] border border-slate-200 bg-white px-4 py-3">
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-[1.2rem] border border-slate-200 bg-white px-4 py-3">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium text-slate-900">{selectedEvidenceLabel}</div>
                     <div className="mt-1 text-xs text-slate-500">{selectedEvidenceMeta}</div>
@@ -1608,7 +1577,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="mt-3 rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4">
+                <div className="mt-3 rounded-[1.2rem] border border-slate-200 bg-white px-4 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-medium text-slate-900">Extraction preview</div>
@@ -1633,7 +1602,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   ) : extractionPreview ? (
                     <>
                       <div className="mt-4 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
-                        <div className="rounded-2xl border border-slate-200 bg-[#fbfaf6] px-4 py-3">
+                        <div className="rounded-2xl border border-slate-200 bg-[#faf8f3] px-4 py-3">
                           <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">What we found first</div>
                           {extractionHighlights.length ? (
                             <div className="mt-2 flex flex-wrap gap-2">
@@ -1649,7 +1618,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             </div>
                           )}
                         </div>
-                        <div className="rounded-2xl border border-slate-200 bg-[#fbfaf6] px-4 py-3">
+                        <div className="rounded-2xl border border-slate-200 bg-[#faf8f3] px-4 py-3">
                           <div className="grid gap-2 text-sm text-slate-700">
                             <div>
                               <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
@@ -1716,7 +1685,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
 
-          <div className="rounded-[1.6rem] border border-[#e3ddd2] bg-white/90 p-4">
+          <div className="rounded-[1.4rem] border border-slate-200 bg-white p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 <button
@@ -1751,7 +1720,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 type="button"
                 disabled={!canRunQuickCheck}
                 onClick={() => void runQuickCheck()}
-                className="inline-flex min-w-[15rem] items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                className="inline-flex min-w-[15rem] items-center justify-center gap-2 rounded-full bg-black px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-900 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Run quick check
@@ -1850,7 +1819,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   <button
                     type="button"
                     onClick={openFullReviewFromRecovery}
-                    className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                    className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                   >
                     Open full review
                   </button>
@@ -1859,7 +1828,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <button
                       type="button"
                       onClick={handleTryAnotherMethodology}
-                      className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                      className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                     >
                       Try another methodology
                     </button>
@@ -2042,7 +2011,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <button
                       type="button"
                       onClick={handleContinueToWorkspace}
-                      className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                      className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                     >
                       <FolderOpen className="h-4 w-4" />
                       Open full review

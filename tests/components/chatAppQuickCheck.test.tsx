@@ -49,7 +49,7 @@ describe("ChatApp claim-first landing", () => {
     });
 
     expect(container.textContent).toContain("Check one claim");
-    expect(container.textContent).toContain("Add one piece of evidence");
+    expect(container.textContent).toContain("Evidence");
     expect(container.textContent).toContain("Try demo check");
     expect(container.textContent).toContain("Run quick check");
     expect(container.textContent).toContain("Upload evidence");
