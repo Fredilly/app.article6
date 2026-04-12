@@ -11,7 +11,7 @@ export default function ChatApp() {
   const selectedVersion = deeplink.resolved.resolvedVersion;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-50">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 md:px-8 md:py-10">
         <div className="mx-auto w-full max-w-4xl">
           <div className="max-w-2xl">
