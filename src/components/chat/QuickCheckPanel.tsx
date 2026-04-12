@@ -783,7 +783,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     let cancelled = false;
     setExtractionState((current) => ({
       loading: true,
-      analysis: current.analysis,
+      analysis: null,
       error: null,
     }));
 
@@ -1108,6 +1108,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (!file) return;
 
     setSubmitting(true);
+    resetQuickCheckUi();
     setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
     setRecoveryState(null);
     try {

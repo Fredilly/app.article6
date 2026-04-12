@@ -19,15 +19,33 @@ export async function resolveQuickCheckPdfText(input: {
       throw new Error(payload.error ?? `HTTP ${response.status}`);
     }
 
-    const payload = (await response.json()) as { text?: string };
+    const payload = (await response.json()) as {
+      text?: string;
+      engine?: "pdf-parse" | "heuristic";
+      metadata?: {
+        parser?: "pdf-parse" | "heuristic";
+        fallbackReason?: string;
+      };
+    };
+    const engine =
+      payload.engine === "heuristic" || payload.metadata?.parser === "heuristic"
+        ? "heuristic"
+        : "pdf-parse";
     return {
       text: payload.text ?? "",
-      engine: "pdf-parse",
+      engine,
+      warning:
+        engine === "heuristic"
+          ? payload.metadata?.fallbackReason
+            ? `PDF parser fallback: ${payload.metadata.fallbackReason}`
+            : "PDF parser fallback: heuristic extraction was used."
+          : undefined,
     };
   } catch {
     return {
       text: extractPdfText(input.bytes),
       engine: "heuristic",
+      warning: "PDF parser fallback: client request failed, using heuristic extraction.",
     };
   }
 }
