@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import DemoNav from "@/components/DemoNav";
 import FooterHealth from "@/components/FooterHealth";
+import HealthBadge from "@/components/HealthBadge";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -35,7 +36,8 @@ export default function RootLayout({
           </header>
           <div className="flex-1">{children}</div>
           <footer className="border-t border-slate-200/80 bg-white/92">
-            <div className="mx-auto flex w-full max-w-6xl justify-end px-4 py-3 md:px-8">
+            <div className="mx-auto flex w-full max-w-6xl items-center justify-end gap-3 px-4 py-3 md:px-8">
+              <HealthBadge />
               <FooterHealth />
             </div>
           </footer>
