@@ -11,10 +11,10 @@ export default function ChatApp() {
   const selectedVersion = deeplink.resolved.resolvedVersion;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(226,232,240,0.75),_rgba(255,255,255,1)_55%)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-10">
+    <div className="min-h-screen bg-[#f9f9f9]">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-10 md:px-8 md:py-16">
         {selectedMethod || deeplinkWarnings.length ? (
-          <div className="mx-auto w-full max-w-3xl rounded-3xl border border-slate-200 bg-white/85 p-4 text-sm text-slate-700 shadow-sm backdrop-blur">
+          <div className="mx-auto w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Deeplink context</span>
               {deeplink.loading ? (

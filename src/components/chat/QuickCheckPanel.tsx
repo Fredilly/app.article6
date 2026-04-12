@@ -517,8 +517,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [recoveryState, setRecoveryState] = useState<RecoveryState>(null);
   const [matchCandidates, setMatchCandidates] = useState<ResolvedMatchCandidate[]>([]);
   const [pendingInventoryId, setPendingInventoryId] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [showSavedEvidence, setShowSavedEvidence] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
+  const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
@@ -698,6 +700,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     () => (extractionPreview ? deriveQuickCheckExtractionState(extractionPreview) : null),
     [extractionPreview],
   );
+  const showAdvancedOptions = showAdvanced || showSavedEvidence || showMethodology;
+  const extractionHighlights = extractionPreview?.extractedFacts.slice(0, 3) ?? [];
   const normalizedResult = useMemo(
     () =>
       renderedResult
@@ -785,6 +789,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }, [selectedEvidenceSources]);
 
   useEffect(() => {
+    if (showSavedEvidence || showMethodology) {
+      setShowAdvanced(true);
+    }
+  }, [showMethodology, showSavedEvidence]);
+
+  useEffect(() => {
+    if (extractionState.error || extractionPreviewState?.value === "weak") {
+      setShowExtractionDetails(true);
+    }
+  }, [extractionPreviewState, extractionState.error]);
+
+  useEffect(() => {
     if (!result?.id) return;
     resultRef.current?.focus();
   }, [result?.id]);
@@ -799,8 +815,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   function resetQuickCheckUi() {
     clearDecisionState();
     setPendingInventoryId("");
+    setShowAdvanced(false);
     setShowSavedEvidence(false);
     setShowMethodology(false);
+    setShowExtractionDetails(false);
   }
 
   function openFullReviewFromRecovery() {
@@ -1431,65 +1449,36 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-3xl rounded-[2rem] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.4)] md:px-7 md:py-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="max-w-2xl">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Article 6 quick check</div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 md:text-[2rem]">
-              Check one claim
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Add one piece of evidence. We&apos;ll find the best matching requirement and open the full review.
-            </p>
+      <div className="mx-auto w-full max-w-2xl px-4 md:px-0">
+        <div className="flex flex-col items-center text-center">
+          <div className="flex w-full items-start justify-center">
+            <div className="w-full">
+              <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+                Verify one claim
+              </h1>
+              <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
+                Upload evidence. Get a preliminary match in seconds.
+              </p>
+            </div>
+            {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
           </div>
-          {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
         </div>
 
-        <div className="mt-5 grid gap-4">
-          <label className="grid gap-2 text-sm text-slate-700">
-            <span className="font-medium text-slate-900">Claim</span>
-            <textarea
-              value={draft.claimText}
-              onChange={(event) => {
-                const value = event.target.value;
-                updateDraft(
-                  (current) => {
-                    const nextMethodology = resetMethodologyForUserInput(current);
-                    return {
-                      ...current,
-                      ...nextMethodology,
-                      claimText: value,
-                      matchedRequirementId: undefined,
-                      matchedRequirementLabel: undefined,
-                      status: "draft",
-                      resultId: undefined,
-                    };
-                  },
-                  null,
-                );
-                clearDecisionState();
-              }}
-              rows={3}
-              placeholder="Example: The monitoring report covers the full reporting period."
-              className="w-full rounded-[1.6rem] border border-slate-200 bg-slate-50/70 px-4 py-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
-              ref={claimRef}
-            />
-            {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
-          </label>
-
-          <div className="flex flex-wrap gap-2">
-            {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
-              <button
-                key={suggestion}
-                type="button"
-                onClick={() => {
+        <div className="mt-8 grid gap-8">
+          <div>
+            <label className="grid gap-2 text-sm text-slate-700">
+              <span className="font-medium text-slate-900">Claim</span>
+              <textarea
+                value={draft.claimText}
+                onChange={(event) => {
+                  const value = event.target.value;
                   updateDraft(
                     (current) => {
                       const nextMethodology = resetMethodologyForUserInput(current);
                       return {
                         ...current,
                         ...nextMethodology,
-                        claimText: suggestion,
+                        claimText: value,
                         matchedRequirementId: undefined,
                         matchedRequirementLabel: undefined,
                         status: "draft",
@@ -1497,23 +1486,55 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       };
                     },
                     null,
-                  );
-                  clearDecisionState();
-                }}
-                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-              >
-                {suggestion}
-              </button>
-            ))}
+                );
+                clearDecisionState();
+              }}
+              rows={3}
+              placeholder="Example: The monitoring report covers the full reporting period."
+                className="w-full rounded-[1.25rem] border border-slate-200 bg-white p-5 text-lg leading-8 text-slate-950 outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:bg-white"
+                ref={claimRef}
+              />
+              {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
+            </label>
+            <div className="mt-4">
+              <div className="text-xs text-slate-400">Try an example</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => {
+                      updateDraft(
+                        (current) => {
+                          const nextMethodology = resetMethodologyForUserInput(current);
+                          return {
+                            ...current,
+                            ...nextMethodology,
+                            claimText: suggestion,
+                            matchedRequirementId: undefined,
+                            matchedRequirementLabel: undefined,
+                            status: "draft",
+                            resultId: undefined,
+                          };
+                        },
+                        null,
+                      );
+                      clearDecisionState();
+                    }}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50/75 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-sm font-medium text-slate-900">Add one piece of evidence</div>
-                <div className="mt-1 text-sm text-slate-600">
-                  Upload one file to run the check.
-                </div>
+                <div className="text-sm font-medium text-slate-900">Evidence</div>
+                <div className="mt-1 text-sm text-slate-600">Upload one file.</div>
               </div>
               <input
                 ref={fileRef}
@@ -1525,16 +1546,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-slate-50"
               >
                 <Upload className="h-4 w-4" />
                 Upload evidence
               </button>
             </div>
 
-            {selectedEvidenceLabel ? (
+            {!selectedEvidenceLabel ? (
+              <div className="mt-4 rounded-[1.25rem] border border-slate-200 bg-slate-50/50 px-4 py-5 text-sm text-slate-600">
+                Drop in one file or use the upload button.
+              </div>
+            ) : (
               <>
-                <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-[1.2rem] border border-slate-200 bg-white px-4 py-3">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium text-slate-900">{selectedEvidenceLabel}</div>
                     <div className="mt-1 text-xs text-slate-500">{selectedEvidenceMeta}</div>
@@ -1548,199 +1573,224 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                  <div className="flex items-start justify-between gap-3">
+                <div className="mt-3 rounded-[1.2rem] border border-slate-200 bg-white px-4 py-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-medium text-slate-900">Extraction preview</div>
-                      <div className="mt-1 text-sm text-slate-600">
-                        Review what Quick Check could extract from the uploaded file before analysis.
-                      </div>
+                      <div className="mt-1 text-sm text-slate-600">Review the evidence signal.</div>
                     </div>
-                    {extractionState.loading ? <Loader2 className="h-4 w-4 animate-spin text-slate-400" /> : null}
+                    <div className="flex items-center gap-2">
+                      {extractionPreviewState ? (
+                        <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
+                          {extractionPreviewState.label}
+                        </span>
+                      ) : null}
+                      {extractionState.loading ? <Loader2 className="h-4 w-4 animate-spin text-slate-400" /> : null}
+                    </div>
                   </div>
+
                   {extractionState.error ? (
                     <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
                       Extraction preview is unavailable right now. {extractionState.error}
                     </div>
                   ) : extractionPreview ? (
-                    <div className="mt-4 grid gap-4 md:grid-cols-2">
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
-                        <div className="mt-1 text-sm font-medium text-slate-900">{sourceModeLabel(activeSourceMode)}</div>
-                        <div className="mt-1 text-xs text-slate-500">{selectedEvidenceLabel || "No file selected"}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Document type</div>
-                        <div className="mt-1 text-sm font-medium text-slate-900">{extractionPreview.documentType}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction signal</div>
-                        {extractionPreviewState ? (
-                          <>
-                            <span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
-                              {extractionPreviewState.label}
-                            </span>
-                            <div className="mt-2 text-xs text-slate-500">{extractionPreviewState.description}</div>
-                          </>
-                        ) : null}
-                      </div>
-                      <div className="md:col-span-2">
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extracted facts relevant to the claim</div>
-                        {extractionPreview.extractedFacts.length ? (
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {extractionPreview.extractedFacts.map((fact) => (
-                              <span key={fact} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                                {fact}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="mt-2 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                            We couldn&apos;t extract enough usable data from this file for a reliable preliminary match yet.
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology mentions</div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {(extractionPreview.methodologyMentions.length ? extractionPreview.methodologyMentions : ["None detected"]).map((mention) => (
-                            <span key={mention} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                              {mention}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>
-                        <div className="mt-2 grid gap-2">
-                          {(extractionPreview.warnings.length ? extractionPreview.warnings : ["No extraction warnings from the active source."]).map((warning) => (
-                            <div key={warning} className="text-sm text-slate-600">
-                              {warning}
+                    <>
+                      <div className="mt-4 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">What we found first</div>
+                          {extractionHighlights.length ? (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {extractionHighlights.map((fact) => (
+                                <span key={fact} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                  {fact}
+                                </span>
+                              ))}
                             </div>
-                          ))}
+                          ) : (
+                            <div className="mt-2 text-sm text-amber-900">
+                              We couldn&apos;t extract enough usable data from this file for a reliable preliminary match yet.
+                            </div>
+                          )}
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                          <div className="grid gap-2 text-sm text-slate-700">
+                            <div>
+                              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
+                              <div className="mt-1 font-medium text-slate-900">{sourceModeLabel(activeSourceMode)}</div>
+                            </div>
+                            <div>
+                              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document type</div>
+                              <div className="mt-1 font-medium text-slate-900">{extractionPreview.documentType}</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowExtractionDetails((value) => !value)}
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                        aria-expanded={showExtractionDetails}
+                      >
+                        {showExtractionDetails ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                        {showExtractionDetails ? "Hide extraction details" : "Show extraction details"}
+                      </button>
+
+                      {showExtractionDetails ? (
+                        <div className="mt-4 grid gap-4 md:grid-cols-2">
+                          <div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction signal</div>
+                            {extractionPreviewState ? (
+                              <>
+                                <span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
+                                  {extractionPreviewState.label}
+                                </span>
+                                <div className="mt-2 text-xs text-slate-500">{extractionPreviewState.description}</div>
+                              </>
+                            ) : null}
+                          </div>
+                          <div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology mentions</div>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {(extractionPreview.methodologyMentions.length ? extractionPreview.methodologyMentions : ["None detected"]).map((mention) => (
+                                <span key={mention} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                  {mention}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="md:col-span-2">
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>
+                            <div className="mt-2 grid gap-2">
+                              {(extractionPreview.warnings.length ? extractionPreview.warnings : ["No extraction warnings from the active source."]).map((warning) => (
+                                <div key={warning} className="text-sm text-slate-600">
+                                  {warning}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
                   ) : null}
                 </div>
               </>
-            ) : null}
+            )}
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => void handleTryDemoCheck()}
-                disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                Try demo check
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowSavedEvidence((value) => !value)}
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-                aria-expanded={showSavedEvidence}
-              >
-                {showSavedEvidence ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                Use saved evidence instead
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowMethodology((value) => !value)}
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-                aria-expanded={showMethodology}
-              >
-                {showMethodology ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                Narrow by methodology
-              </button>
-            </div>
-
+          <div className="grid gap-3">
             <button
               type="button"
               disabled={!canRunQuickCheck}
               onClick={() => void runQuickCheck()}
-              className="inline-flex min-w-[13rem] items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-black px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-900 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Analyze claim
+              Run quick check
             </button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => void handleTryDemoCheck()}
+                disabled={submitting}
+                className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+              >
+                Try demo check
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const nextValue = !showAdvancedOptions;
+                  setShowAdvanced(nextValue);
+                  if (!nextValue) {
+                    setShowSavedEvidence(false);
+                    setShowMethodology(false);
+                  }
+                }}
+                className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600"
+                aria-expanded={showAdvancedOptions}
+              >
+                Options
+              </button>
+            </div>
           </div>
 
-          {showSavedEvidence ? (
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-              <div className="text-sm font-medium text-slate-900">Use saved evidence</div>
-              {!draft.methodologyId || !draft.methodologyVersion ? (
-                <div className="mt-2 text-sm text-slate-600">Choose a methodology first to reuse saved evidence.</div>
-              ) : (
-                <div className="mt-3">
-                  <select
-                    value={pendingInventoryId}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      setPendingInventoryId(value);
-                      if (value) selectExistingEvidence(value);
-                    }}
-                    className="min-w-0 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
-                  >
-                    <option value="">Select saved evidence</option>
-                    {availableInventory.map((item) => (
-                      <option key={item.evidence_id} value={item.evidence_id}>
-                        {inventoryEvidenceLabel(item)}
-                      </option>
-                    ))}
-                  </select>
+          {showAdvancedOptions ? (
+            <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Options</div>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className={`rounded-2xl border px-4 py-3 ${showSavedEvidence ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
+                  <div className="text-sm font-medium text-slate-900">Saved evidence</div>
+                  {!draft.methodologyId || !draft.methodologyVersion ? (
+                    <div className="mt-2 text-sm text-slate-600">Choose a methodology first to reuse saved evidence.</div>
+                  ) : (
+                    <div className="mt-3">
+                      <select
+                        value={pendingInventoryId}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setPendingInventoryId(value);
+                          setShowSavedEvidence(true);
+                          if (value) selectExistingEvidence(value);
+                        }}
+                        className="min-w-0 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
+                      >
+                        <option value="">Select saved evidence</option>
+                        {availableInventory.map((item) => (
+                          <option key={item.evidence_id} value={item.evidence_id}>
+                            {inventoryEvidenceLabel(item)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ) : null}
-
-          {showMethodology ? (
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-              <label className="grid gap-2 text-sm text-slate-700">
-                <span className="font-medium text-slate-900">Methodology</span>
-                <select
-                  value={draft.methodologyId}
-                  onChange={(event) => {
-                    const methodologyId = event.target.value;
-                    const method = methods.find((item) => item.code === methodologyId);
-                    const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
-                    updateSession((current) => {
-                      const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
-                  return {
-                    ...current,
-                    draft: {
-                          ...current.draft,
-                          methodologyId,
-                          methodologyVersion,
-                          evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
-                          matchedRequirementId: undefined,
-                          matchedRequirementLabel: undefined,
-                          status: "draft",
-                          result: null,
-                          resultId: undefined,
-                          updatedAt: nowIso(),
-                    },
-                    result: null,
-                  };
-                });
-                setPendingInventoryId("");
-                clearDecisionState();
-              }}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
-                >
-                  <option value="">Any methodology</option>
-                  {methods.map((method) => (
-                    <option key={method.code} value={method.code}>
-                      {methodOptionLabel(method)}
-                    </option>
-                  ))}
-                </select>
-                <span className="text-xs text-slate-500">Optional. Use this only when you want to narrow the match.</span>
-              </label>
+                <div className={`rounded-2xl border px-4 py-3 ${showMethodology ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
+                  <label className="grid gap-2 text-sm text-slate-700">
+                    <span className="font-medium text-slate-900">Methodology</span>
+                    <select
+                      value={draft.methodologyId}
+                      onChange={(event) => {
+                        const methodologyId = event.target.value;
+                        const method = methods.find((item) => item.code === methodologyId);
+                        const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
+                        setShowMethodology(Boolean(methodologyId));
+                        updateSession((current) => {
+                          const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
+                          return {
+                            ...current,
+                            draft: {
+                              ...current.draft,
+                              methodologyId,
+                              methodologyVersion,
+                              evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
+                              matchedRequirementId: undefined,
+                              matchedRequirementLabel: undefined,
+                              status: "draft",
+                              result: null,
+                              resultId: undefined,
+                              updatedAt: nowIso(),
+                            },
+                            result: null,
+                          };
+                        });
+                        setPendingInventoryId("");
+                        clearDecisionState();
+                      }}
+                      className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
+                    >
+                      <option value="">Any methodology</option>
+                      {methods.map((method) => (
+                        <option key={method.code} value={method.code}>
+                          {methodOptionLabel(method)}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="text-xs text-slate-500">Optional. Use this only when you want to narrow the match.</span>
+                  </label>
+                </div>
+              </div>
             </div>
           ) : null}
 
@@ -1754,7 +1804,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   <button
                     type="button"
                     onClick={openFullReviewFromRecovery}
-                    className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                    className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                   >
                     Open full review
                   </button>
@@ -1763,7 +1813,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <button
                       type="button"
                       onClick={handleTryAnotherMethodology}
-                      className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                      className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                     >
                       Try another methodology
                     </button>
@@ -1946,7 +1996,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <button
                       type="button"
                       onClick={handleContinueToWorkspace}
-                      className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                      className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                     >
                       <FolderOpen className="h-4 w-4" />
                       Open full review
