@@ -40,9 +40,9 @@ function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
-function formatFactPreview(fact: QuickCheckEvidenceFact): string {
+function formatFactPreview(fact: QuickCheckEvidenceFact, options?: { useDetail?: boolean }): string {
   const detail = fact.detail?.trim();
-  if (!detail) return fact.summary;
+  if (!options?.useDetail || !detail) return fact.summary;
   return `${fact.summary}: ${detail}`;
 }
 
@@ -87,7 +87,8 @@ function pickRelevantFacts(claimText: string, analysis: QuickCheckEvidenceAnalys
     ? analysis.facts.filter((fact) => preferredCategories.has(fact.category))
     : analysis.facts;
   const selected = prioritized.length ? prioritized : analysis.facts;
-  return dedupe(selected.slice(0, 4).map(formatFactPreview));
+  const useDetail = !analysis.warnings.some((warning) => warning.toLowerCase().includes("pdf parser fallback"));
+  return dedupe(selected.slice(0, 4).map((fact) => formatFactPreview(fact, { useDetail })));
 }
 
 export function buildQuickCheckExtractionSnapshot(input: {

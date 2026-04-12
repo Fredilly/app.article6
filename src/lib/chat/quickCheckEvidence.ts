@@ -106,6 +106,18 @@ function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
+function normalizeSnippetText(value: string): string {
+  return normalizeWhitespace(
+    value
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/([A-Za-z])(\d)/g, "$1 $2")
+      .replace(/(\d)([A-Za-z])/g, "$1 $2")
+      .replace(/\s*([,.;:!?])\s*/g, "$1 ")
+      .replace(/\.{3,}/g, "...")
+      .replace(/\b([A-Z]{2,})([A-Z][a-z])/g, "$1 $2"),
+  );
+}
+
 function asLower(value: string): string {
   return normalizeWhitespace(value).toLowerCase();
 }
@@ -573,7 +585,7 @@ function extractMatchSnippet(text: string, pattern: RegExp): string | undefined 
   const start = Math.max(0, match.index - 48);
   const end = Math.min(text.length, match.index + match[0].length + 72);
   let snippet = text.slice(start, end);
-  snippet = normalizeWhitespace(snippet);
+  snippet = normalizeSnippetText(snippet);
   snippet = snippet.replace(new RegExp(`^${escapeRegExp(match[0])}\\s*[:.-]?\\s*`, "i"), `${match[0]} `);
   if (!snippet) return undefined;
   if (start > 0) snippet = `...${snippet}`;

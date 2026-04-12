@@ -169,6 +169,40 @@ describe("quick check evidence analysis", () => {
     expect(malawiPreview.extractedFacts).not.toEqual(kenyaPreview.extractedFacts);
   });
 
+  it("uses clean summaries instead of raw snippets when pdf parsing falls back", async () => {
+    const analysis = await analyzeQuickCheckEvidence([
+      {
+        evidenceId: "ev-fallback-preview",
+        sourceLabel: "fallback.pdf",
+        attachments: [
+          {
+            id: "att-fallback-preview",
+            pin_id: "ev-fallback-preview",
+            filename: "fallback.pdf",
+            mime: "application/pdf",
+            size: 12,
+            sha256: "sha-fallback-preview",
+            created_at: "2026-04-13T00:00:00Z",
+          },
+        ],
+      },
+    ], {
+      resolveAttachmentBytes: async () => new TextEncoder().encode("%PDF-fallback").buffer,
+      resolvePdfText: async () => ({
+        engine: "heuristic",
+        warning: "PDF parser fallback: broken helper",
+        text: "Reporting period 1April2024-31March2025 Project area MakueniCounty andKituiCounty. The monitoring report covers thefull reporting period.",
+      }),
+    });
+
+    const preview = buildQuickCheckExtractionSnapshot({
+      claimText: "The monitoring report covers the full reporting period and documents the project area.",
+      analysis,
+    });
+
+    expect(preview.extractedFacts).toEqual(["The PDD references the mapped project area or AOI"]);
+  });
+
   it("extracts grounded PDD facts from uploaded pdf evidence", async () => {
     const bytes = asArrayBuffer(
       new TextEncoder().encode(
