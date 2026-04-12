@@ -48,7 +48,8 @@ describe("ChatApp claim-first landing", () => {
       root.render(<ChatApp />);
     });
 
-    expect(container.textContent).toContain("Check one claim");
+    expect(container.textContent).toContain("Verify one claim");
+    expect(container.textContent).toContain("Upload evidence. Get a preliminary match in seconds.");
     expect(container.textContent).toContain("Evidence");
     expect(container.textContent).toContain("Try demo check");
     expect(container.textContent).toContain("Run quick check");
@@ -60,5 +61,6 @@ describe("ChatApp claim-first landing", () => {
     expect(container.textContent).not.toContain("Ask in chat instead");
     expect(container.textContent).not.toContain("Send");
     expect(container.textContent).not.toContain("Welcome to Article6");
+    expect(container.textContent).not.toContain("One claim. One file.");
   });
 });

@@ -682,7 +682,8 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     const pageText = container.textContent ?? "";
-    expect(pageText).toContain("Check one claim");
+    expect(pageText).toContain("Verify one claim");
+    expect(pageText).toContain("Upload evidence. Get a preliminary match in seconds.");
     expect(pageText).toContain("Upload evidence");
     expect(pageText).toContain("Try demo check");
     expect(pageText).toContain("Options");

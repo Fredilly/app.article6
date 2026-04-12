@@ -4,7 +4,7 @@ import ChatApp from "@/components/chat/ChatApp";
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-[#f9f9f9]">
       <Suspense
         fallback={
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-12 md:px-8">
