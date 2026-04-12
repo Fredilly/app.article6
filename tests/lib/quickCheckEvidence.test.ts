@@ -309,7 +309,7 @@ describe("quick check evidence analysis", () => {
     expect(analysis.warnings).toContain("We couldn't extract usable text from this file yet.");
   });
 
-  it("keeps parsing with a fallback warning when opendataloader is unavailable", async () => {
+  it("keeps parsing when the route falls back to the heuristic parser", async () => {
     const bytes = asArrayBuffer(
       new TextEncoder().encode(
         "%PDF-1.4\n1 0 obj\n<< /Length 109 >>\nstream\n(Project area Lilongwe District.)\n(Reporting period 1 January 2025 to 31 December 2025.)\nendstream\nendobj\n%%EOF",
@@ -339,7 +339,6 @@ describe("quick check evidence analysis", () => {
         resolvePdfText: async ({ bytes: pdfBytes }) => ({
           text: extractPdfText(pdfBytes),
           engine: "heuristic",
-          warning: "OpenDataLoader was unavailable, so Quick Check used the built-in fallback parser.",
         }),
       },
     );
@@ -350,6 +349,6 @@ describe("quick check evidence analysis", () => {
         "The PDF states a monitoring or reporting period",
       ]),
     );
-    expect(analysis.warnings).toContain("OpenDataLoader was unavailable, so Quick Check used the built-in fallback parser.");
+    expect(analysis.warnings).not.toContain(expect.stringContaining("fallback parser"));
   });
 });

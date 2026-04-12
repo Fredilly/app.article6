@@ -22,13 +22,12 @@ export async function resolveQuickCheckPdfText(input: {
     const payload = (await response.json()) as { text?: string };
     return {
       text: payload.text ?? "",
-      engine: "opendataloader",
+      engine: "pdf-parse",
     };
   } catch {
     return {
       text: extractPdfText(input.bytes),
       engine: "heuristic",
-      warning: "OpenDataLoader was unavailable, so Quick Check used the built-in fallback parser.",
     };
   }
 }

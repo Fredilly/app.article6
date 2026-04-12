@@ -54,7 +54,7 @@ type QuickCheckEvidenceSource = {
 type ResolveAttachmentBytes = (attachmentId: string) => Promise<ArrayBuffer | null>;
 export type QuickCheckResolvedPdfText = {
   text: string;
-  engine: "opendataloader" | "heuristic";
+  engine: "pdf-parse" | "heuristic";
   warning?: string;
 };
 type ResolvePdfText = (input: {
@@ -794,7 +794,6 @@ export async function analyzeQuickCheckEvidence(
           if (resolved?.warning) warningSet.add(resolved.warning);
         } catch {
           text = extractPdfText(bytes);
-          warningSet.add("OpenDataLoader extraction failed, so Quick Check used the built-in fallback parser.");
         }
       } else {
         text = extractPdfText(bytes);

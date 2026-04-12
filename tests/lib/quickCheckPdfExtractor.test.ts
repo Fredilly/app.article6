@@ -1,78 +1,58 @@
-import fs from "fs/promises";
-import path from "path";
 import { jest, describe, expect, it, beforeEach } from "@jest/globals";
-import { extractPdfTextWithOpenDataLoader } from "@/lib/chat/quickCheckPdfExtractor";
+import { extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
 
-describe("quick check opendataloader extractor", () => {
-  const mockedConvert = jest.fn<(...args: unknown[]) => Promise<string>>();
+describe("quick check pdf-parse extractor", () => {
+  const getTextMock = jest.fn<() => Promise<{ text?: string }>>();
+  const destroyMock = jest.fn<() => Promise<void>>();
+  const PdfParseClassMock = jest.fn().mockImplementation(() => ({
+    getText: getTextMock,
+    destroy: destroyMock,
+  }));
 
   beforeEach(() => {
-    mockedConvert.mockReset();
+    PdfParseClassMock.mockClear();
+    getTextMock.mockReset();
+    destroyMock.mockReset();
+    destroyMock.mockResolvedValue();
   });
 
-  it("reads text output emitted by opendataloader", async () => {
-    mockedConvert.mockImplementation(async (inputPath, options = {}) => {
-      const resolvedInput = Array.isArray(inputPath) ? inputPath[0]! : inputPath;
-      const outputDir = options.outputDir!;
-      const baseName = path.parse(resolvedInput).name;
-      await fs.writeFile(path.join(outputDir, `${baseName}.txt`), "Project area  Lilongwe District");
-      await fs.writeFile(path.join(outputDir, `${baseName}.json`), JSON.stringify({ kids: [] }));
-      return "";
-    });
+  it("reads text emitted by pdf-parse", async () => {
+    getTextMock.mockResolvedValue({ text: "Project area  Lilongwe District" });
 
-    const result = await extractPdfTextWithOpenDataLoader({
+    const result = await extractPdfTextWithPdfParse({
       bytes: new TextEncoder().encode("%PDF-test").buffer,
-      filename: "Malawi Evidence.pdf",
-      convertPdf: mockedConvert as never,
+      PdfParseClass: PdfParseClassMock as never,
     });
 
     expect(result.text).toBe("Project area Lilongwe District");
     expect(result.metadata).toEqual({
-      jsonExtracted: true,
-      textExtracted: true,
+      parser: "pdf-parse",
     });
+    expect(destroyMock).toHaveBeenCalled();
   });
 
-  it("falls back to structured json content when text output is empty", async () => {
-    mockedConvert.mockImplementation(async (inputPath, options = {}) => {
-      const resolvedInput = Array.isArray(inputPath) ? inputPath[0]! : inputPath;
-      const outputDir = options.outputDir!;
-      const baseName = path.parse(resolvedInput).name;
-      await fs.writeFile(
-        path.join(outputDir, `${baseName}.json`),
-        JSON.stringify({
-          kids: [
-            { content: "Monitoring report covers the reporting period." },
-            { kids: [{ content: "Gold Standard TPDD TEC Version 4.0" }] },
-          ],
-        }),
-      );
-      return "";
-    });
+  it("normalizes empty-ish text from pdf-parse", async () => {
+    getTextMock.mockResolvedValue({ text: "  Monitoring report covers the reporting period.  " });
 
-    const result = await extractPdfTextWithOpenDataLoader({
+    const result = await extractPdfTextWithPdfParse({
       bytes: new TextEncoder().encode("%PDF-json").buffer,
-      filename: "Kenya Evidence.pdf",
-      convertPdf: mockedConvert as never,
+      PdfParseClass: PdfParseClassMock as never,
     });
 
     expect(result.text).toContain("Monitoring report covers the reporting period.");
-    expect(result.text).toContain("Gold Standard TPDD TEC Version 4.0");
     expect(result.metadata).toEqual({
-      jsonExtracted: true,
-      textExtracted: false,
+      parser: "pdf-parse",
     });
   });
 
-  it("surfaces the java prerequisite clearly", async () => {
-    mockedConvert.mockRejectedValue(new Error("'java' command not found. Please ensure Java is installed and in your system's PATH."));
+  it("propagates parser failures so the route can fall back", async () => {
+    getTextMock.mockRejectedValue(new Error("broken pdf"));
 
     await expect(
-      extractPdfTextWithOpenDataLoader({
+      extractPdfTextWithPdfParse({
         bytes: new TextEncoder().encode("%PDF-missing-java").buffer,
-        filename: "needs-java.pdf",
-        convertPdf: mockedConvert as never,
+        PdfParseClass: PdfParseClassMock as never,
       }),
-    ).rejects.toThrow("Java 11+");
+    ).rejects.toThrow("broken pdf");
   });
 });

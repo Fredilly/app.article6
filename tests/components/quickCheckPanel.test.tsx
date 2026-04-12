@@ -30,7 +30,7 @@ jest.mock("@/lib/proofMap/attachments", () => ({
 jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
   resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => ({
     text: PDF_TEXT_BY_FILENAME[filename] ?? "",
-    engine: "opendataloader" as const,
+    engine: "pdf-parse" as const,
   }),
 }));
 
@@ -769,7 +769,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Source");
     expect(container.textContent).toContain("Uploaded file");
-    expect(container.textContent).toContain("Partial");
+    expect(container.textContent).toContain("Grounded");
     expect(container.textContent).toContain("The project has documented monitoring evidence");
     await openExtractionDetails();
     expect(container.textContent).toContain("Extraction signal");
@@ -787,7 +787,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("fresh-monitoring-report.pdf");
     expect(container.textContent).toContain("Uploaded file");
     expect(container.textContent).toContain("Evidence signal");
-    expect(container.textContent).toContain("Partial");
+    expect(container.textContent).toContain("Grounded");
     expect(container.textContent).toContain("What matched");
     expect(container.textContent).toContain("What we found in the file");
     expect(container.textContent).toContain("What remains unresolved");

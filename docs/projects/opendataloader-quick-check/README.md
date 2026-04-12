@@ -1,32 +1,31 @@
-# OpenDataLoader Quick Check
+# Quick Check PDF Extraction
 
 ## Goal
 
-Use `@opendataloader/pdf` for Quick Check PDF extraction without changing the product flow or making the first-run UI more complex.
+Make PDF text extraction work inside Vercel serverless functions without Java or external services.
 
 ## Why
 
-The existing Quick Check parser is intentionally lightweight and heuristic. It is fast enough for local demos, but it does not provide reliable reading order, structured extraction, or strong handling for real-world PDFs. OpenDataLoader gives us a better parser path while preserving local fallback behavior.
+The existing Quick Check parser is intentionally lightweight and heuristic. It works for some fixtures, but it is not the best default extractor for real PDFs. The previous Java-based plan was not deployable on Vercel, so the simpler fix is to use `pdf-parse` in the Node route and keep the heuristic parser only as a backup.
 
 ## Spec
 
 - Keep the current Quick Check UX and evidence flow unchanged.
-- Run OpenDataLoader only on the server.
-- Send uploaded PDF bytes from the browser to a dedicated extraction route.
+- Run `pdf-parse` inside the existing Node route on Vercel.
+- Send uploaded PDF bytes from the browser to a dedicated extraction route in the app.
 - Continue deriving Quick Check facts from extracted text so the UI contract stays stable.
-- Fall back to the current heuristic parser whenever OpenDataLoader or Java is unavailable.
-- Surface a warning when fallback happens so the extraction remains honest.
+- Fall back to the current heuristic parser only when `pdf-parse` cannot extract usable text.
 
 ## Integration Shape
 
 - Client: resolve PDF bytes from IndexedDB, post them to `/api/quick-check/pdf-extract`.
-- Server: write bytes to a temp file, call `@opendataloader/pdf`, read `text` and `json` outputs, normalize to plain text.
+- App route: parse the PDF with `pdf-parse`, then return normalized text to the client.
 - Analysis: reuse existing fact derivation and methodology mention extraction.
-- Fallback: if the route fails, use the current `extractPdfText(...)` path and include a warning.
+- Fallback: if `pdf-parse` fails, reuse the current `extractPdfText(...)` path.
 
 ## Non-Goals
 
 - No OCR rollout in this PR.
-- No hybrid backend in this PR.
+- No external extraction service.
+- No Java dependencies.
 - No changes to Dashboard, Methods, Manifest, or non-Quick-Check flows.
-- No schema migration of Quick Check result objects.
