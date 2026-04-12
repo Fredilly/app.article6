@@ -2,6 +2,9 @@
 
 const fs = require("fs");
 const path = require("path");
+const { createRequire } = require("module");
+
+const requireFromProject = createRequire(path.join(process.cwd(), "package.json"));
 
 function normalizeWhitespace(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
@@ -15,7 +18,7 @@ async function main() {
 
   const absolutePath = path.resolve(pdfPath);
   const bytes = fs.readFileSync(absolutePath);
-  const mod = require("../node_modules/pdf-parse/dist/pdf-parse/cjs/index.cjs");
+  const mod = requireFromProject("pdf-parse");
   const parser = new mod.PDFParse({
     data: new Uint8Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)),
   });

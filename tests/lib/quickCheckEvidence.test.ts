@@ -113,6 +113,62 @@ describe("quick check evidence analysis", () => {
     expect(deriveQuickCheckExtractionState(extraction).value).not.toBe("weak");
   });
 
+  it("produces different extraction preview details for different evidence files", async () => {
+    const malawiPath = path.join(process.cwd(), "tests/fixtures/quick-check/malawi-strong-signal-evidence.pdf");
+    const kenyaPath = path.join(process.cwd(), "tests/fixtures/quick-check/kenya-second-check-evidence.pdf");
+    const malawiBytes = fs.readFileSync(malawiPath);
+    const kenyaBytes = fs.readFileSync(kenyaPath);
+
+    await putAttachmentBytes("att-preview-malawi", asArrayBuffer(malawiBytes));
+    await putAttachmentBytes("att-preview-kenya", asArrayBuffer(kenyaBytes));
+
+    const claimText = "The monitoring report covers the full reporting period and documents monitored stove usage for the project area.";
+
+    const [malawiAnalysis, kenyaAnalysis] = await Promise.all([
+      analyzeQuickCheckEvidence([
+        {
+          evidenceId: "ev-preview-malawi",
+          sourceLabel: "malawi-strong-signal-evidence.pdf",
+          attachments: [
+            {
+              id: "att-preview-malawi",
+              pin_id: "ev-preview-malawi",
+              filename: "malawi-strong-signal-evidence.pdf",
+              mime: "application/pdf",
+              size: malawiBytes.byteLength,
+              sha256: "sha-preview-malawi",
+              created_at: "2026-04-13T00:00:00Z",
+            },
+          ],
+        },
+      ]),
+      analyzeQuickCheckEvidence([
+        {
+          evidenceId: "ev-preview-kenya",
+          sourceLabel: "kenya-second-check-evidence.pdf",
+          attachments: [
+            {
+              id: "att-preview-kenya",
+              pin_id: "ev-preview-kenya",
+              filename: "kenya-second-check-evidence.pdf",
+              mime: "application/pdf",
+              size: kenyaBytes.byteLength,
+              sha256: "sha-preview-kenya",
+              created_at: "2026-04-13T00:00:00Z",
+            },
+          ],
+        },
+      ]),
+    ]);
+
+    const malawiPreview = buildQuickCheckExtractionSnapshot({ claimText, analysis: malawiAnalysis });
+    const kenyaPreview = buildQuickCheckExtractionSnapshot({ claimText, analysis: kenyaAnalysis });
+
+    expect(compactText(malawiPreview.extractedFacts.join(" "))).toContain(compactText("1 January 2025 to 31 December 2025"));
+    expect(compactText(kenyaPreview.extractedFacts.join(" "))).toContain(compactText("1 April 2024 - 31 March 2025"));
+    expect(malawiPreview.extractedFacts).not.toEqual(kenyaPreview.extractedFacts);
+  });
+
   it("extracts grounded PDD facts from uploaded pdf evidence", async () => {
     const bytes = asArrayBuffer(
       new TextEncoder().encode(

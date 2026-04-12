@@ -40,6 +40,12 @@ function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
+function formatFactPreview(fact: QuickCheckEvidenceFact): string {
+  const detail = fact.detail?.trim();
+  if (!detail) return fact.summary;
+  return `${fact.summary}: ${detail}`;
+}
+
 function normalizeSignals(extraction: QuickCheckExtractionSnapshot): QuickCheckExtractionSignals {
   return {
     parsedEvidenceCount: Math.max(0, extraction.signals?.parsedEvidenceCount ?? (extraction.extractedFacts.length || extraction.methodologyMentions.length ? 1 : 0)),
@@ -81,7 +87,7 @@ function pickRelevantFacts(claimText: string, analysis: QuickCheckEvidenceAnalys
     ? analysis.facts.filter((fact) => preferredCategories.has(fact.category))
     : analysis.facts;
   const selected = prioritized.length ? prioritized : analysis.facts;
-  return dedupe(selected.slice(0, 4).map((fact) => fact.summary));
+  return dedupe(selected.slice(0, 4).map(formatFactPreview));
 }
 
 export function buildQuickCheckExtractionSnapshot(input: {

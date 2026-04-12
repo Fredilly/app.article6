@@ -110,6 +110,10 @@ function asLower(value: string): string {
   return normalizeWhitespace(value).toLowerCase();
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function stableFactId(input: { sourceLabel: string; category: QuickCheckEvidenceFactCategory; summary: string }): string {
   return `${input.sourceLabel}:${input.category}:${input.summary}`.toLowerCase().replace(/[^a-z0-9:]+/g, "-");
 }
@@ -560,82 +564,114 @@ function classifyDocumentType(source: QuickCheckEvidenceSource): string {
   return "Unknown document";
 }
 
+function extractMatchSnippet(text: string, pattern: RegExp): string | undefined {
+  const flags = pattern.flags.includes("i") ? pattern.flags : `${pattern.flags}i`;
+  const globalSafePattern = new RegExp(pattern.source, flags.replace(/g/g, ""));
+  const match = globalSafePattern.exec(text);
+  if (!match || typeof match.index !== "number") return undefined;
+
+  const start = Math.max(0, match.index - 48);
+  const end = Math.min(text.length, match.index + match[0].length + 72);
+  let snippet = text.slice(start, end);
+  snippet = normalizeWhitespace(snippet);
+  snippet = snippet.replace(new RegExp(`^${escapeRegExp(match[0])}\\s*[:.-]?\\s*`, "i"), `${match[0]} `);
+  if (!snippet) return undefined;
+  if (start > 0) snippet = `...${snippet}`;
+  if (end < text.length) snippet = `${snippet}...`;
+  return snippet.length > 140 ? `${snippet.slice(0, 137).trimEnd()}...` : snippet;
+}
+
 function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEvidenceFact[] {
   const haystack = asLower(text);
   const next = new Map<string, QuickCheckEvidenceFact>();
 
-  if (/(project boundary|boundary description|grouped activity boundary|boundary covers|eligibility boundary)/.test(haystack)) {
+  const boundaryPattern = /(project boundary|boundary description|grouped activity boundary|boundary covers|eligibility boundary)/i;
+  const coordinatesPattern =
+    /(latitude|longitude|coordinates?|lat[./ ]*long|geographic coordinates?|decimal degrees?|\b-?\d{1,3}\.\d{2,}\s*,\s*-?\d{1,3}\.\d{2,}\b)/i;
+  const mappedAreaPattern = /(area of interest|aoi|polygon|mapped area|project area|project geography|geographic area|shape file|shapefile|geojson|boundary map)/i;
+  const locationPattern = /(project location|located in|district|province|municipality|coordinates of the project location|site location)/i;
+  const monitoringPlanPattern = /(monitoring plan|monitoring procedures|monitoring approach|plan for monitoring)/i;
+  const reportingPeriodPattern = /(reporting period|monitoring period|period covered|coverage period|\b20\d{2}\s*[-/]?\s*q[1-4]\b|\bq[1-4]\s*20\d{2}\b)/i;
+  const workbookPattern = /(workbook|spreadsheet|excel)/i;
+  const monitoringEvidencePattern = /(monitoring plan|monitoring report|monitoring records|monitoring data|monitoring procedures)/i;
+
+  if (boundaryPattern.test(haystack)) {
     addFact(next, {
       category: "boundary",
       summary: "The project boundary is described in the PDD",
       matchText: "project boundary described",
       sourceLabel,
+      detail: extractMatchSnippet(text, boundaryPattern),
     });
   }
 
-  if (
-    /(latitude|longitude|coordinates?|lat[./ ]*long|geographic coordinates?|decimal degrees?)/.test(haystack) ||
-    /\b-?\d{1,3}\.\d{2,}\s*,\s*-?\d{1,3}\.\d{2,}\b/.test(haystack)
-  ) {
+  if (coordinatesPattern.test(haystack)) {
     addFact(next, {
       category: "coordinates",
       summary: "Project coordinates are present in the PDD",
       matchText: "project coordinates present",
       sourceLabel,
+      detail: extractMatchSnippet(text, coordinatesPattern),
     });
   }
 
-  if (/(area of interest|aoi|polygon|mapped area|project area|project geography|geographic area|shape file|shapefile|geojson|boundary map)/.test(haystack)) {
+  if (mappedAreaPattern.test(haystack)) {
     addFact(next, {
       category: "mapped-area",
       summary: "The PDD references the mapped project area or AOI",
       matchText: "mapped project area referenced",
       sourceLabel,
+      detail: extractMatchSnippet(text, mappedAreaPattern),
     });
   }
 
-  if (/(project location|located in|district|province|municipality|coordinates of the project location|site location)/.test(haystack)) {
+  if (locationPattern.test(haystack)) {
     addFact(next, {
       category: "project-location",
       summary: "The project location is described in the PDD",
       matchText: "project location described",
       sourceLabel,
+      detail: extractMatchSnippet(text, locationPattern),
     });
   }
 
-  if (/(monitoring plan|monitoring procedures|monitoring approach|plan for monitoring)/.test(haystack)) {
+  if (monitoringPlanPattern.test(haystack)) {
     addFact(next, {
       category: "monitoring-plan",
       summary: "The project has a documented monitoring plan",
       matchText: "documented monitoring plan",
       sourceLabel,
+      detail: extractMatchSnippet(text, monitoringPlanPattern),
     });
   }
 
-  if (/(reporting period|monitoring period|period covered|coverage period|\b20\d{2}\s*[-/]?\s*q[1-4]\b|\bq[1-4]\s*20\d{2}\b)/.test(haystack)) {
+  if (reportingPeriodPattern.test(haystack)) {
     addFact(next, {
       category: "reporting-period",
       summary: "The PDF states a monitoring or reporting period",
       matchText: "reporting period stated",
       sourceLabel,
+      detail: extractMatchSnippet(text, reportingPeriodPattern),
     });
   }
 
-  if (/(workbook|spreadsheet|excel)/.test(haystack)) {
+  if (workbookPattern.test(haystack)) {
     addFact(next, {
       category: "workbook-reference",
       summary: "The workbook is referenced in the PDD",
       matchText: "workbook referenced in pdd",
       sourceLabel,
+      detail: extractMatchSnippet(text, workbookPattern),
     });
   }
 
-  if (/(monitoring plan|monitoring report|monitoring records|monitoring data|monitoring procedures)/.test(haystack)) {
+  if (monitoringEvidencePattern.test(haystack)) {
     addFact(next, {
       category: "monitoring-evidence",
       summary: "The project has documented monitoring evidence",
       matchText: "documented monitoring evidence",
       sourceLabel,
+      detail: extractMatchSnippet(text, monitoringEvidencePattern),
     });
   }
 
