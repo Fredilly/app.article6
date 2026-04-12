@@ -619,7 +619,7 @@ describe("QuickCheckPanel claim-first flow", () => {
   }
 
   function primaryCta(): HTMLButtonElement {
-    return Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Analyze claim")) as HTMLButtonElement;
+    return Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Run quick check")) as HTMLButtonElement;
   }
 
   function clickButton(label: string) {
@@ -661,6 +661,21 @@ describe("QuickCheckPanel claim-first flow", () => {
     }
   }
 
+  function openOptions() {
+    if (!container.textContent?.includes("Select saved evidence")) {
+      clickButton("Options");
+    }
+  }
+
+  async function openExtractionDetails() {
+    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Show extraction details"));
+    if (button) {
+      await act(async () => {
+        button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+    }
+  }
+
   it("renders a minimal default state with secondary controls collapsed", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -670,8 +685,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(pageText).toContain("Check one claim");
     expect(pageText).toContain("Upload evidence");
     expect(pageText).toContain("Try demo check");
-    expect(pageText).toContain("Use saved evidence instead");
-    expect(pageText).toContain("Narrow by methodology");
+    expect(pageText).toContain("Options");
     expect(pageText).not.toContain("Select saved evidence");
     expect(pageText).not.toContain("MethodologyAny methodology");
     expect(primaryCta().disabled).toBe(true);
@@ -685,7 +699,6 @@ describe("QuickCheckPanel claim-first flow", () => {
     const demoButton = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Try demo check"));
     expect(demoButton).toBeTruthy();
     expect((demoButton as HTMLButtonElement).disabled).toBe(false);
-    expect((demoButton as HTMLButtonElement).className).toContain("bg-white");
     expect(primaryCta().disabled).toBe(true);
   });
 
@@ -736,15 +749,16 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Source");
     expect(container.textContent).toContain("Uploaded file");
-    expect(container.textContent).toContain("Extraction signal");
     expect(container.textContent).toContain("Grounded");
     expect(container.textContent).toContain("The project has documented monitoring evidence");
+    await openExtractionDetails();
+    expect(container.textContent).toContain("Extraction signal");
     expect(container.textContent).toContain("AR-ACM0003");
     expect(container.textContent).toContain("fresh-monitoring-report.pdf");
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -776,8 +790,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(container.textContent).toContain("Extraction preview");
-    expect(container.textContent).toContain("Extraction signal");
     expect(container.textContent).toContain("Weak");
+    await openExtractionDetails();
+    expect(container.textContent).toContain("Extraction signal");
     expect(container.textContent).toContain("We couldn't extract enough usable data from this file for a reliable preliminary match yet.");
     expect(container.textContent).toContain("We couldn't extract usable text from this file yet.");
   });
@@ -793,7 +808,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -819,7 +834,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(true);
 
     await act(async () => {
-      clickButton("Use saved evidence instead");
+      openOptions();
     });
 
     const inventorySelect = container.querySelector("select") as HTMLSelectElement;
@@ -842,7 +857,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Use saved evidence instead");
+      openOptions();
     });
 
     const inventorySelect = container.querySelector("select") as HTMLSelectElement;
@@ -858,7 +873,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("monitoring-report.pdf");
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
@@ -932,7 +947,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -962,7 +977,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     expect(container.textContent).toContain("No clear match yet");
@@ -987,7 +1002,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     expect(container.textContent).toContain("Boundary consistency");
@@ -1007,7 +1022,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     expect(container.textContent).toContain("Boundary consistency");
@@ -1024,7 +1039,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     expect(container.textContent).toContain("Monitoring plan");
@@ -1084,7 +1099,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     expect(container.textContent).toContain("Workbook monitoring records");
@@ -1141,7 +1156,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     expect(container.textContent).toContain("Workbook monitoring records");
@@ -1160,7 +1175,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await act(async () => {
       clickButton("The boundary description matches the mapped project area.");
-      clickButton("Use saved evidence instead");
+      openOptions();
     });
 
     const inventorySelect = container.querySelector("select") as HTMLSelectElement;
@@ -1170,7 +1185,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1219,7 +1234,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1254,7 +1269,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).not.toContain("Weak");
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1284,7 +1299,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUntilText("The PDF states a monitoring or reporting period");
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1318,7 +1333,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1348,7 +1363,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUntilText("The PDF states a monitoring or reporting period");
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1378,7 +1393,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUntilText("The PDF states a monitoring or reporting period");
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1402,7 +1417,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1424,7 +1439,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1451,7 +1466,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Use saved evidence instead");
+      openOptions();
     });
     const inventorySelect = container.querySelector("select") as HTMLSelectElement;
     await act(async () => {
@@ -1463,7 +1478,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1488,7 +1503,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Use saved evidence instead");
+      openOptions();
     });
     const inventorySelect = container.querySelector("select") as HTMLSelectElement;
     await act(async () => {
@@ -1500,7 +1515,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1524,7 +1539,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Use saved evidence instead");
+      openOptions();
     });
     const inventorySelect = container.querySelector("select") as HTMLSelectElement;
     await act(async () => {
@@ -1536,7 +1551,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();
@@ -1621,7 +1636,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(primaryCta().disabled).toBe(false);
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await act(async () => {
@@ -1752,7 +1767,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await act(async () => {
-      clickButton("Analyze claim");
+      clickButton("Run quick check");
     });
 
     await flushUi();

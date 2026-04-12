@@ -11,10 +11,22 @@ export default function ChatApp() {
   const selectedVersion = deeplink.resolved.resolvedVersion;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(226,232,240,0.75),_rgba(255,255,255,1)_55%)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-10">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f4efe4_0%,#f8f6f0_18%,#ffffff_62%)]">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 md:px-8 md:py-10">
+        <div className="mx-auto w-full max-w-4xl">
+          <div className="max-w-2xl">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Article 6</div>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.7rem]">
+              One claim. One file. One clear next step.
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
+              Quick Check is the fast front door. Start with a simple win, then open the full review only if the preliminary match looks right.
+            </p>
+          </div>
+        </div>
+
         {selectedMethod || deeplinkWarnings.length ? (
-          <div className="mx-auto w-full max-w-3xl rounded-3xl border border-slate-200 bg-white/85 p-4 text-sm text-slate-700 shadow-sm backdrop-blur">
+          <div className="mx-auto w-full max-w-4xl rounded-3xl border border-slate-200 bg-white/85 p-4 text-sm text-slate-700 shadow-sm backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Deeplink context</span>
               {deeplink.loading ? (

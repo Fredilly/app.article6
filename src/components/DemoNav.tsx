@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 type DemoRoute = {
@@ -24,10 +23,10 @@ export default function DemoNav() {
         const isActive =
           pathname === route.href ||
           (route.href !== "/" && pathname.startsWith(`${route.href}/`));
-        const base = "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 font-medium shadow-sm transition";
+        const base = "inline-flex items-center rounded-full border px-3 py-1.5 font-medium transition";
         const appearance = isActive
-          ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
-          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900";
+          ? "border-slate-900 bg-slate-900 text-white shadow-sm hover:bg-slate-800"
+          : "border-slate-200 bg-white/85 text-slate-700 hover:border-slate-300 hover:bg-white hover:text-slate-900";
 
         return (
           <Link
@@ -37,7 +36,6 @@ export default function DemoNav() {
             className={`${base} ${appearance}`}
           >
             <span>{route.title}</span>
-            <ArrowUpRight className="h-3 w-3" />
           </Link>
         );
       })}
