@@ -308,4 +308,48 @@ describe("quick check evidence analysis", () => {
     expect(analysis.facts).toEqual([]);
     expect(analysis.warnings).toContain("We couldn't extract usable text from this file yet.");
   });
+
+  it("keeps parsing with a fallback warning when opendataloader is unavailable", async () => {
+    const bytes = asArrayBuffer(
+      new TextEncoder().encode(
+        "%PDF-1.4\n1 0 obj\n<< /Length 109 >>\nstream\n(Project area Lilongwe District.)\n(Reporting period 1 January 2025 to 31 December 2025.)\nendstream\nendobj\n%%EOF",
+      ),
+    );
+    await putAttachmentBytes("att-pdf-fallback-1", bytes);
+
+    const analysis = await analyzeQuickCheckEvidence(
+      [
+        {
+          evidenceId: "ev-pdf-fallback-1",
+          sourceLabel: "fallback.pdf",
+          attachments: [
+            {
+              id: "att-pdf-fallback-1",
+              pin_id: "ev-pdf-fallback-1",
+              filename: "fallback.pdf",
+              mime: "application/pdf",
+              size: bytes.byteLength,
+              sha256: "sha-pdf-fallback-1",
+              created_at: "2026-04-12T00:00:00Z",
+            },
+          ],
+        },
+      ],
+      {
+        resolvePdfText: async ({ bytes: pdfBytes }) => ({
+          text: extractPdfText(pdfBytes),
+          engine: "heuristic",
+          warning: "OpenDataLoader was unavailable, so Quick Check used the built-in fallback parser.",
+        }),
+      },
+    );
+
+    expect(analysis.facts.map((fact) => fact.summary)).toEqual(
+      expect.arrayContaining([
+        "The project location is described in the PDD",
+        "The PDF states a monitoring or reporting period",
+      ]),
+    );
+    expect(analysis.warnings).toContain("OpenDataLoader was unavailable, so Quick Check used the built-in fallback parser.");
+  });
 });

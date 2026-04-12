@@ -20,6 +20,7 @@ import {
   buildLocalRuleCandidates,
   buildQuickCheckQueryTexts,
   classifyQuickCheckClaimIntents,
+  extractPdfText,
   type QuickCheckClaimIntent,
   type QuickCheckEvidenceAnalysis,
 } from "@/lib/chat/quickCheckEvidence";
@@ -43,6 +44,7 @@ import {
   type QuickCheckResolvedCandidate,
 } from "@/lib/chat/quickCheckResolver";
 import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
+import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
@@ -756,6 +758,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }));
   }, [draft.evidenceFileName, selectedInventoryEvidence, selectedPins, selectedUploadEvidence]);
 
+  const resolvePdfText = useCallback(
+    async (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
+      if (input.mime !== "application/pdf") {
+        return {
+          text: extractPdfText(input.bytes),
+          engine: "heuristic" as const,
+        };
+      }
+      return await resolveQuickCheckPdfText({
+        bytes: input.bytes,
+        filename: input.filename,
+      });
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!selectedEvidenceSources.length) {
       setExtractionState({ loading: false, analysis: null, error: null });
@@ -769,7 +787,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       error: null,
     }));
 
-    void analyzeQuickCheckEvidence(selectedEvidenceSources)
+    void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
         if (cancelled) return;
         setExtractionState({ loading: false, analysis, error: null });
@@ -786,7 +804,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     return () => {
       cancelled = true;
     };
-  }, [selectedEvidenceSources]);
+  }, [resolvePdfText, selectedEvidenceSources]);
 
   useEffect(() => {
     if (showSavedEvidence || showMethodology) {
@@ -1195,7 +1213,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setRecoveryState(null);
     setMatchCandidates([]);
     try {
-      const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources);
+      const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
       const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
       if (!evidenceAnalysis.facts.length) {
         setFieldErrors({});
@@ -1386,7 +1404,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           sourceLabel: demo.stagedUpload.filename,
           attachments: [demo.stagedUpload.attachment],
         },
-      ]);
+      ], { resolvePdfText });
       replaceSession(nextSession);
       const resolvedDemoCandidate = await resolveQuickCheckCandidate({
         candidate: buildQuickCheckDemoCandidate(),

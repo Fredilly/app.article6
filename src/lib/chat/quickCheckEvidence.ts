@@ -52,6 +52,17 @@ type QuickCheckEvidenceSource = {
 };
 
 type ResolveAttachmentBytes = (attachmentId: string) => Promise<ArrayBuffer | null>;
+export type QuickCheckResolvedPdfText = {
+  text: string;
+  engine: "opendataloader" | "heuristic";
+  warning?: string;
+};
+type ResolvePdfText = (input: {
+  attachmentId: string;
+  filename: string;
+  mime: string;
+  bytes: ArrayBuffer;
+}) => Promise<QuickCheckResolvedPdfText | null>;
 
 type QuickCheckRuleLike = {
   id: string;
@@ -731,13 +742,15 @@ function deriveWorkbookFactsFromAsset(asset: WorkbookEvidenceAsset, sourceLabel:
 
 export async function analyzeQuickCheckEvidence(
   sources: QuickCheckEvidenceSource[],
-  options?: { resolveAttachmentBytes?: ResolveAttachmentBytes },
+  options?: { resolveAttachmentBytes?: ResolveAttachmentBytes; resolvePdfText?: ResolvePdfText },
 ): Promise<QuickCheckEvidenceAnalysis> {
   const facts = new Map<string, QuickCheckEvidenceFact>();
   const parsedEvidenceLabels = new Set<string>();
   const documentTypes = new Set<string>();
   const methodologyMentions = new Set<string>();
+  const warningSet = new Set<string>();
   const resolveAttachmentBytes = options?.resolveAttachmentBytes ?? getAttachmentBytes;
+  const resolvePdfText = options?.resolvePdfText;
 
   for (const source of sources) {
     documentTypes.add(classifyDocumentType(source));
@@ -768,7 +781,24 @@ export async function analyzeQuickCheckEvidence(
       if (attachment.mime !== "application/pdf") continue;
       const bytes = await resolveAttachmentBytes(attachment.id).catch(() => null);
       if (!bytes) continue;
-      const text = extractPdfText(bytes);
+      let text = "";
+      if (resolvePdfText) {
+        try {
+          const resolved = await resolvePdfText({
+            attachmentId: attachment.id,
+            filename: attachment.filename,
+            mime: attachment.mime,
+            bytes,
+          });
+          text = resolved?.text ?? "";
+          if (resolved?.warning) warningSet.add(resolved.warning);
+        } catch {
+          text = extractPdfText(bytes);
+          warningSet.add("OpenDataLoader extraction failed, so Quick Check used the built-in fallback parser.");
+        }
+      } else {
+        text = extractPdfText(bytes);
+      }
       if (!text) continue;
       parsedEvidenceLabels.add(source.sourceLabel);
       for (const mention of extractMethodologyMentions(text)) {
@@ -780,7 +810,7 @@ export async function analyzeQuickCheckEvidence(
     }
   }
 
-  const warnings: string[] = [];
+  const warnings = Array.from(warningSet);
   if (!parsedEvidenceLabels.size) {
     warnings.push("We couldn't extract usable text from this file yet.");
   } else if (!facts.size) {

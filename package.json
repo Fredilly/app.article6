@@ -58,6 +58,7 @@
     "npm": ">=10"
   },
   "dependencies": {
+    "@opendataloader/pdf": "^2.2.1",
     "clsx": "^2.1.1",
     "fake-indexeddb": "^6.2.5",
     "fflate": "^0.8.2",

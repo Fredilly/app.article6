@@ -9,10 +9,29 @@ import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 
 const pushMock = jest.fn();
 const createAndStoreEvidenceAttachmentMock = jest.fn();
+const PDF_TEXT_BY_FILENAME: Record<string, string> = {
+  "fresh-monitoring-report.pdf": "Monitoring report for the full reporting period. Gold Standard TPDD TEC Version 4.0. AR-ACM0003 methodology reference.",
+  "monitoring-report.pdf": "Monitoring report for the full reporting period.",
+  "demo-monitoring-report.pdf": "Monitoring report for the full reporting period.",
+  "opaque-scan.pdf": "",
+  "kenya-second-check-evidence.pdf": "Reporting period 1 April 2024 - 31 March 2025. Project area Makueni County and Kitui County. The monitoring report covers the full reporting period.",
+  "malawi-pdd.pdf": "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
+  "synthetic-malawi-pdd.pdf": "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
+  "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
+  "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
+  "baseline.pdf": "Monitoring report for the full reporting period.",
+};
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
   createAndStoreEvidenceAttachment: (...args: unknown[]) => createAndStoreEvidenceAttachmentMock(...args),
+}));
+
+jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
+  resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => ({
+    text: PDF_TEXT_BY_FILENAME[filename] ?? "",
+    engine: "opendataloader" as const,
+  }),
 }));
 
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
@@ -750,7 +769,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Source");
     expect(container.textContent).toContain("Uploaded file");
-    expect(container.textContent).toContain("Grounded");
+    expect(container.textContent).toContain("Partial");
     expect(container.textContent).toContain("The project has documented monitoring evidence");
     await openExtractionDetails();
     expect(container.textContent).toContain("Extraction signal");
@@ -768,7 +787,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("fresh-monitoring-report.pdf");
     expect(container.textContent).toContain("Uploaded file");
     expect(container.textContent).toContain("Evidence signal");
-    expect(container.textContent).toContain("Grounded");
+    expect(container.textContent).toContain("Partial");
     expect(container.textContent).toContain("What matched");
     expect(container.textContent).toContain("What we found in the file");
     expect(container.textContent).toContain("What remains unresolved");
