@@ -1450,11 +1450,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-lg">
+      <div className="mx-auto w-full max-w-xl">
         <div className="flex flex-col items-center text-center">
           <div className="flex w-full items-start justify-center">
             <div className="w-full">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.4rem]">
+              <h1 className="text-4xl font-bold tracking-tight text-slate-950">
                 Verify one claim
               </h1>
               <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
@@ -1465,7 +1465,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           </div>
         </div>
 
-        <div className="mt-8 grid gap-5">
+        <div className="mt-8 grid gap-8">
           <div>
             <label className="grid gap-2 text-sm text-slate-700">
               <span className="font-medium text-slate-900">Claim</span>
@@ -1492,13 +1492,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               }}
               rows={3}
               placeholder="Example: The monitoring report covers the full reporting period."
-                className="w-full rounded-[1.25rem] border border-slate-200 bg-white px-4 py-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
+                className="w-full rounded-[1.25rem] border border-slate-200 bg-white p-5 text-lg leading-8 text-slate-950 outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:bg-white"
                 ref={claimRef}
               />
               {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
             </label>
             <div className="mt-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Try an example</div>
+              <div className="text-xs text-slate-400">Try an example</div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
                   <button
@@ -1547,7 +1547,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-full border border-black bg-black px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-900"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-slate-50"
               >
                 <Upload className="h-4 w-4" />
                 Upload evidence
@@ -1555,7 +1555,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
 
             {!selectedEvidenceLabel ? (
-              <div className="mt-4 rounded-[1.25rem] border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-600">
+              <div className="mt-4 rounded-[1.25rem] border border-slate-200 bg-slate-50/50 px-4 py-5 text-sm text-slate-600">
                 Drop in one file or use the upload button.
               </div>
             ) : (
