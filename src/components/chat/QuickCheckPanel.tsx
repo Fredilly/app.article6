@@ -1454,20 +1454,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         <div className="px-1 py-1 md:px-2">
           <div className="flex items-start justify-between gap-4">
             <div className="max-w-2xl">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick Check</div>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.4rem]">
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.4rem]">
                 Check one claim
               </h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 md:text-[15px]">
-                Start with one claim and one file. Quick Check returns a clean preliminary match, then opens the full review only if you want to keep going.
+                Add one file to get a preliminary match.
               </p>
             </div>
             {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
-          </div>
-          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
-            <div>Write the claim</div>
-            <div>Add one file</div>
-            <div>Review the next step</div>
           </div>
         </div>
 
@@ -1504,7 +1498,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
             </label>
             <div className="mt-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Examples</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Try an example</div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
                   <button
@@ -1538,7 +1532,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             <div className="mt-5 flex flex-wrap items-start justify-between gap-3 border-t border-slate-200 pt-5">
               <div className="min-w-0">
                 <div className="text-sm font-medium text-slate-900">Evidence</div>
-                <div className="mt-1 text-sm text-slate-600">Upload one file to run the check.</div>
+                <div className="mt-1 text-sm text-slate-600">Upload one file.</div>
               </div>
               <input
                 ref={fileRef}
@@ -1559,7 +1553,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
             {!selectedEvidenceLabel ? (
               <div className="mt-4 rounded-[1.25rem] border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-600">
-                Drop in one file or use the upload button. Quick Check works best when the file directly supports the claim you wrote above.
+                Drop in one file or use the upload button.
               </div>
             ) : (
               <>
@@ -1581,9 +1575,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-medium text-slate-900">Extraction preview</div>
-                      <div className="mt-1 text-sm text-slate-600">
-                        Review the evidence signal before you run the check.
-                      </div>
+                      <div className="mt-1 text-sm text-slate-600">Review the evidence signal.</div>
                     </div>
                     <div className="flex items-center gap-2">
                       {extractionPreviewState ? (
@@ -1731,9 +1723,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           {showAdvancedOptions ? (
             <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Options</div>
-              <div className="mt-1 text-sm text-slate-600">
-                Reuse saved evidence or narrow the methodology only when you want a stricter check.
-              </div>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className={`rounded-2xl border px-4 py-3 ${showSavedEvidence ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
                   <div className="text-sm font-medium text-slate-900">Saved evidence</div>

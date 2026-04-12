@@ -17,10 +17,10 @@ export default function ChatApp() {
           <div className="max-w-2xl">
             <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Article 6</div>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.7rem]">
-              One claim. One file. One clear next step.
+              One claim. One file.
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-              Start with one claim and one file. Quick Check gives you a preliminary match, then opens the full review only when you need it.
+              Quick Check gives you a preliminary match, then opens the full review only when you need it.
             </p>
           </div>
         </div>
