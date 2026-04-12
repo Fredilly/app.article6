@@ -2,11 +2,18 @@ import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import type { ChatMessage } from "@/lib/chat/schema";
 
-export default function MessageList({ messages }: { messages: ChatMessage[] }) {
+export default function MessageList({
+  messages,
+  children,
+}: {
+  messages: ChatMessage[];
+  children?: React.ReactNode;
+}) {
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+    if (!ref.current || typeof ref.current.scrollTo !== "function") return;
+    ref.current.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
+  }, [children, messages]);
   return (
     <div ref={ref} className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
       {messages.map((m, i) => (
@@ -36,6 +43,7 @@ export default function MessageList({ messages }: { messages: ChatMessage[] }) {
           )}
         </div>
       ))}
+      {children}
     </div>
   );
 }

@@ -10,6 +10,7 @@ type DemoRoute = {
 };
 
 const demoRoutes: DemoRoute[] = [
+  { href: "/", title: "Quick Check" },
   { href: "/dashboard", title: "Dashboard" },
   { href: "/m", title: "Methods" },
 ];
@@ -18,8 +19,7 @@ export default function DemoNav() {
   const pathname = usePathname() ?? "/";
 
   return (
-    <nav className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
-      <span className="font-semibold uppercase tracking-wide text-slate-400">Demo surfaces</span>
+    <nav className="flex flex-wrap items-center gap-2 text-xs text-slate-600" aria-label="Primary">
       {demoRoutes.map(route => {
         const isActive =
           pathname === route.href ||
