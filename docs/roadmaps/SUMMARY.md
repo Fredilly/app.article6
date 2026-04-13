@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, requirement-coverage.
+Active lanes: verification-factory, project-verification, requirement-coverage.
 Frozen lanes: agentic-verification.
 
 
@@ -96,6 +96,32 @@ Not active now:
 8) PR43 — Pre-audit pack prep workflow v1 (end-to-end sellable unit): Frozen — Frozen with the lane; preserved as future optional work.
 9) PR44 — Policy packs + house interpretations overlay (versioned): Frozen — Frozen with the lane; preserved as future optional work.
 10) PR45 — Exceptions taxonomy v1 + reviewer notes glue (standardized): Frozen — Frozen with the lane; preserved as future optional work.
+
+## project-verification
+
+Status SSOT: `docs/roadmaps/project-verification/phase-status.json`
+Details: `docs/roadmaps/project-verification/ROADMAP.md`
+
+Lane status: Active
+Turn per-rule verification into per-project verification. Add document intake, upgrade PDF exports, wire Verra methodology support. Shortest path to a defensible $5K/verification offer.
+
+Current focus:
+- Add project-level wrapper that collects rule reviews into one verification
+- Upgrade document intake beyond satellite-only evidence
+- Make the review PDF something a VVB can hand to their client
+- Prepare for Verra VM0007 rules (upstream dependency on article6-methodologies)
+
+Not active now:
+- Full automated claim extraction from documents (manual mapping first)
+- Quantitative carbon calculation engine (track as future phase)
+- Multi-methodology cross-referencing
+- Team collaboration / approval workflows
+
+1) RC1 — Project-level wrapper: Next — Create a project verification object that collects multiple rule reviews into one cohesive verification with coverage summary and finalization.
+2) RC2 — Document evidence intake: Planned — Accept PDD and monitoring report uploads as first-class evidence. Manual claim-to-rule mapping alongside satellite evidence.
+3) RC3 — Verification pack PDF: Planned — Review-ready PDF with branded cover, coverage matrix, evidence inventory, gap summary, and draft verification opinion.
+4) RC4 — Verra methodology support: Planned — Wire app to use Verra VM0007 rules once encoded upstream. Depends on article6-methodologies VF1-VF3.
+5) RC5 — End-to-end demo case: Planned — One complete VM0007 forestry verification with synthetic data, full rule coverage, and review-ready PDF export.
 
 ## requirement-coverage
 

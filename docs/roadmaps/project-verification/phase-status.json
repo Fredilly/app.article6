@@ -22,22 +22,22 @@
       "summary": "Create a project verification object that collects multiple rule reviews into one cohesive verification with coverage summary and finalization."
     },
     "phase_2_document_intake": {
-      "status": "not_started",
+      "status": "planned",
       "title": "Document evidence intake",
       "summary": "Accept PDD and monitoring report uploads as first-class evidence. Manual claim-to-rule mapping alongside satellite evidence."
     },
     "phase_3_verification_pack_pdf": {
-      "status": "not_started",
+      "status": "planned",
       "title": "Verification pack PDF",
       "summary": "Review-ready PDF with branded cover, coverage matrix, evidence inventory, gap summary, and draft verification opinion."
     },
     "phase_4_verra_methodology_support": {
-      "status": "not_started",
+      "status": "planned",
       "title": "Verra methodology support",
       "summary": "Wire app to use Verra VM0007 rules once encoded upstream. Depends on article6-methodologies VF1-VF3."
     },
     "phase_5_end_to_end_demo": {
-      "status": "not_started",
+      "status": "planned",
       "title": "End-to-end demo case",
       "summary": "One complete VM0007 forestry verification with synthetic data, full rule coverage, and review-ready PDF export."
     }
