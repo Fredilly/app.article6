@@ -1,0 +1,45 @@
+{
+  "phase_meta": {
+    "status": "active",
+    "summary": "Turn per-rule verification into per-project verification. Add document intake, upgrade PDF exports, wire Verra methodology support. Shortest path to a defensible $5K/verification offer.",
+    "current_focus": [
+      "Add project-level wrapper that collects rule reviews into one verification",
+      "Upgrade document intake beyond satellite-only evidence",
+      "Make the review PDF something a VVB can hand to their client",
+      "Prepare for Verra VM0007 rules (upstream dependency on article6-methodologies)"
+    ],
+    "not_active_now": [
+      "Full automated claim extraction from documents (manual mapping first)",
+      "Quantitative carbon calculation engine (track as future phase)",
+      "Multi-methodology cross-referencing",
+      "Team collaboration / approval workflows"
+    ]
+  },
+  "phases": {
+    "phase_1_project_wrapper": {
+      "status": "next",
+      "title": "Project-level wrapper",
+      "summary": "Create a project verification object that collects multiple rule reviews into one cohesive verification with coverage summary and finalization."
+    },
+    "phase_2_document_intake": {
+      "status": "not_started",
+      "title": "Document evidence intake",
+      "summary": "Accept PDD and monitoring report uploads as first-class evidence. Manual claim-to-rule mapping alongside satellite evidence."
+    },
+    "phase_3_verification_pack_pdf": {
+      "status": "not_started",
+      "title": "Verification pack PDF",
+      "summary": "Review-ready PDF with branded cover, coverage matrix, evidence inventory, gap summary, and draft verification opinion."
+    },
+    "phase_4_verra_methodology_support": {
+      "status": "not_started",
+      "title": "Verra methodology support",
+      "summary": "Wire app to use Verra VM0007 rules once encoded upstream. Depends on article6-methodologies VF1-VF3."
+    },
+    "phase_5_end_to_end_demo": {
+      "status": "not_started",
+      "title": "End-to-end demo case",
+      "summary": "One complete VM0007 forestry verification with synthetic data, full rule coverage, and review-ready PDF export."
+    }
+  }
+}
