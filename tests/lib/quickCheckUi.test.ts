@@ -43,6 +43,33 @@ describe("quick check ui helpers", () => {
     expect(deriveQuickCheckExtractionState(snapshot).value).toBe("grounded");
   });
 
+  it("prefers document-specific fact detail in the extraction preview", () => {
+    const snapshot = buildQuickCheckExtractionSnapshot({
+      claimText: "The monitoring report covers the full reporting period.",
+      analysis: {
+        facts: [
+          {
+            id: "reporting-period",
+            category: "reporting-period",
+            summary: "The PDF states a monitoring or reporting period",
+            matchText: "reporting period stated",
+            sourceLabel: "malawi-strong-signal-evidence.pdf",
+            detail: "Reporting period: 1 January 2025 to 31 December 2025.",
+          },
+        ],
+        parsedEvidenceLabels: ["malawi-strong-signal-evidence.pdf"],
+        documentTypes: ["PDD / PDF"],
+        methodologyMentions: ["Gold Standard TPDDTEC, Version 4.0"],
+        extractionConfidence: 0.82,
+        warnings: [],
+      },
+    });
+
+    expect(snapshot.extractedFacts).toEqual([
+      "The PDF states a monitoring or reporting period: Reporting period: 1 January 2025 to 31 December 2025.",
+    ]);
+  });
+
   it("normalizes a preliminary match result", () => {
     const view = normalizeQuickCheckUiResult({
       claim: "The monitoring report covers the full reporting period.",

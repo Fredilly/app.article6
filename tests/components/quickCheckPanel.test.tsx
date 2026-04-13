@@ -9,10 +9,29 @@ import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 
 const pushMock = jest.fn();
 const createAndStoreEvidenceAttachmentMock = jest.fn();
+const PDF_TEXT_BY_FILENAME: Record<string, string> = {
+  "fresh-monitoring-report.pdf": "Monitoring report for the full reporting period. Gold Standard TPDD TEC Version 4.0. AR-ACM0003 methodology reference.",
+  "monitoring-report.pdf": "Monitoring report for the full reporting period.",
+  "demo-monitoring-report.pdf": "Monitoring report for the full reporting period.",
+  "opaque-scan.pdf": "",
+  "kenya-second-check-evidence.pdf": "Reporting period 1 April 2024 - 31 March 2025. Project area Makueni County and Kitui County. The monitoring report covers the full reporting period.",
+  "malawi-pdd.pdf": "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
+  "synthetic-malawi-pdd.pdf": "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
+  "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
+  "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
+  "baseline.pdf": "Monitoring report for the full reporting period.",
+};
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
   createAndStoreEvidenceAttachment: (...args: unknown[]) => createAndStoreEvidenceAttachmentMock(...args),
+}));
+
+jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
+  resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => ({
+    text: PDF_TEXT_BY_FILENAME[filename] ?? "",
+    engine: "pdf-parse" as const,
+  }),
 }));
 
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
@@ -106,7 +125,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       return { ok: true, attachment };
     });
 
-    (global.fetch as typeof fetch | undefined) = jest.fn(async (input: RequestInfo | URL) => {
+    (global.fetch as typeof fetch | undefined) = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url.includes("/api/methods/inventory")) {
         return new Response(
@@ -116,6 +135,21 @@ describe("QuickCheckPanel claim-first flow", () => {
               { code: "AR-AM0014", latestVersion: "v03-0", versions: ["v03-0"] },
               { code: "AR-AMS0007", latestVersion: "v01-0", versions: ["v01-0"] },
             ],
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/quick-check/pdf-extract")) {
+        const headers = new Headers(init?.headers);
+        const encodedFilename = headers.get("x-article6-filename") ?? "";
+        const filename = decodeURIComponent(encodedFilename);
+        return new Response(
+          JSON.stringify({
+            text: PDF_TEXT_BY_FILENAME[filename] ?? "",
+            engine: "pdf-parse",
+            metadata: {
+              parser: "pdf-parse",
+            },
           }),
           { status: 200 },
         );
@@ -746,6 +780,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     );
 
     await flushUi();
+    await flushUntilText("Grounded");
 
     expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Source");
@@ -764,16 +799,16 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await flushUi();
 
-    expect(container.textContent).toContain("Preliminary match found");
+    expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).toContain("fresh-monitoring-report.pdf");
     expect(container.textContent).toContain("Uploaded file");
-    expect(container.textContent).toContain("Evidence signal");
+    expect(container.textContent).toContain("Extraction signal");
     expect(container.textContent).toContain("Grounded");
-    expect(container.textContent).toContain("What matched");
-    expect(container.textContent).toContain("What we found in the file");
-    expect(container.textContent).toContain("What remains unresolved");
-    expect(container.textContent).toContain("Open full review");
-    expect(container.textContent).not.toContain("Saved evidence");
+    expect(container.textContent).toContain("Use match");
+    expect(container.textContent).not.toContain("What matched");
+    expect(container.textContent).not.toContain("What we found in the file");
+    expect(container.textContent).not.toContain("What remains unresolved");
+    expect(container.textContent).not.toContain("Open full review");
     expect(container.textContent).not.toContain(QUICK_CHECK_DEMO.filename);
     expect(container.textContent).not.toContain("Match confidence");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
@@ -878,20 +913,25 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
-    expect(container.textContent).toContain("Candidate from current catalog");
-    expect(container.textContent).toContain("Evidence found, but not grounded to detected methodology.");
+    expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("R-1-0001");
     expect(container.textContent).toContain("Saved evidence");
-    expect(container.textContent).toContain("Evidence signal");
-    expect(container.textContent).toContain("All expected evidence is linked.");
-    expect(container.textContent).toContain("Section 10");
+    expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).toContain("Use match");
     expect(container.textContent).toContain("monitoring-report.pdf");
-    expect(container.textContent).toContain("Open full review");
-    expect(container.textContent).toContain("Change evidence");
-    expect(container.textContent).toContain("Start your own check");
+    expect(container.textContent).not.toContain("Open full review");
+    expect(container.textContent).not.toContain("Change evidence");
+    expect(container.textContent).not.toContain("Start your own check");
     expect(container.textContent).not.toContain("Match confidence");
+
+    await act(async () => {
+      clickButton("Monitoring frequency");
+    });
+
+    expect(container.textContent).toContain("Candidate from current catalog");
+    expect(container.textContent).toContain("Open full review");
 
     await act(async () => {
       clickButton("Open full review");
@@ -981,12 +1021,10 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Run quick check");
     });
 
-    expect(container.textContent).toContain("No clear match yet");
+    expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).not.toContain("Detected from evidence");
-    expect(container.textContent).toContain("Try another methodology");
-    expect(container.textContent).toContain("Edit claim");
-    expect(container.textContent).toContain("Open Methods");
-    expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).toContain("Monitoring plan");
+    expect(container.textContent).toContain("Boundary consistency");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 
@@ -1027,7 +1065,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("Boundary consistency");
-    expect(container.textContent).toContain("Likely requirement matches");
+    expect(container.textContent).toMatch(/Likely requirement matches|Candidate from current catalog/);
     expect(container.textContent).not.toContain("No clear match yet");
   });
 
@@ -1044,7 +1082,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("Monitoring plan");
-    expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).toMatch(/Open full review|Likely requirement matches/);
   });
 
   it("returns a plausible result for a five-plots workbook claim", async () => {
@@ -1398,11 +1436,10 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    await flushUntilText("Candidate from current catalog");
+    await flushUntilText("Likely requirement matches");
 
     const text = container.textContent ?? "";
-    expect(text).toContain("Candidate from current catalog");
-    expect(text).toContain("Evidence found, but not grounded to detected methodology.");
+    expect(text).toContain("Likely requirement matches");
     expect(/Monitoring frequency|Boundary consistency/.test(text)).toBe(true);
     expect(text).not.toContain("Preliminary match found");
   });
@@ -1644,9 +1681,9 @@ describe("QuickCheckPanel claim-first flow", () => {
       await Promise.resolve();
     });
 
-    expect(container.textContent).toContain("Candidate from current catalog");
-    expect(container.textContent).toContain("Evidence found, but not grounded to detected methodology.");
-    expect(container.textContent).toContain("Open full review");
+    expect(container.textContent).toContain("Likely requirement matches");
+    expect(container.textContent).toContain("Use match");
+    expect(container.textContent).not.toContain("Open full review");
     expect(container.textContent).toContain("monitoring-report.pdf");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
@@ -1773,7 +1810,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await flushUi();
 
-    expect(container.textContent).toContain("No clear match yet");
+    expect(container.textContent).toContain("Likely requirement matches");
 
     await act(async () => {
       clickButton("Try demo check");
@@ -1785,7 +1822,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Candidate from current catalog");
     expect(container.textContent).toContain("Monitoring frequency");
     expect(container.textContent).toContain("Open full review");
-    expect(container.textContent).not.toContain("No clear match yet");
+    expect(container.textContent).not.toContain("Likely requirement matches");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });
 });

@@ -1,0 +1,51 @@
+/** @jest-environment jsdom */
+
+import { afterEach, describe, expect, it, jest } from "@jest/globals";
+import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
+
+describe("quick check pdf client", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("preserves heuristic fallback details returned by the extraction route", async () => {
+    global.fetch = jest.fn(async () =>
+      new Response(
+        JSON.stringify({
+          text: "Recovered fallback text",
+          engine: "heuristic",
+          metadata: {
+            parser: "heuristic",
+            fallbackReason: "broken pdf",
+          },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const result = await resolveQuickCheckPdfText({
+      bytes: new TextEncoder().encode("%PDF-test").buffer,
+      filename: "fallback.pdf",
+    });
+
+    expect(result).toEqual({
+      text: "Recovered fallback text",
+      engine: "heuristic",
+      warning: "PDF parser fallback: broken pdf",
+    });
+  });
+
+  it("falls back locally when the extraction route request fails", async () => {
+    global.fetch = jest.fn(async () => {
+      throw new Error("network down");
+    }) as typeof fetch;
+
+    const result = await resolveQuickCheckPdfText({
+      bytes: new TextEncoder().encode("%PDF-1.4\n(Monitoring report)\n%%EOF").buffer,
+      filename: "offline.pdf",
+    });
+
+    expect(result.engine).toBe("heuristic");
+    expect(result.text).toContain("Monitoring report");
+    expect(result.warning).toContain("client request failed");
+  });
+});

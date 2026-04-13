@@ -52,6 +52,17 @@ type QuickCheckEvidenceSource = {
 };
 
 type ResolveAttachmentBytes = (attachmentId: string) => Promise<ArrayBuffer | null>;
+export type QuickCheckResolvedPdfText = {
+  text: string;
+  engine: "pdf-parse" | "heuristic";
+  warning?: string;
+};
+type ResolvePdfText = (input: {
+  attachmentId: string;
+  filename: string;
+  mime: string;
+  bytes: ArrayBuffer;
+}) => Promise<QuickCheckResolvedPdfText | null>;
 
 type QuickCheckRuleLike = {
   id: string;
@@ -95,8 +106,55 @@ function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
+function normalizeSnippetText(value: string): string {
+  return normalizeWhitespace(
+    value
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/([A-Za-z])(\d)/g, "$1 $2")
+      .replace(/(\d)([A-Za-z])/g, "$1 $2")
+      .replace(/(\d)\s*-\s*(\d)/g, "$1 - $2")
+      .replace(/\s*([,.;:!?])\s*/g, "$1 ")
+      .replace(/\.{3,}/g, "...")
+      .replace(/\b([A-Z]{2,})([A-Z][a-z])/g, "$1 $2"),
+  );
+}
+
+function extractLabeledDetail(text: string, pattern: RegExp, maxLength = 120): string | undefined {
+  const normalized = normalizeSnippetText(text);
+  const flags = pattern.flags.includes("i") ? pattern.flags : `${pattern.flags}i`;
+  const searchPattern = new RegExp(pattern.source, flags.replace(/g/g, ""));
+  const match = searchPattern.exec(normalized);
+  if (!match || typeof match.index !== "number") return undefined;
+
+  const slice = normalized.slice(match.index);
+  const nextSentenceBreak = slice.search(/[.;!?](?:\s|$)/);
+  const candidate =
+    nextSentenceBreak >= 0
+      ? slice.slice(0, nextSentenceBreak + 1)
+      : slice.slice(0, maxLength);
+  const detail = normalizeSnippetText(candidate).replace(/\.{2,}/g, ".").trim();
+  return detail.length > maxLength ? `${detail.slice(0, maxLength - 3).trimEnd()}...` : detail;
+}
+
+function extractReportingPeriodDetail(text: string): string | undefined {
+  const normalized = normalizeSnippetText(text);
+  const explicitDateRange =
+    normalized.match(/\b\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\s*(?:to|-)\s*\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\b/) ??
+    normalized.match(/\b\d{4}\s*Q[1-4]\s*(?:to|-)\s*\d{4}\s*Q[1-4]\b/i);
+
+  if (explicitDateRange?.[0]) {
+    return `Reporting period ${normalizeSnippetText(explicitDateRange[0])}.`;
+  }
+
+  return extractLabeledDetail(normalized, /(reporting period|monitoring period)\s*[:\-]?\s*/i);
+}
+
 function asLower(value: string): string {
   return normalizeWhitespace(value).toLowerCase();
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function stableFactId(input: { sourceLabel: string; category: QuickCheckEvidenceFactCategory; summary: string }): string {
@@ -549,82 +607,117 @@ function classifyDocumentType(source: QuickCheckEvidenceSource): string {
   return "Unknown document";
 }
 
+function extractMatchSnippet(text: string, pattern: RegExp): string | undefined {
+  const flags = pattern.flags.includes("i") ? pattern.flags : `${pattern.flags}i`;
+  const globalSafePattern = new RegExp(pattern.source, flags.replace(/g/g, ""));
+  const match = globalSafePattern.exec(text);
+  if (!match || typeof match.index !== "number") return undefined;
+
+  const start = Math.max(0, match.index - 48);
+  const end = Math.min(text.length, match.index + match[0].length + 72);
+  let snippet = text.slice(start, end);
+  snippet = normalizeSnippetText(snippet);
+  snippet = snippet.replace(new RegExp(`^${escapeRegExp(match[0])}\\s*[:.-]?\\s*`, "i"), `${match[0]} `);
+  if (!snippet) return undefined;
+  if (start > 0) snippet = `...${snippet}`;
+  if (end < text.length) snippet = `${snippet}...`;
+  return snippet.length > 140 ? `${snippet.slice(0, 137).trimEnd()}...` : snippet;
+}
+
 function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEvidenceFact[] {
   const haystack = asLower(text);
   const next = new Map<string, QuickCheckEvidenceFact>();
 
-  if (/(project boundary|boundary description|grouped activity boundary|boundary covers|eligibility boundary)/.test(haystack)) {
+  const boundaryPattern = /(project boundary|boundary description|grouped activity boundary|boundary covers|eligibility boundary)/i;
+  const coordinatesPattern =
+    /(latitude|longitude|coordinates?|lat[./ ]*long|geographic coordinates?|decimal degrees?|\b-?\d{1,3}\.\d{2,}\s*,\s*-?\d{1,3}\.\d{2,}\b)/i;
+  const mappedAreaPattern = /(area of interest|aoi|polygon|mapped area|project area|project geography|geographic area|shape file|shapefile|geojson|boundary map)/i;
+  const locationPattern = /(project location|located in|district|province|municipality|coordinates of the project location|site location)/i;
+  const monitoringPlanPattern = /(monitoring plan|monitoring procedures|monitoring approach|plan for monitoring)/i;
+  const reportingPeriodPattern = /(reporting period|monitoring period|period covered|coverage period|\b20\d{2}\s*[-/]?\s*q[1-4]\b|\bq[1-4]\s*20\d{2}\b)/i;
+  const workbookPattern = /(workbook|spreadsheet|excel)/i;
+  const monitoringEvidencePattern = /(monitoring plan|monitoring report|monitoring records|monitoring data|monitoring procedures)/i;
+  const projectAreaDetail = extractLabeledDetail(text, /(project area|project location)\s*[:\-]?\s*/i);
+  const reportingPeriodDetail = extractReportingPeriodDetail(text);
+  const monitoringClaimDetail = extractLabeledDetail(text, /(claim support|primary claim)\s*[:\-]?\s*/i);
+
+  if (boundaryPattern.test(haystack)) {
     addFact(next, {
       category: "boundary",
       summary: "The project boundary is described in the PDD",
       matchText: "project boundary described",
       sourceLabel,
+      detail: extractLabeledDetail(text, /(project boundary|boundary description)\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, boundaryPattern),
     });
   }
 
-  if (
-    /(latitude|longitude|coordinates?|lat[./ ]*long|geographic coordinates?|decimal degrees?)/.test(haystack) ||
-    /\b-?\d{1,3}\.\d{2,}\s*,\s*-?\d{1,3}\.\d{2,}\b/.test(haystack)
-  ) {
+  if (coordinatesPattern.test(haystack)) {
     addFact(next, {
       category: "coordinates",
       summary: "Project coordinates are present in the PDD",
       matchText: "project coordinates present",
       sourceLabel,
+      detail: extractMatchSnippet(text, coordinatesPattern),
     });
   }
 
-  if (/(area of interest|aoi|polygon|mapped area|project area|project geography|geographic area|shape file|shapefile|geojson|boundary map)/.test(haystack)) {
+  if (mappedAreaPattern.test(haystack)) {
     addFact(next, {
       category: "mapped-area",
       summary: "The PDD references the mapped project area or AOI",
       matchText: "mapped project area referenced",
       sourceLabel,
+      detail: projectAreaDetail ?? extractMatchSnippet(text, mappedAreaPattern),
     });
   }
 
-  if (/(project location|located in|district|province|municipality|coordinates of the project location|site location)/.test(haystack)) {
+  if (locationPattern.test(haystack)) {
     addFact(next, {
       category: "project-location",
       summary: "The project location is described in the PDD",
       matchText: "project location described",
       sourceLabel,
+      detail: projectAreaDetail ?? extractMatchSnippet(text, locationPattern),
     });
   }
 
-  if (/(monitoring plan|monitoring procedures|monitoring approach|plan for monitoring)/.test(haystack)) {
+  if (monitoringPlanPattern.test(haystack)) {
     addFact(next, {
       category: "monitoring-plan",
       summary: "The project has a documented monitoring plan",
       matchText: "documented monitoring plan",
       sourceLabel,
+      detail: extractMatchSnippet(text, monitoringPlanPattern),
     });
   }
 
-  if (/(reporting period|monitoring period|period covered|coverage period|\b20\d{2}\s*[-/]?\s*q[1-4]\b|\bq[1-4]\s*20\d{2}\b)/.test(haystack)) {
+  if (reportingPeriodPattern.test(haystack)) {
     addFact(next, {
       category: "reporting-period",
       summary: "The PDF states a monitoring or reporting period",
       matchText: "reporting period stated",
       sourceLabel,
+      detail: reportingPeriodDetail ?? extractMatchSnippet(text, reportingPeriodPattern),
     });
   }
 
-  if (/(workbook|spreadsheet|excel)/.test(haystack)) {
+  if (workbookPattern.test(haystack)) {
     addFact(next, {
       category: "workbook-reference",
       summary: "The workbook is referenced in the PDD",
       matchText: "workbook referenced in pdd",
       sourceLabel,
+      detail: extractMatchSnippet(text, workbookPattern),
     });
   }
 
-  if (/(monitoring plan|monitoring report|monitoring records|monitoring data|monitoring procedures)/.test(haystack)) {
+  if (monitoringEvidencePattern.test(haystack)) {
     addFact(next, {
       category: "monitoring-evidence",
       summary: "The project has documented monitoring evidence",
       matchText: "documented monitoring evidence",
       sourceLabel,
+      detail: monitoringClaimDetail,
     });
   }
 
@@ -641,7 +734,7 @@ export function classifyQuickCheckClaimIntents(claimText: string): QuickCheckCla
   if (/(^|\W)aoi(\W|$)|area of interest/.test(haystack)) intents.add("aoi");
   if (/(coordinate|latitude|longitude|lat\/long|lat long)/.test(haystack)) intents.add("coordinates");
   if (/(location|located|district|province|municipality|site)/.test(haystack)) intents.add("location");
-  if (/(monitoring plan|monitoring approach|monitoring procedures)/.test(haystack)) intents.add("monitoring-plan");
+  if (/(monitoring plan|monitoring approach|monitoring procedures|monitoring report|reporting period|monitoring period)/.test(haystack)) intents.add("monitoring-plan");
 
   return Array.from(intents).sort((a, b) => a.localeCompare(b));
 }
@@ -731,13 +824,15 @@ function deriveWorkbookFactsFromAsset(asset: WorkbookEvidenceAsset, sourceLabel:
 
 export async function analyzeQuickCheckEvidence(
   sources: QuickCheckEvidenceSource[],
-  options?: { resolveAttachmentBytes?: ResolveAttachmentBytes },
+  options?: { resolveAttachmentBytes?: ResolveAttachmentBytes; resolvePdfText?: ResolvePdfText },
 ): Promise<QuickCheckEvidenceAnalysis> {
   const facts = new Map<string, QuickCheckEvidenceFact>();
   const parsedEvidenceLabels = new Set<string>();
   const documentTypes = new Set<string>();
   const methodologyMentions = new Set<string>();
+  const warningSet = new Set<string>();
   const resolveAttachmentBytes = options?.resolveAttachmentBytes ?? getAttachmentBytes;
+  const resolvePdfText = options?.resolvePdfText;
 
   for (const source of sources) {
     documentTypes.add(classifyDocumentType(source));
@@ -768,7 +863,23 @@ export async function analyzeQuickCheckEvidence(
       if (attachment.mime !== "application/pdf") continue;
       const bytes = await resolveAttachmentBytes(attachment.id).catch(() => null);
       if (!bytes) continue;
-      const text = extractPdfText(bytes);
+      let text = "";
+      if (resolvePdfText) {
+        try {
+          const resolved = await resolvePdfText({
+            attachmentId: attachment.id,
+            filename: attachment.filename,
+            mime: attachment.mime,
+            bytes,
+          });
+          text = resolved?.text ?? "";
+          if (resolved?.warning) warningSet.add(resolved.warning);
+        } catch {
+          text = extractPdfText(bytes);
+        }
+      } else {
+        text = extractPdfText(bytes);
+      }
       if (!text) continue;
       parsedEvidenceLabels.add(source.sourceLabel);
       for (const mention of extractMethodologyMentions(text)) {
@@ -780,7 +891,7 @@ export async function analyzeQuickCheckEvidence(
     }
   }
 
-  const warnings: string[] = [];
+  const warnings = Array.from(warningSet);
   if (!parsedEvidenceLabels.size) {
     warnings.push("We couldn't extract usable text from this file yet.");
   } else if (!facts.size) {

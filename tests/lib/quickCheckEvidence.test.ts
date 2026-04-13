@@ -113,6 +113,100 @@ describe("quick check evidence analysis", () => {
     expect(deriveQuickCheckExtractionState(extraction).value).not.toBe("weak");
   });
 
+  it("produces different extraction preview details for different evidence files", async () => {
+    const malawiPath = path.join(process.cwd(), "tests/fixtures/quick-check/malawi-strong-signal-evidence.pdf");
+    const kenyaPath = path.join(process.cwd(), "tests/fixtures/quick-check/kenya-second-check-evidence.pdf");
+    const malawiBytes = fs.readFileSync(malawiPath);
+    const kenyaBytes = fs.readFileSync(kenyaPath);
+
+    await putAttachmentBytes("att-preview-malawi", asArrayBuffer(malawiBytes));
+    await putAttachmentBytes("att-preview-kenya", asArrayBuffer(kenyaBytes));
+
+    const claimText = "The monitoring report covers the full reporting period and documents monitored stove usage for the project area.";
+
+    const [malawiAnalysis, kenyaAnalysis] = await Promise.all([
+      analyzeQuickCheckEvidence([
+        {
+          evidenceId: "ev-preview-malawi",
+          sourceLabel: "malawi-strong-signal-evidence.pdf",
+          attachments: [
+            {
+              id: "att-preview-malawi",
+              pin_id: "ev-preview-malawi",
+              filename: "malawi-strong-signal-evidence.pdf",
+              mime: "application/pdf",
+              size: malawiBytes.byteLength,
+              sha256: "sha-preview-malawi",
+              created_at: "2026-04-13T00:00:00Z",
+            },
+          ],
+        },
+      ]),
+      analyzeQuickCheckEvidence([
+        {
+          evidenceId: "ev-preview-kenya",
+          sourceLabel: "kenya-second-check-evidence.pdf",
+          attachments: [
+            {
+              id: "att-preview-kenya",
+              pin_id: "ev-preview-kenya",
+              filename: "kenya-second-check-evidence.pdf",
+              mime: "application/pdf",
+              size: kenyaBytes.byteLength,
+              sha256: "sha-preview-kenya",
+              created_at: "2026-04-13T00:00:00Z",
+            },
+          ],
+        },
+      ]),
+    ]);
+
+    const malawiPreview = buildQuickCheckExtractionSnapshot({ claimText, analysis: malawiAnalysis });
+    const kenyaPreview = buildQuickCheckExtractionSnapshot({ claimText, analysis: kenyaAnalysis });
+
+    expect(compactText(malawiPreview.extractedFacts.join(" "))).toContain(compactText("1 January 2025 to 31 December 2025"));
+    expect(compactText(kenyaPreview.extractedFacts.join(" "))).toContain(compactText("1 April 2024 - 31 March 2025"));
+    expect(malawiPreview.extractedFacts).not.toEqual(kenyaPreview.extractedFacts);
+  });
+
+  it("uses clean summaries instead of raw snippets when pdf parsing falls back", async () => {
+    const analysis = await analyzeQuickCheckEvidence([
+      {
+        evidenceId: "ev-fallback-preview",
+        sourceLabel: "fallback.pdf",
+        attachments: [
+          {
+            id: "att-fallback-preview",
+            pin_id: "ev-fallback-preview",
+            filename: "fallback.pdf",
+            mime: "application/pdf",
+            size: 12,
+            sha256: "sha-fallback-preview",
+            created_at: "2026-04-13T00:00:00Z",
+          },
+        ],
+      },
+    ], {
+      resolveAttachmentBytes: async () => new TextEncoder().encode("%PDF-fallback").buffer,
+      resolvePdfText: async () => ({
+        engine: "heuristic",
+        warning: "PDF parser fallback: broken helper",
+        text: "Reporting period 1April2024-31March2025 Project area MakueniCounty andKituiCounty. The monitoring report covers thefull reporting period.",
+      }),
+    });
+
+    const preview = buildQuickCheckExtractionSnapshot({
+      claimText: "The monitoring report covers the full reporting period and documents the project area.",
+      analysis,
+    });
+
+    expect(preview.extractedFacts).toEqual([
+      "The PDD references the mapped project area or AOI: Project area Makueni County and Kitui County.",
+      "The PDF states a monitoring or reporting period: Reporting period 1 April 2024 - 31 March 2025.",
+      "The project has documented monitoring evidence",
+    ]);
+  });
+
   it("extracts grounded PDD facts from uploaded pdf evidence", async () => {
     const bytes = asArrayBuffer(
       new TextEncoder().encode(
@@ -307,5 +401,48 @@ describe("quick check evidence analysis", () => {
 
     expect(analysis.facts).toEqual([]);
     expect(analysis.warnings).toContain("We couldn't extract usable text from this file yet.");
+  });
+
+  it("keeps parsing when the route falls back to the heuristic parser", async () => {
+    const bytes = asArrayBuffer(
+      new TextEncoder().encode(
+        "%PDF-1.4\n1 0 obj\n<< /Length 109 >>\nstream\n(Project area Lilongwe District.)\n(Reporting period 1 January 2025 to 31 December 2025.)\nendstream\nendobj\n%%EOF",
+      ),
+    );
+    await putAttachmentBytes("att-pdf-fallback-1", bytes);
+
+    const analysis = await analyzeQuickCheckEvidence(
+      [
+        {
+          evidenceId: "ev-pdf-fallback-1",
+          sourceLabel: "fallback.pdf",
+          attachments: [
+            {
+              id: "att-pdf-fallback-1",
+              pin_id: "ev-pdf-fallback-1",
+              filename: "fallback.pdf",
+              mime: "application/pdf",
+              size: bytes.byteLength,
+              sha256: "sha-pdf-fallback-1",
+              created_at: "2026-04-12T00:00:00Z",
+            },
+          ],
+        },
+      ],
+      {
+        resolvePdfText: async ({ bytes: pdfBytes }) => ({
+          text: extractPdfText(pdfBytes),
+          engine: "heuristic",
+        }),
+      },
+    );
+
+    expect(analysis.facts.map((fact) => fact.summary)).toEqual(
+      expect.arrayContaining([
+        "The project location is described in the PDD",
+        "The PDF states a monitoring or reporting period",
+      ]),
+    );
+    expect(analysis.warnings).not.toContain(expect.stringContaining("fallback parser"));
   });
 });

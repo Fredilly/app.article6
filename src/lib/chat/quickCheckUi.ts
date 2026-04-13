@@ -40,6 +40,26 @@ function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
+function formatFactPreview(fact: QuickCheckEvidenceFact, options?: { useDetail?: boolean }): string {
+  const detail = fact.detail?.trim();
+  if (!options?.useDetail || !detail) return fact.summary;
+  return `${fact.summary}: ${detail}`;
+}
+
+function previewPriority(fact: QuickCheckEvidenceFact): number {
+  if (fact.category === "reporting-period") return 0;
+  if (fact.category === "project-location") return 1;
+  if (fact.category === "mapped-area") return 2;
+  if (fact.category === "monitoring-evidence") return 3;
+  if (fact.category === "monitoring-plan") return 4;
+  if (fact.category === "boundary") return 5;
+  if (fact.category === "coordinates") return 6;
+  if (fact.category === "workbook-reference") return 7;
+  if (fact.category === "monitoring-records") return 8;
+  if (fact.category === "plot-count") return 9;
+  return 10;
+}
+
 function normalizeSignals(extraction: QuickCheckExtractionSnapshot): QuickCheckExtractionSignals {
   return {
     parsedEvidenceCount: Math.max(0, extraction.signals?.parsedEvidenceCount ?? (extraction.extractedFacts.length || extraction.methodologyMentions.length ? 1 : 0)),
@@ -79,9 +99,15 @@ function pickRelevantFacts(claimText: string, analysis: QuickCheckEvidenceAnalys
   const preferredCategories = categoriesForClaim(claimText);
   const prioritized = preferredCategories.size
     ? analysis.facts.filter((fact) => preferredCategories.has(fact.category))
-    : analysis.facts;
+    : [...analysis.facts].sort(
+        (left, right) =>
+          previewPriority(left) - previewPriority(right) ||
+          Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
+          left.summary.localeCompare(right.summary),
+      );
   const selected = prioritized.length ? prioritized : analysis.facts;
-  return dedupe(selected.slice(0, 4).map((fact) => fact.summary));
+  const useDetail = true;
+  return dedupe(selected.slice(0, 4).map((fact) => formatFactPreview(fact, { useDetail })));
 }
 
 export function buildQuickCheckExtractionSnapshot(input: {
