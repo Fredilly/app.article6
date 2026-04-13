@@ -44,6 +44,9 @@ jobs:
           NEXT_PUBLIC_ENABLE_AUDIT: 'true'
         run: npm run build
 
+      - name: Verify quick-check PDF trace
+        run: npm run check:quick-check-pdf-trace
+
       - name: Ensure manifest not empty
         run: npm run check:manifest
 
