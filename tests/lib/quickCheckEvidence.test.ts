@@ -200,7 +200,11 @@ describe("quick check evidence analysis", () => {
       analysis,
     });
 
-    expect(preview.extractedFacts).toEqual(["The PDD references the mapped project area or AOI"]);
+    expect(preview.extractedFacts).toEqual([
+      "The PDD references the mapped project area or AOI: Project area Makueni County and Kitui County.",
+      "The PDF states a monitoring or reporting period: Reporting period 1 April 2024 - 31 March 2025.",
+      "The project has documented monitoring evidence",
+    ]);
   });
 
   it("extracts grounded PDD facts from uploaded pdf evidence", async () => {

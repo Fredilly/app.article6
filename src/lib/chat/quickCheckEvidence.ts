@@ -112,10 +112,41 @@ function normalizeSnippetText(value: string): string {
       .replace(/([a-z])([A-Z])/g, "$1 $2")
       .replace(/([A-Za-z])(\d)/g, "$1 $2")
       .replace(/(\d)([A-Za-z])/g, "$1 $2")
+      .replace(/(\d)\s*-\s*(\d)/g, "$1 - $2")
       .replace(/\s*([,.;:!?])\s*/g, "$1 ")
       .replace(/\.{3,}/g, "...")
       .replace(/\b([A-Z]{2,})([A-Z][a-z])/g, "$1 $2"),
   );
+}
+
+function extractLabeledDetail(text: string, pattern: RegExp, maxLength = 120): string | undefined {
+  const normalized = normalizeSnippetText(text);
+  const flags = pattern.flags.includes("i") ? pattern.flags : `${pattern.flags}i`;
+  const searchPattern = new RegExp(pattern.source, flags.replace(/g/g, ""));
+  const match = searchPattern.exec(normalized);
+  if (!match || typeof match.index !== "number") return undefined;
+
+  const slice = normalized.slice(match.index);
+  const nextSentenceBreak = slice.search(/[.;!?](?:\s|$)/);
+  const candidate =
+    nextSentenceBreak >= 0
+      ? slice.slice(0, nextSentenceBreak + 1)
+      : slice.slice(0, maxLength);
+  const detail = normalizeSnippetText(candidate).replace(/\.{2,}/g, ".").trim();
+  return detail.length > maxLength ? `${detail.slice(0, maxLength - 3).trimEnd()}...` : detail;
+}
+
+function extractReportingPeriodDetail(text: string): string | undefined {
+  const normalized = normalizeSnippetText(text);
+  const explicitDateRange =
+    normalized.match(/\b\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\s*(?:to|-)\s*\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\b/) ??
+    normalized.match(/\b\d{4}\s*Q[1-4]\s*(?:to|-)\s*\d{4}\s*Q[1-4]\b/i);
+
+  if (explicitDateRange?.[0]) {
+    return `Reporting period ${normalizeSnippetText(explicitDateRange[0])}.`;
+  }
+
+  return extractLabeledDetail(normalized, /(reporting period|monitoring period)\s*[:\-]?\s*/i);
 }
 
 function asLower(value: string): string {
@@ -606,6 +637,9 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
   const reportingPeriodPattern = /(reporting period|monitoring period|period covered|coverage period|\b20\d{2}\s*[-/]?\s*q[1-4]\b|\bq[1-4]\s*20\d{2}\b)/i;
   const workbookPattern = /(workbook|spreadsheet|excel)/i;
   const monitoringEvidencePattern = /(monitoring plan|monitoring report|monitoring records|monitoring data|monitoring procedures)/i;
+  const projectAreaDetail = extractLabeledDetail(text, /(project area|project location)\s*[:\-]?\s*/i);
+  const reportingPeriodDetail = extractReportingPeriodDetail(text);
+  const monitoringClaimDetail = extractLabeledDetail(text, /(claim support|primary claim)\s*[:\-]?\s*/i);
 
   if (boundaryPattern.test(haystack)) {
     addFact(next, {
@@ -613,7 +647,7 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
       summary: "The project boundary is described in the PDD",
       matchText: "project boundary described",
       sourceLabel,
-      detail: extractMatchSnippet(text, boundaryPattern),
+      detail: extractLabeledDetail(text, /(project boundary|boundary description)\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, boundaryPattern),
     });
   }
 
@@ -633,7 +667,7 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
       summary: "The PDD references the mapped project area or AOI",
       matchText: "mapped project area referenced",
       sourceLabel,
-      detail: extractMatchSnippet(text, mappedAreaPattern),
+      detail: projectAreaDetail ?? extractMatchSnippet(text, mappedAreaPattern),
     });
   }
 
@@ -643,7 +677,7 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
       summary: "The project location is described in the PDD",
       matchText: "project location described",
       sourceLabel,
-      detail: extractMatchSnippet(text, locationPattern),
+      detail: projectAreaDetail ?? extractMatchSnippet(text, locationPattern),
     });
   }
 
@@ -663,7 +697,7 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
       summary: "The PDF states a monitoring or reporting period",
       matchText: "reporting period stated",
       sourceLabel,
-      detail: extractMatchSnippet(text, reportingPeriodPattern),
+      detail: reportingPeriodDetail ?? extractMatchSnippet(text, reportingPeriodPattern),
     });
   }
 
@@ -683,7 +717,7 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
       summary: "The project has documented monitoring evidence",
       matchText: "documented monitoring evidence",
       sourceLabel,
-      detail: extractMatchSnippet(text, monitoringEvidencePattern),
+      detail: monitoringClaimDetail,
     });
   }
 
@@ -700,7 +734,7 @@ export function classifyQuickCheckClaimIntents(claimText: string): QuickCheckCla
   if (/(^|\W)aoi(\W|$)|area of interest/.test(haystack)) intents.add("aoi");
   if (/(coordinate|latitude|longitude|lat\/long|lat long)/.test(haystack)) intents.add("coordinates");
   if (/(location|located|district|province|municipality|site)/.test(haystack)) intents.add("location");
-  if (/(monitoring plan|monitoring approach|monitoring procedures)/.test(haystack)) intents.add("monitoring-plan");
+  if (/(monitoring plan|monitoring approach|monitoring procedures|monitoring report|reporting period|monitoring period)/.test(haystack)) intents.add("monitoring-plan");
 
   return Array.from(intents).sort((a, b) => a.localeCompare(b));
 }
