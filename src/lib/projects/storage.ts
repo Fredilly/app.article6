@@ -70,6 +70,8 @@ export function updateRuleReview(
   const project = projects.find(p => p.id === projectId);
   if (!project) return undefined;
 
+  if (project.status === 'finalized') return undefined;
+
   const review = project.reviews.find(r => r.ruleId === ruleId);
   if (!review) return undefined;
 

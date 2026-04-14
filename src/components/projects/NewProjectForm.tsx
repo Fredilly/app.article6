@@ -19,6 +19,7 @@ export default function NewProjectForm() {
   const [aoiLabel, setAoiLabel] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetch('/api/projects/methods')
@@ -32,25 +33,38 @@ export default function NewProjectForm() {
     if (!name || !selectedMethod) return;
 
     setLoading(true);
+    setError('');
     const [code, version] = selectedMethod.split('@');
 
-    const rulesRes = await fetch(`/api/projects/method-rules?code=${code}&version=${version}`);
-    const rulesData = await rulesRes.json();
+    try {
+      const rulesRes = await fetch(`/api/projects/method-rules?code=${code}&version=${version}`);
+      const rulesData = await rulesRes.json();
+      const rules = (rulesData.rules || []).filter((r: { id?: string }) => r.id);
 
-    const project = createProject({
-      name,
-      methodCode: code,
-      methodVersion: version,
-      aoiLabel: aoiLabel || undefined,
-      description: description || undefined,
-      ruleIds: (rulesData.rules || []).map((r: { id: string; title: string; sectionId?: string }) => ({
-        id: r.id,
-        title: r.title,
-        sectionId: r.sectionId || '',
-      })),
-    });
+      if (rules.length === 0) {
+        setError('No rules found for this methodology. Cannot create project.');
+        setLoading(false);
+        return;
+      }
 
-    router.push(`/projects/${project.id}`);
+      const project = createProject({
+        name,
+        methodCode: code,
+        methodVersion: version,
+        aoiLabel: aoiLabel || undefined,
+        description: description || undefined,
+        ruleIds: rules.map((r: { id: string; title: string; sectionId?: string }) => ({
+          id: r.id,
+          title: r.title,
+          sectionId: r.sectionId || '',
+        })),
+      });
+
+      router.push(`/projects/${project.id}`);
+    } catch {
+      setError('Failed to load methodology rules. Try again.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,6 +75,12 @@ export default function NewProjectForm() {
           Create a verification project tied to a methodology
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
