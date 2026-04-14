@@ -24,7 +24,7 @@ function buildHtml(project: Project, coverage: ProjectCoverage): string {
   };
 
   const rows = Object.entries(grouped)
-    .map(([sectionId, reviews]) =>
+    .map(([_sectionId, reviews]) =>
       reviews
         .map(
           r => `<tr>
