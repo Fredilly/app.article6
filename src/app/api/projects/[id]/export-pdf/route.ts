@@ -1,128 +1,10 @@
 import { NextResponse } from 'next/server';
-import { execFile } from 'node:child_process';
-import { writeFile, unlink } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import type { Project, ProjectCoverage, RuleReview } from '@/lib/projects/types';
+import type { Project, RuleReview, ProjectCoverage } from '@/lib/projects/types';
 
 export const runtime = 'nodejs';
 
-function buildHtml(project: Project, coverage: ProjectCoverage): string {
-  const now = new Date().toISOString();
-  const grouped = project.reviews.reduce((acc, r) => {
-    if (!acc[r.sectionId]) acc[r.sectionId] = [];
-    acc[r.sectionId].push(r);
-    return acc;
-  }, {} as Record<string, RuleReview[]>);
-
-  const statusColor = (s: string) => {
-    if (s === 'verified') return '#16a34a';
-    if (s === 'gap') return '#dc2626';
-    if (s === 'not-applicable') return '#94a3b8';
-    if (s === 'in-progress') return '#f59e0b';
-    return '#64748b';
-  };
-
-  const rows = Object.values(grouped)
-    .map((reviews) =>
-      reviews
-        .map(
-          r => `<tr>
-            <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;font-size:11px">${r.ruleId}</td>
-            <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;font-size:11px">${esc(r.ruleTitle)}</td>
-            <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;color:${statusColor(r.status)};font-weight:600">${r.status}</td>
-          </tr>`
-        )
-        .join('')
-    )
-    .join('');
-
-  const gaps = project.reviews
-    .filter(r => r.status === 'gap' || r.status === 'not-started')
-    .map(
-      r => `<tr>
-        <td style="padding:6px 8px;border-bottom:1px solid #fee2e2;font-size:11px;color:${statusColor(r.status)}">${r.status}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #fee2e2;font-size:11px">${esc(r.ruleTitle)}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #fee2e2;font-size:11px">${r.sectionId}</td>
-      </tr>`
-    )
-    .join('');
-
-  return `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><style>
-  body{font-family:Helvetica,Arial,sans-serif;margin:40px;color:#1e293b}
-  h1{font-size:22px;margin:0 0 4px}
-  h2{font-size:16px;margin:28px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:4px}
-  table{width:100%;border-collapse:collapse;margin:8px 0}
-  th{background:#f1f5f9;text-align:left;padding:8px;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
-  .meta{font-size:12px;color:#64748b;margin:2px 0}
-  .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
-  .badge-locked{background:#dbeafe;color:#2563eb}
-  .badge-inprogress{background:#fef3c7;color:#d97706}
-  .cover{text-align:center;padding:80px 0}
-  .cover h1{font-size:28px}
-  .stats{display:flex;gap:16px;margin:12px 0}
-  .stat{text-align:center;padding:12px 20px;border:1px solid #e2e8f0;border-radius:8px}
-  .stat-val{font-size:24px;font-weight:700}
-  .stat-label{font-size:11px;color:#64748b}
-</style></head>
-<body>
-
-<div class="cover">
-  <h1>${esc(project.name)}</h1>
-  <p class="meta">${esc(project.methodCode)} @ ${esc(project.methodVersion)}</p>
-  ${project.aoiLabel ? `<p class="meta">AOI: ${esc(project.aoiLabel)}</p>` : ''}
-  <p class="meta">Generated: ${now}</p>
-  <p><span class="badge ${project.status === 'locked' ? 'badge-locked' : 'badge-inprogress'}">${project.status.toUpperCase()}</span></p>
-</div>
-
-<div style="page-break-before:always">
-<h2>Coverage Summary</h2>
-<div class="stats">
-  <div class="stat"><div class="stat-val" style="color:#16a34a">${coverage.verified}</div><div class="stat-label">Verified</div></div>
-  <div class="stat"><div class="stat-val" style="color:#dc2626">${coverage.gap}</div><div class="stat-label">Gaps</div></div>
-  <div class="stat"><div class="stat-val" style="color:#f59e0b">${coverage.inProgress}</div><div class="stat-label">In Progress</div></div>
-  <div class="stat"><div class="stat-val">${coverage.notStarted}</div><div class="stat-label">Pending</div></div>
-  <div class="stat"><div class="stat-val" style="color:#94a3b8">${coverage.notApplicable}</div><div class="stat-label">N/A</div></div>
-</div>
-<p style="font-size:12px"><strong>${coverage.percentComplete}%</strong> of actionable rules reviewed</p>
-</div>
-
-<div style="page-break-before:always">
-<h2>Requirement Coverage Matrix</h2>
-<table>
-  <tr><th>Rule ID</th><th>Title</th><th>Status</th></tr>
-  ${rows}
-</table>
-</div>
-
-${gaps ? `<div style="page-break-before:always">
-<h2>Gap Summary</h2>
-<p style="font-size:11px;color:#64748b">Rules marked as gap or not-started</p>
-<table>
-  <tr><th>Status</th><th>Rule</th><th>Section</th></tr>
-  ${gaps}
-</table>
-</div>` : ''}
-
-<div style="page-break-before:always">
-<h2>Provenance</h2>
-<table>
-  <tr><td style="padding:6px 8px;font-size:11px;font-weight:600">Project ID</td><td style="padding:6px 8px;font-size:11px">${project.id}</td></tr>
-  <tr><td style="padding:6px 8px;font-size:11px;font-weight:600">Methodology</td><td style="padding:6px 8px;font-size:11px">${esc(project.methodCode)} @ ${esc(project.methodVersion)}</td></tr>
-  <tr><td style="padding:6px 8px;font-size:11px;font-weight:600">Created</td><td style="padding:6px 8px;font-size:11px">${project.createdAt}</td></tr>
-  <tr><td style="padding:6px 8px;font-size:11px;font-weight:600">Status</td><td style="padding:6px 8px;font-size:11px">${project.status}</td></tr>
-  <tr><td style="padding:6px 8px;font-size:11px;font-weight:600">Export Time</td><td style="padding:6px 8px;font-size:11px">${now}</td></tr>
-  <tr><td style="padding:6px 8px;font-size:11px;font-weight:600">Rules Reviewed</td><td style="padding:6px 8px;font-size:11px">${coverage.verified + coverage.gap} / ${coverage.total}</td></tr>
-</table>
-</div>
-
-</body></html>`;
-}
-
 function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 }
 
 function getCoverage(reviews: RuleReview[]): ProjectCoverage {
@@ -137,13 +19,79 @@ function getCoverage(reviews: RuleReview[]): ProjectCoverage {
   return { total, verified, gap, notStarted, notApplicable, inProgress, percentComplete };
 }
 
-function wkhtmltopdf(htmlPath: string, pdfPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    execFile('wkhtmltopdf', ['--quiet', '--encoding', 'utf-8', htmlPath, pdfPath], (err) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
+function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
+  const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+  const lines: string[] = [];
+
+  // Cover page
+  lines.push('/F1 24 Tf', '72 700 Td', `(${esc(project.name)}) Tj`);
+  lines.push('/F1 12 Tf', '0 -30 Td', `(${esc(project.methodCode)} @ ${esc(project.methodVersion)}) Tj`);
+  lines.push('0 -18 Td', `(Status: ${esc(project.status.toUpperCase())}) Tj`);
+  lines.push('0 -18 Td', `(Generated: ${now}) Tj`);
+  if (project.aoiLabel) {
+    lines.push('0 -18 Td', `(AOI: ${esc(project.aoiLabel)}) Tj`);
+  }
+
+  // Coverage
+  lines.push('0 -40 Td', '/F1 16 Tf', '(Coverage Summary) Tj', '/F1 10 Tf');
+  lines.push('0 -20 Td', `(Verified: ${coverage.verified}    Gaps: ${coverage.gap}    In Progress: ${coverage.inProgress}) Tj`);
+  lines.push('0 -14 Td', `(Pending: ${coverage.notStarted}    N/A: ${coverage.notApplicable}) Tj`);
+  lines.push('0 -14 Td', `(${coverage.percentComplete}% of actionable rules reviewed) Tj`);
+
+  // Matrix header
+  lines.push('0 -30 Td', '/F1 14 Tf', '(Requirement Coverage Matrix) Tj', '/F1 8 Tf');
+
+  // Matrix rows
+  let y = 680;
+  for (const r of project.reviews) {
+    if (y < 60) break; // safety
+    const status = r.status === 'verified' ? 'V' : r.status === 'gap' ? 'G' : r.status === 'not-applicable' ? 'N/A' : r.status === 'in-progress' ? 'IP' : '-';
+    const title = r.ruleTitle.length > 50 ? r.ruleTitle.slice(0, 47) + '...' : r.ruleTitle;
+    lines.push(`0 -11 Td`, `(${esc(r.ruleId)}  ${status}  ${esc(title)}) Tj`);
+    y -= 11;
+  }
+
+  // Gap summary
+  const gaps = project.reviews.filter(r => r.status === 'gap' || r.status === 'not-started');
+  if (gaps.length > 0) {
+    lines.push('/F1 14 Tf', '0 -24 Td', '(Gap Summary) Tj', '/F1 8 Tf');
+    for (const r of gaps) {
+      lines.push('0 -11 Td', `(${esc(r.ruleId)}  ${esc(r.status)}  ${esc(r.ruleTitle)}) Tj`);
+    }
+  }
+
+  // Provenance
+  lines.push('/F1 14 Tf', '0 -24 Td', '(Provenance) Tj', '/F1 9 Tf');
+  lines.push('0 -16 Td', `(Project: ${esc(project.id)}) Tj`);
+  lines.push('0 -12 Td', `(Method: ${esc(project.methodCode)} @ ${esc(project.methodVersion)}) Tj`);
+  lines.push('0 -12 Td', `(Created: ${project.createdAt}) Tj`);
+  lines.push('0 -12 Td', `(Export: ${now}) Tj`);
+
+  const stream = ['BT', ...lines, 'ET'].join('\n');
+
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
+    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+  ];
+
+  let pdf = '%PDF-1.4\n';
+  const offsets: number[] = [0];
+  for (const object of objects) {
+    offsets.push(pdf.length);
+    pdf += `${offsets.length} 0 obj\n${object}\nendobj\n`;
+  }
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n`;
+  pdf += '0000000000 65535 f \n';
+  for (let i = 1; i <= objects.length; i++) {
+    pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+
+  return new TextEncoder().encode(pdf);
 }
 
 export async function POST(request: Request) {
@@ -156,22 +104,10 @@ export async function POST(request: Request) {
     }
 
     const coverage = getCoverage(project.reviews);
-    const html = buildHtml(project, coverage);
-    const tmpDir = tmpdir();
-    const htmlPath = join(tmpDir, `pack-${project.id}.html`);
-    const pdfPath = join(tmpDir, `pack-${project.id}.pdf`);
-
-    await writeFile(htmlPath, html, 'utf8');
-    await wkhtmltopdf(htmlPath, pdfPath);
-
-    const { readFile } = await import('node:fs/promises');
-    const pdf = await readFile(pdfPath);
-
-    await unlink(htmlPath).catch(() => {});
-    await unlink(pdfPath).catch(() => {});
-
+    const pdf = buildPdf(project, coverage);
     const filename = `verification-pack-${project.methodCode}-${project.id.slice(0, 8)}.pdf`;
-    return new NextResponse(new Uint8Array(pdf), {
+
+    return new NextResponse(pdf, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
