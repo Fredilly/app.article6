@@ -25,11 +25,19 @@ function sym(s: string): string {
   return '\u25CB';
 }
 
-function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
+export function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const W = 612, TOP = 760, BOT = 50, L = 56, R = W - 56;
   const LN = (y: number) => `0.85 G ${L} ${y} m ${R} ${y} l S 0 G`;
   const RC = (x: number, y: number, w: number, h: number, g: number) => `${g} g ${x} ${y} ${w} ${h} re f 0 g`;
+  const TXT = (x: number, y: number, font: 'F1' | 'FB', size: number, text: string, color = '0 0 0 rg') => [
+    'BT',
+    `/${font} ${size} Tf`,
+    color,
+    `${x} ${y} Td`,
+    `(${esc(text)}) Tj`,
+    'ET',
+  ];
 
   // Collect streams per page
   const streams: string[] = [];
@@ -41,10 +49,9 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
     if (ln.length === 0) return;
     const hdr = [
       RC(0, TOP + 8, W, 24, 0.95), LN(TOP + 8),
-      '/FB 9 Tf', '0.4 0.4 0.4 rg',
-      `${L} ${TOP + 12} Td`, '(app.article6) Tj',
-      '/F1 8 Tf', `(${esc(project.name)}) Tj`,
-      `/F1 8 Tf`, `(  p.${pg + 2}) Tj`, '0 g',
+      ...TXT(L, TOP + 12, 'FB', 9, 'app.article6', '0.4 0.4 0.4 rg'),
+      ...TXT(L + 84, TOP + 12, 'F1', 8, project.name, '0.25 0.25 0.25 rg'),
+      ...TXT(R - 32, TOP + 12, 'F1', 8, `p.${pg + 1}`, '0.4 0.4 0.4 rg'),
     ];
     streams.push([...hdr, ...ln].join('\n'));
     ln = [];
@@ -56,18 +63,16 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
   function sec(label: string): void {
     need(40);
     ln.push(RC(L, y - 2, R - L, 18, 0.96),
-      '/FB 10 Tf', '0.25 0.25 0.25 rg',
-      `${L + 8} ${y} Td`, `(${esc(label)}) Tj`, '0 g');
+      ...TXT(L + 8, y, 'FB', 10, label, '0.25 0.25 0.25 rg'));
     y -= 28;
   }
 
   function cols(): void {
     need(20);
     ln.push(LN(y + 4),
-      '/FB 7 Tf', '0.55 0.55 0.55 rg',
-      `${L} ${y} Td`, '(RULE) Tj',
-      '160 0 Td', '(TITLE) Tj',
-      '340 0 Td', '(STATUS) Tj', '0 g');
+      ...TXT(L, y, 'FB', 7, 'RULE', '0.55 0.55 0.55 rg'),
+      ...TXT(L + 160, y, 'FB', 7, 'TITLE', '0.55 0.55 0.55 rg'),
+      ...TXT(L + 340, y, 'FB', 7, 'STATUS', '0.55 0.55 0.55 rg'));
     y -= 18;
   }
 
@@ -82,9 +87,10 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
   ];
   let cx = L;
   for (const [label, val, color] of items) {
-    ln.push('/FB 18 Tf', `${color} rg`,
-      `${cx} ${y} Td`, `(${val}) Tj`, '0 g',
-      '/F1 7 Tf', '0 -14 Td', `(${label}) Tj`, '0 14 Td');
+    ln.push(
+      ...TXT(cx, y, 'FB', 18, String(val), `${color} rg`),
+      ...TXT(cx, y - 14, 'F1', 7, String(label), '0.45 0.45 0.45 rg'),
+    );
     cx += 96;
   }
   y -= 40;
@@ -102,20 +108,29 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
   for (const [sid, reviews] of Object.entries(grouped)) {
     sec(sid);
     cols();
-    for (const r of reviews) {
+    for (const [index, r] of reviews.entries()) {
       need(16);
       const t = r.ruleTitle.length > 48 ? r.ruleTitle.slice(0, 45) + '...' : r.ruleTitle;
-      const alt = reviews.indexOf(r) % 2 === 1;
+      const alt = index % 2 === 1;
       if (alt) ln.push(RC(L, y - 2, R - L, 14, 0.97));
-      const sg = r.status === 'verified' ? 0.3 : r.status === 'gap' ? 0.5 : 0.7;
-      ln.push('/F1 8 Tf', '0.4 0.4 0.4 rg',
-        `${L} ${y} Td`, `(${esc(r.ruleId)}) Tj`, '0 g',
-        '0.15 0.15 0.15 rg',
-        `110 0 Td`, `(${esc(t)}) Tj`, '0 g',
-        `${sg} ${sg} ${sg} g`,
-        `340 0 Td`, `(${sym(r.status)}) Tj`,
-        `8 0 Td`, '/FB 7 Tf',
-        `(${esc(r.status === 'not-started' ? 'PENDING' : r.status.toUpperCase())}) Tj`, '0 g');
+      const statusColor = r.status === 'verified'
+        ? '0.2 0.55 0.3 rg'
+        : r.status === 'gap'
+          ? '0.75 0.2 0.2 rg'
+          : '0.45 0.45 0.45 rg';
+      ln.push(
+        ...TXT(L, y, 'F1', 8, r.ruleId, '0.4 0.4 0.4 rg'),
+        ...TXT(L + 110, y, 'F1', 8, t, '0.15 0.15 0.15 rg'),
+        ...TXT(L + 340, y, 'F1', 8, sym(r.status), statusColor),
+        ...TXT(
+          L + 352,
+          y,
+          'FB',
+          7,
+          r.status === 'not-started' ? 'PENDING' : r.status.toUpperCase(),
+          statusColor,
+        ),
+      );
       y -= 16;
     }
     y -= 8;
@@ -129,12 +144,11 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
     for (const r of gaps) {
       need(16);
       const t = r.ruleTitle.length > 48 ? r.ruleTitle.slice(0, 45) + '...' : r.ruleTitle;
-      ln.push('/F1 8 Tf', '0.4 0.4 0.4 rg',
-        `${L} ${y} Td`, `(${esc(r.ruleId)}) Tj`, '0 g',
-        '0.15 0.15 0.15 rg',
-        `110 0 Td`, `(${esc(t)}) Tj`, '0 g',
-        '0.5 0.5 0.5 g',
-        `340 0 Td`, `(${esc(r.status)}) Tj`, '0 g');
+      ln.push(
+        ...TXT(L, y, 'F1', 8, r.ruleId, '0.4 0.4 0.4 rg'),
+        ...TXT(L + 110, y, 'F1', 8, t, '0.15 0.15 0.15 rg'),
+        ...TXT(L + 340, y, 'F1', 8, r.status, '0.5 0.5 0.5 rg'),
+      );
       y -= 16;
     }
     y -= 8;
@@ -146,16 +160,17 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
     ['Created', project.createdAt], ['Status', project.status], ['Export', now],
     ['Reviewed', `${coverage.verified + coverage.gap} / ${coverage.total}`]]) {
     need(18);
-    ln.push('/FB 8 Tf', '0.4 0.4 0.4 rg',
-      `${L} ${y} Td`, `(${esc(k)}) Tj`, '0 g',
-      '/F1 8 Tf', '0.15 0.15 0.15 rg',
-      `140 0 Td`, `(${esc(String(v))}) Tj`, '0 g');
+    ln.push(
+      ...TXT(L, y, 'FB', 8, String(k), '0.4 0.4 0.4 rg'),
+      ...TXT(L + 140, y, 'F1', 8, String(v), '0.15 0.15 0.15 rg'),
+    );
     y -= 16;
   }
   need(30);
-  ln.push(LN(y), '/F1 7 Tf', '0.7 0.7 0.7 rg',
-    `${L} ${y - 12} Td`,
-    '(Generated by app.article6 -- not a formal certification opinion.) Tj', '0 g');
+  ln.push(
+    LN(y),
+    ...TXT(L, y - 12, 'F1', 7, 'Generated by app.article6 -- not a formal certification opinion.', '0.7 0.7 0.7 rg'),
+  );
   flush();
 
   // --- Assemble PDF ---
@@ -193,7 +208,7 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
   }
 
   allObjs.push(`<< /Type /Catalog /Pages ${pgsNum} 0 R >>`);
-  allObjs.push(`<< /Type /Pages /Kids [${pageObjNums.join(' ')}] /Count ${streams.length} >>`);
+  allObjs.push(`<< /Type /Pages /Kids [${pageObjNums.map((num) => `${num} 0 R`).join(' ')}] /Count ${streams.length} >>`);
 
   for (let i = 0; i < allObjs.length; i++) {
     offsets.push(pos);
