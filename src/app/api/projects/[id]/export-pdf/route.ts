@@ -23,8 +23,8 @@ function buildHtml(project: Project, coverage: ProjectCoverage): string {
     return '#64748b';
   };
 
-  const rows = Object.entries(grouped)
-    .map(([_sectionId, reviews]) =>
+  const rows = Object.values(grouped)
+    .map((reviews) =>
       reviews
         .map(
           r => `<tr>
