@@ -130,7 +130,7 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
     // Add header bar and page number to content pages
     const header = [
       rect(0, TOP + 8, W, 24, 0.95),
-      hLine(TOP + 8, 0.88),
+      hLine(TOP + 8),
       '/FB 9 Tf',
       `0.4 0.4 0.4 rg`,
       `${L} ${TOP + 12} Td`,
@@ -173,7 +173,7 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   function columnHeaders(): void {
     needSpace(20);
     pageLines.push(
-      hLine(y + 4, 0.82),
+      hLine(y + 4),
       '/FB 7 Tf',
       `0.55 0.55 0.55 rg`,
       `${L} ${y} Td`,
@@ -324,7 +324,7 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   // Disclaimer
   needSpace(30);
   pageLines.push(
-    hLine(y, 0.9),
+    hLine(y),
     '/F1 7 Tf',
     `0.7 0.7 0.7 rg`,
     `${L} ${y - 12} Td`,
