@@ -42,6 +42,7 @@ export async function POST(request: Request) {
     const coverage = getCoverage(project.reviews);
     const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
     const filename = `verification-pack-${project.methodCode}-${project.id.slice(0, 8)}.html`;
+    const autoPrint = '<script>window.onload=function(){window.print();}</script>';
 
     const grouped = project.reviews.reduce((acc, r) => {
       if (!acc[r.sectionId]) acc[r.sectionId] = [];
@@ -182,7 +183,7 @@ ${gaps.length > 0 ? `<!-- GAPS -->
 
 </body></html>`;
 
-    return new NextResponse(html, {
+    return new NextResponse(html + autoPrint, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Content-Disposition': `inline; filename="${filename}"`,
