@@ -172,6 +172,13 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
   const allObjs: string[] = [];
   const pageObjNums: number[] = [];
 
+  // Catalog and Pages will be objects AFTER all page content
+  // First, count total objects to know page parent number
+  let totalAfter = 0;
+  for (let i = 0; i < streams.length; i++) totalAfter += 4; // fontR, fontB, stream, page
+  const catNum = totalAfter + 1;
+  const pgsNum = totalAfter + 2;
+
   for (let i = 0; i < streams.length; i++) {
     const stream = streams[i];
     const fR = allObjs.length + 1;
@@ -181,12 +188,10 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Buffer {
     allObjs.push(`<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>`);
     allObjs.push(`<< /Length ${enc(stream).length} >>\nstream\n${stream}\nendstream`);
     const pn = allObjs.length + 1;
-    allObjs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} 792] /Resources << /Font << /F1 ${fR} 0 R /FB ${fB} 0 R >> >> /Contents ${cs} 0 R >>`);
+    allObjs.push(`<< /Type /Page /Parent ${pgsNum} 0 R /MediaBox [0 0 ${W} 792] /Resources << /Font << /F1 ${fR} 0 R /FB ${fB} 0 R >> >> /Contents ${cs} 0 R >>`);
     pageObjNums.push(pn);
   }
 
-  const catNum = allObjs.length + 1;
-  const pgsNum = allObjs.length + 2;
   allObjs.push(`<< /Type /Catalog /Pages ${pgsNum} 0 R >>`);
   allObjs.push(`<< /Type /Pages /Kids [${pageObjNums.join(' ')}] /Count ${streams.length} >>`);
 
