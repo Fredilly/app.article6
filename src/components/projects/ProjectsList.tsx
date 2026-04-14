@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import type { Project, ProjectCoverage } from '@/lib/projects/types';
+import type { Project } from '@/lib/projects/types';
 import { listProjects, getProjectCoverage, deleteProject } from '@/lib/projects/storage';
 
 export default function ProjectsList() {
