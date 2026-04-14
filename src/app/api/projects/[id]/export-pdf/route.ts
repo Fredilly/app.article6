@@ -31,7 +31,6 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const PAGE_W = 612;
   const MARGIN_TOP = 756;
-  const LINE_H = 13;
   const PAGE_BREAK = 60;
 
   const objects: string[] = [];
