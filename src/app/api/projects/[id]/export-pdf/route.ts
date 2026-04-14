@@ -38,8 +38,7 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   const objs: string[] = [];
   const pages: number[] = [];
 
-  // Header bar color: dark blue-gray
-  const HEADER_R = 0.14, HEADER_G = 0.22, HEADER_B = 0.37;
+
 
   function textStream(lines: string[]): string {
     return ['BT', ...lines, 'ET'].join('\n');
@@ -63,8 +62,8 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   }
 
   // Helper: draw a horizontal line
-  function hLine(y: number, gray: number = 0.85): string {
-    return `0.1 G ${gray} G ${L} ${y} m ${R} ${y} l S 0 G`;
+  function hLine(y: number, _gray: number = 0.85): string {
+    return `0.85 G ${L} ${y} m ${R} ${y} l S 0 G`;
   }
 
   // Helper: draw a filled rectangle
