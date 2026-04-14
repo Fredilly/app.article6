@@ -62,13 +62,13 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   }
 
   // Helper: draw a horizontal line
-  function hLine(y: number, _gray: number = 0.85): string {
+  function hLine(y: number): string {
     return `0.85 G ${L} ${y} m ${R} ${y} l S 0 G`;
   }
 
   // Helper: draw a filled rectangle
-  function rect(x: number, y: number, w: number, h: number, gray: number): string {
-    return `${gray} g ${x} ${y} ${w} ${h} re f 0 g`;
+  function rect(x: number, y: number, w: number, h: number, g: number): string {
+    return `${g} g ${x} ${y} ${w} ${h} re f 0 g`;
   }
 
   // --- Cover page ---
