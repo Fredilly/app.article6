@@ -3,8 +3,8 @@ import type { Project, RuleReview, ProjectCoverage } from '@/lib/projects/types'
 
 export const runtime = 'nodejs';
 
-function esc(s: string): string {
-  return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+function h(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function getCoverage(reviews: RuleReview[]): ProjectCoverage {
@@ -19,104 +19,176 @@ function getCoverage(reviews: RuleReview[]): ProjectCoverage {
   return { total, verified, gap, notStarted, notApplicable, inProgress, percentComplete };
 }
 
-function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
-  const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
-  const lines: string[] = [];
-
-  // Cover page
-  lines.push('/F1 24 Tf', '72 700 Td', `(${esc(project.name)}) Tj`);
-  lines.push('/F1 12 Tf', '0 -30 Td', `(${esc(project.methodCode)} @ ${esc(project.methodVersion)}) Tj`);
-  lines.push('0 -18 Td', `(Status: ${esc(project.status.toUpperCase())}) Tj`);
-  lines.push('0 -18 Td', `(Generated: ${now}) Tj`);
-  if (project.aoiLabel) {
-    lines.push('0 -18 Td', `(AOI: ${esc(project.aoiLabel)}) Tj`);
-  }
-
-  // Coverage
-  lines.push('0 -40 Td', '/F1 16 Tf', '(Coverage Summary) Tj', '/F1 10 Tf');
-  lines.push('0 -20 Td', `(Verified: ${coverage.verified}    Gaps: ${coverage.gap}    In Progress: ${coverage.inProgress}) Tj`);
-  lines.push('0 -14 Td', `(Pending: ${coverage.notStarted}    N/A: ${coverage.notApplicable}) Tj`);
-  lines.push('0 -14 Td', `(${coverage.percentComplete}% of actionable rules reviewed) Tj`);
-
-  // Matrix header
-  lines.push('0 -30 Td', '/F1 14 Tf', '(Requirement Coverage Matrix) Tj', '/F1 8 Tf');
-
-  // Matrix rows
-  let y = 680;
-  for (const r of project.reviews) {
-    if (y < 60) break; // safety
-    const status = r.status === 'verified' ? 'V' : r.status === 'gap' ? 'G' : r.status === 'not-applicable' ? 'N/A' : r.status === 'in-progress' ? 'IP' : '-';
-    const title = r.ruleTitle.length > 50 ? r.ruleTitle.slice(0, 47) + '...' : r.ruleTitle;
-    lines.push(`0 -11 Td`, `(${esc(r.ruleId)}  ${status}  ${esc(title)}) Tj`);
-    y -= 11;
-  }
-
-  // Gap summary
-  const gaps = project.reviews.filter(r => r.status === 'gap' || r.status === 'not-started');
-  if (gaps.length > 0) {
-    lines.push('/F1 14 Tf', '0 -24 Td', '(Gap Summary) Tj', '/F1 8 Tf');
-    for (const r of gaps) {
-      lines.push('0 -11 Td', `(${esc(r.ruleId)}  ${esc(r.status)}  ${esc(r.ruleTitle)}) Tj`);
-    }
-  }
-
-  // Provenance
-  lines.push('/F1 14 Tf', '0 -24 Td', '(Provenance) Tj', '/F1 9 Tf');
-  lines.push('0 -16 Td', `(Project: ${esc(project.id)}) Tj`);
-  lines.push('0 -12 Td', `(Method: ${esc(project.methodCode)} @ ${esc(project.methodVersion)}) Tj`);
-  lines.push('0 -12 Td', `(Created: ${project.createdAt}) Tj`);
-  lines.push('0 -12 Td', `(Export: ${now}) Tj`);
-
-  const stream = ['BT', ...lines, 'ET'].join('\n');
-
-  const objects = [
-    '<< /Type /Catalog /Pages 2 0 R >>',
-    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
-    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
-  ];
-
-  let pdf = '%PDF-1.4\n';
-  const offsets: number[] = [0];
-  for (const object of objects) {
-    offsets.push(pdf.length);
-    pdf += `${offsets.length} 0 obj\n${object}\nendobj\n`;
-  }
-  const xrefOffset = pdf.length;
-  pdf += `xref\n0 ${objects.length + 1}\n`;
-  pdf += '0000000000 65535 f \n';
-  for (let i = 1; i <= objects.length; i++) {
-    pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
-  }
-  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-
-  return new TextEncoder().encode(pdf);
+function statusBadge(s: string): string {
+  const colors: Record<string, { bg: string; text: string }> = {
+    'verified': { bg: '#dcfce7', text: '#166534' },
+    'gap': { bg: '#fee2e2', text: '#991b1b' },
+    'not-started': { bg: '#f1f5f9', text: '#64748b' },
+    'in-progress': { bg: '#fef3c7', text: '#92400e' },
+    'not-applicable': { bg: '#f8fafc', text: '#cbd5e1' },
+  };
+  const c = colors[s] || colors['not-started'];
+  return `<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;background:${c.bg};color:${c.text}">${s}</span>`;
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const project = body.project as Project | undefined;
-
     if (!project || !project.reviews?.length) {
       return NextResponse.json({ error: 'Invalid project data' }, { status: 400 });
     }
 
     const coverage = getCoverage(project.reviews);
-    const pdf = buildPdf(project, coverage);
-    const filename = `verification-pack-${project.methodCode}-${project.id.slice(0, 8)}.pdf`;
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
+    const filename = `verification-pack-${project.methodCode}-${project.id.slice(0, 8)}.html`;
 
-    const buffer = new ArrayBuffer(pdf.byteLength);
-    new Uint8Array(buffer).set(pdf);
-    const blob = new Blob([buffer], { type: 'application/pdf' });
-    return new NextResponse(blob, {
+    const grouped = project.reviews.reduce((acc, r) => {
+      if (!acc[r.sectionId]) acc[r.sectionId] = [];
+      acc[r.sectionId].push(r);
+      return acc;
+    }, {} as Record<string, RuleReview[]>);
+
+    const sections = Object.entries(grouped).map(([sec, reviews]) => {
+      const rows = reviews.map(r => `
+        <tr>
+          <td style="padding:10px 12px;font-size:12px;font-family:'SF Mono',Monaco,monospace;color:#64748b;white-space:nowrap">${h(r.ruleId)}</td>
+          <td style="padding:10px 12px;font-size:12px;color:#1e293b">${h(r.ruleTitle)}</td>
+          <td style="padding:10px 12px;text-align:right">${statusBadge(r.status)}</td>
+        </tr>
+      `).join('');
+
+      return `
+        <div style="margin-bottom:32px">
+          <h2 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 12px;letter-spacing:.5px;text-transform:uppercase;border-bottom:2px solid #e2e8f0;padding-bottom:8px">${h(sec)}</h2>
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="border-bottom:1px solid #e2e8f0">
+                <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Rule</th>
+                <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Title</th>
+                <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Status</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }).join('');
+
+    const gaps = project.reviews.filter(r => r.status === 'gap' || r.status === 'not-started');
+    const gapRows = gaps.map(r => `
+      <tr>
+        <td style="padding:8px 12px;font-size:11px;color:#991b1b;font-weight:600">${h(r.ruleId)}</td>
+        <td style="padding:8px 12px;font-size:11px;color:#1e293b">${h(r.ruleTitle)}</td>
+        <td style="padding:8px 12px;font-size:11px;color:#64748b">${h(r.sectionId)}</td>
+      </tr>
+    `).join('');
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Verification Pack — ${h(project.name)}</title>
+<style>
+  @media print {
+    @page { size: A4; margin: 48px 56px; }
+    .page-break { page-break-before: always; }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; color: #1e293b; background: #fff; padding: 48px 56px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div style="display:flex;flex-direction:column;justify-content:center;min-height:80vh;text-align:center">
+  <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px">Verification Pack</div>
+  <h1 style="font-size:36px;font-weight:700;color:#0f172a;margin:0 0 12px;letter-spacing:-.5px">${h(project.name)}</h1>
+  <div style="font-size:16px;color:#64748b;margin-bottom:24px">${h(project.methodCode)} <span style="color:#cbd5e1">@</span> ${h(project.methodVersion)}</div>
+  ${project.aoiLabel ? `<div style="font-size:13px;color:#94a3b8;margin-bottom:8px">AOI: ${h(project.aoiLabel)}</div>` : ''}
+  <div style="margin-top:32px">
+    <span style="display:inline-block;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:#dcfce7;color:#166534">${h(project.status)}</span>
+  </div>
+  <div style="font-size:11px;color:#cbd5e1;margin-top:48px">Generated ${now}</div>
+</div>
+
+<!-- COVERAGE -->
+<div class="page-break">
+  <h2 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 24px;letter-spacing:.5px;text-transform:uppercase">Coverage</h2>
+  <div style="display:flex;gap:16px;margin-bottom:24px">
+    ${[
+      { label: 'Verified', value: coverage.verified, color: '#16a34a' },
+      { label: 'Gaps', value: coverage.gap, color: '#dc2626' },
+      { label: 'In Progress', value: coverage.inProgress, color: '#f59e0b' },
+      { label: 'Pending', value: coverage.notStarted, color: '#94a3b8' },
+      { label: 'N/A', value: coverage.notApplicable, color: '#cbd5e1' },
+    ].map(s => `
+      <div style="flex:1;text-align:center;padding:20px 12px;border:1px solid #e2e8f0;border-radius:8px">
+        <div style="font-size:28px;font-weight:700;color:${s.color}">${s.value}</div>
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:4px">${s.label}</div>
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden">
+    <div style="height:100%;width:${coverage.percentComplete}%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:3px"></div>
+  </div>
+  <div style="text-align:right;font-size:11px;color:#94a3b8;margin-top:8px;font-weight:600">${coverage.percentComplete}% reviewed</div>
+</div>
+
+<!-- MATRIX -->
+<div class="page-break">
+  <h2 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 24px;letter-spacing:.5px;text-transform:uppercase">Requirement Coverage</h2>
+  ${sections}
+</div>
+
+${gaps.length > 0 ? `<!-- GAPS -->
+<div class="page-break">
+  <h2 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 8px;letter-spacing:.5px;text-transform:uppercase">Open Gaps</h2>
+  <p style="font-size:12px;color:#94a3b8;margin-bottom:16px">${gaps.length} rule${gaps.length > 1 ? 's' : ''} marked gap or not-started</p>
+  <table style="width:100%;border-collapse:collapse">
+    <thead>
+      <tr style="border-bottom:1px solid #fee2e2">
+        <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:600;color:#991b1b;text-transform:uppercase;letter-spacing:.5px">Rule</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Title</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">Section</th>
+      </tr>
+    </thead>
+    <tbody>${gapRows}</tbody>
+  </table>
+</div>` : ''}
+
+<!-- PROVENANCE -->
+<div class="page-break">
+  <h2 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 16px;letter-spacing:.5px;text-transform:uppercase">Provenance</h2>
+  <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+    ${[
+      ['Project ID', project.id],
+      ['Methodology', `${project.methodCode} @ ${project.methodVersion}`],
+      ['Created', project.createdAt],
+      ['Status', project.status],
+      ['Export', now],
+      ['Rules Reviewed', `${coverage.verified + coverage.gap} / ${coverage.total}`],
+    ].map(([label, value]) => `
+      <div style="display:flex;border-bottom:1px solid #f1f5f9;padding:0">
+        <div style="flex:0 0 140px;padding:10px 16px;font-size:11px;font-weight:600;color:#64748b;background:#f8fafc">${label}</div>
+        <div style="flex:1;padding:10px 16px;font-size:12px;color:#1e293b">${value}</div>
+      </div>
+    `).join('')}
+  </div>
+  <div style="margin-top:48px;text-align:center;font-size:10px;color:#cbd5e1;letter-spacing:.5px">
+    Verification pack generated by app.article6 — not a formal certification opinion
+  </div>
+</div>
+
+</body></html>`;
+
+    return new NextResponse(html, {
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Disposition': `inline; filename="${filename}"`,
       },
     });
   } catch (err) {
-    return NextResponse.json({ error: 'PDF generation failed', detail: String(err) }, { status: 500 });
+    return NextResponse.json({ error: 'Export failed', detail: String(err) }, { status: 500 });
   }
 }
