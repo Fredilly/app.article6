@@ -156,7 +156,7 @@ function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   }
 
   // Section header
-  function sectionHeader(label: string, gray: number = 0.14): void {
+  function sectionHeader(label: string): void {
     needSpace(40);
     pageLines.push(
       rect(L, y - 2, R - L, 18, 0.96),
