@@ -12,6 +12,7 @@ const demoRoutes: DemoRoute[] = [
   { href: "/", title: "Quick Check" },
   { href: "/dashboard", title: "Dashboard" },
   { href: "/m", title: "Methods" },
+  { href: "/projects", title: "Projects" },
 ];
 
 export default function DemoNav() {
