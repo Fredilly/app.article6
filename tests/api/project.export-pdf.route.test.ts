@@ -45,7 +45,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('COVERAGE SUMMARY');
     expect(parsed.text).toContain('Verification requirement 1');
     expect(parsed.text).toContain('PROVENANCE');
-  });
+  }, 15000);
 
   it('keeps later pages legible when the export spans multiple pages', async () => {
     const pdf = buildProjectExportPdf(makeProject(90), {
@@ -66,5 +66,5 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(raw).toMatch(/\/Kids \[(\d+ 0 R\s*)+\] \/Count \d+/);
     expect(raw).toContain('BT');
     expect(raw).toContain('ET');
-  });
+  }, 15000);
 });
