@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Project, RuleReview, ProjectCoverage } from '@/lib/projects/types';
-import { getProject, updateRuleReview, finalizeProject, getProjectCoverage } from '@/lib/projects/storage';
+import { getProject, updateRuleReview, lockProject, getProjectCoverage } from '@/lib/projects/storage';
 
 type ProjectDetailProps = {
   projectId: string;
@@ -40,8 +40,8 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
     }
   };
 
-  const handleFinalize = () => {
-    const finalized = finalizeProject(projectId);
+  const handleLock = () => {
+    const finalized = lockProject(projectId);
     if (finalized) {
       setProject(finalized);
     }
@@ -68,7 +68,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             </span>
             <span
               className={`rounded px-2 py-0.5 text-xs font-semibold ${
-                project.status === 'finalized'
+                project.status === 'locked'
                   ? 'bg-green-100 text-green-700'
                   : 'bg-amber-100 text-amber-700'
               }`}
@@ -81,10 +81,10 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
         {project.status === 'in-progress' && coverage && coverage.notStarted < coverage.total && (
           <button
-            onClick={handleFinalize}
+            onClick={handleLock}
             className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
           >
-            Finalize Project
+            Lock Review
           </button>
         )}
       </div>

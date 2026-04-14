@@ -70,7 +70,7 @@ export function updateRuleReview(
   const project = projects.find(p => p.id === projectId);
   if (!project) return undefined;
 
-  if (project.status === 'finalized') return undefined;
+  if (project.status === 'locked') return undefined;
 
   const review = project.reviews.find(r => r.ruleId === ruleId);
   if (!review) return undefined;
@@ -84,13 +84,13 @@ export function updateRuleReview(
   return project;
 }
 
-export function finalizeProject(projectId: string): Project | undefined {
+export function lockProject(projectId: string): Project | undefined {
   const projects = loadAll();
   const project = projects.find(p => p.id === projectId);
   if (!project) return undefined;
 
-  project.status = 'finalized';
-  project.finalizedAt = new Date().toISOString();
+  project.status = 'locked';
+  project.lockedAt = new Date().toISOString();
   saveAll(projects);
   return project;
 }

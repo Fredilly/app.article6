@@ -59,7 +59,7 @@ export default function ProjectsList() {
                       </span>
                       <span
                         className={`rounded px-2 py-0.5 font-semibold ${
-                          project.status === 'finalized'
+                          project.status === 'locked'
                             ? 'bg-green-100 text-green-700'
                             : 'bg-amber-100 text-amber-700'
                         }`}

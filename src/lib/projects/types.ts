@@ -1,4 +1,4 @@
-export type ProjectStatus = 'in-progress' | 'finalized';
+export type ProjectStatus = 'in-progress' | 'locked';
 
 export type RuleReviewStatus = 'not-started' | 'in-progress' | 'verified' | 'gap' | 'not-applicable';
 
@@ -20,7 +20,7 @@ export type Project = {
   methodVersion: string;
   status: ProjectStatus;
   createdAt: string;
-  finalizedAt?: string;
+  lockedAt?: string;
   aoiLabel?: string;
   description?: string;
   reviews: RuleReview[];
