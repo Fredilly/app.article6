@@ -171,7 +171,7 @@ export async function POST(request: Request) {
     await unlink(pdfPath).catch(() => {});
 
     const filename = `verification-pack-${project.methodCode}-${project.id.slice(0, 8)}.pdf`;
-    return new NextResponse(pdf, {
+    return new NextResponse(new Uint8Array(pdf), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
