@@ -216,7 +216,9 @@ export async function POST(request: Request) {
     const coverage = getCoverage(project.reviews);
     const pdf = buildPdf(project, coverage);
     const filename = `verification-pack-${project.methodCode}-${project.id.slice(0, 8)}.pdf`;
-    const blob = new Blob([pdf], { type: 'application/pdf' });
+    const ab = new ArrayBuffer(pdf.byteLength);
+    new Uint8Array(ab).set(pdf);
+    const blob = new Blob([ab], { type: 'application/pdf' });
 
     return new NextResponse(blob, {
       headers: {
