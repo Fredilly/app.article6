@@ -12,6 +12,7 @@ type ProjectDetailProps = {
 export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [coverage, setCoverage] = useState<ProjectCoverage | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const p = getProject(projectId);
@@ -41,9 +42,33 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   };
 
   const handleLock = () => {
-    const finalized = lockProject(projectId);
-    if (finalized) {
-      setProject(finalized);
+    const locked = lockProject(projectId);
+    if (locked) {
+      setProject(locked);
+    }
+  };
+
+  const handleDownloadPack = async () => {
+    if (!project) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/projects/' + projectId + '/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project }),
+      });
+      if (!res.ok) throw new Error('PDF generation failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `verification-pack-${project.methodCode}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Failed to generate PDF: ' + String(err));
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -79,6 +104,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           {project.aoiLabel && <p className="mt-1 text-sm text-slate-400">AOI: {project.aoiLabel}</p>}
         </div>
 
+        <div className="flex items-center gap-2">
         {project.status === 'in-progress' && coverage && coverage.notStarted < coverage.total && (
           <button
             onClick={handleLock}
@@ -87,6 +113,16 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             Lock Review
           </button>
         )}
+        {project.status === 'locked' && (
+          <button
+            onClick={handleDownloadPack}
+            disabled={downloading}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {downloading ? 'Generating...' : 'Download Pack'}
+          </button>
+        )}
+        </div>
       </div>
 
       {coverage && (
