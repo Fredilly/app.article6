@@ -58,12 +58,13 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         body: JSON.stringify({ project }),
       });
       if (!res.ok) throw new Error('Pack generation failed');
-      const html = await res.text();
-      const w = window.open('', '_blank');
-      if (w) {
-        w.document.write(html);
-        w.document.close();
-      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `verification-pack-${project.methodCode}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch (err) {
       alert('Failed to generate PDF: ' + String(err));
     } finally {
