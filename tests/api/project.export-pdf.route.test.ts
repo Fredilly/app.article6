@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
-import { POST, buildPdf } from '@/app/api/projects/[id]/export-pdf/route';
+import { POST } from '@/app/api/projects/[id]/export-pdf/route';
 import { extractPdfTextWithPdfParse } from '@/lib/chat/quickCheckPdfExtractor';
+import { buildProjectExportPdf } from '@/lib/projects/exportPdf';
 import type { Project } from '@/lib/projects/types';
 
 function makeProject(reviewCount = 6): Project {
@@ -47,7 +48,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
   });
 
   it('keeps later pages legible when the export spans multiple pages', async () => {
-    const pdf = buildPdf(makeProject(90), {
+    const pdf = buildProjectExportPdf(makeProject(90), {
       total: 90,
       verified: 48,
       gap: 18,
