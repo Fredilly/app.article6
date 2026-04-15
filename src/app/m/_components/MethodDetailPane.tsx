@@ -1384,6 +1384,8 @@ export default function MethodDetailPane({
         ruleNotes={ruleDetail?.notes ?? activeRequirementRow?.ruleSummary.notes ?? null}
         ruleWhen={ruleDetail?.when ?? activeRequirementRow?.ruleSummary.when ?? null}
         methodologyLabel={`${method.program} ${method.sector} · ${method.code} · ${activeVersion ?? "unknown version"}`}
+        reviewMethodology={method.code}
+        reviewVersion={activeVersion ?? null}
         sourcePath={ruleDetail?.sourcePath ?? null}
         sha256={ruleDetail?.sha256 ?? null}
         traceSections={linkedTraceSections.map((link) => {
