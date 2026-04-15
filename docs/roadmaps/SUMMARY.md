@@ -150,3 +150,9 @@ Not active now:
 6) RC6 — Methodology version diff / impact mode: Planned — Use canonical methodology version and diff metadata to identify coverage rows and linked evidence that may need review in the app.
 7) RC7 — Fallback raw methodology PDF intake for uncovered methods: Planned — Enable lower-confidence fallback raw methodology PDF intake only for uncovered methods while preserving canonical methodology outputs as the default for covered methods.
 8) RC8 — Additional GIS formats later: Deferred — Defer broader GIS intake until reconciliation fundamentals are stable.
+
+## traceable-rule-review-mvp
+
+Status SSOT: `docs/roadmaps/traceable-rule-review-mvp/phase-status.json`
+Details: `docs/roadmaps/traceable-rule-review-mvp/ROADMAP.md`
+
