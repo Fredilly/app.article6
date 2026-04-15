@@ -102,9 +102,10 @@ describe("RuleDetailModal", () => {
       />,
     );
 
-    expect(html).toContain("View rule");
+    expect(html).toContain("Rule review");
     expect(html).toContain("Review");
     expect(html).toContain("Rule R-1");
+    expect(html).toContain("No judgment recorded yet.");
     expect(html).toContain("UNFCCC Forestry · AR-ACM0003 · v02-0");
     expect(html).toContain("UNFCCC.Forestry.AR-ACM0003.v02-0.R-1");
     expect(html).not.toContain("Rule brief");
