@@ -153,6 +153,14 @@ export default function RuleDetailModal({
     setReviewOpen(false);
   }, [canonicalRuleId, open, reviewMethodology, reviewVersion]);
 
+  const handleSaveReview = useCallback(
+    (review: RuleReview) => {
+      saveReview(review);
+      setExistingReview(review);
+    },
+    [],
+  );
+
   if (!open || !row) return null;
 
   const status = REQUIREMENT_COVERAGE_STATUS_META[row.status];
@@ -186,13 +194,6 @@ export default function RuleDetailModal({
     reviewerOutcomeNote,
   });
   const reconciliationMeta = REQUIREMENT_RECONCILIATION_META[reconciliation.status];
-  const handleSaveReview = useCallback(
-    (review: RuleReview) => {
-      saveReview(review);
-      setExistingReview(review);
-    },
-    [],
-  );
 
   return (
     <div
