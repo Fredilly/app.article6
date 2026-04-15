@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle2, ChevronDown, FileSearch, FileText, Link2, No
 import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
 import RuleReviewPanel from "@/components/verify/RuleReviewPanel";
 import { getReview, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
+import { statusLabel } from "@/lib/verify/reviewValidation";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_RECONCILIATION_META,
@@ -187,6 +188,23 @@ export default function RuleDetailModal({
   const reviewRuleId = canonicalRuleId ?? "";
   const reviewMethodologyValue = reviewMethodology ?? "";
   const reviewVersionValue = reviewVersion ?? "";
+  const reviewStatus = existingReview?.status ?? "pending";
+  const reviewTone =
+    reviewStatus === "verified"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : reviewStatus === "not_verified"
+        ? "border-rose-200 bg-rose-50 text-rose-700"
+        : reviewStatus === "needs_followup"
+          ? "border-amber-200 bg-amber-50 text-amber-700"
+          : "border-slate-200 bg-slate-100 text-slate-700";
+  const reviewSummary =
+    reviewStatus === "verified"
+      ? "Judged satisfied with a supporting trace."
+      : reviewStatus === "not_verified"
+        ? "Judged not satisfied with recorded support."
+        : reviewStatus === "needs_followup"
+          ? "Follow-up is still needed before a final judgment."
+          : "No judgment recorded yet.";
   const reconciliation = reconcileRequirement({
     linkedEvidence: row.linkedEvidence,
     expectedEvidenceTypes: row.expectedEvidenceTypes,
@@ -204,20 +222,26 @@ export default function RuleDetailModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-[28px] border border-slate-200 bg-white shadow-2xl"
+        className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-[28px] border border-slate-200 bg-white shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur">
           <div className="min-w-0">
-            <div className="text-xs font-medium text-slate-500">View rule</div>
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Rule review</div>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Rule {displayRuleId}</h2>
-            <div className="mt-1 text-sm text-slate-600">
+            <div className="mt-2 max-w-2xl text-sm leading-6 text-slate-800">
+              {ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
+            </div>
+            <div className="mt-2 text-sm text-slate-600">
               {methodologyLabel?.trim() || sourcePath?.trim() || "Methodology rule detail"}
             </div>
             {canonicalRuleId?.trim() && canonicalRuleId.trim() !== row.ruleId ? (
               <div className="mt-2 font-mono text-[11px] text-slate-400">{canonicalRuleId.trim()}</div>
             ) : null}
             <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reviewTone}`}>
+                {statusLabel(reviewStatus)}
+              </span>
               <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${status.tone}`}>
                 {status.label}
               </span>
@@ -227,6 +251,7 @@ export default function RuleDetailModal({
                 </span>
               ) : null}
             </div>
+            <div className="mt-2 text-sm text-slate-600">{reviewSummary}</div>
           </div>
           <div className="flex items-center gap-2">
             {reviewReady ? (
@@ -252,68 +277,103 @@ export default function RuleDetailModal({
           </div>
         </div>
 
-        <div className="grid items-start gap-5 px-6 py-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
-          <section className="space-y-4">
-            {reviewOpen && reviewReady ? (
-              <RuleReviewPanel
-                key={`${reviewRuleId}:${reviewMethodologyValue}:${reviewVersionValue}`}
-                ruleId={reviewRuleId}
-                ruleText={ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
-                sectionId={row.provenance.sectionId ?? undefined}
-                methodology={reviewMethodologyValue}
-                version={reviewVersionValue}
-                anchorUrl={row.provenance.anchor ?? undefined}
-                existingReview={existingReview}
-                onSave={handleSaveReview}
-              />
-            ) : null}
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-sm">
-              <div className="space-y-5">
-                <section className="border-b border-slate-100 pb-5">
-                  <div className="text-sm font-semibold text-slate-900">Rule summary</div>
-                  <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-slate-800">
-                    {ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
-                  </p>
-                </section>
-                {ruleLogic?.trim() || row.ruleSummary.logic ? (
-                  <section className="border-b border-slate-100 pb-5">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                      <Scale className="h-4 w-4 text-slate-500" />
-                      <span>Logic</span>
+        <div className="px-6 py-6">
+          {reviewOpen && reviewReady ? (
+            <RuleReviewPanel
+              key={`${reviewRuleId}:${reviewMethodologyValue}:${reviewVersionValue}`}
+              ruleId={reviewRuleId}
+              ruleText={ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
+              sectionId={row.provenance.sectionId ?? undefined}
+              methodology={reviewMethodologyValue}
+              version={reviewVersionValue}
+              anchorUrl={row.provenance.anchor ?? undefined}
+              existingReview={existingReview}
+              linkedEvidence={row.linkedEvidence.map((item) => ({
+                id: item.fragmentId ?? item.id,
+                title: evidencePrimaryLabel(item),
+                type: item.type,
+                meta: formatPddLinkedEvidenceMeta(item),
+                excerpt: item.excerpt ?? null,
+              }))}
+              emptyEvidenceHint={unresolvedNextStep(row)}
+              ruleLogic={ruleLogic?.trim() || row.ruleSummary.logic || null}
+              ruleNotes={ruleNotes?.trim() || row.ruleSummary.notes || null}
+              ruleWhen={renderedWhen ?? null}
+              expectedEvidence={row.expectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type] ?? type)}
+              sourcePath={sourcePath ?? null}
+              sha256={sha256 ?? null}
+              onSave={handleSaveReview}
+            />
+          ) : (
+            <div className="grid gap-4">
+              <section className="rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm">
+                <div className="text-sm font-semibold text-slate-900">Current support picture</div>
+                <div className="mt-2.5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                  <div className="flex items-start gap-2.5">
+                    {reconciliation.status === "supported" ? (
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    ) : reconciliation.status === "missing-evidence" ? (
+                      <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                    ) : (
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                    )}
+                    <div className="min-w-0">
+                      <div className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reconciliationMeta.tone}`}>
+                        {reconciliationMeta.label}
+                      </div>
+                      <div className="mt-2 text-sm text-slate-700">{reconciliation.reason}</div>
                     </div>
-                    <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-slate-800">
-                      {ruleLogic?.trim() || row.ruleSummary.logic}
-                    </p>
-                  </section>
-                ) : null}
-                {renderedWhen?.length ? (
-                  <section className={`${ruleNotes?.trim() || row.ruleSummary.notes ? "border-b border-slate-100 pb-5" : ""}`}>
-                    <div className="text-sm font-semibold text-slate-900">Conditions</div>
-                    <ul className="mt-3 grid gap-1.5 text-sm text-slate-800">
-                      {renderedWhen.map((item) => (
-                        <li key={item} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ) : null}
-                {ruleNotes?.trim() || row.ruleSummary.notes ? (
-                  <section>
-                    <div className="text-sm font-semibold text-slate-700">Notes</div>
-                    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
-                        {ruleNotes?.trim() || row.ruleSummary.notes}
+                  </div>
+                </div>
+              </section>
+
+              <details className="group rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm" open>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-700 marker:hidden">
+                  <span>Method detail</span>
+                  <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="mt-4 grid gap-4 text-sm text-slate-700">
+                  {ruleLogic?.trim() || row.ruleSummary.logic ? (
+                    <div>
+                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                        <Scale className="h-4 w-4 text-slate-500" />
+                        <span>Logic</span>
+                      </div>
+                      <p className="mt-2 whitespace-pre-wrap leading-7 text-slate-800">
+                        {ruleLogic?.trim() || row.ruleSummary.logic}
                       </p>
                     </div>
-                  </section>
-                ) : null}
-              </div>
+                  ) : null}
+                  {renderedWhen?.length ? (
+                    <div>
+                      <div className="text-sm font-semibold text-slate-900">Conditions</div>
+                      <ul className="mt-2 grid gap-1.5 text-sm text-slate-800">
+                        {renderedWhen.map((item) => (
+                          <li key={item} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {ruleNotes?.trim() || row.ruleSummary.notes ? (
+                    <div>
+                      <div className="text-sm font-semibold text-slate-900">Notes</div>
+                      <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                          {ruleNotes?.trim() || row.ruleSummary.notes}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </details>
             </div>
-          </section>
+          )}
 
-          <aside className="space-y-4">
+          {!reviewOpen ? (
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.9fr)]">
             <section className="rounded-3xl border border-slate-200/90 bg-white p-3.5 shadow-sm">
               <div className="text-sm font-semibold text-slate-900">Reconciliation</div>
               <div className="mt-2.5 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
@@ -518,7 +578,8 @@ export default function RuleDetailModal({
                 </div>
               </div>
             </details>
-          </aside>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

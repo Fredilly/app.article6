@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { ReviewStatus, RuleReview } from "@/lib/verify/reviewStore";
 import {
   validateReview,
   statusLabel,
-  statusColor,
 } from "@/lib/verify/reviewValidation";
 
 type RuleReviewPanelProps = {
@@ -16,6 +15,20 @@ type RuleReviewPanelProps = {
   version: string;
   anchorUrl?: string;
   existingReview: RuleReview | null;
+  linkedEvidence?: Array<{
+    id: string;
+    title: string;
+    type: string;
+    meta?: string | null;
+    excerpt?: string | null;
+  }>;
+  emptyEvidenceHint?: string;
+  ruleLogic?: string | null;
+  ruleNotes?: string | null;
+  ruleWhen?: string[] | null;
+  expectedEvidence?: string[];
+  sourcePath?: string | null;
+  sha256?: string | null;
   onSave: (review: RuleReview) => void;
 };
 
@@ -34,6 +47,14 @@ export default function RuleReviewPanel({
   version,
   anchorUrl,
   existingReview,
+  linkedEvidence = [],
+  emptyEvidenceHint = "No linked evidence yet. Add the best supporting trace before recording a final judgment.",
+  ruleLogic,
+  ruleNotes,
+  ruleWhen,
+  expectedEvidence = [],
+  sourcePath,
+  sha256,
   onSave,
 }: RuleReviewPanelProps) {
   const [status, setStatus] = useState<ReviewStatus>(
@@ -50,6 +71,42 @@ export default function RuleReviewPanel({
   );
   const [errors, setErrors] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
+  const reviewExplanation = useMemo(() => {
+    switch (status) {
+      case "verified":
+        return "This rule is judged satisfied. Record why and cite the supporting trace.";
+      case "not_verified":
+        return "This rule is judged not satisfied. Record the gap and point to the supporting trace.";
+      case "needs_followup":
+        return "This rule still needs follow-up. Record what is unclear and what support is missing.";
+      default:
+        return "No judgment recorded yet. Start with a status, then explain the reason and cite support.";
+    }
+  }, [status]);
+  const statusTone = useMemo(() => {
+    switch (status) {
+      case "verified":
+        return {
+          chip: "border-emerald-200 bg-emerald-50 text-emerald-700",
+          button: "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm",
+        };
+      case "not_verified":
+        return {
+          chip: "border-rose-200 bg-rose-50 text-rose-700",
+          button: "border-rose-500 bg-rose-50 text-rose-700 shadow-sm",
+        };
+      case "needs_followup":
+        return {
+          chip: "border-amber-200 bg-amber-50 text-amber-700",
+          button: "border-amber-500 bg-amber-50 text-amber-700 shadow-sm",
+        };
+      default:
+        return {
+          chip: "border-slate-200 bg-slate-100 text-slate-700",
+          button: "border-slate-500 bg-slate-100 text-slate-700 shadow-sm",
+        };
+    }
+  }, [status]);
 
   const handleSave = useCallback(() => {
     const review: RuleReview = {
@@ -88,152 +145,263 @@ export default function RuleReviewPanel({
   ]);
 
   return (
-    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-      {/* Rule text */}
-      <div className="mb-4">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-          Rule text
-        </div>
-        <div className="mt-1 break-words text-sm leading-relaxed text-slate-800">
-          {ruleText}
-        </div>
-        {sectionId ? (
-          <div className="mt-1 text-xs text-slate-500">
-            Section {sectionId}
-            {anchorUrl ? (
-              <>
-                {" "}
-                ·{" "}
+    <section className="rounded-[24px] border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-100 px-5 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1.5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Review record
+            </div>
+            <div className="max-w-2xl text-sm leading-6 text-slate-900">{ruleText}</div>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                {methodology} · {version}
+              </span>
+              {sectionId ? (
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                  Section {sectionId}
+                </span>
+              ) : null}
+              {anchorUrl ? (
                 <a
                   href={anchorUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-700 underline hover:text-slate-900"
+                  className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-700 hover:border-slate-300 hover:text-slate-900"
                 >
                   Open source
                 </a>
-              </>
-            ) : null}
+              ) : null}
+            </div>
           </div>
-        ) : null}
+          <div className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${statusTone.chip}`}>
+            {statusLabel(status)}
+          </div>
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-slate-600">{reviewExplanation}</p>
       </div>
 
-      {/* Status selector */}
-      <div className="mb-4">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-          Status
-        </div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {STATUSES.map((s) => {
-            const isActive = status === s;
-            const c = statusColor(s);
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setStatus(s)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                  isActive
-                    ? `border-${c}-500 bg-${c}-50 text-${c}-700`
-                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                }`}
-              >
-                {statusLabel(s)}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <div className="grid gap-6 px-5 py-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+        <div className="space-y-5">
+          <section className="space-y-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Current judgment
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {STATUSES.map((s) => {
+                const isActive = status === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatus(s)}
+                    className={`rounded-2xl border px-4 py-3 text-left text-sm transition ${
+                      isActive
+                        ? statusTone.button
+                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="font-semibold">{statusLabel(s)}</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {s === "pending"
+                        ? "No judgment yet"
+                        : s === "verified"
+                          ? "Satisfied with support"
+                          : s === "not_verified"
+                            ? "Not satisfied"
+                            : "Needs follow-up"}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
 
-      {/* Rationale */}
-      <div className="mb-4">
-        <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-          Rationale{" "}
-          {status !== "pending" ? (
-            <span className="text-red-500">*</span>
+          <section className="space-y-4">
+            <div className="grid gap-1">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Why this judgment {status !== "pending" ? <span className="text-rose-500">*</span> : null}
+              </label>
+              <textarea
+                value={rationale}
+                onChange={(e) => setRationale(e.target.value)}
+                placeholder="State the reviewer’s reason in plain language."
+                rows={4}
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+              />
+            </div>
+
+            <div className="grid gap-1">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Supporting trace {status !== "pending" ? <span className="text-rose-500">*</span> : null}
+              </label>
+              <input
+                type="text"
+                value={supportReference}
+                onChange={(e) => setSupportReference(e.target.value)}
+                placeholder="Cite the best supporting trace: section, fragment, scene, workbook cell, or note."
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+              />
+            </div>
+
+            <div className="grid gap-1">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Evidence link
+              </label>
+              <input
+                type="text"
+                value={evidenceLink}
+                onChange={(e) => setEvidenceLink(e.target.value)}
+                placeholder="Optional link to the supporting document, upload, or external trace."
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+              />
+            </div>
+          </section>
+        </div>
+
+        <aside className="space-y-4">
+          <section className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Supporting context
+            </div>
+            {linkedEvidence.length ? (
+              <div className="mt-3 space-y-3">
+                <div className="text-sm font-medium text-slate-900">
+                  Best trace available
+                </div>
+                {linkedEvidence.slice(0, 2).map((item) => (
+                  <div key={item.id} className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                    <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+                    <div className="mt-1 text-xs text-slate-500">{item.type}</div>
+                    {item.meta ? <div className="mt-2 text-xs text-slate-600">{item.meta}</div> : null}
+                    {item.excerpt ? (
+                      <div className="mt-2 text-sm leading-6 text-slate-700">{item.excerpt}</div>
+                    ) : null}
+                  </div>
+                ))}
+                {linkedEvidence.length > 2 ? (
+                  <div className="text-xs text-slate-500">
+                    {linkedEvidence.length - 2} more linked evidence item{linkedEvidence.length - 2 === 1 ? "" : "s"} available in detail.
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-4 text-sm text-slate-600">
+                <div className="font-medium text-slate-900">No linked evidence yet</div>
+                <div className="mt-1">{emptyEvidenceHint}</div>
+              </div>
+            )}
+          </section>
+
+          {existingReview ? (
+            <div className="text-xs text-slate-500">
+              Reviewed by {existingReview.reviewedBy} · {new Date(existingReview.updatedAt).toLocaleString()}
+            </div>
           ) : null}
-        </label>
-        <textarea
-          value={rationale}
-          onChange={(e) => setRationale(e.target.value)}
-          placeholder="Explain why this rule passes or fails based on the evidence..."
-          rows={3}
-          className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-        />
+        </aside>
       </div>
 
-      {/* Support reference */}
-      <div className="mb-4">
-        <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-          Support reference{" "}
-          {status !== "pending" ? (
-            <span className="text-red-500">*</span>
-          ) : null}
-        </label>
-        <input
-          type="text"
-          value={supportReference}
-          onChange={(e) => setSupportReference(e.target.value)}
-          placeholder="e.g., Monitoring Report Section 3.2, STAC scene S2A_20240115..."
-          className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-        />
-      </div>
-
-      {/* Evidence link */}
-      <div className="mb-4">
-        <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-          Evidence link
-        </label>
-        <input
-          type="text"
-          value={evidenceLink}
-          onChange={(e) => setEvidenceLink(e.target.value)}
-          placeholder="URL to supporting document or upload"
-          className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-        />
-      </div>
-
-      {/* Reserved STAC evidence area */}
-      <div className="mb-4 rounded-lg border border-dashed border-slate-300 bg-white/50 px-4 py-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-          Evidence support — coming soon
-        </div>
-        <div className="mt-1 text-xs text-slate-400">
-          STAC satellite facts and linked evidence will appear here.
-        </div>
-      </div>
-
-      {/* Errors */}
       {errors.length > 0 ? (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+        <div className="mx-5 mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
           {errors.map((err, i) => (
-            <div key={i} className="text-xs text-red-700">
+            <div key={i} className="text-sm text-rose-700">
               {err}
             </div>
           ))}
         </div>
       ) : null}
 
-      {/* Provenance footer */}
-      {existingReview ? (
-        <div className="mb-4 text-[11px] text-slate-400">
-          Reviewed by {existingReview.reviewedBy} ·{" "}
-          {new Date(existingReview.updatedAt).toLocaleString()}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+        <div className="text-xs text-slate-500">
+          Non-pending decisions require both a reason and a supporting trace.
         </div>
-      ) : null}
+        <button
+          type="button"
+          onClick={handleSave}
+          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+            saved
+              ? "bg-emerald-600 text-white"
+              : "bg-slate-900 text-white hover:bg-slate-700"
+          }`}
+        >
+          {saved ? "Saved" : "Save review"}
+        </button>
+      </div>
 
-      {/* Save button */}
-      <button
-        type="button"
-        onClick={handleSave}
-        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-          saved
-            ? "bg-emerald-600 text-white"
-            : "bg-slate-900 text-white hover:bg-slate-700"
-        }`}
-      >
-        {saved ? "Saved" : "Save review"}
-      </button>
-    </div>
+      <details className="group border-t border-slate-100 px-5 py-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-700 marker:hidden">
+          <span>Rule detail and provenance</span>
+          <span className="text-xs font-medium text-slate-400 group-open:hidden">Show</span>
+          <span className="text-xs font-medium text-slate-400 hidden group-open:inline">Hide</span>
+        </summary>
+        <div className="mt-4 grid gap-4">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Full rule text</div>
+            <div className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{ruleText}</div>
+          </div>
+
+          {ruleLogic ? (
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Logic</div>
+              <div className="mt-2 text-sm leading-6 text-slate-700">{ruleLogic}</div>
+            </div>
+          ) : null}
+
+          {ruleWhen?.length ? (
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Conditions</div>
+              <ul className="mt-2 grid gap-2 text-sm text-slate-700">
+                {ruleWhen.map((item) => (
+                  <li key={item} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {expectedEvidence.length ? (
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Expected evidence</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {expectedEvidence.map((item) => (
+                  <span key={item} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {ruleNotes ? (
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Notes</div>
+              <div className="mt-2 text-sm leading-6 text-slate-700">{ruleNotes}</div>
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+              {methodology} · {version}
+            </span>
+            {sectionId ? (
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                Section {sectionId}
+              </span>
+            ) : null}
+            {sourcePath ? (
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-mono">
+                {sourcePath}
+              </span>
+            ) : null}
+            {sha256 ? (
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-mono">
+                {sha256}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </details>
+    </section>
   );
 }
