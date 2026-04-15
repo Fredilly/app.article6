@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-verification, requirement-coverage.
+Active lanes: verification-factory, project-verification, requirement-coverage, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -154,5 +154,17 @@ Not active now:
 ## traceable-rule-review-mvp
 
 Status SSOT: `docs/roadmaps/traceable-rule-review-mvp/phase-status.json`
-Details: `docs/roadmaps/traceable-rule-review-mvp/ROADMAP.md`
+Details: `docs/roadmaps/traceable-rule-review-mvp/PLAN.md`
+
+Lane status: Active
+Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 8-phase path to paid VVB pilots.
+
+Current focus:
+- Phase 0: freeze roadmap contract across both repos
+- Phase 1: build the rule review record (status, rationale, evidence, provenance)
+
+Not active now:
+- STAC auto-verification (support facts only, not auto-verify)
+- AI-assisted review (post-moat)
+- Multi-methodology cross-referencing (Phase 5+)
 
