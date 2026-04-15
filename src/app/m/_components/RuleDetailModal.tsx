@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, ChevronDown, FileSearch, FileText, Link2, NotebookText, Scale, Shapes, ShieldAlert } from "lucide-react";
 import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
+import RuleReviewPanel from "@/components/verify/RuleReviewPanel";
+import { getReview, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_RECONCILIATION_META,
@@ -23,6 +25,8 @@ type RuleDetailModalProps = {
   reviewerMinutes?: string | null;
   reviewerOutcomeNote?: string | null;
   methodologyLabel?: string | null;
+  reviewMethodology?: string | null;
+  reviewVersion?: string | null;
   sourcePath?: string | null;
   sha256?: string | null;
   traceSections?: Array<{
@@ -112,12 +116,17 @@ export default function RuleDetailModal({
   reviewerMinutes,
   reviewerOutcomeNote,
   methodologyLabel,
+  reviewMethodology,
+  reviewVersion,
   sourcePath,
   sha256,
   traceSections = [],
   onClose,
   onOpenSourceContext,
 }: RuleDetailModalProps) {
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [existingReview, setExistingReview] = useState<RuleReview | null>(null);
+
   useEffect(() => {
     if (!open) return undefined;
     const previousOverflow = document.body.style.overflow;
@@ -133,6 +142,24 @@ export default function RuleDetailModal({
       window.removeEventListener("keydown", handleKey);
     };
   }, [onClose, open]);
+
+  useEffect(() => {
+    if (!open || !canonicalRuleId || !reviewMethodology || !reviewVersion) {
+      setExistingReview(null);
+      setReviewOpen(false);
+      return;
+    }
+    setExistingReview(getReview(canonicalRuleId, reviewMethodology, reviewVersion));
+    setReviewOpen(false);
+  }, [canonicalRuleId, open, reviewMethodology, reviewVersion]);
+
+  const handleSaveReview = useCallback(
+    (review: RuleReview) => {
+      saveReview(review);
+      setExistingReview(review);
+    },
+    [],
+  );
 
   if (!open || !row) return null;
 
@@ -156,6 +183,10 @@ export default function RuleDetailModal({
   const provenanceTools = row.provenance.tools ?? [];
   const renderedWhen = ruleWhen?.length ? ruleWhen : row.ruleSummary.when;
   const displayRuleId = shortRuleId(row.ruleId) ?? shortRuleId(canonicalRuleId) ?? row.ruleId;
+  const reviewReady = Boolean(canonicalRuleId && reviewMethodology && reviewVersion);
+  const reviewRuleId = canonicalRuleId ?? "";
+  const reviewMethodologyValue = reviewMethodology ?? "";
+  const reviewVersionValue = reviewVersion ?? "";
   const reconciliation = reconcileRequirement({
     linkedEvidence: row.linkedEvidence,
     expectedEvidenceTypes: row.expectedEvidenceTypes,
@@ -197,17 +228,45 @@ export default function RuleDetailModal({
               ) : null}
             </div>
           </div>
-          <button
-            type="button"
-            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
-            onClick={onClose}
-          >
-            Close
-          </button>
+          <div className="flex items-center gap-2">
+            {reviewReady ? (
+              <button
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                  existingReview
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300"
+                    : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                }`}
+                onClick={() => setReviewOpen((current) => !current)}
+              >
+                {reviewOpen ? "Hide review" : existingReview ? `Review (${existingReview.status})` : "Review"}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
         </div>
 
         <div className="grid items-start gap-5 px-6 py-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
           <section className="space-y-4">
+            {reviewOpen && reviewReady ? (
+              <RuleReviewPanel
+                key={`${reviewRuleId}:${reviewMethodologyValue}:${reviewVersionValue}`}
+                ruleId={reviewRuleId}
+                ruleText={ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
+                sectionId={row.provenance.sectionId ?? undefined}
+                methodology={reviewMethodologyValue}
+                version={reviewVersionValue}
+                anchorUrl={row.provenance.anchor ?? undefined}
+                existingReview={existingReview}
+                onSave={handleSaveReview}
+              />
+            ) : null}
             <div className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-sm">
               <div className="space-y-5">
                 <section className="border-b border-slate-100 pb-5">

@@ -92,6 +92,8 @@ describe("RuleDetailModal", () => {
         ruleNotes="Retain the workbook appendices."
         ruleWhen={["Each reporting period."]}
         methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        reviewMethodology="AR-ACM0003"
+        reviewVersion="v02-0"
         sourcePath="methodologies/example/rules.rich.json"
         sha256="abc123"
         traceSections={[{ sectionId: "S-10", title: "Monitoring", textSnippet: "Monitoring context" }]}
@@ -101,6 +103,7 @@ describe("RuleDetailModal", () => {
     );
 
     expect(html).toContain("View rule");
+    expect(html).toContain("Review");
     expect(html).toContain("Rule R-1");
     expect(html).toContain("UNFCCC Forestry · AR-ACM0003 · v02-0");
     expect(html).toContain("UNFCCC.Forestry.AR-ACM0003.v02-0.R-1");
@@ -139,6 +142,8 @@ describe("RuleDetailModal", () => {
         canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001"
         ruleText="Maintain a monitoring report and spreadsheet workbook."
         methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        reviewMethodology="AR-ACM0003"
+        reviewVersion="v02-0"
         sourcePath="methodologies/example/rules.rich.json"
         sha256="abc123"
         traceSections={[]}
@@ -161,6 +166,8 @@ describe("RuleDetailModal", () => {
         canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-3"
         ruleText="Document the eligibility boundary for review."
         methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        reviewMethodology="AR-ACM0003"
+        reviewVersion="v02-0"
         sourcePath={null}
         sha256={null}
         traceSections={[]}
@@ -185,6 +192,8 @@ describe("RuleDetailModal", () => {
         canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-2"
         ruleText="Document the eligibility boundary for review."
         methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        reviewMethodology="AR-ACM0003"
+        reviewVersion="v02-0"
         sourcePath={null}
         sha256={null}
         traceSections={[]}

@@ -160,7 +160,6 @@ Lane status: Active
 Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 8-phase path to paid VVB pilots.
 
 Current focus:
-- Phase 0: freeze roadmap contract across both repos
 - Phase 1: build the rule review record (status, rationale, evidence, provenance)
 
 Not active now:

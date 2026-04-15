@@ -3,7 +3,6 @@
     "status": "active",
     "summary": "Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 8-phase path to paid VVB pilots.",
     "current_focus": [
-      "Phase 0: freeze roadmap contract across both repos",
       "Phase 1: build the rule review record (status, rationale, evidence, provenance)"
     ],
     "not_active_now": [
@@ -13,12 +12,12 @@
     ]
   },
   "phase_0_roadmap_contract_freeze": {
-    "status": "active",
+    "status": "done",
     "title": "Roadmap Contract Freeze",
     "summary": "Lock roadmap, phase sequence, repo boundaries, and SSOT conventions. Both repos match. No parallel roadmap files."
   },
   "phase_1_rule_review_record": {
-    "status": "planned",
+    "status": "active",
     "title": "Rule Review Record",
     "summary": "Build the traceable review record: rule text, status, rationale, support reference, provenance. Inline panel, not modal. Validation enforces rationale + support before Verified."
   },
