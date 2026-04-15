@@ -1,0 +1,42 @@
+{
+  "phase_meta": {
+    "status": "active",
+    "summary": "Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 5-week path to paid VVB pilots.",
+    "current_focus": [
+      "Build the rule review record: status, rationale, evidence, provenance",
+      "Verify AR-ACM0003 data contract in methodologies repo (T-1 parallel)"
+    ],
+    "not_active_now": [
+      "STAC auto-verification (support facts only, not auto-verify)",
+      "AI-assisted review (post-moat)",
+      "Multi-methodology cross-referencing (after first methodology works)"
+    ]
+  },
+  "phase_1_rule_review_record": {
+    "status": "active",
+    "title": "Rule Review Record",
+    "summary": "Build the traceable review record: rule text, status, rationale, support reference, provenance. The monetizable object. Inline panel, not modal. Validation enforces rationale + support before Verified."
+  },
+  "phase_2_defensible_verification": {
+    "status": "planned",
+    "title": "Defensible Verification",
+    "summary": "Evidence attachment, audit trail, finalize gate. Every decision traceable by a third party. Reviews become defensible audit artifacts."
+  },
+  "phase_3_stac_aoi_support_facts": {
+    "status": "planned",
+    "title": "STAC / AOI Support Facts",
+    "summary": "Auto-populate satellite support facts for eligible rules. AOI-scoped. Support, not auto-verification. STAC fills the reserved area from Phase 1."
+  },
+  "phase_4_document_workbook_support": {
+    "status": "planned",
+    "title": "Document and Workbook Support",
+    "summary": "Upload PDD, monitoring reports, workbooks. Extract structured facts for review support. Quick Check integration."
+  },
+  "phase_5_exportable_verification_output": {
+    "status": "planned",
+    "title": "Exportable Verification Output",
+    "summary": "One-click PDF + JSON export with full traceability. Project-level synthesis. What VVBs pay for."
+  },
+  "pr_evidence": {},
+  "pr_notes": {}
+}

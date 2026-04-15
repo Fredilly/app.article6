@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-verification, requirement-coverage.
+Active lanes: verification-factory, project-verification, requirement-coverage, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -150,3 +150,21 @@ Not active now:
 6) RC6 — Methodology version diff / impact mode: Planned — Use canonical methodology version and diff metadata to identify coverage rows and linked evidence that may need review in the app.
 7) RC7 — Fallback raw methodology PDF intake for uncovered methods: Planned — Enable lower-confidence fallback raw methodology PDF intake only for uncovered methods while preserving canonical methodology outputs as the default for covered methods.
 8) RC8 — Additional GIS formats later: Deferred — Defer broader GIS intake until reconciliation fundamentals are stable.
+
+## traceable-rule-review-mvp
+
+Status SSOT: `docs/roadmaps/traceable-rule-review-mvp/phase-status.json`
+Details: `docs/roadmaps/traceable-rule-review-mvp/PLAN.md`
+
+Lane status: Active
+Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 5-week path to paid VVB pilots.
+
+Current focus:
+- Build the rule review record: status, rationale, evidence, provenance
+- Verify AR-ACM0003 data contract in methodologies repo (T-1 parallel)
+
+Not active now:
+- STAC auto-verification (support facts only, not auto-verify)
+- AI-assisted review (post-moat)
+- Multi-methodology cross-referencing (after first methodology works)
+
