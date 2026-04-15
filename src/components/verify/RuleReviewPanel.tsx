@@ -39,6 +39,19 @@ const STATUSES: ReviewStatus[] = [
   "needs_followup",
 ];
 
+function statusShortHint(status: ReviewStatus): string {
+  switch (status) {
+    case "verified":
+      return "Satisfied with support";
+    case "not_verified":
+      return "Not satisfied";
+    case "needs_followup":
+      return "Needs follow-up";
+    default:
+      return "No judgment yet";
+  }
+}
+
 export default function RuleReviewPanel({
   ruleId,
   ruleText,
@@ -145,20 +158,20 @@ export default function RuleReviewPanel({
   ]);
 
   return (
-    <section className="rounded-[24px] border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-5 py-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1.5">
+    <section className="rounded-[28px] border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-100 px-6 py-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 space-y-2">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Review record
             </div>
-            <div className="max-w-2xl text-sm leading-6 text-slate-900">{ruleText}</div>
+            <div className="max-w-3xl text-base leading-7 text-slate-950">{ruleText}</div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+              <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">
                 {methodology} · {version}
               </span>
               {sectionId ? (
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">
                   Section {sectionId}
                 </span>
               ) : null}
@@ -167,7 +180,7 @@ export default function RuleReviewPanel({
                   href={anchorUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                  className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-700 hover:border-slate-300 hover:text-slate-900"
                 >
                   Open source
                 </a>
@@ -178,16 +191,28 @@ export default function RuleReviewPanel({
             {statusLabel(status)}
           </div>
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-slate-600">{reviewExplanation}</p>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{reviewExplanation}</p>
       </div>
 
-      <div className="grid gap-6 px-5 py-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+      <div className="grid gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
         <div className="space-y-5">
-          <section className="space-y-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Current judgment
+          <section className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Decision
+                </div>
+                <div className="mt-1 text-base font-semibold text-slate-950">Current judgment</div>
+                <div className="mt-1 text-sm text-slate-600">
+                  Status, reason, support, save.
+                </div>
+              </div>
+              <div className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${statusTone.chip}`}>
+                {statusLabel(status)}
+              </div>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
               {STATUSES.map((s) => {
                 const isActive = status === s;
                 return (
@@ -201,76 +226,93 @@ export default function RuleReviewPanel({
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
                     }`}
                   >
-                    <div className="font-semibold">{statusLabel(s)}</div>
-                    <div className="mt-1 text-xs text-slate-500">
-                      {s === "pending"
-                        ? "No judgment yet"
-                        : s === "verified"
-                          ? "Satisfied with support"
-                          : s === "not_verified"
-                            ? "Not satisfied"
-                            : "Needs follow-up"}
-                    </div>
+                    <div className="font-semibold text-slate-900">{statusLabel(s)}</div>
+                    <div className="mt-1 text-xs text-slate-500">{statusShortHint(s)}</div>
                   </button>
                 );
               })}
             </div>
-          </section>
 
-          <section className="space-y-4">
-            <div className="grid gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Why this judgment {status !== "pending" ? <span className="text-rose-500">*</span> : null}
-              </label>
-              <textarea
-                value={rationale}
-                onChange={(e) => setRationale(e.target.value)}
-                placeholder="State the reviewer’s reason in plain language."
-                rows={4}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-              />
+            <div className="mt-5 grid gap-4">
+              <div className="grid gap-1.5">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Why this judgment {status !== "pending" ? <span className="text-rose-500">*</span> : null}
+                </label>
+                <textarea
+                  value={rationale}
+                  onChange={(e) => setRationale(e.target.value)}
+                  placeholder="State the reviewer’s reason in plain language."
+                  rows={4}
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                />
+              </div>
+
+              <div className="grid gap-1.5">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Supporting trace {status !== "pending" ? <span className="text-rose-500">*</span> : null}
+                </label>
+                <input
+                  type="text"
+                  value={supportReference}
+                  onChange={(e) => setSupportReference(e.target.value)}
+                  placeholder="Cite the best supporting trace: section, fragment, scene, workbook cell, or note."
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                />
+              </div>
+
+              <div className="grid gap-1.5">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Evidence link
+                </label>
+                <input
+                  type="text"
+                  value={evidenceLink}
+                  onChange={(e) => setEvidenceLink(e.target.value)}
+                  placeholder="Optional link to the supporting document, upload, or external trace."
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                />
+              </div>
             </div>
 
-            <div className="grid gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Supporting trace {status !== "pending" ? <span className="text-rose-500">*</span> : null}
-              </label>
-              <input
-                type="text"
-                value={supportReference}
-                onChange={(e) => setSupportReference(e.target.value)}
-                placeholder="Cite the best supporting trace: section, fragment, scene, workbook cell, or note."
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-              />
-            </div>
+            {errors.length > 0 ? (
+              <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+                {errors.map((err, i) => (
+                  <div key={i} className="text-sm text-rose-700">
+                    {err}
+                  </div>
+                ))}
+              </div>
+            ) : null}
 
-            <div className="grid gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Evidence link
-              </label>
-              <input
-                type="text"
-                value={evidenceLink}
-                onChange={(e) => setEvidenceLink(e.target.value)}
-                placeholder="Optional link to the supporting document, upload, or external trace."
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-              />
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+              <div className="text-xs text-slate-500">
+                Non-pending decisions require both a reason and a supporting trace.
+              </div>
+              <button
+                type="button"
+                onClick={handleSave}
+                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                  saved
+                    ? "bg-emerald-600 text-white"
+                    : "bg-slate-950 text-white hover:bg-slate-800"
+                }`}
+              >
+                {saved ? "Saved" : "Save review"}
+              </button>
             </div>
           </section>
         </div>
 
         <aside className="space-y-4">
-          <section className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+          <section className="rounded-[24px] border border-slate-200 bg-white p-4">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Supporting context
             </div>
             {linkedEvidence.length ? (
               <div className="mt-3 space-y-3">
-                <div className="text-sm font-medium text-slate-900">
-                  Best trace available
-                </div>
-                {linkedEvidence.slice(0, 2).map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                <div className="text-sm font-medium text-slate-900">Best trace available</div>
+                {linkedEvidence.slice(0, 1).map((item) => (
+                  <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3.5">
                     <div className="text-sm font-semibold text-slate-900">{item.title}</div>
                     <div className="mt-1 text-xs text-slate-500">{item.type}</div>
                     {item.meta ? <div className="mt-2 text-xs text-slate-600">{item.meta}</div> : null}
@@ -279,14 +321,14 @@ export default function RuleReviewPanel({
                     ) : null}
                   </div>
                 ))}
-                {linkedEvidence.length > 2 ? (
+                {linkedEvidence.length > 1 ? (
                   <div className="text-xs text-slate-500">
-                    {linkedEvidence.length - 2} more linked evidence item{linkedEvidence.length - 2 === 1 ? "" : "s"} available in detail.
+                    {linkedEvidence.length - 1} more linked evidence item{linkedEvidence.length - 1 === 1 ? "" : "s"} available below in detail.
                   </div>
                 ) : null}
               </div>
             ) : (
-              <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-4 text-sm text-slate-600">
+              <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
                 <div className="font-medium text-slate-900">No linked evidence yet</div>
                 <div className="mt-1">{emptyEvidenceHint}</div>
               </div>
@@ -301,34 +343,7 @@ export default function RuleReviewPanel({
         </aside>
       </div>
 
-      {errors.length > 0 ? (
-        <div className="mx-5 mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
-          {errors.map((err, i) => (
-            <div key={i} className="text-sm text-rose-700">
-              {err}
-            </div>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
-        <div className="text-xs text-slate-500">
-          Non-pending decisions require both a reason and a supporting trace.
-        </div>
-        <button
-          type="button"
-          onClick={handleSave}
-          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-            saved
-              ? "bg-emerald-600 text-white"
-              : "bg-slate-900 text-white hover:bg-slate-700"
-          }`}
-        >
-          {saved ? "Saved" : "Save review"}
-        </button>
-      </div>
-
-      <details className="group border-t border-slate-100 px-5 py-4">
+      <details className="group border-t border-slate-100 px-6 py-4">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-700 marker:hidden">
           <span>Rule detail and provenance</span>
           <span className="text-xs font-medium text-slate-400 group-open:hidden">Show</span>

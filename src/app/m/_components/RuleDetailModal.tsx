@@ -218,66 +218,74 @@ export default function RuleDetailModal({
       role="dialog"
       aria-modal="true"
       aria-label={`Rule detail ${row.ruleId}`}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 px-4 py-6 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 px-4 py-6 sm:items-center"
       onClick={onClose}
     >
       <div
-        className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-[28px] border border-slate-200 bg-white shadow-2xl"
+        className="max-h-[88vh] w-full max-w-[68rem] overflow-y-auto rounded-[32px] border border-slate-200 bg-white shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur">
-          <div className="min-w-0">
-            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Rule review</div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Rule {displayRuleId}</h2>
-            <div className="mt-2 max-w-2xl text-sm leading-6 text-slate-800">
-              {ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
-            </div>
-            <div className="mt-2 text-sm text-slate-600">
-              {methodologyLabel?.trim() || sourcePath?.trim() || "Methodology rule detail"}
-            </div>
-            {canonicalRuleId?.trim() && canonicalRuleId.trim() !== row.ruleId ? (
-              <div className="mt-2 font-mono text-[11px] text-slate-400">{canonicalRuleId.trim()}</div>
-            ) : null}
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reviewTone}`}>
-                {statusLabel(reviewStatus)}
-              </span>
-              <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${status.tone}`}>
-                {status.label}
-              </span>
-              {categoryLabel ? (
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold capitalize text-slate-700">
-                  {categoryLabel}
+        <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Rule review</div>
+                <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reviewTone}`}>
+                  {statusLabel(reviewStatus)}
                 </span>
-              ) : null}
+                <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${status.tone}`}>
+                  {status.label}
+                </span>
+                {categoryLabel ? (
+                  <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold capitalize text-slate-700">
+                    {categoryLabel}
+                  </span>
+                ) : null}
+              </div>
+              <h2 className="mt-3 text-[28px] font-semibold tracking-tight text-slate-950">Rule {displayRuleId}</h2>
+              <div className="mt-2 max-w-3xl text-[15px] leading-7 text-slate-900">
+                {ruleText?.trim() || row.ruleSummary.summary || row.ruleSummary.snippet}
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
+                <span>{methodologyLabel?.trim() || sourcePath?.trim() || "Methodology rule detail"}</span>
+                {canonicalRuleId?.trim() && canonicalRuleId.trim() !== row.ruleId ? (
+                  <span className="font-mono text-[11px] text-slate-400">{canonicalRuleId.trim()}</span>
+                ) : null}
+              </div>
+              <div className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                {reviewSummary} Set the current judgment, explain it, and cite the best supporting trace.
+              </div>
             </div>
-            <div className="mt-2 text-sm text-slate-600">{reviewSummary}</div>
-          </div>
-          <div className="flex items-center gap-2">
-            {reviewReady ? (
+            <div className="flex items-center gap-2">
+              {reviewReady ? (
+                <button
+                  type="button"
+                  className={`rounded-full border px-3.5 py-2 text-xs font-semibold ${
+                    existingReview
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300"
+                      : "border-slate-200 bg-slate-950 text-white hover:bg-slate-800"
+                  }`}
+                  onClick={() => setReviewOpen((current) => !current)}
+                >
+                  {reviewOpen ? "Hide review" : existingReview ? `Review (${existingReview.status})` : "Review"}
+                </button>
+              ) : null}
               <button
                 type="button"
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                  existingReview
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300"
-                    : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                }`}
-                onClick={() => setReviewOpen((current) => !current)}
+                className="rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                onClick={onClose}
               >
-                {reviewOpen ? "Hide review" : existingReview ? `Review (${existingReview.status})` : "Review"}
+                Close
               </button>
-            ) : null}
-            <button
-              type="button"
-              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
-              onClick={onClose}
-            >
-              Close
-            </button>
+            </div>
+          </div>
+          <div className="mt-4 h-px bg-slate-100" />
+          <div className="mt-4 text-xs text-slate-500">
+            The review record is the decision artifact: one rule, one judgment, one reason, one supporting trace.
           </div>
         </div>
 
-        <div className="px-6 py-6">
+        <div className="bg-slate-50/60 px-6 py-6">
           {reviewOpen && reviewReady ? (
             <RuleReviewPanel
               key={`${reviewRuleId}:${reviewMethodologyValue}:${reviewVersionValue}`}
