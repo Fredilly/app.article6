@@ -1,0 +1,89 @@
+{
+  "roadmap": "verifiable-review-record",
+  "goal": "Ship paid verification service — traceable review records, not clickable checklists.",
+  "last_updated_at": "2026-04-15T00:00:00Z",
+  "status": "active",
+  "pricing": {
+    "pilot_rate": "$1,500-2,500 per methodology verification",
+    "scale_rate": "$5,000 after 3 case studies with 60-70% time savings",
+    "target_pilots": 5
+  },
+  "current_focus": ["VRR-1: Rule Review Surface"],
+  "phases": [
+    {
+      "id": "vrr-1-rule-review-surface",
+      "name": "Rule Review Surface",
+      "week": 1,
+      "status": "active",
+      "depends_on": []
+    },
+    {
+      "id": "vrr-2-defensibility-layer",
+      "name": "Defensibility Layer",
+      "week": 2,
+      "status": "planned",
+      "depends_on": ["vrr-1-rule-review-surface"]
+    },
+    {
+      "id": "vrr-3-full-coverage-export",
+      "name": "Full Methodology Coverage + Export",
+      "week": 3,
+      "status": "planned",
+      "depends_on": ["vrr-2-defensibility-layer"]
+    },
+    {
+      "id": "vrr-4-pilot-ready-mvp",
+      "name": "Pilot-Ready MVP",
+      "weeks": "4-5",
+      "status": "planned",
+      "depends_on": ["vrr-3-full-coverage-export"]
+    }
+  ],
+  "pr_evidence": {},
+  "pr_meta": {
+    "VRR-1": {
+      "title": "Rule Review Surface",
+      "summary": "Build the traceable review record: rule text, status, rationale, support reference, provenance. The monetizable object.",
+      "acceptance": [
+        "Rule text from rules.json displayed in full",
+        "Status selector: Pending/Verified/Not Verified/Needs Follow-up",
+        "Rationale required for non-pending",
+        "Support reference required for non-pending",
+        "Provenance footer with reviewer + timestamp",
+        "Reviews persist across reloads (localStorage)",
+        "Reserved evidence panel placeholder"
+      ]
+    },
+    "VRR-2": {
+      "title": "Defensibility Layer",
+      "summary": "Backend persistence, evidence attachment, STAC support for satellite rules, review audit trail, finalize gate.",
+      "acceptance": [
+        "Reviews persist server-side via API",
+        "File upload and URL evidence links work",
+        "STAC facts auto-populate for satellite rules",
+        "Audit trail records all status changes",
+        "Finalize blocked until all rules reviewed"
+      ]
+    },
+    "VRR-3": {
+      "title": "Full Methodology Coverage + Export",
+      "summary": "All AR-ACM0003 rules reviewable. PDF + JSON verification summary export. Document upload.",
+      "acceptance": [
+        "All AR-ACM0003 v02-0 rules visible and reviewable",
+        "PDF export with all review records",
+        "JSON export passes schema validation",
+        "Document upload + basic text extraction"
+      ]
+    },
+    "VRR-4": {
+      "title": "Pilot-Ready MVP",
+      "summary": "Project-level synthesis, workbook calculations, multi-methodology, observer access. First paid pilot.",
+      "acceptance": [
+        "Verification Opinion report covers all rules",
+        "Workbook calculations (baseline/removals/leakage)",
+        "At least 2 methodologies loadable",
+        "At least 1 external pilot completed"
+      ]
+    }
+  }
+}
