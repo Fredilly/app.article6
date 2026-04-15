@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import HashCopyButton from "@/components/manifest/HashCopyButton";
 import Tooltip from "@/components/ui/Tooltip";
+import RuleReviewPanel from "@/components/verify/RuleReviewPanel";
+import { getReview, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
 import { type ManifestEntry } from "@/lib/manifest/cards";
 
 type RuleCardProps = {
@@ -103,6 +105,19 @@ export default function RuleCard({
   relatedVersions,
   onSelectVersion,
 }: RuleCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [review, setReview] = useState<RuleReview | null>(() =>
+    getReview(entry.id, entry.methodology, entry.version),
+  );
+
+  const handleSave = useCallback(
+    (updated: RuleReview) => {
+      saveReview(updated);
+      setReview(updated);
+    },
+    [],
+  );
+
   const shortHash = entry.sha256 ? `${entry.sha256.slice(0, 12)}…` : "n/a";
   const anchorUrl = buildAnchorUrl(entry);
   const hasAnchor = anchorUrl !== "#";
@@ -178,7 +193,31 @@ export default function RuleCard({
         >
           Export JSON
         </a>
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className={`inline-flex min-h-[2.75rem] items-center justify-center rounded-full border px-4 font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-500 focus-visible:outline-offset-2 ${
+            review
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300"
+              : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900"
+          }`}
+        >
+          {expanded ? "Close review" : review ? `Review (${review.status})` : "Review"}
+        </button>
       </footer>
+
+      {expanded ? (
+        <RuleReviewPanel
+          ruleId={entry.id}
+          ruleText={entry.rule}
+          sectionId={entry.sectionId}
+          methodology={entry.methodology}
+          version={entry.version}
+          anchorUrl={hasAnchor ? anchorUrl : undefined}
+          existingReview={review}
+          onSave={handleSave}
+        />
+      ) : null}
     </article>
   );
 }

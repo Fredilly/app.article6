@@ -11,6 +11,11 @@ export type ManifestEntry = {
   pdfId?: string;
   anchor?: string;
   sha256?: string;
+  sectionId?: string;
+  rule_id?: string;
+  provider?: string;
+  category?: string;
+  path?: string;
   [key: string]: unknown;
 };
 
