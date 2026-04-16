@@ -58,7 +58,7 @@ describe("demo stability regression harness", () => {
 
   test("map view state does not write bbox into URL", () => {
     const detail = read("src/app/m/_components/MethodDetailPane.tsx");
-    expect(detail).not.toContain("bbox");
+    expect(detail).not.toContain('searchParams.set("bbox"');
 
     const mapTab = read("src/components/map/ProofMapTab.tsx");
     expect(mapTab).not.toContain('searchParams.set("bbox"');

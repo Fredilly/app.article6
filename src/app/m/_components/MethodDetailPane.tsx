@@ -390,6 +390,28 @@ export default function MethodDetailPane({
     [activeRuleId, requirementRows],
   );
 
+  const stacItemsForPanel = useMemo(() => {
+    if (!stacEvidenceState?.itemsById) return [];
+    return Object.values(stacEvidenceState.itemsById).map((item) => {
+      const raw = item as Record<string, unknown>;
+      const props = raw.properties && typeof raw.properties === "object" && !Array.isArray(raw.properties)
+        ? (raw.properties as Record<string, unknown>)
+        : {};
+      return {
+        id: typeof raw.id === "string" ? raw.id : "",
+        datetime: typeof raw.datetime === "string" ? raw.datetime : undefined,
+        cloud_cover: typeof raw.cloud_cover === "number" ? raw.cloud_cover : null,
+        collection:
+          (typeof raw.collection === "string" ? raw.collection : null) ??
+          (typeof props.collection === "string" ? props.collection : null) ??
+          undefined,
+        bbox: Array.isArray(raw.bbox) && raw.bbox.length >= 4
+          ? (raw.bbox as [number, number, number, number])
+          : undefined,
+      };
+    }).filter((item) => item.id);
+  }, [stacEvidenceState]);
+
   useEffect(() => {
     if (!activeVersion) {
       setReviewProgress(null);
@@ -1405,6 +1427,9 @@ export default function MethodDetailPane({
         reviewVersion={activeVersion ?? null}
         sourcePath={ruleDetail?.sourcePath ?? null}
         sha256={ruleDetail?.sha256 ?? null}
+        ruleTags={activeRequirementRow?.ruleSummary.tags ?? []}
+        stacItems={stacItemsForPanel}
+        hasAoi={!!effectiveAoi}
         traceSections={linkedTraceSections.map((link) => {
           const section = sectionsById.get(link.section_id);
           return {
