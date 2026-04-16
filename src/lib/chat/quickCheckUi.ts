@@ -138,7 +138,7 @@ export function deriveQuickCheckExtractionState(extraction: QuickCheckExtraction
     return {
       value: "weak",
       label: "Weak",
-      description: "We couldn't extract enough claim-relevant facts from this file yet.",
+      description: "No usable text extracted from this file.",
     };
   }
 
@@ -146,14 +146,14 @@ export function deriveQuickCheckExtractionState(extraction: QuickCheckExtraction
     return {
       value: "partial",
       label: "Partial",
-      description: "We parsed the file and found relevant facts, but the extraction is still incomplete.",
+      description: "Some facts found, but extraction is incomplete.",
     };
   }
 
   return {
     value: "grounded",
     label: "Grounded",
-    description: "We parsed the file and found claim-relevant facts with no active extraction warnings.",
+    description: "File parsed with claim-relevant facts.",
   };
 }
 
