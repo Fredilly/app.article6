@@ -11,24 +11,32 @@ async function handlePost(request: Request) {
     return NextResponse.json({ error: "Missing PDF bytes." }, { status: 400 });
   }
 
+  let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
+
   try {
     const extraction = await extractPdfTextWithPdfParse({ bytes });
-    return NextResponse.json({
-      text: extraction.text,
-      engine: extraction.engine,
-      metadata: extraction.metadata,
-    });
+    // pdf-parse can succeed but return empty text for ASCII85-encoded streams.
+    // Fall through to heuristic extractor which has custom ASCII85 + FlateDecode.
+    if (extraction.text.trim().length > 0) {
+      return NextResponse.json({
+        text: extraction.text,
+        engine: extraction.engine,
+        metadata: extraction.metadata,
+      });
+    }
   } catch (error) {
-    const fallbackText = extractPdfText(bytes);
-    return NextResponse.json({
-      text: fallbackText,
-      engine: "heuristic",
-      metadata: {
-        parser: "heuristic",
-        fallbackReason: error instanceof Error ? error.message : String(error),
-      },
-    });
+    fallbackReason = `pdf-parse threw: ${error instanceof Error ? error.message : String(error)} — fell back to heuristic extractor`;
   }
+
+  const fallbackText = extractPdfText(bytes);
+  return NextResponse.json({
+    text: fallbackText,
+    engine: "heuristic",
+    metadata: {
+      parser: "heuristic",
+      fallbackReason,
+    },
+  });
 }
 
 async function handleGet() {
