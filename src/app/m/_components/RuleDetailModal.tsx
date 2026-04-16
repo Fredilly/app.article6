@@ -7,6 +7,7 @@ import RuleReviewPanel from "@/components/verify/RuleReviewPanel";
 import { getReview, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
 import { logAuditEvent } from "@/lib/verify/auditTrail";
 import { statusLabel } from "@/lib/verify/reviewValidation";
+import type { DocumentSupportEntry } from "@/lib/verify/documentSupport";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_RECONCILIATION_META,
@@ -35,6 +36,7 @@ type RuleDetailModalProps = {
     bbox?: [number, number, number, number];
   }>;
   hasAoi?: boolean;
+  documentSupport?: DocumentSupportEntry[];
   methodologyLabel?: string | null;
   reviewMethodology?: string | null;
   reviewVersion?: string | null;
@@ -129,6 +131,7 @@ export default function RuleDetailModal({
   ruleTags = [],
   stacItems = [],
   hasAoi = false,
+  documentSupport = [],
   methodologyLabel,
   reviewMethodology,
   reviewVersion,
@@ -345,6 +348,7 @@ export default function RuleDetailModal({
               ruleTags={ruleTags}
               stacItems={stacItems}
               hasAoi={hasAoi}
+              documentSupport={documentSupport}
               onSave={handleSaveReview}
               onReviewChange={handleReviewChange}
             />

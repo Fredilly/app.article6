@@ -17,6 +17,8 @@ import { getAuditTrailForRule, logAuditEvent, type AuditEvent } from "@/lib/veri
 import { isStacEligible, stacEligibilityReason } from "@/lib/verify/stacEligibility";
 import { extractStacSupportFacts } from "@/lib/verify/stacSupportFacts";
 import StacSupportSection from "@/components/verify/StacSupportSection";
+import DocumentSupportSection from "@/components/verify/DocumentSupportSection";
+import type { DocumentSupportEntry } from "@/lib/verify/documentSupport";
 
 type RuleReviewPanelProps = {
   ruleId: string;
@@ -49,6 +51,7 @@ type RuleReviewPanelProps = {
     bbox?: [number, number, number, number];
   }>;
   hasAoi?: boolean;
+  documentSupport?: DocumentSupportEntry[];
   onSave: (review: RuleReview) => void;
   onReviewChange?: (review: RuleReview) => void;
 };
@@ -79,6 +82,7 @@ export default function RuleReviewPanel({
   ruleTags = [],
   stacItems = [],
   hasAoi = false,
+  documentSupport = [],
   onSave,
   onReviewChange,
 }: RuleReviewPanelProps) {
@@ -548,6 +552,8 @@ export default function RuleReviewPanel({
               </div>
             )}
           </section>
+
+          <DocumentSupportSection entries={documentSupport} />
 
           <StacSupportSection
             eligible={stacEligible}

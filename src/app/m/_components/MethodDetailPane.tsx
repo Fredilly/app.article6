@@ -61,6 +61,7 @@ import { importProofBundleText } from "@/lib/proof/import";
 import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlState";
 import type { MethodVersionLineage } from "@/app/m/_lib/methodVersionMetadata";
 import { getReviewProgress, REVIEW_STORE_EVENT, type ReviewProgress } from "@/lib/verify/reviewStore";
+import { deriveDocumentSupport } from "@/lib/verify/documentSupport";
 
 type MethodDetail = {
   code: string;
@@ -411,6 +412,11 @@ export default function MethodDetailPane({
       };
     }).filter((item) => item.id);
   }, [stacEvidenceState]);
+
+  const documentSupportForPanel = useMemo(() => {
+    if (!activeRuleId) return [];
+    return deriveDocumentSupport(evidenceInventory, activeRuleId);
+  }, [activeRuleId, evidenceInventory]);
 
   useEffect(() => {
     if (!activeVersion) {
@@ -1430,6 +1436,7 @@ export default function MethodDetailPane({
         ruleTags={activeRequirementRow?.ruleSummary.tags ?? []}
         stacItems={stacItemsForPanel}
         hasAoi={!!effectiveAoi}
+        documentSupport={documentSupportForPanel}
         traceSections={linkedTraceSections.map((link) => {
           const section = sectionsById.get(link.section_id);
           return {
