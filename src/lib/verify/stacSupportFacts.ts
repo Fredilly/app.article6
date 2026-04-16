@@ -47,14 +47,30 @@ export function extractStacSupportFacts(
     bbox: item.bbox,
   }));
 
-  // Date range
-  const dates = items
-    .map((item) => item.datetime)
-    .filter((d): d is string => Boolean(d))
-    .sort();
+  // Date range — parse instants so mixed-offset timestamps sort correctly.
+  // Unparsable datetimes (NaN) are ignored to avoid corrupting the range.
+  let earliestInstant = Infinity;
+  let latestInstant = -Infinity;
+  let earliestStr: string | null = null;
+  let latestStr: string | null = null;
 
-  const dateRange = dates.length > 0
-    ? { earliest: dates[0], latest: dates[dates.length - 1] }
+  for (const item of items) {
+    const dt = item.datetime;
+    if (!dt) continue;
+    const ms = Date.parse(dt);
+    if (!Number.isFinite(ms)) continue;
+    if (ms < earliestInstant) {
+      earliestInstant = ms;
+      earliestStr = dt;
+    }
+    if (ms > latestInstant) {
+      latestInstant = ms;
+      latestStr = dt;
+    }
+  }
+
+  const dateRange = earliestStr && latestStr
+    ? { earliest: earliestStr, latest: latestStr }
     : null;
 
   // Average cloud cover
