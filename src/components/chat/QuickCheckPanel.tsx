@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
-  CheckCircle2,
   ChevronDown,
   ChevronRight,
   FolderOpen,
@@ -475,21 +474,6 @@ function extractionStateBadgeClass(value: "grounded" | "partial" | "weak"): stri
   return "border-rose-200 bg-rose-50 text-rose-800";
 }
 
-function buildUnresolvedItems(input: {
-  extraction: QuickCheckExtractionSnapshot | null;
-  result: QuickCheckResult;
-}): string[] {
-  const next = new Set<string>();
-  for (const warning of input.extraction?.warnings ?? []) {
-    if (warning.trim()) next.add(warning.trim());
-  }
-  for (const item of input.result.unresolved ?? []) {
-    if (item.trim()) next.add(item.trim());
-  }
-  if (input.result.nextStepHint.trim()) next.add(input.result.nextStepHint.trim());
-  return Array.from(next).slice(0, 4);
-}
-
 function sourceModeLabel(sourceMode: QuickCheckSourceMode | null | undefined): string {
   if (sourceMode === "uploaded_file") return "Uploaded file";
   if (sourceMode === "saved_evidence") return "Saved evidence";
@@ -719,16 +703,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         : null,
     [activeSourceMode, draft.methodologyId, draft.methodologyVersion, extractionPreview, renderedResult, selectedEvidenceLabel],
   );
-  const normalizedRequirement = normalizedResult?.match ? splitRequirementLabel(normalizedResult.match.requirementLabel) : null;
   const isGroundedResult = normalizedResult?.match?.grounding === "methodology_grounded";
   const resultToneClass = isGroundedResult ? "border-emerald-200 bg-emerald-50/75" : "border-sky-200 bg-sky-50/80";
-  const resultIconClass = isGroundedResult ? "text-emerald-700" : "text-sky-700";
   const resultEyebrowClass = isGroundedResult ? "text-emerald-800" : "text-sky-800";
-  const resultTitle = isGroundedResult ? "Preliminary match found" : "Candidate from current catalog";
-  const resultSignalNote = isGroundedResult
-    ? `${normalizedResult?.extractionState.description ?? ""} Quick Check returns a methodology-grounded preliminary requirement match, not a final review decision.`
-    : `${normalizedResult?.extractionState.description ?? ""} Evidence was found, but this file did not detect methodology text, so this is only a catalog candidate and not a methodology-grounded preliminary match.`;
-  const resultMatchLabel = isGroundedResult ? "What matched" : "Catalog candidate";
   const selectedEvidenceSources = useMemo(() => {
     const sources = new Map<string, { evidenceId: string; sourceLabel: string; attachments: EvidencePin["attachments"]; pddFragments?: PddFragment[] }>();
 
@@ -1922,153 +1899,29 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               role="status"
               aria-live="polite"
             >
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${resultIconClass}`} />
-                <div className="min-w-0">
-                  <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${resultEyebrowClass}`}>Result</div>
-                  <div className="mt-2 text-lg font-semibold text-slate-950">{resultTitle}</div>
-                  <div className="mt-2 text-sm text-slate-700">{normalizedResult.claim}</div>
-                  {!isGroundedResult ? (
-                    <div className="mt-3 text-sm text-slate-700">
-                      Evidence found, but not grounded to detected methodology.
-                    </div>
-                  ) : null}
-                  <div className={`mt-4 grid gap-4 rounded-2xl border bg-white/75 p-4 md:grid-cols-3 ${isGroundedResult ? "border-emerald-200/80" : "border-sky-200/80"}`}>
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{resultMatchLabel}</div>
-                      <div className="mt-1 text-sm font-medium text-slate-900">
-                        {normalizedRequirement?.title || normalizedResult.match.requirementLabel}
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        {normalizedResult.match.methodologyCode}
-                        {normalizedResult.match.methodologyVersion ? ` · ${normalizedResult.match.methodologyVersion}` : ""}
-                        {(normalizedRequirement?.id || normalizedResult.match.requirementId)
-                          ? ` · ${normalizedRequirement?.id || normalizedResult.match.requirementId}`
-                          : ""}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
-                      <div className="mt-1 text-sm font-medium text-slate-900">{sourceModeLabel(normalizedResult.sourceMode)}</div>
-                      <div className="mt-1 text-xs text-slate-500">{normalizedResult.evidenceFileName || "1 item selected"}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence signal</div>
-                      <span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(normalizedResult.extractionState.value)}`}>
-                        {normalizedResult.extractionState.label}
-                      </span>
-                      <div className="mt-2 text-xs text-slate-500">
-                        {resultSignalNote}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence</div>
-                      <div className="mt-1 text-sm font-medium text-slate-900">{normalizedResult.evidenceFileName || "1 item selected"}</div>
-                      <div className="mt-1 text-xs text-slate-500">{normalizedResult.extraction.documentType}</div>
-                    </div>
-                  </div>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{resultMatchLabel}</div>
-                      <div className="mt-2 text-sm text-slate-700">{normalizedResult.match.rationale}</div>
-                      {renderedResult.citations.length ? (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {renderedResult.citations.map((citation) => (
-                            <span key={citation} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                              {citation}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What we found in the file</div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {normalizedResult.extraction.extractedFacts.map((fact) => (
-                          <span key={fact} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                            {fact}
-                          </span>
-                        ))}
-                      </div>
-                      {normalizedResult.extraction.methodologyMentions.length ? (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {normalizedResult.extraction.methodologyMentions.map((citation) => (
-                            <span key={citation} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                              {citation}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-white/70 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">What remains unresolved</div>
-                    <div className="mt-2 grid gap-2">
-                      {buildUnresolvedItems({ extraction: normalizedResult.extraction, result: renderedResult }).map((item) => (
-                        <div key={item} className="text-sm text-slate-700">
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={handleContinueToWorkspace}
-                      className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
-                    >
-                      <FolderOpen className="h-4 w-4" />
-                      Open full review
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updateDraft(
-                          (current) => ({
-                            ...current,
-                            sourceMode: undefined,
-                            evidenceFileName: undefined,
-                            matchedRequirementId: undefined,
-                            matchedRequirementLabel: undefined,
-                            evidenceIds: [],
-                            status: "draft",
-                            resultId: undefined,
-                          }),
-                          null,
-                        );
-                        clearDecisionState();
-                      }}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
-                    >
-                      Change evidence
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updateDraft(
-                          (current) => ({
-                            ...current,
-                            sourceMode: undefined,
-                            evidenceFileName: undefined,
-                            claimText: "",
-                            methodologyId: initialMethod?.trim() ?? "",
-                            methodologyVersion: initialVersion?.trim() ?? "",
-                            matchedRequirementId: undefined,
-                            matchedRequirementLabel: undefined,
-                            evidenceIds: [],
-                            status: "draft",
-                            resultId: undefined,
-                          }),
-                          null,
-                        );
-                        clearDecisionState();
-                      }}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
-                    >
-                      Start your own check
-                    </button>
-                  </div>
+              <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${resultEyebrowClass}`}>
+                {renderedResult.verdict}
+              </div>
+              <div className="mt-2 text-sm text-slate-600">{normalizedResult.claim}</div>
+              <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 px-4 py-3">
+                <div className="text-sm text-slate-800">
+                  {normalizedResult.match.rationale}
                 </div>
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(normalizedResult.extractionState.value)}`}>
+                  {normalizedResult.extractionState.label} evidence signal
+                </span>
+              </div>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={handleContinueToWorkspace}
+                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+                >
+                  <FolderOpen className="h-4 w-4" />
+                  Open full review
+                </button>
               </div>
             </div>
           ) : null}

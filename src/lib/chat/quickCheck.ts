@@ -402,10 +402,10 @@ function compactCitations(row: ReturnType<typeof buildRequirementCoverageRows>[n
 }
 
 function quickCheckNextStepHint(status: "supported" | "partial" | "needs-review" | "missing-evidence"): string {
-  if (status === "supported") return "Continue to Review Workspace to preserve this check and expand the review.";
-  if (status === "partial") return "Upload another evidence item or continue to Review Workspace to close the gap.";
-  if (status === "missing-evidence") return "Upload stronger evidence, then run the check again.";
-  return "Continue to Review Workspace to add reviewer context or attach stronger evidence.";
+  if (status === "supported") return "Open full review to preserve this check.";
+  if (status === "partial") return "Open full review to close the gap.";
+  if (status === "missing-evidence") return "Upload stronger evidence.";
+  return "Open full review to continue.";
 }
 
 export function buildQuickCheckWorkspaceUrl(
