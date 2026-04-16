@@ -77,6 +77,8 @@ type EvidenceWorkflowStepperProps = {
   version?: string;
   reviewedRuleCount?: number | null;
   linkedEvidenceCount?: number | null;
+  finalizeBlocked?: boolean;
+  finalizeGateBanner?: ReactNode;
   finalizedResult?: ReactNode;
 };
 
@@ -364,6 +366,8 @@ export default function EvidenceWorkflowStepper({
   version,
   reviewedRuleCount = null,
   linkedEvidenceCount = null,
+  finalizeBlocked = false,
+  finalizeGateBanner = null,
   finalizedResult = null,
 }: EvidenceWorkflowStepperProps) {
   const stepMap = new Map(wizard.steps.map((step) => [step.id, step]));
@@ -376,7 +380,8 @@ export default function EvidenceWorkflowStepper({
   const step7 = stepMap.get(7)!;
   const hasDraftArtifactChanges = draftMinutes !== savedMinutes || draftOutcomeNote !== savedOutcomeNote;
   const reviewerArtifactSaved = Boolean(savedReviewerArtifactAt);
-  const readyToFinalize = step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled);
+  const readyToFinalize =
+    !finalizeBlocked && (step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled));
   const inProgress = !currentWorkspaceIsFinal && !readyToFinalize;
   const stepShellClass = currentWorkspaceIsFinal ? "opacity-45 transition" : "transition";
   const [completedWorkflowExpanded, setCompletedWorkflowExpanded] = useState(false);
@@ -389,6 +394,10 @@ export default function EvidenceWorkflowStepper({
       : null,
   ].filter(Boolean) as string[];
   const finalizedLabel = formatDate(finalizedAt);
+  const nextActionText =
+    finalizeBlocked && !currentWorkspaceIsFinal
+      ? "Complete all non-pending rule reviews with rationale and support before finalizing."
+      : (wizard.nextAction ?? "Run complete");
 
   useEffect(() => {
     setCompletedWorkflowExpanded(false);
@@ -484,7 +493,7 @@ export default function EvidenceWorkflowStepper({
           </div>
           <div className="text-right text-[11px] text-slate-500" data-testid="wizard-next-action">
             <div className="font-semibold uppercase tracking-wide text-slate-400">Next required action</div>
-            <div className="mt-1 text-slate-700">{wizard.nextAction ?? "Run complete"}</div>
+            <div className="mt-1 text-slate-700">{nextActionText}</div>
           </div>
         </div>
       </div>
@@ -685,12 +694,13 @@ export default function EvidenceWorkflowStepper({
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 7</div>
         <div className="mt-1 text-xs font-semibold text-slate-900">Finalize run</div>
         <div className="mt-1 text-[11px] text-slate-500">This is the single completion/export action. Finalization writes the immutable run artifact with evidence and reviewer notes.</div>
+        {finalizeGateBanner ? <div className="mt-2">{finalizeGateBanner}</div> : null}
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
             className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={onFinalizeRun}
-            disabled={step7.disabled || currentWorkspaceIsFinal}
+            disabled={step7.disabled || currentWorkspaceIsFinal || finalizeBlocked}
           >
             Finalize run
           </button>
