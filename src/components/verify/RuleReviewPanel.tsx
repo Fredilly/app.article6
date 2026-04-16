@@ -117,6 +117,7 @@ export default function RuleReviewPanel({
       rationale,
       supportReference,
       evidenceLink: evidenceLink || undefined,
+      evidenceAttachments: existingReview?.evidenceAttachments ?? [],
       reviewedBy: existingReview?.reviewedBy ?? "reviewer",
       reviewedAt: existingReview?.reviewedAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
