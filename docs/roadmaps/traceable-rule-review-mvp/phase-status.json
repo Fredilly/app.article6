@@ -3,14 +3,15 @@
     "status": "active",
     "summary": "Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 8-phase path to paid VVB pilots.",
     "current_focus": [
-      "Phase 1 complete \u2014 review panel on /m/[code] with persistence and validation",
-      "Phase 2 next: evidence attachment, audit trail, finalize gate"
+      "Phase 1 + 2 complete \u2014 review panel with evidence, audit trail, finalize gate, progress",
+      "Phase 3 next: STAC support facts for satellite-relevant rules"
     ],
     "not_active_now": [
       "STAC auto-verification (support facts only, not auto-verify)",
       "AI-assisted review (post-moat)",
       "Multi-methodology cross-referencing (Phase 5+)"
-    ]
+    ],
+    "last_updated_at": "2026-04-16T00:00:00Z"
   },
   "phase_0_roadmap_contract_freeze": {
     "status": "done",
@@ -23,12 +24,12 @@
     "summary": "Build the traceable review record: rule text, status, rationale, support reference, provenance. Inline panel, not modal. Validation enforces rationale + support before Verified."
   },
   "phase_2_defensible_verification": {
-    "status": "next",
+    "status": "done",
     "title": "Defensible Verification",
     "summary": "Evidence attachment, audit trail, finalize gate. Every decision traceable by a third party. Reviews become defensible audit artifacts."
   },
   "phase_3_aoi_stac_support_facts": {
-    "status": "planned",
+    "status": "next",
     "title": "AOI / STAC Support Facts",
     "summary": "Auto-populate satellite support facts for eligible rules. AOI-scoped. Support, not auto-verification. STAC fills the reserved area from Phase 1."
   },
