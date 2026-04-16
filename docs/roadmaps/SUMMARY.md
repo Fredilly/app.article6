@@ -160,8 +160,8 @@ Lane status: Active
 Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 8-phase path to paid VVB pilots.
 
 Current focus:
-- Phase 1 + 2 complete — review panel with evidence, audit trail, finalize gate, progress
-- Phase 3 next: STAC support facts for satellite-relevant rules
+- Phase 1 + 2 + 3 complete — review panel, audit trail, finalize gate, AOI/STAC support facts
+- Phase 4 next: document and workbook support
 
 Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
