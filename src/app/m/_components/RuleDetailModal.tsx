@@ -26,6 +26,15 @@ type RuleDetailModalProps = {
   ruleWhen?: string[] | null;
   reviewerMinutes?: string | null;
   reviewerOutcomeNote?: string | null;
+  ruleTags?: string[];
+  stacItems?: Array<{
+    id: string;
+    datetime?: string;
+    cloud_cover?: number | null;
+    collection?: string;
+    bbox?: [number, number, number, number];
+  }>;
+  hasAoi?: boolean;
   methodologyLabel?: string | null;
   reviewMethodology?: string | null;
   reviewVersion?: string | null;
@@ -117,6 +126,9 @@ export default function RuleDetailModal({
   ruleWhen,
   reviewerMinutes,
   reviewerOutcomeNote,
+  ruleTags = [],
+  stacItems = [],
+  hasAoi = false,
   methodologyLabel,
   reviewMethodology,
   reviewVersion,
@@ -330,6 +342,9 @@ export default function RuleDetailModal({
               expectedEvidence={row.expectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type] ?? type)}
               sourcePath={sourcePath ?? null}
               sha256={sha256 ?? null}
+              ruleTags={ruleTags}
+              stacItems={stacItems}
+              hasAoi={hasAoi}
               onSave={handleSaveReview}
               onReviewChange={handleReviewChange}
             />
