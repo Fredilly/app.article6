@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle2, ChevronDown, FileSearch, FileText, Link2, No
 import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
 import RuleReviewPanel from "@/components/verify/RuleReviewPanel";
 import { getReview, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
+import { logAuditEvent } from "@/lib/verify/auditTrail";
 import { statusLabel } from "@/lib/verify/reviewValidation";
 import {
   EXPECTED_EVIDENCE_LABELS,
@@ -156,11 +157,38 @@ export default function RuleDetailModal({
 
   const handleSaveReview = useCallback(
     (review: RuleReview) => {
+      const actor = review.reviewedBy?.trim() || "local-reviewer";
+      if (!existingReview) {
+        logAuditEvent({
+          ruleId: review.ruleId,
+          methodology: review.methodology,
+          version: review.version,
+          action: "review_created",
+          newStatus: review.status,
+          actor,
+          note: `Created review with status ${review.status}`,
+        });
+      } else if (existingReview.status !== review.status) {
+        logAuditEvent({
+          ruleId: review.ruleId,
+          methodology: review.methodology,
+          version: review.version,
+          action: "status_change",
+          previousStatus: existingReview.status,
+          newStatus: review.status,
+          actor,
+          note: `Status changed from ${existingReview.status} to ${review.status}`,
+        });
+      }
       saveReview(review);
       setExistingReview(review);
     },
-    [],
+    [existingReview],
   );
+
+  const handleReviewChange = useCallback((review: RuleReview) => {
+    setExistingReview(review);
+  }, []);
 
   if (!open || !row) return null;
 
@@ -303,6 +331,7 @@ export default function RuleDetailModal({
               sourcePath={sourcePath ?? null}
               sha256={sha256 ?? null}
               onSave={handleSaveReview}
+              onReviewChange={handleReviewChange}
             />
           ) : (
             <div className="grid gap-4">

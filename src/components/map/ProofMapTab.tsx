@@ -6,6 +6,7 @@ import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
 import OutcomeWidget from "@/components/verify/OutcomeWidget";
 import FinalReviewSummaryPanel from "@/components/verify/FinalReviewSummaryPanel";
+import FinalizeGateBanner from "@/components/verify/FinalizeGateBanner";
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
@@ -32,6 +33,7 @@ import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
+import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import {
@@ -1687,6 +1689,22 @@ export default function ProofMapTab({
     ],
   );
   const currentWorkspaceIsFinal = Boolean(verifierBundle.finalizedAt);
+  const [reviewGateVersion, setReviewGateVersion] = useState(0);
+  useEffect(() => {
+    if (!verifierMode) return;
+    const handleReviewStoreChange = () => setReviewGateVersion((current) => current + 1);
+    window.addEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
+    return () => window.removeEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
+  }, [verifierMode]);
+  const finalizeGate = useMemo(() => {
+    void reviewGateVersion;
+    if (!verifierMode) return null;
+    if (!methodCode.trim() || !version.trim()) return null;
+    if (!totalRules || totalRules < 1) {
+      return { canFinalize: false, reasons: ["Rule count unavailable for finalize gate."] };
+    }
+    return checkFinalizeGate(methodCode, version, totalRules);
+  }, [methodCode, reviewGateVersion, totalRules, verifierMode, version]);
   const selectedStacItemRecord = useMemo(() => {
     if (!selectedStacItemId) return null;
     const candidate = currentStacEvidence?.itemsById?.[selectedStacItemId];
@@ -2070,6 +2088,7 @@ export default function ProofMapTab({
   }, [buildFinalReviewArtifact, currentWorkspaceIsFinal, reviewArtifact, verifierBundle]);
 
   const handleFinalizeRun = useCallback(() => {
+    if (finalizeGate && !finalizeGate.canFinalize) return;
     if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
     void (async () => {
       const finalizedAt = new Date().toISOString();
@@ -2113,6 +2132,7 @@ export default function ProofMapTab({
     buildFinalReviewArtifact,
     buildHistoryBundle,
     currentWorkspaceBundle,
+    finalizeGate,
     handleSaveRunHistory,
     linkedRuleIds,
     methodCode,
@@ -4109,6 +4129,10 @@ export default function ProofMapTab({
                 version={version}
                 reviewedRuleCount={linkedRuleIds.length}
                 linkedEvidenceCount={evidenceInventory.filter((item) => item.link_state === "linked").length}
+                finalizeBlocked={Boolean(finalizeGate && !finalizeGate.canFinalize)}
+                finalizeGateBanner={
+                  finalizeGate ? <FinalizeGateBanner gate={finalizeGate} onFinalize={handleFinalizeRun} showAction={false} /> : null
+                }
                 finalizedResult={
                   <ReviewSummaryCard
                     summary={reviewArtifact?.summary ?? reviewSummary}

@@ -16,6 +16,7 @@ import {
 } from "@/app/m/_lib/requirementCoverage";
 import TrustStrip from "@/components/TrustStrip";
 import ProofMapTab from "@/components/map/ProofMapTab";
+import ReviewProgressIndicator from "@/components/verify/ReviewProgressIndicator";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
 import ShareLinkButton from "@/components/actions/ShareLinkButton";
@@ -59,6 +60,7 @@ import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
 import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlState";
 import type { MethodVersionLineage } from "@/app/m/_lib/methodVersionMetadata";
+import { getReviewProgress, REVIEW_STORE_EVENT, type ReviewProgress } from "@/lib/verify/reviewStore";
 
 type MethodDetail = {
   code: string;
@@ -278,6 +280,7 @@ export default function MethodDetailPane({
   const [evidenceSnapshots, setEvidenceSnapshots] = useState<ProofEvidenceItem[]>([]);
   const [verificationRuns, setVerificationRuns] = useState<VerificationRun[]>([]);
   const [integrityDiffOpen, setIntegrityDiffOpen] = useState(false);
+  const [reviewProgress, setReviewProgress] = useState<ReviewProgress | null>(null);
   type WorkspaceSnapshot = {
     currentAoi: AOI | null;
     evidencePins: EvidencePin[];
@@ -386,6 +389,20 @@ export default function MethodDetailPane({
     () => requirementRows.find((row) => row.ruleId === activeRuleId) ?? null,
     [activeRuleId, requirementRows],
   );
+
+  useEffect(() => {
+    if (!activeVersion) {
+      setReviewProgress(null);
+      return;
+    }
+    const updateProgress = () => {
+      setReviewProgress(getReviewProgress(method.code, activeVersion, requirementRows.length));
+    };
+    updateProgress();
+    const handleReviewStoreChange = () => updateProgress();
+    window.addEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
+    return () => window.removeEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
+  }, [activeVersion, method.code, requirementRows.length]);
 
   useEffect(() => {
     setRules([]);
@@ -1525,6 +1542,10 @@ export default function MethodDetailPane({
 
           {!rulesLoading && !rulesError && requirementRows.length ? (
             <>
+              {activeVersion && reviewProgress ? (
+                <ReviewProgressIndicator progress={reviewProgress} />
+              ) : null}
+
               <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-2">

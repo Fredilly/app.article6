@@ -23,9 +23,21 @@ export type RuleReview = {
 };
 
 const STORAGE_PREFIX = "article6:reviews";
+export const REVIEW_STORE_EVENT = "article6:review-store-changed";
+
+type ReviewStoreEventDetail = {
+  methodology: string;
+  version: string;
+  ruleId?: string;
+};
 
 function storageKey(methodology: string, version: string): string {
   return `${STORAGE_PREFIX}:${methodology}:${version}`;
+}
+
+function emitReviewStoreEvent(detail: ReviewStoreEventDetail): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(REVIEW_STORE_EVENT, { detail }));
 }
 
 export function getReview(
@@ -50,6 +62,11 @@ export function saveReview(review: RuleReview): void {
     const all: Record<string, RuleReview> = raw ? JSON.parse(raw) : {};
     all[review.ruleId] = { ...review, updatedAt: new Date().toISOString() };
     localStorage.setItem(key, JSON.stringify(all));
+    emitReviewStoreEvent({
+      methodology: review.methodology,
+      version: review.version,
+      ruleId: review.ruleId,
+    });
   } catch {
     // Storage full or unavailable — fail silently
   }
@@ -79,6 +96,7 @@ export function deleteReview(
     const all: Record<string, RuleReview> = JSON.parse(raw);
     delete all[ruleId];
     localStorage.setItem(key, JSON.stringify(all));
+    emitReviewStoreEvent({ methodology, version, ruleId });
   } catch {
     // ignore
   }
@@ -174,11 +192,13 @@ export function checkFinalizeGate(
   const entries = Object.values(reviews);
   const reasons: string[] = [];
 
-  // Check all rules have a review
-  const reviewedRuleIds = new Set(entries.map((r) => r.ruleId));
-  if (reviewedRuleIds.size < totalRules) {
-    const missing = totalRules - reviewedRuleIds.size;
-    reasons.push(`${missing} rule${missing === 1 ? "" : "s"} not yet reviewed`);
+  // Check all rules have a non-pending review
+  const completedRuleIds = new Set(
+    entries.filter((review) => review.status !== "pending").map((review) => review.ruleId),
+  );
+  if (completedRuleIds.size < totalRules) {
+    const missing = totalRules - completedRuleIds.size;
+    reasons.push(`${missing} rule${missing === 1 ? "" : "s"} still pending review`);
   }
 
   // Check non-pending reviews have rationale + support

@@ -1,11 +1,19 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import type { ReviewStatus, RuleReview } from "@/lib/verify/reviewStore";
+import {
+  addEvidenceAttachment,
+  removeEvidenceAttachment,
+  saveReview,
+  type EvidenceAttachment,
+  type ReviewStatus,
+  type RuleReview,
+} from "@/lib/verify/reviewStore";
 import {
   validateReview,
   statusLabel,
 } from "@/lib/verify/reviewValidation";
+import { getAuditTrailForRule, logAuditEvent, type AuditEvent } from "@/lib/verify/auditTrail";
 
 type RuleReviewPanelProps = {
   ruleId: string;
@@ -30,6 +38,7 @@ type RuleReviewPanelProps = {
   sourcePath?: string | null;
   sha256?: string | null;
   onSave: (review: RuleReview) => void;
+  onReviewChange?: (review: RuleReview) => void;
 };
 
 const STATUSES: ReviewStatus[] = [
@@ -56,6 +65,7 @@ export default function RuleReviewPanel({
   sourcePath,
   sha256,
   onSave,
+  onReviewChange,
 }: RuleReviewPanelProps) {
   const [status, setStatus] = useState<ReviewStatus>(
     existingReview?.status ?? "pending",
@@ -68,6 +78,15 @@ export default function RuleReviewPanel({
   );
   const [evidenceLink, setEvidenceLink] = useState(
     existingReview?.evidenceLink ?? "",
+  );
+  const [attachments, setAttachments] = useState<EvidenceAttachment[]>(
+    existingReview?.evidenceAttachments ?? [],
+  );
+  const [attachmentType, setAttachmentType] = useState<EvidenceAttachment["type"]>("url");
+  const [attachmentLabel, setAttachmentLabel] = useState("");
+  const [attachmentUrl, setAttachmentUrl] = useState("");
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>(
+    getAuditTrailForRule(ruleId, methodology, version).slice(-5).reverse(),
   );
   const [errors, setErrors] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
@@ -107,6 +126,19 @@ export default function RuleReviewPanel({
         };
     }
   }, [status]);
+  const actorLabel = existingReview?.reviewedBy?.trim() || "local-reviewer";
+
+  const refreshAuditEvents = useCallback(() => {
+    setAuditEvents(getAuditTrailForRule(ruleId, methodology, version).slice(-5).reverse());
+  }, [methodology, ruleId, version]);
+
+  const syncReview = useCallback(
+    (review: RuleReview) => {
+      setAttachments(review.evidenceAttachments ?? []);
+      onReviewChange?.(review);
+    },
+    [onReviewChange],
+  );
 
   const handleSave = useCallback(() => {
     const review: RuleReview = {
@@ -117,8 +149,8 @@ export default function RuleReviewPanel({
       rationale,
       supportReference,
       evidenceLink: evidenceLink || undefined,
-      evidenceAttachments: existingReview?.evidenceAttachments ?? [],
-      reviewedBy: existingReview?.reviewedBy ?? "reviewer",
+      evidenceAttachments: attachments,
+      reviewedBy: existingReview?.reviewedBy ?? "local-reviewer",
       reviewedAt: existingReview?.reviewedAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -131,6 +163,7 @@ export default function RuleReviewPanel({
 
     setErrors([]);
     onSave(review);
+    refreshAuditEvents();
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }, [
@@ -141,9 +174,105 @@ export default function RuleReviewPanel({
     rationale,
     supportReference,
     evidenceLink,
+    attachments,
     existingReview,
     onSave,
+    refreshAuditEvents,
   ]);
+
+  const handleAddAttachment = useCallback(() => {
+    const trimmedLabel = attachmentLabel.trim();
+    const trimmedUrl = attachmentUrl.trim();
+    if (!trimmedLabel) return;
+    if (attachmentType === "url" && !trimmedUrl) return;
+
+    if (!existingReview) {
+      const seededReview: RuleReview = {
+        ruleId,
+        methodology,
+        version,
+        status,
+        rationale,
+        supportReference,
+        evidenceLink: evidenceLink || undefined,
+        evidenceAttachments: attachments,
+        reviewedBy: actorLabel,
+        reviewedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      saveReview(seededReview);
+      syncReview(seededReview);
+    }
+
+    const review = addEvidenceAttachment(ruleId, methodology, version, {
+      type: attachmentType,
+      label: trimmedLabel,
+      url: attachmentType === "url" ? trimmedUrl : undefined,
+    });
+    if (!review) return;
+
+    logAuditEvent({
+      ruleId,
+      methodology,
+      version,
+      action: "evidence_added",
+      evidenceId: review.evidenceAttachments[review.evidenceAttachments.length - 1]?.id,
+      actor: actorLabel,
+      note:
+        attachmentType === "url"
+          ? `Added ${attachmentType} attachment: ${trimmedLabel} (${trimmedUrl})`
+          : `Added ${attachmentType} attachment: ${trimmedLabel}`,
+    });
+    setAttachmentLabel("");
+    setAttachmentUrl("");
+    syncReview(review);
+    refreshAuditEvents();
+  }, [
+    actorLabel,
+    attachmentLabel,
+    attachmentType,
+    attachmentUrl,
+    attachments,
+    evidenceLink,
+    existingReview,
+    methodology,
+    rationale,
+    refreshAuditEvents,
+    ruleId,
+    status,
+    supportReference,
+    syncReview,
+    version,
+  ]);
+
+  const handleFileSelected = useCallback(
+    (file: File | null) => {
+      if (!file) return;
+      setAttachmentType("file");
+      setAttachmentLabel(file.name);
+      setAttachmentUrl("");
+    },
+    [],
+  );
+
+  const handleRemoveAttachment = useCallback(
+    (attachment: EvidenceAttachment) => {
+      const review = removeEvidenceAttachment(ruleId, methodology, version, attachment.id);
+      if (!review) return;
+      logAuditEvent({
+        ruleId,
+        methodology,
+        version,
+        action: "evidence_removed",
+        evidenceId: attachment.id,
+        actor: actorLabel,
+        note: `Removed ${attachment.type} attachment: ${attachment.label}`,
+      });
+      syncReview(review);
+      refreshAuditEvents();
+    },
+    [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version],
+  );
 
   return (
     <section className="rounded-[24px] border border-slate-200 bg-white shadow-sm">
@@ -257,6 +386,86 @@ export default function RuleReviewPanel({
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
             </div>
+
+            <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Evidence attachments
+                </div>
+                <div className="mt-1 text-xs text-slate-500">
+                  Save URL, file-name, or reference attachments as supporting traces for this rule.
+                </div>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)_minmax(0,1fr)_auto]">
+                <select
+                  value={attachmentType}
+                  onChange={(event) => setAttachmentType(event.target.value as EvidenceAttachment["type"])}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                >
+                  <option value="url">URL</option>
+                  <option value="file">File</option>
+                  <option value="reference">Reference</option>
+                </select>
+                {attachmentType === "file" ? (
+                  <input
+                    type="file"
+                    onChange={(event) => handleFileSelected(event.target.files?.[0] ?? null)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 file:mr-3 file:rounded-full file:border-0 file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={attachmentLabel}
+                    onChange={(event) => setAttachmentLabel(event.target.value)}
+                    placeholder={attachmentType === "reference" ? "Reference label" : "Attachment label"}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                  />
+                )}
+                <input
+                  type="text"
+                  value={attachmentUrl}
+                  onChange={(event) => setAttachmentUrl(event.target.value)}
+                  disabled={attachmentType !== "url"}
+                  placeholder={attachmentType === "url" ? "https://…" : attachmentType === "file" ? "Stored as file name only" : "Optional location or note"}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddAttachment}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                >
+                  Add
+                </button>
+              </div>
+
+              {attachments.length ? (
+                <ul className="grid gap-2">
+                  {attachments.map((attachment) => (
+                    <li key={attachment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-slate-900">{attachment.label}</div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          {attachment.type}
+                          {attachment.url ? ` · ${attachment.url}` : ""}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAttachment(attachment)}
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-3 py-3 text-sm text-slate-500">
+                  No attachments saved yet.
+                </div>
+              )}
+            </div>
           </section>
         </div>
 
@@ -299,6 +508,28 @@ export default function RuleReviewPanel({
               Reviewed by {existingReview.reviewedBy} · {new Date(existingReview.updatedAt).toLocaleString()}
             </div>
           ) : null}
+
+          <section className="rounded-[20px] border border-slate-200 bg-white p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Recent audit
+            </div>
+            {auditEvents.length ? (
+              <ul className="mt-3 grid gap-2">
+                {auditEvents.map((event, index) => (
+                  <li key={`${event.timestamp}:${index}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                    <div className="text-xs font-semibold text-slate-700">{event.action.replaceAll("_", " ")}</div>
+                    <div className="mt-1 text-xs text-slate-600">
+                      {event.note ?? `${event.actor} · ${new Date(event.timestamp).toLocaleString()}`}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-500">
+                No audit events for this rule yet.
+              </div>
+            )}
+          </section>
         </aside>
       </div>
 

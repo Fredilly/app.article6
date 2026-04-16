@@ -6,9 +6,10 @@ import type { FinalizeGate } from "@/lib/verify/reviewStore";
 type FinalizeGateBannerProps = {
   gate: FinalizeGate;
   onFinalize: () => void;
+  showAction?: boolean;
 };
 
-export default function FinalizeGateBanner({ gate, onFinalize }: FinalizeGateBannerProps) {
+export default function FinalizeGateBanner({ gate, onFinalize, showAction = true }: FinalizeGateBannerProps) {
   const [confirming, setConfirming] = useState(false);
 
   if (gate.canFinalize) {
@@ -21,7 +22,7 @@ export default function FinalizeGateBanner({ gate, onFinalize }: FinalizeGateBan
               All rules reviewed with rationale and support references.
             </div>
           </div>
-          {confirming ? (
+          {!showAction ? null : confirming ? (
             <div className="flex items-center gap-2">
               <button
                 type="button"
