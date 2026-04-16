@@ -14,6 +14,9 @@ import {
   statusLabel,
 } from "@/lib/verify/reviewValidation";
 import { getAuditTrailForRule, logAuditEvent, type AuditEvent } from "@/lib/verify/auditTrail";
+import { isStacEligible, stacEligibilityReason } from "@/lib/verify/stacEligibility";
+import { extractStacSupportFacts } from "@/lib/verify/stacSupportFacts";
+import StacSupportSection from "@/components/verify/StacSupportSection";
 
 type RuleReviewPanelProps = {
   ruleId: string;
@@ -37,6 +40,15 @@ type RuleReviewPanelProps = {
   expectedEvidence?: string[];
   sourcePath?: string | null;
   sha256?: string | null;
+  ruleTags?: string[];
+  stacItems?: Array<{
+    id: string;
+    datetime?: string;
+    cloud_cover?: number | null;
+    collection?: string;
+    bbox?: [number, number, number, number];
+  }>;
+  hasAoi?: boolean;
   onSave: (review: RuleReview) => void;
   onReviewChange?: (review: RuleReview) => void;
 };
@@ -64,6 +76,9 @@ export default function RuleReviewPanel({
   expectedEvidence = [],
   sourcePath,
   sha256,
+  ruleTags = [],
+  stacItems = [],
+  hasAoi = false,
   onSave,
   onReviewChange,
 }: RuleReviewPanelProps) {
@@ -90,6 +105,9 @@ export default function RuleReviewPanel({
   );
   const [errors, setErrors] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
+  const stacEligible = isStacEligible(ruleTags);
+  const stacReason = stacEligibilityReason(ruleTags);
+  const stacSummary = stacEligible ? extractStacSupportFacts(stacItems) : null;
   const reviewExplanation = useMemo(() => {
     switch (status) {
       case "verified":
@@ -530,6 +548,13 @@ export default function RuleReviewPanel({
               </div>
             )}
           </section>
+
+          <StacSupportSection
+            eligible={stacEligible}
+            eligibilityReason={stacReason}
+            summary={stacSummary}
+            hasAoi={hasAoi}
+          />
         </aside>
       </div>
 
