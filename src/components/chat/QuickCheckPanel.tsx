@@ -1714,7 +1714,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             ) : null}
           </div>
 
-          {showAdvancedOptions && process.env.NODE_ENV !== "production" ? (
+          {showAdvancedOptions ? (
             <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Options</div>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
