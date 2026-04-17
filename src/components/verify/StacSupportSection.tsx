@@ -18,46 +18,46 @@ export default function StacSupportSection({
   // Not eligible — don't show misleading UI
   if (!eligible) return null;
 
-  // Eligible but no AOI
+  // Eligible but no project area
   if (!hasAoi) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 p-4">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-          STAC support facts
+          Satellite evidence
         </div>
         <div className="mt-2 text-sm text-slate-600">
           {eligibilityReason}
         </div>
         <div className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500">
-          No Area of Interest set. Upload an AOI to search for satellite evidence.
+          No project area set. Upload a boundary to search for satellite evidence.
         </div>
       </div>
     );
   }
 
-  // Eligible, has AOI, but no STAC data
+  // Eligible, has project area, but no satellite data
   if (!summary || summary.sceneCount === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 p-4">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-          STAC support facts
+          Satellite evidence
         </div>
         <div className="mt-2 text-sm text-slate-600">
           {eligibilityReason}
         </div>
         <div className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500">
-          No satellite scenes found for this AOI. Run a STAC search from the verify surface.
+          No satellite scenes found for this project area.
         </div>
       </div>
     );
   }
 
-  // Has STAC data
+  // Has satellite data
   return (
     <div className="rounded-2xl border border-sky-200 bg-sky-50/30 p-4">
       <div className="flex items-center justify-between">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-700">
-          STAC support facts
+          Satellite evidence
         </div>
         <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-sky-700">
           {summary.sceneCount} scene{summary.sceneCount === 1 ? "" : "s"}
