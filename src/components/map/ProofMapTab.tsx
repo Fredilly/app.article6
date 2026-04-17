@@ -403,7 +403,6 @@ export default function ProofMapTab({
   const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
   const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
-  const uploadWorkbookInputRef = useRef<HTMLInputElement | null>(null);
   const uploadPddInputRef = useRef<HTMLInputElement | null>(null);
   const [pddFragmentDrafts, setPddFragmentDrafts] = useState<Record<string, PddFragmentDraft>>({});
   const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
@@ -2378,55 +2377,6 @@ export default function ProofMapTab({
     version,
   ]);
 
-  const handleWorkbookUpload = useCallback(async (file: File | null) => {
-    if (!file) return;
-    setError(null);
-    const ts = new Date().toISOString();
-    const pinId =
-      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
-    try {
-      const result = await createAndStoreEvidenceAttachment({ pin_id: pinId, file });
-      if (!result.ok) {
-        setError(result.message);
-        return;
-      }
-      const candidate: EvidencePin = {
-        id: pinId,
-        kind: "doc",
-        title: file.name,
-        ts,
-        note: `${methodCode}@${version}`,
-        aoi_id: aoi?.id ?? null,
-        aoi_fingerprint: currentAoiFingerprint ?? undefined,
-        cited_ids: [],
-        attachments: [result.attachment],
-        created_at: ts,
-      };
-      const dedupeKey = evidencePinDedupeKey(candidate);
-      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
-      onSetEvidencePins((current) => {
-        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
-        return existingPin ? coalesceEvidencePins(current) : coalesceEvidencePins([candidate, ...current]);
-      });
-      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
-      showToast(existing ? `${file.name} is already in inventory` : `Added workbook ${file.name} to inventory`);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : String(error));
-      showToast("Workbook intake failed.");
-    }
-  }, [
-    aoi?.id,
-    currentAoiFingerprint,
-    evidencePins,
-    markBundleEdited,
-    methodCode,
-    onSetEvidencePins,
-    showToast,
-    version,
-  ]);
-
   const updatePddFragmentDraft = useCallback((evidenceId: string, patch: Partial<PddFragmentDraft>) => {
     setPddFragmentDrafts((current) => ({
       ...current,
@@ -2890,20 +2840,6 @@ export default function ProofMapTab({
               <div className="text-xs font-semibold text-slate-700">Evidence inventory</div>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-600">
-              <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-                Add workbook
-                <input
-                  ref={uploadWorkbookInputRef}
-                  type="file"
-                  accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/vnd.ms-excel"
-                  className="hidden"
-                  onChange={async (event) => {
-                    const file = event.target.files?.[0] ?? null;
-                    event.target.value = "";
-                    await handleWorkbookUpload(file);
-                  }}
-                />
-              </label>
               <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
                 Add PDD
                 <input
