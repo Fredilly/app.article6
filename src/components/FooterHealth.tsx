@@ -23,6 +23,7 @@ export default function FooterHealth() {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     let cancelled = false;
 
     async function loadHealth() {
@@ -63,6 +64,8 @@ export default function FooterHealth() {
       cancelled = true;
     };
   }, []);
+
+  if (process.env.NODE_ENV === "production") return null;
 
   const manifestLabel = health ? `Manifest: ${health.count} · ${health.updatedLabel}` : "Manifest: —";
 

@@ -1450,7 +1450,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           <div className="flex w-full items-start justify-center">
             <div className="w-full">
               <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-                Verify one claim
+                Quick Check
               </h1>
               <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
                 Upload evidence. Get a preliminary match in seconds.
@@ -1685,31 +1685,33 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Run quick check
             </button>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => void handleTryDemoCheck()}
-                disabled={submitting}
-                className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
-              >
-                Try demo check
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const nextValue = !showAdvancedOptions;
-                  setShowAdvanced(nextValue);
-                  if (!nextValue) {
-                    setShowSavedEvidence(false);
-                    setShowMethodology(false);
-                  }
-                }}
-                className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600"
-                aria-expanded={showAdvancedOptions}
-              >
-                Options
-              </button>
-            </div>
+            {process.env.NODE_ENV !== "production" ? (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleTryDemoCheck()}
+                  disabled={submitting}
+                  className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+                >
+                  Try demo check
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextValue = !showAdvancedOptions;
+                    setShowAdvanced(nextValue);
+                    if (!nextValue) {
+                      setShowSavedEvidence(false);
+                      setShowMethodology(false);
+                    }
+                  }}
+                  className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600"
+                  aria-expanded={showAdvancedOptions}
+                >
+                  Options
+                </button>
+              </div>
+            ) : null}
           </div>
 
           {showAdvancedOptions ? (
@@ -1820,15 +1822,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     >
                       Edit claim
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== "undefined") window.location.assign("/m");
-                      }}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
-                    >
-                      Open Methods
-                    </button>
+
                     <button
                       type="button"
                       onClick={openFullReviewFromRecovery}

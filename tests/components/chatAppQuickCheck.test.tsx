@@ -48,7 +48,7 @@ describe("ChatApp claim-first landing", () => {
       root.render(<ChatApp />);
     });
 
-    expect(container.textContent).toContain("Verify one claim");
+    expect(container.textContent).toContain("Quick Check");
     expect(container.textContent).toContain("Upload evidence. Get a preliminary match in seconds.");
     expect(container.textContent).toContain("Evidence");
     expect(container.textContent).toContain("Try demo check");
