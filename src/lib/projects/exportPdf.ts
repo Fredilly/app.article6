@@ -47,6 +47,12 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max - 3) + '...' : s;
 }
 
+function safeDate(iso: string | undefined): string {
+  if (!iso) return 'n/a';
+  const d = iso.slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : iso.slice(0, 16);
+}
+
 export function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Buffer {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const W = 612;
@@ -116,7 +122,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   ln.push(
     ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION PACK', '0.5 0.5 0.5 rg'),
     ...TXT(L, y + 4, 'FB', 18, project.name, '0.1 0.1 0.1 rg'),
-    ...TXT(L, y - 14, 'F1', 9, `${project.methodCode} · ${project.methodVersion}`, '0.35 0.35 0.35 rg'),
+    ...TXT(L, y - 14, 'F1', 9, `${project.methodCode} @ ${project.methodVersion}`, '0.35 0.35 0.35 rg'),
   );
   let metaX = L;
   const metaItems = [
@@ -171,7 +177,8 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
         : r.status === 'gap'
           ? '0.75 0.2 0.2 rg'
           : '0.45 0.45 0.45 rg';
-      const hasDetails = (r.note?.trim() || r.outcome) && r.status !== 'not-started';
+      const detailText = r.note?.trim() || '';
+      const hasDetails = detailText.length > 0 && r.status !== 'not-started';
       const rowHeight = hasDetails ? 30 : 16;
       need(rowHeight);
       if (index % 2 === 1) ln.push(RC(L, y - 2, R - L, rowHeight - 2, 0.97));
@@ -182,10 +189,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
         ...TXT(L + 402, y, 'FB', 7, statusLabel(r.status), statusColor),
       );
       if (hasDetails) {
-        const detail = truncate(r.note?.trim() || '', 80);
-        if (detail) {
-          ln.push(...TXT(L + 110, y - 12, 'F1', 7, detail, '0.5 0.5 0.5 rg'));
-        }
+        ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(detailText, 80), '0.5 0.5 0.5 rg'));
       }
       y -= rowHeight;
     }
@@ -216,14 +220,14 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   sec('PROVENANCE');
   const provenanceItems: [string, string][] = [
     ['Project ID', project.id],
-    ['Methodology', `${project.methodCode} · ${project.methodVersion}`],
-    ['Created', project.createdAt.slice(0, 10)],
+    ['Methodology', `${project.methodCode} @ ${project.methodVersion}`],
+    ['Created', safeDate(project.createdAt)],
     ['Status', project.status === 'locked' ? 'Locked' : 'In Progress'],
     ['Rules Reviewed', `${coverage.verified + coverage.gap} of ${coverage.total}`],
     ['Export Time', now],
   ];
   if (project.lockedAt) {
-    provenanceItems.splice(4, 0, ['Locked', project.lockedAt.slice(0, 10)]);
+    provenanceItems.splice(4, 0, ['Locked', safeDate(project.lockedAt)]);
   }
   for (const [k, v] of provenanceItems) {
     need(18);
