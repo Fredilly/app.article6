@@ -876,46 +876,56 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       score: null,
     };
 
+    const cachedExtraction = result.extraction ?? extractionPreview ?? null;
+
     void resolveQuickCheckCandidate({
       candidate,
       methods,
       loadRules: fetchRules,
-    }).then((resolved) => {
-      if (cancelled) return;
-      if (resolved) {
-        setValidatedResultKey(activeResultKey);
-        return;
-      }
-      setValidatedResultKey(null);
-      updateDraft(
-        (current) => ({
-          ...current,
-          matchedRequirementId: undefined,
-          matchedRequirementLabel: undefined,
-          status: "draft",
-          resultId: undefined,
-        }),
-        null,
-      );
-      if (draft.methodologyId.trim()) {
-        setShowMethodology(true);
-        setRecoveryState(
-          buildNoValidAnalysisPathRecoveryState({
-            methodologyId: draft.methodologyId,
-            evidenceSignals: result.extraction ?? extractionPreview,
+    }).then(
+      (resolved) => {
+        if (cancelled) return;
+        if (resolved) {
+          setValidatedResultKey(activeResultKey);
+          return;
+        }
+        setValidatedResultKey(null);
+        updateDraft(
+          (current) => ({
+            ...current,
+            matchedRequirementId: undefined,
+            matchedRequirementLabel: undefined,
+            status: "draft",
+            resultId: undefined,
           }),
+          null,
         );
-      } else {
-        setRecoveryState(
-          buildRecoveryState({
-            selectedMethodologyId: draft.methodologyId,
-            evidenceAnalysis: undefined,
-            claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
-          }),
-        );
-      }
-      setFieldErrors({});
-    });
+        if (draft.methodologyId.trim()) {
+          setShowMethodology(true);
+          setRecoveryState(
+            buildNoValidAnalysisPathRecoveryState({
+              methodologyId: draft.methodologyId,
+              evidenceSignals: cachedExtraction,
+            }),
+          );
+        } else {
+          setRecoveryState(
+            buildRecoveryState({
+              selectedMethodologyId: draft.methodologyId,
+              evidenceAnalysis: undefined,
+              claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
+            }),
+          );
+        }
+        setFieldErrors({});
+      },
+      () => {
+        if (cancelled) return;
+        setFieldErrors({
+          general: "Quick Check couldn't revalidate this result. Try running the check again.",
+        });
+      },
+    );
 
     return () => {
       cancelled = true;

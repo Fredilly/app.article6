@@ -3,6 +3,7 @@ import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCh
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
+export type QuickCheckUiNextActionKind = "open_methods" | "upload_better_file";
 
 export type QuickCheckUiExtraction = QuickCheckExtractionSnapshot;
 
@@ -22,14 +23,23 @@ export type QuickCheckUiExtractionState = {
   description: string;
 };
 
+export type QuickCheckUiNextAction = {
+  kind: QuickCheckUiNextActionKind;
+  label: string;
+  description: string;
+};
+
 export type QuickCheckUiResult = {
   status: QuickCheckUiStatus;
+  title: string;
+  summary: string;
   claim: string;
   evidenceFileName: string;
   sourceMode: QuickCheckSourceMode | null;
   extraction: QuickCheckUiExtraction;
   extractionState: QuickCheckUiExtractionState;
   match: QuickCheckUiMatch | null;
+  nextAction: QuickCheckUiNextAction;
 };
 
 function isMethodologyGrounded(extraction: QuickCheckExtractionSnapshot): boolean {
@@ -110,6 +120,28 @@ function pickRelevantFacts(claimText: string, analysis: QuickCheckEvidenceAnalys
   return dedupe(selected.slice(0, 4).map((fact) => formatFactPreview(fact, { useDetail })));
 }
 
+function buildMethodsAction(): QuickCheckUiNextAction {
+  return {
+    kind: "open_methods",
+    label: "Open full review",
+    description: "Open the full review to preserve this check.",
+  };
+}
+
+function buildUploadAction(): QuickCheckUiNextAction {
+  return {
+    kind: "upload_better_file",
+    label: "Upload stronger evidence",
+    description: "Quick Check needs stronger evidence before it can continue.",
+  };
+}
+
+function buildMatchedSummary(match: QuickCheckUiMatch): string {
+  const methodLabel = [match.methodologyCode, match.methodologyVersion].filter(Boolean).join(" · ");
+  const target = methodLabel ? `${methodLabel} · ${match.requirementId}` : match.requirementId;
+  return `Quick Check found a preliminary match for ${target}. Open full review to preserve this check.`;
+}
+
 export function buildQuickCheckExtractionSnapshot(input: {
   claimText: string;
   analysis: QuickCheckEvidenceAnalysis;
@@ -181,46 +213,60 @@ export function normalizeQuickCheckUiResult(input: {
       },
     };
   const extractionState = deriveQuickCheckExtractionState(extraction);
+  const claim = input.claim.trim();
+  const evidenceFileName = input.evidenceFileName.trim();
+  const sourceMode = input.sourceMode ?? input.result?.sourceMode ?? null;
 
   if (!extraction.extractedFacts.length) {
     return {
       status: "extraction_failed",
-      claim: input.claim.trim(),
-      evidenceFileName: input.evidenceFileName.trim(),
-      sourceMode: input.sourceMode ?? null,
+      title: "Missing evidence",
+      summary: "We couldn't extract usable data from this file yet.",
+      claim,
+      evidenceFileName,
+      sourceMode,
       extraction,
       extractionState,
       match: null,
+      nextAction: buildUploadAction(),
     };
   }
 
   if (!input.result?.requirementId?.trim()) {
     return {
       status: "no_reliable_match",
-      claim: input.claim.trim(),
-      evidenceFileName: input.evidenceFileName.trim(),
-      sourceMode: input.sourceMode ?? null,
+      title: "Needs review",
+      summary: "Quick Check could not make a reliable requirement match from this evidence.",
+      claim,
+      evidenceFileName,
+      sourceMode,
       extraction,
       extractionState,
       match: null,
+      nextAction: buildMethodsAction(),
     };
   }
 
+  const match: QuickCheckUiMatch = {
+    methodologyCode: input.methodologyCode?.trim() ?? "",
+    methodologyVersion: input.methodologyVersion?.trim() ?? "",
+    requirementId: input.result.requirementId.trim(),
+    requirementLabel: input.result.requirementLabel.trim() || input.result.requirementId.trim(),
+    rationale: input.result.explanation.trim(),
+    unresolved: dedupe(input.result.unresolved ?? []),
+    grounding: isMethodologyGrounded(extraction) ? "methodology_grounded" : "catalog_candidate",
+  };
+
   return {
     status: "preliminary_match_found",
-    claim: input.claim.trim(),
-    evidenceFileName: input.evidenceFileName.trim(),
-    sourceMode: input.sourceMode ?? input.result.sourceMode ?? null,
+    title: input.result.verdict,
+    summary: buildMatchedSummary(match),
+    claim,
+    evidenceFileName,
+    sourceMode,
     extraction,
     extractionState,
-    match: {
-      methodologyCode: input.methodologyCode?.trim() ?? "",
-      methodologyVersion: input.methodologyVersion?.trim() ?? "",
-      requirementId: input.result.requirementId.trim(),
-      requirementLabel: input.result.requirementLabel.trim() || input.result.requirementId.trim(),
-      rationale: input.result.explanation.trim(),
-      unresolved: dedupe(input.result.unresolved ?? []),
-      grounding: isMethodologyGrounded(extraction) ? "methodology_grounded" : "catalog_candidate",
-    },
+    match,
+    nextAction: buildMethodsAction(),
   };
 }
