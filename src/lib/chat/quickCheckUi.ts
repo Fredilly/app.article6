@@ -1,7 +1,7 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
-export type QuickCheckUiStatus = "matched" | "weak" | "blocked";
+export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
 export type QuickCheckUiNextActionKind = "open_methods" | "upload_better_file";
 
@@ -123,23 +123,23 @@ function pickRelevantFacts(claimText: string, analysis: QuickCheckEvidenceAnalys
 function buildMethodsAction(): QuickCheckUiNextAction {
   return {
     kind: "open_methods",
-    label: "Review in Methods",
-    description: "Use Methods for the real review and evidence trace.",
+    label: "Open full review",
+    description: "Open the full review to preserve this check.",
   };
 }
 
 function buildUploadAction(): QuickCheckUiNextAction {
   return {
     kind: "upload_better_file",
-    label: "Upload a clearer file",
-    description: "Quick Check needs more readable text before it can triage reliably.",
+    label: "Upload stronger evidence",
+    description: "Quick Check needs stronger evidence before it can continue.",
   };
 }
 
 function buildMatchedSummary(match: QuickCheckUiMatch): string {
   const methodLabel = [match.methodologyCode, match.methodologyVersion].filter(Boolean).join(" · ");
   const target = methodLabel ? `${methodLabel} · ${match.requirementId}` : match.requirementId;
-  return `Quick Check found one requirement match: ${target}. Review it in Methods before relying on it.`;
+  return `Quick Check found a preliminary match for ${target}. Open full review to preserve this check.`;
 }
 
 export function buildQuickCheckExtractionSnapshot(input: {
@@ -170,22 +170,22 @@ export function deriveQuickCheckExtractionState(extraction: QuickCheckExtraction
     return {
       value: "weak",
       label: "Weak",
-      description: "Quick Check could not read enough usable text.",
+      description: "No usable text extracted from this file.",
     };
   }
 
   if (signals.warningCount > 0 || !signals.methodologyMentionCount) {
     return {
       value: "partial",
-      label: "Limited",
-      description: "Some usable text was found, but the signal is incomplete.",
+      label: "Partial",
+      description: "Some facts found, but extraction is incomplete.",
     };
   }
 
   return {
     value: "grounded",
-    label: "Clear",
-    description: "Usable text was found for a quick triage.",
+    label: "Grounded",
+    description: "File parsed with claim-relevant facts.",
   };
 }
 
@@ -203,7 +203,7 @@ export function normalizeQuickCheckUiResult(input: {
       documentType: "Unknown document",
       extractedFacts: [],
       methodologyMentions: [],
-      warnings: ["Quick Check could not extract usable data from this file."],
+      warnings: ["We couldn't extract usable data from this file yet."],
       signals: {
         parsedEvidenceCount: 0,
         factCount: 0,
@@ -219,9 +219,9 @@ export function normalizeQuickCheckUiResult(input: {
 
   if (!extraction.extractedFacts.length) {
     return {
-      status: "weak",
-      title: "Weak",
-      summary: "Quick Check could not read enough usable text from this file.",
+      status: "extraction_failed",
+      title: "Missing evidence",
+      summary: "We couldn't extract usable data from this file yet.",
       claim,
       evidenceFileName,
       sourceMode,
@@ -234,9 +234,9 @@ export function normalizeQuickCheckUiResult(input: {
 
   if (!input.result?.requirementId?.trim()) {
     return {
-      status: "blocked",
-      title: "Blocked",
-      summary: "Quick Check found usable text but could not make a trustworthy requirement match.",
+      status: "no_reliable_match",
+      title: "Needs review",
+      summary: "Quick Check could not make a reliable requirement match from this evidence.",
       claim,
       evidenceFileName,
       sourceMode,
@@ -258,8 +258,8 @@ export function normalizeQuickCheckUiResult(input: {
   };
 
   return {
-    status: "matched",
-    title: "Matched",
+    status: "preliminary_match_found",
+    title: input.result.verdict,
     summary: buildMatchedSummary(match),
     claim,
     evidenceFileName,
