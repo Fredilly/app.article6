@@ -651,12 +651,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }, [draft.methodologyId, draft.methodologyVersion, initialMethod, initialVersion, methods, updateDraft]);
 
   useEffect(() => {
+    // Only remove evidence IDs that were in staged uploads but the upload was removed.
+    // Don't touch IDs that aren't staged — those are saved pins and may not appear
+    // in inventory yet due to memo timing or methodology key mismatch.
     const stagedIds = new Set(stagedUploads.map((upload) => upload.evidenceId));
-    const validInventoryIds = new Set(inventoryItems.map((item) => item.evidence_id));
-    const filteredIds = draft.evidenceIds.filter((id) => stagedIds.has(id) || validInventoryIds.has(id));
+    const validStagedIds = new Set(
+      stagedUploads
+        .filter((upload) => draft.evidenceIds.includes(upload.evidenceId))
+        .map((upload) => upload.evidenceId),
+    );
+    const hasDroppedStaged = draft.evidenceIds.some((id) => stagedIds.has(id) && !validStagedIds.has(id));
+    if (!hasDroppedStaged) return;
+    const filteredIds = draft.evidenceIds.filter((id) => !stagedIds.has(id) || validStagedIds.has(id));
     if (filteredIds.length === draft.evidenceIds.length) return;
-    // Don't clear evidence IDs when inventory is empty — it may still be loading
-    if (filteredIds.length === 0 && draft.evidenceIds.length > 0 && !stagedUploads.length && !inventoryItems.length) return;
     updateDraft((current) => ({ ...current, evidenceIds: filteredIds }), null);
   }, [draft.evidenceIds, inventoryItems, stagedUploads, updateDraft]);
 
