@@ -655,6 +655,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const validInventoryIds = new Set(inventoryItems.map((item) => item.evidence_id));
     const filteredIds = draft.evidenceIds.filter((id) => stagedIds.has(id) || validInventoryIds.has(id));
     if (filteredIds.length === draft.evidenceIds.length) return;
+    // Don't clear evidence IDs when inventory is empty — it may still be loading
+    if (filteredIds.length === 0 && draft.evidenceIds.length > 0 && !stagedUploads.length && !inventoryItems.length) return;
     updateDraft((current) => ({ ...current, evidenceIds: filteredIds }), null);
   }, [draft.evidenceIds, inventoryItems, stagedUploads, updateDraft]);
 
