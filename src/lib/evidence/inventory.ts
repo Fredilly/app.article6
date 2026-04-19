@@ -175,7 +175,7 @@ function inventoryKind(pin: EvidencePin): EvidenceInventoryKind {
 
 function evidenceTypeLabel(pin: EvidencePin): string {
   const kind = inventoryKind(pin);
-  if (kind === "stac-item") return "STAC item";
+  if (kind === "stac-item") return "Satellite result";
   if (kind === "workbook") return "Workbook";
   if (kind === "pdd") return "PDD";
   if (kind === "document") return "Document";
@@ -201,8 +201,8 @@ function provenanceSummary(pin: EvidencePin): string {
   const pddDocument = normalizePddDocument(pin);
   const pddFragments = normalizePddFragments(pin);
 
-  if (stacItems.length === 1) parts.push(`STAC ${stacItems[0]}`);
-  else if (stacItems.length > 1) parts.push(`${stacItems.length} STAC items`);
+  if (stacItems.length === 1) parts.push(`Satellite ${stacItems[0]}`);
+  else if (stacItems.length > 1) parts.push(`${stacItems.length} satellite results`);
 
   if (pddDocument) {
     parts.push(pddDocument.file_name);

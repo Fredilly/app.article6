@@ -624,7 +624,7 @@ export default function EvidenceWorkflowStepper({
             <button type="button" className="text-xs font-semibold text-slate-700 underline underline-offset-2" onClick={onClearSelectedItem}>Clear</button>
           </div>
         ) : (
-          <div className="mt-2 text-[11px] text-slate-500">Pick a Satellite image from the list or map to continue.</div>
+          <div className="mt-2 text-[11px] text-slate-500">Pick a satellite result from the list or map to continue.</div>
         )}
       </div>
 

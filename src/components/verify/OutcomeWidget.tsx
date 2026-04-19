@@ -72,7 +72,7 @@ export default function OutcomeWidget({
   const debugLinked = summary.linkage.linkedRuleIds[0] ?? "";
 
   const collapsedLine = useMemo(() => {
-    const aoiLabel = aoiReady ? "AOI ✓" : "AOI —";
+    const aoiLabel = aoiReady ? "Area ✓" : "Area —";
     const stacLabel = `Items ${stacCount}`;
     const ruleLabel = `Rules ${linkedCount}`;
     return `Outcome • ${aoiLabel} • ${stacLabel} • ${ruleLabel}`;

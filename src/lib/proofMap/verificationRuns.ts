@@ -131,7 +131,7 @@ export async function runStacEvidenceSearch(input: {
     return {
       provider: "stac",
       runStatus: "error",
-      summary: "STAC search failed.",
+      summary: "Satellite search failed.",
       result_json: stac.json,
     };
   }

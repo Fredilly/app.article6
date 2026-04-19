@@ -204,7 +204,7 @@ export function reviewSummaryRows(summary: ReviewSummary): Array<{ label: string
     { label: "Selected evidence", value: display.selectedEvidenceId },
     { label: "Evidence datetime", value: display.selectedEvidenceDatetime },
     { label: "Cloud cover", value: display.cloudCover },
-    { label: "AOI", value: display.aoiLabel },
+    { label: "Area", value: display.aoiLabel },
     { label: "Review state", value: display.reviewState },
     { label: "Search results", value: display.stacSearchResultCount },
     { label: "Linked rules", value: display.linkedRuleCount },

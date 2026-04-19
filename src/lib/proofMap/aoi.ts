@@ -121,7 +121,7 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
     const record = input as Record<string, unknown>;
     if (record.type === "FeatureCollection" && Array.isArray(record.features)) {
       if (record.features.length !== 1) {
-        return { ok: false, error: "AOI must contain exactly one feature." };
+        return { ok: false, error: "Area must contain exactly one feature." };
       }
     }
   }
@@ -130,19 +130,19 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
   if (!result) {
     return {
       ok: false,
-      error: "AOI must be a GeoJSON Polygon or MultiPolygon (or Feature/FeatureCollection containing one).",
+      error: "Area must be a GeoJSON Polygon or MultiPolygon (or Feature/FeatureCollection containing one).",
     };
   }
 
   const { feature, source } = result;
 
   if (feature.geometry.type !== "Polygon" && feature.geometry.type !== "MultiPolygon") {
-    return { ok: false, error: "AOI geometry must be Polygon or MultiPolygon." };
+    return { ok: false, error: "Area geometry must be Polygon or MultiPolygon." };
   }
 
   const bbox = bboxForFeature(feature);
   const area_km2 = areaKm2(feature);
-  const name = (nameHint ?? "AOI").trim() || "AOI";
+  const name = (nameHint ?? "Area").trim() || "Area";
 
   const aoi: AOI = {
     id: `aoi_${nowIso()}`,
