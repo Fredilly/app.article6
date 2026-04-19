@@ -533,7 +533,7 @@ export default function EvidenceWorkflowStepper({
 
       <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step2)}`} data-testid="wizard-step-2">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Confirm AOI</div>
+        <div className="mt-1 text-xs font-semibold text-slate-900">Confirm Area</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -543,32 +543,32 @@ export default function EvidenceWorkflowStepper({
             onClick={onUploadAoi}
             disabled={step2.disabled}
           >
-            Upload AOI
+            Upload Area
           </button>
           {!selectedRuleId ? (
             <div className="text-[11px] text-slate-500">Disabled: pick a rule first.</div>
           ) : hasAoi ? (
             <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-              AOI ready
+              Area ready
             </span>
           ) : (
-            <div className="text-[11px] text-slate-500">Upload and confirm an AOI to continue.</div>
+            <div className="text-[11px] text-slate-500">Upload and confirm an Area to continue.</div>
           )}
         </div>
         {aoiSummary ? (
           <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-700">
             {aoiSummary.isPreview ? (
               <>
-                <div className="font-semibold text-slate-900">New AOI ready</div>
-                <div className="mt-1">Replace the current AOI with <span className="font-semibold">{aoiLabel ?? "uploaded AOI"}</span>?</div>
+                <div className="font-semibold text-slate-900">New Area ready</div>
+                <div className="mt-1">Replace the current Area with <span className="font-semibold">{aoiLabel ?? "uploaded Area"}</span>?</div>
                 {aoiSummary.willClearWork ? <div className="mt-1 text-[11px] text-slate-600">This will clear pins and evidence selections.</div> : null}
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button type="button" className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700" onClick={onApplyDraftAoiClick}>Replace AOI</button>
+                  <button type="button" className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700" onClick={onApplyDraftAoiClick}>Replace Area</button>
                   <button type="button" className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50" onClick={onCancelDraftAoi}>Keep current</button>
                 </div>
                 {aoiSummary.isSameAoi && aoiSummary.showSameAoiPrompt ? (
                   <div className="mt-2 rounded-md border border-slate-200 bg-slate-50 px-2 py-2 text-[11px] text-slate-700">
-                    <div className="font-semibold text-slate-800">Same AOI detected. Keep current links?</div>
+                    <div className="font-semibold text-slate-800">Same Area detected. Keep current links?</div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <button type="button" className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50" onClick={onKeepSameAoi}>Keep</button>
                       <button type="button" className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100" onClick={onResetSameAoi}>Reset anyway</button>
@@ -578,7 +578,7 @@ export default function EvidenceWorkflowStepper({
               </>
             ) : (
               <div className="grid gap-1 text-[11px] text-slate-600">
-                <div>AOI: {aoiLabel ?? "none"}</div>
+                <div>Area: {aoiLabel ?? "none"}</div>
                 <div>area: {typeof aoiSummary.areaKm2 === "number" ? aoiSummary.areaKm2.toFixed(2) : "—"} km²</div>
                 <div className="break-words">bbox: {aoiSummary.bboxLabel ?? "—"}</div>
               </div>
@@ -589,7 +589,7 @@ export default function EvidenceWorkflowStepper({
 
       <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step3)}`} data-testid="wizard-step-3">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Search STAC</div>
+        <div className="mt-1 text-xs font-semibold text-slate-900">Search Satellite</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -599,10 +599,10 @@ export default function EvidenceWorkflowStepper({
             disabled={step3.disabled || searchDisabled}
             onClick={onSearchStac}
           >
-            {isRunning ? "Searching…" : "Search STAC"}
+            {isRunning ? "Searching…" : "Search Satellite"}
           </button>
           {!hasAoi ? (
-            <div className="text-[11px] text-slate-500">Disabled: confirm AOI first.</div>
+            <div className="text-[11px] text-slate-500">Disabled: confirm Area first.</div>
           ) : hasSearchResults ? (
             <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
               {stacResultCount} items
@@ -624,7 +624,7 @@ export default function EvidenceWorkflowStepper({
             <button type="button" className="text-xs font-semibold text-slate-700 underline underline-offset-2" onClick={onClearSelectedItem}>Clear</button>
           </div>
         ) : (
-          <div className="mt-2 text-[11px] text-slate-500">Pick a STAC item from the list or map to continue.</div>
+          <div className="mt-2 text-[11px] text-slate-500">Pick a Satellite image from the list or map to continue.</div>
         )}
       </div>
 
