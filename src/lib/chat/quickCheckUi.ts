@@ -1,8 +1,9 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
-export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
+export type QuickCheckUiStatus = "matched" | "weak" | "blocked";
 export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
+export type QuickCheckUiNextActionKind = "open_methods" | "upload_better_file";
 
 export type QuickCheckUiExtraction = QuickCheckExtractionSnapshot;
 
@@ -22,14 +23,23 @@ export type QuickCheckUiExtractionState = {
   description: string;
 };
 
+export type QuickCheckUiNextAction = {
+  kind: QuickCheckUiNextActionKind;
+  label: string;
+  description: string;
+};
+
 export type QuickCheckUiResult = {
   status: QuickCheckUiStatus;
+  title: string;
+  summary: string;
   claim: string;
   evidenceFileName: string;
   sourceMode: QuickCheckSourceMode | null;
   extraction: QuickCheckUiExtraction;
   extractionState: QuickCheckUiExtractionState;
   match: QuickCheckUiMatch | null;
+  nextAction: QuickCheckUiNextAction;
 };
 
 function isMethodologyGrounded(extraction: QuickCheckExtractionSnapshot): boolean {
@@ -110,6 +120,28 @@ function pickRelevantFacts(claimText: string, analysis: QuickCheckEvidenceAnalys
   return dedupe(selected.slice(0, 4).map((fact) => formatFactPreview(fact, { useDetail })));
 }
 
+function buildMethodsAction(): QuickCheckUiNextAction {
+  return {
+    kind: "open_methods",
+    label: "Review in Methods",
+    description: "Use Methods for the real review and evidence trace.",
+  };
+}
+
+function buildUploadAction(): QuickCheckUiNextAction {
+  return {
+    kind: "upload_better_file",
+    label: "Upload a clearer file",
+    description: "Quick Check needs more readable text before it can triage reliably.",
+  };
+}
+
+function buildMatchedSummary(match: QuickCheckUiMatch): string {
+  const methodLabel = [match.methodologyCode, match.methodologyVersion].filter(Boolean).join(" · ");
+  const target = methodLabel ? `${methodLabel} · ${match.requirementId}` : match.requirementId;
+  return `Quick Check found one requirement match: ${target}. Review it in Methods before relying on it.`;
+}
+
 export function buildQuickCheckExtractionSnapshot(input: {
   claimText: string;
   analysis: QuickCheckEvidenceAnalysis;
@@ -138,22 +170,22 @@ export function deriveQuickCheckExtractionState(extraction: QuickCheckExtraction
     return {
       value: "weak",
       label: "Weak",
-      description: "No usable text extracted from this file.",
+      description: "Quick Check could not read enough usable text.",
     };
   }
 
   if (signals.warningCount > 0 || !signals.methodologyMentionCount) {
     return {
       value: "partial",
-      label: "Partial",
-      description: "Some facts found, but extraction is incomplete.",
+      label: "Limited",
+      description: "Some usable text was found, but the signal is incomplete.",
     };
   }
 
   return {
     value: "grounded",
-    label: "Grounded",
-    description: "File parsed with claim-relevant facts.",
+    label: "Clear",
+    description: "Usable text was found for a quick triage.",
   };
 }
 
@@ -171,7 +203,7 @@ export function normalizeQuickCheckUiResult(input: {
       documentType: "Unknown document",
       extractedFacts: [],
       methodologyMentions: [],
-      warnings: ["We couldn't extract usable data from this file yet."],
+      warnings: ["Quick Check could not extract usable data from this file."],
       signals: {
         parsedEvidenceCount: 0,
         factCount: 0,
@@ -181,46 +213,60 @@ export function normalizeQuickCheckUiResult(input: {
       },
     };
   const extractionState = deriveQuickCheckExtractionState(extraction);
+  const claim = input.claim.trim();
+  const evidenceFileName = input.evidenceFileName.trim();
+  const sourceMode = input.sourceMode ?? input.result?.sourceMode ?? null;
 
   if (!extraction.extractedFacts.length) {
     return {
-      status: "extraction_failed",
-      claim: input.claim.trim(),
-      evidenceFileName: input.evidenceFileName.trim(),
-      sourceMode: input.sourceMode ?? null,
+      status: "weak",
+      title: "Weak",
+      summary: "Quick Check could not read enough usable text from this file.",
+      claim,
+      evidenceFileName,
+      sourceMode,
       extraction,
       extractionState,
       match: null,
+      nextAction: buildUploadAction(),
     };
   }
 
   if (!input.result?.requirementId?.trim()) {
     return {
-      status: "no_reliable_match",
-      claim: input.claim.trim(),
-      evidenceFileName: input.evidenceFileName.trim(),
-      sourceMode: input.sourceMode ?? null,
+      status: "blocked",
+      title: "Blocked",
+      summary: "Quick Check found usable text but could not make a trustworthy requirement match.",
+      claim,
+      evidenceFileName,
+      sourceMode,
       extraction,
       extractionState,
       match: null,
+      nextAction: buildMethodsAction(),
     };
   }
 
+  const match: QuickCheckUiMatch = {
+    methodologyCode: input.methodologyCode?.trim() ?? "",
+    methodologyVersion: input.methodologyVersion?.trim() ?? "",
+    requirementId: input.result.requirementId.trim(),
+    requirementLabel: input.result.requirementLabel.trim() || input.result.requirementId.trim(),
+    rationale: input.result.explanation.trim(),
+    unresolved: dedupe(input.result.unresolved ?? []),
+    grounding: isMethodologyGrounded(extraction) ? "methodology_grounded" : "catalog_candidate",
+  };
+
   return {
-    status: "preliminary_match_found",
-    claim: input.claim.trim(),
-    evidenceFileName: input.evidenceFileName.trim(),
-    sourceMode: input.sourceMode ?? input.result.sourceMode ?? null,
+    status: "matched",
+    title: "Matched",
+    summary: buildMatchedSummary(match),
+    claim,
+    evidenceFileName,
+    sourceMode,
     extraction,
     extractionState,
-    match: {
-      methodologyCode: input.methodologyCode?.trim() ?? "",
-      methodologyVersion: input.methodologyVersion?.trim() ?? "",
-      requirementId: input.result.requirementId.trim(),
-      requirementLabel: input.result.requirementLabel.trim() || input.result.requirementId.trim(),
-      rationale: input.result.explanation.trim(),
-      unresolved: dedupe(input.result.unresolved ?? []),
-      grounding: isMethodologyGrounded(extraction) ? "methodology_grounded" : "catalog_candidate",
-    },
+    match,
+    nextAction: buildMethodsAction(),
   };
 }
