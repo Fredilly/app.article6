@@ -56,7 +56,7 @@ describe("FinalReviewSummaryPanel", () => {
     expect(html).toContain("Copy link");
     expect(html).toContain("Rule applied");
     expect(html).toContain("Evidence used");
-    expect(html).toContain("AOI");
+    expect(html).toContain("Area");
     expect(html).toContain("What happened");
     expect(html).toContain("Review scope");
     expect(html).toContain("Outcome note");

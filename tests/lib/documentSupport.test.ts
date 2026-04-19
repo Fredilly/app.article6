@@ -154,7 +154,7 @@ describe("deriveDocumentSupport", () => {
         display_name: "S2A_36LYJ_20260411",
         kind: "stac-item",
         type: "stac",
-        source_summary: "STAC run",
+        source_summary: "Satellite run",
         provenance_summary: "",
         added_at: "2026-01-01T00:00:00Z",
         link_state: "linked",

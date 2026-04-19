@@ -97,8 +97,8 @@ async function openVerifyWithSelectedItem(page: Page, ruleId: string): Promise<v
   await page.waitForSelector("text=Pick rule", { timeout: 30_000 });
   await page.waitForSelector("text=Save reviewer artifact", { timeout: 30_000 });
   await page.waitForSelector("text=Finalize run", { timeout: 30_000 });
-  await expect(page.getByText("AOI ready")).toBeVisible({ timeout: 30_000 });
-  const searchButton = page.getByRole("button", { name: /^Search STAC$/ }).first();
+  await expect(page.getByText("Area ready")).toBeVisible({ timeout: 30_000 });
+  const searchButton = page.getByRole("button", { name: /^Search Satellite$/ }).first();
   await expect(searchButton).toBeEnabled({ timeout: 30_000 });
   await searchButton.click();
   const featureButton = page.getByRole("button", { name: stacItemId }).first();
@@ -351,7 +351,7 @@ test("Finalize lands on a readable review summary and keeps it after refresh", a
     waitUntil: "domcontentloaded",
   });
 
-  await page.getByRole("button", { name: /^Search STAC$/ }).first().click();
+  await page.getByRole("button", { name: /^Search Satellite$/ }).first().click();
   await page.getByRole("button", { name: stacItemId }).first().click();
   await page.getByRole("button", { name: "Create pin" }).first().click();
   await page.getByTestId("verifier-minutes-textarea").fill("Saved review summary note");

@@ -187,7 +187,7 @@ function evidenceTypeLabel(pin: EvidencePin): string {
 function sourceSummary(pin: EvidencePin): string {
   if (inventoryKind(pin) === "pdd") return "PDD upload";
   if ((pin.attachments ?? []).some((attachment) => attachment.workbook_asset)) return "Workbook upload";
-  if (pin.stac_run_id?.trim()) return "STAC run";
+  if (pin.stac_run_id?.trim()) return "Satellite run";
   if ((pin.attachments?.length ?? 0) > 0) return "Upload";
   if (pin.note?.trim()) return "Workspace note";
   return "Workspace evidence";
