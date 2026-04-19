@@ -113,7 +113,7 @@ export default function NewProjectForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">AOI Label (optional)</label>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">Area Label (optional)</label>
           <input
             type="text"
             value={aoiLabel}

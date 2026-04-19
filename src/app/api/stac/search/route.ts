@@ -115,7 +115,7 @@ export async function POST(req: Request) {
   const geometry = extractPolygonGeometry(parsedBody.data.aoi_geojson);
   if (!geometry) {
     return NextResponse.json(
-      { ok: false, code: "BAD_REQUEST", request_id, message: "AOI must be a Polygon or MultiPolygon GeoJSON." },
+      { ok: false, code: "BAD_REQUEST", request_id, message: "Area must be a Polygon or MultiPolygon GeoJSON." },
       { status: 400 },
     );
   }

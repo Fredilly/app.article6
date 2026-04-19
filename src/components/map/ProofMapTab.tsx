@@ -1614,7 +1614,7 @@ export default function ProofMapTab({
 
   const baselineMissing = useMemo(() => {
     const missing: string[] = [];
-    if (!currentAoiFingerprint) missing.push("AOI");
+    if (!currentAoiFingerprint) missing.push("Area");
     if (!currentBaselineProvenance.methodId || !currentBaselineProvenance.versionId) missing.push("method/version");
     if (!currentBaselineProvenance.harnessVersion) missing.push("harness version");
     if (!currentBaselineProvenance.datasetHash) missing.push("dataset hash");
@@ -1816,11 +1816,11 @@ export default function ProofMapTab({
       case 1:
         return { title: "Pick rule", instruction: "Choose the rule you are verifying before building evidence context.", stepLabel: "Step 1 of 7" };
       case 2:
-        return { title: "Confirm AOI", instruction: "Upload or confirm the AOI so the evidence search has a clear scope.", stepLabel: "Step 2 of 7" };
+        return { title: "Confirm Area", instruction: "Upload or confirm the Area so the evidence search has a clear scope.", stepLabel: "Step 2 of 7" };
       case 3:
-        return { title: "Search STAC", instruction: "Run the evidence search and inspect the returned context in the left pane.", stepLabel: "Step 3 of 7" };
+        return { title: "Search Satellite", instruction: "Run the evidence search and inspect the returned context in the left pane.", stepLabel: "Step 3 of 7" };
       case 4:
-        return { title: "Select item", instruction: "Pick the most relevant STAC item from the returned evidence set.", stepLabel: "Step 4 of 7" };
+        return { title: "Select item", instruction: "Pick the most relevant satellite result from the returned evidence set.", stepLabel: "Step 4 of 7" };
       case 5:
         return {
           title: "Evidence inventory",
@@ -3179,10 +3179,10 @@ export default function ProofMapTab({
                                     }),
                                   ),
                                 );
-                                showToast("STAC item attached");
+                                showToast("Satellite result attached");
                               }}
                             >
-                              Attach STAC item
+                              Attach satellite result
                             </button>
                           ) : null}
                         </div>

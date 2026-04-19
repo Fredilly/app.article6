@@ -829,8 +829,8 @@ export function getVerifyRunStatusDetails(input: {
 
   const missing: string[] = [];
   if (!input.selectedRuleId?.trim()) missing.push("Select a rule");
-  if (!input.aoiHash?.trim()) missing.push("Add an AOI");
-  if (!(input.stacItemIds?.length)) missing.push("Search STAC");
+  if (!input.aoiHash?.trim()) missing.push("Add an Area");
+  if (!(input.stacItemIds?.length)) missing.push("Search Satellite");
   if (!input.selectedStacItemId?.trim()) missing.push("Select an evidence item");
   if (!(input.linkedRuleIds?.length)) missing.push("Link evidence to the rule");
 
@@ -893,8 +893,8 @@ export function getVerifyWizardStepDetails(input: {
 
   const steps: VerifyWizardStepDetails["steps"] = [
     { id: 1, label: "Pick rule", complete: hasRule, active: activeStep === 1, disabled: false },
-    { id: 2, label: "Confirm AOI", complete: hasAoi, active: activeStep === 2, disabled: !hasRule },
-    { id: 3, label: "Search STAC", complete: hasSearchResults, active: activeStep === 3, disabled: !hasAoi },
+    { id: 2, label: "Confirm Area", complete: hasAoi, active: activeStep === 2, disabled: !hasRule },
+    { id: 3, label: "Search Satellite", complete: hasSearchResults, active: activeStep === 3, disabled: !hasAoi },
     { id: 4, label: "Select item", complete: hasSelectedItem, active: activeStep === 4, disabled: !hasSearchResults },
     { id: 5, label: "Create/link pin", complete: hasPins, active: activeStep === 5, disabled: !hasSelectedItem || !hasRule },
     { id: 6, label: "Save reviewer artifact", complete: hasSavedReviewerArtifact, active: activeStep === 6, disabled: !hasPins },

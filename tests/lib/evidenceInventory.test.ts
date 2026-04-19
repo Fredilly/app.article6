@@ -111,9 +111,9 @@ describe("evidence inventory", () => {
       dedupe_key: "stac:S2A-001",
       display_name: "S2A-001",
       kind: "stac-item",
-      type: "STAC item",
-      source_summary: "STAC run",
-      provenance_summary: "STAC S2A-001",
+      type: "Satellite result",
+      source_summary: "Satellite run",
+      provenance_summary: "Satellite S2A-001",
       link_state: "unlinked",
       linked_requirement_ids: [],
     });

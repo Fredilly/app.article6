@@ -95,7 +95,7 @@ const inventoryItems: EvidenceInventoryItem[] = [
     dedupe_key: "title:boundary worksheet",
     display_name: "Boundary worksheet",
     kind: "stac-item",
-    type: "STAC item",
+    type: "Satellite result",
     source_summary: "Workspace evidence",
     provenance_summary: "Provenance pending",
     added_at: "2026-03-02T00:00:00Z",
