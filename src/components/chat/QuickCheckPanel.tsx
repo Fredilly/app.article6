@@ -651,9 +651,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }, [draft.methodologyId, draft.methodologyVersion, initialMethod, initialVersion, methods, updateDraft]);
 
   useEffect(() => {
+    // Only remove evidence IDs that were in staged uploads but the upload was removed.
+    // Don't touch IDs that aren't staged — those are saved pins and may not appear
+    // in inventory yet due to memo timing or methodology key mismatch.
     const stagedIds = new Set(stagedUploads.map((upload) => upload.evidenceId));
-    const validInventoryIds = new Set(inventoryItems.map((item) => item.evidence_id));
-    const filteredIds = draft.evidenceIds.filter((id) => stagedIds.has(id) || validInventoryIds.has(id));
+    const validStagedIds = new Set(
+      stagedUploads
+        .filter((upload) => draft.evidenceIds.includes(upload.evidenceId))
+        .map((upload) => upload.evidenceId),
+    );
+    const hasDroppedStaged = draft.evidenceIds.some((id) => stagedIds.has(id) && !validStagedIds.has(id));
+    if (!hasDroppedStaged) return;
+    const filteredIds = draft.evidenceIds.filter((id) => !stagedIds.has(id) || validStagedIds.has(id));
     if (filteredIds.length === draft.evidenceIds.length) return;
     updateDraft((current) => ({ ...current, evidenceIds: filteredIds }), null);
   }, [draft.evidenceIds, inventoryItems, stagedUploads, updateDraft]);
@@ -876,46 +885,56 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       score: null,
     };
 
+    const cachedExtraction = result.extraction ?? extractionPreview ?? null;
+
     void resolveQuickCheckCandidate({
       candidate,
       methods,
       loadRules: fetchRules,
-    }).then((resolved) => {
-      if (cancelled) return;
-      if (resolved) {
-        setValidatedResultKey(activeResultKey);
-        return;
-      }
-      setValidatedResultKey(null);
-      updateDraft(
-        (current) => ({
-          ...current,
-          matchedRequirementId: undefined,
-          matchedRequirementLabel: undefined,
-          status: "draft",
-          resultId: undefined,
-        }),
-        null,
-      );
-      if (draft.methodologyId.trim()) {
-        setShowMethodology(true);
-        setRecoveryState(
-          buildNoValidAnalysisPathRecoveryState({
-            methodologyId: draft.methodologyId,
-            evidenceSignals: result.extraction ?? extractionPreview,
+    }).then(
+      (resolved) => {
+        if (cancelled) return;
+        if (resolved) {
+          setValidatedResultKey(activeResultKey);
+          return;
+        }
+        setValidatedResultKey(null);
+        updateDraft(
+          (current) => ({
+            ...current,
+            matchedRequirementId: undefined,
+            matchedRequirementLabel: undefined,
+            status: "draft",
+            resultId: undefined,
           }),
+          null,
         );
-      } else {
-        setRecoveryState(
-          buildRecoveryState({
-            selectedMethodologyId: draft.methodologyId,
-            evidenceAnalysis: undefined,
-            claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
-          }),
-        );
-      }
-      setFieldErrors({});
-    });
+        if (draft.methodologyId.trim()) {
+          setShowMethodology(true);
+          setRecoveryState(
+            buildNoValidAnalysisPathRecoveryState({
+              methodologyId: draft.methodologyId,
+              evidenceSignals: cachedExtraction,
+            }),
+          );
+        } else {
+          setRecoveryState(
+            buildRecoveryState({
+              selectedMethodologyId: draft.methodologyId,
+              evidenceAnalysis: undefined,
+              claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
+            }),
+          );
+        }
+        setFieldErrors({});
+      },
+      () => {
+        if (cancelled) return;
+        setFieldErrors({
+          general: "Quick Check couldn't revalidate this result. Try running the check again.",
+        });
+      },
+    );
 
     return () => {
       cancelled = true;
