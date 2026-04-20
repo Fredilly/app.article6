@@ -14,7 +14,6 @@ import {
 import TrustStrip from "@/components/TrustStrip";
 import ProofMapTab from "@/components/map/ProofMapTab";
 import ReviewProgressIndicator from "@/components/verify/ReviewProgressIndicator";
-import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
 import ShareLinkButton from "@/components/actions/ShareLinkButton";
 import {
@@ -137,6 +136,9 @@ export default function MethodDetailPane({
     },
     [method.code, methodBasePath, searchString],
   );
+  const exportAuditPackHref = useMemo(() => {
+    return `/api/exports/audit-pack?method=${encodeURIComponent(method.code ?? "")}&version=${encodeURIComponent(activeVersion ?? "")}`;
+  }, [activeVersion, method.code]);
   const { events: auditEvents, appendEvent, clearTrail, exportJson, exportSha256 } = useAuditTrail();
   const appendAuditEvent = useCallback(
     (input: AuditTrailEventInput) => {
@@ -1176,10 +1178,6 @@ export default function MethodDetailPane({
     appendAuditEvent({ kind: "export.audit_trail", payload: { audit_trail_sha256: exportSha256 } });
   }, [appendAuditEvent, exportSha256]);
 
-  const handleHeaderViewModeChange = useCallback((nextMode: "list" | "map") => {
-    setVerifyViewMode(nextMode);
-  }, []);
-
   const handleToggleVerifierMode = useCallback(() => {
     if (!pathname) return;
     const params = new URLSearchParams(searchString);
@@ -1274,26 +1272,79 @@ export default function MethodDetailPane({
     />
   );
 
+  const verifyUtilitySurface = (
+    <div className="grid gap-4">
+      <section className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Utilities</div>
+            <h3 className="text-base font-semibold text-slate-900">Evidence, map, share, and advanced export</h3>
+            <p className="text-sm text-slate-600">
+              Supporting tools stay attached to the active review without competing with the rule list.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm transition ${
+                verifierMode
+                  ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+              onClick={handleToggleVerifierMode}
+              aria-pressed={verifierMode}
+            >
+              Verifier mode
+            </button>
+            <div className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white p-1">
+              {(["list", "map"] as const).map((nextMode) => (
+                <button
+                  key={nextMode}
+                  type="button"
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                    verifyViewMode === nextMode ? "bg-slate-900 text-white" : "text-slate-600 hover:text-slate-900"
+                  }`}
+                  onClick={() => setVerifyViewMode(nextMode)}
+                  aria-pressed={verifyViewMode === nextMode}
+                >
+                  {nextMode === "list" ? "Evidence" : "Map"}
+                </button>
+              ))}
+            </div>
+            <ShareLinkButton
+              tab={isEvidenceMode ? "verify" : tab}
+              view={verifyViewMode}
+              ruleId={activeRuleId}
+              sectionId={sectionPreview?.id ?? null}
+            />
+            {methodsLayout?.isVerifyTab ? (
+              <button
+                type="button"
+                onClick={() => methodsLayout.setMethodsCollapsed(!methodsLayout.methodsCollapsed)}
+                className="hidden items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+              >
+                {methodsLayout.methodsCollapsed ? "Show methods" : "Hide methods"}
+              </button>
+            ) : null}
+          </div>
+        </div>
+        <div className="mt-4">{proofMapSurface}</div>
+      </section>
+
+      <TrustStrip
+        methodCode={method.code}
+        version={activeVersion}
+        packTag={packTag}
+        provenanceJson={provenanceJson}
+        manifestRulesPath={manifestRulesPath}
+        onOpenIntegrityDiff={() => setIntegrityDiffOpen(true)}
+      />
+    </div>
+  );
+
   const verifySurface = (
     <div className="mt-4 grid gap-4">
-      <VerifyHeader
-        mode={verifyViewMode}
-        verifierMode={verifierMode}
-        onChangeMode={handleHeaderViewModeChange}
-        onToggleVerifierMode={handleToggleVerifierMode}
-      />
-      {methodsLayout?.isVerifyTab ? (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={() => methodsLayout.setMethodsCollapsed(!methodsLayout.methodsCollapsed)}
-            className="hidden items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
-          >
-            {methodsLayout.methodsCollapsed ? "Show methods" : "Hide methods"}
-          </button>
-        </div>
-      ) : null}
-      {proofMapSurface}
+      {activeVersion && reviewProgress ? <ReviewProgressIndicator progress={reviewProgress} /> : null}
       {rulesDeeplinkWarning ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {rulesDeeplinkWarning}
@@ -1309,7 +1360,6 @@ export default function MethodDetailPane({
           Failed to load selected requirement detail: {ruleDetailError}
         </div>
       ) : null}
-      {activeVersion && reviewProgress ? <ReviewProgressIndicator progress={reviewProgress} /> : null}
       {rulesLoading ? (
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
           Loading verification requirements…
@@ -1358,6 +1408,7 @@ export default function MethodDetailPane({
           onLinkInventoryItem={handleLinkInventoryItem}
           onUnlinkInventoryItem={handleUnlinkInventoryItem}
           reviewStatusByRuleId={reviewStatusByRuleId}
+          supportingEvidence={verifyUtilitySurface}
         />
       ) : null}
     </div>
@@ -1365,62 +1416,63 @@ export default function MethodDetailPane({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-sm font-semibold text-slate-900">{method.code}</h2>
-          <p className="text-sm text-slate-600">
-            {method.program} • {method.sector}
-          </p>
-          <p className="text-xs text-slate-500">
-            Latest: {method.latestVersion ?? "—"} • Versions: {method.versionCount}
-          </p>
-          {versionBadges.length ? (
-            <div className="mt-1 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600">
+      <section className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">VVB review workspace</div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-xl font-semibold tracking-tight text-slate-900">{method.code}</h1>
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                {activeVersion ?? method.latestVersion ?? "Unknown version"}
+              </span>
+            </div>
+            <p className="text-sm text-slate-600">
+              {method.program} • {method.sector}
+            </p>
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600">
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
+                {activeVersion ? `${method.ruleCountByVersion[activeVersion] ?? rules.length} requirements` : `${rules.length} requirements`}
+              </span>
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
+                Versions {method.versionCount}
+              </span>
               {versionBadges.map((label) => (
-                <span key={label} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                <span key={label} className="rounded-full border border-slate-200 bg-white px-3 py-1">
                   {label}
                 </span>
               ))}
             </div>
-          ) : null}
+          </div>
+          <div className="flex w-full flex-col gap-3 lg:max-w-sm lg:items-end">
+            <div className="w-full lg:max-w-xs">
+              <VersionSelector
+                methodCode={method.code}
+                versions={[...lineageVersions].reverse()}
+                selectedVersion={activeVersion}
+                lineage={method.lineage}
+              />
+            </div>
+            <div className="flex w-full flex-wrap items-center gap-2 lg:justify-end">
+              <a
+                href={exportAuditPackHref}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+              >
+                Export audit pack
+              </a>
+              {isEvidenceMode ? (
+                <Link
+                  href={buildVerifyHref()}
+                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                >
+                  Back to Method
+                </Link>
+              ) : null}
+            </div>
+          </div>
         </div>
-        <div className="w-full sm:max-w-xs">
-          <VersionSelector
-            methodCode={method.code}
-            versions={[...lineageVersions].reverse()}
-            selectedVersion={activeVersion}
-            lineage={method.lineage}
-          />
-        </div>
-      </div>
-
-      <div className="mt-3">
-        <TrustStrip
-          methodCode={method.code}
-          version={activeVersion}
-          packTag={packTag}
-          provenanceJson={provenanceJson}
-          manifestRulesPath={manifestRulesPath}
-          onOpenIntegrityDiff={() => setIntegrityDiffOpen(true)}
-        />
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
-        <ShareLinkButton
-          tab={isEvidenceMode ? "verify" : tab}
-          view={verifyViewMode}
-          ruleId={activeRuleId}
-          sectionId={sectionPreview?.id ?? null}
-        />
-        {isEvidenceMode ? (
-          <Link
-            href={buildVerifyHref()}
-            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-          >
-            Back to Method
-          </Link>
-        ) : null}
-      </div>
+      </section>
 
       {integrityDiffOpen ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">

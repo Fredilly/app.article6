@@ -7,8 +7,6 @@ import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_COVERAGE_STATUS_META,
   requirementProvenanceHint,
-  summarizeExpectedEvidence,
-  summarizeLinkedEvidence,
   type RequirementCoverageRow,
 } from "@/app/m/_lib/requirementCoverage";
 
@@ -75,6 +73,25 @@ function reviewFilterBucket(status: ReviewStatus | null | undefined): Requiremen
   return "pending";
 }
 
+function reviewStateMeta(status: ReviewStatus | null | undefined): { label: string; tone: string } {
+  if (status === "verified") {
+    return {
+      label: "Verified",
+      tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    };
+  }
+  if (status === "not_verified" || status === "needs_followup") {
+    return {
+      label: "Gap recorded",
+      tone: "border-rose-200 bg-rose-50 text-rose-800",
+    };
+  }
+  return {
+    label: "Pending review",
+    tone: "border-slate-200 bg-slate-50 text-slate-700",
+  };
+}
+
 export default function RequirementCoverageWorkspace({
   rows,
   activeRuleId,
@@ -130,6 +147,7 @@ export default function RequirementCoverageWorkspace({
     if (inFiltered) return inFiltered;
     return filteredRows[0] ?? null;
   }, [activeRuleId, filteredRows]);
+  const nextReviewRow = filteredRows[0] ?? null;
 
   useEffect(() => {
     if (!selectedRow) return;
@@ -160,14 +178,25 @@ export default function RequirementCoverageWorkspace({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Verify requirements
+              Requirement review
             </div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Review each requirement with linked evidence and methodology context in one surface.
+              Review requirements in order and keep the next judgment obvious.
             </h3>
-            <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
-              <span className="rounded-full bg-slate-100 px-3 py-1">Rules {counts.total}</span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">Reviewed {counts.verified + counts.gaps}</span>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">Rules {counts.total}</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                Reviewed {counts.verified + counts.gaps}
+              </span>
+              {filter === "pending" ? (
+                nextReviewRow ? (
+                  <span className="text-sm text-slate-600">
+                    Next review: <span className="font-semibold text-slate-900">{nextReviewRow.ruleId}</span> {nextReviewRow.ruleSummary.title}
+                  </span>
+                ) : (
+                  <span className="text-sm text-slate-500">No pending reviews left.</span>
+                )
+              ) : null}
             </div>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-80">
@@ -208,6 +237,7 @@ export default function RequirementCoverageWorkspace({
           ) : (
             filteredRows.map((row) => {
               const status = REQUIREMENT_COVERAGE_STATUS_META[row.status];
+              const reviewMeta = reviewStateMeta(reviewStatusByRuleId.get(row.ruleId));
               const selected = row.ruleId === selectedRow?.ruleId;
               return (
                 <button
@@ -230,19 +260,20 @@ export default function RequirementCoverageWorkspace({
                     <span className="text-xs text-slate-500">{requirementProvenanceHint(row)}</span>
                   </div>
                   <div className="text-sm font-semibold leading-snug text-slate-900">{row.ruleSummary.snippet}</div>
-                  <div className="grid gap-2 text-xs text-slate-600 md:grid-cols-3">
-                    <div>
-                      <div className="font-semibold uppercase tracking-wide text-slate-400">Provenance</div>
-                      <div className="mt-1">{requirementProvenanceHint(row)}</div>
-                    </div>
-                    <div>
-                      <div className="font-semibold uppercase tracking-wide text-slate-400">Expected evidence</div>
-                      <div className="mt-1">{summarizeExpectedEvidence(row.expectedEvidenceTypes)}</div>
-                    </div>
-                    <div>
-                      <div className="font-semibold uppercase tracking-wide text-slate-400">Linked evidence</div>
-                      <div className="mt-1">{summarizeLinkedEvidence(row.linkedEvidence)}</div>
-                    </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                    <span className={`rounded-full border px-2.5 py-1 font-semibold ${reviewMeta.tone}`}>
+                      {reviewMeta.label}
+                    </span>
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-700">
+                      {row.linkedEvidence.length} linked evidence
+                    </span>
+                    {row.expectedEvidenceTypes.length ? (
+                      <span className="text-slate-500">
+                        {row.expectedEvidenceTypes.length} expected evidence type{row.expectedEvidenceTypes.length === 1 ? "" : "s"}
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">No expected evidence defined</span>
+                    )}
                   </div>
                 </button>
               );
@@ -567,13 +598,13 @@ export default function RequirementCoverageWorkspace({
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="mb-3">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Supporting evidence
+              Utilities
             </div>
             <h3 className="mt-1 text-base font-semibold text-slate-900">
-              Evidence and map context for {selectedRow.ruleId}
+              Evidence and export utilities for {selectedRow.ruleId}
             </h3>
             <p className="mt-1 text-sm text-slate-600">
-              These views follow the selected requirement while verify, finalize, and export stay available.
+              Open map and evidence tools, share the current review state, and export without leaving the review surface.
             </p>
           </div>
           {supportingEvidence}

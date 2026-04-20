@@ -154,7 +154,7 @@ describe("RequirementCoverageWorkspace", () => {
       />,
     );
 
-    expect(html).toContain("Verify requirements");
+    expect(html).toContain("Requirement review");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook.");
     expect(html).toContain("Monitoring");
     expect(html).toContain("Monitoring report");
@@ -165,8 +165,9 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Pages 4-5");
     expect(html).toContain("The project boundary covers compartments 1 through 4.");
     expect(html).toContain("Complete");
-    expect(html).toContain("No expected evidence defined for this rule.");
-    expect(html).toContain("No linked evidence yet");
+    expect(html).toContain("Pending review");
+    expect(html).toContain("2 linked evidence");
+    expect(html).toContain("No expected evidence defined");
     expect(html).toContain("No workbook-derived candidates for this requirement yet.");
     expect(html).toContain("Evidence inventory");
     expect(html).toContain("Boundary worksheet");
