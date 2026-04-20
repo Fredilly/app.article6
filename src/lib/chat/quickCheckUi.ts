@@ -1,8 +1,9 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
-import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
+import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
+export type QuickCheckUiSupportStrengthValue = "strong_evidence_match" | "needs_review";
 export type QuickCheckUiNextActionKind = "open_methods" | "upload_better_file";
 
 export type QuickCheckUiExtraction = QuickCheckExtractionSnapshot;
@@ -23,6 +24,12 @@ export type QuickCheckUiExtractionState = {
   description: string;
 };
 
+export type QuickCheckUiSupportStrength = {
+  value: QuickCheckUiSupportStrengthValue;
+  label: string;
+  description: string;
+};
+
 export type QuickCheckUiNextAction = {
   kind: QuickCheckUiNextActionKind;
   label: string;
@@ -38,6 +45,7 @@ export type QuickCheckUiResult = {
   sourceMode: QuickCheckSourceMode | null;
   extraction: QuickCheckUiExtraction;
   extractionState: QuickCheckUiExtractionState;
+  supportStrength: QuickCheckUiSupportStrength;
   match: QuickCheckUiMatch | null;
   nextAction: QuickCheckUiNextAction;
 };
@@ -189,6 +197,32 @@ export function deriveQuickCheckExtractionState(extraction: QuickCheckExtraction
   };
 }
 
+function deriveQuickCheckSupportStrength(input: {
+  status: QuickCheckUiStatus;
+  extractionState: QuickCheckUiExtractionState;
+  match: QuickCheckUiMatch | null;
+  verdict?: QuickCheckResultVerdict | null;
+}): QuickCheckUiSupportStrength {
+  if (
+    input.status === "preliminary_match_found" &&
+    input.match?.grounding === "methodology_grounded" &&
+    input.extractionState.value === "grounded" &&
+    input.verdict === "Supported"
+  ) {
+    return {
+      value: "strong_evidence_match",
+      label: "Strong evidence match",
+      description: "Direct textual support was extracted for this claim, but Quick Check still requires full review.",
+    };
+  }
+
+  return {
+    value: "needs_review",
+    label: "Needs review",
+    description: "Quick Check did not find enough direct support to finish triage without reviewer follow-up in full review.",
+  };
+}
+
 export function normalizeQuickCheckUiResult(input: {
   claim: string;
   evidenceFileName: string;
@@ -227,6 +261,12 @@ export function normalizeQuickCheckUiResult(input: {
       sourceMode,
       extraction,
       extractionState,
+      supportStrength: deriveQuickCheckSupportStrength({
+        status: "extraction_failed",
+        extractionState,
+        match: null,
+        verdict: null,
+      }),
       match: null,
       nextAction: buildUploadAction(),
     };
@@ -242,6 +282,12 @@ export function normalizeQuickCheckUiResult(input: {
       sourceMode,
       extraction,
       extractionState,
+      supportStrength: deriveQuickCheckSupportStrength({
+        status: "no_reliable_match",
+        extractionState,
+        match: null,
+        verdict: null,
+      }),
       match: null,
       nextAction: buildMethodsAction(),
     };
@@ -266,6 +312,12 @@ export function normalizeQuickCheckUiResult(input: {
     sourceMode,
     extraction,
     extractionState,
+    supportStrength: deriveQuickCheckSupportStrength({
+      status: "preliminary_match_found",
+      extractionState,
+      match,
+      verdict: input.result.verdict,
+    }),
     match,
     nextAction: buildMethodsAction(),
   };
