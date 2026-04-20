@@ -167,3 +167,4 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
+
