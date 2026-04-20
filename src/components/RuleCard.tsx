@@ -1,8 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import HashCopyButton from "@/components/manifest/HashCopyButton";
 import Tooltip from "@/components/ui/Tooltip";
+import RuleReviewPanel from "@/components/verify/RuleReviewPanel";
+import {
+  getReview,
+  saveReview,
+  REVIEW_STORE_EVENT,
+  type RuleReview,
+} from "@/lib/verify/reviewStore";
+import { statusLabel } from "@/lib/verify/reviewValidation";
 import { type ManifestEntry } from "@/lib/manifest/cards";
 
 type RuleCardProps = {
@@ -103,6 +111,41 @@ export default function RuleCard({
   relatedVersions,
   onSelectVersion,
 }: RuleCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [existingReview, setExistingReview] = useState<RuleReview | null>(null);
+
+  const ruleId = entry.rule_id ?? entry.id;
+  const methodology = entry.methodology;
+  const version = entry.version;
+
+  const loadReview = useCallback(() => {
+    setExistingReview(getReview(ruleId, methodology, version));
+  }, [ruleId, methodology, version]);
+
+  useEffect(() => {
+    loadReview();
+  }, [loadReview]);
+
+  useEffect(() => {
+    function handleStoreChange(event: Event) {
+      const detail = (event as CustomEvent).detail;
+      if (
+        detail?.methodology === methodology &&
+        detail?.version === version &&
+        (!detail.ruleId || detail.ruleId === ruleId)
+      ) {
+        loadReview();
+      }
+    }
+    window.addEventListener(REVIEW_STORE_EVENT, handleStoreChange);
+    return () => window.removeEventListener(REVIEW_STORE_EVENT, handleStoreChange);
+  }, [methodology, version, ruleId, loadReview]);
+
+  function handleSaveReview(review: RuleReview) {
+    saveReview(review);
+    loadReview();
+  }
+
   const shortHash = entry.sha256 ? `${entry.sha256.slice(0, 12)}…` : "n/a";
   const anchorUrl = buildAnchorUrl(entry);
   const hasAnchor = anchorUrl !== "#";
@@ -115,8 +158,12 @@ export default function RuleCard({
     [entry.tags],
   );
 
+  const reviewStatus = existingReview?.status ?? "pending";
+  const reviewBadge = reviewStatus !== "pending" ? statusLabel(reviewStatus) : null;
+
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-300 hover:shadow-md">
+    <article className="rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md">
+      <div className="p-6">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
           <h3 className="text-lg font-semibold text-slate-900">{entry.rule}</h3>
@@ -178,7 +225,40 @@ export default function RuleCard({
         >
           Export JSON
         </a>
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className={`inline-flex min-h-[2.75rem] items-center justify-center rounded-full border px-4 font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-500 focus-visible:outline-offset-2 ${
+            expanded
+              ? "border-slate-800 bg-slate-800 text-white hover:bg-slate-700"
+              : reviewBadge
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300"
+                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900"
+          }`}
+        >
+          {expanded ? "Close" : reviewBadge ? `Review · ${reviewBadge}` : "Review"}
+        </button>
       </footer>
+      </div>
+
+      {expanded ? (
+        <div className="border-t border-slate-200 px-6 py-6">
+          <RuleReviewPanel
+            key={`${ruleId}:${methodology}:${version}`}
+            ruleId={ruleId}
+            ruleText={entry.rule}
+            sectionId={entry.sectionId ?? undefined}
+            methodology={methodology}
+            version={version}
+            anchorUrl={hasAnchor ? anchorUrl : undefined}
+            existingReview={existingReview}
+            ruleTags={entry.tags}
+            sha256={entry.sha256 ?? null}
+            sourcePath={entry.path ?? null}
+            onSave={handleSaveReview}
+          />
+        </div>
+      ) : null}
     </article>
   );
 }

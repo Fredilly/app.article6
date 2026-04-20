@@ -67,4 +67,98 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(raw).toContain('BT');
     expect(raw).toContain('ET');
   }, 15000);
+
+  it('uses ARTICLE6 branding and VERIFICATION PACK title', async () => {
+    const project = makeProject();
+    const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('ARTICLE6');
+    expect(parsed.text).toContain('VERIFICATION PACK');
+    expect(parsed.text).not.toContain('app.article6');
+  }, 15000);
+
+  it('renders reviewer rationale under rules that have notes', async () => {
+    const project = makeProject(3);
+    project.reviews[0] = {
+      ...project.reviews[0],
+      status: 'verified',
+      note: 'Monitoring report confirms coverage of the full reporting period.',
+    };
+    project.reviews[1] = {
+      ...project.reviews[1],
+      status: 'gap',
+      note: 'Boundary worksheet not provided.',
+    };
+    const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('Monitoring report confirms coverage');
+    expect(parsed.text).toContain('Boundary worksheet not provided');
+  }, 15000);
+
+  it('shows percentage complete in coverage summary', async () => {
+    const project = makeProject();
+    const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toMatch(/\d+%/);
+  }, 15000);
+
+  it('handles missing timestamps without crashing', async () => {
+    const project = makeProject();
+    (project as Record<string, unknown>).createdAt = undefined;
+    (project as Record<string, unknown>).lockedAt = undefined;
+    const pdf = buildProjectExportPdf(project, {
+      total: 6,
+      verified: 4,
+      gap: 1,
+      notStarted: 1,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 83,
+    });
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('PROVENANCE');
+    expect(parsed.text).toContain('n/a');
+  }, 15000);
+
+  it('PDF text contains only ASCII-safe characters (no mojibake)', async () => {
+    const project = makeProject();
+    const pdf = buildProjectExportPdf(project, {
+      total: 6,
+      verified: 4,
+      gap: 1,
+      notStarted: 1,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 83,
+    });
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    // Middle dot, em dash, and other non-ASCII should not appear in extracted text
+    // from Type1 Helvetica streams
+    expect(parsed.text).not.toMatch(/[\u00b7\u2014\u2013\u2018\u2019\u201c\u201d]/);
+  }, 15000);
 });

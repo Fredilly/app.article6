@@ -6,8 +6,11 @@ import HealthBadge from "@/components/HealthBadge";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Article 6 Quick Check",
-  description: "Check one climate claim against one piece of evidence, then open the full review.",
+  title: "Article6",
+  description: "Verification tooling for Article 6 carbon credit methodologies.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -25,9 +28,9 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col">
           <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/92 backdrop-blur">
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-2.5 md:flex-row md:items-center md:justify-between md:px-8">
-              <Link href="/" className="space-y-1 rounded-xl px-2 py-1 transition hover:bg-white">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Article 6</p>
-                <h1 className="text-sm font-semibold text-slate-900">Quick Check</h1>
+              <Link href="/" className="flex items-center gap-2.5 rounded-xl px-2 py-1 transition hover:bg-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-[11px] font-extrabold tracking-tight text-white">A6</span>
+                <span className="text-sm font-semibold text-slate-900">Article6</span>
               </Link>
               <div className="flex items-center gap-4 md:ml-auto">
                 <DemoNav />
