@@ -189,6 +189,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
         ...TXT(L + 402, y, 'FB', 7, statusLabel(r.status), statusColor),
       );
       if (hasDetails) {
+        // Keep note text short enough to stay readable in the PDF row layout.
         ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(detailText, 80), '0.5 0.5 0.5 rg'));
       }
       y -= rowHeight;
