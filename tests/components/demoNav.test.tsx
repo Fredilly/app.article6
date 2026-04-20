@@ -31,7 +31,7 @@ describe("DemoNav", () => {
     jest.clearAllMocks();
   });
 
-  it("shows Quick Check, Methods, and Dashboard destinations", async () => {
+  it("shows Quick Check, Methods, and Projects destinations", async () => {
     pathnameState.value = "/";
     await act(async () => {
       root.render(<DemoNav />);
@@ -39,11 +39,11 @@ describe("DemoNav", () => {
 
     const links = Array.from(container.querySelectorAll("a"));
     expect(links.map((link) => link.textContent)).toEqual(
-      expect.arrayContaining(["Quick Check", "Methods", "Dashboard"]),
+      expect.arrayContaining(["Quick Check", "Methods", "Projects"]),
     );
     expect(links.find((link) => link.textContent?.includes("Quick Check"))?.getAttribute("href")).toBe("/");
     expect(links.find((link) => link.textContent?.includes("Methods"))?.getAttribute("href")).toBe("/m");
-    expect(links.find((link) => link.textContent?.includes("Dashboard"))?.getAttribute("href")).toBe("/dashboard");
+    expect(links.find((link) => link.textContent?.includes("Projects"))?.getAttribute("href")).toBe("/projects");
   });
 
   it("lets the user return to Quick Check from Methods in one click", async () => {
