@@ -704,8 +704,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [activeSourceMode, draft.methodologyId, draft.methodologyVersion, extractionPreview, renderedResult, selectedEvidenceLabel],
   );
   const isGroundedResult = normalizedResult?.match?.grounding === "methodology_grounded";
-  const resultToneClass = isGroundedResult ? "border-emerald-200 bg-emerald-50/75" : "border-sky-200 bg-sky-50/80";
-  const resultEyebrowClass = isGroundedResult ? "text-emerald-800" : "text-sky-800";
+  const hasStrongEvidenceMatch = normalizedResult?.supportStrength.value === "strong_evidence_match";
+  const resultToneClass = hasStrongEvidenceMatch ? "border-emerald-200 bg-emerald-50/75" : "border-amber-200 bg-amber-50/80";
+  const resultEyebrowClass = hasStrongEvidenceMatch ? "text-emerald-800" : "text-amber-800";
+  const resultTitle = normalizedResult?.supportStrength.label ?? "Needs review";
+  const resultSignalNote = hasStrongEvidenceMatch
+    ? "Direct textual support was found, but Quick Check is still triage only. Open full review to confirm the requirement in context."
+    : !isGroundedResult
+      ? "Evidence found, but not grounded to detected methodology. Quick Check still requires reviewer follow-up in full review."
+      : "Evidence was found, but the extraction is still weak, partial, or ambiguous. Quick Check still requires reviewer follow-up in full review.";
   const selectedEvidenceSources = useMemo(() => {
     const sources = new Map<string, { evidenceId: string; sourceLabel: string; attachments: EvidencePin["attachments"]; pddFragments?: PddFragment[] }>();
 
@@ -1893,10 +1900,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               role="status"
               aria-live="polite"
             >
-              <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${resultEyebrowClass}`}>
-                {renderedResult.verdict}
-              </div>
+              <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${resultEyebrowClass}`}>{resultTitle}</div>
               <div className="mt-2 text-sm text-slate-600">{normalizedResult.claim}</div>
+              <div className="mt-2 text-sm text-slate-700">{resultSignalNote}</div>
               <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 px-4 py-3">
                 <div className="text-sm text-slate-800">
                   {normalizedResult.match.rationale}

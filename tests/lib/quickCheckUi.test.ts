@@ -111,6 +111,8 @@ describe("quick check ui helpers", () => {
     expect(view.match?.unresolved).toEqual(["Quick Check is preliminary."]);
     expect(view.match?.grounding).toBe("methodology_grounded");
     expect(view.extractionState.value).toBe("grounded");
+    expect(view.supportStrength.value).toBe("strong_evidence_match");
+    expect(view.supportStrength.label).toBe("Strong evidence match");
   });
 
   it("fails safely when extraction facts are missing", () => {
@@ -136,6 +138,7 @@ describe("quick check ui helpers", () => {
     expect(view.status).toBe("extraction_failed");
     expect(view.match).toBeNull();
     expect(view.extractionState.value).toBe("weak");
+    expect(view.supportStrength.value).toBe("needs_review");
   });
 
   it("marks a specific rule as a catalog candidate when methodology grounding is absent", () => {
@@ -177,6 +180,7 @@ describe("quick check ui helpers", () => {
     expect(view.status).toBe("preliminary_match_found");
     expect(view.match?.grounding).toBe("catalog_candidate");
     expect(view.extractionState.value).toBe("partial");
+    expect(view.supportStrength.value).toBe("needs_review");
   });
 
   it("marks extraction as partial when facts exist but signals are incomplete", () => {
@@ -195,5 +199,47 @@ describe("quick check ui helpers", () => {
     });
 
     expect(state.value).toBe("partial");
+  });
+
+  it("keeps methodology-grounded but ambiguous extraction in needs-review state", () => {
+    const view = normalizeQuickCheckUiResult({
+      claim: "The monitoring report covers the full reporting period.",
+      evidenceFileName: "monitoring-report.pdf",
+      sourceMode: "uploaded_file",
+      extraction: {
+        documentType: "PDD / PDF",
+        extractedFacts: ["The project has documented monitoring evidence"],
+        methodologyMentions: ["AR-ACM0003"],
+        warnings: ["The extraction found relevant facts, but the signal is still incomplete."],
+        signals: {
+          parsedEvidenceCount: 1,
+          factCount: 1,
+          relevantFactCount: 1,
+          methodologyMentionCount: 1,
+          warningCount: 1,
+        },
+      },
+      methodologyCode: "AR-ACM0003",
+      methodologyVersion: "v02-0",
+      result: {
+        id: "quick-result-2",
+        claimText: "The monitoring report covers the full reporting period.",
+        requirementId: "R-1-0001",
+        requirementLabel: "R-1-0001 · Monitoring frequency",
+        verdict: "Supported",
+        explanation: "A requirement match exists, but the evidence signal is incomplete.",
+        citations: ["Section 10"],
+        nextStepHint: "Open full review.",
+        matchConfidence: 0.72,
+        unresolved: ["Quick Check is preliminary."],
+        extraction: null,
+      },
+    });
+
+    expect(view.status).toBe("preliminary_match_found");
+    expect(view.match?.grounding).toBe("methodology_grounded");
+    expect(view.extractionState.value).toBe("partial");
+    expect(view.supportStrength.value).toBe("needs_review");
+    expect(view.supportStrength.label).toBe("Needs review");
   });
 });
