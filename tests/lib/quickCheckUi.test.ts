@@ -242,4 +242,46 @@ describe("quick check ui helpers", () => {
     expect(view.supportStrength.value).toBe("needs_review");
     expect(view.supportStrength.label).toBe("Needs review");
   });
+
+  it("does not promote a grounded preliminary match to strong when the verdict is not supported", () => {
+    const view = normalizeQuickCheckUiResult({
+      claim: "The monitoring report covers the full reporting period.",
+      evidenceFileName: "monitoring-report.pdf",
+      sourceMode: "uploaded_file",
+      extraction: {
+        documentType: "PDD / PDF",
+        extractedFacts: ["The project has documented monitoring evidence"],
+        methodologyMentions: ["AR-ACM0003"],
+        warnings: [],
+        signals: {
+          parsedEvidenceCount: 1,
+          factCount: 1,
+          relevantFactCount: 1,
+          methodologyMentionCount: 1,
+          warningCount: 0,
+        },
+      },
+      methodologyCode: "AR-ACM0003",
+      methodologyVersion: "v02-0",
+      result: {
+        id: "quick-result-3",
+        claimText: "The monitoring report covers the full reporting period.",
+        requirementId: "R-1-0001",
+        requirementLabel: "R-1-0001 · Monitoring frequency",
+        verdict: "Needs review",
+        explanation: "A preliminary requirement match exists, but the reconciliation verdict is not supported.",
+        citations: ["Section 10"],
+        nextStepHint: "Open full review.",
+        matchConfidence: 0.72,
+        unresolved: ["Quick Check is preliminary."],
+        extraction: null,
+      },
+    });
+
+    expect(view.status).toBe("preliminary_match_found");
+    expect(view.match?.grounding).toBe("methodology_grounded");
+    expect(view.extractionState.value).toBe("grounded");
+    expect(view.supportStrength.value).toBe("needs_review");
+    expect(view.supportStrength.label).toBe("Needs review");
+  });
 });

@@ -1,5 +1,5 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
-import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
+import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
@@ -201,11 +201,13 @@ function deriveQuickCheckSupportStrength(input: {
   status: QuickCheckUiStatus;
   extractionState: QuickCheckUiExtractionState;
   match: QuickCheckUiMatch | null;
+  verdict?: QuickCheckResultVerdict | null;
 }): QuickCheckUiSupportStrength {
   if (
     input.status === "preliminary_match_found" &&
     input.match?.grounding === "methodology_grounded" &&
-    input.extractionState.value === "grounded"
+    input.extractionState.value === "grounded" &&
+    input.verdict === "Supported"
   ) {
     return {
       value: "strong_evidence_match",
@@ -263,6 +265,7 @@ export function normalizeQuickCheckUiResult(input: {
         status: "extraction_failed",
         extractionState,
         match: null,
+        verdict: null,
       }),
       match: null,
       nextAction: buildUploadAction(),
@@ -283,6 +286,7 @@ export function normalizeQuickCheckUiResult(input: {
         status: "no_reliable_match",
         extractionState,
         match: null,
+        verdict: null,
       }),
       match: null,
       nextAction: buildMethodsAction(),
@@ -312,6 +316,7 @@ export function normalizeQuickCheckUiResult(input: {
       status: "preliminary_match_found",
       extractionState,
       match,
+      verdict: input.result.verdict,
     }),
     match,
     nextAction: buildMethodsAction(),
