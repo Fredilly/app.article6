@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { formatEvidenceInventoryId, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
+import type { ReviewStatus } from "@/lib/verify/reviewStore";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_COVERAGE_STATUS_META,
@@ -11,7 +12,7 @@ import {
   type RequirementCoverageRow,
 } from "@/app/m/_lib/requirementCoverage";
 
-export type RequirementCoverageFilter = "all" | "unresolved" | "linked" | "needs-review";
+export type RequirementCoverageFilter = "pending" | "verified" | "gaps";
 
 type RequirementCoverageWorkspaceProps = {
   rows: RequirementCoverageRow[];
@@ -31,6 +32,7 @@ type RequirementCoverageWorkspaceProps = {
   inventoryItems?: EvidenceInventoryItem[];
   onLinkInventoryItem?: (evidenceId: string, ruleId: string, fragmentId?: string) => void;
   onUnlinkInventoryItem?: (evidenceId: string, ruleId: string, fragmentId?: string) => void;
+  reviewStatusByRuleId?: Map<string, ReviewStatus>;
   supportingEvidence?: ReactNode;
 };
 
@@ -67,11 +69,10 @@ function linkedEvidenceProvenance(item: RequirementCoverageRow["linkedEvidence"]
   return ([item.documentLabel, item.fragmentLabel, section, pageLabel].filter(Boolean).join(" • ") || item.provenanceSummary) ?? null;
 }
 
-function matchesFilter(row: RequirementCoverageRow, filter: RequirementCoverageFilter): boolean {
-  if (filter === "all") return true;
-  if (filter === "unresolved") return row.status === "missing" || row.status === "partial";
-  if (filter === "linked") return row.status === "linked";
-  return row.status === "needs-review";
+function reviewFilterBucket(status: ReviewStatus | null | undefined): RequirementCoverageFilter {
+  if (status === "verified") return "verified";
+  if (status === "not_verified" || status === "needs_followup") return "gaps";
+  return "pending";
 }
 
 export default function RequirementCoverageWorkspace({
@@ -87,28 +88,28 @@ export default function RequirementCoverageWorkspace({
   inventoryItems = [],
   onLinkInventoryItem,
   onUnlinkInventoryItem,
+  reviewStatusByRuleId = new Map<string, ReviewStatus>(),
   supportingEvidence = null,
 }: RequirementCoverageWorkspaceProps) {
-  const [filter, setFilter] = useState<RequirementCoverageFilter>("all");
+  const [filter, setFilter] = useState<RequirementCoverageFilter>("pending");
   const [query, setQuery] = useState("");
 
   const counts = useMemo(() => {
     return rows.reduce(
       (acc, row) => {
+        const bucket = reviewFilterBucket(reviewStatusByRuleId.get(row.ruleId));
         acc.total += 1;
-        if (row.status === "missing" || row.status === "partial") acc.unresolved += 1;
-        if (row.status === "linked") acc.linked += 1;
-        if (row.status === "needs-review") acc.needsReview += 1;
+        acc[bucket] += 1;
         return acc;
       },
-      { total: 0, unresolved: 0, linked: 0, needsReview: 0 },
+      { total: 0, pending: 0, verified: 0, gaps: 0 },
     );
-  }, [rows]);
+  }, [reviewStatusByRuleId, rows]);
 
   const filteredRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return rows.filter((row) => {
-      if (!matchesFilter(row, filter)) return false;
+      if (reviewFilterBucket(reviewStatusByRuleId.get(row.ruleId)) !== filter) return false;
       if (!normalizedQuery) return true;
       const haystack = [
         row.ruleId,
@@ -122,7 +123,7 @@ export default function RequirementCoverageWorkspace({
         .toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [filter, query, rows]);
+  }, [filter, query, reviewStatusByRuleId, rows]);
 
   const selectedRow = useMemo(() => {
     const inFiltered = filteredRows.find((row) => row.ruleId === activeRuleId);
@@ -159,25 +160,22 @@ export default function RequirementCoverageWorkspace({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Requirement coverage workspace
+              Verify requirements
             </div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Review methodology requirements row by row with provenance and evidence context.
+              Review each requirement with linked evidence and methodology context in one surface.
             </h3>
             <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
-              <span className="rounded-full bg-slate-100 px-3 py-1">Total {counts.total}</span>
-              <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-800">Unresolved {counts.unresolved}</span>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">Complete {counts.linked}</span>
-              <span className="rounded-full bg-rose-50 px-3 py-1 text-rose-800">Needs review {counts.needsReview}</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">Rules {counts.total}</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">Reviewed {counts.verified + counts.gaps}</span>
             </div>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-80">
             <div className="inline-flex w-full flex-wrap rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold text-slate-600">
               {([
-                ["all", `All (${counts.total})`],
-                ["unresolved", `Unresolved (${counts.unresolved})`],
-                ["linked", `Linked (${counts.linked})`],
-                ["needs-review", `Needs review (${counts.needsReview})`],
+                ["pending", `Pending (${counts.pending})`],
+                ["verified", `Verified (${counts.verified})`],
+                ["gaps", `Gaps (${counts.gaps})`],
               ] as Array<[RequirementCoverageFilter, string]>).map(([value, label]) => (
                 <button
                   key={value}
