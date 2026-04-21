@@ -60,7 +60,11 @@ export function saveReview(review: RuleReview): void {
   try {
     const raw = localStorage.getItem(key);
     const all: Record<string, RuleReview> = raw ? JSON.parse(raw) : {};
-    all[review.ruleId] = { ...review, updatedAt: new Date().toISOString() };
+    all[review.ruleId] = { 
+      ...review,
+      evidenceAttachments: review.evidenceAttachments ?? [],
+      updatedAt: new Date().toISOString() 
+    };
     localStorage.setItem(key, JSON.stringify(all));
     emitReviewStoreEvent({
       methodology: review.methodology,
@@ -68,7 +72,7 @@ export function saveReview(review: RuleReview): void {
       ruleId: review.ruleId,
     });
   } catch {
-    // Storage full or unavailable — fail silently
+    // Storage full or unavailable
   }
 }
 
@@ -101,46 +105,6 @@ export function deleteReview(
     // ignore
   }
 }
-
-// --- Evidence attachment ---
-
-export function addEvidenceAttachment(
-  ruleId: string,
-  methodology: string,
-  version: string,
-  attachment: Omit<EvidenceAttachment, "id" | "addedAt">,
-): RuleReview | null {
-  const review = getReview(ruleId, methodology, version);
-  if (!review) return null;
-
-  const full: EvidenceAttachment = {
-    ...attachment,
-    id: `ev_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
-    addedAt: new Date().toISOString(),
-  };
-
-  review.evidenceAttachments = [...(review.evidenceAttachments ?? []), full];
-  saveReview(review);
-  return review;
-}
-
-export function removeEvidenceAttachment(
-  ruleId: string,
-  methodology: string,
-  version: string,
-  evidenceId: string,
-): RuleReview | null {
-  const review = getReview(ruleId, methodology, version);
-  if (!review) return null;
-
-  review.evidenceAttachments = (review.evidenceAttachments ?? []).filter(
-    (e) => e.id !== evidenceId,
-  );
-  saveReview(review);
-  return review;
-}
-
-// --- Review progress ---
 
 export type ReviewProgress = {
   total: number;
@@ -176,8 +140,6 @@ export function getReviewProgress(
   };
 }
 
-// --- Finalize gate ---
-
 export type FinalizeGate = {
   canFinalize: boolean;
   reasons: string[];
@@ -192,7 +154,6 @@ export function checkFinalizeGate(
   const entries = Object.values(reviews);
   const reasons: string[] = [];
 
-  // Check all rules have a non-pending review
   const completedRuleIds = new Set(
     entries.filter((review) => review.status !== "pending").map((review) => review.ruleId),
   );
@@ -201,7 +162,6 @@ export function checkFinalizeGate(
     reasons.push(`${missing} rule${missing === 1 ? "" : "s"} still pending review`);
   }
 
-  // Check non-pending reviews have rationale + support
   for (const review of entries) {
     if (review.status === "pending") continue;
     if (!review.rationale?.trim()) {

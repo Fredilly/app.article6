@@ -1,67 +1,29 @@
-import type { ReviewStatus, RuleReview } from "./reviewStore";
+import { RuleReview } from './reviewStore';
 
-export type ValidationError = {
-  field: "rationale" | "supportReference" | "status";
-  message: string;
-};
-
-export function validateReview(review: Partial<RuleReview>): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  if (!review.status) {
-    errors.push({ field: "status", message: "Status is required" });
-    return errors;
+export function validateReview(review: Partial<RuleReview>): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  
+  if (review.status && review.status !== 'pending') {
+    if (!review.rationale || review.rationale.trim().length === 0) {
+      errors.push('Rationale is required for verified, not verified, or follow-up status.');
+    }
+    if (!review.supportReference || review.supportReference.trim().length === 0) {
+      errors.push('Support reference is required for verified, not verified, or follow-up status.');
+    }
   }
-
-  if (review.status === "pending") return errors;
-
-  if (!review.rationale?.trim()) {
-    errors.push({
-      field: "rationale",
-      message: "Rationale is required when status is not Pending",
-    });
-  }
-
-  if (!review.supportReference?.trim()) {
-    errors.push({
-      field: "supportReference",
-      message: "Support reference is required when status is not Pending",
-    });
-  }
-
-  return errors;
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
 }
 
-export function isValid(review: Partial<RuleReview>): boolean {
-  return validateReview(review).length === 0;
-}
-
-export function requiresRationale(status: ReviewStatus): boolean {
-  return status !== "pending";
-}
-
-export function statusLabel(status: ReviewStatus): string {
+export function statusLabel(status: RuleReview['status']): string {
   switch (status) {
-    case "pending":
-      return "Pending";
-    case "verified":
-      return "Verified";
-    case "not_verified":
-      return "Not Verified";
-    case "needs_followup":
-      return "Needs Follow-up";
-  }
-}
-
-export function statusColor(status: ReviewStatus): string {
-  switch (status) {
-    case "pending":
-      return "slate";
-    case "verified":
-      return "emerald";
-    case "not_verified":
-      return "red";
-    case "needs_followup":
-      return "amber";
+    case 'verified': return 'Verified';
+    case 'not_verified': return 'Not Verified';
+    case 'needs_followup': return 'Needs Follow-up';
+    case 'pending': return 'Pending';
+    default: return status;
   }
 }
