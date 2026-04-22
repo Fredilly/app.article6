@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import RequirementCoverageWorkspace from "@/app/m/_components/RequirementCoverageWorkspace";
 import type { RequirementCoverageRow } from "@/app/m/_lib/requirementCoverage";
 import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
+import type { ReviewProgress } from "@/lib/verify/reviewStore";
 
 const rows: RequirementCoverageRow[] = [
   {
@@ -137,6 +138,16 @@ const inventoryItems: EvidenceInventoryItem[] = [
   },
 ];
 
+const reviewProgress: ReviewProgress = {
+  total: 2,
+  reviewed: 1,
+  verified: 1,
+  notVerified: 0,
+  needsFollowup: 0,
+  pending: 1,
+  percentReviewed: 50,
+};
+
 describe("RequirementCoverageWorkspace", () => {
   it("renders requirement row metadata and empty expected-evidence state", () => {
     const html = renderToStaticMarkup(
@@ -150,11 +161,12 @@ describe("RequirementCoverageWorkspace", () => {
         onSelectRule={() => {}}
         onOpenSourceContext={() => {}}
         inventoryItems={inventoryItems}
+        reviewProgress={reviewProgress}
         supportingEvidence={<div>supporting evidence marker</div>}
       />,
     );
 
-    expect(html).toContain("Requirement coverage workspace");
+    expect(html).toContain("Requirement review");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook.");
     expect(html).toContain("Monitoring");
     expect(html).toContain("Monitoring report");
@@ -172,6 +184,11 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("Boundary worksheet");
     expect(html).toContain("PDD: project-design.pdf");
     expect(html).toContain("Provenance pending");
+    expect(html).toContain("1 of 2 rules reviewed");
+    expect(html).toContain("All (2)");
+    expect(html).toContain("Pending (2)");
+    expect(html).toContain("Verified (0)");
+    expect(html).toContain("Gaps (0)");
     expect(html).toContain("EV-EV1");
     expect(html).toContain("Unlinked");
     expect(html).toContain("Not linked yet");
@@ -320,6 +337,118 @@ describe("RequirementCoverageWorkspace", () => {
     });
 
     expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
+  it("filters the verify list by pending, verified, and gaps review state", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    const rowsWithGap: RequirementCoverageRow[] = [
+      ...rows,
+      {
+        ruleId: "R-3",
+        ruleSummary: {
+          title: "Leakage deduction check",
+          snippet: "Document leakage deductions and follow-up evidence.",
+          type: undefined,
+          tags: [],
+        },
+        provenance: {
+          sectionId: "S-30",
+          sectionTitle: "Leakage",
+          page: undefined,
+          anchor: "#S-30",
+          primarySection: "S-30",
+          sectionAnchor: "#S-30",
+          sectionStableId: "S-30",
+          tools: [],
+          citations: [{ sectionId: "S-30", label: "Section 30" }],
+        },
+        expectedEvidenceTypes: [],
+        linkedEvidence: [],
+        candidateEvidence: [],
+        status: "needs-review",
+      },
+    ];
+
+    await act(async () => {
+      root.render(
+        <RequirementCoverageWorkspace
+          rows={rowsWithGap}
+          activeRuleId="R-2"
+          onSelectRule={() => {}}
+          onOpenSourceContext={() => {}}
+          reviewStatusByRuleId={
+            new Map([
+              ["R-1", "verified"],
+              ["R-2", "pending"],
+              ["R-3", "needs_followup"],
+            ])
+          }
+        />,
+      );
+    });
+
+    expect(container.textContent).toContain("Pending (1)");
+    expect(container.textContent).toContain("Verified (1)");
+    expect(container.textContent).toContain("Gaps (1)");
+    expect(container.textContent).toContain("Document the eligibility boundary for review.");
+    expect(container.textContent).not.toContain("Monitoring frequency");
+    expect(container.textContent).not.toContain("Leakage deduction check");
+
+    await act(async () => {
+      (Array.from(container.querySelectorAll("button")).find((button) => button.textContent?.includes("Verified (1)")) as HTMLButtonElement).click();
+    });
+
+    expect(container.textContent).toContain("Monitoring frequency");
+    expect(container.textContent).not.toContain("Eligibility boundary");
+    expect(container.textContent).not.toContain("Leakage deduction check");
+
+    await act(async () => {
+      (Array.from(container.querySelectorAll("button")).find((button) => button.textContent?.includes("Gaps (1)")) as HTMLButtonElement).click();
+    });
+
+    expect(container.textContent).toContain("Leakage deduction check");
+    expect(container.textContent).not.toContain("Monitoring frequency");
+    expect(container.textContent).not.toContain("Eligibility boundary");
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  it("keeps a preselected reviewed rule visible on initial render", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <RequirementCoverageWorkspace
+          rows={rows}
+          activeRuleId="R-1"
+          onSelectRule={() => {}}
+          onOpenSourceContext={() => {}}
+          reviewStatusByRuleId={
+            new Map([
+              ["R-1", "verified"],
+              ["R-2", "pending"],
+            ])
+          }
+        />,
+      );
+    });
+
+    expect(container.textContent).toContain("All (2)");
+    expect(container.textContent).toContain("Monitoring frequency");
+    expect(container.textContent).toContain("Document the eligibility boundary for review.");
+    expect(container.querySelector("#r-R-1")?.getAttribute("aria-pressed")).toBe("true");
 
     await act(async () => {
       root.unmount();
