@@ -144,35 +144,26 @@ describe("RequirementCoverageWorkspace", () => {
         rows={rows}
         activeRuleId="R-1"
         selectedRequirementText="Maintain a monitoring report and spreadsheet workbook for each reporting period."
-        selectedRequirementSourcePath="methodologies/example/rules.json"
-        selectedRequirementSha256="abc123"
-        selectedTraceSections={[{ sectionId: "S-10", title: "Monitoring", textSnippet: "Monitoring context" }]}
         onSelectRule={() => {}}
-        onOpenSourceContext={() => {}}
         inventoryItems={inventoryItems}
         supportingEvidence={<div>supporting evidence marker</div>}
       />,
     );
 
-    expect(html).toContain("Requirement coverage workspace");
+    expect(html).toContain("Requirements");
     expect(html).toContain("Maintain a monitoring report and spreadsheet workbook.");
-    expect(html).toContain("Monitoring");
     expect(html).toContain("Monitoring report");
     expect(html).toContain("Q1 monitoring report");
     expect(html).toContain("project-design.pdf");
-    expect(html).toContain("Boundary overview");
     expect(html).toContain("Project boundary");
     expect(html).toContain("Pages 4-5");
     expect(html).toContain("The project boundary covers compartments 1 through 4.");
     expect(html).toContain("Complete");
-    expect(html).toContain("No expected evidence defined for this rule.");
-    expect(html).toContain("No linked evidence yet");
-    expect(html).toContain("No workbook-derived candidates for this requirement yet.");
-    expect(html).toContain("Evidence inventory");
+    expect(html).toContain("What to look for");
+    expect(html).toContain("Files in review");
     expect(html).toContain("Boundary worksheet");
     expect(html).toContain("PDD: project-design.pdf");
     expect(html).toContain("Provenance pending");
-    expect(html).toContain("EV-EV1");
     expect(html).toContain("Unlinked");
     expect(html).toContain("Not linked yet");
     expect(html).toContain("More");
@@ -260,11 +251,7 @@ describe("RequirementCoverageWorkspace", () => {
           rows={computedRows}
           activeRuleId={activeRuleId}
           selectedRequirementText={activeRow?.ruleId === "R-1" ? "Full monitoring requirement text." : "Full eligibility requirement text."}
-          selectedRequirementSourcePath="methodologies/example/rules.json"
-          selectedRequirementSha256="abc123"
-          selectedTraceSections={[{ sectionId: activeRow?.provenance.sectionId ?? "S-10", title: activeRow?.provenance.sectionTitle ?? "Section" }]}
           onSelectRule={setActiveRuleId}
-          onOpenSourceContext={() => {}}
           inventoryItems={inventory}
           onLinkInventoryItem={(evidenceId, ruleId) =>
             setInventory((current) =>
@@ -316,8 +303,8 @@ describe("RequirementCoverageWorkspace", () => {
     expect(container.querySelector("#requirement-detail-R-2")).not.toBeNull();
     expect(scrollIntoViewMock).toHaveBeenCalledWith({ block: "start", inline: "nearest" });
     expect(scrollTargets.at(-1)?.id).toBe("requirement-detail-R-2");
-    expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
-    expect(container.textContent).toContain("Workbook-derived candidates");
+    expect(container.textContent).toContain("No evidence linked yet.");
+    expect(container.textContent).toContain("Files in review");
 
     await act(async () => {
       (container.querySelector('[data-testid="inventory-link-ev-2"]') as HTMLButtonElement).click();
@@ -330,7 +317,7 @@ describe("RequirementCoverageWorkspace", () => {
       (container.querySelector('[data-testid="inventory-unlink-ev-2"]') as HTMLButtonElement).click();
     });
 
-    expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
+    expect(container.textContent).toContain("No evidence linked yet.");
 
     await act(async () => {
       root.unmount();
