@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProject } from '@/lib/projects/storage';
+import { projectRegistryFromMethodProgram } from '@/lib/projects/verificationReport';
 
 type MethodOption = {
   code: string;
@@ -51,6 +52,7 @@ export default function NewProjectForm() {
         name,
         methodCode: code,
         methodVersion: version,
+        registry: projectRegistryFromMethodProgram(methods.find((method) => `${method.code}@${method.version}` === selectedMethod)?.program),
         aoiLabel: aoiLabel || undefined,
         description: description || undefined,
         ruleIds: rules.map((r: { id: string; title: string; sectionId?: string }) => ({

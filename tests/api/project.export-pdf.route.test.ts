@@ -10,6 +10,7 @@ function makeProject(reviewCount = 6): Project {
     name: 'Malawi Verification Project',
     methodCode: 'AR-AMS0007',
     methodVersion: 'v03-1',
+    registry: 'UNFCCC',
     status: 'locked',
     createdAt: '2026-04-15T00:00:00Z',
     aoiLabel: 'Machinga District',
@@ -42,6 +43,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
     expect(parsed.text).toContain('Malawi Verification Project');
+    expect(parsed.text).toContain('UNFCCC VERIFICATION REPORT');
     expect(parsed.text).toContain('COVERAGE SUMMARY');
     expect(parsed.text).toContain('Verification requirement 1');
     expect(parsed.text).toContain('PROVENANCE');
@@ -62,13 +64,13 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const raw = pdf.toString('utf8');
 
     expect(parsed.text).toContain('Verification requirement 90');
-    expect(parsed.text).toContain('OPEN GAPS');
+    expect(parsed.text).toContain('OPEN FINDINGS');
     expect(raw).toMatch(/\/Kids \[(\d+ 0 R\s*)+\] \/Count \d+/);
     expect(raw).toContain('BT');
     expect(raw).toContain('ET');
   }, 15000);
 
-  it('uses ARTICLE6 branding and VERIFICATION PACK title', async () => {
+  it('uses ARTICLE6 branding and the UNFCCC report title', async () => {
     const project = makeProject();
     const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
       method: 'POST',
@@ -80,8 +82,30 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
     expect(parsed.text).toContain('ARTICLE6');
-    expect(parsed.text).toContain('VERIFICATION PACK');
+    expect(parsed.text).toContain('UNFCCC VERIFICATION REPORT');
+    expect(parsed.text).toContain('REQUIREMENT REVIEW SUMMARY');
     expect(parsed.text).not.toContain('app.article6');
+  }, 15000);
+
+  it('renders a truthful Verra fallback instead of a fake full report', async () => {
+    const project = {
+      ...makeProject(),
+      methodCode: 'VM0007',
+      registry: 'Verra' as const,
+    };
+    const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('VERRA VERIFICATION REPORT');
+    expect(parsed.text).toContain('REGISTRY SUPPORT STATUS');
+    expect(parsed.text).toContain('full renderer not yet implemented');
+    expect(parsed.text).not.toContain('REQUIREMENT REVIEW SUMMARY');
   }, 15000);
 
   it('renders reviewer rationale under rules that have notes', async () => {
