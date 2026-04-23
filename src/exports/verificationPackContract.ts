@@ -176,7 +176,12 @@ function extractRules(rulesJson: unknown): ContractRule[] {
     .flatMap((item) => {
       if (!item || typeof item !== "object") return [];
       const record = item as Record<string, unknown>;
-      const id = typeof record.id === "string" ? record.id.trim() : "";
+      const id =
+        typeof record.id === "string" ? record.id.trim()
+        : typeof record.rule_id === "string" ? record.rule_id.trim()
+        : typeof record.ruleId === "string" ? record.ruleId.trim()
+        : typeof record.key === "string" ? record.key.trim()
+        : "";
       if (!id) return [];
       const text = typeof record.text === "string" ? record.text.trim() : "";
       return [{ id, text }];

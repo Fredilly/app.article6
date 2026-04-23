@@ -1,11 +1,38 @@
 import { describe, expect, test } from "@jest/globals";
-import JSZip from "jszip";
-import { buildAuditPackZip } from "@/exports/auditPack";
+import { buildVerificationPackContractFiles } from "@/exports/verificationPackContract";
 
 describe("audit pack verification contract", () => {
-  test("includes demo-safe verification contract files for AR-ACM0003 v02-0", async () => {
-    const zipBytes = buildAuditPackZip("AR-ACM0003", "v02-0");
-    const zip = await JSZip.loadAsync(zipBytes);
+  test("includes demo-safe verification contract files without requiring methodology checkout", async () => {
+    const files = buildVerificationPackContractFiles({
+      generatedAt: "2026-04-23T00:00:00.000Z",
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      rulesJson: {
+        rules: [
+          { id: "R-1-0001", text: "Submit a monitoring report for the reporting period." },
+          { rule_id: "R-1-0002", text: "Provide supporting baseline calculations." },
+        ],
+      },
+      sectionsJson: {
+        sections: [
+          { id: "S-1", title: "Monitoring" },
+          { id: "S-2", title: "Baseline" },
+        ],
+      },
+      trace: {
+        version: 1,
+        method: { code: "AR-ACM0003", version: "v02-0" },
+        rule_to_sections: {
+          "R-1-0001": [{ section_id: "S-1", title: "Monitoring", anchor: "#S-1", match: "explicit" }],
+          "R-1-0002": [{ section_id: "S-2", title: "Baseline", anchor: "#S-2", match: "explicit" }],
+        },
+        rule_to_evidence: {},
+      },
+    });
+
+    const fileMap = new Map(
+      files.map((file) => [file.path, file.bytes.toString("utf8")]),
+    );
 
     const requiredFiles = [
       "project.json",
@@ -17,18 +44,10 @@ describe("audit pack verification contract", () => {
     ];
 
     for (const path of requiredFiles) {
-      expect(zip.file(path)).toBeTruthy();
+      expect(fileMap.has(path)).toBe(true);
     }
 
-    const manifest = JSON.parse(await zip.file("manifest.json")!.async("text")) as {
-      files: Array<{ path: string }>;
-    };
-    const manifestPaths = new Set(manifest.files.map((file) => file.path));
-    for (const path of requiredFiles) {
-      expect(manifestPaths.has(path)).toBe(true);
-    }
-
-    const project = JSON.parse(await zip.file("project.json")!.async("text")) as {
+    const project = JSON.parse(fileMap.get("project.json")!) as {
       pack_profile: { name: string; not_a_formal_opinion: boolean };
       project_context: { placeholder: boolean; placeholder_reason: string };
       reviewer_assignment: { placeholder: boolean };
@@ -39,7 +58,7 @@ describe("audit pack verification contract", () => {
     expect(project.project_context.placeholder_reason).toMatch(/project-specific evidence/i);
     expect(project.reviewer_assignment.placeholder).toBe(true);
 
-    const evidenceManifest = JSON.parse(await zip.file("evidence-manifest.json")!.async("text")) as {
+    const evidenceManifest = JSON.parse(fileMap.get("evidence-manifest.json")!) as {
       summary: { total_refs: number; provided_refs: number; placeholder_refs: number };
       evidence: Array<{ sha256: string | null; included_in_pack: boolean; placeholder: boolean }>;
     };
@@ -50,7 +69,7 @@ describe("audit pack verification contract", () => {
     expect(evidenceManifest.evidence.every((entry) => entry.sha256 === null)).toBe(true);
     expect(evidenceManifest.evidence.every((entry) => entry.placeholder === true)).toBe(true);
 
-    const requirementReview = JSON.parse(await zip.file("requirement-review.json")!.async("text")) as {
+    const requirementReview = JSON.parse(fileMap.get("requirement-review.json")!) as {
       summary: { total_rules: number; placeholder_rule_reviews: number; linked_evidence_refs: number };
       rules: Array<{
         rule_id: string;
@@ -62,8 +81,8 @@ describe("audit pack verification contract", () => {
         timestamps: { reviewed_at: string | null };
       }>;
     };
-    expect(requirementReview.summary.total_rules).toBe(8);
-    expect(requirementReview.summary.placeholder_rule_reviews).toBe(8);
+    expect(requirementReview.summary.total_rules).toBe(2);
+    expect(requirementReview.summary.placeholder_rule_reviews).toBe(2);
     expect(requirementReview.summary.linked_evidence_refs).toBe(0);
     expect(requirementReview.rules.every((rule) => rule.status === "awaiting_project_evidence")).toBe(true);
     expect(requirementReview.rules.every((rule) => rule.status_basis === "demo_placeholder")).toBe(true);
@@ -72,7 +91,7 @@ describe("audit pack verification contract", () => {
     expect(requirementReview.rules.every((rule) => rule.reviewer.placeholder === true)).toBe(true);
     expect(requirementReview.rules.every((rule) => rule.timestamps.reviewed_at === null)).toBe(true);
 
-    const trace = JSON.parse(await zip.file("trace.json")!.async("text")) as {
+    const trace = JSON.parse(fileMap.get("trace.json")!) as {
       verification_contract: { mode: string; report_path: string; placeholder: boolean };
       rule_to_review: Record<string, { status: string; requested_evidence_refs: string[] }>;
       rule_to_evidence: Record<string, string[]>;
@@ -82,9 +101,10 @@ describe("audit pack verification contract", () => {
     expect(trace.verification_contract.placeholder).toBe(true);
     expect(trace.rule_to_review["R-1-0001"]?.status).toBe("awaiting_project_evidence");
     expect(trace.rule_to_review["R-1-0001"]?.requested_evidence_refs).toHaveLength(1);
+    expect(trace.rule_to_review["R-1-0002"]?.status).toBe("awaiting_project_evidence");
     expect(trace.rule_to_evidence["R-1-0001"]).toEqual([]);
 
-    const reportHtml = await zip.file("VERIFICATION_REPORT.html")!.async("text");
+    const reportHtml = fileMap.get("VERIFICATION_REPORT.html")!;
     expect(reportHtml).toContain("Demo review record only.");
     expect(reportHtml).toContain("not a formal verifier opinion");
     expect(reportHtml).toContain("R-1-0001");
