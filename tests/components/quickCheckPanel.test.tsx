@@ -930,7 +930,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     const resultText = container.textContent ?? "";
     expect(resultText).toMatch(/^(?!.*Preliminary match found)(?!.*Candidate from current catalog).*/); // old titles gone
     expect(resultText).toContain("Needs review");
-    expect(resultText).toContain("Quick Check still requires reviewer follow-up in full review.");
+    expect(resultText).toContain("Evidence found but inconclusive");
     expect(resultText).toContain("Open full review"); // one primary action
     expect(resultText).toContain("monitoring-report.pdf"); // claim context still present
     expect(resultText).toMatch(/evidence signal/); // signal badge
@@ -979,7 +979,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("Strong evidence match");
-    expect(container.textContent).toContain("Quick Check is still triage only");
+    expect(container.textContent).toContain("Triage strength — open full review to lock");
     expect(container.textContent).toContain("Open full review");
 
     await act(async () => {
