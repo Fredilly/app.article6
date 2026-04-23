@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatEvidenceInventoryId, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import {
   EXPECTED_EVIDENCE_LABELS,
@@ -91,6 +91,7 @@ export default function RequirementCoverageWorkspace({
 }: RequirementCoverageWorkspaceProps) {
   const [filter, setFilter] = useState<RequirementCoverageFilter>("all");
   const [query, setQuery] = useState("");
+  const selectedRequirementRef = useRef<HTMLDivElement | null>(null);
 
   const counts = useMemo(() => {
     return rows.reduce(
@@ -135,6 +136,10 @@ export default function RequirementCoverageWorkspace({
     if (selectedRow.ruleId === activeRuleId) return;
     onSelectRule(selectedRow.ruleId);
   }, [activeRuleId, onSelectRule, selectedRow]);
+
+  useEffect(() => {
+    selectedRequirementRef.current?.scrollIntoView({ block: "start", inline: "nearest" });
+  }, [selectedRow?.ruleId]);
 
   const primarySourceSectionId =
     selectedRow?.provenance.sectionId ??
@@ -253,7 +258,11 @@ export default function RequirementCoverageWorkspace({
         </section>
 
         <aside className="xl:sticky xl:top-4 xl:self-start">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div
+            ref={selectedRequirementRef}
+            id={selectedRow ? `requirement-detail-${selectedRow.ruleId}` : undefined}
+            className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          >
             {selectedRow ? (
               <div className="space-y-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">

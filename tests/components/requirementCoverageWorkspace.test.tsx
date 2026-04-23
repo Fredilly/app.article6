@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -184,6 +184,12 @@ describe("RequirementCoverageWorkspace", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    const scrollTargets: Element[] = [];
+    const scrollIntoViewMock = jest.fn(function (this: Element) {
+      scrollTargets.push(this);
+    });
+    Element.prototype.scrollIntoView = scrollIntoViewMock;
 
     function Harness() {
       const [activeRuleId, setActiveRuleId] = useState<string | null>("R-1");
@@ -298,6 +304,8 @@ describe("RequirementCoverageWorkspace", () => {
 
     expect(container.textContent).toContain("Full monitoring requirement text.");
     expect(container.querySelector("#r-R-1")?.getAttribute("aria-pressed")).toBe("true");
+    scrollIntoViewMock.mockClear();
+    scrollTargets.length = 0;
 
     await act(async () => {
       (container.querySelector("#r-R-2") as HTMLButtonElement).click();
@@ -305,6 +313,9 @@ describe("RequirementCoverageWorkspace", () => {
 
     expect(container.textContent).toContain("Full eligibility requirement text.");
     expect(container.querySelector("#r-R-2")?.getAttribute("aria-pressed")).toBe("true");
+    expect(container.querySelector("#requirement-detail-R-2")).not.toBeNull();
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({ block: "start", inline: "nearest" });
+    expect(scrollTargets.at(-1)?.id).toBe("requirement-detail-R-2");
     expect(container.textContent).toContain("Requirement is unresolved. No linked evidence yet.");
     expect(container.textContent).toContain("Workbook-derived candidates");
 
@@ -324,6 +335,7 @@ describe("RequirementCoverageWorkspace", () => {
     await act(async () => {
       root.unmount();
     });
+    Element.prototype.scrollIntoView = originalScrollIntoView;
     container.remove();
   });
 });
