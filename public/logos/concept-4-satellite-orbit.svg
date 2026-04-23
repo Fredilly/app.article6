@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+  <rect width="400" height="120" fill="#ffffff"/>
+  <circle cx="55" cy="60" r="45" fill="#1a1a1a"/>
+  <ellipse cx="55" cy="60" rx="40" ry="18" fill="none" stroke="#10b981" stroke-width="2.5" transform="rotate(-25 55 60)"/>
+  <circle cx="82" cy="40" r="4" fill="#10b981"/>
+  <text x="55" y="70" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="36" fill="#ffffff" letter-spacing="-2">A6</text>
+  <text x="120" y="55" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="28" fill="#1a1a1a">Article6</text>
+  <text x="120" y="80" font-family="system-ui, -apple-system, sans-serif" font-weight="400" font-size="13" fill="#666666">Verification tooling</text>
+</svg>

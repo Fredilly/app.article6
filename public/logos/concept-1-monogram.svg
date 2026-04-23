@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+  <rect width="400" height="120" fill="#ffffff"/>
+  <rect x="10" y="15" width="90" height="90" rx="18" fill="#1a1a1a"/>
+  <text x="55" y="78" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="52" fill="#ffffff" letter-spacing="-3">A6</text>
+  <text x="120" y="55" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="28" fill="#1a1a1a">Article6</text>
+  <text x="120" y="80" font-family="system-ui, -apple-system, sans-serif" font-weight="400" font-size="13" fill="#666666">Verification tooling</text>
+</svg>

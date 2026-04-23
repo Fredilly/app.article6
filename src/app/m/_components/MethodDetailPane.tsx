@@ -19,7 +19,6 @@ import ProofMapTab from "@/components/map/ProofMapTab";
 import ReviewProgressIndicator from "@/components/verify/ReviewProgressIndicator";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
-import ShareLinkButton from "@/components/actions/ShareLinkButton";
 import CoveragePanel from "@/components/coverage/CoveragePanel";
 import CoverageDrawer from "@/components/coverage/CoverageDrawer";
 import { buildCoverageQueue } from "@/lib/coverage/queue";
@@ -1381,12 +1380,6 @@ export default function MethodDetailPane({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
-        <ShareLinkButton
-          tab={isEvidenceMode ? "verify" : tab}
-          view={verifyViewMode}
-          ruleId={activeRuleId}
-          sectionId={sectionPreview?.id ?? null}
-        />
         {isEvidenceMode ? (
           <Link
             href={buildVerifyHref()}
