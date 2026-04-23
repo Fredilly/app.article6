@@ -17,22 +17,6 @@ export function getProjectCoverage(reviews: RuleReview[]): ProjectCoverage {
   return { total, verified, gap, notStarted, notApplicable, inProgress, percentComplete };
 }
 
-function sym(s: string): string {
-  if (s === 'verified') return '\u2713';
-  if (s === 'gap') return '\u2717';
-  if (s === 'not-applicable') return '\u2014';
-  return '\u25CB';
-}
-
-function statusLabel(s: string): string {
-  if (s === 'verified') return 'VERIFIED';
-  if (s === 'gap') return 'GAP';
-  if (s === 'not-started') return 'PENDING';
-  if (s === 'not-applicable') return 'N/A';
-  if (s === 'in-progress') return 'IN PROGRESS';
-  return s.toUpperCase();
-}
-
 function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max - 3) + '...' : s;
 }
@@ -44,8 +28,8 @@ function safeDate(iso: string | undefined): string {
 }
 
 export function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Buffer {
-  const report = composeVerificationReport(project, coverage);
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const report = composeVerificationReport(project, coverage, now);
   const W = 612;
   const PAGE_H = 792;
   const L = 56;
@@ -105,17 +89,6 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     y -= 12;
   }
 
-  function cols(): void {
-    need(20);
-    ln.push(
-      LN(y + 4),
-      ...TXT(L, y, 'FB', 7, 'RULE', '0.55 0.55 0.55 rg'),
-      ...TXT(L + 110, y, 'FB', 7, 'TITLE', '0.55 0.55 0.55 rg'),
-      ...TXT(L + 390, y, 'FB', 7, 'STATUS', '0.55 0.55 0.55 rg'),
-    );
-    y -= 18;
-  }
-
   ln.push(
     ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION REPORT', '0.5 0.5 0.5 rg'),
     ...TXT(L, y + 4, 'FB', 18, report.title, '0.1 0.1 0.1 rg'),
@@ -128,103 +101,12 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   }
   y -= 68;
 
-  sec('REPORT STATUS');
-  bodyLine(`Registry: ${report.registry}.`, 'FB', 8, '0.25 0.25 0.25 rg');
-  bodyLine(`Render state: ${report.status}.`);
-  bodyLine(`Project status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`);
-  y -= 4;
-
-  sec('COVERAGE SUMMARY');
-  const items = [
-    ['Verified', coverage.verified, '0.2 0.55 0.3'],
-    ['Gaps', coverage.gap, '0.8 0.2 0.2'],
-    ['In Progress', coverage.inProgress, '0.8 0.6 0.1'],
-    ['Pending', coverage.notStarted, '0.6 0.6 0.6'],
-    ['N/A', coverage.notApplicable, '0.8 0.8 0.8'],
-  ];
-  let cx = L;
-  for (const [label, val, color] of items) {
-    ln.push(
-      ...TXT(cx, y, 'FB', 18, String(val), `${color} rg`),
-      ...TXT(cx, y - 14, 'F1', 7, String(label), '0.45 0.45 0.45 rg'),
-    );
-    cx += 96;
-  }
-  y -= 40;
-  const fillW = Math.max(4, (R - L) * coverage.percentComplete / 100);
-  ln.push(
-    RC(L, y, R - L, 6, 0.93),
-    RC(L, y, fillW, 6, 0.22),
-    ...TXT(R - 36, y + 10, 'FB', 9, `${coverage.percentComplete}%`, '0.25 0.25 0.25 rg'),
-  );
-  y -= 24;
-
   for (const section of report.sections) {
     sec(section.title);
     for (const line of section.lines) bodyLine(line);
     y -= 4;
   }
 
-  if (report.groupedReviews.length > 0) {
-    sec('REQUIREMENT REVIEW SUMMARY');
-    y -= 2;
-    for (const group of report.groupedReviews) {
-      sec(group.title);
-      cols();
-      for (const [index, review] of group.reviews.entries()) {
-        const t = truncate(review.ruleTitle, 55);
-        const statusColor = review.status === 'verified'
-          ? '0.2 0.55 0.3 rg'
-          : review.status === 'gap'
-            ? '0.75 0.2 0.2 rg'
-            : '0.45 0.45 0.45 rg';
-        const detailText = review.note?.trim() || '';
-        const evidenceText = review.evidenceIds.length > 0 ? `Evidence refs: ${review.evidenceIds.length}.` : '';
-        const detailLine = [detailText, evidenceText].filter(Boolean).join(' ');
-        const hasDetails = detailLine.length > 0 && review.status !== 'not-started';
-        const rowHeight = hasDetails ? 30 : 16;
-        need(rowHeight);
-        if (index % 2 === 1) ln.push(RC(L, y - 2, R - L, rowHeight - 2, 0.97));
-        ln.push(
-          ...TXT(L, y, 'F1', 8, review.ruleId, '0.4 0.4 0.4 rg'),
-          ...TXT(L + 110, y, 'F1', 8, t, '0.15 0.15 0.15 rg'),
-          ...TXT(L + 390, y, 'F1', 8, sym(review.status), statusColor),
-          ...TXT(L + 402, y, 'FB', 7, statusLabel(review.status), statusColor),
-        );
-        if (hasDetails) ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(detailLine, 80), '0.5 0.5 0.5 rg'));
-        y -= rowHeight;
-      }
-      y -= 8;
-    }
-  }
-
-  if (report.openFindings.length > 0) {
-    sec(`OPEN FINDINGS (${report.openFindings.length})`);
-    for (const review of report.openFindings) {
-      const t = truncate(review.ruleTitle, 55);
-      const note = review.note?.trim() || (review.status === 'not-started' ? 'Not yet reviewed.' : review.status === 'in-progress' ? 'Review in progress.' : '');
-      const gapHeight = note ? 30 : 16;
-      need(gapHeight);
-      ln.push(
-        ...TXT(L, y, 'F1', 8, review.ruleId, '0.4 0.4 0.4 rg'),
-        ...TXT(L + 110, y, 'F1', 8, t, '0.15 0.15 0.15 rg'),
-        ...TXT(L + 390, y, 'FB', 7, statusLabel(review.status), '0.75 0.2 0.2 rg'),
-      );
-      if (note) ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(note, 80), '0.5 0.5 0.5 rg'));
-      y -= gapHeight;
-    }
-    y -= 8;
-  }
-
-  sec('PROVENANCE');
-  for (const [label, value] of report.provenance) {
-    need(18);
-    ln.push(
-      ...TXT(L, y, 'FB', 8, truncate(label, 18), '0.4 0.4 0.4 rg'),
-      ...TXT(L + 140, y, 'F1', 8, truncate(value || 'n/a', 52), '0.15 0.15 0.15 rg'),
-    );
-    y -= 16;
-  }
   need(30);
   ln.push(
     LN(y),
