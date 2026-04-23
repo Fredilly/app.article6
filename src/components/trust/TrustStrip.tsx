@@ -14,7 +14,7 @@ type TrustStripProps = {
   provenanceJson?: unknown | null;
   manifestRulesPath?: string | null;
   onOpenIntegrityDiff?: () => void;
-  demo?: boolean;
+  surface?: "default" | "methods";
 };
 
 type ExportArtifact = "provenance" | "META" | "rules" | "sections" | "rich";
@@ -187,7 +187,7 @@ export default function TrustStrip({
   provenanceJson,
   manifestRulesPath,
   onOpenIntegrityDiff,
-  demo = false,
+  surface = "default",
 }: TrustStripProps) {
   const router = useRouter();
   const provenancePicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
@@ -570,7 +570,7 @@ export default function TrustStrip({
 
   return (
     <div className="w-full">
-      {demo ? (
+      {surface === "methods" ? (
         <div className="flex items-center justify-between gap-4 border-y border-slate-100 bg-slate-50/50 px-4 py-2.5">
           <div className="flex items-center gap-3 min-w-0">
             <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-100" />
