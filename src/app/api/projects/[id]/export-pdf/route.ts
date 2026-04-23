@@ -30,15 +30,8 @@ function statusLabel(s: string): string {
 function buildPdf(project: Project, coverage: ProjectCoverage): Uint8Array {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const PAGE_W = 612;
-  const MARGIN_X = 56;
   const MARGIN_TOP = 756;
-  const LINE_H = 13;
   const PAGE_BREAK = 60;
-  const FONT_TITLE = 24;
-  const FONT_H2 = 14;
-  const FONT_H3 = 11;
-  const FONT_BODY = 9;
-  const FONT_SMALL = 8;
 
   const objects: string[] = [];
   const pageObjects: number[] = [];
