@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
-  <rect width="400" height="120" fill="#ffffff"/>
-  <circle cx="55" cy="60" r="45" fill="#1a3a2a"/>
-  <path d="M55 25 L40 55 L48 55 L35 80 L75 80 L62 55 L70 55 Z" fill="#10b981"/>
-  <path d="M50 72 L54 78 L65 62" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="120" y="55" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="28" fill="#1a1a1a">Article6</text>
-  <text x="120" y="80" font-family="system-ui, -apple-system, sans-serif" font-weight="400" font-size="13" fill="#666666">Verification tooling</text>
-</svg>
