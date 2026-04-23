@@ -33,6 +33,7 @@ export function createProject(input: {
   name: string;
   methodCode: string;
   methodVersion: string;
+  registry?: Project['registry'];
   aoiLabel?: string;
   description?: string;
   ruleIds: Array<{ id: string; title: string; sectionId: string }>;
@@ -42,6 +43,7 @@ export function createProject(input: {
     name: input.name,
     methodCode: input.methodCode,
     methodVersion: input.methodVersion,
+    registry: input.registry,
     status: 'in-progress',
     createdAt: new Date().toISOString(),
     aoiLabel: input.aoiLabel,

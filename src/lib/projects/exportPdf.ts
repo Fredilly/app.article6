@@ -1,4 +1,5 @@
-import type { Project, RuleReview, ProjectCoverage } from '@/lib/projects/types';
+import type { Project, ProjectCoverage, RuleReview } from '@/lib/projects/types';
+import { composeVerificationReport } from '@/lib/projects/verificationReport';
 
 function esc(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
@@ -32,17 +33,6 @@ function statusLabel(s: string): string {
   return s.toUpperCase();
 }
 
-function sectionTitle(sectionId: string): string {
-  const titles: Record<string, string> = {
-    'S-1': 'Scope and Boundary',
-    'S-2': 'Baseline',
-    'S-3': 'Monitoring',
-    'S-4': 'Leakage',
-    'S-5': 'Permanence',
-  };
-  return titles[sectionId] ?? sectionId;
-}
-
 function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max - 3) + '...' : s;
 }
@@ -54,6 +44,7 @@ function safeDate(iso: string | undefined): string {
 }
 
 export function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Buffer {
+  const report = composeVerificationReport(project, coverage);
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const W = 612;
   const PAGE_H = 792;
@@ -108,6 +99,12 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     y -= 28;
   }
 
+  function bodyLine(text: string, font: 'F1' | 'FB' = 'F1', size = 8, color = '0.2 0.2 0.2 rg'): void {
+    need(14);
+    ln.push(...TXT(L, y, font, size, truncate(text, 96), color));
+    y -= 12;
+  }
+
   function cols(): void {
     need(20);
     ln.push(
@@ -120,21 +117,22 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   }
 
   ln.push(
-    ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION PACK', '0.5 0.5 0.5 rg'),
-    ...TXT(L, y + 4, 'FB', 18, project.name, '0.1 0.1 0.1 rg'),
-    ...TXT(L, y - 14, 'F1', 9, `${project.methodCode} @ ${project.methodVersion}`, '0.35 0.35 0.35 rg'),
+    ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION REPORT', '0.5 0.5 0.5 rg'),
+    ...TXT(L, y + 4, 'FB', 18, report.title, '0.1 0.1 0.1 rg'),
+    ...TXT(L, y - 14, 'F1', 9, truncate(report.subtitle, 84), '0.35 0.35 0.35 rg'),
   );
   let metaX = L;
-  const metaItems = [
-    `Status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}`,
-    project.aoiLabel ? `Area: ${project.aoiLabel}` : null,
-    `${coverage.verified + coverage.gap} of ${coverage.total} rules reviewed`,
-  ].filter(Boolean);
-  for (const item of metaItems) {
-    ln.push(...TXT(metaX, y - 30, 'F1', 8, String(item), '0.45 0.45 0.45 rg'));
+  for (const item of report.summaryItems.slice(0, 3)) {
+    ln.push(...TXT(metaX, y - 34, 'F1', 8, truncate(item, 26), '0.45 0.45 0.45 rg'));
     metaX += 160;
   }
-  y -= 64;
+  y -= 68;
+
+  sec('REPORT STATUS');
+  bodyLine(`Registry: ${report.registry}.`, 'FB', 8, '0.25 0.25 0.25 rg');
+  bodyLine(`Render state: ${report.status}.`);
+  bodyLine(`Project status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`);
+  y -= 4;
 
   sec('COVERAGE SUMMARY');
   const items = [
@@ -161,87 +159,77 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   );
   y -= 24;
 
-  const grouped = project.reviews.reduce((acc, r) => {
-    if (!acc[r.sectionId]) acc[r.sectionId] = [];
-    acc[r.sectionId].push(r);
-    return acc;
-  }, {} as Record<string, RuleReview[]>);
-
-  for (const [sid, reviews] of Object.entries(grouped)) {
-    sec(sectionTitle(sid));
-    cols();
-    for (const [index, r] of reviews.entries()) {
-      const t = truncate(r.ruleTitle, 55);
-      const statusColor = r.status === 'verified'
-        ? '0.2 0.55 0.3 rg'
-        : r.status === 'gap'
-          ? '0.75 0.2 0.2 rg'
-          : '0.45 0.45 0.45 rg';
-      const detailText = r.note?.trim() || '';
-      const hasDetails = detailText.length > 0 && r.status !== 'not-started';
-      const rowHeight = hasDetails ? 30 : 16;
-      need(rowHeight);
-      if (index % 2 === 1) ln.push(RC(L, y - 2, R - L, rowHeight - 2, 0.97));
-      ln.push(
-        ...TXT(L, y, 'F1', 8, r.ruleId, '0.4 0.4 0.4 rg'),
-        ...TXT(L + 110, y, 'F1', 8, t, '0.15 0.15 0.15 rg'),
-        ...TXT(L + 390, y, 'F1', 8, sym(r.status), statusColor),
-        ...TXT(L + 402, y, 'FB', 7, statusLabel(r.status), statusColor),
-      );
-      if (hasDetails) {
-        // Keep note text short enough to stay readable in the PDF row layout.
-        ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(detailText, 80), '0.5 0.5 0.5 rg'));
-      }
-      y -= rowHeight;
-    }
-    y -= 8;
+  for (const section of report.sections) {
+    sec(section.title);
+    for (const line of section.lines) bodyLine(line);
+    y -= 4;
   }
 
-  const gaps = project.reviews.filter(r => r.status === 'gap' || r.status === 'not-started');
-  if (gaps.length > 0) {
-    sec(`OPEN GAPS (${gaps.length})`);
-    for (const r of gaps) {
-      const t = truncate(r.ruleTitle, 55);
-      const note = r.note?.trim() || (r.status === 'not-started' ? 'Not yet reviewed' : '');
+  if (report.groupedReviews.length > 0) {
+    sec('REQUIREMENT REVIEW SUMMARY');
+    y -= 2;
+    for (const group of report.groupedReviews) {
+      sec(group.title);
+      cols();
+      for (const [index, review] of group.reviews.entries()) {
+        const t = truncate(review.ruleTitle, 55);
+        const statusColor = review.status === 'verified'
+          ? '0.2 0.55 0.3 rg'
+          : review.status === 'gap'
+            ? '0.75 0.2 0.2 rg'
+            : '0.45 0.45 0.45 rg';
+        const detailText = review.note?.trim() || '';
+        const evidenceText = review.evidenceIds.length > 0 ? `Evidence refs: ${review.evidenceIds.length}.` : '';
+        const detailLine = [detailText, evidenceText].filter(Boolean).join(' ');
+        const hasDetails = detailLine.length > 0 && review.status !== 'not-started';
+        const rowHeight = hasDetails ? 30 : 16;
+        need(rowHeight);
+        if (index % 2 === 1) ln.push(RC(L, y - 2, R - L, rowHeight - 2, 0.97));
+        ln.push(
+          ...TXT(L, y, 'F1', 8, review.ruleId, '0.4 0.4 0.4 rg'),
+          ...TXT(L + 110, y, 'F1', 8, t, '0.15 0.15 0.15 rg'),
+          ...TXT(L + 390, y, 'F1', 8, sym(review.status), statusColor),
+          ...TXT(L + 402, y, 'FB', 7, statusLabel(review.status), statusColor),
+        );
+        if (hasDetails) ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(detailLine, 80), '0.5 0.5 0.5 rg'));
+        y -= rowHeight;
+      }
+      y -= 8;
+    }
+  }
+
+  if (report.openFindings.length > 0) {
+    sec(`OPEN FINDINGS (${report.openFindings.length})`);
+    for (const review of report.openFindings) {
+      const t = truncate(review.ruleTitle, 55);
+      const note = review.note?.trim() || (review.status === 'not-started' ? 'Not yet reviewed.' : review.status === 'in-progress' ? 'Review in progress.' : '');
       const gapHeight = note ? 30 : 16;
       need(gapHeight);
       ln.push(
-        ...TXT(L, y, 'F1', 8, r.ruleId, '0.4 0.4 0.4 rg'),
+        ...TXT(L, y, 'F1', 8, review.ruleId, '0.4 0.4 0.4 rg'),
         ...TXT(L + 110, y, 'F1', 8, t, '0.15 0.15 0.15 rg'),
-        ...TXT(L + 390, y, 'FB', 7, statusLabel(r.status), '0.75 0.2 0.2 rg'),
+        ...TXT(L + 390, y, 'FB', 7, statusLabel(review.status), '0.75 0.2 0.2 rg'),
       );
-      if (note) {
-        ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(note, 80), '0.5 0.5 0.5 rg'));
-      }
+      if (note) ln.push(...TXT(L + 110, y - 12, 'F1', 7, truncate(note, 80), '0.5 0.5 0.5 rg'));
       y -= gapHeight;
     }
     y -= 8;
   }
 
   sec('PROVENANCE');
-  const provenanceItems: [string, string][] = [
-    ['Project ID', project.id],
-    ['Methodology', `${project.methodCode} @ ${project.methodVersion}`],
-    ['Created', safeDate(project.createdAt)],
-    ['Status', project.status === 'locked' ? 'Locked' : 'In Progress'],
-    ['Rules Reviewed', `${coverage.verified + coverage.gap} of ${coverage.total}`],
-    ['Export Time', now],
-  ];
-  if (project.lockedAt) {
-    provenanceItems.splice(4, 0, ['Locked', safeDate(project.lockedAt)]);
-  }
-  for (const [k, v] of provenanceItems) {
+  for (const [label, value] of report.provenance) {
     need(18);
     ln.push(
-      ...TXT(L, y, 'FB', 8, String(k), '0.4 0.4 0.4 rg'),
-      ...TXT(L + 140, y, 'F1', 8, String(v), '0.15 0.15 0.15 rg'),
+      ...TXT(L, y, 'FB', 8, truncate(label, 18), '0.4 0.4 0.4 rg'),
+      ...TXT(L + 140, y, 'F1', 8, truncate(value || 'n/a', 52), '0.15 0.15 0.15 rg'),
     );
     y -= 16;
   }
   need(30);
   ln.push(
     LN(y),
-    ...TXT(L, y - 12, 'F1', 7, 'This document is generated from reviewer-entered data. It is not a formal certification opinion.', '0.7 0.7 0.7 rg'),
+    ...TXT(L, y - 12, 'F1', 7, truncate(report.limitation, 110), '0.7 0.7 0.7 rg'),
+    ...TXT(L, y - 24, 'F1', 7, `Export time ${safeDate(now)}.`, '0.7 0.7 0.7 rg'),
   );
   flush();
 

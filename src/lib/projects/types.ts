@@ -2,6 +2,8 @@ export type ProjectStatus = 'in-progress' | 'locked';
 
 export type RuleReviewStatus = 'not-started' | 'in-progress' | 'verified' | 'gap' | 'not-applicable';
 
+export type ProjectRegistry = 'UNFCCC' | 'Verra' | 'Gold Standard' | 'Unknown';
+
 export type RuleReview = {
   ruleId: string;
   ruleTitle: string;
@@ -18,6 +20,7 @@ export type Project = {
   name: string;
   methodCode: string;
   methodVersion: string;
+  registry?: ProjectRegistry;
   status: ProjectStatus;
   createdAt: string;
   lockedAt?: string;
