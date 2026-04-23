@@ -14,6 +14,7 @@ type TrustStripProps = {
   provenanceJson?: unknown | null;
   manifestRulesPath?: string | null;
   onOpenIntegrityDiff?: () => void;
+  demo?: boolean;
 };
 
 type ExportArtifact = "provenance" | "META" | "rules" | "sections" | "rich";
@@ -53,6 +54,38 @@ async function copyText(text: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+function formatHumanDate(input: string): string {
+  const value = input.trim();
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+
+  // Future date (clock skew): fall back to absolute formatting
+  if (diffMs < 0) {
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function buildFilename(
@@ -154,6 +187,7 @@ export default function TrustStrip({
   provenanceJson,
   manifestRulesPath,
   onOpenIntegrityDiff,
+  demo = false,
 }: TrustStripProps) {
   const router = useRouter();
   const provenancePicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
@@ -298,279 +332,323 @@ export default function TrustStrip({
   const showStrip = Boolean(methodCode || version || generatedAt || metaAvailable || rulesUrl || provenanceJson);
   if (!showStrip) return null;
 
-  return (
-    <div className="w-full">
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <div className="flex min-w-[160px] flex-col gap-0.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-            Trust strip
-          </span>
-          <span className="text-sm font-semibold text-slate-900">Audit pack & provenance</span>
-        </div>
+  const advancedDropdown = (
+    <details className="relative">
+      <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+        Advanced
+      </summary>
+      <div className="absolute right-0 z-10 mt-2 w-[22rem] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+        <div className="flex flex-col gap-3 p-3 text-sm">
+          <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+            <div className="text-xs font-semibold text-slate-900">Dataset</div>
+            <div className="mt-2 grid gap-2 text-xs text-slate-700">
+              <div className="flex items-start justify-between gap-3">
+                <span className="text-slate-500">Source</span>
+                <span className="text-right font-medium text-slate-800">Article6 Methodologies</span>
+              </div>
+              {datasetRelease ? (
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-slate-500">Release</span>
+                  <span className="break-all text-right font-mono text-[11px] text-slate-700">{datasetRelease}</span>
+                </div>
+              ) : null}
+              {generatedAt ? (
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-slate-500">Generated</span>
+                  <span className="text-right font-medium text-slate-800">{formatIso(generatedAt)}</span>
+                </div>
+              ) : null}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <ChipButton
+                label="source"
+                value="Article6 Methodologies"
+                display="Article6 Methodologies"
+                onCopied={() => handleCopied("source")}
+              />
+              {generatedAt ? (
+                <ChipButton
+                  label="generated"
+                  value={generatedAt}
+                  display={formatIso(generatedAt)}
+                  onCopied={() => handleCopied("generated")}
+                />
+              ) : null}
+            </div>
+          </div>
 
-        <div className="flex min-w-[180px] flex-col gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-            Derived
-          </span>
-          {derivedManifestSha ? (
-            <ChipButton
-              label="derived"
-              value={derivedManifestSha}
-              display={shortSha(derivedManifestSha)}
-              onCopied={() => handleCopied("derived_manifest")}
-            />
-          ) : (
-            <span className="text-xs text-slate-400">
-              Derived: {derivedAvailable ? "hash unavailable" : "not available"}
-            </span>
-          )}
-        </div>
+          <div className="rounded-lg border border-slate-100 bg-white">
+            <div className="border-b border-slate-100 px-3 py-2 text-xs font-semibold text-slate-900">
+              Export JSON
+            </div>
+            <div className="flex flex-col p-2 text-sm">
+              {provenanceJson ? (
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  onClick={() => exportArtifact("provenance")}
+                >
+                  Export Provenance JSON
+                </button>
+              ) : null}
+              {metaAvailable ? (
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  onClick={() => exportArtifact("META")}
+                >
+                  Export META.json
+                </button>
+              ) : null}
+              {rulesUrl ? (
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  onClick={() => exportArtifact("rules")}
+                >
+                  Export rules.json
+                </button>
+              ) : null}
+              {sectionsUrl ? (
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  onClick={() => exportArtifact("sections")}
+                >
+                  Export sections.json
+                </button>
+              ) : null}
+              {richAvailable ? (
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  onClick={() => exportArtifact("rich")}
+                >
+                  Export rich.json
+                </button>
+              ) : null}
+            </div>
+          </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
-          <a
-            href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
-          >
-            Export audit pack
-          </a>
-          <details className="relative">
-            <summary className="cursor-pointer list-none rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-              Advanced
+          <details className="rounded-lg border border-slate-100 bg-white">
+            <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+              Audit fingerprints
+              <span className="ml-2 text-[11px] font-medium text-slate-500">(collapsed)</span>
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-[22rem] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-              <div className="flex flex-col gap-3 p-3 text-sm">
-                <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                  <div className="text-xs font-semibold text-slate-900">Dataset</div>
-                  <div className="mt-2 grid gap-2 text-xs text-slate-700">
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="text-slate-500">Source</span>
-                      <span className="text-right font-medium text-slate-800">Article6 Methodologies</span>
-                    </div>
-                    {datasetRelease ? (
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="text-slate-500">Release</span>
-                        <span className="break-all text-right font-mono text-[11px] text-slate-700">{datasetRelease}</span>
-                      </div>
-                    ) : null}
-                    {generatedAt ? (
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="text-slate-500">Generated</span>
-                        <span className="text-right font-medium text-slate-800">{formatIso(generatedAt)}</span>
-                      </div>
-                    ) : null}
+            <div className="grid gap-2 px-3 pb-3 text-xs text-slate-700">
+              <div className="text-[11px] text-slate-500">
+                Fingerprints for the audited artifacts used by this dataset.
+              </div>
+              <div className="grid gap-2">
+                {audit?.rules ? (
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-slate-500">Rules fingerprint</span>
+                    <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.rules)}</span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <ChipButton
-                      label="source"
-                      value="Article6 Methodologies"
-                      display="Article6 Methodologies"
-                      onCopied={() => handleCopied("source")}
-                    />
-                    {generatedAt ? (
-                      <ChipButton
-                        label="generated"
-                        value={generatedAt}
-                        display={formatIso(generatedAt)}
-                        onCopied={() => handleCopied("generated")}
-                      />
-                    ) : null}
+                ) : null}
+                {audit?.sections ? (
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-slate-500">Sections fingerprint</span>
+                    <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.sections)}</span>
                   </div>
-                </div>
-
-                <div className="rounded-lg border border-slate-100 bg-white">
-                  <div className="border-b border-slate-100 px-3 py-2 text-xs font-semibold text-slate-900">
-                    Export JSON
+                ) : null}
+                {audit?.sourcePdf ? (
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-slate-500">Source PDF fingerprint</span>
+                    <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.sourcePdf)}</span>
                   </div>
-                  <div className="flex flex-col p-2 text-sm">
-                    {provenanceJson ? (
-                      <button
-                        type="button"
-                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                        onClick={() => exportArtifact("provenance")}
-                      >
-                        Export Provenance JSON
-                      </button>
-                    ) : null}
-                    {metaAvailable ? (
-                      <button
-                        type="button"
-                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                        onClick={() => exportArtifact("META")}
-                      >
-                        Export META.json
-                      </button>
-                    ) : null}
-                    {rulesUrl ? (
-                      <button
-                        type="button"
-                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                        onClick={() => exportArtifact("rules")}
-                      >
-                        Export rules.json
-                      </button>
-                    ) : null}
-                    {sectionsUrl ? (
-                      <button
-                        type="button"
-                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                        onClick={() => exportArtifact("sections")}
-                      >
-                        Export sections.json
-                      </button>
-                    ) : null}
-                    {richAvailable ? (
-                      <button
-                        type="button"
-                        className="rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                        onClick={() => exportArtifact("rich")}
-                      >
-                        Export rich.json
-                      </button>
-                    ) : null}
+                ) : null}
+                {!audit?.rules && !audit?.sections && !audit?.sourcePdf ? (
+                  <div className="text-xs text-slate-500">No audit fingerprints available.</div>
+                ) : null}
+              </div>
+              {auditFingerprintsPayload ? (
+                <button
+                  type="button"
+                  className="mt-1 self-start rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  onClick={async () => {
+                    const ok = await copyText(JSON.stringify(auditFingerprintsPayload, null, 2));
+                    if (ok) handleCopied("audit_fingerprints");
+                  }}
+                >
+                  Copy all
+                </button>
+              ) : null}
+            </div>
+          </details>
+
+          <details className="rounded-lg border border-slate-100 bg-white">
+            <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
+              Technical provenance
+            </summary>
+            <div className="grid gap-2 px-3 pb-3 text-xs text-slate-700">
+              <div className="text-[11px] text-slate-500">For auditors and implementation review.</div>
+              <div className="grid gap-2">
+                {repo || repoSha ? (
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-slate-500">GitHub</span>
+                    <span className="break-all text-right font-mono text-[11px] text-slate-700">
+                      {repo && repoSha ? `${repo}@${shortSha(repoSha)}` : repo ?? repoSha ?? ""}
+                    </span>
                   </div>
-                </div>
-
-                <details className="rounded-lg border border-slate-100 bg-white">
-                  <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-                    Audit fingerprints
-                    <span className="ml-2 text-[11px] font-medium text-slate-500">(collapsed)</span>
-                  </summary>
-                  <div className="grid gap-2 px-3 pb-3 text-xs text-slate-700">
-                    <div className="text-[11px] text-slate-500">
-                      Fingerprints for the audited artifacts used by this dataset.
-                    </div>
-                    <div className="grid gap-2">
-                      {audit?.rules ? (
-                        <div className="flex items-start justify-between gap-3">
-                          <span className="text-slate-500">Rules fingerprint</span>
-                          <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.rules)}</span>
-                        </div>
-                      ) : null}
-                      {audit?.sections ? (
-                        <div className="flex items-start justify-between gap-3">
-                          <span className="text-slate-500">Sections fingerprint</span>
-                          <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.sections)}</span>
-                        </div>
-                      ) : null}
-                      {audit?.sourcePdf ? (
-                        <div className="flex items-start justify-between gap-3">
-                          <span className="text-slate-500">Source PDF fingerprint</span>
-                          <span className="font-mono text-[11px] text-slate-700">{shortSha(audit.sourcePdf)}</span>
-                        </div>
-                      ) : null}
-                      {!audit?.rules && !audit?.sections && !audit?.sourcePdf ? (
-                        <div className="text-xs text-slate-500">No audit fingerprints available.</div>
-                      ) : null}
-                    </div>
-                    {auditFingerprintsPayload ? (
-                      <button
-                        type="button"
-                        className="mt-1 self-start rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                        onClick={async () => {
-                          const ok = await copyText(JSON.stringify(auditFingerprintsPayload, null, 2));
-                          if (ok) handleCopied("audit_fingerprints");
-                        }}
-                      >
-                        Copy all
-                      </button>
-                    ) : null}
+                ) : null}
+                {datasetRelease ? (
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-slate-500">Pack</span>
+                    <span className="break-all text-right font-mono text-[11px] text-slate-700">{datasetRelease}</span>
                   </div>
-                </details>
-
-                <details className="rounded-lg border border-slate-100 bg-white">
-                  <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
-                    Technical provenance
-                  </summary>
-                  <div className="grid gap-2 px-3 pb-3 text-xs text-slate-700">
-                    <div className="text-[11px] text-slate-500">For auditors and implementation review.</div>
-                    <div className="grid gap-2">
-                      {repo || repoSha ? (
-                        <div className="flex items-start justify-between gap-3">
-                          <span className="text-slate-500">GitHub</span>
-                          <span className="break-all text-right font-mono text-[11px] text-slate-700">
-                            {repo && repoSha ? `${repo}@${shortSha(repoSha)}` : repo ?? repoSha ?? ""}
-                          </span>
-                        </div>
-                      ) : null}
-                      {datasetRelease ? (
-                        <div className="flex items-start justify-between gap-3">
-                          <span className="text-slate-500">Pack</span>
-                          <span className="break-all text-right font-mono text-[11px] text-slate-700">{datasetRelease}</span>
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {technicalProvenancePayload ? (
-                        <button
-                          type="button"
-                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                          onClick={async () => {
-                            const ok = await copyText(JSON.stringify(technicalProvenancePayload, null, 2));
-                            if (ok) handleCopied("technical_provenance");
-                          }}
-                        >
-                          Copy technical provenance
-                        </button>
-                      ) : null}
-                      <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-                        Import bundle
-                        <input
-                          type="file"
-                          accept=".json,.bundle.json,.zip,application/json,application/zip"
-                          className="hidden"
-                          onChange={async (event) => {
-                            const file = event.target.files?.[0];
-                            event.target.value = "";
-                            if (!file) return;
-                            const current = { code: (methodCode ?? "").trim(), version: (version ?? "").trim() };
-                            const result = await importProofBundleFile(file, current);
-                            if (result.ok) {
-                              window.dispatchEvent(new Event("proofbundle:imported"));
-                              setImportStatus({ kind: "idle" });
-                              return;
-                            }
-
-                            if (result.code === "SWITCH_REQUIRED" && result.target) {
-                              const bundleText = file.name.toLowerCase().endsWith(".zip") ? undefined : await file.text();
-                              setImportStatus({ kind: "switch", message: result.message, target: result.target, bundleText });
-                              return;
-                            }
-
-                            setImportStatus({ kind: "error", message: result.message });
-                          }}
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </details>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <a
-                    href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                ) : null}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {technicalProvenancePayload ? (
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    onClick={async () => {
+                      const ok = await copyText(JSON.stringify(technicalProvenancePayload, null, 2));
+                      if (ok) handleCopied("technical_provenance");
+                    }}
                   >
-                    Download audit pack
-                  </a>
-                  {onOpenIntegrityDiff ? (
-                    <button
-                      type="button"
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-                      onClick={onOpenIntegrityDiff}
-                    >
-                      Integrity diff
-                    </button>
-                  ) : null}
-                </div>
+                    Copy technical provenance
+                  </button>
+                ) : null}
+                <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                  Import bundle
+                  <input
+                    type="file"
+                    accept=".json,.bundle.json,.zip,application/json,application/zip"
+                    className="hidden"
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = "";
+                      if (!file) return;
+                      const current = { code: (methodCode ?? "").trim(), version: (version ?? "").trim() };
+                      const result = await importProofBundleFile(file, current);
+                      if (result.ok) {
+                        window.dispatchEvent(new Event("proofbundle:imported"));
+                        setImportStatus({ kind: "idle" });
+                        return;
+                      }
+
+                      if (result.code === "SWITCH_REQUIRED" && result.target) {
+                        const bundleText = file.name.toLowerCase().endsWith(".zip") ? undefined : await file.text();
+                        setImportStatus({ kind: "switch", message: result.message, target: result.target, bundleText });
+                        return;
+                      }
+
+                      setImportStatus({ kind: "error", message: result.message });
+                    }}
+                  />
+                </label>
               </div>
             </div>
           </details>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              Download audit pack
+            </a>
+            {onOpenIntegrityDiff ? (
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                onClick={onOpenIntegrityDiff}
+              >
+                Integrity diff
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
+    </details>
+  );
+
+  return (
+    <div className="w-full">
+      {demo ? (
+        <div className="flex items-center justify-between gap-4 border-y border-slate-100 bg-slate-50/50 px-4 py-2.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-100" />
+            <span className="text-sm font-medium text-slate-800 truncate">
+              {methodCode ? (
+                <>
+                  {methodCode}
+                  {version ? (
+                    <span className="ml-1.5 text-xs font-normal text-slate-400">v{version}</span>
+                  ) : null}
+                </>
+              ) : (
+                <span className="text-slate-400">Method review</span>
+              )}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 shrink-0">
+            {generatedAt ? (
+              <span className="text-xs text-slate-500 hidden sm:inline">
+                Last reviewed <span className="text-slate-700">{formatHumanDate(generatedAt)}</span>
+              </span>
+            ) : null}
+            <div className="flex items-center gap-2">
+              {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
+              <a
+                href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-slate-800 transition-colors"
+              >
+                Export
+              </a>
+              {advancedDropdown}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+          <div className="flex min-w-[160px] flex-col gap-0.5">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Trust strip
+            </span>
+            <span className="text-sm font-semibold text-slate-900">Audit pack & provenance</span>
+          </div>
+
+          <div className="flex min-w-[180px] flex-col gap-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Derived
+            </span>
+            {derivedManifestSha ? (
+              <ChipButton
+                label="derived"
+                value={derivedManifestSha}
+                display={shortSha(derivedManifestSha)}
+                onCopied={() => handleCopied("derived_manifest")}
+              />
+            ) : (
+              <span className="text-xs text-slate-400">
+                Derived: {derivedAvailable ? "hash unavailable" : "not available"}
+              </span>
+            )}
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
+            <a
+              href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
+            >
+              Export audit pack
+            </a>
+            {advancedDropdown}
+          </div>
+        </div>
+      )}
       {importStatus.kind !== "idle" ? (
         <div className="mt-2 rounded-xl border border-slate-200 bg-white p-3 text-sm">
           <div className="flex flex-wrap items-center justify-between gap-2">

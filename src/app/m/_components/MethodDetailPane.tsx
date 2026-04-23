@@ -1376,6 +1376,7 @@ export default function MethodDetailPane({
           provenanceJson={provenanceJson}
           manifestRulesPath={manifestRulesPath}
           onOpenIntegrityDiff={() => setIntegrityDiffOpen(true)}
+          demo={true}
         />
       </div>
 
