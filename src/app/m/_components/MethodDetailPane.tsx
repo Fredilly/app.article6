@@ -1158,13 +1158,6 @@ export default function MethodDetailPane({
 
   const sectionsById = useMemo(() => new Map(sections.map((section) => [section.id, section])), [sections]);
 
-  useEffect(() => {
-    if (tab !== "rules") return;
-    if (!activeRuleId) return;
-    const el = document.getElementById(`r-${activeRuleId}`) ?? document.getElementById(activeRuleId);
-    el?.scrollIntoView({ block: "nearest" });
-  }, [activeRuleId, tab]);
-
   const navigateToRule = useCallback(
     async (ruleId: string) => {
       const ok = await openRule(ruleId);
