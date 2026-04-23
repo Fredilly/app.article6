@@ -602,9 +602,8 @@ export default function TrustStrip({
                 rel="noreferrer"
                 className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-slate-800 transition-colors"
               >
-                Export
+                Download verification pack
               </a>
-              {advancedDropdown}
             </div>
           </div>
         </div>
@@ -643,7 +642,7 @@ export default function TrustStrip({
               rel="noreferrer"
               className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
             >
-              Export audit pack
+              Download verification pack
             </a>
             {advancedDropdown}
           </div>

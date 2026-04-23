@@ -97,9 +97,9 @@ export default async function MethodsFinder({
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 md:px-8">
         <header className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Method Inventory</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Method Review</h1>
           <p className="text-sm text-slate-600">
-            Browse methods, select a version, and review provenance via audit fingerprints.
+            Select a methodology to begin review.
           </p>
           {!selectedCode && goldenSelection ? (
             <p className="text-xs text-slate-500">

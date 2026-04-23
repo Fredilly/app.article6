@@ -212,14 +212,14 @@ function deriveQuickCheckSupportStrength(input: {
     return {
       value: "strong_evidence_match",
       label: "Strong evidence match",
-      description: "Direct textual support was extracted for this claim, but Quick Check still requires full review.",
+      description: "Triage strength — open full review to lock",
     };
   }
 
   return {
     value: "needs_review",
     label: "Needs review",
-    description: "Quick Check did not find enough direct support to finish triage without reviewer follow-up in full review.",
+    description: "Evidence found but inconclusive",
   };
 }
 
