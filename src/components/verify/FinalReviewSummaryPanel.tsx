@@ -2,6 +2,7 @@
 
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
+import type { EvidencePin } from "@/lib/proofMap/types";
 import type { ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
@@ -13,6 +14,7 @@ type FinalReviewSummaryPanelProps = {
   finalizedAt?: string | null;
   reviewedRuleCount?: number | null;
   linkedEvidenceCount?: number | null;
+  evidencePins?: EvidencePin[];
   wizard: VerifyWizardStepDetails;
   onDownloadJson: () => void;
   onDownloadPdf: () => void;
@@ -56,6 +58,7 @@ export default function FinalReviewSummaryPanel({
   finalizedAt = null,
   reviewedRuleCount = null,
   linkedEvidenceCount = null,
+  evidencePins = [],
   wizard,
   onDownloadJson,
   onDownloadPdf,
@@ -75,7 +78,7 @@ export default function FinalReviewSummaryPanel({
     const response = await fetch("/api/exports/audit-pack", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ method, version, artifact }),
+      body: JSON.stringify({ method, version, artifact, evidencePins }),
     });
     if (!response.ok) throw new Error(await response.text());
     const bytes = new Uint8Array(await response.arrayBuffer());
