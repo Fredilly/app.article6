@@ -19,10 +19,6 @@ import ProofMapTab from "@/components/map/ProofMapTab";
 import ReviewProgressIndicator from "@/components/verify/ReviewProgressIndicator";
 import VerifyHeader from "@/app/m/_components/VerifyHeader";
 import { useMethodsLayout } from "@/app/m/_components/MethodsLayoutContext";
-import CoveragePanel from "@/components/coverage/CoveragePanel";
-import CoverageDrawer from "@/components/coverage/CoverageDrawer";
-import { buildCoverageQueue } from "@/lib/coverage/queue";
-import { addCoverageTask } from "@/lib/coverage/tasks";
 import {
   buildEvidenceInventory,
   coalesceEvidencePins,
@@ -115,13 +111,13 @@ export default function MethodDetailPane({
   const verifierMode = useMemo(() => isVerifierMode(searchParams), [searchParams]);
   const urlVerifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
   const [verifyViewMode, setVerifyViewMode] = useState<"list" | "map">(urlVerifyMode);
-  const defaultTab: DetailTab = useMemo(() => (isEvidenceMode ? "verify" : "rules"), [isEvidenceMode]);
+  const defaultTab: DetailTab = "verify";
   const tab = useMemo(() => {
     if (isEvidenceMode) return "verify";
     const parsed = parseDetailTab(new URLSearchParams(searchString).get("tab"));
     return parsed ?? defaultTab;
   }, [defaultTab, isEvidenceMode, searchString]);
-  const surfaceTab: DetailTab = tab === "verify" ? "verify" : "rules";
+  const surfaceTab: DetailTab = "verify";
   const effectiveTab: DetailTab = isEvidenceMode ? "verify" : surfaceTab;
   const methodBasePath = useMemo(() => {
     const encodedCode = encodeURIComponent(method.code);
@@ -299,7 +295,6 @@ export default function MethodDetailPane({
   };
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
-  const [coverageDrawerOpen, setCoverageDrawerOpen] = useState(false);
 
   const lineageVersions = method.lineage?.lineage?.length ? method.lineage.lineage : method.versions;
   const versionBadges = [
@@ -318,30 +313,7 @@ export default function MethodDetailPane({
 
   const stacEvidenceState = evidenceKey ? stacEvidenceByKey[evidenceKey] ?? null : null;
 
-  const tabBase =
-    "inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold transition";
-  const tabActive = "bg-slate-900 text-white";
-  const tabIdle = "bg-slate-100 text-slate-700 hover:bg-slate-200";
-
-  const coverageRules = useMemo(
-    () => rules.map((rule) => ({ id: rule.id, title: rule.title, tags: rule.tags ?? [] })),
-    [rules],
-  );
   const coverageLinkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
-  const coverageRulesWithStatus = useMemo(() => {
-    const linked = new Set(coverageLinkedRuleIds);
-    return coverageRules.map((rule) => ({
-      ...rule,
-      status: linked.has(rule.id) ? ("covered" as const) : ("uncovered" as const),
-    }));
-  }, [coverageLinkedRuleIds, coverageRules]);
-  const coverageSummary = useMemo(() => {
-    return buildCoverageQueue({
-      rules: coverageRules,
-      coveredRuleIds: new Set(coverageLinkedRuleIds),
-      limit: 10,
-    });
-  }, [coverageLinkedRuleIds, coverageRules]);
   const sectionTitleById = useMemo(
     () => new Map(sections.map((section) => [section.id, section.title])),
     [sections],
@@ -461,8 +433,8 @@ export default function MethodDetailPane({
       return;
     }
     const urlTab = parseDetailTab(new URLSearchParams(searchString).get("tab"));
-    if (urlTab && urlTab !== "verify") {
-      const next = applyUrlUpdates(new URLSearchParams(searchString), { tab: "rules" });
+    if (urlTab === "rules") {
+      const next = applyUrlUpdates(new URLSearchParams(searchString), { tab: "verify" });
       if (next !== searchString) {
         router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
       }
@@ -844,7 +816,7 @@ export default function MethodDetailPane({
     (ruleId: string) => {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion ?? "")}`;
-      const { tab, rule, section, hash } = encodeShareState({ tab: "rules", rule: ruleId });
+      const { tab, rule, section, hash } = encodeShareState({ tab: "verify", rule: ruleId });
       const params = new URLSearchParams();
       if (tab) params.set("tab", tab);
       if (rule) params.set("rule", rule);
@@ -1060,11 +1032,11 @@ export default function MethodDetailPane({
   }, [activeVersion, method.code, traceIndex, traceLoading]);
 
   useEffect(() => {
-    if (effectiveTab === "rules") void ensureRulesLoaded();
+    if (effectiveTab === "verify") void ensureRulesLoaded();
   }, [effectiveTab, ensureRulesLoaded]);
 
   useEffect(() => {
-    if (effectiveTab !== "rules") return;
+    if (effectiveTab !== "verify") return;
     void ensureSectionsLoaded();
   }, [effectiveTab, ensureSectionsLoaded]);
 
@@ -1090,7 +1062,7 @@ export default function MethodDetailPane({
   }, [activeRuleId, ensureSectionsLoaded]);
 
   const openRule = useCallback(async (ruleId: string) => {
-    setTabParam("rules");
+    setTabParam("verify");
     setRulesDeeplinkWarning(null);
     const list = await ensureRulesLoaded();
     if (list.length === 0) return false;
@@ -1206,14 +1178,6 @@ export default function MethodDetailPane({
     [appendAuditEvent, router],
   );
 
-  const handleCoverageTask = useCallback(
-    (ruleId: string) => {
-      if (!activeVersion) return { storedIn: "coverage", action: "added" as const };
-      return addCoverageTask({ methodCode: method.code, version: activeVersion, ruleId });
-    },
-    [activeVersion, method.code],
-  );
-
   const handleExportAuditTrail = useCallback(() => {
     if (!exportSha256) return;
     appendAuditEvent({ kind: "export.audit_trail", payload: { audit_trail_sha256: exportSha256 } });
@@ -1313,7 +1277,7 @@ export default function MethodDetailPane({
         if (type === "section") return await navigateToSection(id);
         return false;
       }}
-      onOpenCoverageDrawer={() => setCoverageDrawerOpen(true)}
+      onOpenCoverageDrawer={() => { /* Coverage drawer removed; verify is default */ }}
     />
   );
 
@@ -1476,23 +1440,8 @@ export default function MethodDetailPane({
 
       {isEvidenceMode ? null : (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setTabParam("rules")}
-            className={`${tabBase} ${surfaceTab === "rules" ? tabActive : tabIdle}`}
-            aria-pressed={surfaceTab === "rules"}
-          >
-            Coverage
-          </button>
-          <button
-            type="button"
-            onClick={() => setTabParam("verify")}
-            className={`${tabBase} ${surfaceTab === "verify" ? tabActive : tabIdle}`}
-            aria-pressed={surfaceTab === "verify"}
-          >
-            Verify
-          </button>
-          {methodsLayout?.isVerifyTab && surfaceTab === "verify" ? (
+          <span className="text-xs font-semibold text-slate-500">Verify</span>
+          {methodsLayout?.isVerifyTab ? (
             <button
               type="button"
               onClick={() => methodsLayout.setMethodsCollapsed(!methodsLayout.methodsCollapsed)}
@@ -1506,29 +1455,8 @@ export default function MethodDetailPane({
 
       {isEvidenceMode ? (
         verifySurface
-      ) : surfaceTab === "verify" ? (
-        verifySurface
       ) : (
         <div className="mt-4 grid gap-3">
-          {activeVersion ? (
-            <CoveragePanel
-              summary={coverageSummary}
-              onView={() => setCoverageDrawerOpen(true)}
-            />
-          ) : null}
-
-          {activeVersion ? (
-            <CoverageDrawer
-              open={coverageDrawerOpen}
-              title={`${coverageSummary.uncovered} unresolved requirements`}
-              rules={coverageRulesWithStatus}
-              activeRuleId={activeRuleId}
-              onClose={() => setCoverageDrawerOpen(false)}
-              onOpenRule={openRule}
-              onAddTask={handleCoverageTask}
-            />
-          ) : null}
-
           {rulesDeeplinkWarning ? (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
               {rulesDeeplinkWarning}
@@ -1549,7 +1477,7 @@ export default function MethodDetailPane({
 
           {rulesLoading ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Loading requirement coverage…
+              Loading requirements…
             </div>
           ) : null}
 
@@ -1639,85 +1567,77 @@ export default function MethodDetailPane({
                 )}
               </section>
 
-              <details className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-slate-900">
-                  Requirement coverage workspace
-                  <span className="ml-2 text-xs font-normal text-slate-500">Secondary review surface</span>
-                </summary>
-                <div className="border-t border-slate-100 px-4 py-4">
-                  <RequirementCoverageWorkspace
-                    rows={requirementRows}
-                    activeRuleId={activeRuleId}
-                    selectedRequirementText={
-                      ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
-                        ? "Loading requirement details…"
-                        : (ruleDetail?.summary ?? null)
-                    }
-                    selectedRequirementSourcePath={ruleDetail?.sourcePath ?? null}
-                    selectedRequirementSha256={ruleDetail?.sha256 ?? null}
-                    selectedTraceSections={linkedTraceSections.map((link) => {
-                      const section = sectionsById.get(link.section_id);
-                      return {
-                        sectionId: link.section_id,
-                        title: section?.title ?? link.title ?? null,
-                        textSnippet: section?.textSnippet ?? null,
-                        match: link.match,
-                      };
-                    })}
-                    onSelectRule={(ruleId) => {
-                      void openRule(ruleId);
-                    }}
-                    onOpenSourceContext={(sectionId) => {
-                      void navigateToSection(sectionId);
-                    }}
-                    onCopyRequirementLink={async (ruleId) => {
-                      if (!activeVersion) return;
-                      try {
-                        await navigator.clipboard.writeText(buildRuleLink(ruleId));
-                      } catch {
-                        // ignore
-                      }
-                    }}
-                    inventoryItems={evidenceInventory}
-                    onLinkInventoryItem={handleLinkInventoryItem}
-                    onUnlinkInventoryItem={handleUnlinkInventoryItem}
-                    supportingEvidence={
-                      <div className="grid gap-3">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="text-sm text-slate-600">
-                            Supporting views stay attached to the selected requirement while verify, finalize, and export stay available.
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold text-slate-600">
-                              {(["list", "map"] as const).map((modeOption) => (
-                                <button
-                                  key={modeOption}
-                                  type="button"
-                                  className={`rounded-full px-3 py-1 ${
-                                    verifyViewMode === modeOption ? "bg-white text-slate-900 shadow-sm" : ""
-                                  }`}
-                                  onClick={() => setVerifyViewMode(modeOption)}
-                                  aria-pressed={verifyViewMode === modeOption}
-                                >
-                                  {modeOption === "list" ? "Evidence" : "Map"}
-                                </button>
-                              ))}
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => navigateToVerify(verifyViewMode)}
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                            >
-                              Open full verify workspace
-                            </button>
-                          </div>
-                        </div>
-                        {proofMapSurface}
+              <RequirementCoverageWorkspace
+                rows={requirementRows}
+                activeRuleId={activeRuleId}
+                selectedRequirementText={
+                  ruleDetailLoading && activeRuleId && ruleDetail?.id !== activeRuleId
+                    ? "Loading requirement details…"
+                    : (ruleDetail?.summary ?? null)
+                }
+                selectedRequirementSourcePath={ruleDetail?.sourcePath ?? null}
+                selectedRequirementSha256={ruleDetail?.sha256 ?? null}
+                selectedTraceSections={linkedTraceSections.map((link) => {
+                  const section = sectionsById.get(link.section_id);
+                  return {
+                    sectionId: link.section_id,
+                    title: section?.title ?? link.title ?? null,
+                    textSnippet: section?.textSnippet ?? null,
+                    match: link.match,
+                  };
+                })}
+                onSelectRule={(ruleId) => {
+                  void openRule(ruleId);
+                }}
+                onOpenSourceContext={(sectionId) => {
+                  void navigateToSection(sectionId);
+                }}
+                onCopyRequirementLink={async (ruleId) => {
+                  if (!activeVersion) return;
+                  try {
+                    await navigator.clipboard.writeText(buildRuleLink(ruleId));
+                  } catch {
+                    // ignore
+                  }
+                }}
+                inventoryItems={evidenceInventory}
+                onLinkInventoryItem={handleLinkInventoryItem}
+                onUnlinkInventoryItem={handleUnlinkInventoryItem}
+                supportingEvidence={
+                  <div className="grid gap-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-sm text-slate-600">
+                        Supporting views stay attached to the selected requirement while verify, finalize, and export stay available.
                       </div>
-                    }
-                  />
-                </div>
-              </details>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold text-slate-600">
+                          {(["list", "map"] as const).map((modeOption) => (
+                            <button
+                              key={modeOption}
+                              type="button"
+                              className={`rounded-full px-3 py-1 ${
+                                verifyViewMode === modeOption ? "bg-white text-slate-900 shadow-sm" : ""
+                              }`}
+                              onClick={() => setVerifyViewMode(modeOption)}
+                              aria-pressed={verifyViewMode === modeOption}
+                            >
+                              {modeOption === "list" ? "Evidence" : "Map"}
+                            </button>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => navigateToVerify(verifyViewMode)}
+                          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                        >
+                          Open full verify workspace
+                        </button>
+                      </div>
+                    </div>
+                    {proofMapSurface}
+                  </div>
+                }
+              />
             </>
           ) : null}
         </div>

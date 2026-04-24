@@ -19,11 +19,11 @@ export default function VerifyHeader({
   return (
     <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Requirement coverage</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Requirement review</h1>
         <p className="text-sm text-slate-600">
           Reconcile methodology requirements against linked evidence before validation, verification, or diligence.
         </p>
-        <span className="sr-only">List Map Upload AOI Search STAC evidence Requirement coverage</span>
+        <span className="sr-only">List Map Upload AOI Search Satellite evidence Requirement review</span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <button
