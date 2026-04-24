@@ -17,14 +17,41 @@ export function getProjectCoverage(reviews: RuleReview[]): ProjectCoverage {
   return { total, verified, gap, notStarted, notApplicable, inProgress, percentComplete };
 }
 
-function truncate(s: string, max: number): string {
-  return s.length > max ? s.slice(0, max - 3) + '...' : s;
-}
-
 function safeDate(iso: string | undefined): string {
   if (!iso) return 'n/a';
   const d = iso.slice(0, 10);
   return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : iso.slice(0, 16);
+}
+
+function truncate(s: string, max: number): string {
+  return s.length > max ? s.slice(0, max - 3) + '...' : s;
+}
+
+function splitLongToken(token: string, max: number): string[] {
+  const chunks: string[] = [];
+  for (let i = 0; i < token.length; i += max) chunks.push(token.slice(i, i + max));
+  return chunks;
+}
+
+function wrapText(text: string, max = 96): string[] {
+  const words = text.split(/\s+/).filter(Boolean).flatMap((word) => (
+    word.length > max ? splitLongToken(word, max) : [word]
+  ));
+  const lines: string[] = [];
+  let current = '';
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= max) {
+      current = next;
+    } else {
+      if (current) lines.push(current);
+      current = word;
+    }
+  }
+
+  if (current) lines.push(current);
+  return lines.length > 0 ? lines : [''];
 }
 
 export function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Buffer {
@@ -84,9 +111,11 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   }
 
   function bodyLine(text: string, font: 'F1' | 'FB' = 'F1', size = 8, color = '0.2 0.2 0.2 rg'): void {
-    need(14);
-    ln.push(...TXT(L, y, font, size, truncate(text, 96), color));
-    y -= 12;
+    for (const line of wrapText(text)) {
+      need(14);
+      ln.push(...TXT(L, y, font, size, line, color));
+      y -= 12;
+    }
   }
 
   ln.push(

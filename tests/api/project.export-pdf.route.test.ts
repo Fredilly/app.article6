@@ -150,6 +150,56 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('Boundary worksheet not provided');
   }, 15000);
 
+  it('wraps long reviewer rationale and long evidence references without dropping audit text', async () => {
+    const longEvidenceId = 'evidence-' + '0123456789abcdef'.repeat(10);
+    const project = makeProject(1);
+    project.reviews[0] = {
+      ...project.reviews[0],
+      status: 'verified',
+      note: 'This unusually detailed reviewer rationale should remain visible in the exported PDF because it explains the sampled invoices, monitoring workbook cross-check, and boundary reconciliation used for the draft assessment.',
+      evidenceIds: [longEvidenceId],
+    };
+    const pdf = buildProjectExportPdf(project, {
+      total: 1,
+      verified: 1,
+      gap: 0,
+      notStarted: 0,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 100,
+    });
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('sampled invoices, monitoring workbook cross-check');
+    expect(parsed.text).toContain('boundary reconciliation used for the draft assessment');
+    expect(parsed.text).toContain('0123456789abcdef0123456789abcdef');
+  }, 15000);
+
+  it('shows a visible limitation for verified rules that lack evidence and rationale', async () => {
+    const project = makeProject(1);
+    project.reviews[0] = {
+      ...project.reviews[0],
+      status: 'verified',
+      note: undefined,
+      evidenceIds: [],
+    };
+    const pdf = buildProjectExportPdf(project, {
+      total: 1,
+      verified: 1,
+      gap: 0,
+      notStarted: 0,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 100,
+    });
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('no reviewer rationale or linked evidence reference');
+    expect(parsed.text).toContain('Draft OK is support-limited');
+  }, 15000);
+
   it('shows percentage complete in verification scope', async () => {
     const project = makeProject();
     const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {

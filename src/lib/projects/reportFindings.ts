@@ -31,8 +31,11 @@ export function buildReportFinding(
 ): ReportFinding {
   const code = reportFindingCodeFromReviewStatus(review.status);
   const note = review.note?.trim();
+  const lacksSupport = code === 'OK' && !note && review.evidenceIds.length === 0;
   const defaultRationale = code === 'OK'
-    ? 'Reviewer marked this requirement as verified; no additional rationale was recorded.'
+    ? lacksSupport
+      ? 'Reviewer marked this requirement as verified, but no reviewer rationale or linked evidence reference is recorded.'
+      : 'Reviewer marked this requirement as verified; no additional rationale was recorded.'
     : code === 'NC'
       ? 'Reviewer marked this requirement as a gap; no additional rationale was recorded.'
       : code === 'CL'
@@ -51,8 +54,10 @@ export function buildReportFinding(
     sourceStatus: review.status,
     rationale: note || defaultRationale,
     evidenceIds: review.evidenceIds,
-    limitation: code === 'PENDING' || code === 'CL'
-      ? 'Finding is not a completed verification conclusion.'
-      : undefined,
+    limitation: lacksSupport
+      ? 'Draft OK is support-limited: no linked evidence reference or reviewer rationale is available.'
+      : code === 'PENDING' || code === 'CL'
+        ? 'Finding is not a completed verification conclusion.'
+        : undefined,
   };
 }

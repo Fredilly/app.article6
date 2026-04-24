@@ -131,6 +131,7 @@ function buildRequirementFindingLines(findings: ReportFinding[]): string[] {
     `${finding.findingId} [${finding.code}] ${finding.ruleId}: ${finding.ruleTitle}.`,
     `Section: ${finding.sectionTitle}.`,
     `Rationale: ${finding.rationale}`,
+    ...(finding.limitation ? [`Limitation: ${finding.limitation}`] : []),
     `Evidence references: ${finding.evidenceIds.length}.`,
   ]);
 }

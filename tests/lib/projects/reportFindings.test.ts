@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import type { RuleReview } from '@/lib/projects/types';
-import { reportFindingCodeFromReviewStatus } from '@/lib/projects/reportFindings';
+import { buildReportFinding, reportFindingCodeFromReviewStatus } from '@/lib/projects/reportFindings';
 
 describe('report finding mapping', () => {
   it.each([
@@ -17,5 +17,19 @@ describe('report finding mapping', () => {
     const statuses: RuleReview['status'][] = ['verified', 'gap', 'in-progress', 'not-started', 'not-applicable'];
 
     expect(statuses.map(reportFindingCodeFromReviewStatus)).not.toContain('FAR');
+  });
+
+  it('qualifies verified findings that have no evidence references or reviewer rationale', () => {
+    const finding = buildReportFinding({
+      ruleId: 'R-weak',
+      ruleTitle: 'Confirm monitoring evidence exists.',
+      sectionId: 'S-3',
+      status: 'verified',
+      evidenceIds: [],
+    }, 0, 'Monitoring');
+
+    expect(finding.code).toBe('OK');
+    expect(finding.rationale).toMatch(/no reviewer rationale or linked evidence reference/i);
+    expect(finding.limitation).toMatch(/support-limited/i);
   });
 });

@@ -113,6 +113,32 @@ describe('verification report composition', () => {
     expect(summary).toContain('FAR: 0');
   });
 
+  it('renders support limitations for verified findings without evidence or rationale', () => {
+    const project = makeProject({
+      reviews: [
+        {
+          ruleId: 'R-weak',
+          ruleTitle: 'Confirm monitoring evidence exists.',
+          sectionId: 'S-3',
+          status: 'verified',
+          evidenceIds: [],
+        },
+      ],
+    });
+    const report = composeVerificationReport(project, makeCoverage({
+      total: 1,
+      verified: 1,
+      gap: 0,
+      notStarted: 0,
+      percentComplete: 100,
+    }));
+    const requirementFindings = report.sections.find((section) => section.title === 'REQUIREMENT FINDINGS')?.lines.join(' ');
+
+    expect(report.findings[0]?.code).toBe('OK');
+    expect(requirementFindings).toContain('no reviewer rationale or linked evidence reference');
+    expect(requirementFindings).toContain('Draft OK is support-limited');
+  });
+
   it('returns an insufficient-source fallback for UNFCCC when no completed reviews exist', () => {
     const project = makeProject({
       reviews: makeProject().reviews.map((review) => ({ ...review, status: 'not-started', note: undefined })),
