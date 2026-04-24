@@ -1,15 +1,11 @@
-import type { Project, ProjectCoverage, ProjectRegistry, RuleReview } from '@/lib/projects/types';
+import { buildReportFinding, type ReportFinding, type ReportFindingCode } from '@/lib/projects/reportFindings';
+import type { Project, ProjectCoverage, ProjectRegistry } from '@/lib/projects/types';
 
 export type VerificationReportStatus = 'ready' | 'registry_not_fully_supported' | 'insufficient_source_content';
 
 export type VerificationReportSection = {
   title: string;
   lines: string[];
-};
-
-export type VerificationReportRuleGroup = {
-  title: string;
-  reviews: RuleReview[];
 };
 
 export type VerificationReportComposition = {
@@ -19,11 +15,22 @@ export type VerificationReportComposition = {
   subtitle: string;
   summaryItems: string[];
   sections: VerificationReportSection[];
-  groupedReviews: VerificationReportRuleGroup[];
-  openFindings: RuleReview[];
+  findings: ReportFinding[];
   provenance: Array<[string, string]>;
   limitation: string;
 };
+
+const UNFCCC_SECTION_ORDER = [
+  'REPORT STATUS',
+  'PROJECT AND METHODOLOGY IDENTIFICATION',
+  'VERIFICATION SCOPE',
+  'MEANS OF VERIFICATION',
+  'FINDINGS SUMMARY',
+  'REQUIREMENT FINDINGS',
+  'EVIDENCE APPENDIX',
+  'LIMITATIONS',
+  'PROVENANCE',
+] as const;
 
 function sectionTitle(sectionId: string): string {
   const titles: Record<string, string> = {
@@ -58,30 +65,25 @@ export function resolveProjectRegistry(project: Pick<Project, 'methodCode' | 're
   return 'Unknown';
 }
 
-function groupReviews(project: Project): VerificationReportRuleGroup[] {
-  const grouped = project.reviews.reduce((acc, review) => {
-    const key = sectionTitle(review.sectionId || 'Requirements');
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(review);
-    return acc;
-  }, {} as Record<string, RuleReview[]>);
-
-  return Object.entries(grouped).map(([title, reviews]) => ({ title, reviews }));
-}
-
-function buildProvenance(project: Project, coverage: ProjectCoverage, registry: ProjectRegistry, status: VerificationReportStatus): Array<[string, string]> {
-  return [
+function buildProvenance(
+  project: Project,
+  coverage: ProjectCoverage,
+  registry: ProjectRegistry,
+  status: VerificationReportStatus,
+  exportTime = 'generated during export',
+): Array<[string, string]> {
+  const items: Array<[string, string]> = [
     ['Registry', registry],
     ['Report status', status],
     ['Project ID', project.id],
     ['Methodology', `${project.methodCode} @ ${project.methodVersion}`],
     ['Created', project.createdAt || 'n/a'],
     ['Rules reviewed', `${coverage.verified + coverage.gap} of ${coverage.total}`],
+    ['Export time', exportTime],
   ];
-}
 
-function buildOpenFindings(project: Project): RuleReview[] {
-  return project.reviews.filter((review) => review.status === 'gap' || review.status === 'not-started' || review.status === 'in-progress');
+  if (project.lockedAt) items.splice(5, 0, ['Locked', project.lockedAt]);
+  return items;
 }
 
 function buildSummaryItems(project: Project, coverage: ProjectCoverage, registry: ProjectRegistry): string[] {
@@ -104,11 +106,56 @@ function buildEvidenceSummary(project: Project): string[] {
   ];
 }
 
-export function composeUnfcccVerificationReport(project: Project, coverage: ProjectCoverage): VerificationReportComposition {
+function buildFindings(project: Project): ReportFinding[] {
+  return project.reviews.map((review, index) => buildReportFinding(
+    review,
+    index,
+    sectionTitle(review.sectionId || 'Requirements'),
+  ));
+}
+
+function countFindings(findings: ReportFinding[]): Record<ReportFindingCode, number> {
+  return findings.reduce((acc, finding) => {
+    acc[finding.code] += 1;
+    return acc;
+  }, { OK: 0, CL: 0, NC: 0, FAR: 0, PENDING: 0, NA: 0 } as Record<ReportFindingCode, number>);
+}
+
+function linesFromProvenance(provenance: Array<[string, string]>): string[] {
+  return provenance.map(([label, value]) => `${label}: ${value || 'n/a'}.`);
+}
+
+function buildRequirementFindingLines(findings: ReportFinding[]): string[] {
+  if (findings.length === 0) return ['No requirement findings are available from current project review data.'];
+  return findings.flatMap((finding) => [
+    `${finding.findingId} [${finding.code}] ${finding.ruleId}: ${finding.ruleTitle}.`,
+    `Section: ${finding.sectionTitle}.`,
+    `Rationale: ${finding.rationale}`,
+    ...(finding.limitation ? [`Limitation: ${finding.limitation}`] : []),
+    `Evidence references: ${finding.evidenceIds.length}.`,
+  ]);
+}
+
+function buildEvidenceAppendixLines(findings: ReportFinding[]): string[] {
+  const lines = findings.flatMap((finding) => {
+    if (finding.evidenceIds.length === 0) return [`${finding.findingId}: No linked evidence references recorded.`];
+    return finding.evidenceIds.map((id) => `${finding.findingId}: Evidence reference: ${id}.`);
+  });
+
+  return lines.length > 0 ? lines : ['No linked evidence references recorded.'];
+}
+
+export function composeUnfcccVerificationReport(
+  project: Project,
+  coverage: ProjectCoverage,
+  exportTime?: string,
+): VerificationReportComposition {
   const registry = 'UNFCCC' as const;
   const reviewedCount = coverage.verified + coverage.gap;
-  const groupedReviews = groupReviews(project);
-  const openFindings = buildOpenFindings(project);
+  const findings = buildFindings(project);
+  const findingCounts = countFindings(findings);
+  const provenance = buildProvenance(project, coverage, registry, reviewedCount === 0 ? 'insufficient_source_content' : 'ready', exportTime);
+  const limitation = 'This draft report summarizes reviewer-entered Article6 project review data. It is not a formal certification, validation, verification opinion, issuance approval, or registry decision.';
 
   if (reviewedCount === 0) {
     return {
@@ -118,27 +165,39 @@ export function composeUnfcccVerificationReport(project: Project, coverage: Proj
       subtitle: 'Truthful fallback: reviewed rule content is not yet sufficient to render a full UNFCCC-facing report.',
       summaryItems: buildSummaryItems(project, coverage, registry),
       sections: [
-        {
-          title: 'SOURCE CONTENT STATUS',
-          lines: [
-            'UNFCCC registry detected for this project.',
-            'A full UNFCCC report requires at least one completed rule review marked verified or gap.',
-            `Current completed reviews: ${reviewedCount} of ${coverage.total}.`,
-          ],
-        },
-        {
-          title: 'AVAILABLE PROJECT CONTEXT',
-          lines: [
-            `Project: ${project.name}.`,
-            `Methodology: ${project.methodCode} @ ${project.methodVersion}.`,
-            project.aoiLabel ? `Area label: ${project.aoiLabel}.` : 'Area label: not provided.',
-          ],
-        },
+        { title: UNFCCC_SECTION_ORDER[0], lines: [
+          `Registry: ${registry}.`,
+          'Report status: insufficient_source_content.',
+          `Project status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`,
+          `Methodology: ${project.methodCode} @ ${project.methodVersion}.`,
+          `Completion summary: ${reviewedCount} of ${coverage.total} rules completed.`,
+          'Draft limitation: completed reviewer source content is not yet sufficient for a full UNFCCC draft report.',
+        ] },
+        { title: UNFCCC_SECTION_ORDER[1], lines: [
+          `Project name: ${project.name}.`,
+          `Project ID: ${project.id}.`,
+          `Methodology: ${project.methodCode} @ ${project.methodVersion}.`,
+          project.aoiLabel ? `AOI label: ${project.aoiLabel}.` : 'AOI label: not provided.',
+          `Created date: ${project.createdAt || 'n/a'}.`,
+          project.lockedAt ? `Locked date: ${project.lockedAt}.` : 'Locked date: not locked.',
+        ] },
+        { title: UNFCCC_SECTION_ORDER[2], lines: [
+          `Total rules: ${coverage.total}. Reviewed rules: ${reviewedCount}. Pending rules: ${coverage.notStarted}. Gap rules: ${coverage.gap}.`,
+          'No certification, registry approval, or issuance conclusion is made by this draft report.',
+        ] },
+        { title: UNFCCC_SECTION_ORDER[3], lines: buildEvidenceSummary(project) },
+        { title: UNFCCC_SECTION_ORDER[4], lines: [
+          `OK: ${findingCounts.OK}. CL: ${findingCounts.CL}. NC: ${findingCounts.NC}. PENDING: ${findingCounts.PENDING}. NA: ${findingCounts.NA}.`,
+          findingCounts.FAR > 0 ? `FAR: ${findingCounts.FAR}.` : 'FAR: 0; no forward action requests are generated without explicit project data.',
+        ] },
+        { title: UNFCCC_SECTION_ORDER[5], lines: buildRequirementFindingLines(findings) },
+        { title: UNFCCC_SECTION_ORDER[6], lines: buildEvidenceAppendixLines(findings) },
+        { title: UNFCCC_SECTION_ORDER[7], lines: [limitation] },
+        { title: UNFCCC_SECTION_ORDER[8], lines: linesFromProvenance(provenance) },
       ],
-      groupedReviews: [],
-      openFindings: [],
-      provenance: buildProvenance(project, coverage, registry, 'insufficient_source_content'),
-      limitation: 'This export is a truthful fallback only. It does not represent a completed UNFCCC verification report.',
+      findings,
+      provenance,
+      limitation,
     };
   }
 
@@ -150,32 +209,55 @@ export function composeUnfcccVerificationReport(project: Project, coverage: Proj
     summaryItems: buildSummaryItems(project, coverage, registry),
     sections: [
       {
-        title: 'ENGAGEMENT CONTEXT',
+        title: UNFCCC_SECTION_ORDER[0],
         lines: [
-          `Project: ${project.name}.`,
+          `Registry: ${registry}.`,
+          'Report status: ready.',
+          `Project status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`,
           `Methodology: ${project.methodCode} @ ${project.methodVersion}.`,
-          project.aoiLabel ? `Area label: ${project.aoiLabel}.` : 'Area label: not provided.',
-          `Review status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`,
+          `Completion summary: ${reviewedCount} of ${coverage.total} rules completed.`,
+          'Draft limitation: this is a structured VVB-style draft workpaper, not a registry decision.',
         ],
       },
       {
-        title: 'REVIEW STATUS SUMMARY',
+        title: UNFCCC_SECTION_ORDER[1],
         lines: [
-          `Verified rules: ${coverage.verified}.`,
-          `Gap rules: ${coverage.gap}.`,
-          `In-progress rules: ${coverage.inProgress}. Pending rules: ${coverage.notStarted}. Not-applicable rules: ${coverage.notApplicable}.`,
-          `Percent complete across actionable rules: ${coverage.percentComplete}%.`,
+          `Project name: ${project.name}.`,
+          `Project ID: ${project.id}.`,
+          `Methodology: ${project.methodCode} @ ${project.methodVersion}.`,
+          project.aoiLabel ? `AOI label: ${project.aoiLabel}.` : 'AOI label: not provided.',
+          `Created date: ${project.createdAt || 'n/a'}.`,
+          project.lockedAt ? `Locked date: ${project.lockedAt}.` : 'Locked date: not locked.',
         ],
       },
       {
-        title: 'EVIDENCE TRACEABILITY',
+        title: UNFCCC_SECTION_ORDER[2],
+        lines: [
+          `Total rules: ${coverage.total}. Reviewed rules: ${reviewedCount}. Pending rules: ${coverage.notStarted}. Gap rules: ${coverage.gap}.`,
+          `In-progress rules: ${coverage.inProgress}. Not-applicable rules: ${coverage.notApplicable}.`,
+          `Percent complete across actionable rules: ${coverage.percentComplete}%.`,
+          'No certification, registry approval, or issuance conclusion is made by this draft report.',
+        ],
+      },
+      {
+        title: UNFCCC_SECTION_ORDER[3],
         lines: buildEvidenceSummary(project),
       },
+      {
+        title: UNFCCC_SECTION_ORDER[4],
+        lines: [
+          `OK: ${findingCounts.OK}. CL: ${findingCounts.CL}. NC: ${findingCounts.NC}. PENDING: ${findingCounts.PENDING}. NA: ${findingCounts.NA}.`,
+          findingCounts.FAR > 0 ? `FAR: ${findingCounts.FAR}.` : 'FAR: 0; no forward action requests are generated without explicit project data.',
+        ],
+      },
+      { title: UNFCCC_SECTION_ORDER[5], lines: buildRequirementFindingLines(findings) },
+      { title: UNFCCC_SECTION_ORDER[6], lines: buildEvidenceAppendixLines(findings) },
+      { title: UNFCCC_SECTION_ORDER[7], lines: [limitation] },
+      { title: UNFCCC_SECTION_ORDER[8], lines: linesFromProvenance(provenance) },
     ],
-    groupedReviews,
-    openFindings,
-    provenance: buildProvenance(project, coverage, registry, 'ready'),
-    limitation: 'This report summarizes reviewer-entered verification data. It is not a formal certification or issuance opinion.',
+    findings,
+    provenance,
+    limitation,
   };
 }
 
@@ -208,8 +290,7 @@ function composeRecognizedFallbackReport(
         ],
       },
     ],
-    groupedReviews: [],
-    openFindings: [],
+    findings: [],
     provenance: buildProvenance(project, coverage, registry, 'registry_not_fully_supported'),
     limitation: `This export is not a full ${registry} verification report. It is a truthful fallback summary only.`,
   };
@@ -223,9 +304,13 @@ export function composeGoldStandardVerificationReport(project: Project, coverage
   return composeRecognizedFallbackReport('Gold Standard', project, coverage);
 }
 
-export function composeVerificationReport(project: Project, coverage: ProjectCoverage): VerificationReportComposition {
+export function composeVerificationReport(
+  project: Project,
+  coverage: ProjectCoverage,
+  exportTime?: string,
+): VerificationReportComposition {
   const registry = resolveProjectRegistry(project);
-  if (registry === 'UNFCCC') return composeUnfcccVerificationReport(project, coverage);
+  if (registry === 'UNFCCC') return composeUnfcccVerificationReport(project, coverage, exportTime);
   if (registry === 'Verra') return composeVerraVerificationReport(project, coverage);
   if (registry === 'Gold Standard') return composeGoldStandardVerificationReport(project, coverage);
 
@@ -244,8 +329,7 @@ export function composeVerificationReport(project: Project, coverage: ProjectCov
         ],
       },
     ],
-    groupedReviews: [],
-    openFindings: [],
+    findings: [],
     provenance: buildProvenance(project, coverage, 'Unknown', 'registry_not_fully_supported'),
     limitation: 'This export is a generic truthful fallback only.',
   };

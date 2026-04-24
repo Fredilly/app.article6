@@ -4,6 +4,15 @@ import { extractPdfTextWithPdfParse } from '@/lib/chat/quickCheckPdfExtractor';
 import { buildProjectExportPdf } from '@/lib/projects/exportPdf';
 import type { Project } from '@/lib/projects/types';
 
+const UNSUPPORTED_CERTIFICATION_PHRASES = [
+  'certified emission reductions are approved',
+  'verification opinion: positive',
+  'VCUs issued',
+  'registry approved',
+  'validated successfully',
+  'verified successfully',
+];
+
 function makeProject(reviewCount = 6): Project {
   return {
     id: 'project-12345678',
@@ -44,7 +53,14 @@ describe('/api/projects/[id]/export-pdf route', () => {
 
     expect(parsed.text).toContain('Malawi Verification Project');
     expect(parsed.text).toContain('UNFCCC VERIFICATION REPORT');
-    expect(parsed.text).toContain('COVERAGE SUMMARY');
+    expect(parsed.text).toContain('REPORT STATUS');
+    expect(parsed.text).toContain('PROJECT AND METHODOLOGY IDENTIFICATION');
+    expect(parsed.text).toContain('VERIFICATION SCOPE');
+    expect(parsed.text).toContain('MEANS OF VERIFICATION');
+    expect(parsed.text).toContain('FINDINGS SUMMARY');
+    expect(parsed.text).toContain('REQUIREMENT FINDINGS');
+    expect(parsed.text).toContain('EVIDENCE APPENDIX');
+    expect(parsed.text).toContain('LIMITATIONS');
     expect(parsed.text).toContain('Verification requirement 1');
     expect(parsed.text).toContain('PROVENANCE');
   }, 15000);
@@ -64,7 +80,8 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const raw = pdf.toString('utf8');
 
     expect(parsed.text).toContain('Verification requirement 90');
-    expect(parsed.text).toContain('OPEN FINDINGS');
+    expect(parsed.text).toContain('REQUIREMENT FINDINGS');
+    expect(parsed.text).toContain('EVIDENCE APPENDIX');
     expect(raw).toMatch(/\/Kids \[(\d+ 0 R\s*)+\] \/Count \d+/);
     expect(raw).toContain('BT');
     expect(raw).toContain('ET');
@@ -83,7 +100,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
 
     expect(parsed.text).toContain('ARTICLE6');
     expect(parsed.text).toContain('UNFCCC VERIFICATION REPORT');
-    expect(parsed.text).toContain('REQUIREMENT REVIEW SUMMARY');
+    expect(parsed.text).toContain('REQUIREMENT FINDINGS');
     expect(parsed.text).not.toContain('app.article6');
   }, 15000);
 
@@ -105,7 +122,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('VERRA VERIFICATION REPORT');
     expect(parsed.text).toContain('REGISTRY SUPPORT STATUS');
     expect(parsed.text).toContain('full renderer not yet implemented');
-    expect(parsed.text).not.toContain('REQUIREMENT REVIEW SUMMARY');
+    expect(parsed.text).not.toContain('REQUIREMENT FINDINGS');
   }, 15000);
 
   it('renders reviewer rationale under rules that have notes', async () => {
@@ -133,7 +150,57 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('Boundary worksheet not provided');
   }, 15000);
 
-  it('shows percentage complete in coverage summary', async () => {
+  it('wraps long reviewer rationale and long evidence references without dropping audit text', async () => {
+    const longEvidenceId = 'evidence-' + '0123456789abcdef'.repeat(10);
+    const project = makeProject(1);
+    project.reviews[0] = {
+      ...project.reviews[0],
+      status: 'verified',
+      note: 'This unusually detailed reviewer rationale should remain visible in the exported PDF because it explains the sampled invoices, monitoring workbook cross-check, and boundary reconciliation used for the draft assessment.',
+      evidenceIds: [longEvidenceId],
+    };
+    const pdf = buildProjectExportPdf(project, {
+      total: 1,
+      verified: 1,
+      gap: 0,
+      notStarted: 0,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 100,
+    });
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('sampled invoices, monitoring workbook cross-check');
+    expect(parsed.text).toContain('boundary reconciliation used for the draft assessment');
+    expect(parsed.text).toContain('0123456789abcdef0123456789abcdef');
+  }, 15000);
+
+  it('shows a visible limitation for verified rules that lack evidence and rationale', async () => {
+    const project = makeProject(1);
+    project.reviews[0] = {
+      ...project.reviews[0],
+      status: 'verified',
+      note: undefined,
+      evidenceIds: [],
+    };
+    const pdf = buildProjectExportPdf(project, {
+      total: 1,
+      verified: 1,
+      gap: 0,
+      notStarted: 0,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 100,
+    });
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('no reviewer rationale or linked evidence reference');
+    expect(parsed.text).toContain('Draft OK is support-limited');
+  }, 15000);
+
+  it('shows percentage complete in verification scope', async () => {
     const project = makeProject();
     const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
       method: 'POST',
@@ -145,6 +212,25 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
     expect(parsed.text).toMatch(/\d+%/);
+  }, 15000);
+
+  it('does not render unsupported certification or issuance phrases', async () => {
+    const project = makeProject();
+    const pdf = buildProjectExportPdf(project, {
+      total: 6,
+      verified: 4,
+      gap: 1,
+      notStarted: 1,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 83,
+    });
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    for (const phrase of UNSUPPORTED_CERTIFICATION_PHRASES) {
+      expect(parsed.text).not.toContain(phrase);
+    }
   }, 15000);
 
   it('handles missing timestamps without crashing', async () => {
