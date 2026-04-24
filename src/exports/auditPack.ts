@@ -4,7 +4,7 @@ import { zipSync, strToU8 } from "fflate";
 import { makePackMeta } from "./packMeta";
 import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
 import { buildTraceIndex } from "../lib/trace/traceIndex";
-import { buildVerificationPackContractFiles } from "./verificationPackContract";
+import { buildVerificationPackContractFiles, type FinalizedAuditPackReviewInput } from "./verificationPackContract";
 
 function readJsonCanonical(p: string): Buffer {
   const raw = fs.readFileSync(p, "utf8");
@@ -43,6 +43,19 @@ function deterministicTimestamp(): string {
   return "1970-01-01T00:00:00.000Z";
 }
 
+function generatedAtForAuditPack(finalizedReview?: FinalizedAuditPackReviewInput | null): string {
+  const artifact = finalizedReview?.artifact;
+  const finalizedAt =
+    artifact?.verifier?.finalizedAt?.trim() ||
+    artifact?.summary?.generatedAt?.trim() ||
+    artifact?.outcome?.exportState.snapshotExportedAt?.trim() ||
+    artifact?.outcome?.provenance.generatedAt?.trim() ||
+    null;
+  if (finalizedAt && Number.isFinite(new Date(finalizedAt).getTime())) return finalizedAt;
+  if (artifact) return new Date().toISOString();
+  return deterministicTimestamp();
+}
+
 function zipMtimeFromTimestamp(iso: string): Date {
   const date = new Date(iso);
   if (!Number.isFinite(date.getTime())) return new Date("1980-01-01T00:00:00.000Z");
@@ -51,7 +64,7 @@ function zipMtimeFromTimestamp(iso: string): Date {
   return date;
 }
 
-export function buildAuditPackZip(methodCode: string, version: string) {
+export function buildAuditPackZip(methodCode: string, version: string, options: { finalizedReview?: FinalizedAuditPackReviewInput | null } = {}) {
   const methodDir = resolveMethodDir(methodCode, version);
   if (!methodDir) {
     throw new Error(`Method/version not found on disk for ${methodCode}@${version} under public/methodologies`);
@@ -82,7 +95,7 @@ export function buildAuditPackZip(methodCode: string, version: string) {
   const repo = process.env.GITHUB_REPOSITORY || process.env.VERCEL_GIT_REPO_SLUG || "unknown";
   const commit = process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "unknown";
 
-  const generatedAt = deterministicTimestamp();
+  const generatedAt = generatedAtForAuditPack(options.finalizedReview);
   const packMeta = makePackMeta({ methodCode, version, repo, commit, generated_at: generatedAt });
   const contractFiles = buildVerificationPackContractFiles({
     generatedAt,
@@ -91,6 +104,7 @@ export function buildAuditPackZip(methodCode: string, version: string) {
     rulesJson: readJsonRaw(rulesPath),
     sectionsJson: readJsonRaw(sectionsPath),
     trace,
+    finalizedReview: options.finalizedReview ?? null,
   });
   for (const file of contractFiles) {
     files.push({
