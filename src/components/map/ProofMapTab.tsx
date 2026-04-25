@@ -154,6 +154,39 @@ function shortSha(value: string): string {
   return `${trimmed.slice(0, 10)}…${trimmed.slice(-2)}`;
 }
 
+function asTrimmedOrNull(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+export function finalizedArtifactRuleId(artifact: EvidenceSnapshot | null): string | null {
+  return (
+    asTrimmedOrNull(artifact?.summary?.ruleId) ??
+    asTrimmedOrNull(artifact?.outcome?.linkage.selectedRuleId) ??
+    asTrimmedOrNull(artifact?.outcome?.linkage.linkedRuleIds?.[0]) ??
+    null
+  );
+}
+
+export function finalizedArtifactMatchesContext(input: {
+  artifact: EvidenceSnapshot | null;
+  methodCode: string;
+  version: string;
+  selectedRuleId: string | null;
+  runId: string;
+  finalizedAt: string | null;
+}): boolean {
+  const { artifact } = input;
+  if (!artifact) return false;
+  if (artifact.verifier?.finalizedState !== "finalized") return false;
+  if (asTrimmedOrNull(artifact.verifier?.finalizedAt) !== asTrimmedOrNull(input.finalizedAt)) return false;
+  if (asTrimmedOrNull(artifact.verifier?.runId) !== asTrimmedOrNull(input.runId)) return false;
+  if (asTrimmedOrNull(artifact.method.code) !== asTrimmedOrNull(input.methodCode)) return false;
+  if (asTrimmedOrNull(artifact.method.version) !== asTrimmedOrNull(input.version)) return false;
+  if (finalizedArtifactRuleId(artifact) !== asTrimmedOrNull(input.selectedRuleId)) return false;
+  return true;
+}
+
 function downloadJson(value: unknown, filename: string) {
   const text = canonicalJsonStringify(value);
   const blob = new Blob([text], { type: "application/json" });
@@ -1855,6 +1888,26 @@ export default function ProofMapTab({
     setReviewPdfBusy(false);
   }, [currentWorkspaceIsFinal]);
 
+  const reviewArtifactMatchesCurrentContext = useMemo(
+    () =>
+      finalizedArtifactMatchesContext({
+        artifact: reviewArtifact,
+        methodCode,
+        version,
+        selectedRuleId,
+        runId: verifierBundle.runContext.runId,
+        finalizedAt: verifierBundle.finalizedAt,
+      }),
+    [methodCode, reviewArtifact, selectedRuleId, verifierBundle.finalizedAt, verifierBundle.runContext.runId, version],
+  );
+  const activeReviewArtifact = reviewArtifactMatchesCurrentContext ? reviewArtifact : null;
+
+  useEffect(() => {
+    if (!reviewArtifact) return;
+    if (reviewArtifactMatchesCurrentContext) return;
+    setReviewArtifact(null);
+  }, [reviewArtifact, reviewArtifactMatchesCurrentContext]);
+
   const buildStacItemsJson = useCallback(() => {
     if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] as Array<Record<string, unknown>> };
     if (!latestStacRun.result_json) return { items: [] as Array<Record<string, unknown>> };
@@ -2066,7 +2119,7 @@ export default function ProofMapTab({
   );
 
   useEffect(() => {
-    if (!currentWorkspaceIsFinal || reviewArtifact || !verifierBundle.finalizedAt) return;
+    if (!currentWorkspaceIsFinal || activeReviewArtifact || !verifierBundle.finalizedAt) return;
     let active = true;
     void buildFinalReviewArtifact({
       finalizedAt: verifierBundle.finalizedAt,
@@ -2084,7 +2137,7 @@ export default function ProofMapTab({
     return () => {
       active = false;
     };
-  }, [buildFinalReviewArtifact, currentWorkspaceIsFinal, reviewArtifact, verifierBundle]);
+  }, [activeReviewArtifact, buildFinalReviewArtifact, currentWorkspaceIsFinal, verifierBundle]);
 
   const handleFinalizeRun = useCallback(() => {
     if (finalizeGate && !finalizeGate.canFinalize) return;
@@ -2572,7 +2625,7 @@ export default function ProofMapTab({
     const finalizedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
     if (!finalizedAt) return;
     const artifact =
-      reviewArtifact ??
+      activeReviewArtifact ??
       (
         await buildFinalReviewArtifact({
           finalizedAt,
@@ -2585,7 +2638,7 @@ export default function ProofMapTab({
     setReviewArtifact(artifact);
     const filename = `verify-final.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.json`;
     downloadJson(artifact, filename);
-  }, [buildFinalReviewArtifact, methodCode, reviewArtifact, verifierBundle, version]);
+  }, [activeReviewArtifact, buildFinalReviewArtifact, methodCode, verifierBundle, version]);
 
   const handleDownloadReviewSummaryPdf = useCallback(async () => {
     const finalizedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
@@ -2594,7 +2647,7 @@ export default function ProofMapTab({
     setReviewPdfError(null);
     try {
       const artifact =
-        reviewArtifact ??
+        activeReviewArtifact ??
         (
           await buildFinalReviewArtifact({
             finalizedAt,
@@ -2613,7 +2666,7 @@ export default function ProofMapTab({
     } finally {
       setReviewPdfBusy(false);
     }
-  }, [buildFinalReviewArtifact, methodCode, reviewArtifact, reviewSummary, verifierBundle, version]);
+  }, [activeReviewArtifact, buildFinalReviewArtifact, methodCode, reviewSummary, verifierBundle, version]);
 
   const handleCopyReviewSummaryLink = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -3979,8 +4032,8 @@ export default function ProofMapTab({
           <div className="transition">
             {currentWorkspaceIsFinal ? (
               <FinalReviewSummaryPanel
-                summary={reviewArtifact?.summary ?? reviewSummary}
-                artifact={reviewArtifact}
+                summary={activeReviewArtifact?.summary ?? reviewSummary}
+                artifact={activeReviewArtifact}
           evidencePins={evidencePins}
                 currentRunLabel={currentRunLabel}
                 loadedFromRunLabel={loadedFromRunLabel}
@@ -4072,8 +4125,8 @@ export default function ProofMapTab({
                 }
                 finalizedResult={
                   <ReviewSummaryCard
-                    summary={reviewArtifact?.summary ?? reviewSummary}
-                    artifact={reviewArtifact}
+                    summary={activeReviewArtifact?.summary ?? reviewSummary}
+                    artifact={activeReviewArtifact}
                     onDownloadJson={() => {
                       void handleDownloadReviewSummaryJson();
                     }}
