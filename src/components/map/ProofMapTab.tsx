@@ -3981,6 +3981,7 @@ export default function ProofMapTab({
               <FinalReviewSummaryPanel
                 summary={reviewArtifact?.summary ?? reviewSummary}
                 artifact={reviewArtifact}
+          evidencePins={evidencePins}
                 currentRunLabel={currentRunLabel}
                 loadedFromRunLabel={loadedFromRunLabel}
                 finalizedAt={verifierBundle.finalizedAt}
