@@ -2,6 +2,7 @@
 
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
+import type { EvidencePin } from "@/lib/proofMap/types";
 import type { ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
@@ -13,6 +14,7 @@ type FinalReviewSummaryPanelProps = {
   finalizedAt?: string | null;
   reviewedRuleCount?: number | null;
   linkedEvidenceCount?: number | null;
+  evidencePins?: EvidencePin[];
   wizard: VerifyWizardStepDetails;
   onDownloadJson: () => void;
   onDownloadPdf: () => void;
@@ -30,6 +32,24 @@ function formatDate(value: string | null | undefined): string | null {
   return date.toLocaleString();
 }
 
+function safeFilename(value: string | null | undefined): string {
+  const trimmed = (value ?? "").trim() || "unknown";
+  return trimmed.replace(/[^\w.\-]+/g, "_").slice(0, 64) || "unknown";
+}
+
+function downloadBytes(bytes: Uint8Array, filename: string, mimeType: string) {
+  const blobPart = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  const blob = new Blob([blobPart], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export default function FinalReviewSummaryPanel({
   summary,
   artifact,
@@ -38,6 +58,7 @@ export default function FinalReviewSummaryPanel({
   finalizedAt = null,
   reviewedRuleCount = null,
   linkedEvidenceCount = null,
+  evidencePins = [],
   wizard,
   onDownloadJson,
   onDownloadPdf,
@@ -49,6 +70,20 @@ export default function FinalReviewSummaryPanel({
 }: FinalReviewSummaryPanelProps) {
   const finalizedLabel = formatDate(finalizedAt);
   const completedSteps = wizard.steps.filter((step) => step.complete);
+  const canDownloadAuditPack = Boolean(artifact?.verifier?.finalizedState === "finalized" || artifact?.verifier?.finalizedAt);
+  const handleDownloadAuditPack = async () => {
+    if (!artifact) return;
+    const method = artifact.method.code || summary.methodCode || "";
+    const version = artifact.method.version || summary.version || "";
+    const response = await fetch("/api/exports/audit-pack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ method, version, artifact, evidencePins }),
+    });
+    if (!response.ok) throw new Error(await response.text());
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    downloadBytes(bytes, `audit-pack.${safeFilename(method)}.${safeFilename(version)}.${safeFilename(artifact.verifier?.runId)}.zip`, "application/zip");
+  };
 
   return (
     <section className="grid gap-3" data-testid="final-review-summary-panel">
@@ -84,6 +119,17 @@ export default function FinalReviewSummaryPanel({
         >
           View run history
         </button>
+        {canDownloadAuditPack ? (
+          <button
+            type="button"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            onClick={() => {
+              void handleDownloadAuditPack();
+            }}
+          >
+            Download audit pack
+          </button>
+        ) : null}
       </div>
 
       <details className="rounded-xl border border-slate-200 bg-white">
