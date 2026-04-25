@@ -1,9 +1,14 @@
 import { buildAuditPackZip } from "@/exports/auditPack";
 import { EvidenceSnapshotSchema } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
+import { ZodError } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function asTrimmedOrEmpty(value: string | null | undefined): string {
+  return value?.trim() ?? "";
+}
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -35,7 +40,28 @@ export async function POST(req: Request) {
     const version = typeof record.version === "string" ? record.version : "";
     if (!method || !version) return new Response("Missing method/version in request body", { status: 400 });
 
-    const artifact = record.artifact ? EvidenceSnapshotSchema.parse(record.artifact) : null;
+    let artifact = null;
+    try {
+      artifact = record.artifact ? EvidenceSnapshotSchema.parse(record.artifact) : null;
+    } catch (error: unknown) {
+      if (error instanceof ZodError) {
+        return new Response(`Invalid artifact payload. ${error.message}`, { status: 400 });
+      }
+      throw error;
+    }
+
+    if (artifact) {
+      if (asTrimmedOrEmpty(artifact.method.code) !== asTrimmedOrEmpty(method)) {
+        return new Response("Artifact method does not match request method", { status: 400 });
+      }
+      if (asTrimmedOrEmpty(artifact.method.version) !== asTrimmedOrEmpty(version)) {
+        return new Response("Artifact version does not match request version", { status: 400 });
+      }
+      if (artifact.verifier?.finalizedState !== "finalized" || !asTrimmedOrEmpty(artifact.verifier.finalizedAt)) {
+        return new Response("Artifact must be explicitly finalized", { status: 400 });
+      }
+    }
+
     const evidencePins = Array.isArray(record.evidencePins) ? (record.evidencePins as EvidencePin[]) : [];
     const zip = buildAuditPackZip(method, version, {
       finalizedReview: artifact ? { artifact, evidencePins } : null,
