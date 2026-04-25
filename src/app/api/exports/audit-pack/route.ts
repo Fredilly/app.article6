@@ -6,6 +6,10 @@ import { ZodError } from "zod";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function asTrimmedOrEmpty(value: string | null | undefined): string {
+  return value?.trim() ?? "";
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const method = url.searchParams.get("method") || "";
@@ -45,6 +49,19 @@ export async function POST(req: Request) {
       }
       throw error;
     }
+
+    if (artifact) {
+      if (asTrimmedOrEmpty(artifact.method.code) !== asTrimmedOrEmpty(method)) {
+        return new Response("Artifact method does not match request method", { status: 400 });
+      }
+      if (asTrimmedOrEmpty(artifact.method.version) !== asTrimmedOrEmpty(version)) {
+        return new Response("Artifact version does not match request version", { status: 400 });
+      }
+      if (artifact.verifier?.finalizedState !== "finalized" || !asTrimmedOrEmpty(artifact.verifier.finalizedAt)) {
+        return new Response("Artifact must be explicitly finalized", { status: 400 });
+      }
+    }
+
     const evidencePins = Array.isArray(record.evidencePins) ? (record.evidencePins as EvidencePin[]) : [];
     const zip = buildAuditPackZip(method, version, {
       finalizedReview: artifact ? { artifact, evidencePins } : null,
