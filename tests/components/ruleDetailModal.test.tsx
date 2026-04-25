@@ -364,4 +364,4 @@ describe("RuleDetailModal", () => {
     expect(draftOnlyHtml).toContain("Linked evidence is present, but no reviewer artifact is saved yet.");
     expect(draftOnlyHtml).not.toContain("Linked evidence is present and reviewer artifact is saved.");
   });
-}
+});
