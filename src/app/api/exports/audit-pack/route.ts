@@ -1,6 +1,7 @@
 import { buildAuditPackZip } from "@/exports/auditPack";
 import { EvidenceSnapshotSchema } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
+import { ZodError } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,7 +36,15 @@ export async function POST(req: Request) {
     const version = typeof record.version === "string" ? record.version : "";
     if (!method || !version) return new Response("Missing method/version in request body", { status: 400 });
 
-    const artifact = record.artifact ? EvidenceSnapshotSchema.parse(record.artifact) : null;
+    let artifact = null;
+    try {
+      artifact = record.artifact ? EvidenceSnapshotSchema.parse(record.artifact) : null;
+    } catch (error: unknown) {
+      if (error instanceof ZodError) {
+        return new Response(`Invalid artifact payload. ${error.message}`, { status: 400 });
+      }
+      throw error;
+    }
     const evidencePins = Array.isArray(record.evidencePins) ? (record.evidencePins as EvidencePin[]) : [];
     const zip = buildAuditPackZip(method, version, {
       finalizedReview: artifact ? { artifact, evidencePins } : null,
