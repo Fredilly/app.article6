@@ -84,7 +84,7 @@ const sectionsJson = {
   sections: [{ id: "S-1", title: "Monitoring", anchor: "#S-1" }],
 };
 
-function withTemporaryMethodologyCheckout<T>(callback: () => Promise<T> | T): Promise<T> | T {
+async function withTemporaryMethodologyCheckout<T>(callback: () => Promise<T> | T): Promise<T> {
   const previousCwd = process.cwd();
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "article6-audit-pack-route-"));
   const methodDir = path.join(root, "public", "methodologies", "UNFCCC", "Forestry", "AR-ACM0003", "v02-0");
@@ -101,7 +101,7 @@ function withTemporaryMethodologyCheckout<T>(callback: () => Promise<T> | T): Pr
 
   try {
     process.chdir(root);
-    return callback();
+    return await callback();
   } finally {
     process.chdir(previousCwd);
     fs.rmSync(root, { recursive: true, force: true });
