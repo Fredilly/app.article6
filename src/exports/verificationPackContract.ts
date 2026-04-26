@@ -256,6 +256,13 @@ function uniqueSorted(values: Array<string | null | undefined>): string[] {
   );
 }
 
+function canonicalRuleKey(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  const match = trimmed.match(/(R-\d+(?:-\d+)*)$/i);
+  return match ? match[1] : trimmed;
+}
+
 function asValidIsoOrNull(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   if (!trimmed) return null;
@@ -359,9 +366,11 @@ function reviewerArtifactForCurrentRule(
 ): RequirementReviewEntry["reviewer_artifact"] | undefined {
   if (!bundle) return undefined;
   const contextRuleId = bundle.savedReviewerArtifactContext?.ruleId?.trim() ?? null;
+  const canonicalContextRuleId = canonicalRuleKey(contextRuleId);
+  const canonicalCurrentRuleId = canonicalRuleKey(ruleId);
   const savedReviewerArtifactAt = bundle.savedReviewerArtifactAt?.trim() || null;
   const finalizedAt = bundle.finalizedAt?.trim() || null;
-  if (contextRuleId !== ruleId) return undefined;
+  if (contextRuleId !== ruleId && canonicalContextRuleId !== canonicalCurrentRuleId) return undefined;
   if (!savedReviewerArtifactAt && !finalizedAt) return undefined;
   return {
     run_id:
@@ -644,7 +653,17 @@ export function buildVerificationPackContract(input: {
     : hasCurrentReview
       ? CURRENT_METHOD_REVIEW_REASON
       : PLACEHOLDER_REASON;
-  const reviewIndex = new Map(currentReviewEntries.map((review) => [review.ruleId, review]));
+  const reviewIndex = new Map<string, RuleReview>();
+  for (const review of currentReviewEntries) {
+    const rawRuleId = review.ruleId?.trim();
+    if (rawRuleId && !reviewIndex.has(rawRuleId)) {
+      reviewIndex.set(rawRuleId, review);
+    }
+    const canonicalRuleId = canonicalRuleKey(review.ruleId);
+    if (canonicalRuleId && !reviewIndex.has(canonicalRuleId)) {
+      reviewIndex.set(canonicalRuleId, review);
+    }
+  }
 
   const project: ProjectJson = {
     kind: "article6.verification_project",
@@ -776,7 +795,7 @@ export function buildVerificationPackContract(input: {
   });
 
   const currentRequirementRules = rules.map<RequirementReviewEntry>((rule) => {
-    const review = reviewIndex.get(rule.id) ?? null;
+    const review = reviewIndex.get(rule.id) ?? reviewIndex.get(canonicalRuleKey(rule.id) ?? "") ?? null;
     const traceSections = input.trace.rule_to_sections[rule.id] ?? [];
     const linkedEvidenceRefs = evidenceRefsFromPinsForRule(
       rule.id,

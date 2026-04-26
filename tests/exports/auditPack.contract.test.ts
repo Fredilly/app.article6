@@ -325,4 +325,70 @@ describe("audit pack verification contract", () => {
     expect(strFromU8(entries["VERIFICATION_REPORT.html"])).toContain("Draft / incomplete local method review export.");
     expect(strFromU8(entries["VERIFICATION_REPORT.html"])).not.toContain("Demo review record only.");
   });
+
+  test("exports a saved current review when the saved ruleId is the canonical rich-rule id", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002",
+        methodology: "AR-ACM0003",
+        version: "v02-0",
+        status: "verified",
+        rationale: "Baseline calculation worksheet is present and internally consistent.",
+        supportReference: "calc-sheet-2",
+        evidenceLink: "calc-sheet-2",
+        evidenceAttachments: [],
+        reviewedBy: "local-reviewer",
+        reviewedAt: "2026-04-24T13:00:00.000Z",
+        updatedAt: "2026-04-24T13:00:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(() =>
+      buildAuditPackZip("AR-ACM0003", "v02-0", {
+        currentReview: {
+          latestReviewAt: "2026-04-24T13:05:00.000Z",
+          reviews,
+          evidencePins: [],
+          verifierBundle: {
+            runContext: {
+              runId: "run-draft-2",
+              createdAt: "2026-04-24T12:45:00.000Z",
+            },
+            savedReviewerArtifactAt: "2026-04-24T13:05:00.000Z",
+            finalizedAt: null,
+            minutes: "Reviewer minutes for baseline calculations",
+            outcomeNote: "Needs evidence linkage before finalization.",
+            savedReviewerArtifactContext: {
+              methodCode: "AR-ACM0003",
+              version: "v02-0",
+              ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002",
+              runId: "run-draft-2",
+            },
+          },
+        },
+      }),
+    );
+    const entries = unzipSync(new Uint8Array(zip));
+    const requirementReview = JSON.parse(strFromU8(entries["requirement-review.json"])) as {
+      rules: Array<{
+        rule_id: string;
+        status: string;
+        rationale: string;
+        reviewer_artifact?: { outcome_note: string | null; minutes_present: boolean };
+      }>;
+    };
+    const exportedRule = requirementReview.rules.find((rule) => rule.rule_id === "R-1-0002");
+
+    expect(exportedRule).toEqual(
+      expect.objectContaining({
+        rule_id: "R-1-0002",
+        status: "reviewed_verified",
+        rationale: "Baseline calculation worksheet is present and internally consistent.",
+        reviewer_artifact: expect.objectContaining({
+          outcome_note: "Needs evidence linkage before finalization.",
+          minutes_present: true,
+        }),
+      }),
+    );
+  });
 });
