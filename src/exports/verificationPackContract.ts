@@ -263,6 +263,14 @@ function canonicalRuleKey(value: string | null | undefined): string | null {
   return match ? match[1] : trimmed;
 }
 
+function ruleIdsMatch(left: string | null | undefined, right: string | null | undefined): boolean {
+  const leftTrimmed = left?.trim() ?? "";
+  const rightTrimmed = right?.trim() ?? "";
+  if (!leftTrimmed || !rightTrimmed) return false;
+  if (leftTrimmed === rightTrimmed) return true;
+  return canonicalRuleKey(leftTrimmed) === canonicalRuleKey(rightTrimmed);
+}
+
 function asValidIsoOrNull(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   if (!trimmed) return null;
@@ -296,10 +304,24 @@ function evidenceRefsFromPinsForRule(
 ): EvidenceManifestEntry[] {
   const entries: EvidenceManifestEntry[] = [];
   for (const pin of evidencePins) {
-    const linkedRuleIds = uniqueSorted([pin.ruleId, ...(pin.cited_ids ?? []), ...(pin.pdd_fragment_links ?? []).map((link) => link.rule_id)]);
-    if (ruleId && linkedRuleIds.length && !linkedRuleIds.includes(ruleId)) continue;
+    const linkedRuleIds = uniqueSorted([
+      pin.ruleId,
+      ...(pin.cited_ids ?? []),
+      ...(pin.pdd_fragment_links ?? []).map((link) => link.rule_id),
+    ]);
+    const matchingLinkedRuleIds = ruleId
+      ? linkedRuleIds.filter((linkedRuleId) => ruleIdsMatch(linkedRuleId, ruleId))
+      : linkedRuleIds;
+    const matchingFragmentLinks = (pin.pdd_fragment_links ?? []).filter((link) =>
+      ruleId ? ruleIdsMatch(link.rule_id, ruleId) : Boolean(link.rule_id?.trim()),
+    );
+    if (ruleId && matchingLinkedRuleIds.length === 0 && matchingFragmentLinks.length === 0) continue;
 
-    const baseRuleIds = linkedRuleIds.length ? linkedRuleIds : ruleId ? [ruleId] : [];
+    const baseRuleIds = ruleId
+      ? [ruleId]
+      : linkedRuleIds.length
+        ? linkedRuleIds
+        : [];
     const pinRefs = uniqueSorted([pin.itemId, ...(pin.stac_item_ids ?? []), pin.pdd_document?.evidence_id, pin.id]);
     for (const ref of pinRefs) {
       entries.push({
@@ -321,13 +343,12 @@ function evidenceRefsFromPinsForRule(
       });
     }
 
-    for (const link of pin.pdd_fragment_links ?? []) {
-      if (ruleId && link.rule_id !== ruleId) continue;
+    for (const link of matchingFragmentLinks) {
       const fragment = pin.pdd_fragments?.find((candidate) => candidate.fragment_id === link.fragment_id);
       entries.push({
         evidence_ref: link.fragment_id,
         label: fragment?.label?.trim() || fragment?.section_heading?.trim() || link.fragment_id,
-        rule_ids: [link.rule_id],
+        rule_ids: ruleId ? [ruleId] : [link.rule_id],
         status: "provided",
         status_basis: statusBasis,
         source_kind: "project_evidence_ref",

@@ -33,6 +33,16 @@ const arAms0007SectionsJson = {
   sections: [{ id: "S-1", title: "Eligibility", anchor: "#S-1" }],
 };
 
+const arAm0014RulesJson = {
+  rules: [
+    { id: "R-1-0001", text: "Afforestation activity must satisfy the methodology eligibility screen." },
+  ],
+};
+
+const arAm0014SectionsJson = {
+  sections: [{ id: "S-1", title: "Eligibility", anchor: "#S-1" }],
+};
+
 const trace = {
   version: 1,
   method: { code: "AR-ACM0003", version: "v02-0" },
@@ -484,5 +494,102 @@ describe("audit pack verification contract", () => {
     );
     expect(exportedRule?.reviewer_artifact).toBeUndefined();
     expect(JSON.stringify(exportedRule)).not.toContain("AR-ACM0003");
+  });
+
+  test("exports a linked current-review evidence pin when the pin uses a fully-qualified rule id", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-AM0014",
+        version: "v03-0",
+        status: "verified",
+        rationale: "Eligibility was reviewed against the linked scene evidence.",
+        supportReference: "am14-scene-1",
+        evidenceLink: "am14-scene-1",
+        evidenceAttachments: [],
+        reviewedBy: "local-reviewer",
+        reviewedAt: "2026-04-25T10:00:00.000Z",
+        updatedAt: "2026-04-25T10:00:00.000Z",
+      },
+    ];
+    const evidencePins: EvidencePin[] = [
+      {
+        id: "pin-am14-scene-1",
+        kind: "note",
+        title: "am14-scene-1",
+        ruleId: "UNFCCC.Forestry.AR-AM0014.v03-0.R-1-0001",
+        itemId: "am14-scene-1",
+        cited_ids: ["UNFCCC.Forestry.AR-AM0014.v03-0.R-1-0001"],
+        created_at: "2026-04-25T09:55:00.000Z",
+      },
+      {
+        id: "pin-am14-unlinked-1",
+        kind: "note",
+        title: "am14-unlinked-1",
+        itemId: "am14-unlinked-1",
+        cited_ids: [],
+        created_at: "2026-04-25T09:56:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(
+      () =>
+        buildAuditPackZip("AR-AM0014", "v03-0", {
+          currentReview: {
+            latestReviewAt: "2026-04-25T10:05:00.000Z",
+            reviews,
+            evidencePins,
+            verifierBundle: {
+              runContext: {
+                runId: "run-am14-draft-1",
+                createdAt: "2026-04-25T09:45:00.000Z",
+              },
+              savedReviewerArtifactAt: null,
+              finalizedAt: null,
+              minutes: "",
+              outcomeNote: "",
+            },
+          },
+        }),
+      {
+        methodCode: "AR-AM0014",
+        version: "v03-0",
+        rules: arAm0014RulesJson,
+        sections: arAm0014SectionsJson,
+      },
+    );
+    const entries = unzipSync(new Uint8Array(zip));
+    const evidenceManifest = JSON.parse(strFromU8(entries["evidence-manifest.json"])) as {
+      summary: { total_refs: number; provided_refs: number };
+      evidence: Array<{ evidence_ref: string; rule_ids: string[] }>;
+    };
+    const requirementReview = JSON.parse(strFromU8(entries["requirement-review.json"])) as {
+      rules: Array<{ rule_id: string; linked_evidence_refs: string[] }>;
+    };
+    const traceJson = JSON.parse(strFromU8(entries["trace.json"])) as {
+      rule_to_evidence: Record<string, string[]>;
+    };
+    const exportedRule = requirementReview.rules.find((rule) => rule.rule_id === "R-1-0001");
+
+    expect(evidenceManifest.summary.total_refs).toBeGreaterThanOrEqual(1);
+    expect(evidenceManifest.summary.provided_refs).toBeGreaterThanOrEqual(1);
+    expect(evidenceManifest.evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          evidence_ref: "am14-scene-1",
+        }),
+      ]),
+    );
+    expect(evidenceManifest.evidence).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          evidence_ref: "am14-unlinked-1",
+        }),
+      ]),
+    );
+    expect(exportedRule?.linked_evidence_refs).toEqual(expect.arrayContaining(["am14-scene-1"]));
+    expect(exportedRule?.linked_evidence_refs).not.toContain("am14-unlinked-1");
+    expect(traceJson.rule_to_evidence["R-1-0001"]).toEqual(expect.arrayContaining(["am14-scene-1"]));
+    expect(traceJson.rule_to_evidence["R-1-0001"]).not.toContain("am14-unlinked-1");
   });
 });
