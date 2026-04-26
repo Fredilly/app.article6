@@ -391,4 +391,67 @@ describe("audit pack verification contract", () => {
       }),
     );
   });
+
+  test("does not attach reviewer artifact text from another method into AR-AMS0007 current-review exports", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-AMS0007",
+        version: "v03-1",
+        status: "verified",
+        rationale: "Wetland eligibility conditions were reviewed in the current workspace.",
+        supportReference: "",
+        evidenceAttachments: [],
+        reviewedBy: "local-reviewer",
+        reviewedAt: "2026-04-25T09:00:00.000Z",
+        updatedAt: "2026-04-25T09:00:00.000Z",
+      },
+    ];
+
+    const zip = buildAuditPackZip("AR-AMS0007", "v03-1", {
+      currentReview: {
+        latestReviewAt: "2026-04-25T09:05:00.000Z",
+        reviews,
+        evidencePins: [],
+        verifierBundle: {
+          runContext: {
+            runId: "run-ams-draft-1",
+            createdAt: "2026-04-25T08:45:00.000Z",
+          },
+          savedReviewerArtifactAt: "2026-04-25T09:05:00.000Z",
+          finalizedAt: null,
+          minutes: "Fixture minutes from AR-ACM0003 v02-0.",
+          outcomeNote: "Fixture outcome note for UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001.",
+          savedReviewerArtifactContext: {
+            methodCode: "AR-ACM0003",
+            version: "v02-0",
+            ruleId: "R-1-0001",
+            runId: "run-acm-draft-1",
+          },
+        },
+      },
+    });
+    const entries = unzipSync(new Uint8Array(zip));
+    const requirementReview = JSON.parse(strFromU8(entries["requirement-review.json"])) as {
+      method: { code: string; version: string };
+      rules: Array<{
+        rule_id: string;
+        status: string;
+        rationale: string;
+        reviewer_artifact?: { outcome_note: string | null; minutes_present: boolean };
+      }>;
+    };
+    const exportedRule = requirementReview.rules.find((rule) => rule.rule_id === "R-1-0001");
+
+    expect(requirementReview.method).toEqual({ code: "AR-AMS0007", version: "v03-1" });
+    expect(exportedRule).toEqual(
+      expect.objectContaining({
+        rule_id: "R-1-0001",
+        status: "reviewed_verified",
+        rationale: "Wetland eligibility conditions were reviewed in the current workspace.",
+      }),
+    );
+    expect(exportedRule?.reviewer_artifact).toBeUndefined();
+    expect(JSON.stringify(exportedRule)).not.toContain("AR-ACM0003");
+  });
 });

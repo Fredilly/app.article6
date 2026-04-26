@@ -3,7 +3,7 @@ import type { EvidenceSnapshot } from "../lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "../lib/proofMap/types";
 import type { TraceIndex, TraceSectionLink } from "../lib/trace/traceIndex";
 import type { RuleReview } from "../lib/verify/reviewStore";
-import type { VerifierRunBundle } from "../lib/verify/runState";
+import { normalizeMethodCode, normalizeVersion, type VerifierRunBundle } from "../lib/verify/runState";
 
 type ContractRule = {
   id: string;
@@ -362,14 +362,20 @@ function evidenceRefsFromPinsForRule(
 
 function reviewerArtifactForCurrentRule(
   ruleId: string,
+  methodCode: string,
+  version: string,
   bundle: Partial<VerifierRunBundle> | null | undefined,
 ): RequirementReviewEntry["reviewer_artifact"] | undefined {
   if (!bundle) return undefined;
+  const contextMethodCode = bundle.savedReviewerArtifactContext?.methodCode?.trim() ?? null;
+  const contextVersion = bundle.savedReviewerArtifactContext?.version?.trim() ?? null;
   const contextRuleId = bundle.savedReviewerArtifactContext?.ruleId?.trim() ?? null;
   const canonicalContextRuleId = canonicalRuleKey(contextRuleId);
   const canonicalCurrentRuleId = canonicalRuleKey(ruleId);
   const savedReviewerArtifactAt = bundle.savedReviewerArtifactAt?.trim() || null;
   const finalizedAt = bundle.finalizedAt?.trim() || null;
+  if (normalizeMethodCode(contextMethodCode ?? "") !== normalizeMethodCode(methodCode)) return undefined;
+  if (normalizeVersion(contextVersion ?? "") !== normalizeVersion(version)) return undefined;
   if (contextRuleId !== ruleId && canonicalContextRuleId !== canonicalCurrentRuleId) return undefined;
   if (!savedReviewerArtifactAt && !finalizedAt) return undefined;
   return {
@@ -803,7 +809,7 @@ export function buildVerificationPackContract(input: {
       "current_method_review",
       "Current review evidence",
     ).map((entry) => entry.evidence_ref);
-    const reviewerArtifact = reviewerArtifactForCurrentRule(rule.id, currentVerifierBundle);
+    const reviewerArtifact = reviewerArtifactForCurrentRule(rule.id, input.methodCode, input.version, currentVerifierBundle);
     const reviewedAt = pickLatestTimestamp([review?.reviewedAt, review?.updatedAt, reviewerArtifact?.finalized_at]);
 
     return {
