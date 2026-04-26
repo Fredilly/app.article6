@@ -16,6 +16,11 @@ import {
   requirementProvenanceHint,
   type RequirementCoverageRow,
 } from "@/app/m/_lib/requirementCoverage";
+import {
+  createReviewerArtifactContext,
+  readVerifierRunBundle,
+  reviewerArtifactContextMatches,
+} from "@/lib/verify/runState";
 
 type RuleDetailModalProps = {
   open: boolean;
@@ -116,6 +121,58 @@ function evidencePrimaryLabel(item: RequirementCoverageRow["linkedEvidence"][num
 function evidenceSecondaryLabel(item: RequirementCoverageRow["linkedEvidence"][number]): string | null {
   if (item.documentLabel && item.title !== item.documentLabel) return item.title;
   return null;
+}
+
+function resolveRuleReviewReviewerArtifact(input: {
+  rowRuleId: string;
+  canonicalRuleId?: string | null;
+  reviewMethodology?: string | null;
+  reviewVersion?: string | null;
+  reviewerMinutes?: string | null;
+  reviewerOutcomeNote?: string | null;
+}): { reviewerMinutes: string | null; reviewerOutcomeNote: string | null } {
+  const explicitReviewerArtifactProvided = input.reviewerMinutes != null || input.reviewerOutcomeNote != null;
+  if (explicitReviewerArtifactProvided) {
+    return {
+      reviewerMinutes: input.reviewerMinutes ?? null,
+      reviewerOutcomeNote: input.reviewerOutcomeNote ?? null,
+    };
+  }
+
+  const methodCode = input.reviewMethodology?.trim() ?? "";
+  const version = input.reviewVersion?.trim() ?? "";
+  if (!methodCode || !version) {
+    return { reviewerMinutes: null, reviewerOutcomeNote: null };
+  }
+
+  const bundle = readVerifierRunBundle(methodCode, version);
+  if (!bundle.savedReviewerArtifactAt || !bundle.savedReviewerArtifactContext) {
+    return { reviewerMinutes: null, reviewerOutcomeNote: null };
+  }
+
+  const candidateRuleIds = Array.from(
+    new Set([input.canonicalRuleId?.trim() ?? "", input.rowRuleId.trim()].filter(Boolean)),
+  );
+  const matchesCurrentRule = candidateRuleIds.some((ruleId) =>
+    reviewerArtifactContextMatches(
+      bundle.savedReviewerArtifactContext,
+      createReviewerArtifactContext({
+        methodCode,
+        version,
+        ruleId,
+        runId: bundle.runContext.runId,
+      }),
+    ),
+  );
+
+  if (!matchesCurrentRule) {
+    return { reviewerMinutes: null, reviewerOutcomeNote: null };
+  }
+
+  return {
+    reviewerMinutes: bundle.minutes,
+    reviewerOutcomeNote: bundle.outcomeNote,
+  };
 }
 
 export default function RuleDetailModal({
@@ -248,11 +305,19 @@ export default function RuleDetailModal({
         : reviewStatus === "needs_followup"
           ? "Follow-up is still needed before a final judgment."
           : "No judgment recorded yet.";
+  const resolvedReviewerArtifact = resolveRuleReviewReviewerArtifact({
+    rowRuleId: row.ruleId,
+    canonicalRuleId,
+    reviewMethodology,
+    reviewVersion,
+    reviewerMinutes,
+    reviewerOutcomeNote,
+  });
   const reconciliation = reconcileRequirement({
     linkedEvidence: row.linkedEvidence,
     expectedEvidenceTypes: row.expectedEvidenceTypes,
-    reviewerMinutes,
-    reviewerOutcomeNote,
+    reviewerMinutes: resolvedReviewerArtifact.reviewerMinutes,
+    reviewerOutcomeNote: resolvedReviewerArtifact.reviewerOutcomeNote,
   });
   const reconciliationMeta = REQUIREMENT_RECONCILIATION_META[reconciliation.status];
 
