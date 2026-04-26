@@ -2,6 +2,11 @@ import { describe, expect, it } from "@jest/globals";
 import { renderToStaticMarkup } from "react-dom/server";
 import RuleDetailModal from "@/app/m/_components/RuleDetailModal";
 import type { RequirementCoverageRow } from "@/app/m/_lib/requirementCoverage";
+import {
+  createReviewerArtifactContext,
+  createVerifierRunBundle,
+  persistVerifierRunBundle,
+} from "@/lib/verify/runState";
 
 const linkedRow: RequirementCoverageRow = {
   ruleId: "R-1",
@@ -79,6 +84,35 @@ const missingExpectedEvidenceRow: RequirementCoverageRow = {
   ruleId: "R-3",
   expectedEvidenceTypes: [],
 };
+
+const linkedNoExpectedEvidenceRow: RequirementCoverageRow = {
+  ...missingExpectedEvidenceRow,
+  linkedEvidence: [{ id: "ev-stac-1", title: "Boundary map", type: "STAC item", source: "inventory" }],
+  status: "linked",
+};
+
+function ensureLocalStorage(): Storage {
+  if (typeof localStorage !== "undefined") return localStorage;
+  let store: Record<string, string> = {};
+  const memoryStorage = {
+    getItem: (key: string) => (key in store ? store[key] : null),
+    setItem: (key: string, value: string) => {
+      store[key] = String(value);
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    key: (index: number) => Object.keys(store)[index] ?? null,
+    get length() {
+      return Object.keys(store).length;
+    },
+  } as Storage;
+  (globalThis as unknown as { localStorage: Storage }).localStorage = memoryStorage;
+  return memoryStorage;
+}
 
 describe("RuleDetailModal", () => {
   it("renders rich rule detail with methodology metadata", () => {
@@ -208,5 +242,126 @@ describe("RuleDetailModal", () => {
     expect(html).toContain("Requirement is unresolved. No linked evidence yet.");
     expect(html).toContain("Next: link eligibility proof.");
     expect(html).toContain("S-4");
+  });
+
+  it("shows reviewer artifact saved in the current support picture when the saved verify bundle matches the current rule context", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    const bundle = createVerifierRunBundle("AR-ACM0003", "v02-0");
+    const reviewerContext = createReviewerArtifactContext({
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-3",
+      runId: bundle.runContext.runId,
+    });
+    persistVerifierRunBundle("AR-ACM0003", "v02-0", {
+      ...bundle,
+      reviewerContext,
+      savedReviewerArtifactContext: reviewerContext,
+      savedReviewerArtifactAt: "2026-04-26T01:02:03Z",
+      minutes: "Saved reviewer minutes.",
+      outcomeNote: "Saved reviewer outcome.",
+      draftMinutes: "Saved reviewer minutes.",
+      draftOutcomeNote: "Saved reviewer outcome.",
+    });
+
+    const html = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={linkedNoExpectedEvidenceRow}
+        canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-3"
+        ruleText="Document the eligibility boundary for review."
+        methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        reviewMethodology="AR-ACM0003"
+        reviewVersion="v02-0"
+        sourcePath={null}
+        sha256={null}
+        traceSections={[]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Current support picture");
+    expect(html).toContain("Linked evidence is present and reviewer artifact is saved.");
+    expect(html).not.toContain("Linked evidence is present, but no reviewer artifact is saved yet.");
+  });
+
+  it("keeps the no-reviewer-artifact message for wrong-rule or unsaved-draft state", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    const bundle = createVerifierRunBundle("AR-ACM0003", "v02-0");
+    const wrongRuleContext = createReviewerArtifactContext({
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-999",
+      runId: bundle.runContext.runId,
+    });
+    persistVerifierRunBundle("AR-ACM0003", "v02-0", {
+      ...bundle,
+      reviewerContext: wrongRuleContext,
+      savedReviewerArtifactContext: wrongRuleContext,
+      savedReviewerArtifactAt: "2026-04-26T01:02:03Z",
+      minutes: "Saved reviewer minutes.",
+      outcomeNote: "Saved reviewer outcome.",
+      draftMinutes: "Saved reviewer minutes.",
+      draftOutcomeNote: "Saved reviewer outcome.",
+    });
+
+    const wrongRuleHtml = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={linkedNoExpectedEvidenceRow}
+        canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-3"
+        ruleText="Document the eligibility boundary for review."
+        methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        reviewMethodology="AR-ACM0003"
+        reviewVersion="v02-0"
+        sourcePath={null}
+        sha256={null}
+        traceSections={[]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
+
+    expect(wrongRuleHtml).toContain("Linked evidence is present, but no reviewer artifact is saved yet.");
+
+    const draftOnlyContext = createReviewerArtifactContext({
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-3",
+      runId: bundle.runContext.runId,
+    });
+    persistVerifierRunBundle("AR-ACM0003", "v02-0", {
+      ...bundle,
+      reviewerContext: draftOnlyContext,
+      savedReviewerArtifactContext: null,
+      savedReviewerArtifactAt: null,
+      minutes: "",
+      outcomeNote: "",
+      draftMinutes: "Unsaved draft reviewer minutes.",
+      draftOutcomeNote: "Unsaved draft reviewer outcome.",
+    });
+
+    const draftOnlyHtml = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={linkedNoExpectedEvidenceRow}
+        canonicalRuleId="UNFCCC.Forestry.AR-ACM0003.v02-0.R-3"
+        ruleText="Document the eligibility boundary for review."
+        methodologyLabel="UNFCCC Forestry · AR-ACM0003 · v02-0"
+        reviewMethodology="AR-ACM0003"
+        reviewVersion="v02-0"
+        sourcePath={null}
+        sha256={null}
+        traceSections={[]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
+
+    expect(draftOnlyHtml).toContain("Linked evidence is present, but no reviewer artifact is saved yet.");
+    expect(draftOnlyHtml).not.toContain("Linked evidence is present and reviewer artifact is saved.");
   });
 });

@@ -7,6 +7,7 @@ import { buildAuditPackZip } from "@/exports/auditPack";
 import { buildVerificationPackContractFiles } from "@/exports/verificationPackContract";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
+import type { RuleReview } from "@/lib/verify/reviewStore";
 
 const rulesJson = {
   rules: [
@@ -219,5 +220,109 @@ describe("audit pack verification contract", () => {
       ]),
     );
     expect(JSON.stringify(evidenceManifest)).not.toContain("awaiting_project_evidence");
+  });
+
+  test("uses current Method Review state for non-finalized exports instead of demo placeholders", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-ACM0003",
+        version: "v02-0",
+        status: "verified",
+        rationale: "Linked STAC evidence supports the monitoring requirement.",
+        supportReference: "scene-1",
+        evidenceLink: "scene-1",
+        evidenceAttachments: [],
+        reviewedBy: "Verifier A",
+        reviewedAt: "2026-04-24T11:58:00.000Z",
+        updatedAt: "2026-04-24T11:58:00.000Z",
+      },
+    ];
+    const evidencePins: EvidencePin[] = [
+      {
+        id: "pin-scene-1",
+        kind: "note",
+        title: "scene-1",
+        ruleId: "R-1-0001",
+        itemId: "scene-1",
+        cited_ids: ["R-1-0001"],
+        stac_item_ids: ["scene-1"],
+        created_at: "2026-04-24T11:55:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(() =>
+      buildAuditPackZip("AR-ACM0003", "v02-0", {
+        currentReview: {
+          latestReviewAt: "2026-04-24T12:05:00.000Z",
+          reviews,
+          evidencePins,
+          verifierBundle: {
+            runContext: {
+              runId: "run-draft-1",
+              createdAt: "2026-04-24T11:45:00.000Z",
+            },
+            savedReviewerArtifactAt: "2026-04-24T12:05:00.000Z",
+            finalizedAt: null,
+            minutes: "Reviewer minutes",
+            outcomeNote: "Draft outcome note",
+            savedReviewerArtifactContext: {
+              methodCode: "AR-ACM0003",
+              version: "v02-0",
+              ruleId: "R-1-0001",
+              runId: "run-draft-1",
+            },
+          },
+        },
+      }),
+    );
+    const entries = unzipSync(new Uint8Array(zip));
+    const readJson = (entry: string) => JSON.parse(strFromU8(entries[entry]));
+
+    const manifest = readJson("manifest.json") as { generated_at: string };
+    expect(manifest.generated_at).toBe("2026-04-24T12:05:00.000Z");
+    expect(manifest.generated_at).not.toBe("1970-01-01T00:00:00.000Z");
+
+    const project = readJson("project.json") as { pack_profile: { human_label: string; disclaimer: string } };
+    expect(project.pack_profile.human_label).toBe("Method review export");
+    expect(project.pack_profile.disclaimer).toContain("draft/incomplete");
+    expect(project.pack_profile.disclaimer).not.toContain("placeholder review scaffold");
+
+    const requirementReview = readJson("requirement-review.json") as {
+      summary: { placeholder_rule_reviews: number; linked_evidence_refs: number };
+      rules: Array<{
+        rule_id: string;
+        status: string;
+        status_basis: string;
+        rationale: string;
+        linked_evidence_refs: string[];
+        reviewer_artifact?: { outcome_note: string | null };
+      }>;
+    };
+    expect(requirementReview.summary.placeholder_rule_reviews).toBe(0);
+    expect(requirementReview.summary.linked_evidence_refs).toBeGreaterThanOrEqual(1);
+    expect(requirementReview.rules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule_id: "R-1-0001",
+          status: "reviewed_verified",
+          status_basis: "current_method_review",
+          rationale: "Linked STAC evidence supports the monitoring requirement.",
+          linked_evidence_refs: expect.arrayContaining(["scene-1"]),
+          reviewer_artifact: expect.objectContaining({
+            outcome_note: "Draft outcome note",
+          }),
+        }),
+      ]),
+    );
+
+    const trace = readJson("trace.json") as {
+      verification_contract: { mode: string; placeholder: boolean };
+    };
+    expect(trace.verification_contract.mode).toBe("current_method_review_contract");
+    expect(trace.verification_contract.placeholder).toBe(false);
+
+    expect(strFromU8(entries["VERIFICATION_REPORT.html"])).toContain("Draft / incomplete local method review export.");
+    expect(strFromU8(entries["VERIFICATION_REPORT.html"])).not.toContain("Demo review record only.");
   });
 });

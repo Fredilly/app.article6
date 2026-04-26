@@ -2,6 +2,8 @@ import { canonicalStringify } from "../integrity/artifacts";
 import type { EvidenceSnapshot } from "../lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "../lib/proofMap/types";
 import type { TraceIndex, TraceSectionLink } from "../lib/trace/traceIndex";
+import type { RuleReview } from "../lib/verify/reviewStore";
+import type { VerifierRunBundle } from "../lib/verify/runState";
 
 type ContractRule = {
   id: string;
@@ -19,7 +21,7 @@ type ProjectJson = {
     section_count: number;
   };
   pack_profile: {
-    name: "demo_verification_contract";
+    name: "demo_verification_contract" | "method_review_export" | "finalized_review_export";
     human_label: string;
     disclaimer: string;
     not_a_formal_opinion: true;
@@ -47,7 +49,7 @@ type EvidenceManifestEntry = {
   label: string;
   rule_ids: string[];
   status: "not_provided" | "provided";
-  status_basis: "demo_placeholder" | "finalized_project_review";
+  status_basis: "demo_placeholder" | "current_method_review" | "finalized_project_review";
   source_kind: "project_evidence_slot" | "project_evidence_ref";
   included_in_pack: boolean;
   file_path: null;
@@ -83,8 +85,15 @@ type EvidenceManifest = {
 
 type RequirementReviewEntry = {
   rule_id: string;
-  status: "awaiting_project_evidence" | "finalized" | "finalized_review_data_missing";
-  status_basis: "demo_placeholder" | "finalized_project_review";
+  status:
+    | "awaiting_project_evidence"
+    | "finalized"
+    | "finalized_review_data_missing"
+    | "not_reviewed"
+    | "reviewed_verified"
+    | "reviewed_not_verified"
+    | "reviewed_needs_followup";
+  status_basis: "demo_placeholder" | "current_method_review" | "finalized_project_review";
   rationale: string;
   linked_evidence_refs: string[];
   requested_evidence_refs: string[];
@@ -154,7 +163,10 @@ type VerificationPackContract = {
   requirementReview: RequirementReview;
   trace: TraceIndex & {
     verification_contract: {
-      mode: "demo_placeholder_review_contract" | "finalized_project_review_contract";
+      mode:
+        | "demo_placeholder_review_contract"
+        | "current_method_review_contract"
+        | "finalized_project_review_contract";
       project_path: "project.json";
       evidence_manifest_path: "evidence-manifest.json";
       requirement_review_path: "requirement-review.json";
@@ -186,8 +198,18 @@ const PLACEHOLDER_REASON =
 const FINALIZED_REVIEW_REASON =
   "This audit pack was generated from a finalized local review artifact supplied by the export caller.";
 
+const CURRENT_METHOD_REVIEW_REASON =
+  "This audit pack was generated from current local Method Review state supplied by the browser export flow.";
+
 export type FinalizedAuditPackReviewInput = {
   artifact?: EvidenceSnapshot | null;
+  evidencePins?: EvidencePin[] | null;
+};
+
+export type CurrentMethodReviewExportInput = {
+  latestReviewAt?: string | null;
+  reviews?: RuleReview[] | null;
+  verifierBundle?: Partial<VerifierRunBundle> | null;
   evidencePins?: EvidencePin[] | null;
 };
 
@@ -234,29 +256,39 @@ function uniqueSorted(values: Array<string | null | undefined>): string[] {
   );
 }
 
-function selectedRuleFromArtifact(artifact: EvidenceSnapshot | null | undefined): string | null {
-  return (
-    artifact?.summary?.ruleId?.trim() ||
-    artifact?.outcome?.linkage.selectedRuleId?.trim() ||
-    artifact?.outcome?.linkage.linkedRuleIds[0]?.trim() ||
-    null
-  );
+function asValidIsoOrNull(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  return Number.isFinite(new Date(trimmed).getTime()) ? trimmed : null;
 }
 
-function evidenceRefsForRule(input: {
-  ruleId: string | null;
-  artifact: EvidenceSnapshot | null | undefined;
-  evidencePins: EvidencePin[];
-}): EvidenceManifestEntry[] {
-  const entries: EvidenceManifestEntry[] = [];
-  const ruleId = input.ruleId;
-  const selectedEvidenceId =
-    input.artifact?.summary?.selectedEvidenceId?.trim() ||
-    input.artifact?.selected?.id?.trim() ||
-    input.artifact?.selected?.item?.id?.trim() ||
-    null;
+function pickLatestTimestamp(values: Array<string | null | undefined>): string | null {
+  let latest: string | null = null;
+  let latestMs = Number.NEGATIVE_INFINITY;
+  for (const value of values) {
+    const iso = asValidIsoOrNull(value);
+    if (!iso) continue;
+    const ms = new Date(iso).getTime();
+    if (ms > latestMs) {
+      latest = iso;
+      latestMs = ms;
+    }
+  }
+  return latest;
+}
 
-  for (const pin of input.evidencePins) {
+function hasCurrentMethodReviewInput(input: CurrentMethodReviewExportInput | null | undefined): boolean {
+  return Boolean(input);
+}
+
+function evidenceRefsFromPinsForRule(
+  ruleId: string | null,
+  evidencePins: EvidencePin[],
+  statusBasis: EvidenceManifestEntry["status_basis"],
+  requestedForPrefix: string,
+): EvidenceManifestEntry[] {
+  const entries: EvidenceManifestEntry[] = [];
+  for (const pin of evidencePins) {
     const linkedRuleIds = uniqueSorted([pin.ruleId, ...(pin.cited_ids ?? []), ...(pin.pdd_fragment_links ?? []).map((link) => link.rule_id)]);
     if (ruleId && linkedRuleIds.length && !linkedRuleIds.includes(ruleId)) continue;
 
@@ -268,12 +300,12 @@ function evidenceRefsForRule(input: {
         label: pin.title || ref,
         rule_ids: [...baseRuleIds],
         status: "provided",
-        status_basis: "finalized_project_review",
+        status_basis: statusBasis,
         source_kind: "project_evidence_ref",
         included_in_pack: false,
         file_path: null,
         sha256: null,
-        requested_for: ruleId ? `Finalized review evidence linked to ${ruleId}` : "Finalized review evidence",
+        requested_for: ruleId ? `${requestedForPrefix} linked to ${ruleId}` : requestedForPrefix,
         placeholder: false,
         placeholder_reason: "",
         source_pin_id: pin.id,
@@ -290,12 +322,12 @@ function evidenceRefsForRule(input: {
         label: fragment?.label?.trim() || fragment?.section_heading?.trim() || link.fragment_id,
         rule_ids: [link.rule_id],
         status: "provided",
-        status_basis: "finalized_project_review",
+        status_basis: statusBasis,
         source_kind: "project_evidence_ref",
         included_in_pack: false,
         file_path: null,
         sha256: null,
-        requested_for: `Finalized review fragment linked to ${link.rule_id}`,
+        requested_for: `${requestedForPrefix} fragment linked to ${link.rule_id}`,
         placeholder: false,
         placeholder_reason: "",
         fragment_id: link.fragment_id,
@@ -305,6 +337,79 @@ function evidenceRefsForRule(input: {
       });
     }
   }
+
+  const byRef = new Map<string, EvidenceManifestEntry>();
+  for (const entry of entries) {
+    const current = byRef.get(entry.evidence_ref);
+    if (!current) {
+      byRef.set(entry.evidence_ref, entry);
+      continue;
+    }
+    byRef.set(entry.evidence_ref, {
+      ...current,
+      rule_ids: uniqueSorted([...current.rule_ids, ...entry.rule_ids]),
+    });
+  }
+  return Array.from(byRef.values()).sort((a, b) => a.evidence_ref.localeCompare(b.evidence_ref));
+}
+
+function reviewerArtifactForCurrentRule(
+  ruleId: string,
+  bundle: Partial<VerifierRunBundle> | null | undefined,
+): RequirementReviewEntry["reviewer_artifact"] | undefined {
+  if (!bundle) return undefined;
+  const contextRuleId = bundle.savedReviewerArtifactContext?.ruleId?.trim() ?? null;
+  const savedReviewerArtifactAt = bundle.savedReviewerArtifactAt?.trim() || null;
+  const finalizedAt = bundle.finalizedAt?.trim() || null;
+  if (contextRuleId !== ruleId) return undefined;
+  if (!savedReviewerArtifactAt && !finalizedAt) return undefined;
+  return {
+    run_id:
+      bundle.savedReviewerArtifactContext?.runId?.trim() ||
+      bundle.runContext?.runId?.trim() ||
+      bundle.reviewerContext?.runId?.trim() ||
+      null,
+    finalized_state: finalizedAt ? "finalized" : "draft",
+    finalized_at: finalizedAt,
+    minutes_present: Boolean(bundle.minutes?.trim()),
+    outcome_note: bundle.outcomeNote?.trim() || null,
+  };
+}
+
+function requestedEvidenceRefsForCurrentReview(review: RuleReview | null): string[] {
+  if (!review) return [];
+  return uniqueSorted([
+    review.evidenceLink,
+    ...review.evidenceAttachments.map((attachment) => attachment.label || attachment.id),
+  ]);
+}
+
+function selectedRuleFromArtifact(artifact: EvidenceSnapshot | null | undefined): string | null {
+  return (
+    artifact?.summary?.ruleId?.trim() ||
+    artifact?.outcome?.linkage.selectedRuleId?.trim() ||
+    artifact?.outcome?.linkage.linkedRuleIds[0]?.trim() ||
+    null
+  );
+}
+
+function evidenceRefsForRule(input: {
+  ruleId: string | null;
+  artifact: EvidenceSnapshot | null | undefined;
+  evidencePins: EvidencePin[];
+}): EvidenceManifestEntry[] {
+  const entries: EvidenceManifestEntry[] = evidenceRefsFromPinsForRule(
+    input.ruleId,
+    input.evidencePins,
+    "finalized_project_review",
+    "Finalized review evidence",
+  );
+  const ruleId = input.ruleId;
+  const selectedEvidenceId =
+    input.artifact?.summary?.selectedEvidenceId?.trim() ||
+    input.artifact?.selected?.id?.trim() ||
+    input.artifact?.selected?.item?.id?.trim() ||
+    null;
 
   if (selectedEvidenceId && !entries.some((entry) => entry.evidence_ref === selectedEvidenceId)) {
     entries.push({
@@ -324,20 +429,7 @@ function evidenceRefsForRule(input: {
       evidence_type: "selected",
     });
   }
-
-  const byRef = new Map<string, EvidenceManifestEntry>();
-  for (const entry of entries) {
-    const current = byRef.get(entry.evidence_ref);
-    if (!current) {
-      byRef.set(entry.evidence_ref, entry);
-      continue;
-    }
-    byRef.set(entry.evidence_ref, {
-      ...current,
-      rule_ids: uniqueSorted([...current.rule_ids, ...entry.rule_ids]),
-    });
-  }
-  return Array.from(byRef.values()).sort((a, b) => a.evidence_ref.localeCompare(b.evidence_ref));
+  return entries.sort((a, b) => a.evidence_ref.localeCompare(b.evidence_ref));
 }
 
 function summarizeRuleText(text: string): string {
@@ -356,6 +448,7 @@ function escapeHtml(value: string): string {
 }
 
 function renderVerificationReportHtml(input: {
+  mode: VerificationPackContract["trace"]["verification_contract"]["mode"];
   project: ProjectJson;
   evidenceManifest: EvidenceManifest;
   requirementReview: RequirementReview;
@@ -373,11 +466,30 @@ function renderVerificationReportHtml(input: {
     })
     .join("\n");
 
+  const bannerTitle =
+    input.mode === "finalized_project_review_contract"
+      ? "Finalized local review export."
+      : input.mode === "current_method_review_contract"
+        ? "Draft / incomplete local method review export."
+        : "Demo review record only.";
+  const bannerBody =
+    input.mode === "finalized_project_review_contract"
+      ? "This HTML is derived from current methodology data plus an explicitly finalized local review artifact."
+      : input.mode === "current_method_review_contract"
+        ? "This HTML is derived from current browser Method Review state. It does not claim a finalized verifier opinion unless the supplied review state is explicitly finalized."
+        : "This HTML is derived from project.json, evidence-manifest.json, and requirement-review.json. It is not a formal verifier opinion.";
+  const reportTitle =
+    input.mode === "finalized_project_review_contract"
+      ? "Finalized Verification Review Record"
+      : input.mode === "current_method_review_contract"
+        ? "Method Review Draft Export"
+        : "Demo Verification Review Record";
+
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Demo Verification Review Record</title>
+    <title>${escapeHtml(reportTitle)}</title>
     <style>
       body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 32px; color: #0f172a; line-height: 1.5; }
       .banner { border: 1px solid #f59e0b; background: #fffbeb; padding: 16px; border-radius: 12px; margin-bottom: 24px; }
@@ -391,8 +503,8 @@ function renderVerificationReportHtml(input: {
   </head>
   <body>
     <div class="banner">
-      <strong>Demo review record only.</strong>
-      <div>This HTML is derived from <code>project.json</code>, <code>evidence-manifest.json</code>, and <code>requirement-review.json</code>. It is not a formal verifier opinion.</div>
+      <strong>${escapeHtml(bannerTitle)}</strong>
+      <div>${escapeHtml(bannerBody)}</div>
     </div>
     <h1>${escapeHtml(input.project.method.code)} ${escapeHtml(input.project.method.version)}</h1>
     <p>${escapeHtml(input.project.pack_profile.disclaimer)}</p>
@@ -430,7 +542,17 @@ ${rows}
 function buildTrailEntries(input: {
   generatedAt: string;
   ruleCount: number;
+  placeholder: boolean;
+  mode: VerificationPackContract["trace"]["verification_contract"]["mode"];
+  providedRefs: number;
+  reviewedRules: number;
 }): TrailEntry[] {
+  const modeMeta =
+    input.mode === "finalized_project_review_contract"
+      ? { source: "finalized_review_artifact" }
+      : input.mode === "current_method_review_contract"
+        ? { source: "current_method_review" }
+        : { source: "demo_placeholder" };
   return [
     {
       ts: input.generatedAt,
@@ -442,19 +564,31 @@ function buildTrailEntries(input: {
       ts: input.generatedAt,
       actor: "system",
       action: "verification_contract.project_seeded",
-      meta: { path: "project.json", placeholder: true },
+      meta: { path: "project.json", placeholder: input.placeholder, ...modeMeta },
     },
     {
       ts: input.generatedAt,
       actor: "system",
       action: "verification_contract.evidence_manifest_seeded",
-      meta: { path: "evidence-manifest.json", placeholder_refs: input.ruleCount, placeholder: true },
+      meta: {
+        path: "evidence-manifest.json",
+        placeholder_refs: input.placeholder ? input.ruleCount : 0,
+        provided_refs: input.providedRefs,
+        placeholder: input.placeholder,
+        ...modeMeta,
+      },
     },
     {
       ts: input.generatedAt,
       actor: "system",
       action: "verification_contract.requirement_review_seeded",
-      meta: { path: "requirement-review.json", placeholder_rules: input.ruleCount, placeholder: true },
+      meta: {
+        path: "requirement-review.json",
+        placeholder_rules: input.placeholder ? input.ruleCount : 0,
+        reviewed_rules: input.reviewedRules,
+        placeholder: input.placeholder,
+        ...modeMeta,
+      },
     },
     {
       ts: input.generatedAt,
@@ -482,11 +616,16 @@ export function buildVerificationPackContract(input: {
   sectionsJson: unknown;
   trace: TraceIndex;
   finalizedReview?: FinalizedAuditPackReviewInput | null;
+  currentReview?: CurrentMethodReviewExportInput | null;
 }): VerificationPackContract {
   const rules = extractRules(input.rulesJson);
   const sectionCount = extractSectionCount(input.sectionsJson);
   const finalizedArtifact = input.finalizedReview?.artifact ?? null;
   const finalizedPins = input.finalizedReview?.evidencePins ?? [];
+  const currentReview = input.currentReview ?? null;
+  const currentReviewPins = currentReview?.evidencePins ?? [];
+  const currentReviewEntries = currentReview?.reviews ?? [];
+  const currentVerifierBundle = currentReview?.verifierBundle ?? null;
   const finalizedRuleId = selectedRuleFromArtifact(finalizedArtifact);
   const finalizedEvidence = evidenceRefsForRule({
     ruleId: finalizedRuleId,
@@ -494,6 +633,18 @@ export function buildVerificationPackContract(input: {
     evidencePins: finalizedPins,
   });
   const hasFinalizedReview = Boolean(finalizedArtifact?.verifier?.finalizedState === "finalized" || finalizedArtifact?.verifier?.finalizedAt);
+  const hasCurrentReview = !hasFinalizedReview && hasCurrentMethodReviewInput(currentReview);
+  const mode: VerificationPackContract["trace"]["verification_contract"]["mode"] = hasFinalizedReview
+    ? "finalized_project_review_contract"
+    : hasCurrentReview
+      ? "current_method_review_contract"
+      : "demo_placeholder_review_contract";
+  const reviewReason = hasFinalizedReview
+    ? FINALIZED_REVIEW_REASON
+    : hasCurrentReview
+      ? CURRENT_METHOD_REVIEW_REASON
+      : PLACEHOLDER_REASON;
+  const reviewIndex = new Map(currentReviewEntries.map((review) => [review.ruleId, review]));
 
   const project: ProjectJson = {
     kind: "article6.verification_project",
@@ -506,35 +657,65 @@ export function buildVerificationPackContract(input: {
       section_count: sectionCount,
     },
     pack_profile: {
-      name: "demo_verification_contract",
-      human_label: "Demo verification contract",
+      name: hasFinalizedReview ? "finalized_review_export" : hasCurrentReview ? "method_review_export" : "demo_verification_contract",
+      human_label: hasFinalizedReview
+        ? "Finalized review export"
+        : hasCurrentReview
+          ? "Method review export"
+          : "Demo verification contract",
       disclaimer: hasFinalizedReview
-        ? "This pack includes real methodology provenance plus finalized local review state supplied by the export caller. It is not a formal verifier opinion."
-        : "This pack includes real methodology provenance plus a placeholder review scaffold. It does not assert a completed project verification.",
+        ? "This pack includes real methodology provenance plus an explicitly finalized local review artifact. It is not a formal verifier opinion."
+        : hasCurrentReview
+          ? "This pack reflects current local Method Review state. It remains draft/incomplete unless the supplied review state is explicitly finalized."
+          : "This pack includes real methodology provenance plus a placeholder review scaffold. It does not assert a completed project verification.",
       not_a_formal_opinion: true,
     },
     project_context: {
-      project_id: finalizedArtifact?.verifier?.runId ?? "demo-placeholder-project",
-      display_name: finalizedArtifact?.summary?.aoiLabel ?? "Demo placeholder project context",
-      reporting_period: "placeholder-not-provided",
-      location: finalizedArtifact?.summary?.aoiLabel ?? "placeholder-not-provided",
+      project_id:
+        finalizedArtifact?.verifier?.runId ??
+        currentVerifierBundle?.runContext?.runId?.trim() ??
+        currentVerifierBundle?.savedReviewerArtifactContext?.runId?.trim() ??
+        "local-method-review",
+      display_name: finalizedArtifact?.summary?.aoiLabel ?? (hasCurrentReview ? "Current method review workspace" : "Demo placeholder project context"),
+      reporting_period: hasCurrentReview ? "not-supplied-in-method-review" : "placeholder-not-provided",
+      location:
+        finalizedArtifact?.summary?.aoiLabel ??
+        (hasCurrentReview ? "Unavailable in local method review export" : "placeholder-not-provided"),
       description: hasFinalizedReview
         ? "Finalized local review context is included where present; absent project fields remain explicitly unavailable."
-        : "Placeholder only: no project-specific context is included in this pack.",
-      placeholder: !hasFinalizedReview,
-      placeholder_reason: hasFinalizedReview ? "Project registry dossier fields were not supplied to the audit-pack export." : PLACEHOLDER_REASON,
+        : hasCurrentReview
+          ? "Current browser Method Review state is included where available. Missing project dossier fields remain explicitly unavailable."
+          : "Placeholder only: no project-specific context is included in this pack.",
+      placeholder: !hasFinalizedReview && !hasCurrentReview,
+      placeholder_reason:
+        hasFinalizedReview || hasCurrentReview
+          ? "Project registry dossier fields were not supplied to the audit-pack export."
+          : PLACEHOLDER_REASON,
     },
     reviewer_assignment: {
-      display_name: hasFinalizedReview ? "Local reviewer artifact" : "Placeholder reviewer assignment",
-      role: hasFinalizedReview ? "Local review preparer" : "VVB reviewer",
-      organization: "Placeholder VVB organization",
-      placeholder: !hasFinalizedReview,
-      placeholder_reason: hasFinalizedReview ? "No verified reviewer identity was supplied to the audit-pack export." : PLACEHOLDER_REASON,
+      display_name:
+        currentReviewEntries.find((review) => review.reviewedBy.trim())?.reviewedBy.trim() ||
+        (hasFinalizedReview ? "Local reviewer artifact" : hasCurrentReview ? "Local method reviewer" : "Placeholder reviewer assignment"),
+      role: hasFinalizedReview ? "Local review preparer" : hasCurrentReview ? "Method review contributor" : "VVB reviewer",
+      organization: hasCurrentReview || hasFinalizedReview ? "Browser-local review state" : "Placeholder VVB organization",
+      placeholder: !hasFinalizedReview && !hasCurrentReview,
+      placeholder_reason:
+        hasFinalizedReview || hasCurrentReview
+          ? "No verified reviewer identity was supplied to the audit-pack export."
+          : PLACEHOLDER_REASON,
     },
   };
 
   const evidence = hasFinalizedReview
     ? finalizedEvidence
+    : hasCurrentReview
+      ? uniqueSorted(rules.flatMap((rule) => evidenceRefsFromPinsForRule(rule.id, currentReviewPins, "current_method_review", "Current review evidence").map((entry) => entry.evidence_ref)))
+          .map((ref) =>
+            rules
+              .flatMap((rule) => evidenceRefsFromPinsForRule(rule.id, currentReviewPins, "current_method_review", "Current review evidence"))
+              .find((entry) => entry.evidence_ref === ref),
+          )
+          .filter((entry): entry is EvidenceManifestEntry => Boolean(entry))
     : rules.map<EvidenceManifestEntry>((rule) => ({
         evidence_ref: evidenceRefForRule(rule.id),
         label: `Placeholder project evidence request for ${rule.id}`,
@@ -561,8 +742,8 @@ export function buildVerificationPackContract(input: {
       placeholder_refs: evidence.filter((entry) => entry.placeholder).length,
     },
     placeholder_policy: {
-      all_entries_marked_placeholder: !hasFinalizedReview,
-      reason: hasFinalizedReview ? FINALIZED_REVIEW_REASON : PLACEHOLDER_REASON,
+      all_entries_marked_placeholder: !hasFinalizedReview && !hasCurrentReview,
+      reason: reviewReason,
     },
     evidence,
   };
@@ -591,6 +772,74 @@ export function buildVerificationPackContract(input: {
       methodology_trace: {
         section_ids: traceSections.map((section) => section.section_id),
       },
+    };
+  });
+
+  const currentRequirementRules = rules.map<RequirementReviewEntry>((rule) => {
+    const review = reviewIndex.get(rule.id) ?? null;
+    const traceSections = input.trace.rule_to_sections[rule.id] ?? [];
+    const linkedEvidenceRefs = evidenceRefsFromPinsForRule(
+      rule.id,
+      currentReviewPins,
+      "current_method_review",
+      "Current review evidence",
+    ).map((entry) => entry.evidence_ref);
+    const reviewerArtifact = reviewerArtifactForCurrentRule(rule.id, currentVerifierBundle);
+    const reviewedAt = pickLatestTimestamp([review?.reviewedAt, review?.updatedAt, reviewerArtifact?.finalized_at]);
+
+    return {
+      rule_id: rule.id,
+      status:
+        review?.status === "verified"
+          ? "reviewed_verified"
+          : review?.status === "not_verified"
+            ? "reviewed_not_verified"
+            : review?.status === "needs_followup"
+              ? "reviewed_needs_followup"
+              : "not_reviewed",
+      status_basis: "current_method_review",
+      rationale:
+        review?.rationale?.trim() ||
+        (review
+          ? "A local review record exists for this rule, but no rationale text was supplied."
+          : "No saved local review record exists for this rule yet."),
+      linked_evidence_refs: linkedEvidenceRefs,
+      requested_evidence_refs: requestedEvidenceRefsForCurrentReview(review),
+      reviewer: {
+        display_name: review?.reviewedBy?.trim() || "Local method reviewer",
+        role: "Method review contributor",
+        placeholder: false,
+        placeholder_reason: "",
+      },
+      timestamps: {
+        record_created_at: review?.reviewedAt || review?.updatedAt || input.generatedAt,
+        last_updated_at: review?.updatedAt || review?.reviewedAt || input.generatedAt,
+        reviewed_at: reviewedAt,
+      },
+      methodology_trace: {
+        section_ids: traceSections.map((section) => section.section_id),
+      },
+      reconciliation: {
+        status:
+          review?.status === "verified"
+            ? linkedEvidenceRefs.length || reviewerArtifact
+              ? "Supported"
+              : "Needs evidence"
+            : review?.status === "not_verified"
+              ? "Not supported"
+              : review?.status === "needs_followup"
+                ? "Needs follow-up"
+                : null,
+        reason:
+          review?.status === "verified"
+            ? "Current Method Review marks this rule as verified."
+            : review?.status === "not_verified"
+              ? "Current Method Review marks this rule as not verified."
+              : review?.status === "needs_followup"
+                ? "Current Method Review marks this rule for follow-up."
+                : null,
+      },
+      reviewer_artifact: reviewerArtifact,
     };
   });
 
@@ -635,7 +884,11 @@ export function buildVerificationPackContract(input: {
       ]
     : [];
 
-  const requirementRules = hasFinalizedReview ? finalizedRequirementRules : placeholderRequirementRules;
+  const requirementRules = hasFinalizedReview
+    ? finalizedRequirementRules
+    : hasCurrentReview
+      ? currentRequirementRules
+      : placeholderRequirementRules;
 
   const requirementReview: RequirementReview = {
     kind: "article6.requirement_review",
@@ -648,14 +901,16 @@ export function buildVerificationPackContract(input: {
       linked_evidence_refs: requirementRules.reduce((sum, rule) => sum + rule.linked_evidence_refs.length, 0),
     },
     placeholder_policy: {
-      all_rule_reviews_marked_placeholder: !hasFinalizedReview,
-      reason: hasFinalizedReview ? FINALIZED_REVIEW_REASON : PLACEHOLDER_REASON,
+      all_rule_reviews_marked_placeholder: !hasFinalizedReview && !hasCurrentReview,
+      reason: reviewReason,
     },
     rules: requirementRules,
   };
 
   const ruleToEvidence = hasFinalizedReview
     ? Object.fromEntries(requirementRules.map((rule) => [rule.rule_id, [...rule.linked_evidence_refs]]))
+    : hasCurrentReview
+      ? Object.fromEntries(requirementRules.map((rule) => [rule.rule_id, [...rule.linked_evidence_refs]]))
     : Object.fromEntries(rules.map((rule) => [rule.id, [] as string[]]));
   const ruleToReview = Object.fromEntries(
     requirementRules.map((rule) => [
@@ -676,14 +931,14 @@ export function buildVerificationPackContract(input: {
     ...input.trace,
     rule_to_evidence: ruleToEvidence,
     verification_contract: {
-      mode: hasFinalizedReview ? "finalized_project_review_contract" as const : "demo_placeholder_review_contract" as const,
+      mode,
       project_path: "project.json" as const,
       evidence_manifest_path: "evidence-manifest.json" as const,
       requirement_review_path: "requirement-review.json" as const,
       trail_path: "trail.jsonl" as const,
       report_path: "VERIFICATION_REPORT.html" as const,
-      placeholder: !hasFinalizedReview,
-      placeholder_reason: hasFinalizedReview ? FINALIZED_REVIEW_REASON : PLACEHOLDER_REASON,
+      placeholder: !hasFinalizedReview && !hasCurrentReview,
+      placeholder_reason: reviewReason,
     },
     rule_to_review: ruleToReview,
   };
@@ -691,9 +946,14 @@ export function buildVerificationPackContract(input: {
   const trailEntries = buildTrailEntries({
     generatedAt: input.generatedAt,
     ruleCount: rules.length,
+    placeholder: !hasFinalizedReview && !hasCurrentReview,
+    mode,
+    providedRefs: evidenceManifest.summary.provided_refs,
+    reviewedRules: requirementRules.filter((rule) => rule.status !== "not_reviewed" && rule.status !== "awaiting_project_evidence").length,
   });
 
   const reportHtml = renderVerificationReportHtml({
+    mode,
     project,
     evidenceManifest,
     requirementReview,
@@ -710,6 +970,7 @@ export function buildVerificationPackContractFiles(input: {
   sectionsJson: unknown;
   trace: TraceIndex;
   finalizedReview?: FinalizedAuditPackReviewInput | null;
+  currentReview?: CurrentMethodReviewExportInput | null;
 }): Array<{ path: string; bytes: Buffer }> {
   const contract = buildVerificationPackContract(input);
   return [

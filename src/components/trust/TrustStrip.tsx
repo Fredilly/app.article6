@@ -1,6 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { EvidencePin } from "@/lib/proofMap/types";
+import { getAllReviews, REVIEW_STORE_EVENT, type RuleReview } from "@/lib/verify/reviewStore";
+import {
+  readVerifierRunBundle,
+  VERIFY_RUN_BUNDLE_EVENT,
+  type VerifierRunBundle,
+} from "@/lib/verify/runState";
 import { cn } from "@/lib/utils";
 import { extractPackId } from "@/lib/packId";
 import { formatIso, pickProvenanceFields, shortSha } from "@/lib/trustFormat";
@@ -15,6 +22,7 @@ type TrustStripProps = {
   manifestRulesPath?: string | null;
   onOpenIntegrityDiff?: () => void;
   surface?: "default" | "methods";
+  methodReviewEvidencePins?: EvidencePin[];
 };
 
 type ExportArtifact = "provenance" | "META" | "rules" | "sections" | "rich";
@@ -86,6 +94,75 @@ function formatHumanDate(input: string): string {
     month: "short",
     day: "numeric",
   });
+}
+
+function asValidIsoOrNull(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  return Number.isFinite(new Date(trimmed).getTime()) ? trimmed : null;
+}
+
+function pickLatestTimestamp(values: Array<string | null | undefined>): string | null {
+  let latest: string | null = null;
+  let latestMs = Number.NEGATIVE_INFINITY;
+  for (const value of values) {
+    const iso = asValidIsoOrNull(value);
+    if (!iso) continue;
+    const ms = new Date(iso).getTime();
+    if (ms > latestMs) {
+      latest = iso;
+      latestMs = ms;
+    }
+  }
+  return latest;
+}
+
+function readLiveMethodReviewState(
+  methodCode: string | undefined,
+  version: string | undefined,
+  evidencePins: EvidencePin[],
+): {
+  latestReviewAt: string | null;
+  reviews: RuleReview[];
+  verifierBundle: VerifierRunBundle | null;
+  evidencePins: EvidencePin[];
+} {
+  const normalizedMethod = methodCode?.trim() ?? "";
+  const normalizedVersion = version?.trim() ?? "";
+  if (!normalizedMethod || !normalizedVersion) {
+    return {
+      latestReviewAt: null,
+      reviews: [],
+      verifierBundle: null,
+      evidencePins: [...evidencePins],
+    };
+  }
+
+  const reviews = Object.values(getAllReviews(normalizedMethod, normalizedVersion));
+  const verifierBundle = readVerifierRunBundle(normalizedMethod, normalizedVersion);
+  const latestReviewAt = pickLatestTimestamp([
+    ...reviews.flatMap((review) => [review.reviewedAt, review.updatedAt]),
+    verifierBundle.savedReviewerArtifactAt,
+    verifierBundle.finalizedAt,
+  ]);
+
+  return {
+    latestReviewAt,
+    reviews,
+    verifierBundle,
+    evidencePins: [...evidencePins],
+  };
+}
+
+async function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 function buildFilename(
@@ -188,6 +265,7 @@ export default function TrustStrip({
   manifestRulesPath,
   onOpenIntegrityDiff,
   surface = "default",
+  methodReviewEvidencePins = [],
 }: TrustStripProps) {
   const router = useRouter();
   const provenancePicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
@@ -213,12 +291,15 @@ export default function TrustStrip({
   const [derivedAvailable, setDerivedAvailable] = useState(false);
   const [derivedManifestSha, setDerivedManifestSha] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [methodReviewLastReviewedAt, setMethodReviewLastReviewedAt] = useState<string | null>(null);
+  const [exportingAuditPack, setExportingAuditPack] = useState(false);
   const [importStatus, setImportStatus] = useState<{
     kind: "idle" | "error" | "switch";
     message?: string;
     target?: { code: string; version: string };
     bundleText?: string;
   }>({ kind: "idle" });
+  const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -271,6 +352,24 @@ export default function TrustStrip({
       cancelled = true;
     };
   }, [derivedManifestUrl]);
+
+  useEffect(() => {
+    if (surface !== "methods") return;
+    if (typeof window === "undefined") return;
+    const update = () => {
+      const next = readLiveMethodReviewState(methodCode, version, methodReviewEvidencePins);
+      setMethodReviewLastReviewedAt(next.latestReviewAt);
+    };
+    update();
+    window.addEventListener(REVIEW_STORE_EVENT, update);
+    window.addEventListener(VERIFY_RUN_BUNDLE_EVENT, update);
+    window.addEventListener("proofbundle:imported", update);
+    return () => {
+      window.removeEventListener(REVIEW_STORE_EVENT, update);
+      window.removeEventListener(VERIFY_RUN_BUNDLE_EVENT, update);
+      window.removeEventListener("proofbundle:imported", update);
+    };
+  }, [methodCode, methodReviewEvidencePins, surface, version]);
 
   const audit = metaPicked.auditHashes;
 
@@ -328,6 +427,35 @@ export default function TrustStrip({
     const payload = { github, pack };
     return Object.values(payload).some((value) => value != null) ? payload : null;
   }, [datasetRelease, repo, repoSha]);
+
+  const handleDownloadMethodReviewAuditPack = useCallback(async () => {
+    if (!methodCode?.trim() || !version?.trim()) return;
+    setExportError(null);
+    setExportingAuditPack(true);
+    try {
+      const currentReview = readLiveMethodReviewState(methodCode, version, methodReviewEvidencePins);
+      const response = await fetch("/api/exports/audit-pack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          method: methodCode,
+          version,
+          currentReview,
+        }),
+      });
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || `Export failed with ${response.status}`);
+      }
+      const blob = await response.blob();
+      await downloadBlob(blob, `audit-pack__${methodCode}__${version}.zip`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Audit pack export failed.";
+      setExportError(message);
+    } finally {
+      setExportingAuditPack(false);
+    }
+  }, [methodCode, methodReviewEvidencePins, version]);
 
   const showStrip = Boolean(methodCode || version || generatedAt || metaAvailable || rulesUrl || provenanceJson);
   if (!showStrip) return null;
@@ -545,14 +673,25 @@ export default function TrustStrip({
           </details>
 
           <div className="flex flex-wrap items-center gap-2">
-            <a
-              href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-            >
-              Download audit pack
-            </a>
+            {surface === "methods" ? (
+              <button
+                type="button"
+                onClick={() => void handleDownloadMethodReviewAuditPack()}
+                disabled={exportingAuditPack}
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60"
+              >
+                {exportingAuditPack ? "Preparing audit pack..." : "Download audit pack"}
+              </button>
+            ) : (
+              <a
+                href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              >
+                Download audit pack
+              </a>
+            )}
             {onOpenIntegrityDiff ? (
               <button
                 type="button"
@@ -589,21 +728,22 @@ export default function TrustStrip({
           </div>
 
           <div className="flex items-center gap-4 shrink-0">
-            {generatedAt ? (
-              <span className="text-xs text-slate-500 hidden sm:inline">
-                Last reviewed <span className="text-slate-700">{formatHumanDate(generatedAt)}</span>
+            <span className="text-xs text-slate-500 hidden sm:inline">
+              Last reviewed{" "}
+              <span className="text-slate-700">
+                {methodReviewLastReviewedAt ? formatHumanDate(methodReviewLastReviewedAt) : "Not reviewed yet"}
               </span>
-            ) : null}
+            </span>
             <div className="flex items-center gap-2">
               {copiedKey ? <span className="text-xs font-medium text-slate-500">Copied</span> : null}
-              <a
-                href={`/api/exports/audit-pack?method=${encodeURIComponent(methodCode ?? "")}&version=${encodeURIComponent(version ?? "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-slate-800 transition-colors"
+              <button
+                type="button"
+                onClick={() => void handleDownloadMethodReviewAuditPack()}
+                disabled={exportingAuditPack}
+                className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-slate-800 transition-colors disabled:cursor-wait disabled:opacity-60"
               >
-                Download verification pack
-              </a>
+                {exportingAuditPack ? "Preparing verification pack..." : "Download verification pack"}
+              </button>
             </div>
           </div>
         </div>
@@ -685,6 +825,11 @@ export default function TrustStrip({
               </button>
             </div>
           </div>
+        </div>
+      ) : null}
+      {exportError ? (
+        <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          {exportError}
         </div>
       ) : null}
     </div>

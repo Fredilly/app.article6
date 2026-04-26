@@ -1369,6 +1369,7 @@ export default function MethodDetailPane({
           manifestRulesPath={manifestRulesPath}
           onOpenIntegrityDiff={() => setIntegrityDiffOpen(true)}
           surface="methods"
+          methodReviewEvidencePins={evidencePins}
         />
       </div>
 

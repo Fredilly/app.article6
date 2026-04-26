@@ -1,4 +1,5 @@
 import { buildAuditPackZip } from "@/exports/auditPack";
+import type { CurrentMethodReviewExportInput } from "@/exports/verificationPackContract";
 import { EvidenceSnapshotSchema } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
 import { ZodError } from "zod";
@@ -8,6 +9,11 @@ export const dynamic = "force-dynamic";
 
 function asTrimmedOrEmpty(value: string | null | undefined): string {
   return value?.trim() ?? "";
+}
+
+function asCurrentMethodReviewInput(value: unknown): CurrentMethodReviewExportInput | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as CurrentMethodReviewExportInput;
 }
 
 export async function GET(req: Request) {
@@ -63,8 +69,10 @@ export async function POST(req: Request) {
     }
 
     const evidencePins = Array.isArray(record.evidencePins) ? (record.evidencePins as EvidencePin[]) : [];
+    const currentReview = asCurrentMethodReviewInput(record.currentReview);
     const zip = buildAuditPackZip(method, version, {
       finalizedReview: artifact ? { artifact, evidencePins } : null,
+      currentReview: artifact ? null : currentReview,
     });
     return new Response(zip, {
       status: 200,

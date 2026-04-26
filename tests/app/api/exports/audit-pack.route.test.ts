@@ -84,7 +84,7 @@ const sectionsJson = {
   sections: [{ id: "S-1", title: "Monitoring", anchor: "#S-1" }],
 };
 
-function withTemporaryMethodologyCheckout<T>(callback: () => Promise<T> | T): Promise<T> | T {
+async function withTemporaryMethodologyCheckout<T>(callback: () => Promise<T> | T): Promise<T> {
   const previousCwd = process.cwd();
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "article6-audit-pack-route-"));
   const methodDir = path.join(root, "public", "methodologies", "UNFCCC", "Forestry", "AR-ACM0003", "v02-0");
@@ -101,7 +101,7 @@ function withTemporaryMethodologyCheckout<T>(callback: () => Promise<T> | T): Pr
 
   try {
     process.chdir(root);
-    return callback();
+    return await callback();
   } finally {
     process.chdir(previousCwd);
     fs.rmSync(root, { recursive: true, force: true });
@@ -220,6 +220,59 @@ describe("/api/exports/audit-pack route", () => {
             version: "v02-0",
             artifact,
             evidencePins,
+          }),
+        }),
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe("application/zip");
+  });
+
+  it("POST exports current Method Review state without requiring a finalized artifact", async () => {
+    const response = await withTemporaryMethodologyCheckout(() =>
+      POST(
+        new Request("http://localhost/api/exports/audit-pack", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            method: "AR-ACM0003",
+            version: "v02-0",
+            currentReview: {
+              latestReviewAt: "2026-03-25T00:10:00Z",
+              reviews: [
+                {
+                  ruleId: "R-1",
+                  methodology: "AR-ACM0003",
+                  version: "v02-0",
+                  status: "verified",
+                  rationale: "Matching local review.",
+                  supportReference: "scene-1",
+                  evidenceLink: "scene-1",
+                  evidenceAttachments: [],
+                  reviewedBy: "Verifier A",
+                  reviewedAt: "2026-03-25T00:09:00Z",
+                  updatedAt: "2026-03-25T00:09:00Z",
+                },
+              ],
+              verifierBundle: {
+                runContext: {
+                  runId: "run-1234",
+                  createdAt: "2026-03-25T00:05:00Z",
+                },
+                savedReviewerArtifactAt: "2026-03-25T00:10:00Z",
+                finalizedAt: null,
+                minutes: "minutes",
+                outcomeNote: "note",
+                savedReviewerArtifactContext: {
+                  methodCode: "AR-ACM0003",
+                  version: "v02-0",
+                  ruleId: "R-1",
+                  runId: "run-1234",
+                },
+              },
+              evidencePins: [{ id: "pin-1", kind: "note", title: "scene-1", cited_ids: ["R-1"], created_at: "2026-03-25T00:00:00Z" }],
+            },
           }),
         }),
       ),
