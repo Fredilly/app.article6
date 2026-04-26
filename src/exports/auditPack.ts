@@ -4,7 +4,11 @@ import { zipSync, strToU8 } from "fflate";
 import { makePackMeta } from "./packMeta";
 import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
 import { buildTraceIndex } from "../lib/trace/traceIndex";
-import { buildVerificationPackContractFiles, type FinalizedAuditPackReviewInput } from "./verificationPackContract";
+import {
+  buildVerificationPackContractFiles,
+  type CurrentMethodReviewExportInput,
+  type FinalizedAuditPackReviewInput,
+} from "./verificationPackContract";
 
 function readJsonCanonical(p: string): Buffer {
   const raw = fs.readFileSync(p, "utf8");
@@ -43,7 +47,10 @@ function deterministicTimestamp(): string {
   return "1970-01-01T00:00:00.000Z";
 }
 
-function generatedAtForAuditPack(finalizedReview?: FinalizedAuditPackReviewInput | null): string {
+function generatedAtForAuditPack(
+  finalizedReview?: FinalizedAuditPackReviewInput | null,
+  currentReview?: CurrentMethodReviewExportInput | null,
+): string {
   const artifact = finalizedReview?.artifact;
   const finalizedAt =
     artifact?.verifier?.finalizedAt?.trim() ||
@@ -53,6 +60,13 @@ function generatedAtForAuditPack(finalizedReview?: FinalizedAuditPackReviewInput
     null;
   if (finalizedAt && Number.isFinite(new Date(finalizedAt).getTime())) return finalizedAt;
   if (artifact) return new Date().toISOString();
+  if (currentReview) {
+    const currentReviewGeneratedAt = currentReview.latestReviewAt?.trim();
+    if (currentReviewGeneratedAt && Number.isFinite(new Date(currentReviewGeneratedAt).getTime())) {
+      return currentReviewGeneratedAt;
+    }
+    return new Date().toISOString();
+  }
   return deterministicTimestamp();
 }
 
@@ -64,7 +78,14 @@ function zipMtimeFromTimestamp(iso: string): Date {
   return date;
 }
 
-export function buildAuditPackZip(methodCode: string, version: string, options: { finalizedReview?: FinalizedAuditPackReviewInput | null } = {}) {
+export function buildAuditPackZip(
+  methodCode: string,
+  version: string,
+  options: {
+    finalizedReview?: FinalizedAuditPackReviewInput | null;
+    currentReview?: CurrentMethodReviewExportInput | null;
+  } = {},
+) {
   const methodDir = resolveMethodDir(methodCode, version);
   if (!methodDir) {
     throw new Error(`Method/version not found on disk for ${methodCode}@${version} under public/methodologies`);
@@ -95,7 +116,7 @@ export function buildAuditPackZip(methodCode: string, version: string, options: 
   const repo = process.env.GITHUB_REPOSITORY || process.env.VERCEL_GIT_REPO_SLUG || "unknown";
   const commit = process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "unknown";
 
-  const generatedAt = generatedAtForAuditPack(options.finalizedReview);
+  const generatedAt = generatedAtForAuditPack(options.finalizedReview, options.currentReview);
   const packMeta = makePackMeta({ methodCode, version, repo, commit, generated_at: generatedAt });
   const contractFiles = buildVerificationPackContractFiles({
     generatedAt,
@@ -105,6 +126,7 @@ export function buildAuditPackZip(methodCode: string, version: string, options: 
     sectionsJson: readJsonRaw(sectionsPath),
     trace,
     finalizedReview: options.finalizedReview ?? null,
+    currentReview: options.currentReview ?? null,
   });
   for (const file of contractFiles) {
     files.push({

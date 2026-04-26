@@ -145,6 +145,7 @@ export type VerifyRunHistoryEntry = {
 };
 
 export const SNAPSHOT_SCHEMA_VERSION = "evidence-snapshot/v2";
+export const VERIFY_RUN_BUNDLE_EVENT = "article6:verify-run-bundle-changed";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
@@ -617,6 +618,13 @@ export function persistVerifierRunBundle(methodCode: string, version: string, bu
   const normalizedVersion = normalizeVersion(version);
   const key = buildVerifyRunKey(normalizedMethod, normalizedVersion);
   storage.setItem(key, JSON.stringify(bundle));
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent(VERIFY_RUN_BUNDLE_EVENT, {
+        detail: { methodCode: normalizedMethod, version: normalizedVersion },
+      }),
+    );
+  }
 }
 
 function normalizeRunHistory(raw: unknown): VerifyRunHistoryEntry[] {

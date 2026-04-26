@@ -7,6 +7,7 @@ import { buildAuditPackZip } from "@/exports/auditPack";
 import { buildVerificationPackContractFiles } from "@/exports/verificationPackContract";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
+import type { RuleReview } from "@/lib/verify/reviewStore";
 
 const rulesJson = {
   rules: [
@@ -22,6 +23,26 @@ const sectionsJson = {
   ],
 };
 
+const arAms0007RulesJson = {
+  rules: [
+    { id: "R-1-0001", text: "Wetland restoration projects eligible when activities convert degraded wetlands to forest." },
+  ],
+};
+
+const arAms0007SectionsJson = {
+  sections: [{ id: "S-1", title: "Eligibility", anchor: "#S-1" }],
+};
+
+const arAm0014RulesJson = {
+  rules: [
+    { id: "R-1-0001", text: "Afforestation activity must satisfy the methodology eligibility screen." },
+  ],
+};
+
+const arAm0014SectionsJson = {
+  sections: [{ id: "S-1", title: "Eligibility", anchor: "#S-1" }],
+};
+
 const trace = {
   version: 1,
   method: { code: "AR-ACM0003", version: "v02-0" },
@@ -32,20 +53,32 @@ const trace = {
   rule_to_evidence: {},
 } as const;
 
-function withTemporaryMethodologyCheckout<T>(callback: () => T): T {
+function withTemporaryMethodologyCheckout<T>(
+  callback: () => T,
+  options: {
+    methodCode?: string;
+    version?: string;
+    rules?: unknown;
+    sections?: unknown;
+  } = {},
+): T {
   const previousCwd = process.cwd();
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "article6-audit-pack-"));
-  const methodDir = path.join(root, "public", "methodologies", "UNFCCC", "Forestry", "AR-ACM0003", "v02-0");
+  const methodCode = options.methodCode ?? "AR-ACM0003";
+  const version = options.version ?? "v02-0";
+  const rules = options.rules ?? rulesJson;
+  const sections = options.sections ?? sectionsJson;
+  const methodDir = path.join(root, "public", "methodologies", "UNFCCC", "Forestry", methodCode, version);
 
   fs.mkdirSync(methodDir, { recursive: true });
   fs.writeFileSync(
     path.join(methodDir, "META.json"),
-    JSON.stringify({ code: "AR-ACM0003", version: "v02-0", title: "Temporary test methodology" }),
+    JSON.stringify({ code: methodCode, version, title: "Temporary test methodology" }),
   );
-  fs.writeFileSync(path.join(methodDir, "rules.json"), JSON.stringify(rulesJson));
-  fs.writeFileSync(path.join(methodDir, "sections.json"), JSON.stringify(sectionsJson));
-  fs.writeFileSync(path.join(methodDir, "rules.rich.json"), JSON.stringify(rulesJson));
-  fs.writeFileSync(path.join(methodDir, "sections.rich.json"), JSON.stringify(sectionsJson));
+  fs.writeFileSync(path.join(methodDir, "rules.json"), JSON.stringify(rules));
+  fs.writeFileSync(path.join(methodDir, "sections.json"), JSON.stringify(sections));
+  fs.writeFileSync(path.join(methodDir, "rules.rich.json"), JSON.stringify(rules));
+  fs.writeFileSync(path.join(methodDir, "sections.rich.json"), JSON.stringify(sections));
 
   try {
     process.chdir(root);
@@ -219,5 +252,344 @@ describe("audit pack verification contract", () => {
       ]),
     );
     expect(JSON.stringify(evidenceManifest)).not.toContain("awaiting_project_evidence");
+  });
+
+  test("uses current Method Review state for non-finalized exports instead of demo placeholders", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-ACM0003",
+        version: "v02-0",
+        status: "verified",
+        rationale: "Linked STAC evidence supports the monitoring requirement.",
+        supportReference: "scene-1",
+        evidenceLink: "scene-1",
+        evidenceAttachments: [],
+        reviewedBy: "Verifier A",
+        reviewedAt: "2026-04-24T11:58:00.000Z",
+        updatedAt: "2026-04-24T11:58:00.000Z",
+      },
+    ];
+    const evidencePins: EvidencePin[] = [
+      {
+        id: "pin-scene-1",
+        kind: "note",
+        title: "scene-1",
+        ruleId: "R-1-0001",
+        itemId: "scene-1",
+        cited_ids: ["R-1-0001"],
+        stac_item_ids: ["scene-1"],
+        created_at: "2026-04-24T11:55:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(() =>
+      buildAuditPackZip("AR-ACM0003", "v02-0", {
+        currentReview: {
+          latestReviewAt: "2026-04-24T12:05:00.000Z",
+          reviews,
+          evidencePins,
+          verifierBundle: {
+            runContext: {
+              runId: "run-draft-1",
+              createdAt: "2026-04-24T11:45:00.000Z",
+            },
+            savedReviewerArtifactAt: "2026-04-24T12:05:00.000Z",
+            finalizedAt: null,
+            minutes: "Reviewer minutes",
+            outcomeNote: "Draft outcome note",
+            savedReviewerArtifactContext: {
+              methodCode: "AR-ACM0003",
+              version: "v02-0",
+              ruleId: "R-1-0001",
+              runId: "run-draft-1",
+            },
+          },
+        },
+      }),
+    );
+    const entries = unzipSync(new Uint8Array(zip));
+    const readJson = (entry: string) => JSON.parse(strFromU8(entries[entry]));
+
+    const manifest = readJson("manifest.json") as { generated_at: string };
+    expect(manifest.generated_at).toBe("2026-04-24T12:05:00.000Z");
+    expect(manifest.generated_at).not.toBe("1970-01-01T00:00:00.000Z");
+
+    const project = readJson("project.json") as { pack_profile: { human_label: string; disclaimer: string } };
+    expect(project.pack_profile.human_label).toBe("Method review export");
+    expect(project.pack_profile.disclaimer).toContain("draft/incomplete");
+    expect(project.pack_profile.disclaimer).not.toContain("placeholder review scaffold");
+
+    const requirementReview = readJson("requirement-review.json") as {
+      summary: { placeholder_rule_reviews: number; linked_evidence_refs: number };
+      rules: Array<{
+        rule_id: string;
+        status: string;
+        status_basis: string;
+        rationale: string;
+        linked_evidence_refs: string[];
+        reviewer_artifact?: { outcome_note: string | null };
+      }>;
+    };
+    expect(requirementReview.summary.placeholder_rule_reviews).toBe(0);
+    expect(requirementReview.summary.linked_evidence_refs).toBeGreaterThanOrEqual(1);
+    expect(requirementReview.rules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule_id: "R-1-0001",
+          status: "reviewed_verified",
+          status_basis: "current_method_review",
+          rationale: "Linked STAC evidence supports the monitoring requirement.",
+          linked_evidence_refs: expect.arrayContaining(["scene-1"]),
+          reviewer_artifact: expect.objectContaining({
+            outcome_note: "Draft outcome note",
+          }),
+        }),
+      ]),
+    );
+
+    const trace = readJson("trace.json") as {
+      verification_contract: { mode: string; placeholder: boolean };
+    };
+    expect(trace.verification_contract.mode).toBe("current_method_review_contract");
+    expect(trace.verification_contract.placeholder).toBe(false);
+
+    expect(strFromU8(entries["VERIFICATION_REPORT.html"])).toContain("Draft / incomplete local method review export.");
+    expect(strFromU8(entries["VERIFICATION_REPORT.html"])).not.toContain("Demo review record only.");
+  });
+
+  test("exports a saved current review when the saved ruleId is the canonical rich-rule id", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002",
+        methodology: "AR-ACM0003",
+        version: "v02-0",
+        status: "verified",
+        rationale: "Baseline calculation worksheet is present and internally consistent.",
+        supportReference: "calc-sheet-2",
+        evidenceLink: "calc-sheet-2",
+        evidenceAttachments: [],
+        reviewedBy: "local-reviewer",
+        reviewedAt: "2026-04-24T13:00:00.000Z",
+        updatedAt: "2026-04-24T13:00:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(() =>
+      buildAuditPackZip("AR-ACM0003", "v02-0", {
+        currentReview: {
+          latestReviewAt: "2026-04-24T13:05:00.000Z",
+          reviews,
+          evidencePins: [],
+          verifierBundle: {
+            runContext: {
+              runId: "run-draft-2",
+              createdAt: "2026-04-24T12:45:00.000Z",
+            },
+            savedReviewerArtifactAt: "2026-04-24T13:05:00.000Z",
+            finalizedAt: null,
+            minutes: "Reviewer minutes for baseline calculations",
+            outcomeNote: "Needs evidence linkage before finalization.",
+            savedReviewerArtifactContext: {
+              methodCode: "AR-ACM0003",
+              version: "v02-0",
+              ruleId: "UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0002",
+              runId: "run-draft-2",
+            },
+          },
+        },
+      }),
+    );
+    const entries = unzipSync(new Uint8Array(zip));
+    const requirementReview = JSON.parse(strFromU8(entries["requirement-review.json"])) as {
+      rules: Array<{
+        rule_id: string;
+        status: string;
+        rationale: string;
+        reviewer_artifact?: { outcome_note: string | null; minutes_present: boolean };
+      }>;
+    };
+    const exportedRule = requirementReview.rules.find((rule) => rule.rule_id === "R-1-0002");
+
+    expect(exportedRule).toEqual(
+      expect.objectContaining({
+        rule_id: "R-1-0002",
+        status: "reviewed_verified",
+        rationale: "Baseline calculation worksheet is present and internally consistent.",
+        reviewer_artifact: expect.objectContaining({
+          outcome_note: "Needs evidence linkage before finalization.",
+          minutes_present: true,
+        }),
+      }),
+    );
+  });
+
+  test("does not attach reviewer artifact text from another method into AR-AMS0007 current-review exports", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-AMS0007",
+        version: "v03-1",
+        status: "verified",
+        rationale: "Wetland eligibility conditions were reviewed in the current workspace.",
+        supportReference: "",
+        evidenceAttachments: [],
+        reviewedBy: "local-reviewer",
+        reviewedAt: "2026-04-25T09:00:00.000Z",
+        updatedAt: "2026-04-25T09:00:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(
+      () =>
+        buildAuditPackZip("AR-AMS0007", "v03-1", {
+          currentReview: {
+            latestReviewAt: "2026-04-25T09:05:00.000Z",
+            reviews,
+            evidencePins: [],
+            verifierBundle: {
+              runContext: {
+                runId: "run-ams-draft-1",
+                createdAt: "2026-04-25T08:45:00.000Z",
+              },
+              savedReviewerArtifactAt: "2026-04-25T09:05:00.000Z",
+              finalizedAt: null,
+              minutes: "Fixture minutes from AR-ACM0003 v02-0.",
+              outcomeNote: "Fixture outcome note for UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001.",
+              savedReviewerArtifactContext: {
+                methodCode: "AR-ACM0003",
+                version: "v02-0",
+                ruleId: "R-1-0001",
+                runId: "run-acm-draft-1",
+              },
+            },
+          },
+        }),
+      {
+        methodCode: "AR-AMS0007",
+        version: "v03-1",
+        rules: arAms0007RulesJson,
+        sections: arAms0007SectionsJson,
+      },
+    );
+    const entries = unzipSync(new Uint8Array(zip));
+    const requirementReview = JSON.parse(strFromU8(entries["requirement-review.json"])) as {
+      method: { code: string; version: string };
+      rules: Array<{
+        rule_id: string;
+        status: string;
+        rationale: string;
+        reviewer_artifact?: { outcome_note: string | null; minutes_present: boolean };
+      }>;
+    };
+    const exportedRule = requirementReview.rules.find((rule) => rule.rule_id === "R-1-0001");
+
+    expect(requirementReview.method).toEqual({ code: "AR-AMS0007", version: "v03-1" });
+    expect(exportedRule).toEqual(
+      expect.objectContaining({
+        rule_id: "R-1-0001",
+        status: "reviewed_verified",
+        rationale: "Wetland eligibility conditions were reviewed in the current workspace.",
+      }),
+    );
+    expect(exportedRule?.reviewer_artifact).toBeUndefined();
+    expect(JSON.stringify(exportedRule)).not.toContain("AR-ACM0003");
+  });
+
+  test("exports a linked current-review evidence pin when the pin uses a fully-qualified rule id", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-AM0014",
+        version: "v03-0",
+        status: "verified",
+        rationale: "Eligibility was reviewed against the linked scene evidence.",
+        supportReference: "am14-scene-1",
+        evidenceLink: "am14-scene-1",
+        evidenceAttachments: [],
+        reviewedBy: "local-reviewer",
+        reviewedAt: "2026-04-25T10:00:00.000Z",
+        updatedAt: "2026-04-25T10:00:00.000Z",
+      },
+    ];
+    const evidencePins: EvidencePin[] = [
+      {
+        id: "pin-am14-scene-1",
+        kind: "note",
+        title: "am14-scene-1",
+        ruleId: "UNFCCC.Forestry.AR-AM0014.v03-0.R-1-0001",
+        itemId: "am14-scene-1",
+        cited_ids: ["UNFCCC.Forestry.AR-AM0014.v03-0.R-1-0001"],
+        created_at: "2026-04-25T09:55:00.000Z",
+      },
+      {
+        id: "pin-am14-unlinked-1",
+        kind: "note",
+        title: "am14-unlinked-1",
+        itemId: "am14-unlinked-1",
+        cited_ids: [],
+        created_at: "2026-04-25T09:56:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(
+      () =>
+        buildAuditPackZip("AR-AM0014", "v03-0", {
+          currentReview: {
+            latestReviewAt: "2026-04-25T10:05:00.000Z",
+            reviews,
+            evidencePins,
+            verifierBundle: {
+              runContext: {
+                runId: "run-am14-draft-1",
+                createdAt: "2026-04-25T09:45:00.000Z",
+              },
+              savedReviewerArtifactAt: null,
+              finalizedAt: null,
+              minutes: "",
+              outcomeNote: "",
+            },
+          },
+        }),
+      {
+        methodCode: "AR-AM0014",
+        version: "v03-0",
+        rules: arAm0014RulesJson,
+        sections: arAm0014SectionsJson,
+      },
+    );
+    const entries = unzipSync(new Uint8Array(zip));
+    const evidenceManifest = JSON.parse(strFromU8(entries["evidence-manifest.json"])) as {
+      summary: { total_refs: number; provided_refs: number };
+      evidence: Array<{ evidence_ref: string; rule_ids: string[] }>;
+    };
+    const requirementReview = JSON.parse(strFromU8(entries["requirement-review.json"])) as {
+      rules: Array<{ rule_id: string; linked_evidence_refs: string[] }>;
+    };
+    const traceJson = JSON.parse(strFromU8(entries["trace.json"])) as {
+      rule_to_evidence: Record<string, string[]>;
+    };
+    const exportedRule = requirementReview.rules.find((rule) => rule.rule_id === "R-1-0001");
+
+    expect(evidenceManifest.summary.total_refs).toBeGreaterThanOrEqual(1);
+    expect(evidenceManifest.summary.provided_refs).toBeGreaterThanOrEqual(1);
+    expect(evidenceManifest.evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          evidence_ref: "am14-scene-1",
+        }),
+      ]),
+    );
+    expect(evidenceManifest.evidence).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          evidence_ref: "am14-unlinked-1",
+        }),
+      ]),
+    );
+    expect(exportedRule?.linked_evidence_refs).toEqual(expect.arrayContaining(["am14-scene-1"]));
+    expect(exportedRule?.linked_evidence_refs).not.toContain("am14-unlinked-1");
+    expect(traceJson.rule_to_evidence["R-1-0001"]).toEqual(expect.arrayContaining(["am14-scene-1"]));
+    expect(traceJson.rule_to_evidence["R-1-0001"]).not.toContain("am14-unlinked-1");
   });
 });

@@ -80,7 +80,7 @@ describe("FinalReviewSummaryPanel", () => {
     expect(html).not.toContain("Next required action");
   });
 
-  test("includes evidencePins in finalized audit-pack POST body", async () => {
+  test("keeps reviewer minutes and outcome note in the finalized audit-pack POST body", async () => {
     const artifact: EvidenceSnapshot = {
       method: { code: "AR-ACM0003", version: "v02-0" },
       evidence_source: { type: "stac_url", ref: "https://stac.example.test" },
@@ -213,8 +213,12 @@ describe("FinalReviewSummaryPanel", () => {
       }),
     );
     const requestBody = JSON.parse((fetchMock.mock.calls[0]?.[1] as RequestInit).body as string) as {
+      artifact?: EvidenceSnapshot;
       evidencePins?: EvidencePin[];
     };
+    expect(requestBody.artifact?.verifier.minutes).toBe("Reviewer linked selected evidence and PDD fragment.");
+    expect(requestBody.artifact?.verifier.outcomeNote).toBe("Stable result.");
+    expect(requestBody.artifact?.summary.outcomeNote).toBe("Stable result.");
     expect(requestBody.evidencePins).toEqual(evidencePins);
 
     await act(async () => {

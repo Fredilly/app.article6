@@ -440,6 +440,42 @@ describe("verifier run bundle storage", () => {
       ),
     ).toBeNull();
   });
+
+  it("restores saved reviewer minutes and outcome note only for the same context", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    const currentContext = createReviewerArtifactContext({
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      ruleId: "R-1-0001",
+      runId: "run-current",
+    });
+    const otherContext = createReviewerArtifactContext({
+      methodCode: "AR-ACM0003",
+      version: "v02-0",
+      ruleId: "R-1-0001",
+      runId: "run-other",
+    });
+
+    persistReviewerArtifactState({
+      context: currentContext,
+      savedReviewerArtifactAt: "2026-04-04T00:00:00Z",
+      minutes: "Saved reviewer minutes for the current run.",
+      outcomeNote: "Saved reviewer outcome for the current run.",
+      draftMinutes: "Saved reviewer minutes for the current run.",
+      draftOutcomeNote: "Saved reviewer outcome for the current run.",
+    });
+
+    expect(readReviewerArtifactState(otherContext)).toBeNull();
+    expect(readReviewerArtifactState(currentContext)).toEqual({
+      context: currentContext,
+      savedReviewerArtifactAt: "2026-04-04T00:00:00Z",
+      minutes: "Saved reviewer minutes for the current run.",
+      outcomeNote: "Saved reviewer outcome for the current run.",
+      draftMinutes: "Saved reviewer minutes for the current run.",
+      draftOutcomeNote: "Saved reviewer outcome for the current run.",
+    });
+  });
 });
 
 describe("addTaskWithText", () => {
