@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-verification, requirement-coverage, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -96,6 +96,37 @@ Not active now:
 8) PR43 — Pre-audit pack prep workflow v1 (end-to-end sellable unit): Frozen — Frozen with the lane; preserved as future optional work.
 9) PR44 — Policy packs + house interpretations overlay (versioned): Frozen — Frozen with the lane; preserved as future optional work.
 10) PR45 — Exceptions taxonomy v1 + reviewer notes glue (standardized): Frozen — Frozen with the lane; preserved as future optional work.
+
+## project-readiness-verification-output
+
+Status SSOT: `docs/roadmaps/project-readiness-verification-output/phase-status.json`
+Details: `docs/roadmaps/project-readiness-verification-output/PLAN.md`
+
+Lane status: Active
+Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.
+
+Current focus:
+- Consolidate the commercial output around readiness gaps, traceable exports, and pilot sales
+- Keep `traceable-rule-review-mvp` as the technical foundation for review records and exports
+- Fold older overlapping lanes into this roadmap without erasing their history
+- Preserve app-vs-methodologies boundaries while preparing sellable verification outputs
+
+Not active now:
+- Formal VVB verification claims
+- Registry approval claims
+- Credit issuance claims
+- Methodology-repo changes in this app repo
+
+1) RC0 — Roadmap consolidation: Next — Collapse the useful parts of old roadmaps into one commercial roadmap, preserve historical lanes as folded or superseded, and keep repo boundaries explicit.
+2) RC1 — PDD / Project Gap Intake: Planned — Ingest PDDs, monitoring reports, and workbooks into a project evidence inventory with page/section/fragment provenance and manual fragment-to-rule links.
+3) RC2 — Method Evidence Contracts: Planned — Define expected evidence per rule in the methodologies repo so the app can distinguish missing evidence from unknown expectations.
+4) RC3 — Readiness Gap Engine: Planned — Turn project evidence plus method expectations into rule-level gap states, severities, recommendations, and reviewer overrides.
+5) RC4 — Client Readiness Report Export: Planned — Produce the paid readiness report and audit pack appendix for project developers and consultancies with explicit limits and traceability.
+6) RC5 — VVB Workpaper Export: Planned — Reuse the same review data for VVB-facing draft workpapers, provenance bundles, and truthful registry-aware report sections.
+7) RC6 — Public Autopsy Workflow: Planned — Create a public-safe autopsy workflow using public project documents, redactions, and source-tied findings for marketing and proof.
+8) RC7 — White-label Consultancy Pilot: Planned — Let consultancies resell the readiness workflow under their own brand with a limited, manually assisted pilot.
+9) RC8 — Rule Encoding Sprint: Planned — Make new methodology support repeatable by encoding rules, evidence expectations, and CI validation in the methodologies repo.
+10) RC9 — Pilot Sales Loop: Planned — Turn readiness audits, white-label pilots, and VVB reviews into a repeatable sales loop with feedback flowing back into method contracts.
 
 ## project-verification
 
