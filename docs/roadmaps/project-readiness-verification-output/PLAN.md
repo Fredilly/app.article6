@@ -8,6 +8,21 @@ This is the commercial sales-readiness roadmap for Article6. It folds the useful
 
 `app.article6` owns the workflow, UI, persistence, export execution, and public-safe packaging. It does not own methodology semantics, canonical rule contracts, or schema definitions. Those stay in the methodologies repo, with `traceable-rule-review-mvp` preserved as the technical foundation.
 
+## Agent warning
+
+Do not implement all phases in this repo blindly. This roadmap is a commercial sequencing roadmap, not a single-repo implementation plan.
+
+Before starting any task from this roadmap, identify the owning repo.
+
+- Work on app workflow, UI, persistence, project intake, gap engine, exports, reports, public autopsy packaging, and white-label surfaces belongs in `app.article6`.
+- Work on methodology schemas, expected evidence contracts, rule metadata, PDD/workbook/report expectations, encoding playbooks, and new method encoding belongs in `article6-methodologies`.
+
+If the task touches Phase 2 — Method Evidence Contracts or Phase 8 — Rule Encoding Sprint, stop and state clearly:
+
+> This implementation belongs in `article6-methodologies`, not `app.article6`.
+
+Then create or request a repo-specific task for `article6-methodologies`.
+
 ## Goal
 
 Turn Article6 into a sellable pre-verification readiness system for project developers, consultancies, and VVBs without claiming formal verification, registry approval, or credit issuance.
@@ -108,6 +123,9 @@ Status: planned
 
 Goal:
 Define what each supported method expects so gaps can be detected honestly.
+
+Repo owner: `article6-methodologies`
+Warning: implementation must not be done in `app.article6`.
 
 Repo:
 `article6-methodologies`
@@ -281,6 +299,9 @@ Status: planned
 Goal:
 Make new methodology support a paid and repeatable service.
 
+Repo owner: `article6-methodologies`
+Warning: implementation must not be done in `app.article6`.
+
 Repo:
 `article6-methodologies`
 
@@ -338,4 +359,3 @@ These are intentionally preserved here as folded or superseded history, not eras
 - `verification-factory`: customer-safe exports, pilot loop, and moat export ideas are preserved as the commercial lane.
 - `requirement-coverage`: document intake and reconciliation are preserved in Phase 1.
 - `phase-assurance-surface-mvp`: traceability, evidence export, and provenance constraints continue to inform the foundation.
-
