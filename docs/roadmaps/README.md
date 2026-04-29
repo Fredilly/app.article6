@@ -9,6 +9,8 @@ Each roadmap lives at `docs/roadmaps/<slug>/` and must include:
 
 If a PR is part of a roadmap, include a machine-parseable directive in the PR body.
 
+Current commercial sales-readiness lane: `project-readiness-verification-output`.
+
 **Gate:** any PR with a `phase:*` label must include this block or CI will fail.
 
 Directive format:

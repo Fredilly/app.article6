@@ -1,0 +1,70 @@
+{
+  "phase_meta": {
+    "status": "active",
+    "summary": "Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.",
+    "current_focus": [
+      "Consolidate the commercial output around readiness gaps, traceable exports, and pilot sales",
+      "Keep `traceable-rule-review-mvp` as the technical foundation for review records and exports",
+      "Fold older overlapping lanes into this roadmap without erasing their history",
+      "Preserve app-vs-methodologies boundaries while preparing sellable verification outputs"
+    ],
+    "not_active_now": [
+      "Formal VVB verification claims",
+      "Registry approval claims",
+      "Credit issuance claims",
+      "Methodology-repo changes in this app repo"
+    ]
+  },
+  "phases": {
+    "phase_0_roadmap_consolidation": {
+      "status": "next",
+      "title": "Roadmap consolidation",
+      "summary": "Collapse the useful parts of old roadmaps into one commercial roadmap, preserve historical lanes as folded or superseded, and keep repo boundaries explicit."
+    },
+    "phase_1_pdd_project_gap_intake": {
+      "status": "planned",
+      "title": "PDD / Project Gap Intake",
+      "summary": "Ingest PDDs, monitoring reports, and workbooks into a project evidence inventory with page/section/fragment provenance and manual fragment-to-rule links."
+    },
+    "phase_2_method_evidence_contracts": {
+      "status": "planned",
+      "title": "Method Evidence Contracts",
+      "summary": "Define expected evidence per rule in the methodologies repo so the app can distinguish missing evidence from unknown expectations."
+    },
+    "phase_3_readiness_gap_engine": {
+      "status": "planned",
+      "title": "Readiness Gap Engine",
+      "summary": "Turn project evidence plus method expectations into rule-level gap states, severities, recommendations, and reviewer overrides."
+    },
+    "phase_4_client_readiness_report_export": {
+      "status": "planned",
+      "title": "Client Readiness Report Export",
+      "summary": "Produce the paid readiness report and audit pack appendix for project developers and consultancies with explicit limits and traceability."
+    },
+    "phase_5_vvb_workpaper_export": {
+      "status": "planned",
+      "title": "VVB Workpaper Export",
+      "summary": "Reuse the same review data for VVB-facing draft workpapers, provenance bundles, and truthful registry-aware report sections."
+    },
+    "phase_6_public_autopsy_workflow": {
+      "status": "planned",
+      "title": "Public Autopsy Workflow",
+      "summary": "Create a public-safe autopsy workflow using public project documents, redactions, and source-tied findings for marketing and proof."
+    },
+    "phase_7_white_label_pilot": {
+      "status": "planned",
+      "title": "White-label Consultancy Pilot",
+      "summary": "Let consultancies resell the readiness workflow under their own brand with a limited, manually assisted pilot."
+    },
+    "phase_8_rule_encoding_sprint": {
+      "status": "planned",
+      "title": "Rule Encoding Sprint",
+      "summary": "Make new methodology support repeatable by encoding rules, evidence expectations, and CI validation in the methodologies repo."
+    },
+    "phase_9_pilot_sales_loop": {
+      "status": "planned",
+      "title": "Pilot Sales Loop",
+      "summary": "Turn readiness audits, white-label pilots, and VVB reviews into a repeatable sales loop with feedback flowing back into method contracts."
+    }
+  }
+}
