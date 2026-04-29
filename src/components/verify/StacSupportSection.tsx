@@ -39,7 +39,28 @@ export default function StacSupportSection({
   eligibilityReason,
   supportState,
 }: StacSupportSectionProps) {
-  if (!eligible) return null;
+  if (!eligible) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            AOI / STAC support facts
+          </div>
+          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+            Not applicable
+          </span>
+        </div>
+
+        <div className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+          AOI/STAC support facts are not expected for this rule.
+        </div>
+
+        <div className="mt-3 text-[11px] text-slate-500">
+          Satellite support is only shown as applicable for STAC-eligible rules.
+        </div>
+      </div>
+    );
+  }
 
   const status = supportState?.lookupStatus ?? "awaiting_search";
   const linkedFacts = supportState?.linkedFacts ?? [];

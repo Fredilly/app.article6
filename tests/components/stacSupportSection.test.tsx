@@ -3,6 +3,21 @@ import { renderToStaticMarkup } from "react-dom/server";
 import StacSupportSection from "@/components/verify/StacSupportSection";
 
 describe("StacSupportSection", () => {
+  test("shows a visible non-applicable AOI/STAC state for non-eligible rules", () => {
+    const html = renderToStaticMarkup(
+      <StacSupportSection
+        eligible={false}
+        eligibilityReason={null}
+        supportState={null}
+      />,
+    );
+
+    expect(html).toContain("AOI / STAC support facts");
+    expect(html).toContain("Not applicable");
+    expect(html).toContain("AOI/STAC support facts are not expected for this rule.");
+    expect(html).not.toContain("satellite evidence may support this review");
+  });
+
   test("renders truthful AOI/STAC empty, error, and linking states", () => {
     const noAoiHtml = renderToStaticMarkup(
       <StacSupportSection
