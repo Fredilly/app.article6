@@ -61,6 +61,22 @@ export function runsForCurrentAoi(input: {
   return (input.runs ?? []).filter((run) => run.aoi_fingerprint === input.currentAoiFingerprint);
 }
 
+export function selectLatestNonQueuedRunForAoi(input: {
+  runs: VerificationRun[];
+  currentAoiFingerprint: string | null;
+}): VerificationRun | null {
+  const candidates = runsForCurrentAoi(input).filter((run) => run.status !== "queued");
+  if (!candidates.length) return null;
+  candidates.sort((left, right) => {
+    const leftTime = Date.parse(left.ended_at ?? left.created_at);
+    const rightTime = Date.parse(right.ended_at ?? right.created_at);
+    const leftScore = Number.isFinite(leftTime) ? leftTime : 0;
+    const rightScore = Number.isFinite(rightTime) ? rightTime : 0;
+    return rightScore - leftScore;
+  });
+  return candidates[0] ?? null;
+}
+
 export function shouldDisableRunVerification(input: {
   isRunning: boolean;
   aoi: AOI | null;

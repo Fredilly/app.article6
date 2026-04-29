@@ -44,6 +44,7 @@ export default function StacSupportSection({
   const status = supportState?.lookupStatus ?? "awaiting_search";
   const linkedFacts = supportState?.linkedFacts ?? [];
   const unlinkedFacts = supportState?.unlinkedFacts ?? [];
+  const staleFacts = supportState?.staleFacts ?? [];
   const panelTone =
     status === "lookup_failed"
       ? "border-rose-200 bg-rose-50/40"
@@ -112,6 +113,21 @@ export default function StacSupportSection({
           <div className="mt-1 text-[11px] text-slate-500">
             {unlinkedFacts.slice(0, 3).map((fact) => fact.id).join(", ")}
             {unlinkedFacts.length > 3 ? ` +${unlinkedFacts.length - 3} more` : ""}
+          </div>
+        </div>
+      ) : null}
+
+      {staleFacts.length > 0 ? (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+            Prior linked facts
+          </div>
+          <div className="mt-1 text-xs text-amber-900">
+            Previously linked STAC fact{staleFacts.length === 1 ? "" : "s"} exist, but they are not from the active AOI search.
+          </div>
+          <div className="mt-1 text-[11px] text-amber-800">
+            {staleFacts.slice(0, 3).map((fact) => fact.id).join(", ")}
+            {staleFacts.length > 3 ? ` +${staleFacts.length - 3} more` : ""}
           </div>
         </div>
       ) : null}

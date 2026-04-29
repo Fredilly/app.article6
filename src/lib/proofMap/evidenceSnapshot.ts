@@ -195,6 +195,7 @@ export const EvidenceSnapshotSchema = z
         run_id: z.string().nullable().optional(),
         lookup_error: z.string().nullable().optional(),
         linked_facts: z.array(StacSupportFactRecordSchema),
+        stale_facts: z.array(StacSupportFactRecordSchema).optional(),
       })
       .optional(),
     summary: ReviewSummarySchema.optional(),
@@ -302,6 +303,24 @@ function normalizeSupportFacts(input: StacSupportFactsState | null | undefined) 
     run_id: input.runId ?? null,
     lookup_error: input.lookupError ?? null,
     linked_facts: input.linkedFacts.map((fact) =>
+      stripUndefined({
+        id: fact.id,
+        datetime: fact.datetime ?? null,
+        cloud_cover: fact.cloudCover ?? null,
+        collection: fact.collection ?? null,
+        bbox: fact.bbox ?? null,
+        geometry_type: fact.geometryType ?? null,
+        aoi_relation_summary: fact.aoiRelationSummary ?? null,
+        source_catalog_ref: fact.sourceCatalogRef ?? null,
+        source_provider: fact.sourceProvider ?? null,
+        asset_href: fact.assetHref ?? null,
+        link_href: fact.linkHref ?? null,
+        linked_at: fact.linkedAt ?? null,
+        source_pin_ids: [...fact.sourcePinIds],
+        linked_rule_ids: [...fact.linkedRuleIds],
+      }),
+    ),
+    stale_facts: input.staleFacts.map((fact) =>
       stripUndefined({
         id: fact.id,
         datetime: fact.datetime ?? null,

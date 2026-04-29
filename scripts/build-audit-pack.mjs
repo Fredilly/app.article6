@@ -15,6 +15,7 @@ if (!method || !version) {
 const require = createRequire(import.meta.url);
 process.env.TS_NODE_COMPILER_OPTIONS = JSON.stringify({ module: "CommonJS" });
 require("ts-node/register");
+require("tsconfig-paths/register");
 const mod = require(path.resolve("src/exports/auditPack.ts"));
 const buildAuditPackZip = mod.buildAuditPackZip || mod.default || mod.buildAuditPack;
 

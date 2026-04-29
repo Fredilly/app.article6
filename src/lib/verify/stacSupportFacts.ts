@@ -47,6 +47,7 @@ export type StacSupportFactsState = {
   searchResultCount: number;
   linkedFacts: StacSupportFactRecord[];
   unlinkedFacts: StacSupportFactRecord[];
+  staleFacts: StacSupportFactRecord[];
   availableUnlinkedIds: string[];
   runId?: string | null;
   lookupError?: string | null;
@@ -222,10 +223,15 @@ function fallbackSupportFactFromPin(input: {
   pin: EvidencePin;
   itemId: string;
   sourceRef?: string | null;
+  stale?: boolean;
 }): StacSupportFactRecord {
   return {
     id: input.itemId,
-    aoiRelationSummary: input.pin.aoi_fingerprint ? "Linked from prior AOI-scoped STAC search" : null,
+    aoiRelationSummary: input.stale
+      ? "Previously linked STAC fact exists, but it is not from the active AOI search"
+      : input.pin.aoi_fingerprint
+        ? "Linked from active AOI-scoped STAC search"
+        : "Linked STAC fact does not record an active AOI search fingerprint",
     sourceCatalogRef: input.sourceRef ?? null,
     sourceProvider: hostnameFromRef(input.sourceRef),
     linkedAt: input.pin.created_at,
@@ -310,6 +316,7 @@ export function extractStacSupportFacts(
 export function buildStacSupportFactsState(input: {
   ruleId: string | null;
   hasAoi: boolean;
+  currentAoiFingerprint?: string | null;
   aoiBbox?: [number, number, number, number] | null;
   evidencePins: EvidencePin[];
   itemsById?: Record<string, unknown> | null;
@@ -335,6 +342,7 @@ export function buildStacSupportFactsState(input: {
     : [];
 
   const linkedFactsById = new Map<string, StacSupportFactRecord>();
+  const staleFactsById = new Map<string, StacSupportFactRecord>();
   for (const pin of linkedPins) {
     const itemIds = uniqSorted([pin.itemId ?? "", ...(pin.stac_item_ids ?? [])]);
     for (const itemId of itemIds) {
@@ -343,7 +351,16 @@ export function buildStacSupportFactsState(input: {
         linkedFactsById.set(itemId, current);
         continue;
       }
-      linkedFactsById.set(itemId, fallbackSupportFactFromPin({ pin, itemId, sourceRef: input.sourceRef }));
+      const pinMatchesActiveAoi = Boolean(
+        input.currentAoiFingerprint &&
+        pin.aoi_fingerprint &&
+        pin.aoi_fingerprint === input.currentAoiFingerprint,
+      );
+      if (pinMatchesActiveAoi) {
+        linkedFactsById.set(itemId, fallbackSupportFactFromPin({ pin, itemId, sourceRef: input.sourceRef, stale: false }));
+        continue;
+      }
+      staleFactsById.set(itemId, fallbackSupportFactFromPin({ pin, itemId, sourceRef: input.sourceRef, stale: true }));
     }
   }
 
@@ -359,6 +376,14 @@ export function buildStacSupportFactsState(input: {
   const unlinkedFacts = availableFacts.filter((fact) =>
     !fact.linkedRuleIds.some((linkedRuleId) => (input.ruleId ? ruleIdsMatch(linkedRuleId, input.ruleId) : false)),
   );
+  const staleFacts = Array.from(staleFactsById.values())
+    .map((fact) => ({
+      ...fact,
+      linkedRuleIds: input.ruleId
+        ? fact.linkedRuleIds.filter((linkedRuleId) => ruleIdsMatch(linkedRuleId, input.ruleId))
+        : fact.linkedRuleIds,
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id));
 
   const lookupStatus: StacSupportLookupStatus = !input.hasAoi
     ? "requires_aoi"
@@ -382,13 +407,17 @@ export function buildStacSupportFactsState(input: {
             : linkedFacts.length
               ? `${linkedFacts.length} linked AOI/STAC support fact${linkedFacts.length === 1 ? "" : "s"} recorded for this rule.`
               : `${availableFacts.length} AOI/STAC support fact${availableFacts.length === 1 ? "" : "s"} available but not linked to this rule.`;
+  const staleMessage = staleFacts.length
+    ? `${staleFacts.length} previously linked STAC fact${staleFacts.length === 1 ? "" : "s"} exist outside the active AOI search.`
+    : null;
 
   return {
     lookupStatus,
-    lookupMessage,
+    lookupMessage: [lookupMessage, staleMessage].filter(Boolean).join(" "),
     searchResultCount: availableFacts.length,
     linkedFacts,
     unlinkedFacts,
+    staleFacts,
     availableUnlinkedIds: unlinkedFacts.map((fact) => fact.id),
     runId: input.runId ?? null,
     lookupError: lookupStatus === "lookup_failed" ? input.runSummary?.trim() || null : null,

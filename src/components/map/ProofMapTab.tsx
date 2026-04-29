@@ -15,7 +15,7 @@ import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import Tooltip from "@/components/ui/Tooltip";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
-import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, selectLatestNonQueuedRunForAoi, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunForActiveAoi";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
@@ -1394,8 +1394,8 @@ export default function ProofMapTab({
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
   const latestRun = useMemo(() => {
-    return currentRuns.find((run) => run.status !== "queued") ?? null;
-  }, [currentRuns]);
+    return selectLatestNonQueuedRunForAoi({ runs: verificationRuns, currentAoiFingerprint });
+  }, [currentAoiFingerprint, verificationRuns]);
   const intakeSuggestion = useMemo(() => {
     if (!latestRun) return null;
     if (!["warn", "fail", "error"].includes(latestRun.status)) return null;
@@ -1777,6 +1777,7 @@ export default function ProofMapTab({
       buildStacSupportFactsState({
         ruleId: selectedRuleId ?? null,
         hasAoi: Boolean(aoi),
+        currentAoiFingerprint,
         aoiBbox: aoi?.bbox ?? null,
         evidencePins,
         itemsById: currentStacEvidence?.itemsById ?? null,
@@ -1787,6 +1788,7 @@ export default function ProofMapTab({
       }),
     [
       aoi,
+      currentAoiFingerprint,
       currentStacEvidence?.itemsById,
       currentStacEvidence?.runId,
       currentStacEvidence?.source?.ref,

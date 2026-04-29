@@ -98,6 +98,7 @@ describe("extractStacSupportFacts", () => {
       expect(result.lookupStatus).toBe("requires_aoi");
       expect(result.lookupMessage).toBe("AOI is required before STAC support facts can be used.");
       expect(result.linkedFacts).toEqual([]);
+      expect(result.staleFacts).toEqual([]);
     });
 
     it("treats an empty successful search as no results, not failure", () => {
@@ -112,6 +113,7 @@ describe("extractStacSupportFacts", () => {
       expect(result.lookupStatus).toBe("no_results");
       expect(result.lookupError).toBeNull();
       expect(result.searchResultCount).toBe(0);
+      expect(result.staleFacts).toEqual([]);
     });
 
     it("surfaces STAC lookup failures truthfully", () => {
@@ -125,12 +127,14 @@ describe("extractStacSupportFacts", () => {
 
       expect(result.lookupStatus).toBe("lookup_failed");
       expect(result.lookupError).toBe("Satellite search failed.");
+      expect(result.staleFacts).toEqual([]);
     });
 
     it("separates linked support facts from available but unlinked STAC results", () => {
       const result = buildStacSupportFactsState({
         ruleId: "R-1",
         hasAoi: true,
+        currentAoiFingerprint: "aoi-current",
         aoiBbox: [0, 0, 2, 2],
         evidencePins: [
           {
@@ -173,6 +177,47 @@ describe("extractStacSupportFacts", () => {
       );
       expect(result.unlinkedFacts.map((fact) => fact.id)).toEqual(["scene-unlinked"]);
       expect(result.availableUnlinkedIds).toEqual(["scene-unlinked"]);
+      expect(result.staleFacts).toEqual([]);
+    });
+
+    it("does not count prior-AOI linked pins as current linked support facts", () => {
+      const result = buildStacSupportFactsState({
+        ruleId: "R-1",
+        hasAoi: true,
+        currentAoiFingerprint: "aoi-current",
+        evidencePins: [
+          {
+            id: "pin-old",
+            kind: "note",
+            title: "scene-old",
+            itemId: "scene-old",
+            stac_item_ids: ["scene-old"],
+            cited_ids: ["R-1"],
+            aoi_fingerprint: "aoi-old",
+            created_at: "2026-03-25T00:10:00Z",
+          },
+        ],
+        itemsById: {
+          "scene-current": {
+            id: "scene-current",
+            bbox: [0, 0, 1, 1],
+            properties: { datetime: "2026-03-26T00:00:00Z" },
+          },
+        },
+        sourceRef: "https://stac.example.test",
+        runStatus: "ok",
+      });
+
+      expect(result.linkedFacts).toEqual([]);
+      expect(result.staleFacts).toHaveLength(1);
+      expect(result.staleFacts[0]).toEqual(
+        expect.objectContaining({
+          id: "scene-old",
+          linkedRuleIds: ["R-1"],
+        }),
+      );
+      expect(result.linkedFacts.map((fact) => fact.id)).not.toContain("scene-old");
+      expect(result.lookupMessage).toContain("previously linked STAC fact");
     });
   });
 });

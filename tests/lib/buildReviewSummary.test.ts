@@ -183,6 +183,13 @@ describe("buildReviewSummary", () => {
             linkedRuleIds: [],
           },
         ],
+        staleFacts: [
+          {
+            id: "scene-old",
+            sourcePinIds: ["pin-old"],
+            linkedRuleIds: ["R-7"],
+          },
+        ],
         availableUnlinkedIds: ["scene-8"],
         runId: "run-7",
       },
@@ -192,5 +199,6 @@ describe("buildReviewSummary", () => {
     expect(summary.linkedStacSupportFactCount).toBe(1);
     expect(summary.unlinkedStacSupportFactCount).toBe(1);
     expect(summary.narrative).toContain("1 linked AOI/STAC support fact recorded for this rule.");
+    expect(summary.narrative).toContain("previously linked AOI/STAC support fact");
   });
 });

@@ -14,6 +14,7 @@ describe("StacSupportSection", () => {
           searchResultCount: 0,
           linkedFacts: [],
           unlinkedFacts: [],
+          staleFacts: [],
           availableUnlinkedIds: [],
         }}
       />,
@@ -30,6 +31,7 @@ describe("StacSupportSection", () => {
           searchResultCount: 0,
           linkedFacts: [],
           unlinkedFacts: [],
+          staleFacts: [],
           availableUnlinkedIds: [],
         }}
       />,
@@ -47,6 +49,7 @@ describe("StacSupportSection", () => {
           searchResultCount: 0,
           linkedFacts: [],
           unlinkedFacts: [],
+          staleFacts: [],
           availableUnlinkedIds: [],
         }}
       />,
@@ -75,6 +78,7 @@ describe("StacSupportSection", () => {
             },
           ],
           unlinkedFacts: [{ id: "scene-2", sourcePinIds: [], linkedRuleIds: [] }],
+          staleFacts: [{ id: "scene-old", sourcePinIds: ["pin-old"], linkedRuleIds: ["R-1"] }],
           availableUnlinkedIds: ["scene-2"],
         }}
       />,
@@ -83,5 +87,7 @@ describe("StacSupportSection", () => {
     expect(linkedHtml).toContain("scene-1");
     expect(linkedHtml).toContain("Available but unlinked");
     expect(linkedHtml).toContain("scene-2");
+    expect(linkedHtml).toContain("Prior linked facts");
+    expect(linkedHtml).toContain("scene-old");
   });
 });

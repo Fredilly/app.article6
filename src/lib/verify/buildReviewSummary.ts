@@ -134,6 +134,7 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
   const stacSupportFactsStatus = input.supportFacts?.lookupStatus ?? null;
   const linkedStacSupportFactCount = input.supportFacts?.linkedFacts.length ?? null;
   const unlinkedStacSupportFactCount = input.supportFacts?.unlinkedFacts.length ?? null;
+  const staleStacSupportFactCount = input.supportFacts?.staleFacts.length ?? null;
   const checklistStatus = asTrimmed(input.verifier?.checklistStatus) ?? null;
   const reconciliationStatus = asTrimmed(input.reconciliation?.label) ?? null;
   const reconciliationReason = asTrimmed(input.reconciliation?.reason) ?? null;
@@ -151,6 +152,9 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
         : typeof unlinkedStacSupportFactCount === "number" && unlinkedStacSupportFactCount > 0
           ? `${unlinkedStacSupportFactCount} AOI/STAC support fact${unlinkedStacSupportFactCount === 1 ? "" : "s"} available but not linked to this rule.`
           : null
+      : null,
+    typeof staleStacSupportFactCount === "number" && staleStacSupportFactCount > 0
+      ? `${staleStacSupportFactCount} previously linked AOI/STAC support fact${staleStacSupportFactCount === 1 ? "" : "s"} fall outside the active AOI search and do not count as current support.`
       : null,
     typeof linkedRuleCount === "number" ? `${linkedRuleCount} linked rule${linkedRuleCount === 1 ? "" : "s"} in the finalized scope.` : null,
     reconciliationStatus ? `Reconciliation: ${reconciliationStatus}${reconciliationReason ? ` (${reconciliationReason})` : ""}.` : null,

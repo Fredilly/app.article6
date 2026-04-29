@@ -195,6 +195,21 @@ describe("audit pack verification contract", () => {
             linked_rule_ids: ["R-1-0001"],
           },
         ],
+        stale_facts: [
+          {
+            id: "sentinel-scene-old",
+            datetime: "2026-04-10T00:00:00Z",
+            collection: "sentinel-2",
+            source_catalog_ref: "https://stac.example.test",
+            source_provider: "stac.example.test",
+            linked_at: "2026-04-11T11:54:00.000Z",
+            aoi_relation_summary: "Previously linked STAC fact exists, but it is not from the active AOI search",
+            asset_href: null,
+            link_href: "https://stac.example.test/items/sentinel-scene-old",
+            source_pin_ids: ["pin-scene-old"],
+            linked_rule_ids: ["R-1-0001"],
+          },
+        ],
       },
       summary: {
         methodCode: "AR-ACM0003",
@@ -263,6 +278,7 @@ describe("audit pack verification contract", () => {
           lookup_status: string;
           available_unlinked_ids: string[];
           linked_facts: Array<{ id: string; source_provider: string | null; linked_rule_ids: string[] }>;
+          stale_facts?: Array<{ id: string; linked_rule_ids: string[] }>;
         };
       }>;
     };
@@ -280,6 +296,12 @@ describe("audit pack verification contract", () => {
           expect.objectContaining({
             id: "sentinel-scene-1",
             source_provider: "stac.example.test",
+            linked_rule_ids: ["R-1-0001"],
+          }),
+        ],
+        stale_facts: [
+          expect.objectContaining({
+            id: "sentinel-scene-old",
             linked_rule_ids: ["R-1-0001"],
           }),
         ],

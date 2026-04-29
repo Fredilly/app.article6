@@ -53,7 +53,7 @@ import {
 } from "@/lib/proofMap/storage";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
-import { aoiFingerprint, runsForCurrentAoi } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, selectLatestNonQueuedRunForAoi } from "@/lib/proofMap/verificationRuns";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
@@ -396,19 +396,16 @@ export default function MethodDetailPane({
     return deriveDocumentSupport(evidenceInventory, activeRuleId);
   }, [activeRuleId, evidenceInventory]);
   const currentAoiFingerprint = effectiveAoi?.aoi_fingerprint ?? null;
-  const currentRuns = useMemo(
-    () => runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint }),
-    [currentAoiFingerprint, verificationRuns],
-  );
   const latestStacRunForPanel = useMemo(
-    () => currentRuns.find((run) => run.status !== "queued") ?? null,
-    [currentRuns],
+    () => selectLatestNonQueuedRunForAoi({ runs: verificationRuns, currentAoiFingerprint }),
+    [currentAoiFingerprint, verificationRuns],
   );
   const stacSupportStateForPanel = useMemo(
     () =>
       buildStacSupportFactsState({
         ruleId: activeRequirementRow?.ruleId ?? activeRuleId ?? null,
         hasAoi: Boolean(effectiveAoi),
+        currentAoiFingerprint,
         aoiBbox: effectiveAoi?.bbox ?? null,
         evidencePins,
         itemsById: stacEvidenceState?.itemsById ?? null,
@@ -420,6 +417,7 @@ export default function MethodDetailPane({
     [
       activeRequirementRow?.ruleId,
       activeRuleId,
+      currentAoiFingerprint,
       effectiveAoi,
       evidencePins,
       latestStacRunForPanel?.id,

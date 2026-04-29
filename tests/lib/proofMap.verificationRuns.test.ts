@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import type { VerificationRun } from "@/lib/proofMap/types";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
-import { aoiFingerprint, runInputFingerprint, runsForCurrentAoi, shouldDisableRunVerification, splitRunsByAoiFingerprint } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, runInputFingerprint, runsForCurrentAoi, selectLatestNonQueuedRunForAoi, shouldDisableRunVerification, splitRunsByAoiFingerprint } from "@/lib/proofMap/verificationRuns";
 
 describe("verification runs", () => {
   test("runInputFingerprint changes when AOI changes", async () => {
@@ -92,6 +92,53 @@ describe("verification runs", () => {
 
     expect(runsForCurrentAoi({ runs, currentAoiFingerprint: "aoi-a" }).map((run) => run.id)).toEqual(["run-a"]);
     expect(runsForCurrentAoi({ runs, currentAoiFingerprint: "aoi-b" }).map((run) => run.id)).toEqual(["run-b"]);
+  });
+
+  test("latest non-queued run selection is deterministic by newest timestamp", () => {
+    const runs: VerificationRun[] = [
+      {
+        id: "run-old",
+        method: { code: "AR-ACM0003", version: "v02-0" },
+        aoi_fingerprint: "aoi-a",
+        input_fingerprint: "input-old",
+        cited_ids: [],
+        cited_ids_count: 0,
+        attachment_sha256: [],
+        attachment_count: 0,
+        provider: "stac",
+        status: "warn",
+        created_at: "2026-01-01T00:00:00Z",
+      },
+      {
+        id: "run-queued",
+        method: { code: "AR-ACM0003", version: "v02-0" },
+        aoi_fingerprint: "aoi-a",
+        input_fingerprint: "input-queued",
+        cited_ids: [],
+        cited_ids_count: 0,
+        attachment_sha256: [],
+        attachment_count: 0,
+        provider: "stac",
+        status: "queued",
+        created_at: "2026-01-01T00:00:05Z",
+      },
+      {
+        id: "run-new",
+        method: { code: "AR-ACM0003", version: "v02-0" },
+        aoi_fingerprint: "aoi-a",
+        input_fingerprint: "input-new",
+        cited_ids: [],
+        cited_ids_count: 0,
+        attachment_sha256: [],
+        attachment_count: 0,
+        provider: "stac",
+        status: "error",
+        created_at: "2026-01-01T00:00:03Z",
+        ended_at: "2026-01-01T00:00:04Z",
+      },
+    ];
+
+    expect(selectLatestNonQueuedRunForAoi({ runs, currentAoiFingerprint: "aoi-a" })?.id).toBe("run-new");
   });
 
   test("removing AOI hides runs and disables verify", () => {
