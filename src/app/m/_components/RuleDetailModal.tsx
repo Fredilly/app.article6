@@ -8,6 +8,7 @@ import { getReview, saveReview, type RuleReview } from "@/lib/verify/reviewStore
 import { logAuditEvent } from "@/lib/verify/auditTrail";
 import { statusLabel } from "@/lib/verify/reviewValidation";
 import type { DocumentSupportEntry } from "@/lib/verify/documentSupport";
+import type { StacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_RECONCILIATION_META,
@@ -33,14 +34,7 @@ type RuleDetailModalProps = {
   reviewerMinutes?: string | null;
   reviewerOutcomeNote?: string | null;
   ruleTags?: string[];
-  stacItems?: Array<{
-    id: string;
-    datetime?: string;
-    cloud_cover?: number | null;
-    collection?: string;
-    bbox?: [number, number, number, number];
-  }>;
-  hasAoi?: boolean;
+  stacSupportState?: StacSupportFactsState | null;
   documentSupport?: DocumentSupportEntry[];
   methodologyLabel?: string | null;
   reviewMethodology?: string | null;
@@ -186,8 +180,7 @@ export default function RuleDetailModal({
   reviewerMinutes,
   reviewerOutcomeNote,
   ruleTags = [],
-  stacItems = [],
-  hasAoi = false,
+  stacSupportState = null,
   documentSupport = [],
   methodologyLabel,
   reviewMethodology,
@@ -411,8 +404,7 @@ export default function RuleDetailModal({
               sourcePath={sourcePath ?? null}
               sha256={sha256 ?? null}
               ruleTags={ruleTags}
-              stacItems={stacItems}
-              hasAoi={hasAoi}
+              stacSupportState={stacSupportState}
               documentSupport={documentSupport}
               onSave={handleSaveReview}
               onReviewChange={handleReviewChange}

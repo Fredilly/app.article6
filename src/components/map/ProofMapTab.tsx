@@ -15,7 +15,7 @@ import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import Tooltip from "@/components/ui/Tooltip";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
-import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, selectLatestNonQueuedRunForAoi, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunForActiveAoi";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
@@ -33,6 +33,7 @@ import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
 import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
+import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
@@ -1393,8 +1394,8 @@ export default function ProofMapTab({
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
   const latestRun = useMemo(() => {
-    return currentRuns.find((run) => run.status !== "queued") ?? null;
-  }, [currentRuns]);
+    return selectLatestNonQueuedRunForAoi({ runs: verificationRuns, currentAoiFingerprint });
+  }, [currentAoiFingerprint, verificationRuns]);
   const intakeSuggestion = useMemo(() => {
     if (!latestRun) return null;
     if (!["warn", "fail", "error"].includes(latestRun.status)) return null;
@@ -1771,6 +1772,33 @@ export default function ProofMapTab({
       }),
     [selectedRuleCoverageRow, verifierBundle.minutes, verifierBundle.outcomeNote],
   );
+  const stacSupportFacts = useMemo(
+    () =>
+      buildStacSupportFactsState({
+        ruleId: selectedRuleId ?? null,
+        hasAoi: Boolean(aoi),
+        currentAoiFingerprint,
+        aoiBbox: aoi?.bbox ?? null,
+        evidencePins,
+        itemsById: currentStacEvidence?.itemsById ?? null,
+        sourceRef: currentStacEvidence?.source?.ref ?? null,
+        runId: latestRun?.id ?? currentStacEvidence?.runId ?? null,
+        runStatus: latestRun?.status ?? null,
+        runSummary: latestRun?.summary ?? null,
+      }),
+    [
+      aoi,
+      currentAoiFingerprint,
+      currentStacEvidence?.itemsById,
+      currentStacEvidence?.runId,
+      currentStacEvidence?.source?.ref,
+      evidencePins,
+      latestRun?.id,
+      latestRun?.status,
+      latestRun?.summary,
+      selectedRuleId,
+    ],
+  );
   const reviewSummary = useMemo<ReviewSummary>(
     () =>
       buildReviewSummary({
@@ -1792,6 +1820,7 @@ export default function ProofMapTab({
         },
         reconciliation: selectedRuleReconciliation,
         rule: selectedRuleContext,
+        supportFacts: stacSupportFacts,
         generatedAt: verifierBundle.finalizedAt ?? verifierBundle.exportedAt ?? runSummary.provenance.generatedAt ?? null,
       }),
     [
@@ -1804,6 +1833,7 @@ export default function ProofMapTab({
       selectedRuleContext,
       selectedStacItemId,
       selectedStacItemRecord,
+      stacSupportFacts,
       verifierBundle.exportedAt,
       verifierBundle.finalizedAt,
       verifierBundle.outcomeNote,
@@ -2059,6 +2089,7 @@ export default function ProofMapTab({
         verifier: exportVerifierSnapshot,
         reconciliation,
         rule: ruleContext,
+        supportFacts: stacSupportFacts,
         generatedAt: options.finalizedAt,
       });
       if ((summary.ruleId ?? null) !== (selectedRuleId ?? null)) {
@@ -2088,6 +2119,7 @@ export default function ProofMapTab({
         outcome,
         kpis,
         verifier: exportVerifierSnapshot,
+        supportFacts: stacSupportFacts,
         summary,
       });
 
@@ -2112,6 +2144,7 @@ export default function ProofMapTab({
       selectedRuleId,
       selectedStacItemId,
       selectedStacItemRecord,
+      stacSupportFacts,
       totalRules,
       verifierBundle,
       version,

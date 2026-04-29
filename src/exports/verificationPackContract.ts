@@ -122,6 +122,36 @@ type RequirementReviewEntry = {
     minutes_present: boolean;
     outcome_note: string | null;
   };
+  stac_support_facts?: {
+    lookup_status: string;
+    available_unlinked_ids: string[];
+    linked_facts: Array<{
+      id: string;
+      datetime: string | null;
+      collection: string | null;
+      source_catalog_ref: string | null;
+      source_provider: string | null;
+      linked_at: string | null;
+      aoi_relation_summary: string | null;
+      asset_href: string | null;
+      link_href: string | null;
+      source_pin_ids: string[];
+      linked_rule_ids: string[];
+    }>;
+    stale_facts?: Array<{
+      id: string;
+      datetime: string | null;
+      collection: string | null;
+      source_catalog_ref: string | null;
+      source_provider: string | null;
+      linked_at: string | null;
+      aoi_relation_summary: string | null;
+      asset_href: string | null;
+      link_href: string | null;
+      source_pin_ids: string[];
+      linked_rule_ids: string[];
+    }>;
+  };
 };
 
 type RequirementReview = {
@@ -427,6 +457,40 @@ function selectedRuleFromArtifact(artifact: EvidenceSnapshot | null | undefined)
     artifact?.outcome?.linkage.linkedRuleIds[0]?.trim() ||
     null
   );
+}
+
+function stacSupportFactsForArtifact(artifact: EvidenceSnapshot | null | undefined): RequirementReviewEntry["stac_support_facts"] | undefined {
+  if (!artifact?.support_facts) return undefined;
+  return {
+    lookup_status: artifact.support_facts.lookup_status,
+    available_unlinked_ids: [...artifact.support_facts.available_unlinked_ids],
+    linked_facts: artifact.support_facts.linked_facts.map((fact) => ({
+      id: fact.id,
+      datetime: fact.datetime ?? null,
+      collection: fact.collection ?? null,
+      source_catalog_ref: fact.source_catalog_ref ?? null,
+      source_provider: fact.source_provider ?? null,
+      linked_at: fact.linked_at ?? null,
+      aoi_relation_summary: fact.aoi_relation_summary ?? null,
+      asset_href: fact.asset_href ?? null,
+      link_href: fact.link_href ?? null,
+      source_pin_ids: [...fact.source_pin_ids],
+      linked_rule_ids: [...fact.linked_rule_ids],
+    })),
+    stale_facts: (artifact.support_facts.stale_facts ?? []).map((fact) => ({
+      id: fact.id,
+      datetime: fact.datetime ?? null,
+      collection: fact.collection ?? null,
+      source_catalog_ref: fact.source_catalog_ref ?? null,
+      source_provider: fact.source_provider ?? null,
+      linked_at: fact.linked_at ?? null,
+      aoi_relation_summary: fact.aoi_relation_summary ?? null,
+      asset_href: fact.asset_href ?? null,
+      link_href: fact.link_href ?? null,
+      source_pin_ids: [...fact.source_pin_ids],
+      linked_rule_ids: [...fact.linked_rule_ids],
+    })),
+  };
 }
 
 function evidenceRefsForRule(input: {
@@ -926,6 +990,7 @@ export function buildVerificationPackContract(input: {
             minutes_present: Boolean(finalizedArtifact?.verifier?.minutes?.trim()),
             outcome_note: finalizedArtifact?.verifier?.outcomeNote?.trim() || finalizedArtifact?.summary?.outcomeNote || null,
           },
+          stac_support_facts: stacSupportFactsForArtifact(finalizedArtifact),
         },
       ]
     : [];

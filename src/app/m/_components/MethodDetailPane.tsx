@@ -53,7 +53,7 @@ import {
 } from "@/lib/proofMap/storage";
 import type { AOI, EvidencePin } from "@/lib/proofMap/types";
 import type { VerificationRun } from "@/lib/proofMap/types";
-import { aoiFingerprint } from "@/lib/proofMap/verificationRuns";
+import { aoiFingerprint, selectLatestNonQueuedRunForAoi } from "@/lib/proofMap/verificationRuns";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import { importProofBundleText } from "@/lib/proof/import";
@@ -61,6 +61,7 @@ import { applyUrlUpdates, parseDetailTab, type DetailTab } from "@/lib/nav/urlSt
 import type { MethodVersionLineage } from "@/app/m/_lib/methodVersionMetadata";
 import { getReviewProgress, REVIEW_STORE_EVENT, type ReviewProgress } from "@/lib/verify/reviewStore";
 import { deriveDocumentSupport } from "@/lib/verify/documentSupport";
+import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 
 type MethodDetail = {
   code: string;
@@ -390,32 +391,43 @@ export default function MethodDetailPane({
     [activeRuleId, requirementRows],
   );
 
-  const stacItemsForPanel = useMemo(() => {
-    if (!stacEvidenceState?.itemsById) return [];
-    return Object.values(stacEvidenceState.itemsById).map((item) => {
-      const raw = item as Record<string, unknown>;
-      const props = raw.properties && typeof raw.properties === "object" && !Array.isArray(raw.properties)
-        ? (raw.properties as Record<string, unknown>)
-        : {};
-      return {
-        id: typeof raw.id === "string" ? raw.id : "",
-        datetime: typeof raw.datetime === "string" ? raw.datetime : undefined,
-        cloud_cover: typeof raw.cloud_cover === "number" ? raw.cloud_cover : null,
-        collection:
-          (typeof raw.collection === "string" ? raw.collection : null) ??
-          (typeof props.collection === "string" ? props.collection : null) ??
-          undefined,
-        bbox: Array.isArray(raw.bbox) && raw.bbox.length >= 4
-          ? (raw.bbox as [number, number, number, number])
-          : undefined,
-      };
-    }).filter((item) => item.id);
-  }, [stacEvidenceState]);
-
   const documentSupportForPanel = useMemo(() => {
     if (!activeRuleId) return [];
     return deriveDocumentSupport(evidenceInventory, activeRuleId);
   }, [activeRuleId, evidenceInventory]);
+  const currentAoiFingerprint = effectiveAoi?.aoi_fingerprint ?? null;
+  const latestStacRunForPanel = useMemo(
+    () => selectLatestNonQueuedRunForAoi({ runs: verificationRuns, currentAoiFingerprint }),
+    [currentAoiFingerprint, verificationRuns],
+  );
+  const stacSupportStateForPanel = useMemo(
+    () =>
+      buildStacSupportFactsState({
+        ruleId: activeRequirementRow?.ruleId ?? activeRuleId ?? null,
+        hasAoi: Boolean(effectiveAoi),
+        currentAoiFingerprint,
+        aoiBbox: effectiveAoi?.bbox ?? null,
+        evidencePins,
+        itemsById: stacEvidenceState?.itemsById ?? null,
+        sourceRef: stacEvidenceState?.source?.ref ?? null,
+        runId: latestStacRunForPanel?.id ?? stacEvidenceState?.runId ?? null,
+        runStatus: latestStacRunForPanel?.status ?? null,
+        runSummary: latestStacRunForPanel?.summary ?? null,
+      }),
+    [
+      activeRequirementRow?.ruleId,
+      activeRuleId,
+      currentAoiFingerprint,
+      effectiveAoi,
+      evidencePins,
+      latestStacRunForPanel?.id,
+      latestStacRunForPanel?.status,
+      latestStacRunForPanel?.summary,
+      stacEvidenceState?.itemsById,
+      stacEvidenceState?.runId,
+      stacEvidenceState?.source?.ref,
+    ],
+  );
 
   useEffect(() => {
     if (!activeVersion) {
@@ -1422,8 +1434,7 @@ export default function MethodDetailPane({
         sourcePath={ruleDetail?.sourcePath ?? null}
         sha256={ruleDetail?.sha256 ?? null}
         ruleTags={activeRequirementRow?.ruleSummary.tags ?? []}
-        stacItems={stacItemsForPanel}
-        hasAoi={!!effectiveAoi}
+        stacSupportState={stacSupportStateForPanel}
         documentSupport={documentSupportForPanel}
         traceSections={linkedTraceSections.map((link) => {
           const section = sectionsById.get(link.section_id);

@@ -201,10 +201,29 @@ test("adds a top-level review summary without changing the raw snapshot shape", 
       stacSearchResultCount: 1,
       linkedRuleCount: 1,
       selectedEvidenceLinkedRules: ["R-4"],
+      stacSupportFactsStatus: "results_available",
+      linkedStacSupportFactCount: 1,
+      unlinkedStacSupportFactCount: 0,
       checklistStatus: "unused",
       reconciliationStatus: "Supported",
       reconciliationReason: "All expected evidence is linked.",
       narrative: "Finalized verify review.",
+    },
+    supportFacts: {
+      lookupStatus: "results_available",
+      lookupMessage: "1 linked AOI/STAC support fact recorded for this rule.",
+      searchResultCount: 1,
+      linkedFacts: [
+        {
+          id: "stac-9",
+          sourcePinIds: ["pin-9"],
+          linkedRuleIds: ["R-4"],
+        },
+      ],
+      unlinkedFacts: [],
+      staleFacts: [],
+      availableUnlinkedIds: [],
+      runId: "run-4",
     },
   });
 
@@ -212,6 +231,7 @@ test("adds a top-level review summary without changing the raw snapshot shape", 
   expect(snapshot.evidence_source.ref).toBe("https://example.test");
   expect(snapshot.summary?.ruleId).toBe("R-4");
   expect(snapshot.summary?.selectedEvidenceId).toBe("stac-9");
+  expect(snapshot.support_facts?.linked_facts[0]?.id).toBe("stac-9");
   expect(snapshot.selected?.item?.linked_rules).toEqual(["R-4"]);
   expect(snapshot.verifier?.runId).toBe("run-4");
 });

@@ -1,6 +1,7 @@
 import { buildEvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import type { RunSummary } from "@/lib/verify/runState";
 import type { ReviewSummary } from "@/lib/verify/buildReviewSummary";
+import type { StacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 
 export async function buildOutcomeSnapshot(input: {
   method: { code: string; version: string };
@@ -36,6 +37,7 @@ export async function buildOutcomeSnapshot(input: {
     coverage?: { numerator: number; denominator?: number };
     snapshotExportedAt?: string | null;
   } | null;
+  supportFacts?: StacSupportFactsState | null;
   summary?: ReviewSummary | null;
 }) {
   return buildEvidenceSnapshot({
@@ -49,6 +51,7 @@ export async function buildOutcomeSnapshot(input: {
     outcome: input.outcome ?? undefined,
     verifier: input.verifier ?? undefined,
     kpis: input.kpis ?? undefined,
+    supportFacts: input.supportFacts ?? undefined,
     summary: input.summary ?? undefined,
   });
 }

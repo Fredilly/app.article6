@@ -1,5 +1,6 @@
 import type { RequirementReconciliation } from "@/app/m/_lib/requirementCoverage";
 import type { RunSummary } from "@/lib/verify/runState";
+import type { StacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 
 export type ReviewSummary = {
   methodCode: string | null;
@@ -17,6 +18,9 @@ export type ReviewSummary = {
   stacSearchResultCount: number | null;
   linkedRuleCount: number | null;
   selectedEvidenceLinkedRules: string[];
+  stacSupportFactsStatus: string | null;
+  linkedStacSupportFactCount: number | null;
+  unlinkedStacSupportFactCount: number | null;
   checklistStatus: string | null;
   reconciliationStatus: string | null;
   reconciliationReason: string | null;
@@ -48,6 +52,7 @@ type BuildReviewSummaryInput = {
     sectionId?: string | null;
     sectionTitle?: string | null;
   } | null;
+  supportFacts?: StacSupportFactsState | null;
   generatedAt?: string | null;
 };
 
@@ -126,6 +131,10 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
       ? ((readSelectedItemField(selectedItem, "linked_rules") as unknown[]) ?? []).filter((value): value is string => typeof value === "string")
       : [],
   );
+  const stacSupportFactsStatus = input.supportFacts?.lookupStatus ?? null;
+  const linkedStacSupportFactCount = input.supportFacts?.linkedFacts.length ?? null;
+  const unlinkedStacSupportFactCount = input.supportFacts?.unlinkedFacts.length ?? null;
+  const staleStacSupportFactCount = input.supportFacts?.staleFacts.length ?? null;
   const checklistStatus = asTrimmed(input.verifier?.checklistStatus) ?? null;
   const reconciliationStatus = asTrimmed(input.reconciliation?.label) ?? null;
   const reconciliationReason = asTrimmed(input.reconciliation?.reason) ?? null;
@@ -134,6 +143,19 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
     ruleId ? `Rule ${ruleId}${ruleSection ? ` (${ruleSection})` : ""}.` : null,
     selectedEvidenceId ? `Selected evidence ${selectedEvidenceId}${selectedEvidenceLinkedRules.length ? ` linked to ${selectedEvidenceLinkedRules.join(", ")}` : ""}.` : null,
     typeof stacSearchResultCount === "number" ? `STAC search returned ${stacSearchResultCount} candidate item${stacSearchResultCount === 1 ? "" : "s"}.` : null,
+    stacSupportFactsStatus === "requires_aoi" ? "AOI is required before STAC support facts can be used." : null,
+    stacSupportFactsStatus === "lookup_failed" ? "AOI/STAC support-fact lookup failed." : null,
+    stacSupportFactsStatus === "no_results" ? "AOI/STAC support-fact lookup returned no results." : null,
+    typeof linkedStacSupportFactCount === "number"
+      ? linkedStacSupportFactCount > 0
+        ? `${linkedStacSupportFactCount} linked AOI/STAC support fact${linkedStacSupportFactCount === 1 ? "" : "s"} recorded for this rule.`
+        : typeof unlinkedStacSupportFactCount === "number" && unlinkedStacSupportFactCount > 0
+          ? `${unlinkedStacSupportFactCount} AOI/STAC support fact${unlinkedStacSupportFactCount === 1 ? "" : "s"} available but not linked to this rule.`
+          : null
+      : null,
+    typeof staleStacSupportFactCount === "number" && staleStacSupportFactCount > 0
+      ? `${staleStacSupportFactCount} previously linked AOI/STAC support fact${staleStacSupportFactCount === 1 ? "" : "s"} fall outside the active AOI search and do not count as current support.`
+      : null,
     typeof linkedRuleCount === "number" ? `${linkedRuleCount} linked rule${linkedRuleCount === 1 ? "" : "s"} in the finalized scope.` : null,
     reconciliationStatus ? `Reconciliation: ${reconciliationStatus}${reconciliationReason ? ` (${reconciliationReason})` : ""}.` : null,
     outcomeNote ? `Reviewer note: ${outcomeNote}` : null,
@@ -158,6 +180,9 @@ export function buildReviewSummary(input: BuildReviewSummaryInput): ReviewSummar
     stacSearchResultCount,
     linkedRuleCount,
     selectedEvidenceLinkedRules,
+    stacSupportFactsStatus,
+    linkedStacSupportFactCount,
+    unlinkedStacSupportFactCount,
     checklistStatus,
     reconciliationStatus,
     reconciliationReason,
@@ -186,6 +211,11 @@ export function formatReviewSummaryDisplay(summary: ReviewSummary): Record<keyof
     stacSearchResultCount: summary.stacSearchResultCount == null ? "Unavailable" : `${summary.stacSearchResultCount}`,
     linkedRuleCount: summary.linkedRuleCount == null ? "Unavailable" : `${summary.linkedRuleCount}`,
     selectedEvidenceLinkedRules: summary.selectedEvidenceLinkedRules.length ? summary.selectedEvidenceLinkedRules.join(", ") : "Unavailable",
+    stacSupportFactsStatus: fallback(summary.stacSupportFactsStatus, "Unavailable"),
+    linkedStacSupportFactCount:
+      summary.linkedStacSupportFactCount == null ? "Unavailable" : `${summary.linkedStacSupportFactCount}`,
+    unlinkedStacSupportFactCount:
+      summary.unlinkedStacSupportFactCount == null ? "Unavailable" : `${summary.unlinkedStacSupportFactCount}`,
     checklistStatus: fallback(summary.checklistStatus, "Unavailable"),
     reconciliationStatus: fallback(summary.reconciliationStatus, "Unavailable"),
     reconciliationReason: fallback(summary.reconciliationReason, "Unavailable"),
@@ -209,6 +239,9 @@ export function reviewSummaryRows(summary: ReviewSummary): Array<{ label: string
     { label: "Search results", value: display.stacSearchResultCount },
     { label: "Linked rules", value: display.linkedRuleCount },
     { label: "Selected evidence linkage", value: display.selectedEvidenceLinkedRules },
+    { label: "Support facts status", value: display.stacSupportFactsStatus },
+    { label: "Linked support facts", value: display.linkedStacSupportFactCount },
+    { label: "Unlinked support facts", value: display.unlinkedStacSupportFactCount },
     { label: "Checklist status", value: display.checklistStatus },
     { label: "Reconciliation status", value: display.reconciliationStatus },
     { label: "Reconciliation reason", value: display.reconciliationReason },
