@@ -3,9 +3,8 @@
     "status": "active",
     "summary": "Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.",
     "current_focus": [
-      "Consolidate the commercial output around readiness gaps, traceable exports, and pilot sales",
+      "Readiness Gap Engine (RC3) — combine existing evidence inventory with methodology expectations into rule-level gap states",
       "Keep `traceable-rule-review-mvp` as the technical foundation for review records and exports",
-      "Fold older overlapping lanes into this roadmap without erasing their history",
       "Preserve app-vs-methodologies boundaries while preparing sellable verification outputs"
     ],
     "not_active_now": [
@@ -17,24 +16,24 @@
   },
   "phases": {
     "phase_0_roadmap_consolidation": {
-      "status": "next",
+      "status": "done",
       "title": "Roadmap consolidation",
-      "summary": "Collapse the useful parts of old roadmaps into one commercial roadmap, preserve historical lanes as folded or superseded, and keep repo boundaries explicit."
+      "summary": "Collapse the useful parts of old roadmaps into one commercial roadmap, preserve historical lanes as folded or superseded, and keep repo boundaries explicit. Completed via PR #538."
     },
     "phase_1_pdd_project_gap_intake": {
-      "status": "planned",
+      "status": "done",
       "title": "PDD / Project Gap Intake",
-      "summary": "Ingest PDDs, monitoring reports, and workbooks into a project evidence inventory with page/section/fragment provenance and manual fragment-to-rule links."
+      "summary": "Ingest PDDs, monitoring reports, and workbooks into a project evidence inventory with page/section/fragment provenance and manual fragment-to-rule links. Already satisfied by existing app.article6 evidence inventory and requirement-coverage work (Phase 4 Document/Workbook Support in traceable-rule-review-mvp)."
     },
     "phase_2_method_evidence_contracts": {
-      "status": "planned",
+      "status": "done",
       "title": "Method Evidence Contracts",
-      "summary": "Define expected evidence per rule in the methodologies repo so the app can distinguish missing evidence from unknown expectations."
+      "summary": "Define expected evidence per rule in the methodologies repo so the app can distinguish missing evidence from unknown expectations. Completed upstream in article6-methodologies repo for current target methods."
     },
     "phase_3_readiness_gap_engine": {
-      "status": "planned",
+      "status": "next",
       "title": "Readiness Gap Engine",
-      "summary": "Turn project evidence plus method expectations into rule-level gap states, severities, recommendations, and reviewer overrides."
+      "summary": "Turn project evidence plus method expectations into rule-level gap states, severities, recommendations, and reviewer overrides. Next build: combine existing evidence inventory with methodology expected evidence."
     },
     "phase_4_client_readiness_report_export": {
       "status": "planned",
