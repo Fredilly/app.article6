@@ -74,7 +74,7 @@ export default function NewProjectForm() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">New Project</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Create a verification project tied to a methodology
+          Create a verification project tied to a methodology. Core evidence intake starts with explicit PDD, monitoring report, and workbook source states.
         </p>
       </div>
 

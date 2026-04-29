@@ -2,11 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import type { Project, RuleReview, ProjectCoverage } from '@/lib/projects/types';
-import { getProject, updateRuleReview, lockProject, getProjectCoverage } from '@/lib/projects/storage';
+import type {
+  Project,
+  RuleReview,
+  ProjectCoverage,
+  ProjectEvidenceIntakeItem,
+  ProjectEvidenceIntakeStatus,
+} from '@/lib/projects/types';
+import { getProject, updateRuleReview, lockProject, getProjectCoverage, updateProjectEvidenceIntake } from '@/lib/projects/storage';
 
 type ProjectDetailProps = {
   projectId: string;
+};
+
+const INTAKE_STATUS_LABELS: Record<ProjectEvidenceIntakeStatus, string> = {
+  'source-not-supplied': 'Source not supplied',
+  supplied: 'Supplied',
+  linked: 'Linked to rules',
 };
 
 export default function ProjectDetail({ projectId }: ProjectDetailProps) {
@@ -45,6 +57,17 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
     const locked = lockProject(projectId);
     if (locked) {
       setProject(locked);
+    }
+  };
+
+  const handleEvidenceIntakeChange = (
+    type: ProjectEvidenceIntakeItem['type'],
+    update: Partial<Pick<ProjectEvidenceIntakeItem, 'status' | 'sourceName' | 'provenanceNote'>>,
+  ) => {
+    const updated = updateProjectEvidenceIntake(projectId, type, update);
+    if (updated) {
+      setProject(updated);
+      setCoverage(getProjectCoverage(updated));
     }
   };
 
@@ -153,6 +176,70 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           <p className="mt-1 text-right text-xs text-slate-500">{coverage.percentComplete}% complete</p>
         </div>
       )}
+
+      <div className="rounded-lg border border-slate-200 bg-white">
+        <div className="border-b border-slate-100 px-4 py-3">
+          <h2 className="text-sm font-bold text-slate-700">Project evidence intake</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Record whether the project supplied the core evidence sources needed for readiness review.
+          </p>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {project.evidenceIntake.map((item) => (
+            <div key={item.type} className="grid gap-3 px-4 py-4 md:grid-cols-[180px_180px_minmax(0,1fr)_minmax(0,1fr)] md:items-start">
+              <div>
+                <div className="text-sm font-semibold text-slate-800">{item.label}</div>
+                <div className="mt-1 text-xs text-slate-400">
+                  {item.updatedAt ? `Updated ${new Date(item.updatedAt).toLocaleDateString()}` : 'No source logged yet'}
+                </div>
+              </div>
+              <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                Intake status
+                <select
+                  value={item.status}
+                  disabled={project.status === 'locked'}
+                  onChange={(event) =>
+                    handleEvidenceIntakeChange(item.type, {
+                      status: event.target.value as ProjectEvidenceIntakeStatus,
+                    })
+                  }
+                  className="rounded border border-slate-200 px-2 py-2 text-sm text-slate-700 disabled:bg-slate-50 disabled:text-slate-400"
+                >
+                  {Object.entries(INTAKE_STATUS_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                Source / file name
+                <input
+                  value={item.sourceName ?? ''}
+                  disabled={project.status === 'locked'}
+                  onChange={(event) => handleEvidenceIntakeChange(item.type, { sourceName: event.target.value })}
+                  placeholder={item.status === 'source-not-supplied' ? 'Leave blank if not supplied' : 'project-design.pdf'}
+                  className="rounded border border-slate-200 px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 disabled:bg-slate-50 disabled:text-slate-400"
+                />
+              </label>
+              <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                Provenance / intake note
+                <input
+                  value={item.provenanceNote ?? ''}
+                  disabled={project.status === 'locked'}
+                  onChange={(event) => handleEvidenceIntakeChange(item.type, { provenanceNote: event.target.value })}
+                  placeholder={
+                    item.status === 'source-not-supplied'
+                      ? 'Say source not supplied or note expected follow-up'
+                      : 'Page/section scope, intake note, or provenance summary'
+                  }
+                  className="rounded border border-slate-200 px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 disabled:bg-slate-50 disabled:text-slate-400"
+                />
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {Object.entries(grouped).map(([sectionId, reviews]) => (
         <div key={sectionId} className="rounded-lg border border-slate-200 bg-white">

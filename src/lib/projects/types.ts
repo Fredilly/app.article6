@@ -4,6 +4,19 @@ export type RuleReviewStatus = 'not-started' | 'in-progress' | 'verified' | 'gap
 
 export type ProjectRegistry = 'UNFCCC' | 'Verra' | 'Gold Standard' | 'Unknown';
 
+export type ProjectEvidenceIntakeType = 'pdd' | 'monitoring-report' | 'workbook';
+
+export type ProjectEvidenceIntakeStatus = 'source-not-supplied' | 'supplied' | 'linked';
+
+export type ProjectEvidenceIntakeItem = {
+  type: ProjectEvidenceIntakeType;
+  label: string;
+  status: ProjectEvidenceIntakeStatus;
+  sourceName?: string;
+  provenanceNote?: string;
+  updatedAt?: string;
+};
+
 export type RuleReview = {
   ruleId: string;
   ruleTitle: string;
@@ -26,6 +39,7 @@ export type Project = {
   lockedAt?: string;
   aoiLabel?: string;
   description?: string;
+  evidenceIntake: ProjectEvidenceIntakeItem[];
   reviews: RuleReview[];
 };
 
