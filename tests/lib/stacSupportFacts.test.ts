@@ -1,4 +1,4 @@
-import { extractStacSupportFacts } from "@/lib/verify/stacSupportFacts";
+import { buildStacSupportFactsState, extractStacSupportFacts } from "@/lib/verify/stacSupportFacts";
 
 describe("extractStacSupportFacts", () => {
   describe("date range with mixed UTC offsets", () => {
@@ -84,6 +84,95 @@ describe("extractStacSupportFacts", () => {
       expect(result.sceneCount).toBe(0);
       expect(result.dateRange).toBeNull();
       expect(result.facts).toEqual([]);
+    });
+  });
+
+  describe("buildStacSupportFactsState", () => {
+    it("requires an AOI before support facts can be used", () => {
+      const result = buildStacSupportFactsState({
+        ruleId: "R-1",
+        hasAoi: false,
+        evidencePins: [],
+      });
+
+      expect(result.lookupStatus).toBe("requires_aoi");
+      expect(result.lookupMessage).toBe("AOI is required before STAC support facts can be used.");
+      expect(result.linkedFacts).toEqual([]);
+    });
+
+    it("treats an empty successful search as no results, not failure", () => {
+      const result = buildStacSupportFactsState({
+        ruleId: "R-1",
+        hasAoi: true,
+        evidencePins: [],
+        itemsById: {},
+        runStatus: "ok",
+      });
+
+      expect(result.lookupStatus).toBe("no_results");
+      expect(result.lookupError).toBeNull();
+      expect(result.searchResultCount).toBe(0);
+    });
+
+    it("surfaces STAC lookup failures truthfully", () => {
+      const result = buildStacSupportFactsState({
+        ruleId: "R-1",
+        hasAoi: true,
+        evidencePins: [],
+        runStatus: "error",
+        runSummary: "Satellite search failed.",
+      });
+
+      expect(result.lookupStatus).toBe("lookup_failed");
+      expect(result.lookupError).toBe("Satellite search failed.");
+    });
+
+    it("separates linked support facts from available but unlinked STAC results", () => {
+      const result = buildStacSupportFactsState({
+        ruleId: "R-1",
+        hasAoi: true,
+        aoiBbox: [0, 0, 2, 2],
+        evidencePins: [
+          {
+            id: "pin-1",
+            kind: "note",
+            title: "scene-linked",
+            itemId: "scene-linked",
+            stac_item_ids: ["scene-linked"],
+            cited_ids: ["R-1"],
+            created_at: "2026-03-25T00:10:00Z",
+          },
+        ],
+        itemsById: {
+          "scene-linked": {
+            id: "scene-linked",
+            bbox: [0, 0, 1, 1],
+            collection: "sentinel-2",
+            properties: { datetime: "2026-03-25T00:00:00Z", "eo:cloud_cover": 7 },
+            links: [{ rel: "self", href: "https://stac.example.test/items/scene-linked" }],
+          },
+          "scene-unlinked": {
+            id: "scene-unlinked",
+            bbox: [0, 0, 1, 1],
+            collection: "landsat",
+            properties: { datetime: "2026-03-26T00:00:00Z" },
+          },
+        },
+        sourceRef: "https://stac.example.test",
+        runStatus: "ok",
+      });
+
+      expect(result.lookupStatus).toBe("results_available");
+      expect(result.linkedFacts).toHaveLength(1);
+      expect(result.linkedFacts[0]).toEqual(
+        expect.objectContaining({
+          id: "scene-linked",
+          sourceProvider: "stac.example.test",
+          linkedRuleIds: ["R-1"],
+        }),
+      );
+      expect(result.unlinkedFacts.map((fact) => fact.id)).toEqual(["scene-unlinked"]);
+      expect(result.availableUnlinkedIds).toEqual(["scene-unlinked"]);
     });
   });
 });

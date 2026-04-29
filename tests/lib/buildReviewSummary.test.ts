@@ -64,6 +64,9 @@ describe("buildReviewSummary", () => {
       stacSearchResultCount: 2,
       linkedRuleCount: 1,
       selectedEvidenceLinkedRules: ["R-12"],
+      stacSupportFactsStatus: null,
+      linkedStacSupportFactCount: null,
+      unlinkedStacSupportFactCount: null,
       checklistStatus: "unused",
       reconciliationStatus: "Supported",
       reconciliationReason: "All expected evidence is linked and reviewer artifact is saved.",
@@ -116,6 +119,7 @@ describe("buildReviewSummary", () => {
     expect(display.cloudCover).toBe("Unavailable");
     expect(display.reconciliationStatus).toBe("Unavailable");
     expect(display.narrative).toContain("Verify review artifact.");
+    expect(display.stacSupportFactsStatus).toBe("Unavailable");
   });
 
   test("uses the same summary rows for PDF output", () => {
@@ -143,11 +147,50 @@ describe("buildReviewSummary", () => {
         { label: "Rule ID", value: "R-1" },
         { label: "Checklist status", value: "unused" },
         { label: "Reconciliation status", value: "Needs review" },
+        { label: "Support facts status", value: "Unavailable" },
       ]),
     );
     expect(pdfText).toContain("Review Summary");
     expect(pdfText).toContain("AR-ACM0003");
     expect(pdfText).toContain("Rule ID: R-1");
     expect(pdfText).toContain("Narrative:");
+  });
+
+  test("records truthful AOI/STAC support-fact linkage states", () => {
+    const summary = buildReviewSummary({
+      rule: { id: "R-7", text: "Rule text", sectionTitle: "Monitoring" },
+      supportFacts: {
+        lookupStatus: "results_available",
+        lookupMessage: "1 linked AOI/STAC support fact recorded for this rule.",
+        searchResultCount: 2,
+        linkedFacts: [
+          {
+            id: "scene-7",
+            datetime: "2026-03-25T00:00:00Z",
+            cloudCover: 4,
+            collection: "sentinel-2",
+            sourceCatalogRef: "https://stac.example.test",
+            sourceProvider: "stac.example.test",
+            linkedAt: "2026-03-25T00:10:00Z",
+            sourcePinIds: ["pin-7"],
+            linkedRuleIds: ["R-7"],
+          },
+        ],
+        unlinkedFacts: [
+          {
+            id: "scene-8",
+            sourcePinIds: [],
+            linkedRuleIds: [],
+          },
+        ],
+        availableUnlinkedIds: ["scene-8"],
+        runId: "run-7",
+      },
+    });
+
+    expect(summary.stacSupportFactsStatus).toBe("results_available");
+    expect(summary.linkedStacSupportFactCount).toBe(1);
+    expect(summary.unlinkedStacSupportFactCount).toBe(1);
+    expect(summary.narrative).toContain("1 linked AOI/STAC support fact recorded for this rule.");
   });
 });

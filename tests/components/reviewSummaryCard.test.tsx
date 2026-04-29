@@ -22,6 +22,9 @@ describe("ReviewSummaryCard", () => {
           stacSearchResultCount: 3,
           linkedRuleCount: 1,
           selectedEvidenceLinkedRules: ["R-1"],
+          stacSupportFactsStatus: "results_available",
+          linkedStacSupportFactCount: 1,
+          unlinkedStacSupportFactCount: 2,
           checklistStatus: "unused",
           reconciliationStatus: "Supported",
           reconciliationReason: "All expected evidence is linked.",
@@ -44,6 +47,8 @@ describe("ReviewSummaryCard", () => {
     expect(html).toContain("Stable result.");
     expect(html).toContain("What happened");
     expect(html).toContain("Linked rules R-1");
+    expect(html).toContain("Support facts");
+    expect(html).toContain("results_available");
     expect(html).toContain("Raw evidence details");
   });
 
@@ -66,6 +71,9 @@ describe("ReviewSummaryCard", () => {
           stacSearchResultCount: 5,
           linkedRuleCount: 2,
           selectedEvidenceLinkedRules: ["R-7"],
+          stacSupportFactsStatus: null,
+          linkedStacSupportFactCount: null,
+          unlinkedStacSupportFactCount: null,
           checklistStatus: "1/2 completed",
           reconciliationStatus: "Partial",
           reconciliationReason: "Missing expected evidence: Spreadsheet workbook.",
@@ -102,6 +110,9 @@ describe("ReviewSummaryCard", () => {
           stacSearchResultCount: null,
           linkedRuleCount: null,
           selectedEvidenceLinkedRules: [],
+          stacSupportFactsStatus: null,
+          linkedStacSupportFactCount: null,
+          unlinkedStacSupportFactCount: null,
           checklistStatus: null,
           reconciliationStatus: null,
           reconciliationReason: null,

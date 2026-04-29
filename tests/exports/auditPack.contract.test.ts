@@ -173,6 +173,29 @@ describe("audit pack verification contract", () => {
         coverage: { numerator: 1, denominator: 2 },
         snapshotExportedAt: "2026-04-24T12:00:00.000Z",
       },
+      support_facts: {
+        lookup_status: "results_available",
+        lookup_message: "1 linked AOI/STAC support fact recorded for this rule.",
+        search_result_count: 2,
+        available_unlinked_ids: ["sentinel-scene-2"],
+        run_id: "run-final-1",
+        linked_facts: [
+          {
+            id: "sentinel-scene-1",
+            datetime: "2026-04-20T00:00:00Z",
+            cloud_cover: 3,
+            collection: "sentinel-2",
+            source_catalog_ref: "https://stac.example.test",
+            source_provider: "stac.example.test",
+            linked_at: "2026-04-24T11:54:00.000Z",
+            aoi_relation_summary: "Overlaps active AOI bbox",
+            asset_href: "https://stac.example.test/assets/sentinel-scene-1.tif",
+            link_href: "https://stac.example.test/items/sentinel-scene-1",
+            source_pin_ids: ["pin-scene-1"],
+            linked_rule_ids: ["R-1-0001"],
+          },
+        ],
+      },
       summary: {
         methodCode: "AR-ACM0003",
         version: "v02-0",
@@ -189,6 +212,9 @@ describe("audit pack verification contract", () => {
         stacSearchResultCount: 1,
         linkedRuleCount: 1,
         selectedEvidenceLinkedRules: ["R-1-0001"],
+        stacSupportFactsStatus: "results_available",
+        linkedStacSupportFactCount: 1,
+        unlinkedStacSupportFactCount: 1,
         checklistStatus: "2/2 completed",
         reconciliationStatus: "Supported",
         reconciliationReason: "All expected evidence is linked and reviewer artifact is saved.",
@@ -229,7 +255,16 @@ describe("audit pack verification contract", () => {
 
     const requirementReview = readJson("requirement-review.json") as {
       summary: { placeholder_rule_reviews: number; linked_evidence_refs: number };
-      rules: Array<{ linked_evidence_refs: string[]; reconciliation?: { status: string | null }; reviewer_artifact?: { outcome_note: string | null } }>;
+      rules: Array<{
+        linked_evidence_refs: string[];
+        reconciliation?: { status: string | null };
+        reviewer_artifact?: { outcome_note: string | null };
+        stac_support_facts?: {
+          lookup_status: string;
+          available_unlinked_ids: string[];
+          linked_facts: Array<{ id: string; source_provider: string | null; linked_rule_ids: string[] }>;
+        };
+      }>;
     };
     expect(requirementReview.summary.placeholder_rule_reviews).toBe(0);
     expect(requirementReview.summary.linked_evidence_refs).toBeGreaterThanOrEqual(2);
@@ -237,6 +272,19 @@ describe("audit pack verification contract", () => {
     expect(requirementReview.rules[0].linked_evidence_refs).toEqual(expect.arrayContaining(["sentinel-scene-1", "frag-monitoring-period"]));
     expect(requirementReview.rules[0].reconciliation?.status).toBe("Supported");
     expect(requirementReview.rules[0].reviewer_artifact?.outcome_note).toBe("Ready for external review.");
+    expect(requirementReview.rules[0].stac_support_facts).toEqual(
+      expect.objectContaining({
+        lookup_status: "results_available",
+        available_unlinked_ids: ["sentinel-scene-2"],
+        linked_facts: [
+          expect.objectContaining({
+            id: "sentinel-scene-1",
+            source_provider: "stac.example.test",
+            linked_rule_ids: ["R-1-0001"],
+          }),
+        ],
+      }),
+    );
     expect(JSON.stringify(requirementReview)).not.toContain("awaiting_project_evidence");
 
     const evidenceManifest = readJson("evidence-manifest.json") as {

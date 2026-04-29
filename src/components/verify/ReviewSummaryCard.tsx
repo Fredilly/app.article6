@@ -70,6 +70,10 @@ export default function ReviewSummaryCard({
   const aoiLabel = display.aoiLabel === "Unnamed AOI" ? display.aoiLabel : normalizeAoiLabel(display.aoiLabel);
   const ruleSummary = compactSentence(display.ruleText);
   const narrative = compactSentence(display.narrative, 220);
+  const supportFactsSummary =
+    display.stacSupportFactsStatus === "Unavailable"
+      ? "Unavailable"
+      : `${display.stacSupportFactsStatus} • ${display.linkedStacSupportFactCount} linked • ${display.unlinkedStacSupportFactCount} unlinked`;
 
   return (
     <section
@@ -172,6 +176,13 @@ export default function ReviewSummaryCard({
         </div>
 
         <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Support facts</div>
+          <div className="mt-2 break-words text-sm leading-relaxed text-slate-700">
+            {supportFactsSummary}
+          </div>
+        </div>
+
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-4 py-4">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Outcome note</div>
           <div className="mt-2 break-words text-sm leading-relaxed text-slate-700">{display.outcomeNote}</div>
         </div>
@@ -193,6 +204,7 @@ export default function ReviewSummaryCard({
                 selected: artifact?.selected ?? null,
                 linkage: artifact?.outcome?.linkage ?? null,
                 evidence_source: artifact?.evidence_source ?? null,
+                support_facts: artifact?.support_facts ?? null,
               })}
             </pre>
           </div>

@@ -3,6 +3,7 @@ import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { sha256Text } from "@/lib/proof/hash";
 import { buildRunSummary, type RunSummary } from "@/lib/verify/runState";
 import type { ReviewSummary } from "@/lib/verify/buildReviewSummary";
+import type { StacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 
 export const ReviewSummarySchema = z.object({
   methodCode: z.string().nullable(),
@@ -20,10 +21,30 @@ export const ReviewSummarySchema = z.object({
   stacSearchResultCount: z.number().nullable(),
   linkedRuleCount: z.number().nullable(),
   selectedEvidenceLinkedRules: z.array(z.string()),
+  stacSupportFactsStatus: z.string().nullable(),
+  linkedStacSupportFactCount: z.number().nullable(),
+  unlinkedStacSupportFactCount: z.number().nullable(),
   checklistStatus: z.string().nullable(),
   reconciliationStatus: z.string().nullable(),
   reconciliationReason: z.string().nullable(),
   narrative: z.string().nullable(),
+});
+
+const StacSupportFactRecordSchema = z.object({
+  id: z.string().min(1),
+  datetime: z.string().nullable().optional(),
+  cloud_cover: z.number().nullable().optional(),
+  collection: z.string().nullable().optional(),
+  bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).nullable().optional(),
+  geometry_type: z.string().nullable().optional(),
+  aoi_relation_summary: z.string().nullable().optional(),
+  source_catalog_ref: z.string().nullable().optional(),
+  source_provider: z.string().nullable().optional(),
+  asset_href: z.string().nullable().optional(),
+  link_href: z.string().nullable().optional(),
+  linked_at: z.string().nullable().optional(),
+  source_pin_ids: z.array(z.string()),
+  linked_rule_ids: z.array(z.string()),
 });
 
 export const EvidenceSnapshotSchema = z
@@ -165,6 +186,17 @@ export const EvidenceSnapshotSchema = z
         snapshotExportedAt: z.string().nullable().optional(),
       })
       .optional(),
+    support_facts: z
+      .object({
+        lookup_status: z.string(),
+        lookup_message: z.string(),
+        search_result_count: z.number(),
+        available_unlinked_ids: z.array(z.string()),
+        run_id: z.string().nullable().optional(),
+        lookup_error: z.string().nullable().optional(),
+        linked_facts: z.array(StacSupportFactRecordSchema),
+      })
+      .optional(),
     summary: ReviewSummarySchema.optional(),
   })
   .strict();
@@ -260,6 +292,36 @@ function stripUndefined<T extends Record<string, unknown>>(input: T): Partial<T>
   return out as Partial<T>;
 }
 
+function normalizeSupportFacts(input: StacSupportFactsState | null | undefined) {
+  if (!input) return undefined;
+  return {
+    lookup_status: input.lookupStatus,
+    lookup_message: input.lookupMessage,
+    search_result_count: input.searchResultCount,
+    available_unlinked_ids: [...input.availableUnlinkedIds],
+    run_id: input.runId ?? null,
+    lookup_error: input.lookupError ?? null,
+    linked_facts: input.linkedFacts.map((fact) =>
+      stripUndefined({
+        id: fact.id,
+        datetime: fact.datetime ?? null,
+        cloud_cover: fact.cloudCover ?? null,
+        collection: fact.collection ?? null,
+        bbox: fact.bbox ?? null,
+        geometry_type: fact.geometryType ?? null,
+        aoi_relation_summary: fact.aoiRelationSummary ?? null,
+        source_catalog_ref: fact.sourceCatalogRef ?? null,
+        source_provider: fact.sourceProvider ?? null,
+        asset_href: fact.assetHref ?? null,
+        link_href: fact.linkHref ?? null,
+        linked_at: fact.linkedAt ?? null,
+        source_pin_ids: [...fact.sourcePinIds],
+        linked_rule_ids: [...fact.linkedRuleIds],
+      }),
+    ),
+  };
+}
+
 export async function buildEvidenceSnapshot(input: {
   method: { code: string; version: string };
   aoi?: { id?: string | null; bbox?: [number, number, number, number] | null; geojson?: unknown };
@@ -294,6 +356,7 @@ export async function buildEvidenceSnapshot(input: {
     coverage?: { numerator: number; denominator?: number };
     snapshotExportedAt?: string | null;
   } | null;
+  supportFacts?: StacSupportFactsState | null;
   summary?: ReviewSummary | null;
 }): Promise<EvidenceSnapshot> {
   const evidenceRef = asNonEmptyString(input.evidence_source.ref) ?? "unknown";
@@ -366,6 +429,7 @@ export async function buildEvidenceSnapshot(input: {
       outcome: input.outcome ? buildRunSummary(input.outcome) : undefined,
       verifier,
       kpis: input.kpis ?? undefined,
+      support_facts: normalizeSupportFacts(input.supportFacts),
       summary: input.summary ?? undefined,
     }),
   );
