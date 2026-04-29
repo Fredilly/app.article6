@@ -10,6 +10,7 @@ import FinalizeGateBanner from "@/components/verify/FinalizeGateBanner";
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
+import VerifyReadinessStrip, { type VerifyReadinessChip } from "@/components/verify/VerifyReadinessStrip";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
@@ -34,6 +35,7 @@ import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReview
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
+import { isStacEligible } from "@/lib/verify/stacEligibility";
 import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
@@ -432,6 +434,7 @@ export default function ProofMapTab({
     sectionId: string | null;
     sectionTitle: string | null;
     expectedEvidence: string[];
+    tags: string[];
   } | null>(null);
   const [reviewArtifact, setReviewArtifact] = useState<EvidenceSnapshot | null>(null);
   const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
@@ -513,6 +516,7 @@ export default function ProofMapTab({
         sectionId: null,
         sectionTitle: null,
         expectedEvidence: [],
+        tags: [],
       };
       try {
         const ruleResponse = await fetch(
@@ -552,6 +556,13 @@ export default function ProofMapTab({
             ? ruleRecord.expectedEvidence.filter((value): value is string => typeof value === "string")
             : Array.isArray((ruleRecord.requirement_coverage as { expected_evidence?: unknown } | undefined)?.expected_evidence)
               ? ((ruleRecord.requirement_coverage as { expected_evidence?: unknown[] }).expected_evidence ?? []).filter(
+                  (value): value is string => typeof value === "string",
+                )
+              : [],
+          tags: Array.isArray(ruleRecord.tags)
+            ? ruleRecord.tags.filter((value): value is string => typeof value === "string")
+            : Array.isArray((ruleRecord.requirement_coverage as { tags?: unknown } | undefined)?.tags)
+              ? ((ruleRecord.requirement_coverage as { tags?: unknown[] }).tags ?? []).filter(
                   (value): value is string => typeof value === "string",
                 )
               : [],
@@ -1754,7 +1765,7 @@ export default function ProofMapTab({
             snippet: selectedRuleContext?.text ?? selectedRuleId,
             text: selectedRuleContext?.text ?? undefined,
             expectedEvidence: selectedRuleContext?.expectedEvidence ?? [],
-            tags: [],
+            tags: selectedRuleContext?.tags ?? [],
             sectionId: selectedRuleContext?.sectionId ?? undefined,
           },
         ],
@@ -1847,6 +1858,137 @@ export default function ProofMapTab({
   const pinsSectionRef = useRef<HTMLDivElement | null>(null);
   const reviewerSectionRef = useRef<HTMLDivElement | null>(null);
   const finalSummarySectionRef = useRef<HTMLDivElement | null>(null);
+  const scrollToSection = useCallback((ref: { current: HTMLDivElement | null }) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+  const selectedRuleStacEligible = useMemo(
+    () => isStacEligible(selectedRuleContext?.tags ?? []),
+    [selectedRuleContext?.tags],
+  );
+  const hasReviewerDraft = Boolean(verifierBundle.draftMinutes.trim() || verifierBundle.draftOutcomeNote.trim());
+  const verifyReadinessChips = useMemo<VerifyReadinessChip[]>(() => {
+    const hasAoiLoaded = Boolean(aoi?.geojson);
+    const stacStatus =
+      !hasAoiLoaded || !latestRun
+        ? "not run"
+        : latestRun.status === "ok"
+          ? stacFeatureIds.length > 0
+            ? "results found"
+            : "no results"
+          : latestRun.status === "warn" && stacFeatureIds.length > 0
+            ? "results found"
+            : "failed";
+    const stacDetail =
+      !hasAoiLoaded
+        ? "Load an AOI before running STAC search."
+        : !latestRun
+          ? "No STAC search has been run for the active AOI."
+          : stacStatus === "results found"
+            ? `${stacFeatureIds.length} STAC result${stacFeatureIds.length === 1 ? "" : "s"} found for the active AOI.`
+            : stacStatus === "no results"
+              ? "STAC search completed but returned no results for the active AOI."
+              : latestRun.summary?.trim() || "STAC search failed for the active AOI.";
+    const supportFactsStatus = !selectedRuleId || !selectedRuleStacEligible
+      ? "not applicable"
+      : stacSupportFacts.linkedFacts.length > 0
+        ? "linked"
+        : stacSupportFacts.staleFacts.length > 0
+          ? "stale"
+          : "unlinked";
+    const supportFactsDetail = !selectedRuleId
+      ? "Select a rule to assess AOI/STAC support facts."
+      : !selectedRuleStacEligible
+        ? "AOI/STAC support facts are not expected for this rule."
+        : stacSupportFacts.lookupMessage;
+    const reviewerRecordStatus = verifierBundle.savedReviewerArtifactAt
+      ? "saved"
+      : hasReviewerDraft
+        ? "draft"
+        : "missing";
+    const exportReady =
+      currentWorkspaceIsFinal ||
+      Boolean(finalizeGate?.canFinalize && linkedRuleIds.length > 0 && verifierBundle.savedReviewerArtifactAt);
+    const exportDetail = currentWorkspaceIsFinal
+      ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}`
+      : finalizeGate && !finalizeGate.canFinalize
+        ? finalizeGate.reasons[0] ?? "Finalize gate is blocked."
+        : !linkedRuleIds.length
+          ? "Link evidence to at least one rule before finalizing or exporting."
+          : !verifierBundle.savedReviewerArtifactAt
+            ? "Save reviewer artifact before finalizing or exporting."
+            : "Finalize gate is clear for export.";
+
+    return [
+      {
+        key: "aoi",
+        label: "AOI",
+        value: hasAoiLoaded ? "loaded" : "missing",
+        detail: hasAoiLoaded ? aoi?.name ?? bboxLabel ?? "AOI loaded." : "Upload or confirm an AOI to scope the review.",
+        tone: hasAoiLoaded ? "ok" : "blocked",
+        onClick: () => scrollToSection(aoiSectionRef),
+      },
+      {
+        key: "stac",
+        label: "STAC",
+        value: stacStatus,
+        detail: stacDetail,
+        tone: stacStatus === "results found" ? "ok" : stacStatus === "failed" ? "blocked" : "warn",
+        onClick: () => scrollToSection(stacSectionRef),
+      },
+      {
+        key: "support-facts",
+        label: "Support facts",
+        value: supportFactsStatus,
+        detail: supportFactsDetail,
+        tone:
+          supportFactsStatus === "linked"
+            ? "ok"
+            : supportFactsStatus === "not applicable"
+              ? "neutral"
+              : supportFactsStatus === "stale"
+                ? "warn"
+                : "blocked",
+      },
+      {
+        key: "reviewer-record",
+        label: "Reviewer record",
+        value: reviewerRecordStatus,
+        detail: verifierBundle.savedReviewerArtifactAt
+          ? `Saved ${formatLocalDateTime(verifierBundle.savedReviewerArtifactAt)}`
+          : hasReviewerDraft
+            ? "Draft reviewer notes exist but are not saved yet."
+            : "No reviewer artifact is saved for the active rule and run.",
+        tone: reviewerRecordStatus === "saved" ? "ok" : reviewerRecordStatus === "draft" ? "warn" : "blocked",
+        onClick: () => scrollToSection(reviewerSectionRef),
+      },
+      {
+        key: "export",
+        label: "Export",
+        value: exportReady ? "ready" : "blocked",
+        detail: exportDetail,
+        tone: exportReady ? "ok" : "blocked",
+        onClick: () => scrollToSection(finalSummarySectionRef),
+      },
+    ];
+  }, [
+    aoi?.geojson,
+    aoi?.name,
+    bboxLabel,
+    currentWorkspaceIsFinal,
+    finalizeGate,
+    hasReviewerDraft,
+    latestRun,
+    linkedRuleIds.length,
+    scrollToSection,
+    selectedRuleId,
+    selectedRuleStacEligible,
+    stacFeatureIds.length,
+    stacSupportFacts.linkedFacts.length,
+    stacSupportFacts.lookupMessage,
+    stacSupportFacts.staleFacts.length,
+    verifierBundle.finalizedAt,
+    verifierBundle.savedReviewerArtifactAt,
+  ]);
   const activeLeftSection = useMemo(() => {
     switch (wizardDetails.activeStep) {
       case 1:
@@ -2317,7 +2459,6 @@ export default function ProofMapTab({
     const hasEvidence = (currentStacEvidence?.fc?.features?.length ?? 0) > 0;
     const hasRuns = verificationRuns.length > 0;
     const hasSnapshots = (evidenceSnapshots ?? []).length > 0;
-    const hasReviewerDraft = Boolean(verifierBundle.draftMinutes.trim() || verifierBundle.draftOutcomeNote.trim());
     const hasComparisonNotes = Boolean(verifierBundle.delta.trim() || verifierBundle.impact.trim() || verifierBundle.tasks.length);
     const hasWorkspaceRunState = Boolean(
       verifierBundle.exportedAt ||
@@ -2334,10 +2475,9 @@ export default function ProofMapTab({
     evidenceSnapshots,
     selectedStacItemId,
     verificationRuns.length,
+    hasReviewerDraft,
     verifierBundle.delta,
     verifierBundle.derivedFromRunId,
-    verifierBundle.draftMinutes,
-    verifierBundle.draftOutcomeNote,
     verifierBundle.exportedAt,
     verifierBundle.finalizedAt,
     verifierBundle.impact,
@@ -4062,12 +4202,17 @@ export default function ProofMapTab({
             </div>
           ) : null}
 
+          <VerifyReadinessStrip
+            ruleId={selectedRuleId}
+            chips={verifyReadinessChips}
+          />
+
           <div className="transition">
             {currentWorkspaceIsFinal ? (
               <FinalReviewSummaryPanel
                 summary={activeReviewArtifact?.summary ?? reviewSummary}
                 artifact={activeReviewArtifact}
-          evidencePins={evidencePins}
+                evidencePins={evidencePins}
                 currentRunLabel={currentRunLabel}
                 loadedFromRunLabel={loadedFromRunLabel}
                 finalizedAt={verifierBundle.finalizedAt}
