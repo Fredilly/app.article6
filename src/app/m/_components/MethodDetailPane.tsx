@@ -1508,8 +1508,18 @@ export default function MethodDetailPane({
             <button
               type="button"
               onClick={() => methodsLayout.setMethodsCollapsed(!methodsLayout.methodsCollapsed)}
-              className="hidden items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+              className={`hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition lg:inline-flex ${
+                methodsLayout.methodsCollapsed
+                  ? "border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
+                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              }`}
             >
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  methodsLayout.methodsCollapsed ? "bg-white" : "bg-slate-300"
+                }`}
+                aria-hidden="true"
+              />
               {methodsLayout.methodsCollapsed ? "Show methods" : "Hide methods"}
             </button>
           ) : null}

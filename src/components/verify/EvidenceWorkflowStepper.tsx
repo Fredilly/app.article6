@@ -83,10 +83,23 @@ type EvidenceWorkflowStepperProps = {
 };
 
 function stepStateClass(input: { active: boolean; complete: boolean; disabled: boolean }): string {
-  if (input.active) return "border-slate-900 bg-slate-50 shadow-sm";
-  if (input.complete) return "border-emerald-200 bg-emerald-50";
-  if (input.disabled) return "border-slate-200 bg-slate-50/70 opacity-75";
+  if (input.active) return "border-slate-300 bg-slate-50";
+  if (input.complete) return "border-emerald-200/90 bg-emerald-50/65";
+  if (input.disabled) return "border-slate-200 bg-slate-50/60 opacity-80";
   return "border-slate-200 bg-white";
+}
+
+function stepMarkerClass(input: { active: boolean; complete: boolean; disabled: boolean }): string {
+  if (input.active) return "border-slate-900 bg-slate-900 text-white";
+  if (input.complete) return "border-emerald-300 bg-emerald-50 text-emerald-700";
+  if (input.disabled) return "border-slate-200 bg-slate-50 text-slate-400";
+  return "border-slate-200 bg-white text-slate-500";
+}
+
+function stepTextTone(input: { active: boolean; complete: boolean; disabled: boolean }): string {
+  if (input.active) return "text-slate-900";
+  if (input.disabled) return "text-slate-500";
+  return "text-slate-700";
 }
 
 function formatDate(value: string | null | undefined): string | null {
@@ -109,13 +122,13 @@ function CompletedWorkflowSummary(props: {
 
   return (
     <div
-      className="rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-slate-50 px-4 py-3 shadow-sm shadow-emerald-100"
+      className="rounded-xl border border-emerald-200/90 bg-white px-4 py-3"
       data-testid="wizard-completed-summary"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
               Finalized
             </span>
             {methodCode && version ? (
@@ -136,7 +149,7 @@ function CompletedWorkflowSummary(props: {
           {onViewOutcome ? (
             <button
               type="button"
-              className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800"
+            className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
               onClick={onViewOutcome}
             >
               View outcome
@@ -144,14 +157,14 @@ function CompletedWorkflowSummary(props: {
           ) : null}
           <button
             type="button"
-            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             onClick={onStartAnotherRun}
           >
             Start another run
           </button>
           <button
             type="button"
-            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-700"
             onClick={onExpand}
           >
             Expand workflow
@@ -208,18 +221,18 @@ function CompletedWorkflowDetail(props: {
       <div className="flex justify-end">
         <button
           type="button"
-          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-700"
           onClick={onCollapse}
         >
           Collapse workflow
         </button>
       </div>
 
-      <div className="rounded-xl border border-emerald-200 bg-white px-4 py-4 shadow-sm">
+      <div className="rounded-xl border border-emerald-200 bg-white px-4 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
                 Completed workflow
               </span>
               {methodCode && version ? (
@@ -237,7 +250,7 @@ function CompletedWorkflowDetail(props: {
             {onViewOutcome ? (
               <button
                 type="button"
-                className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800"
+                className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
                 onClick={onViewOutcome}
               >
                 View outcome
@@ -245,14 +258,14 @@ function CompletedWorkflowDetail(props: {
             ) : null}
             <button
               type="button"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
               onClick={onStartAnotherRun}
             >
               Start another run
             </button>
             <button
               type="button"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
               onClick={onViewRunHistory}
             >
               View run history
@@ -443,7 +456,7 @@ export default function EvidenceWorkflowStepper({
 
   return (
     <div className="grid gap-3">
-      <div className="sticky top-0 z-10 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <div className="sticky top-0 z-10 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Current workspace</div>
@@ -455,12 +468,12 @@ export default function EvidenceWorkflowStepper({
                 </span>
               </span>
               {loadedFromRunLabel ? (
-                <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
                   Loaded from Run {loadedFromRunLabel}
                 </span>
               ) : null}
               {isEditedDraft ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
                   Edited draft
                 </span>
               ) : null}
@@ -470,22 +483,22 @@ export default function EvidenceWorkflowStepper({
                 </span>
               ) : null}
               {inProgress ? (
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-700">
                   In progress
                 </span>
               ) : null}
               {reviewerArtifactSaved && !currentWorkspaceIsFinal ? (
-                <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
                   Reviewer artifact saved
                 </span>
               ) : null}
               {readyToFinalize ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
                   Ready to finalize
                 </span>
               ) : null}
               {hasUnsavedWorkspaceEdits ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
                   Unsaved edits
                 </span>
               ) : null}
@@ -498,10 +511,17 @@ export default function EvidenceWorkflowStepper({
         </div>
       </div>
 
-      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step1)}`} data-testid="wizard-step-1">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 1</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Pick rule</div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step1)}`} data-testid="wizard-step-1">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step1)}`}>
+            {step1.complete ? "✓" : "1"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 1</div>
+              <div className={`text-sm font-semibold ${stepTextTone(step1)}`}>Pick rule</div>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
             <span className="text-xs font-semibold text-slate-600">Rule</span>
             <select
@@ -528,16 +548,25 @@ export default function EvidenceWorkflowStepper({
           ) : (
             <div className="text-[11px] text-slate-500">Select a rule to unlock the rest of the workflow.</div>
           )}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step2)}`} data-testid="wizard-step-2">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Confirm Area</div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step2)}`} data-testid="wizard-step-2">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step2)}`}>
+            {step2.complete ? "✓" : "2"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 2</div>
+              <div className={`text-sm font-semibold ${stepTextTone(step2)}`}>Confirm Area</div>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${
+            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
               step2.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
             }`}
             onClick={onUploadAoi}
@@ -554,9 +583,9 @@ export default function EvidenceWorkflowStepper({
           ) : (
             <div className="text-[11px] text-slate-500">Upload and confirm an Area to continue.</div>
           )}
-        </div>
+            </div>
         {aoiSummary ? (
-          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-700">
+          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700">
             {aoiSummary.isPreview ? (
               <>
                 <div className="font-semibold text-slate-900">New Area ready</div>
@@ -585,15 +614,24 @@ export default function EvidenceWorkflowStepper({
             )}
           </div>
         ) : null}
+          </div>
+        </div>
       </div>
 
-      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step3)}`} data-testid="wizard-step-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Search Satellite</div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step3)}`} data-testid="wizard-step-3">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step3)}`}>
+            {step3.complete ? "✓" : "3"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 3</div>
+              <div className={`text-sm font-semibold ${stepTextTone(step3)}`}>Search Satellite</div>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-60 ${
+            className={`rounded-full border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
               step3.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
             }`}
             disabled={step3.disabled || searchDisabled}
@@ -610,12 +648,21 @@ export default function EvidenceWorkflowStepper({
           ) : (
             <div className="text-[11px] text-slate-500">Run search to load candidate evidence.</div>
           )}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step4)}`} data-testid="wizard-step-4">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 4</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Select item</div>
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step4)}`} data-testid="wizard-step-4">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step4)}`}>
+            {step4.complete ? "✓" : "4"}
+          </div>
+          <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 4</div>
+          <div className={`text-sm font-semibold ${stepTextTone(step4)}`}>Select item</div>
+        </div>
         {selectedStacItemId ? (
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
@@ -626,16 +673,25 @@ export default function EvidenceWorkflowStepper({
         ) : (
           <div className="mt-2 text-[11px] text-slate-500">Pick a satellite result from the list or map to continue.</div>
         )}
+          </div>
+        </div>
       </div>
 
-      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step5)}`} data-testid="wizard-step-5">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 5</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Create/link pin</div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step5)}`} data-testid="wizard-step-5">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step5)}`}>
+            {step5.complete ? "✓" : "5"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 5</div>
+              <div className={`text-sm font-semibold ${stepTextTone(step5)}`}>Create/link pin</div>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
           <Tooltip content={createPinDisabledReason}>
             <button
               type="button"
-              className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-60 ${
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
                 step5.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               }`}
               onClick={onCreatePin}
@@ -649,24 +705,33 @@ export default function EvidenceWorkflowStepper({
               {pinsCount} link{pinsCount === 1 ? "" : "s"} ready
             </span>
           ) : null}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className={`${stepShellClass} rounded-lg border px-3 py-2 ${stepStateClass(step6)}`} data-testid="wizard-step-6">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 6</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Save reviewer artifact</div>
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step6)}`} data-testid="wizard-step-6">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step6)}`}>
+            {step6.complete ? "✓" : "6"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 6</div>
+              <div className={`text-sm font-semibold ${stepTextTone(step6)}`}>Save reviewer artifact</div>
+            </div>
         <div className="mt-2 grid gap-3">
           <div className="text-[11px] text-slate-500">Type concise minutes or an outcome note, then save it explicitly before finalization.</div>
           <textarea
             data-testid="verifier-minutes-textarea"
-            className="min-h-[96px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-200 disabled:opacity-60"
+            className="min-h-[92px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200 disabled:opacity-60"
             placeholder="Verifier minutes: what you checked, what you assume, what remains uncertain."
             value={draftMinutes}
             disabled={currentWorkspaceIsFinal}
             onChange={(event) => onReviewerMinutesChange(event.target.value)}
           />
           <textarea
-            className="min-h-[72px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-200 disabled:opacity-60"
+            className="min-h-[72px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200 disabled:opacity-60"
             placeholder="Outcome note: one concise sentence if minutes are unnecessary."
             value={draftOutcomeNote}
             disabled={currentWorkspaceIsFinal}
@@ -675,7 +740,7 @@ export default function EvidenceWorkflowStepper({
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={onSaveReviewerArtifact}
               disabled={step6.disabled || currentWorkspaceIsFinal || !hasDraftArtifactChanges}
             >
@@ -688,17 +753,26 @@ export default function EvidenceWorkflowStepper({
             ) : null}
           </div>
         </div>
+          </div>
+        </div>
       </div>
 
-      <div className={`${currentWorkspaceIsFinal ? "opacity-70 transition" : "transition"} rounded-lg border px-3 py-2 ${stepStateClass(step7)}`} data-testid="wizard-step-7">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step 7</div>
-        <div className="mt-1 text-xs font-semibold text-slate-900">Finalize run</div>
+      <div className={`${currentWorkspaceIsFinal ? "opacity-70 transition" : "transition"} rounded-xl border px-3.5 py-3 ${stepStateClass(step7)}`} data-testid="wizard-step-7">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step7)}`}>
+            {step7.complete ? "✓" : "7"}
+          </div>
+          <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 7</div>
+          <div className={`text-sm font-semibold ${stepTextTone(step7)}`}>Finalize run</div>
+        </div>
         <div className="mt-1 text-[11px] text-slate-500">This is the single completion/export action. Finalization writes the immutable run artifact with evidence and reviewer notes.</div>
         {finalizeGateBanner ? <div className="mt-2">{finalizeGateBanner}</div> : null}
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={onFinalizeRun}
             disabled={step7.disabled || currentWorkspaceIsFinal || finalizeBlocked}
           >
@@ -709,6 +783,8 @@ export default function EvidenceWorkflowStepper({
               Finalized {formatDate(finalizedAt)}
             </span>
           ) : null}
+        </div>
+          </div>
         </div>
       </div>
 

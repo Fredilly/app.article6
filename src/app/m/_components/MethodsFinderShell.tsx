@@ -99,7 +99,7 @@ export default function MethodsFinderShell({ left, right }: MethodsFinderShellPr
   const layoutClass = useMemo(
     () =>
       `grid gap-4 ${
-        collapsed ? "lg:grid-cols-[minmax(0,1fr)]" : "lg:grid-cols-[360px_minmax(0,1fr)]"
+        collapsed ? "lg:grid-cols-[minmax(0,1fr)]" : "lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[336px_minmax(0,1fr)]"
       }`,
     [collapsed],
   );
@@ -107,7 +107,7 @@ export default function MethodsFinderShell({ left, right }: MethodsFinderShellPr
   return (
     <MethodsLayoutProvider value={{ isVerifyTab, methodsCollapsed: collapsed, setMethodsCollapsed: setMethodsCollapsedWithUrl }}>
       <div className={layoutClass}>
-        <section className={`w-full ${collapsed ? "lg:hidden" : ""}`}>{left}</section>
+        <section className={`w-full ${collapsed ? "lg:hidden" : "lg:sticky lg:top-4 lg:self-start"}`}>{left}</section>
         <section className="w-full">{right}</section>
       </div>
     </MethodsLayoutProvider>
