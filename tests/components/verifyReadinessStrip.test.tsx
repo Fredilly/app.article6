@@ -3,6 +3,29 @@ import { renderToStaticMarkup } from "react-dom/server";
 import VerifyReadinessStrip from "@/components/verify/VerifyReadinessStrip";
 
 describe("VerifyReadinessStrip", () => {
+  test("keeps no selected rule distinct from not applicable", () => {
+    const html = renderToStaticMarkup(
+      <VerifyReadinessStrip
+        ruleId={null}
+        chips={[
+          {
+            key: "support-facts",
+            label: "Support facts",
+            value: "select rule",
+            detail: "Select a rule to assess AOI/STAC support facts.",
+            tone: "blocked",
+          },
+        ]}
+      />,
+    );
+
+    expect(html).toContain("Select a rule to inspect rule-specific readiness.");
+    expect(html).toContain("Support facts:");
+    expect(html).toContain("select rule");
+    expect(html).toContain("Select a rule to assess AOI/STAC support facts.");
+    expect(html).not.toContain("not applicable");
+  });
+
   test("renders compact truthful readiness chips", () => {
     const html = renderToStaticMarkup(
       <VerifyReadinessStrip

@@ -1888,13 +1888,15 @@ export default function ProofMapTab({
             : stacStatus === "no results"
               ? "STAC search completed but returned no results for the active AOI."
               : latestRun.summary?.trim() || "STAC search failed for the active AOI.";
-    const supportFactsStatus = !selectedRuleId || !selectedRuleStacEligible
-      ? "not applicable"
-      : stacSupportFacts.linkedFacts.length > 0
-        ? "linked"
-        : stacSupportFacts.staleFacts.length > 0
-          ? "stale"
-          : "unlinked";
+    const supportFactsStatus = !selectedRuleId
+      ? "select rule"
+      : !selectedRuleStacEligible
+        ? "not applicable"
+        : stacSupportFacts.linkedFacts.length > 0
+          ? "linked"
+          : stacSupportFacts.staleFacts.length > 0
+            ? "stale"
+            : "unlinked";
     const supportFactsDetail = !selectedRuleId
       ? "Select a rule to assess AOI/STAC support facts."
       : !selectedRuleStacEligible
