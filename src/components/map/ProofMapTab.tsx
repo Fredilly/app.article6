@@ -3765,111 +3765,141 @@ export default function ProofMapTab({
   return (
     <div className="mt-4 grid gap-4">
       <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={async () => {
-                const text = `${methodCode}@${version}`;
-                await copyToClipboard(text);
-              }}
-              title={`Copy method ${methodCode}@${version}`}
-            >
-              <span className="text-slate-500">method:</span>
-              <span className="font-mono">{methodCode}@{version}</span>
-            </button>
-
-            {appCommit ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => {
-                  const full = (process.env.NEXT_PUBLIC_GIT_SHA || "").trim();
-                  await copyToClipboard(full || appCommit);
-                }}
-                title="Copy app commit"
-              >
-                <span className="text-slate-500">app:</span>
-                <span className="font-mono">{appCommit}</span>
-              </button>
-            ) : null}
-
-            {evidenceChip ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => {
-                  await copyToClipboard(evidenceChip.value);
-                }}
-                title="Copy evidence layer ref"
-              >
-                <span className="text-slate-500">{evidenceChip.label}:</span>
-                <span className="font-mono">{evidenceChip.display}</span>
-              </button>
-            ) : localEvidenceHashInputs ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => {
-                  const snapshot = await buildOutcomeSnapshot({
-                    method: { code: methodCode, version },
-                    evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
-                  });
-                  if (snapshot.evidence_source.hash) await copyToClipboard(snapshot.evidence_source.hash);
-                }}
-                title="Copy local evidence hash"
-              >
-                <span className="text-slate-500">evidence:</span>
-                <span className="font-mono">local:{localEvidenceHashInputs.length}</span>
-              </button>
-            ) : (
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
-                evidence: none
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Review workspace</div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="font-mono text-sm font-semibold text-slate-900">{methodCode}@{version}</span>
+              <span className="text-xs text-slate-500">
+                {selectedRuleId ? `Rule ${selectedRuleId}` : "No rule selected"}
               </span>
-            )}
-
-            {auditHashes?.rules ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => copyToClipboard(auditHashes.rules ?? "")}
-                title="Copy rules_sha256"
-              >
-                <span className="text-slate-500">rules:</span>
-                <span className="font-mono">{shortSha(auditHashes.rules)}</span>
-              </button>
-            ) : null}
-            {auditHashes?.sections ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => copyToClipboard(auditHashes.sections ?? "")}
-                title="Copy sections_sha256"
-              >
-                <span className="text-slate-500">sections:</span>
-                <span className="font-mono">{shortSha(auditHashes.sections)}</span>
-              </button>
-            ) : null}
+              <span className="text-xs text-slate-500">
+                Run <span className="font-mono">{currentRunLabel}</span>
+              </span>
+            </div>
           </div>
-
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <ProofCoverageChip
-              kpis={runKpis}
-              onViewCoverage={onOpenCoverageDrawer}
-            />
-            <button
-              type="button"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={() => {
-                document.getElementById("verify-outcome")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-            >
-              Outcome
-            </button>
+          <div className="text-xs text-slate-500">
+            Review first. Open technical metadata only when needed.
           </div>
         </div>
       </div>
+
+      <details className="group rounded-xl border border-slate-200 bg-white" data-testid="verify-technical-metadata">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-left marker:hidden">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Technical metadata</div>
+            <div className="mt-1 text-sm font-medium text-slate-700">Export context, hashes, and debug details</div>
+          </div>
+          <span className="text-xs font-semibold text-slate-500 group-open:hidden">Show</span>
+          <span className="hidden text-xs font-semibold text-slate-500 group-open:inline">Hide</span>
+        </summary>
+        <div className="border-t border-slate-100 px-4 py-3">
+          <div className="flex flex-col gap-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                onClick={async () => {
+                  const text = `${methodCode}@${version}`;
+                  await copyToClipboard(text);
+                }}
+                title={`Copy method ${methodCode}@${version}`}
+              >
+                <span className="text-slate-500">method:</span>
+                <span className="font-mono">{methodCode}@{version}</span>
+              </button>
+
+              {appCommit ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => {
+                    const full = (process.env.NEXT_PUBLIC_GIT_SHA || "").trim();
+                    await copyToClipboard(full || appCommit);
+                  }}
+                  title="Copy app commit"
+                >
+                  <span className="text-slate-500">app:</span>
+                  <span className="font-mono">{appCommit}</span>
+                </button>
+              ) : null}
+
+              {evidenceChip ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => {
+                    await copyToClipboard(evidenceChip.value);
+                  }}
+                  title="Copy evidence layer ref"
+                >
+                  <span className="text-slate-500">{evidenceChip.label}:</span>
+                  <span className="font-mono">{evidenceChip.display}</span>
+                </button>
+              ) : localEvidenceHashInputs ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => {
+                    const snapshot = await buildOutcomeSnapshot({
+                      method: { code: methodCode, version },
+                      evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
+                    });
+                    if (snapshot.evidence_source.hash) await copyToClipboard(snapshot.evidence_source.hash);
+                  }}
+                  title="Copy local evidence hash"
+                >
+                  <span className="text-slate-500">evidence:</span>
+                  <span className="font-mono">local:{localEvidenceHashInputs.length}</span>
+                </button>
+              ) : (
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
+                  evidence: none
+                </span>
+              )}
+
+              {auditHashes?.rules ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => copyToClipboard(auditHashes.rules ?? "")}
+                  title="Copy rules_sha256"
+                >
+                  <span className="text-slate-500">rules:</span>
+                  <span className="font-mono">{shortSha(auditHashes.rules)}</span>
+                </button>
+              ) : null}
+              {auditHashes?.sections ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => copyToClipboard(auditHashes.sections ?? "")}
+                  title="Copy sections_sha256"
+                >
+                  <span className="text-slate-500">sections:</span>
+                  <span className="font-mono">{shortSha(auditHashes.sections)}</span>
+                </button>
+              ) : null}
+            </div>
+
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <ProofCoverageChip
+                kpis={runKpis}
+                onViewCoverage={onOpenCoverageDrawer}
+              />
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                onClick={() => {
+                  document.getElementById("verify-outcome")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                Outcome
+              </button>
+            </div>
+          </div>
+        </div>
+      </details>
 
       {undoVisible ? (
         <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
