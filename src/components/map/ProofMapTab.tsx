@@ -3996,6 +3996,10 @@ export default function ProofMapTab({
               </button>
             </div>
           ) : null}
+          <VerifyReadinessStrip
+            ruleId={selectedRuleId}
+            chips={verifyReadinessChips}
+          />
           <div
             data-testid="left-pane-step-focus"
             className={`sticky top-0 z-10 rounded-xl border px-4 py-3 text-sm shadow-sm transition ${
@@ -4203,11 +4207,6 @@ export default function ProofMapTab({
               {error}
             </div>
           ) : null}
-
-          <VerifyReadinessStrip
-            ruleId={selectedRuleId}
-            chips={verifyReadinessChips}
-          />
 
           <div className="transition">
             {currentWorkspaceIsFinal ? (

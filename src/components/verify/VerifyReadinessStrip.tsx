@@ -31,18 +31,18 @@ function chipClasses(tone: VerifyReadinessChip["tone"], clickable: boolean): str
 
 export default function VerifyReadinessStrip({ ruleId, chips }: VerifyReadinessStripProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+    <div className="rounded-xl border border-slate-200/80 bg-white/80 px-4 py-3.5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
             Verify readiness
           </div>
-          <div className="mt-1 text-xs text-slate-500">
+          <div className="mt-1 text-xs leading-5 text-slate-500">
             {ruleId ? `Active rule ${ruleId}` : "Select a rule to inspect rule-specific readiness."}
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {chips.map((chip) => {
             const content = (
               <>
