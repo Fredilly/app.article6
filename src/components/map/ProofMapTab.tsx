@@ -10,6 +10,7 @@ import FinalizeGateBanner from "@/components/verify/FinalizeGateBanner";
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
+import VerifyReadinessStrip, { type VerifyReadinessChip } from "@/components/verify/VerifyReadinessStrip";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
@@ -34,6 +35,7 @@ import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReview
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
+import { isStacEligible } from "@/lib/verify/stacEligibility";
 import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
@@ -246,6 +248,14 @@ function formatLocalDateTime(iso: string): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 }
 
+function formatSnapshotSummaryTime(value: string | null | undefined): { label: string; title?: string } {
+  if (!value) return { label: "Not exported" };
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return { label: "Exported", title: value };
+  const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return { label: `Exported ${time}`, title: date.toISOString() };
+}
+
 function inventoryLinkStateLabel(linkedRequirementIds: string[]): string {
   if (!linkedRequirementIds.length) return "Unlinked";
   if (linkedRequirementIds.length === 1) return "Linked to 1 requirement";
@@ -432,6 +442,7 @@ export default function ProofMapTab({
     sectionId: string | null;
     sectionTitle: string | null;
     expectedEvidence: string[];
+    tags: string[];
   } | null>(null);
   const [reviewArtifact, setReviewArtifact] = useState<EvidenceSnapshot | null>(null);
   const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
@@ -513,6 +524,7 @@ export default function ProofMapTab({
         sectionId: null,
         sectionTitle: null,
         expectedEvidence: [],
+        tags: [],
       };
       try {
         const ruleResponse = await fetch(
@@ -552,6 +564,13 @@ export default function ProofMapTab({
             ? ruleRecord.expectedEvidence.filter((value): value is string => typeof value === "string")
             : Array.isArray((ruleRecord.requirement_coverage as { expected_evidence?: unknown } | undefined)?.expected_evidence)
               ? ((ruleRecord.requirement_coverage as { expected_evidence?: unknown[] }).expected_evidence ?? []).filter(
+                  (value): value is string => typeof value === "string",
+                )
+              : [],
+          tags: Array.isArray(ruleRecord.tags)
+            ? ruleRecord.tags.filter((value): value is string => typeof value === "string")
+            : Array.isArray((ruleRecord.requirement_coverage as { tags?: unknown } | undefined)?.tags)
+              ? ((ruleRecord.requirement_coverage as { tags?: unknown[] }).tags ?? []).filter(
                   (value): value is string => typeof value === "string",
                 )
               : [],
@@ -1754,7 +1773,7 @@ export default function ProofMapTab({
             snippet: selectedRuleContext?.text ?? selectedRuleId,
             text: selectedRuleContext?.text ?? undefined,
             expectedEvidence: selectedRuleContext?.expectedEvidence ?? [],
-            tags: [],
+            tags: selectedRuleContext?.tags ?? [],
             sectionId: selectedRuleContext?.sectionId ?? undefined,
           },
         ],
@@ -1847,6 +1866,148 @@ export default function ProofMapTab({
   const pinsSectionRef = useRef<HTMLDivElement | null>(null);
   const reviewerSectionRef = useRef<HTMLDivElement | null>(null);
   const finalSummarySectionRef = useRef<HTMLDivElement | null>(null);
+  const scrollToSection = useCallback((ref: { current: HTMLDivElement | null }) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+  const selectedRuleStacEligible = useMemo(
+    () => isStacEligible(selectedRuleContext?.tags ?? []),
+    [selectedRuleContext?.tags],
+  );
+  const hasReviewerDraft = Boolean(verifierBundle.draftMinutes.trim() || verifierBundle.draftOutcomeNote.trim());
+  const verifyReadinessChips = useMemo<VerifyReadinessChip[]>(() => {
+    const hasAoiLoaded = Boolean(aoi?.geojson);
+    const stacStatus =
+      !hasAoiLoaded || !latestRun
+        ? "not run"
+        : latestRun.status === "ok"
+          ? stacFeatureIds.length > 0
+            ? "results found"
+            : "no results"
+          : latestRun.status === "warn" && stacFeatureIds.length > 0
+            ? "results found"
+            : "failed";
+    const stacDetail =
+      !hasAoiLoaded
+        ? "Load an AOI before running STAC search."
+        : !latestRun
+          ? "No STAC search has been run for the active AOI."
+          : stacStatus === "results found"
+            ? `${stacFeatureIds.length} STAC result${stacFeatureIds.length === 1 ? "" : "s"} found for the active AOI.`
+            : stacStatus === "no results"
+              ? "STAC search completed but returned no results for the active AOI."
+              : latestRun.summary?.trim() || "STAC search failed for the active AOI.";
+    const supportFactsStatus = !selectedRuleId
+      ? "select rule"
+      : stacSupportFacts.linkedFacts.length > 0
+        ? "linked"
+        : stacSupportFacts.staleFacts.length > 0
+          ? "stale"
+          : !selectedRuleStacEligible
+            ? "optional"
+            : "unlinked";
+    const supportFactsDetail = !selectedRuleId
+      ? "Select a rule to assess AOI/STAC support facts."
+      : stacSupportFacts.linkedFacts.length > 0
+        ? stacSupportFacts.lookupMessage
+        : stacSupportFacts.staleFacts.length > 0
+          ? stacSupportFacts.lookupMessage
+          : !selectedRuleStacEligible
+            ? "AOI/STAC support facts are optional for this rule. Link them only if they materially support the review."
+            : stacSupportFacts.lookupMessage;
+    const reviewerRecordStatus = verifierBundle.savedReviewerArtifactAt
+      ? "saved"
+      : hasReviewerDraft
+        ? "draft"
+        : "missing";
+    const finalizeReady = Boolean(finalizeGate?.canFinalize && linkedRuleIds.length > 0 && verifierBundle.savedReviewerArtifactAt);
+    const hasDraftExport = Boolean(verifierBundle.exportedAt);
+    const exportStatus = currentWorkspaceIsFinal ? "finalized" : finalizeReady ? "ready" : hasDraftExport ? "draft available" : "not ready";
+    const exportDetail = currentWorkspaceIsFinal
+      ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}`
+      : finalizeReady
+        ? "Finalize gate is clear. Final review export is ready."
+        : hasDraftExport
+          ? `Draft snapshot exported ${formatLocalDateTime(verifierBundle.exportedAt ?? "")}. Final export still needs finalize requirements to pass.`
+          : finalizeGate && !finalizeGate.canFinalize
+            ? finalizeGate.reasons[0] ?? "Finalize gate is blocked."
+            : !linkedRuleIds.length
+              ? "Link evidence to at least one rule before finalizing the export."
+              : !verifierBundle.savedReviewerArtifactAt
+                ? "Save reviewer artifact before finalizing the export."
+                : "Finalize requirements are not yet met.";
+
+    return [
+      {
+        key: "aoi",
+        label: "AOI",
+        value: hasAoiLoaded ? "loaded" : "missing",
+        detail: hasAoiLoaded ? aoi?.name ?? bboxLabel ?? "AOI loaded." : "Upload or confirm an AOI to scope the review.",
+        tone: hasAoiLoaded ? "ok" : "blocked",
+        onClick: () => scrollToSection(aoiSectionRef),
+      },
+      {
+        key: "stac",
+        label: "STAC",
+        value: stacStatus,
+        detail: stacDetail,
+        tone: stacStatus === "results found" ? "ok" : stacStatus === "failed" ? "blocked" : "warn",
+        onClick: () => scrollToSection(stacSectionRef),
+      },
+      {
+        key: "support-facts",
+        label: "Support facts",
+        value: supportFactsStatus,
+        detail: supportFactsDetail,
+        tone:
+          supportFactsStatus === "linked"
+            ? "ok"
+            : supportFactsStatus === "optional"
+              ? "neutral"
+              : supportFactsStatus === "stale"
+                ? "warn"
+                : "blocked",
+      },
+      {
+        key: "reviewer-record",
+        label: "Reviewer record",
+        value: reviewerRecordStatus,
+        detail: verifierBundle.savedReviewerArtifactAt
+          ? `Saved ${formatLocalDateTime(verifierBundle.savedReviewerArtifactAt)}`
+          : hasReviewerDraft
+            ? "Draft reviewer notes exist but are not saved yet."
+            : "No reviewer artifact is saved for the active rule and run.",
+        tone: reviewerRecordStatus === "saved" ? "ok" : reviewerRecordStatus === "draft" ? "warn" : "blocked",
+        onClick: () => scrollToSection(reviewerSectionRef),
+      },
+      {
+        key: "export",
+        label: "Export",
+        value: exportStatus,
+        detail: exportDetail,
+        tone: currentWorkspaceIsFinal || finalizeReady ? "ok" : hasDraftExport ? "warn" : "blocked",
+        onClick: () => scrollToSection(finalSummarySectionRef),
+      },
+    ];
+  }, [
+    aoi?.geojson,
+    aoi?.name,
+    bboxLabel,
+    currentWorkspaceIsFinal,
+    finalizeGate,
+    hasReviewerDraft,
+    latestRun,
+    linkedRuleIds.length,
+    scrollToSection,
+    selectedRuleId,
+    selectedRuleStacEligible,
+    stacFeatureIds.length,
+    stacSupportFacts.linkedFacts.length,
+    stacSupportFacts.lookupMessage,
+    stacSupportFacts.staleFacts.length,
+    verifierBundle.exportedAt,
+    verifierBundle.finalizedAt,
+    verifierBundle.savedReviewerArtifactAt,
+  ]);
   const activeLeftSection = useMemo(() => {
     switch (wizardDetails.activeStep) {
       case 1:
@@ -2317,7 +2478,6 @@ export default function ProofMapTab({
     const hasEvidence = (currentStacEvidence?.fc?.features?.length ?? 0) > 0;
     const hasRuns = verificationRuns.length > 0;
     const hasSnapshots = (evidenceSnapshots ?? []).length > 0;
-    const hasReviewerDraft = Boolean(verifierBundle.draftMinutes.trim() || verifierBundle.draftOutcomeNote.trim());
     const hasComparisonNotes = Boolean(verifierBundle.delta.trim() || verifierBundle.impact.trim() || verifierBundle.tasks.length);
     const hasWorkspaceRunState = Boolean(
       verifierBundle.exportedAt ||
@@ -2334,10 +2494,9 @@ export default function ProofMapTab({
     evidenceSnapshots,
     selectedStacItemId,
     verificationRuns.length,
+    hasReviewerDraft,
     verifierBundle.delta,
     verifierBundle.derivedFromRunId,
-    verifierBundle.draftMinutes,
-    verifierBundle.draftOutcomeNote,
     verifierBundle.exportedAt,
     verifierBundle.finalizedAt,
     verifierBundle.impact,
@@ -3620,114 +3779,149 @@ export default function ProofMapTab({
     </>
   );
 
+  const summarySnapshot = formatSnapshotSummaryTime(runKpis.snapshotExportedAt ?? null);
+
   return (
     <div className="mt-4 grid gap-4">
       <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={async () => {
-                const text = `${methodCode}@${version}`;
-                await copyToClipboard(text);
-              }}
-              title={`Copy method ${methodCode}@${version}`}
-            >
-              <span className="text-slate-500">method:</span>
-              <span className="font-mono">{methodCode}@{version}</span>
-            </button>
-
-            {appCommit ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => {
-                  const full = (process.env.NEXT_PUBLIC_GIT_SHA || "").trim();
-                  await copyToClipboard(full || appCommit);
-                }}
-                title="Copy app commit"
-              >
-                <span className="text-slate-500">app:</span>
-                <span className="font-mono">{appCommit}</span>
-              </button>
-            ) : null}
-
-            {evidenceChip ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => {
-                  await copyToClipboard(evidenceChip.value);
-                }}
-                title="Copy evidence layer ref"
-              >
-                <span className="text-slate-500">{evidenceChip.label}:</span>
-                <span className="font-mono">{evidenceChip.display}</span>
-              </button>
-            ) : localEvidenceHashInputs ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => {
-                  const snapshot = await buildOutcomeSnapshot({
-                    method: { code: methodCode, version },
-                    evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
-                  });
-                  if (snapshot.evidence_source.hash) await copyToClipboard(snapshot.evidence_source.hash);
-                }}
-                title="Copy local evidence hash"
-              >
-                <span className="text-slate-500">evidence:</span>
-                <span className="font-mono">local:{localEvidenceHashInputs.length}</span>
-              </button>
-            ) : (
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
-                evidence: none
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Review summary</div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-xs text-slate-500">
+                method: <span className="font-mono font-semibold text-slate-900">{methodCode}@{version}</span>
               </span>
-            )}
-
-            {auditHashes?.rules ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => copyToClipboard(auditHashes.rules ?? "")}
-                title="Copy rules_sha256"
-              >
-                <span className="text-slate-500">rules:</span>
-                <span className="font-mono">{shortSha(auditHashes.rules)}</span>
-              </button>
-            ) : null}
-            {auditHashes?.sections ? (
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                onClick={async () => copyToClipboard(auditHashes.sections ?? "")}
-                title="Copy sections_sha256"
-              >
-                <span className="text-slate-500">sections:</span>
-                <span className="font-mono">{shortSha(auditHashes.sections)}</span>
-              </button>
-            ) : null}
+              <span className="text-xs text-slate-500">
+                Items: <span className="font-semibold text-slate-900">{runKpis.itemsCount}</span>
+              </span>
+              <span className="text-xs text-slate-500">
+                Linked: <span className="font-semibold text-slate-900">{runKpis.linkedRulesCount}</span>
+              </span>
+              <span className="text-xs text-slate-500" title={summarySnapshot.title}>
+                Snapshot: <span className="font-semibold text-slate-900">{summarySnapshot.label}</span>
+              </span>
+            </div>
           </div>
-
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <ProofCoverageChip
-              kpis={runKpis}
-              onViewCoverage={onOpenCoverageDrawer}
-            />
-            <button
-              type="button"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={() => {
-                document.getElementById("verify-outcome")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-            >
-              Outcome
-            </button>
-          </div>
+          <div className="text-xs text-slate-500">Keep reviewer-useful state visible. Open technical metadata only when needed.</div>
         </div>
       </div>
+
+      <details className="group rounded-xl border border-slate-200 bg-white" data-testid="verify-technical-metadata">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-left marker:hidden">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Technical metadata</div>
+            <div className="mt-1 text-sm font-medium text-slate-700">Export context, hashes, and debug details</div>
+          </div>
+          <span className="text-xs font-semibold text-slate-500 group-open:hidden">Show</span>
+          <span className="hidden text-xs font-semibold text-slate-500 group-open:inline">Hide</span>
+        </summary>
+        <div className="border-t border-slate-100 px-4 py-3">
+          <div className="flex flex-col gap-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                onClick={async () => {
+                  const text = `${methodCode}@${version}`;
+                  await copyToClipboard(text);
+                }}
+                title={`Copy method ${methodCode}@${version}`}
+              >
+                <span className="text-slate-500">method:</span>
+                <span className="font-mono">{methodCode}@{version}</span>
+              </button>
+
+              {appCommit ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => {
+                    const full = (process.env.NEXT_PUBLIC_GIT_SHA || "").trim();
+                    await copyToClipboard(full || appCommit);
+                  }}
+                  title="Copy app commit"
+                >
+                  <span className="text-slate-500">app:</span>
+                  <span className="font-mono">{appCommit}</span>
+                </button>
+              ) : null}
+
+              {evidenceChip ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => {
+                    await copyToClipboard(evidenceChip.value);
+                  }}
+                  title="Copy evidence layer ref"
+                >
+                  <span className="text-slate-500">{evidenceChip.label}:</span>
+                  <span className="font-mono">{evidenceChip.display}</span>
+                </button>
+              ) : localEvidenceHashInputs ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => {
+                    const snapshot = await buildOutcomeSnapshot({
+                      method: { code: methodCode, version },
+                      evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
+                    });
+                    if (snapshot.evidence_source.hash) await copyToClipboard(snapshot.evidence_source.hash);
+                  }}
+                  title="Copy local evidence hash"
+                >
+                  <span className="text-slate-500">evidence:</span>
+                  <span className="font-mono">local:{localEvidenceHashInputs.length}</span>
+                </button>
+              ) : (
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
+                  evidence: none
+                </span>
+              )}
+
+              {auditHashes?.rules ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => copyToClipboard(auditHashes.rules ?? "")}
+                  title="Copy rules_sha256"
+                >
+                  <span className="text-slate-500">rules:</span>
+                  <span className="font-mono">{shortSha(auditHashes.rules)}</span>
+                </button>
+              ) : null}
+              {auditHashes?.sections ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  onClick={async () => copyToClipboard(auditHashes.sections ?? "")}
+                  title="Copy sections_sha256"
+                >
+                  <span className="text-slate-500">sections:</span>
+                  <span className="font-mono">{shortSha(auditHashes.sections)}</span>
+                </button>
+              ) : null}
+            </div>
+
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <ProofCoverageChip
+                kpis={runKpis}
+                onViewCoverage={onOpenCoverageDrawer}
+              />
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                onClick={() => {
+                  document.getElementById("verify-outcome")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                Outcome
+              </button>
+            </div>
+          </div>
+        </div>
+      </details>
 
       {undoVisible ? (
         <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow">
@@ -3854,6 +4048,10 @@ export default function ProofMapTab({
               </button>
             </div>
           ) : null}
+          <VerifyReadinessStrip
+            ruleId={selectedRuleId}
+            chips={verifyReadinessChips}
+          />
           <div
             data-testid="left-pane-step-focus"
             className={`sticky top-0 z-10 rounded-xl border px-4 py-3 text-sm shadow-sm transition ${
@@ -4067,7 +4265,7 @@ export default function ProofMapTab({
               <FinalReviewSummaryPanel
                 summary={activeReviewArtifact?.summary ?? reviewSummary}
                 artifact={activeReviewArtifact}
-          evidencePins={evidencePins}
+                evidencePins={evidencePins}
                 currentRunLabel={currentRunLabel}
                 loadedFromRunLabel={loadedFromRunLabel}
                 finalizedAt={verifierBundle.finalizedAt}

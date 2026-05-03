@@ -122,31 +122,50 @@ export default async function MethodsFinder({
         >
           <MethodsFinderShell
             left={
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h2 className="text-sm font-semibold text-slate-900">Methods</h2>
-                  <span className="text-xs text-slate-500">{methods.length} items</span>
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                <div className="border-b border-slate-100 px-4 py-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Methods</div>
+                      <h2 className="mt-1 text-sm font-semibold text-slate-900">Available methodology sets</h2>
+                    </div>
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-500">{methods.length}</span>
+                  </div>
                 </div>
-                <ul className="flex flex-col gap-2">
+                <ul className="flex max-h-[calc(100vh-14rem)] flex-col gap-2 overflow-y-auto p-3">
                   {methods.map((method) => {
                     const active = selectedMethod?.code === method.code;
                     return (
                       <li key={method.code}>
                         <Link
                           href={`/m/${encodeURIComponent(method.code)}`}
-                          className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
+                          className={`flex items-center justify-between gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
                             active
                               ? "border-slate-300 bg-slate-50"
-                              : "border-slate-200 bg-white hover:bg-slate-50"
+                              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80"
                           }`}
                         >
-                          <div className="flex flex-col">
-                            <span className="font-mono text-sm text-slate-900">{method.code}</span>
-                            <span className="text-xs text-slate-500">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="truncate font-mono text-sm text-slate-900">{method.code}</span>
+                              <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                                {method.versionCount} version{method.versionCount === 1 ? "" : "s"}
+                              </span>
+                            </div>
+                            <span className="mt-1 block truncate text-xs text-slate-500">
                               {method.program} • {method.sector}
                             </span>
                           </div>
-                          <span className="text-xs text-slate-400">{method.versionCount} v</span>
+                          <span
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${
+                              active
+                                ? "border-slate-900 bg-slate-900 text-white"
+                                : "border-slate-300 bg-white text-slate-400"
+                            }`}
+                            aria-hidden="true"
+                          >
+                            {active ? "✓" : ""}
+                          </span>
                         </Link>
                       </li>
                     );
