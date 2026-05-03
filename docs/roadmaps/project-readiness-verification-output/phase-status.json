@@ -1,5 +1,10 @@
 {
   "PR542": "done",
+  "pr_evidence": {
+    "PR542": [
+      542
+    ]
+  },
   "phase_meta": {
     "status": "active",
     "summary": "Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.",
