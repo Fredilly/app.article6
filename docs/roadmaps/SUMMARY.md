@@ -117,7 +117,7 @@ Not active now:
 - Credit issuance claims
 - Methodology-repo changes in this app repo
 
-1) PR542: Done
+1) PR542: Done (PR #542)
 
 ## project-verification
 
@@ -189,3 +189,4 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
+
