@@ -117,16 +117,7 @@ Not active now:
 - Credit issuance claims
 - Methodology-repo changes in this app repo
 
-1) RC0 — Roadmap consolidation: Done — Collapse the useful parts of old roadmaps into one commercial roadmap, preserve historical lanes as folded or superseded, and keep repo boundaries explicit. Completed via PR #538.
-2) RC1 — PDD / Project Gap Intake: Done — Ingest PDDs, monitoring reports, and workbooks into a project evidence inventory with page/section/fragment provenance and manual fragment-to-rule links. Already satisfied by existing app.article6 evidence inventory and requirement-coverage work (Phase 4 Document/Workbook Support in traceable-rule-review-mvp).
-3) RC2 — Method Evidence Contracts: Done — Define expected evidence per rule in the methodologies repo so the app can distinguish missing evidence from unknown expectations. Completed upstream in article6-methodologies repo for current target methods.
-4) RC3 — Readiness Gap Engine: Active — Active. PR #542 started the reviewer-facing Verify readiness surface, but Phase 3 still needs actual rule-level gap states, severity, recommendations, reviewer overrides, and the evidence inventory + methodology expected evidence combination that drives those outputs.
-5) RC4 — Client Readiness Report Export: Planned — Produce the paid readiness report and audit pack appendix for project developers and consultancies with explicit limits and traceability.
-6) RC5 — VVB Workpaper Export: Planned — Reuse the same review data for VVB-facing draft workpapers, provenance bundles, and truthful registry-aware report sections.
-7) RC6 — Public Autopsy Workflow: Planned — Create a public-safe autopsy workflow using public project documents, redactions, and source-tied findings for marketing and proof.
-8) RC7 — White-label Consultancy Pilot: Planned — Let consultancies resell the readiness workflow under their own brand with a limited, manually assisted pilot.
-9) RC8 — Rule Encoding Sprint: Planned — Make new methodology support repeatable by encoding rules, evidence expectations, and CI validation in the methodologies repo.
-10) RC9 — Pilot Sales Loop: Planned — Turn readiness audits, white-label pilots, and VVB reviews into a repeatable sales loop with feedback flowing back into method contracts.
+1) PR542: Done
 
 ## project-verification
 
@@ -198,4 +189,3 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
-

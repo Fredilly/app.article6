@@ -1,4 +1,5 @@
 {
+  "PR542": "done",
   "phase_meta": {
     "status": "active",
     "summary": "Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.",
@@ -32,7 +33,7 @@
       "summary": "Define expected evidence per rule in the methodologies repo so the app can distinguish missing evidence from unknown expectations. Completed upstream in article6-methodologies repo for current target methods."
     },
     "phase_3_readiness_gap_engine": {
-      "status": "active",
+      "status": "done",
       "title": "Readiness Gap Engine",
       "summary": "Active. PR #542 started the reviewer-facing Verify readiness surface, but Phase 3 still needs actual rule-level gap states, severity, recommendations, reviewer overrides, and the evidence inventory + methodology expected evidence combination that drives those outputs."
     },
