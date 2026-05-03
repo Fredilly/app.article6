@@ -183,6 +183,60 @@ describe("deriveRuleReadinessGaps", () => {
         reviewer: "Verifier A",
       },
     });
+    expect(gaps[0]?.summary).toContain("Reviewer override marks this rule as needs review.");
+    expect(gaps[0]?.summary).toContain("Reason: Reviewer wants to keep this open until expectations are confirmed.");
     expect(gaps[0]?.recommendations.map((item) => item.code)).toContain("review_override");
+  });
+
+  test("treats linked evidence as satisfying an other expectation", () => {
+    const gaps = deriveRuleReadinessGaps({
+      rows: [
+        makeRow({
+          ruleId: "R-4",
+          expectedEvidenceTypes: ["other"],
+          linkedEvidence: [{ id: "ev-1", title: "Field memo", type: "memo", source: "inventory" }],
+          status: "partial",
+        }),
+      ],
+      reviewerArtifactsByRuleId: new Map([
+        [
+          "R-4",
+          {
+            savedAt: "2026-05-04T00:00:00Z",
+            outcomeNote: "Accepted as method-specific support.",
+          },
+        ],
+      ]),
+    });
+
+    expect(gaps[0]).toMatchObject({
+      ruleId: "R-4",
+      state: "ready",
+      severity: "none",
+      missingExpectedEvidenceTypes: [],
+    });
+  });
+
+  test("does not satisfy an other expectation without linked evidence", () => {
+    const gaps = deriveRuleReadinessGaps({
+      rows: [
+        makeRow({
+          ruleId: "R-5",
+          expectedEvidenceTypes: ["other"],
+          candidateEvidence: [{ id: "cand-1", title: "Field memo", type: "memo", source: "inventory" }],
+        }),
+      ],
+    });
+
+    expect(gaps[0]).toMatchObject({
+      ruleId: "R-5",
+      state: "not_started",
+      severity: "high",
+      missingExpectedEvidenceTypes: ["other"],
+    });
+    expect(gaps[0]?.recommendations.map((item) => item.code)).toEqual([
+      "link_expected_evidence",
+      "review_candidate_evidence",
+    ]);
   });
 });

@@ -98,6 +98,9 @@ function linkedEvidenceTypesForGap(item: RequirementCoverageLinkedEvidence): Req
 function missingExpectedEvidenceTypes(row: RequirementCoverageRow): RequirementCoverageExpectedEvidenceType[] {
   if (!row.expectedEvidenceTypes.length) return [];
   const satisfied = new Set<RequirementCoverageExpectedEvidenceType>();
+  if (row.linkedEvidence.length > 0 && row.expectedEvidenceTypes.includes("other")) {
+    satisfied.add("other");
+  }
   for (const item of row.linkedEvidence) {
     for (const matchedType of linkedEvidenceTypesForGap(item)) satisfied.add(matchedType);
   }
@@ -180,6 +183,51 @@ function gapSummary(input: {
   return reviewerSaved
     ? `Some expected evidence is still missing: ${missingLabels}. Reviewer record is saved.`
     : `Some expected evidence is still missing: ${missingLabels}.`;
+}
+
+function formatStateLabel(state: ReadinessGapState): string {
+  switch (state) {
+    case "ready":
+      return "ready";
+    case "needs_review":
+      return "needs review";
+    case "missing_evidence":
+      return "missing evidence";
+    case "missing_reviewer_record":
+      return "missing reviewer record";
+    case "not_started":
+      return "not started";
+    case "unknown_expectation":
+      return "unknown expectation";
+  }
+}
+
+function effectiveGapSummary(input: {
+  baseState: ReadinessGapState;
+  baseSeverity: ReadinessGapSeverity;
+  effectiveState: ReadinessGapState;
+  effectiveSeverity: ReadinessGapSeverity;
+  row: RequirementCoverageRow;
+  missingExpected: RequirementCoverageExpectedEvidenceType[];
+  reviewerSaved: boolean;
+  override: ReadinessGapOverride | null;
+}): string {
+  const { baseState, baseSeverity, effectiveState, effectiveSeverity, row, missingExpected, reviewerSaved, override } = input;
+  const baseSummary = gapSummary({ state: baseState, row, missingExpected, reviewerSaved });
+  if (!override) return baseSummary;
+
+  const parts: string[] = [];
+  if (effectiveState !== baseState) {
+    parts.push(`Reviewer override marks this rule as ${formatStateLabel(effectiveState)}.`);
+    parts.push(`Base assessment: ${baseSummary}`);
+  } else {
+    parts.push(baseSummary);
+  }
+  if (effectiveSeverity !== baseSeverity) {
+    parts.push(`Reviewer override sets severity to ${effectiveSeverity}.`);
+  }
+  parts.push(`Reason: ${override.reason}.`);
+  return parts.join(" ");
 }
 
 function recommendation(
@@ -279,7 +327,16 @@ export function deriveRuleReadinessGaps(input: DeriveRuleReadinessGapsInput): Ru
         title: row.ruleSummary.title,
         state: effectiveState,
         severity: effectiveSeverity,
-        summary: gapSummary({ state: baseState, row, missingExpected, reviewerSaved }),
+        summary: effectiveGapSummary({
+          baseState,
+          baseSeverity,
+          effectiveState,
+          effectiveSeverity,
+          row,
+          missingExpected,
+          reviewerSaved,
+          override,
+        }),
         expectedEvidenceTypes: [...row.expectedEvidenceTypes],
         linkedEvidence: [...row.linkedEvidence],
         candidateEvidence: [...row.candidateEvidence],
