@@ -396,7 +396,7 @@ export function buildClientReadinessReport(input: ClientReadinessReportInput): C
       generatedAt: input.generatedAt,
       disclaimers: [
         "This readiness report contract is designed for later HTML or PDF rendering.",
-        "It is intentionally structured to resemble a VVB-style assessment layout without making a formal assurance claim.",
+        "It is intentionally structured to resemble a VVB-style assessment layout without presenting a verifier conclusion.",
         "All findings remain subject to additional evidence linkage, reviewer clarification, and export-surface presentation decisions.",
       ],
       stateDefinitions: READINESS_STATES.map((state) => ({
