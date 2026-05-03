@@ -182,8 +182,10 @@ Lane status: Active
 Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 8-phase path to paid VVB pilots.
 
 Current focus:
-- Phase 1 + 2 + 3 + 4 complete — review panel, audit trail, finalize gate, AOI/STAC support, document/workbook support
-- Phase 5 next: method completeness (target methods)
+- Phases 1-4 are complete: review panel, audit trail, finalize gate, AOI/STAC support, and document/workbook support are in place
+- Phase 5 is now in progress for method completeness across the target demo methods
+- PR #546 added the readiness-gap engine core as backend derivation only, with no visible Verify UI change yet
+- Next work: wire derived readiness facts into Verify and reviewer-facing export surfaces
 
 Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
