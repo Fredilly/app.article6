@@ -48,8 +48,8 @@ describe("VerifyReadinessStrip", () => {
           {
             key: "support-facts",
             label: "Support facts",
-            value: "not applicable",
-            detail: "AOI/STAC support facts are not expected for this rule.",
+            value: "optional",
+            detail: "AOI/STAC support facts are optional for this rule. Link them only if they materially support the review.",
             tone: "neutral",
           },
           {
@@ -62,9 +62,9 @@ describe("VerifyReadinessStrip", () => {
           {
             key: "export",
             label: "Export",
-            value: "blocked",
-            detail: "Save reviewer artifact before finalizing or exporting.",
-            tone: "blocked",
+            value: "draft available",
+            detail: "Draft snapshot exported 2026-03-25 00:10:00. Final export still needs finalize requirements to pass.",
+            tone: "warn",
           },
         ]}
       />,
@@ -77,11 +77,12 @@ describe("VerifyReadinessStrip", () => {
     expect(html).toContain("STAC:");
     expect(html).toContain("results found");
     expect(html).toContain("Support facts:");
-    expect(html).toContain("not applicable");
+    expect(html).toContain("optional");
     expect(html).toContain("Reviewer record:");
     expect(html).toContain("draft");
     expect(html).toContain("Export:");
-    expect(html).toContain("blocked");
-    expect(html).toContain("AOI/STAC support facts are not expected for this rule.");
+    expect(html).toContain("draft available");
+    expect(html).toContain("AOI/STAC support facts are optional for this rule. Link them only if they materially support the review.");
+    expect(html).toContain("Draft snapshot exported 2026-03-25 00:10:00. Final export still needs finalize requirements to pass.");
   });
 });

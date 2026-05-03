@@ -248,6 +248,14 @@ function formatLocalDateTime(iso: string): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 }
 
+function formatSnapshotSummaryTime(value: string | null | undefined): { label: string; title?: string } {
+  if (!value) return { label: "Not exported" };
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return { label: "Exported", title: value };
+  const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return { label: `Exported ${time}`, title: date.toISOString() };
+}
+
 function inventoryLinkStateLabel(linkedRequirementIds: string[]): string {
   if (!linkedRequirementIds.length) return "Unlinked";
   if (linkedRequirementIds.length === 1) return "Linked to 1 requirement";
@@ -1890,35 +1898,43 @@ export default function ProofMapTab({
               : latestRun.summary?.trim() || "STAC search failed for the active AOI.";
     const supportFactsStatus = !selectedRuleId
       ? "select rule"
-      : !selectedRuleStacEligible
-        ? "not applicable"
-        : stacSupportFacts.linkedFacts.length > 0
-          ? "linked"
-          : stacSupportFacts.staleFacts.length > 0
-            ? "stale"
+      : stacSupportFacts.linkedFacts.length > 0
+        ? "linked"
+        : stacSupportFacts.staleFacts.length > 0
+          ? "stale"
+          : !selectedRuleStacEligible
+            ? "optional"
             : "unlinked";
     const supportFactsDetail = !selectedRuleId
       ? "Select a rule to assess AOI/STAC support facts."
-      : !selectedRuleStacEligible
-        ? "AOI/STAC support facts are not expected for this rule."
-        : stacSupportFacts.lookupMessage;
+      : stacSupportFacts.linkedFacts.length > 0
+        ? stacSupportFacts.lookupMessage
+        : stacSupportFacts.staleFacts.length > 0
+          ? stacSupportFacts.lookupMessage
+          : !selectedRuleStacEligible
+            ? "AOI/STAC support facts are optional for this rule. Link them only if they materially support the review."
+            : stacSupportFacts.lookupMessage;
     const reviewerRecordStatus = verifierBundle.savedReviewerArtifactAt
       ? "saved"
       : hasReviewerDraft
         ? "draft"
         : "missing";
-    const exportReady =
-      currentWorkspaceIsFinal ||
-      Boolean(finalizeGate?.canFinalize && linkedRuleIds.length > 0 && verifierBundle.savedReviewerArtifactAt);
+    const finalizeReady = Boolean(finalizeGate?.canFinalize && linkedRuleIds.length > 0 && verifierBundle.savedReviewerArtifactAt);
+    const hasDraftExport = Boolean(verifierBundle.exportedAt);
+    const exportStatus = currentWorkspaceIsFinal ? "finalized" : finalizeReady ? "ready" : hasDraftExport ? "draft available" : "not ready";
     const exportDetail = currentWorkspaceIsFinal
       ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}`
-      : finalizeGate && !finalizeGate.canFinalize
-        ? finalizeGate.reasons[0] ?? "Finalize gate is blocked."
-        : !linkedRuleIds.length
-          ? "Link evidence to at least one rule before finalizing or exporting."
-          : !verifierBundle.savedReviewerArtifactAt
-            ? "Save reviewer artifact before finalizing or exporting."
-            : "Finalize gate is clear for export.";
+      : finalizeReady
+        ? "Finalize gate is clear. Final review export is ready."
+        : hasDraftExport
+          ? `Draft snapshot exported ${formatLocalDateTime(verifierBundle.exportedAt ?? "")}. Final export still needs finalize requirements to pass.`
+          : finalizeGate && !finalizeGate.canFinalize
+            ? finalizeGate.reasons[0] ?? "Finalize gate is blocked."
+            : !linkedRuleIds.length
+              ? "Link evidence to at least one rule before finalizing the export."
+              : !verifierBundle.savedReviewerArtifactAt
+                ? "Save reviewer artifact before finalizing the export."
+                : "Finalize requirements are not yet met.";
 
     return [
       {
@@ -1945,7 +1961,7 @@ export default function ProofMapTab({
         tone:
           supportFactsStatus === "linked"
             ? "ok"
-            : supportFactsStatus === "not applicable"
+            : supportFactsStatus === "optional"
               ? "neutral"
               : supportFactsStatus === "stale"
                 ? "warn"
@@ -1966,9 +1982,9 @@ export default function ProofMapTab({
       {
         key: "export",
         label: "Export",
-        value: exportReady ? "ready" : "blocked",
+        value: exportStatus,
         detail: exportDetail,
-        tone: exportReady ? "ok" : "blocked",
+        tone: currentWorkspaceIsFinal || finalizeReady ? "ok" : hasDraftExport ? "warn" : "blocked",
         onClick: () => scrollToSection(finalSummarySectionRef),
       },
     ];
@@ -1988,6 +2004,7 @@ export default function ProofMapTab({
     stacSupportFacts.linkedFacts.length,
     stacSupportFacts.lookupMessage,
     stacSupportFacts.staleFacts.length,
+    verifierBundle.exportedAt,
     verifierBundle.finalizedAt,
     verifierBundle.savedReviewerArtifactAt,
   ]);
@@ -3762,25 +3779,30 @@ export default function ProofMapTab({
     </>
   );
 
+  const summarySnapshot = formatSnapshotSummaryTime(runKpis.snapshotExportedAt ?? null);
+
   return (
     <div className="mt-4 grid gap-4">
       <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
         <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Review workspace</div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Review summary</div>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="font-mono text-sm font-semibold text-slate-900">{methodCode}@{version}</span>
               <span className="text-xs text-slate-500">
-                {selectedRuleId ? `Rule ${selectedRuleId}` : "No rule selected"}
+                method: <span className="font-mono font-semibold text-slate-900">{methodCode}@{version}</span>
               </span>
               <span className="text-xs text-slate-500">
-                Run <span className="font-mono">{currentRunLabel}</span>
+                Items: <span className="font-semibold text-slate-900">{runKpis.itemsCount}</span>
+              </span>
+              <span className="text-xs text-slate-500">
+                Linked: <span className="font-semibold text-slate-900">{runKpis.linkedRulesCount}</span>
+              </span>
+              <span className="text-xs text-slate-500" title={summarySnapshot.title}>
+                Snapshot: <span className="font-semibold text-slate-900">{summarySnapshot.label}</span>
               </span>
             </div>
           </div>
-          <div className="text-xs text-slate-500">
-            Review first. Open technical metadata only when needed.
-          </div>
+          <div className="text-xs text-slate-500">Keep reviewer-useful state visible. Open technical metadata only when needed.</div>
         </div>
       </div>
 
