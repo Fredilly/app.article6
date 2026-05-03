@@ -106,7 +106,8 @@ Lane status: Active
 Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.
 
 Current focus:
-- Readiness Gap Engine (RC3) — combine existing evidence inventory with methodology expectations into rule-level gap states
+- PR #542 started the reviewer-facing Verify readiness surface as the first Readiness Gap Engine (RC3) milestone
+- Next build: derive rule-level gap states from evidence inventory plus methodology expected evidence
 - Keep `traceable-rule-review-mvp` as the technical foundation for review records and exports
 - Preserve app-vs-methodologies boundaries while preparing sellable verification outputs
 
@@ -119,7 +120,7 @@ Not active now:
 1) RC0 — Roadmap consolidation: Done — Collapse the useful parts of old roadmaps into one commercial roadmap, preserve historical lanes as folded or superseded, and keep repo boundaries explicit. Completed via PR #538.
 2) RC1 — PDD / Project Gap Intake: Done — Ingest PDDs, monitoring reports, and workbooks into a project evidence inventory with page/section/fragment provenance and manual fragment-to-rule links. Already satisfied by existing app.article6 evidence inventory and requirement-coverage work (Phase 4 Document/Workbook Support in traceable-rule-review-mvp).
 3) RC2 — Method Evidence Contracts: Done — Define expected evidence per rule in the methodologies repo so the app can distinguish missing evidence from unknown expectations. Completed upstream in article6-methodologies repo for current target methods.
-4) RC3 — Readiness Gap Engine: Next — Turn project evidence plus method expectations into rule-level gap states, severities, recommendations, and reviewer overrides. Next build: combine existing evidence inventory with methodology expected evidence.
+4) RC3 — Readiness Gap Engine: Active — Active. PR #542 started the reviewer-facing Verify readiness surface, but Phase 3 still needs actual rule-level gap states, severity, recommendations, reviewer overrides, and the evidence inventory + methodology expected evidence combination that drives those outputs.
 5) RC4 — Client Readiness Report Export: Planned — Produce the paid readiness report and audit pack appendix for project developers and consultancies with explicit limits and traceability.
 6) RC5 — VVB Workpaper Export: Planned — Reuse the same review data for VVB-facing draft workpapers, provenance bundles, and truthful registry-aware report sections.
 7) RC6 — Public Autopsy Workflow: Planned — Create a public-safe autopsy workflow using public project documents, redactions, and source-tied findings for marketing and proof.
