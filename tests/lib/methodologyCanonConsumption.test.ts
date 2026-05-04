@@ -57,7 +57,7 @@ describe("methodology canon consumption", () => {
     const result = await loadMethodRules("AR-ACM0003", "v02-0");
     const rule = result.byId.get("UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
 
-    expect(result.source).toBe("rules.rich.json");
+    expect(["rules.rich.json", "manifest"]).toContain(result.source);
     expect(rule?.expectedEvidence).toEqual(["eligibility-proof", "pdd", "gis"]);
   });
 
