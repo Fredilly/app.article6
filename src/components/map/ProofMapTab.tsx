@@ -39,7 +39,9 @@ import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isStacEligible } from "@/lib/verify/stacEligibility";
 import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
+import { EXPECTED_EVIDENCE_LABELS } from "@/app/m/_lib/requirementCoverage";
 import { deriveRuleReadinessGaps } from "@/lib/readiness/gapEngine";
+import { buildClientReadinessReport } from "@/lib/readiness/clientReadinessReport";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import {
   buildEvidenceInventory,
@@ -48,6 +50,7 @@ import {
   formatEvidenceInventoryId,
   linkEvidencePinToRequirement,
   linkPddFragmentToRequirement,
+  type EvidenceInventoryItem,
   unlinkPddFragmentFromRequirement,
   unlinkEvidencePinFromRequirement,
   upsertPddFragmentOnEvidencePin,
@@ -221,6 +224,40 @@ function downloadBytes(bytes: Uint8Array, filename: string, mimeType: string) {
 function safeFilename(value: string): string {
   const trimmed = (value ?? "").trim() || "unknown";
   return trimmed.replace(/[^\w.\-]+/g, "_").slice(0, 64) || "unknown";
+}
+
+function clientReadinessReportId(methodCode: string, version: string, runId: string): string {
+  return `CRR-${safeFilename(methodCode)}-${safeFilename(version)}-${safeFilename(runId)}`;
+}
+
+function inventoryHaystack(item: EvidenceInventoryItem): string {
+  return [
+    item.type,
+    item.kind,
+    item.display_name,
+    item.source_summary,
+    item.provenance_summary,
+    item.pdd_document?.file_name,
+    ...(item.workbook_assets ?? []).flatMap((asset) => [asset.file_name, asset.file_kind]),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function inventoryMatchesExpectedEvidence(
+  item: EvidenceInventoryItem,
+  expectedType: keyof typeof EXPECTED_EVIDENCE_LABELS,
+): boolean {
+  const haystack = inventoryHaystack(item);
+  if (expectedType === "monitoring-report") return haystack.includes("monitoring report") || haystack.includes("monitoring-report");
+  if (expectedType === "spreadsheet-workbook") return haystack.includes("spreadsheet") || haystack.includes("workbook") || haystack.includes(".xlsx") || haystack.includes(".csv");
+  if (expectedType === "pdd") return haystack.includes("pdd") || haystack.includes("project design document");
+  if (expectedType === "gis") return haystack.includes("gis") || haystack.includes("satellite") || haystack.includes("stac") || haystack.includes("map evidence");
+  if (expectedType === "qa-qc-record") return haystack.includes("qa/qc") || haystack.includes("qa qc") || haystack.includes("qa-qc");
+  if (expectedType === "eligibility-proof") return haystack.includes("eligibility");
+  if (expectedType === "calculation-support") return haystack.includes("calculation") || haystack.includes("parameter") || haystack.includes("support");
+  return item.link_state === "linked" || item.kind !== "stac-item";
 }
 
 function hostnamePathFromUrl(value: string): string {
@@ -449,6 +486,8 @@ export default function ProofMapTab({
   const [reviewArtifact, setReviewArtifact] = useState<EvidenceSnapshot | null>(null);
   const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
   const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
+  const [clientReadinessExportBusy, setClientReadinessExportBusy] = useState(false);
+  const [clientReadinessExportError, setClientReadinessExportError] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const uploadPddInputRef = useRef<HTMLInputElement | null>(null);
   const [pddFragmentDrafts, setPddFragmentDrafts] = useState<Record<string, PddFragmentDraft>>({});
@@ -2870,6 +2909,148 @@ export default function ProofMapTab({
     downloadJson(artifact, filename);
   }, [activeReviewArtifact, buildFinalReviewArtifact, methodCode, verifierBundle, version]);
 
+  const buildClientReadinessReportPayload = useCallback(async () => {
+    const generatedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
+    if (!generatedAt) {
+      throw new Error("Finalize the current Verify run before exporting a client readiness report.");
+    }
+    if (!ruleOptions.length) {
+      throw new Error("No method rules are available for client readiness export.");
+    }
+
+    const ruleContexts = await Promise.all(
+      ruleOptions.map(async (rule) => ({
+        rule,
+        context: await fetchSelectedRuleContext(rule.id),
+      })),
+    );
+
+    const rows = buildRequirementCoverageRows({
+      rules: ruleContexts.map(({ rule, context }) => ({
+        id: rule.id,
+        title: context?.id ?? rule.title ?? rule.id,
+        snippet: context?.text ?? rule.title ?? rule.id,
+        text: context?.text ?? undefined,
+        expectedEvidence: context?.expectedEvidence ?? [],
+        tags: context?.tags ?? [],
+        sectionId: context?.sectionId ?? undefined,
+      })),
+      inventoryItems: evidenceInventory,
+    });
+
+    const reviewerArtifactsByRuleId = new Map<
+      string,
+      {
+        savedAt?: string | null;
+        minutes?: string | null;
+        outcomeNote?: string | null;
+      }
+    >();
+    const savedReviewerRuleId = verifierBundle.savedReviewerArtifactContext?.ruleId ?? null;
+    if (
+      verifierBundle.savedReviewerArtifactAt &&
+      savedReviewerRuleId &&
+      reviewerArtifactContextMatches(
+        verifierBundle.savedReviewerArtifactContext,
+        createReviewerArtifactContext({
+          methodCode,
+          version,
+          ruleId: savedReviewerRuleId,
+          runId: verifierBundle.runContext.runId,
+        }),
+      )
+    ) {
+      reviewerArtifactsByRuleId.set(savedReviewerRuleId, {
+        savedAt: verifierBundle.savedReviewerArtifactAt,
+        minutes: verifierBundle.minutes,
+        outcomeNote: verifierBundle.outcomeNote,
+      });
+    }
+
+    const readinessGaps = deriveRuleReadinessGaps({
+      rows,
+      reviewerArtifactsByRuleId,
+    });
+
+    const suppliedDocuments = [...evidenceInventory]
+      .filter((item) => item.kind !== "stac-item")
+      .sort((a, b) => a.evidence_id.localeCompare(b.evidence_id))
+      .map((item) => ({
+        id: item.evidence_id,
+        label: item.display_name,
+        type: item.type,
+        note: item.source_summary,
+      }));
+
+    const missingDocuments = Array.from(
+      new Set(readinessGaps.flatMap((gap) => gap.missingExpectedEvidenceTypes)),
+    )
+      .filter((expectedType) => !evidenceInventory.some((item) => inventoryMatchesExpectedEvidence(item, expectedType)))
+      .sort((a, b) => a.localeCompare(b))
+      .map((expectedType) => ({
+        id: `missing-${expectedType}`,
+        label: EXPECTED_EVIDENCE_LABELS[expectedType] ?? expectedType,
+        type: expectedType,
+      }));
+
+    const report = buildClientReadinessReport({
+      reportId: clientReadinessReportId(methodCode, version, verifierBundle.runContext.runId),
+      generatedAt,
+      project: {
+        name: aoi?.name?.trim() || `Client readiness workspace ${methodCode}@${version}`,
+        description: `Pre-verification readiness export generated from finalized Verify run ${verifierBundle.runContext.runId}.`,
+      },
+      methodology: {
+        code: methodCode,
+        version,
+      },
+      suppliedDocuments,
+      missingDocuments,
+      readinessGaps,
+    });
+
+    return { report, readinessGaps };
+  }, [
+    aoi?.name,
+    evidenceInventory,
+    fetchSelectedRuleContext,
+    methodCode,
+    ruleOptions,
+    verifierBundle.exportedAt,
+    verifierBundle.finalizedAt,
+    verifierBundle.minutes,
+    verifierBundle.outcomeNote,
+    verifierBundle.runContext.runId,
+    verifierBundle.savedReviewerArtifactAt,
+    verifierBundle.savedReviewerArtifactContext,
+    version,
+  ]);
+
+  const handleExportClientReadinessReport = useCallback(async () => {
+    setClientReadinessExportBusy(true);
+    setClientReadinessExportError(null);
+    try {
+      const payload = await buildClientReadinessReportPayload();
+      const response = await fetch("/api/exports/client-readiness-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      const filename = `client-readiness-report.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.zip`;
+      downloadBytes(bytes, filename, "application/zip");
+      showToast("Client readiness report exported");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setClientReadinessExportError(message);
+    } finally {
+      setClientReadinessExportBusy(false);
+    }
+  }, [buildClientReadinessReportPayload, methodCode, showToast, verifierBundle.runContext.runId, version]);
+
   const handleDownloadReviewSummaryPdf = useCallback(async () => {
     const finalizedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
     if (!finalizedAt) return;
@@ -4331,6 +4512,9 @@ export default function ProofMapTab({
                 onDownloadPdf={() => {
                   void handleDownloadReviewSummaryPdf();
                 }}
+                onExportClientReadinessReport={() => {
+                  void handleExportClientReadinessReport();
+                }}
                 onCopyLink={() => {
                   void handleCopyReviewSummaryLink();
                 }}
@@ -4338,6 +4522,8 @@ export default function ProofMapTab({
                 onViewRunHistory={handleViewRunHistory}
                 pdfBusy={reviewPdfBusy}
                 pdfError={reviewPdfError}
+                clientReadinessExportBusy={clientReadinessExportBusy}
+                clientReadinessExportError={clientReadinessExportError}
               />
             ) : (
               <EvidenceWorkflowStepper
