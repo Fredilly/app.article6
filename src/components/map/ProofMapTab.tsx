@@ -89,6 +89,49 @@ type ToastState = {
   subtitle?: string | null;
 };
 
+type PopulateDraftSaveResult = {
+  saved: number;
+  skipped: number;
+};
+
+export function populateFromEvidenceOutcomeMessage(input: {
+  result: PopulateDraftSaveResult;
+  noCandidateCount: number;
+}): {
+  toast: ToastState;
+  openCoverageDrawer: boolean;
+} {
+  const { result, noCandidateCount } = input;
+  if (!result.saved) {
+    if (result.skipped) {
+      return {
+        toast: {
+          title: "Existing review rows found",
+          subtitle: "Left unchanged. Open the rule review panel to continue reviewer confirmation.",
+        },
+        openCoverageDrawer: true,
+      };
+    }
+    return {
+      toast: {
+        title: "No new draft rows created",
+        subtitle: "No method rules were eligible for population.",
+      },
+      openCoverageDrawer: false,
+    };
+  }
+
+  return {
+    toast: {
+      title: `Populated ${result.saved} pending draft row${result.saved === 1 ? "" : "s"}`,
+      subtitle:
+        `${noCandidateCount} with no candidate evidence. ` +
+        `${result.skipped} existing row${result.skipped === 1 ? "" : "s"} left unchanged.`,
+    },
+    openCoverageDrawer: true,
+  };
+}
+
 type ProofMapTabProps = {
   methodCode: string;
   version: string;
@@ -585,22 +628,11 @@ export default function ProofMapTab({
       });
       const noCandidateCount = drafts.filter((draft) => !draft.candidateEvidence?.length).length;
       const result = saveReviewsBatch(methodCode, version, drafts, { overwriteExisting: false });
-
-      if (!result.saved) {
-        showToast({
-          title: "No new draft rows created",
-          subtitle: result.skipped ? "Existing review rows were left unchanged." : "No method rules were eligible for population.",
-        });
-        return;
+      const outcome = populateFromEvidenceOutcomeMessage({ result, noCandidateCount });
+      showToast(outcome.toast);
+      if (outcome.openCoverageDrawer) {
+        onOpenCoverageDrawer?.();
       }
-
-      showToast({
-        title: `Populated ${result.saved} draft row${result.saved === 1 ? "" : "s"}`,
-        subtitle:
-          `${noCandidateCount} with no candidate evidence. ` +
-          `${result.skipped} existing row${result.skipped === 1 ? "" : "s"} left unchanged.`,
-      });
-      onOpenCoverageDrawer?.();
     } catch (error) {
       showToast({
         title: "Populate from evidence failed",

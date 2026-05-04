@@ -1,5 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
-import { finalizedArtifactMatchesContext, finalizedArtifactRuleId } from "@/components/map/ProofMapTab";
+import {
+  finalizedArtifactMatchesContext,
+  finalizedArtifactRuleId,
+  populateFromEvidenceOutcomeMessage,
+} from "@/components/map/ProofMapTab";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 
 function buildArtifact(overrides?: Partial<EvidenceSnapshot>): EvidenceSnapshot {
@@ -178,5 +182,35 @@ describe("ProofMapTab finalized review artifact guard", () => {
         finalizedAt: "2026-03-25T00:10:00Z",
       }),
     ).toBe(false);
+  });
+
+  test("explains skipped populate results as existing review rows that should be continued", () => {
+    expect(
+      populateFromEvidenceOutcomeMessage({
+        result: { saved: 0, skipped: 3 },
+        noCandidateCount: 0,
+      }),
+    ).toEqual({
+      toast: {
+        title: "Existing review rows found",
+        subtitle: "Left unchanged. Open the rule review panel to continue reviewer confirmation.",
+      },
+      openCoverageDrawer: true,
+    });
+  });
+
+  test("keeps created rows explicitly pending drafts only", () => {
+    expect(
+      populateFromEvidenceOutcomeMessage({
+        result: { saved: 2, skipped: 1 },
+        noCandidateCount: 1,
+      }),
+    ).toEqual({
+      toast: {
+        title: "Populated 2 pending draft rows",
+        subtitle: "1 with no candidate evidence. 1 existing row left unchanged.",
+      },
+      openCoverageDrawer: true,
+    });
   });
 });
