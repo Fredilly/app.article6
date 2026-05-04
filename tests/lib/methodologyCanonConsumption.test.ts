@@ -40,4 +40,24 @@ describe("methodology canon consumption", () => {
     expect(result.source).toBe("sections.rich.json");
     expect(result.byId.get("S-1")?.title).toBe("Monitoring requirements");
   });
+
+  test("loads AR-ACM0003 expected evidence from methodology-owned rich rules", async () => {
+    mockedLoadManifestEntries.mockResolvedValue([
+      {
+        id: "R-1-0001",
+        methodology: "AR-ACM0003",
+        version: "v02-0",
+        rule: "Project restores degraded forest lands and meets additionality tests per Tool 01.",
+        tags: ["eligibility"],
+        path: "public/methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
+        sectionId: "S-1",
+      },
+    ] as never);
+
+    const result = await loadMethodRules("AR-ACM0003", "v02-0");
+    const rule = result.byId.get("UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
+
+    expect(result.source).toBe("rules.rich.json");
+    expect(rule?.expectedEvidence).toEqual(["eligibility-proof", "pdd", "gis"]);
+  });
 });

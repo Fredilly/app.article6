@@ -74,6 +74,8 @@ describe("populateDraftReviewsFromEvidence", () => {
     expect(drafts[0]?.status).toBe("pending");
     expect(drafts[0]?.candidateEvidence).toEqual([]);
     expect(drafts[0]?.rationale).toContain("No candidate evidence found.");
+    expect(drafts[0]?.rationale).toContain("Expected evidence: Monitoring report.");
+    expect(drafts[0]?.rationale).toContain("Next step: add or link Monitoring report.");
     expect(drafts[0]?.rationale).not.toContain("Verified");
     expect(drafts[0]?.rationale).not.toContain("Supported");
   });

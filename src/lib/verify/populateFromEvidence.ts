@@ -36,7 +36,7 @@ function buildDraftSummary(input: {
   const expectedSummary = summarizeExpectedEvidence(input.expectedEvidenceTypes);
   if (!input.candidateEvidence.length) {
     return input.expectedEvidenceTypes.length
-      ? `Draft initializer only. Needs reviewer confirmation. No candidate evidence found. Expected evidence: ${expectedSummary}.`
+      ? `Draft initializer only. Needs reviewer confirmation. No candidate evidence found yet. Expected evidence: ${expectedSummary}. Next step: add or link ${expectedSummary}.`
       : "Draft initializer only. Needs reviewer confirmation. No candidate evidence found and no methodology-owned expected evidence is defined for this rule.";
   }
 
@@ -76,7 +76,9 @@ export function populateDraftReviewsFromEvidence(input: PopulateDraftReviewsInpu
         : "No methodology-owned expected evidence is defined for this rule.";
       const candidateEvidenceLine = combinedCandidates.length
         ? `Candidate evidence only: ${candidateEvidenceLabel(combinedCandidates)}. Reviewer must confirm or reject each suggestion manually.`
-        : "No candidate evidence found. Reviewer must add or link supporting evidence manually.";
+        : row.expectedEvidenceTypes.length
+          ? `No candidate evidence found. Next step: add or link ${row.expectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type] ?? type).join(", ")}.`
+          : "No candidate evidence found. Reviewer must add or link supporting evidence manually.";
 
       return {
         ruleId: row.ruleId,
