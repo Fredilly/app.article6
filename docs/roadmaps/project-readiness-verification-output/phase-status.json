@@ -40,7 +40,7 @@
     "phase_3_readiness_gap_engine": {
       "status": "done",
       "title": "Readiness Gap Engine",
-      "summary": "Done. The Verify workflow now derives and surfaces rule-level readiness state, severity, missing expected evidence, recommendations, and saved reviewer artifact state from evidence inventory plus methodology expectations. Live reviewer override wiring remains separate follow-up work. Client report/export wiring remains separate Phase 4 work."
+      "summary": "Done. The Verify workflow now derives and surfaces rule-level readiness state, severity, missing expected evidence, recommendations / next action, and saved reviewer artifact state from evidence inventory plus methodology expectations. Live reviewer override wiring, client readiness report export, verification pack/report generation, and any registry approval, verification opinion, or credit issuance claims remain outside Phase 3."
     },
     "phase_4_client_readiness_report_export": {
       "status": "planned",
