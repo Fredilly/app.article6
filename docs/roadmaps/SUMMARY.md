@@ -106,8 +106,8 @@ Lane status: Active
 Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.
 
 Current focus:
-- PR #542 started the reviewer-facing Verify readiness surface as the first Readiness Gap Engine (RC3) milestone
-- Next build: derive rule-level gap states from evidence inventory plus methodology expected evidence
+- Phase 3 is complete: the readiness gap engine core and Verify reviewer visibility now surface rule-level readiness state, severity, missing evidence, and next actions
+- Next build: Phase 4 client readiness report and export surfaces, using the existing readiness-gap outputs without overstating Article6 as a verifier
 - Keep `traceable-rule-review-mvp` as the technical foundation for review records and exports
 - Preserve app-vs-methodologies boundaries while preparing sellable verification outputs
 
