@@ -12,7 +12,7 @@ describe("VerifyReadinessStrip", () => {
             key: "support-facts",
             label: "Support facts",
             value: "select rule",
-            detail: "Select a rule to assess AOI/STAC support facts.",
+            detail: "Select a rule to assess area/satellite support facts.",
             tone: "blocked",
           },
         ]}
@@ -22,7 +22,7 @@ describe("VerifyReadinessStrip", () => {
     expect(html).toContain("Select a rule to inspect rule-specific readiness.");
     expect(html).toContain("Support facts:");
     expect(html).toContain("select rule");
-    expect(html).toContain("Select a rule to assess AOI/STAC support facts.");
+    expect(html).toContain("Select a rule to assess area/satellite support facts.");
     expect(html).not.toContain("not applicable");
   });
 
@@ -33,28 +33,28 @@ describe("VerifyReadinessStrip", () => {
         chips={[
           {
             key: "aoi",
-            label: "AOI",
-            value: "loaded",
-            detail: "Project AOI loaded.",
+            label: "Area",
+            value: "ready",
+            detail: "Project area ready.",
             tone: "ok",
           },
           {
             key: "stac",
-            label: "STAC",
-            value: "results found",
-            detail: "2 STAC results found for the active AOI.",
+            label: "Satellite",
+            value: "found",
+            detail: "2 satellite results found for the current area.",
             tone: "ok",
           },
           {
             key: "support-facts",
-            label: "Support facts",
+            label: "Support",
             value: "optional",
-            detail: "AOI/STAC support facts are optional for this rule. Link them only if they materially support the review.",
+            detail: "Area/satellite support facts are optional for this rule. Link them only if they materially support the review.",
             tone: "neutral",
           },
           {
             key: "reviewer-record",
-            label: "Reviewer record",
+            label: "Reviewer",
             value: "draft",
             detail: "Draft reviewer notes exist but are not saved yet.",
             tone: "warn",
@@ -62,7 +62,7 @@ describe("VerifyReadinessStrip", () => {
           {
             key: "export",
             label: "Export",
-            value: "draft available",
+            value: "draft",
             detail: "Draft snapshot exported 2026-03-25 00:10:00. Final export still needs finalize requirements to pass.",
             tone: "warn",
           },
@@ -72,17 +72,17 @@ describe("VerifyReadinessStrip", () => {
 
     expect(html).toContain("Verify readiness");
     expect(html).toContain("Active rule R-1-0001");
-    expect(html).toContain("AOI:");
-    expect(html).toContain("loaded");
-    expect(html).toContain("STAC:");
-    expect(html).toContain("results found");
-    expect(html).toContain("Support facts:");
+    expect(html).toContain("Area:");
+    expect(html).toContain("ready");
+    expect(html).toContain("Satellite:");
+    expect(html).toContain("found");
+    expect(html).toContain("Support:");
     expect(html).toContain("optional");
-    expect(html).toContain("Reviewer record:");
+    expect(html).toContain("Reviewer:");
     expect(html).toContain("draft");
     expect(html).toContain("Export:");
-    expect(html).toContain("draft available");
-    expect(html).toContain("AOI/STAC support facts are optional for this rule. Link them only if they materially support the review.");
+    expect(html).toContain("draft");
+    expect(html).toContain("Area/satellite support facts are optional for this rule. Link them only if they materially support the review.");
     expect(html).toContain("Draft snapshot exported 2026-03-25 00:10:00. Final export still needs finalize requirements to pass.");
   });
 });

@@ -54,9 +54,9 @@ describe("EvidenceWorkflowStepper", () => {
       />,
     );
 
-    expect(html).toContain("Step 6");
+    expect(html).toContain("Step 5");
+    expect(html).toContain("Save &amp; finalize");
     expect(html).toContain("Save reviewer artifact");
-    expect(html).toContain("Step 7");
     expect(html).toContain("Finalize run");
     expect(html).toContain("Reviewer artifact saved");
     expect(html).toContain("Ready to finalize");

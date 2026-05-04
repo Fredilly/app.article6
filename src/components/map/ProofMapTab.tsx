@@ -1924,16 +1924,16 @@ export default function ProofMapTab({
           : latestRun.status === "warn" && stacFeatureIds.length > 0
             ? "results found"
             : "failed";
-    const stacDetail =
+    const satelliteDetail =
       !hasAoiLoaded
-        ? "Load an AOI before running STAC search."
+        ? "Upload an area before running satellite search."
         : !latestRun
-          ? "No STAC search has been run for the active AOI."
+          ? "No satellite search has been run for the current area."
           : stacStatus === "results found"
-            ? `${stacFeatureIds.length} STAC result${stacFeatureIds.length === 1 ? "" : "s"} found for the active AOI.`
+            ? `${stacFeatureIds.length} satellite result${stacFeatureIds.length === 1 ? "" : "s"} found for the current area.`
             : stacStatus === "no results"
-              ? "STAC search completed but returned no results for the active AOI."
-              : latestRun.summary?.trim() || "STAC search failed for the active AOI.";
+              ? "Satellite search completed but returned no results for the current area."
+              : latestRun.summary?.trim() || "Satellite search failed for the current area.";
     const supportFactsStatus = !selectedRuleId
       ? "select rule"
       : stacSupportFacts.linkedFacts.length > 0
@@ -1944,13 +1944,13 @@ export default function ProofMapTab({
             ? "optional"
             : "unlinked";
     const supportFactsDetail = !selectedRuleId
-      ? "Select a rule to assess AOI/STAC support facts."
+      ? "Select a rule to assess area/satellite support facts."
       : stacSupportFacts.linkedFacts.length > 0
         ? stacSupportFacts.lookupMessage
         : stacSupportFacts.staleFacts.length > 0
           ? stacSupportFacts.lookupMessage
           : !selectedRuleStacEligible
-            ? "AOI/STAC support facts are optional for this rule. Link them only if they materially support the review."
+            ? "Area/satellite support facts are optional for this rule. Link them only if they materially support the review."
             : stacSupportFacts.lookupMessage;
     const reviewerRecordStatus = verifierBundle.savedReviewerArtifactAt
       ? "saved"
@@ -1977,24 +1977,24 @@ export default function ProofMapTab({
     return [
       {
         key: "aoi",
-        label: "AOI",
-        value: hasAoiLoaded ? "loaded" : "missing",
-        detail: hasAoiLoaded ? aoi?.name ?? bboxLabel ?? "AOI loaded." : "Upload or confirm an AOI to scope the review.",
+        label: "Area",
+        value: hasAoiLoaded ? "ready" : "missing",
+        detail: hasAoiLoaded ? aoi?.name ?? bboxLabel ?? "Area ready." : "Upload or confirm an area to scope the review.",
         tone: hasAoiLoaded ? "ok" : "blocked",
         onClick: () => scrollToSection(aoiSectionRef),
       },
       {
         key: "stac",
-        label: "STAC",
-        value: stacStatus,
-        detail: stacDetail,
+        label: "Satellite",
+        value: stacStatus === "results found" ? "found" : stacStatus,
+        detail: satelliteDetail,
         tone: stacStatus === "results found" ? "ok" : stacStatus === "failed" ? "blocked" : "warn",
         onClick: () => scrollToSection(stacSectionRef),
       },
       {
         key: "support-facts",
-        label: "Support facts",
-        value: supportFactsStatus,
+        label: "Support",
+        value: supportFactsStatus === "select rule" ? "select rule" : supportFactsStatus,
         detail: supportFactsDetail,
         tone:
           supportFactsStatus === "linked"
@@ -2007,7 +2007,7 @@ export default function ProofMapTab({
       },
       {
         key: "reviewer-record",
-        label: "Reviewer record",
+        label: "Reviewer",
         value: reviewerRecordStatus,
         detail: verifierBundle.savedReviewerArtifactAt
           ? `Saved ${formatLocalDateTime(verifierBundle.savedReviewerArtifactAt)}`
@@ -2020,7 +2020,7 @@ export default function ProofMapTab({
       {
         key: "export",
         label: "Export",
-        value: exportStatus,
+        value: exportStatus === "draft available" ? "draft" : exportStatus,
         detail: exportDetail,
         tone: currentWorkspaceIsFinal || finalizeReady ? "ok" : hasDraftExport ? "warn" : "blocked",
         onClick: () => scrollToSection(finalSummarySectionRef),
@@ -4086,21 +4086,30 @@ export default function ProofMapTab({
               </button>
             </div>
           ) : null}
-          <VerifyReadinessStrip
-            ruleId={selectedRuleId}
-            chips={verifyReadinessChips}
-          />
-          <RuleReadinessFacts
-            ruleId={selectedRuleId}
-            gap={selectedRuleReadinessGap}
-            unavailableReason={selectedRuleReadinessUnavailableReason}
-          />
+          <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-sm shadow-slate-200/30">
+            <VerifyReadinessStrip
+              ruleId={selectedRuleId}
+              chips={verifyReadinessChips}
+              embedded
+              showRuleLabel={false}
+              helperText={selectedRuleId ? "Current review status." : "Select a rule to inspect rule-specific readiness."}
+            />
+            <div ref={ruleSectionRef}>
+              <RuleReadinessFacts
+                ruleId={selectedRuleId}
+                ruleTitle={selectedRuleCoverageRow?.ruleSummary.title ?? null}
+                gap={selectedRuleReadinessGap}
+                unavailableReason={selectedRuleReadinessUnavailableReason}
+                embedded
+              />
+            </div>
+          </div>
           <div
             data-testid="left-pane-step-focus"
-            className={`sticky top-0 z-10 rounded-xl border px-4 py-3 text-sm shadow-sm transition ${
+            className={`sticky top-0 z-10 rounded-2xl border px-4 py-3 text-sm transition ${
               currentWorkspaceIsFinal
-                ? "border-slate-200/70 bg-slate-50/90 text-slate-500 shadow-none"
-                : "border-slate-200 bg-white"
+                ? "border-slate-200/70 bg-slate-50/90 text-slate-500"
+                : "border-slate-200/70 bg-white/95 shadow-sm shadow-slate-200/30"
             }`}
           >
             <div className="flex items-center justify-between gap-2">
@@ -4109,87 +4118,92 @@ export default function ProofMapTab({
             </div>
             <div className="mt-1 text-xs text-slate-600">{leftPaneHeader.instruction}</div>
           </div>
-          <div className={`grid gap-2 transition ${currentWorkspaceIsFinal ? "opacity-55" : ""}`}>
-            <div
-              ref={ruleSectionRef}
-              data-testid="left-section-rule"
-              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "rule" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rule context</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{selectedRuleId ?? "No rule selected"}</div>
-            </div>
-            <div
-              ref={aoiSectionRef}
-              data-testid="left-section-aoi"
-              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "aoi" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI summary</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{aoi?.name ?? "No AOI loaded"}</div>
-              <div className="mt-1 text-[11px] text-slate-500">{bboxLabel ?? "Upload an AOI to continue."}</div>
-            </div>
-            <div
-              ref={stacSectionRef}
-              data-testid="left-section-stac"
-              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "stac" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">STAC evidence</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{stacFeatureIds.length} item{stacFeatureIds.length === 1 ? "" : "s"}</div>
-              <div className="mt-1 text-[11px] text-slate-500">{stacQuery.source ?? "Run a STAC search to load evidence context."}</div>
-            </div>
-            <div
-              ref={selectedItemSectionRef}
-              data-testid="left-section-selected"
-              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "selected" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Selected item</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{selectedStacItemId ?? "No item selected"}</div>
-            </div>
-            <div
-              ref={pinsSectionRef}
-              data-testid="left-section-pins"
-              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "pins" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence inventory</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">
-                {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
+          <details className={`rounded-2xl border border-slate-200/70 bg-white/90 transition ${currentWorkspaceIsFinal ? "opacity-60" : ""}`}>
+            <summary className="cursor-pointer list-none px-4 py-3" data-testid="verify-technical-context-toggle">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Technical context</div>
+                  <div className="mt-1 text-sm font-medium text-slate-700">
+                    AOI, STAC, selected item, inventory, reviewer artifact, and finalization metadata
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-slate-500">Show</span>
+              </div>
+            </summary>
+            <div className="grid gap-2 border-t border-slate-100 px-4 pb-4 pt-3">
+              <div
+                ref={aoiSectionRef}
+                data-testid="left-section-aoi"
+                className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "aoi" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI summary</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{aoi?.name ?? "No AOI loaded"}</div>
+                <div className="mt-1 text-[11px] text-slate-500">{bboxLabel ?? "Upload an AOI to continue."}</div>
+              </div>
+              <div
+                ref={stacSectionRef}
+                data-testid="left-section-stac"
+                className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "stac" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">STAC evidence</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{stacFeatureIds.length} item{stacFeatureIds.length === 1 ? "" : "s"}</div>
+                <div className="mt-1 text-[11px] text-slate-500">{stacQuery.source ?? "Run a STAC search to load evidence context."}</div>
+              </div>
+              <div
+                ref={selectedItemSectionRef}
+                data-testid="left-section-selected"
+                className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "selected" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Selected item</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{selectedStacItemId ?? "No item selected"}</div>
+              </div>
+              <div
+                ref={pinsSectionRef}
+                data-testid="left-section-pins"
+                className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "pins" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence inventory</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">
+                  {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
+                </div>
+              </div>
+              <div
+                ref={reviewerSectionRef}
+                data-testid="left-section-reviewer"
+                className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "reviewer" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reviewer artifact</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">
+                  {verifierBundle.savedReviewerArtifactAt ? "Saved reviewer artifact" : "Draft reviewer artifact"}
+                </div>
+                <div className="mt-1 line-clamp-2 text-[11px] text-slate-500">
+                  {(verifierBundle.savedReviewerArtifactAt ? verifierBundle.minutes || verifierBundle.outcomeNote : verifierBundle.draftMinutes || verifierBundle.draftOutcomeNote) || "No reviewer notes yet."}
+                </div>
+              </div>
+              <div
+                ref={finalSummarySectionRef}
+                data-testid="left-section-summary"
+                className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "summary" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Final summary</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{currentWorkspaceIsFinal ? "Final artifact written" : "Not finalized yet"}</div>
+                <div className="mt-1 text-[11px] text-slate-500">
+                  {currentWorkspaceIsFinal ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}` : "Finalize run to export the single immutable artifact."}
+                </div>
               </div>
             </div>
-            <div
-              ref={reviewerSectionRef}
-              data-testid="left-section-reviewer"
-              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "reviewer" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reviewer artifact</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">
-                {verifierBundle.savedReviewerArtifactAt ? "Saved reviewer artifact" : "Draft reviewer artifact"}
-              </div>
-              <div className="mt-1 line-clamp-2 text-[11px] text-slate-500">
-                {(verifierBundle.savedReviewerArtifactAt ? verifierBundle.minutes || verifierBundle.outcomeNote : verifierBundle.draftMinutes || verifierBundle.draftOutcomeNote) || "No reviewer notes yet."}
-              </div>
-            </div>
-            <div
-              ref={finalSummarySectionRef}
-              data-testid="left-section-summary"
-              className={`rounded-xl border bg-white px-3 py-2 transition ${activeLeftSection === "summary" ? "border-sky-300 shadow-sm" : "border-slate-200 opacity-70"}`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Final summary</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{currentWorkspaceIsFinal ? "Final artifact written" : "Not finalized yet"}</div>
-              <div className="mt-1 text-[11px] text-slate-500">
-                {currentWorkspaceIsFinal ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}` : "Finalize run to export the single immutable artifact."}
-              </div>
-            </div>
-          </div>
+          </details>
           <div
             className={
               isListMode
-                ? `grid gap-3 rounded-xl border bg-white p-4 transition ${
+                ? `grid gap-3 rounded-2xl border bg-white/95 p-4 transition ${
                     currentWorkspaceIsFinal
                       ? "border-slate-200/70 bg-slate-50/80 opacity-45 shadow-none"
                       : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
-                      ? "border-sky-300 shadow-sm"
+                      ? "border-sky-300/80 shadow-sm shadow-sky-100/60"
                       : wizardDetails.activeStep === 3
-                        ? "border-amber-300 shadow-sm"
-                        : "border-slate-200"
+                        ? "border-amber-300/80 shadow-sm shadow-amber-100/60"
+                        : "border-slate-200/70 shadow-sm shadow-slate-200/30"
                   }`
                 : "hidden"
             }
@@ -4201,11 +4215,11 @@ export default function ProofMapTab({
               isListMode
                 ? "hidden"
                 : currentWorkspaceIsFinal
-                  ? "rounded-xl border border-slate-200/70 opacity-45 shadow-none"
+                  ? "rounded-2xl border border-slate-200/70 opacity-45 shadow-none"
                 : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
-                  ? "rounded-xl border border-sky-300 shadow-sm"
-                  : wizardDetails.activeStep === 3
-                    ? "rounded-xl border border-amber-300 shadow-sm"
+                  ? "rounded-2xl border border-sky-300/80 shadow-sm shadow-sky-100/60"
+                : wizardDetails.activeStep === 3
+                    ? "rounded-2xl border border-amber-300/80 shadow-sm shadow-amber-100/60"
                     : undefined
             }
           >
@@ -4236,10 +4250,10 @@ export default function ProofMapTab({
         </div>
 
         <div
-          className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-xl border p-4 transition ${
+          className={`grid min-w-0 w-full max-w-full gap-3 overflow-hidden rounded-2xl border p-4 transition ${
             currentWorkspaceIsFinal
-              ? "border-emerald-200 bg-white/95 shadow-sm shadow-emerald-100"
-              : "border-slate-200 bg-white"
+              ? "border-emerald-200/80 bg-white/95 shadow-sm shadow-emerald-100/70"
+              : "border-slate-200/70 bg-white/95 shadow-sm shadow-slate-200/30"
           } ${panelCollapsed ? "lg:hidden" : ""}`}
         >
           <input
@@ -4250,26 +4264,22 @@ export default function ProofMapTab({
             onChange={handleUploadAoiChange}
           />
 
-          <div className={`flex items-start justify-between gap-2 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}>
+          <div className={`flex items-start justify-between gap-3 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}>
             <div>
               <div className="text-sm font-semibold text-slate-900">
                 {currentWorkspaceIsFinal ? "Final Review Summary" : "Evidence workflow"}
               </div>
-              {!currentWorkspaceIsFinal ? (
-                <div className="mt-1 text-xs text-slate-500">
-                  Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; reviewer save -&gt; finalize.
-                </div>
-              ) : (
+              {currentWorkspaceIsFinal ? (
                 <div className="mt-1 text-xs text-slate-500">
                   Finalized result, exports, and summary are now the primary right-panel surface.
                 </div>
-              )}
+              ) : null}
             </div>
             {!currentWorkspaceIsFinal ? (
-              <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
                 <button
                   type="button"
-                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                   onClick={() => {
                     if (hasStartOverState) setStartOverOpen(true);
                     else showToast("Nothing to clear.");
@@ -4280,14 +4290,14 @@ export default function ProofMapTab({
                 </button>
                 <button
                   type="button"
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                   onClick={handleNewRun}
                 >
                   New run
                 </button>
                 <button
                   type="button"
-                  className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+                  className="hidden items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 lg:inline-flex"
                   onClick={() => setPanelCollapsed(true)}
                   aria-label="Collapse Verify panel"
                 >
@@ -4421,7 +4431,7 @@ export default function ProofMapTab({
           <div className="rounded-xl border-t border-dashed border-slate-200 pt-3">
             <button
               type="button"
-              className="flex w-full items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-left"
+              className="flex w-full items-center justify-between rounded-xl bg-slate-50/70 px-3 py-2 text-left"
               onClick={() => setSecondarySectionOpen((value) => !value)}
               data-testid="secondary-context-toggle"
             >

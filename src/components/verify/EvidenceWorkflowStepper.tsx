@@ -83,15 +83,15 @@ type EvidenceWorkflowStepperProps = {
 };
 
 function stepStateClass(input: { active: boolean; complete: boolean; disabled: boolean }): string {
-  if (input.active) return "border-slate-300 bg-slate-50";
-  if (input.complete) return "border-emerald-200/90 bg-emerald-50/65";
-  if (input.disabled) return "border-slate-200 bg-slate-50/60 opacity-80";
-  return "border-slate-200 bg-white";
+  if (input.active) return "border-slate-300 bg-white shadow-sm shadow-slate-200/30";
+  if (input.complete) return "border-emerald-200/80 bg-emerald-50/35";
+  if (input.disabled) return "border-slate-200/80 bg-slate-50/60 opacity-80";
+  return "border-slate-200/90 bg-white";
 }
 
 function stepMarkerClass(input: { active: boolean; complete: boolean; disabled: boolean }): string {
   if (input.active) return "border-slate-900 bg-slate-900 text-white";
-  if (input.complete) return "border-emerald-300 bg-emerald-50 text-emerald-700";
+  if (input.complete) return "border-emerald-200 bg-white text-emerald-700";
   if (input.disabled) return "border-slate-200 bg-slate-50 text-slate-400";
   return "border-slate-200 bg-white text-slate-500";
 }
@@ -395,7 +395,6 @@ export default function EvidenceWorkflowStepper({
   const reviewerArtifactSaved = Boolean(savedReviewerArtifactAt);
   const readyToFinalize =
     !finalizeBlocked && (step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled));
-  const inProgress = !currentWorkspaceIsFinal && !readyToFinalize;
   const stepShellClass = currentWorkspaceIsFinal ? "opacity-45 transition" : "transition";
   const [completedWorkflowExpanded, setCompletedWorkflowExpanded] = useState(false);
   const completedCounts = [
@@ -454,61 +453,21 @@ export default function EvidenceWorkflowStepper({
     );
   }
 
+  const searchAndSelectState = {
+    active: step3.active || step4.active,
+    complete: step4.complete,
+    disabled: step3.disabled,
+  };
+  const saveAndFinalizeState = {
+    active: step6.active || step7.active,
+    complete: false,
+    disabled: step6.disabled && step7.disabled,
+  };
+
   return (
     <div className="grid gap-3">
-      <div className="sticky top-0 z-10 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Current workspace</div>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-              <span>
-                <span className="font-semibold text-slate-900">Run:</span>{" "}
-                <span data-testid="current-run-indicator" className="font-mono">
-                  {currentRunLabel}
-                </span>
-              </span>
-              {loadedFromRunLabel ? (
-                <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
-                  Loaded from Run {loadedFromRunLabel}
-                </span>
-              ) : null}
-              {isEditedDraft ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                  Edited draft
-                </span>
-              ) : null}
-              {currentWorkspaceIsFinal ? (
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                  Finalized
-                </span>
-              ) : null}
-              {inProgress ? (
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                  In progress
-                </span>
-              ) : null}
-              {reviewerArtifactSaved && !currentWorkspaceIsFinal ? (
-                <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
-                  Reviewer artifact saved
-                </span>
-              ) : null}
-              {readyToFinalize ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                  Ready to finalize
-                </span>
-              ) : null}
-              {hasUnsavedWorkspaceEdits ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                  Unsaved edits
-                </span>
-              ) : null}
-            </div>
-          </div>
-          <div className="text-right text-[11px] text-slate-500" data-testid="wizard-next-action">
-            <div className="font-semibold uppercase tracking-wide text-slate-400">Next required action</div>
-            <div className="mt-1 text-slate-700">{nextActionText}</div>
-          </div>
-        </div>
+      <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 px-3.5 py-2.5 text-[11px] text-slate-600" data-testid="wizard-next-action">
+        <span className="font-semibold text-slate-900">Next:</span> {nextActionText}
       </div>
 
       <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step1)}`} data-testid="wizard-step-1">
@@ -522,32 +481,32 @@ export default function EvidenceWorkflowStepper({
               <div className={`text-sm font-semibold ${stepTextTone(step1)}`}>Pick rule</div>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
-            <span className="text-xs font-semibold text-slate-600">Rule</span>
-            <select
-              className="max-w-[220px] bg-transparent text-xs text-slate-700 outline-none"
-              value={selectedRuleId ?? ""}
-              onChange={(event) => onSelectRuleId?.(event.target.value.trim() || null)}
-            >
-              <option value="">Select rule…</option>
-              {ruleOptions.map((rule) => (
-                <option key={rule.id} value={rule.id} title={rule.id}>
-                  {formatRuleOptionLabel(rule)}
-                </option>
-              ))}
-            </select>
-          </div>
-          {selectedRuleId ? (
-            <button
-              type="button"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-              onClick={() => onViewRule?.(selectedRuleId)}
-            >
-              View rule
-            </button>
-          ) : (
-            <div className="text-[11px] text-slate-500">Select a rule to unlock the rest of the workflow.</div>
-          )}
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
+                <span className="text-xs font-semibold text-slate-600">Rule</span>
+                <select
+                  className="max-w-[220px] bg-transparent text-xs text-slate-700 outline-none"
+                  value={selectedRuleId ?? ""}
+                  onChange={(event) => onSelectRuleId?.(event.target.value.trim() || null)}
+                >
+                  <option value="">Select rule…</option>
+                  {ruleOptions.map((rule) => (
+                    <option key={rule.id} value={rule.id} title={rule.id}>
+                      {formatRuleOptionLabel(rule)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {selectedRuleId ? (
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                  onClick={() => onViewRule?.(selectedRuleId)}
+                >
+                  View rule
+                </button>
+              ) : (
+                <div className="text-[11px] text-slate-500">Select a rule to unlock the rest of the workflow.</div>
+              )}
             </div>
           </div>
         </div>
@@ -561,118 +520,107 @@ export default function EvidenceWorkflowStepper({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 2</div>
-              <div className={`text-sm font-semibold ${stepTextTone(step2)}`}>Confirm Area</div>
+              <div className={`text-sm font-semibold ${stepTextTone(step2)}`}>Confirm area</div>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              step2.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
-            onClick={onUploadAoi}
-            disabled={step2.disabled}
-          >
-            Upload Area
-          </button>
-          {!selectedRuleId ? (
-            <div className="text-[11px] text-slate-500">Disabled: pick a rule first.</div>
-          ) : hasAoi ? (
-            <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-              Area ready
-            </span>
-          ) : (
-            <div className="text-[11px] text-slate-500">Upload and confirm an Area to continue.</div>
-          )}
+              <button
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                  step2.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+                onClick={onUploadAoi}
+                disabled={step2.disabled}
+              >
+                Upload Area
+              </button>
+              {!selectedRuleId ? (
+                <div className="text-[11px] text-slate-500">Disabled: pick a rule first.</div>
+              ) : hasAoi ? (
+                <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                  Area ready
+                </span>
+              ) : (
+                <div className="text-[11px] text-slate-500">Upload and confirm an Area to continue.</div>
+              )}
             </div>
-        {aoiSummary ? (
-          <div className="mt-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700">
-            {aoiSummary.isPreview ? (
-              <>
-                <div className="font-semibold text-slate-900">New Area ready</div>
-                <div className="mt-1">Replace the current Area with <span className="font-semibold">{aoiLabel ?? "uploaded Area"}</span>?</div>
-                {aoiSummary.willClearWork ? <div className="mt-1 text-[11px] text-slate-600">This will clear pins and evidence selections.</div> : null}
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button type="button" className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-700" onClick={onApplyDraftAoiClick}>Replace Area</button>
-                  <button type="button" className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50" onClick={onCancelDraftAoi}>Keep current</button>
-                </div>
-                {aoiSummary.isSameAoi && aoiSummary.showSameAoiPrompt ? (
-                  <div className="mt-2 rounded-md border border-slate-200 bg-slate-50 px-2 py-2 text-[11px] text-slate-700">
-                    <div className="font-semibold text-slate-800">Same Area detected. Keep current links?</div>
+            {aoiSummary ? (
+              <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50/60 px-2.5 py-2 text-xs text-slate-700">
+                {aoiSummary.isPreview ? (
+                  <>
+                    <div className="font-semibold text-slate-900">New Area ready</div>
+                    <div className="mt-1">Replace the current Area with <span className="font-semibold">{aoiLabel ?? "uploaded Area"}</span>?</div>
+                    {aoiSummary.willClearWork ? <div className="mt-1 text-[11px] text-slate-600">This will clear pins and evidence selections.</div> : null}
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <button type="button" className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50" onClick={onKeepSameAoi}>Keep</button>
-                      <button type="button" className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100" onClick={onResetSameAoi}>Reset anyway</button>
+                      <button type="button" className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-700" onClick={onApplyDraftAoiClick}>Replace Area</button>
+                      <button type="button" className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50" onClick={onCancelDraftAoi}>Keep current</button>
                     </div>
+                    {aoiSummary.isSameAoi && aoiSummary.showSameAoiPrompt ? (
+                      <div className="mt-2 rounded-md border border-slate-200 bg-white px-2 py-2 text-[11px] text-slate-700">
+                        <div className="font-semibold text-slate-800">Same Area detected. Keep current links?</div>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <button type="button" className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50" onClick={onKeepSameAoi}>Keep</button>
+                          <button type="button" className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-100" onClick={onResetSameAoi}>Reset anyway</button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </>
+                ) : (
+                  <div className="grid gap-1 text-[11px] text-slate-600">
+                    <div>Area: {aoiLabel ?? "none"}</div>
+                    <div>area: {typeof aoiSummary.areaKm2 === "number" ? aoiSummary.areaKm2.toFixed(2) : "—"} km²</div>
+                    <div className="break-words">bbox: {aoiSummary.bboxLabel ?? "—"}</div>
                   </div>
-                ) : null}
-              </>
-            ) : (
-              <div className="grid gap-1 text-[11px] text-slate-600">
-                <div>Area: {aoiLabel ?? "none"}</div>
-                <div>area: {typeof aoiSummary.areaKm2 === "number" ? aoiSummary.areaKm2.toFixed(2) : "—"} km²</div>
-                <div className="break-words">bbox: {aoiSummary.bboxLabel ?? "—"}</div>
+                )}
               </div>
-            )}
-          </div>
-        ) : null}
+            ) : null}
           </div>
         </div>
       </div>
 
-      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step3)}`} data-testid="wizard-step-3">
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(searchAndSelectState)}`} data-testid="wizard-step-3">
         <div className="flex items-start gap-3">
-          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step3)}`}>
-            {step3.complete ? "✓" : "3"}
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(searchAndSelectState)}`}>
+            {searchAndSelectState.complete ? "✓" : "3"}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 3</div>
-              <div className={`text-sm font-semibold ${stepTextTone(step3)}`}>Search Satellite</div>
+              <div className={`text-sm font-semibold ${stepTextTone(searchAndSelectState)}`}>Search satellite</div>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
-              step3.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
-            disabled={step3.disabled || searchDisabled}
-            onClick={onSearchStac}
-          >
-            {isRunning ? "Searching…" : "Search Satellite"}
-          </button>
-          {!hasAoi ? (
-            <div className="text-[11px] text-slate-500">Disabled: confirm Area first.</div>
-          ) : hasSearchResults ? (
-            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-              {stacResultCount} items
-            </span>
-          ) : (
-            <div className="text-[11px] text-slate-500">Run search to load candidate evidence.</div>
-          )}
+              <button
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
+                  searchAndSelectState.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+                disabled={step3.disabled || searchDisabled}
+                onClick={onSearchStac}
+              >
+                {isRunning ? "Searching…" : "Search Satellite"}
+              </button>
+              {!hasAoi ? (
+                <div className="text-[11px] text-slate-500">Disabled: confirm Area first.</div>
+              ) : hasSearchResults ? (
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                  {stacResultCount} result{stacResultCount === 1 ? "" : "s"}
+                </span>
+              ) : (
+                <div className="text-[11px] text-slate-500">Run search to load candidate evidence.</div>
+              )}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step4)}`} data-testid="wizard-step-4">
-        <div className="flex items-start gap-3">
-          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step4)}`}>
-            {step4.complete ? "✓" : "4"}
-          </div>
-          <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 4</div>
-          <div className={`text-sm font-semibold ${stepTextTone(step4)}`}>Select item</div>
-        </div>
-        {selectedStacItemId ? (
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-              <span className="font-mono">{selectedStacItemId}</span>
-            </span>
-            <button type="button" className="text-xs font-semibold text-slate-700 underline underline-offset-2" onClick={onClearSelectedItem}>Clear</button>
-          </div>
-        ) : (
-          <div className="mt-2 text-[11px] text-slate-500">Pick a satellite result from the list or map to continue.</div>
-        )}
+            <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/55 px-3 py-2" data-testid="wizard-step-4">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Selected item</div>
+              {selectedStacItemId ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                    <span className="font-mono">{selectedStacItemId}</span>
+                  </span>
+                  <button type="button" className="text-xs font-semibold text-slate-700 underline underline-offset-2" onClick={onClearSelectedItem}>Clear</button>
+                </div>
+              ) : (
+                <div className="mt-2 text-[11px] text-slate-500">Pick a satellite result from the list or map to continue.</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -680,128 +628,124 @@ export default function EvidenceWorkflowStepper({
       <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step5)}`} data-testid="wizard-step-5">
         <div className="flex items-start gap-3">
           <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step5)}`}>
-            {step5.complete ? "✓" : "5"}
+            {step5.complete ? "✓" : "4"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 4</div>
+              <div className={`text-sm font-semibold ${stepTextTone(step5)}`}>Evidence inventory</div>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Tooltip content={createPinDisabledReason}>
+                <button
+                  type="button"
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
+                    step5.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                  onClick={onCreatePin}
+                  disabled={!canCreatePin}
+                >
+                  Create pin
+                </button>
+              </Tooltip>
+              {pinsCount > 0 ? (
+                <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                  {pinsCount} link{pinsCount === 1 ? "" : "s"} ready
+                </span>
+              ) : (
+                <div className="text-[11px] text-slate-500">Create and link evidence for the selected rule.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(saveAndFinalizeState)}`} data-testid="wizard-step-6">
+        <div className="flex items-start gap-3">
+          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(saveAndFinalizeState)}`}>
+            {step7.complete ? "✓" : "5"}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 5</div>
-              <div className={`text-sm font-semibold ${stepTextTone(step5)}`}>Create/link pin</div>
+              <div className={`text-sm font-semibold ${stepTextTone(saveAndFinalizeState)}`}>Save &amp; finalize</div>
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-          <Tooltip content={createPinDisabledReason}>
-            <button
-              type="button"
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
-                step5.active ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-              onClick={onCreatePin}
-              disabled={!canCreatePin}
-            >
-              Create pin
-            </button>
-          </Tooltip>
-          {pinsCount > 0 ? (
-            <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-              {pinsCount} link{pinsCount === 1 ? "" : "s"} ready
-            </span>
-          ) : null}
+            <div className="mt-2 grid gap-3">
+              <div className="text-[11px] text-slate-500">Type concise minutes or an outcome note, save it explicitly, then finalize the run.</div>
+              <textarea
+                data-testid="verifier-minutes-textarea"
+                className="min-h-[92px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200 disabled:opacity-60"
+                placeholder="Verifier minutes: what you checked, what you assume, what remains uncertain."
+                value={draftMinutes}
+                disabled={currentWorkspaceIsFinal}
+                onChange={(event) => onReviewerMinutesChange(event.target.value)}
+              />
+              <textarea
+                className="min-h-[72px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200 disabled:opacity-60"
+                placeholder="Outcome note: one concise sentence if minutes are unnecessary."
+                value={draftOutcomeNote}
+                disabled={currentWorkspaceIsFinal}
+                onChange={(event) => onReviewerOutcomeNoteChange(event.target.value)}
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={onSaveReviewerArtifact}
+                  disabled={step6.disabled || currentWorkspaceIsFinal || !hasDraftArtifactChanges}
+                >
+                  Save reviewer artifact
+                </button>
+                {savedReviewerArtifactAt ? (
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                    Saved {formatDate(savedReviewerArtifactAt)}
+                  </span>
+                ) : null}
+                {hasUnsavedWorkspaceEdits ? (
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                    Unsaved edits
+                  </span>
+                ) : null}
+                {loadedFromRunLabel ? (
+                  <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
+                    Loaded from Run {loadedFromRunLabel}
+                  </span>
+                ) : null}
+                {isEditedDraft ? (
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                    Edited draft
+                  </span>
+                ) : null}
+              </div>
+              <div className="rounded-lg border border-slate-200 bg-slate-50/55 px-3 py-3" data-testid="wizard-step-7">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Finalize run</div>
+                <div className="mt-1 text-[11px] text-slate-500">Finalization writes the immutable run artifact with evidence and reviewer notes.</div>
+                {finalizeGateBanner ? <div className="mt-2">{finalizeGateBanner}</div> : null}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={onFinalizeRun}
+                    disabled={step7.disabled || currentWorkspaceIsFinal || finalizeBlocked}
+                  >
+                    Finalize run
+                  </button>
+                  {reviewerArtifactSaved ? (
+                    <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
+                      Reviewer artifact saved
+                    </span>
+                  ) : null}
+                  {readyToFinalize ? (
+                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                      Ready to finalize
+                    </span>
+                  ) : null}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      <div className={`${stepShellClass} rounded-xl border px-3.5 py-3 ${stepStateClass(step6)}`} data-testid="wizard-step-6">
-        <div className="flex items-start gap-3">
-          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step6)}`}>
-            {step6.complete ? "✓" : "6"}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 6</div>
-              <div className={`text-sm font-semibold ${stepTextTone(step6)}`}>Save reviewer artifact</div>
-            </div>
-        <div className="mt-2 grid gap-3">
-          <div className="text-[11px] text-slate-500">Type concise minutes or an outcome note, then save it explicitly before finalization.</div>
-          <textarea
-            data-testid="verifier-minutes-textarea"
-            className="min-h-[92px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200 disabled:opacity-60"
-            placeholder="Verifier minutes: what you checked, what you assume, what remains uncertain."
-            value={draftMinutes}
-            disabled={currentWorkspaceIsFinal}
-            onChange={(event) => onReviewerMinutesChange(event.target.value)}
-          />
-          <textarea
-            className="min-h-[72px] w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200 disabled:opacity-60"
-            placeholder="Outcome note: one concise sentence if minutes are unnecessary."
-            value={draftOutcomeNote}
-            disabled={currentWorkspaceIsFinal}
-            onChange={(event) => onReviewerOutcomeNoteChange(event.target.value)}
-          />
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={onSaveReviewerArtifact}
-              disabled={step6.disabled || currentWorkspaceIsFinal || !hasDraftArtifactChanges}
-            >
-              Save reviewer artifact
-            </button>
-            {savedReviewerArtifactAt ? (
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                Saved {formatDate(savedReviewerArtifactAt)}
-              </span>
-            ) : null}
-          </div>
-        </div>
-          </div>
-        </div>
-      </div>
-
-      <div className={`${currentWorkspaceIsFinal ? "opacity-70 transition" : "transition"} rounded-xl border px-3.5 py-3 ${stepStateClass(step7)}`} data-testid="wizard-step-7">
-        <div className="flex items-start gap-3">
-          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${stepMarkerClass(step7)}`}>
-            {step7.complete ? "✓" : "7"}
-          </div>
-          <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 7</div>
-          <div className={`text-sm font-semibold ${stepTextTone(step7)}`}>Finalize run</div>
-        </div>
-        <div className="mt-1 text-[11px] text-slate-500">This is the single completion/export action. Finalization writes the immutable run artifact with evidence and reviewer notes.</div>
-        {finalizeGateBanner ? <div className="mt-2">{finalizeGateBanner}</div> : null}
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={onFinalizeRun}
-            disabled={step7.disabled || currentWorkspaceIsFinal || finalizeBlocked}
-          >
-            Finalize run
-          </button>
-          {finalizedAt ? (
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-              Finalized {formatDate(finalizedAt)}
-            </span>
-          ) : null}
-        </div>
-          </div>
-        </div>
-      </div>
-
-      {wizard.isComplete ? (
-        <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-slate-50 px-4 py-4 shadow-sm shadow-emerald-100" data-testid="wizard-completion-card">
-          <div className="text-sm font-semibold text-emerald-900">Run complete</div>
-          <div className="mt-1 text-xs text-emerald-800">Locked artifacts: finalized workspace state and the saved reviewer artifact.</div>
-          {finalizedResult ? <div className="mt-4">{finalizedResult}</div> : null}
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button type="button" className="rounded-full border border-emerald-700 bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800" onClick={onStartAnotherRun}>Start another run</button>
-            {onViewOutcome ? (
-              <button type="button" className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm hover:bg-emerald-100" onClick={onViewOutcome}>View outcome</button>
-            ) : null}
-            <button type="button" className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm hover:bg-emerald-100" onClick={onViewRunHistory}>View run history</button>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
