@@ -18,11 +18,14 @@ type FinalReviewSummaryPanelProps = {
   wizard: VerifyWizardStepDetails;
   onDownloadJson: () => void;
   onDownloadPdf: () => void;
+  onExportClientReadinessReport?: () => void;
   onCopyLink?: () => void;
   onStartAnotherRun: () => void;
   onViewRunHistory: () => void;
   pdfError?: string | null;
   pdfBusy?: boolean;
+  clientReadinessExportBusy?: boolean;
+  clientReadinessExportError?: string | null;
 };
 
 function formatDate(value: string | null | undefined): string | null {
@@ -62,11 +65,14 @@ export default function FinalReviewSummaryPanel({
   wizard,
   onDownloadJson,
   onDownloadPdf,
+  onExportClientReadinessReport,
   onCopyLink,
   onStartAnotherRun,
   onViewRunHistory,
   pdfError = null,
   pdfBusy = false,
+  clientReadinessExportBusy = false,
+  clientReadinessExportError = null,
 }: FinalReviewSummaryPanelProps) {
   const finalizedLabel = formatDate(finalizedAt);
   const completedSteps = wizard.steps.filter((step) => step.complete);
@@ -130,7 +136,20 @@ export default function FinalReviewSummaryPanel({
             Download audit pack
           </button>
         ) : null}
+        {onExportClientReadinessReport ? (
+          <button
+            type="button"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-wait disabled:opacity-70"
+            onClick={() => {
+              onExportClientReadinessReport();
+            }}
+            disabled={clientReadinessExportBusy}
+          >
+            {clientReadinessExportBusy ? "Preparing readiness report..." : "Export client readiness report"}
+          </button>
+        ) : null}
       </div>
+      {clientReadinessExportError ? <div className="text-xs text-rose-700">{clientReadinessExportError}</div> : null}
 
       <details className="rounded-xl border border-slate-200 bg-white">
         <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900">
