@@ -60,4 +60,23 @@ describe("methodology canon consumption", () => {
     expect(result.source).toBe("rules.rich.json");
     expect(rule?.expectedEvidence).toEqual(["eligibility-proof", "pdd", "gis"]);
   });
+
+  test("does not inject unrelated overrides into other methods", async () => {
+    mockedLoadManifestEntries.mockResolvedValue([
+      {
+        id: "R-1-0001",
+        methodology: "EXAMPLE-METHOD",
+        version: "v01-0",
+        rule: "Monitoring report must describe the reporting period and supporting evidence.",
+        tags: ["monitoring"],
+        path: "tests/fixtures/methodology-canon/example-method/v01-0/rules.json",
+        sectionId: "S-1",
+      },
+    ] as never);
+
+    const result = await loadMethodRules("EXAMPLE-METHOD", "v01-0");
+    const rule = result.byId.get("TEST.Example.EXAMPLE-METHOD.v01-0.R-1-0001");
+
+    expect(rule?.expectedEvidence ?? []).toEqual([]);
+  });
 });

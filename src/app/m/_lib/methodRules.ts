@@ -3,6 +3,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { loadManifestEntries, type ManifestEntry } from "@/lib/manifest/cards";
 import { resolveMethodVersionFiles } from "@/app/m/_lib/methodVersionMetadata";
+import { expectedEvidenceOverrideForRule } from "@/app/m/_lib/expectedEvidenceOverrides";
 
 export type RuleCitation = {
   sectionId?: string;
@@ -300,6 +301,18 @@ function coerceRulesFromManifest(entries: ManifestEntry[]): RuleFull[] {
     .filter((rule) => Boolean(rule.id));
 }
 
+function applyExpectedEvidenceOverrides(
+  methodology: string,
+  version: string,
+  rules: RuleFull[],
+): RuleFull[] {
+  return rules.map((rule) => {
+    const override = expectedEvidenceOverrideForRule(methodology, version, rule.id);
+    if (!override?.length || rule.expectedEvidence?.length) return rule;
+    return { ...rule, expectedEvidence: [...override] };
+  });
+}
+
 export async function loadMethodRules(code: string, version: string): Promise<RulesResult> {
   const normalizedCode = code.trim();
   const normalizedVersion = version.trim();
@@ -333,7 +346,7 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
   if (manifestPath) {
     const loaded = await tryLoadRulesFile(manifestPath);
     if (loaded) {
-      const full = coerceRulesFromUnknown(loaded.parsed);
+      const full = applyExpectedEvidenceOverrides(normalizedCode, normalizedVersion, coerceRulesFromUnknown(loaded.parsed));
       const byId = new Map(full.map((rule) => [rule.id, rule]));
       const rules = full.map(({ id, title, snippet, tags, type, text, summary, logic, notes, when, expectedEvidence, sectionId, anchor, citations, refs }) => ({
         id,
@@ -357,7 +370,7 @@ export async function loadMethodRules(code: string, version: string): Promise<Ru
     }
   }
 
-  const full = coerceRulesFromManifest(entries);
+  const full = applyExpectedEvidenceOverrides(normalizedCode, normalizedVersion, coerceRulesFromManifest(entries));
   const byId = new Map(full.map((rule) => [rule.id, rule]));
   const rules = full.map(({ id, title, snippet, tags, type, text, summary, logic, notes, when, expectedEvidence, sectionId, anchor, citations, refs }) => ({
     id,
