@@ -9,6 +9,7 @@ import FinalReviewSummaryPanel from "@/components/verify/FinalReviewSummaryPanel
 import FinalizeGateBanner from "@/components/verify/FinalizeGateBanner";
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
+import RuleReadinessFacts from "@/components/verify/RuleReadinessFacts";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import VerifyReadinessStrip, { type VerifyReadinessChip } from "@/components/verify/VerifyReadinessStrip";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
@@ -38,6 +39,7 @@ import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isStacEligible } from "@/lib/verify/stacEligibility";
 import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
+import { deriveRuleReadinessGaps } from "@/lib/readiness/gapEngine";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import {
   buildEvidenceInventory,
@@ -1781,6 +1783,42 @@ export default function ProofMapTab({
       })[0] ?? null
     );
   }, [evidenceInventory, selectedRuleContext, selectedRuleId]);
+  const selectedRuleReadinessGap = useMemo(() => {
+    if (!selectedRuleId || !selectedRuleContext || !selectedRuleCoverageRow) return null;
+    const reviewerArtifactsByRuleId = new Map<
+      string,
+      {
+        savedAt?: string | null;
+        minutes?: string | null;
+        outcomeNote?: string | null;
+      }
+    >();
+    if (verifierBundle.savedReviewerArtifactAt) {
+      reviewerArtifactsByRuleId.set(selectedRuleId, {
+        savedAt: verifierBundle.savedReviewerArtifactAt,
+        minutes: verifierBundle.minutes,
+        outcomeNote: verifierBundle.outcomeNote,
+      });
+    }
+    return (
+      deriveRuleReadinessGaps({
+        rows: [selectedRuleCoverageRow],
+        reviewerArtifactsByRuleId,
+      })[0] ?? null
+    );
+  }, [
+    selectedRuleContext,
+    selectedRuleCoverageRow,
+    selectedRuleId,
+    verifierBundle.minutes,
+    verifierBundle.outcomeNote,
+    verifierBundle.savedReviewerArtifactAt,
+  ]);
+  const selectedRuleReadinessUnavailableReason = useMemo(() => {
+    if (!selectedRuleId) return null;
+    if (!selectedRuleContext) return "Rule readiness is not available until rule expectations load for the current selection.";
+    return null;
+  }, [selectedRuleContext, selectedRuleId]);
   const selectedRuleReconciliation = useMemo(
     () =>
       reconcileRequirement({
@@ -4051,6 +4089,11 @@ export default function ProofMapTab({
           <VerifyReadinessStrip
             ruleId={selectedRuleId}
             chips={verifyReadinessChips}
+          />
+          <RuleReadinessFacts
+            ruleId={selectedRuleId}
+            gap={selectedRuleReadinessGap}
+            unavailableReason={selectedRuleReadinessUnavailableReason}
           />
           <div
             data-testid="left-pane-step-focus"
