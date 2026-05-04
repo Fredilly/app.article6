@@ -23,6 +23,26 @@ const sectionsJson = {
   ],
 };
 
+const readinessSkeletonRulesJson = {
+  rules: [
+    { id: "R-1-0001", text: "Submit monitoring and boundary reconciliation evidence for the reporting period." },
+    { id: "R-1-0002", text: "Provide supporting baseline calculations." },
+    { id: "R-1-0003", text: "Provide eligibility support evidence." },
+    { id: "R-1-0004", text: "Document monitoring period coverage." },
+    { id: "R-1-0005", text: "Document QA/QC review steps." },
+    { id: "R-1-0006", text: "Document activity data sources." },
+    { id: "R-1-0007", text: "Document parameter derivation support." },
+    { id: "R-1-0008", text: "Document project boundary support references." },
+  ],
+};
+
+const readinessSkeletonSectionsJson = {
+  sections: [
+    { id: "S-1", title: "Monitoring", anchor: "#S-1" },
+    { id: "S-2", title: "Boundary", anchor: "#S-2" },
+  ],
+};
+
 const arAms0007RulesJson = {
   rules: [
     { id: "R-1-0001", text: "Wetland restoration projects eligible when activities convert degraded wetlands to forest." },
@@ -426,6 +446,99 @@ describe("audit pack verification contract", () => {
 
     expect(strFromU8(entries["VERIFICATION_REPORT.html"])).toContain("Draft / incomplete local method review export.");
     expect(strFromU8(entries["VERIFICATION_REPORT.html"])).not.toContain("Demo review record only.");
+  });
+
+  test("upgrades VERIFICATION_REPORT.html into a truthful readiness review skeleton when project context and files are missing", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-ACM0003",
+        version: "v02-0",
+        status: "needs_followup",
+        rationale: "AOI/PDD boundary reconciliation still required before readiness conclusion.",
+        supportReference: "boundary-note-1",
+        evidenceLink: "pdd-boundary-fragment",
+        evidenceAttachments: [],
+        reviewedBy: "Verifier A",
+        reviewedAt: "2026-04-24T12:00:00.000Z",
+        updatedAt: "2026-04-24T12:00:00.000Z",
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(
+      () =>
+        buildAuditPackZip("AR-ACM0003", "v02-0", {
+          currentReview: {
+            latestReviewAt: "2026-04-24T12:05:00.000Z",
+            reviews,
+            evidencePins: [],
+            verifierBundle: {
+              runContext: {
+                runId: "run-draft-structured-1",
+                createdAt: "2026-04-24T11:45:00.000Z",
+              },
+              savedReviewerArtifactAt: "2026-04-24T12:05:00.000Z",
+              finalizedAt: null,
+              minutes: "Boundary notes captured locally.",
+              outcomeNote: "Needs follow-up before readiness conclusion.",
+              savedReviewerArtifactContext: {
+                methodCode: "AR-ACM0003",
+                version: "v02-0",
+                ruleId: "R-1-0001",
+                runId: "run-draft-structured-1",
+              },
+            },
+          },
+        }),
+      {
+        methodCode: "AR-ACM0003",
+        version: "v02-0",
+        rules: readinessSkeletonRulesJson,
+        sections: readinessSkeletonSectionsJson,
+      },
+    );
+
+    const entries = unzipSync(new Uint8Array(zip));
+    const html = strFromU8(entries["VERIFICATION_REPORT.html"]);
+
+    expect(html).toContain("Verification Readiness Review");
+    expect(html).toContain("Executive Summary");
+    expect(html).toContain("Project Context");
+    expect(html).toContain("Evidence Register");
+    expect(html).toContain("Requirement Review");
+    expect(html).toContain("Findings");
+    expect(html).toContain("Follow-up Actions");
+    expect(html).toContain("Limitations");
+    expect(html).toContain("Integrity Appendix");
+
+    expect(html).toContain("Draft / incomplete local method review export");
+    expect(html).toContain("This report is not a formal verification opinion.");
+    expect(html).toContain("This report is not a formal validation opinion.");
+    expect(html).toContain("local/browser-state review data");
+
+    expect(html).toContain("<dt>Project name</dt><dd>Not provided</dd>");
+    expect(html).toContain("<dt>Project ID</dt><dd>Not provided</dd>");
+    expect(html).toContain("<dt>Country / location</dt><dd>Not provided</dd>");
+    expect(html).toContain("<dt>Proponent</dt><dd>Not provided</dd>");
+
+    expect(html).toContain("boundary-note-1");
+    expect(html).toContain("pdd-boundary-fragment");
+    expect(html).toContain("Referenced only — file not included");
+    expect(html).toContain(">Unavailable<");
+
+    expect(html).toContain("Needs Follow-up");
+    expect(html).toContain("R-1-0002");
+    expect(html).toContain("R-1-0008");
+    expect(html).toContain("AOI/PDD boundary reconciliation still required before readiness conclusion.");
+    expect(html).toContain("F-001");
+    expect(html).toContain("run-draft-structured-1");
+    expect(html).toContain("manifest.json");
+
+    expect(html.indexOf("R-1-0001")).toBeLessThan(html.indexOf("R-1-0002"));
+    expect(html).toContain("<strong>Total rules</strong><div>8</div>");
+    expect(html).toContain("<strong>Reviewed</strong><div>1</div>");
+    expect(html).toContain("<strong>Unreviewed</strong><div>7</div>");
+    expect(html).toContain("<strong>Needs follow-up</strong><div>1</div>");
   });
 
   test("exports a saved current review when the saved ruleId is the canonical rich-rule id", () => {
