@@ -28,6 +28,7 @@ type ProjectJson = {
   };
   project_context: {
     project_id: string;
+    export_id: string;
     display_name: string;
     reporting_period: string;
     location: string;
@@ -280,6 +281,10 @@ function evidenceRefForRule(ruleId: string): string {
   return `placeholder-evidence:${ruleId}`;
 }
 
+function isPackagedEvidenceEntry(entry: Pick<EvidenceManifestEntry, "included_in_pack" | "sha256" | "file_path">): boolean {
+  return Boolean(entry.included_in_pack || entry.sha256 || entry.file_path);
+}
+
 function uniqueSorted(values: Array<string | null | undefined>): string[] {
   return Array.from(new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))).sort((a, b) =>
     a.localeCompare(b),
@@ -358,7 +363,7 @@ function evidenceRefsFromPinsForRule(
         evidence_ref: ref,
         label: pin.title || ref,
         rule_ids: [...baseRuleIds],
-        status: "provided",
+        status: "not_provided",
         status_basis: statusBasis,
         source_kind: "project_evidence_ref",
         included_in_pack: false,
@@ -379,7 +384,7 @@ function evidenceRefsFromPinsForRule(
         evidence_ref: link.fragment_id,
         label: fragment?.label?.trim() || fragment?.section_heading?.trim() || link.fragment_id,
         rule_ids: ruleId ? [ruleId] : [link.rule_id],
-        status: "provided",
+        status: "not_provided",
         status_basis: statusBasis,
         source_kind: "project_evidence_ref",
         included_in_pack: false,
@@ -445,9 +450,68 @@ function reviewerArtifactForCurrentRule(
 function requestedEvidenceRefsForCurrentReview(review: RuleReview | null): string[] {
   if (!review) return [];
   return uniqueSorted([
+    review.supportReference,
     review.evidenceLink,
     ...review.evidenceAttachments.map((attachment) => attachment.label || attachment.id),
   ]);
+}
+
+function evidenceRefsFromCurrentReviewRecord(
+  ruleId: string,
+  review: RuleReview | null,
+): EvidenceManifestEntry[] {
+  if (!review) return [];
+  const referencedEvidence = uniqueSorted([
+    review.supportReference,
+    review.evidenceLink,
+    ...review.evidenceAttachments.map((attachment) => attachment.label || attachment.id),
+  ]);
+
+  return referencedEvidence.map((ref) => ({
+    evidence_ref: ref,
+    label: ref,
+    rule_ids: [ruleId],
+    status: "not_provided" as const,
+    status_basis: "current_method_review" as const,
+    source_kind: "project_evidence_ref" as const,
+    included_in_pack: false,
+    file_path: null,
+    sha256: null,
+    requested_for: review.rationale?.trim() || `Referenced in current Method Review for ${ruleId}`,
+    placeholder: false,
+    placeholder_reason: "",
+    evidence_title: ref,
+    evidence_type: "reference",
+  }));
+}
+
+function mergeEvidenceManifestEntries(entries: EvidenceManifestEntry[]): EvidenceManifestEntry[] {
+  const byRef = new Map<string, EvidenceManifestEntry>();
+  for (const entry of entries) {
+    const current = byRef.get(entry.evidence_ref);
+    if (!current) {
+      byRef.set(entry.evidence_ref, entry);
+      continue;
+    }
+    byRef.set(entry.evidence_ref, {
+      ...current,
+      label: current.label || entry.label,
+      rule_ids: uniqueSorted([...current.rule_ids, ...entry.rule_ids]),
+      status:
+        isPackagedEvidenceEntry(current) || isPackagedEvidenceEntry(entry)
+          ? "provided"
+          : "not_provided",
+      included_in_pack: current.included_in_pack || entry.included_in_pack,
+      requested_for: current.requested_for || entry.requested_for,
+      placeholder: current.placeholder && entry.placeholder,
+      placeholder_reason: current.placeholder_reason || entry.placeholder_reason,
+      fragment_id: current.fragment_id ?? entry.fragment_id,
+      source_pin_id: current.source_pin_id ?? entry.source_pin_id,
+      evidence_title: current.evidence_title ?? entry.evidence_title,
+      evidence_type: current.evidence_type ?? entry.evidence_type,
+    });
+  }
+  return Array.from(byRef.values()).sort((a, b) => a.evidence_ref.localeCompare(b.evidence_ref));
 }
 
 function selectedRuleFromArtifact(artifact: EvidenceSnapshot | null | undefined): string | null {
@@ -516,7 +580,7 @@ function evidenceRefsForRule(input: {
       evidence_ref: selectedEvidenceId,
       label: selectedEvidenceId,
       rule_ids: ruleId ? [ruleId] : [],
-      status: "provided",
+      status: "not_provided",
       status_basis: "finalized_project_review",
       source_kind: "project_evidence_ref",
       included_in_pack: false,
@@ -547,43 +611,205 @@ function escapeHtml(value: string): string {
     .replaceAll("'", "&#39;");
 }
 
+function humanizeRuleStatus(status: RequirementReviewEntry["status"]): string {
+  switch (status) {
+    case "awaiting_project_evidence":
+      return "Awaiting project evidence";
+    case "finalized":
+      return "Finalized";
+    case "finalized_review_data_missing":
+      return "Finalized review data missing";
+    case "not_reviewed":
+      return "Not reviewed";
+    case "reviewed_verified":
+      return "Verified";
+    case "reviewed_not_verified":
+      return "Not verified";
+    case "reviewed_needs_followup":
+      return "Needs Follow-up";
+  }
+}
+
+function humanizeStatusBasis(statusBasis: RequirementReviewEntry["status_basis"]): string {
+  switch (statusBasis) {
+    case "demo_placeholder":
+      return "Demo placeholder";
+    case "current_method_review":
+      return "Current Method Review";
+    case "finalized_project_review":
+      return "Finalized local review";
+  }
+}
+
+function renderFieldValue(value: string | null | undefined, fallback: string): string {
+  const trimmed = value?.trim();
+  return trimmed ? escapeHtml(trimmed) : escapeHtml(fallback);
+}
+
+function isUnavailableToken(value: string | null | undefined): boolean {
+  const normalized = value?.trim().toLowerCase() ?? "";
+  if (!normalized) return true;
+  return [
+    "placeholder-not-provided",
+    "not-supplied-in-method-review",
+    "unavailable in local method review export",
+    "demo placeholder project context",
+    "current method review workspace",
+    "local-method-review",
+  ].includes(normalized);
+}
+
+function projectIdForDisplay(project: ProjectJson): string | null {
+  const projectId = project.project_context.project_id?.trim() ?? "";
+  if (
+    !projectId ||
+    isUnavailableToken(projectId) ||
+    projectId === "local-method-review" ||
+    projectId.startsWith("run-") ||
+    /^[A-Z0-9-]+-v\d+(?:-\d+)*-\d{8,}$/i.test(projectId)
+  ) {
+    return null;
+  }
+  return projectId;
+}
+
+function exportIdForDisplay(project: ProjectJson): string | null {
+  const exportId = project.project_context.export_id?.trim() ?? "";
+  if (!exportId || isUnavailableToken(exportId)) return null;
+  return exportId;
+}
+
+function projectLocationForDisplay(project: ProjectJson): string | null {
+  const location = project.project_context.location?.trim() ?? "";
+  if (!location || isUnavailableToken(location)) return null;
+  return location;
+}
+
+function workspaceLabelForDisplay(project: ProjectJson): string | null {
+  const label = project.project_context.display_name?.trim() ?? "";
+  if (!label || isUnavailableToken(label) || label === "Demo placeholder project context") return null;
+  return label;
+}
+
+function reportingPeriodForDisplay(project: ProjectJson): string | null {
+  const period = project.project_context.reporting_period?.trim() ?? "";
+  if (!period || isUnavailableToken(period)) return null;
+  return period;
+}
+
 function renderVerificationReportHtml(input: {
   mode: VerificationPackContract["trace"]["verification_contract"]["mode"];
   project: ProjectJson;
   evidenceManifest: EvidenceManifest;
   requirementReview: RequirementReview;
+  trace: VerificationPackContract["trace"];
 }): string {
-  const rows = input.requirementReview.rules
+  const reviewedRules = input.requirementReview.rules.filter((rule) => rule.status !== "not_reviewed" && rule.status !== "awaiting_project_evidence");
+  const unreviewedRules = input.requirementReview.rules.filter((rule) => rule.status === "not_reviewed" || rule.status === "awaiting_project_evidence");
+  const followUpRules = input.requirementReview.rules.filter(
+    (rule) => rule.status === "reviewed_needs_followup" || rule.status === "reviewed_not_verified" || rule.status === "finalized_review_data_missing",
+  );
+  const exportStatus =
+    input.mode === "finalized_project_review_contract"
+      ? "Finalized local review export"
+      : input.mode === "current_method_review_contract"
+        ? "Draft / incomplete local method review export"
+        : "Demo placeholder review export";
+  const reportTitle =
+    input.mode === "finalized_project_review_contract"
+      ? "Verification Readiness Review"
+      : input.mode === "current_method_review_contract"
+        ? "Verification Readiness Review"
+        : "Verification Readiness Review Demo Skeleton";
+  const reviewScope =
+    input.mode === "finalized_project_review_contract"
+      ? `Local finalized review artifact covering ${input.requirementReview.summary.total_rules} rule${input.requirementReview.summary.total_rules === 1 ? "" : "s"}.`
+      : input.mode === "current_method_review_contract"
+        ? `Current browser Method Review state across ${input.requirementReview.summary.total_rules} rule${input.requirementReview.summary.total_rules === 1 ? "" : "s"}.`
+        : `Methodology-only placeholder scaffold across ${input.requirementReview.summary.total_rules} rule${input.requirementReview.summary.total_rules === 1 ? "" : "s"}.`;
+  const bannerBody =
+    input.mode === "finalized_project_review_contract"
+      ? "This report skeleton is derived from methodology files plus an explicitly finalized local review artifact. It remains a readiness-oriented record, not a formal verifier opinion."
+      : input.mode === "current_method_review_contract"
+        ? "This report skeleton is derived from current browser Method Review state. It remains draft/incomplete unless the supplied review state is explicitly finalized."
+        : "This report skeleton is derived from project.json, evidence-manifest.json, and requirement-review.json as a truthful placeholder, not a formal verifier opinion.";
+
+  const reviewedRows = reviewedRules
     .map((rule) => {
-      const requested = rule.requested_evidence_refs.join(", ") || "None";
+      const requested = rule.requested_evidence_refs.length ? rule.requested_evidence_refs.join(", ") : "None";
+      const linked = rule.linked_evidence_refs.length ? rule.linked_evidence_refs.join(", ") : "None";
+      const basis = rule.reconciliation?.reason?.trim() || humanizeStatusBasis(rule.status_basis);
       return `<tr>
-  <td>${escapeHtml(rule.rule_id)}</td>
-  <td>${escapeHtml(rule.status)}</td>
-  <td>${escapeHtml(rule.status_basis)}</td>
-  <td>${escapeHtml(requested)}</td>
+  <td><strong>${escapeHtml(rule.rule_id)}</strong><div class="muted">${escapeHtml(summarizeRuleText(rule.rationale))}</div></td>
+  <td>${escapeHtml(humanizeRuleStatus(rule.status))}</td>
+  <td>${escapeHtml(basis)}</td>
+  <td><div><strong>Requested:</strong> ${escapeHtml(requested)}</div><div><strong>Linked:</strong> ${escapeHtml(linked)}</div></td>
   <td>${escapeHtml(rule.rationale)}</td>
 </tr>`;
     })
     .join("\n");
-
-  const bannerTitle =
-    input.mode === "finalized_project_review_contract"
-      ? "Finalized local review export."
-      : input.mode === "current_method_review_contract"
-        ? "Draft / incomplete local method review export."
-        : "Demo review record only.";
-  const bannerBody =
-    input.mode === "finalized_project_review_contract"
-      ? "This HTML is derived from current methodology data plus an explicitly finalized local review artifact."
-      : input.mode === "current_method_review_contract"
-        ? "This HTML is derived from current browser Method Review state. It does not claim a finalized verifier opinion unless the supplied review state is explicitly finalized."
-        : "This HTML is derived from project.json, evidence-manifest.json, and requirement-review.json. It is not a formal verifier opinion.";
-  const reportTitle =
-    input.mode === "finalized_project_review_contract"
-      ? "Finalized Verification Review Record"
-      : input.mode === "current_method_review_contract"
-        ? "Method Review Draft Export"
-        : "Demo Verification Review Record";
+  const unreviewedRows = unreviewedRules
+    .map((rule) => `<tr>
+  <td><strong>${escapeHtml(rule.rule_id)}</strong></td>
+  <td>${escapeHtml(humanizeRuleStatus(rule.status))}</td>
+  <td>${escapeHtml(summarizeRuleText(rule.rationale))}</td>
+</tr>`)
+    .join("\n");
+  const evidenceRows = input.evidenceManifest.evidence
+    .map((entry) => {
+      const includedState = isPackagedEvidenceEntry(entry) ? "Included in pack" : "Referenced only — file not included";
+      const sourceName = entry.evidence_title?.trim() || entry.label;
+      return `<tr>
+  <td>${escapeHtml(entry.evidence_ref)}</td>
+  <td>${escapeHtml(sourceName)}</td>
+  <td>${escapeHtml(entry.evidence_type || entry.source_kind)}</td>
+  <td>${escapeHtml(entry.rule_ids.join(", ") || "None")}</td>
+  <td>${escapeHtml(includedState)}</td>
+  <td>${escapeHtml(entry.sha256 ?? "Unavailable")}</td>
+</tr>`;
+    })
+    .join("\n");
+  const findingsRows = followUpRules.length
+    ? followUpRules
+        .map((rule, index) => {
+          const findingType =
+            rule.status === "reviewed_needs_followup"
+              ? "Needs Follow-up"
+              : rule.status === "reviewed_not_verified"
+                ? "Negative judgment"
+                : "Incomplete finalized review data";
+          const evidenceBasis = uniqueSorted([...rule.linked_evidence_refs, ...rule.requested_evidence_refs]).join(", ") || "No evidence refs recorded.";
+          return `<tr>
+  <td>F-${String(index + 1).padStart(3, "0")}</td>
+  <td>${escapeHtml(rule.rule_id)}</td>
+  <td>${escapeHtml(findingType)}</td>
+  <td>${escapeHtml(rule.rationale)}</td>
+  <td>${escapeHtml(evidenceBasis)}</td>
+  <td>${escapeHtml(rule.status === "reviewed_needs_followup" ? rule.rationale : rule.requested_evidence_refs.join(", ") || "Record the missing reconciliation step.")}</td>
+</tr>`;
+        })
+        .join("\n")
+    : `<tr><td colspan="6">No follow-up or negative findings are recorded in this export.</td></tr>`;
+  const followUpActions = followUpRules.length
+    ? followUpRules
+        .map((rule) => {
+          const requested = rule.requested_evidence_refs.join(", ");
+          const linked = rule.linked_evidence_refs.join(", ");
+          const actionDetail =
+            requested || linked
+              ? `Reconcile referenced evidence (${requested || "none requested"}; linked ${linked || "none"}).`
+              : "Record the missing evidence or reconciliation task for this rule.";
+          return `<li><strong>${escapeHtml(rule.rule_id)}</strong>: ${escapeHtml(rule.rationale)} ${escapeHtml(actionDetail)}</li>`;
+        })
+        .join("\n")
+    : `<li>No follow-up actions are recorded in this export.</li>`;
+  const integrityRows = input.evidenceManifest.evidence
+    .map((entry) => `<tr>
+  <td>${escapeHtml(entry.evidence_ref)}</td>
+  <td>${escapeHtml(isPackagedEvidenceEntry(entry) ? entry.file_path ?? "Included file path unavailable" : "Referenced only — file not included")}</td>
+  <td>${escapeHtml(entry.sha256 ?? "Unavailable")}</td>
+</tr>`)
+    .join("\n");
 
   return `<!doctype html>
 <html lang="en">
@@ -593,48 +819,184 @@ function renderVerificationReportHtml(input: {
     <style>
       body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 32px; color: #0f172a; line-height: 1.5; }
       .banner { border: 1px solid #f59e0b; background: #fffbeb; padding: 16px; border-radius: 12px; margin-bottom: 24px; }
-      h1, h2 { margin-bottom: 8px; }
+      .panel { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px; background: #ffffff; }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      .muted { color: #64748b; font-size: 12px; margin-top: 4px; }
+      .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+      .stat { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; background: #f8fafc; }
+      h1, h2, h3 { margin-bottom: 8px; }
       p, li { color: #334155; }
       code { background: #f8fafc; padding: 2px 6px; border-radius: 6px; }
       table { width: 100%; border-collapse: collapse; margin-top: 16px; }
       th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; vertical-align: top; }
       th { background: #f8fafc; }
+      dl { margin: 0; display: grid; grid-template-columns: 180px 1fr; gap: 8px 16px; }
+      dt { font-weight: 600; color: #0f172a; }
+      dd { margin: 0; color: #334155; }
     </style>
   </head>
   <body>
     <div class="banner">
-      <strong>${escapeHtml(bannerTitle)}</strong>
+      <strong>${escapeHtml(exportStatus)}.</strong>
       <div>${escapeHtml(bannerBody)}</div>
     </div>
-    <h1>${escapeHtml(input.project.method.code)} ${escapeHtml(input.project.method.version)}</h1>
-    <p>${escapeHtml(input.project.pack_profile.disclaimer)}</p>
+    <section class="panel">
+      <h1>${escapeHtml(reportTitle)}</h1>
+      <div class="grid">
+        <div>
+          <dl>
+            <dt>Methodology</dt><dd>${escapeHtml(input.project.method.code)}</dd>
+            <dt>Version</dt><dd>${escapeHtml(input.project.method.version)}</dd>
+            <dt>Export status</dt><dd>${escapeHtml(exportStatus)}</dd>
+            <dt>Generated</dt><dd>${renderFieldValue(input.project.generated_at, "Unavailable")}</dd>
+            <dt>Review scope</dt><dd>${escapeHtml(reviewScope)}</dd>
+          </dl>
+        </div>
+        <div>
+          <p>${escapeHtml(input.project.pack_profile.disclaimer)}</p>
+          <p>This report is a structured Verification Readiness Review skeleton. It is not a formal validation opinion, formal verification opinion, certification decision, or VVB approval.</p>
+        </div>
+      </div>
+    </section>
 
-    <h2>Project Context</h2>
-    <p><strong>${escapeHtml(input.project.project_context.display_name)}</strong></p>
-    <p>${escapeHtml(input.project.project_context.description)}</p>
+    <section class="panel">
+      <h2>Executive Summary</h2>
+      <p><strong>Overall status:</strong> ${escapeHtml(exportStatus)}</p>
+      <p>This export preserves local review state and methodology traceability, but it is not a formal verifier opinion.</p>
+      <div class="stats">
+        <div class="stat"><strong>Total rules</strong><div>${input.requirementReview.summary.total_rules}</div></div>
+        <div class="stat"><strong>Reviewed</strong><div>${reviewedRules.length}</div></div>
+        <div class="stat"><strong>Unreviewed</strong><div>${unreviewedRules.length}</div></div>
+        <div class="stat"><strong>Needs follow-up</strong><div>${followUpRules.length}</div></div>
+        <div class="stat"><strong>Evidence refs</strong><div>${input.evidenceManifest.summary.total_refs}</div></div>
+      </div>
+    </section>
 
-    <h2>Evidence Inventory</h2>
-    <p>
-      Total refs: ${input.evidenceManifest.summary.total_refs} |
-      Provided refs: ${input.evidenceManifest.summary.provided_refs} |
-      Placeholder refs: ${input.evidenceManifest.summary.placeholder_refs}
-    </p>
+    <section class="panel">
+      <h2>Project Context</h2>
+      <dl>
+        <dt>Project name</dt><dd>Not provided</dd>
+        <dt>Project ID</dt><dd>${renderFieldValue(projectIdForDisplay(input.project), "Not provided")}</dd>
+        <dt>Country / location</dt><dd>${renderFieldValue(projectLocationForDisplay(input.project), "Not provided")}</dd>
+        <dt>Proponent</dt><dd>Not provided</dd>
+        <dt>Methodology / version</dt><dd>${escapeHtml(input.project.method.code)} @ ${escapeHtml(input.project.method.version)}</dd>
+        <dt>Reporting period</dt><dd>${renderFieldValue(reportingPeriodForDisplay(input.project), "Not provided")}</dd>
+        <dt>Review workspace</dt><dd>${renderFieldValue(workspaceLabelForDisplay(input.project), "Unavailable")}</dd>
+      </dl>
+    </section>
 
-    <h2>Requirement Review</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Rule</th>
-          <th>Status</th>
-          <th>Basis</th>
-          <th>Requested Evidence Refs</th>
-          <th>Rationale</th>
-        </tr>
-      </thead>
-      <tbody>
-${rows}
-      </tbody>
-    </table>
+    <section class="panel">
+      <h2>Evidence Register</h2>
+      <p>Referenced evidence is listed separately from included files. Evidence is only treated as included when the pack actually contains the file.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Evidence ref</th>
+            <th>File / source name</th>
+            <th>Evidence type</th>
+            <th>Linked rule(s)</th>
+            <th>Included in pack</th>
+            <th>SHA-256</th>
+          </tr>
+        </thead>
+        <tbody>
+${evidenceRows}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Requirement Review</h2>
+      <h3>Reviewed rules</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Status</th>
+            <th>Basis</th>
+            <th>Requested / linked evidence refs</th>
+            <th>Reviewer rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+${reviewedRows || '<tr><td colspan="5">No reviewed rules are recorded in this export.</td></tr>'}
+        </tbody>
+      </table>
+      <h3>Unreviewed rules</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Status</th>
+            <th>Current basis</th>
+          </tr>
+        </thead>
+        <tbody>
+${unreviewedRows || '<tr><td colspan="3">No unreviewed rules remain.</td></tr>'}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Findings</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Finding ID</th>
+            <th>Linked rule</th>
+            <th>Finding type</th>
+            <th>Issue summary</th>
+            <th>Evidence basis</th>
+            <th>Required follow-up</th>
+          </tr>
+        </thead>
+        <tbody>
+${findingsRows}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Follow-up Actions</h2>
+      <ul>
+${followUpActions}
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Limitations</h2>
+      <ul>
+        <li>This report is not a formal validation opinion.</li>
+        <li>This report is not a formal verification opinion.</li>
+        <li>This is a scope-limited method review export, not a registry-ready verification report.</li>
+        <li>Current Method Review exports are derived from local/browser-state review data where applicable.</li>
+        <li>Missing evidence and missing project dossier fields remain unresolved unless they are explicitly packaged and reviewed.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Integrity Appendix</h2>
+      <dl>
+        <dt>Pack / export ID</dt><dd>${renderFieldValue(exportIdForDisplay(input.project), "Unavailable")}</dd>
+        <dt>Manifest path</dt><dd>manifest.json</dd>
+        <dt>Report path</dt><dd>${escapeHtml(input.trace.verification_contract.report_path)}</dd>
+        <dt>Requirement review path</dt><dd>${escapeHtml(input.trace.verification_contract.requirement_review_path)}</dd>
+        <dt>Evidence manifest path</dt><dd>${escapeHtml(input.trace.verification_contract.evidence_manifest_path)}</dd>
+        <dt>Trace path</dt><dd>${escapeHtml(input.trace.verification_contract.project_path.replace("project.json", "trace.json"))}</dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th>Evidence ref</th>
+            <th>Included file path</th>
+            <th>SHA-256</th>
+          </tr>
+        </thead>
+        <tbody>
+${integrityRows}
+        </tbody>
+      </table>
+    </section>
   </body>
 </html>`;
 }
@@ -781,7 +1143,8 @@ export function buildVerificationPackContract(input: {
       not_a_formal_opinion: true,
     },
     project_context: {
-      project_id:
+      project_id: hasFinalizedReview || hasCurrentReview ? "not-supplied-in-method-review" : "local-method-review",
+      export_id:
         finalizedArtifact?.verifier?.runId ??
         currentVerifierBundle?.runContext?.runId?.trim() ??
         currentVerifierBundle?.savedReviewerArtifactContext?.runId?.trim() ??
@@ -819,14 +1182,16 @@ export function buildVerificationPackContract(input: {
   const evidence = hasFinalizedReview
     ? finalizedEvidence
     : hasCurrentReview
-      ? uniqueSorted(rules.flatMap((rule) => evidenceRefsFromPinsForRule(rule.id, currentReviewPins, "current_method_review", "Current review evidence").map((entry) => entry.evidence_ref)))
-          .map((ref) =>
-            rules
-              .flatMap((rule) => evidenceRefsFromPinsForRule(rule.id, currentReviewPins, "current_method_review", "Current review evidence"))
-              .find((entry) => entry.evidence_ref === ref),
-          )
-          .filter((entry): entry is EvidenceManifestEntry => Boolean(entry))
-    : rules.map<EvidenceManifestEntry>((rule) => ({
+      ? mergeEvidenceManifestEntries(
+          rules.flatMap((rule) => {
+            const review = reviewIndex.get(rule.id) ?? reviewIndex.get(canonicalRuleKey(rule.id) ?? "") ?? null;
+            return [
+              ...evidenceRefsFromPinsForRule(rule.id, currentReviewPins, "current_method_review", "Current review evidence"),
+              ...evidenceRefsFromCurrentReviewRecord(rule.id, review),
+            ];
+          }),
+        )
+      : rules.map<EvidenceManifestEntry>((rule) => ({
         evidence_ref: evidenceRefForRule(rule.id),
         label: `Placeholder project evidence request for ${rule.id}`,
         rule_ids: [rule.id],
@@ -848,7 +1213,7 @@ export function buildVerificationPackContract(input: {
     method: { code: input.methodCode, version: input.version },
     summary: {
       total_refs: evidence.length,
-      provided_refs: evidence.filter((entry) => entry.status === "provided").length,
+      provided_refs: evidence.filter((entry) => isPackagedEvidenceEntry(entry)).length,
       placeholder_refs: evidence.filter((entry) => entry.placeholder).length,
     },
     placeholder_policy: {
@@ -1068,6 +1433,7 @@ export function buildVerificationPackContract(input: {
     project,
     evidenceManifest,
     requirementReview,
+    trace,
   });
 
   return { project, evidenceManifest, requirementReview, trace, trailEntries, reportHtml };
