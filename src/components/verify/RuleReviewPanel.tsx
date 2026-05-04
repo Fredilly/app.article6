@@ -56,6 +56,40 @@ const STATUSES: ReviewStatus[] = [
   "needs_followup",
 ];
 
+type ReviewDraftMeta = Pick<
+  RuleReview,
+  "draftSource" | "draftState" | "draftSummary" | "candidateEvidence"
+>;
+
+export function populatedDraftNeedsReviewerConfirmation(review: RuleReview | null): boolean {
+  return (
+    review?.draftSource === "populate_from_evidence" &&
+    review?.draftState === "needs_reviewer_confirmation" &&
+    review.status === "pending"
+  );
+}
+
+export function draftMetadataForSave(existingReview: RuleReview | null, nextStatus: ReviewStatus): ReviewDraftMeta {
+  const base: ReviewDraftMeta = {
+    draftSource: existingReview?.draftSource,
+    draftState: existingReview?.draftState,
+    draftSummary: existingReview?.draftSummary,
+    candidateEvidence: existingReview?.candidateEvidence,
+  };
+  if (existingReview?.draftSource !== "populate_from_evidence") {
+    return base;
+  }
+  if (nextStatus === "pending") {
+    return base;
+  }
+  return {
+    draftSource: existingReview.draftSource,
+    draftState: undefined,
+    draftSummary: undefined,
+    candidateEvidence: existingReview.candidateEvidence,
+  };
+}
+
 export default function RuleReviewPanel({
   ruleId,
   ruleText,
@@ -141,14 +175,11 @@ export default function RuleReviewPanel({
   }, [status]);
   const actorLabel = existingReview?.reviewedBy?.trim() || "local-reviewer";
   const existingDraftMeta = useMemo(
-    () => ({
-      draftSource: existingReview?.draftSource,
-      draftState: existingReview?.draftState,
-      draftSummary: existingReview?.draftSummary,
-      candidateEvidence: existingReview?.candidateEvidence,
-    }),
-    [existingReview],
+    () => draftMetadataForSave(existingReview, status),
+    [existingReview, status],
   );
+  const pendingPopulateDraft = populatedDraftNeedsReviewerConfirmation(existingReview);
+  const reviewedByDisplay = existingReview?.reviewedBy?.trim() || null;
 
   const refreshAuditEvents = useCallback(() => {
     setAuditEvents(getAuditTrailForRule(ruleId, methodology, version).slice(-5).reverse());
@@ -335,11 +366,11 @@ export default function RuleReviewPanel({
             {statusLabel(status)}
           </div>
         </div>
-        {existingReview?.draftSource === "populate_from_evidence" ? (
+        {pendingPopulateDraft ? (
           <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             <div className="font-semibold">Draft initializer from evidence</div>
             <div className="mt-1">
-              {existingReview.draftSummary?.trim() || "Needs reviewer confirmation before any judgment is recorded."}
+              {existingReview?.draftSummary?.trim() || "Needs reviewer confirmation before any judgment is recorded."}
             </div>
           </div>
         ) : null}
@@ -513,7 +544,9 @@ export default function RuleReviewPanel({
               <div className="mt-3 space-y-3">
                 <div className="text-sm font-medium text-slate-900">Candidate evidence</div>
                 <div className="text-xs text-slate-500">
-                  Suggestions only. Reviewer confirmation is still required before any trace is treated as support.
+                  {pendingPopulateDraft
+                    ? "Suggestions only. Reviewer confirmation is still required before any trace is treated as support."
+                    : "Captured during draft population as historical context only. These traces are not treated as accepted support unless the reviewer records them."}
                 </div>
                 {existingReview.candidateEvidence.slice(0, 3).map((item) => (
                   <div key={item.id} className="rounded-2xl border border-amber-200 bg-white px-3 py-3">
@@ -557,9 +590,9 @@ export default function RuleReviewPanel({
             )}
           </section>
 
-          {existingReview ? (
+          {existingReview && reviewedByDisplay ? (
             <div className="text-xs text-slate-500">
-              Reviewed by {existingReview.reviewedBy} · {new Date(existingReview.updatedAt).toLocaleString()}
+              Reviewed by {reviewedByDisplay} · {new Date(existingReview.updatedAt).toLocaleString()}
             </div>
           ) : null}
 
