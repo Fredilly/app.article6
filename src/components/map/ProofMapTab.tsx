@@ -1986,15 +1986,15 @@ export default function ProofMapTab({
       {
         key: "stac",
         label: "STAC",
-        value: stacStatus,
+        value: stacStatus === "results found" ? "found" : stacStatus,
         detail: stacDetail,
         tone: stacStatus === "results found" ? "ok" : stacStatus === "failed" ? "blocked" : "warn",
         onClick: () => scrollToSection(stacSectionRef),
       },
       {
         key: "support-facts",
-        label: "Support facts",
-        value: supportFactsStatus,
+        label: "Support",
+        value: supportFactsStatus === "select rule" ? "select rule" : supportFactsStatus,
         detail: supportFactsDetail,
         tone:
           supportFactsStatus === "linked"
@@ -2007,7 +2007,7 @@ export default function ProofMapTab({
       },
       {
         key: "reviewer-record",
-        label: "Reviewer record",
+        label: "Reviewer",
         value: reviewerRecordStatus,
         detail: verifierBundle.savedReviewerArtifactAt
           ? `Saved ${formatLocalDateTime(verifierBundle.savedReviewerArtifactAt)}`
@@ -2020,7 +2020,7 @@ export default function ProofMapTab({
       {
         key: "export",
         label: "Export",
-        value: exportStatus,
+        value: exportStatus === "draft available" ? "draft" : exportStatus,
         detail: exportDetail,
         tone: currentWorkspaceIsFinal || finalizeReady ? "ok" : hasDraftExport ? "warn" : "blocked",
         onClick: () => scrollToSection(finalSummarySectionRef),
@@ -4086,17 +4086,23 @@ export default function ProofMapTab({
               </button>
             </div>
           ) : null}
-          <VerifyReadinessStrip
-            ruleId={selectedRuleId}
-            chips={verifyReadinessChips}
-          />
-          <div ref={ruleSectionRef}>
-            <RuleReadinessFacts
+          <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-sm shadow-slate-200/30">
+            <VerifyReadinessStrip
               ruleId={selectedRuleId}
-              ruleTitle={selectedRuleCoverageRow?.ruleSummary.title ?? null}
-              gap={selectedRuleReadinessGap}
-              unavailableReason={selectedRuleReadinessUnavailableReason}
+              chips={verifyReadinessChips}
+              embedded
+              showRuleLabel={false}
+              helperText={selectedRuleId ? "Current status for this review path." : "Select a rule to inspect rule-specific readiness."}
             />
+            <div ref={ruleSectionRef}>
+              <RuleReadinessFacts
+                ruleId={selectedRuleId}
+                ruleTitle={selectedRuleCoverageRow?.ruleSummary.title ?? null}
+                gap={selectedRuleReadinessGap}
+                unavailableReason={selectedRuleReadinessUnavailableReason}
+                embedded
+              />
+            </div>
           </div>
           <div
             data-testid="left-pane-step-focus"

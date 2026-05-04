@@ -6,6 +6,7 @@ type RuleReadinessFactsProps = {
   ruleTitle?: string | null;
   gap: RuleReadinessGap | null;
   unavailableReason?: string | null;
+  embedded?: boolean;
 };
 
 function titleCase(value: string): string {
@@ -39,10 +40,20 @@ function missingEvidenceLabels(gap: RuleReadinessGap): string {
     .join(", ");
 }
 
-export default function RuleReadinessFacts({ ruleId, ruleTitle = null, gap, unavailableReason = null }: RuleReadinessFactsProps) {
+export default function RuleReadinessFacts({
+  ruleId,
+  ruleTitle = null,
+  gap,
+  unavailableReason = null,
+  embedded = false,
+}: RuleReadinessFactsProps) {
+  const shellClass = embedded
+    ? "px-4 py-3.5"
+    : "rounded-2xl border border-slate-200/70 bg-white/95 px-4 py-3.5 shadow-sm shadow-slate-200/30";
+
   if (!ruleId) {
     return (
-      <div className="rounded-2xl border border-slate-200/70 bg-white/95 px-4 py-3.5 shadow-sm shadow-slate-200/30" data-testid="rule-readiness-facts">
+      <div className={shellClass} data-testid="rule-readiness-facts">
         <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Rule readiness</div>
         <div className="mt-1 text-sm font-medium text-slate-700">Not assessed</div>
         <div className="mt-2 text-xs text-slate-500">Select a rule to inspect rule-specific readiness facts.</div>
@@ -52,7 +63,7 @@ export default function RuleReadinessFacts({ ruleId, ruleTitle = null, gap, unav
 
   if (!gap) {
     return (
-      <div className="rounded-2xl border border-slate-200/70 bg-white/95 px-4 py-3.5 shadow-sm shadow-slate-200/30" data-testid="rule-readiness-facts">
+      <div className={shellClass} data-testid="rule-readiness-facts">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Rule readiness</div>
@@ -77,7 +88,7 @@ export default function RuleReadinessFacts({ ruleId, ruleTitle = null, gap, unav
       : null;
 
   return (
-    <div className="rounded-2xl border border-slate-200/70 bg-white/95 px-4 py-3.5 shadow-sm shadow-slate-200/30" data-testid="rule-readiness-facts">
+    <div className={shellClass} data-testid="rule-readiness-facts">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Rule readiness</div>
@@ -93,22 +104,24 @@ export default function RuleReadinessFacts({ ruleId, ruleTitle = null, gap, unav
           </span>
         </div>
       </div>
-      <div className="mt-3 grid gap-2 rounded-xl bg-slate-50/70 px-3 py-3 text-xs text-slate-600">
+      <div className="mt-3 grid gap-2 rounded-xl bg-slate-50/55 px-3 py-3 text-xs text-slate-600">
+        <div>
+          <span className="font-semibold text-slate-900">Next:</span> {nextAction}
+        </div>
         {gap.missingExpectedEvidenceTypes.length ? (
           <div>
             <span className="font-semibold text-slate-900">Missing:</span> {missingEvidenceLabels(gap)}
           </div>
         ) : null}
-        <div>
-          <span className="font-semibold text-slate-900">Next:</span> {nextAction}
-        </div>
         {overrideNote ? (
           <div>
             <span className="font-semibold text-slate-900">Reviewer override:</span> {overrideNote}
           </div>
         ) : null}
       </div>
-      <div className="mt-3 text-xs text-slate-500">{gap.summary}</div>
+      <div className="mt-3 text-xs text-slate-500">
+        <span className="font-semibold text-slate-700">Why this matters:</span> {gap.summary}
+      </div>
     </div>
   );
 }
