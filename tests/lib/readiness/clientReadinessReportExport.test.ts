@@ -84,8 +84,8 @@ describe("buildClientReadinessReportExport", () => {
     const zip = await JSZip.loadAsync(first.zipBytes);
     const paths = Object.keys(zip.files).sort();
     expect(paths).toEqual([
-      "client-readiness-report/appendix/audit-pack-appendix.json",
       "client-readiness-report/appendix/evidence-reference-index.json",
+      "client-readiness-report/appendix/readiness-traceability-appendix.json",
       "client-readiness-report/report.html",
       "client-readiness-report/report.json",
       "manifest.json",
@@ -96,7 +96,7 @@ describe("buildClientReadinessReportExport", () => {
     const result = buildSampleExport();
     const zip = await JSZip.loadAsync(result.zipBytes);
     const html = (await zip.file("client-readiness-report/report.html")?.async("string")) ?? "";
-    const appendix = (await zip.file("client-readiness-report/appendix/audit-pack-appendix.json")?.async("string")) ?? "";
+    const appendix = (await zip.file("client-readiness-report/appendix/readiness-traceability-appendix.json")?.async("string")) ?? "";
     const serialized = `${html}\n${appendix}`.toLowerCase();
 
     expect(serialized).not.toContain("verification opinion");
@@ -109,7 +109,7 @@ describe("buildClientReadinessReportExport", () => {
   test("includes traceable appendix fields for report id, timestamp, rules, and evidence ids", async () => {
     const result = buildSampleExport();
     const zip = await JSZip.loadAsync(result.zipBytes);
-    const appendixRaw = await zip.file("client-readiness-report/appendix/audit-pack-appendix.json")?.async("string");
+    const appendixRaw = await zip.file("client-readiness-report/appendix/readiness-traceability-appendix.json")?.async("string");
     expect(appendixRaw).toBeTruthy();
     const appendix = JSON.parse(appendixRaw ?? "{}") as {
       reportId: string;

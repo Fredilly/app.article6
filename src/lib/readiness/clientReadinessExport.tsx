@@ -428,7 +428,7 @@ export function buildClientReadinessReportExport(
       bytes: Buffer.from(html, "utf8"),
     },
     {
-      path: "client-readiness-report/appendix/audit-pack-appendix.json",
+      path: "client-readiness-report/appendix/readiness-traceability-appendix.json",
       bytes: Buffer.from(appendixJson, "utf8"),
     },
     {
