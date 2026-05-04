@@ -1,16 +1,20 @@
 {
   "PR542": "done",
+  "PR555": "done",
   "pr_evidence": {
     "PR542": [
       542
+    ],
+    "PR555": [
+      555
     ]
   },
   "phase_meta": {
     "status": "active",
     "summary": "Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.",
     "current_focus": [
-      "Phase 3 is complete: the readiness gap engine core and Verify reviewer visibility now surface rule-level readiness state, severity, missing evidence, and next actions",
-      "Next build: Phase 4 client readiness report and export surfaces, using the existing readiness-gap outputs without overstating Article6 as a verifier",
+      "Phase 4 is complete: PR #555 upgraded VERIFICATION_REPORT.html into a structured Verification Readiness Review skeleton with explicit limits, traceability, and truthful missing-field handling",
+      "Next build: Phase 5 VVB Workpaper Export, reusing the same review data without overstating Article6 as a verifier or claiming registry approval",
       "Keep `traceable-rule-review-mvp` as the technical foundation for review records and exports",
       "Preserve app-vs-methodologies boundaries while preparing sellable verification outputs"
     ],
@@ -43,9 +47,9 @@
       "summary": "Done. The Verify workflow now derives and surfaces rule-level readiness state, severity, missing expected evidence, recommendations / next action, and saved reviewer artifact state from evidence inventory plus methodology expectations. Live reviewer override wiring, client readiness report export, verification pack/report generation, and any registry approval, verification opinion, or credit issuance claims remain outside Phase 3."
     },
     "phase_4_client_readiness_report_export": {
-      "status": "planned",
+      "status": "done",
       "title": "Client Readiness Report Export",
-      "summary": "Produce the paid readiness report and audit pack appendix for project developers and consultancies with explicit limits and traceability."
+      "summary": "Completed via PR #555. `VERIFICATION_REPORT.html` now renders as a structured Verification Readiness Review skeleton with explicit limits, traceability, missing-field states, and no claims of formal validation, verification, certification, VVB approval, registry approval, or credit issuance."
     },
     "phase_5_vvb_workpaper_export": {
       "status": "planned",
