@@ -28,6 +28,7 @@ type ProjectJson = {
   };
   project_context: {
     project_id: string;
+    export_id: string;
     display_name: string;
     reporting_period: string;
     location: string;
@@ -280,6 +281,10 @@ function evidenceRefForRule(ruleId: string): string {
   return `placeholder-evidence:${ruleId}`;
 }
 
+function isPackagedEvidenceEntry(entry: Pick<EvidenceManifestEntry, "included_in_pack" | "sha256" | "file_path">): boolean {
+  return Boolean(entry.included_in_pack || entry.sha256 || entry.file_path);
+}
+
 function uniqueSorted(values: Array<string | null | undefined>): string[] {
   return Array.from(new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))).sort((a, b) =>
     a.localeCompare(b),
@@ -358,7 +363,7 @@ function evidenceRefsFromPinsForRule(
         evidence_ref: ref,
         label: pin.title || ref,
         rule_ids: [...baseRuleIds],
-        status: "provided",
+        status: "not_provided",
         status_basis: statusBasis,
         source_kind: "project_evidence_ref",
         included_in_pack: false,
@@ -379,7 +384,7 @@ function evidenceRefsFromPinsForRule(
         evidence_ref: link.fragment_id,
         label: fragment?.label?.trim() || fragment?.section_heading?.trim() || link.fragment_id,
         rule_ids: ruleId ? [ruleId] : [link.rule_id],
-        status: "provided",
+        status: "not_provided",
         status_basis: statusBasis,
         source_kind: "project_evidence_ref",
         included_in_pack: false,
@@ -492,7 +497,10 @@ function mergeEvidenceManifestEntries(entries: EvidenceManifestEntry[]): Evidenc
       ...current,
       label: current.label || entry.label,
       rule_ids: uniqueSorted([...current.rule_ids, ...entry.rule_ids]),
-      status: current.status === "provided" || entry.status === "provided" ? "provided" : "not_provided",
+      status:
+        isPackagedEvidenceEntry(current) || isPackagedEvidenceEntry(entry)
+          ? "provided"
+          : "not_provided",
       included_in_pack: current.included_in_pack || entry.included_in_pack,
       requested_for: current.requested_for || entry.requested_for,
       placeholder: current.placeholder && entry.placeholder,
@@ -572,7 +580,7 @@ function evidenceRefsForRule(input: {
       evidence_ref: selectedEvidenceId,
       label: selectedEvidenceId,
       rule_ids: ruleId ? [ruleId] : [],
-      status: "provided",
+      status: "not_provided",
       status_basis: "finalized_project_review",
       source_kind: "project_evidence_ref",
       included_in_pack: false,
@@ -653,8 +661,22 @@ function isUnavailableToken(value: string | null | undefined): boolean {
 
 function projectIdForDisplay(project: ProjectJson): string | null {
   const projectId = project.project_context.project_id?.trim() ?? "";
-  if (!projectId || isUnavailableToken(projectId) || projectId === "local-method-review" || projectId.startsWith("run-")) return null;
+  if (
+    !projectId ||
+    isUnavailableToken(projectId) ||
+    projectId === "local-method-review" ||
+    projectId.startsWith("run-") ||
+    /^[A-Z0-9-]+-v\d+(?:-\d+)*-\d{8,}$/i.test(projectId)
+  ) {
+    return null;
+  }
   return projectId;
+}
+
+function exportIdForDisplay(project: ProjectJson): string | null {
+  const exportId = project.project_context.export_id?.trim() ?? "";
+  if (!exportId || isUnavailableToken(exportId)) return null;
+  return exportId;
 }
 
 function projectLocationForDisplay(project: ProjectJson): string | null {
@@ -735,7 +757,7 @@ function renderVerificationReportHtml(input: {
     .join("\n");
   const evidenceRows = input.evidenceManifest.evidence
     .map((entry) => {
-      const includedState = entry.included_in_pack ? "Included in pack" : "Referenced only — file not included";
+      const includedState = isPackagedEvidenceEntry(entry) ? "Included in pack" : "Referenced only — file not included";
       const sourceName = entry.evidence_title?.trim() || entry.label;
       return `<tr>
   <td>${escapeHtml(entry.evidence_ref)}</td>
@@ -784,7 +806,7 @@ function renderVerificationReportHtml(input: {
   const integrityRows = input.evidenceManifest.evidence
     .map((entry) => `<tr>
   <td>${escapeHtml(entry.evidence_ref)}</td>
-  <td>${escapeHtml(entry.included_in_pack ? entry.file_path ?? "Included file path unavailable" : "Referenced only — file not included")}</td>
+  <td>${escapeHtml(isPackagedEvidenceEntry(entry) ? entry.file_path ?? "Included file path unavailable" : "Referenced only — file not included")}</td>
   <td>${escapeHtml(entry.sha256 ?? "Unavailable")}</td>
 </tr>`)
     .join("\n");
@@ -955,7 +977,7 @@ ${followUpActions}
     <section class="panel">
       <h2>Integrity Appendix</h2>
       <dl>
-        <dt>Pack / export ID</dt><dd>${renderFieldValue(input.project.project_context.project_id, "Unavailable")}</dd>
+        <dt>Pack / export ID</dt><dd>${renderFieldValue(exportIdForDisplay(input.project), "Unavailable")}</dd>
         <dt>Manifest path</dt><dd>manifest.json</dd>
         <dt>Report path</dt><dd>${escapeHtml(input.trace.verification_contract.report_path)}</dd>
         <dt>Requirement review path</dt><dd>${escapeHtml(input.trace.verification_contract.requirement_review_path)}</dd>
@@ -1121,7 +1143,8 @@ export function buildVerificationPackContract(input: {
       not_a_formal_opinion: true,
     },
     project_context: {
-      project_id:
+      project_id: hasFinalizedReview || hasCurrentReview ? "not-supplied-in-method-review" : "local-method-review",
+      export_id:
         finalizedArtifact?.verifier?.runId ??
         currentVerifierBundle?.runContext?.runId?.trim() ??
         currentVerifierBundle?.savedReviewerArtifactContext?.runId?.trim() ??
@@ -1190,7 +1213,7 @@ export function buildVerificationPackContract(input: {
     method: { code: input.methodCode, version: input.version },
     summary: {
       total_refs: evidence.length,
-      provided_refs: evidence.filter((entry) => entry.status === "provided").length,
+      provided_refs: evidence.filter((entry) => isPackagedEvidenceEntry(entry)).length,
       placeholder_refs: evidence.filter((entry) => entry.placeholder).length,
     },
     placeholder_policy: {

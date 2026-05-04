@@ -333,12 +333,12 @@ describe("audit pack verification contract", () => {
       summary: { provided_refs: number; placeholder_refs: number };
       evidence: Array<{ evidence_ref: string; status: string; placeholder: boolean }>;
     };
-    expect(evidenceManifest.summary.provided_refs).toBeGreaterThanOrEqual(2);
+    expect(evidenceManifest.summary.provided_refs).toBe(0);
     expect(evidenceManifest.summary.placeholder_refs).toBe(0);
     expect(evidenceManifest.evidence).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ evidence_ref: "sentinel-scene-1", status: "provided", placeholder: false }),
-        expect.objectContaining({ evidence_ref: "frag-monitoring-period", status: "provided", placeholder: false }),
+        expect.objectContaining({ evidence_ref: "sentinel-scene-1", status: "not_provided", placeholder: false }),
+        expect.objectContaining({ evidence_ref: "frag-monitoring-period", status: "not_provided", placeholder: false }),
       ]),
     );
     expect(JSON.stringify(evidenceManifest)).not.toContain("awaiting_project_evidence");
@@ -474,7 +474,7 @@ describe("audit pack verification contract", () => {
             evidencePins: [],
             verifierBundle: {
               runContext: {
-                runId: "run-draft-structured-1",
+                runId: "AR-ACM0003-v02-0-20260504172354391",
                 createdAt: "2026-04-24T11:45:00.000Z",
               },
               savedReviewerArtifactAt: "2026-04-24T12:05:00.000Z",
@@ -485,7 +485,7 @@ describe("audit pack verification contract", () => {
                 methodCode: "AR-ACM0003",
                 version: "v02-0",
                 ruleId: "R-1-0001",
-                runId: "run-draft-structured-1",
+                runId: "AR-ACM0003-v02-0-20260504172354391",
               },
             },
           },
@@ -520,6 +520,8 @@ describe("audit pack verification contract", () => {
     expect(html).toContain("<dt>Project ID</dt><dd>Not provided</dd>");
     expect(html).toContain("<dt>Country / location</dt><dd>Not provided</dd>");
     expect(html).toContain("<dt>Proponent</dt><dd>Not provided</dd>");
+    expect(html).not.toContain("<dt>Project ID</dt><dd>AR-ACM0003-v02-0-20260504172354391</dd>");
+    expect(html).toContain("<dt>Pack / export ID</dt><dd>AR-ACM0003-v02-0-20260504172354391</dd>");
 
     expect(html).toContain("boundary-note-1");
     expect(html).toContain("pdd-boundary-fragment");
@@ -531,7 +533,7 @@ describe("audit pack verification contract", () => {
     expect(html).toContain("R-1-0008");
     expect(html).toContain("AOI/PDD boundary reconciliation still required before readiness conclusion.");
     expect(html).toContain("F-001");
-    expect(html).toContain("run-draft-structured-1");
+    expect(html).toContain("AR-ACM0003-v02-0-20260504172354391");
     expect(html).toContain("manifest.json");
 
     expect(html.indexOf("R-1-0001")).toBeLessThan(html.indexOf("R-1-0002"));
@@ -755,7 +757,7 @@ describe("audit pack verification contract", () => {
     const exportedRule = requirementReview.rules.find((rule) => rule.rule_id === "R-1-0001");
 
     expect(evidenceManifest.summary.total_refs).toBeGreaterThanOrEqual(1);
-    expect(evidenceManifest.summary.provided_refs).toBeGreaterThanOrEqual(1);
+    expect(evidenceManifest.summary.provided_refs).toBe(0);
     expect(evidenceManifest.evidence).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
