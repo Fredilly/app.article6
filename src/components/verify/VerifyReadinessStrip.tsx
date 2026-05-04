@@ -42,9 +42,7 @@ export default function VerifyReadinessStrip({ ruleId, chips }: VerifyReadinessS
               {ruleId ? `Active rule ${ruleId}` : "Select a rule to inspect rule-specific readiness."}
             </div>
           </div>
-          <div className="text-xs text-slate-500">
-            Review status stays descriptive only. No verification opinion or export readiness is implied here.
-          </div>
+          <div className="text-xs text-slate-500">Current readiness for the selected rule.</div>
         </div>
 
         <div className="rounded-xl bg-slate-50/70 px-2 py-2">
