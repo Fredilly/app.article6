@@ -84,7 +84,7 @@ type EvidenceWorkflowStepperProps = {
 
 function stepStateClass(input: { active: boolean; complete: boolean; disabled: boolean }): string {
   if (input.active) return "border-slate-300 bg-white shadow-sm shadow-slate-200/30";
-  if (input.complete) return "border-slate-200/90 bg-white";
+  if (input.complete) return "border-emerald-200/80 bg-emerald-50/35";
   if (input.disabled) return "border-slate-200/80 bg-slate-50/60 opacity-80";
   return "border-slate-200/90 bg-white";
 }

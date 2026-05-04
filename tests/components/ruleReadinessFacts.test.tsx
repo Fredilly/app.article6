@@ -45,7 +45,7 @@ describe("RuleReadinessFacts", () => {
     expect(html).toContain("Severity: High");
     expect(html).toContain("Missing:");
     expect(html).toContain("Monitoring report");
-    expect(html).toContain("Next:");
+    expect(html).toContain("Next step:");
     expect(html).toContain("Link expected evidence");
     expect(html).toContain("Reviewer override:");
     expect(html).toContain("Needs Review (Medium) — Expectation encoding still needs clarification.");

@@ -68,7 +68,6 @@ export default function RuleReadinessFacts({
           <div className="min-w-0">
             <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Rule readiness</div>
             <div className="mt-1 text-sm font-semibold text-slate-900">{ruleTitle ?? ruleId}</div>
-            {ruleTitle && ruleTitle !== ruleId ? <div className="mt-1 text-xs text-slate-500">{ruleId}</div> : null}
           </div>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -92,8 +91,14 @@ export default function RuleReadinessFacts({
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Rule readiness</div>
-          <div className="mt-1 text-sm font-semibold text-slate-900">{ruleTitle ?? gap.title ?? ruleId}</div>
-          <div className="mt-1 text-xs text-slate-500">{ruleId}</div>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-900">
+            <span>{ruleTitle ?? gap.title ?? ruleId}</span>
+            {ruleTitle && ruleTitle !== ruleId ? (
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                {ruleId}
+              </span>
+            ) : null}
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${stateTone(gap.state)}`}>
@@ -105,9 +110,11 @@ export default function RuleReadinessFacts({
         </div>
       </div>
       <div className="mt-3 grid gap-2 rounded-xl bg-slate-50/55 px-3 py-3 text-xs text-slate-600">
-        <div>
-          <span className="font-semibold text-slate-900">Next:</span> {nextAction}
-        </div>
+        {nextAction !== "Not available" ? (
+          <div>
+            <span className="font-semibold text-slate-900">Next step:</span> {nextAction}
+          </div>
+        ) : null}
         {gap.missingExpectedEvidenceTypes.length ? (
           <div>
             <span className="font-semibold text-slate-900">Missing:</span> {missingEvidenceLabels(gap)}
@@ -119,9 +126,7 @@ export default function RuleReadinessFacts({
           </div>
         ) : null}
       </div>
-      <div className="mt-3 text-xs text-slate-500">
-        <span className="font-semibold text-slate-700">Why this matters:</span> {gap.summary}
-      </div>
+      <div className="mt-3 text-xs text-slate-500">{gap.summary}</div>
     </div>
   );
 }

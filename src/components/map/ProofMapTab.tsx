@@ -1924,16 +1924,16 @@ export default function ProofMapTab({
           : latestRun.status === "warn" && stacFeatureIds.length > 0
             ? "results found"
             : "failed";
-    const stacDetail =
+    const satelliteDetail =
       !hasAoiLoaded
-        ? "Load an AOI before running STAC search."
+        ? "Upload an area before running satellite search."
         : !latestRun
-          ? "No STAC search has been run for the active AOI."
+          ? "No satellite search has been run for the current area."
           : stacStatus === "results found"
-            ? `${stacFeatureIds.length} STAC result${stacFeatureIds.length === 1 ? "" : "s"} found for the active AOI.`
+            ? `${stacFeatureIds.length} satellite result${stacFeatureIds.length === 1 ? "" : "s"} found for the current area.`
             : stacStatus === "no results"
-              ? "STAC search completed but returned no results for the active AOI."
-              : latestRun.summary?.trim() || "STAC search failed for the active AOI.";
+              ? "Satellite search completed but returned no results for the current area."
+              : latestRun.summary?.trim() || "Satellite search failed for the current area.";
     const supportFactsStatus = !selectedRuleId
       ? "select rule"
       : stacSupportFacts.linkedFacts.length > 0
@@ -1944,13 +1944,13 @@ export default function ProofMapTab({
             ? "optional"
             : "unlinked";
     const supportFactsDetail = !selectedRuleId
-      ? "Select a rule to assess AOI/STAC support facts."
+      ? "Select a rule to assess area/satellite support facts."
       : stacSupportFacts.linkedFacts.length > 0
         ? stacSupportFacts.lookupMessage
         : stacSupportFacts.staleFacts.length > 0
           ? stacSupportFacts.lookupMessage
           : !selectedRuleStacEligible
-            ? "AOI/STAC support facts are optional for this rule. Link them only if they materially support the review."
+            ? "Area/satellite support facts are optional for this rule. Link them only if they materially support the review."
             : stacSupportFacts.lookupMessage;
     const reviewerRecordStatus = verifierBundle.savedReviewerArtifactAt
       ? "saved"
@@ -1977,17 +1977,17 @@ export default function ProofMapTab({
     return [
       {
         key: "aoi",
-        label: "AOI",
-        value: hasAoiLoaded ? "loaded" : "missing",
-        detail: hasAoiLoaded ? aoi?.name ?? bboxLabel ?? "AOI loaded." : "Upload or confirm an AOI to scope the review.",
+        label: "Area",
+        value: hasAoiLoaded ? "ready" : "missing",
+        detail: hasAoiLoaded ? aoi?.name ?? bboxLabel ?? "Area ready." : "Upload or confirm an area to scope the review.",
         tone: hasAoiLoaded ? "ok" : "blocked",
         onClick: () => scrollToSection(aoiSectionRef),
       },
       {
         key: "stac",
-        label: "STAC",
+        label: "Satellite",
         value: stacStatus === "results found" ? "found" : stacStatus,
-        detail: stacDetail,
+        detail: satelliteDetail,
         tone: stacStatus === "results found" ? "ok" : stacStatus === "failed" ? "blocked" : "warn",
         onClick: () => scrollToSection(stacSectionRef),
       },
@@ -4092,7 +4092,7 @@ export default function ProofMapTab({
               chips={verifyReadinessChips}
               embedded
               showRuleLabel={false}
-              helperText={selectedRuleId ? "Current status for this review path." : "Select a rule to inspect rule-specific readiness."}
+              helperText={selectedRuleId ? "Current review status." : "Select a rule to inspect rule-specific readiness."}
             />
             <div ref={ruleSectionRef}>
               <RuleReadinessFacts
@@ -4269,18 +4269,14 @@ export default function ProofMapTab({
               <div className="text-sm font-semibold text-slate-900">
                 {currentWorkspaceIsFinal ? "Final Review Summary" : "Evidence workflow"}
               </div>
-              {!currentWorkspaceIsFinal ? (
-                <div className="mt-1 text-xs text-slate-500">
-                  Single path: rule -&gt; AOI -&gt; STAC -&gt; item -&gt; pin -&gt; reviewer save -&gt; finalize.
-                </div>
-              ) : (
+              {currentWorkspaceIsFinal ? (
                 <div className="mt-1 text-xs text-slate-500">
                   Finalized result, exports, and summary are now the primary right-panel surface.
                 </div>
-              )}
+              ) : null}
             </div>
             {!currentWorkspaceIsFinal ? (
-              <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
                 <button
                   type="button"
                   className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
