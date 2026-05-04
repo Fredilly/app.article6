@@ -4,6 +4,7 @@ import {
   checkFinalizeGate,
   getReview,
   getReviewProgress,
+  saveReviewsBatch,
   saveReview,
   removeEvidenceAttachment,
   type RuleReview,
@@ -125,5 +126,30 @@ describe("reviewStore phase 2 helpers", () => {
         "Rule R-3: missing support reference",
       ],
     });
+  });
+
+  it("saves draft reviews in batch without overwriting existing rows by default", () => {
+    saveReview(baseReview);
+
+    const result = saveReviewsBatch("AR-ACM0003", "v02-0", [
+      {
+        ...baseReview,
+        ruleId: "R-1",
+        status: "pending",
+        rationale: "initializer",
+        supportReference: "",
+      },
+      {
+        ...baseReview,
+        ruleId: "R-2",
+        status: "pending",
+        rationale: "draft initializer only",
+        supportReference: "",
+      },
+    ]);
+
+    expect(result).toEqual({ saved: 1, skipped: 1 });
+    expect(getReview("R-1", "AR-ACM0003", "v02-0")?.status).toBe("verified");
+    expect(getReview("R-2", "AR-ACM0003", "v02-0")?.status).toBe("pending");
   });
 });

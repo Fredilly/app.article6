@@ -8,6 +8,16 @@ export type EvidenceAttachment = {
   addedAt: string;
 };
 
+export type ReviewCandidateEvidence = {
+  id: string;
+  title: string;
+  type: string;
+  source: "inventory" | "pin" | "run" | "unknown";
+  provenanceSummary?: string;
+  excerpt?: string;
+  documentLabel?: string;
+};
+
 export type RuleReview = {
   ruleId: string;
   methodology: string;
@@ -20,6 +30,10 @@ export type RuleReview = {
   reviewedBy: string;
   reviewedAt: string;
   updatedAt: string;
+  draftSource?: "populate_from_evidence";
+  draftState?: "needs_reviewer_confirmation";
+  draftSummary?: string;
+  candidateEvidence?: ReviewCandidateEvidence[];
 };
 
 const STORAGE_PREFIX = "article6:reviews";
@@ -69,6 +83,40 @@ export function saveReview(review: RuleReview): void {
     });
   } catch {
     // Storage full or unavailable — fail silently
+  }
+}
+
+export function saveReviewsBatch(
+  methodology: string,
+  version: string,
+  reviews: RuleReview[],
+  options: { overwriteExisting?: boolean } = {},
+): { saved: number; skipped: number } {
+  const key = storageKey(methodology, version);
+  const overwriteExisting = options.overwriteExisting ?? false;
+  try {
+    const raw = localStorage.getItem(key);
+    const all: Record<string, RuleReview> = raw ? JSON.parse(raw) : {};
+    let saved = 0;
+    let skipped = 0;
+
+    for (const review of reviews) {
+      if (!overwriteExisting && all[review.ruleId]) {
+        skipped += 1;
+        continue;
+      }
+      all[review.ruleId] = { ...review, updatedAt: new Date().toISOString() };
+      saved += 1;
+    }
+
+    if (saved > 0) {
+      localStorage.setItem(key, JSON.stringify(all));
+      emitReviewStoreEvent({ methodology, version });
+    }
+
+    return { saved, skipped };
+  } catch {
+    return { saved: 0, skipped: reviews.length };
   }
 }
 

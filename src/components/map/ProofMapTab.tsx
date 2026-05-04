@@ -37,7 +37,8 @@ import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isStacEligible } from "@/lib/verify/stacEligibility";
-import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
+import { checkFinalizeGate, REVIEW_STORE_EVENT, saveReviewsBatch } from "@/lib/verify/reviewStore";
+import { populateDraftReviewsFromEvidence } from "@/lib/verify/populateFromEvidence";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { EXPECTED_EVIDENCE_LABELS } from "@/app/m/_lib/requirementCoverage";
 import { deriveRuleReadinessGaps } from "@/lib/readiness/gapEngine";
@@ -488,6 +489,7 @@ export default function ProofMapTab({
   const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
   const [clientReadinessExportBusy, setClientReadinessExportBusy] = useState(false);
   const [clientReadinessExportError, setClientReadinessExportError] = useState<string | null>(null);
+  const [populateDraftsBusy, setPopulateDraftsBusy] = useState(false);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const uploadPddInputRef = useRef<HTMLInputElement | null>(null);
   const [pddFragmentDrafts, setPddFragmentDrafts] = useState<Record<string, PddFragmentDraft>>({});
@@ -517,6 +519,97 @@ export default function ProofMapTab({
       setToast((current) => (current?.title === next.title && current?.subtitle === next.subtitle ? null : current));
     }, 1600);
   }, []);
+
+  const handlePopulateFromEvidence = useCallback(async () => {
+    if (populateDraftsBusy) return;
+    setPopulateDraftsBusy(true);
+    try {
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}/rules`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) {
+        throw new Error("Unable to load methodology rules for draft population.");
+      }
+
+      const payload = (await response.json()) as { rules?: Array<Record<string, unknown>> };
+      const ruleRecords = Array.isArray(payload.rules) ? payload.rules : [];
+      const ruleInputs = ruleRecords.flatMap((ruleRecord) => {
+        const id = asNonEmptyString(ruleRecord.id);
+        if (!id) return [];
+        const requirementCoverage = isRecord(ruleRecord.requirement_coverage)
+          ? (ruleRecord.requirement_coverage as Record<string, unknown>)
+          : null;
+        return [
+          {
+            id,
+            title: asNonEmptyString(ruleRecord.title) ?? id,
+            snippet: asNonEmptyString(ruleRecord.text) ?? asNonEmptyString(ruleRecord.summary) ?? id,
+            text: asNonEmptyString(ruleRecord.text),
+            summary: asNonEmptyString(ruleRecord.summary),
+            logic: asNonEmptyString(ruleRecord.logic),
+            notes: asNonEmptyString(ruleRecord.notes),
+            when: Array.isArray(ruleRecord.when)
+              ? ruleRecord.when.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+              : [],
+            expectedEvidence: Array.isArray(ruleRecord.expectedEvidence)
+              ? ruleRecord.expectedEvidence.filter((value): value is string => typeof value === "string")
+              : Array.isArray(requirementCoverage?.expected_evidence)
+                ? requirementCoverage.expected_evidence.filter((value): value is string => typeof value === "string")
+                : [],
+            type: asNonEmptyString(ruleRecord.type),
+            tags: Array.isArray(ruleRecord.tags)
+              ? ruleRecord.tags.filter((value): value is string => typeof value === "string")
+              : Array.isArray(requirementCoverage?.tags)
+                ? requirementCoverage.tags.filter((value): value is string => typeof value === "string")
+                : [],
+            sectionId: asNonEmptyString(ruleRecord.sectionId),
+            anchor: asNonEmptyString(ruleRecord.anchor),
+          },
+        ];
+      });
+
+      if (!ruleInputs.length) {
+        showToast({ title: "No rules populated", subtitle: "Methodology rules were unavailable for this method/version." });
+        return;
+      }
+
+      const rows = buildRequirementCoverageRows({
+        rules: ruleInputs,
+        inventoryItems: evidenceInventory,
+      });
+      const drafts = populateDraftReviewsFromEvidence({
+        methodology: methodCode,
+        version,
+        rows,
+      });
+      const noCandidateCount = drafts.filter((draft) => !draft.candidateEvidence?.length).length;
+      const result = saveReviewsBatch(methodCode, version, drafts, { overwriteExisting: false });
+
+      if (!result.saved) {
+        showToast({
+          title: "No new draft rows created",
+          subtitle: result.skipped ? "Existing review rows were left unchanged." : "No method rules were eligible for population.",
+        });
+        return;
+      }
+
+      showToast({
+        title: `Populated ${result.saved} draft row${result.saved === 1 ? "" : "s"}`,
+        subtitle:
+          `${noCandidateCount} with no candidate evidence. ` +
+          `${result.skipped} existing row${result.skipped === 1 ? "" : "s"} left unchanged.`,
+      });
+      onOpenCoverageDrawer?.();
+    } catch (error) {
+      showToast({
+        title: "Populate from evidence failed",
+        subtitle: error instanceof Error ? error.message : "Unable to create draft review rows from current evidence.",
+      });
+    } finally {
+      setPopulateDraftsBusy(false);
+    }
+  }, [evidenceInventory, methodCode, onOpenCoverageDrawer, populateDraftsBusy, showToast, version]);
 
   useEffect(() => {
     if (!applyToken) return;
@@ -4460,6 +4553,16 @@ export default function ProofMapTab({
               <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
                 <button
                   type="button"
+                  className="rounded-full border border-slate-200 bg-slate-900 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => {
+                    void handlePopulateFromEvidence();
+                  }}
+                  disabled={populateDraftsBusy}
+                >
+                  {populateDraftsBusy ? "Populating..." : "Populate from evidence"}
+                </button>
+                <button
+                  type="button"
                   className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                   onClick={() => {
                     if (hasStartOverState) setStartOverOpen(true);
@@ -4487,6 +4590,12 @@ export default function ProofMapTab({
               </div>
             ) : null}
           </div>
+
+          {!currentWorkspaceIsFinal ? (
+            <div className="text-xs text-slate-500">
+              Populate from evidence creates draft rule rows only. Candidate traces still need reviewer confirmation.
+            </div>
+          ) : null}
 
           {error ? (
             <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">

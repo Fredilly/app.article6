@@ -140,6 +140,15 @@ export default function RuleReviewPanel({
     }
   }, [status]);
   const actorLabel = existingReview?.reviewedBy?.trim() || "local-reviewer";
+  const existingDraftMeta = useMemo(
+    () => ({
+      draftSource: existingReview?.draftSource,
+      draftState: existingReview?.draftState,
+      draftSummary: existingReview?.draftSummary,
+      candidateEvidence: existingReview?.candidateEvidence,
+    }),
+    [existingReview],
+  );
 
   const refreshAuditEvents = useCallback(() => {
     setAuditEvents(getAuditTrailForRule(ruleId, methodology, version).slice(-5).reverse());
@@ -163,9 +172,10 @@ export default function RuleReviewPanel({
       supportReference,
       evidenceLink: evidenceLink || undefined,
       evidenceAttachments: attachments,
-      reviewedBy: existingReview?.reviewedBy ?? "local-reviewer",
+      reviewedBy: actorLabel,
       reviewedAt: existingReview?.reviewedAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      ...existingDraftMeta,
     };
 
     const validationErrors = validateReview(review);
@@ -188,7 +198,9 @@ export default function RuleReviewPanel({
     supportReference,
     evidenceLink,
     attachments,
+    actorLabel,
     existingReview,
+    existingDraftMeta,
     onSave,
     refreshAuditEvents,
   ]);
@@ -212,6 +224,7 @@ export default function RuleReviewPanel({
         reviewedBy: actorLabel,
         reviewedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        ...existingDraftMeta,
       };
       saveReview(seededReview);
       syncReview(seededReview);
@@ -247,6 +260,7 @@ export default function RuleReviewPanel({
     attachmentUrl,
     attachments,
     evidenceLink,
+    existingDraftMeta,
     existingReview,
     methodology,
     rationale,
@@ -321,6 +335,14 @@ export default function RuleReviewPanel({
             {statusLabel(status)}
           </div>
         </div>
+        {existingReview?.draftSource === "populate_from_evidence" ? (
+          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <div className="font-semibold">Draft initializer from evidence</div>
+            <div className="mt-1">
+              {existingReview.draftSummary?.trim() || "Needs reviewer confirmation before any judgment is recorded."}
+            </div>
+          </div>
+        ) : null}
         <p className="mt-3 max-w-2xl text-sm text-slate-600">{reviewExplanation}</p>
       </div>
 
@@ -487,6 +509,25 @@ export default function RuleReviewPanel({
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Supporting context
             </div>
+            {existingReview?.candidateEvidence?.length ? (
+              <div className="mt-3 space-y-3">
+                <div className="text-sm font-medium text-slate-900">Candidate evidence</div>
+                <div className="text-xs text-slate-500">
+                  Suggestions only. Reviewer confirmation is still required before any trace is treated as support.
+                </div>
+                {existingReview.candidateEvidence.slice(0, 3).map((item) => (
+                  <div key={item.id} className="rounded-2xl border border-amber-200 bg-white px-3 py-3">
+                    <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {item.type}
+                      {item.documentLabel ? ` · ${item.documentLabel}` : ""}
+                    </div>
+                    {item.provenanceSummary ? <div className="mt-2 text-xs text-slate-600">{item.provenanceSummary}</div> : null}
+                    {item.excerpt ? <div className="mt-2 text-sm leading-6 text-slate-700">{item.excerpt}</div> : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
             {linkedEvidence.length ? (
               <div className="mt-3 space-y-3">
                 <div className="text-sm font-medium text-slate-900">
