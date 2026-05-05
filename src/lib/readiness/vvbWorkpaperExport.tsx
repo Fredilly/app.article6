@@ -67,6 +67,8 @@ const FORBIDDEN_CLAIMS = [
   "vvb approval",
 ] as const;
 
+const SAFE_NON_CLAIM_SENTENCE = /\b(?:not|no|without|does not|doesn't|avoid|avoids|avoiding|prevent|prevents|preventing)\b/;
+
 function flattenForCanonicalJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -353,7 +355,24 @@ function reportHtmlDocument(report: VvbWorkpaperReport): string {
 
 function assertNoForbiddenClaims(serialized: string): void {
   const haystack = serialized.toLowerCase();
-  const found = FORBIDDEN_CLAIMS.find((claim) => haystack.includes(claim));
+  const found = FORBIDDEN_CLAIMS.find((claim) => {
+    let startIndex = 0;
+    while (startIndex < haystack.length) {
+      const index = haystack.indexOf(claim, startIndex);
+      if (index === -1) return false;
+      const sentenceStart = Math.max(
+        haystack.lastIndexOf(".", index - 1),
+        haystack.lastIndexOf("!", index - 1),
+        haystack.lastIndexOf("?", index - 1),
+        haystack.lastIndexOf("\n", index - 1),
+      );
+      const sentenceFragment = haystack.slice(Math.max(0, sentenceStart + 1), index);
+      const negated = SAFE_NON_CLAIM_SENTENCE.test(sentenceFragment);
+      if (!negated) return true;
+      startIndex = index + claim.length;
+    }
+    return false;
+  });
   if (found) {
     throw new Error(`VVB workpaper export contains forbidden claim language: ${found}`);
   }

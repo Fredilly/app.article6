@@ -197,4 +197,26 @@ describe("buildVvbWorkpaperExport", () => {
     expect(reportHtml).not.toContain(">Not verified<");
     expect(reportHtml).not.toContain(">Needs follow-up<");
   });
+
+  test("allows explicit non-claim language even when it references blocked concepts", () => {
+    const report = buildSampleReport();
+    report.limitationsAndNonClaims.nonClaims = [
+      "This draft workpaper is not a verification opinion.",
+      "This draft workpaper is not registry approval or VVB approval.",
+      "This draft workpaper is not credit issuance or credit eligibility.",
+    ];
+
+    expect(() => buildVvbWorkpaperExport({ report })).not.toThrow();
+  });
+
+  test("still rejects affirmative forbidden claim language", () => {
+    const report = buildSampleReport();
+    report.limitationsAndNonClaims.nonClaims = [
+      "This draft workpaper is a verification opinion.",
+    ];
+
+    expect(() => buildVvbWorkpaperExport({ report })).toThrow(
+      "VVB workpaper export contains forbidden claim language: verification opinion",
+    );
+  });
 });
