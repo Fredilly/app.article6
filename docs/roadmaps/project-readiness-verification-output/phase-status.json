@@ -1,14 +1,7 @@
 {
   "PR542": "done",
   "PR555": "done",
-  "pr_evidence": {
-    "PR542": [
-      542
-    ],
-    "PR555": [
-      555
-    ]
-  },
+  "RC5": "active",
   "phase_meta": {
     "status": "active",
     "summary": "Commercial sales-readiness lane for project developer gap audits, VVB workpaper exports, public verification autopsies, white-label consultancy pilots, and rule encoding. `traceable-rule-review-mvp` remains the technical foundation.",
@@ -76,5 +69,13 @@
       "title": "Pilot Sales Loop",
       "summary": "Turn readiness audits, white-label pilots, and VVB reviews into a repeatable sales loop with feedback flowing back into method contracts."
     }
+  },
+  "pr_evidence": {
+    "PR542": [
+      542
+    ],
+    "PR555": [
+      555
+    ]
   }
 }
