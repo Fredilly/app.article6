@@ -182,6 +182,105 @@ describe("FinalReviewSummaryPanel", () => {
     expect(withExport).toContain("Export client readiness report");
   });
 
+  test("shows the VVB draft workpaper export action only when export wiring is provided", () => {
+    const withoutExport = renderToStaticMarkup(
+      <FinalReviewSummaryPanel
+        summary={{
+          methodCode: "AR-ACM0003",
+          version: "v02-0",
+          ruleId: "R-1",
+          ruleSection: "Monitoring period",
+          ruleText: "Evidence must fall inside the monitoring period.",
+          selectedEvidenceId: "stac-1",
+          selectedEvidenceDatetime: "2026-03-25T00:00:00Z",
+          cloudCover: 4.5,
+          aoiLabel: "Project AOI",
+          reviewState: "finalized",
+          generatedAt: "2026-03-25T00:10:00Z",
+          outcomeNote: "Stable result.",
+          stacSearchResultCount: 3,
+          linkedRuleCount: 1,
+          selectedEvidenceLinkedRules: ["R-1"],
+          stacSupportFactsStatus: null,
+          linkedStacSupportFactCount: null,
+          unlinkedStacSupportFactCount: null,
+          checklistStatus: "unused",
+          reconciliationStatus: "Supported",
+          reconciliationReason: "All expected evidence is linked.",
+          narrative: "Finalized verify review.",
+        }}
+        artifact={null}
+        currentRunLabel="run-1234"
+        finalizedAt="2026-03-25T00:10:00Z"
+        reviewedRuleCount={1}
+        linkedEvidenceCount={2}
+        wizard={getVerifyWizardStepDetails({
+          selectedRuleId: "R-1",
+          aoiHash: "aoi",
+          stacItemIds: ["item-1"],
+          selectedStacItemId: "item-1",
+          linkedRuleIds: ["R-1"],
+          reviewerArtifactSavedAt: "2026-03-25T00:05:00Z",
+          finalizedAt: "2026-03-25T00:10:00Z",
+        })}
+        onDownloadJson={() => {}}
+        onDownloadPdf={() => {}}
+        onStartAnotherRun={() => {}}
+        onViewRunHistory={() => {}}
+      />,
+    );
+    expect(withoutExport).not.toContain("Export VVB draft workpaper");
+
+    const withExport = renderToStaticMarkup(
+      <FinalReviewSummaryPanel
+        summary={{
+          methodCode: "AR-ACM0003",
+          version: "v02-0",
+          ruleId: "R-1",
+          ruleSection: "Monitoring period",
+          ruleText: "Evidence must fall inside the monitoring period.",
+          selectedEvidenceId: "stac-1",
+          selectedEvidenceDatetime: "2026-03-25T00:00:00Z",
+          cloudCover: 4.5,
+          aoiLabel: "Project AOI",
+          reviewState: "finalized",
+          generatedAt: "2026-03-25T00:10:00Z",
+          outcomeNote: "Stable result.",
+          stacSearchResultCount: 3,
+          linkedRuleCount: 1,
+          selectedEvidenceLinkedRules: ["R-1"],
+          stacSupportFactsStatus: null,
+          linkedStacSupportFactCount: null,
+          unlinkedStacSupportFactCount: null,
+          checklistStatus: "unused",
+          reconciliationStatus: "Supported",
+          reconciliationReason: "All expected evidence is linked.",
+          narrative: "Finalized verify review.",
+        }}
+        artifact={null}
+        currentRunLabel="run-1234"
+        finalizedAt="2026-03-25T00:10:00Z"
+        reviewedRuleCount={1}
+        linkedEvidenceCount={2}
+        wizard={getVerifyWizardStepDetails({
+          selectedRuleId: "R-1",
+          aoiHash: "aoi",
+          stacItemIds: ["item-1"],
+          selectedStacItemId: "item-1",
+          linkedRuleIds: ["R-1"],
+          reviewerArtifactSavedAt: "2026-03-25T00:05:00Z",
+          finalizedAt: "2026-03-25T00:10:00Z",
+        })}
+        onDownloadJson={() => {}}
+        onDownloadPdf={() => {}}
+        onExportVvbWorkpaper={() => {}}
+        onStartAnotherRun={() => {}}
+        onViewRunHistory={() => {}}
+      />,
+    );
+    expect(withExport).toContain("Export VVB draft workpaper");
+  });
+
   test("keeps reviewer minutes and outcome note in the finalized audit-pack POST body", async () => {
     const artifact: EvidenceSnapshot = {
       method: { code: "AR-ACM0003", version: "v02-0" },
