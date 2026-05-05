@@ -37,11 +37,12 @@ import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isStacEligible } from "@/lib/verify/stacEligibility";
-import { checkFinalizeGate, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
+import { checkFinalizeGate, getAllReviews, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { EXPECTED_EVIDENCE_LABELS } from "@/app/m/_lib/requirementCoverage";
 import { deriveRuleReadinessGaps } from "@/lib/readiness/gapEngine";
 import { buildClientReadinessReport } from "@/lib/readiness/clientReadinessReport";
+import { buildVvbWorkpaperReport } from "@/lib/readiness/vvbWorkpaperReport";
 import { computeKpis, linkedRuleIdsFromPins } from "@/lib/kpis/computeKpis";
 import {
   buildEvidenceInventory,
@@ -228,6 +229,10 @@ function safeFilename(value: string): string {
 
 function clientReadinessReportId(methodCode: string, version: string, runId: string): string {
   return `CRR-${safeFilename(methodCode)}-${safeFilename(version)}-${safeFilename(runId)}`;
+}
+
+function vvbWorkpaperReportId(methodCode: string, version: string, runId: string): string {
+  return `VVB-WP-${safeFilename(methodCode)}-${safeFilename(version)}-${safeFilename(runId)}`;
 }
 
 function inventoryHaystack(item: EvidenceInventoryItem): string {
@@ -488,6 +493,8 @@ export default function ProofMapTab({
   const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
   const [clientReadinessExportBusy, setClientReadinessExportBusy] = useState(false);
   const [clientReadinessExportError, setClientReadinessExportError] = useState<string | null>(null);
+  const [vvbWorkpaperExportBusy, setVvbWorkpaperExportBusy] = useState(false);
+  const [vvbWorkpaperExportError, setVvbWorkpaperExportError] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const uploadPddInputRef = useRef<HTMLInputElement | null>(null);
   const [pddFragmentDrafts, setPddFragmentDrafts] = useState<Record<string, PddFragmentDraft>>({});
@@ -2909,13 +2916,13 @@ export default function ProofMapTab({
     downloadJson(artifact, filename);
   }, [activeReviewArtifact, buildFinalReviewArtifact, methodCode, verifierBundle, version]);
 
-  const buildClientReadinessReportPayload = useCallback(async () => {
+  const buildReadinessExportContext = useCallback(async () => {
     const generatedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
     if (!generatedAt) {
-      throw new Error("Finalize the current Verify run before exporting a client readiness report.");
+      throw new Error("Finalize the current Verify run before exporting a readiness artifact.");
     }
     if (!ruleOptions.length) {
-      throw new Error("No method rules are available for client readiness export.");
+      throw new Error("No method rules are available for readiness export.");
     }
 
     const ruleContexts = await Promise.all(
@@ -2972,6 +2979,8 @@ export default function ProofMapTab({
       reviewerArtifactsByRuleId,
     });
 
+    const reviewsByRuleId = getAllReviews(methodCode, version);
+
     const suppliedDocuments = [...evidenceInventory]
       .filter((item) => item.kind !== "stac-item")
       .sort((a, b) => a.evidence_id.localeCompare(b.evidence_id))
@@ -2993,6 +3002,37 @@ export default function ProofMapTab({
         type: expectedType,
       }));
 
+    return {
+      generatedAt,
+      readinessGaps,
+      reviewerArtifactsByRuleId,
+      reviewsByRuleId,
+      suppliedDocuments,
+      missingDocuments,
+    };
+  }, [
+    evidenceInventory,
+    fetchSelectedRuleContext,
+    methodCode,
+    ruleOptions,
+    verifierBundle.exportedAt,
+    verifierBundle.finalizedAt,
+    verifierBundle.minutes,
+    verifierBundle.outcomeNote,
+    verifierBundle.runContext.runId,
+    verifierBundle.savedReviewerArtifactAt,
+    verifierBundle.savedReviewerArtifactContext,
+    version,
+  ]);
+
+  const buildClientReadinessReportPayload = useCallback(async () => {
+    const {
+      generatedAt,
+      readinessGaps,
+      suppliedDocuments,
+      missingDocuments,
+    } = await buildReadinessExportContext();
+
     const report = buildClientReadinessReport({
       reportId: clientReadinessReportId(methodCode, version, verifierBundle.runContext.runId),
       generatedAt,
@@ -3012,17 +3052,58 @@ export default function ProofMapTab({
     return { report, readinessGaps };
   }, [
     aoi?.name,
-    evidenceInventory,
-    fetchSelectedRuleContext,
+    buildReadinessExportContext,
     methodCode,
-    ruleOptions,
+    verifierBundle.runContext.runId,
+    version,
+  ]);
+
+  const buildVvbWorkpaperPayload = useCallback(async () => {
+    const {
+      generatedAt,
+      readinessGaps,
+      reviewerArtifactsByRuleId,
+      reviewsByRuleId,
+      suppliedDocuments,
+      missingDocuments,
+    } = await buildReadinessExportContext();
+
+    const reviewerArtifactsRecord = Object.fromEntries(reviewerArtifactsByRuleId.entries());
+    const report = buildVvbWorkpaperReport({
+      reportId: vvbWorkpaperReportId(methodCode, version, verifierBundle.runContext.runId),
+      generatedAt,
+      project: {
+        name: aoi?.name?.trim() || `VVB workspace ${methodCode}@${version}`,
+        description: `Draft VVB workpaper support generated from Verify run ${verifierBundle.runContext.runId}.`,
+      },
+      methodology: {
+        code: methodCode,
+        version,
+      },
+      suppliedDocuments,
+      missingDocuments,
+      readinessGaps,
+      reviewsByRuleId,
+      reviewerArtifactsByRuleId: reviewerArtifactsRecord,
+      provenance: {
+        sourceRunId: verifierBundle.runContext.runId,
+        artifactState: verifierBundle.finalizedAt ? "finalized" : verifierBundle.exportedAt ? "draft" : "unavailable",
+        snapshotExportedAt: verifierBundle.exportedAt ?? null,
+        finalizedAt: verifierBundle.finalizedAt ?? null,
+        auditPackReference: `audit-pack.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.zip`,
+        clientReadinessReference: clientReadinessReportId(methodCode, version, verifierBundle.runContext.runId),
+        traceBundleReference: `verify-run:${verifierBundle.runContext.runId}`,
+      },
+    });
+
+    return { report };
+  }, [
+    aoi?.name,
+    buildReadinessExportContext,
+    methodCode,
     verifierBundle.exportedAt,
     verifierBundle.finalizedAt,
-    verifierBundle.minutes,
-    verifierBundle.outcomeNote,
     verifierBundle.runContext.runId,
-    verifierBundle.savedReviewerArtifactAt,
-    verifierBundle.savedReviewerArtifactContext,
     version,
   ]);
 
@@ -3050,6 +3131,31 @@ export default function ProofMapTab({
       setClientReadinessExportBusy(false);
     }
   }, [buildClientReadinessReportPayload, methodCode, showToast, verifierBundle.runContext.runId, version]);
+
+  const handleExportVvbWorkpaper = useCallback(async () => {
+    setVvbWorkpaperExportBusy(true);
+    setVvbWorkpaperExportError(null);
+    try {
+      const payload = await buildVvbWorkpaperPayload();
+      const response = await fetch("/api/exports/vvb-workpaper", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      const filename = `vvb-draft-workpaper.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.zip`;
+      downloadBytes(bytes, filename, "application/zip");
+      showToast("VVB draft workpaper exported");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setVvbWorkpaperExportError(message);
+    } finally {
+      setVvbWorkpaperExportBusy(false);
+    }
+  }, [buildVvbWorkpaperPayload, methodCode, showToast, verifierBundle.runContext.runId, version]);
 
   const handleDownloadReviewSummaryPdf = useCallback(async () => {
     const finalizedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
@@ -4515,6 +4621,9 @@ export default function ProofMapTab({
                 onExportClientReadinessReport={() => {
                   void handleExportClientReadinessReport();
                 }}
+                onExportVvbWorkpaper={() => {
+                  void handleExportVvbWorkpaper();
+                }}
                 onCopyLink={() => {
                   void handleCopyReviewSummaryLink();
                 }}
@@ -4524,6 +4633,8 @@ export default function ProofMapTab({
                 pdfError={reviewPdfError}
                 clientReadinessExportBusy={clientReadinessExportBusy}
                 clientReadinessExportError={clientReadinessExportError}
+                vvbWorkpaperExportBusy={vvbWorkpaperExportBusy}
+                vvbWorkpaperExportError={vvbWorkpaperExportError}
               />
             ) : (
               <EvidenceWorkflowStepper
