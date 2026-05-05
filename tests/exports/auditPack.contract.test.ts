@@ -5,6 +5,7 @@ import path from "node:path";
 import { strFromU8, unzipSync } from "fflate";
 import { buildAuditPackZip } from "@/exports/auditPack";
 import { buildVerificationPackContractFiles } from "@/exports/verificationPackContract";
+import { sha256Hex } from "@/integrity/artifacts";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
 import type { RuleReview } from "@/lib/verify/reviewStore";
@@ -150,6 +151,18 @@ describe("audit pack verification contract", () => {
   test("uses finalized review artifact and linked evidence in audit-pack zip when supplied", () => {
     const artifact: EvidenceSnapshot = {
       method: { code: "AR-ACM0003", version: "v02-0" },
+      aoi: {
+        id: "aoi_demo",
+        bbox: [1, 2, 3, 4],
+        geojson: {
+          type: "Feature",
+          properties: { name: "Demo AOI" },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[1, 2], [3, 2], [3, 4], [1, 4], [1, 2]]],
+          },
+        },
+      },
       evidence_source: { type: "stac_url", ref: "https://stac.example.test" },
       selected: {
         id: "sentinel-scene-1",
@@ -273,13 +286,49 @@ describe("audit pack verification contract", () => {
         title: "PDD.pdf",
         cited_ids: [],
         created_at: "2026-04-24T11:56:00.000Z",
+        attachments: [
+          {
+            id: "att-pdd-1",
+            pin_id: "pin-pdd-1",
+            filename: "mai_ndombe_synthetic_pdd.pdf",
+            mime: "application/pdf",
+            size: 24,
+            sha256: sha256Hex(Buffer.from("%PDF-1.4 synthetic PDD bytes", "utf8")),
+            created_at: "2026-04-24T11:56:00.000Z",
+          },
+        ],
         pdd_fragments: [{ evidence_id: "pin-pdd-1", fragment_id: "frag-monitoring-period", label: "Monitoring period", page_start: 12 }],
         pdd_fragment_links: [{ fragment_id: "frag-monitoring-period", rule_id: "R-1-0001", linked_at: "2026-04-24T11:57:00.000Z" }],
+        pdd_document: {
+          evidence_id: "pin-pdd-1",
+          attachment_id: "att-pdd-1",
+          file_name: "mai_ndombe_synthetic_pdd.pdf",
+          mime: "application/pdf",
+          added_at: "2026-04-24T11:56:00.000Z",
+          sha256: sha256Hex(Buffer.from("%PDF-1.4 synthetic PDD bytes", "utf8")),
+        },
       },
     ];
+    const pddBytes = Buffer.from("%PDF-1.4 synthetic PDD bytes", "utf8");
 
     const zip = withTemporaryMethodologyCheckout(() =>
-      buildAuditPackZip("AR-ACM0003", "v02-0", { finalizedReview: { artifact, evidencePins } }),
+      buildAuditPackZip("AR-ACM0003", "v02-0", {
+        finalizedReview: {
+          artifact,
+          evidencePins,
+          sourceFiles: [
+            {
+              evidence_ref: "pin-pdd-1",
+              source_pin_id: "pin-pdd-1",
+              attachment_id: "att-pdd-1",
+              file_name: "mai_ndombe_synthetic_pdd.pdf",
+              mime: "application/pdf",
+              bytes_base64: pddBytes.toString("base64"),
+              sha256: sha256Hex(pddBytes),
+            },
+          ],
+        },
+      }),
     );
     const entries = unzipSync(new Uint8Array(zip));
     const readJson = (entry: string) => JSON.parse(strFromU8(entries[entry]));
@@ -331,17 +380,60 @@ describe("audit pack verification contract", () => {
 
     const evidenceManifest = readJson("evidence-manifest.json") as {
       summary: { provided_refs: number; placeholder_refs: number };
-      evidence: Array<{ evidence_ref: string; status: string; placeholder: boolean }>;
+      evidence: Array<{
+        evidence_ref: string;
+        status: string;
+        placeholder: boolean;
+        included_in_pack: boolean;
+        file_path: string | null;
+        sha256: string | null;
+        parent_source_evidence_ref?: string | null;
+        parent_source_file_path?: string | null;
+      }>;
     };
-    expect(evidenceManifest.summary.provided_refs).toBe(0);
+    expect(evidenceManifest.summary.provided_refs).toBe(2);
     expect(evidenceManifest.summary.placeholder_refs).toBe(0);
     expect(evidenceManifest.evidence).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ evidence_ref: "sentinel-scene-1", status: "not_provided", placeholder: false }),
-        expect.objectContaining({ evidence_ref: "frag-monitoring-period", status: "not_provided", placeholder: false }),
+        expect.objectContaining({
+          evidence_ref: "pin-pdd-1",
+          status: "provided",
+          placeholder: false,
+          included_in_pack: true,
+          file_path: "evidence/source/pin-pdd-1/mai_ndombe_synthetic_pdd.pdf",
+          sha256: sha256Hex(pddBytes),
+        }),
+        expect.objectContaining({
+          evidence_ref: "frag-monitoring-period",
+          status: "not_provided",
+          placeholder: false,
+          included_in_pack: false,
+          parent_source_evidence_ref: "pin-pdd-1",
+          parent_source_file_path: "evidence/source/pin-pdd-1/mai_ndombe_synthetic_pdd.pdf",
+        }),
+        expect.objectContaining({
+          evidence_ref: "aoi_demo",
+          status: "provided",
+          placeholder: false,
+          included_in_pack: true,
+          file_path: "evidence/source/aoi_demo/Demo_AOI.geojson",
+        }),
       ]),
     );
     expect(JSON.stringify(evidenceManifest)).not.toContain("awaiting_project_evidence");
+    expect(entries["evidence/source/pin-pdd-1/mai_ndombe_synthetic_pdd.pdf"]).toEqual(new Uint8Array(pddBytes));
+    expect(entries["evidence/source/aoi_demo/Demo_AOI.geojson"]).toBeTruthy();
+    const manifestFiles = (readJson("manifest.json") as { files: Array<{ path: string; sha256: string; bytes: number }> }).files;
+    expect(manifestFiles).toEqual(
+      expect.arrayContaining([
+        {
+          path: "evidence/source/pin-pdd-1/mai_ndombe_synthetic_pdd.pdf",
+          sha256: sha256Hex(pddBytes),
+          bytes: pddBytes.length,
+        },
+      ]),
+    );
   });
 
   test("uses current Method Review state for non-finalized exports instead of demo placeholders", () => {

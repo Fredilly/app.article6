@@ -1,6 +1,7 @@
 "use client";
 
 import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
+import { getAttachmentBytes } from "@/lib/proofMap/attachments";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
 import type { ReviewSummary } from "@/lib/verify/buildReviewSummary";
@@ -56,6 +57,16 @@ function downloadBytes(bytes: Uint8Array, filename: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
+function base64FromArrayBuffer(bytes: ArrayBuffer): string {
+  let binary = "";
+  const chunk = 0x8000;
+  const view = new Uint8Array(bytes);
+  for (let index = 0; index < view.length; index += chunk) {
+    binary += String.fromCharCode(...view.subarray(index, index + chunk));
+  }
+  return btoa(binary);
+}
+
 export default function FinalReviewSummaryPanel({
   summary,
   artifact,
@@ -87,10 +98,40 @@ export default function FinalReviewSummaryPanel({
     if (!artifact) return;
     const method = artifact.method.code || summary.methodCode || "";
     const version = artifact.method.version || summary.version || "";
+    const sourceFiles = (
+      await Promise.all(
+        evidencePins.flatMap((pin) =>
+          (pin.attachments ?? []).map(async (attachment) => {
+            const bytes = await getAttachmentBytes(attachment.id);
+            if (!bytes) return null;
+            return {
+              evidence_ref:
+                pin.pdd_document?.attachment_id === attachment.id
+                  ? pin.pdd_document.evidence_id
+                  : `${pin.id}:${attachment.id}`,
+              source_pin_id: pin.id,
+              attachment_id: attachment.id,
+              file_name: attachment.filename,
+              mime: attachment.mime,
+              bytes_base64: base64FromArrayBuffer(bytes),
+              sha256: attachment.sha256,
+            };
+          }),
+        ),
+      )
+    ).filter((item): item is {
+      evidence_ref: string;
+      source_pin_id: string;
+      attachment_id: string;
+      file_name: string;
+      mime: string;
+      bytes_base64: string;
+      sha256: string;
+    } => Boolean(item));
     const response = await fetch("/api/exports/audit-pack", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ method, version, artifact, evidencePins }),
+      body: JSON.stringify({ method, version, artifact, evidencePins, sourceFiles }),
     });
     if (!response.ok) throw new Error(await response.text());
     const bytes = new Uint8Array(await response.arrayBuffer());

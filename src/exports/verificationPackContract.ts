@@ -1,4 +1,4 @@
-import { canonicalStringify } from "../integrity/artifacts";
+import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
 import type { EvidenceSnapshot } from "../lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "../lib/proofMap/types";
 import type { TraceIndex, TraceSectionLink } from "../lib/trace/traceIndex";
@@ -53,8 +53,8 @@ type EvidenceManifestEntry = {
   status_basis: "demo_placeholder" | "current_method_review" | "finalized_project_review";
   source_kind: "project_evidence_slot" | "project_evidence_ref";
   included_in_pack: boolean;
-  file_path: null;
-  sha256: null;
+  file_path: string | null;
+  sha256: string | null;
   requested_for: string;
   placeholder: boolean;
   placeholder_reason: string;
@@ -62,6 +62,8 @@ type EvidenceManifestEntry = {
   source_pin_id?: string;
   evidence_title?: string;
   evidence_type?: string;
+  parent_source_evidence_ref?: string | null;
+  parent_source_file_path?: string | null;
 };
 
 type EvidenceManifest = {
@@ -235,6 +237,15 @@ const CURRENT_METHOD_REVIEW_REASON =
 export type FinalizedAuditPackReviewInput = {
   artifact?: EvidenceSnapshot | null;
   evidencePins?: EvidencePin[] | null;
+  sourceFiles?: Array<{
+    evidence_ref: string;
+    source_pin_id?: string | null;
+    attachment_id?: string | null;
+    file_name: string;
+    mime: string;
+    bytes_base64: string;
+    sha256?: string | null;
+  }> | null;
 };
 
 export type CurrentMethodReviewExportInput = {
@@ -289,6 +300,84 @@ function uniqueSorted(values: Array<string | null | undefined>): string[] {
   return Array.from(new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))).sort((a, b) =>
     a.localeCompare(b),
   );
+}
+
+function safeZipSegment(value: string | null | undefined, fallback: string): string {
+  const trimmed = value?.trim() || fallback;
+  const sanitized = trimmed.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  return sanitized || fallback;
+}
+
+function safeZipFilename(value: string | null | undefined, fallback: string): string {
+  const normalized = (value?.trim() || fallback).replace(/[\\/]+/g, "_");
+  const sanitized = normalized.replace(/[^A-Za-z0-9._ -]+/g, "_").replace(/\s+/g, "_");
+  return sanitized || fallback;
+}
+
+function decodeBase64Bytes(value: string): Buffer {
+  return Buffer.from(value, "base64");
+}
+
+type PackagedEvidenceSourceFile = {
+  evidence_ref: string;
+  source_pin_id?: string | null;
+  attachment_id?: string | null;
+  file_name: string;
+  mime: string;
+  bytes: Buffer;
+  sha256: string;
+  file_path: string;
+  label: string;
+  evidence_type: string;
+};
+
+function collectPackagedEvidenceSourceFiles(input: FinalizedAuditPackReviewInput | null | undefined): PackagedEvidenceSourceFile[] {
+  const packaged: PackagedEvidenceSourceFile[] = [];
+  const sourceFiles = input?.sourceFiles ?? [];
+  for (const source of sourceFiles) {
+    const evidenceRef = source.evidence_ref?.trim();
+    const fileName = source.file_name?.trim();
+    if (!evidenceRef || !fileName || !source.bytes_base64?.trim()) continue;
+    const bytes = decodeBase64Bytes(source.bytes_base64);
+    const safeEvidenceRef = safeZipSegment(evidenceRef, "evidence");
+    const safeName = safeZipFilename(fileName, "evidence.bin");
+    packaged.push({
+      evidence_ref: evidenceRef,
+      source_pin_id: source.source_pin_id?.trim() || null,
+      attachment_id: source.attachment_id?.trim() || null,
+      file_name: fileName,
+      mime: source.mime?.trim() || "application/octet-stream",
+      bytes,
+      sha256: "",
+      file_path: `evidence/source/${safeEvidenceRef}/${safeName}`,
+      label: fileName,
+      evidence_type: "uploaded_source",
+    });
+  }
+  const artifactAoi = input?.artifact?.aoi?.geojson;
+  if (artifactAoi) {
+    const aoiId = input?.artifact?.aoi?.id?.trim() || "aoi";
+    const aoiLabel = input?.artifact?.summary?.aoiLabel?.trim() || "active-area";
+    const bytes = Buffer.from(canonicalStringify(artifactAoi), "utf8");
+    packaged.push({
+      evidence_ref: aoiId,
+      source_pin_id: null,
+      attachment_id: null,
+      file_name: `${safeZipFilename(aoiLabel, "active-area")}.geojson`,
+      mime: "application/geo+json",
+      bytes,
+      sha256: "",
+      file_path: `evidence/source/${safeZipSegment(aoiId, "aoi")}/${safeZipFilename(aoiLabel, "active-area")}.geojson`,
+      label: `${aoiLabel}.geojson`,
+      evidence_type: "aoi_geojson",
+    });
+  }
+  return packaged
+    .map((item) => ({
+      ...item,
+      sha256: sha256Hex(item.bytes),
+    }))
+    .sort((a, b) => a.file_path.localeCompare(b.file_path));
 }
 
 function canonicalRuleKey(value: string | null | undefined): string | null {
@@ -397,6 +486,8 @@ function evidenceRefsFromPinsForRule(
         source_pin_id: pin.id,
         evidence_title: pin.title,
         evidence_type: pin.kind,
+        parent_source_evidence_ref: pin.pdd_document?.evidence_id ?? null,
+        parent_source_file_path: null,
       });
     }
   }
@@ -502,6 +593,8 @@ function mergeEvidenceManifestEntries(entries: EvidenceManifestEntry[]): Evidenc
           ? "provided"
           : "not_provided",
       included_in_pack: current.included_in_pack || entry.included_in_pack,
+      file_path: current.file_path ?? entry.file_path ?? null,
+      sha256: current.sha256 ?? entry.sha256 ?? null,
       requested_for: current.requested_for || entry.requested_for,
       placeholder: current.placeholder && entry.placeholder,
       placeholder_reason: current.placeholder_reason || entry.placeholder_reason,
@@ -509,9 +602,77 @@ function mergeEvidenceManifestEntries(entries: EvidenceManifestEntry[]): Evidenc
       source_pin_id: current.source_pin_id ?? entry.source_pin_id,
       evidence_title: current.evidence_title ?? entry.evidence_title,
       evidence_type: current.evidence_type ?? entry.evidence_type,
+      parent_source_evidence_ref: current.parent_source_evidence_ref ?? entry.parent_source_evidence_ref ?? null,
+      parent_source_file_path: current.parent_source_file_path ?? entry.parent_source_file_path ?? null,
     });
   }
   return Array.from(byRef.values()).sort((a, b) => a.evidence_ref.localeCompare(b.evidence_ref));
+}
+
+function evidenceManifestEntriesFromPackagedSources(input: {
+  sources: PackagedEvidenceSourceFile[];
+  selectedRuleIds: string[];
+  evidencePins: EvidencePin[];
+}): EvidenceManifestEntry[] {
+  if (!input.sources.length) return [];
+  const pinById = new Map(input.evidencePins.map((pin) => [pin.id, pin]));
+  return input.sources.map((source) => {
+    const pin = source.source_pin_id ? pinById.get(source.source_pin_id) ?? null : null;
+    const linkedRuleIds = uniqueSorted([
+      ...input.selectedRuleIds,
+      pin?.ruleId,
+      ...(pin?.cited_ids ?? []),
+      ...(pin?.pdd_fragment_links ?? []).map((link) => link.rule_id),
+    ]);
+    return {
+      evidence_ref: source.evidence_ref,
+      label: source.label,
+      rule_ids: linkedRuleIds,
+      status: "provided",
+      status_basis: "finalized_project_review",
+      source_kind: "project_evidence_ref",
+      included_in_pack: true,
+      file_path: source.file_path,
+      sha256: source.sha256,
+      requested_for:
+        source.evidence_type === "aoi_geojson"
+          ? "Finalized AOI source file"
+          : input.selectedRuleIds[0]
+            ? `Finalized uploaded evidence for ${input.selectedRuleIds[0]}`
+            : "Finalized uploaded evidence source file",
+      placeholder: false,
+      placeholder_reason: "",
+      source_pin_id: source.source_pin_id ?? undefined,
+      evidence_title: source.file_name,
+      evidence_type: source.evidence_type,
+      parent_source_evidence_ref: null,
+      parent_source_file_path: null,
+    };
+  });
+}
+
+function applyPackagedSourceReferences(
+  entries: EvidenceManifestEntry[],
+  sources: PackagedEvidenceSourceFile[],
+): EvidenceManifestEntry[] {
+  if (!sources.length) return entries;
+  const sourceByRef = new Map(sources.map((source) => [source.evidence_ref, source]));
+  return entries.map((entry) => {
+    const directSource = sourceByRef.get(entry.evidence_ref);
+    const parentSource =
+      !directSource && entry.parent_source_evidence_ref ? sourceByRef.get(entry.parent_source_evidence_ref) ?? null : null;
+    if (!directSource && !parentSource) return entry;
+    return {
+      ...entry,
+      status: directSource ? "provided" : entry.status,
+      included_in_pack: directSource ? true : entry.included_in_pack,
+      file_path: directSource ? directSource.file_path : entry.file_path,
+      sha256: directSource ? directSource.sha256 : entry.sha256,
+      evidence_title: directSource ? directSource.file_name : entry.evidence_title,
+      evidence_type: directSource ? directSource.evidence_type : entry.evidence_type,
+      parent_source_file_path: parentSource?.file_path ?? entry.parent_source_file_path ?? null,
+    };
+  });
 }
 
 function selectedRuleFromArtifact(artifact: EvidenceSnapshot | null | undefined): string | null {
@@ -594,6 +755,18 @@ function evidenceRefsForRule(input: {
     });
   }
   return entries.sort((a, b) => a.evidence_ref.localeCompare(b.evidence_ref));
+}
+
+function ruleIdsFromFinalizedContext(
+  selectedRuleId: string | null,
+  artifact: EvidenceSnapshot | null | undefined,
+): string[] {
+  return uniqueSorted([
+    selectedRuleId,
+    artifact?.summary?.ruleId ?? null,
+    artifact?.outcome?.linkage.selectedRuleId ?? null,
+    ...(artifact?.outcome?.linkage.linkedRuleIds ?? []),
+  ]);
 }
 
 function summarizeRuleText(text: string): string {
@@ -764,7 +937,9 @@ function renderVerificationReportHtml(input: {
   <td>${escapeHtml(sourceName)}</td>
   <td>${escapeHtml(entry.evidence_type || entry.source_kind)}</td>
   <td>${escapeHtml(entry.rule_ids.join(", ") || "None")}</td>
-  <td>${escapeHtml(includedState)}</td>
+  <td>${escapeHtml(includedState)}${
+    entry.parent_source_file_path ? `<div class="muted">Parent source: ${escapeHtml(entry.parent_source_file_path)}</div>` : ""
+  }</td>
   <td>${escapeHtml(entry.sha256 ?? "Unavailable")}</td>
 </tr>`;
     })
@@ -1089,6 +1264,8 @@ export function buildVerificationPackContract(input: {
   const currentReviewEntries = currentReview?.reviews ?? [];
   const currentVerifierBundle = currentReview?.verifierBundle ?? null;
   const finalizedRuleId = selectedRuleFromArtifact(finalizedArtifact);
+  const finalizedRuleIds = ruleIdsFromFinalizedContext(finalizedRuleId, finalizedArtifact);
+  const packagedFinalizedSources = collectPackagedEvidenceSourceFiles(input.finalizedReview ?? null);
   const finalizedEvidence = evidenceRefsForRule({
     ruleId: finalizedRuleId,
     artifact: finalizedArtifact,
@@ -1180,7 +1357,19 @@ export function buildVerificationPackContract(input: {
   };
 
   const evidence = hasFinalizedReview
-    ? finalizedEvidence
+    ? mergeEvidenceManifestEntries(
+        applyPackagedSourceReferences(
+          [
+            ...finalizedEvidence,
+            ...evidenceManifestEntriesFromPackagedSources({
+              sources: packagedFinalizedSources,
+              selectedRuleIds: finalizedRuleIds,
+              evidencePins: finalizedPins,
+            }),
+          ],
+          packagedFinalizedSources,
+        ),
+      )
     : hasCurrentReview
       ? mergeEvidenceManifestEntries(
           rules.flatMap((rule) => {
@@ -1450,6 +1639,7 @@ export function buildVerificationPackContractFiles(input: {
   currentReview?: CurrentMethodReviewExportInput | null;
 }): Array<{ path: string; bytes: Buffer }> {
   const contract = buildVerificationPackContract(input);
+  const packagedFinalizedSources = collectPackagedEvidenceSourceFiles(input.finalizedReview ?? null);
   return [
     {
       path: "project.json",
@@ -1475,6 +1665,10 @@ export function buildVerificationPackContractFiles(input: {
       path: "VERIFICATION_REPORT.html",
       bytes: Buffer.from(contract.reportHtml, "utf8"),
     },
+    ...packagedFinalizedSources.map((source) => ({
+      path: source.file_path,
+      bytes: source.bytes,
+    })),
   ];
 }
 
