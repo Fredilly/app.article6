@@ -106,6 +106,18 @@ describe("buildClientReadinessReportExport", () => {
     expect(serialized).not.toContain("assurance opinion");
   });
 
+  test("brands the HTML with Article6 and shows the scope banner", async () => {
+    const result = buildSampleExport();
+    const zip = await JSZip.loadAsync(result.zipBytes);
+    const html = (await zip.file("client-readiness-report/report.html")?.async("string")) ?? "";
+
+    expect(html).toContain("Article6");
+    expect(html).toContain("Client Readiness Report");
+    expect(html).toContain("Scope and non-claim notice");
+    expect(html).toContain("Pre-verification readiness assessment");
+    expect(html).toContain("Readiness support only. Article6 does not issue a verifier decision in this export.");
+  });
+
   test("includes traceable appendix fields for report id, timestamp, rules, and evidence ids", async () => {
     const result = buildSampleExport();
     const zip = await JSZip.loadAsync(result.zipBytes);

@@ -4,6 +4,13 @@ import type { RequirementCoverageExpectedEvidenceType } from "@/app/m/_lib/requi
 import { canonicalStringify, sha256Hex } from "@/integrity/artifacts";
 import type { ClientReadinessReport } from "@/lib/readiness/clientReadinessReport";
 import type { RuleReadinessGap } from "@/lib/readiness/gapEngine";
+import {
+  escapeHtml,
+  joinEscaped,
+  renderList,
+  renderMetricCard,
+  renderReportHtmlDocument,
+} from "@/lib/readiness/reportHtmlTheme";
 
 export type ClientReadinessAppendixArtifact = {
   kind: "article6.client_readiness_appendix";
@@ -103,30 +110,12 @@ function evidenceLabel(item: RuleReadinessGap["linkedEvidence"][number]): string
   return item.title?.trim() || item.fragmentLabel?.trim() || item.documentLabel?.trim() || item.id;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function joinEscaped(values: string[], fallback: string): string {
-  return values.length ? values.map(escapeHtml).join(", ") : escapeHtml(fallback);
-}
-
-function renderList(items: string[], empty: string): string {
-  if (!items.length) return `<p>${escapeHtml(empty)}</p>`;
-  return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
-}
-
 function renderRuleRows(report: ClientReadinessReport): string {
   return report.ruleFindingsMatrix
     .map(
       (item) => `
         <tr>
-          <td><strong>${escapeHtml(item.ruleId)}</strong><br /><span>${escapeHtml(item.ruleTitle)}</span></td>
+          <td><span class="cell-title">${escapeHtml(item.ruleId)}</span><span class="cell-subtitle">${escapeHtml(item.ruleTitle)}</span></td>
           <td>${escapeHtml(item.category.replaceAll("_", " "))}</td>
           <td>${escapeHtml(item.severity)}</td>
           <td>${escapeHtml(item.assessment)}${
@@ -145,7 +134,7 @@ function renderEvidenceChecklistRows(report: ClientReadinessReport): string {
     .map(
       (item) => `
         <tr>
-          <td><strong>${escapeHtml(item.ruleId)}</strong><br /><span>${escapeHtml(item.ruleTitle)}</span></td>
+          <td><span class="cell-title">${escapeHtml(item.ruleId)}</span><span class="cell-subtitle">${escapeHtml(item.ruleTitle)}</span></td>
           <td>${joinEscaped(item.expectedEvidence, "No encoded expectation listed.")}</td>
           <td>${joinEscaped(item.linkedEvidence, "No linked evidence yet.")}</td>
           <td>${joinEscaped(item.missingEvidence, "No missing evidence listed.")}</td>
@@ -157,8 +146,10 @@ function renderEvidenceChecklistRows(report: ClientReadinessReport): string {
 
 function renderOpenFindingsGroup(title: string, description: string, items: ClientReadinessReport["openFindings"]["missingEvidence"]): string {
   return `
-    <section>
-      <h3>${escapeHtml(title)}</h3>
+    <section class="report-section">
+      <div class="section-kicker">Open findings</div>
+      <h3 class="section-title">${escapeHtml(title)}</h3>
+      <div class="section-body">
       <p>${escapeHtml(description)}</p>
       ${
         items.length
@@ -167,101 +158,108 @@ function renderOpenFindingsGroup(title: string, description: string, items: Clie
                 (item) => `<li><strong>${escapeHtml(item.ruleId)}</strong> ${escapeHtml(item.ruleTitle)} · ${escapeHtml(item.severity)} · ${escapeHtml(item.assessment)} · Next: ${joinEscaped(item.nextActions, "Reviewer follow-up still needs to be defined.")}</li>`,
               )
               .join("")}</ul>`
-          : "<p>No items in this group right now.</p>"
+          : '<p class="empty-note">No items in this group right now.</p>'
       }
+      </div>
     </section>`
 }
 
 function reportHtmlDocument(report: ClientReadinessReport): string {
   const context = report.projectAndMethodologyContext;
   const totals = report.executiveReadinessSummary.totals;
+  const executiveCards = [
+    renderMetricCard("Readiness position", report.executiveReadinessSummary.readinessPosition),
+    renderMetricCard("Ready", String(totals.ready), `${totals.rules} assessed rule${totals.rules === 1 ? "" : "s"}`),
+    renderMetricCard("Missing or not started", String(totals.missingEvidence), `${totals.notStarted} not-started item${totals.notStarted === 1 ? "" : "s"}`),
+    renderMetricCard("Reviewer judgment needed", String(totals.reviewerJudgmentNeeded), `${totals.clarificationNeeded} clarification item${totals.clarificationNeeded === 1 ? "" : "s"}`),
+  ].join("");
   const body = `
-    <article>
-      <section>
-        <p><strong>Client readiness report</strong> · <strong>Pre-verification readiness assessment</strong></p>
-        <h1>${escapeHtml(context.projectName)}</h1>
-        <p>${escapeHtml(context.methodologyCode)}@${escapeHtml(context.methodologyVersion)}${context.methodologyName ? ` · ${escapeHtml(context.methodologyName)}` : ""}</p>
-        <p>${escapeHtml(report.executiveReadinessSummary.headline)}</p>
-        <p>This readiness report is a client-facing preparation tool. It is not a verifier decision and does not determine registration, issuance, or quantified carbon outcomes.</p>
-        <dl>
-          ${context.projectId ? `<dt>Project ID</dt><dd>${escapeHtml(context.projectId)}</dd>` : ""}
-          ${context.proponent ? `<dt>Proponent</dt><dd>${escapeHtml(context.proponent)}</dd>` : ""}
-          ${context.region ? `<dt>Region</dt><dd>${escapeHtml(context.region)}</dd>` : ""}
-          ${context.sector ? `<dt>Sector</dt><dd>${escapeHtml(context.sector)}</dd>` : ""}
-          <dt>Report ID</dt><dd>${escapeHtml(report.reportId)}</dd>
-          <dt>Generated</dt><dd>${escapeHtml(report.technicalAppendix.generatedAt)}</dd>
-        </dl>
+      <section class="report-section">
+        <div class="section-kicker">Executive summary</div>
+        <h2 class="section-title">Readiness position</h2>
+        <div class="section-body">
+          <p>Totals are readiness categories, not a formal assurance score. Missing evidence may overlap with rules that are also not started.</p>
+          ${renderList(report.executiveReadinessSummary.highlights, "No highlights listed.")}
+        </div>
       </section>
 
-      <section>
-        <h2>Executive Readiness Summary</h2>
-        <p>Totals are readiness categories, not a formal assurance score. Missing evidence may include rules that are also not started.</p>
-        <ul>
-          <li>Position: ${escapeHtml(report.executiveReadinessSummary.readinessPosition)}</li>
-          <li>Ready: ${totals.ready}</li>
-          <li>Missing evidence / not started: ${totals.missingEvidence} (includes ${totals.notStarted} not-started items)</li>
-          <li>Clarification needed: ${totals.clarificationNeeded}</li>
-          <li>Reviewer judgment needed: ${totals.reviewerJudgmentNeeded}</li>
-          <li>Unknown / not assessable: ${totals.unknownOrNotAssessable}</li>
-        </ul>
-        ${renderList(report.executiveReadinessSummary.highlights, "No highlights listed.")}
+      <section class="report-section">
+        <div class="section-kicker">Scope</div>
+        <h2 class="section-title">Scope, criteria, and limits</h2>
+        <div class="section-body">
+          <p>${escapeHtml(report.scopeCriteriaAndLimits.reportPurpose)}</p>
+          <p>${escapeHtml(report.scopeCriteriaAndLimits.scopeSummary)}</p>
+          <h3 class="subsection-title">Criteria basis</h3>
+          ${renderList(report.scopeCriteriaAndLimits.criteriaBasis, "No criteria basis listed.")}
+        </div>
       </section>
 
-      <section>
-        <h2>Scope, Criteria, and Limits</h2>
-        <p>${escapeHtml(report.scopeCriteriaAndLimits.reportPurpose)}</p>
-        <p>${escapeHtml(report.scopeCriteriaAndLimits.scopeSummary)}</p>
-        ${renderList(report.scopeCriteriaAndLimits.criteriaBasis, "No criteria basis listed.")}
+      <section class="report-section">
+        <div class="section-kicker">Project context</div>
+        <h2 class="section-title">Project and methodology context</h2>
+        <div class="section-body">
+          ${context.projectDescription ? `<p>${escapeHtml(context.projectDescription)}</p>` : '<p class="empty-note">No project description provided.</p>'}
+          <div class="pill-row">
+            <span class="pill">${escapeHtml(context.methodologyCode)}@${escapeHtml(context.methodologyVersion)}</span>
+            ${context.methodologyName ? `<span class="pill">${escapeHtml(context.methodologyName)}</span>` : ""}
+            ${context.sector ? `<span class="pill">${escapeHtml(context.sector)}</span>` : ""}
+          </div>
+        </div>
       </section>
 
-      <section>
-        <h2>Project and Methodology Context</h2>
-        ${context.projectDescription ? `<p>${escapeHtml(context.projectDescription)}</p>` : ""}
-        <p>${escapeHtml(context.methodologyCode)}@${escapeHtml(context.methodologyVersion)}</p>
-      </section>
-
-      <section>
-        <h2>Documents Reviewed</h2>
-        <h3>Supplied documents</h3>
+      <section class="report-section">
+        <div class="section-kicker">Evidence base</div>
+        <h2 class="section-title">Documents reviewed</h2>
+        <div class="section-body">
+        <h3 class="subsection-title">Supplied documents</h3>
         ${
           report.documentsReviewed.suppliedDocuments.length
             ? `<ul>${report.documentsReviewed.suppliedDocuments
                 .map((item) => `<li>${escapeHtml(item.label)} · ${escapeHtml(item.type)}${item.note ? ` · ${escapeHtml(item.note)}` : ""}</li>`)
                 .join("")}</ul>`
-            : "<p>No supplied documents are listed yet.</p>"
+            : '<p class="empty-note">No supplied documents are listed yet.</p>'
         }
-        <h3>Reviewed evidence</h3>
+        <h3 class="subsection-title">Reviewed evidence</h3>
         ${
           report.documentsReviewed.reviewedEvidence.length
             ? `<ul>${report.documentsReviewed.reviewedEvidence
                 .map((item) => `<li>${escapeHtml(item.label)} · ${escapeHtml(item.type)} · linked to ${joinEscaped(item.linkedRuleIds, "")}</li>`)
                 .join("")}</ul>`
-            : "<p>No reviewed evidence is linked yet.</p>"
+            : '<p class="empty-note">No reviewed evidence is linked yet.</p>'
         }
+        </div>
       </section>
 
-      <section>
-        <h2>Missing Documents</h2>
+      <section class="report-section">
+        <div class="section-kicker">Missing inputs</div>
+        <h2 class="section-title">Missing documents</h2>
+        <div class="section-body">
         ${
           report.documentsReviewed.missingDocuments.length
             ? `<ul>${report.documentsReviewed.missingDocuments
                 .map((item) => `<li>${escapeHtml(item.label)} · ${escapeHtml(item.type)}${item.note ? ` · ${escapeHtml(item.note)}` : ""}</li>`)
                 .join("")}</ul>`
-            : "<p>No missing documents are listed right now.</p>"
+            : '<p class="empty-note">No missing documents are listed right now.</p>'
         }
+        </div>
       </section>
 
-      <section>
-        <h2>Readiness Assessment Approach</h2>
-        <p>${escapeHtml(report.readinessAssessmentApproach.approachSummary)}</p>
-        <p><strong>Evidence policy:</strong> ${escapeHtml(report.readinessAssessmentApproach.evidencePolicy)}</p>
-        <p><strong>Reviewer judgment policy:</strong> ${escapeHtml(report.readinessAssessmentApproach.reviewerJudgmentPolicy)}</p>
+      <section class="report-section">
+        <div class="section-kicker">Method</div>
+        <h2 class="section-title">Readiness assessment approach</h2>
+        <div class="section-body">
+          <p>${escapeHtml(report.readinessAssessmentApproach.approachSummary)}</p>
+          <p><strong>Evidence policy:</strong> ${escapeHtml(report.readinessAssessmentApproach.evidencePolicy)}</p>
+          <p><strong>Reviewer judgment policy:</strong> ${escapeHtml(report.readinessAssessmentApproach.reviewerJudgmentPolicy)}</p>
+        </div>
       </section>
 
-      <section>
-        <h2>Rule Findings Matrix</h2>
-        <p>VVB-shaped rule findings for readiness review only. These rows summarize readiness conditions, not a verifier conclusion.</p>
-        <table>
+      <section class="report-section">
+        <div class="section-kicker">Findings</div>
+        <h2 class="section-title">Rule findings matrix</h2>
+        <div class="section-body">
+        <p>These rows summarize readiness conditions, not a verifier conclusion.</p>
+        <table class="report-table">
           <thead>
             <tr><th>Rule</th><th>Category</th><th>Severity</th><th>Assessment</th><th>Next actions</th></tr>
           </thead>
@@ -269,20 +267,20 @@ function reportHtmlDocument(report: ClientReadinessReport): string {
             ${renderRuleRows(report)}
           </tbody>
         </table>
+        </div>
       </section>
 
-      <section>
-        <h2>Open Findings</h2>
         ${renderOpenFindingsGroup("Open Findings: Missing Evidence", "Rules that still need expected evidence or have not yet started from a readiness standpoint.", report.openFindings.missingEvidence)}
         ${renderOpenFindingsGroup("Open Findings: Clarification Needed", "Rules that still need reviewer clarification before the readiness record is stable.", report.openFindings.clarificationNeeded)}
         ${renderOpenFindingsGroup("Open Findings: Reviewer Judgment Needed", "Rules with linked evidence but without a sufficiently recorded reviewer judgment.", report.openFindings.reviewerJudgmentNeeded)}
         ${renderOpenFindingsGroup("Open Findings: Unknown or Not Assessable", "Rules where encoded expectations are still incomplete or not yet assessable.", report.openFindings.unknownOrNotAssessable)}
-      </section>
 
-      <section>
-        <h2>Evidence Checklist</h2>
+      <section class="report-section">
+        <div class="section-kicker">Checklist</div>
+        <h2 class="section-title">Evidence checklist</h2>
+        <div class="section-body">
         <p>Expected, linked, and still-missing evidence are shown rule by rule.</p>
-        <table>
+        <table class="report-table">
           <thead>
             <tr><th>Rule</th><th>Expected</th><th>Linked</th><th>Missing</th><th>State</th></tr>
           </thead>
@@ -290,57 +288,66 @@ function reportHtmlDocument(report: ClientReadinessReport): string {
             ${renderEvidenceChecklistRows(report)}
           </tbody>
         </table>
+        </div>
       </section>
 
-      <section>
-        <h2>Recommended Corrective Actions</h2>
+      <section class="report-section">
+        <div class="section-kicker">Actions</div>
+        <h2 class="section-title">Recommended corrective actions</h2>
+        <div class="section-body">
         ${
           report.recommendedCorrectiveActions.items.length
             ? `<ul>${report.recommendedCorrectiveActions.items
                 .map((item) => `<li><strong>${escapeHtml(item.ruleId)}</strong> ${escapeHtml(item.ruleTitle)} · ${escapeHtml(item.priority)} priority · ${escapeHtml(item.action)} · ${escapeHtml(item.basis)}</li>`)
                 .join("")}</ul>`
-            : "<p>No corrective actions are currently listed because all assessed rules are marked ready for readiness review.</p>"
+            : '<p class="empty-note">No corrective actions are currently listed because all assessed rules are marked ready for readiness review.</p>'
         }
+        </div>
       </section>
 
-      <section>
-        <h2>Limitations</h2>
+      <section class="report-section">
+        <div class="section-kicker">Limits</div>
+        <h2 class="section-title">Limitations</h2>
+        <div class="section-body">
         ${renderList([...report.executiveReadinessSummary.limitations, ...report.scopeCriteriaAndLimits.limitations], "No limitations listed.")}
+        </div>
       </section>
 
-      <section>
-        <h2>Technical Appendix</h2>
-        <p>Appendix material is included for HTML/PDF export readiness and reviewer traceability.</p>
+      <section class="report-section">
+        <div class="section-kicker">Appendix</div>
+        <h2 class="section-title">Technical appendix</h2>
+        <div class="section-body">
+        <p>Appendix material is included for HTML and PDF export readiness and reviewer traceability.</p>
+        <h3 class="subsection-title">Disclaimers</h3>
         ${renderList(report.technicalAppendix.disclaimers, "No appendix disclaimers listed.")}
-        <h3>State definitions</h3>
+        <h3 class="subsection-title">State definitions</h3>
         ${renderList(report.technicalAppendix.stateDefinitions.map((item) => `${item.state.replaceAll("_", " ")} · ${item.description}`), "No state definitions listed.")}
-        <h3>Evidence reference index</h3>
+        <h3 class="subsection-title">Evidence reference index</h3>
         ${
           report.technicalAppendix.evidenceReferenceIndex.length
             ? `<ul>${report.technicalAppendix.evidenceReferenceIndex
                 .map((item) => `<li>${escapeHtml(item.label)} · ${escapeHtml(item.type)} · linked to ${joinEscaped(item.linkedRuleIds, "")}</li>`)
                 .join("")}</ul>`
-            : "<p>No evidence references are indexed yet.</p>"
+            : '<p class="empty-note">No evidence references are indexed yet.</p>'
         }
-      </section>
-    </article>`;
-  return [
-    "<!DOCTYPE html>",
-    '<html lang="en">',
-    "<head>",
-    '<meta charSet="utf-8" />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    `<title>${report.projectAndMethodologyContext.projectName} client readiness report</title>`,
-    "<style>",
-    "body{margin:0;background:#f8fafc;color:#0f172a;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}",
-    ".report-shell{max-width:1040px;margin:0 auto;padding:24px;}",
-    "</style>",
-    "</head>",
-    "<body>",
-    `<div class="report-shell">${body}</div>`,
-    "</body>",
-    "</html>",
-  ].join("");
+        </div>
+      </section>`;
+  return renderReportHtmlDocument({
+    title: report.executiveReadinessSummary.headline,
+    reportType: "Client Readiness Report",
+    scopeLabel: "Pre-verification readiness assessment",
+    reportId: report.reportId,
+    generatedAt: report.technicalAppendix.generatedAt,
+    methodologyLabel: `${context.methodologyCode}@${context.methodologyVersion}`,
+    contextLabel: context.methodologyName || context.projectName,
+    bannerTitle: "Scope and non-claim notice",
+    bannerBody:
+      "This Article6 report is a readiness support deliverable. It does not express a verifier decision and does not determine registration, issuance, or quantified carbon outcomes.",
+    heroSummary: `Article6 ${context.projectName} client readiness report`,
+    executiveCards,
+    body,
+    footerNote: "Readiness support only. Article6 does not issue a verifier decision in this export.",
+  });
 }
 
 function assertNoForbiddenClaims(serialized: string): void {

@@ -1,5 +1,12 @@
 import { zipSync } from "fflate";
 import { canonicalStringify, sha256Hex } from "@/integrity/artifacts";
+import {
+  escapeHtml,
+  joinEscaped,
+  renderList,
+  renderMetricCard,
+  renderReportHtmlDocument,
+} from "@/lib/readiness/reportHtmlTheme";
 import type { VvbWorkpaperReport } from "@/lib/readiness/vvbWorkpaperReport";
 
 export type VvbWorkpaperAppendixArtifact = {
@@ -81,22 +88,8 @@ function isoForZip(iso: string): Date {
   return parsed;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function listOrFallback(items: string[], fallback: string): string {
-  if (!items.length) return `<p>${escapeHtml(fallback)}</p>`;
-  return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
-}
-
 function joinOrFallback(items: string[], fallback: string): string {
-  return items.length ? items.map(escapeHtml).join(", ") : escapeHtml(fallback);
+  return joinEscaped(items, fallback);
 }
 
 function buildVvbWorkpaperAppendixArtifact(input: BuildVvbWorkpaperExportInput): VvbWorkpaperAppendixArtifact {
@@ -140,7 +133,7 @@ function renderRuleReviewRows(report: VvbWorkpaperReport): string {
     .map(
       (row) => `
         <tr>
-          <td><strong>${escapeHtml(row.ruleId)}</strong><br /><span>${escapeHtml(row.ruleTitle)}</span></td>
+          <td><span class="cell-title">${escapeHtml(row.ruleId)}</span><span class="cell-subtitle">${escapeHtml(row.ruleTitle)}</span></td>
           <td>${escapeHtml(row.reviewStatusLabel)}</td>
           <td>${escapeHtml(row.reviewRecordScopeLabel)}</td>
           <td>${escapeHtml(row.reviewerRationale)}</td>
@@ -158,7 +151,7 @@ function renderReadinessRows(report: VvbWorkpaperReport): string {
     .map(
       (row) => `
         <tr>
-          <td><strong>${escapeHtml(row.ruleId)}</strong><br /><span>${escapeHtml(row.ruleTitle)}</span></td>
+          <td><span class="cell-title">${escapeHtml(row.ruleId)}</span><span class="cell-subtitle">${escapeHtml(row.ruleTitle)}</span></td>
           <td>${escapeHtml(row.readinessState.replaceAll("_", " "))}</td>
           <td>${escapeHtml(row.severity)}</td>
           <td>${joinOrFallback(row.expectedEvidence, "No encoded expectation")}</td>
@@ -174,7 +167,7 @@ function renderArtifactRows(report: VvbWorkpaperReport): string {
     .map(
       (row) => `
         <tr>
-          <td><strong>${escapeHtml(row.ruleId)}</strong><br /><span>${escapeHtml(row.ruleTitle)}</span></td>
+          <td><span class="cell-title">${escapeHtml(row.ruleId)}</span><span class="cell-subtitle">${escapeHtml(row.ruleTitle)}</span></td>
           <td>${escapeHtml(row.state)}</td>
           <td>${escapeHtml(row.savedAt)}</td>
           <td>${escapeHtml(row.note)}</td>
@@ -188,7 +181,7 @@ function renderEvidenceRows(report: VvbWorkpaperReport): string {
     .map(
       (row) => `
         <tr>
-          <td><strong>${escapeHtml(row.id)}</strong><br /><span>${escapeHtml(row.label)}</span></td>
+          <td><span class="cell-title">${escapeHtml(row.id)}</span><span class="cell-subtitle">${escapeHtml(row.label)}</span></td>
           <td>${escapeHtml(row.type)}</td>
           <td>${escapeHtml(row.referenceState.replaceAll("_", " "))}</td>
           <td>${joinOrFallback(row.linkedRuleIds, "No linked rules")}</td>
@@ -201,160 +194,164 @@ function renderEvidenceRows(report: VvbWorkpaperReport): string {
 function reportHtmlDocument(report: VvbWorkpaperReport): string {
   const context = report.projectMethodVersionContext;
   const totals = report.executiveSummary.totals;
+  const executiveCards = [
+    renderMetricCard("Reviewed rules", String(totals.reviewed), `${totals.rules} total`),
+    renderMetricCard("Pending or not reviewed", String(totals.pendingOrNotReviewed)),
+    renderMetricCard("Missing evidence", String(totals.missingEvidence), `${totals.unknownExpectation} unknown expectation`),
+    renderMetricCard("Reviewer artifact saved", String(totals.reviewerArtifactSaved), `${totals.needsFollowup} follow-up item${totals.needsFollowup === 1 ? "" : "s"}`),
+  ].join("");
   const body = `
-    <article>
-      <section>
-        <p><strong>VVB draft workpaper support</strong> · <strong>Draft export only</strong></p>
-        <h1>${escapeHtml(context.projectName)}</h1>
-        <p>${escapeHtml(context.methodologyCode)}@${escapeHtml(context.methodologyVersion)} · ${escapeHtml(report.workpaperStatus.label)}</p>
-        <p>${escapeHtml(report.executiveSummary.headline)}</p>
-        <p>${escapeHtml(report.workpaperStatus.note)}</p>
-        <dl>
-          <dt>Source run scope</dt><dd>${escapeHtml(report.workpaperStatus.sourceRunScope.replaceAll("_", " "))}</dd>
-          <dt>Review record scope</dt><dd>${escapeHtml(report.workpaperStatus.reviewRecordScope.replaceAll("_", " "))}</dd>
-          <dt>Project ID</dt><dd>${escapeHtml(context.projectId)}</dd>
-          <dt>Proponent</dt><dd>${escapeHtml(context.proponent)}</dd>
-          <dt>Region</dt><dd>${escapeHtml(context.region)}</dd>
-          <dt>Methodology</dt><dd>${escapeHtml(context.methodologyCode)}@${escapeHtml(context.methodologyVersion)}</dd>
-          <dt>Generated</dt><dd>${escapeHtml(report.generatedAt)}</dd>
-          <dt>Report ID</dt><dd>${escapeHtml(report.reportId)}</dd>
-        </dl>
+      <section class="report-section">
+        <div class="section-kicker">Project context</div>
+        <h2 class="section-title">Project, method, and run context</h2>
+        <div class="section-body">
+          <p><strong>Methodology name:</strong> ${escapeHtml(context.methodologyName)}</p>
+          <p><strong>Sector:</strong> ${escapeHtml(context.sector)}</p>
+          <p><strong>Description:</strong> ${escapeHtml(context.projectDescription)}</p>
+          <div class="pill-row">
+            <span class="pill">Source run scope: ${escapeHtml(report.workpaperStatus.sourceRunScope.replaceAll("_", " "))}</span>
+            <span class="pill">Review record scope: ${escapeHtml(report.workpaperStatus.reviewRecordScope.replaceAll("_", " "))}</span>
+            <span class="pill">${escapeHtml(report.workpaperStatus.label)}</span>
+          </div>
+        </div>
       </section>
 
-      <section>
-        <h2>Project / method / version context</h2>
-        <p><strong>Methodology name:</strong> ${escapeHtml(context.methodologyName)}</p>
-        <p><strong>Sector:</strong> ${escapeHtml(context.sector)}</p>
-        <p><strong>Description:</strong> ${escapeHtml(context.projectDescription)}</p>
+      <section class="report-section">
+        <div class="section-kicker">Registry context</div>
+        <h2 class="section-title">Registry and program context</h2>
+        <div class="section-body">
+          <p><strong>Registry program:</strong> ${escapeHtml(report.registryAndProgramContext.registryProgram)}</p>
+          <p><strong>Registry project ID:</strong> ${escapeHtml(report.registryAndProgramContext.registryProjectId)}</p>
+          <p>${escapeHtml(report.registryAndProgramContext.note)}</p>
+        </div>
       </section>
 
-      <section>
-        <h2>Registry and program context</h2>
-        <p><strong>Registry program:</strong> ${escapeHtml(report.registryAndProgramContext.registryProgram)}</p>
-        <p><strong>Registry project ID:</strong> ${escapeHtml(report.registryAndProgramContext.registryProjectId)}</p>
-        <p>${escapeHtml(report.registryAndProgramContext.note)}</p>
+      <section class="report-section">
+        <div class="section-kicker">Executive summary</div>
+        <h2 class="section-title">Draft workpaper status</h2>
+        <div class="section-body">
+          <p>${escapeHtml(report.executiveSummary.note)}</p>
+        </div>
       </section>
 
-      <section>
-        <h2>Executive Summary</h2>
-        <ul>
-          <li>Total rules: ${totals.rules}</li>
-          <li>Reviewed rules: ${totals.reviewed}</li>
-          <li>Pending or not reviewed: ${totals.pendingOrNotReviewed}</li>
-          <li>Needs follow-up: ${totals.needsFollowup}</li>
-          <li>Missing evidence / not started: ${totals.missingEvidence}</li>
-          <li>Unknown expectation: ${totals.unknownExpectation}</li>
-          <li>Saved reviewer artifact state: ${totals.reviewerArtifactSaved}</li>
-        </ul>
-        <p>${escapeHtml(report.executiveSummary.note)}</p>
-      </section>
-
-      <section>
-        <h2>Rule review workpaper table</h2>
+      <section class="report-section">
+        <div class="section-kicker">Workpaper table</div>
+        <h2 class="section-title">Rule review workpaper table</h2>
+        <div class="section-body">
         <p>Rows remain draft workpaper support unless a reviewer has explicitly recorded a non-pending judgment. Review rows are workspace-level method/version records unless separately saved as run-bound reviewer artifact state.</p>
-        <table>
+        <table class="report-table">
           <thead>
             <tr><th>Rule</th><th>Review status</th><th>Record scope</th><th>Reviewer rationale</th><th>Support reference</th><th>Linked evidence refs</th><th>Candidate evidence refs</th><th>Attachment refs</th></tr>
           </thead>
           <tbody>${renderRuleReviewRows(report)}</tbody>
         </table>
+        </div>
       </section>
 
-      <section>
-        <h2>Readiness / gap status</h2>
-        <table>
+      <section class="report-section">
+        <div class="section-kicker">Readiness</div>
+        <h2 class="section-title">Readiness and gap status</h2>
+        <div class="section-body">
+        <table class="report-table">
           <thead>
             <tr><th>Rule</th><th>Readiness state</th><th>Severity</th><th>Expected evidence</th><th>Missing evidence</th><th>Next actions</th></tr>
           </thead>
           <tbody>${renderReadinessRows(report)}</tbody>
         </table>
+        </div>
       </section>
 
-      <section>
-        <h2>Reviewer artifact state</h2>
-        <table>
+      <section class="report-section">
+        <div class="section-kicker">Reviewer record</div>
+        <h2 class="section-title">Reviewer artifact state</h2>
+        <div class="section-body">
+        <table class="report-table">
           <thead>
             <tr><th>Rule</th><th>State</th><th>Saved at</th><th>Note</th></tr>
           </thead>
           <tbody>${renderArtifactRows(report)}</tbody>
         </table>
+        </div>
       </section>
 
-      <section>
-        <h2>Evidence / provenance references</h2>
-        <h3>Supplied documents</h3>
+      <section class="report-section">
+        <div class="section-kicker">Traceability</div>
+        <h2 class="section-title">Evidence and provenance references</h2>
+        <div class="section-body">
+        <h3 class="subsection-title">Supplied documents</h3>
         ${
           report.evidenceProvenanceReferences.suppliedDocuments.length
             ? `<ul>${report.evidenceProvenanceReferences.suppliedDocuments
                 .map((item) => `<li>${escapeHtml(item.label)} · ${escapeHtml(item.type)}${item.note ? ` · ${escapeHtml(item.note)}` : ""}</li>`)
                 .join("")}</ul>`
-            : "<p>No supplied documents recorded.</p>"
+            : '<p class="empty-note">No supplied documents recorded.</p>'
         }
-        <h3>Missing documents</h3>
+        <h3 class="subsection-title">Missing documents</h3>
         ${
           report.evidenceProvenanceReferences.missingDocuments.length
             ? `<ul>${report.evidenceProvenanceReferences.missingDocuments
                 .map((item) => `<li>${escapeHtml(item.label)} · ${escapeHtml(item.type)}</li>`)
                 .join("")}</ul>`
-            : "<p>No missing documents recorded.</p>"
+            : '<p class="empty-note">No missing documents recorded.</p>'
         }
-        <h3>Evidence reference index</h3>
-        <table>
+        <h3 class="subsection-title">Evidence reference index</h3>
+        <table class="report-table">
           <thead>
             <tr><th>Reference</th><th>Type</th><th>Reference state</th><th>Linked rules</th><th>Note</th></tr>
           </thead>
           <tbody>${renderEvidenceRows(report)}</tbody>
         </table>
-        <h3>Bundle references</h3>
+        <h3 class="subsection-title">Bundle references</h3>
         <ul>
           ${report.evidenceProvenanceReferences.bundleReferences
             .map((item) => `<li>${escapeHtml(item.label)}: ${escapeHtml(item.value)} (${escapeHtml(item.availability)})</li>`)
             .join("")}
         </ul>
+        </div>
       </section>
 
-      <section>
-        <h2>Limitations and non-claims</h2>
-        <h3>Limitations</h3>
-        ${listOrFallback(report.limitationsAndNonClaims.limitations, "No limitations listed.")}
-        <h3>Non-claims</h3>
-        ${listOrFallback(report.limitationsAndNonClaims.nonClaims, "No non-claims listed.")}
+      <section class="report-section">
+        <div class="section-kicker">Limits</div>
+        <h2 class="section-title">Limitations and non-claims</h2>
+        <div class="section-body">
+        <h3 class="subsection-title">Limitations</h3>
+        ${renderList(report.limitationsAndNonClaims.limitations, "No limitations listed.")}
+        <h3 class="subsection-title">Non-claims</h3>
+        ${renderList(report.limitationsAndNonClaims.nonClaims, "No non-claims listed.")}
+        </div>
       </section>
 
-      <section>
-        <h2>Technical Appendix</h2>
+      <section class="report-section">
+        <div class="section-kicker">Appendix</div>
+        <h2 class="section-title">Technical appendix</h2>
+        <div class="section-body">
         <p><strong>Generated:</strong> ${escapeHtml(report.technicalAppendix.generatedAt)}</p>
-        <h3>State definitions</h3>
-        ${listOrFallback(
+        <h3 class="subsection-title">State definitions</h3>
+        ${renderList(
           report.technicalAppendix.stateDefinitions.map(
             (item) => `${item.state.replaceAll("_", " ")} · ${item.description}`,
           ),
           "No state definitions listed.",
         )}
-      </section>
-    </article>`;
+        </div>
+      </section>`;
 
-  return [
-    "<!DOCTYPE html>",
-    '<html lang="en">',
-    "<head>",
-    '<meta charSet="utf-8" />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    `<title>${escapeHtml(context.projectName)} VVB draft workpaper support</title>`,
-    "<style>",
-    "body{margin:0;background:#f8fafc;color:#0f172a;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}",
-    ".report-shell{max-width:1120px;margin:0 auto;padding:24px;}",
-    "table{width:100%;border-collapse:collapse;margin-top:12px;}",
-    "th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top;text-align:left;font-size:12px;}",
-    "th{background:#e2e8f0;}",
-    "section{margin-bottom:24px;}",
-    "</style>",
-    "</head>",
-    "<body>",
-    `<div class="report-shell">${body}</div>`,
-    "</body>",
-    "</html>",
-  ].join("");
+  return renderReportHtmlDocument({
+    title: report.executiveSummary.headline,
+    reportType: "VVB Draft Workpaper Export",
+    scopeLabel: "Draft workpaper support only",
+    reportId: report.reportId,
+    generatedAt: report.generatedAt,
+    methodologyLabel: `${context.methodologyCode}@${context.methodologyVersion}`,
+    contextLabel: report.workpaperStatus.sourceRunId !== "Unavailable" ? `Run ${report.workpaperStatus.sourceRunId}` : context.projectName,
+    bannerTitle: "Support-only scope notice",
+    bannerBody:
+      "This Article6 export is draft VVB workpaper support only. It preserves readiness and review traceability but does not express verifier authority, registry acceptance, or issuance outcomes.",
+    heroSummary: `Article6 ${context.projectName} VVB draft workpaper support`,
+    executiveCards,
+    body,
+    footerNote: "Support-only export. Article6 does not provide a formal verification or approval decision in this workpaper.",
+  });
 }
 
 function assertNoForbiddenClaims(serialized: string): void {

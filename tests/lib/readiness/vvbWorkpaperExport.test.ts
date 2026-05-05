@@ -138,6 +138,18 @@ describe("buildVvbWorkpaperExport", () => {
     expect(serialized).not.toContain("vvb approval");
   });
 
+  test("brands the HTML with Article6 and shows the support-only banner", async () => {
+    const result = buildVvbWorkpaperExport({ report: buildSampleReport() });
+    const zip = await JSZip.loadAsync(result.zipBytes);
+    const html = (await zip.file("vvb-draft-workpaper/workpaper.html")?.async("string")) ?? "";
+
+    expect(html).toContain("Article6");
+    expect(html).toContain("VVB Draft Workpaper Export");
+    expect(html).toContain("Support-only scope notice");
+    expect(html).toContain("Draft workpaper support only");
+    expect(html).toContain("Support-only export. Article6 does not provide a formal verification or approval decision in this workpaper.");
+  });
+
   test("keeps candidate evidence distinct from linked support and preserves traceability", async () => {
     const result = buildVvbWorkpaperExport({ report: buildSampleReport() });
     const zip = await JSZip.loadAsync(result.zipBytes);
