@@ -174,4 +174,27 @@ describe("buildVvbWorkpaperExport", () => {
     expect(reportHtml).toContain("Candidate evidence refs");
     expect(reportHtml).toContain("cand-1");
   });
+
+  test("uses softened buyer-facing review status labels in the exported workpaper", async () => {
+    const result = buildVvbWorkpaperExport({ report: buildSampleReport() });
+    const zip = await JSZip.loadAsync(result.zipBytes);
+    const reportRaw = await zip.file("vvb-draft-workpaper/workpaper.json")?.async("string");
+    const reportHtml = (await zip.file("vvb-draft-workpaper/workpaper.html")?.async("string")) ?? "";
+
+    expect(reportRaw).toBeTruthy();
+    const report = JSON.parse(reportRaw ?? "{}") as {
+      ruleReviewWorkpaperTable: Array<{ ruleId: string; reviewStatusLabel: string }>;
+    };
+
+    expect(report.ruleReviewWorkpaperTable.find((row) => row.ruleId === "R-1")?.reviewStatusLabel).toBe(
+      "Reviewer marked supported",
+    );
+    expect(report.ruleReviewWorkpaperTable.find((row) => row.ruleId === "R-2")?.reviewStatusLabel).toBe(
+      "Pending reviewer confirmation",
+    );
+    expect(reportHtml).toContain("Reviewer marked supported");
+    expect(reportHtml).not.toContain(">Verified<");
+    expect(reportHtml).not.toContain(">Not verified<");
+    expect(reportHtml).not.toContain(">Needs follow-up<");
+  });
 });

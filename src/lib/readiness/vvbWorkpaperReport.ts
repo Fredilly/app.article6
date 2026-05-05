@@ -173,11 +173,11 @@ function evidenceLabel(item: RuleReadinessGap["linkedEvidence"][number]): string
 function statusLabel(status: ReviewStatus | "not_reviewed"): string {
   switch (status) {
     case "verified":
-      return "Verified";
+      return "Reviewer marked supported";
     case "not_verified":
-      return "Not verified";
+      return "Reviewer marked not supported";
     case "needs_followup":
-      return "Needs follow-up";
+      return "Reviewer requested follow-up";
     case "pending":
       return "Pending reviewer confirmation";
     case "not_reviewed":
