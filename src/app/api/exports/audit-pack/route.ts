@@ -69,9 +69,10 @@ export async function POST(req: Request) {
     }
 
     const evidencePins = Array.isArray(record.evidencePins) ? (record.evidencePins as EvidencePin[]) : [];
+    const sourceFiles = Array.isArray(record.sourceFiles) ? record.sourceFiles : [];
     const currentReview = asCurrentMethodReviewInput(record.currentReview);
     const zip = buildAuditPackZip(method, version, {
-      finalizedReview: artifact ? { artifact, evidencePins } : null,
+      finalizedReview: artifact ? { artifact, evidencePins, sourceFiles } : null,
       currentReview: artifact ? null : currentReview,
     });
     return new Response(zip, {

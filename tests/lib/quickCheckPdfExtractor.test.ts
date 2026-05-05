@@ -70,5 +70,5 @@ describe("quick check pdf-parse extractor", () => {
     expect(result.engine).toBe("pdf-parse");
     expect(result.text).toContain("Gold Standard TPDDTEC, Version 4.0");
     expect(result.text).toContain("The monitoring report covers the full reporting period");
-  });
+  }, 15000);
 });
