@@ -175,6 +175,62 @@ describe("buildVvbWorkpaperExport", () => {
     expect(reportHtml).toContain("cand-1");
   });
 
+  test("distinguishes active-run provenance from workspace-local review state", async () => {
+    const result = buildVvbWorkpaperExport({ report: buildSampleReport() });
+    const zip = await JSZip.loadAsync(result.zipBytes);
+    const reportRaw = await zip.file("vvb-draft-workpaper/workpaper.json")?.async("string");
+    expect(reportRaw).toBeTruthy();
+
+    const report = JSON.parse(reportRaw ?? "{}") as {
+      workpaperStatus: {
+        sourceRunId: string;
+        sourceRunScope: string;
+        reviewRecordScope: string;
+        note: string;
+      };
+      evidenceProvenanceReferences: {
+        bundleReferences: Array<{ label: string; value: string }>;
+      };
+      ruleReviewWorkpaperTable: Array<{ ruleId: string; reviewRecordScopeLabel: string }>;
+    };
+
+    expect(report.workpaperStatus.sourceRunId).toBe("run-1234");
+    expect(report.workpaperStatus.sourceRunScope).toBe("active_verify_run");
+    expect(report.workpaperStatus.reviewRecordScope).toBe("workspace_method_version");
+    expect(report.workpaperStatus.note).toContain("workspace-level method/version records");
+    expect(report.evidenceProvenanceReferences.bundleReferences).toContainEqual(
+      expect.objectContaining({
+        label: "Review record scope",
+        value: "Workspace-local method/version review state",
+      }),
+    );
+    expect(report.ruleReviewWorkpaperTable.find((row) => row.ruleId === "R-1")?.reviewRecordScopeLabel).toBe(
+      "Workspace-local method/version review state",
+    );
+  });
+
+  test("makes attachment refs resolvable against the evidence reference index", async () => {
+    const result = buildVvbWorkpaperExport({ report: buildSampleReport() });
+    const zip = await JSZip.loadAsync(result.zipBytes);
+    const reportRaw = await zip.file("vvb-draft-workpaper/workpaper.json")?.async("string");
+    const evidenceIndexRaw = await zip.file("vvb-draft-workpaper/appendix/evidence-reference-index.json")?.async("string");
+    expect(reportRaw).toBeTruthy();
+    expect(evidenceIndexRaw).toBeTruthy();
+
+    const report = JSON.parse(reportRaw ?? "{}") as {
+      ruleReviewWorkpaperTable: Array<{ ruleId: string; attachmentRefs: string[] }>;
+    };
+    const evidenceIndex = JSON.parse(evidenceIndexRaw ?? "[]") as Array<{ id: string; referenceState: string }>;
+
+    const attachmentRefs = report.ruleReviewWorkpaperTable.find((row) => row.ruleId === "R-1")?.attachmentRefs ?? [];
+    expect(attachmentRefs).toEqual(["R-1:att-1"]);
+    for (const ref of attachmentRefs) {
+      expect(evidenceIndex.find((item) => item.id === ref)).toEqual(
+        expect.objectContaining({ id: ref, referenceState: "review_attachment" }),
+      );
+    }
+  });
+
   test("uses softened buyer-facing review status labels in the exported workpaper", async () => {
     const result = buildVvbWorkpaperExport({ report: buildSampleReport() });
     const zip = await JSZip.loadAsync(result.zipBytes);

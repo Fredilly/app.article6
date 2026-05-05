@@ -142,10 +142,12 @@ function renderRuleReviewRows(report: VvbWorkpaperReport): string {
         <tr>
           <td><strong>${escapeHtml(row.ruleId)}</strong><br /><span>${escapeHtml(row.ruleTitle)}</span></td>
           <td>${escapeHtml(row.reviewStatusLabel)}</td>
+          <td>${escapeHtml(row.reviewRecordScopeLabel)}</td>
           <td>${escapeHtml(row.reviewerRationale)}</td>
           <td>${escapeHtml(row.supportReference)}</td>
           <td>${joinOrFallback(row.linkedEvidenceRefs, "No linked evidence refs")}</td>
           <td>${joinOrFallback(row.candidateEvidenceRefs, "No candidate evidence refs")}</td>
+          <td>${joinOrFallback(row.attachmentRefs, "No attachment refs")}</td>
         </tr>`,
     )
     .join("");
@@ -208,6 +210,8 @@ function reportHtmlDocument(report: VvbWorkpaperReport): string {
         <p>${escapeHtml(report.executiveSummary.headline)}</p>
         <p>${escapeHtml(report.workpaperStatus.note)}</p>
         <dl>
+          <dt>Source run scope</dt><dd>${escapeHtml(report.workpaperStatus.sourceRunScope.replaceAll("_", " "))}</dd>
+          <dt>Review record scope</dt><dd>${escapeHtml(report.workpaperStatus.reviewRecordScope.replaceAll("_", " "))}</dd>
           <dt>Project ID</dt><dd>${escapeHtml(context.projectId)}</dd>
           <dt>Proponent</dt><dd>${escapeHtml(context.proponent)}</dd>
           <dt>Region</dt><dd>${escapeHtml(context.region)}</dd>
@@ -247,10 +251,10 @@ function reportHtmlDocument(report: VvbWorkpaperReport): string {
 
       <section>
         <h2>Rule review workpaper table</h2>
-        <p>Rows remain draft workpaper support unless a reviewer has explicitly recorded a non-pending judgment.</p>
+        <p>Rows remain draft workpaper support unless a reviewer has explicitly recorded a non-pending judgment. Review rows are workspace-level method/version records unless separately saved as run-bound reviewer artifact state.</p>
         <table>
           <thead>
-            <tr><th>Rule</th><th>Review status</th><th>Reviewer rationale</th><th>Support reference</th><th>Linked evidence refs</th><th>Candidate evidence refs</th></tr>
+            <tr><th>Rule</th><th>Review status</th><th>Record scope</th><th>Reviewer rationale</th><th>Support reference</th><th>Linked evidence refs</th><th>Candidate evidence refs</th><th>Attachment refs</th></tr>
           </thead>
           <tbody>${renderRuleReviewRows(report)}</tbody>
         </table>

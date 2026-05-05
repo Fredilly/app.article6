@@ -60,6 +60,8 @@ export type VvbWorkpaperReport = {
   workpaperStatus: {
     label: "Draft workpaper support";
     sourceRunId: string;
+    sourceRunScope: "active_verify_run" | "unavailable";
+    reviewRecordScope: "workspace_method_version";
     artifactState: string;
     generatedAt: string;
     note: string;
@@ -82,6 +84,7 @@ export type VvbWorkpaperReport = {
     ruleTitle: string;
     reviewStatus: ReviewStatus | "not_reviewed";
     reviewStatusLabel: string;
+    reviewRecordScopeLabel: string;
     reviewerRationale: string;
     supportReference: string;
     evidenceLink: string;
@@ -161,6 +164,8 @@ export type BuildVvbWorkpaperReportInput = {
     traceBundleReference?: string | null;
   };
 };
+
+const WORKSPACE_REVIEW_SCOPE_LABEL = "Workspace-local method/version review state";
 
 function expectedEvidenceLabel(type: RequirementCoverageExpectedEvidenceType): string {
   return EXPECTED_EVIDENCE_LABELS[type] ?? type;
@@ -354,10 +359,12 @@ export function buildVvbWorkpaperReport(input: BuildVvbWorkpaperReportInput): Vv
     workpaperStatus: {
       label: "Draft workpaper support",
       sourceRunId: input.provenance?.sourceRunId?.trim() || "Unavailable",
+      sourceRunScope: input.provenance?.sourceRunId?.trim() ? "active_verify_run" : "unavailable",
+      reviewRecordScope: "workspace_method_version",
       artifactState: input.provenance?.artifactState?.trim() || "Unavailable",
       generatedAt: input.generatedAt,
       note:
-        "This export supports VVB-style workpaper preparation. It does not express a verifier conclusion and does not convert pending rows into satisfied review results.",
+        "This export supports VVB-style workpaper preparation. Active Verify run references stay tied to the current run, while local review rows remain workspace-level method/version records unless separately saved as run-bound reviewer artifact state.",
     },
     executiveSummary: {
       headline: workpaperHeadline,
@@ -381,12 +388,13 @@ export function buildVvbWorkpaperReport(input: BuildVvbWorkpaperReportInput): Vv
         ruleTitle: gap.title,
         reviewStatus,
         reviewStatusLabel: statusLabel(reviewStatus),
+        reviewRecordScopeLabel: WORKSPACE_REVIEW_SCOPE_LABEL,
         reviewerRationale: review?.rationale?.trim() || "Not reviewed.",
         supportReference: review?.supportReference?.trim() || "Not provided.",
         evidenceLink: review?.evidenceLink?.trim() || "Not provided.",
         linkedEvidenceRefs: sortedUnique(gap.linkedEvidence.map((item) => item.id)),
         candidateEvidenceRefs: sortedUnique(gap.candidateEvidence.map((item) => item.id)),
-        attachmentRefs: sortedUnique((review?.evidenceAttachments ?? []).map((item) => item.id)),
+        attachmentRefs: sortedUnique((review?.evidenceAttachments ?? []).map((item) => `${gap.ruleId}:${item.id}`)),
       };
     }),
     readinessGapStatus: readinessGaps.map((gap) => ({
@@ -423,6 +431,11 @@ export function buildVvbWorkpaperReport(input: BuildVvbWorkpaperReportInput): Vv
           availability: input.provenance?.sourceRunId?.trim() ? "available" : "unavailable",
         },
         {
+          label: "Review record scope",
+          value: WORKSPACE_REVIEW_SCOPE_LABEL,
+          availability: "available",
+        },
+        {
           label: "Snapshot exported at",
           value: input.provenance?.snapshotExportedAt?.trim() || "Unavailable",
           availability: input.provenance?.snapshotExportedAt?.trim() ? "available" : "unavailable",
@@ -452,6 +465,7 @@ export function buildVvbWorkpaperReport(input: BuildVvbWorkpaperReportInput): Vv
     limitationsAndNonClaims: {
       limitations: [
         "Derived from local Article6 review state, evidence inventory, and readiness logic available at export time.",
+        "Local review rows are scoped to the current method/version workspace, not automatically to the active Verify run.",
         "Missing evidence, missing reviewer artifact state, and not-reviewed rows remain unresolved at export time.",
         "Included references are traceability aids only unless separately packaged through another export path.",
       ],
