@@ -12,6 +12,7 @@ function normalizeWhitespace(value) {
 
 async function main() {
   const pdfPath = process.argv[2];
+  const includePages = process.argv.includes("--pages");
   if (!pdfPath) {
     throw new Error("Missing PDF path.");
   }
@@ -25,7 +26,17 @@ async function main() {
 
   try {
     const result = await parser.getText();
-    process.stdout.write(JSON.stringify({ text: normalizeWhitespace(result.text ?? "") }));
+    process.stdout.write(JSON.stringify({
+      text: normalizeWhitespace(result.text ?? ""),
+      pages: includePages
+        ? (Array.isArray(result.pages)
+          ? result.pages.map((page, index) => ({
+            pageNumber: typeof page.num === "number" ? page.num : index + 1,
+            text: String(page.text ?? "").replace(/\r\n?/g, "\n").trim(),
+          }))
+          : [])
+        : undefined,
+    }));
   } finally {
     await parser.destroy().catch(() => undefined);
   }

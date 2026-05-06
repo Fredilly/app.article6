@@ -26,6 +26,7 @@ function makeProject(reviewCount = 6): Project {
     aoiLabel: 'Machinga District',
     documents: [],
     manualFindings: [],
+    extractedManualFindingDrafts: [],
     reviews: Array.from({ length: reviewCount }, (_, index) => ({
       ruleId: `R-${index + 1}`,
       ruleTitle: `Verification requirement ${index + 1} for the monitoring report and workbook evidence`,
@@ -160,6 +161,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
           updatedAt: '2026-04-15T00:00:00Z',
         },
       ],
+      extractedManualFindingDrafts: [],
       reviews: [],
     };
     const req = new Request('http://localhost/api/projects/manual-project-1/export-pdf', {

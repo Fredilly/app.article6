@@ -10,6 +10,8 @@ export type ManualFindingType = 'CAR' | 'CL' | 'FAR' | 'VVB finding' | 'evidence
 
 export type ManualFindingClosureStatus = 'open' | 'in-review' | 'closed';
 
+export type ExtractedManualFindingStatus = 'draft' | 'needs-review';
+
 export type RuleReview = {
   ruleId: string;
   ruleTitle: string;
@@ -28,17 +30,44 @@ export type ProjectDocument = {
   sizeBytes: number;
   uploadedAt: string;
   extractedText?: string;
+  manualFindingExtractionStatus?: 'not-run' | 'no-findings' | 'extracted';
+  manualFindingExtractionMessage?: string;
 };
 
 export type ManualFinding = {
   id: string;
   findingId: string;
   findingType: ManualFindingType;
+  requirement?: string;
+  description?: string;
   sourceDocumentId?: string;
+  sourcePageRange?: string;
   evidenceExcerpt?: string;
   projectResponse?: string;
+  documentationSubmitted?: string;
+  auditTeamEvaluation?: string;
   closureStatus: ManualFindingClosureStatus;
   reviewerNote?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ExtractedManualFindingDraft = {
+  id: string;
+  findingId: string;
+  findingType?: Extract<ManualFindingType, 'CAR' | 'CL' | 'FAR'>;
+  requirement?: string;
+  description?: string;
+  sourceDocumentId?: string;
+  sourcePageRange?: string;
+  evidenceExcerpt?: string;
+  projectResponse?: string;
+  documentationSubmitted?: string;
+  auditTeamEvaluation?: string;
+  closureStatus?: ManualFindingClosureStatus;
+  reviewerNote?: string;
+  extractionStatus: ExtractedManualFindingStatus;
+  extractionMessage: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -58,6 +87,7 @@ export type Project = {
   reviews: RuleReview[];
   documents: ProjectDocument[];
   manualFindings: ManualFinding[];
+  extractedManualFindingDrafts: ExtractedManualFindingDraft[];
 };
 
 export type ProjectCoverage = {

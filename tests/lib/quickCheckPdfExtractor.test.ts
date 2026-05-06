@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { jest, describe, expect, it, beforeEach } from "@jest/globals";
-import { extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
+import { extractPdfPagesWithPdfParse, extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
 
 describe("quick check pdf-parse extractor", () => {
   const getTextMock = jest.fn<() => Promise<{ text?: string }>>();
@@ -71,4 +71,25 @@ describe("quick check pdf-parse extractor", () => {
     expect(result.text).toContain("Gold Standard TPDDTEC, Version 4.0");
     expect(result.text).toContain("The monitoring report covers the full reporting period");
   }, 15000);
+
+  it("returns per-page text when page extraction is requested", async () => {
+    getTextMock.mockResolvedValue({
+      text: "Page one text Page two text",
+      pages: [
+        { num: 1, text: "Page one text" },
+        { num: 2, text: "Page two text" },
+      ],
+    });
+
+    const result = await extractPdfPagesWithPdfParse({
+      bytes: new TextEncoder().encode("%PDF-pages").buffer,
+      PdfParseClass: PdfParseClassMock as never,
+    });
+
+    expect(result.pages).toEqual([
+      { pageNumber: 1, text: "Page one text" },
+      { pageNumber: 2, text: "Page two text" },
+    ]);
+    expect(result.text).toBe("Page one text Page two text");
+  });
 });

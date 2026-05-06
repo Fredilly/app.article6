@@ -3,6 +3,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
 import type {
+  ExtractedManualFindingDraft,
   ManualFinding,
   ManualFindingClosureStatus,
   ManualFindingType,
@@ -12,8 +13,11 @@ import type {
   RuleReview,
 } from '@/lib/projects/types';
 import {
+  acceptExtractedManualFindingDraft,
+  addExtractedManualFindingDrafts,
   addManualFinding,
   addProjectDocument,
+  deleteExtractedManualFindingDraft,
   deleteManualFinding,
   deleteProjectDocument,
   getProject,
@@ -23,6 +27,7 @@ import {
   nextManualFindingId,
   updateManualFinding,
   updateRuleReview,
+  updateExtractedManualFindingDraft,
 } from '@/lib/projects/storage';
 
 type ProjectDetailProps = {
@@ -38,6 +43,21 @@ type ManualFindingDraft = {
   closureStatus: ManualFindingClosureStatus;
   reviewerNote: string;
 };
+
+type ExtractedManualFindingDraftField = keyof Pick<
+  ExtractedManualFindingDraft,
+  | 'findingId'
+  | 'findingType'
+  | 'requirement'
+  | 'description'
+  | 'sourcePageRange'
+  | 'evidenceExcerpt'
+  | 'projectResponse'
+  | 'documentationSubmitted'
+  | 'auditTeamEvaluation'
+  | 'closureStatus'
+  | 'reviewerNote'
+>;
 
 const EMPTY_MANUAL_FINDING: ManualFindingDraft = {
   findingId: '',
@@ -141,26 +161,50 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
     for (const file of files) {
       let extractedText = '';
+      let extractionStatus: ProjectDocument['manualFindingExtractionStatus'] = 'not-run';
+      let extractionMessage = '';
+      let extractedDrafts: Array<Omit<ExtractedManualFindingDraft, 'id' | 'createdAt' | 'updatedAt' | 'sourceDocumentId'>> = [];
       if ((file.type || '').includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
         try {
-          const response = await fetch('/api/quick-check/pdf-extract', {
+          const response = await fetch('/api/projects/manual-review/extract-findings', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/pdf' },
+            headers: {
+              'Content-Type': 'application/pdf',
+              'x-article6-filename': encodeURIComponent(file.name),
+            },
             body: await file.arrayBuffer(),
           });
           const data = await response.json();
           extractedText = typeof data.text === 'string' ? data.text.slice(0, 2000) : '';
+          extractedDrafts = Array.isArray(data.drafts) ? data.drafts : [];
+          extractionStatus = extractedDrafts.length > 0 ? 'extracted' : 'no-findings';
+          extractionMessage = typeof data.message === 'string'
+            ? data.message
+            : 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
         } catch {
           extractedText = '';
+          extractionStatus = 'no-findings';
+          extractionMessage = 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
         }
       }
 
-      refreshProject(addProjectDocument(projectId, {
+      const updatedProject = addProjectDocument(projectId, {
         fileName: file.name,
         mimeType: file.type || 'application/octet-stream',
         sizeBytes: file.size,
         extractedText,
-      }));
+        manualFindingExtractionStatus: extractionStatus,
+        manualFindingExtractionMessage: extractionMessage || undefined,
+      });
+      refreshProject(updatedProject);
+
+      const documentId = updatedProject?.documents[updatedProject.documents.length - 1]?.id;
+      if (documentId && extractedDrafts.length > 0) {
+        refreshProject(addExtractedManualFindingDrafts(projectId, extractedDrafts.map((draft) => ({
+          ...draft,
+          sourceDocumentId: documentId,
+        }))));
+      }
     }
 
     event.target.value = '';
@@ -184,7 +228,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
   const updateFindingField = (
     findingId: string,
-    field: keyof Pick<ManualFinding, 'findingType' | 'sourceDocumentId' | 'evidenceExcerpt' | 'projectResponse' | 'closureStatus' | 'reviewerNote'>,
+    field: keyof Pick<ManualFinding, 'findingType' | 'requirement' | 'description' | 'sourceDocumentId' | 'sourcePageRange' | 'evidenceExcerpt' | 'projectResponse' | 'documentationSubmitted' | 'auditTeamEvaluation' | 'closureStatus' | 'reviewerNote'>,
     value: string,
   ) => {
     if (field === 'findingType') {
@@ -199,6 +243,41 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
       [field]: value || undefined,
     } as Partial<Omit<ManualFinding, 'id' | 'createdAt'>>));
   };
+
+  const updateExtractedDraftField = (
+    draftId: string,
+    field: ExtractedManualFindingDraftField,
+    value: string,
+  ) => {
+    if (field === 'findingType') {
+      refreshProject(updateExtractedManualFindingDraft(projectId, draftId, {
+        findingType: value ? value as ExtractedManualFindingDraft['findingType'] : undefined,
+        extractionStatus: value ? 'draft' : 'needs-review',
+        extractionMessage: value ? 'draft' : 'needs review',
+      }));
+      return;
+    }
+    if (field === 'closureStatus') {
+      refreshProject(updateExtractedManualFindingDraft(projectId, draftId, {
+        closureStatus: value ? value as ManualFindingClosureStatus : undefined,
+      }));
+      return;
+    }
+    const normalizedValue = value || undefined;
+    refreshProject(updateExtractedManualFindingDraft(projectId, draftId, {
+      [field]: normalizedValue,
+      ...(field === 'findingId' && !value ? {
+        extractionStatus: 'needs-review' as const,
+        extractionMessage: 'needs review',
+      } : {}),
+    } as Partial<Omit<ExtractedManualFindingDraft, 'id' | 'createdAt'>>));
+  };
+
+  const latestNoFindingsMessage = project.documents
+    .slice()
+    .reverse()
+    .find((document) => document.manualFindingExtractionStatus === 'no-findings')
+    ?.manualFindingExtractionMessage;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-12 md:px-8">
@@ -345,8 +424,176 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                       {document.extractedText.slice(0, 280)}
                     </p>
                   ) : null}
+                  {document.manualFindingExtractionMessage ? (
+                    <p className={`mt-2 text-xs ${
+                      document.manualFindingExtractionStatus === 'no-findings'
+                        ? 'text-slate-500'
+                        : 'text-blue-600'
+                    }`}>
+                      {document.manualFindingExtractionMessage}
+                    </p>
+                  ) : null}
                 </div>
               ))}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-5">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Extraction Review</h2>
+              <p className="mt-1 text-sm text-slate-500">Review extracted CAR, CL, and FAR drafts before adding them to Manual Findings.</p>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-4">
+              {project.extractedManualFindingDrafts.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                  {latestNoFindingsMessage || 'Upload a VVB report appendix to extract draft CAR/CL/FAR findings.'}
+                </div>
+              ) : project.extractedManualFindingDrafts.map((draft) => {
+                const sourceDocument = project.documents.find((document) => document.id === draft.sourceDocumentId);
+                return (
+                  <div key={draft.id} className="rounded-lg border border-slate-200 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="text-sm font-semibold text-slate-900">{draft.findingId || 'Draft finding'}</div>
+                          <span className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
+                            draft.extractionStatus === 'draft'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {draft.extractionStatus === 'draft' ? 'Draft' : 'Needs review'}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          {draft.findingType || 'Type not confirmed'} · {sourceDocument?.fileName || 'No source document'}{draft.sourcePageRange ? ` · p.${draft.sourcePageRange}` : ''}
+                        </div>
+                      </div>
+
+                      {project.status === 'in-progress' ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => refreshProject(acceptExtractedManualFindingDraft(projectId, draft.id))}
+                            disabled={!draft.findingId.trim() || !draft.findingType}
+                            className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => refreshProject(deleteExtractedManualFindingDraft(projectId, draft.id))}
+                            className="text-xs text-red-500 hover:text-red-700"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-2 text-xs text-slate-500">{draft.extractionMessage}</div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <Field label="Finding ID">
+                        <EditableInput
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.findingId}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'findingId', value)}
+                        />
+                      </Field>
+                      <Field label="Finding Type">
+                        {project.status === 'in-progress' ? (
+                          <select
+                            value={draft.findingType || ''}
+                            onChange={(event) => updateExtractedDraftField(draft.id, 'findingType', event.target.value)}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                          >
+                            <option value="">Needs review...</option>
+                            <option value="CAR">CAR</option>
+                            <option value="CL">CL</option>
+                            <option value="FAR">FAR</option>
+                          </select>
+                        ) : (
+                          <StaticValue value={draft.findingType || 'Needs review'} />
+                        )}
+                      </Field>
+                    </div>
+
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      <Field label="Source Document">
+                        <StaticValue value={sourceDocument?.fileName || 'No source document linked'} />
+                      </Field>
+                      <Field label="Page Number / Range">
+                        <EditableInput
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.sourcePageRange || ''}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'sourcePageRange', value)}
+                          placeholder="e.g., 120-121"
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="mt-3 grid gap-3">
+                      <Field label="Requirement">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.requirement || ''}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'requirement', value)}
+                        />
+                      </Field>
+                      <Field label="Description">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.description || ''}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'description', value)}
+                        />
+                      </Field>
+                      <Field label="Project Response">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.projectResponse || ''}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'projectResponse', value)}
+                        />
+                      </Field>
+                      <Field label="Documentation Submitted">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.documentationSubmitted || ''}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'documentationSubmitted', value)}
+                        />
+                      </Field>
+                      <Field label="Audit Team Evaluation">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.auditTeamEvaluation || ''}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'auditTeamEvaluation', value)}
+                        />
+                      </Field>
+                      <Field label="Closure Status">
+                        {project.status === 'in-progress' ? (
+                          <select
+                            value={draft.closureStatus || ''}
+                            onChange={(event) => updateExtractedDraftField(draft.id, 'closureStatus', event.target.value)}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                          >
+                            <option value="">Needs review...</option>
+                            <option value="open">Open</option>
+                            <option value="in-review">In Review</option>
+                            <option value="closed">Closed</option>
+                          </select>
+                        ) : (
+                          <StaticValue value={draft.closureStatus || 'Needs review'} />
+                        )}
+                      </Field>
+                      <Field label="Source Excerpt">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={draft.evidenceExcerpt || ''}
+                          onChange={(value) => updateExtractedDraftField(draft.id, 'evidenceExcerpt', value)}
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
@@ -469,7 +716,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                       <div>
                         <div className="text-sm font-semibold text-slate-900">{finding.findingId}</div>
                         <div className="mt-1 text-xs text-slate-500">
-                          {finding.findingType} · {manualFindingClosureLabel(finding.closureStatus)} · {sourceDocument?.fileName || 'No source document'}
+                          {finding.findingType} · {manualFindingClosureLabel(finding.closureStatus)} · {sourceDocument?.fileName || 'No source document'}{finding.sourcePageRange ? ` · p.${finding.sourcePageRange}` : ''}
                         </div>
                       </div>
                       {project.status === 'in-progress' ? (
@@ -540,6 +787,28 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                     </div>
 
                     <div className="mt-3 grid gap-3">
+                      <Field label="Requirement">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={finding.requirement || ''}
+                          onChange={(value) => updateFindingField(finding.id, 'requirement', value)}
+                        />
+                      </Field>
+                      <Field label="Description">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={finding.description || ''}
+                          onChange={(value) => updateFindingField(finding.id, 'description', value)}
+                        />
+                      </Field>
+                      <Field label="Page Number / Range">
+                        <EditableInput
+                          readOnly={project.status !== 'in-progress'}
+                          value={finding.sourcePageRange || ''}
+                          onChange={(value) => updateFindingField(finding.id, 'sourcePageRange', value)}
+                          placeholder="e.g., 120-121"
+                        />
+                      </Field>
                       <Field label="Evidence Excerpt">
                         <EditableText
                           readOnly={project.status !== 'in-progress'}
@@ -552,6 +821,20 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                           readOnly={project.status !== 'in-progress'}
                           value={finding.projectResponse || ''}
                           onChange={(value) => updateFindingField(finding.id, 'projectResponse', value)}
+                        />
+                      </Field>
+                      <Field label="Documentation Submitted">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={finding.documentationSubmitted || ''}
+                          onChange={(value) => updateFindingField(finding.id, 'documentationSubmitted', value)}
+                        />
+                      </Field>
+                      <Field label="Audit Team Evaluation">
+                        <EditableText
+                          readOnly={project.status !== 'in-progress'}
+                          value={finding.auditTeamEvaluation || ''}
+                          onChange={(value) => updateFindingField(finding.id, 'auditTeamEvaluation', value)}
                         />
                       </Field>
                       <Field label="Reviewer Note">
@@ -668,6 +951,29 @@ function EditableText({
       rows={3}
       value={value}
       onChange={(event) => onChange(event.target.value)}
+      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+    />
+  );
+}
+
+function EditableInput({
+  value,
+  onChange,
+  readOnly,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  readOnly: boolean;
+  placeholder?: string;
+}) {
+  if (readOnly) return <StaticValue value={value || 'Not provided'} />;
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder={placeholder}
       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
     />
   );

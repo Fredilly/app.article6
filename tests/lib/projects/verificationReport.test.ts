@@ -65,6 +65,7 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     createdAt: '2026-04-23T00:00:00.000Z',
     documents: [],
     manualFindings: [],
+    extractedManualFindingDrafts: [],
     reviews: [
       {
         ruleId: 'R-1',
@@ -229,6 +230,7 @@ describe('verification report composition', () => {
             extractedText: 'Monitoring report excerpt',
           },
         ],
+        extractedManualFindingDrafts: [],
         manualFindings: [
           {
             id: 'finding-1',
