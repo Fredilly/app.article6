@@ -46,7 +46,7 @@ export type PdfExtractionDiagnostics = {
 
 export type PdfParseLike = {
   new (options: { data: Uint8Array }): {
-    getText: () => Promise<{ text?: string }>;
+    getText: () => Promise<{ text?: string; pages?: Array<{ num?: number; text?: string }> }>;
     destroy: () => Promise<void>;
   };
 };
@@ -60,6 +60,18 @@ export class PdfExtractionError extends Error {
     super(message);
     this.name = "PdfExtractionError";
     this.diagnostics = diagnostics;
+  }
+}
+
+export class PdfHelperError extends Error {
+  stdout?: string;
+  stderr?: string;
+
+  constructor(message: string, options?: { stdout?: string; stderr?: string }) {
+    super(message);
+    this.name = "PdfHelperError";
+    this.stdout = options?.stdout;
+    this.stderr = options?.stderr;
   }
 }
 
@@ -96,6 +108,15 @@ function buildEmptyDiagnostics(): PdfExtractionDiagnostics {
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function sanitizeDiagnosticMessage(message: string): string {
+  return message.replace(/\s+/g, " ").trim().slice(0, 240);
+}
+
+function formatExecOutputSnippet(value: unknown): string | undefined {
+  const text = String(value ?? "").trim();
+  return text ? sanitizeDiagnosticMessage(text) : undefined;
 }
 
 function inferLikelyScannedOrImageOnly(errorMessages: string[]): boolean {
@@ -159,11 +180,23 @@ async function runPdfHelper(bytes: ArrayBuffer, includePages: boolean): Promise<
   try {
     await fs.writeFile(tempPdfPath, Buffer.from(bytes));
     const args = includePages ? [helperPath, tempPdfPath, "--pages"] : [helperPath, tempPdfPath];
-    const { stdout } = await execFileAsync(process.execPath, args, {
-      cwd: process.cwd(),
-      maxBuffer: 32 * 1024 * 1024,
-    });
-    return JSON.parse(stdout) as HelperPagesPayload;
+    try {
+      const { stdout } = await execFileAsync(process.execPath, args, {
+        cwd: process.cwd(),
+        maxBuffer: 32 * 1024 * 1024,
+      });
+      return JSON.parse(stdout) as HelperPagesPayload;
+    } catch (error) {
+      const execError = error as { message?: string; stdout?: string; stderr?: string };
+      const stderr = formatExecOutputSnippet(execError.stderr);
+      const stdout = formatExecOutputSnippet(execError.stdout);
+      const message = sanitizeDiagnosticMessage([
+        execError.message || "PDF helper execution failed.",
+        stderr ? `stderr: ${stderr}` : "",
+        stdout ? `stdout: ${stdout}` : "",
+      ].filter(Boolean).join(" "));
+      throw new PdfHelperError(message, { stdout, stderr });
+    }
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true }).catch(() => undefined);
   }
@@ -174,42 +207,73 @@ async function extractPdfTextViaHelper(bytes: ArrayBuffer): Promise<string> {
   return normalizeWhitespace(payload.text ?? "");
 }
 
+async function loadBundledPdfParseClass(): Promise<PdfParseLike> {
+  const mod = await import("pdf-parse");
+  if (typeof mod.PDFParse !== "function") {
+    throw new Error("pdf-parse did not expose PDFParse.");
+  }
+  return mod.PDFParse as PdfParseLike;
+}
+
+async function extractPagesWithPdfParseClass(bytes: ArrayBuffer, PdfParseClass: PdfParseLike, diagnostics: PdfExtractionDiagnostics): Promise<QuickCheckPdfPageExtractionResult> {
+  diagnostics.pageExtractionAttempted = true;
+  const parser = new PdfParseClass({
+    data: new Uint8Array(bytes),
+  });
+
+  try {
+    const result = await parser.getText();
+    return buildPageExtractionResult(result, diagnostics);
+  } finally {
+    await parser.destroy().catch(() => undefined);
+  }
+}
+
 export async function extractPdfTextWithPdfParse(input: {
   bytes: ArrayBuffer;
   PdfParseClass?: PdfParseLike;
   helperOverrides?: HelperOverrides;
 }): Promise<QuickCheckPdfExtractionResult> {
-  let text = "";
-
   if (input.PdfParseClass) {
-    const parser = new input.PdfParseClass({
-      data: new Uint8Array(input.bytes),
-    });
-    try {
-      const result = await parser.getText();
-      text = normalizeWhitespace(result.text ?? "");
-    } finally {
-      await parser.destroy().catch(() => undefined);
-    }
-  } else {
-    text = input.helperOverrides?.extractTextViaHelper
-      ? normalizeWhitespace((await input.helperOverrides.extractTextViaHelper(input.bytes)).text ?? "")
-      : await extractPdfTextViaHelper(input.bytes);
+    const pageResult = await extractPagesWithPdfParseClass(input.bytes, input.PdfParseClass, buildEmptyDiagnostics());
+    return {
+      text: pageResult.text,
+      engine: "pdf-parse",
+      metadata: pageResult.metadata,
+    };
   }
 
-  return {
-    text,
-    engine: "pdf-parse",
-    metadata: {
-      parser: "pdf-parse",
-      diagnostics: {
-        ...buildEmptyDiagnostics(),
-        pageExtractionAttempted: Boolean(input.PdfParseClass),
-        extractedTextLength: text.length,
-        pageCount: text ? 1 : 0,
+  try {
+    const Parser = await loadBundledPdfParseClass();
+    const pageResult = await extractPagesWithPdfParseClass(input.bytes, Parser, buildEmptyDiagnostics());
+    return {
+      text: pageResult.text,
+      engine: "pdf-parse",
+      metadata: pageResult.metadata,
+    };
+  } catch (error) {
+    const parserError = sanitizeDiagnosticMessage(toErrorMessage(error));
+    const helperText = input.helperOverrides?.extractTextViaHelper
+      ? normalizeWhitespace((await input.helperOverrides.extractTextViaHelper(input.bytes)).text ?? "")
+      : await extractPdfTextViaHelper(input.bytes);
+    return {
+      text: helperText,
+      engine: "pdf-parse",
+      metadata: {
+        parser: "pdf-parse",
+        diagnostics: {
+          ...buildEmptyDiagnostics(),
+          pageExtractionAttempted: true,
+          pageExtractionError: parserError,
+          textFallbackAttempted: true,
+          extractedTextLength: helperText.length,
+          pageCount: helperText ? 1 : 0,
+          likelyScannedOrImageOnly: !helperText,
+          partialTextRecovered: Boolean(helperText),
+        },
       },
-    },
-  };
+    };
+  }
 }
 
 export async function extractPdfPagesWithPdfParse(input: {
@@ -220,20 +284,7 @@ export async function extractPdfPagesWithPdfParse(input: {
   const diagnostics = buildEmptyDiagnostics();
 
   if (input.PdfParseClass) {
-    diagnostics.pageExtractionAttempted = true;
-    const parser = new input.PdfParseClass({
-      data: new Uint8Array(input.bytes),
-    }) as {
-      getText: () => Promise<{ text?: string; pages?: Array<{ num?: number; text?: string }> }>;
-      destroy: () => Promise<void>;
-    };
-
-    try {
-      const result = await parser.getText();
-      return buildPageExtractionResult(result, diagnostics);
-    } finally {
-      await parser.destroy().catch(() => undefined);
-    }
+    return extractPagesWithPdfParseClass(input.bytes, input.PdfParseClass, diagnostics);
   }
 
   const extractPagesViaHelper = input.helperOverrides?.extractPagesViaHelper
@@ -242,15 +293,41 @@ export async function extractPdfPagesWithPdfParse(input: {
     ?? ((bytes: ArrayBuffer) => runPdfHelper(bytes, false));
 
   try {
-    diagnostics.pageExtractionAttempted = true;
-    return buildPageExtractionResult(await extractPagesViaHelper(input.bytes), diagnostics);
+    const Parser = await loadBundledPdfParseClass();
+    return await extractPagesWithPdfParseClass(input.bytes, Parser, diagnostics);
   } catch (pageError) {
-    diagnostics.pageExtractionError = toErrorMessage(pageError);
+    diagnostics.pageExtractionAttempted = true;
+    diagnostics.pageExtractionError = sanitizeDiagnosticMessage(toErrorMessage(pageError));
     diagnostics.textFallbackAttempted = true;
     try {
-      return buildPageExtractionResult(await extractTextViaHelper(input.bytes), diagnostics);
+      try {
+        return buildPageExtractionResult(await extractPagesViaHelper(input.bytes), diagnostics);
+      } catch (helperPageError) {
+        const helperPageMessage = sanitizeDiagnosticMessage(toErrorMessage(helperPageError));
+        try {
+          const textPayload = await extractTextViaHelper(input.bytes);
+          return buildPageExtractionResult(textPayload, {
+            ...diagnostics,
+            textFallbackError: helperPageMessage,
+          });
+        } catch (textError) {
+          diagnostics.textFallbackError = sanitizeDiagnosticMessage([
+            `helper page fallback: ${helperPageMessage}`,
+            `helper text fallback: ${toErrorMessage(textError)}`,
+          ].join(" | "));
+          diagnostics.likelyScannedOrImageOnly = inferLikelyScannedOrImageOnly([
+            diagnostics.pageExtractionError,
+            diagnostics.textFallbackError,
+          ].filter(Boolean) as string[]);
+
+          throw new PdfExtractionError(
+            `PDF extraction failed. Page extraction: ${diagnostics.pageExtractionError}. Text fallback: ${diagnostics.textFallbackError}.`,
+            diagnostics,
+          );
+        }
+      }
     } catch (textError) {
-      diagnostics.textFallbackError = toErrorMessage(textError);
+      diagnostics.textFallbackError = sanitizeDiagnosticMessage(toErrorMessage(textError));
       diagnostics.likelyScannedOrImageOnly = inferLikelyScannedOrImageOnly([
         diagnostics.pageExtractionError,
         diagnostics.textFallbackError,

@@ -171,9 +171,10 @@ describe("quick check pdf-parse extractor", () => {
     expect(result.text).toContain("Project response");
     expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
       pageExtractionAttempted: true,
-      pageExtractionError: "stdout maxBuffer length exceeded",
+      pageExtractionError: expect.any(String),
       textFallbackAttempted: true,
-      extractedTextLength: expect.any(Number),
+      textFallbackError: "stdout maxBuffer length exceeded",
+      extractedTextLength: 97,
       pageCount: 1,
       partialTextRecovered: true,
     }));

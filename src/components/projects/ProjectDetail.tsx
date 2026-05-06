@@ -185,8 +185,10 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           const baseMessage = typeof data.message === 'string'
             ? data.message
             : 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
-          extractionMessage = data.extractionFailed && typeof data.diagnosticSummary === 'string'
-            ? `${baseMessage} Reason: ${data.diagnosticSummary}.`
+          extractionMessage = data.extractionFailed && typeof data.diagnosticReason === 'string'
+            ? `${baseMessage} Reason: ${data.diagnosticReason}.`
+            : data.extractionFailed && typeof data.diagnosticSummary === 'string'
+              ? `${baseMessage} Reason: ${data.diagnosticSummary}.`
             : baseMessage;
         } catch {
           extractedText = '';

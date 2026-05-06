@@ -12,13 +12,17 @@ function summarizeDiagnostics(diagnostics: PdfExtractionDiagnostics): string {
   if (diagnostics.likelyScannedOrImageOnly) {
     return "likely scanned/image-only";
   }
-  if (diagnostics.textFallbackError) {
-    return "fallback crashed";
-  }
   if (diagnostics.pageExtractionError) {
     return "parser crashed";
   }
   return "no extractable text";
+}
+
+function diagnosticReason(diagnostics: PdfExtractionDiagnostics): string | undefined {
+  if (diagnostics.textFallbackError) return diagnostics.textFallbackError;
+  if (diagnostics.pageExtractionError) return diagnostics.pageExtractionError;
+  if (diagnostics.likelyScannedOrImageOnly) return "No extractable text found in PDF.";
+  return undefined;
 }
 
 function buildFailureDiagnostics(error: unknown): PdfExtractionDiagnostics {
@@ -70,9 +74,11 @@ async function handlePost(request: Request) {
   } catch (error) {
     const diagnostics = buildFailureDiagnostics(error);
     const diagnosticCode = summarizeDiagnostics(diagnostics);
+    const reason = diagnosticReason(diagnostics);
     console.error("[manual-review.extract-findings] extraction failed", {
       fileName,
       diagnosticCode,
+      reason,
       diagnostics,
       error: error instanceof Error ? error.message : String(error),
     });
@@ -84,6 +90,7 @@ async function handlePost(request: Request) {
         drafts: [],
         message: "Could not extract findings from this PDF. You can still add findings manually.",
         diagnosticSummary: diagnosticCode,
+        diagnosticReason: reason,
         diagnostics,
         extractionFailed: true,
       },
