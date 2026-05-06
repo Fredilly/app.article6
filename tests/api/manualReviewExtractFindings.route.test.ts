@@ -40,7 +40,20 @@ describe('/api/projects/manual-review/extract-findings route', () => {
   });
 
   it('returns a distinct truthful message when PDF extraction fails', async () => {
-    extractPdfPagesWithPdfParseMock.mockRejectedValueOnce(new Error('broken pdf'));
+    extractPdfPagesWithPdfParseMock.mockRejectedValueOnce({
+      name: 'PdfExtractionError',
+      message: 'PDF extraction failed. Page extraction: broken pdf. Text fallback: No extractable text found in PDF..',
+      diagnostics: {
+        pageExtractionAttempted: true,
+        pageExtractionError: 'broken pdf',
+        textFallbackAttempted: true,
+        textFallbackError: 'No extractable text found in PDF.',
+        extractedTextLength: 0,
+        pageCount: 0,
+        likelyScannedOrImageOnly: true,
+        partialTextRecovered: false,
+      },
+    });
 
     const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
       method: 'POST',
@@ -52,12 +65,24 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     });
 
     const res = await POST(req);
-    const body = await res.json() as { drafts: unknown[]; message: string; extractionFailed?: boolean };
+    const body = await res.json() as {
+      drafts: unknown[];
+      message: string;
+      extractionFailed?: boolean;
+      diagnosticSummary?: string;
+      diagnostics?: { likelyScannedOrImageOnly?: boolean; textFallbackAttempted?: boolean; pageExtractionError?: string };
+    };
 
     expect(res.status).toBe(200);
     expect(body.drafts).toEqual([]);
     expect(body.extractionFailed).toBe(true);
     expect(body.message).toBe('Could not extract findings from this PDF. You can still add findings manually.');
+    expect(body.diagnosticSummary).toBe('likely scanned/image-only');
+    expect(body.diagnostics).toEqual(expect.objectContaining({
+      pageExtractionError: 'broken pdf',
+      textFallbackAttempted: true,
+      likelyScannedOrImageOnly: true,
+    }));
   });
 
   it('creates draft findings when extraction falls back to text-only page context', async () => {

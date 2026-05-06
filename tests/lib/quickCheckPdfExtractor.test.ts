@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { jest, describe, expect, it, beforeEach } from "@jest/globals";
-import { extractPdfPagesWithPdfParse, extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
+import { PdfExtractionError, extractPdfPagesWithPdfParse, extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
 
 describe("quick check pdf-parse extractor", () => {
   const getTextMock = jest.fn<() => Promise<{ text?: string }>>();
@@ -27,9 +27,12 @@ describe("quick check pdf-parse extractor", () => {
     });
 
     expect(result.text).toBe("Project area Lilongwe District");
-    expect(result.metadata).toEqual({
+    expect(result.metadata).toEqual(expect.objectContaining({
       parser: "pdf-parse",
-    });
+      diagnostics: expect.objectContaining({
+        extractedTextLength: "Project area Lilongwe District".length,
+      }),
+    }));
     expect(destroyMock).toHaveBeenCalled();
   });
 
@@ -42,9 +45,12 @@ describe("quick check pdf-parse extractor", () => {
     });
 
     expect(result.text).toContain("Monitoring report covers the reporting period.");
-    expect(result.metadata).toEqual({
+    expect(result.metadata).toEqual(expect.objectContaining({
       parser: "pdf-parse",
-    });
+      diagnostics: expect.objectContaining({
+        extractedTextLength: expect.any(Number),
+      }),
+    }));
   });
 
   it("propagates parser failures so the route can fall back", async () => {
@@ -91,6 +97,11 @@ describe("quick check pdf-parse extractor", () => {
       { pageNumber: 2, text: "Page two text" },
     ]);
     expect(result.text).toBe("Page one text Page two text");
+    expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      pageExtractionAttempted: true,
+      textFallbackAttempted: false,
+      pageCount: 2,
+    }));
   });
 
   it("falls back to a synthetic page when only full-document text is available", async () => {
@@ -110,9 +121,14 @@ describe("quick check pdf-parse extractor", () => {
       },
     ]);
     expect(result.text).toContain("F-001");
+    expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      pageExtractionAttempted: true,
+      textFallbackAttempted: false,
+      pageCount: 1,
+    }));
   });
 
-  it("throws when neither page extraction nor text extraction yields extractable text", async () => {
+  it("throws structured diagnostics when neither page extraction nor text extraction yields extractable text", async () => {
     getTextMock.mockResolvedValue({ text: "   ", pages: [] });
 
     await expect(
@@ -120,7 +136,17 @@ describe("quick check pdf-parse extractor", () => {
         bytes: new TextEncoder().encode("%PDF-image-only").buffer,
         PdfParseClass: PdfParseClassMock as never,
       }),
-    ).rejects.toThrow("No extractable text found in PDF.");
+    ).rejects.toMatchObject({
+      name: "PdfExtractionError",
+      message: "No extractable text found in PDF.",
+      diagnostics: expect.objectContaining({
+        pageExtractionAttempted: true,
+        textFallbackAttempted: false,
+        extractedTextLength: 0,
+        pageCount: 0,
+        likelyScannedOrImageOnly: true,
+      }),
+    } satisfies Partial<PdfExtractionError>);
   });
 
   it("falls back to helper text extraction when helper page extraction fails", async () => {
@@ -143,5 +169,13 @@ describe("quick check pdf-parse extractor", () => {
       },
     ]);
     expect(result.text).toContain("Project response");
+    expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      pageExtractionAttempted: true,
+      pageExtractionError: "stdout maxBuffer length exceeded",
+      textFallbackAttempted: true,
+      extractedTextLength: expect.any(Number),
+      pageCount: 1,
+      partialTextRecovered: true,
+    }));
   });
 });

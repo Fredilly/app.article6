@@ -1,9 +1,46 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { extractPdfPagesWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
+import { extractPdfPagesWithPdfParse, PdfExtractionError, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
 import { withMetrics } from "@/lib/metrics";
 import { extractManualFindingDraftsFromPages } from "@/lib/projects/manualFindingExtraction";
+
+function summarizeDiagnostics(diagnostics: PdfExtractionDiagnostics): string {
+  if (diagnostics.extractedTextLength > 0 && diagnostics.textFallbackAttempted) {
+    return "partial text recovered";
+  }
+  if (diagnostics.likelyScannedOrImageOnly) {
+    return "likely scanned/image-only";
+  }
+  if (diagnostics.textFallbackError) {
+    return "fallback crashed";
+  }
+  if (diagnostics.pageExtractionError) {
+    return "parser crashed";
+  }
+  return "no extractable text";
+}
+
+function buildFailureDiagnostics(error: unknown): PdfExtractionDiagnostics {
+  if (typeof PdfExtractionError === "function" && error instanceof PdfExtractionError) {
+    return error.diagnostics;
+  }
+
+  if (error && typeof error === "object" && "diagnostics" in error) {
+    const diagnostics = (error as { diagnostics?: PdfExtractionDiagnostics }).diagnostics;
+    if (diagnostics) return diagnostics;
+  }
+
+  return {
+    pageExtractionAttempted: true,
+    pageExtractionError: error instanceof Error ? error.message : String(error),
+    textFallbackAttempted: false,
+    extractedTextLength: 0,
+    pageCount: 0,
+    likelyScannedOrImageOnly: false,
+    partialTextRecovered: false,
+  };
+}
 
 async function handlePost(request: Request) {
   const fileName = request.headers.get("x-article6-filename")?.trim() || "uploaded-document.pdf";
@@ -28,15 +65,26 @@ async function handlePost(request: Request) {
       drafts: findings.drafts,
       message: findings.message,
       metadata: extraction.metadata,
+      diagnostics: extraction.metadata.diagnostics,
     });
   } catch (error) {
+    const diagnostics = buildFailureDiagnostics(error);
+    const diagnosticCode = summarizeDiagnostics(diagnostics);
+    console.error("[manual-review.extract-findings] extraction failed", {
+      fileName,
+      diagnosticCode,
+      diagnostics,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
     return NextResponse.json(
       {
         text: "",
         pages: [],
         drafts: [],
         message: "Could not extract findings from this PDF. You can still add findings manually.",
-        error: error instanceof Error ? error.message : String(error),
+        diagnosticSummary: diagnosticCode,
+        diagnostics,
         extractionFailed: true,
       },
       { status: 200 },

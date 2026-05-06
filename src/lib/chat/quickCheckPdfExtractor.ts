@@ -9,6 +9,7 @@ export type QuickCheckPdfExtractionResult = {
   engine: "pdf-parse" | "heuristic";
   metadata: {
     parser: "pdf-parse" | "heuristic";
+    diagnostics?: PdfExtractionDiagnostics;
   };
 };
 
@@ -32,6 +33,17 @@ type HelperOverrides = {
   extractPagesViaHelper?: (bytes: ArrayBuffer) => Promise<HelperPagesPayload>;
 };
 
+export type PdfExtractionDiagnostics = {
+  pageExtractionAttempted: boolean;
+  pageExtractionError?: string;
+  textFallbackAttempted: boolean;
+  textFallbackError?: string;
+  extractedTextLength: number;
+  pageCount: number;
+  likelyScannedOrImageOnly: boolean;
+  partialTextRecovered: boolean;
+};
+
 export type PdfParseLike = {
   new (options: { data: Uint8Array }): {
     getText: () => Promise<{ text?: string }>;
@@ -40,6 +52,16 @@ export type PdfParseLike = {
 };
 
 const execFileAsync = promisify(execFile);
+
+export class PdfExtractionError extends Error {
+  diagnostics: PdfExtractionDiagnostics;
+
+  constructor(message: string, diagnostics: PdfExtractionDiagnostics) {
+    super(message);
+    this.name = "PdfExtractionError";
+    this.diagnostics = diagnostics;
+  }
+}
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
@@ -61,7 +83,29 @@ function buildSyntheticPages(text: string): Array<{ pageNumber: number; text: st
   return [{ pageNumber: 1, text: normalized }];
 }
 
-function buildPageExtractionResult(payload: HelperPagesPayload | { text?: string; pages?: Array<{ num?: number; text?: string }> }): QuickCheckPdfPageExtractionResult {
+function buildEmptyDiagnostics(): PdfExtractionDiagnostics {
+  return {
+    pageExtractionAttempted: false,
+    textFallbackAttempted: false,
+    extractedTextLength: 0,
+    pageCount: 0,
+    likelyScannedOrImageOnly: false,
+    partialTextRecovered: false,
+  };
+}
+
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function inferLikelyScannedOrImageOnly(errorMessages: string[]): boolean {
+  return errorMessages.some((message) => /no extractable text found/i.test(message));
+}
+
+function buildPageExtractionResult(
+  payload: HelperPagesPayload | { text?: string; pages?: Array<{ num?: number; text?: string }> },
+  diagnostics: PdfExtractionDiagnostics,
+): QuickCheckPdfPageExtractionResult {
   const rawText = normalizePageWhitespace(payload.text ?? "");
   const parsedPages = Array.isArray(payload.pages)
     ? payload.pages
@@ -79,14 +123,31 @@ function buildPageExtractionResult(payload: HelperPagesPayload | { text?: string
   const combinedText = rawText || pages.map((page) => page.text).join("\n\n");
 
   if (!combinedText) {
-    throw new Error("No extractable text found in PDF.");
+    const failureDiagnostics = {
+      ...diagnostics,
+      extractedTextLength: 0,
+      pageCount: 0,
+      likelyScannedOrImageOnly: true,
+    };
+    throw new PdfExtractionError("No extractable text found in PDF.", failureDiagnostics);
   }
+
+  const finalDiagnostics = {
+    ...diagnostics,
+    extractedTextLength: combinedText.length,
+    pageCount: pages.length,
+    likelyScannedOrImageOnly: false,
+    partialTextRecovered: diagnostics.textFallbackAttempted,
+  };
 
   return {
     text: normalizeWhitespace(combinedText),
     pages,
     engine: "pdf-parse",
-    metadata: { parser: "pdf-parse" },
+    metadata: {
+      parser: "pdf-parse",
+      diagnostics: finalDiagnostics,
+    },
   };
 }
 
@@ -141,6 +202,12 @@ export async function extractPdfTextWithPdfParse(input: {
     engine: "pdf-parse",
     metadata: {
       parser: "pdf-parse",
+      diagnostics: {
+        ...buildEmptyDiagnostics(),
+        pageExtractionAttempted: Boolean(input.PdfParseClass),
+        extractedTextLength: text.length,
+        pageCount: text ? 1 : 0,
+      },
     },
   };
 }
@@ -150,7 +217,10 @@ export async function extractPdfPagesWithPdfParse(input: {
   PdfParseClass?: PdfParseLike;
   helperOverrides?: HelperOverrides;
 }): Promise<QuickCheckPdfPageExtractionResult> {
+  const diagnostics = buildEmptyDiagnostics();
+
   if (input.PdfParseClass) {
+    diagnostics.pageExtractionAttempted = true;
     const parser = new input.PdfParseClass({
       data: new Uint8Array(input.bytes),
     }) as {
@@ -160,7 +230,7 @@ export async function extractPdfPagesWithPdfParse(input: {
 
     try {
       const result = await parser.getText();
-      return buildPageExtractionResult(result);
+      return buildPageExtractionResult(result, diagnostics);
     } finally {
       await parser.destroy().catch(() => undefined);
     }
@@ -172,14 +242,24 @@ export async function extractPdfPagesWithPdfParse(input: {
     ?? ((bytes: ArrayBuffer) => runPdfHelper(bytes, false));
 
   try {
-    return buildPageExtractionResult(await extractPagesViaHelper(input.bytes));
+    diagnostics.pageExtractionAttempted = true;
+    return buildPageExtractionResult(await extractPagesViaHelper(input.bytes), diagnostics);
   } catch (pageError) {
+    diagnostics.pageExtractionError = toErrorMessage(pageError);
+    diagnostics.textFallbackAttempted = true;
     try {
-      return buildPageExtractionResult(await extractTextViaHelper(input.bytes));
+      return buildPageExtractionResult(await extractTextViaHelper(input.bytes), diagnostics);
     } catch (textError) {
-      const pageMessage = pageError instanceof Error ? pageError.message : String(pageError);
-      const textMessage = textError instanceof Error ? textError.message : String(textError);
-      throw new Error(`PDF extraction failed. Page extraction: ${pageMessage}. Text fallback: ${textMessage}.`);
+      diagnostics.textFallbackError = toErrorMessage(textError);
+      diagnostics.likelyScannedOrImageOnly = inferLikelyScannedOrImageOnly([
+        diagnostics.pageExtractionError,
+        diagnostics.textFallbackError,
+      ].filter(Boolean) as string[]);
+
+      throw new PdfExtractionError(
+        `PDF extraction failed. Page extraction: ${diagnostics.pageExtractionError}. Text fallback: ${diagnostics.textFallbackError}.`,
+        diagnostics,
+      );
     }
   }
 }

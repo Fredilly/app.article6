@@ -182,9 +182,12 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             : extractedDrafts.length > 0
               ? 'extracted'
               : 'no-findings';
-          extractionMessage = typeof data.message === 'string'
+          const baseMessage = typeof data.message === 'string'
             ? data.message
             : 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
+          extractionMessage = data.extractionFailed && typeof data.diagnosticSummary === 'string'
+            ? `${baseMessage} Reason: ${data.diagnosticSummary}.`
+            : baseMessage;
         } catch {
           extractedText = '';
           extractionStatus = 'extraction-failed';
