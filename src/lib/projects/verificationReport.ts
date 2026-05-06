@@ -1,4 +1,9 @@
-import { buildReportFinding, type ReportFinding, type ReportFindingCode } from '@/lib/projects/reportFindings';
+import {
+  buildManualReportFinding,
+  buildReportFinding,
+  type ReportFinding,
+  type ReportFindingCode,
+} from '@/lib/projects/reportFindings';
 import type { Project, ProjectCoverage, ProjectRegistry } from '@/lib/projects/types';
 
 export type VerificationReportStatus = 'ready' | 'registry_not_fully_supported' | 'insufficient_source_content';
@@ -56,7 +61,7 @@ export function resolveProjectRegistry(project: Pick<Project, 'methodCode' | 're
   const explicit = normalizeRegistry(project.registry);
   if (explicit !== 'Unknown') return explicit;
 
-  const code = project.methodCode.trim().toUpperCase();
+  const code = project.methodCode?.trim().toUpperCase() ?? '';
   if (!code) return 'Unknown';
   if (code.startsWith('UNFCCC.') || code.includes('UNFCCC')) return 'UNFCCC';
   if (code.startsWith('VM') || code.startsWith('VMR') || code.includes('VERRA')) return 'Verra';
@@ -73,10 +78,11 @@ function buildProvenance(
   exportTime = 'generated during export',
 ): Array<[string, string]> {
   const items: Array<[string, string]> = [
+    ['Manual review mode', project.reviewMode === 'manual' ? 'true' : 'false'],
     ['Registry', registry],
     ['Report status', status],
     ['Project ID', project.id],
-    ['Methodology', `${project.methodCode} @ ${project.methodVersion}`],
+    ['Methodology', project.methodCode && project.methodVersion ? `${project.methodCode} @ ${project.methodVersion}` : 'n/a'],
     ['Created', project.createdAt || 'n/a'],
     ['Rules reviewed', `${coverage.verified + coverage.gap} of ${coverage.total}`],
     ['Export time', exportTime],
@@ -88,9 +94,10 @@ function buildProvenance(
 
 function buildSummaryItems(project: Project, coverage: ProjectCoverage, registry: ProjectRegistry): string[] {
   const items = [
+    `Manual review mode: ${project.reviewMode === 'manual' ? 'true' : 'false'}`,
     `Registry: ${registry}`,
-    `Methodology: ${project.methodCode} @ ${project.methodVersion}`,
-    `Reviewed: ${coverage.verified + coverage.gap} of ${coverage.total} rules`,
+    `Methodology: ${project.methodCode && project.methodVersion ? `${project.methodCode} @ ${project.methodVersion}` : 'n/a'}`,
+    `Reviewed: ${coverage.verified + coverage.gap} of ${coverage.total} items`,
   ];
   if (project.aoiLabel) items.push(`Area: ${project.aoiLabel}`);
   return items;
@@ -304,11 +311,100 @@ export function composeGoldStandardVerificationReport(project: Project, coverage
   return composeRecognizedFallbackReport('Gold Standard', project, coverage);
 }
 
+export function composeManualVerificationReport(
+  project: Project,
+  coverage: ProjectCoverage,
+  exportTime?: string,
+): VerificationReportComposition {
+  const findings = project.manualFindings.map((finding) => {
+    const sourceDocumentLabel = project.documents.find((document) => document.id === finding.sourceDocumentId)?.fileName ?? 'No source document linked';
+    return buildManualReportFinding(finding, sourceDocumentLabel);
+  });
+  const findingCounts = countFindings(findings);
+  const provenance = buildProvenance(project, coverage, project.registry ?? 'Unknown', findings.length === 0 ? 'insufficient_source_content' : 'ready', exportTime);
+
+  return {
+    registry: project.registry ?? 'Unknown',
+    status: findings.length === 0 ? 'insufficient_source_content' : 'ready',
+    title: 'MANUAL REVIEW REPORT',
+    subtitle: 'Project-level manual review workspace for VVB findings reconstruction and evidence-gap tracking.',
+    summaryItems: [
+      `Manual review mode: true`,
+      `Project: ${project.name}`,
+      `Findings recorded: ${project.manualFindings.length}`,
+      `Source documents: ${project.documents.length}`,
+    ],
+    sections: [
+      {
+        title: 'REVIEW STATUS',
+        lines: [
+          'Manual review mode: true.',
+          `Project status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`,
+          `Project title: ${project.name}.`,
+          `Findings recorded: ${project.manualFindings.length}.`,
+          `Source documents uploaded: ${project.documents.length}.`,
+        ],
+      },
+      {
+        title: 'PROJECT CONTEXT',
+        lines: [
+          `Project name: ${project.name}.`,
+          project.aoiLabel ? `Project area: ${project.aoiLabel}.` : 'Project area: not provided.',
+          project.description ? `Project description: ${project.description}.` : 'Project description: not provided.',
+          `Created date: ${project.createdAt || 'n/a'}.`,
+          project.lockedAt ? `Locked date: ${project.lockedAt}.` : 'Locked date: not locked.',
+        ],
+      },
+      {
+        title: 'SOURCE DOCUMENTS',
+        lines: project.documents.length > 0
+          ? project.documents.flatMap((document) => [
+            `${document.fileName} (${document.mimeType || 'unknown'}, ${document.sizeBytes} bytes).`,
+            document.extractedText?.trim()
+              ? `Document preview: ${document.extractedText.trim().slice(0, 220)}.`
+              : 'Document preview: not captured.',
+          ])
+          : ['No source documents uploaded.'],
+      },
+      {
+        title: 'FINDINGS SUMMARY',
+        lines: [
+          `NC: ${findingCounts.NC}. CL: ${findingCounts.CL}. FAR: ${findingCounts.FAR}.`,
+          `Open: ${project.manualFindings.filter((finding) => finding.closureStatus === 'open').length}. In review: ${project.manualFindings.filter((finding) => finding.closureStatus === 'in-review').length}. Closed: ${project.manualFindings.filter((finding) => finding.closureStatus === 'closed').length}.`,
+        ],
+      },
+      {
+        title: 'MANUAL FINDINGS',
+        lines: project.manualFindings.length > 0
+          ? project.manualFindings.flatMap((finding) => {
+            const sourceDocumentLabel = project.documents.find((document) => document.id === finding.sourceDocumentId)?.fileName ?? 'No source document linked';
+            return [
+              `${finding.findingId} [${finding.findingType}] ${sourceDocumentLabel}.`,
+              `Closure status: ${finding.closureStatus}.`,
+              `Evidence excerpt: ${finding.evidenceExcerpt?.trim() || 'Not provided.'}`,
+              `Project response: ${finding.projectResponse?.trim() || 'Not provided.'}`,
+              `Reviewer note: ${finding.reviewerNote?.trim() || 'Not provided.'}`,
+            ];
+          })
+          : ['No manual findings have been recorded yet.'],
+      },
+      {
+        title: 'PROVENANCE',
+        lines: linesFromProvenance(provenance),
+      },
+    ],
+    findings,
+    provenance,
+    limitation: 'This export reflects a project-level manual review workspace. It does not imply methodology compliance, certification status, or registry approval.',
+  };
+}
+
 export function composeVerificationReport(
   project: Project,
   coverage: ProjectCoverage,
   exportTime?: string,
 ): VerificationReportComposition {
+  if (project.reviewMode === 'manual') return composeManualVerificationReport(project, coverage, exportTime);
   const registry = resolveProjectRegistry(project);
   if (registry === 'UNFCCC') return composeUnfcccVerificationReport(project, coverage, exportTime);
   if (registry === 'Verra') return composeVerraVerificationReport(project, coverage);

@@ -1,4 +1,12 @@
-import type { Project, RuleReview, ProjectCoverage, RuleReviewStatus } from './types';
+import type {
+  ManualFinding,
+  ManualFindingClosureStatus,
+  Project,
+  ProjectCoverage,
+  ProjectDocument,
+  RuleReview,
+  RuleReviewStatus,
+} from './types';
 
 const STORAGE_KEY = 'article6_projects';
 
@@ -10,7 +18,7 @@ function loadAll(): Project[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    return raw ? normalizeProjects(JSON.parse(raw)) : [];
   } catch {
     return [];
   }
@@ -31,16 +39,18 @@ export function getProject(id: string): Project | undefined {
 
 export function createProject(input: {
   name: string;
-  methodCode: string;
-  methodVersion: string;
+  reviewMode: Project['reviewMode'];
+  methodCode?: string;
+  methodVersion?: string;
   registry?: Project['registry'];
   aoiLabel?: string;
   description?: string;
-  ruleIds: Array<{ id: string; title: string; sectionId: string }>;
+  ruleIds?: Array<{ id: string; title: string; sectionId: string }>;
 }): Project {
   const project: Project = {
     id: generateId(),
     name: input.name,
+    reviewMode: input.reviewMode,
     methodCode: input.methodCode,
     methodVersion: input.methodVersion,
     registry: input.registry,
@@ -48,13 +58,15 @@ export function createProject(input: {
     createdAt: new Date().toISOString(),
     aoiLabel: input.aoiLabel,
     description: input.description,
-    reviews: input.ruleIds.map(r => ({
+    reviews: (input.ruleIds ?? []).map(r => ({
       ruleId: r.id,
       ruleTitle: r.title,
       sectionId: r.sectionId,
       status: 'not-started' as RuleReviewStatus,
       evidenceIds: [],
     })),
+    documents: [],
+    manualFindings: [],
   };
 
   const projects = loadAll();
@@ -103,6 +115,17 @@ export function deleteProject(projectId: string): void {
 }
 
 export function getProjectCoverage(project: Project): ProjectCoverage {
+  if (project.reviewMode === 'manual') {
+    const total = project.manualFindings.length;
+    const verified = project.manualFindings.filter(f => f.closureStatus === 'closed').length;
+    const gap = project.manualFindings.filter(f => f.closureStatus === 'open').length;
+    const inProgress = project.manualFindings.filter(f => f.closureStatus === 'in-review').length;
+    const notStarted = 0;
+    const notApplicable = 0;
+    const percentComplete = total > 0 ? Math.round((verified / total) * 100) : 0;
+    return { total, verified, gap, notStarted, notApplicable, inProgress, percentComplete };
+  }
+
   const reviews = project.reviews;
   const total = reviews.length;
   const verified = reviews.filter(r => r.status === 'verified').length;
@@ -114,4 +137,126 @@ export function getProjectCoverage(project: Project): ProjectCoverage {
   const percentComplete = actionable > 0 ? Math.round(((verified + gap) / actionable) * 100) : 0;
 
   return { total, verified, gap, notStarted, notApplicable, inProgress, percentComplete };
+}
+
+export function addProjectDocument(
+  projectId: string,
+  document: Omit<ProjectDocument, 'id' | 'uploadedAt'>,
+): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  project.documents.push({
+    id: generateId(),
+    uploadedAt: new Date().toISOString(),
+    ...document,
+  });
+
+  saveAll(projects);
+  return project;
+}
+
+export function deleteProjectDocument(projectId: string, documentId: string): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  project.documents = project.documents.filter(document => document.id !== documentId);
+  project.manualFindings = project.manualFindings.map(finding => (
+    finding.sourceDocumentId === documentId
+      ? { ...finding, sourceDocumentId: undefined, updatedAt: new Date().toISOString() }
+      : finding
+  ));
+
+  saveAll(projects);
+  return project;
+}
+
+export function addManualFinding(
+  projectId: string,
+  input: Omit<ManualFinding, 'id' | 'createdAt' | 'updatedAt'>,
+): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  const now = new Date().toISOString();
+  project.manualFindings.push({
+    id: generateId(),
+    createdAt: now,
+    updatedAt: now,
+    ...input,
+  });
+
+  saveAll(projects);
+  return project;
+}
+
+export function updateManualFinding(
+  projectId: string,
+  findingId: string,
+  update: Partial<Omit<ManualFinding, 'id' | 'createdAt'>>,
+): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  const finding = project.manualFindings.find(item => item.id === findingId);
+  if (!finding) return undefined;
+
+  Object.assign(finding, update, { updatedAt: new Date().toISOString() });
+  saveAll(projects);
+  return project;
+}
+
+export function deleteManualFinding(projectId: string, findingId: string): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  project.manualFindings = project.manualFindings.filter(finding => finding.id !== findingId);
+  saveAll(projects);
+  return project;
+}
+
+function normalizeProjects(raw: unknown): Project[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((item) => item && typeof item === 'object')
+    .map((item) => normalizeProject(item as Partial<Project>));
+}
+
+function normalizeProject(project: Partial<Project>): Project {
+  return {
+    id: project.id ?? generateId(),
+    name: project.name ?? 'Untitled project',
+    reviewMode: project.reviewMode ?? 'methodology-linked',
+    methodCode: project.methodCode,
+    methodVersion: project.methodVersion,
+    registry: project.registry,
+    status: project.status ?? 'in-progress',
+    createdAt: project.createdAt ?? new Date().toISOString(),
+    lockedAt: project.lockedAt,
+    aoiLabel: project.aoiLabel,
+    description: project.description,
+    reviews: Array.isArray(project.reviews) ? project.reviews : [],
+    documents: Array.isArray(project.documents) ? project.documents : [],
+    manualFindings: Array.isArray(project.manualFindings) ? project.manualFindings : [],
+  };
+}
+
+export function nextManualFindingId(project: Project): string {
+  const max = project.manualFindings.reduce((currentMax, finding) => {
+    const match = finding.findingId.match(/(\d+)$/);
+    const numeric = match ? Number(match[1]) : 0;
+    return Number.isFinite(numeric) ? Math.max(currentMax, numeric) : currentMax;
+  }, 0);
+  return `F-${String(max + 1).padStart(3, '0')}`;
+}
+
+export function manualFindingClosureLabel(status: ManualFindingClosureStatus): string {
+  if (status === 'open') return 'Open';
+  if (status === 'in-review') return 'In Review';
+  return 'Closed';
 }

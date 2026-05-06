@@ -3,7 +3,7 @@ import ProjectsList from '@/components/projects/ProjectsList';
 
 export const metadata: Metadata = {
   title: 'Projects | app.article6',
-  description: 'Project verification workbench — track methodology verifications.',
+  description: 'Project review workspace for methodology-linked and manual reviews.',
 };
 
 export default function ProjectsPage() {

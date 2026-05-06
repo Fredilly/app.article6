@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import type { Project, ProjectCoverage } from '@/lib/projects/types';
 import {
+  composeManualVerificationReport,
   composeGoldStandardVerificationReport,
   composeUnfcccVerificationReport,
   composeVerificationReport,
@@ -56,11 +57,14 @@ function makeProject(overrides: Partial<Project> = {}): Project {
   return {
     id: 'proj_123',
     name: 'Demo Forestry Project',
+    reviewMode: 'methodology-linked',
     methodCode: 'AR-ACM0003',
     methodVersion: 'v02-0',
     registry: 'UNFCCC',
     status: 'locked',
     createdAt: '2026-04-23T00:00:00.000Z',
+    documents: [],
+    manualFindings: [],
     reviews: [
       {
         ruleId: 'R-1',
@@ -206,5 +210,48 @@ describe('verification report composition', () => {
     for (const phrase of UNSUPPORTED_CERTIFICATION_PHRASES) {
       expect(text).not.toContain(phrase);
     }
+  });
+
+  it('renders manual reviews without methodology framing', () => {
+    const report = composeManualVerificationReport(
+      makeProject({
+        reviewMode: 'manual',
+        methodCode: undefined,
+        methodVersion: undefined,
+        registry: 'Unknown',
+        documents: [
+          {
+            id: 'doc-1',
+            fileName: 'verra-monitoring-report.pdf',
+            mimeType: 'application/pdf',
+            sizeBytes: 1024,
+            uploadedAt: '2026-04-23T00:00:00.000Z',
+            extractedText: 'Monitoring report excerpt',
+          },
+        ],
+        manualFindings: [
+          {
+            id: 'finding-1',
+            findingId: 'F-001',
+            findingType: 'VVB finding',
+            sourceDocumentId: 'doc-1',
+            evidenceExcerpt: 'Emission factor table is missing.',
+            projectResponse: 'Updated workbook to include the factor.',
+            closureStatus: 'open',
+            reviewerNote: 'Needs revised attachment set.',
+            createdAt: '2026-04-23T00:00:00.000Z',
+            updatedAt: '2026-04-23T00:00:00.000Z',
+          },
+        ],
+        reviews: [],
+      }),
+      makeCoverage({ total: 1, verified: 0, gap: 1, notStarted: 0, notApplicable: 0, inProgress: 0, percentComplete: 0 }),
+    );
+
+    expect(report.title).toBe('MANUAL REVIEW REPORT');
+    expect(report.summaryItems).toContain('Manual review mode: true');
+    expect(report.sections.map((section) => section.title)).toContain('MANUAL FINDINGS');
+    expect(reportText(report)).not.toContain('UNFCCC VERIFICATION REPORT');
+    expect(reportText(report)).toContain('Manual review mode: true');
   });
 });
