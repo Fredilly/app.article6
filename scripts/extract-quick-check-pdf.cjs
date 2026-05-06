@@ -6,6 +6,22 @@ const { createRequire } = require("module");
 
 const requireFromProject = createRequire(path.join(process.cwd(), "package.json"));
 
+function ensureNodePdfGlobals() {
+  if (typeof global.DOMMatrix === "function" && typeof global.ImageData === "function") {
+    return;
+  }
+  const canvas = requireFromProject("@napi-rs/canvas");
+  if (typeof global.DOMMatrix !== "function" && typeof canvas.DOMMatrix === "function") {
+    global.DOMMatrix = canvas.DOMMatrix;
+  }
+  if (typeof global.ImageData !== "function" && typeof canvas.ImageData === "function") {
+    global.ImageData = canvas.ImageData;
+  }
+  if (typeof global.Path2D !== "function" && typeof canvas.Path2D === "function") {
+    global.Path2D = canvas.Path2D;
+  }
+}
+
 function normalizeText(value) {
   return String(value || "")
     .replace(/\r\n?/g, "\n")
@@ -25,6 +41,7 @@ async function main() {
 
   const absolutePath = path.resolve(pdfPath);
   const bytes = fs.readFileSync(absolutePath);
+  ensureNodePdfGlobals();
   const mod = requireFromProject("pdf-parse");
   const parser = new mod.PDFParse({
     data: new Uint8Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)),

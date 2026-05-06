@@ -215,7 +215,26 @@ async function extractPdfTextViaHelper(bytes: ArrayBuffer): Promise<string> {
   return normalizeWhitespace(payload.text ?? "");
 }
 
+async function ensureNodePdfGlobals(): Promise<void> {
+  if (typeof globalThis.DOMMatrix === "function" && typeof globalThis.ImageData === "function") {
+    return;
+  }
+
+  const canvas = await import("@napi-rs/canvas");
+
+  if (typeof globalThis.DOMMatrix !== "function" && typeof canvas.DOMMatrix === "function") {
+    Object.assign(globalThis, { DOMMatrix: canvas.DOMMatrix });
+  }
+  if (typeof globalThis.ImageData !== "function" && typeof canvas.ImageData === "function") {
+    Object.assign(globalThis, { ImageData: canvas.ImageData });
+  }
+  if (typeof globalThis.Path2D !== "function" && typeof canvas.Path2D === "function") {
+    Object.assign(globalThis, { Path2D: canvas.Path2D });
+  }
+}
+
 async function loadBundledPdfParseClass(): Promise<PdfParseLike> {
+  await ensureNodePdfGlobals();
   const mod = await import("pdf-parse");
   if (typeof mod.PDFParse !== "function") {
     throw new Error("pdf-parse did not expose PDFParse.");
