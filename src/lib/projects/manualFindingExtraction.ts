@@ -23,12 +23,12 @@ type FindingBoundary = {
 };
 
 const FIELD_PATTERNS = [
-  { key: 'requirement', label: /(?:^|\n)\s*requirement\s*[:\-]\s*/i },
-  { key: 'description', label: /(?:^|\n)\s*(?:description|finding description|nc description)\s*[:\-]\s*/i },
-  { key: 'projectResponse', label: /(?:^|\n)\s*(?:project response|client response|response from project proponent)\s*[:\-]\s*/i },
-  { key: 'documentationSubmitted', label: /(?:^|\n)\s*(?:documentation submitted|documents submitted|supporting documents)\s*[:\-]\s*/i },
-  { key: 'auditTeamEvaluation', label: /(?:^|\n)\s*(?:audit team evaluation|validation team assessment|verification team assessment|vvb assessment|team evaluation)\s*[:\-]\s*/i },
-  { key: 'closureStatus', label: /(?:^|\n)\s*(?:closure status|status)\s*[:\-]\s*/i },
+  { key: 'requirement', label: /(?:^|\n)[^\n]*\brequirement\b\s*[:\-]?\s*/i },
+  { key: 'description', label: /(?:^|\n)\s*(?:description(?:\s+of\s+the\s+(?:car|cl|far))?|finding description|nc description)\s*[:\-]?\s*/i },
+  { key: 'projectResponse', label: /(?:^|\n)\s*(?:project response|client response|response from (?:the )?(?:project developer|project proponent))(?:\s+date\s*:\s*[^\n]+)?\s*/i },
+  { key: 'documentationSubmitted', label: /(?:^|\n)\s*(?:documentation submitted(?: by (?:the )?project developer)?|documents submitted|supporting documents)\s*[:\-]?\s*/i },
+  { key: 'auditTeamEvaluation', label: /(?:^|\n)\s*(?:audit team evaluation(?:\s+date\s*:\s*[^\n]+)?|evaluation of the audit team(?:\s+date\s*:\s*[^\n]+)?|validation team assessment|verification team assessment|vvb assessment|team evaluation)\s*[:\-]?\s*/i },
+  { key: 'closureStatus', label: /(?:^|\n)\s*(?:closure status|status|car\s+closed|car\s+open|cl\s+closed|cl\s+open|far\s+closed|far\s+open)\s*[:\-]?\s*/i },
 ] as const;
 
 function normalizeInline(value: string): string {
@@ -41,6 +41,14 @@ function normalizePageText(value: string): string {
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n[ \t]+/g, '\n')
     .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function stripReportBoilerplate(value: string): string {
+  return value
+    .replace(/(?:^|\n)CCB & VCS VERIFICATION REPORT:[^\n]*(?:\n[^\n]*){0,2}/gi, '\n')
+    .replace(/(?:^|\n)(?:CCB|VCS|CAR|CL|FAR)\s+Date\s*:\s*[^\n]+/gi, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
@@ -157,7 +165,8 @@ function extractFieldValue(block: string, key: typeof FIELD_PATTERNS[number]['ke
   }
 
   const value = normalizeInline(block.slice(start, end).replace(/\[\[PAGE:\d+\]\]/g, ''));
-  return value || undefined;
+  const cleaned = stripReportBoilerplate(value);
+  return cleaned || undefined;
 }
 
 function detectClosureStatus(block: string): ManualFindingClosureStatus | undefined {

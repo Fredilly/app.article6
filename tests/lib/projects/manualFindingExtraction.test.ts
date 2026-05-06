@@ -105,6 +105,43 @@ describe('manual finding extraction', () => {
 
     expect(result.drafts.map((draft) => draft.findingId)).toEqual(['CAR01', 'CL02', 'FAR03']);
     expect(result.drafts.map((draft) => draft.findingType)).toEqual(['CAR', 'CL', 'FAR']);
+    expect(result.drafts[0]).toEqual(expect.objectContaining({
+      requirement: '3.1',
+      description: 'A monitoring discrepancy was identified.',
+      projectResponse: 'A corrected workbook was submitted.',
+      documentationSubmitted: 'Corrected workbook',
+      auditTeamEvaluation: 'The correction resolves the issue.',
+      closureStatus: 'closed',
+    }));
+  });
+
+  it('extracts table-style CAR01 fields from the real appendix format', () => {
+    const result = extractManualFindingDraftsFromPages({
+      pages: [
+        {
+          pageNumber: 40,
+          text: 'CAR No. 01 Requirement:\nCCB V3.1: G1.10\nand G1.11. G3.1,\nG3.2 G3.3, G3.4,\nG3.5, G3.6, G5.1,\nG5.2, G5.3 and\nG5.6. CM 1, CM2,\nCM3 and CM4. B1,\nB2, B3 and B4.\nCL3.\nCCB Date: 25-04-2021\nDescription of the CAR\nCompliance with Environmental Safeguards, including Climate, Community and Biodiversity Standards (CCB),\nis not ensured.\nResponse from the project developer Date: 17-05-2021\nThe Participation, Communication and Appropriation Strategy in the project of Initiatives of commercial forest\nplantations, was carried out following the safeguards regarding.\nDocumentation submitted by the project developer\nEPCAP requirements\nEvaluation of the audit team Date: 23-05-2021',
+        },
+        {
+          pageNumber: 41,
+          text: 'CCB & VCS VERIFICATION REPORT:\nCCB Version 3, VCS Version 3\nCCB v3.0, VCS v3.4 41\nThe project proponent has provided all the supports that demonstrate compliance with environmental\nsafeguards, complying with the CCB standard.\nCAR Closed\nCAR No. 02 Requirement:\n3.6',
+        },
+      ],
+      sourceDocumentName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
+    });
+
+    expect(result.drafts.find((draft) => draft.findingId === 'CAR01')).toEqual(
+      expect.objectContaining({
+        findingType: 'CAR',
+        sourcePageRange: '40-41',
+        requirement: expect.stringContaining('CCB V3.1'),
+        description: expect.stringContaining('Compliance with Environmental Safeguards'),
+        projectResponse: expect.stringContaining('Participation, Communication and Appropriation Strategy'),
+        documentationSubmitted: 'EPCAP requirements',
+        auditTeamEvaluation: expect.stringContaining('project proponent has provided all the supports'),
+        closureStatus: 'closed',
+      }),
+    );
   });
 
   it('returns a truthful fallback when no findings are detected', () => {
