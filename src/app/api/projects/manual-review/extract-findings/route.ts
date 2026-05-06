@@ -35,8 +35,9 @@ async function handlePost(request: Request) {
         text: "",
         pages: [],
         drafts: [],
-        message: "No structured CAR/CL/FAR findings detected. You can still add findings manually.",
+        message: "Could not extract findings from this PDF. You can still add findings manually.",
         error: error instanceof Error ? error.message : String(error),
+        extractionFailed: true,
       },
       { status: 200 },
     );

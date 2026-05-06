@@ -76,17 +76,43 @@ function inferPageRange(markers: Array<{ index: number; pageNumber: number }>, s
   return first === last ? String(first) : `${first}-${last}`;
 }
 
+function normalizeFindingId(value: string): string {
+  const normalized = value
+    .replace(/\bFinding\s+/i, 'F-')
+    .replace(/\s+/g, '')
+    .toUpperCase();
+
+  if (/^(CAR|CL|FAR)\d/.test(normalized)) return normalized;
+  if (/^F\d/.test(normalized)) return normalized.replace(/^F/, 'F-');
+  return normalized;
+}
+
+function inferFindingType(input: { rawId: string; surroundingText: string }): FindingBoundary['findingType'] {
+  const rawId = input.rawId.trim().toUpperCase();
+  if (rawId.startsWith('CAR')) return 'CAR';
+  if (rawId.startsWith('CL')) return 'CL';
+  if (rawId.startsWith('FAR')) return 'FAR';
+
+  const near = input.surroundingText.slice(0, 420);
+  if (/\bcorrective action request\b|\btype\s*[:\-]?\s*car\b/i.test(near)) return 'CAR';
+  if (/\bclarification request\b|\btype\s*[:\-]?\s*cl\b/i.test(near)) return 'CL';
+  if (/\bforward action request\b|\btype\s*[:\-]?\s*far\b/i.test(near)) return 'FAR';
+
+  return undefined;
+}
+
 function detectFindingBoundaries(combined: string, markers: Array<{ index: number; pageNumber: number }>): FindingBoundary[] {
-  const pattern = /\b((CAR|CL|FAR)[- ]?\d{1,3}(?:\.\d+)?)\b/gi;
+  const pattern = /(?:^|\n)\s*((?:(CAR|CL|FAR)[- ]?\d{1,3}(?:\.\d+)?)|(?:F[- ]?\d{3,})|(?:F\d{3,})|(?:Finding\s+\d{1,3})|(?:NCR[- ]?\d{1,3})|(?:NC[- ]?\d{1,3}))\b/gi;
   const matches = Array.from(combined.matchAll(pattern));
 
   return matches.map((match, index) => {
     const start = match.index ?? 0;
     const end = index < matches.length - 1 ? (matches[index + 1].index ?? combined.length) : combined.length;
-    const findingType = (match[2]?.toUpperCase() || '').trim() as 'CAR' | 'CL' | 'FAR' | '';
+    const rawId = (match[1] ?? '').trim();
+    const surroundingText = combined.slice(Math.max(0, start - 160), Math.min(end, start + 500));
     return {
-      findingId: (match[1] ?? '').replace(/\s+/g, ''),
-      findingType: findingType || undefined,
+      findingId: normalizeFindingId(rawId),
+      findingType: inferFindingType({ rawId, surroundingText }),
       start,
       end,
       sourcePageRange: inferPageRange(markers, start, end),
@@ -180,9 +206,12 @@ export function extractManualFindingDraftsFromPages(input: {
     };
   }
 
+  const confidentCount = drafts.filter((draft) => draft.findingType).length;
   return {
     drafts,
-    message: `${drafts.length} draft CAR/CL/FAR findings detected. Review before accepting.`,
+    message: confidentCount > 0
+      ? `${drafts.length} draft finding sections detected. Review before accepting.`
+      : `${drafts.length} finding-like sections detected. Review before accepting.`,
     extractedText,
   };
 }

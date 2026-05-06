@@ -50,6 +50,48 @@ describe('manual finding extraction', () => {
     );
   });
 
+  it('extracts F-001 style findings from real-world table sections and marks uncertain types as needs review', () => {
+    const result = extractManualFindingDraftsFromPages({
+      pages: [
+        {
+          pageNumber: 142,
+          text: 'Appendix 1 Findings table\nF-001\nDescription: The verification report references community training logs that were not included in the submitted evidence package.\nProject response: The project proponent stated that the missing logs will be added to the next submission.\nClosure status: Open',
+        },
+      ],
+      sourceDocumentName: 'VCS-1530-CCB-verification-report.pdf',
+    });
+
+    expect(result.drafts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          findingId: 'F-001',
+          extractionStatus: 'needs-review',
+          closureStatus: 'open',
+        }),
+      ]),
+    );
+  });
+
+  it('maps generic finding ids to CAR/CL/FAR when a nearby full label makes the type clear', () => {
+    const result = extractManualFindingDraftsFromPages({
+      pages: [
+        {
+          pageNumber: 150,
+          text: 'Corrective Action Request\nF-002\nDescription: The monitoring report omitted one annex reference.\nProject response: A revised annex reference list was submitted.\nClosure status: Closed',
+        },
+      ],
+      sourceDocumentName: 'typed-finding.pdf',
+    });
+
+    expect(result.drafts[0]).toEqual(
+      expect.objectContaining({
+        findingId: 'F-002',
+        findingType: 'CAR',
+        closureStatus: 'closed',
+      }),
+    );
+  });
+
   it('returns a truthful fallback when no findings are detected', () => {
     const result = extractManualFindingDraftsFromPages({
       pages: [
