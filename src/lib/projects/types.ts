@@ -32,6 +32,7 @@ export type ProjectDocument = {
   extractedText?: string;
   manualFindingExtractionStatus?: 'not-run' | 'no-findings' | 'extracted' | 'extraction-failed';
   manualFindingExtractionMessage?: string;
+  manualFindingExtractionTrace?: string;
 };
 
 export type ManualFinding = {

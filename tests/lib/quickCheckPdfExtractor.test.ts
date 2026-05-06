@@ -30,6 +30,7 @@ describe("quick check pdf-parse extractor", () => {
     expect(result.metadata).toEqual(expect.objectContaining({
       parser: "pdf-parse",
       diagnostics: expect.objectContaining({
+        parserPath: "provided-parser",
         extractedTextLength: "Project area Lilongwe District".length,
       }),
     }));
@@ -48,6 +49,7 @@ describe("quick check pdf-parse extractor", () => {
     expect(result.metadata).toEqual(expect.objectContaining({
       parser: "pdf-parse",
       diagnostics: expect.objectContaining({
+        parserPath: "provided-parser",
         extractedTextLength: expect.any(Number),
       }),
     }));
@@ -98,6 +100,7 @@ describe("quick check pdf-parse extractor", () => {
     ]);
     expect(result.text).toBe("Page one text Page two text");
     expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      parserPath: "provided-parser",
       pageExtractionAttempted: true,
       textFallbackAttempted: false,
       pageCount: 2,
@@ -122,6 +125,7 @@ describe("quick check pdf-parse extractor", () => {
     ]);
     expect(result.text).toContain("F-001");
     expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      parserPath: "provided-parser",
       pageExtractionAttempted: true,
       textFallbackAttempted: false,
       pageCount: 1,
@@ -140,6 +144,7 @@ describe("quick check pdf-parse extractor", () => {
       name: "PdfExtractionError",
       message: "No extractable text found in PDF.",
       diagnostics: expect.objectContaining({
+        parserPath: "provided-parser",
         pageExtractionAttempted: true,
         textFallbackAttempted: false,
         extractedTextLength: 0,
@@ -170,6 +175,7 @@ describe("quick check pdf-parse extractor", () => {
     ]);
     expect(result.text).toContain("Project response");
     expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      parserPath: expect.any(String),
       pageExtractionAttempted: true,
       pageExtractionError: expect.any(String),
       textFallbackAttempted: true,

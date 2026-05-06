@@ -5,6 +5,24 @@ import { extractPdfPagesWithPdfParse, PdfExtractionError, type PdfExtractionDiag
 import { withMetrics } from "@/lib/metrics";
 import { extractManualFindingDraftsFromPages } from "@/lib/projects/manualFindingExtraction";
 
+function currentCommitSha(): string {
+  return process.env.VERCEL_GIT_COMMIT_SHA
+    || process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA
+    || process.env.GIT_COMMIT_SHA
+    || "local-dev";
+}
+
+function buildTraceLabel(input: {
+  commitSha: string;
+  parserPath: string;
+  pageCount: number;
+  draftsLength: number;
+  extractionFailed: boolean;
+}): string {
+  const status = input.extractionFailed ? "failed" : `${input.draftsLength} drafts`;
+  return `${input.commitSha.slice(0, 7)} · ${input.parserPath} · ${input.pageCount}p · ${status}`;
+}
+
 function summarizeDiagnostics(diagnostics: PdfExtractionDiagnostics): string {
   if (diagnostics.extractedTextLength > 0 && diagnostics.textFallbackAttempted) {
     return "partial text recovered";
@@ -36,6 +54,7 @@ function buildFailureDiagnostics(error: unknown): PdfExtractionDiagnostics {
   }
 
   return {
+    parserPath: "unknown",
     pageExtractionAttempted: true,
     pageExtractionError: error instanceof Error ? error.message : String(error),
     textFallbackAttempted: false,
@@ -68,8 +87,19 @@ async function handlePost(request: Request) {
       pages: extraction.pages,
       drafts: findings.drafts,
       message: findings.message,
+      build: {
+        commitSha: currentCommitSha(),
+        runtime: runtime,
+      },
       metadata: extraction.metadata,
       diagnostics: extraction.metadata.diagnostics,
+      traceLabel: buildTraceLabel({
+        commitSha: currentCommitSha(),
+        parserPath: extraction.metadata.diagnostics?.parserPath || "unknown",
+        pageCount: extraction.metadata.diagnostics?.pageCount || extraction.pages.length,
+        draftsLength: findings.drafts.length,
+        extractionFailed: false,
+      }),
     });
   } catch (error) {
     const diagnostics = buildFailureDiagnostics(error);
@@ -89,9 +119,20 @@ async function handlePost(request: Request) {
         pages: [],
         drafts: [],
         message: "Could not extract findings from this PDF. You can still add findings manually.",
+        build: {
+          commitSha: currentCommitSha(),
+          runtime: runtime,
+        },
         diagnosticSummary: diagnosticCode,
         diagnosticReason: reason,
         diagnostics,
+        traceLabel: buildTraceLabel({
+          commitSha: currentCommitSha(),
+          parserPath: diagnostics.parserPath,
+          pageCount: diagnostics.pageCount,
+          draftsLength: 0,
+          extractionFailed: true,
+        }),
         extractionFailed: true,
       },
       { status: 200 },

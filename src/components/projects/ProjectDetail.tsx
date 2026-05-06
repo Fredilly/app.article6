@@ -163,6 +163,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
       let extractedText = '';
       let extractionStatus: ProjectDocument['manualFindingExtractionStatus'] = 'not-run';
       let extractionMessage = '';
+      let extractionTrace = '';
       let extractedDrafts: Array<Omit<ExtractedManualFindingDraft, 'id' | 'createdAt' | 'updatedAt' | 'sourceDocumentId'>> = [];
       if ((file.type || '').includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
         try {
@@ -190,10 +191,12 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             : data.extractionFailed && typeof data.diagnosticSummary === 'string'
               ? `${baseMessage} Reason: ${data.diagnosticSummary}.`
             : baseMessage;
+          extractionTrace = typeof data.traceLabel === 'string' ? data.traceLabel : '';
         } catch {
           extractedText = '';
           extractionStatus = 'extraction-failed';
           extractionMessage = 'Could not extract findings from this PDF. You can still add findings manually.';
+          extractionTrace = '';
         }
       }
 
@@ -204,6 +207,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         extractedText,
         manualFindingExtractionStatus: extractionStatus,
         manualFindingExtractionMessage: extractionMessage || undefined,
+        manualFindingExtractionTrace: extractionTrace || undefined,
       });
       refreshProject(updatedProject);
 
@@ -442,6 +446,11 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                         : 'text-blue-600'
                     }`}>
                       {document.manualFindingExtractionMessage}
+                    </p>
+                  ) : null}
+                  {document.manualFindingExtractionTrace ? (
+                    <p className="mt-1 font-mono text-[11px] text-slate-400">
+                      Trace: {document.manualFindingExtractionTrace}
                     </p>
                   ) : null}
                 </div>

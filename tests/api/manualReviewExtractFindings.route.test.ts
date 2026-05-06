@@ -19,7 +19,18 @@ describe('/api/projects/manual-review/extract-findings route', () => {
         { pageNumber: 1, text: 'Appendix summary only' },
       ],
       engine: 'pdf-parse',
-      metadata: { parser: 'pdf-parse' },
+      metadata: {
+        parser: 'pdf-parse',
+        diagnostics: {
+          parserPath: 'bundled-pdf-parse',
+          pageExtractionAttempted: true,
+          textFallbackAttempted: false,
+          extractedTextLength: 20,
+          pageCount: 1,
+          likelyScannedOrImageOnly: false,
+          partialTextRecovered: false,
+        },
+      },
     });
 
     const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
@@ -32,11 +43,13 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     });
 
     const res = await POST(req);
-    const body = await res.json() as { drafts: unknown[]; message: string };
+    const body = await res.json() as { drafts: unknown[]; message: string; traceLabel?: string; diagnostics?: { parserPath?: string } };
 
     expect(res.status).toBe(200);
     expect(body.drafts).toEqual([]);
     expect(body.message).toBe('No structured CAR/CL/FAR findings detected. You can still add findings manually.');
+    expect(body.traceLabel).toContain('bundled-pdf-parse');
+    expect(body.diagnostics?.parserPath).toBe('bundled-pdf-parse');
   });
 
   it('returns a distinct truthful message when PDF extraction fails', async () => {
@@ -44,6 +57,7 @@ describe('/api/projects/manual-review/extract-findings route', () => {
       name: 'PdfExtractionError',
       message: 'PDF extraction failed. Page extraction: broken pdf. Text fallback: No extractable text found in PDF..',
       diagnostics: {
+        parserPath: 'helper-text-after-helper-pages',
         pageExtractionAttempted: true,
         pageExtractionError: 'broken pdf',
         textFallbackAttempted: true,
@@ -70,7 +84,8 @@ describe('/api/projects/manual-review/extract-findings route', () => {
       message: string;
       extractionFailed?: boolean;
       diagnosticSummary?: string;
-      diagnostics?: { likelyScannedOrImageOnly?: boolean; textFallbackAttempted?: boolean; pageExtractionError?: string };
+      diagnostics?: { likelyScannedOrImageOnly?: boolean; textFallbackAttempted?: boolean; pageExtractionError?: string; parserPath?: string };
+      traceLabel?: string;
     };
 
     expect(res.status).toBe(200);
@@ -79,10 +94,12 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     expect(body.message).toBe('Could not extract findings from this PDF. You can still add findings manually.');
     expect(body.diagnosticSummary).toBe('likely scanned/image-only');
     expect(body.diagnostics).toEqual(expect.objectContaining({
+      parserPath: 'helper-text-after-helper-pages',
       pageExtractionError: 'broken pdf',
       textFallbackAttempted: true,
       likelyScannedOrImageOnly: true,
     }));
+    expect(body.traceLabel).toContain('failed');
   });
 
   it('creates draft findings when extraction falls back to text-only page context', async () => {
@@ -95,7 +112,18 @@ describe('/api/projects/manual-review/extract-findings route', () => {
         },
       ],
       engine: 'pdf-parse',
-      metadata: { parser: 'pdf-parse' },
+      metadata: {
+        parser: 'pdf-parse',
+        diagnostics: {
+          parserPath: 'helper-text',
+          pageExtractionAttempted: true,
+          textFallbackAttempted: true,
+          extractedTextLength: 110,
+          pageCount: 1,
+          likelyScannedOrImageOnly: false,
+          partialTextRecovered: true,
+        },
+      },
     });
 
     const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
@@ -108,7 +136,7 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     });
 
     const res = await POST(req);
-    const body = await res.json() as { drafts: Array<{ findingId: string; extractionStatus: string }>; message: string };
+    const body = await res.json() as { drafts: Array<{ findingId: string; extractionStatus: string }>; message: string; traceLabel?: string };
 
     expect(res.status).toBe(200);
     expect(body.drafts).toEqual(
@@ -119,5 +147,6 @@ describe('/api/projects/manual-review/extract-findings route', () => {
         }),
       ]),
     );
+    expect(body.traceLabel).toContain('1 drafts');
   });
 });

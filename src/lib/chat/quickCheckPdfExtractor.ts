@@ -34,6 +34,13 @@ type HelperOverrides = {
 };
 
 export type PdfExtractionDiagnostics = {
+  parserPath:
+    | "provided-parser"
+    | "bundled-pdf-parse"
+    | "helper-pages"
+    | "helper-text"
+    | "helper-text-after-helper-pages"
+    | "unknown";
   pageExtractionAttempted: boolean;
   pageExtractionError?: string;
   textFallbackAttempted: boolean;
@@ -97,6 +104,7 @@ function buildSyntheticPages(text: string): Array<{ pageNumber: number; text: st
 
 function buildEmptyDiagnostics(): PdfExtractionDiagnostics {
   return {
+    parserPath: "unknown",
     pageExtractionAttempted: false,
     textFallbackAttempted: false,
     extractedTextLength: 0,
@@ -235,7 +243,8 @@ export async function extractPdfTextWithPdfParse(input: {
   helperOverrides?: HelperOverrides;
 }): Promise<QuickCheckPdfExtractionResult> {
   if (input.PdfParseClass) {
-    const pageResult = await extractPagesWithPdfParseClass(input.bytes, input.PdfParseClass, buildEmptyDiagnostics());
+    const diagnostics = { ...buildEmptyDiagnostics(), parserPath: "provided-parser" as const };
+    const pageResult = await extractPagesWithPdfParseClass(input.bytes, input.PdfParseClass, diagnostics);
     return {
       text: pageResult.text,
       engine: "pdf-parse",
@@ -245,7 +254,8 @@ export async function extractPdfTextWithPdfParse(input: {
 
   try {
     const Parser = await loadBundledPdfParseClass();
-    const pageResult = await extractPagesWithPdfParseClass(input.bytes, Parser, buildEmptyDiagnostics());
+    const diagnostics = { ...buildEmptyDiagnostics(), parserPath: "bundled-pdf-parse" as const };
+    const pageResult = await extractPagesWithPdfParseClass(input.bytes, Parser, diagnostics);
     return {
       text: pageResult.text,
       engine: "pdf-parse",
@@ -263,6 +273,7 @@ export async function extractPdfTextWithPdfParse(input: {
         parser: "pdf-parse",
         diagnostics: {
           ...buildEmptyDiagnostics(),
+          parserPath: "helper-text",
           pageExtractionAttempted: true,
           pageExtractionError: parserError,
           textFallbackAttempted: true,
@@ -284,6 +295,7 @@ export async function extractPdfPagesWithPdfParse(input: {
   const diagnostics = buildEmptyDiagnostics();
 
   if (input.PdfParseClass) {
+    diagnostics.parserPath = "provided-parser";
     return extractPagesWithPdfParseClass(input.bytes, input.PdfParseClass, diagnostics);
   }
 
@@ -294,6 +306,7 @@ export async function extractPdfPagesWithPdfParse(input: {
 
   try {
     const Parser = await loadBundledPdfParseClass();
+    diagnostics.parserPath = "bundled-pdf-parse";
     return await extractPagesWithPdfParseClass(input.bytes, Parser, diagnostics);
   } catch (pageError) {
     diagnostics.pageExtractionAttempted = true;
@@ -301,10 +314,12 @@ export async function extractPdfPagesWithPdfParse(input: {
     diagnostics.textFallbackAttempted = true;
     try {
       try {
+        diagnostics.parserPath = "helper-pages";
         return buildPageExtractionResult(await extractPagesViaHelper(input.bytes), diagnostics);
       } catch (helperPageError) {
         const helperPageMessage = sanitizeDiagnosticMessage(toErrorMessage(helperPageError));
         try {
+          diagnostics.parserPath = "helper-text-after-helper-pages";
           const textPayload = await extractTextViaHelper(input.bytes);
           return buildPageExtractionResult(textPayload, {
             ...diagnostics,
