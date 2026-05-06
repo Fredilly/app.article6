@@ -1,4 +1,4 @@
-import type { RuleReview } from '@/lib/projects/types';
+import type { ManualFinding, RuleReview } from '@/lib/projects/types';
 
 export type ReportFindingCode = 'OK' | 'CL' | 'NC' | 'FAR' | 'PENDING' | 'NA';
 
@@ -9,7 +9,7 @@ export type ReportFinding = {
   sectionId: string;
   sectionTitle: string;
   code: ReportFindingCode;
-  sourceStatus: RuleReview['status'];
+  sourceStatus: RuleReview['status'] | ManualFinding['closureStatus'];
   rationale: string;
   evidenceIds: string[];
   limitation?: string;
@@ -59,5 +59,36 @@ export function buildReportFinding(
       : code === 'PENDING' || code === 'CL'
         ? 'Finding is not a completed verification conclusion.'
         : undefined,
+  };
+}
+
+export function manualFindingCodeFromType(type: ManualFinding['findingType']): ReportFindingCode {
+  if (type === 'CAR' || type === 'VVB finding' || type === 'evidence gap') return 'NC';
+  if (type === 'FAR') return 'FAR';
+  return 'CL';
+}
+
+export function buildManualReportFinding(
+  finding: ManualFinding,
+  sourceDocumentLabel: string,
+): ReportFinding {
+  const rationale = finding.reviewerNote?.trim()
+    || finding.evidenceExcerpt?.trim()
+    || finding.projectResponse?.trim()
+    || 'Manual review finding recorded without additional reviewer rationale.';
+
+  return {
+    findingId: finding.findingId,
+    ruleId: sourceDocumentLabel,
+    ruleTitle: finding.findingType,
+    sectionId: 'MANUAL',
+    sectionTitle: 'Manual Review Findings',
+    code: manualFindingCodeFromType(finding.findingType),
+    sourceStatus: finding.closureStatus,
+    rationale,
+    evidenceIds: finding.sourceDocumentId ? [finding.sourceDocumentId] : [],
+    limitation: finding.closureStatus === 'closed'
+      ? undefined
+      : 'Finding remains open inside a project-level manual review workflow.',
   };
 }

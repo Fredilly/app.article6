@@ -22,19 +22,19 @@ export default function ProjectsList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
-          <p className="mt-1 text-sm text-slate-500">Methodology verification workbench</p>
+          <p className="mt-1 text-sm text-slate-500">Long-lived project review workspace for methodology-linked and manual reviews</p>
         </div>
         <Link
           href="/projects/new"
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          + New Project
+          + New Project Review
         </Link>
       </div>
 
       {projects.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
-          <p className="text-slate-500">No projects yet. Create one to start a verification.</p>
+          <p className="text-slate-500">No project reviews yet. Create one to start a durable review workspace.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -54,9 +54,14 @@ export default function ProjectsList() {
                       {project.name}
                     </Link>
                     <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
-                      <span className="rounded bg-slate-100 px-2 py-0.5 font-mono">
-                        {project.methodCode}@{project.methodVersion}
+                      <span className="rounded bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
+                        {project.reviewMode === 'manual' ? 'Manual Review' : 'Methodology-linked review'}
                       </span>
+                      {project.reviewMode === 'methodology-linked' && project.methodCode && project.methodVersion ? (
+                        <span className="rounded bg-slate-100 px-2 py-0.5 font-mono">
+                          {project.methodCode}@{project.methodVersion}
+                        </span>
+                      ) : null}
                       <span
                         className={`rounded px-2 py-0.5 font-semibold ${
                           project.status === 'locked'
@@ -88,9 +93,10 @@ export default function ProjectsList() {
                     />
                   </div>
                   <div className="mt-1 flex gap-3 text-xs text-slate-400">
-                    <span>{coverage.verified} verified</span>
-                    <span>{coverage.gap} gaps</span>
-                    <span>{coverage.notStarted} pending</span>
+                    <span>{coverage.verified} {project.reviewMode === 'manual' ? 'closed' : 'verified'}</span>
+                    <span>{coverage.gap} {project.reviewMode === 'manual' ? 'open' : 'gaps'}</span>
+                    <span>{coverage.inProgress} {project.reviewMode === 'manual' ? 'in review' : 'in progress'}</span>
+                    {project.reviewMode === 'methodology-linked' ? <span>{coverage.notStarted} pending</span> : null}
                     {coverage.notApplicable > 0 && <span>{coverage.notApplicable} n/a</span>}
                   </div>
                 </div>

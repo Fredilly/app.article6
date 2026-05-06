@@ -17,12 +17,15 @@ function makeProject(reviewCount = 6): Project {
   return {
     id: 'project-12345678',
     name: 'Malawi Verification Project',
+    reviewMode: 'methodology-linked',
     methodCode: 'AR-AMS0007',
     methodVersion: 'v03-1',
     registry: 'UNFCCC',
     status: 'locked',
     createdAt: '2026-04-15T00:00:00Z',
     aoiLabel: 'Machinga District',
+    documents: [],
+    manualFindings: [],
     reviews: Array.from({ length: reviewCount }, (_, index) => ({
       ruleId: `R-${index + 1}`,
       ruleTitle: `Verification requirement ${index + 1} for the monitoring report and workbook evidence`,
@@ -123,6 +126,56 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('REGISTRY SUPPORT STATUS');
     expect(parsed.text).toContain('full renderer not yet implemented');
     expect(parsed.text).not.toContain('REQUIREMENT FINDINGS');
+  }, 15000);
+
+  it('exports manual review mode without methodology code in the header copy', async () => {
+    const project: Project = {
+      id: 'manual-project-1',
+      name: 'Verra Reconstruction Workspace',
+      reviewMode: 'manual',
+      registry: 'Unknown',
+      status: 'locked',
+      createdAt: '2026-04-15T00:00:00Z',
+      documents: [
+        {
+          id: 'doc-1',
+          fileName: 'project-monitoring-report.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 2400,
+          uploadedAt: '2026-04-15T00:00:00Z',
+          extractedText: 'Project monitoring report excerpt',
+        },
+      ],
+      manualFindings: [
+        {
+          id: 'finding-1',
+          findingId: 'F-001',
+          findingType: 'VVB finding',
+          sourceDocumentId: 'doc-1',
+          evidenceExcerpt: 'Monitoring report omits appendix references.',
+          projectResponse: 'Appendix references will be added.',
+          closureStatus: 'open',
+          reviewerNote: 'Hold open until revised report lands.',
+          createdAt: '2026-04-15T00:00:00Z',
+          updatedAt: '2026-04-15T00:00:00Z',
+        },
+      ],
+      reviews: [],
+    };
+    const req = new Request('http://localhost/api/projects/manual-project-1/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(res.headers.get('Content-Disposition')).toContain('attachment; filename="manual-review-pack-manual-p.pdf"');
+    expect(parsed.text).toContain('MANUAL REVIEW REPORT');
+    expect(parsed.text).toContain('Manual review mode: true');
+    expect(parsed.text).toContain('Verra Reconstruction Workspace');
+    expect(parsed.text).not.toContain('AR-AMS0007');
   }, 15000);
 
   it('renders reviewer rationale under rules that have notes', async () => {
