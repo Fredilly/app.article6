@@ -11,6 +11,33 @@ function loadFixturePages() {
   return fixture.pages;
 }
 
+function loadCcb1530AppendixPages() {
+  const fixturePath = path.join(process.cwd(), 'tests/fixtures/projects/ccb1530-appendix1-pages.json');
+  const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8')) as {
+    pages: Array<{ pageNumber: number; text: string }>;
+  };
+  return fixture.pages;
+}
+
+function loadCcb1530ExpectedRegister() {
+  const fixturePath = path.join(process.cwd(), 'tests/fixtures/projects/ccb1530-appendix1-expected.json');
+  return JSON.parse(fs.readFileSync(fixturePath, 'utf8')) as {
+    sourceDocumentName: string;
+    expectedFindingCount: number;
+    findings: Array<{
+      findingId: string;
+      findingType: 'CAR' | 'CL' | 'FAR';
+      sourcePageRange: string;
+      closureStatus: 'open' | 'closed';
+      hasRequirement: boolean;
+      hasDescription: boolean;
+      hasProjectResponse: boolean;
+      hasDocumentationSubmitted: boolean;
+      hasAuditTeamEvaluation: boolean;
+    }>;
+  };
+}
+
 describe('manual finding extraction', () => {
   it('extracts CAR findings across page breaks with page ranges', () => {
     const result = extractManualFindingDraftsFromPages({
@@ -191,6 +218,56 @@ describe('manual finding extraction', () => {
     }));
     expect(far05?.evidenceExcerpt).not.toContain('APPENDIX 2: AUDIT PLAN');
     expect(far05?.evidenceExcerpt).not.toContain('Tipo de auditoria');
+  });
+
+  it('matches the full Appendix 1 finding register for the 1530 CCB report', () => {
+    const expected = loadCcb1530ExpectedRegister();
+    const result = extractManualFindingDraftsFromPages({
+      pages: loadCcb1530AppendixPages(),
+      sourceDocumentName: expected.sourceDocumentName,
+    });
+
+    expect(result.drafts).toHaveLength(expected.expectedFindingCount);
+    expect(result.drafts.map((draft) => draft.findingId)).toEqual([
+      'CAR01',
+      'CAR02',
+      'CAR03',
+      'CAR04',
+      'CAR05',
+      'CAR06',
+      'CAR07',
+      'CL01',
+      'CL02',
+      'CL03',
+      'CL04',
+      'CL05',
+      'CL06',
+      'FAR01',
+      'FAR02',
+      'FAR03',
+      'FAR05',
+    ]);
+
+    const actualRegister = result.drafts.map((draft) => ({
+      findingId: draft.findingId,
+      findingType: draft.findingType,
+      sourcePageRange: draft.sourcePageRange,
+      closureStatus: draft.closureStatus,
+      hasRequirement: Boolean(draft.requirement?.trim()),
+      hasDescription: Boolean(draft.description?.trim()),
+      hasProjectResponse: Boolean(draft.projectResponse?.trim()),
+      hasDocumentationSubmitted: Boolean(draft.documentationSubmitted?.trim()),
+      hasAuditTeamEvaluation: Boolean(draft.auditTeamEvaluation?.trim()),
+    }));
+
+    expect(actualRegister).toEqual(expected.findings);
+    expect(result.drafts.every((draft) => !draft.evidenceExcerpt.includes('APPENDIX 2'))).toBe(true);
+    expect(result.drafts.every((draft) => !draft.evidenceExcerpt.includes('AUDIT PLAN'))).toBe(true);
+    expect(result.drafts.find((draft) => draft.findingId === 'FAR05')).toEqual(expect.objectContaining({
+      sourcePageRange: '50',
+      closureStatus: 'open',
+      requirement: '3.2.21(6)',
+    }));
   });
 
   it('returns a truthful fallback when no findings are detected', () => {
