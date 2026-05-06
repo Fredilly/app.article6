@@ -49,15 +49,12 @@ const EMPTY_MANUAL_FINDING: ManualFindingDraft = {
   reviewerNote: '',
 };
 
-<<<<<<< HEAD
 export function shouldShowLockReview(project: Project, coverage: ProjectCoverage | null): boolean {
   if (project.status !== 'in-progress' || !coverage) return false;
   if (project.reviewMode === 'manual') return project.manualFindings.length > 0;
   return coverage.notStarted < coverage.total;
 }
 
-=======
->>>>>>> 4d520dd (Add manual review mode under Projects)
 export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [coverage, setCoverage] = useState<ProjectCoverage | null>(null);
@@ -236,11 +233,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         </div>
 
         <div className="flex items-center gap-2">
-<<<<<<< HEAD
           {shouldShowLockReview(project, coverage) ? (
-=======
-          {project.status === 'in-progress' && coverage && coverage.total > 0 ? (
->>>>>>> 4d520dd (Add manual review mode under Projects)
             <button
               onClick={handleLock}
               className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
