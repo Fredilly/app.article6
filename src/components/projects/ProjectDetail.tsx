@@ -177,14 +177,18 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           const data = await response.json();
           extractedText = typeof data.text === 'string' ? data.text.slice(0, 2000) : '';
           extractedDrafts = Array.isArray(data.drafts) ? data.drafts : [];
-          extractionStatus = extractedDrafts.length > 0 ? 'extracted' : 'no-findings';
+          extractionStatus = data.extractionFailed
+            ? 'extraction-failed'
+            : extractedDrafts.length > 0
+              ? 'extracted'
+              : 'no-findings';
           extractionMessage = typeof data.message === 'string'
             ? data.message
             : 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
         } catch {
           extractedText = '';
-          extractionStatus = 'no-findings';
-          extractionMessage = 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
+          extractionStatus = 'extraction-failed';
+          extractionMessage = 'Could not extract findings from this PDF. You can still add findings manually.';
         }
       }
 
@@ -276,7 +280,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const latestNoFindingsMessage = project.documents
     .slice()
     .reverse()
-    .find((document) => document.manualFindingExtractionStatus === 'no-findings')
+    .find((document) => document.manualFindingExtractionStatus === 'no-findings' || document.manualFindingExtractionStatus === 'extraction-failed')
     ?.manualFindingExtractionMessage;
 
   return (
@@ -426,8 +430,10 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                   ) : null}
                   {document.manualFindingExtractionMessage ? (
                     <p className={`mt-2 text-xs ${
-                      document.manualFindingExtractionStatus === 'no-findings'
-                        ? 'text-slate-500'
+                      document.manualFindingExtractionStatus === 'extraction-failed'
+                        ? 'text-red-600'
+                        : document.manualFindingExtractionStatus === 'no-findings'
+                          ? 'text-slate-500'
                         : 'text-blue-600'
                     }`}>
                       {document.manualFindingExtractionMessage}

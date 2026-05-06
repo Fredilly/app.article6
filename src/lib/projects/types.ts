@@ -30,7 +30,7 @@ export type ProjectDocument = {
   sizeBytes: number;
   uploadedAt: string;
   extractedText?: string;
-  manualFindingExtractionStatus?: 'not-run' | 'no-findings' | 'extracted';
+  manualFindingExtractionStatus?: 'not-run' | 'no-findings' | 'extracted' | 'extraction-failed';
   manualFindingExtractionMessage?: string;
 };
 

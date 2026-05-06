@@ -92,6 +92,21 @@ describe('manual finding extraction', () => {
     );
   });
 
+  it('extracts explicit "No." finding labels used in VVB reports', () => {
+    const result = extractManualFindingDraftsFromPages({
+      pages: [
+        {
+          pageNumber: 40,
+          text: 'APPENDIX 1\nCAR No. 01 Requirement:\n3.1\nDescription of the CAR\nA monitoring discrepancy was identified.\nResponse from the project developer Date: 17-05-2021\nA corrected workbook was submitted.\nDocumentation submitted by the project developer\nCorrected workbook\nEvaluation of the audit team Date: 23-05-2021\nThe correction resolves the issue.\nCAR Closed\nCL No. 02 Requirement\n2.4\nDescription of the CL\nClarify the evidence path.\nResponse from the project developer Date: 17-05-2021\nThe path was clarified.\nCL Closed\nFAR No. 03 Requirement:\n6.2\nDescription of the FAR\nContinue monitoring invasive behavior.\nResponse from the project developer Date: 17-05-2021\nThis will be addressed next period.\nFAR Open',
+        },
+      ],
+      sourceDocumentName: 'vvb-report.pdf',
+    });
+
+    expect(result.drafts.map((draft) => draft.findingId)).toEqual(['CAR01', 'CL02', 'FAR03']);
+    expect(result.drafts.map((draft) => draft.findingType)).toEqual(['CAR', 'CL', 'FAR']);
+  });
+
   it('returns a truthful fallback when no findings are detected', () => {
     const result = extractManualFindingDraftsFromPages({
       pages: [

@@ -79,6 +79,7 @@ function inferPageRange(markers: Array<{ index: number; pageNumber: number }>, s
 function normalizeFindingId(value: string): string {
   const normalized = value
     .replace(/\bFinding\s+/i, 'F-')
+    .replace(/\bNO\.?\s*/gi, '')
     .replace(/\s+/g, '')
     .toUpperCase();
 
@@ -102,8 +103,26 @@ function inferFindingType(input: { rawId: string; surroundingText: string }): Fi
 }
 
 function detectFindingBoundaries(combined: string, markers: Array<{ index: number; pageNumber: number }>): FindingBoundary[] {
-  const pattern = /(?:^|\n)\s*((?:(CAR|CL|FAR)[- ]?\d{1,3}(?:\.\d+)?)|(?:F[- ]?\d{3,})|(?:F\d{3,})|(?:Finding\s+\d{1,3})|(?:NCR[- ]?\d{1,3})|(?:NC[- ]?\d{1,3}))\b/gi;
-  const matches = Array.from(combined.matchAll(pattern));
+  const pattern = /(?:^|\n)\s*((?:(CAR|CL|FAR)(?:\s*NO\.?)?[- ]?\d{1,3}(?:\.\d+)?)|(?:F[- ]?\d{3,})|(?:F\d{3,})|(?:Finding\s+\d{1,3})|(?:NCR[- ]?\d{1,3})|(?:NC[- ]?\d{1,3}))\b/gi;
+  const matches = Array.from(combined.matchAll(pattern)).filter((match, index, allMatches) => {
+    if (index === 0) return true;
+
+    const rawId = (match[1] ?? '').trim();
+    const previousRawId = (allMatches[index - 1]?.[1] ?? '').trim();
+    const currentStart = match.index ?? 0;
+    const previousStart = allMatches[index - 1]?.index ?? 0;
+    const between = combined.slice(previousStart, currentStart);
+
+    const currentIsCompactLabel = /^(CAR|CL|FAR)\d{1,3}$/i.test(rawId);
+    const previousIsExplicitNoLabel = /^(CAR|CL|FAR)\s*NO\.?\s*\d{1,3}$/i.test(previousRawId);
+    const lacksBodyMarkers = !/(?:description of the|response from the project developer|documentation submitted by the project developer)/i.test(between);
+
+    if (currentIsCompactLabel && previousIsExplicitNoLabel && currentStart - previousStart < 260 && lacksBodyMarkers) {
+      return false;
+    }
+
+    return true;
+  });
 
   return matches.map((match, index) => {
     const start = match.index ?? 0;
