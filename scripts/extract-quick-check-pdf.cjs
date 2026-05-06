@@ -6,8 +6,14 @@ const { createRequire } = require("module");
 
 const requireFromProject = createRequire(path.join(process.cwd(), "package.json"));
 
-function normalizeWhitespace(value) {
-  return String(value || "").replace(/\s+/g, " ").trim();
+function normalizeText(value) {
+  return String(value || "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n[ \t]+/g, "\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 async function main() {
@@ -27,12 +33,12 @@ async function main() {
   try {
     const result = await parser.getText();
     process.stdout.write(JSON.stringify({
-      text: normalizeWhitespace(result.text ?? ""),
+      text: normalizeText(result.text ?? ""),
       pages: includePages
         ? (Array.isArray(result.pages)
           ? result.pages.map((page, index) => ({
             pageNumber: typeof page.num === "number" ? page.num : index + 1,
-            text: String(page.text ?? "").replace(/\r\n?/g, "\n").trim(),
+            text: normalizeText(page.text ?? ""),
           }))
           : [])
         : undefined,

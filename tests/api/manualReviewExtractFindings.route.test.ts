@@ -59,4 +59,40 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     expect(body.extractionFailed).toBe(true);
     expect(body.message).toBe('Could not extract findings from this PDF. You can still add findings manually.');
   });
+
+  it('creates draft findings when extraction falls back to text-only page context', async () => {
+    extractPdfPagesWithPdfParseMock.mockResolvedValueOnce({
+      text: 'Appendix 1 F-001 Description: Missing annex reference. Project response: Submitted revised annex. Closure status: Open',
+      pages: [
+        {
+          pageNumber: 1,
+          text: 'Appendix 1\nF-001\nDescription: Missing annex reference.\nProject response: Submitted revised annex.\nClosure status: Open',
+        },
+      ],
+      engine: 'pdf-parse',
+      metadata: { parser: 'pdf-parse' },
+    });
+
+    const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/pdf',
+        'x-article6-filename': encodeURIComponent('ccb-report.pdf'),
+      },
+      body: '%PDF-fallback',
+    });
+
+    const res = await POST(req);
+    const body = await res.json() as { drafts: Array<{ findingId: string; extractionStatus: string }>; message: string };
+
+    expect(res.status).toBe(200);
+    expect(body.drafts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          findingId: 'F-001',
+          extractionStatus: 'needs-review',
+        }),
+      ]),
+    );
+  });
 });

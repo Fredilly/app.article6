@@ -92,4 +92,56 @@ describe("quick check pdf-parse extractor", () => {
     ]);
     expect(result.text).toBe("Page one text Page two text");
   });
+
+  it("falls back to a synthetic page when only full-document text is available", async () => {
+    getTextMock.mockResolvedValue({
+      text: "Appendix 1\nF-001\nDescription: Missing annex reference.",
+    });
+
+    const result = await extractPdfPagesWithPdfParse({
+      bytes: new TextEncoder().encode("%PDF-text-only").buffer,
+      PdfParseClass: PdfParseClassMock as never,
+    });
+
+    expect(result.pages).toEqual([
+      {
+        pageNumber: 1,
+        text: "Appendix 1\nF-001\nDescription: Missing annex reference.",
+      },
+    ]);
+    expect(result.text).toContain("F-001");
+  });
+
+  it("throws when neither page extraction nor text extraction yields extractable text", async () => {
+    getTextMock.mockResolvedValue({ text: "   ", pages: [] });
+
+    await expect(
+      extractPdfPagesWithPdfParse({
+        bytes: new TextEncoder().encode("%PDF-image-only").buffer,
+        PdfParseClass: PdfParseClassMock as never,
+      }),
+    ).rejects.toThrow("No extractable text found in PDF.");
+  });
+
+  it("falls back to helper text extraction when helper page extraction fails", async () => {
+    const result = await extractPdfPagesWithPdfParse({
+      bytes: new TextEncoder().encode("%PDF-helper-fallback").buffer,
+      helperOverrides: {
+        extractPagesViaHelper: async () => {
+          throw new Error("stdout maxBuffer length exceeded");
+        },
+        extractTextViaHelper: async () => ({
+          text: "Appendix 1\nF-001\nDescription: Missing annex reference.\nProject response: Submitted revised annex.",
+        }),
+      },
+    });
+
+    expect(result.pages).toEqual([
+      {
+        pageNumber: 1,
+        text: "Appendix 1\nF-001\nDescription: Missing annex reference.\nProject response: Submitted revised annex.",
+      },
+    ]);
+    expect(result.text).toContain("Project response");
+  });
 });
