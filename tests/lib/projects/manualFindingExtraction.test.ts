@@ -144,6 +144,55 @@ describe('manual finding extraction', () => {
     );
   });
 
+  it('stops FAR05 at the next appendix and preserves open FAR statuses', () => {
+    const result = extractManualFindingDraftsFromPages({
+      pages: [
+        {
+          pageNumber: 48,
+          text: 'FAR No. 01 Requirement:\n6.2 - 23\nAR-ACM0003 Date: 25-04-2021\nDescription of the FAR\nCompliance with the monitoring procedure is not ensured.\nResponse from the project developer Date: 17-05-2021\nSilvicultural management activities were performed.\nDocumentation submitted by the project developer\nEvaluation of the audit team Date: 23-05-2021\nRecommendation remains for the next period.\nFAR Open\nFAR No. 02 Requirement:\nG. 3\nCCB V3.1 Date: 25-04-2021',
+        },
+        {
+          pageNumber: 49,
+          text: 'Description of the FAR\nCompliance with environmental safeguards is not ensured.\nResponse from the project developer Date: 17-05-2021\nCommunity outreach will continue.\nDocumentation submitted by the project developer\nEvaluation of the audit team Date: 23-05-2021\nThe project proponents will continue the communication process.\nFAR open\nFAR No. 03 Requirement:\n3.1.3\nCCB _ VCS Date: 25-04-2021\nDescription of the FAR\nTo give clarity with the monitoring and verification of the plots, individual marking in the field is necessary.\nResponse from the project developer Date: 17-05-2021\nThis request will be considered for a future verification.\nDocumentation submitted by the project developer\nEvaluation of the audit team Date: 23-05-2021',
+        },
+        {
+          pageNumber: 50,
+          text: 'The project proponent will consider the durable marking of the plots for the next verifications.\nFAR Open\nFAR No. 05 Requirement:\n3.2.21(6)\nVCS Standard Date: 12-04-2022\nDescription of the FAR\nAssess if the managed species are exhibiting invasive behavior and if the management plan for mitigating the spread is being successfully implemented during each verification period.\nResponse from the project developer Date: 13-04-2022\nThe project proponent will conduct an evaluation at each verification.\nDocumentation submitted by the project developer\nEvaluation of the audit team Date: 13-04-2022\nFAR open\nAPPENDIX 2: AUDIT PLAN\nVerification Report “Grouped project for commercial forest plantations initiatives in the department of Vichada”.',
+        },
+        {
+          pageNumber: 51,
+          text: 'Audit plan content that must not be captured into FAR05.\nTipo de auditoria Validación Verificación x',
+        },
+      ],
+      sourceDocumentName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
+    });
+
+    expect(result.drafts.filter((draft) => draft.findingType === 'FAR').map((draft) => draft.findingId)).toEqual(['FAR01', 'FAR02', 'FAR03', 'FAR05']);
+    expect(result.drafts.find((draft) => draft.findingId === 'FAR01')).toEqual(expect.objectContaining({
+      sourcePageRange: '48',
+      closureStatus: 'open',
+      requirement: '6.2 - 23',
+    }));
+    expect(result.drafts.find((draft) => draft.findingId === 'FAR02')).toEqual(expect.objectContaining({
+      sourcePageRange: '48-49',
+      closureStatus: 'open',
+      requirement: 'G. 3',
+    }));
+    expect(result.drafts.find((draft) => draft.findingId === 'FAR03')).toEqual(expect.objectContaining({
+      sourcePageRange: '49-50',
+      closureStatus: 'open',
+      requirement: '3.1.3',
+    }));
+    const far05 = result.drafts.find((draft) => draft.findingId === 'FAR05');
+    expect(far05).toEqual(expect.objectContaining({
+      sourcePageRange: '50',
+      closureStatus: 'open',
+      requirement: '3.2.21(6)',
+    }));
+    expect(far05?.evidenceExcerpt).not.toContain('APPENDIX 2: AUDIT PLAN');
+    expect(far05?.evidenceExcerpt).not.toContain('Tipo de auditoria');
+  });
+
   it('returns a truthful fallback when no findings are detected', () => {
     const result = extractManualFindingDraftsFromPages({
       pages: [

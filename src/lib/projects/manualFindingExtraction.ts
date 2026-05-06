@@ -22,6 +22,8 @@ type FindingBoundary = {
   sourcePageRange?: string;
 };
 
+const APPENDIX_SECTION_PATTERN = /(?:^|\n)\s*APPENDIX\s+\d+\s*:/gi;
+
 const FIELD_PATTERNS = [
   { key: 'requirement', label: /(?:^|\n)[^\n]*\brequirement\b\s*[:\-]?\s*/i },
   { key: 'description', label: /(?:^|\n)\s*(?:description(?:\s+of\s+the\s+(?:car|cl|far))?|finding description|nc description)\s*[:\-]?\s*/i },
@@ -48,7 +50,7 @@ function normalizePageText(value: string): string {
 function stripReportBoilerplate(value: string): string {
   return value
     .replace(/(?:^|\n)CCB & VCS VERIFICATION REPORT:[^\n]*(?:\n[^\n]*){0,2}/gi, '\n')
-    .replace(/(?:^|\n)(?:CCB|VCS|CAR|CL|FAR)\s+Date\s*:\s*[^\n]+/gi, '\n')
+    .replace(/(?:^|\n)[A-Za-z][A-Za-z0-9_ .()/-]{1,60}\s+Date\s*:\s*[^\n]+/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
@@ -134,7 +136,13 @@ function detectFindingBoundaries(combined: string, markers: Array<{ index: numbe
 
   return matches.map((match, index) => {
     const start = match.index ?? 0;
-    const end = index < matches.length - 1 ? (matches[index + 1].index ?? combined.length) : combined.length;
+    const nextFindingStart = index < matches.length - 1 ? (matches[index + 1].index ?? combined.length) : combined.length;
+    const appendixBoundary = (() => {
+      APPENDIX_SECTION_PATTERN.lastIndex = start;
+      const appendixMatch = APPENDIX_SECTION_PATTERN.exec(combined);
+      return appendixMatch?.index;
+    })();
+    const end = appendixBoundary != null ? Math.min(nextFindingStart, appendixBoundary) : nextFindingStart;
     const rawId = (match[1] ?? '').trim();
     const surroundingText = combined.slice(Math.max(0, start - 160), Math.min(end, start + 500));
     return {
@@ -170,6 +178,9 @@ function extractFieldValue(block: string, key: typeof FIELD_PATTERNS[number]['ke
 }
 
 function detectClosureStatus(block: string): ManualFindingClosureStatus | undefined {
+  const explicitStatusLine = block.match(/(?:^|\n)\s*(?:CAR|CL|FAR)\s+(Closed|Open)\b/i)?.[1];
+  if (explicitStatusLine) return explicitStatusLine.toLowerCase() === 'closed' ? 'closed' : 'open';
+
   const explicit = extractFieldValue(block, 'closureStatus') ?? '';
   const haystack = explicit || block;
   if (/\bclosed?\b/i.test(haystack)) return 'closed';

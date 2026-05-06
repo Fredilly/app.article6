@@ -15,6 +15,13 @@ function generateId(): string {
   return 'proj_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+function inferClosureStatusFromExcerpt(evidenceExcerpt?: string): ManualFindingClosureStatus | undefined {
+  if (!evidenceExcerpt) return undefined;
+  const explicitStatusLine = evidenceExcerpt.match(/(?:^|\n)\s*(?:CAR|CL|FAR)\s+(Closed|Open)\b/i)?.[1];
+  if (explicitStatusLine) return explicitStatusLine.toLowerCase() === 'closed' ? 'closed' : 'open';
+  return undefined;
+}
+
 function loadAll(): Project[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -300,7 +307,7 @@ export function acceptExtractedManualFindingDraft(projectId: string, draftId: st
     projectResponse: draft.projectResponse,
     documentationSubmitted: draft.documentationSubmitted,
     auditTeamEvaluation: draft.auditTeamEvaluation,
-    closureStatus: draft.closureStatus ?? 'in-review',
+    closureStatus: draft.closureStatus ?? inferClosureStatusFromExcerpt(draft.evidenceExcerpt) ?? 'in-review',
     reviewerNote: draft.reviewerNote,
     createdAt: now,
     updatedAt: now,
