@@ -69,10 +69,40 @@ const EMPTY_MANUAL_FINDING: ManualFindingDraft = {
   reviewerNote: '',
 };
 
+type ExtractionQaChecklistItem = {
+  id: string;
+  label: string;
+};
+
 export function shouldShowLockReview(project: Project, coverage: ProjectCoverage | null): boolean {
   if (project.status !== 'in-progress' || !coverage) return false;
   if (project.reviewMode === 'manual') return project.manualFindings.length > 0;
   return coverage.notStarted < coverage.total;
+}
+
+export function getExtractionQaChecklistItems(extractedDraftCount: number): ExtractionQaChecklistItem[] {
+  return [
+    {
+      id: 'finding-count',
+      label: `Finding count matches source report${extractedDraftCount > 0 ? ` (${extractedDraftCount} extracted)` : ''}`,
+    },
+    {
+      id: 'sample-findings',
+      label: 'First, middle, and last findings checked',
+    },
+    {
+      id: 'page-ranges',
+      label: 'Page ranges checked',
+    },
+    {
+      id: 'closure-statuses',
+      label: 'Closure statuses checked',
+    },
+    {
+      id: 'spillover',
+      label: 'No appendix or audit-plan spillover',
+    },
+  ];
 }
 
 export default function ProjectDetail({ projectId }: ProjectDetailProps) {
@@ -81,6 +111,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const [downloading, setDownloading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [manualDraft, setManualDraft] = useState<ManualFindingDraft>(EMPTY_MANUAL_FINDING);
+  const [extractionQaChecks, setExtractionQaChecks] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const p = getProject(projectId);
@@ -291,6 +322,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
     .reverse()
     .find((document) => document.manualFindingExtractionStatus === 'no-findings' || document.manualFindingExtractionStatus === 'extraction-failed')
     ?.manualFindingExtractionMessage;
+  const extractionQaChecklistItems = getExtractionQaChecklistItems(project.extractedManualFindingDrafts.length);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-12 md:px-8">
@@ -469,7 +501,30 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                 <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
                   {latestNoFindingsMessage || 'Upload a VVB report appendix to extract draft CAR/CL/FAR findings.'}
                 </div>
-              ) : project.extractedManualFindingDrafts.map((draft) => {
+              ) : (
+                <>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Extraction QA Checklist</div>
+                    <p className="mt-1 text-xs text-slate-500">Use this as a quick reviewer confirmation pass. It does not block accept or edit actions.</p>
+                    <div className="mt-3 grid gap-2 md:grid-cols-2">
+                      {extractionQaChecklistItems.map((item) => (
+                        <label key={item.id} className="flex items-start gap-2 text-sm text-slate-700">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(extractionQaChecks[item.id])}
+                            onChange={(event) => setExtractionQaChecks((current) => ({
+                              ...current,
+                              [item.id]: event.target.checked,
+                            }))}
+                            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span>{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {project.extractedManualFindingDrafts.map((draft) => {
                 const sourceDocument = project.documents.find((document) => document.id === draft.sourceDocumentId);
                 return (
                   <div key={draft.id} className="rounded-lg border border-slate-200 p-4">
@@ -613,7 +668,9 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                     </div>
                   </div>
                 );
-              })}
+                  })}
+                </>
+              )}
             </div>
           </section>
 

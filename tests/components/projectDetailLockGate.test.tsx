@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { shouldShowLockReview } from '@/components/projects/ProjectDetail';
+import { getExtractionQaChecklistItems, shouldShowLockReview } from '@/components/projects/ProjectDetail';
 import type { Project, ProjectCoverage } from '@/lib/projects/types';
 
 function makeCoverage(overrides: Partial<ProjectCoverage> = {}): ProjectCoverage {
@@ -85,5 +85,24 @@ describe('shouldShowLockReview', () => {
       }),
       makeCoverage({ total: 1, gap: 1, notStarted: 0, percentComplete: 0 }),
     )).toBe(true);
+  });
+});
+
+describe('getExtractionQaChecklistItems', () => {
+  it('returns the compact extraction QA checklist with the extracted count', () => {
+    expect(getExtractionQaChecklistItems(17)).toEqual([
+      { id: 'finding-count', label: 'Finding count matches source report (17 extracted)' },
+      { id: 'sample-findings', label: 'First, middle, and last findings checked' },
+      { id: 'page-ranges', label: 'Page ranges checked' },
+      { id: 'closure-statuses', label: 'Closure statuses checked' },
+      { id: 'spillover', label: 'No appendix or audit-plan spillover' },
+    ]);
+  });
+
+  it('keeps the checklist non-blocking when no draft count is available yet', () => {
+    expect(getExtractionQaChecklistItems(0)[0]).toEqual({
+      id: 'finding-count',
+      label: 'Finding count matches source report',
+    });
   });
 });
