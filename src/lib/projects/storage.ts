@@ -123,7 +123,13 @@ export function recordManualReviewLearningCase(
   if (!project || project.reviewMode !== 'manual') return project;
 
   project.learningCases = Array.isArray(project.learningCases) ? project.learningCases : [];
-  project.learningCases.push(buildManualReviewLearningCase(project, trigger));
+  const nextCase = buildManualReviewLearningCase(project, trigger);
+  const latestCase = project.learningCases.at(-1);
+  if (latestCase?.trigger === trigger && latestCase.dedup_key === nextCase.dedup_key) {
+    return project;
+  }
+
+  project.learningCases.push(nextCase);
   saveAll(projects);
   return project;
 }

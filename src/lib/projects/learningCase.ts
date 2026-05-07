@@ -28,12 +28,64 @@ function uniqueSorted(values: string[]): string[] {
   return Array.from(new Set(values)).sort();
 }
 
+export function manualReviewLearningCaseDedupKey(
+  project: Project,
+  trigger: LearningCaseTrigger,
+): string {
+  const registryLabel = manualRegistryLabel(project);
+  const documentFingerprints = project.documents
+    .map((document) => [
+      document.fileName,
+      document.mimeType,
+      String(document.sizeBytes),
+      document.manualFindingExtractionStatus ?? 'not-run',
+    ].join('|'))
+    .sort();
+  const findingFingerprints = project.manualFindings
+    .map((finding) => [
+      finding.findingId,
+      finding.findingType,
+      finding.closureStatus,
+      finding.sourcePageRange?.trim() || '',
+      Boolean(finding.requirement?.trim()),
+      Boolean(finding.description?.trim()),
+      Boolean(finding.projectResponse?.trim()),
+      Boolean(finding.documentationSubmitted?.trim()),
+      Boolean(finding.auditTeamEvaluation?.trim()),
+      Boolean(finding.reviewerNote?.trim()),
+    ].join('|'))
+    .sort();
+  const draftFingerprints = project.extractedManualFindingDrafts
+    .map((draft) => [
+      draft.findingId.trim(),
+      draft.findingType ?? '',
+      draft.extractionStatus,
+      draft.closureStatus ?? '',
+      Boolean(draft.reviewerNote?.trim()),
+    ].join('|'))
+    .sort();
+
+  return JSON.stringify({
+    trigger,
+    status: project.status,
+    lockedAt: project.lockedAt ?? '',
+    registryLabel,
+    methodology: project.methodCode && project.methodVersion ? `${project.methodCode}@${project.methodVersion}` : '',
+    projectArea: Boolean(project.aoiLabel?.trim()),
+    projectDescription: Boolean(project.description?.trim()),
+    documentFingerprints,
+    findingFingerprints,
+    draftFingerprints,
+  });
+}
+
 export function buildManualReviewLearningCase(
   project: Project,
   trigger: LearningCaseTrigger,
   createdAt = new Date().toISOString(),
 ): LearningCase {
   const registryLabel = manualRegistryLabel(project);
+  const dedupKey = manualReviewLearningCaseDedupKey(project, trigger);
   const findingTypeCounts = project.manualFindings.reduce(
     (counts, finding) => {
       if (finding.findingType === 'CAR' || finding.findingType === 'CL' || finding.findingType === 'FAR') {
@@ -103,6 +155,9 @@ export function buildManualReviewLearningCase(
 
   const truthRulesTriggered = [
     'manual_review_reconstruction_only',
+    'user_entered_unverified',
+    'training_disabled_for_learning_case',
+    'human_review_required',
     'no_independent_verification_opinion',
     'no_validation_statement',
     'no_methodology_compliance_determination',
@@ -126,6 +181,9 @@ export function buildManualReviewLearningCase(
     created_at: createdAt,
     trigger,
     review_mode: project.reviewMode,
+    trust_level: 'user_entered_unverified',
+    training_eligible: false,
+    requires_human_review: true,
     registry_or_standard: registryLabel !== 'Unknown registry' ? registryLabel : undefined,
     document_type: manualDocumentTypeLabel(project),
     source_document_count: project.documents.length,
@@ -144,5 +202,6 @@ export function buildManualReviewLearningCase(
     truth_rules_triggered: truthRulesTriggered,
     recommended_evals: recommendedEvals,
     source_retention_policy: RETENTION_POLICY,
+    dedup_key: dedupKey,
   };
 }

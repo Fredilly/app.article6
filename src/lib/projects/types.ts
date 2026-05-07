@@ -19,6 +19,9 @@ export type LearningCase = {
   created_at: string;
   trigger: LearningCaseTrigger;
   review_mode: ProjectReviewMode;
+  trust_level: 'user_entered_unverified';
+  training_eligible: false;
+  requires_human_review: true;
   registry_or_standard?: string;
   document_type: string;
   source_document_count: number;
@@ -46,6 +49,7 @@ export type LearningCase = {
   truth_rules_triggered: string[];
   recommended_evals: string[];
   source_retention_policy: string;
+  dedup_key: string;
 };
 
 export type RuleReview = {

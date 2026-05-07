@@ -106,6 +106,9 @@ describe('manual review learning cases', () => {
 
     expect(learningCase.trigger).toBe('export_generated');
     expect(learningCase.review_mode).toBe('manual');
+    expect(learningCase.trust_level).toBe('user_entered_unverified');
+    expect(learningCase.training_eligible).toBe(false);
+    expect(learningCase.requires_human_review).toBe(true);
     expect(learningCase.registry_or_standard).toBe('Verra / VCS + CCB');
     expect(learningCase.document_type).toBe('Published verification report PDF');
     expect(learningCase.source_document_count).toBe(1);
@@ -130,6 +133,9 @@ describe('manual review learning cases', () => {
     ]));
     expect(learningCase.truth_rules_triggered).toEqual(expect.arrayContaining([
       'manual_review_reconstruction_only',
+      'user_entered_unverified',
+      'training_disabled_for_learning_case',
+      'human_review_required',
       'no_independent_verification_opinion',
       'no_validation_statement',
       'no_methodology_compliance_determination',
@@ -142,6 +148,7 @@ describe('manual review learning cases', () => {
       'manual-review-source-retention',
     ]));
     expect(learningCase.source_retention_policy).toContain('No raw document text');
+    expect(learningCase.dedup_key).toContain('"trigger":"export_generated"');
     expect(serialized).not.toContain('full excerpt text unique 123');
     expect(serialized).not.toContain('VCS CCB raw extracted appendix unique string');
   });
@@ -155,9 +162,45 @@ describe('manual review learning cases', () => {
 
     expect(updated?.learningCases).toHaveLength(1);
     expect(learningCase?.trigger).toBe('project_locked');
+    expect(learningCase?.trust_level).toBe('user_entered_unverified');
+    expect(learningCase?.training_eligible).toBe(false);
+    expect(learningCase?.requires_human_review).toBe(true);
     expect(learningCase?.finding_type_counts).toEqual({ CAR: 1, CL: 1, FAR: 1, other: 0 });
     expect(learningCase?.closure_counts).toEqual({ open: 1, 'in-review': 1, closed: 1 });
     expect(JSON.stringify(learningCase)).not.toContain('full excerpt text unique 123');
     expect(JSON.stringify(learningCase)).not.toContain('VCS CCB raw extracted appendix unique string');
+  });
+
+  it('deduplicates repeated learning cases for the same project trigger and export state', () => {
+    window.localStorage.setItem('article6_projects', JSON.stringify([makeManualProject()]));
+
+    recordManualReviewLearningCase('proj-manual-learning', 'export_generated');
+    const onceStored = JSON.parse(window.localStorage.getItem('article6_projects') || '[]') as Project[];
+    const firstDedupKey = onceStored[0]?.learningCases[0]?.dedup_key;
+
+    const updated = recordManualReviewLearningCase('proj-manual-learning', 'export_generated');
+    const twiceStored = JSON.parse(window.localStorage.getItem('article6_projects') || '[]') as Project[];
+
+    expect(firstDedupKey).toBeTruthy();
+    expect(updated?.learningCases).toHaveLength(1);
+    expect(twiceStored[0]?.learningCases).toHaveLength(1);
+    expect(twiceStored[0]?.learningCases[0]?.dedup_key).toBe(firstDedupKey);
+  });
+
+  it('treats learning cases as human-review eval candidates rather than verified ground truth', () => {
+    const learningCase = buildManualReviewLearningCase(makeManualProject(), 'project_locked');
+
+    expect(learningCase.training_eligible).toBe(false);
+    expect(learningCase.requires_human_review).toBe(true);
+    expect(learningCase.trust_level).toBe('user_entered_unverified');
+    expect(learningCase.truth_rules_triggered).not.toContain('verified_ground_truth');
+    expect(learningCase.truth_rules_triggered).toEqual(expect.arrayContaining([
+      'training_disabled_for_learning_case',
+      'human_review_required',
+    ]));
+    expect(learningCase.recommended_evals).toEqual(expect.arrayContaining([
+      'manual-review-truthfulness-language',
+      'manual-review-field-coverage',
+    ]));
   });
 });
