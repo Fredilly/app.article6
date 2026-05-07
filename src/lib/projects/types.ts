@@ -12,6 +12,60 @@ export type ManualFindingClosureStatus = 'open' | 'in-review' | 'closed';
 
 export type ExtractedManualFindingStatus = 'draft' | 'needs-review';
 
+export type LearningCaseTrigger = 'project_locked' | 'export_generated';
+
+// LearningCase is always local, user-derived, and untrusted. It may inform
+// future human review, but it must not be treated as trusted eval/training
+// material or used to update rules, models, scores, or extraction behavior.
+export type LearningCase = {
+  case_id: string;
+  created_at: string;
+  trigger: LearningCaseTrigger;
+  review_mode: ProjectReviewMode;
+  trust_level: 'user_entered_unverified';
+  training_eligible: false;
+  requires_human_review: true;
+  promotion_status: 'not_promoted';
+  poisoning_boundary: 'not_allowed_to_update_rules_models_evals_or_scores';
+  registry_or_standard?: string;
+  document_type: string;
+  source_document_count: number;
+  finding_count: number;
+  finding_type_counts: {
+    CAR: number;
+    CL: number;
+    FAR: number;
+    other: number;
+  };
+  closure_counts: {
+    open: number;
+    'in-review': number;
+    closed: number;
+  };
+  fields_present: Record<string, number>;
+  fields_missing: Record<string, number>;
+  reviewer_correction_summary?: {
+    extracted_draft_count: number;
+    draft_findings_ready_count: number;
+    draft_findings_needing_review_count: number;
+    reviewer_note_count: number;
+  };
+  export_quality_flags: string[];
+  truth_rules_triggered: string[];
+  eval_candidate_signals: string[];
+  source_retention_policy: string;
+  dedup_key: string;
+};
+
+// ReviewedLearningCase is the only shape that may be considered for trusted
+// downstream eval design. Nothing in this PR creates this type.
+export type ReviewedLearningCase = {
+  source_learning_case_id: LearningCase['case_id'];
+  reviewed_by: string;
+  reviewed_at: string;
+  review_decision: 'approved_for_eval_design' | 'rejected';
+};
+
 export type RuleReview = {
   ruleId: string;
   ruleTitle: string;
@@ -89,6 +143,7 @@ export type Project = {
   documents: ProjectDocument[];
   manualFindings: ManualFinding[];
   extractedManualFindingDrafts: ExtractedManualFindingDraft[];
+  learningCases: LearningCase[];
 };
 
 export type ProjectCoverage = {

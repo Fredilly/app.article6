@@ -24,6 +24,7 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     documents: [],
     manualFindings: [],
     extractedManualFindingDrafts: [],
+    learningCases: [],
     ...overrides,
   };
 }
