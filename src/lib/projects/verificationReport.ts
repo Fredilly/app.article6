@@ -103,6 +103,62 @@ function buildSummaryItems(project: Project, coverage: ProjectCoverage, registry
   return items;
 }
 
+function fallbackValue(value: string | undefined, fallback: string): string {
+  const normalized = value?.trim();
+  return normalized ? normalized : fallback;
+}
+
+function punctuateLine(value: string): string {
+  return /[.!?]$/.test(value) ? value : `${value}.`;
+}
+
+function inferManualRegistryLabel(project: Project): string | undefined {
+  const signals = [
+    project.registry,
+    ...project.documents.map((document) => document.fileName),
+    ...project.documents.map((document) => document.extractedText),
+  ]
+    .filter(Boolean)
+    .map((value) => value!.toLowerCase());
+
+  const hasVerra = signals.some((value) => value.includes('verra') || value.includes('vcs'));
+  const hasCcb = signals.some((value) => value.includes('ccb'));
+  const hasGoldStandard = signals.some((value) => value.includes('gold standard'));
+  const hasUnfccc = signals.some((value) => value.includes('unfccc') || value.includes('cdm'));
+
+  if (hasVerra && hasCcb) return 'Verra / VCS + CCB';
+  if (hasVerra) return 'Verra';
+  if (hasGoldStandard) return 'Gold Standard';
+  if (hasUnfccc) return 'UNFCCC';
+  return undefined;
+}
+
+export function manualRegistryLabel(project: Project): string {
+  if (project.registry && project.registry !== 'Unknown') return project.registry;
+  return inferManualRegistryLabel(project) ?? 'Unknown registry';
+}
+
+function manualMethodologyLabel(project: Project): string {
+  return project.methodCode && project.methodVersion
+    ? `${project.methodCode} @ ${project.methodVersion}`
+    : 'Manual review - methodology not wired';
+}
+
+function sourceDocumentTypeLabel(project: Project): string {
+  if (project.documents.some((document) => document.mimeType === 'application/pdf')) return 'Published verification report PDF';
+  if (project.documents.length > 0) return 'Uploaded source document';
+  return 'Not provided';
+}
+
+function manualFindingTypeCounts(project: Project): { CAR: number; CL: number; FAR: number } {
+  return project.manualFindings.reduce((counts, finding) => {
+    if (finding.findingType === 'CAR' || finding.findingType === 'CL' || finding.findingType === 'FAR') {
+      counts[finding.findingType] += 1;
+    }
+    return counts;
+  }, { CAR: 0, CL: 0, FAR: 0 });
+}
+
 function buildEvidenceSummary(project: Project): string[] {
   const linkedEvidenceCount = project.reviews.reduce((sum, review) => sum + review.evidenceIds.length, 0);
   const notedRules = project.reviews.filter((review) => Boolean(review.note?.trim())).length;
@@ -125,11 +181,11 @@ function countFindings(findings: ReportFinding[]): Record<ReportFindingCode, num
   return findings.reduce((acc, finding) => {
     acc[finding.code] += 1;
     return acc;
-  }, { OK: 0, CL: 0, NC: 0, FAR: 0, PENDING: 0, NA: 0 } as Record<ReportFindingCode, number>);
+  }, { OK: 0, CL: 0, NC: 0, CAR: 0, FAR: 0, PENDING: 0, NA: 0 } as Record<ReportFindingCode, number>);
 }
 
 function linesFromProvenance(provenance: Array<[string, string]>): string[] {
-  return provenance.map(([label, value]) => `${label}: ${value || 'n/a'}.`);
+  return provenance.map(([label, value]) => `${label}: ${punctuateLine(value || 'n/a')}`);
 }
 
 function buildRequirementFindingLines(findings: ReportFinding[]): string[] {
@@ -320,82 +376,109 @@ export function composeManualVerificationReport(
     const sourceDocumentLabel = project.documents.find((document) => document.id === finding.sourceDocumentId)?.fileName ?? 'No source document linked';
     return buildManualReportFinding(finding, sourceDocumentLabel);
   });
-  const findingCounts = countFindings(findings);
-  const provenance = buildProvenance(project, coverage, project.registry ?? 'Unknown', findings.length === 0 ? 'insufficient_source_content' : 'ready', exportTime);
+  const exportTimestamp = exportTime ?? 'generated during export';
+  const status = findings.length === 0 ? 'insufficient_source_content' : 'ready';
+  const registryLabel = manualRegistryLabel(project);
+  const methodologyLabel = manualMethodologyLabel(project);
+  const sourceDocumentName = project.documents[0]?.fileName ?? 'Not provided';
+  const typeCounts = manualFindingTypeCounts(project);
+  const openCount = project.manualFindings.filter((finding) => finding.closureStatus === 'open').length;
+  const inReviewCount = project.manualFindings.filter((finding) => finding.closureStatus === 'in-review').length;
+  const closedCount = project.manualFindings.filter((finding) => finding.closureStatus === 'closed').length;
+    const provenance = [
+    ['Manual review mode', 'true'],
+    ['Project ID', project.id],
+    ['Source document count', String(project.documents.length)],
+    ['Findings count', String(project.manualFindings.length)],
+    ['Locked status', project.status === 'locked' ? 'Locked' : 'In Progress'],
+    ['Locked timestamp', project.lockedAt ?? 'Not provided'],
+    ['Export timestamp', exportTimestamp],
+    ['Registry / Standard', registryLabel],
+    ['Registry project ID', 'Not provided'],
+    ['Methodology / reference', methodologyLabel],
+    ['Limitation', 'This report reconstructs findings from uploaded source documents. It is not an independent verification opinion, validation statement, or methodology compliance determination.'],
+  ] satisfies Array<[string, string]>;
 
   return {
     registry: project.registry ?? 'Unknown',
-    status: findings.length === 0 ? 'insufficient_source_content' : 'ready',
-    title: 'MANUAL REVIEW REPORT',
-    subtitle: 'Project-level manual review workspace for VVB findings reconstruction and evidence-gap tracking.',
+    status,
+    title: 'VVB FINDINGS RECONSTRUCTION',
+    subtitle: 'Project-level reconstruction of published VVB findings from uploaded source documents.',
     summaryItems: [
-      `Manual review mode: true`,
+      `Manual review report`,
       `Project: ${project.name}`,
-      `Findings recorded: ${project.manualFindings.length}`,
+      `Registry / Standard: ${registryLabel}`,
       `Source documents: ${project.documents.length}`,
     ],
     sections: [
       {
-        title: 'REVIEW STATUS',
+        title: 'REPORT LIMITATION',
         lines: [
-          'Manual review mode: true.',
-          `Project status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`,
-          `Project title: ${project.name}.`,
-          `Findings recorded: ${project.manualFindings.length}.`,
-          `Source documents uploaded: ${project.documents.length}.`,
+          'This report reconstructs findings from uploaded source documents. It is not an independent verification opinion, validation statement, or methodology compliance determination.',
         ],
       },
       {
-        title: 'PROJECT CONTEXT',
+        title: 'OUTCOME',
         lines: [
-          `Project name: ${project.name}.`,
-          project.aoiLabel ? `Project area: ${project.aoiLabel}.` : 'Project area: not provided.',
-          project.description ? `Project description: ${project.description}.` : 'Project description: not provided.',
-          `Created date: ${project.createdAt || 'n/a'}.`,
-          project.lockedAt ? `Locked date: ${project.lockedAt}.` : 'Locked date: not locked.',
+          `${project.manualFindings.length} VVB finding sections were reconstructed from the uploaded source document set.`,
+          `The review identified ${closedCount} closed findings, ${openCount} open findings, and ${inReviewCount} findings still marked in review.`,
+          'Findings remain reviewer-controlled records and do not represent a new verification opinion.',
         ],
       },
       {
-        title: 'SOURCE DOCUMENTS',
-        lines: project.documents.length > 0
-          ? project.documents.flatMap((document) => [
-            `${document.fileName} (${document.mimeType || 'unknown'}, ${document.sizeBytes} bytes).`,
-            document.extractedText?.trim()
-              ? `Document preview: ${document.extractedText.trim().slice(0, 220)}.`
-              : 'Document preview: not captured.',
-          ])
-          : ['No source documents uploaded.'],
+        title: 'PROJECT METADATA',
+        lines: [
+          `Registry / Standard: ${punctuateLine(registryLabel)}`,
+          'Registry project ID: Not provided.',
+          `Project name: ${punctuateLine(project.name)}`,
+          `Source document type: ${punctuateLine(sourceDocumentTypeLabel(project))}`,
+          `Source document name: ${punctuateLine(sourceDocumentName)}`,
+          `Methodology / reference: ${punctuateLine(methodologyLabel)}`,
+          'Review mode: Manual review.',
+          `Locked status: ${punctuateLine(project.status === 'locked' ? 'Locked' : 'In Progress')}`,
+          `Export timestamp: ${punctuateLine(exportTimestamp)}`,
+          `Project area: ${punctuateLine(fallbackValue(project.aoiLabel, 'Not provided'))}`,
+          `Project description: ${punctuateLine(fallbackValue(project.description, 'Not provided'))}`,
+        ],
       },
       {
         title: 'FINDINGS SUMMARY',
         lines: [
-          `NC: ${findingCounts.NC}. CL: ${findingCounts.CL}. FAR: ${findingCounts.FAR}.`,
-          `Open: ${project.manualFindings.filter((finding) => finding.closureStatus === 'open').length}. In review: ${project.manualFindings.filter((finding) => finding.closureStatus === 'in-review').length}. Closed: ${project.manualFindings.filter((finding) => finding.closureStatus === 'closed').length}.`,
+          `CAR: ${typeCounts.CAR}. CL: ${typeCounts.CL}. FAR: ${typeCounts.FAR}.`,
+          `Closed: ${closedCount}. Open: ${openCount}. In review: ${inReviewCount}.`,
+          `Source documents: ${project.documents.length}. Findings recorded: ${project.manualFindings.length}.`,
         ],
       },
       {
-        title: 'MANUAL FINDINGS',
+        title: 'FINDING DETAILS',
         lines: project.manualFindings.length > 0
           ? project.manualFindings.flatMap((finding) => {
             const sourceDocumentLabel = project.documents.find((document) => document.id === finding.sourceDocumentId)?.fileName ?? 'No source document linked';
             return [
-              `${finding.findingId} [${finding.findingType}] ${sourceDocumentLabel}.`,
-              `Closure status: ${finding.closureStatus}.`,
-              `Evidence excerpt: ${finding.evidenceExcerpt?.trim() || 'Not provided.'}`,
-              `Project response: ${finding.projectResponse?.trim() || 'Not provided.'}`,
-              `Reviewer note: ${finding.reviewerNote?.trim() || 'Not provided.'}`,
+              `Finding ID: ${punctuateLine(finding.findingId)}`,
+              `Type: ${punctuateLine(finding.findingType)}`,
+              `Closure status: ${punctuateLine(finding.closureStatus)}`,
+              `Source document: ${punctuateLine(sourceDocumentLabel)}`,
+              `Source page/range: ${punctuateLine(finding.sourcePageRange?.trim() || 'Not provided')}`,
+              `Requirement: ${punctuateLine(finding.requirement?.trim() || 'Not provided')}`,
+              `Description: ${punctuateLine(finding.description?.trim() || 'Not provided')}`,
+              `Project response: ${punctuateLine(finding.projectResponse?.trim() || 'Not provided')}`,
+              `Documentation submitted: ${punctuateLine(finding.documentationSubmitted?.trim() || 'Not provided')}`,
+              `Audit team evaluation: ${punctuateLine(finding.auditTeamEvaluation?.trim() || 'Not provided')}`,
+              `Reviewer note: ${punctuateLine(finding.reviewerNote?.trim() || 'Needs review')}`,
+              `Source excerpt: ${punctuateLine(finding.evidenceExcerpt?.trim() || 'Not provided')}`,
             ];
           })
           : ['No manual findings have been recorded yet.'],
       },
       {
-        title: 'PROVENANCE',
+        title: 'PROVENANCE AND LIMITATIONS',
         lines: linesFromProvenance(provenance),
       },
     ],
     findings,
     provenance,
-    limitation: 'This export reflects a project-level manual review workspace. It does not imply methodology compliance, certification status, or registry approval.',
+    limitation: 'This report reconstructs findings from uploaded source documents. It is not an independent verification opinion, validation statement, or methodology compliance determination.',
   };
 }
 

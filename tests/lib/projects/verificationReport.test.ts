@@ -223,21 +223,26 @@ describe('verification report composition', () => {
         documents: [
           {
             id: 'doc-1',
-            fileName: 'verra-monitoring-report.pdf',
+            fileName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
             mimeType: 'application/pdf',
             sizeBytes: 1024,
             uploadedAt: '2026-04-23T00:00:00.000Z',
-            extractedText: 'Monitoring report excerpt',
+            extractedText: 'CCB and VCS verification report excerpt',
           },
         ],
         manualFindings: [
           {
             id: 'finding-1',
-            findingId: 'F-001',
-            findingType: 'VVB finding',
+            findingId: 'CAR01',
+            findingType: 'CAR',
             sourceDocumentId: 'doc-1',
-            evidenceExcerpt: 'Emission factor table is missing.',
+            sourcePageRange: '40-41',
+            requirement: 'CCB V3.1: G1.10',
+            description: 'Environmental safeguards evidence is incomplete.',
+            evidenceExcerpt: 'Environmental safeguards evidence is incomplete.',
             projectResponse: 'Updated workbook to include the factor.',
+            documentationSubmitted: 'EPCAP requirements',
+            auditTeamEvaluation: 'Supports now demonstrate compliance.',
             closureStatus: 'open',
             reviewerNote: 'Needs revised attachment set.',
             createdAt: '2026-04-23T00:00:00.000Z',
@@ -250,10 +255,70 @@ describe('verification report composition', () => {
       makeCoverage({ total: 1, verified: 0, gap: 1, notStarted: 0, notApplicable: 0, inProgress: 0, percentComplete: 0 }),
     );
 
-    expect(report.title).toBe('MANUAL REVIEW REPORT');
-    expect(report.summaryItems).toContain('Manual review mode: true');
-    expect(report.sections.map((section) => section.title)).toContain('MANUAL FINDINGS');
+    expect(report.title).toBe('VVB FINDINGS RECONSTRUCTION');
+    expect(report.summaryItems).toContain('Manual review report');
+    expect(report.sections.map((section) => section.title)).toContain('FINDING DETAILS');
     expect(reportText(report)).not.toContain('UNFCCC VERIFICATION REPORT');
-    expect(reportText(report)).toContain('Manual review mode: true');
+    expect(reportText(report)).toContain('This report reconstructs findings from uploaded source documents.');
+    expect(reportText(report)).toContain('CAR: 1. CL: 0. FAR: 0.');
+    expect(reportText(report)).toContain('Registry / Standard: Verra / VCS + CCB.');
+    expect(reportText(report)).toContain('Finding ID: CAR01.');
+    expect(reportText(report)).toContain('Source page/range: 40-41.');
+    expect(reportText(report)).toContain('Documentation submitted: EPCAP requirements.');
+    expect(reportText(report)).toContain('Audit team evaluation: Supports now demonstrate compliance.');
+  });
+
+  it('summarizes 1530-style manual findings with CAR/CL/FAR and closed/open counts', () => {
+    const manualFindings: Project['manualFindings'] = [
+      ...Array.from({ length: 7 }, (_, index) => ({
+        id: `car-${index + 1}`,
+        findingId: `CAR0${index + 1}`,
+        findingType: 'CAR' as const,
+        closureStatus: 'closed' as const,
+        createdAt: '2026-04-23T00:00:00.000Z',
+        updatedAt: '2026-04-23T00:00:00.000Z',
+      })),
+      ...Array.from({ length: 6 }, (_, index) => ({
+        id: `cl-${index + 1}`,
+        findingId: `CL0${index + 1}`,
+        findingType: 'CL' as const,
+        closureStatus: 'closed' as const,
+        createdAt: '2026-04-23T00:00:00.000Z',
+        updatedAt: '2026-04-23T00:00:00.000Z',
+      })),
+      ...Array.from({ length: 4 }, (_, index) => ({
+        id: `far-${index + 1}`,
+        findingId: `FAR0${index + 1}`,
+        findingType: 'FAR' as const,
+        closureStatus: 'open' as const,
+        createdAt: '2026-04-23T00:00:00.000Z',
+        updatedAt: '2026-04-23T00:00:00.000Z',
+      })),
+    ];
+
+    const report = composeManualVerificationReport(
+      makeProject({
+        reviewMode: 'manual',
+        methodCode: undefined,
+        methodVersion: undefined,
+        registry: 'Verra',
+        documents: [{
+          id: 'doc-1',
+          fileName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 1024,
+          uploadedAt: '2026-04-23T00:00:00.000Z',
+        }],
+        manualFindings,
+        extractedManualFindingDrafts: [],
+        reviews: [],
+      }),
+      makeCoverage({ total: 17, verified: 13, gap: 4, notStarted: 0, percentComplete: 100 }),
+    );
+
+    const text = reportText(report);
+    expect(text).toContain('17 VVB finding sections were reconstructed');
+    expect(text).toContain('13 closed findings, 4 open findings, and 0 findings still marked in review');
+    expect(text).toContain('CAR: 7. CL: 6. FAR: 4.');
   });
 });
