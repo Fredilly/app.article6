@@ -118,31 +118,169 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     }
   }
 
-  ln.push(
-    ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION REPORT', '0.5 0.5 0.5 rg'),
-    ...TXT(L, y + 4, 'FB', 18, report.title, '0.1 0.1 0.1 rg'),
-    ...TXT(L, y - 14, 'F1', 9, truncate(report.subtitle, 84), '0.35 0.35 0.35 rg'),
-  );
-  let metaX = L;
-  for (const item of report.summaryItems.slice(0, 3)) {
-    ln.push(...TXT(metaX, y - 34, 'F1', 8, truncate(item, 26), '0.45 0.45 0.45 rg'));
-    metaX += 160;
+  function cardLabelValue(label: string, value: string, valueColor = '0.15 0.15 0.15 rg'): void {
+    need(18);
+    ln.push(...TXT(L + 10, y, 'FB', 7, label, '0.42 0.52 0.60 rg'));
+    y -= 10;
+    for (const line of wrapText(value, 92)) {
+      need(14);
+      ln.push(...TXT(L + 10, y, 'F1', 8, line, valueColor));
+      y -= 11;
+    }
+    y -= 3;
   }
-  y -= 68;
 
-  for (const section of report.sections) {
-    sec(section.title);
-    for (const line of section.lines) bodyLine(line);
+  function renderManualReport(): void {
+    const manualFindings = project.manualFindings;
+    const sourceDocument = project.documents[0];
+    const carCount = manualFindings.filter((finding) => finding.findingType === 'CAR').length;
+    const clCount = manualFindings.filter((finding) => finding.findingType === 'CL').length;
+    const farCount = manualFindings.filter((finding) => finding.findingType === 'FAR').length;
+    const closedCount = manualFindings.filter((finding) => finding.closureStatus === 'closed').length;
+    const openCount = manualFindings.filter((finding) => finding.closureStatus === 'open').length;
+    const inReviewCount = manualFindings.filter((finding) => finding.closureStatus === 'in-review').length;
+    const registryLabel = project.registry && project.registry !== 'Unknown' ? project.registry : 'Unknown registry';
+    const methodologyLabel = project.methodCode && project.methodVersion
+      ? `${project.methodCode} @ ${project.methodVersion}`
+      : 'Manual review - methodology not wired';
+    const projectArea = project.aoiLabel?.trim() || 'Not provided';
+    const projectDescription = project.description?.trim() || 'Not provided';
+    const sourceDocumentType = sourceDocument?.mimeType === 'application/pdf'
+      ? 'Published verification report PDF'
+      : sourceDocument
+        ? 'Uploaded source document'
+        : 'Not provided';
+
+    ln.push(
+      RC(0, HEADER_Y - 14, W, 40, 0.98),
+      ...TXT(L, y + 30, 'FB', 11, 'ARTICLE6', '0.18 0.23 0.28 rg'),
+      ...TXT(L, y + 12, 'FB', 18, 'MANUAL REVIEW REPORT', '0.10 0.12 0.15 rg'),
+      ...TXT(L, y - 6, 'FB', 15, report.title, '0.12 0.18 0.23 rg'),
+      ...TXT(L, y - 22, 'F1', 8, truncate('Project-level reconstruction of published VVB findings', 80), '0.38 0.44 0.50 rg'),
+    );
+    y -= 54;
+
+    ln.push(
+      RC(L, y - 38, R - L, 34, 0.95),
+      ...TXT(L + 10, y - 12, 'F1', 8, truncate(report.limitation, 110), '0.30 0.34 0.38 rg'),
+    );
+    y -= 54;
+
+    sec('Outcome');
+    bodyLine(`${manualFindings.length} VVB finding sections were reconstructed from the uploaded source document set.`, 'FB', 9, '0.12 0.18 0.23 rg');
+    bodyLine(`The review identified ${closedCount} closed findings, ${openCount} open findings, and ${inReviewCount} findings still marked in review.`, 'F1', 8, '0.22 0.22 0.22 rg');
+    bodyLine('Findings remain reviewer-controlled records and do not represent a new verification opinion.', 'F1', 8, '0.22 0.22 0.22 rg');
     y -= 4;
+
+    need(78);
+    const cardY = y;
+    const cardW = 152;
+    const gap = 14;
+    const cardX = [L, L + cardW + gap, L + (cardW + gap) * 2];
+    const cards = [
+      { title: 'Finding Types', value: `CAR: ${carCount}  CL: ${clCount}  FAR: ${farCount}` },
+      { title: 'Closure Status', value: `Closed: ${closedCount}  Open: ${openCount}  In review: ${inReviewCount}` },
+      { title: 'Source Set', value: `Documents: ${project.documents.length}  Findings: ${manualFindings.length}` },
+    ];
+    cards.forEach((card, index) => {
+      ln.push(
+        RC(cardX[index], cardY - 46, cardW, 40, 0.97),
+        ...TXT(cardX[index] + 8, cardY - 14, 'FB', 7, card.title.toUpperCase(), '0.42 0.52 0.60 rg'),
+        ...TXT(cardX[index] + 8, cardY - 28, 'F1', 8, truncate(card.value, 28), '0.12 0.15 0.18 rg'),
+      );
+    });
+    y -= 62;
+
+    sec('Project Metadata');
+    const metadataPairs = [
+      ['Registry / Standard', registryLabel],
+      ['Registry project ID', 'Not provided'],
+      ['Project name', project.name],
+      ['Source document type', sourceDocumentType],
+      ['Source document name', sourceDocument?.fileName ?? 'Not provided'],
+      ['Methodology / reference', methodologyLabel],
+      ['Review mode', 'Manual review'],
+      ['Locked status', project.status === 'locked' ? 'Locked' : 'In Progress'],
+      ['Export timestamp', now],
+      ['Project area', projectArea],
+      ['Project description', projectDescription],
+    ];
+    for (const [label, value] of metadataPairs) {
+      bodyLine(`${label}: ${value}.`);
+    }
+    y -= 4;
+
+    sec('Finding Details');
+    if (manualFindings.length === 0) {
+      bodyLine('No manual findings have been recorded yet.');
+    } else {
+      for (const finding of manualFindings) {
+        const sourceDocumentLabel = project.documents.find((document) => document.id === finding.sourceDocumentId)?.fileName ?? 'Not provided';
+        const fieldLines: Array<[string, string, string?]> = [
+          ['Finding ID', finding.findingId],
+          ['Type', finding.findingType],
+          ['Closure status', finding.closureStatus],
+          ['Source document', sourceDocumentLabel],
+          ['Source page/range', finding.sourcePageRange?.trim() || 'Not provided'],
+          ['Requirement', finding.requirement?.trim() || 'Not provided'],
+          ['Description', finding.description?.trim() || 'Not provided'],
+          ['Project response', finding.projectResponse?.trim() || 'Not provided'],
+          ['Documentation submitted', finding.documentationSubmitted?.trim() || 'Not provided'],
+          ['Audit team evaluation', finding.auditTeamEvaluation?.trim() || 'Not provided'],
+          ['Reviewer note', finding.reviewerNote?.trim() || 'Needs review'],
+          ['Source excerpt', finding.evidenceExcerpt?.trim() || 'Not provided', '0.36 0.38 0.42 rg'],
+        ];
+        const estimatedHeight = fieldLines.reduce((sum, [, value]) => sum + wrapText(value, 92).length * 11 + 16, 26);
+        need(estimatedHeight + 18);
+        ln.push(
+          RC(L, y - estimatedHeight + 8, R - L, estimatedHeight, 0.985),
+          ...TXT(L + 10, y - 8, 'FB', 10, `${finding.findingId}  ${finding.findingType}`, '0.10 0.12 0.15 rg'),
+        );
+        y -= 24;
+        for (const [label, value, color] of fieldLines) {
+          cardLabelValue(label, value, color);
+        }
+        y -= 8;
+      }
+    }
+
+    sec('Provenance And Limitations');
+    for (const [label, value] of report.provenance) {
+      bodyLine(`${label}: ${value}.`, 'F1', 8, label === 'Limitation' ? '0.36 0.38 0.42 rg' : '0.22 0.22 0.22 rg');
+    }
   }
 
-  need(30);
-  ln.push(
-    LN(y),
-    ...TXT(L, y - 12, 'F1', 7, truncate(report.limitation, 110), '0.7 0.7 0.7 rg'),
-    ...TXT(L, y - 24, 'F1', 7, `Export time ${safeDate(now)}.`, '0.7 0.7 0.7 rg'),
-  );
-  flush();
+  if (project.reviewMode === 'manual') {
+    renderManualReport();
+    flush();
+  } else {
+
+    ln.push(
+      ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION REPORT', '0.5 0.5 0.5 rg'),
+      ...TXT(L, y + 4, 'FB', 18, report.title, '0.1 0.1 0.1 rg'),
+      ...TXT(L, y - 14, 'F1', 9, truncate(report.subtitle, 84), '0.35 0.35 0.35 rg'),
+    );
+    let metaX = L;
+    for (const item of report.summaryItems.slice(0, 3)) {
+      ln.push(...TXT(metaX, y - 34, 'F1', 8, truncate(item, 26), '0.45 0.45 0.45 rg'));
+      metaX += 160;
+    }
+    y -= 68;
+
+    for (const section of report.sections) {
+      sec(section.title);
+      for (const line of section.lines) bodyLine(line);
+      y -= 4;
+    }
+
+    need(30);
+    ln.push(
+      LN(y),
+      ...TXT(L, y - 12, 'F1', 7, truncate(report.limitation, 110), '0.7 0.7 0.7 rg'),
+      ...TXT(L, y - 24, 'F1', 7, `Export time ${safeDate(now)}.`, '0.7 0.7 0.7 rg'),
+    );
+    flush();
+  }
 
   const enc = (s: string) => Buffer.from(s, 'utf-8');
   const parts: Buffer[] = [];

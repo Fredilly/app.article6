@@ -150,11 +150,16 @@ describe('/api/projects/[id]/export-pdf route', () => {
       manualFindings: [
         {
           id: 'finding-1',
-          findingId: 'F-001',
-          findingType: 'VVB finding',
+          findingId: 'CAR01',
+          findingType: 'CAR',
           sourceDocumentId: 'doc-1',
+          sourcePageRange: '40-41',
+          requirement: 'CCB V3.1: G1.10',
+          description: 'Monitoring report omits appendix references.',
           evidenceExcerpt: 'Monitoring report omits appendix references.',
           projectResponse: 'Appendix references will be added.',
+          documentationSubmitted: 'Revised appendix set',
+          auditTeamEvaluation: 'Awaiting updated published report',
           closureStatus: 'open',
           reviewerNote: 'Hold open until revised report lands.',
           createdAt: '2026-04-15T00:00:00Z',
@@ -175,9 +180,24 @@ describe('/api/projects/[id]/export-pdf route', () => {
 
     expect(res.headers.get('Content-Disposition')).toContain('attachment; filename="manual-review-pack-manual-p.pdf"');
     expect(parsed.text).toContain('MANUAL REVIEW REPORT');
+    expect(parsed.text).toContain('VVB FINDINGS RECONSTRUCTION');
+    expect(parsed.text).not.toContain('VERIFICATION REPORT UNFCCC');
+    expect(parsed.text).not.toContain('UNFCCC VERIFICATION REPORT');
+    expect(parsed.text).toContain('This report reconstructs findings from uploaded source documents.');
     expect(parsed.text).toContain('Manual review mode: true');
     expect(parsed.text).toContain('Verra Reconstruction Workspace');
     expect(parsed.text).not.toContain('AR-AMS0007');
+    expect(parsed.text).toContain('CAR: 1');
+    expect(parsed.text).toContain('CL: 0');
+    expect(parsed.text).toContain('FAR: 0');
+    expect(parsed.text).not.toContain('NC: 1');
+    expect(parsed.text).toContain('Finding ID');
+    expect(parsed.text).toContain('Source page/range');
+    expect(parsed.text).toContain('Project response');
+    expect(parsed.text).toContain('Documentation submitted');
+    expect(parsed.text).toContain('Audit team evaluation');
+    expect(parsed.text).toContain('Source excerpt');
+    expect(parsed.text).toContain('Provenance And Limitations');
   }, 15000);
 
   it('renders reviewer rationale under rules that have notes', async () => {

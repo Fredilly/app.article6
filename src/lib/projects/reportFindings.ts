@@ -1,6 +1,6 @@
 import type { ManualFinding, RuleReview } from '@/lib/projects/types';
 
-export type ReportFindingCode = 'OK' | 'CL' | 'NC' | 'FAR' | 'PENDING' | 'NA';
+export type ReportFindingCode = 'OK' | 'CL' | 'NC' | 'CAR' | 'FAR' | 'PENDING' | 'NA';
 
 export type ReportFinding = {
   findingId: string;
@@ -63,7 +63,8 @@ export function buildReportFinding(
 }
 
 export function manualFindingCodeFromType(type: ManualFinding['findingType']): ReportFindingCode {
-  if (type === 'CAR' || type === 'VVB finding' || type === 'evidence gap') return 'NC';
+  if (type === 'CAR') return 'CAR';
+  if (type === 'VVB finding' || type === 'evidence gap') return 'NC';
   if (type === 'FAR') return 'FAR';
   return 'CL';
 }
