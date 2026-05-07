@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
       "./node_modules/pdfjs-dist/**/*",
       "./node_modules/@napi-rs/canvas/**/*",
     ],
+    "/api/projects/manual-review/extract-findings": [
+      "./scripts/extract-quick-check-pdf.cjs",
+      "./node_modules/pdf-parse/**/*",
+      "./node_modules/pdfjs-dist/**/*",
+      "./node_modules/@napi-rs/canvas/**/*",
+    ],
   },
 };
 

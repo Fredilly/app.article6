@@ -1,51 +1,52 @@
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import fs from 'fs';
+import path from 'path';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+
+const extractPdfPagesWithPdfParseMock = jest.fn();
+
+jest.mock('@/lib/chat/quickCheckPdfExtractor', () => ({
+  extractPdfPagesWithPdfParse: (...args: unknown[]) => extractPdfPagesWithPdfParseMock(...args),
+}));
+
+const { POST } = require('@/app/api/projects/manual-review/extract-findings/route') as typeof import('@/app/api/projects/manual-review/extract-findings/route');
+
+function loadCcb1530AppendixPages() {
+  const fixturePath = path.join(process.cwd(), 'tests/fixtures/projects/ccb1530-appendix1-pages.json');
+  const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8')) as {
+    pages: Array<{ pageNumber: number; text: string }>;
+  };
+  return fixture.pages;
+}
 
 describe('/api/projects/manual-review/extract-findings route', () => {
   beforeEach(() => {
-    jest.resetModules();
+    extractPdfPagesWithPdfParseMock.mockReset();
   });
 
-  afterEach(() => {
-    jest.dontMock('@/lib/chat/quickCheckPdfExtractor');
-    jest.clearAllMocks();
-  });
-
-  it('returns extracted draft findings with a trace label', async () => {
-    jest.doMock('@/lib/chat/quickCheckPdfExtractor', () => ({
-      extractPdfPagesWithPdfParse: jest.fn().mockResolvedValue({
-        text: 'CAR01 Requirement: Submit monitoring workbook. Description: Workbook totals do not reconcile. Project response: Revised workbook submitted. Closure status: Open',
-        pages: [
-          {
-            pageNumber: 118,
-            text: 'CAR01\nRequirement: Submit monitoring workbook.\nDescription: Workbook totals do not reconcile.\nProject response: Revised workbook submitted.\nClosure status: Open',
-          },
-        ],
-        engine: 'pdf-parse',
-        metadata: {
-          parser: 'pdf-parse',
-          diagnostics: {
-            parserPath: 'bundled-pdf-parse',
-            pageExtractionAttempted: true,
-            textFallbackAttempted: false,
-            extractedTextLength: 144,
-            pageCount: 1,
-            likelyScannedOrImageOnly: false,
-            partialTextRecovered: false,
-          },
+  it('returns extracted draft findings with a parser trace label', async () => {
+    extractPdfPagesWithPdfParseMock.mockResolvedValueOnce({
+      text: 'CAR01 Requirement: Submit monitoring workbook. Description: Workbook totals do not reconcile. Project response: Revised workbook submitted. Closure status: Open',
+      pages: [
+        {
+          pageNumber: 118,
+          text: 'CAR01\nRequirement: Submit monitoring workbook.\nDescription: Workbook totals do not reconcile.\nProject response: Revised workbook submitted.\nDocumentation submitted: Workbook extract.\nAudit team evaluation: Report narrative still needs one cross-reference.\nClosure status: Open',
         },
-      }),
-      PdfExtractionError: class PdfExtractionError extends Error {
-        diagnostics: Record<string, unknown>;
-
-        constructor(message: string, diagnostics: Record<string, unknown>) {
-          super(message);
-          this.name = 'PdfExtractionError';
-          this.diagnostics = diagnostics;
-        }
+      ],
+      engine: 'pdf-parse',
+      metadata: {
+        parser: 'pdf-parse',
+        diagnostics: {
+          parserPath: 'bundled-pdf-parse',
+          pageExtractionAttempted: true,
+          textFallbackAttempted: false,
+          extractedTextLength: 144,
+          pageCount: 1,
+          likelyScannedOrImageOnly: false,
+          partialTextRecovered: false,
+        },
       },
-    }));
+    });
 
-    const { POST } = await import('@/app/api/projects/manual-review/extract-findings/route');
     const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
       method: 'POST',
       headers: {
@@ -73,36 +74,63 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     );
   });
 
-  it('returns a manual-entry fallback payload when extraction fails', async () => {
-    jest.doMock('@/lib/chat/quickCheckPdfExtractor', () => {
-      class PdfExtractionError extends Error {
-        diagnostics: Record<string, unknown>;
-
-        constructor(message: string, diagnostics: Record<string, unknown>) {
-          super(message);
-          this.name = 'PdfExtractionError';
-          this.diagnostics = diagnostics;
-        }
-      }
-
-      return {
-        extractPdfPagesWithPdfParse: jest.fn().mockRejectedValue(new PdfExtractionError(
-          'No extractable text found in PDF.',
-          {
-            parserPath: 'helper-pages',
-            pageExtractionAttempted: true,
-            textFallbackAttempted: true,
-            extractedTextLength: 0,
-            pageCount: 0,
-            likelyScannedOrImageOnly: true,
-            partialTextRecovered: false,
-          },
-        )),
-        PdfExtractionError,
-      };
+  it('returns the truthful fallback when no structured findings are detected', async () => {
+    extractPdfPagesWithPdfParseMock.mockResolvedValueOnce({
+      text: 'Appendix summary only',
+      pages: [
+        { pageNumber: 1, text: 'Appendix summary only' },
+      ],
+      engine: 'pdf-parse',
+      metadata: {
+        parser: 'pdf-parse',
+        diagnostics: {
+          parserPath: 'bundled-pdf-parse',
+          pageExtractionAttempted: true,
+          textFallbackAttempted: false,
+          extractedTextLength: 20,
+          pageCount: 1,
+          likelyScannedOrImageOnly: false,
+          partialTextRecovered: false,
+        },
+      },
     });
 
-    const { POST } = await import('@/app/api/projects/manual-review/extract-findings/route');
+    const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/pdf',
+        'x-article6-filename': encodeURIComponent('summary-only.pdf'),
+      },
+      body: '%PDF-sample',
+    });
+
+    const res = await POST(req);
+    const body = await res.json() as { drafts: unknown[]; message: string; traceLabel?: string; diagnostics?: { parserPath?: string } };
+
+    expect(res.status).toBe(200);
+    expect(body.drafts).toEqual([]);
+    expect(body.message).toBe('No structured CAR/CL/FAR findings detected. You can still add findings manually.');
+    expect(body.traceLabel).toContain('bundled-pdf-parse');
+    expect(body.diagnostics?.parserPath).toBe('bundled-pdf-parse');
+  });
+
+  it('returns a manual-entry fallback payload when extraction fails', async () => {
+    extractPdfPagesWithPdfParseMock.mockRejectedValueOnce({
+      name: 'PdfExtractionError',
+      message: 'PDF extraction failed',
+      diagnostics: {
+        parserPath: 'helper-text-after-helper-pages',
+        pageExtractionAttempted: true,
+        pageExtractionError: 'broken pdf',
+        textFallbackAttempted: true,
+        textFallbackError: 'No extractable text found in PDF.',
+        extractedTextLength: 0,
+        pageCount: 0,
+        likelyScannedOrImageOnly: true,
+        partialTextRecovered: false,
+      },
+    });
+
     const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/pdf' },
@@ -117,5 +145,72 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     expect(payload.drafts).toEqual([]);
     expect(payload.message).toContain('You can still add findings manually');
     expect(payload.diagnosticSummary).toBe('likely scanned/image-only');
+  });
+
+  it('creates extraction-review drafts for the 1530 appendix sample instead of only a no-findings message', async () => {
+    const pages = loadCcb1530AppendixPages();
+
+    extractPdfPagesWithPdfParseMock.mockResolvedValueOnce({
+      text: pages.map((page) => page.text).join('\n\n'),
+      pages,
+      engine: 'pdf-parse',
+      metadata: {
+        parser: 'pdf-parse',
+        diagnostics: {
+          parserPath: 'bundled-pdf-parse',
+          pageExtractionAttempted: true,
+          textFallbackAttempted: false,
+          extractedTextLength: 5000,
+          pageCount: pages.length,
+          likelyScannedOrImageOnly: false,
+          partialTextRecovered: false,
+        },
+      },
+    });
+
+    const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/pdf',
+        'x-article6-filename': encodeURIComponent('CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf'),
+      },
+      body: '%PDF-vcs1530',
+    });
+
+    const res = await POST(req);
+    const body = await res.json() as {
+      drafts: Array<{
+        findingId: string;
+        findingType?: string;
+        sourcePageRange?: string;
+        extractionStatus: string;
+        documentationSubmitted?: string;
+        auditTeamEvaluation?: string;
+        evidenceExcerpt?: string;
+      }>;
+      message: string;
+      traceLabel?: string;
+    };
+
+    const car01 = body.drafts.find((draft) => draft.findingId === 'CAR01');
+    const far05 = body.drafts.find((draft) => draft.findingId === 'FAR05');
+
+    expect(res.status).toBe(200);
+    expect(body.message).toContain('finding sections detected');
+    expect(body.traceLabel).toBe('bundled-pdf-parse');
+    expect(body.drafts).toHaveLength(17);
+    expect(car01).toEqual(expect.objectContaining({
+      findingType: 'CAR',
+      sourcePageRange: '40-41',
+      extractionStatus: 'draft',
+    }));
+    expect(far05).toEqual(expect.objectContaining({
+      findingType: 'FAR',
+      sourcePageRange: '50',
+      extractionStatus: 'needs-review',
+    }));
+    expect(far05).not.toHaveProperty('documentationSubmitted');
+    expect(far05).not.toHaveProperty('auditTeamEvaluation');
+    expect(far05?.evidenceExcerpt).not.toContain('APPENDIX 2: AUDIT PLAN');
   });
 });

@@ -59,6 +59,7 @@ export type PdfParseLike = {
 };
 
 const execFileAsync = promisify(execFile);
+let pdfJsGlobalsReady = false;
 
 export class PdfExtractionError extends Error {
   diagnostics: PdfExtractionDiagnostics;
@@ -129,6 +130,32 @@ function formatExecOutputSnippet(value: unknown): string | undefined {
 
 function inferLikelyScannedOrImageOnly(errorMessages: string[]): boolean {
   return errorMessages.some((message) => /no extractable text found/i.test(message));
+}
+
+async function ensurePdfJsNodeGlobals(): Promise<void> {
+  if (pdfJsGlobalsReady) return;
+  pdfJsGlobalsReady = true;
+
+  try {
+    const canvasModule = await import("@napi-rs/canvas");
+    const candidates = canvasModule as {
+      DOMMatrix?: unknown;
+      ImageData?: unknown;
+      Path2D?: unknown;
+    };
+
+    if (typeof globalThis.DOMMatrix === "undefined" && typeof candidates.DOMMatrix !== "undefined") {
+      globalThis.DOMMatrix = candidates.DOMMatrix as typeof globalThis.DOMMatrix;
+    }
+    if (typeof globalThis.ImageData === "undefined" && typeof candidates.ImageData !== "undefined") {
+      globalThis.ImageData = candidates.ImageData as typeof globalThis.ImageData;
+    }
+    if (typeof globalThis.Path2D === "undefined" && typeof candidates.Path2D !== "undefined") {
+      globalThis.Path2D = candidates.Path2D as typeof globalThis.Path2D;
+    }
+  } catch {
+    // Keep existing extraction diagnostics truthful if the optional canvas runtime is unavailable.
+  }
 }
 
 function buildPageExtractionResult(
@@ -216,6 +243,7 @@ async function extractPdfTextViaHelper(bytes: ArrayBuffer): Promise<string> {
 }
 
 async function loadBundledPdfParseClass(): Promise<PdfParseLike> {
+  await ensurePdfJsNodeGlobals();
   const mod = await import("pdf-parse");
   if (typeof mod.PDFParse !== "function") {
     throw new Error("pdf-parse did not expose PDFParse.");
