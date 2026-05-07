@@ -54,6 +54,10 @@ function wrapText(text: string, max = 96): string[] {
   return lines.length > 0 ? lines : [''];
 }
 
+function estimateWrappedTextHeight(text: string, max = 96, lineHeight = 12): number {
+  return wrapText(text, max).length * lineHeight;
+}
+
 export function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Buffer {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const report = composeVerificationReport(project, coverage, now);
@@ -115,6 +119,19 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
       need(14);
       ln.push(...TXT(L, y, font, size, line, color));
       y -= 12;
+    }
+  }
+
+  function ensureManualProvenanceFits(lines: string[]): void {
+    const headingHeight = 28;
+    const trailingPadding = 12;
+    const totalHeight = headingHeight + trailingPadding + lines.reduce(
+      (sum, line) => sum + estimateWrappedTextHeight(line),
+      0,
+    );
+
+    if (y - totalHeight < BOT) {
+      flush();
     }
   }
 
@@ -244,9 +261,12 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
       }
     }
 
+    const provenanceLines = report.provenance.map(([label, value]) => `${label}: ${value}.`);
+    ensureManualProvenanceFits(provenanceLines);
     sec('Provenance And Limitations');
-    for (const [label, value] of report.provenance) {
-      bodyLine(`${label}: ${value}.`, 'F1', 8, label === 'Limitation' ? '0.36 0.38 0.42 rg' : '0.22 0.22 0.22 rg');
+    for (let index = 0; index < report.provenance.length; index += 1) {
+      const [label] = report.provenance[index];
+      bodyLine(provenanceLines[index], 'F1', 8, label === 'Limitation' ? '0.36 0.38 0.42 rg' : '0.22 0.22 0.22 rg');
     }
   }
 

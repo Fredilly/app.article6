@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import { POST } from '@/app/api/projects/[id]/export-pdf/route';
-import { extractPdfTextWithPdfParse } from '@/lib/chat/quickCheckPdfExtractor';
+import { extractPdfPagesWithPdfParse, extractPdfTextWithPdfParse } from '@/lib/chat/quickCheckPdfExtractor';
 import { buildProjectExportPdf } from '@/lib/projects/exportPdf';
 import type { Project } from '@/lib/projects/types';
 
@@ -198,6 +198,62 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('Audit team evaluation');
     expect(parsed.text).toContain('Source excerpt');
     expect(parsed.text).toContain('Provenance And Limitations');
+  }, 15000);
+
+  it('keeps the manual review provenance block together instead of spilling a sentence fragment onto a nearly blank final page', async () => {
+    const project: Project = {
+      id: 'manual-project-15',
+      name: 'Long Manual Review Workspace',
+      reviewMode: 'manual',
+      registry: 'Unknown',
+      status: 'locked',
+      createdAt: '2026-04-15T00:00:00Z',
+      documents: [
+        {
+          id: 'doc-1',
+          fileName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 420000,
+          uploadedAt: '2026-04-15T00:00:00Z',
+          extractedText: 'Appendix 1 CAR/CL/FAR findings excerpt',
+        },
+      ],
+      manualFindings: Array.from({ length: 17 }, (_, index) => ({
+        id: `finding-${index + 1}`,
+        findingId: index < 7 ? `CAR0${index + 1}` : index < 13 ? `CL0${index - 6}` : `FAR0${index - 12}`,
+        findingType: index < 7 ? 'CAR' : index < 13 ? 'CL' : 'FAR',
+        sourceDocumentId: 'doc-1',
+        sourcePageRange: `${40 + index}-${41 + index}`,
+        requirement: `Requirement reference ${index + 1} with enough text to wrap cleanly across the PDF card layout.`,
+        description: `Structured description for finding ${index + 1} explaining the reconstructed VVB issue in a compact but still realistic way.`,
+        evidenceExcerpt: `Source excerpt for finding ${index + 1} that remains visible for traceability while staying visually secondary in the report.`,
+        projectResponse: `Project response for finding ${index + 1} documenting the project-side remediation or clarification text used in the reconstruction.`,
+        documentationSubmitted: `Supporting attachment set ${index + 1} with workbook, report appendix, and memo references.`,
+        auditTeamEvaluation: `Audit team evaluation for finding ${index + 1} describing the recorded closure or remaining follow-up from the source report.`,
+        closureStatus: index < 13 ? 'closed' : 'open',
+        reviewerNote: `Reviewer note ${index + 1} captured in the manual review workspace.`,
+        createdAt: '2026-04-15T00:00:00Z',
+        updatedAt: '2026-04-15T00:00:00Z',
+      })),
+      extractedManualFindingDrafts: [],
+      reviews: [],
+    };
+
+    const req = new Request('http://localhost/api/projects/manual-project-15/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfPagesWithPdfParse({ bytes });
+    const lastPageText = parsed.pages.at(-1)?.text ?? '';
+    const lastPageWordCount = lastPageText.split(/\s+/).filter(Boolean).length;
+
+    expect(lastPageText).toContain('Provenance And Limitations');
+    expect(lastPageText).toContain('Manual review mode: true');
+    expect(lastPageText).toContain('Methodology / reference: Manual review - methodology not wired');
+    expect(lastPageWordCount).toBeGreaterThan(25);
   }, 15000);
 
   it('renders reviewer rationale under rules that have notes', async () => {
