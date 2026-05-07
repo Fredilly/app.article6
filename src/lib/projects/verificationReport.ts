@@ -133,7 +133,7 @@ function inferManualRegistryLabel(project: Project): string | undefined {
   return undefined;
 }
 
-function manualRegistryLabel(project: Project): string {
+export function manualRegistryLabel(project: Project): string {
   if (project.registry && project.registry !== 'Unknown') return project.registry;
   return inferManualRegistryLabel(project) ?? 'Unknown registry';
 }

@@ -1,5 +1,5 @@
 import type { Project, ProjectCoverage, RuleReview } from '@/lib/projects/types';
-import { composeVerificationReport } from '@/lib/projects/verificationReport';
+import { composeVerificationReport, manualRegistryLabel } from '@/lib/projects/verificationReport';
 
 function esc(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
@@ -170,7 +170,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     const closedCount = manualFindings.filter((finding) => finding.closureStatus === 'closed').length;
     const openCount = manualFindings.filter((finding) => finding.closureStatus === 'open').length;
     const inReviewCount = manualFindings.filter((finding) => finding.closureStatus === 'in-review').length;
-    const registryLabel = project.registry && project.registry !== 'Unknown' ? project.registry : 'Unknown registry';
+    const registryLabel = manualRegistryLabel(project);
     const methodologyLabel = project.methodCode && project.methodVersion
       ? `${project.methodCode} @ ${project.methodVersion}`
       : 'Manual review - methodology not wired';
