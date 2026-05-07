@@ -1,0 +1,16 @@
+{
+  "pages": [
+    {
+      "pageNumber": 118,
+      "text": "Appendix 1. Corrective Action Requests (CARs), Clarification Requests (CLs) and Forward Action Requests (FARs)\nCAR01\nRequirement: Monitoring report section 3.2 shall reconcile the monitoring period activity data.\nDescription: The audit team identified that the activity data table does not reconcile with the monitoring workbook totals provided in Appendix B.\nDocumentation submitted: Monitoring report v3, workbook extract,\nmanagement representation letter"
+    },
+    {
+      "pageNumber": 119,
+      "text": "Project response: The project proponent submitted a revised workbook and an updated activity data table on 12 March 2026.\nAudit team evaluation: The revised workbook reconciles the totals, but the report narrative still needs a conforming cross-reference to Appendix B.\nClosure status: Open\nCL02\nRequirement: The project description shall identify the boundary villages included in the monitoring period.\nDescription: The verification report narrative references two village names that are not listed consistently in the monitoring report annex.\nProject response: The project proponent clarified the village list and provided a corrected annex.\nDocumentation submitted: Corrected annex and boundary map.\nAudit team evaluation: The clarification is sufficient and no further action is required.\nClosure status: Closed"
+    },
+    {
+      "pageNumber": 120,
+      "text": "FAR03\nRequirement: Future monitoring submissions should include a signed QA/QC checklist for the sampling workbook.\nDescription: The current submission did not include a signed QA/QC checklist, although the audit team confirmed the workbook could still be reviewed.\nProject response: The project proponent committed to include the signed checklist in the next verification cycle.\nDocumentation submitted: Email commitment from the project proponent.\nAudit team evaluation: Record as a forward action request for the next verification cycle.\nClosure status: Open"
+    }
+  ]
+}

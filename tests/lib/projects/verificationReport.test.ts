@@ -65,6 +65,7 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     createdAt: '2026-04-23T00:00:00.000Z',
     documents: [],
     manualFindings: [],
+    extractedManualFindingDrafts: [],
     reviews: [
       {
         ruleId: 'R-1',
@@ -243,6 +244,7 @@ describe('verification report composition', () => {
             updatedAt: '2026-04-23T00:00:00.000Z',
           },
         ],
+        extractedManualFindingDrafts: [],
         reviews: [],
       }),
       makeCoverage({ total: 1, verified: 0, gap: 1, notStarted: 0, notApplicable: 0, inProgress: 0, percentComplete: 0 }),

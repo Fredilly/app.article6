@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { jest, describe, expect, it, beforeEach } from "@jest/globals";
-import { extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
+import { PdfExtractionError, extractPdfPagesWithPdfParse, extractPdfTextWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
 
 describe("quick check pdf-parse extractor", () => {
   const getTextMock = jest.fn<() => Promise<{ text?: string }>>();
@@ -27,9 +27,13 @@ describe("quick check pdf-parse extractor", () => {
     });
 
     expect(result.text).toBe("Project area Lilongwe District");
-    expect(result.metadata).toEqual({
+    expect(result.metadata).toEqual(expect.objectContaining({
       parser: "pdf-parse",
-    });
+      diagnostics: expect.objectContaining({
+        parserPath: "provided-parser",
+        extractedTextLength: "Project area Lilongwe District".length,
+      }),
+    }));
     expect(destroyMock).toHaveBeenCalled();
   });
 
@@ -42,9 +46,13 @@ describe("quick check pdf-parse extractor", () => {
     });
 
     expect(result.text).toContain("Monitoring report covers the reporting period.");
-    expect(result.metadata).toEqual({
+    expect(result.metadata).toEqual(expect.objectContaining({
       parser: "pdf-parse",
-    });
+      diagnostics: expect.objectContaining({
+        parserPath: "provided-parser",
+        extractedTextLength: expect.any(Number),
+      }),
+    }));
   });
 
   it("propagates parser failures so the route can fall back", async () => {
@@ -71,4 +79,110 @@ describe("quick check pdf-parse extractor", () => {
     expect(result.text).toContain("Gold Standard TPDDTEC, Version 4.0");
     expect(result.text).toContain("The monitoring report covers the full reporting period");
   }, 15000);
+
+  it("returns per-page text when page extraction is requested", async () => {
+    getTextMock.mockResolvedValue({
+      text: "Page one text Page two text",
+      pages: [
+        { num: 1, text: "Page one text" },
+        { num: 2, text: "Page two text" },
+      ],
+    });
+
+    const result = await extractPdfPagesWithPdfParse({
+      bytes: new TextEncoder().encode("%PDF-pages").buffer,
+      PdfParseClass: PdfParseClassMock as never,
+    });
+
+    expect(result.pages).toEqual([
+      { pageNumber: 1, text: "Page one text" },
+      { pageNumber: 2, text: "Page two text" },
+    ]);
+    expect(result.text).toBe("Page one text Page two text");
+    expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      parserPath: "provided-parser",
+      pageExtractionAttempted: true,
+      textFallbackAttempted: false,
+      pageCount: 2,
+    }));
+  });
+
+  it("falls back to a synthetic page when only full-document text is available", async () => {
+    getTextMock.mockResolvedValue({
+      text: "Appendix 1\nF-001\nDescription: Missing annex reference.",
+    });
+
+    const result = await extractPdfPagesWithPdfParse({
+      bytes: new TextEncoder().encode("%PDF-text-only").buffer,
+      PdfParseClass: PdfParseClassMock as never,
+    });
+
+    expect(result.pages).toEqual([
+      {
+        pageNumber: 1,
+        text: "Appendix 1\nF-001\nDescription: Missing annex reference.",
+      },
+    ]);
+    expect(result.text).toContain("F-001");
+    expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      parserPath: "provided-parser",
+      pageExtractionAttempted: true,
+      textFallbackAttempted: false,
+      pageCount: 1,
+    }));
+  });
+
+  it("throws structured diagnostics when neither page extraction nor text extraction yields extractable text", async () => {
+    getTextMock.mockResolvedValue({ text: "   ", pages: [] });
+
+    await expect(
+      extractPdfPagesWithPdfParse({
+        bytes: new TextEncoder().encode("%PDF-image-only").buffer,
+        PdfParseClass: PdfParseClassMock as never,
+      }),
+    ).rejects.toMatchObject({
+      name: "PdfExtractionError",
+      message: "No extractable text found in PDF.",
+      diagnostics: expect.objectContaining({
+        parserPath: "provided-parser",
+        pageExtractionAttempted: true,
+        textFallbackAttempted: false,
+        extractedTextLength: 0,
+        pageCount: 0,
+        likelyScannedOrImageOnly: true,
+      }),
+    } satisfies Partial<PdfExtractionError>);
+  });
+
+  it("falls back to helper text extraction when helper page extraction fails", async () => {
+    const result = await extractPdfPagesWithPdfParse({
+      bytes: new TextEncoder().encode("%PDF-helper-fallback").buffer,
+      helperOverrides: {
+        extractPagesViaHelper: async () => {
+          throw new Error("stdout maxBuffer length exceeded");
+        },
+        extractTextViaHelper: async () => ({
+          text: "Appendix 1\nF-001\nDescription: Missing annex reference.\nProject response: Submitted revised annex.",
+        }),
+      },
+    });
+
+    expect(result.pages).toEqual([
+      {
+        pageNumber: 1,
+        text: "Appendix 1\nF-001\nDescription: Missing annex reference.\nProject response: Submitted revised annex.",
+      },
+    ]);
+    expect(result.text).toContain("Project response");
+    expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      parserPath: expect.any(String),
+      pageExtractionAttempted: true,
+      pageExtractionError: expect.any(String),
+      textFallbackAttempted: true,
+      textFallbackError: "stdout maxBuffer length exceeded",
+      extractedTextLength: 97,
+      pageCount: 1,
+      partialTextRecovered: true,
+    }));
+  });
 });

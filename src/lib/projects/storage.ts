@@ -1,4 +1,5 @@
 import type {
+  ExtractedManualFindingDraft,
   ManualFinding,
   ManualFindingClosureStatus,
   Project,
@@ -67,6 +68,7 @@ export function createProject(input: {
     })),
     documents: [],
     manualFindings: [],
+    extractedManualFindingDrafts: [],
   };
 
   const projects = loadAll();
@@ -168,6 +170,11 @@ export function deleteProjectDocument(projectId: string, documentId: string): Pr
       ? { ...finding, sourceDocumentId: undefined, updatedAt: new Date().toISOString() }
       : finding
   ));
+  project.extractedManualFindingDrafts = project.extractedManualFindingDrafts.map(finding => (
+    finding.sourceDocumentId === documentId
+      ? { ...finding, sourceDocumentId: undefined, updatedAt: new Date().toISOString() }
+      : finding
+  ));
 
   saveAll(projects);
   return project;
@@ -220,6 +227,90 @@ export function deleteManualFinding(projectId: string, findingId: string): Proje
   return project;
 }
 
+export function addExtractedManualFindingDrafts(
+  projectId: string,
+  drafts: Array<Omit<ExtractedManualFindingDraft, 'id' | 'createdAt' | 'updatedAt'>>,
+): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  const now = new Date().toISOString();
+  for (const draft of drafts) {
+    project.extractedManualFindingDrafts.push({
+      id: generateId(),
+      createdAt: now,
+      updatedAt: now,
+      ...draft,
+    });
+  }
+
+  saveAll(projects);
+  return project;
+}
+
+export function updateExtractedManualFindingDraft(
+  projectId: string,
+  draftId: string,
+  update: Partial<Omit<ExtractedManualFindingDraft, 'id' | 'createdAt'>>,
+): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  const finding = project.extractedManualFindingDrafts.find(item => item.id === draftId);
+  if (!finding) return undefined;
+
+  Object.assign(finding, update, { updatedAt: new Date().toISOString() });
+  saveAll(projects);
+  return project;
+}
+
+export function deleteExtractedManualFindingDraft(projectId: string, draftId: string): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  project.extractedManualFindingDrafts = project.extractedManualFindingDrafts.filter(finding => finding.id !== draftId);
+  saveAll(projects);
+  return project;
+}
+
+export function acceptExtractedManualFindingDraft(projectId: string, draftId: string): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+
+  const draftIndex = project.extractedManualFindingDrafts.findIndex(item => item.id === draftId);
+  if (draftIndex === -1) return undefined;
+
+  const draft = project.extractedManualFindingDrafts[draftIndex];
+  if (!draft.findingId.trim() || !draft.findingType) return undefined;
+
+  const now = new Date().toISOString();
+  project.manualFindings.push({
+    id: generateId(),
+    findingId: draft.findingId.trim(),
+    findingType: draft.findingType,
+    requirement: draft.requirement,
+    description: draft.description,
+    sourceDocumentId: draft.sourceDocumentId,
+    sourcePageRange: draft.sourcePageRange,
+    evidenceExcerpt: draft.evidenceExcerpt,
+    projectResponse: draft.projectResponse,
+    documentationSubmitted: draft.documentationSubmitted,
+    auditTeamEvaluation: draft.auditTeamEvaluation,
+    closureStatus: draft.closureStatus ?? 'in-review',
+    reviewerNote: draft.reviewerNote,
+    createdAt: now,
+    updatedAt: now,
+  });
+  project.extractedManualFindingDrafts.splice(draftIndex, 1);
+
+  saveAll(projects);
+  return project;
+}
+
 function normalizeProjects(raw: unknown): Project[] {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -243,6 +334,7 @@ function normalizeProject(project: Partial<Project>): Project {
     reviews: Array.isArray(project.reviews) ? project.reviews : [],
     documents: Array.isArray(project.documents) ? project.documents : [],
     manualFindings: Array.isArray(project.manualFindings) ? project.manualFindings : [],
+    extractedManualFindingDrafts: Array.isArray(project.extractedManualFindingDrafts) ? project.extractedManualFindingDrafts : [],
   };
 }
 
