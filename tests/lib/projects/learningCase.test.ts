@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import { describe, expect, it } from '@jest/globals';
-import { buildManualReviewLearningCase } from '@/lib/projects/learningCase';
+import { buildManualReviewLearningCase, isLearningCaseTrainingEligible } from '@/lib/projects/learningCase';
 import { recordManualReviewLearningCase } from '@/lib/projects/storage';
 import type { Project } from '@/lib/projects/types';
 
@@ -109,6 +109,8 @@ describe('manual review learning cases', () => {
     expect(learningCase.trust_level).toBe('user_entered_unverified');
     expect(learningCase.training_eligible).toBe(false);
     expect(learningCase.requires_human_review).toBe(true);
+    expect(learningCase.promotion_status).toBe('not_promoted');
+    expect(learningCase.poisoning_boundary).toBe('not_allowed_to_update_rules_models_evals_or_scores');
     expect(learningCase.registry_or_standard).toBe('Verra / VCS + CCB');
     expect(learningCase.document_type).toBe('Published verification report PDF');
     expect(learningCase.source_document_count).toBe(1);
@@ -140,13 +142,14 @@ describe('manual review learning cases', () => {
       'no_validation_statement',
       'no_methodology_compliance_determination',
     ]));
-    expect(learningCase.recommended_evals).toEqual(expect.arrayContaining([
+    expect(learningCase.eval_candidate_signals).toEqual(expect.arrayContaining([
       'manual-review-finding-type-summary',
       'manual-review-closure-counts',
       'manual-review-field-coverage',
       'manual-review-truthfulness-language',
       'manual-review-source-retention',
     ]));
+    expect(learningCase.eval_candidate_signals).not.toContain('approved_eval');
     expect(learningCase.source_retention_policy).toContain('No raw document text');
     expect(learningCase.dedup_key).toContain('"trigger":"export_generated"');
     expect(serialized).not.toContain('full excerpt text unique 123');
@@ -165,10 +168,14 @@ describe('manual review learning cases', () => {
     expect(learningCase?.trust_level).toBe('user_entered_unverified');
     expect(learningCase?.training_eligible).toBe(false);
     expect(learningCase?.requires_human_review).toBe(true);
+    expect(learningCase?.promotion_status).toBe('not_promoted');
     expect(learningCase?.finding_type_counts).toEqual({ CAR: 1, CL: 1, FAR: 1, other: 0 });
     expect(learningCase?.closure_counts).toEqual({ open: 1, 'in-review': 1, closed: 1 });
     expect(JSON.stringify(learningCase)).not.toContain('full excerpt text unique 123');
     expect(JSON.stringify(learningCase)).not.toContain('VCS CCB raw extracted appendix unique string');
+    expect('reviewed_by' in (learningCase ?? {})).toBe(false);
+    expect('reviewed_at' in (learningCase ?? {})).toBe(false);
+    expect('review_decision' in (learningCase ?? {})).toBe(false);
   });
 
   it('deduplicates repeated learning cases for the same project trigger and export state', () => {
@@ -193,14 +200,23 @@ describe('manual review learning cases', () => {
     expect(learningCase.training_eligible).toBe(false);
     expect(learningCase.requires_human_review).toBe(true);
     expect(learningCase.trust_level).toBe('user_entered_unverified');
+    expect(learningCase.promotion_status).toBe('not_promoted');
+    expect(learningCase.poisoning_boundary).toBe('not_allowed_to_update_rules_models_evals_or_scores');
     expect(learningCase.truth_rules_triggered).not.toContain('verified_ground_truth');
     expect(learningCase.truth_rules_triggered).toEqual(expect.arrayContaining([
       'training_disabled_for_learning_case',
       'human_review_required',
     ]));
-    expect(learningCase.recommended_evals).toEqual(expect.arrayContaining([
+    expect(learningCase.eval_candidate_signals).toEqual(expect.arrayContaining([
       'manual-review-truthfulness-language',
       'manual-review-field-coverage',
     ]));
+  });
+
+  it('exposes a guard that always blocks training eligibility for manual review learning cases', () => {
+    const learningCase = buildManualReviewLearningCase(makeManualProject(), 'export_generated');
+
+    expect(isLearningCaseTrainingEligible(learningCase)).toBe(false);
+    expect(learningCase.training_eligible).toBe(false);
   });
 });

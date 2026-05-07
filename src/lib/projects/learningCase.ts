@@ -79,6 +79,11 @@ export function manualReviewLearningCaseDedupKey(
   });
 }
 
+export function isLearningCaseTrainingEligible(_learningCase: Pick<LearningCase, 'training_eligible'>): false {
+  void _learningCase;
+  return false;
+}
+
 export function buildManualReviewLearningCase(
   project: Project,
   trigger: LearningCaseTrigger,
@@ -165,7 +170,7 @@ export function buildManualReviewLearningCase(
     `limitation_text:${MANUAL_REVIEW_LIMITATION}`,
   ];
 
-  const recommendedEvals = uniqueSorted([
+  const evalCandidateSignals = uniqueSorted([
     'manual-review-finding-type-summary',
     'manual-review-closure-counts',
     'manual-review-field-coverage',
@@ -184,6 +189,8 @@ export function buildManualReviewLearningCase(
     trust_level: 'user_entered_unverified',
     training_eligible: false,
     requires_human_review: true,
+    promotion_status: 'not_promoted',
+    poisoning_boundary: 'not_allowed_to_update_rules_models_evals_or_scores',
     registry_or_standard: registryLabel !== 'Unknown registry' ? registryLabel : undefined,
     document_type: manualDocumentTypeLabel(project),
     source_document_count: project.documents.length,
@@ -200,7 +207,7 @@ export function buildManualReviewLearningCase(
     },
     export_quality_flags: exportQualityFlags,
     truth_rules_triggered: truthRulesTriggered,
-    recommended_evals: recommendedEvals,
+    eval_candidate_signals: evalCandidateSignals,
     source_retention_policy: RETENTION_POLICY,
     dedup_key: dedupKey,
   };
