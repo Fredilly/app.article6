@@ -1,5 +1,7 @@
+import { buildManualReviewLearningCase } from './learningCase';
 import type {
   ExtractedManualFindingDraft,
+  LearningCaseTrigger,
   ManualFinding,
   ManualFindingClosureStatus,
   Project,
@@ -69,6 +71,7 @@ export function createProject(input: {
     documents: [],
     manualFindings: [],
     extractedManualFindingDrafts: [],
+    learningCases: [],
   };
 
   const projects = loadAll();
@@ -107,6 +110,20 @@ export function lockProject(projectId: string): Project | undefined {
 
   project.status = 'locked';
   project.lockedAt = new Date().toISOString();
+  saveAll(projects);
+  return project;
+}
+
+export function recordManualReviewLearningCase(
+  projectId: string,
+  trigger: LearningCaseTrigger,
+): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find(p => p.id === projectId);
+  if (!project || project.reviewMode !== 'manual') return project;
+
+  project.learningCases = Array.isArray(project.learningCases) ? project.learningCases : [];
+  project.learningCases.push(buildManualReviewLearningCase(project, trigger));
   saveAll(projects);
   return project;
 }
@@ -335,6 +352,7 @@ function normalizeProject(project: Partial<Project>): Project {
     documents: Array.isArray(project.documents) ? project.documents : [],
     manualFindings: Array.isArray(project.manualFindings) ? project.manualFindings : [],
     extractedManualFindingDrafts: Array.isArray(project.extractedManualFindingDrafts) ? project.extractedManualFindingDrafts : [],
+    learningCases: Array.isArray(project.learningCases) ? project.learningCases : [],
   };
 }
 

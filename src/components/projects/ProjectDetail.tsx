@@ -25,6 +25,7 @@ import {
   lockProject,
   manualFindingClosureLabel,
   nextManualFindingId,
+  recordManualReviewLearningCase,
   updateExtractedManualFindingDraft,
   updateManualFinding,
   updateRuleReview,
@@ -123,6 +124,10 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
   const handleLock = () => {
     const locked = lockProject(projectId);
+    if (locked?.reviewMode === 'manual') {
+      refreshProject(recordManualReviewLearningCase(projectId, 'project_locked'));
+      return;
+    }
     if (locked) {
       setProject(locked);
       setCoverage(getProjectCoverage(locked));
@@ -138,6 +143,9 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         body: JSON.stringify({ project }),
       });
       if (!res.ok) throw new Error('Pack generation failed');
+      if (project.reviewMode === 'manual') {
+        refreshProject(recordManualReviewLearningCase(projectId, 'export_generated'));
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

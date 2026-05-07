@@ -12,6 +12,42 @@ export type ManualFindingClosureStatus = 'open' | 'in-review' | 'closed';
 
 export type ExtractedManualFindingStatus = 'draft' | 'needs-review';
 
+export type LearningCaseTrigger = 'project_locked' | 'export_generated';
+
+export type LearningCase = {
+  case_id: string;
+  created_at: string;
+  trigger: LearningCaseTrigger;
+  review_mode: ProjectReviewMode;
+  registry_or_standard?: string;
+  document_type: string;
+  source_document_count: number;
+  finding_count: number;
+  finding_type_counts: {
+    CAR: number;
+    CL: number;
+    FAR: number;
+    other: number;
+  };
+  closure_counts: {
+    open: number;
+    'in-review': number;
+    closed: number;
+  };
+  fields_present: Record<string, number>;
+  fields_missing: Record<string, number>;
+  reviewer_correction_summary?: {
+    extracted_draft_count: number;
+    draft_findings_ready_count: number;
+    draft_findings_needing_review_count: number;
+    reviewer_note_count: number;
+  };
+  export_quality_flags: string[];
+  truth_rules_triggered: string[];
+  recommended_evals: string[];
+  source_retention_policy: string;
+};
+
 export type RuleReview = {
   ruleId: string;
   ruleTitle: string;
@@ -89,6 +125,7 @@ export type Project = {
   documents: ProjectDocument[];
   manualFindings: ManualFinding[];
   extractedManualFindingDrafts: ExtractedManualFindingDraft[];
+  learningCases: LearningCase[];
 };
 
 export type ProjectCoverage = {

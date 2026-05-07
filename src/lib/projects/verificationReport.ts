@@ -25,6 +25,9 @@ export type VerificationReportComposition = {
   limitation: string;
 };
 
+export const MANUAL_REVIEW_LIMITATION =
+  'This report reconstructs findings from uploaded source documents. It is not an independent verification opinion, validation statement, or methodology compliance determination.';
+
 const UNFCCC_SECTION_ORDER = [
   'REPORT STATUS',
   'PROJECT AND METHODOLOGY IDENTIFICATION',
@@ -396,7 +399,7 @@ export function composeManualVerificationReport(
     ['Registry / Standard', registryLabel],
     ['Registry project ID', 'Not provided'],
     ['Methodology / reference', methodologyLabel],
-    ['Limitation', 'This report reconstructs findings from uploaded source documents. It is not an independent verification opinion, validation statement, or methodology compliance determination.'],
+    ['Limitation', MANUAL_REVIEW_LIMITATION],
   ] satisfies Array<[string, string]>;
 
   return {
@@ -414,7 +417,7 @@ export function composeManualVerificationReport(
       {
         title: 'REPORT LIMITATION',
         lines: [
-          'This report reconstructs findings from uploaded source documents. It is not an independent verification opinion, validation statement, or methodology compliance determination.',
+          MANUAL_REVIEW_LIMITATION,
         ],
       },
       {
@@ -478,7 +481,7 @@ export function composeManualVerificationReport(
     ],
     findings,
     provenance,
-    limitation: 'This report reconstructs findings from uploaded source documents. It is not an independent verification opinion, validation statement, or methodology compliance determination.',
+    limitation: MANUAL_REVIEW_LIMITATION,
   };
 }
 
