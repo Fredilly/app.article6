@@ -1,0 +1,69 @@
+{
+  "phase_meta": {
+    "status": "active",
+    "summary": "Safe learning intake lane for redacted local learning cases, central untrusted intake, consent gating, triage, reviewed promotion, and downstream product/eval improvements. Manual Review local learning cases from PR #568 are the starting point.",
+    "current_focus": [
+      "Phase 0 is done: local untrusted learning-case foundation exists in app.article6",
+      "Phase 1 is the next recommended implementation: server-side untrusted intake with strict separation from reviewed/promoted records",
+      "Keep all user-entered learning data untrusted by default",
+      "Do not let intake data directly update rules, models, evals, scores, prompts, or public claims"
+    ],
+    "not_active_now": [
+      "Automatic training",
+      "Automatic promotion",
+      "Methodology-rule updates from user-entered learning data",
+      "Public claims from private intake"
+    ],
+    "last_updated_at": "2026-05-07T00:00:00Z"
+  },
+  "phase_0_local_untrusted_learning_case_foundation": {
+    "status": "done",
+    "title": "Local Untrusted Learning Case Foundation",
+    "summary": "PR #568 added redacted Manual Review learning cases with explicit untrusted trust metadata, eval candidate signals, deduplication, and local project storage. The cases remain non-training-eligible and non-promotable."
+  },
+  "phase_1_server_side_untrusted_intake": {
+    "status": "next",
+    "title": "Server-Side Untrusted Intake",
+    "summary": "Add Supabase/Postgres-ready central intake for redacted learning cases. Keep raw uploads, extracted text, and full evidence excerpts out of central storage and keep reviewed/promoted records separate."
+  },
+  "phase_2_consent_and_value_exchange_gate": {
+    "status": "planned",
+    "title": "Consent And Value Gate",
+    "summary": "Add explicit user consent and value framing before central intake. The gate should explain readiness insights, recurring gap detection, benchmark comparisons, and improved extraction checks."
+  },
+  "phase_3_automated_intake_triage": {
+    "status": "planned",
+    "title": "Automated Intake Triage",
+    "summary": "Cluster, deduplicate, reject, and route untrusted intake records. Triage may improve signal quality but cannot promote records to trusted status."
+  },
+  "phase_4_aggregate_learning_dashboard": {
+    "status": "planned",
+    "title": "Aggregate Learning Dashboard",
+    "summary": "Provide aggregate, privacy-safe learning trends for product and operations without exposing raw source documents or trusting intake records."
+  },
+  "phase_5_public_autopsy_eval_bridge": {
+    "status": "planned",
+    "title": "Public Autopsy Eval Bridge",
+    "summary": "Connect public autopsy cases and eval candidates to the same untrusted boundary so public examples can improve checks without becoming trusted ground truth."
+  },
+  "phase_6_reviewed_promotion_queue": {
+    "status": "planned",
+    "title": "Reviewed Promotion Queue",
+    "summary": "Add a human-reviewed queue for cases that may be approved for eval design or other trusted downstream use. Promotion requires explicit reviewed approval."
+  },
+  "phase_7_improvement_task_generator": {
+    "status": "planned",
+    "title": "Improvement Task Generator",
+    "summary": "Turn reviewed cases into concrete product, extraction, redaction, and prompt-hygiene tasks without leaking private source content."
+  },
+  "phase_8_workspace_intelligence": {
+    "status": "planned",
+    "title": "Workspace Intelligence",
+    "summary": "Surface safe aggregate intelligence to support iteration and customer-facing value while keeping user-entered data untrusted."
+  },
+  "pr_evidence": {
+    "PR568": [
+      568
+    ]
+  }
+}

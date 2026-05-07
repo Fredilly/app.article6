@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, safe-learning-intake-pipeline, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -173,6 +173,27 @@ Not active now:
 6) RC6 — Methodology version diff / impact mode: Planned — Use canonical methodology version and diff metadata to identify coverage rows and linked evidence that may need review in the app.
 7) RC7 — Fallback raw methodology PDF intake for uncovered methods: Planned — Enable lower-confidence fallback raw methodology PDF intake only for uncovered methods while preserving canonical methodology outputs as the default for covered methods.
 8) RC8 — Additional GIS formats later: Deferred — Defer broader GIS intake until reconciliation fundamentals are stable.
+
+## safe-learning-intake-pipeline
+
+Status SSOT: `docs/roadmaps/safe-learning-intake-pipeline/phase-status.json`
+Details: `docs/roadmaps/safe-learning-intake-pipeline/PLAN.md`
+
+Lane status: Active
+Safe learning intake lane for redacted local learning cases, central untrusted intake, consent gating, triage, reviewed promotion, and downstream product/eval improvements. Manual Review local learning cases from PR #568 are the starting point.
+
+Current focus:
+- Phase 0 is done: local untrusted learning-case foundation exists in app.article6
+- Phase 1 is the next recommended implementation: server-side untrusted intake with strict separation from reviewed/promoted records
+- Keep all user-entered learning data untrusted by default
+- Do not let intake data directly update rules, models, evals, scores, prompts, or public claims
+
+Not active now:
+- Automatic training
+- Automatic promotion
+- Methodology-rule updates from user-entered learning data
+- Public claims from private intake
+
 
 ## traceable-rule-review-mvp
 
