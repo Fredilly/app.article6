@@ -28,6 +28,7 @@ function makeMethodologyProject(overrides: Partial<Project> = {}): Project {
     reviews: [],
     documents: [],
     manualFindings: [],
+    extractedManualFindingDrafts: [],
     ...overrides,
   };
 }
@@ -43,6 +44,7 @@ function makeManualProject(overrides: Partial<Project> = {}): Project {
     reviews: [],
     documents: [],
     manualFindings: [],
+    extractedManualFindingDrafts: [],
     ...overrides,
   };
 }
