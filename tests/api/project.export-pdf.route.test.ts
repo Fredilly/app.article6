@@ -140,11 +140,11 @@ describe('/api/projects/[id]/export-pdf route', () => {
       documents: [
         {
           id: 'doc-1',
-          fileName: 'project-monitoring-report.pdf',
+          fileName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
           mimeType: 'application/pdf',
           sizeBytes: 2400,
           uploadedAt: '2026-04-15T00:00:00Z',
-          extractedText: 'Project monitoring report excerpt',
+          extractedText: 'CCB and VCS verification report excerpt',
         },
       ],
       manualFindings: [
@@ -187,6 +187,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('Manual review mode: true');
     expect(parsed.text).toContain('Verra Reconstruction Workspace');
     expect(parsed.text).not.toContain('AR-AMS0007');
+    expect(parsed.text).toContain('Registry / Standard: Verra / VCS + CCB');
     expect(parsed.text).toContain('CAR: 1');
     expect(parsed.text).toContain('CL: 0');
     expect(parsed.text).toContain('FAR: 0');
@@ -198,6 +199,8 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('Audit team evaluation');
     expect(parsed.text).toContain('Source excerpt');
     expect(parsed.text).toContain('Provenance And Limitations');
+    expect(parsed.text).not.toContain('determination..');
+    expect(parsed.text).not.toMatch(/â|â|ˆ‡|ˆ–|ˆ¡|ˆ'|´°/);
   }, 15000);
 
   it('keeps the manual review provenance block together instead of spilling a sentence fragment onto a nearly blank final page', async () => {

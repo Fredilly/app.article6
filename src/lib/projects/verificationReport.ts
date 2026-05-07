@@ -108,8 +108,34 @@ function fallbackValue(value: string | undefined, fallback: string): string {
   return normalized ? normalized : fallback;
 }
 
+function punctuateLine(value: string): string {
+  return /[.!?]$/.test(value) ? value : `${value}.`;
+}
+
+function inferManualRegistryLabel(project: Project): string | undefined {
+  const signals = [
+    project.registry,
+    ...project.documents.map((document) => document.fileName),
+    ...project.documents.map((document) => document.extractedText),
+  ]
+    .filter(Boolean)
+    .map((value) => value!.toLowerCase());
+
+  const hasVerra = signals.some((value) => value.includes('verra') || value.includes('vcs'));
+  const hasCcb = signals.some((value) => value.includes('ccb'));
+  const hasGoldStandard = signals.some((value) => value.includes('gold standard'));
+  const hasUnfccc = signals.some((value) => value.includes('unfccc') || value.includes('cdm'));
+
+  if (hasVerra && hasCcb) return 'Verra / VCS + CCB';
+  if (hasVerra) return 'Verra';
+  if (hasGoldStandard) return 'Gold Standard';
+  if (hasUnfccc) return 'UNFCCC';
+  return undefined;
+}
+
 function manualRegistryLabel(project: Project): string {
-  return project.registry && project.registry !== 'Unknown' ? project.registry : 'Unknown registry';
+  if (project.registry && project.registry !== 'Unknown') return project.registry;
+  return inferManualRegistryLabel(project) ?? 'Unknown registry';
 }
 
 function manualMethodologyLabel(project: Project): string {
@@ -159,7 +185,7 @@ function countFindings(findings: ReportFinding[]): Record<ReportFindingCode, num
 }
 
 function linesFromProvenance(provenance: Array<[string, string]>): string[] {
-  return provenance.map(([label, value]) => `${label}: ${value || 'n/a'}.`);
+  return provenance.map(([label, value]) => `${label}: ${punctuateLine(value || 'n/a')}`);
 }
 
 function buildRequirementFindingLines(findings: ReportFinding[]): string[] {
@@ -359,7 +385,7 @@ export function composeManualVerificationReport(
   const openCount = project.manualFindings.filter((finding) => finding.closureStatus === 'open').length;
   const inReviewCount = project.manualFindings.filter((finding) => finding.closureStatus === 'in-review').length;
   const closedCount = project.manualFindings.filter((finding) => finding.closureStatus === 'closed').length;
-  const provenance = [
+    const provenance = [
     ['Manual review mode', 'true'],
     ['Project ID', project.id],
     ['Source document count', String(project.documents.length)],
@@ -402,17 +428,17 @@ export function composeManualVerificationReport(
       {
         title: 'PROJECT METADATA',
         lines: [
-          `Registry / Standard: ${registryLabel}.`,
+          `Registry / Standard: ${punctuateLine(registryLabel)}`,
           'Registry project ID: Not provided.',
-          `Project name: ${project.name}.`,
-          `Source document type: ${sourceDocumentTypeLabel(project)}.`,
-          `Source document name: ${sourceDocumentName}.`,
-          `Methodology / reference: ${methodologyLabel}.`,
+          `Project name: ${punctuateLine(project.name)}`,
+          `Source document type: ${punctuateLine(sourceDocumentTypeLabel(project))}`,
+          `Source document name: ${punctuateLine(sourceDocumentName)}`,
+          `Methodology / reference: ${punctuateLine(methodologyLabel)}`,
           'Review mode: Manual review.',
-          `Locked status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`,
-          `Export timestamp: ${exportTimestamp}.`,
-          `Project area: ${fallbackValue(project.aoiLabel, 'Not provided')}.`,
-          `Project description: ${fallbackValue(project.description, 'Not provided')}.`,
+          `Locked status: ${punctuateLine(project.status === 'locked' ? 'Locked' : 'In Progress')}`,
+          `Export timestamp: ${punctuateLine(exportTimestamp)}`,
+          `Project area: ${punctuateLine(fallbackValue(project.aoiLabel, 'Not provided'))}`,
+          `Project description: ${punctuateLine(fallbackValue(project.description, 'Not provided'))}`,
         ],
       },
       {
@@ -429,18 +455,18 @@ export function composeManualVerificationReport(
           ? project.manualFindings.flatMap((finding) => {
             const sourceDocumentLabel = project.documents.find((document) => document.id === finding.sourceDocumentId)?.fileName ?? 'No source document linked';
             return [
-              `Finding ID: ${finding.findingId}.`,
-              `Type: ${finding.findingType}.`,
-              `Closure status: ${finding.closureStatus}.`,
-              `Source document: ${sourceDocumentLabel}.`,
-              `Source page/range: ${finding.sourcePageRange?.trim() || 'Not provided'}.`,
-              `Requirement: ${finding.requirement?.trim() || 'Not provided'}.`,
-              `Description: ${finding.description?.trim() || 'Not provided'}.`,
-              `Project response: ${finding.projectResponse?.trim() || 'Not provided'}.`,
-              `Documentation submitted: ${finding.documentationSubmitted?.trim() || 'Not provided'}.`,
-              `Audit team evaluation: ${finding.auditTeamEvaluation?.trim() || 'Not provided'}.`,
-              `Reviewer note: ${finding.reviewerNote?.trim() || 'Needs review'}.`,
-              `Source excerpt: ${finding.evidenceExcerpt?.trim() || 'Not provided'}.`,
+              `Finding ID: ${punctuateLine(finding.findingId)}`,
+              `Type: ${punctuateLine(finding.findingType)}`,
+              `Closure status: ${punctuateLine(finding.closureStatus)}`,
+              `Source document: ${punctuateLine(sourceDocumentLabel)}`,
+              `Source page/range: ${punctuateLine(finding.sourcePageRange?.trim() || 'Not provided')}`,
+              `Requirement: ${punctuateLine(finding.requirement?.trim() || 'Not provided')}`,
+              `Description: ${punctuateLine(finding.description?.trim() || 'Not provided')}`,
+              `Project response: ${punctuateLine(finding.projectResponse?.trim() || 'Not provided')}`,
+              `Documentation submitted: ${punctuateLine(finding.documentationSubmitted?.trim() || 'Not provided')}`,
+              `Audit team evaluation: ${punctuateLine(finding.auditTeamEvaluation?.trim() || 'Not provided')}`,
+              `Reviewer note: ${punctuateLine(finding.reviewerNote?.trim() || 'Needs review')}`,
+              `Source excerpt: ${punctuateLine(finding.evidenceExcerpt?.trim() || 'Not provided')}`,
             ];
           })
           : ['No manual findings have been recorded yet.'],

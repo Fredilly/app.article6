@@ -227,7 +227,7 @@ describe('verification report composition', () => {
             mimeType: 'application/pdf',
             sizeBytes: 1024,
             uploadedAt: '2026-04-23T00:00:00.000Z',
-            extractedText: 'Monitoring report excerpt',
+            extractedText: 'CCB and VCS verification report excerpt',
           },
         ],
         manualFindings: [
@@ -261,6 +261,7 @@ describe('verification report composition', () => {
     expect(reportText(report)).not.toContain('UNFCCC VERIFICATION REPORT');
     expect(reportText(report)).toContain('This report reconstructs findings from uploaded source documents.');
     expect(reportText(report)).toContain('CAR: 1. CL: 0. FAR: 0.');
+    expect(reportText(report)).toContain('Registry / Standard: Verra / VCS + CCB.');
     expect(reportText(report)).toContain('Finding ID: CAR01.');
     expect(reportText(report)).toContain('Source page/range: 40-41.');
     expect(reportText(report)).toContain('Documentation submitted: EPCAP requirements.');

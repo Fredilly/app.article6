@@ -5,6 +5,20 @@ function esc(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 }
 
+function asciiSafeText(input: string): string {
+  return input
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/\u2022/g, '-')
+    .replace(/\u00B0/g, ' deg')
+    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, '');
+}
+
+function punctuateText(value: string): string {
+  return /[.!?]$/.test(value) ? value : `${value}.`;
+}
+
 export function getProjectCoverage(reviews: RuleReview[]): ProjectCoverage {
   const total = reviews.length;
   const verified = reviews.filter(r => r.status === 'verified').length;
@@ -76,7 +90,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     `/${font} ${size} Tf`,
     color,
     `${x} ${y} Td`,
-    `(${esc(text)}) Tj`,
+    `(${esc(asciiSafeText(text))}) Tj`,
     'ET',
   ];
 
@@ -261,7 +275,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
       }
     }
 
-    const provenanceLines = report.provenance.map(([label, value]) => `${label}: ${value}.`);
+    const provenanceLines = report.provenance.map(([label, value]) => `${label}: ${punctuateText(value)}`);
     ensureManualProvenanceFits(provenanceLines);
     sec('Provenance And Limitations');
     for (let index = 0; index < report.provenance.length; index += 1) {
