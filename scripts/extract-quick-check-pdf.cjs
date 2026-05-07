@@ -20,6 +20,28 @@ function normalizePageWhitespace(value) {
     .trim();
 }
 
+let pdfJsGlobalsReady = false;
+
+async function ensurePdfJsNodeGlobals() {
+  if (pdfJsGlobalsReady) return;
+  pdfJsGlobalsReady = true;
+
+  try {
+    const canvasModule = requireFromProject("@napi-rs/canvas");
+    if (typeof globalThis.DOMMatrix === "undefined" && typeof canvasModule.DOMMatrix !== "undefined") {
+      globalThis.DOMMatrix = canvasModule.DOMMatrix;
+    }
+    if (typeof globalThis.ImageData === "undefined" && typeof canvasModule.ImageData !== "undefined") {
+      globalThis.ImageData = canvasModule.ImageData;
+    }
+    if (typeof globalThis.Path2D === "undefined" && typeof canvasModule.Path2D !== "undefined") {
+      globalThis.Path2D = canvasModule.Path2D;
+    }
+  } catch {
+    // Keep helper failures truthful if the optional canvas runtime is unavailable.
+  }
+}
+
 async function main() {
   const pdfPath = process.argv[2];
   if (!pdfPath) {
@@ -29,6 +51,7 @@ async function main() {
 
   const absolutePath = path.resolve(pdfPath);
   const bytes = fs.readFileSync(absolutePath);
+  await ensurePdfJsNodeGlobals();
   const mod = requireFromProject("pdf-parse");
   const parser = new mod.PDFParse({
     data: new Uint8Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)),
