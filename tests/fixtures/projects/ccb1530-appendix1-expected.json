@@ -1,0 +1,193 @@
+{
+  "sourceDocumentName": "CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf",
+  "expectedFindingCount": 17,
+  "findings": [
+    {
+      "findingId": "CAR01",
+      "findingType": "CAR",
+      "sourcePageRange": "40-41",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CAR02",
+      "findingType": "CAR",
+      "sourcePageRange": "41",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CAR03",
+      "findingType": "CAR",
+      "sourcePageRange": "41-42",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CAR04",
+      "findingType": "CAR",
+      "sourcePageRange": "42",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CAR05",
+      "findingType": "CAR",
+      "sourcePageRange": "42-43",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CAR06",
+      "findingType": "CAR",
+      "sourcePageRange": "43",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CAR07",
+      "findingType": "CAR",
+      "sourcePageRange": "43-44",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CL01",
+      "findingType": "CL",
+      "sourcePageRange": "44-45",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CL02",
+      "findingType": "CL",
+      "sourcePageRange": "45-46",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CL03",
+      "findingType": "CL",
+      "sourcePageRange": "46",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": false,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CL04",
+      "findingType": "CL",
+      "sourcePageRange": "46-47",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CL05",
+      "findingType": "CL",
+      "sourcePageRange": "47",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": true,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "CL06",
+      "findingType": "CL",
+      "sourcePageRange": "47-48",
+      "closureStatus": "closed",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": false,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "FAR01",
+      "findingType": "FAR",
+      "sourcePageRange": "48",
+      "closureStatus": "open",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": false,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "FAR02",
+      "findingType": "FAR",
+      "sourcePageRange": "48-49",
+      "closureStatus": "open",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": false,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "FAR03",
+      "findingType": "FAR",
+      "sourcePageRange": "49-50",
+      "closureStatus": "open",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": false,
+      "hasAuditTeamEvaluation": true
+    },
+    {
+      "findingId": "FAR05",
+      "findingType": "FAR",
+      "sourcePageRange": "50",
+      "closureStatus": "open",
+      "hasRequirement": true,
+      "hasDescription": true,
+      "hasProjectResponse": true,
+      "hasDocumentationSubmitted": false,
+      "hasAuditTeamEvaluation": false
+    }
+  ]
+}

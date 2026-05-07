@@ -23,12 +23,12 @@ type FindingBoundary = {
 };
 
 const FIELD_PATTERNS = [
-  { key: 'requirement', label: /(?:^|\n)\s*requirement\s*[:\-]\s*/i },
-  { key: 'description', label: /(?:^|\n)\s*(?:description|finding description|nc description)\s*[:\-]\s*/i },
-  { key: 'projectResponse', label: /(?:^|\n)\s*(?:project response|client response|response from project proponent)\s*[:\-]\s*/i },
-  { key: 'documentationSubmitted', label: /(?:^|\n)\s*(?:documentation submitted|documents submitted|supporting documents)\s*[:\-]\s*/i },
-  { key: 'auditTeamEvaluation', label: /(?:^|\n)\s*(?:audit team evaluation|validation team assessment|verification team assessment|vvb assessment|team evaluation)\s*[:\-]\s*/i },
-  { key: 'closureStatus', label: /(?:^|\n)\s*(?:closure status|status)\s*[:\-]\s*/i },
+  { key: 'requirement', label: /(?:^|\n)[^\n]{0,80}?\brequirement\b(?:\s+date:\s*[^\n]+)?\s*[:\-]?\s*/i },
+  { key: 'description', label: /(?:^|\n)\s*(?:description(?:\s+of\s+the\s+(?:car|cl|far))?|finding description|nc description)\b(?:\s+date:\s*[^\n]+)?\s*[:\-]?\s*/i },
+  { key: 'projectResponse', label: /(?:^|\n)\s*(?:project response|client response|response from (?:the )?(?:project developer|project proponent))\b(?:\s+date:\s*[^\n]+)?\s*[:\-]?\s*/i },
+  { key: 'documentationSubmitted', label: /(?:^|\n)\s*(?:documentation submitted(?: by (?:the )?project developer)?|documents submitted|supporting documents)\b(?:\s+date:\s*[^\n]+)?\s*[:\-]?\s*/i },
+  { key: 'auditTeamEvaluation', label: /(?:^|\n)\s*(?:audit team evaluation|evaluation of the audit team|validation team assessment|verification team assessment|vvb assessment|team evaluation)\b(?:\s+date:\s*[^\n]+)?\s*[:\-]?\s*/i },
+  { key: 'closureStatus', label: /(?:^|\n)\s*(?:closure status|status)\b(?:\s+date:\s*[^\n]+)?\s*[:\-]?\s*/i },
 ] as const;
 
 function normalizeInline(value: string): string {
@@ -102,6 +102,15 @@ function inferFindingType(input: { rawId: string; surroundingText: string }): Fi
   return undefined;
 }
 
+function truncateBoundaryEnd(combined: string, start: number, end: number): number {
+  const block = combined.slice(start, end);
+  const appendixBoundary = block.search(/\nAPPENDIX\s+[2-9]\d*\s*:/i);
+  if (appendixBoundary >= 0) {
+    return start + appendixBoundary;
+  }
+  return end;
+}
+
 function detectFindingBoundaries(combined: string, markers: Array<{ index: number; pageNumber: number }>): FindingBoundary[] {
   const pattern = /(?:^|\n)\s*((?:(CAR|CL|FAR)(?:\s*NO\.?)?[- ]?\d{1,3}(?:\.\d+)?)|(?:F[- ]?\d{3,})|(?:F\d{3,})|(?:Finding\s+\d{1,3})|(?:NCR[- ]?\d{1,3})|(?:NC[- ]?\d{1,3}))\b/gi;
   const matches = Array.from(combined.matchAll(pattern)).filter((match, index, allMatches) => {
@@ -126,7 +135,8 @@ function detectFindingBoundaries(combined: string, markers: Array<{ index: numbe
 
   return matches.map((match, index) => {
     const start = match.index ?? 0;
-    const end = index < matches.length - 1 ? (matches[index + 1].index ?? combined.length) : combined.length;
+    const rawEnd = index < matches.length - 1 ? (matches[index + 1].index ?? combined.length) : combined.length;
+    const end = truncateBoundaryEnd(combined, start, rawEnd);
     const rawId = (match[1] ?? '').trim();
     const surroundingText = combined.slice(Math.max(0, start - 160), Math.min(end, start + 500));
     return {
@@ -137,6 +147,28 @@ function detectFindingBoundaries(combined: string, markers: Array<{ index: numbe
       sourcePageRange: inferPageRange(markers, start, end),
     };
   });
+}
+
+function truncateTrailingAppendixText(value: string): string {
+  const appendixBoundary = value.search(/\nAPPENDIX\s+[2-9]\d*\s*:/i);
+  return appendixBoundary >= 0 ? value.slice(0, appendixBoundary).trim() : value;
+}
+
+function normalizeFieldValue(key: typeof FIELD_PATTERNS[number]['key'], value: string): string | undefined {
+  let normalized = normalizeInline(truncateTrailingAppendixText(value).replace(/\[\[PAGE:\d+\]\]/g, ''));
+  if (!normalized) return undefined;
+
+  if (key === 'requirement') {
+    normalized = normalized
+      .split(/\n(?=[A-Z][A-Za-z0-9 .&_/-]{0,60}\s+Date:\s*\d{2}-\d{2}-\d{4}\b)/i)[0]
+      .trim();
+  }
+
+  if (key === 'auditTeamEvaluation') {
+    normalized = normalized.replace(/\b(?:CAR|CL|FAR)\s+Closed\b.*$/i, '').replace(/\b(?:CAR|CL|FAR)\s+Open\b.*$/i, '').trim();
+  }
+
+  return normalized || undefined;
 }
 
 function extractFieldValue(block: string, key: typeof FIELD_PATTERNS[number]['key']): string | undefined {
@@ -156,8 +188,8 @@ function extractFieldValue(block: string, key: typeof FIELD_PATTERNS[number]['ke
     }
   }
 
-  const value = normalizeInline(block.slice(start, end).replace(/\[\[PAGE:\d+\]\]/g, ''));
-  return value || undefined;
+  const value = block.slice(start, end);
+  return normalizeFieldValue(key, value);
 }
 
 function detectClosureStatus(block: string): ManualFindingClosureStatus | undefined {
@@ -171,9 +203,15 @@ function detectClosureStatus(block: string): ManualFindingClosureStatus | undefi
 
 function buildExtractionMessage(boundary: FindingBoundary, block: string): string {
   if (!boundary.findingType) return 'needs review';
-  const hasDescription = Boolean(extractFieldValue(block, 'description'));
-  const hasResponse = Boolean(extractFieldValue(block, 'projectResponse'));
-  if (!hasDescription || !hasResponse) return 'needs review';
+  const hasAllCoreFields = [
+    extractFieldValue(block, 'requirement'),
+    extractFieldValue(block, 'description'),
+    extractFieldValue(block, 'projectResponse'),
+    extractFieldValue(block, 'documentationSubmitted'),
+    extractFieldValue(block, 'auditTeamEvaluation'),
+    detectClosureStatus(block),
+  ].every(Boolean);
+  if (!hasAllCoreFields) return 'needs review';
   return 'draft';
 }
 
@@ -198,7 +236,9 @@ export function extractManualFindingDraftsFromPages(input: {
   const boundaries = detectFindingBoundaries(combined, pageMarkers);
 
   const drafts = boundaries.map((boundary) => {
-    const block = combined.slice(boundary.start, boundary.end).replace(/\n?\[\[PAGE:\d+\]\]\n?/g, '\n').trim();
+    const block = truncateTrailingAppendixText(
+      combined.slice(boundary.start, boundary.end).replace(/\n?\[\[PAGE:\d+\]\]\n?/g, '\n').trim(),
+    );
     const extractionMessage = buildExtractionMessage(boundary, block);
     return {
       findingId: boundary.findingId,
