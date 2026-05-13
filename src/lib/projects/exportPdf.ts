@@ -6,6 +6,47 @@ function esc(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 }
 
+function asciiSafeText(input: string): string {
+  return input
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/\u2022/g, '-')
+    .replace(/\u00B7/g, '-')
+    .replace(/\u00B0/g, ' deg')
+    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, '');
+}
+
+const H_WIDTH: Record<string, number> = {
+  'A': 667, 'B': 667, 'C': 722, 'D': 722, 'E': 667, 'F': 611, 'G': 778, 'H': 722,
+  'I': 278, 'J': 500, 'K': 667, 'L': 556, 'M': 833, 'N': 722, 'O': 778, 'P': 667,
+  'Q': 778, 'R': 722, 'S': 667, 'T': 611, 'U': 722, 'V': 667, 'W': 944, 'X': 667,
+  'Y': 667, 'Z': 611,
+  'a': 556, 'b': 556, 'c': 500, 'd': 556, 'e': 556, 'f': 278, 'g': 556, 'h': 556,
+  'i': 222, 'j': 222, 'k': 500, 'l': 222, 'm': 833, 'n': 556, 'o': 556, 'p': 556,
+  'q': 556, 'r': 333, 's': 500, 't': 278, 'u': 556, 'v': 500, 'w': 722, 'x': 500,
+  'y': 500, 'z': 500,
+  '0': 556, '1': 556, '2': 556, '3': 556, '4': 556, '5': 556, '6': 556, '7': 556,
+  '8': 556, '9': 556,
+  ' ': 278, '.': 278, ',': 278, ':': 278, ';': 278, '!': 278, '?': 556, '/': 278,
+  '(': 333, ')': 333, '-': 333, '_': 500, '+': 584, "'": 278, '"': 333, '&': 667,
+  '*': 278, '@': 975, '|': 278, '#': 556, '$': 556, '%': 889, '\\': 278,
+};
+
+function textWidth(text: string, size: number): number {
+  let w = 0;
+  for (const ch of text) {
+    w += H_WIDTH[ch] !== undefined ? H_WIDTH[ch] : 500;
+  }
+  return w * size / 1000;
+}
+
+function centerText(y: number, font: 'F1' | 'FB', size: number, text: string, color?: string): string[] {
+  const tw = textWidth(text, size);
+  const x = W / 2 - tw / 2;
+  return TXT(x, y, font, size, text, color);
+}
+
 export function getProjectCoverage(reviews: RuleReview[]): ProjectCoverage {
   const total = reviews.length;
   const verified = reviews.filter(r => r.status === 'verified').length;
@@ -67,7 +108,6 @@ const PAGE_H = 792;
 const M = 56;
 const L = M;
 const R = W - M;
-const COVER_TOP = 180;
 const BODY_TOP = 678;
 const BOT = 84;
 const HEADER_Y = PAGE_H - 48;
@@ -81,7 +121,7 @@ const TXT = (x: number, y: number, font: 'F1' | 'FB', size: number, text: string
   `/${font} ${size} Tf`,
   color,
   `${x} ${y} Td`,
-  `(${esc(text)}) Tj`,
+  `(${esc(asciiSafeText(text))}) Tj`,
   'ET',
 ];
 
@@ -90,17 +130,17 @@ function buildCoverPage(project: Project, coverage: ProjectCoverage, now: string
   const reviewed = coverage.verified + coverage.gap;
   const cx = W / 2;
 
-  lines.push(...TXT(cx - 35, COVER_TOP + 360, 'FB', 10, 'ARTICLE6', '0.5 0.5 0.5 rg'));
-  lines.push(RC(cx - 150, COVER_TOP + 340, 300, 1, 0.8));
-  lines.push(...TXT(cx - 70, COVER_TOP + 300, 'FB', 24, 'VERIFICATION REPORT', '0.2 0.2 0.2 rg'));
-  lines.push(...TXT(cx - (project.name.length * 3), COVER_TOP + 260, 'F1', 12, truncate(project.name, 70), '0.35 0.35 0.35 rg'));
-  lines.push(...TXT(cx - 260, COVER_TOP + 220, 'F1', 9, `Project ID: ${project.id}`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx + 20,  COVER_TOP + 220, 'F1', 9, `Findings: ${reviewed} of ${coverage.total} rules reviewed`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx - 260, COVER_TOP + 200, 'F1', 9, `Methodology: ${project.methodCode} @ ${project.methodVersion}`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx + 20,  COVER_TOP + 200, 'F1', 9, `Evidence references: ${project.reviews.reduce((s,r)=>s+r.evidenceIds.length,0)}`, '0.5 0.5 0.5 rg'));
-  lines.push(RC(cx - 150, COVER_TOP + 170, 300, 1, 0.8));
-  lines.push(...TXT(cx - 100, COVER_TOP + 130, 'F1', 8, `Generated ${now}`, '0.6 0.6 0.6 rg'));
-  lines.push(...TXT(cx - 65,  COVER_TOP + 110, 'F1', 8, 'article6.org', '0.6 0.6 0.6 rg'));
+  lines.push(...centerText(520, 'FB', 10, 'ARTICLE6', '0.5 0.5 0.5 rg'));
+  lines.push(RC(cx - 150, 498, 300, 1, 0.8));
+  lines.push(...centerText(470, 'FB', 24, 'VERIFICATION REPORT', '0.2 0.2 0.2 rg'));
+  lines.push(...centerText(430, 'F1', 12, truncate(project.name, 70), '0.35 0.35 0.35 rg'));
+  lines.push(...TXT(cx - 190, 390, 'F1', 9, `Project ID: ${project.id}`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx + 10, 390, 'F1', 9, `Findings: ${reviewed} of ${coverage.total} rules reviewed`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx - 190, 372, 'F1', 9, `Methodology: ${project.methodCode} @ ${project.methodVersion}`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx + 10, 372, 'F1', 9, `Evidence references: ${project.reviews.reduce((s,r)=>s+r.evidenceIds.length,0)}`, '0.5 0.5 0.5 rg'));
+  lines.push(RC(cx - 150, 350, 300, 1, 0.8));
+  lines.push(...centerText(310, 'F1', 8, `Generated ${now}`, '0.6 0.6 0.6 rg'));
+  lines.push(...centerText(292, 'F1', 8, 'article6.org', '0.6 0.6 0.6 rg'));
   return lines;
 }
 
@@ -111,19 +151,31 @@ function buildManualCoverPage(project: Project, coverage: ProjectCoverage, now: 
   const clCount = project.manualFindings.filter((f) => f.findingType === 'CL').length;
   const farCount = project.manualFindings.filter((f) => f.findingType === 'FAR').length;
   const regLabel = manualRegistryLabel(project);
+  const metaL = L + 80;
+  const metaR = cx + 40;
 
-  lines.push(...TXT(cx - 35, COVER_TOP + 360, 'FB', 10, 'ARTICLE6', '0.5 0.5 0.5 rg'));
-  lines.push(RC(cx - 150, COVER_TOP + 340, 300, 1, 0.8));
-  lines.push(...TXT(cx - 80, COVER_TOP + 300, 'FB', 24, 'MANUAL REVIEW REPORT', '0.2 0.2 0.2 rg'));
-  lines.push(...TXT(cx - (report.title.length * 3.5), COVER_TOP + 270, 'FB', 14, report.title, '0.35 0.35 0.35 rg'));
-  lines.push(...TXT(cx - (project.name.length * 3), COVER_TOP + 230, 'F1', 12, truncate(project.name, 70), '0.35 0.35 0.35 rg'));
-  lines.push(...TXT(cx - 260, COVER_TOP + 200, 'F1', 9, `Registry / Standard: ${regLabel}`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx + 20,  COVER_TOP + 200, 'F1', 9, `Source documents: ${project.documents.length}`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx - 260, COVER_TOP + 180, 'F1', 9, `Manual findings: ${project.manualFindings.length}`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx + 20,  COVER_TOP + 180, 'F1', 9, `CAR: ${carCount}  CL: ${clCount}  FAR: ${farCount}`, '0.5 0.5 0.5 rg'));
-  lines.push(RC(cx - 150, COVER_TOP + 150, 300, 1, 0.8));
-  lines.push(...TXT(cx - 100, COVER_TOP + 110, 'F1', 7, `Generated ${now}`, '0.6 0.6 0.6 rg'));
-  lines.push(...TXT(cx - 65,  COVER_TOP + 90,  'F1', 7, 'article6.org · Manual Review Export', '0.6 0.6 0.6 rg'));
+  lines.push(...centerText(520, 'FB', 10, 'ARTICLE6', '0.5 0.5 0.5 rg'));
+  lines.push(RC(cx - 150, 498, 300, 1, 0.8));
+  lines.push(...centerText(470, 'FB', 24, 'MANUAL REVIEW REPORT', '0.2 0.2 0.2 rg'));
+  lines.push(...centerText(440, 'FB', 14, report.title, '0.35 0.35 0.35 rg'));
+  lines.push(...centerText(400, 'F1', 12, truncate(project.name, 70), '0.35 0.35 0.35 rg'));
+  lines.push(RC(cx - 150, 378, 300, 1, 0.8));
+
+  const metaY = 352;
+  lines.push(...TXT(metaL, metaY, 'F1', 7, 'REGISTRY / STANDARD', '0.6 0.6 0.6 rg'));
+  lines.push(...TXT(metaL, metaY - 14, 'F1', 8, truncate(regLabel, 26), '0.25 0.25 0.25 rg'));
+  lines.push(...TXT(metaR, metaY, 'F1', 7, 'SOURCE DOCUMENTS', '0.6 0.6 0.6 rg'));
+  lines.push(...TXT(metaR, metaY - 14, 'F1', 8, String(project.documents.length), '0.25 0.25 0.25 rg'));
+
+  const metaY2 = metaY - 40;
+  lines.push(...TXT(metaL, metaY2, 'F1', 7, 'MANUAL FINDINGS', '0.6 0.6 0.6 rg'));
+  lines.push(...TXT(metaL, metaY2 - 14, 'F1', 8, String(project.manualFindings.length), '0.25 0.25 0.25 rg'));
+  lines.push(...TXT(metaR, metaY2, 'F1', 7, 'FINDING TYPES', '0.6 0.6 0.6 rg'));
+  lines.push(...TXT(metaR, metaY2 - 14, 'F1', 8, `CAR: ${carCount}  CL: ${clCount}  FAR: ${farCount}`, '0.25 0.25 0.25 rg'));
+
+  lines.push(RC(cx - 150, 248, 300, 1, 0.8));
+  lines.push(...centerText(228, 'F1', 7, `Generated ${now}`, '0.6 0.6 0.6 rg'));
+  lines.push(...centerText(210, 'F1', 7, 'article6.org | Manual Review Export', '0.6 0.6 0.6 rg'));
   return lines;
 }
 
@@ -171,7 +223,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     ln.push(
       LN(FOOTER_Y + 10),
       ...TXT(L, FOOTER_Y, 'F1', 7, `Generated ${now}`, '0.6 0.6 0.6 rg'),
-      ...TXT(R - 120, FOOTER_Y, 'F1', 7, 'article6.org · Manual Review Export', '0.6 0.6 0.6 rg'),
+      ...TXT(R - 120, FOOTER_Y, 'F1', 7, 'article6.org | Manual Review Export', '0.6 0.6 0.6 rg'),
     );
     streams.push([...hdr, ...ln].join('\n'));
     ln = [];
@@ -320,7 +372,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
       cy -= 6;
       ln.push(...TXT(L + CARD_INDENT, cy, 'F1', 8, 'Auditor notes:', LIGHT));
       cy -= 14;
-      ln.push(...TXT(L + CARD_INDENT + 6, cy, 'F1', 9, '— concluded as recorded —', LIGHTER));
+      ln.push(...TXT(L + CARD_INDENT + 6, cy, 'F1', 9, '- concluded as recorded -', LIGHTER));
       cy -= 12;
 
       y = cy - 16;

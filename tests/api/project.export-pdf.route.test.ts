@@ -201,8 +201,36 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).toContain('Audit team evaluation');
     expect(parsed.text).toContain('Source excerpt');
     expect(parsed.text).toContain('PROVENANCE AND LIMITATIONS');
+    expect(parsed.text).not.toContain('undefined @ undefined');
     expect(parsed.text).not.toContain('determination..');
     expect(parsed.text).not.toMatch(/â|â|ˆ‡|ˆ–|ˆ¡|ˆ'|´°/);
+  }, 15000);
+
+  it('uses an ASCII-safe footer separator instead of a middle dot or other non-ASCII glyph', async () => {
+    const project: Project = {
+      id: 'manual-project-footer',
+      name: 'Footer Test Workspace',
+      reviewMode: 'manual',
+      registry: 'Unknown',
+      status: 'locked',
+      createdAt: '2026-04-15T00:00:00Z',
+      documents: [],
+      manualFindings: [],
+      extractedManualFindingDrafts: [],
+      learningCases: [],
+      reviews: [],
+    };
+    const req = new Request('http://localhost/api/projects/manual-project-footer/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('article6.org | Manual Review Export');
+    expect(parsed.text).not.toContain('article6.org \u00B7 Manual Review Export');
   }, 15000);
 
   it('keeps the manual review provenance block together instead of spilling a sentence fragment onto a nearly blank final page', async () => {
