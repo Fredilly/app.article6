@@ -223,7 +223,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     ln.push(
       LN(FOOTER_Y + 10),
       ...TXT(L, FOOTER_Y, 'F1', 7, `Generated ${now}`, '0.6 0.6 0.6 rg'),
-      ...TXT(R - 120, FOOTER_Y, 'F1', 7, 'article6.org | Manual Review Export', '0.6 0.6 0.6 rg'),
+      ...TXT(R - 120, FOOTER_Y, 'F1', 7, isManual ? 'article6.org | Manual Review Export' : 'article6.org | Verification Report', '0.6 0.6 0.6 rg'),
     );
     streams.push([...hdr, ...ln].join('\n'));
     ln = [];

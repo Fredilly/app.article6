@@ -206,6 +206,23 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).not.toMatch(/â|â|ˆ‡|ˆ–|ˆ¡|ˆ'|´°/);
   }, 15000);
 
+  it('uses a methodology-linked footer label for non-manual exports', async () => {
+    const project = makeProject();
+    const pdf = buildProjectExportPdf(project, {
+      total: 6,
+      verified: 4,
+      gap: 1,
+      notStarted: 1,
+      notApplicable: 0,
+      inProgress: 0,
+      percentComplete: 83,
+    });
+    const raw = pdf.toString('utf8');
+
+    expect(raw).toContain('article6.org | Verification Report');
+    expect(raw).not.toContain('Manual Review Export');
+  }, 15000);
+
   it('uses an ASCII-safe footer separator instead of a middle dot or other non-ASCII glyph', async () => {
     const project: Project = {
       id: 'manual-project-footer',
