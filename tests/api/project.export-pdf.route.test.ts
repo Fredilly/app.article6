@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import { POST } from '@/app/api/projects/[id]/export-pdf/route';
-import { extractPdfPagesWithPdfParse, extractPdfTextWithPdfParse } from '@/lib/chat/quickCheckPdfExtractor';
+import { extractPdfTextWithPdfParse } from '@/lib/chat/quickCheckPdfExtractor';
 import { buildProjectExportPdf } from '@/lib/projects/exportPdf';
 import type { Project } from '@/lib/projects/types';
 
@@ -17,17 +17,12 @@ function makeProject(reviewCount = 6): Project {
   return {
     id: 'project-12345678',
     name: 'Malawi Verification Project',
-    reviewMode: 'methodology-linked',
     methodCode: 'AR-AMS0007',
     methodVersion: 'v03-1',
     registry: 'UNFCCC',
     status: 'locked',
     createdAt: '2026-04-15T00:00:00Z',
     aoiLabel: 'Machinga District',
-    documents: [],
-    manualFindings: [],
-    extractedManualFindingDrafts: [],
-    learningCases: [],
     reviews: Array.from({ length: reviewCount }, (_, index) => ({
       ruleId: `R-${index + 1}`,
       ruleTitle: `Verification requirement ${index + 1} for the monitoring report and workbook evidence`,
@@ -130,138 +125,6 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).not.toContain('REQUIREMENT FINDINGS');
   }, 15000);
 
-  it('exports manual review mode without methodology code in the header copy', async () => {
-    const project: Project = {
-      id: 'manual-project-1',
-      name: 'Verra Reconstruction Workspace',
-      reviewMode: 'manual',
-      registry: 'Unknown',
-      status: 'locked',
-      createdAt: '2026-04-15T00:00:00Z',
-      documents: [
-        {
-          id: 'doc-1',
-          fileName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
-          mimeType: 'application/pdf',
-          sizeBytes: 2400,
-          uploadedAt: '2026-04-15T00:00:00Z',
-          extractedText: 'CCB and VCS verification report excerpt',
-        },
-      ],
-      manualFindings: [
-        {
-          id: 'finding-1',
-          findingId: 'CAR01',
-          findingType: 'CAR',
-          sourceDocumentId: 'doc-1',
-          sourcePageRange: '40-41',
-          requirement: 'CCB V3.1: G1.10',
-          description: 'Monitoring report omits appendix references.',
-          evidenceExcerpt: 'Monitoring report omits appendix references.',
-          projectResponse: 'Appendix references will be added.',
-          documentationSubmitted: 'Revised appendix set',
-          auditTeamEvaluation: 'Awaiting updated published report',
-          closureStatus: 'open',
-          reviewerNote: 'Hold open until revised report lands.',
-          createdAt: '2026-04-15T00:00:00Z',
-          updatedAt: '2026-04-15T00:00:00Z',
-        },
-      ],
-      extractedManualFindingDrafts: [],
-      learningCases: [],
-      reviews: [],
-    };
-    const req = new Request('http://localhost/api/projects/manual-project-1/export-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ project }),
-    });
-    const res = await POST(req);
-    const bytes = await res.arrayBuffer();
-    const parsed = await extractPdfTextWithPdfParse({ bytes });
-
-    expect(res.headers.get('Content-Disposition')).toContain('attachment; filename="manual-review-pack-manual-p.pdf"');
-    expect(parsed.text).toContain('MANUAL REVIEW REPORT');
-    expect(parsed.text).toContain('VVB FINDINGS RECONSTRUCTION');
-    expect(parsed.text).not.toContain('VERIFICATION REPORT UNFCCC');
-    expect(parsed.text).not.toContain('UNFCCC VERIFICATION REPORT');
-    expect(parsed.text).toContain('This report reconstructs findings from uploaded source documents.');
-    expect(parsed.text).toContain('Manual review mode: true');
-    expect(parsed.text).toContain('Verra Reconstruction Workspace');
-    expect(parsed.text).not.toContain('AR-AMS0007');
-    expect(parsed.text).toContain('Registry / Standard: Verra / VCS + CCB');
-    expect(parsed.text).toContain('CAR: 1');
-    expect(parsed.text).toContain('CL: 0');
-    expect(parsed.text).toContain('FAR: 0');
-    expect(parsed.text).not.toContain('NC: 1');
-    expect(parsed.text).toContain('Finding ID');
-    expect(parsed.text).toContain('Source page/range');
-    expect(parsed.text).toContain('Project response');
-    expect(parsed.text).toContain('Documentation submitted');
-    expect(parsed.text).toContain('Audit team evaluation');
-    expect(parsed.text).toContain('Source excerpt');
-    expect(parsed.text).toContain('Provenance And Limitations');
-    expect(parsed.text).not.toContain('determination..');
-    expect(parsed.text).not.toMatch(/â|â|ˆ‡|ˆ–|ˆ¡|ˆ'|´°/);
-  }, 15000);
-
-  it('keeps the manual review provenance block together instead of spilling a sentence fragment onto a nearly blank final page', async () => {
-    const project: Project = {
-      id: 'manual-project-15',
-      name: 'Long Manual Review Workspace',
-      reviewMode: 'manual',
-      registry: 'Unknown',
-      status: 'locked',
-      createdAt: '2026-04-15T00:00:00Z',
-      documents: [
-        {
-          id: 'doc-1',
-          fileName: 'CCB_VERIF_REP_ENG_1530_01AUG2011_12DEC2020.pdf',
-          mimeType: 'application/pdf',
-          sizeBytes: 420000,
-          uploadedAt: '2026-04-15T00:00:00Z',
-          extractedText: 'Appendix 1 CAR/CL/FAR findings excerpt',
-        },
-      ],
-      manualFindings: Array.from({ length: 17 }, (_, index) => ({
-        id: `finding-${index + 1}`,
-        findingId: index < 7 ? `CAR0${index + 1}` : index < 13 ? `CL0${index - 6}` : `FAR0${index - 12}`,
-        findingType: index < 7 ? 'CAR' : index < 13 ? 'CL' : 'FAR',
-        sourceDocumentId: 'doc-1',
-        sourcePageRange: `${40 + index}-${41 + index}`,
-        requirement: `Requirement reference ${index + 1} with enough text to wrap cleanly across the PDF card layout.`,
-        description: `Structured description for finding ${index + 1} explaining the reconstructed VVB issue in a compact but still realistic way.`,
-        evidenceExcerpt: `Source excerpt for finding ${index + 1} that remains visible for traceability while staying visually secondary in the report.`,
-        projectResponse: `Project response for finding ${index + 1} documenting the project-side remediation or clarification text used in the reconstruction.`,
-        documentationSubmitted: `Supporting attachment set ${index + 1} with workbook, report appendix, and memo references.`,
-        auditTeamEvaluation: `Audit team evaluation for finding ${index + 1} describing the recorded closure or remaining follow-up from the source report.`,
-        closureStatus: index < 13 ? 'closed' : 'open',
-        reviewerNote: `Reviewer note ${index + 1} captured in the manual review workspace.`,
-        createdAt: '2026-04-15T00:00:00Z',
-        updatedAt: '2026-04-15T00:00:00Z',
-      })),
-      extractedManualFindingDrafts: [],
-      learningCases: [],
-      reviews: [],
-    };
-
-    const req = new Request('http://localhost/api/projects/manual-project-15/export-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ project }),
-    });
-    const res = await POST(req);
-    const bytes = await res.arrayBuffer();
-    const parsed = await extractPdfPagesWithPdfParse({ bytes });
-    const lastPageText = parsed.pages.at(-1)?.text ?? '';
-    const lastPageWordCount = lastPageText.split(/\s+/).filter(Boolean).length;
-
-    expect(lastPageText).toContain('Provenance And Limitations');
-    expect(lastPageText).toContain('Manual review mode: true');
-    expect(lastPageText).toContain('Methodology / reference: Manual review - methodology not wired');
-    expect(lastPageWordCount).toBeGreaterThan(25);
-  }, 15000);
-
   it('renders reviewer rationale under rules that have notes', async () => {
     const project = makeProject(3);
     project.reviews[0] = {
@@ -333,7 +196,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
-    expect(parsed.text).toContain('no reviewer rationale or linked evidence reference');
+    expect(parsed.text).toContain('No Article6 reviewer note added.');
     expect(parsed.text).toContain('Draft OK is support-limited');
   }, 15000);
 

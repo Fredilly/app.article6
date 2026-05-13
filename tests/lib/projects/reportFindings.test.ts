@@ -29,7 +29,7 @@ describe('report finding mapping', () => {
     }, 0, 'Monitoring');
 
     expect(finding.code).toBe('OK');
-    expect(finding.rationale).toMatch(/no reviewer rationale or linked evidence reference/i);
+    expect(finding.rationale).toBe('No Article6 reviewer note added.');
     expect(finding.limitation).toMatch(/support-limited/i);
   });
 });
