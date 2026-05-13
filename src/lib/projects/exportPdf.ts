@@ -1,5 +1,5 @@
 import type { Project, ProjectCoverage, RuleReview } from '@/lib/projects/types';
-import { composeVerificationReport } from '@/lib/projects/verificationReport';
+import { composeVerificationReport, manualRegistryLabel } from '@/lib/projects/verificationReport';
 import type { ReportFinding } from '@/lib/projects/reportFindings';
 
 function esc(s: string): string {
@@ -55,13 +55,12 @@ function wrapText(text: string, max = 96): string[] {
   return lines.length > 0 ? lines : [''];
 }
 
-// ── Colour palette (grayscale) ──────────────────────────────────────────────
-const DARK     = '0.15 0.15 0.15 rg';  // primary text
-const MED      = '0.4 0.4 0.4 rg';    // secondary
-const LIGHT    = '0.55 0.55 0.55 rg'; // tertiary
-const LIGHTER  = '0.65 0.65 0.65 rg'; // fine print
-const CARD_BG  = 0.97;                 // card background fill (numeric)
-const NOTE_BG  = 0.95;                 // Article6 note background fill (numeric)
+const DARK     = '0.15 0.15 0.15 rg';
+const MED      = '0.4 0.4 0.4 rg';
+const LIGHT    = '0.55 0.55 0.55 rg';
+const LIGHTER  = '0.65 0.65 0.65 rg';
+const CARD_BG  = 0.97;
+const NOTE_BG  = 0.95;
 
 const W = 612;
 const PAGE_H = 792;
@@ -86,7 +85,6 @@ const TXT = (x: number, y: number, font: 'F1' | 'FB', size: number, text: string
   'ET',
 ];
 
-// ── Cover page ───────────────────────────────────────────────────────────────
 function buildCoverPage(project: Project, coverage: ProjectCoverage, now: string): string[] {
   const lines: string[] = [];
   const reviewed = coverage.verified + coverage.gap;
@@ -106,7 +104,29 @@ function buildCoverPage(project: Project, coverage: ProjectCoverage, now: string
   return lines;
 }
 
-// ── Estimate card height ─────────────────────────────────────────────────────
+function buildManualCoverPage(project: Project, coverage: ProjectCoverage, now: string, report: { title: string }): string[] {
+  const lines: string[] = [];
+  const cx = W / 2;
+  const carCount = project.manualFindings.filter((f) => f.findingType === 'CAR').length;
+  const clCount = project.manualFindings.filter((f) => f.findingType === 'CL').length;
+  const farCount = project.manualFindings.filter((f) => f.findingType === 'FAR').length;
+  const regLabel = manualRegistryLabel(project);
+
+  lines.push(...TXT(cx - 35, COVER_TOP + 360, 'FB', 10, 'ARTICLE6', '0.5 0.5 0.5 rg'));
+  lines.push(RC(cx - 150, COVER_TOP + 340, 300, 1, 0.8));
+  lines.push(...TXT(cx - 80, COVER_TOP + 300, 'FB', 24, 'MANUAL REVIEW REPORT', '0.2 0.2 0.2 rg'));
+  lines.push(...TXT(cx - (report.title.length * 3.5), COVER_TOP + 270, 'FB', 14, report.title, '0.35 0.35 0.35 rg'));
+  lines.push(...TXT(cx - (project.name.length * 3), COVER_TOP + 230, 'F1', 12, truncate(project.name, 70), '0.35 0.35 0.35 rg'));
+  lines.push(...TXT(cx - 260, COVER_TOP + 200, 'F1', 9, `Registry / Standard: ${regLabel}`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx + 20,  COVER_TOP + 200, 'F1', 9, `Source documents: ${project.documents.length}`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx - 260, COVER_TOP + 180, 'F1', 9, `Manual findings: ${project.manualFindings.length}`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx + 20,  COVER_TOP + 180, 'F1', 9, `CAR: ${carCount}  CL: ${clCount}  FAR: ${farCount}`, '0.5 0.5 0.5 rg'));
+  lines.push(RC(cx - 150, COVER_TOP + 150, 300, 1, 0.8));
+  lines.push(...TXT(cx - 100, COVER_TOP + 110, 'F1', 7, `Generated ${now}`, '0.6 0.6 0.6 rg'));
+  lines.push(...TXT(cx - 65,  COVER_TOP + 90,  'F1', 7, 'article6.org · Manual Review Export', '0.6 0.6 0.6 rg'));
+  return lines;
+}
+
 function estimateFindingHeight(finding: ReportFinding): number {
   const base = 90;
   const rationaleLines = wrapText(finding.rationale, 88).length;
@@ -118,24 +138,24 @@ function estimateFindingHeight(finding: ReportFinding): number {
   return base + rationaleLines * 12 + limitationLines * 12 + evidenceLines * 12 + 24;
 }
 
-// ── PDF builder ──────────────────────────────────────────────────────────────
 export function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Buffer {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const report = composeVerificationReport(project, coverage, now);
+  const isManual = project.reviewMode === 'manual';
 
   const streams: string[] = [];
   let ln: string[] = [];
   let y = BODY_TOP;
   let pg = 0;
 
-  // ── Cover page ────────────────────────────────────────────────────────────
   {
-    const coverLines = buildCoverPage(project, coverage, now);
+    const coverLines = isManual
+      ? buildManualCoverPage(project, coverage, now, report)
+      : buildCoverPage(project, coverage, now);
     streams.push(coverLines.join('\n'));
     pg = 1;
   }
 
-  // ── Body page utilities ───────────────────────────────────────────────────
   function flushPage(pageNum: number, showProjectName: boolean): void {
     if (ln.length === 0) return;
     const hdr = [
@@ -188,21 +208,21 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     }
   }
 
-  // ── First body page header ────────────────────────────────────────────────
-  ln.push(
-    ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION REPORT', LIGHTER),
-    ...TXT(L, y + 4,  'FB', 18, report.title, DARK),
-    ...TXT(L, y - 14,'F1', 9, truncate(report.subtitle, 84), '0.4 0.4 0.4 rg'),
-  );
+  if (!isManual) {
+    ln.push(
+      ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION REPORT', LIGHTER),
+      ...TXT(L, y + 4,  'FB', 18, report.title, DARK),
+      ...TXT(L, y - 14, 'F1', 9, truncate(report.subtitle, 84), '0.4 0.4 0.4 rg'),
+    );
 
-  let metaX = L;
-  for (const item of report.summaryItems.slice(0, 3)) {
-    ln.push(...TXT(metaX, y - 36, 'F1', 8, truncate(item, 32), LIGHT));
-    metaX += 190;
+    let metaX = L;
+    for (const item of report.summaryItems.slice(0, 3)) {
+      ln.push(...TXT(metaX, y - 36, 'F1', 8, truncate(item, 32), LIGHT));
+      metaX += 190;
+    }
+    y -= 70;
   }
-  y -= 70;
 
-  // ── Render sections ────────────────────────────────────────────────────────
   let renderedEvidenceAppendix = false;
   let renderedLimitations = false;
   let renderedProvenance = false;
@@ -216,8 +236,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     if (section.title === 'PROVENANCE') renderedProvenance = true;
   }
 
-  // ── Requirement findings cards ────────────────────────────────────────────
-  if (report.findings.length > 0) {
+  if (!isManual && report.findings.length > 0) {
     y -= 12;
     sec('REQUIREMENT FINDINGS');
 
@@ -236,18 +255,16 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
         );
       }
 
-      // Card background tint
       ln.push(RC(L + 4, y - height + 8, R - L - 8, height - 4, CARD_BG));
 
       let cy = y;
       const fid = `F-${String(i + 1).padStart(3, '0')}`;
       ln.push(...TXT(L + 10, cy, 'FB', 9, fid, DARK));
 
-      // Status chip — coloured fill + border
       const chipColorMap: Record<string, string> = {
-        OK:      '0.3 0.75 0.3 rg',   // greenish
-        CL:      '0.75 0.65 0.3 rg', // yellowish
-        NC:      '0.7 0.3 0.3 rg',   // reddish
+        OK:      '0.3 0.75 0.3 rg',
+        CL:      '0.75 0.65 0.3 rg',
+        NC:      '0.7 0.3 0.3 rg',
         FAR:     '0.4 0.45 0.7 rg',
         PENDING: '0.7 0.7 0.7 rg',
         NA:      '0.6 0.6 0.6 rg',
@@ -255,14 +272,10 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
       const chipColor = chipColorMap[finding.code] || '0.5 0.5 0.5 rg';
       const chipX = L + 50;
       const chipY = cy - 4;
-      // Chip fill rectangle
       ln.push(RC(chipX, chipY - 12, 38, 12, 0.9));
-      // Chip border stroke
       ln.push(`0.85 G ${chipX} ${chipY - 12} 38 12 re S 0 g`);
-      // Chip label
       ln.push(...TXT(chipX + 4, chipY, 'FB', 7, `[${finding.code}]`, chipColor));
 
-      // Rule title
       let ruleY = cy - 4;
       const ruleText = `${finding.ruleId}: ${finding.ruleTitle}`;
       for (const line of wrapText(ruleText, 88)) {
@@ -271,7 +284,6 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
       }
       cy = ruleY - 8;
 
-      // Issue excerpt
       ln.push(...TXT(L + CARD_INDENT, cy, 'F1', 8, 'Issue excerpt:', LIGHT));
       cy -= 14;
       for (const line of wrapText(finding.rationale, 92)) {
@@ -279,7 +291,6 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
         cy -= 12;
       }
 
-      // Project response / evidence
       cy -= 6;
       ln.push(...TXT(L + CARD_INDENT, cy, 'F1', 8, 'Project response / evidence:', LIGHT));
       cy -= 14;
@@ -295,7 +306,6 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
         }
       }
 
-      // Article6 note (if limitation present)
       if (finding.limitation) {
         cy -= 6;
         ln.push(...TXT(L + CARD_INDENT, cy, 'F1', 8, 'Article6 note:', LIGHT));
@@ -307,7 +317,6 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
         }
       }
 
-      // Auditor notes
       cy -= 6;
       ln.push(...TXT(L + CARD_INDENT, cy, 'F1', 8, 'Auditor notes:', LIGHT));
       cy -= 14;
@@ -318,41 +327,41 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     }
   }
 
-  // ── Append missing sections (fallback registries) ─────────────────────────
-  if (!renderedEvidenceAppendix) {
-    y -= 20;
-    sec('EVIDENCE APPENDIX');
-    if (report.findings.length === 0) {
-      bodyLine('No requirement findings are available from current project review data.', 'F1', 8, LIGHT);
-    } else {
-      for (const finding of report.findings) {
-        if (finding.evidenceIds.length === 0) {
-          bodyLine(`${finding.findingId}: No evidence references linked.`, 'F1', 8, LIGHT);
-        } else {
-          for (const ev of finding.evidenceIds) {
-            bodyLine(`${finding.findingId}: ${ev}`, 'F1', 8, LIGHT);
+  if (!isManual) {
+    if (!renderedEvidenceAppendix) {
+      y -= 20;
+      sec('EVIDENCE APPENDIX');
+      if (report.findings.length === 0) {
+        bodyLine('No requirement findings are available from current project review data.', 'F1', 8, LIGHT);
+      } else {
+        for (const finding of report.findings) {
+          if (finding.evidenceIds.length === 0) {
+            bodyLine(`${finding.findingId}: No evidence references linked.`, 'F1', 8, LIGHT);
+          } else {
+            for (const ev of finding.evidenceIds) {
+              bodyLine(`${finding.findingId}: ${ev}`, 'F1', 8, LIGHT);
+            }
           }
         }
       }
     }
-  }
 
-  if (!renderedLimitations) {
-    y -= 20;
-    sec('LIMITATIONS');
-    bodyLine(report.limitation, 'F1', 8, LIGHT);
-  }
+    if (!renderedLimitations) {
+      y -= 20;
+      sec('LIMITATIONS');
+      bodyLine(report.limitation, 'F1', 8, LIGHT);
+    }
 
-  if (!renderedProvenance) {
-    y -= 20;
-    sec('PROVENANCE');
-    for (const [label, value] of report.provenance) {
-      const line = `${label}: ${value || 'n/a'}.`;
-      bodyLine(line, 'F1', 8, LIGHT);
+    if (!renderedProvenance) {
+      y -= 20;
+      sec('PROVENANCE');
+      for (const [label, value] of report.provenance) {
+        const line = `${label}: ${value || 'n/a'}.`;
+        bodyLine(line, 'F1', 8, LIGHT);
+      }
     }
   }
 
-  // ── Closing disclaimer ─────────────────────────────────────────────────────
   need(30);
   ln.push(
     LN(y),
@@ -361,7 +370,6 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   );
   flushPage(pg, false);
 
-  // ── PDF assembly ───────────────────────────────────────────────────────────
   const enc = (s: string) => Buffer.from(s, 'utf-8');
   const parts: Buffer[] = [];
   const offsets: number[] = [0];
