@@ -141,7 +141,7 @@ describe('verification report composition', () => {
     const requirementFindings = report.sections.find((section) => section.title === 'REQUIREMENT FINDINGS')?.lines.join(' ');
 
     expect(report.findings[0]?.code).toBe('OK');
-    expect(requirementFindings).toContain('no reviewer rationale or linked evidence reference');
+    expect(requirementFindings).toContain('No Article6 reviewer note added.');
     expect(requirementFindings).toContain('Draft OK is support-limited');
   });
 

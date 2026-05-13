@@ -34,7 +34,7 @@ export function buildReportFinding(
   const lacksSupport = code === 'OK' && !note && review.evidenceIds.length === 0;
   const defaultRationale = code === 'OK'
     ? lacksSupport
-      ? 'Reviewer marked this requirement as verified, but no reviewer rationale or linked evidence reference is recorded.'
+      ? 'No Article6 reviewer note added.'
       : 'Reviewer marked this requirement as verified; no additional rationale was recorded.'
     : code === 'NC'
       ? 'Reviewer marked this requirement as a gap; no additional rationale was recorded.'
