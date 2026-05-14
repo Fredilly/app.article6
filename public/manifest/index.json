@@ -2005,1035 +2005,1035 @@
     "sectionId": "S-13"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-1-0001",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-1-0001",
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Land must not be forest at project start. Must meet host-country forest definition if applicable.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0047-0",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-4-0001",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-4-0001",
+    "id": "R-4-0001",
+    "rule_id": "R-4-0001",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Land must be non-forest or managed non-forest for 10+ years. VM0047 Section 4 applicability conditions 3-5 exclude tidal wetlands, organic soil/water table manipulation, and mechanical removal/burning of pre-existing dead wood. All exclusions are self-contained in VM0047.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0047-1",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-4"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-4-0002",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-4-0002",
+    "id": "R-4-0002",
+    "rule_id": "R-4-0002",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Two approaches: area-based (plot sampling) or census-based (complete enumeration). Must select based on project characteristics.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0047-2",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-4"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-5-0001",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-5-0001",
+    "id": "R-5-0001",
+    "rule_id": "R-5-0001",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Project boundary must be fixed ex-ante. Stratification by land cover, soil type, and management regime.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0047-3",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-5-0002",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-5-0002",
+    "id": "R-5-0002",
+    "rule_id": "R-5-0002",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "AGB and BGB mandatory. Litter, dead wood, SOC optional per Appendix 2 significance test (built-in, replaces external T-SIG). If included in baseline must also be in project scenario.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0047-4",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-6-0001",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-6-0001",
+    "id": "R-6-0001",
+    "rule_id": "R-6-0001",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Area-based approach uses performance benchmark (Appendix 1). Census-based approach uses zero baseline if pre-existing woody biomass <10%. Both approaches fully described in VM0047 Section 6 and Appendix 1.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0047-5",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-7-0001",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-7-0001",
+    "id": "R-7-0001",
+    "rule_id": "R-7-0001",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Area-based approach: regulatory surplus + performance benchmark + investment barrier. Census-based approach: regulatory surplus + investment barrier + common practice. Both fully described in VM0047 Section 7.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0047-6",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-7"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-8-0001",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-8-0001",
+    "id": "R-8-0001",
+    "rule_id": "R-8-0001",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Removals = min(project C change, project C change x (1 - PB)) - leakage - uncertainty. PB from ex-post reference region observations.",
     "tags": [
       "equation"
     ],
-    "sha256": "generated-VM0047-7",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-8-2"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-8-0002",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-8-0002",
+    "id": "R-8-0002",
+    "rule_id": "R-8-0002",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Activity shifting leakage must be assessed. Market leakage is de minimis for ARR. Fossil fuel and biomass burning emissions must be included.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0047-8",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-8-3"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-8-0003",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-8-0003",
+    "id": "R-8-0003",
+    "rule_id": "R-8-0003",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "15% threshold at 90% CI. If exceeded, excess deducted proportionally from removals. Below threshold, no deduction.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "generated-VM0047-9",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-8-4"
   },
   {
-    "id": "Verra.AFOLU.VM0047.v1-0.R-9-0001",
-    "rule_id": "Verra.AFOLU.VM0047.v1-0.R-9-0001",
+    "id": "R-9-0001",
+    "rule_id": "R-9-0001",
     "methodology": "VM0047",
     "version": "v1-0",
     "rule": "Four mandatory components: data list, QA/QC, responsibilities, archiving. REDD MRV procedures via M-REDD module.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0047-10",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
     "sectionId": "S-9-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Project land must meet forest definition threshold for 10+ years. Mangroves exempt from height.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-0",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "id": "R-1-0002",
+    "rule_id": "R-1-0002",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Binary classification: unplanned (no legal right) vs planned (legally permitted conversion). Determines which BL module applies.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-1",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "id": "R-1-0003",
+    "rule_id": "R-1-0003",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three criteria must ALL be met. Excludes large-scale industrial agriculture/aquaculture.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-2",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "id": "R-1-0004",
+    "rule_id": "R-1-0004",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Must have legal documentation authorizing conversion.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-3",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0005",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+    "id": "R-1-0005",
+    "rule_id": "R-1-0005",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Water table lowering is prohibited except for two specific exceptions.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-4",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0006",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+    "id": "R-1-0006",
+    "rule_id": "R-1-0006",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Absolute prohibition on organic soil burning as a project activity.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-5",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0007",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+    "id": "R-1-0007",
+    "rule_id": "R-1-0007",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "No nitrogen fertilizer application allowed during entire crediting period.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-6",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0008",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+    "id": "R-1-0008",
+    "rule_id": "R-1-0008",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Spillover emissions from hydrological changes must be assessed using the stepwise significance procedure in Appendix 1 (alternative to T-SIG). Procedure covers GHG emissions by source, carbon stock changes by pool, and leakage GHG emissions.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-7",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0009",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+    "id": "R-1-0009",
+    "rule_id": "R-1-0009",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three alternative conditions. Must demonstrate one with verifiable evidence.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-8",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Must meet VCS peatland definition based on IPCC organic soil thresholds.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-9",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "id": "R-1-0011",
+    "rule_id": "R-1-0011",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Must include at least one defined restoration activity type.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-10",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "id": "R-1-0012",
+    "rule_id": "R-1-0012",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Must include at least one defined conservation activity type.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-11",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "id": "R-1-0013",
+    "rule_id": "R-1-0013",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Parallel to AUDef criteria but for wetland degradation.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-12",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "id": "R-1-0014",
+    "rule_id": "R-1-0014",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "IFM and ARR activities are excluded from VM0007. WRC projects that also implement ARR activities must use an appropriate ARR methodology, e.g. VM0047, for aboveground biomass accounting.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-13",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+    "id": "R-1-0015",
+    "rule_id": "R-1-0015",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Two specific leakage prevention activities are explicitly prohibited.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-14",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-1"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+    "id": "R-2-0001",
+    "rule_id": "R-2-0001",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Six required data elements for each discrete land parcel.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-15",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Strict no-overlap rule. REDD+WRC combination is the sole exception.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-16",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+    "id": "R-2-0003",
+    "rule_id": "R-2-0003",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Double-counting prevention. Must track and report exclusions.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-17",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "id": "R-2-0004",
+    "rule_id": "R-2-0004",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "RRD required for baseline modeling. Must be in same jurisdiction with similar characteristics.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-18",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0005",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+    "id": "R-2-0005",
+    "rule_id": "R-2-0005",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Proxy areas required for planned deforestation baseline.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-19",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "id": "R-2-0006",
+    "rule_id": "R-2-0006",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Stratification mandatory. Different activity types must be in separate strata.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-20",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "id": "R-2-0007",
+    "rule_id": "R-2-0007",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Pool inclusion/exclusion must be justified. If included in baseline, must also be in project and leakage.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-21",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "id": "R-2-0008",
+    "rule_id": "R-2-0008",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "AGB always mandatory. HWP and dead wood conditionally mandatory based on baseline/project comparison.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-22",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+    "id": "R-2-0009",
+    "rule_id": "R-2-0009",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "WRC focuses on SOC pool. Biomass pools excluded unless ARR applies.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-23",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+    "id": "R-2-0010",
+    "rule_id": "R-2-0010",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "GHG sources must be identified per Table 7 with inclusion/exclusion justification.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-24",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+    "id": "R-2-0011",
+    "rule_id": "R-2-0011",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "GHG sources per Tables 8-9. Mandatory for CO2 from SOC, CH4 from SOC, combustion gases.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-25",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+    "id": "R-2-0012",
+    "rule_id": "R-2-0012",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Symmetric accounting: baseline inclusion implies project inclusion.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-26",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+    "id": "R-2-0013",
+    "rule_id": "R-2-0013",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Fixed period for baseline modeling. Duration per VCS Standard.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-27",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+    "id": "R-2-0014",
+    "rule_id": "R-2-0014",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "20-100 year range. Must be specified in PD.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-28",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+    "id": "R-2-0015",
+    "rule_id": "R-2-0015",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "100-year SOC horizon test. Must show significant difference. Assessed ex-ante conservatively.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-29",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+    "id": "R-2-0016",
+    "rule_id": "R-2-0016",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Sea-level rise must be factored into boundary delineation for tidal projects.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-30",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-2"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "id": "R-3-0001",
+    "rule_id": "R-3-0001",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "VT0001 mandatory. Stepwise approach: list alternatives, barrier/investment analysis, select most plausible.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-31",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three mandatory alternatives unless demonstrated not credible or non-compliant.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-32",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "id": "R-3-0003",
+    "rule_id": "R-3-0003",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Two-step: barrier analysis first, then investment analysis or qualitative GHG estimation as fallback.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-33",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "id": "R-3-0004",
+    "rule_id": "R-3-0004",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three options with different selection criteria. Option I is cost-only, Option II is IRR/NPV, Option III is benchmark-based.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-34",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+    "id": "R-3-0005",
+    "rule_id": "R-3-0005",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Module selection based on deforestation category.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-35",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+    "id": "R-3-0006",
+    "rule_id": "R-3-0006",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Module selection depends on substrate (peat vs tidal) and activity type (CIW vs RWE vs combined).",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-36",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+    "id": "R-3-0007",
+    "rule_id": "R-3-0007",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Periodic reassessment per VCS Standard. Must capture changes in deforestation drivers/behavior.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-37",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+    "id": "R-3-0008",
+    "rule_id": "R-3-0008",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "JNR data is acceptable as a conservative source even if less accurate.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-38",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-3"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "id": "R-4-0001",
+    "rule_id": "R-4-0001",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "VT0001 mandatory for all non-tidal-wetland activities.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-39",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-4"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+    "id": "R-4-0002",
+    "rule_id": "R-4-0002",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Activity method (ADD-AM) replaces project method (VT0001) for tidal wetlands only.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "generated-VM0007-40",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-4"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+    "id": "R-5-0001",
+    "rule_id": "R-5-0001",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Standard REDD equation. Three components summed over monitoring period.",
     "tags": [
       "equation"
     ],
-    "sha256": "generated-VM0007-41",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+    "id": "R-5-0002",
+    "rule_id": "R-5-0002",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Parallel to REDD equation. Components use peat/tidal wetland modules.",
     "tags": [
       "equation"
     ],
-    "sha256": "generated-VM0007-42",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three leakage components. Activity shifting via LK-ASP and LK-ASU modules. Market effects via LK-ME.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-43",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+    "id": "R-5-0004",
+    "rule_id": "R-5-0004",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three components including ecological leakage specific to wetlands.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-44",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+    "id": "R-5-0005",
+    "rule_id": "R-5-0005",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three buffer components. Each = (baseline - project) × Buffer%. Buffer% from T-BAR.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-45",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+    "id": "R-5-0006",
+    "rule_id": "R-5-0006",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "15% threshold at 90% CI. Excess deducted proportionally. Below threshold, no deduction.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "generated-VM0007-46",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+    "id": "R-5-0007",
+    "rule_id": "R-5-0007",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Period credits = incremental adjusted NER minus buffer withholding.",
     "tags": [
       "equation"
     ],
-    "sha256": "generated-VM0007-47",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "id": "R-5-0008",
+    "rule_id": "R-5-0008",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Five carbon pool modules. Each optional except AG biomass per R-2-0008.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-48",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "id": "R-5-0009",
+    "rule_id": "R-5-0009",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Module selection by activity type and emission source.",
     "tags": [
       "calc"
     ],
-    "sha256": "generated-VM0007-49",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-5"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0001",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "id": "R-6-0001",
+    "rule_id": "R-6-0001",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Four mandatory monitoring tasks. Each requires technical description, data list, procedures, QA/QC, archiving, responsibilities.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-50",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+    "id": "R-6-0002",
+    "rule_id": "R-6-0002",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Six required content elements per task.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-51",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+    "id": "R-6-0003",
+    "rule_id": "R-6-0003",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "GPS or georeferenced data mandatory. Strata included.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-52",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Six minimum SOP/QA/QC elements.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-53",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+    "id": "R-6-0005",
+    "rule_id": "R-6-0005",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "10-year minimum frequency. Spatial variables must be refreshed.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-54",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+    "id": "R-6-0006",
+    "rule_id": "R-6-0006",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three ongoing compliance checks. Fire triggers premium cancellation.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-55",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+    "id": "R-6-0007",
+    "rule_id": "R-6-0007",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "IPCC 2006 expert judgment protocol mandatory. Rationale must be documented.",
     "tags": [
       "monitoring"
     ],
-    "sha256": "generated-VM0007-56",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
     "sectionId": "S-6"
   },
   {
-    "id": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
-    "rule_id": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
+    "id": "R-6-0008",
+    "rule_id": "R-6-0008",
     "methodology": "VM0007",
     "version": "v1-8",
     "rule": "Three data source tiers: literature > IPCC defaults > expert opinion.",
     "tags": [
       "uncertainty"
     ],
-    "sha256": "generated-VM0007-57",
+    "sha256": "",
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
