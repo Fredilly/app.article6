@@ -40,7 +40,7 @@ export default function MethodCard({ method, active, readiness }: MethodCardProp
             >
               Source-Audited
             </span>
-          ) : missing.length > 0 && !readiness?.hasMeta ? (
+          ) : missing.length > 0 ? (
             <span
               className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600"
               title={`Missing: ${missing.join(", ")}`}

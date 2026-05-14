@@ -59,6 +59,19 @@ describe("computeReadiness", () => {
     expect(r.missingArtifacts).toContain("sections.json");
   });
 
+  it("reports missing artifacts even when META.json exists but rules/sections are absent", () => {
+    const meta = {
+      artifact_status: { rules: "source_audited" },
+      methodology_linked_review_blockers: [],
+    };
+    const r = computeReadiness(meta, 10);
+    expect(r.hasMeta).toBe(true);
+    expect(r.hasRules).toBe(true);
+    expect(r.hasSections).toBe(false);
+    expect(r.missingArtifacts).toContain("sections.json");
+    expect(r.missingArtifacts).not.toContain("rules.json");
+  });
+
   it("reports active blockers from meta", () => {
     const meta = {
       artifact_status: { rules: "draft", sections: "draft" },
