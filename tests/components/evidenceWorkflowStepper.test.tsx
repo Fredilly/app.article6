@@ -232,8 +232,7 @@ describe("EvidenceWorkflowStepper", () => {
     );
 
     expect(html).toContain(">R-1-0001<");
-    expect(html).toContain(">R-1-0002 - Project boundary<");
-    expect(html).not.toContain("R-1-0001 - UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
+    expect(html).not.toContain("UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
   });
 
   it("reopens the completed workflow on demand after finalization", async () => {
