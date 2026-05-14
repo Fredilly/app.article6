@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { dirnameFromPath, isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
+import { deriveStandard, dirnameFromPath, isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
 
 function makeFullMeta(overrides?: Record<string, unknown>): unknown {
   return {
@@ -42,6 +42,32 @@ describe("dirnameFromPath", () => {
 
   it("returns root slash for top-level path", () => {
     expect(dirnameFromPath("/rules.json")).toBe("/");
+  });
+});
+
+describe("deriveStandard", () => {
+  it("returns UNFCCC for UNFCCC", () => {
+    expect(deriveStandard("UNFCCC")).toBe("UNFCCC");
+  });
+
+  it("returns Verra for VCS", () => {
+    expect(deriveStandard("VCS")).toBe("Verra");
+  });
+
+  it("returns Verra for Verra", () => {
+    expect(deriveStandard("Verra")).toBe("Verra");
+  });
+
+  it("returns Gold Standard for GS", () => {
+    expect(deriveStandard("GS")).toBe("Gold Standard");
+  });
+
+  it("returns Gold Standard for Gold Standard", () => {
+    expect(deriveStandard("Gold Standard")).toBe("Gold Standard");
+  });
+
+  it("passes unknown programs through unchanged", () => {
+    expect(deriveStandard("Other")).toBe("Other");
   });
 });
 
