@@ -62,6 +62,7 @@ import type { MethodVersionLineage } from "@/app/m/_lib/methodVersionMetadata";
 import { getReviewProgress, REVIEW_STORE_EVENT, type ReviewProgress } from "@/lib/verify/reviewStore";
 import { deriveDocumentSupport } from "@/lib/verify/documentSupport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
+import { isSourceAuditedMeta } from "@/lib/methodBadge";
 
 type MethodDetail = {
   code: string;
@@ -75,6 +76,30 @@ type MethodDetail = {
   ruleCountByVersion: Record<string, number | undefined>;
   lineage?: MethodVersionLineage | null;
 };
+
+function dirnameFromPath(value: string): string {
+  const idx = value.lastIndexOf("/");
+  return idx >= 0 ? value.slice(0, idx) : "";
+}
+
+async function fetchJsonText(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
+}
+
+async function checkExists(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 type MethodDetailPaneProps = {
   method: MethodDetail;
@@ -116,6 +141,39 @@ export default function MethodDetailPane({
   const verifierMode = useMemo(() => isVerifierMode(searchParams), [searchParams]);
   const urlVerifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
   const [verifyViewMode, setVerifyViewMode] = useState<"list" | "map">(urlVerifyMode);
+
+  const metaUrl = useMemo(() => {
+    if (!manifestRulesPath) return null;
+    const baseDir = dirnameFromPath(dirnameFromPath(manifestRulesPath));
+    return baseDir ? `${baseDir}/META.json` : null;
+  }, [manifestRulesPath]);
+  const [sourceAudited, setSourceAudited] = useState(false);
+  const [metaLoaded, setMetaLoaded] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setSourceAudited(false);
+      setMetaLoaded(false);
+      if (!metaUrl) return;
+      const exists = await checkExists(metaUrl);
+      if (cancelled) return;
+      if (!exists) return;
+      const text = await fetchJsonText(metaUrl);
+      if (cancelled) return;
+      if (!text) return;
+      try {
+        const meta = JSON.parse(text);
+        if (!cancelled) {
+          setSourceAudited(isSourceAuditedMeta(meta));
+          setMetaLoaded(true);
+        }
+      } catch {
+        if (!cancelled) setMetaLoaded(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [metaUrl]);
+
   const defaultTab: DetailTab = useMemo(() => (isEvidenceMode ? "verify" : "rules"), [isEvidenceMode]);
   const tab = useMemo(() => {
     if (isEvidenceMode) return "verify";
@@ -1352,13 +1410,21 @@ export default function MethodDetailPane({
           <p className="text-xs text-slate-500">
             Latest: {method.latestVersion ?? "—"} • Versions: {method.versionCount}
           </p>
-          {versionBadges.length ? (
+          {versionBadges.length || (metaLoaded && sourceAudited) ? (
             <div className="mt-1 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600">
               {versionBadges.map((label) => (
                 <span key={label} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
                   {label}
                 </span>
               ))}
+              {metaLoaded && sourceAudited ? (
+                <span
+                  className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-emerald-700"
+                  title="Verified source PDF · Rules source-audited · No active blockers"
+                >
+                  Source-Audited
+                </span>
+              ) : null}
             </div>
           ) : null}
         </div>
