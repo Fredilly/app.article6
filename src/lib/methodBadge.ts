@@ -1,3 +1,26 @@
+/**
+ * Strip the last path segment from a slash-delimited path.
+ * Returns "/" for root paths, "" for empty input.
+ */
+export function dirnameFromPath(value: string): string {
+  const idx = value.lastIndexOf("/");
+  return idx >= 0 ? value.slice(0, idx) || "/" : "";
+}
+
+/**
+ * Derive the META.json URL from a manifest rules path.
+ *
+ * Given `methodologies/Verra/AFOLU/VM0047/v1-0/rules.json`
+ * Returns `methodologies/Verra/AFOLU/VM0047/v1-0/META.json`
+ *
+ * Handles both `rules.json` and `rules.rich.json` filenames.
+ */
+export function metaUrlFromRulesPath(rulesPath: string | null | undefined): string | null {
+  if (!rulesPath) return null;
+  const dir = dirnameFromPath(rulesPath);
+  return dir ? `${dir}/META.json` : null;
+}
+
 export function isSourceAuditedMeta(meta: unknown): boolean {
   if (!meta || typeof meta !== "object") return false;
   const m = meta as Record<string, unknown>;

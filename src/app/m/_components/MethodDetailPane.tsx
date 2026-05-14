@@ -62,7 +62,7 @@ import type { MethodVersionLineage } from "@/app/m/_lib/methodVersionMetadata";
 import { getReviewProgress, REVIEW_STORE_EVENT, type ReviewProgress } from "@/lib/verify/reviewStore";
 import { deriveDocumentSupport } from "@/lib/verify/documentSupport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
-import { isSourceAuditedMeta } from "@/lib/methodBadge";
+import { isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
 
 type MethodDetail = {
   code: string;
@@ -76,11 +76,6 @@ type MethodDetail = {
   ruleCountByVersion: Record<string, number | undefined>;
   lineage?: MethodVersionLineage | null;
 };
-
-function dirnameFromPath(value: string): string {
-  const idx = value.lastIndexOf("/");
-  return idx >= 0 ? value.slice(0, idx) : "";
-}
 
 async function fetchJsonText(url: string): Promise<string | null> {
   try {
@@ -142,11 +137,7 @@ export default function MethodDetailPane({
   const urlVerifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
   const [verifyViewMode, setVerifyViewMode] = useState<"list" | "map">(urlVerifyMode);
 
-  const metaUrl = useMemo(() => {
-    if (!manifestRulesPath) return null;
-    const baseDir = dirnameFromPath(dirnameFromPath(manifestRulesPath));
-    return baseDir ? `${baseDir}/META.json` : null;
-  }, [manifestRulesPath]);
+  const metaUrl = useMemo(() => metaUrlFromRulesPath(manifestRulesPath), [manifestRulesPath]);
   const [sourceAudited, setSourceAudited] = useState(false);
   const [metaLoaded, setMetaLoaded] = useState(false);
   useEffect(() => {

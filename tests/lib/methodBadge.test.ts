@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { isSourceAuditedMeta } from "@/lib/methodBadge";
+import { dirnameFromPath, isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
 
 function makeFullMeta(overrides?: Record<string, unknown>): unknown {
   return {
@@ -10,6 +10,40 @@ function makeFullMeta(overrides?: Record<string, unknown>): unknown {
     ...overrides,
   };
 }
+
+describe("metaUrlFromRulesPath", () => {
+  it("returns null for null input", () => {
+    expect(metaUrlFromRulesPath(null)).toBeNull();
+  });
+
+  it("returns correct META.json path from rules.json", () => {
+    expect(metaUrlFromRulesPath("methodologies/Verra/AFOLU/VM0047/v1-0/rules.json"))
+      .toBe("methodologies/Verra/AFOLU/VM0047/v1-0/META.json");
+  });
+
+  it("returns correct META.json path from rules.rich.json", () => {
+    expect(metaUrlFromRulesPath("methodologies/Verra/AFOLU/VM0047/v1-0/rules.rich.json"))
+      .toBe("methodologies/Verra/AFOLU/VM0047/v1-0/META.json");
+  });
+
+  it("returns null for a bare filename with no parent directory", () => {
+    expect(metaUrlFromRulesPath("rules.json")).toBeNull();
+  });
+});
+
+describe("dirnameFromPath", () => {
+  it("strips the last segment", () => {
+    expect(dirnameFromPath("a/b/c")).toBe("a/b");
+  });
+
+  it("returns empty string for a bare filename", () => {
+    expect(dirnameFromPath("rules.json")).toBe("");
+  });
+
+  it("returns root slash for top-level path", () => {
+    expect(dirnameFromPath("/rules.json")).toBe("/");
+  });
+});
 
 describe("isSourceAuditedMeta", () => {
   it("returns true when all conditions are met (grade_a)", () => {
