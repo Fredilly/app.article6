@@ -1559,7 +1559,7 @@ export default function MethodDetailPane({
             className={`${tabBase} ${surfaceTab === "verify" ? tabActive : tabIdle}`}
             aria-pressed={surfaceTab === "verify"}
           >
-            Verify
+            Start review
           </button>
           {methodsLayout?.isVerifyTab && surfaceTab === "verify" ? (
             <button

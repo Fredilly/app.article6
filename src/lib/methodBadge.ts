@@ -21,6 +21,21 @@ export function metaUrlFromRulesPath(rulesPath: string | null | undefined): stri
   return dir ? `${dir}/META.json` : null;
 }
 
+/**
+ * Map a provider/program string to a standard label.
+ * - "UNFCCC" → "UNFCCC"
+ * - "VCS", "Verra", "VERRA" → "Verra"
+ * - "GS", "Gold Standard", "GOLD_STANDARD" → "Gold Standard"
+ * - everything else → the original string
+ */
+export function deriveStandard(program: string): string {
+  const p = program.trim().toLowerCase();
+  if (p === "unfccc") return "UNFCCC";
+  if (p === "vcs" || p === "verra") return "Verra";
+  if (p === "gs" || p === "gold standard" || p === "gold_standard") return "Gold Standard";
+  return program.trim();
+}
+
 export function isSourceAuditedMeta(meta: unknown): boolean {
   if (!meta || typeof meta !== "object") return false;
   const m = meta as Record<string, unknown>;
