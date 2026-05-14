@@ -271,6 +271,10 @@ export default function MethodDetailPane({
   };
   const [rules, setRules] = useState<RuleListItem[]>([]);
   const [activeRuleId, setActiveRuleId] = useState<string | null>(initialRuleId ?? null);
+
+  useEffect(() => {
+    setActiveRuleId(initialRuleId ?? null);
+  }, [method.code, activeVersion, initialRuleId]);
   const [traceIndex, setTraceIndex] = useState<TraceIndex | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [, setTraceError] = useState<string | null>(null);
@@ -1313,7 +1317,7 @@ export default function MethodDetailPane({
       viewMode={verifyViewMode}
       verifierMode={verifierMode}
       activeRuleId={activeRuleId}
-      ruleOptions={rules.map((rule) => ({ id: rule.id, title: rule.title }))}
+      ruleOptions={rules.map((rule) => ({ id: rule.id, title: rule.title, sectionId: rule.sectionId }))}
       onSelectRuleId={(ruleId) => {
         if (!ruleId) {
           setActiveRuleId(null);

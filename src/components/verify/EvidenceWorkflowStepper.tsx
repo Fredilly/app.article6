@@ -5,7 +5,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import RuleCombobox from "@/components/verify/RuleCombobox";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
-type RuleOption = { id: string; title: string };
+type RuleOption = { id: string; title: string; sectionId?: string };
 
 type EvidenceWorkflowStepperProps = {
   ruleOptions: RuleOption[];

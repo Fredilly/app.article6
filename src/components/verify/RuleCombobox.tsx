@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type RuleOption = { id: string; title: string };
+type RuleOption = { id: string; title: string; sectionId?: string };
 
 function shortRuleLabel(ruleId: string): string {
   const trimmed = ruleId.trim();
@@ -18,7 +18,7 @@ function formatLabel(rule: RuleOption): string {
   const shortId = shortRuleLabel(rule.id);
   const title = rule.title.trim();
   if (!title || title === rule.id || title === shortId) return shortId || rule.id;
-  return `${shortId || rule.id} ${title.slice(0, 60)}`;
+  return `${shortId || rule.id} \u2014 ${title.slice(0, 60)}`;
 }
 
 type RuleComboboxProps = {
@@ -112,6 +112,9 @@ export default function RuleCombobox({ options, value, onChange }: RuleComboboxP
                     <span className="font-medium">{shortRuleLabel(rule.id)}</span>
                     {rule.title ? (
                       <span className="ml-1 text-slate-400">{rule.title.slice(0, 60)}</span>
+                    ) : null}
+                    {rule.sectionId ? (
+                      <div className="mt-0.5 text-[10px] text-slate-400">{rule.sectionId}</div>
                     ) : null}
                   </button>
                 );
