@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { dirnameFromPath, isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
+import { deriveStandard, dirnameFromPath, isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
 
 function makeFullMeta(overrides?: Record<string, unknown>): unknown {
   return {
@@ -19,6 +19,11 @@ describe("metaUrlFromRulesPath", () => {
   it("returns correct META.json path from rules.json", () => {
     expect(metaUrlFromRulesPath("methodologies/Verra/AFOLU/VM0047/v1-0/rules.json"))
       .toBe("methodologies/Verra/AFOLU/VM0047/v1-0/META.json");
+  });
+
+  it("preserves a leading slash for root-relative paths", () => {
+    expect(metaUrlFromRulesPath("/methodologies/Verra/AFOLU/VM0047/v1-0/rules.json"))
+      .toBe("/methodologies/Verra/AFOLU/VM0047/v1-0/META.json");
   });
 
   it("returns correct META.json path from rules.rich.json", () => {
@@ -42,6 +47,32 @@ describe("dirnameFromPath", () => {
 
   it("returns root slash for top-level path", () => {
     expect(dirnameFromPath("/rules.json")).toBe("/");
+  });
+});
+
+describe("deriveStandard", () => {
+  it("returns UNFCCC for UNFCCC", () => {
+    expect(deriveStandard("UNFCCC")).toBe("UNFCCC");
+  });
+
+  it("returns Verra for VCS", () => {
+    expect(deriveStandard("VCS")).toBe("Verra");
+  });
+
+  it("returns Verra for Verra", () => {
+    expect(deriveStandard("Verra")).toBe("Verra");
+  });
+
+  it("returns Gold Standard for GS", () => {
+    expect(deriveStandard("GS")).toBe("Gold Standard");
+  });
+
+  it("returns Gold Standard for Gold Standard", () => {
+    expect(deriveStandard("Gold Standard")).toBe("Gold Standard");
+  });
+
+  it("passes unknown programs through unchanged", () => {
+    expect(deriveStandard("Other")).toBe("Other");
   });
 });
 
