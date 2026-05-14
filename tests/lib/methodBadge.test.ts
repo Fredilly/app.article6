@@ -21,6 +21,11 @@ describe("metaUrlFromRulesPath", () => {
       .toBe("methodologies/Verra/AFOLU/VM0047/v1-0/META.json");
   });
 
+  it("preserves a leading slash for root-relative paths", () => {
+    expect(metaUrlFromRulesPath("/methodologies/Verra/AFOLU/VM0047/v1-0/rules.json"))
+      .toBe("/methodologies/Verra/AFOLU/VM0047/v1-0/META.json");
+  });
+
   it("returns correct META.json path from rules.rich.json", () => {
     expect(metaUrlFromRulesPath("methodologies/Verra/AFOLU/VM0047/v1-0/rules.rich.json"))
       .toBe("methodologies/Verra/AFOLU/VM0047/v1-0/META.json");

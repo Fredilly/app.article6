@@ -15,7 +15,7 @@ type MethodLibraryPanelProps = {
 function deriveMetaUrl(method: MethodInventoryItem): string | null {
   const latest = method.latestVersion;
   if (!latest) return null;
-  const path = `methodologies/${method.program}/${method.sector}/${method.code}/${latest}/rules.json`;
+  const path = `/methodologies/${method.program}/${method.sector}/${method.code}/${latest}/rules.json`;
   return metaUrlFromRulesPath(path);
 }
 
