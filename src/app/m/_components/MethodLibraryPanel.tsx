@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import MethodCard from "@/app/m/_components/MethodCard";
-import { deriveStandard, isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
+import { deriveStandard } from "@/lib/methodBadge";
+import { computeReadiness, deriveArtifactUrls, emptyReadiness, type MethodReadiness } from "@/lib/methodReadiness";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
 
 const STANDARDS = ["All", "UNFCCC", "Verra", "Gold Standard"] as const;
@@ -12,45 +13,72 @@ type MethodLibraryPanelProps = {
   selectedCode: string | null;
 };
 
-function deriveMetaUrl(method: MethodInventoryItem): string | null {
-  const latest = method.latestVersion;
-  if (!latest) return null;
-  const path = `/methodologies/${method.program}/${method.sector}/${method.code}/${latest}/rules.json`;
-  return metaUrlFromRulesPath(path);
+async function probeJson(url: string): Promise<unknown | null> {
+  try {
+    const res = await fetch(url);
+    return res.ok ? res.json() : null;
+  } catch {
+    return null;
+  }
 }
 
-function useSourceAuditedStatus(methods: MethodInventoryItem[]): Set<string> {
-  const [audited, setAudited] = useState<Set<string>>(new Set());
+async function headExists(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+function useMethodReadiness(methods: MethodInventoryItem[]): Map<string, MethodReadiness> {
+  const [readiness, setReadiness] = useState<Map<string, MethodReadiness>>(new Map());
 
   useEffect(() => {
     const cancelled = { current: false };
-    setAudited(new Set());
+    setReadiness(new Map());
 
-    const entries = methods.map((m) => ({ code: m.code, metaUrl: deriveMetaUrl(m) }));
+    const entries = methods.map((m) => ({
+      code: m.code,
+      urls: deriveArtifactUrls(m),
+      ruleCount: m.ruleCountByVersion[m.latestVersion ?? ""] ?? 0,
+    }));
+
     Promise.all(
-      entries.map(async ({ code, metaUrl }) => {
-        if (!metaUrl) return null;
-        try {
-          const res = await fetch(metaUrl);
-          if (!res.ok) return null;
-          return { code, meta: await res.json() };
-        } catch {
-          return null;
-        }
+      entries.map(async ({ code, urls, ruleCount }) => {
+        const [meta, rulesExists, sectionsExists] = await Promise.all([
+          urls.metaUrl ? probeJson(urls.metaUrl) : null,
+          urls.rulesUrl ? headExists(urls.rulesUrl) : false,
+          urls.sectionsUrl ? headExists(urls.sectionsUrl) : false,
+        ]);
+
+        if (cancelled.current) return { code, readiness: emptyReadiness() };
+
+        const base = meta ? computeReadiness(meta, ruleCount) : emptyReadiness();
+        return {
+          code,
+          readiness: {
+            ...base,
+            hasRules: base.hasRules && rulesExists,
+            hasSections: base.hasSections && sectionsExists,
+            hasMeta: Boolean(meta),
+            missingArtifacts: [
+              ...(!meta ? ["META.json"] : []),
+              ...(!rulesExists ? ["rules.json"] : []),
+              ...(!sectionsExists ? ["sections.json"] : []),
+            ],
+          },
+        };
       }),
     ).then((results) => {
       if (cancelled.current) return;
-      const next = new Set<string>();
-      for (const r of results) {
-        if (r && isSourceAuditedMeta(r.meta)) next.add(r.code);
-      }
-      setAudited(next);
+      setReadiness(new Map(results.map((r) => [r.code, r.readiness])));
     });
 
     return () => { cancelled.current = true; };
   }, [methods]);
 
-  return audited;
+  return readiness;
 }
 
 export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
@@ -61,16 +89,20 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     return methods.filter((m) => deriveStandard(m.program) === standardFilter);
   }, [methods, standardFilter]);
 
-  const sourceAuditedCodes = useSourceAuditedStatus(filteredMethods);
+  const readinessMap = useMethodReadiness(filteredMethods);
 
   const reviewReady = useMemo(
-    () => filteredMethods.filter((m) => sourceAuditedCodes.has(m.code)),
-    [filteredMethods, sourceAuditedCodes],
+    () =>
+      filteredMethods.filter((m) => {
+        const r = readinessMap.get(m.code);
+        return r?.sourceAudited && r?.hasRules && r?.hasSections;
+      }),
+    [filteredMethods, readinessMap],
   );
 
   const otherMethods = useMemo(
-    () => filteredMethods.filter((m) => !sourceAuditedCodes.has(m.code)),
-    [filteredMethods, sourceAuditedCodes],
+    () => filteredMethods.filter((m) => !reviewReady.some((rm) => rm.code === m.code)),
+    [filteredMethods, reviewReady],
   );
 
   const allLabel = standardFilter === "All" ? "All methods" : `All ${standardFilter} methods`;
@@ -119,7 +151,7 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
                 <MethodCard
                   method={method}
                   active={selectedCode === method.code}
-                  sourceAudited
+                  readiness={readinessMap.get(method.code) ?? null}
                 />
               </div>
             ))}
@@ -136,7 +168,7 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
                 <MethodCard
                   method={method}
                   active={selectedCode === method.code}
-                  sourceAudited={false}
+                  readiness={readinessMap.get(method.code) ?? null}
                 />
               </div>
             ))

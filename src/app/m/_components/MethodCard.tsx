@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
+import type { MethodReadiness } from "@/lib/methodReadiness";
 
 type MethodCardProps = {
   method: MethodInventoryItem;
   active: boolean;
-  sourceAudited: boolean;
+  readiness: MethodReadiness | null;
 };
 
-export default function MethodCard({ method, active, sourceAudited }: MethodCardProps) {
+export default function MethodCard({ method, active, readiness }: MethodCardProps) {
+  const missing = readiness?.missingArtifacts ?? [];
+
   return (
     <Link
       href={`/m/${encodeURIComponent(method.code)}`}
@@ -30,12 +33,19 @@ export default function MethodCard({ method, active, sourceAudited }: MethodCard
           <span className="truncate text-xs text-slate-500">
             {method.program} • {method.sector}
           </span>
-          {sourceAudited ? (
+          {readiness?.sourceAudited && readiness?.hasRules && readiness?.hasSections ? (
             <span
               className="rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700"
               title="Verified source PDF · Rules source-audited · No active blockers"
             >
               Source-Audited
+            </span>
+          ) : missing.length > 0 && !readiness?.hasMeta ? (
+            <span
+              className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600"
+              title={`Missing: ${missing.join(", ")}`}
+            >
+              {missing.length} artifact{missing.length === 1 ? "" : "s"} missing
             </span>
           ) : null}
         </div>
