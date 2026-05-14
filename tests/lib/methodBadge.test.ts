@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "@jest/globals";
 import { isSourceAuditedMeta } from "@/lib/methodBadge";
 
 function makeFullMeta(overrides?: Record<string, unknown>): unknown {
