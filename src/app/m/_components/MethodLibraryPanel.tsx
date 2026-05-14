@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import MethodCard from "@/app/m/_components/MethodCard";
 import { deriveStandard } from "@/lib/methodBadge";
 import { computeReadiness, deriveArtifactUrls, emptyReadiness, type MethodReadiness } from "@/lib/methodReadiness";
+import { applyUrlUpdates } from "@/lib/nav/urlState";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
 
 const STANDARDS = ["All", "UNFCCC", "Verra", "Gold Standard"] as const;
@@ -82,12 +84,33 @@ function useMethodReadiness(methods: MethodInventoryItem[]): Map<string, MethodR
 }
 
 export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
-  const [standardFilter, setStandardFilter] = useState<string>("All");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const urlStandard = searchParams.get("standard") ?? "";
+
+  const effectiveStandard = useMemo(() => {
+    if (urlStandard && STANDARDS.includes(urlStandard as typeof STANDARDS[number])) return urlStandard;
+    if (selectedCode) {
+      const method = methods.find((m) => m.code === selectedCode);
+      if (method) return deriveStandard(method.program);
+    }
+    return "All";
+  }, [urlStandard, selectedCode, methods]);
+
+  const setStandardFilter = useCallback(
+    (s: string) => {
+      const nextQuery = applyUrlUpdates(searchParams, { standard: s === "All" ? null : s });
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    },
+    [searchParams, router, pathname],
+  );
 
   const filteredMethods = useMemo(() => {
-    if (standardFilter === "All") return methods;
-    return methods.filter((m) => deriveStandard(m.program) === standardFilter);
-  }, [methods, standardFilter]);
+    if (effectiveStandard === "All") return methods;
+    return methods.filter((m) => deriveStandard(m.program) === effectiveStandard);
+  }, [methods, effectiveStandard]);
 
   const readinessMap = useMethodReadiness(filteredMethods);
 
@@ -105,7 +128,7 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     [filteredMethods, reviewReady],
   );
 
-  const allLabel = standardFilter === "All" ? "All methods" : `All ${standardFilter} methods`;
+  const allLabel = effectiveStandard === "All" ? "All methods" : `All ${effectiveStandard} methods`;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -129,7 +152,7 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
               type="button"
               onClick={() => setStandardFilter(s)}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                standardFilter === s
+                effectiveStandard === s
                   ? "bg-slate-900 text-white"
                   : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
               }`}

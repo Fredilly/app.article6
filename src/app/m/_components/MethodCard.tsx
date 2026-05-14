@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
 import type { MethodReadiness } from "@/lib/methodReadiness";
 
@@ -11,11 +13,19 @@ type MethodCardProps = {
 };
 
 export default function MethodCard({ method, active, readiness }: MethodCardProps) {
+  const searchParams = useSearchParams();
   const missing = readiness?.missingArtifacts ?? [];
+
+  const href = useMemo(() => {
+    const standard = searchParams.get("standard");
+    const base = `/m/${encodeURIComponent(method.code)}`;
+    if (!standard || standard === "All") return base;
+    return `${base}?standard=${encodeURIComponent(standard)}`;
+  }, [method.code, searchParams]);
 
   return (
     <Link
-      href={`/m/${encodeURIComponent(method.code)}`}
+      href={href}
       className={`flex items-center justify-between gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
         active
           ? "border-slate-300 bg-slate-50"

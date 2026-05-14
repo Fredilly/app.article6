@@ -2,26 +2,10 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Tooltip from "@/components/ui/Tooltip";
+import RuleCombobox from "@/components/verify/RuleCombobox";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
 type RuleOption = { id: string; title: string };
-
-function shortRuleLabel(ruleId: string): string {
-  const trimmed = ruleId.trim();
-  if (!trimmed) return "";
-  const dotSegments = trimmed.split(".");
-  const lastSegment = dotSegments[dotSegments.length - 1]?.trim() ?? "";
-  if (/^R-\d/i.test(lastSegment)) return lastSegment;
-  const match = trimmed.match(/(^|[.-])(R-\d[\w-]*)$/i);
-  return match?.[2] ?? trimmed;
-}
-
-function formatRuleOptionLabel(rule: RuleOption): string {
-  const shortId = shortRuleLabel(rule.id);
-  const title = rule.title.trim();
-  if (!title || title === rule.id || title === shortId) return shortId || rule.id;
-  return `${shortId || rule.id} - ${title.slice(0, 60)}`;
-}
 
 type EvidenceWorkflowStepperProps = {
   ruleOptions: RuleOption[];
@@ -483,18 +467,11 @@ export default function EvidenceWorkflowStepper({
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
                 <span className="text-xs font-semibold text-slate-600">Rule</span>
-                <select
-                  className="max-w-[220px] bg-transparent text-xs text-slate-700 outline-none"
-                  value={selectedRuleId ?? ""}
-                  onChange={(event) => onSelectRuleId?.(event.target.value.trim() || null)}
-                >
-                  <option value="">Select rule…</option>
-                  {ruleOptions.map((rule) => (
-                    <option key={rule.id} value={rule.id} title={rule.id}>
-                      {formatRuleOptionLabel(rule)}
-                    </option>
-                  ))}
-                </select>
+                <RuleCombobox
+                  options={ruleOptions}
+                  value={selectedRuleId}
+                  onChange={(ruleId) => onSelectRuleId?.(ruleId)}
+                />
               </div>
               {selectedRuleId ? (
                 <button
