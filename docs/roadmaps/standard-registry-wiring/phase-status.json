@@ -1,0 +1,132 @@
+{
+  "phase_meta": {
+    "status": "active",
+    "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
+    "current_focus": [
+      "Freeze app-side expectations for provider, category, method code, version, display name, registry/standard label, and artifact paths (Phase 0)",
+      "Ensure the app consumes canonical manifest from the methodology pack, not hand-stitched entries (Phase 1)"
+    ],
+    "not_active_now": [
+      "Verra-specific or Gold Standard-specific report composers",
+      "Adding Verra/Gold Standard placeholder methods to the manifest",
+      "Changes to methodology pack data or encoding pipeline",
+      "Formal validation/verification claims for non-UNFCCC registries"
+    ]
+  },
+  "phases": {
+    "phase_0_contract_and_boundaries": {
+      "status": "in_progress",
+      "title": "Contract and boundaries",
+      "repo": "app.article6",
+      "description": "Freeze app-side expectations for provider, category, method code, version, display name, registry/standard label, and artifact paths. Document that article6-methodologies owns canonical methodology metadata and app.article6 consumes the methodology pack and renders workflows.",
+      "acceptance": [
+        "All app-side contracts for provider, category, method code, version, display name, registry/standard label, and artifact paths are documented in PLAN.md",
+        "Boundary between article6-methodologies (canonical metadata owner) and app.article6 (consumer + workflow renderer) is clearly stated",
+        "No hand-stitched app-side manifest entries for Verra or Gold Standard exist yet",
+        "Existing UNFCCC consumption path is unchanged"
+      ],
+      "visible_ui_change": "None — documentation only",
+      "depends_on": []
+    },
+    "phase_1_pack_manifest_consumption": {
+      "status": "planned",
+      "title": "Pack/manifest consumption",
+      "repo": "app.article6",
+      "description": "Ensure the app consumes the canonical manifest from the methodology pack. Avoid long-term hand-stitched app-side manifest entries. Preserve existing UNFCCC behavior.",
+      "acceptance": [
+        "App reads manifest from the methodology pack path, not a hardcoded app-side list",
+        "No methodology metadata is duplicated or stitched on the app side",
+        "Existing UNFCCC method loading and project creation still works identically"
+      ],
+      "visible_ui_change": "None — internal architecture, no visible UI change",
+      "depends_on": ["phase_0_contract_and_boundaries"]
+    },
+    "phase_2_standard_grouped_method_picker": {
+      "status": "planned",
+      "title": "Standard-grouped method picker",
+      "repo": "app.article6",
+      "description": "Group methodology picker options by standard/provider. Preserve category grouping inside each standard where available. Make Verra and Gold Standard visible only when present in the manifest.",
+      "acceptance": [
+        "Methodology picker groups options by standard/provider (UNFCCC, Verra, Gold Standard)",
+        "Category (Forestry, Energy, etc.) is displayed within each standard group",
+        "Verra and Gold Standard options only appear when the manifest contains entries with those providers",
+        "Existing project creation flow for UNFCCC methods is unchanged"
+      ],
+      "visible_ui_change": "Methodology selection dropdown shows grouped options by standard/provider with category labels",
+      "depends_on": ["phase_1_pack_manifest_consumption"]
+    },
+    "phase_3_project_detail_registry_badge": {
+      "status": "planned",
+      "title": "Project detail registry badge",
+      "repo": "app.article6",
+      "description": "Show the selected standard/registry near the method code on the project detail page. Display standard, method, version, and category in a compact, reviewer-friendly way.",
+      "acceptance": [
+        "Project detail page shows a registry/standard badge next to the method code",
+        "Badge clearly displays: UNFCCC, Verra, or Gold Standard",
+        "Method code and version remain visible alongside the badge",
+        "Category label is displayed when available from manifest data",
+        "UNFCCC badge does not regress — existing projects show it correctly"
+      ],
+      "visible_ui_change": "Project detail header shows a standard badge (e.g. \"Verra\" / \"Gold Standard\" / \"UNFCCC\") next to the method code and version",
+      "depends_on": ["phase_2_standard_grouped_method_picker"]
+    },
+    "phase_4_generic_standard_aware_export_composer": {
+      "status": "planned",
+      "title": "Generic standard-aware export composer",
+      "repo": "app.article6",
+      "description": "Add a generic standard-aware export/report composer that works for any known registry. Output truthful sections without claiming official Verra or Gold Standard validation or verification.",
+      "acceptance": [
+        "Export produces a standard-aware report with sections: Project and Standard, Methodology Basis, Evidence Reviewed, Requirement Review, Gaps and Unsupported Claims, Reviewer Notes, Provenance and Export Metadata",
+        "Report does not claim official Verra or Gold Standard validation/verification",
+        "Existing UNFCCC-specific composer still dispatches correctly for UNFCCC projects",
+        "Generic composer is used for Verra and Gold Standard projects (and any future known registry)",
+        "Fallback/stub wording is removed from the export output for recognized registries"
+      ],
+      "visible_ui_change": "Verra and Gold Standard projects produce a structured report on export (instead of a fallback/stub notice)",
+      "depends_on": ["phase_3_project_detail_registry_badge"]
+    },
+    "phase_5_premium_pdf_wording_and_design": {
+      "status": "planned",
+      "title": "Premium PDF wording and design",
+      "repo": "app.article6",
+      "description": "Replace fallback/stub wording for Verra and Gold Standard. Use Article6-branded readiness review language. Hide internal/debug language from user-facing PDF output.",
+      "acceptance": [
+        "PDF export uses Article6-branded readiness review language for all known registries",
+        "No debug wording, internal provenance, or stub messages appear in the user-facing PDF",
+        "Registry-specific branding (logos, disclaimers) is not required — clean neutral design is sufficient",
+        "PDF design is consistent across UNFCCC, Verra, and Gold Standard exports"
+      ],
+      "visible_ui_change": "Exported PDF for any known registry has polished wording and no stub/debug text",
+      "depends_on": ["phase_4_generic_standard_aware_export_composer"]
+    },
+    "phase_6_quickcheck_standard_detection": {
+      "status": "planned",
+      "title": "QuickCheck standard detection hardening",
+      "repo": "app.article6",
+      "description": "Harden detection for Verra, VCS, Verified Carbon Standard, VM/VMR prefixes, Gold Standard, GS4GG, and Gold Standard for the Global Goals in QuickCheck. Keep QuickCheck as routing/context support, not final truth.",
+      "acceptance": [
+        "QuickCheck detects Verra (VCS, Verified Carbon Standard, VM prefix, VMR prefix) in uploaded documents",
+        "QuickCheck detects Gold Standard (GS4GG, Gold Standard for the Global Goals, GS prefix)",
+        "Detection is used for routing/context hints only, not as authoritative registry assignment",
+        "Existing UNFCCC detection is not regressed",
+        "Tests cover all new detection patterns"
+      ],
+      "visible_ui_change": "QuickCheck may surface detected standard name in document analysis context",
+      "depends_on": ["phase_4_generic_standard_aware_export_composer"]
+    },
+    "phase_7_standard_specific_composers_later": {
+      "status": "planned",
+      "title": "Standard-specific composers (future)",
+      "repo": "app.article6",
+      "description": "Document future Verra-specific and Gold Standard-specific composers. Do not implement until encoded metadata supports standard-specific sections. Keep this phase marked as planned, not active.",
+      "acceptance": [
+        "Future Verra-specific composer requirements are documented in PLAN.md",
+        "Future Gold Standard-specific composer requirements are documented in PLAN.md",
+        "No implementation work is done in this phase",
+        "Phase status remains 'planned' until Verra/GS-specific metadata encoding is available upstream"
+      ],
+      "visible_ui_change": "None — documentation only",
+      "depends_on": ["phase_5_premium_pdf_wording_and_design"]
+    }
+  }
+}

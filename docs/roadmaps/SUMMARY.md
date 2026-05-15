@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, safe-learning-intake-pipeline, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -194,6 +194,33 @@ Not active now:
 - Methodology-rule updates from user-entered learning data
 - Public claims from private intake
 
+
+## standard-registry-wiring
+
+Status SSOT: `docs/roadmaps/standard-registry-wiring/phase-status.json`
+Details: `docs/roadmaps/standard-registry-wiring/PLAN.md`
+
+Lane status: Active
+Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.
+
+Current focus:
+- Freeze app-side expectations for provider, category, method code, version, display name, registry/standard label, and artifact paths (Phase 0)
+- Ensure the app consumes canonical manifest from the methodology pack, not hand-stitched entries (Phase 1)
+
+Not active now:
+- Verra-specific or Gold Standard-specific report composers
+- Adding Verra/Gold Standard placeholder methods to the manifest
+- Changes to methodology pack data or encoding pipeline
+- Formal validation/verification claims for non-UNFCCC registries
+
+1) RC0 — Contract and boundaries: In progress
+2) RC1 — Pack/manifest consumption: Planned
+3) RC2 — Standard-grouped method picker: Planned
+4) RC3 — Project detail registry badge: Planned
+5) RC4 — Generic standard-aware export composer: Planned
+6) RC5 — Premium PDF wording and design: Planned
+7) RC6 — QuickCheck standard detection hardening: Planned
+8) RC7 — Standard-specific composers (future): Planned
 
 ## traceable-rule-review-mvp
 
