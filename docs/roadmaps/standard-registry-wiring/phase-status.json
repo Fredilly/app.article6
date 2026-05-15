@@ -11,7 +11,7 @@
     "status": "active",
     "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
     "current_focus": [
-      "Ensure the app consumes canonical manifest from the methodology pack, not hand-stitched entries (Phase 1)"
+      "Group methodology picker options by standard/provider (Phase 2)"
     ],
     "not_active_now": [
       "Verra-specific or Gold Standard-specific report composers",
@@ -36,7 +36,7 @@
       "depends_on": []
     },
     "phase_1_pack_manifest_consumption": {
-      "status": "planned",
+      "status": "done",
       "title": "Pack/manifest consumption",
       "repo": "app.article6",
       "description": "Ensure the app consumes the canonical manifest from the methodology pack. Avoid long-term hand-stitched app-side manifest entries. Preserve existing UNFCCC behavior.",
