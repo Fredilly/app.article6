@@ -29,11 +29,25 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
   );
   const selectedMethodStandard = selectedMethod ? deriveStandard(selectedMethod.program) : null;
 
-  // User's manual tab choice — only used when no method is selected.
+  // User's manual tab override. On route change (selectedCode), clear it so
+  // the filter re-syncs to the selected method's standard. Manual tab clicks
+  // set the override and win until the next navigation.
+  const [userOverride, setUserOverride] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return null; // start clean — let selectedMethodStandard or sessionStorage drive
+  });
   const [userTab, setUserTab] = useState<string>(() => {
     if (typeof window === "undefined") return "All";
     return window.sessionStorage.getItem(STANDARD_FILTER_KEY) ?? "All";
   });
+
+  // Clear user override on route change so the method's standard takes effect again.
+  const prevSelectedCode = useRef(selectedCode);
+  useEffect(() => {
+    if (prevSelectedCode.current === selectedCode) return;
+    prevSelectedCode.current = selectedCode;
+    setUserOverride(null);
+  }, [selectedCode]);
 
   // Persist only manual tab choices, not method-forced filters.
   const persistUserTab = useRef(false);
@@ -43,10 +57,9 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     catch { /* quota exceeded, ignore */ }
   }, [userTab]);
 
-  // The effective filter is driven by the selected method when present.
-  // When no method is selected, the user's manual tab choice applies.
-  // This is derived synchronously — no post-render correction needed.
-  const effectiveStandard = selectedMethodStandard ?? userTab;
+  // The effective filter: user override wins when set; otherwise derive from
+  // the selected method; fall back to user's session-stored tab or All.
+  const effectiveStandard = userOverride ?? selectedMethodStandard ?? userTab;
 
   const filteredMethods = useMemo(() => {
     if (effectiveStandard === "All") return methods;
@@ -95,6 +108,7 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
   const handleTabClick = (s: string) => {
     persistUserTab.current = true;
     setUserTab(s);
+    setUserOverride(s);
   };
 
   return (
