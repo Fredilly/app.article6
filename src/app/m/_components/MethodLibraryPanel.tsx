@@ -39,14 +39,19 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
   // User's manual tab override. On route change (selectedCode), clear it so
   // the filter re-syncs to the selected method's standard. Manual tab clicks
   // set the override and win until the next navigation.
-  const [userOverride, setUserOverride] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return null; // start clean — let selectedMethodStandard or sessionStorage drive
-  });
-  const [userTab, setUserTab] = useState<string>(() => {
-    if (typeof window === "undefined") return "All";
-    return window.sessionStorage.getItem(STANDARD_FILTER_KEY) ?? "All";
-  });
+  const [userOverride, setUserOverride] = useState<string | null>(null);
+  const [userTab, setUserTab] = useState<string>("All");
+
+  // Hydrate userTab from sessionStorage after hydration to avoid mismatch.
+  const hydrated = useRef(false);
+  useEffect(() => {
+    if (hydrated.current) return;
+    hydrated.current = true;
+    try {
+      const stored = window.sessionStorage.getItem(STANDARD_FILTER_KEY);
+      if (stored) setUserTab(stored);
+    } catch { /* ignore */ }
+  }, []);
 
   // Clear user override on route change so the method's standard takes effect again.
   const prevSelectedCode = useRef(selectedCode);
@@ -74,17 +79,18 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     return methods.filter((m) => deriveStandard(m.program) === effectiveStandard);
   }, [methods, effectiveStandard]);
 
-  // Restore audited set from sessionStorage so navigation between /m and /m/[code]
-  // does not clear badges and refetch (which causes a visible beat/pop-in).
-  const [audited, setAudited] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set();
-    try {
-      const stored = window.sessionStorage.getItem(AUDITED_KEY);
-      return stored ? new Set(JSON.parse(stored)) : new Set();
-    } catch { return new Set(); }
-  });
-  // Refetch in the background; update only when results differ from cached set.
+  // Deterministic server-safe default — no sessionStorage during initial render.
+  const [audited, setAudited] = useState<Set<string>>(new Set());
+  // Hydrate from sessionStorage after hydration; refetch in background.
+  const auditedHydrated = useRef(false);
   useEffect(() => {
+    if (!auditedHydrated.current) {
+      auditedHydrated.current = true;
+      try {
+        const stored = window.sessionStorage.getItem(AUDITED_KEY);
+        if (stored) setAudited(new Set(JSON.parse(stored)));
+      } catch { /* ignore */ }
+    }
     let cancelled = false;
     const entries = methods.map((m) => ({ code: m.code, metaUrl: deriveMetaUrl(m) }));
     Promise.all(
