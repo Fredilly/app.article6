@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import MethodCard from "@/app/m/_components/MethodCard";
 import { deriveStandard, isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
@@ -19,13 +19,59 @@ function deriveMetaUrl(method: MethodInventoryItem): string | null {
   return metaUrlFromRulesPath(path);
 }
 
-function useSourceAuditedStatus(methods: MethodInventoryItem[]): Set<string> {
-  const [audited, setAudited] = useState<Set<string>>(new Set());
+const STANDARD_FILTER_KEY = "a6:methodStandardFilter";
 
+export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
+  // Derived from selected method — no effect needed, synchronous before first render.
+  const selectedMethod = useMemo(
+    () => (selectedCode ? methods.find((m) => m.code === selectedCode) ?? null : null),
+    [methods, selectedCode],
+  );
+  const selectedMethodStandard = selectedMethod ? deriveStandard(selectedMethod.program) : null;
+
+  // User's manual tab override. On route change (selectedCode), clear it so
+  // the filter re-syncs to the selected method's standard. Manual tab clicks
+  // set the override and win until the next navigation.
+  const [userOverride, setUserOverride] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return null; // start clean — let selectedMethodStandard or sessionStorage drive
+  });
+  const [userTab, setUserTab] = useState<string>(() => {
+    if (typeof window === "undefined") return "All";
+    return window.sessionStorage.getItem(STANDARD_FILTER_KEY) ?? "All";
+  });
+
+  // Clear user override on route change so the method's standard takes effect again.
+  const prevSelectedCode = useRef(selectedCode);
   useEffect(() => {
-    const cancelled = { current: false };
-    setAudited(new Set());
+    if (prevSelectedCode.current === selectedCode) return;
+    prevSelectedCode.current = selectedCode;
+    setUserOverride(null);
+  }, [selectedCode]);
 
+  // Persist only manual tab choices, not method-forced filters.
+  const persistUserTab = useRef(false);
+  useEffect(() => {
+    if (!persistUserTab.current) return;
+    try { window.sessionStorage.setItem(STANDARD_FILTER_KEY, userTab); }
+    catch { /* quota exceeded, ignore */ }
+  }, [userTab]);
+
+  // The effective filter: user override wins when set; otherwise derive from
+  // the selected method; fall back to user's session-stored tab or All.
+  const effectiveStandard = userOverride ?? selectedMethodStandard ?? userTab;
+
+  const filteredMethods = useMemo(() => {
+    if (effectiveStandard === "All") return methods;
+    if (!effectiveStandard) return methods;
+    return methods.filter((m) => deriveStandard(m.program) === effectiveStandard);
+  }, [methods, effectiveStandard]);
+
+  // Stable audited status: fetch once per method list, keep previous results while loading.
+  // Using methods (the full list) as key, not filteredMethods, so filter changes don't trigger refetch.
+  const [audited, setAudited] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let cancelled = false;
     const entries = methods.map((m) => ({ code: m.code, metaUrl: deriveMetaUrl(m) }));
     Promise.all(
       entries.map(async ({ code, metaUrl }) => {
@@ -34,46 +80,36 @@ function useSourceAuditedStatus(methods: MethodInventoryItem[]): Set<string> {
           const res = await fetch(metaUrl);
           if (!res.ok) return null;
           return { code, meta: await res.json() };
-        } catch {
-          return null;
-        }
+        } catch { return null; }
       }),
     ).then((results) => {
-      if (cancelled.current) return;
+      if (cancelled) return;
       const next = new Set<string>();
       for (const r of results) {
         if (r && isSourceAuditedMeta(r.meta)) next.add(r.code);
       }
       setAudited(next);
     });
-
-    return () => { cancelled.current = true; };
+    return () => { cancelled = true; };
   }, [methods]);
 
-  return audited;
-}
-
-export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
-  const [standardFilter, setStandardFilter] = useState<string>("All");
-
-  const filteredMethods = useMemo(() => {
-    if (standardFilter === "All") return methods;
-    return methods.filter((m) => deriveStandard(m.program) === standardFilter);
-  }, [methods, standardFilter]);
-
-  const sourceAuditedCodes = useSourceAuditedStatus(filteredMethods);
-
   const reviewReady = useMemo(
-    () => filteredMethods.filter((m) => sourceAuditedCodes.has(m.code)),
-    [filteredMethods, sourceAuditedCodes],
+    () => filteredMethods.filter((m) => audited.has(m.code)),
+    [filteredMethods, audited],
   );
 
   const otherMethods = useMemo(
-    () => filteredMethods.filter((m) => !sourceAuditedCodes.has(m.code)),
-    [filteredMethods, sourceAuditedCodes],
+    () => filteredMethods.filter((m) => !audited.has(m.code)),
+    [filteredMethods, audited],
   );
 
-  const allLabel = standardFilter === "All" ? "All methods" : `All ${standardFilter} methods`;
+  const allLabel = effectiveStandard === "All" ? "All methods" : `All ${effectiveStandard} methods`;
+
+  const handleTabClick = (s: string) => {
+    persistUserTab.current = true;
+    setUserTab(s);
+    setUserOverride(s);
+  };
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -95,9 +131,9 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
             <button
               key={s}
               type="button"
-              onClick={() => setStandardFilter(s)}
+              onClick={() => handleTabClick(s)}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                standardFilter === s
+                (effectiveStandard === "All" ? "All" : effectiveStandard) === s
                   ? "bg-slate-900 text-white"
                   : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
               }`}
