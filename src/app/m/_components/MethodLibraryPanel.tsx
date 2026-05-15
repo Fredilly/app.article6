@@ -93,14 +93,11 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     return () => { cancelled = true; };
   }, [methods]);
 
-  const reviewReady = useMemo(
-    () => filteredMethods.filter((m) => audited.has(m.code)),
-    [filteredMethods, audited],
-  );
-
-  const otherMethods = useMemo(
-    () => filteredMethods.filter((m) => !audited.has(m.code)),
-    [filteredMethods, audited],
+  // Stable single-sorted list: prevents card reshuffle between sections
+  // when audited data loads after mount.
+  const sortedMethods = useMemo(
+    () => [...filteredMethods].sort((a, b) => a.code.localeCompare(b.code)),
+    [filteredMethods],
   );
 
   const allLabel = effectiveStandard === "All" ? "All methods" : `All ${effectiveStandard} methods`;
@@ -145,34 +142,17 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
       </div>
 
       <div className="flex max-h-[calc(100vh-20rem)] flex-col gap-1 overflow-y-auto p-3">
-        {reviewReady.length > 0 ? (
-          <div className="mb-2">
-            <div className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              Review-ready methods
-            </div>
-            {reviewReady.map((method) => (
-              <div key={method.code} className="py-0.5">
-                <MethodCard
-                  method={method}
-                  active={selectedCode === method.code}
-                  sourceAudited
-                />
-              </div>
-            ))}
-          </div>
-        ) : null}
-
         <div>
           <div className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">{allLabel}</div>
-          {otherMethods.length === 0 && reviewReady.length === 0 ? (
+          {sortedMethods.length === 0 ? (
             <p className="px-1 py-4 text-xs text-slate-500">No methods found for this standard.</p>
           ) : (
-            otherMethods.map((method) => (
+            sortedMethods.map((method) => (
               <div key={method.code} className="py-0.5">
                 <MethodCard
                   method={method}
                   active={selectedCode === method.code}
-                  sourceAudited={false}
+                  sourceAudited={audited.has(method.code)}
                 />
               </div>
             ))
