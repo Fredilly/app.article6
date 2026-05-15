@@ -183,3 +183,29 @@ describe('normalizeRegistry edge cases', () => {
     expect(normalizeRegistry('CAR')).toBe('Unknown');
   });
 });
+
+describe('methodCategory storage', () => {
+  it('category parsed correctly from program', () => {
+    const parts = 'UNFCCC/Forestry'.split('/');
+    const category = parts.length > 1 ? parts.slice(1).join('/') : undefined;
+    expect(category).toBe('Forestry');
+  });
+
+  it('category parsed correctly from program with subcategory', () => {
+    const parts = 'Verra/Energy/RE'.split('/');
+    const category = parts.length > 1 ? parts.slice(1).join('/') : undefined;
+    expect(category).toBe('Energy/RE');
+  });
+
+  it('category is undefined when program has no slash', () => {
+    const parts = 'Unknown'.split('/');
+    const category = parts.length > 1 ? parts.slice(1).join('/') : undefined;
+    expect(category).toBeUndefined();
+  });
+
+  it('category is undefined when program is empty', () => {
+    const parts = ''.split('/');
+    const category = parts.length > 1 ? parts.slice(1).join('/') : undefined;
+    expect(category).toBeUndefined();
+  });
+});

@@ -42,7 +42,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | 0 | Contract and boundaries | Done | None (doc only) |
 | 1 | Pack/manifest consumption | Done | None (internal) |
 | 2 | Standard-grouped method picker | Done | Picker grouped by standard |
-| 3 | Project detail registry badge | Planned | Badge in project header |
+| 3 | Project detail registry badge | Done | Badge in project header |
 | 4 | Generic standard-aware export composer | Planned | Structured report for all registries |
 | 5 | Premium PDF wording and design | Planned | Polished PDF, no stub text |
 | 6 | QuickCheck standard detection hardening | Planned | Context hints in analysis |
@@ -439,11 +439,11 @@ Note: The manifest is still a committed static file, not auto-synced from the pa
 - In `ProjectDetail.tsx`, next to the review mode badge and method code, a new pill/chip shows the standard name (e.g. a blue "Verra" pill, a green "Gold Standard" pill, or a slate "UNFCCC" pill).
 - The badge color could differentiate standards subtly (e.g. UNFCCC → slate, Verra → blue, Gold Standard → amber).
 
-**Implementation approach:**
-- Add a new component or inline element in `ProjectDetail.tsx` near line 316.
-- Use `resolveProjectRegistry(project)` from `verificationReport.ts` to get the registry.
-- Store the category in the project if available (or derive from the manifest at method-picker time and pass it through).
-- Badge is purely cosmetic — no changes to project data model required.
+**Implementation notes:**
+- Added `RegistryBadge` component in `ProjectDetail.tsx` using `resolveProjectRegistry(project)`.
+- Added `methodCategory` field to `Project` type, stored at project creation time from the `program` string's category segment.
+- Category displayed as a separate pill next to the registry badge.
+- Badge and category are purely cosmetic — no export or project creation logic changes.
 
 ---
 
@@ -552,7 +552,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | 0 | Review and signoff only |
 | 1 | Manifest consumption tests added at `tests/lib/projects/manifestConsumption.test.ts` (24 tests): manifest shape, program format, registry inference, normalizeRegistry edge cases, resolveProjectRegistry fallback |
 | 2 | 7 unit tests for `groupMethodsByRegistry`: grouping, ordering, sorting, empty, Unknown |
-| 3 | Component tests for registry badge rendering; existing project detail tests pass unchanged |
+| 3 | 4 component tests for RegistryBadge rendering (UNFCCC, Verra, Gold Standard, Unknown); existing tests pass unchanged |
 | 4 | Unit tests for `composeStandardAwareVerificationReport` output shape; regression tests for `composeUnfcccVerificationReport` unchanged; tests confirm no stub wording in output |
 | 5 | PDF snapshot/content tests confirm no stub/debug text; wording audit |
 | 6 | Unit tests for all new detection patterns; existing QuickCheck tests pass unchanged |

@@ -10,8 +10,10 @@ import type {
   Project,
   ProjectCoverage,
   ProjectDocument,
+  ProjectRegistry,
   RuleReview,
 } from '@/lib/projects/types';
+import { resolveProjectRegistry } from '@/lib/projects/verificationReport';
 import {
   acceptExtractedManualFindingDraft,
   addExtractedManualFindingDrafts,
@@ -317,6 +319,16 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
               <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs">
                 {project.methodCode}@{project.methodVersion}
               </span>
+            ) : null}
+            {project.reviewMode === 'methodology-linked' ? (
+              <>
+                <RegistryBadge registry={resolveProjectRegistry(project)} />
+                {project.methodCategory ? (
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                    {project.methodCategory}
+                  </span>
+                ) : null}
+              </>
             ) : null}
             <span
               className={`rounded px-2 py-0.5 text-xs font-semibold ${
@@ -1004,6 +1016,20 @@ function EditableInput({
       placeholder={placeholder}
       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
     />
+  );
+}
+
+export function RegistryBadge({ registry }: { registry: ProjectRegistry }) {
+  const styles: Record<ProjectRegistry, string> = {
+    UNFCCC: 'bg-slate-100 text-slate-700',
+    Verra: 'bg-blue-100 text-blue-700',
+    'Gold Standard': 'bg-amber-100 text-amber-700',
+    Unknown: 'bg-red-100 text-red-700',
+  };
+  return (
+    <span className={`rounded px-2 py-0.5 text-xs font-semibold ${styles[registry]}`}>
+      {registry}
+    </span>
   );
 }
 

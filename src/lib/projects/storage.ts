@@ -45,6 +45,7 @@ export function createProject(input: {
   reviewMode: Project['reviewMode'];
   methodCode?: string;
   methodVersion?: string;
+  methodCategory?: string;
   registry?: Project['registry'];
   aoiLabel?: string;
   description?: string;
@@ -56,6 +57,7 @@ export function createProject(input: {
     reviewMode: input.reviewMode,
     methodCode: input.methodCode,
     methodVersion: input.methodVersion,
+    methodCategory: input.methodCategory,
     registry: input.registry,
     status: 'in-progress',
     createdAt: new Date().toISOString(),
@@ -348,6 +350,7 @@ function normalizeProject(project: Partial<Project>): Project {
     reviewMode: project.reviewMode ?? 'methodology-linked',
     methodCode: project.methodCode,
     methodVersion: project.methodVersion,
+    methodCategory: project.methodCategory,
     registry: project.registry,
     status: project.status ?? 'in-progress',
     createdAt: project.createdAt ?? new Date().toISOString(),
