@@ -46,7 +46,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | 4 | Generic standard-aware export composer | Done | Structured report for all registries |
 | 5 | Premium PDF wording and design | Done | Polished PDF, no stub text |
 | 6 | QuickCheck standard detection hardening | Done | Context hints in analysis |
-| 7 | Standard-specific composers | In progress | Verra/GS-specific report sections in PDF export |
+| 7 | Standard-specific composers | Done | Verra/GS-specific report sections in PDF export |
 
 ## Phase details
 
@@ -517,7 +517,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 
 ---
 
-### Phase 7 — Standard-specific composers
+### Phase 7 — Standard-specific composers (Done)
 
 **Phase 7 implements standard-specific composers for Verra and Gold Standard using canonical metadata from the methodology pack.**
 
@@ -557,14 +557,14 @@ The Gold Standard composer (`src/lib/composers/composeGoldStandardVerificationRe
 - Section taxonomy, disclaimer language, and evidence categories are all derived from canonical metadata — nothing is invented by the app
 - 113 tests pass across all suites (20 new composer tests, 81 existing project tests, 12 QuickCheck tests)
 
-**Acceptance criteria:**
+**Acceptance criteria (all met):**
 - [x] Verra-specific composer implemented using canonical pack metadata
 - [x] Gold Standard-specific composer implemented using canonical pack metadata
 - [x] Both composers feed into audit-pack PDF pipeline
-- [x] Standard-specific sections, disclaimers, and evidence references are included
-- [x] QuickCheck methodologyMentions include standard-specific section context
+- [x] Standard-specific sections, disclaimers, and evidence references included — all derived from metadata
+- [x] QuickCheck methodologyMentions include standard-specific section context without affecting registry assignment
 - [x] No invented report structure or disclaimer language
-- [x] Phase status updated to `in_progress`
+- [x] Phase status updated to `done`
 
 ## Risk areas
 
@@ -593,80 +593,6 @@ The Gold Standard composer (`src/lib/composers/composeGoldStandardVerificationRe
 
 1. **Do not break existing UNFCCC workflow** — all changes are additive or behind the same standard-aware dispatch
 2. **Do not add placeholder/fake Verra or Gold Standard methodology data** — only show standards when the pack provides them
-3. **Do not claim official verification** — all output is readiness review; standard-specific validation language only after Phase 7
+3. **Do not claim official verification** — all output is readiness review
 4. **Keep manifest canonical** — the app consumes, never owns, methodology metadata
 5. **Each phase must merge independently** — no phase depends on code from a future phase
-
-## Phase 7 Readiness Audit (2026-05-15)
-
-The following audit confirms the app is correctly staged for Phase 7 implementation. All checks pass.
-
-### phase-status.json
-
-| Check | Result |
-|---|---|
-| `RC7` value is `"planned"` | PASS |
-| Phase 7 title is `"Standard-specific composers (future)"` | PASS |
-| No phase is marked `"active"` or `"in_progress"` for Phase 7 | PASS |
-
-### PLAN.md — Phase 7 documentation
-
-| Check | Result |
-|---|---|
-| Acceptance criteria for Verra/GS composers documented | PASS (lines 524-528) |
-| Minimum upstream metadata requirements table present | PASS (lines 530-538) |
-| Explicit note that Phase 7 is blocked until methodology metadata exists | PASS (lines 522-523, 540-543) |
-| No implementation work specified in Phase 7 | PASS |
-
-### Phase 4 — Generic standard-aware composer
-
-| Check | Result | Evidence |
-|---|---|---|
-| `composeVerraVerificationReport` delegates to `composeGenericStandardAwareReport('Verra', ...)` | PASS | `verificationReport.ts:428-429` |
-| `composeGoldStandardVerificationReport` delegates to `composeGenericStandardAwareReport('Gold Standard', ...)` | PASS | `verificationReport.ts:432-433` |
-| Produces truthful, neutral sections (REPORT STATUS, PROJECT AND STANDARD, METHODOLOGY BASIS, EVIDENCE REVIEWED, REQUIREMENT REVIEW, REVIEWER NOTES, PROVENANCE AND EXPORT METADATA) | PASS | `verificationReport.ts:330-338` |
-| No claims of official Verra/GS validation or verification | PASS | `verificationReport.ts:351` |
-| UNFCCC path unchanged | PASS | `verificationReport.ts:558` |
-| No stub/fallback wording in output | PASS | Tests confirm forbidden phrases absent |
-| PDF export produces correct sections and wording per registry | PASS | 17 PDF export tests pass |
-
-### QuickCheck detection integration
-
-| Check | Result | Evidence |
-|---|---|---|
-| Verra, VCS, Verified Carbon Standard detected as methodology mentions | PASS | `quickCheckEvidence.ts:598-610` |
-| VM/VMR prefix codes detected | PASS | `quickCheckEvidence.ts:613-626` |
-| Gold Standard, GS4GG, GS prefix detected | PASS | `quickCheckEvidence.ts:629-636` |
-| Detection feeds `methodologyMentions` only — no effect on registry assignment | PASS | Registry assignment via `normalizeRegistry`/`resolveProjectRegistry` is an independent path |
-| 13 detection tests pass, UNFCCC regression tests pass | PASS | `tests/lib/quickCheckEvidence.test.ts` |
-| Standard-only mentions (`Verra`, `VCS`, `Gold Standard`) suppress the "No methodology mentions detected" warning when present | PASS | `quickCheckEvidence.ts:942-943` — warning only fires when `!methodologyMentions.size` |
-
-### Infrastructure readiness for Phase 7
-
-| Component | Status | Details |
-|---|---|---|
-| Section mapping | READY | `GENERIC_SECTION_ORDER` in `verificationReport.ts:330-338` covers all generic sections. Phase 7 will add standard-specific composers alongside. |
-| Evidence linking | READY | `buildEvidenceSummary` feeds into EVIDENCE REVIEWED section. Common to all composers. |
-| PDF export | READY | Registry-agnostic pipeline: project → coverage → `composeVerificationReport` → PDF bytes (`exportPdf.ts:196-198`). Road handler has no registry branching. |
-| Footer/header dispatch | READY | `exportPdf.ts:226-230` selects footer label by registry; section label by registry (UNFCCC vs non-UNFCCC). |
-| Dispatcher extension point | READY | `composeVerificationReport` at `verificationReport.ts:551-563` routes by registry. Phase 7 swaps the generic delegate for a registry-specific composer. |
-| Verra composer stub | READY | `composeVerraVerificationReport` at `verificationReport.ts:428-429` currently delegates to generic. This is the Phase 7 insertion point. |
-| GS composer stub | READY | `composeGoldStandardVerificationReport` at `verificationReport.ts:432-433` currently delegates to generic. This is the Phase 7 insertion point. |
-| No hand-stitched metadata | CONFIRMED | No app-side Verra/GS manifest entries. No invented report structure. |
-| No fictional disclaimer language | CONFIRMED | Safe disclaimer language is explicitly listed as upstream dependency — not implemented in app. |
-
-### Test suite results
-
-All 85 tests pass across the relevant suites:
-
-| Suite | Tests | Result |
-|---|---|---|
-| `tests/lib/projects/verificationReport.test.ts` | 16 | PASS |
-| `tests/lib/projects/manifestConsumption.test.ts` | 28 | PASS |
-| `tests/lib/quickCheckEvidence.test.ts` | 24 | PASS |
-| `tests/lib/quickCheckUi.test.ts` | 8 | PASS |
-| `tests/api/project.export-pdf.route.test.ts` | 17 | PASS |
-
-### Conclusion
-
-The app is correctly staged for Phase 7. No implementation work has been started. The generic standard-aware composer from Phase 4 covers all known registries with truthful, neutral sections. Phase 7 must remain `planned` until `article6-methodologies` provides canonical metadata (section taxonomy, export sections, mapped section references, evidence categories, safe disclaimer language).
