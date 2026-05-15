@@ -425,12 +425,12 @@ export function composeGenericStandardAwareReport(
   };
 }
 
-export function composeVerraVerificationReport(project: Project, coverage: ProjectCoverage): VerificationReportComposition {
-  return composeGenericStandardAwareReport('Verra', project, coverage);
+export function composeVerraVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
+  return composeGenericStandardAwareReport('Verra', project, coverage, exportTime);
 }
 
-export function composeGoldStandardVerificationReport(project: Project, coverage: ProjectCoverage): VerificationReportComposition {
-  return composeGenericStandardAwareReport('Gold Standard', project, coverage);
+export function composeGoldStandardVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
+  return composeGenericStandardAwareReport('Gold Standard', project, coverage, exportTime);
 }
 
 export function composeManualVerificationReport(
@@ -556,8 +556,8 @@ export function composeVerificationReport(
   if (project.reviewMode === 'manual') return composeManualVerificationReport(project, coverage, exportTime);
   const registry = resolveProjectRegistry(project);
   if (registry === 'UNFCCC') return composeUnfcccVerificationReport(project, coverage, exportTime);
-  if (registry === 'Verra') return composeVerraVerificationReport(project, coverage);
-  if (registry === 'Gold Standard') return composeGoldStandardVerificationReport(project, coverage);
+  if (registry === 'Verra') return composeVerraVerificationReport(project, coverage, exportTime);
+  if (registry === 'Gold Standard') return composeGoldStandardVerificationReport(project, coverage, exportTime);
 
   return composeGenericStandardAwareReport('Unknown', project, coverage, exportTime);
 }

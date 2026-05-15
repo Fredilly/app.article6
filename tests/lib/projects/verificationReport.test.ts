@@ -249,6 +249,28 @@ describe('verification report composition', () => {
     expect(report.sections.length).toBeGreaterThan(0);
   });
 
+  it('Verra generic report includes export timestamp in provenance', () => {
+    const report = composeVerraVerificationReport(
+      makeProject({ methodCode: 'VM0007', registry: 'Verra' }),
+      makeCoverage(),
+      '2026-06-01T12:00:00Z',
+    );
+    const text = reportText(report);
+    expect(text).toContain('2026-06-01T12:00:00Z');
+    expect(report.provenance.some(([_, value]) => value.includes('2026-06-01T12:00:00Z'))).toBe(true);
+  });
+
+  it('Gold Standard generic report includes export timestamp in provenance', () => {
+    const report = composeGoldStandardVerificationReport(
+      makeProject({ methodCode: 'GS-VER1', registry: 'Gold Standard' }),
+      makeCoverage(),
+      '2026-07-15T08:30:00Z',
+    );
+    const text = reportText(report);
+    expect(text).toContain('2026-07-15T08:30:00Z');
+    expect(report.provenance.some(([_, value]) => value.includes('2026-07-15T08:30:00Z'))).toBe(true);
+  });
+
   it('does not emit unsupported certification or issuance phrases', () => {
     const report = composeVerificationReport(makeProject(), makeCoverage());
     const text = reportText(report);
