@@ -15,7 +15,7 @@
   },
   "phases": {
     "phase_0_contract_and_boundaries": {
-      "status": "in_progress",
+      "status": "done",
       "title": "Contract and boundaries",
       "repo": "app.article6",
       "description": "Freeze app-side expectations for provider, category, method code, version, display name, registry/standard label, and artifact paths. Document that article6-methodologies owns canonical methodology metadata and app.article6 consumes the methodology pack and renders workflows.",
@@ -39,7 +39,9 @@
         "Existing UNFCCC method loading and project creation still works identically"
       ],
       "visible_ui_change": "None — internal architecture, no visible UI change",
-      "depends_on": ["phase_0_contract_and_boundaries"]
+      "depends_on": [
+        "phase_0_contract_and_boundaries"
+      ]
     },
     "phase_2_standard_grouped_method_picker": {
       "status": "planned",
@@ -53,7 +55,9 @@
         "Existing project creation flow for UNFCCC methods is unchanged"
       ],
       "visible_ui_change": "Methodology selection dropdown shows grouped options by standard/provider with category labels",
-      "depends_on": ["phase_1_pack_manifest_consumption"]
+      "depends_on": [
+        "phase_1_pack_manifest_consumption"
+      ]
     },
     "phase_3_project_detail_registry_badge": {
       "status": "planned",
@@ -68,7 +72,9 @@
         "UNFCCC badge does not regress — existing projects show it correctly"
       ],
       "visible_ui_change": "Project detail header shows a standard badge (e.g. \"Verra\" / \"Gold Standard\" / \"UNFCCC\") next to the method code and version",
-      "depends_on": ["phase_2_standard_grouped_method_picker"]
+      "depends_on": [
+        "phase_2_standard_grouped_method_picker"
+      ]
     },
     "phase_4_generic_standard_aware_export_composer": {
       "status": "planned",
@@ -83,7 +89,9 @@
         "Fallback/stub wording is removed from the export output for recognized registries"
       ],
       "visible_ui_change": "Verra and Gold Standard projects produce a structured report on export (instead of a fallback/stub notice)",
-      "depends_on": ["phase_3_project_detail_registry_badge"]
+      "depends_on": [
+        "phase_3_project_detail_registry_badge"
+      ]
     },
     "phase_5_premium_pdf_wording_and_design": {
       "status": "planned",
@@ -97,7 +105,9 @@
         "PDF design is consistent across UNFCCC, Verra, and Gold Standard exports"
       ],
       "visible_ui_change": "Exported PDF for any known registry has polished wording and no stub/debug text",
-      "depends_on": ["phase_4_generic_standard_aware_export_composer"]
+      "depends_on": [
+        "phase_4_generic_standard_aware_export_composer"
+      ]
     },
     "phase_6_quickcheck_standard_detection": {
       "status": "planned",
@@ -112,7 +122,9 @@
         "Tests cover all new detection patterns"
       ],
       "visible_ui_change": "QuickCheck may surface detected standard name in document analysis context",
-      "depends_on": ["phase_4_generic_standard_aware_export_composer"]
+      "depends_on": [
+        "phase_4_generic_standard_aware_export_composer"
+      ]
     },
     "phase_7_standard_specific_composers_later": {
       "status": "planned",
@@ -126,7 +138,9 @@
         "Phase status remains 'planned' until Verra/GS-specific metadata encoding is available upstream"
       ],
       "visible_ui_change": "None — documentation only",
-      "depends_on": ["phase_5_premium_pdf_wording_and_design"]
+      "depends_on": [
+        "phase_5_premium_pdf_wording_and_design"
+      ]
     }
   }
 }

@@ -213,7 +213,7 @@ Not active now:
 - Changes to methodology pack data or encoding pipeline
 - Formal validation/verification claims for non-UNFCCC registries
 
-1) RC0 — Contract and boundaries: In progress
+1) RC0 — Contract and boundaries: Done
 2) RC1 — Pack/manifest consumption: Planned
 3) RC2 — Standard-grouped method picker: Planned
 4) RC3 — Project detail registry badge: Planned
@@ -240,4 +240,3 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
-
