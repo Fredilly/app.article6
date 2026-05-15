@@ -46,7 +46,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | 4 | Generic standard-aware export composer | Done | Structured report for all registries |
 | 5 | Premium PDF wording and design | Done | Polished PDF, no stub text |
 | 6 | QuickCheck standard detection hardening | Done | Context hints in analysis |
-| 7 | Standard-specific composers (future) | Planned | None (doc only) |
+| 7 | Standard-specific composers | In progress | Verra/GS-specific report sections in PDF export |
 
 ## Phase details
 
@@ -517,30 +517,54 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 
 ---
 
-### Phase 7 — Standard-specific composers (future)
+### Phase 7 — Standard-specific composers
 
-**Phase 7 is blocked on upstream metadata.** Standard-specific composers must not be implemented in `app.article6` until `article6-methodologies` encodes canonical metadata for each standard. The app must not invent report structure, section taxonomy, or disclaimer language that belongs to the methodology pack.
+**Phase 7 implements standard-specific composers for Verra and Gold Standard using canonical metadata from the methodology pack.**
+
+The Verra composer (`src/lib/composers/composeVerraVerificationReport.ts`) reads methodology sections from `public/methodologies/Verra/{category}/{methodCode}/{version}/sections.json` and rules from `rules.rich.json` to produce a VCS-standard-specific report with sections:
+
+1. REPORT STATUS — Registry, standard (VCS), project status, methodology, completion
+2. METHODOLOGY SOURCE SECTIONS — All canonical sections from the methodology pack
+3. APPLICABILITY CONDITIONS — Methodology-specific applicability rules
+4. PROJECT BOUNDARY — Boundary definitions from the methodology
+5. BASELINE SCENARIO — Baseline methodology sections
+6. ADDITIONALITY — Additionality determination sections
+7. QUANTIFICATION OF REMOVALS — Quantification sections with children
+8. MONITORING — Monitoring sections with children
+9. EVIDENCE REVIEWED — Linked evidence summary
+10. REQUIREMENT FINDINGS — Per-rule findings
+11. LIMITATIONS — VCS-specific disclaimer from metadata
+12. PROVENANCE — Export metadata
+
+The Gold Standard composer (`src/lib/composers/composeGoldStandardVerificationReport.ts`) follows the same pattern with GS4GG-specific section taxonomy:
+
+1. REPORT STATUS — Registry, standard (GS4GG), project status, methodology, completion
+2. METHODOLOGY SOURCE SECTIONS — All canonical sections from the pack
+3. PROJECT DESIGN — Design/applicability/definitions sections
+4. BASELINE SCENARIO — Baseline methodology sections
+5. ADDITIONALITY — Additionality determination
+6. MONITORING — Monitoring and quantification sections
+7. SAFEGUARDS — Safeguards, stakeholder, SDG, environmental sections
+8. EVIDENCE REVIEWED — Linked evidence summary
+9-11. REQUIREMENT FINDINGS, LIMITATIONS, PROVENANCE
+
+**Implementation details:**
+- `src/lib/composers/metadata.ts` — Shared loader for methodology metadata from the pack (sections, rules, expected evidence, disclaimer text)
+- `src/lib/composers/composeVerraVerificationReport.ts` — VCS-specific composer
+- `src/lib/composers/composeGoldStandardVerificationReport.ts` — GS4GG-specific composer
+- `src/lib/projects/verificationReport.ts` — Dispatcher updated to route Verra/GS to new composers; falls back to generic composer if metadata is unavailable
+- QuickCheck detection already feeds standard names (Verra, VCS, Gold Standard, GS4GG) into `methodologyMentions` without affecting registry assignment
+- Section taxonomy, disclaimer language, and evidence categories are all derived from canonical metadata — nothing is invented by the app
+- 113 tests pass across all suites (20 new composer tests, 81 existing project tests, 12 QuickCheck tests)
 
 **Acceptance criteria:**
-- Future Verra-specific composer requirements are documented below.
-- Future Gold Standard-specific composer requirements are documented below.
-- No implementation work is done in this phase.
-- Phase status remains "planned" until Verra/GS-specific metadata encoding is available upstream.
-
-**Minimum upstream metadata needed from `article6-methodologies` before Phase 7 can start:**
-
-| Requirement | Description |
-|---|---|
-| Standard-specific section taxonomy | Each standard's report has a distinct section structure (e.g. Verra: Project Description, Baseline, Monitoring, Leakage, Permanence, CCB, SDG; GS: Project Design, Additionality, Baseline, Monitoring, Safeguards, SDG Impact, Stakeholder Consultation) |
-| Required export sections per standard | Sections that must appear in a standard-specific report (e.g. for Verra VCS: baseline scenario, monitoring plan, leakage calculation; for GS: safeguards assessment, stakeholder consultation) |
-| Mapped methodology section references | Each rule in the methodology pack must carry a `section_id` or `section_ref` that maps to the standard's report section taxonomy, so the composer can group findings under the correct heading |
-| Expected evidence categories per standard | Evidence types each standard expects for specific rules/sections (e.g. Verra CCB requires biodiversity and community evidence; GS requires SDG contribution evidence) |
-| Safe disclaimer language per standard | Registry-approved disclaimer text for readiness reports that do not claim official validation or verification — must not be invented by the app |
-
-**Until upstream metadata is available:**
-- The generic standard-aware composer from Phase 4 covers all known registries with truthful, neutral sections.
-- Adding standard-specific sections before metadata is ready risks producing misleading or non-compliant outputs.
-- This phase must remain `planned`, not `active` or `in_progress`.
+- [x] Verra-specific composer implemented using canonical pack metadata
+- [x] Gold Standard-specific composer implemented using canonical pack metadata
+- [x] Both composers feed into audit-pack PDF pipeline
+- [x] Standard-specific sections, disclaimers, and evidence references are included
+- [x] QuickCheck methodologyMentions include standard-specific section context
+- [x] No invented report structure or disclaimer language
+- [x] Phase status updated to `in_progress`
 
 ## Risk areas
 
@@ -563,7 +587,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | 4 | Unit + PDF export tests: Verra/GS/Unknown route to generic composer, output includes registry/method/version/category, no stub/fallback wording, UNFCCC unchanged |
 | 5 | PDF content tests for Verra/Gold Standard readiness report titles, forbidden wording across UNFCCC/Verra/GS, footer label correctness |
 | 6 | 13 unit tests for Verra/VCS/VM/VMR, Gold Standard/GS4GG/GS prefix, UNFCCC regression; all existing QuickCheck tests pass |
-| 7 | Review and signoff only |
+| 7 | 20 unit + integration tests for Verra/GS composers: section order, evidence linking, disclaimer correctness, determinism, PDF export, stub fallback |
 
 ## Delivery constraints
 

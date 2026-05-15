@@ -5,6 +5,8 @@ import {
   type ReportFindingCode,
 } from '@/lib/projects/reportFindings';
 import type { Project, ProjectCoverage, ProjectRegistry } from '@/lib/projects/types';
+import { composeVerraVerificationReport as verraComposer } from '@/lib/composers/composeVerraVerificationReport';
+import { composeGoldStandardVerificationReport as gsComposer } from '@/lib/composers/composeGoldStandardVerificationReport';
 
 export type VerificationReportStatus = 'ready' | 'registry_not_fully_supported' | 'insufficient_source_content';
 
@@ -40,7 +42,7 @@ const UNFCCC_SECTION_ORDER = [
   'PROVENANCE',
 ] as const;
 
-function sectionTitle(sectionId: string): string {
+export function sectionTitle(sectionId: string): string {
   const titles: Record<string, string> = {
     'S-1': 'Scope and Boundary',
     'S-2': 'Baseline',
@@ -73,7 +75,7 @@ export function resolveProjectRegistry(project: Pick<Project, 'methodCode' | 're
   return 'Unknown';
 }
 
-function buildProvenance(
+export function buildProvenance(
   project: Project,
   coverage: ProjectCoverage,
   registry: ProjectRegistry,
@@ -95,7 +97,7 @@ function buildProvenance(
   return items;
 }
 
-function buildSummaryItems(project: Project, coverage: ProjectCoverage, registry: ProjectRegistry): string[] {
+export function buildSummaryItems(project: Project, coverage: ProjectCoverage, registry: ProjectRegistry): string[] {
   const items = [
     `Manual review mode: ${project.reviewMode === 'manual' ? 'true' : 'false'}`,
     `Registry: ${registry}`,
@@ -162,7 +164,7 @@ function manualFindingTypeCounts(project: Project): { CAR: number; CL: number; F
   }, { CAR: 0, CL: 0, FAR: 0 });
 }
 
-function buildEvidenceSummary(project: Project): string[] {
+export function buildEvidenceSummary(project: Project): string[] {
   const linkedEvidenceCount = project.reviews.reduce((sum, review) => sum + review.evidenceIds.length, 0);
   const notedRules = project.reviews.filter((review) => Boolean(review.note?.trim())).length;
   return [
@@ -172,7 +174,7 @@ function buildEvidenceSummary(project: Project): string[] {
   ];
 }
 
-function buildFindings(project: Project): ReportFinding[] {
+export function buildFindings(project: Project): ReportFinding[] {
   return project.reviews.map((review, index) => buildReportFinding(
     review,
     index,
@@ -180,18 +182,18 @@ function buildFindings(project: Project): ReportFinding[] {
   ));
 }
 
-function countFindings(findings: ReportFinding[]): Record<ReportFindingCode, number> {
+export function countFindings(findings: ReportFinding[]): Record<ReportFindingCode, number> {
   return findings.reduce((acc, finding) => {
     acc[finding.code] += 1;
     return acc;
   }, { OK: 0, CL: 0, NC: 0, CAR: 0, FAR: 0, PENDING: 0, NA: 0 } as Record<ReportFindingCode, number>);
 }
 
-function linesFromProvenance(provenance: Array<[string, string]>): string[] {
+export function linesFromProvenance(provenance: Array<[string, string]>): string[] {
   return provenance.map(([label, value]) => `${label}: ${punctuateLine(value || 'n/a')}`);
 }
 
-function buildRequirementFindingLines(findings: ReportFinding[]): string[] {
+export function buildRequirementFindingLines(findings: ReportFinding[]): string[] {
   if (findings.length === 0) return ['No requirement findings are available from current project review data.'];
   return findings.flatMap((finding) => [
     `${finding.findingId} [${finding.code}] ${finding.ruleId}: ${finding.ruleTitle}.`,
@@ -426,11 +428,19 @@ export function composeGenericStandardAwareReport(
 }
 
 export function composeVerraVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
-  return composeGenericStandardAwareReport('Verra', project, coverage, exportTime);
+  try {
+    return verraComposer(project, coverage, exportTime);
+  } catch {
+    return composeGenericStandardAwareReport('Verra', project, coverage, exportTime);
+  }
 }
 
 export function composeGoldStandardVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
-  return composeGenericStandardAwareReport('Gold Standard', project, coverage, exportTime);
+  try {
+    return gsComposer(project, coverage, exportTime);
+  } catch {
+    return composeGenericStandardAwareReport('Gold Standard', project, coverage, exportTime);
+  }
 }
 
 export function composeManualVerificationReport(

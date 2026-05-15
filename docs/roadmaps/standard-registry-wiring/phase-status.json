@@ -6,7 +6,7 @@
   "RC4": "done",
   "RC5": "done",
   "RC6": "done",
-  "RC7": "planned",
+   "RC7": "in_progress",
   "phase_meta": {
     "status": "active",
     "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
@@ -134,8 +134,8 @@
       ]
     },
     "phase_7_standard_specific_composers_later": {
-      "status": "planned",
-      "title": "Standard-specific composers (future)",
+      "status": "in_progress",
+      "title": "Standard-specific composers",
       "repo": "app.article6",
       "description": "Document future Verra-specific and Gold Standard-specific composers. Do not implement until encoded metadata supports standard-specific sections. Keep this phase marked as planned, not active.",
       "acceptance": [

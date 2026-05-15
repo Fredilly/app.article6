@@ -125,8 +125,10 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
     expect(parsed.text).toContain('VERRA READINESS REPORT');
-    expect(parsed.text).toContain('PROJECT AND STANDARD');
-    expect(parsed.text).toContain('Registry / Standard: Verra');
+    expect(parsed.text).toContain('METHODOLOGY SOURCE SECTIONS');
+    expect(parsed.text).toContain('APPLICABILITY CONDITIONS');
+    expect(parsed.text).toContain('Registry: Verra');
+    expect(parsed.text).toContain('Standard: VCS');
     expect(parsed.text).toContain('VM0007');
     expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented/i);
   }, 15000);
@@ -147,7 +149,9 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
     expect(parsed.text).toContain('GOLD STANDARD READINESS REPORT');
-    expect(parsed.text).toContain('Registry / Standard: Gold Standard');
+    expect(parsed.text).toContain('PROJECT DESIGN');
+    expect(parsed.text).toContain('SAFEGUARDS');
+    expect(parsed.text).toContain('Registry: Gold Standard');
     expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented/i);
   }, 15000);
 

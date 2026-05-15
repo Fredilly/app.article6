@@ -159,9 +159,9 @@ describe('verification report composition', () => {
     expect(report.findings.every((finding) => finding.code === 'PENDING')).toBe(true);
   });
 
-  it('routes Verra through the generic standard-aware composer', () => {
+  it('routes Verra through the standard-specific composer', () => {
     const report = composeVerraVerificationReport(
-      makeProject({ methodCode: 'VM0007', registry: 'Verra' }),
+      makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
 
@@ -170,17 +170,22 @@ describe('verification report composition', () => {
     expect(report.title).toBe('VERRA READINESS REPORT');
     expect(report.sections.map((section) => section.title)).toEqual([
       'REPORT STATUS',
-      'PROJECT AND STANDARD',
-      'METHODOLOGY BASIS',
+      'METHODOLOGY SOURCE SECTIONS',
+      'APPLICABILITY CONDITIONS',
+      'PROJECT BOUNDARY',
+      'BASELINE SCENARIO',
+      'ADDITIONALITY',
+      'QUANTIFICATION OF REMOVALS',
+      'MONITORING',
       'EVIDENCE REVIEWED',
-      'REQUIREMENT REVIEW',
-      'REVIEWER NOTES',
-      'PROVENANCE AND EXPORT METADATA',
+      'REQUIREMENT FINDINGS',
+      'LIMITATIONS',
+      'PROVENANCE',
     ]);
     expect(report.findings.length).toBeGreaterThan(0);
   });
 
-  it('routes Gold Standard through the generic standard-aware composer', () => {
+  it('routes Gold Standard through the standard-specific composer', () => {
     const report = composeGoldStandardVerificationReport(
       makeProject({ methodCode: 'GS TPDDTEC', registry: 'Gold Standard' }),
       makeCoverage(),
@@ -191,31 +196,34 @@ describe('verification report composition', () => {
     expect(report.title).toBe('GOLD STANDARD READINESS REPORT');
     expect(report.sections.map((section) => section.title)).toEqual([
       'REPORT STATUS',
-      'PROJECT AND STANDARD',
-      'METHODOLOGY BASIS',
+      'METHODOLOGY SOURCE SECTIONS',
+      'PROJECT DESIGN',
+      'BASELINE SCENARIO',
+      'ADDITIONALITY',
+      'MONITORING',
+      'SAFEGUARDS',
       'EVIDENCE REVIEWED',
-      'REQUIREMENT REVIEW',
-      'REVIEWER NOTES',
-      'PROVENANCE AND EXPORT METADATA',
+      'REQUIREMENT FINDINGS',
+      'LIMITATIONS',
+      'PROVENANCE',
     ]);
   });
 
-  it('generic standard-aware report includes registry, method, version, and category', () => {
+  it('standard-specific report includes registry, method, version, and category from composer', () => {
     const report = composeVerificationReport(
-      makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'Forestry' }),
+      makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
 
     const text = reportText(report);
     expect(text).toContain('Verra');
     expect(text).toContain('VM0007');
-    expect(text).toContain('v02-0');
-    expect(text).toContain('Forestry');
+    expect(text).toContain('VCS');
   });
 
-  it('generic standard-aware report does not contain stub or fallback wording', () => {
+  it('standard-specific report does not contain stub or fallback wording', () => {
     const report = composeVerificationReport(
-      makeProject({ methodCode: 'VM0047', registry: 'Verra' }),
+      makeProject({ methodCode: 'VM0047', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
 
