@@ -23,7 +23,7 @@
   },
   "phases": {
     "phase_0_contract_and_boundaries": {
-      "status": "in_progress",
+      "status": "done",
       "title": "Contract and boundaries",
       "repo": "app.article6",
       "description": "Freeze app-side expectations for provider, category, method code, version, display name, registry/standard label, and artifact paths. Document that article6-methodologies owns canonical methodology metadata and app.article6 consumes the methodology pack and renders workflows.",
