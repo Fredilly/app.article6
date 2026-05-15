@@ -5,13 +5,13 @@
   "RC3": "done",
   "RC4": "done",
   "RC5": "done",
-  "RC6": "planned",
+  "RC6": "done",
   "RC7": "planned",
   "phase_meta": {
     "status": "active",
     "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
     "current_focus": [
-      "QuickCheck standard detection hardening (Phase 6)"
+      "Standard-specific composers (future, not active — Phase 7)"
     ],
     "not_active_now": [
       "Verra-specific or Gold Standard-specific report composers",
@@ -117,7 +117,7 @@
       ]
     },
     "phase_6_quickcheck_standard_detection": {
-      "status": "planned",
+      "status": "done",
       "title": "QuickCheck standard detection hardening",
       "repo": "app.article6",
       "description": "Harden detection for Verra, VCS, Verified Carbon Standard, VM/VMR prefixes, Gold Standard, GS4GG, and Gold Standard for the Global Goals in QuickCheck. Keep QuickCheck as routing/context support, not final truth.",

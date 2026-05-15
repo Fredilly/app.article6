@@ -695,6 +695,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     () => (extractionPreview ? deriveQuickCheckExtractionState(extractionPreview) : null),
     [extractionPreview],
   );
+  const methodologyMismatch = useMemo(() => {
+    if (!draft.methodologyId.trim() || !extractionPreview?.methodologyMentions.length) return null;
+    const selected = draft.methodologyId.trim().toUpperCase();
+    const matches = extractionPreview.methodologyMentions.some((m) => m.trim().toUpperCase() === selected);
+    if (matches) return null;
+    return {
+      mentions: extractionPreview.methodologyMentions.join(", "),
+      selectedMethod: draft.methodologyId.trim(),
+    };
+  }, [draft.methodologyId, extractionPreview]);
   const showAdvancedOptions = showAdvanced || showSavedEvidence || showMethodology;
   const extractionHighlights = extractionPreview?.extractedFacts.slice(0, 3) ?? [];
   const normalizedResult = useMemo(
@@ -1675,6 +1685,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 </span>
                               ))}
                             </div>
+                            {methodologyMismatch ? (
+                              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                Detected evidence mentions: <strong>{methodologyMismatch.mentions}</strong>.
+                                Current review method: <strong>{methodologyMismatch.selectedMethod}</strong>.
+                                This evidence may belong to a different methodology.
+                              </div>
+                            ) : null}
                           </div>
                           <div className="md:col-span-2">
                             <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>

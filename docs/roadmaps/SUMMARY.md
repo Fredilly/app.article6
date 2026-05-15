@@ -204,7 +204,7 @@ Lane status: Active
 Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.
 
 Current focus:
-- QuickCheck standard detection hardening (Phase 6)
+- Standard-specific composers (future, not active — Phase 7)
 
 Not active now:
 - Verra-specific or Gold Standard-specific report composers
@@ -218,7 +218,7 @@ Not active now:
 4) RC3 — Project detail registry badge: Done
 5) RC4 — Generic standard-aware export composer: Done
 6) RC5 — Premium PDF wording and design: Done
-7) RC6 — QuickCheck standard detection hardening: Planned
+7) RC6 — QuickCheck standard detection hardening: Done
 8) RC7 — Standard-specific composers (future): Planned
 
 ## traceable-rule-review-mvp
