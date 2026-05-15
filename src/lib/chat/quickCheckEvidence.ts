@@ -577,7 +577,7 @@ export function extractPdfText(bytes: ArrayBuffer): string {
   return normalizeWhitespace(Array.from(new Set(segments)).join(" "));
 }
 
-function extractMethodologyMentions(text: string): string[] {
+export function extractMethodologyMentions(text: string): string[] {
   const mentions = new Set<string>(text.match(/\b[A-Z]{2}-[A-Z]{3,}\d{4}\b/g) ?? []);
 
   for (const match of text.matchAll(/\b([A-Z]{2,})[\s/]+([A-Z]{2,}\d{4})\b/g)) {
@@ -586,11 +586,48 @@ function extractMethodologyMentions(text: string): string[] {
     if (prefix && suffix) mentions.add(`${prefix}-${suffix}`);
   }
 
+  // Standard-name-qualified methodology mentions (existing)
   for (const match of text.matchAll(
     /\b((?:Gold Standard|Verified Carbon Standard|Climate Action Reserve|American Carbon Registry)[A-Za-z0-9,./() -]{0,80}?(?:version|v)\s*\d+(?:\.\d+)*)\b/gi,
   )) {
     const phrase = normalizeWhitespace(match[1] ?? "");
     if (phrase) mentions.add(phrase);
+  }
+
+  // Verra / VCS standalone mentions
+  for (const match of text.matchAll(/\b(Verra|VCS)\b/g)) {
+    mentions.add(match[1]);
+  }
+
+  // Verified Carbon Standard (full name, standalone)
+  for (const match of text.matchAll(/\b(Verified Carbon Standard)\b/gi)) {
+    mentions.add(match[1]);
+  }
+
+  // VM-prefixed methodology codes: VM0007, VM 0007
+  for (const match of text.matchAll(/\b(VM\d{4})\b/g)) {
+    mentions.add(match[1]);
+  }
+  for (const match of text.matchAll(/\b(VM)\s+(\d{4})\b/g)) {
+    mentions.add(`${match[1]}${match[2]}`);
+  }
+
+  // VMR-prefixed methodology codes: VMR001, VMR 001
+  for (const match of text.matchAll(/\b(VMR\d{3,4})\b/g)) {
+    mentions.add(match[1]);
+  }
+  for (const match of text.matchAll(/\b(VMR)\s+(\d{3,4})\b/g)) {
+    mentions.add(`${match[1]}${match[2]}`);
+  }
+
+  // Gold Standard for the Global Goals (GS4GG) and related
+  for (const match of text.matchAll(/\b(GS4GG|Gold Standard for the Global Goals)\b/gi)) {
+    mentions.add(match[1]);
+  }
+
+  // GS-prefixed methodology codes: GS-VER1, GS VER1, GS VER2
+  for (const match of text.matchAll(/\bGS[- ]?(VER\d+)\b/gi)) {
+    mentions.add(`GS-${match[1].toUpperCase()}`);
   }
 
   return Array.from(mentions).sort((a, b) => a.localeCompare(b));

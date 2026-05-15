@@ -45,7 +45,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | 3 | Project detail registry badge | Done | Badge in project header |
 | 4 | Generic standard-aware export composer | Done | Structured report for all registries |
 | 5 | Premium PDF wording and design | Done | Polished PDF, no stub text |
-| 6 | QuickCheck standard detection hardening | Planned | Context hints in analysis |
+| 6 | QuickCheck standard detection hardening | Done | Context hints in analysis |
 | 7 | Standard-specific composers (future) | Planned | None (doc only) |
 
 ## Phase details
@@ -507,13 +507,13 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 - Existing UNFCCC detection is not regressed.
 - Tests cover all new detection patterns.
 
-**Detection patterns to add/review in `quickCheckEvidence.ts`:**
-
-| Standard | Patterns |
-|---|---|
-| Verra / VCS | `Verra`, `VCS`, `Verified Carbon Standard`, `VM\d+`, `VMR\d+` |
-| Gold Standard | `Gold Standard`, `GS4GG`, `Gold Standard for the Global Goals`, `GS-\w+` |
-| UNFCCC / CDM (existing) | `UNFCCC`, `CDM`, `AR-`, `AM-`, `ACM-`, `SSC-`, `TOOL` |
+**Implementation notes:**
+- Added standalone detection for Verra, VCS, Verified Carbon Standard (full name)
+- Added VM-prefixed (VM0007, VM 0007) and VMR-prefixed (VMR001, VMR 001) methodology code detection
+- Added GS4GG, Gold Standard for the Global Goals, and GS-prefixed methodology code detection
+- All detections feed into `methodologyMentions` used for QuickCheck confidence scoring
+- Detection is non-authoritative — no registry assignment logic depends on it
+- 13 tests added covering all new patterns; existing UNFCCC/CDM detection unchanged
 
 ---
 
@@ -555,7 +555,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | 3 | 4 component tests for RegistryBadge rendering (UNFCCC, Verra, Gold Standard, Unknown); existing tests pass unchanged |
 | 4 | Unit + PDF export tests: Verra/GS/Unknown route to generic composer, output includes registry/method/version/category, no stub/fallback wording, UNFCCC unchanged |
 | 5 | PDF content tests for Verra/Gold Standard readiness report titles, forbidden wording across UNFCCC/Verra/GS, footer label correctness |
-| 6 | Unit tests for all new detection patterns; existing QuickCheck tests pass unchanged |
+| 6 | 13 unit tests for Verra/VCS/VM/VMR, Gold Standard/GS4GG/GS prefix, UNFCCC regression; all existing QuickCheck tests pass |
 | 7 | Review and signoff only |
 
 ## Delivery constraints

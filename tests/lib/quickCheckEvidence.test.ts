@@ -3,7 +3,7 @@
 import fs from "fs";
 import path from "path";
 import { describe, expect, it } from "@jest/globals";
-import { analyzeQuickCheckEvidence, buildLocalRuleCandidates, buildQuickCheckQueryTexts, classifyQuickCheckClaimIntents, extractPdfText } from "@/lib/chat/quickCheckEvidence";
+import { analyzeQuickCheckEvidence, buildLocalRuleCandidates, buildQuickCheckQueryTexts, classifyQuickCheckClaimIntents, extractMethodologyMentions, extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState } from "@/lib/chat/quickCheckUi";
 import { parseWorkbookEvidenceAsset } from "@/lib/evidence/workbook";
 import { putAttachmentBytes } from "@/lib/proofMap/attachments";
@@ -444,5 +444,72 @@ describe("quick check evidence analysis", () => {
       ]),
     );
     expect(analysis.warnings).not.toContain(expect.stringContaining("fallback parser"));
+  });
+});
+
+describe("extractMethodologyMentions — standard detection hardening", () => {
+  it("detects Verra standalone", () => {
+    expect(extractMethodologyMentions("Verified by Verra")).toContain("Verra");
+  });
+
+  it("detects VCS standalone", () => {
+    expect(extractMethodologyMentions("Verified Carbon Standard (VCS)")).toContain("VCS");
+  });
+
+  it("detects Verified Carbon Standard full name", () => {
+    const mentions = extractMethodologyMentions("Verified Carbon Standard methodology");
+    expect(mentions).toContain("Verified Carbon Standard");
+  });
+
+  it("detects VM-prefixed methodology codes", () => {
+    const mentions = extractMethodologyMentions("Verified per VM0007 requirements");
+    expect(mentions).toContain("VM0007");
+  });
+
+  it("detects VM codes with space separator", () => {
+    const mentions = extractMethodologyMentions("VM 0007 v1.0");
+    expect(mentions).toContain("VM0007");
+  });
+
+  it("detects VMR-prefixed methodology codes", () => {
+    const mentions = extractMethodologyMentions("VMR001 methodology reference");
+    expect(mentions).toContain("VMR001");
+  });
+
+  it("detects Gold Standard for the Global Goals", () => {
+    const mentions = extractMethodologyMentions("Gold Standard for the Global Goals GS4GG");
+    expect(mentions).toContain("GS4GG");
+  });
+
+  it("detects GS4GG abbreviation", () => {
+    const mentions = extractMethodologyMentions("GS4GG methodology");
+    expect(mentions).toContain("GS4GG");
+  });
+
+  it("detects Gold Standard with version (existing pattern)", () => {
+    const mentions = extractMethodologyMentions("Gold Standard TPDDTEC Version 4.0");
+    expect(mentions.some((m) => m.includes("Gold Standard"))).toBe(true);
+  });
+
+  it("detects GS-prefixed methodology codes", () => {
+    const mentions = extractMethodologyMentions("GS-VER1 v2.0");
+    expect(mentions).toContain("GS-VER1");
+  });
+
+  it("detects GS codes with space separator", () => {
+    const mentions = extractMethodologyMentions("GS VER1 methodology");
+    expect(mentions).toContain("GS-VER1");
+  });
+
+  it("detects existing UNFCCC method codes unchanged", () => {
+    const mentions = extractMethodologyMentions("AR-ACM0003 v02-0");
+    expect(mentions).toContain("AR-ACM0003");
+  });
+
+  it("detects multiple standards in one text", () => {
+    const mentions = extractMethodologyMentions("VM0007 (Verra) and GS-VER1 (Gold Standard)");
+    expect(mentions).toContain("VM0007");
+    expect(mentions).toContain("Verra");
+    expect(mentions).toContain("GS-VER1");
   });
 });
