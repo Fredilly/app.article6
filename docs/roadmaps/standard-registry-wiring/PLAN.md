@@ -39,7 +39,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 
 | Phase | Title | Status | Visible UI change |
 |---|---|---|---|
-| 0 | Contract and boundaries | In progress | None (doc only) |
+| 0 | Contract and boundaries | Done | None (doc only) |
 | 1 | Pack/manifest consumption | Planned | None (internal) |
 | 2 | Standard-grouped method picker | Planned | Picker grouped by standard |
 | 3 | Project detail registry badge | Planned | Badge in project header |
@@ -80,6 +80,253 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 - `VM`, `VMR` → Verra
 - `GS` → Gold Standard
 - `AR`, `AM`, `ACM`, `SSC`, `TOOL` → UNFCCC
+
+**Current app contract audit:**
+
+The following is a line-by-line audit of every app code path that touches methodology metadata, provider, program, category, and registry. This is the frozen contract that Phase 1 and later phases must preserve for UNFCCC.
+
+---
+
+**1. GET /api/projects/methods** (`src/app/api/projects/methods/route.ts`)
+
+Reads `public/manifest/index.json` from disk. Iterates all manifest entries and deduplicates by `{methodology}@{version}`. For each unique method, derives a `program` string:
+
+```typescript
+const program = `${entry.provider || ''}/${entry.category || ''}`.replace(/^\//, '') || 'Unknown';
+```
+
+Returns JSON:
+```json
+{
+  "methods": [
+    {
+      "code": "AR-ACM0003",
+      "program": "UNFCCC/Forestry",
+      "version": "v02-0",
+      "ruleCount": 42
+    }
+  ]
+}
+```
+
+Current manifest entries have `provider` set to `"UNFCCC"` only. No entries with `"Verra"` or `"Gold Standard"` exist.
+
+This is a Next.js route handler (`runtime: 'nodejs'`). No caching, no fallback — reads the file on every request.
+
+Contract invariant: `program` always encodes `{provider}/{category}`. Category may be empty; the `.replace(/^\//, '')` normalizes a leading slash away. If both provider and category are absent, program is `"Unknown"`.
+
+---
+
+**2. GET /api/projects/method-rules** (`src/app/api/projects/method-rules/route.ts`)
+
+Takes `code` and `version` query params. Reads `public/manifest/index.json` and filters manifest entries where `e.methodology === code && e.version === version`. Maps matching manifest rows directly to `{ id, title, sectionId }`.
+
+```typescript
+const rules = entries
+  .filter((e) => e.methodology === code && e.version === version)
+  .map((e) => ({
+    id: e.rule_id || e.id,
+    title: e.rule || e.title || '',
+    sectionId: e.sectionId || '',
+  }));
+```
+
+The route does **not** dereference `entry.path` or load a separate `rules.json` artifact. All rule metadata is inlined in the manifest row.
+
+Contract invariants:
+- Rule loading is manifest-filter-based, not artifact-path-based
+- `code` matches `manifest.methodology`, `version` matches `manifest.version`
+- Returned rules are flat manifest rows — no registry awareness, no artifact loading
+- Any future migration to artifact-backed rule loading must be done intentionally with UNFCCC regression tests
+
+---
+
+**3. Methodology picker** (`src/components/projects/NewProjectForm.tsx`)
+
+Fetches `GET /api/projects/methods` on mount. Renders a flat `<select>` dropdown:
+
+```
+{code} v{version} — {program} ({ruleCount} rules)
+```
+
+Example option: `AR-ACM0003 v02-0 — UNFCCC/Forestry (42 rules)`
+
+On form submit, when `reviewMode === 'methodology-linked'`:
+1. Looks up the selected method record from the fetched methods array
+2. Calls `projectRegistryFromMethodProgram(selectedMethodRecord?.program)` to infer the registry
+3. Passes the inferred registry to `createProject()`
+
+Contract invariants:
+- The picker displays `program` literally from the API (provider/category format)
+- Registry is inferred at project creation time and stored on the `Project` object
+- The picker is flat — no grouping by provider/standard today
+- The registry label flows into `Project.registry` via `createProject`
+
+---
+
+**4. `projectRegistryFromMethodProgram()`** (`src/lib/projects/verificationReport.ts:520-521`)
+
+```typescript
+export function projectRegistryFromMethodProgram(program: string | undefined): ProjectRegistry {
+  return normalizeRegistry(program?.split('/')[0]);
+}
+```
+
+Takes the `program` string (e.g. `"UNFCCC/Forestry"`), splits on `/`, passes the first segment (`"UNFCCC"`) to `normalizeRegistry`.
+
+Contract invariant: The first segment of `program` is always the provider name. The app assumes `{provider}/{category}` format.
+
+---
+
+**5. `normalizeRegistry()`** (`src/lib/projects/verificationReport.ts:54-61`)
+
+```typescript
+function normalizeRegistry(value: string | undefined): ProjectRegistry {
+  const raw = value?.trim().toLowerCase() ?? '';
+  if (!raw) return 'Unknown';
+  if (raw.startsWith('unfccc') || raw === 'cdm') return 'UNFCCC';
+  if (raw.startsWith('verra') || raw.includes('verified carbon standard') || raw === 'vcs') return 'Verra';
+  if (raw.startsWith('gold standard') || raw === 'gold-standard' || raw === 'gs') return 'Gold Standard';
+  return 'Unknown';
+}
+```
+
+Returns a `ProjectRegistry` union type: `'UNFCCC' | 'Verra' | 'Gold Standard' | 'Unknown'`.
+
+Contract invariants:
+- Case-insensitive (lowercases input)
+- `"UNFCCC"` matches by prefix (`"unfccc"`). Also matches exact `"cdm"`.
+- `"Verra"` matches by prefix (`"verra"`), substring (`"verified carbon standard"`), or exact (`"vcs"`)
+- `"Gold Standard"` matches by prefix (`"gold standard"`), exact (`"gold-standard"`), or exact (`"gs"`)
+- Anything unknown returns `"Unknown"` — will not silently map to a wrong registry
+
+---
+
+**6. `resolveProjectRegistry()`** (`src/lib/projects/verificationReport.ts:63-74`)
+
+```typescript
+export function resolveProjectRegistry(project: Pick<Project, 'methodCode' | 'registry'>): ProjectRegistry {
+  const explicit = normalizeRegistry(project.registry);
+  if (explicit !== 'Unknown') return explicit;
+
+  const code = project.methodCode?.trim().toUpperCase() ?? '';
+  if (!code) return 'Unknown';
+  if (code.startsWith('UNFCCC.') || code.includes('UNFCCC')) return 'UNFCCC';
+  if (code.startsWith('VM') || code.startsWith('VMR') || code.includes('VERRA')) return 'Verra';
+  if (code.startsWith('GS') || code.includes('GOLD STANDARD')) return 'Gold Standard';
+  if (/^(AR|AM|ACM|SSC|TOOL)/.test(code)) return 'UNFCCC';
+  return 'Unknown';
+}
+```
+
+Two-tier resolution:
+1. **Tier 1** (preferred): Checks the explicit `project.registry` field (set at project creation time from the manifest program). If it resolves to a known registry, use it.
+2. **Tier 2** (fallback): If the explicit registry is unknown/missing, falls back to method code prefix matching.
+
+Contract invariants:
+- Tier 1 takes priority — this allows overriding the registry even if the method code suggests a different one
+- Tier 2 detection is heuristic only, for projects created before registry inference was added
+- Code checks are case-insensitive (UPPERCASED input)
+- `VM` prefix = Verra (covers VM0007, VM0042, etc.)
+- `VMR` prefix = Verra (covers VMR001, etc.)
+- `GS` prefix = Gold Standard (covers GS VER1, GS VER2, etc.)
+- `AR/AM/ACM/SSC/TOOL` prefix = UNFCCC (covers all CDM large/small scale methods)
+- Used during export via `composeVerificationReport` (line 494)
+
+---
+
+**7. `createProject()`** (`src/lib/projects/storage.ts:43-81`)
+
+Accepts an optional `registry?: Project['registry']` field. Stores it directly on the `Project` object.
+
+The type `Project.registry` is `ProjectRegistry | undefined` (optional field).
+
+For manual review projects, `registry` is not set (undefined). For methodology-linked projects, it is inferred from the manifest program.
+
+Contract invariant: Registry is stored at project creation time and may be absent for older projects or manual review projects. The fallback `resolveProjectRegistry` handles the absent case.
+
+---
+
+**8. `composeVerificationReport()`** (`src/lib/projects/verificationReport.ts:488-518`)
+
+```typescript
+export function composeVerificationReport(project, coverage, exportTime?) {
+  if (project.reviewMode === 'manual') return composeManualVerificationReport(...);
+  const registry = resolveProjectRegistry(project);
+  if (registry === 'UNFCCC') return composeUnfcccVerificationReport(...);
+  if (registry === 'Verra') return composeVerraVerificationReport(...);       // stub fallback
+  if (registry === 'Gold Standard') return composeGoldStandardVerificationReport(...); // stub fallback
+  // Unknown registry → generic fallback with status 'registry_not_fully_supported'
+}
+```
+
+Dispatch rules:
+- Manual review mode → `composeManualVerificationReport()` (registry-agnostic)
+- UNFCCC → `composeUnfcccVerificationReport()` (full implementation)
+- Verra → `composeVerraVerificationReport()` (currently calls `composeRecognizedFallbackReport` — stub)
+- Gold Standard → `composeGoldStandardVerificationReport()` (currently calls `composeRecognizedFallbackReport` — stub)
+- Unknown → inline generic fallback with `status: 'registry_not_fully_supported'`
+
+Contract invariants:
+- The UNFCCC path is fully implemented and must never regress
+- Verra and Gold Standard currently produce stub output (`registry_not_fully_supported` status with fallback wording)
+- Phase 4 will replace the Verra/GS stubs with the generic standard-aware composer
+- Phase 7 will add registry-specific composers on top
+
+---
+
+**9. `composeUnfcccVerificationReport()`** (`src/lib/projects/verificationReport.ts:214-328`)
+
+Full implementation that produces:
+- Report title: "UNFCCC VERIFICATION REPORT"
+- Sections: REPORT STATUS, PROJECT AND METHODOLOGY IDENTIFICATION, VERIFICATION SCOPE, MEANS OF VERIFICATION, FINDINGS SUMMARY, REQUIREMENT FINDINGS, EVIDENCE APPENDIX, LIMITATIONS, PROVENANCE
+- Uses `UNFCCC_SECTION_ORDER` for consistent ordering
+- Uses `buildFindings(project)` and `buildEvidenceSummary(project)` for content
+- Handles both `ready` and `insufficient_source_content` states
+
+Must not be touched by any phase. If a future phase needs to modify the UNFCCC output, it should go through the generic composer (Phase 4) or a separate UNFCCC-specific update cycle.
+
+---
+
+**10. Export PDF API** (`src/app/api/projects/[id]/export-pdf/route.ts`)
+
+Calls `buildProjectExportPdf(project, coverage)` which internally calls `composeVerificationReport()`. The PDF filename is `verification-pack-{methodCode}-{projectId}.pdf` for methodology-linked projects.
+
+Contract invariant: PDF generation is a synchronous pipeline: project → coverage → composeVerificationReport → PDF bytes. No registry-specific branching in the route handler.
+
+---
+
+**11. QuickCheck evidence regex** (`src/lib/chat/quickCheckEvidence.ts`)
+
+Currently detects patterns in uploaded document text:
+- `Gold Standard|Verified Carbon Standard|Climate Action Reserve|American Carbon Registry`
+
+Used for routing/context hints only, not authoritative registry assignment. Phase 6 will harden the detection.
+
+---
+
+**12. `inferManualRegistryLabel()`** (`src/lib/projects/verificationReport.ts:118-137`)
+
+Scans `project.registry`, document file names, and extracted text for registry signals. Used only for manual review projects (as a display label). Not used for registry inference during project creation or export dispatch.
+
+Contract invariant: This is a cosmetic label helper for the manual review PDF cover page. It is not involved in the export dispatch decision.
+
+---
+
+**Summary of UNFCCC-protected invariants:**
+
+| Invariant | Where enforced | Must remain |
+|---|---|---|
+| Manifest loads from `public/manifest/index.json` | `route.ts` | Read path unchanged |
+| Program format = `{provider}/{category}` | `methods/route.ts:18` | Split on `/`, first segment = provider |
+| Registry inferred from program first segment | `projectRegistryFromMethodProgram` | Callers unchanged |
+| UNFCCC export uses dedicated composer | `composeVerificationReport` dispatch | Dispatch to UNFCCC composer unchanged |
+| UNFCCC composer produces full sections | `composeUnfcccVerificationReport` | All section titles and content unchanged |
+| `Project.registry` is optional | `types.ts:136` | Type definition unchanged |
+| Fallback `resolveProjectRegistry` method-code heuristic | `verificationReport.ts:63-74` | Code prefix order and matching unchanged |
+| Flat method picker display format | `NewProjectForm.tsx:158-162` | UNFCCC options maintain current label format within their group |
+| Method-rules loads from manifest filter, not artifact path | `method-rules/route.ts:22-28` | Filters `e.methodology === code && e.version === version`; future artifact migration requires regression tests |
+| Manual review is registry-agnostic | `composeManualVerificationReport` | No registry inference for manual projects |
 
 ---
 

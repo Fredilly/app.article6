@@ -204,7 +204,6 @@ Lane status: Active
 Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.
 
 Current focus:
-- Freeze app-side expectations for provider, category, method code, version, display name, registry/standard label, and artifact paths (Phase 0)
 - Ensure the app consumes canonical manifest from the methodology pack, not hand-stitched entries (Phase 1)
 
 Not active now:
@@ -240,3 +239,4 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
+
