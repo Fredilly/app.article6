@@ -59,10 +59,10 @@ async function main() {
     for (const rule of rulesList) {
       if (!rule.id && !rule.rule_id) continue;
       const ruleId = rule.id || rule.rule_id;
-      const title = rule.title || rule.rule || '';
+      const ruleText = rule.title || rule.rule || rule.text || '';
+      if (!ruleText.trim()) continue;
       const tags = Array.isArray(rule.tags) ? rule.tags : [];
       const sectionId = rule.section_id || rule.sectionId || '';
-      const ruleText = title;
 
       const manifestEntry = {
         id: ruleId,
@@ -73,7 +73,7 @@ async function main() {
         tags,
         provider: m.provider,
         category: domain,
-        path: `methodologies/${m.provider}/${domain}/${m.methodName}/${m.version}/rules.json`,
+        path: `methodologies/${m.provider}/${m.category}/${m.methodName}/${m.version}/rules.json`,
         sectionId,
       };
 
