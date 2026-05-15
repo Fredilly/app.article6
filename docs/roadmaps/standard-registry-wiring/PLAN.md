@@ -44,7 +44,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | 2 | Standard-grouped method picker | Done | Picker grouped by standard |
 | 3 | Project detail registry badge | Done | Badge in project header |
 | 4 | Generic standard-aware export composer | Done | Structured report for all registries |
-| 5 | Premium PDF wording and design | Planned | Polished PDF, no stub text |
+| 5 | Premium PDF wording and design | Done | Polished PDF, no stub text |
 | 6 | QuickCheck standard detection hardening | Planned | Context hints in analysis |
 | 7 | Standard-specific composers (future) | Planned | None (doc only) |
 
@@ -490,11 +490,11 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 - Exported PDF for a Verra or Gold Standard project has clean wording: "Verification Readiness Report" or similar — no "fallback", "stub", "not yet implemented", or "v1 limitation" text.
 - PDF reads like a professional deliverable regardless of registry.
 
-**Wording rules:**
-- `registry_not_fully_supported` → maps to "ready" for any known registry
-- `"Truthful fallback: ..."` → remove; use standard readiness language
-- `"full renderer not yet implemented in v1"` → remove; the generic composer is the renderer
-- `"This export is not a full {registry} verification report"` → replace with standard limitation language matching UNFCCC's pattern
+**Implementation notes:**
+- Cover page uses dynamic `report.title` (e.g. "VERRA READINESS REPORT", "UNFCCC VERIFICATION REPORT") with "Readiness Review" subtitle and registry label.
+- Inner page section header shows "READINESS REVIEW" for non-UNFCCC, "VERIFICATION REPORT" for UNFCCC.
+- Footer label varies by registry: "Verification Report" for UNFCCC, "Readiness Review" for others.
+- No debug, internal, or stub wording appears in any registry's PDF output.
 
 ---
 
@@ -542,7 +542,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | Manifest consumption path is stale | Phase 1 was completed — the app correctly consumes the committed manifest | No further action needed; manifest is the SSOT for methodology indexing |
 | Hand-stitched entries may already exist | App could be displaying Verra/GS entries from app-side data, not the pack | Audit the manifest and method loading paths — do not add fake entries; only show what the pack provides |
 | UNFCCC regression in grouped picker | Category grouping inside UNFCCC may change, confusing existing users | UNFCCC remains the first group with the same display format; groups added below it (Phase 2 complete) |
-| PDF output still contains debug text | Professional users see internal messages | Phase 4 removed stub/fallback wording; gate on known registry vs unknown |
+| PDF output still contains debug text | Professional users see internal messages | Phase 5 completed — cover page, header, and footer are registry-aware with premium wording |
 | QuickCheck detection is treated as authoritative | Automatic registry assignment could be wrong | Detection is hints-only; final registry is set during project creation from the manifest provider |
 
 ## Testing strategy
@@ -554,7 +554,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | 2 | 7 unit tests for `groupMethodsByRegistry`: grouping, ordering, sorting, empty, Unknown |
 | 3 | 4 component tests for RegistryBadge rendering (UNFCCC, Verra, Gold Standard, Unknown); existing tests pass unchanged |
 | 4 | Unit + PDF export tests: Verra/GS/Unknown route to generic composer, output includes registry/method/version/category, no stub/fallback wording, UNFCCC unchanged |
-| 5 | PDF snapshot/content tests confirm no stub/debug text; wording audit |
+| 5 | PDF content tests for Verra/Gold Standard readiness report titles, forbidden wording across UNFCCC/Verra/GS, footer label correctness |
 | 6 | Unit tests for all new detection patterns; existing QuickCheck tests pass unchanged |
 | 7 | Review and signoff only |
 

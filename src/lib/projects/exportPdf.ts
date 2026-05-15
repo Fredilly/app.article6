@@ -125,22 +125,25 @@ const TXT = (x: number, y: number, font: 'F1' | 'FB', size: number, text: string
   'ET',
 ];
 
-function buildCoverPage(project: Project, coverage: ProjectCoverage, now: string): string[] {
+function buildCoverPage(project: Project, coverage: ProjectCoverage, now: string, report: { title: string; registry: string }): string[] {
   const lines: string[] = [];
   const reviewed = coverage.verified + coverage.gap;
   const cx = W / 2;
+  const reportLabel = report.title;
 
   lines.push(...centerText(520, 'FB', 10, 'ARTICLE6', '0.5 0.5 0.5 rg'));
   lines.push(RC(cx - 150, 498, 300, 1, 0.8));
-  lines.push(...centerText(470, 'FB', 24, 'VERIFICATION REPORT', '0.2 0.2 0.2 rg'));
-  lines.push(...centerText(430, 'F1', 12, truncate(project.name, 70), '0.35 0.35 0.35 rg'));
-  lines.push(...TXT(cx - 190, 390, 'F1', 9, `Project ID: ${project.id}`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx + 10, 390, 'F1', 9, `Findings: ${reviewed} of ${coverage.total} rules reviewed`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx - 190, 372, 'F1', 9, `Methodology: ${project.methodCode} @ ${project.methodVersion}`, '0.5 0.5 0.5 rg'));
-  lines.push(...TXT(cx + 10, 372, 'F1', 9, `Evidence references: ${project.reviews.reduce((s,r)=>s+r.evidenceIds.length,0)}`, '0.5 0.5 0.5 rg'));
-  lines.push(RC(cx - 150, 350, 300, 1, 0.8));
-  lines.push(...centerText(310, 'F1', 8, `Generated ${now}`, '0.6 0.6 0.6 rg'));
-  lines.push(...centerText(292, 'F1', 8, 'article6.org', '0.6 0.6 0.6 rg'));
+  lines.push(...centerText(470, 'FB', 24, reportLabel, '0.2 0.2 0.2 rg'));
+  lines.push(...centerText(435, 'F1', 11, 'Readiness Review', '0.45 0.45 0.45 rg'));
+  lines.push(RC(cx - 150, 418, 300, 1, 0.8));
+  lines.push(...centerText(400, 'F1', 12, truncate(project.name, 70), '0.35 0.35 0.35 rg'));
+  lines.push(...TXT(cx - 190, 370, 'F1', 9, `Project ID: ${project.id}`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx + 10, 370, 'F1', 9, `Findings: ${reviewed} of ${coverage.total} rules reviewed`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx - 190, 352, 'F1', 9, `Methodology: ${project.methodCode} @ ${project.methodVersion}`, '0.5 0.5 0.5 rg'));
+  lines.push(...TXT(cx + 10, 352, 'F1', 9, `Registry: ${report.registry}`, '0.5 0.5 0.5 rg'));
+  lines.push(RC(cx - 150, 330, 300, 1, 0.8));
+  lines.push(...centerText(290, 'F1', 8, `Generated ${now}`, '0.6 0.6 0.6 rg'));
+  lines.push(...centerText(272, 'F1', 8, 'article6.org', '0.6 0.6 0.6 rg'));
   return lines;
 }
 
@@ -203,7 +206,7 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   {
     const coverLines = isManual
       ? buildManualCoverPage(project, coverage, now, report)
-      : buildCoverPage(project, coverage, now);
+      : buildCoverPage(project, coverage, now, report);
     streams.push(coverLines.join('\n'));
     pg = 1;
   }
@@ -220,10 +223,15 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
     }
     hdr.push(...TXT(R - 26, HEADER_Y, 'F1', 8, `p.${pageNum}`, '0.4 0.4 0.4 rg'));
 
+    const footerLabel = isManual
+      ? 'article6.org | Manual Review Export'
+      : report.registry === 'UNFCCC'
+        ? 'article6.org | Verification Report'
+        : 'article6.org | Readiness Review';
     ln.push(
       LN(FOOTER_Y + 10),
       ...TXT(L, FOOTER_Y, 'F1', 7, `Generated ${now}`, '0.6 0.6 0.6 rg'),
-      ...TXT(R - 120, FOOTER_Y, 'F1', 7, isManual ? 'article6.org | Manual Review Export' : 'article6.org | Verification Report', '0.6 0.6 0.6 rg'),
+      ...TXT(R - 140, FOOTER_Y, 'F1', 7, footerLabel, '0.6 0.6 0.6 rg'),
     );
     streams.push([...hdr, ...ln].join('\n'));
     ln = [];
@@ -261,8 +269,9 @@ export function buildProjectExportPdf(project: Project, coverage: ProjectCoverag
   }
 
   if (!isManual) {
+    const sectionLabel = report.registry === 'UNFCCC' ? 'VERIFICATION REPORT' : 'READINESS REVIEW';
     ln.push(
-      ...TXT(L, y + 20, 'F1', 8, 'VERIFICATION REPORT', LIGHTER),
+      ...TXT(L, y + 20, 'F1', 8, sectionLabel, LIGHTER),
       ...TXT(L, y + 4,  'FB', 18, report.title, DARK),
       ...TXT(L, y - 14, 'F1', 9, truncate(report.subtitle, 84), '0.4 0.4 0.4 rg'),
     );

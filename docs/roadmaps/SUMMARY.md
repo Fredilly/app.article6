@@ -204,7 +204,7 @@ Lane status: Active
 Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.
 
 Current focus:
-- Premium PDF wording and design for all registries (Phase 5)
+- QuickCheck standard detection hardening (Phase 6)
 
 Not active now:
 - Verra-specific or Gold Standard-specific report composers
@@ -217,7 +217,7 @@ Not active now:
 3) RC2 — Standard-grouped method picker: Done
 4) RC3 — Project detail registry badge: Done
 5) RC4 — Generic standard-aware export composer: Done
-6) RC5 — Premium PDF wording and design: Planned
+6) RC5 — Premium PDF wording and design: Done
 7) RC6 — QuickCheck standard detection hardening: Planned
 8) RC7 — Standard-specific composers (future): Planned
 
@@ -239,3 +239,4 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
+
