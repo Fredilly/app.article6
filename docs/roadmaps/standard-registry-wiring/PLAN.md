@@ -38,7 +38,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 ## Phase table
 
 | Phase | Title | Status | Visible UI change |
-|---|---|---|---|---|
+|---|---|---|---|
 | 0 | Contract and boundaries | Done | None (doc only) |
 | 1 | Pack/manifest consumption | Planned | None (internal) |
 | 2 | Standard-grouped method picker | Planned | Picker grouped by standard |
@@ -119,9 +119,25 @@ Contract invariant: `program` always encodes `{provider}/{category}`. Category m
 
 **2. GET /api/projects/method-rules** (`src/app/api/projects/method-rules/route.ts`)
 
-Takes `code` and `version` query params. Loads the rule set JSON for that methodology from the artifact path in the manifest. Not a registry-specific path — it follows whatever path the manifest entry specifies.
+Takes `code` and `version` query params. Reads `public/manifest/index.json` and filters manifest entries where `e.methodology === code && e.version === version`. Maps matching manifest rows directly to `{ id, title, sectionId }`.
 
-Contract invariant: Rule loading is path-based, not registry-aware. The manifest entry's `path` field is the single source of truth for rule artifact location.
+```typescript
+const rules = entries
+  .filter((e) => e.methodology === code && e.version === version)
+  .map((e) => ({
+    id: e.rule_id || e.id,
+    title: e.rule || e.title || '',
+    sectionId: e.sectionId || '',
+  }));
+```
+
+The route does **not** dereference `entry.path` or load a separate `rules.json` artifact. All rule metadata is inlined in the manifest row.
+
+Contract invariants:
+- Rule loading is manifest-filter-based, not artifact-path-based
+- `code` matches `manifest.methodology`, `version` matches `manifest.version`
+- Returned rules are flat manifest rows — no registry awareness, no artifact loading
+- Any future migration to artifact-backed rule loading must be done intentionally with UNFCCC regression tests
 
 ---
 
@@ -309,6 +325,7 @@ Contract invariant: This is a cosmetic label helper for the manual review PDF co
 | `Project.registry` is optional | `types.ts:136` | Type definition unchanged |
 | Fallback `resolveProjectRegistry` method-code heuristic | `verificationReport.ts:63-74` | Code prefix order and matching unchanged |
 | Flat method picker display format | `NewProjectForm.tsx:158-162` | UNFCCC options maintain current label format within their group |
+| Method-rules loads from manifest filter, not artifact path | `method-rules/route.ts:22-28` | Filters `e.methodology === code && e.version === version`; future artifact migration requires regression tests |
 | Manual review is registry-agnostic | `composeManualVerificationReport` | No registry inference for manual projects |
 
 ---
