@@ -11,7 +11,7 @@
     "status": "active",
     "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
     "current_focus": [
-      "Premium PDF wording and design for all registries (Phase 5)"
+      "QuickCheck standard detection hardening (Phase 6)"
     ],
     "not_active_now": [
       "Verra-specific or Gold Standard-specific report composers",
@@ -101,7 +101,7 @@
       ]
     },
     "phase_5_premium_pdf_wording_and_design": {
-      "status": "planned",
+      "status": "done",
       "title": "Premium PDF wording and design",
       "repo": "app.article6",
       "description": "Replace fallback/stub wording for Verra and Gold Standard. Use Article6-branded readiness review language. Hide internal/debug language from user-facing PDF output.",

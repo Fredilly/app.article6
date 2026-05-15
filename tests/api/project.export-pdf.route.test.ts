@@ -131,6 +131,45 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented/i);
   }, 15000);
 
+  it('renders a standard-aware readiness report for Gold Standard projects', async () => {
+    const project = {
+      ...makeProject(),
+      methodCode: 'GS-VER1',
+      registry: 'Gold Standard' as const,
+    };
+    const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    const res = await POST(req);
+    const bytes = await res.arrayBuffer();
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('GOLD STANDARD READINESS REPORT');
+    expect(parsed.text).toContain('Registry / Standard: Gold Standard');
+    expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented/i);
+  }, 15000);
+
+  it('does not contain forbidden wording for any registry', async () => {
+    for (const registry of ['UNFCCC' as const, 'Verra' as const, 'Gold Standard' as const]) {
+      const project = {
+        ...makeProject(),
+        registry,
+        methodCode: registry === 'UNFCCC' ? 'AR-AMS0007' : registry === 'Verra' ? 'VM0007' : 'GS-VER1',
+      };
+      const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project }),
+      });
+      const res = await POST(req);
+      const bytes = await res.arrayBuffer();
+      const parsed = await extractPdfTextWithPdfParse({ bytes });
+      expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented|registry_not_fully_supported|composer unavailable/i);
+    }
+  }, 30000);
+
   it('exports manual review mode without methodology code in the header copy', async () => {
     const project: Project = {
       id: 'manual-project-1',
