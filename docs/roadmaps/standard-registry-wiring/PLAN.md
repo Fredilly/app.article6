@@ -519,21 +519,28 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 
 ### Phase 7 — Standard-specific composers (future)
 
+**Phase 7 is blocked on upstream metadata.** Standard-specific composers must not be implemented in `app.article6` until `article6-methodologies` encodes canonical metadata for each standard. The app must not invent report structure, section taxonomy, or disclaimer language that belongs to the methodology pack.
+
 **Acceptance criteria:**
 - Future Verra-specific composer requirements are documented below.
 - Future Gold Standard-specific composer requirements are documented below.
 - No implementation work is done in this phase.
 - Phase status remains "planned" until Verra/GS-specific metadata encoding is available upstream.
 
-**Future Verra-specific composer notes:**
-- Verra VCS reports include: Project Description, Baseline Scenario, Monitoring Plan, Leakage, Permanence, CCB (if applicable), SDG contributions
-- VCS methodology rules will need section-level metadata to map findings to these headings
-- The methodology pack must encode Verra-specific section IDs and section titles
+**Minimum upstream metadata needed from `article6-methodologies` before Phase 7 can start:**
 
-**Future Gold Standard-specific composer notes:**
-- Gold Standard reports include: Project Design, Additionality, Baseline, Monitoring, Safeguards Assessment, SDG Impact, Stakeholder Consultation
-- GS methodology rules will need section-level metadata for these headings
-- GS4GG rules have specific safeguards and SDG reporting requirements
+| Requirement | Description |
+|---|---|
+| Standard-specific section taxonomy | Each standard's report has a distinct section structure (e.g. Verra: Project Description, Baseline, Monitoring, Leakage, Permanence, CCB, SDG; GS: Project Design, Additionality, Baseline, Monitoring, Safeguards, SDG Impact, Stakeholder Consultation) |
+| Required export sections per standard | Sections that must appear in a standard-specific report (e.g. for Verra VCS: baseline scenario, monitoring plan, leakage calculation; for GS: safeguards assessment, stakeholder consultation) |
+| Mapped methodology section references | Each rule in the methodology pack must carry a `section_id` or `section_ref` that maps to the standard's report section taxonomy, so the composer can group findings under the correct heading |
+| Expected evidence categories per standard | Evidence types each standard expects for specific rules/sections (e.g. Verra CCB requires biodiversity and community evidence; GS requires SDG contribution evidence) |
+| Safe disclaimer language per standard | Registry-approved disclaimer text for readiness reports that do not claim official validation or verification — must not be invented by the app |
+
+**Until upstream metadata is available:**
+- The generic standard-aware composer from Phase 4 covers all known registries with truthful, neutral sections.
+- Adding standard-specific sections before metadata is ready risks producing misleading or non-compliant outputs.
+- This phase must remain `planned`, not `active` or `in_progress`.
 
 ## Risk areas
 
