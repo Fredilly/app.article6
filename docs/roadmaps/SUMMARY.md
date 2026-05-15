@@ -201,7 +201,7 @@ Status SSOT: `docs/roadmaps/standard-registry-wiring/phase-status.json`
 Details: `docs/roadmaps/standard-registry-wiring/PLAN.md`
 
 Lane status: Active
-Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.
+All phases complete. Verra and Gold Standard wired into the app through a standard-aware path. UNFCCC remains unchanged. Standard-specific composers implemented using canonical pack metadata.
 
 Not active now:
 - Adding Verra/Gold Standard placeholder methods to the manifest
