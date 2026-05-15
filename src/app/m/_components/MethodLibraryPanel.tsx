@@ -20,13 +20,6 @@ function deriveMetaUrl(method: MethodInventoryItem): string | null {
 }
 
 const STANDARD_FILTER_KEY = "a6:methodStandardFilter";
-const AUDITED_KEY = "a6:methodAudited";
-
-function setsEqual(a: Set<string>, b: Set<string>): boolean {
-  if (a.size !== b.size) return false;
-  for (const v of a) if (!b.has(v)) return false;
-  return true;
-}
 
 export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
   // Derived from selected method — no effect needed, synchronous before first render.
@@ -39,19 +32,14 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
   // User's manual tab override. On route change (selectedCode), clear it so
   // the filter re-syncs to the selected method's standard. Manual tab clicks
   // set the override and win until the next navigation.
-  const [userOverride, setUserOverride] = useState<string | null>(null);
-  const [userTab, setUserTab] = useState<string>("All");
-
-  // Hydrate userTab from sessionStorage after hydration to avoid mismatch.
-  const hydrated = useRef(false);
-  useEffect(() => {
-    if (hydrated.current) return;
-    hydrated.current = true;
-    try {
-      const stored = window.sessionStorage.getItem(STANDARD_FILTER_KEY);
-      if (stored) setUserTab(stored);
-    } catch { /* ignore */ }
-  }, []);
+  const [userOverride, setUserOverride] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return null; // start clean — let selectedMethodStandard or sessionStorage drive
+  });
+  const [userTab, setUserTab] = useState<string>(() => {
+    if (typeof window === "undefined") return "All";
+    return window.sessionStorage.getItem(STANDARD_FILTER_KEY) ?? "All";
+  });
 
   // Clear user override on route change so the method's standard takes effect again.
   const prevSelectedCode = useRef(selectedCode);
@@ -79,18 +67,10 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     return methods.filter((m) => deriveStandard(m.program) === effectiveStandard);
   }, [methods, effectiveStandard]);
 
-  // Deterministic server-safe default — no sessionStorage during initial render.
+  // Stable audited status: fetch once per method list, keep previous results while loading.
+  // Using methods (the full list) as key, not filteredMethods, so filter changes don't trigger refetch.
   const [audited, setAudited] = useState<Set<string>>(new Set());
-  // Hydrate from sessionStorage after hydration; refetch in background.
-  const auditedHydrated = useRef(false);
   useEffect(() => {
-    if (!auditedHydrated.current) {
-      auditedHydrated.current = true;
-      try {
-        const stored = window.sessionStorage.getItem(AUDITED_KEY);
-        if (stored) setAudited(new Set(JSON.parse(stored)));
-      } catch { /* ignore */ }
-    }
     let cancelled = false;
     const entries = methods.map((m) => ({ code: m.code, metaUrl: deriveMetaUrl(m) }));
     Promise.all(
@@ -108,21 +88,19 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
       for (const r of results) {
         if (r && isSourceAuditedMeta(r.meta)) next.add(r.code);
       }
-      setAudited((prev) => {
-        if (setsEqual(prev, next)) return prev;
-        try { window.sessionStorage.setItem(AUDITED_KEY, JSON.stringify([...next])); }
-        catch { /* ignore */ }
-        return next;
-      });
+      setAudited(next);
     });
     return () => { cancelled = true; };
   }, [methods]);
 
-  // Stable single-sorted list: prevents card reshuffle between sections
-  // when audited data loads after mount.
-  const sortedMethods = useMemo(
-    () => [...filteredMethods].sort((a, b) => a.code.localeCompare(b.code)),
-    [filteredMethods],
+  const reviewReady = useMemo(
+    () => filteredMethods.filter((m) => audited.has(m.code)),
+    [filteredMethods, audited],
+  );
+
+  const otherMethods = useMemo(
+    () => filteredMethods.filter((m) => !audited.has(m.code)),
+    [filteredMethods, audited],
   );
 
   const allLabel = effectiveStandard === "All" ? "All methods" : `All ${effectiveStandard} methods`;
@@ -167,17 +145,34 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
       </div>
 
       <div className="flex max-h-[calc(100vh-20rem)] flex-col gap-1 overflow-y-auto p-3">
-        <div>
-          <div className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">{allLabel}</div>
-          {sortedMethods.length === 0 ? (
-            <p className="px-1 py-4 text-xs text-slate-500">No methods found for this standard.</p>
-          ) : (
-            sortedMethods.map((method) => (
+        {reviewReady.length > 0 ? (
+          <div className="mb-2">
+            <div className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-600">
+              Review-ready methods
+            </div>
+            {reviewReady.map((method) => (
               <div key={method.code} className="py-0.5">
                 <MethodCard
                   method={method}
                   active={selectedCode === method.code}
-                  sourceAudited={audited.has(method.code)}
+                  sourceAudited
+                />
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        <div>
+          <div className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">{allLabel}</div>
+          {otherMethods.length === 0 && reviewReady.length === 0 ? (
+            <p className="px-1 py-4 text-xs text-slate-500">No methods found for this standard.</p>
+          ) : (
+            otherMethods.map((method) => (
+              <div key={method.code} className="py-0.5">
+                <MethodCard
+                  method={method}
+                  active={selectedCode === method.code}
+                  sourceAudited={false}
                 />
               </div>
             ))

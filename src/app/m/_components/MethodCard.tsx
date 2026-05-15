@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
 
 type MethodCardProps = {
@@ -12,14 +10,9 @@ type MethodCardProps = {
 };
 
 export default function MethodCard({ method, active, sourceAudited }: MethodCardProps) {
-  const router = useRouter();
-  const href = `/m/${encodeURIComponent(method.code)}`;
-  const handleMouseEnter = useCallback(() => { router.prefetch(href); }, [router, href]);
-
   return (
     <Link
-      href={href}
-      onMouseEnter={handleMouseEnter}
+      href={`/m/${encodeURIComponent(method.code)}`}
       className={`flex items-center justify-between gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
         active
           ? "border-slate-300 bg-slate-50"
