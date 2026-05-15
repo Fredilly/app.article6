@@ -11,7 +11,7 @@
     "status": "active",
     "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
     "current_focus": [
-      "Group methodology picker options by standard/provider (Phase 2)"
+      "Show selected standard/registry on project detail page (Phase 3)"
     ],
     "not_active_now": [
       "Verra-specific or Gold Standard-specific report composers",
@@ -51,7 +51,7 @@
       ]
     },
     "phase_2_standard_grouped_method_picker": {
-      "status": "planned",
+      "status": "done",
       "title": "Standard-grouped method picker",
       "repo": "app.article6",
       "description": "Group methodology picker options by standard/provider. Preserve category grouping inside each standard where available. Make Verra and Gold Standard visible only when present in the manifest.",

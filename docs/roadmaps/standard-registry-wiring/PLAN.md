@@ -41,7 +41,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 |---|---|---|---|
 | 0 | Contract and boundaries | Done | None (doc only) |
 | 1 | Pack/manifest consumption | Done | None (internal) |
-| 2 | Standard-grouped method picker | Planned | Picker grouped by standard |
+| 2 | Standard-grouped method picker | Done | Picker grouped by standard |
 | 3 | Project detail registry badge | Planned | Badge in project header |
 | 4 | Generic standard-aware export composer | Planned | Structured report for all registries |
 | 5 | Premium PDF wording and design | Planned | Polished PDF, no stub text |
@@ -541,7 +541,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 |---|---|---|
 | Manifest consumption path is stale | Phase 1 was completed — the app correctly consumes the committed manifest | No further action needed; manifest is the SSOT for methodology indexing |
 | Hand-stitched entries may already exist | App could be displaying Verra/GS entries from app-side data, not the pack | Audit the manifest and method loading paths — do not add fake entries; only show what the pack provides |
-| UNFCCC regression in grouped picker | Category grouping inside UNFCCC may change, confusing existing users | Keep UNFCCC as the first group with the same display format; add groups below it |
+| UNFCCC regression in grouped picker | Category grouping inside UNFCCC may change, confusing existing users | UNFCCC remains the first group with the same display format; groups added below it (Phase 2 complete) |
 | PDF output still contains debug text | Professional users see internal messages | Phase 5 explicitly removes stub wording; gate on known registry vs unknown |
 | QuickCheck detection is treated as authoritative | Automatic registry assignment could be wrong | Detection is hints-only; final registry is set during project creation from the manifest provider |
 
@@ -551,7 +551,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 |---|---|
 | 0 | Review and signoff only |
 | 1 | Manifest consumption tests added at `tests/lib/projects/manifestConsumption.test.ts` (24 tests): manifest shape, program format, registry inference, normalizeRegistry edge cases, resolveProjectRegistry fallback |
-| 2 | Component tests for grouped dropdown rendering with UNFCCC, Verra, GS data; snapshot tests |
+| 2 | 7 unit tests for `groupMethodsByRegistry`: grouping, ordering, sorting, empty, Unknown |
 | 3 | Component tests for registry badge rendering; existing project detail tests pass unchanged |
 | 4 | Unit tests for `composeStandardAwareVerificationReport` output shape; regression tests for `composeUnfcccVerificationReport` unchanged; tests confirm no stub wording in output |
 | 5 | PDF snapshot/content tests confirm no stub/debug text; wording audit |
