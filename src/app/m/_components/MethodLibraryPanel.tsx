@@ -53,8 +53,18 @@ function useSourceAuditedStatus(methods: MethodInventoryItem[]): Set<string> {
   return audited;
 }
 
+const STANDARD_FILTER_KEY = "a6:methodStandardFilter";
+
 export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
-  const [standardFilter, setStandardFilter] = useState<string>("All");
+  const [standardFilter, setStandardFilter] = useState<string>(() => {
+    if (typeof window === "undefined") return "All";
+    return window.sessionStorage.getItem(STANDARD_FILTER_KEY) ?? "All";
+  });
+
+  useEffect(() => {
+    try { window.sessionStorage.setItem(STANDARD_FILTER_KEY, standardFilter); }
+    catch { /* quota exceeded, ignore */ }
+  }, [standardFilter]);
 
   const filteredMethods = useMemo(() => {
     if (standardFilter === "All") return methods;
