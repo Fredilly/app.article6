@@ -486,6 +486,11 @@ describe("extractMethodologyMentions — standard detection hardening", () => {
     expect(mentions).toContain("GS4GG");
   });
 
+  it("detects Gold Standard standalone", () => {
+    const mentions = extractMethodologyMentions("Registered under Gold Standard");
+    expect(mentions).toContain("Gold Standard");
+  });
+
   it("detects Gold Standard with version (existing pattern)", () => {
     const mentions = extractMethodologyMentions("Gold Standard TPDDTEC Version 4.0");
     expect(mentions.some((m) => m.includes("Gold Standard"))).toBe(true);

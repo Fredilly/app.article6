@@ -599,6 +599,11 @@ export function extractMethodologyMentions(text: string): string[] {
     mentions.add(match[1]);
   }
 
+  // Gold Standard standalone mention (common in PDD cover pages)
+  for (const match of text.matchAll(/\b(Gold Standard)\b/gi)) {
+    mentions.add(match[1]);
+  }
+
   // Verified Carbon Standard (full name, standalone)
   for (const match of text.matchAll(/\b(Verified Carbon Standard)\b/gi)) {
     mentions.add(match[1]);
