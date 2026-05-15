@@ -321,7 +321,14 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
               </span>
             ) : null}
             {project.reviewMode === 'methodology-linked' ? (
-              <RegistryBadge registry={resolveProjectRegistry(project)} />
+              <>
+                <RegistryBadge registry={resolveProjectRegistry(project)} />
+                {project.methodCategory ? (
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                    {project.methodCategory}
+                  </span>
+                ) : null}
+              </>
             ) : null}
             <span
               className={`rounded px-2 py-0.5 text-xs font-semibold ${

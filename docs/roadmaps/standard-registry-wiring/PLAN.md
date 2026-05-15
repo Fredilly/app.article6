@@ -439,11 +439,11 @@ Note: The manifest is still a committed static file, not auto-synced from the pa
 - In `ProjectDetail.tsx`, next to the review mode badge and method code, a new pill/chip shows the standard name (e.g. a blue "Verra" pill, a green "Gold Standard" pill, or a slate "UNFCCC" pill).
 - The badge color could differentiate standards subtly (e.g. UNFCCC → slate, Verra → blue, Gold Standard → amber).
 
-**Implementation approach:**
-- Add a new component or inline element in `ProjectDetail.tsx` near line 316.
-- Use `resolveProjectRegistry(project)` from `verificationReport.ts` to get the registry.
-- Store the category in the project if available (or derive from the manifest at method-picker time and pass it through).
-- Badge is purely cosmetic — no changes to project data model required.
+**Implementation notes:**
+- Added `RegistryBadge` component in `ProjectDetail.tsx` using `resolveProjectRegistry(project)`.
+- Added `methodCategory` field to `Project` type, stored at project creation time from the `program` string's category segment.
+- Category displayed as a separate pill next to the registry badge.
+- Badge and category are purely cosmetic — no export or project creation logic changes.
 
 ---
 

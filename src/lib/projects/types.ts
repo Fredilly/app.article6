@@ -133,6 +133,7 @@ export type Project = {
   reviewMode: ProjectReviewMode;
   methodCode?: string;
   methodVersion?: string;
+  methodCategory?: string;
   registry?: ProjectRegistry;
   status: ProjectStatus;
   createdAt: string;

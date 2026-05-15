@@ -81,11 +81,14 @@ export default function NewProjectForm() {
       }
 
       const selectedMethodRecord = methods.find((method) => `${method.code}@${method.version}` === selectedMethod);
+      const parts = (selectedMethodRecord?.program ?? '').split('/');
+      const category = parts.length > 1 ? parts.slice(1).join('/') : undefined;
       const project = createProject({
         name,
         reviewMode,
         methodCode: code,
         methodVersion: version,
+        methodCategory: category,
         registry: projectRegistryFromMethodProgram(selectedMethodRecord?.program),
         aoiLabel: aoiLabel || undefined,
         description: description || undefined,
