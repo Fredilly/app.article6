@@ -30,7 +30,7 @@ const UNSUPPORTED_CERTIFICATION_PHRASES = [
   'verified successfully',
 ];
 
-function reportText(report: ReturnType<typeof composeVerificationReport>): string {
+function reportText(report: Awaited<ReturnType<typeof composeVerificationReport>>): string {
   return [
     report.title,
     report.subtitle,
@@ -98,8 +98,8 @@ function makeProject(overrides: Partial<Project> = {}): Project {
 }
 
 describe('verification report composition', () => {
-  it('routes UNFCCC projects to the formal full renderer path', () => {
-    const report = composeVerificationReport(makeProject(), makeCoverage());
+  it('routes UNFCCC projects to the formal full renderer path', async () => {
+    const report = await composeVerificationReport(makeProject(), makeCoverage());
 
     expect(report.registry).toBe('UNFCCC');
     expect(report.status).toBe('ready');
@@ -108,8 +108,8 @@ describe('verification report composition', () => {
     expect(report.findings.map((finding) => finding.code)).toEqual(['OK', 'NC', 'PENDING']);
   });
 
-  it('emits deterministic finding summary counts for UNFCCC reports', () => {
-    const report = composeVerificationReport(makeProject(), makeCoverage());
+  it('emits deterministic finding summary counts for UNFCCC reports', async () => {
+    const report = await composeVerificationReport(makeProject(), makeCoverage());
     const summary = report.sections.find((section) => section.title === 'FINDINGS SUMMARY')?.lines.join(' ');
 
     expect(summary).toContain('OK: 1');
@@ -120,7 +120,7 @@ describe('verification report composition', () => {
     expect(summary).toContain('FAR: 0');
   });
 
-  it('renders support limitations for verified findings without evidence or rationale', () => {
+  it('renders support limitations for verified findings without evidence or rationale', async () => {
     const project = makeProject({
       reviews: [
         {
@@ -132,7 +132,7 @@ describe('verification report composition', () => {
         },
       ],
     });
-    const report = composeVerificationReport(project, makeCoverage({
+    const report = await composeVerificationReport(project, makeCoverage({
       total: 1,
       verified: 1,
       gap: 0,
@@ -159,8 +159,8 @@ describe('verification report composition', () => {
     expect(report.findings.every((finding) => finding.code === 'PENDING')).toBe(true);
   });
 
-  it('routes Verra through the standard-specific composer', () => {
-    const report = composeVerraVerificationReport(
+  it('routes Verra through the standard-specific composer', async () => {
+    const report = await composeVerraVerificationReport(
       makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
@@ -185,8 +185,8 @@ describe('verification report composition', () => {
     expect(report.findings.length).toBeGreaterThan(0);
   });
 
-  it('routes Gold Standard through the standard-specific composer', () => {
-    const report = composeGoldStandardVerificationReport(
+  it('routes Gold Standard through the standard-specific composer', async () => {
+    const report = await composeGoldStandardVerificationReport(
       makeProject({ methodCode: 'GS TPDDTEC', registry: 'Gold Standard' }),
       makeCoverage(),
     );
@@ -209,8 +209,8 @@ describe('verification report composition', () => {
     ]);
   });
 
-  it('standard-specific report includes registry, method, version, and category from composer', () => {
-    const report = composeVerificationReport(
+  it('standard-specific report includes registry, method, version, and category from composer', async () => {
+    const report = await composeVerificationReport(
       makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
@@ -221,8 +221,8 @@ describe('verification report composition', () => {
     expect(text).toContain('VCS');
   });
 
-  it('standard-specific report does not contain stub or fallback wording', () => {
-    const report = composeVerificationReport(
+  it('standard-specific report does not contain stub or fallback wording', async () => {
+    const report = await composeVerificationReport(
       makeProject({ methodCode: 'VM0047', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
@@ -246,8 +246,8 @@ describe('verification report composition', () => {
     expect(report.status).toBe('insufficient_source_content');
   });
 
-  it('Unknown registry also uses the generic standard-aware composer', () => {
-    const report = composeVerificationReport(
+  it('Unknown registry also uses the generic standard-aware composer', async () => {
+    const report = await composeVerificationReport(
       makeProject({ methodCode: 'UNKNOWN-METHOD', registry: 'Unknown' }),
       makeCoverage(),
     );
@@ -257,8 +257,8 @@ describe('verification report composition', () => {
     expect(report.sections.length).toBeGreaterThan(0);
   });
 
-  it('Verra generic report includes export timestamp in provenance', () => {
-    const report = composeVerraVerificationReport(
+  it('Verra generic report includes export timestamp in provenance', async () => {
+    const report = await composeVerraVerificationReport(
       makeProject({ methodCode: 'VM0007', registry: 'Verra' }),
       makeCoverage(),
       '2026-06-01T12:00:00Z',
@@ -268,8 +268,8 @@ describe('verification report composition', () => {
     expect(report.provenance.some(([_, value]) => value.includes('2026-06-01T12:00:00Z'))).toBe(true);
   });
 
-  it('Gold Standard generic report includes export timestamp in provenance', () => {
-    const report = composeGoldStandardVerificationReport(
+  it('Gold Standard generic report includes export timestamp in provenance', async () => {
+    const report = await composeGoldStandardVerificationReport(
       makeProject({ methodCode: 'GS-VER1', registry: 'Gold Standard' }),
       makeCoverage(),
       '2026-07-15T08:30:00Z',
@@ -279,8 +279,8 @@ describe('verification report composition', () => {
     expect(report.provenance.some(([_, value]) => value.includes('2026-07-15T08:30:00Z'))).toBe(true);
   });
 
-  it('does not emit unsupported certification or issuance phrases', () => {
-    const report = composeVerificationReport(makeProject(), makeCoverage());
+  it('does not emit unsupported certification or issuance phrases', async () => {
+    const report = await composeVerificationReport(makeProject(), makeCoverage());
     const text = reportText(report);
 
     for (const phrase of UNSUPPORTED_CERTIFICATION_PHRASES) {

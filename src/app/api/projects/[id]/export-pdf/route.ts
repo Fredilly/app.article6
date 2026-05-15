@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     const coverage = getProjectCoverage(project);
-    const pdf = buildProjectExportPdf(project, coverage);
+    const pdf = await buildProjectExportPdf(project, coverage);
     const filename = project.reviewMode === 'manual'
       ? `manual-review-pack-${project.id.slice(0, 8)}.pdf`
       : `verification-pack-${project.methodCode}-${project.id.slice(0, 8)}.pdf`;

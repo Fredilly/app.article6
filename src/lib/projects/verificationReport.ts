@@ -5,8 +5,6 @@ import {
   type ReportFindingCode,
 } from '@/lib/projects/reportFindings';
 import type { Project, ProjectCoverage, ProjectRegistry } from '@/lib/projects/types';
-import { composeVerraVerificationReport as verraComposer } from '@/lib/composers/composeVerraVerificationReport';
-import { composeGoldStandardVerificationReport as gsComposer } from '@/lib/composers/composeGoldStandardVerificationReport';
 
 export type VerificationReportStatus = 'ready' | 'registry_not_fully_supported' | 'insufficient_source_content';
 
@@ -427,16 +425,18 @@ export function composeGenericStandardAwareReport(
   };
 }
 
-export function composeVerraVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
+export async function composeVerraVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): Promise<VerificationReportComposition> {
   try {
+    const { composeVerraVerificationReport: verraComposer } = await import('@/lib/composers/composeVerraVerificationReport');
     return verraComposer(project, coverage, exportTime);
   } catch {
     return composeGenericStandardAwareReport('Verra', project, coverage, exportTime);
   }
 }
 
-export function composeGoldStandardVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
+export async function composeGoldStandardVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): Promise<VerificationReportComposition> {
   try {
+    const { composeGoldStandardVerificationReport: gsComposer } = await import('@/lib/composers/composeGoldStandardVerificationReport');
     return gsComposer(project, coverage, exportTime);
   } catch {
     return composeGenericStandardAwareReport('Gold Standard', project, coverage, exportTime);
@@ -558,11 +558,11 @@ export function composeManualVerificationReport(
   };
 }
 
-export function composeVerificationReport(
+export async function composeVerificationReport(
   project: Project,
   coverage: ProjectCoverage,
   exportTime?: string,
-): VerificationReportComposition {
+): Promise<VerificationReportComposition> {
   if (project.reviewMode === 'manual') return composeManualVerificationReport(project, coverage, exportTime);
   const registry = resolveProjectRegistry(project);
   if (registry === 'UNFCCC') return composeUnfcccVerificationReport(project, coverage, exportTime);

@@ -40,7 +40,7 @@ const coverage: ProjectCoverage = {
 describe('PDF export integration with Verra composer', () => {
   it('generates a parseable PDF with Verra-specific sections', async () => {
     const project = makeProject();
-    const pdf = buildProjectExportPdf(project, coverage);
+    const pdf = await buildProjectExportPdf(project, coverage);
     const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
@@ -55,7 +55,7 @@ describe('PDF export integration with Verra composer', () => {
 
   it('does not include stub or fallback wording in Verra PDF', async () => {
     const project = makeProject();
-    const pdf = buildProjectExportPdf(project, coverage);
+    const pdf = await buildProjectExportPdf(project, coverage);
     const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
@@ -64,7 +64,7 @@ describe('PDF export integration with Verra composer', () => {
 
   it('renders evidence-linked findings in the PDF', async () => {
     const project = makeProject();
-    const pdf = buildProjectExportPdf(project, coverage);
+    const pdf = await buildProjectExportPdf(project, coverage);
     const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
@@ -74,8 +74,8 @@ describe('PDF export integration with Verra composer', () => {
 
   it('produces deterministic PDF content', async () => {
     const project = makeProject();
-    const pdf1 = buildProjectExportPdf(project, coverage);
-    const pdf2 = buildProjectExportPdf(project, coverage);
+    const pdf1 = await buildProjectExportPdf(project, coverage);
+    const pdf2 = await buildProjectExportPdf(project, coverage);
     const bytes1 = pdf1.buffer.slice(pdf1.byteOffset, pdf1.byteOffset + pdf1.byteLength);
     const bytes2 = pdf2.buffer.slice(pdf2.byteOffset, pdf2.byteOffset + pdf2.byteLength);
     const parsed1 = await extractPdfTextWithPdfParse({ bytes: bytes1 });
