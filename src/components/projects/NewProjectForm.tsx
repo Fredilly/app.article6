@@ -1,17 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProject } from '@/lib/projects/storage';
 import { projectRegistryFromMethodProgram } from '@/lib/projects/verificationReport';
-import type { ProjectReviewMode } from '@/lib/projects/types';
+import type { ProjectRegistry, ProjectReviewMode } from '@/lib/projects/types';
 
-type MethodOption = {
+export type MethodOption = {
   code: string;
   program: string;
   version: string;
   ruleCount: number;
 };
+
+const REGISTRY_ORDER: ProjectRegistry[] = ['UNFCCC', 'Verra', 'Gold Standard', 'Unknown'];
+
+export function groupMethodsByRegistry(methods: MethodOption[]): Array<{ registry: ProjectRegistry; methods: MethodOption[] }> {
+  const groups = new Map<ProjectRegistry, MethodOption[]>();
+  for (const registry of REGISTRY_ORDER) groups.set(registry, []);
+  for (const method of methods) {
+    const registry = projectRegistryFromMethodProgram(method.program);
+    const list = groups.get(registry);
+    if (list) list.push(method);
+    else groups.get('Unknown')!.push(method);
+  }
+  return REGISTRY_ORDER
+    .map((registry) => ({ registry, methods: groups.get(registry)!.sort((a, b) => a.code.localeCompare(b.code)) }))
+    .filter((group) => group.methods.length > 0);
+}
 
 export default function NewProjectForm() {
   const router = useRouter();
@@ -23,6 +39,8 @@ export default function NewProjectForm() {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const groupedMethods = useMemo(() => groupMethodsByRegistry(methods), [methods]);
 
   useEffect(() => {
     fetch('/api/projects/methods')
@@ -155,10 +173,14 @@ export default function NewProjectForm() {
               required
             >
               <option value="">Select a methodology...</option>
-              {methods.map(m => (
-                <option key={`${m.code}@${m.version}`} value={`${m.code}@${m.version}`}>
-                  {m.code} v{m.version} — {m.program} ({m.ruleCount} rules)
-                </option>
+              {groupedMethods.map(group => (
+                <optgroup key={group.registry} label={group.registry}>
+                  {group.methods.map(m => (
+                    <option key={`${m.code}@${m.version}`} value={`${m.code}@${m.version}`}>
+                      {m.code} v{m.version} — {m.program} ({m.ruleCount} rules)
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
