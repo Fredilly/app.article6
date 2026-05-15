@@ -327,47 +327,110 @@ export function composeUnfcccVerificationReport(
   };
 }
 
-function composeRecognizedFallbackReport(
-  registry: 'Verra' | 'Gold Standard',
+const GENERIC_SECTION_ORDER = [
+  'REPORT STATUS',
+  'PROJECT AND STANDARD',
+  'METHODOLOGY BASIS',
+  'EVIDENCE REVIEWED',
+  'REQUIREMENT REVIEW',
+  'REVIEWER NOTES',
+  'PROVENANCE AND EXPORT METADATA',
+] as const;
+
+export function composeGenericStandardAwareReport(
+  registry: ProjectRegistry,
   project: Project,
   coverage: ProjectCoverage,
+  exportTime?: string,
 ): VerificationReportComposition {
+  const reviewedCount = coverage.verified + coverage.gap;
+  const findings = buildFindings(project);
+  const findingCounts = countFindings(findings);
+  const status: VerificationReportStatus = reviewedCount === 0 ? 'insufficient_source_content' : 'ready';
+  const provenance = buildProvenance(project, coverage, registry, status, exportTime);
+  const limitation = 'This draft readiness report summarizes reviewer-entered project review data. It is not a formal certification, validation, verification opinion, issuance approval, or registry decision.';
+
+  const categoryLine = project.methodCategory
+    ? `Category: ${project.methodCategory}.`
+    : null;
+
   return {
     registry,
-    status: 'registry_not_fully_supported',
-    title: `${registry.toUpperCase()} VERIFICATION REPORT`,
-    subtitle: `Truthful fallback: ${registry} is recognized in the export pipeline, but a full ${registry}-specific renderer is not shipped in v1.`,
+    status,
+    title: `${registry.toUpperCase()} READINESS REPORT`,
+    subtitle: 'Standard-aware readiness review composed from current project, review, and evidence-link data.',
     summaryItems: buildSummaryItems(project, coverage, registry),
     sections: [
       {
-        title: 'REGISTRY SUPPORT STATUS',
+        title: GENERIC_SECTION_ORDER[0],
         lines: [
-          `${registry} registry detected for this project.`,
-          `${registry} full renderer not yet implemented in v1.`,
-          'The system therefore emits a fallback report state instead of pretending a full registry-shaped report exists.',
+          `Registry: ${registry}.`,
+          `Report status: ${status}.`,
+          `Project status: ${project.status === 'locked' ? 'Locked' : 'In Progress'}.`,
+          `Methodology: ${project.methodCode} @ ${project.methodVersion}.`,
+          `Completion summary: ${reviewedCount} of ${coverage.total} rules completed.`,
+          'Draft limitation: this is a structured readiness review, not a registry decision.',
         ],
       },
       {
-        title: 'AVAILABLE REVIEW DATA',
+        title: GENERIC_SECTION_ORDER[1],
         lines: [
-          `Project: ${project.name}.`,
+          `Project name: ${project.name}.`,
+          `Registry / Standard: ${registry}.`,
           `Methodology: ${project.methodCode} @ ${project.methodVersion}.`,
-          `Completed reviews captured so far: ${coverage.verified + coverage.gap} of ${coverage.total}.`,
+          ...(categoryLine ? [categoryLine] : []),
+          project.aoiLabel ? `AOI label: ${project.aoiLabel}.` : 'AOI label: not provided.',
+          `Created date: ${project.createdAt || 'n/a'}.`,
+          project.lockedAt ? `Locked date: ${project.lockedAt}.` : 'Locked date: not locked.',
         ],
       },
+      {
+        title: GENERIC_SECTION_ORDER[2],
+        lines: [
+          project.methodCategory ? `Category: ${project.methodCategory}.` : 'Category: not provided.',
+          `Total rules: ${coverage.total}. Reviewed rules: ${reviewedCount}. Pending rules: ${coverage.notStarted}. Gap rules: ${coverage.gap}.`,
+          `In-progress rules: ${coverage.inProgress}. Not-applicable rules: ${coverage.notApplicable}.`,
+          `Percent complete across actionable rules: ${coverage.percentComplete}%.`,
+          'No certification, registry approval, or issuance conclusion is made by this draft readiness report.',
+        ],
+      },
+      {
+        title: GENERIC_SECTION_ORDER[3],
+        lines: buildEvidenceSummary(project),
+      },
+      {
+        title: GENERIC_SECTION_ORDER[4],
+        lines: [
+          `OK: ${findingCounts.OK}. CL: ${findingCounts.CL}. NC: ${findingCounts.NC}. PENDING: ${findingCounts.PENDING}. NA: ${findingCounts.NA}.`,
+          findingCounts.FAR > 0 ? `FAR: ${findingCounts.FAR}.` : 'FAR: 0; no forward action requests are generated without explicit project data.',
+          ...buildRequirementFindingLines(findings),
+        ],
+      },
+      {
+        title: GENERIC_SECTION_ORDER[5],
+        lines: findings.length > 0
+          ? findings.map((finding) =>
+              `${finding.findingId} [${finding.code}] ${finding.ruleId}: ${finding.ruleTitle}. Section: ${finding.sectionTitle}. Rationale: ${finding.rationale}.`
+            )
+          : ['No reviewer notes recorded for current project data.'],
+      },
+      {
+        title: GENERIC_SECTION_ORDER[6],
+        lines: linesFromProvenance(provenance),
+      },
     ],
-    findings: [],
-    provenance: buildProvenance(project, coverage, registry, 'registry_not_fully_supported'),
-    limitation: `This export is not a full ${registry} verification report. It is a truthful fallback summary only.`,
+    findings,
+    provenance,
+    limitation,
   };
 }
 
-export function composeVerraVerificationReport(project: Project, coverage: ProjectCoverage): VerificationReportComposition {
-  return composeRecognizedFallbackReport('Verra', project, coverage);
+export function composeVerraVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
+  return composeGenericStandardAwareReport('Verra', project, coverage, exportTime);
 }
 
-export function composeGoldStandardVerificationReport(project: Project, coverage: ProjectCoverage): VerificationReportComposition {
-  return composeRecognizedFallbackReport('Gold Standard', project, coverage);
+export function composeGoldStandardVerificationReport(project: Project, coverage: ProjectCoverage, exportTime?: string): VerificationReportComposition {
+  return composeGenericStandardAwareReport('Gold Standard', project, coverage, exportTime);
 }
 
 export function composeManualVerificationReport(
@@ -493,28 +556,10 @@ export function composeVerificationReport(
   if (project.reviewMode === 'manual') return composeManualVerificationReport(project, coverage, exportTime);
   const registry = resolveProjectRegistry(project);
   if (registry === 'UNFCCC') return composeUnfcccVerificationReport(project, coverage, exportTime);
-  if (registry === 'Verra') return composeVerraVerificationReport(project, coverage);
-  if (registry === 'Gold Standard') return composeGoldStandardVerificationReport(project, coverage);
+  if (registry === 'Verra') return composeVerraVerificationReport(project, coverage, exportTime);
+  if (registry === 'Gold Standard') return composeGoldStandardVerificationReport(project, coverage, exportTime);
 
-  return {
-    registry: 'Unknown',
-    status: 'registry_not_fully_supported',
-    title: 'VERIFICATION REPORT',
-    subtitle: 'Truthful fallback: registry could not be resolved confidently from current project data.',
-    summaryItems: buildSummaryItems(project, coverage, 'Unknown'),
-    sections: [
-      {
-        title: 'REGISTRY STATUS',
-        lines: [
-          'The export pipeline could not confidently map this project to UNFCCC, Verra, or Gold Standard.',
-          'No registry-specific report renderer was used.',
-        ],
-      },
-    ],
-    findings: [],
-    provenance: buildProvenance(project, coverage, 'Unknown', 'registry_not_fully_supported'),
-    limitation: 'This export is a generic truthful fallback only.',
-  };
+  return composeGenericStandardAwareReport('Unknown', project, coverage, exportTime);
 }
 
 export function projectRegistryFromMethodProgram(program: string | undefined): ProjectRegistry {

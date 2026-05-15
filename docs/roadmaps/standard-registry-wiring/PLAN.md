@@ -43,7 +43,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | 1 | Pack/manifest consumption | Done | None (internal) |
 | 2 | Standard-grouped method picker | Done | Picker grouped by standard |
 | 3 | Project detail registry badge | Done | Badge in project header |
-| 4 | Generic standard-aware export composer | Planned | Structured report for all registries |
+| 4 | Generic standard-aware export composer | Done | Structured report for all registries |
 | 5 | Premium PDF wording and design | Planned | Polished PDF, no stub text |
 | 6 | QuickCheck standard detection hardening | Planned | Context hints in analysis |
 | 7 | Standard-specific composers (future) | Planned | None (doc only) |
@@ -469,12 +469,12 @@ Note: The manifest is still a committed static file, not auto-synced from the pa
 
 Note: This is intentionally generic. Standard-specific sections (e.g. SDG contributions for Gold Standard, CCB for Verra) are deferred to Phase 7.
 
-**Implementation approach:**
-- Create a new `composeStandardAwareVerificationReport()` function in `verificationReport.ts`.
-- It takes a `ProjectRegistry` parameter and produces the same `VerificationReportComposition` shape.
-- Replace `composeVerraVerificationReport` and `composeGoldStandardVerificationReport` to call this new function (instead of `composeRecognizedFallbackReport`).
-- Keep `composeRecognizedFallbackReport` for truly unknown registries.
-- The `composeVerificationReport` dispatcher routes UNFCCC → existing composer, Verra/GS → new generic composer.
+**Implementation notes:**
+- Created `composeGenericStandardAwareReport()` in `verificationReport.ts` — produces 7 sections (REPORT STATUS, PROJECT AND STANDARD, METHODOLOGY BASIS, EVIDENCE REVIEWED, REQUIREMENT REVIEW, REVIEWER NOTES, PROVENANCE AND EXPORT METADATA).
+- `composeVerraVerificationReport` and `composeGoldStandardVerificationReport` now call the generic composer instead of `composeRecognizedFallbackReport`.
+- `composeVerificationReport` dispatcher routes UNFCCC → existing composer, Verra/GS/Unknown → generic composer.
+- `composeRecognizedFallbackReport` was removed — no more stub/fallback wording in user-facing output.
+- All registry outputs use "READINESS REPORT" title with standard-aware readiness review language.
 
 ---
 
@@ -542,7 +542,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | Manifest consumption path is stale | Phase 1 was completed — the app correctly consumes the committed manifest | No further action needed; manifest is the SSOT for methodology indexing |
 | Hand-stitched entries may already exist | App could be displaying Verra/GS entries from app-side data, not the pack | Audit the manifest and method loading paths — do not add fake entries; only show what the pack provides |
 | UNFCCC regression in grouped picker | Category grouping inside UNFCCC may change, confusing existing users | UNFCCC remains the first group with the same display format; groups added below it (Phase 2 complete) |
-| PDF output still contains debug text | Professional users see internal messages | Phase 5 explicitly removes stub wording; gate on known registry vs unknown |
+| PDF output still contains debug text | Professional users see internal messages | Phase 4 removed stub/fallback wording; gate on known registry vs unknown |
 | QuickCheck detection is treated as authoritative | Automatic registry assignment could be wrong | Detection is hints-only; final registry is set during project creation from the manifest provider |
 
 ## Testing strategy
@@ -553,7 +553,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | 1 | Manifest consumption tests added at `tests/lib/projects/manifestConsumption.test.ts` (24 tests): manifest shape, program format, registry inference, normalizeRegistry edge cases, resolveProjectRegistry fallback |
 | 2 | 7 unit tests for `groupMethodsByRegistry`: grouping, ordering, sorting, empty, Unknown |
 | 3 | 4 component tests for RegistryBadge rendering (UNFCCC, Verra, Gold Standard, Unknown); existing tests pass unchanged |
-| 4 | Unit tests for `composeStandardAwareVerificationReport` output shape; regression tests for `composeUnfcccVerificationReport` unchanged; tests confirm no stub wording in output |
+| 4 | Unit + PDF export tests: Verra/GS/Unknown route to generic composer, output includes registry/method/version/category, no stub/fallback wording, UNFCCC unchanged |
 | 5 | PDF snapshot/content tests confirm no stub/debug text; wording audit |
 | 6 | Unit tests for all new detection patterns; existing QuickCheck tests pass unchanged |
 | 7 | Review and signoff only |

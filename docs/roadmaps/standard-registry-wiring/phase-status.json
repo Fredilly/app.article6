@@ -11,7 +11,7 @@
     "status": "active",
     "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
     "current_focus": [
-      "Add generic standard-aware export composer (Phase 4)"
+      "Premium PDF wording and design for all registries (Phase 5)"
     ],
     "not_active_now": [
       "Verra-specific or Gold Standard-specific report composers",
@@ -84,7 +84,7 @@
       ]
     },
     "phase_4_generic_standard_aware_export_composer": {
-      "status": "planned",
+      "status": "done",
       "title": "Generic standard-aware export composer",
       "repo": "app.article6",
       "description": "Add a generic standard-aware export/report composer that works for any known registry. Output truthful sections without claiming official Verra or Gold Standard validation or verification.",
