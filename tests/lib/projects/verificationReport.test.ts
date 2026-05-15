@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import type { Project, ProjectCoverage } from '@/lib/projects/types';
 import {
+  composeGenericStandardAwareReport,
   composeManualVerificationReport,
   composeGoldStandardVerificationReport,
   composeUnfcccVerificationReport,
@@ -158,51 +159,94 @@ describe('verification report composition', () => {
     expect(report.findings.every((finding) => finding.code === 'PENDING')).toBe(true);
   });
 
-  it('routes Verra through a registry-specific fallback path', () => {
+  it('routes Verra through the generic standard-aware composer', () => {
     const report = composeVerraVerificationReport(
       makeProject({ methodCode: 'VM0007', registry: 'Verra' }),
       makeCoverage(),
     );
 
     expect(report.registry).toBe('Verra');
-    expect(report.status).toBe('registry_not_fully_supported');
-    expect(report.title).toBe('VERRA VERIFICATION REPORT');
-    expect(report.sections[0]?.lines.join(' ')).toMatch(/not yet implemented/i);
+    expect(report.status).toBe('ready');
+    expect(report.title).toBe('VERRA READINESS REPORT');
+    expect(report.sections.map((section) => section.title)).toEqual([
+      'REPORT STATUS',
+      'PROJECT AND STANDARD',
+      'METHODOLOGY BASIS',
+      'EVIDENCE REVIEWED',
+      'REQUIREMENT REVIEW',
+      'REVIEWER NOTES',
+      'PROVENANCE AND EXPORT METADATA',
+    ]);
+    expect(report.findings.length).toBeGreaterThan(0);
   });
 
-  it('routes Gold Standard through a registry-specific fallback path', () => {
+  it('routes Gold Standard through the generic standard-aware composer', () => {
     const report = composeGoldStandardVerificationReport(
       makeProject({ methodCode: 'GS TPDDTEC', registry: 'Gold Standard' }),
       makeCoverage(),
     );
 
     expect(report.registry).toBe('Gold Standard');
-    expect(report.status).toBe('registry_not_fully_supported');
-    expect(report.title).toBe('GOLD STANDARD VERIFICATION REPORT');
-    expect(report.sections[0]?.lines.join(' ')).toMatch(/fallback/i);
+    expect(report.status).toBe('ready');
+    expect(report.title).toBe('GOLD STANDARD READINESS REPORT');
+    expect(report.sections.map((section) => section.title)).toEqual([
+      'REPORT STATUS',
+      'PROJECT AND STANDARD',
+      'METHODOLOGY BASIS',
+      'EVIDENCE REVIEWED',
+      'REQUIREMENT REVIEW',
+      'REVIEWER NOTES',
+      'PROVENANCE AND EXPORT METADATA',
+    ]);
   });
 
-  it('does not masquerade registry fallback as a successful full render', () => {
+  it('generic standard-aware report includes registry, method, version, and category', () => {
+    const report = composeVerificationReport(
+      makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'Forestry' }),
+      makeCoverage(),
+    );
+
+    const text = reportText(report);
+    expect(text).toContain('Verra');
+    expect(text).toContain('VM0007');
+    expect(text).toContain('v02-0');
+    expect(text).toContain('Forestry');
+  });
+
+  it('generic standard-aware report does not contain stub or fallback wording', () => {
     const report = composeVerificationReport(
       makeProject({ methodCode: 'VM0047', registry: 'Verra' }),
       makeCoverage(),
     );
 
-    expect(report.status).not.toBe('ready');
-    expect(report.findings).toEqual([]);
-    expect(report.limitation).toMatch(/not a full Verra verification report/i);
+    const text = reportText(report);
+    const forbidden = ['fallback', 'stub', 'not yet implemented', 'not a full', 'composer unavailable', 'v1', 'registry_not_fully_supported'];
+    for (const phrase of forbidden) {
+      expect(text.toLowerCase()).not.toContain(phrase);
+    }
   });
 
-  it('keeps Verra and Gold Standard on truthful fallback paths without full report sections', () => {
-    const verra = composeVerificationReport(makeProject({ methodCode: 'VM0007', registry: 'Verra' }), makeCoverage());
-    const gold = composeVerificationReport(makeProject({ methodCode: 'GS TPDDTEC', registry: 'Gold Standard' }), makeCoverage());
+  it('generic standard-aware report is ready when reviews exist', () => {
+    const report = composeGenericStandardAwareReport('Gold Standard', makeProject(), makeCoverage());
+    expect(report.status).toBe('ready');
+  });
 
-    expect(verra.status).toBe('registry_not_fully_supported');
-    expect(gold.status).toBe('registry_not_fully_supported');
-    expect(verra.sections.map((section) => section.title)).not.toContain('REQUIREMENT FINDINGS');
-    expect(gold.sections.map((section) => section.title)).not.toContain('REQUIREMENT FINDINGS');
-    expect(verra.findings).toEqual([]);
-    expect(gold.findings).toEqual([]);
+  it('generic standard-aware report shows insufficient content when no reviews done', () => {
+    const project = makeProject({ reviews: makeProject().reviews.map((r) => ({ ...r, status: 'not-started' })) });
+    const coverage = makeCoverage({ verified: 0, gap: 0, notStarted: 3, percentComplete: 0 });
+    const report = composeGenericStandardAwareReport('Verra', project, coverage);
+    expect(report.status).toBe('insufficient_source_content');
+  });
+
+  it('Unknown registry also uses the generic standard-aware composer', () => {
+    const report = composeVerificationReport(
+      makeProject({ methodCode: 'UNKNOWN-METHOD', registry: 'Unknown' }),
+      makeCoverage(),
+    );
+
+    expect(report.registry).toBe('Unknown');
+    expect(report.title).toBe('UNKNOWN READINESS REPORT');
+    expect(report.sections.length).toBeGreaterThan(0);
   });
 
   it('does not emit unsupported certification or issuance phrases', () => {

@@ -109,7 +109,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
     expect(parsed.text).not.toContain('app.article6');
   }, 15000);
 
-  it('renders a truthful Verra fallback instead of a fake full report', async () => {
+  it('renders a standard-aware readiness report for Verra projects', async () => {
     const project = {
       ...makeProject(),
       methodCode: 'VM0007',
@@ -124,10 +124,11 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const bytes = await res.arrayBuffer();
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
-    expect(parsed.text).toContain('VERRA VERIFICATION REPORT');
-    expect(parsed.text).toContain('REGISTRY SUPPORT STATUS');
-    expect(parsed.text).toContain('full renderer not yet implemented');
-    expect(parsed.text).not.toContain('REQUIREMENT FINDINGS');
+    expect(parsed.text).toContain('VERRA READINESS REPORT');
+    expect(parsed.text).toContain('PROJECT AND STANDARD');
+    expect(parsed.text).toContain('Registry / Standard: Verra');
+    expect(parsed.text).toContain('VM0007');
+    expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented/i);
   }, 15000);
 
   it('exports manual review mode without methodology code in the header copy', async () => {
