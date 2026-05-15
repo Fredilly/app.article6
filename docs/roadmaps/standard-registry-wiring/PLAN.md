@@ -42,7 +42,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | 0 | Contract and boundaries | Done | None (doc only) |
 | 1 | Pack/manifest consumption | Done | None (internal) |
 | 2 | Standard-grouped method picker | Done | Picker grouped by standard |
-| 3 | Project detail registry badge | Planned | Badge in project header |
+| 3 | Project detail registry badge | Done | Badge in project header |
 | 4 | Generic standard-aware export composer | Planned | Structured report for all registries |
 | 5 | Premium PDF wording and design | Planned | Polished PDF, no stub text |
 | 6 | QuickCheck standard detection hardening | Planned | Context hints in analysis |
@@ -552,7 +552,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | 0 | Review and signoff only |
 | 1 | Manifest consumption tests added at `tests/lib/projects/manifestConsumption.test.ts` (24 tests): manifest shape, program format, registry inference, normalizeRegistry edge cases, resolveProjectRegistry fallback |
 | 2 | 7 unit tests for `groupMethodsByRegistry`: grouping, ordering, sorting, empty, Unknown |
-| 3 | Component tests for registry badge rendering; existing project detail tests pass unchanged |
+| 3 | 4 component tests for RegistryBadge rendering (UNFCCC, Verra, Gold Standard, Unknown); existing tests pass unchanged |
 | 4 | Unit tests for `composeStandardAwareVerificationReport` output shape; regression tests for `composeUnfcccVerificationReport` unchanged; tests confirm no stub wording in output |
 | 5 | PDF snapshot/content tests confirm no stub/debug text; wording audit |
 | 6 | Unit tests for all new detection patterns; existing QuickCheck tests pass unchanged |

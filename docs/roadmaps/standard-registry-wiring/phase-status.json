@@ -11,7 +11,7 @@
     "status": "active",
     "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
     "current_focus": [
-      "Show selected standard/registry on project detail page (Phase 3)"
+      "Add generic standard-aware export composer (Phase 4)"
     ],
     "not_active_now": [
       "Verra-specific or Gold Standard-specific report composers",
@@ -67,7 +67,7 @@
       ]
     },
     "phase_3_project_detail_registry_badge": {
-      "status": "planned",
+      "status": "done",
       "title": "Project detail registry badge",
       "repo": "app.article6",
       "description": "Show the selected standard/registry near the method code on the project detail page. Display standard, method, version, and category in a compact, reviewer-friendly way.",
