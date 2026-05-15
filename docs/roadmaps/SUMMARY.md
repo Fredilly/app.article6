@@ -219,7 +219,7 @@ Not active now:
 5) RC4 — Generic standard-aware export composer: Done
 6) RC5 — Premium PDF wording and design: Done
 7) RC6 — QuickCheck standard detection hardening: Done
-8) RC7 — Standard-specific composers (future): Planned
+8) RC7 — Standard-specific composers: In progress
 
 ## traceable-rule-review-mvp
 
