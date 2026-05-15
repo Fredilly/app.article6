@@ -51,7 +51,7 @@ function sectionTitle(sectionId: string): string {
   return titles[sectionId] ?? sectionId;
 }
 
-function normalizeRegistry(value: string | undefined): ProjectRegistry {
+export function normalizeRegistry(value: string | undefined): ProjectRegistry {
   const raw = value?.trim().toLowerCase() ?? '';
   if (!raw) return 'Unknown';
   if (raw.startsWith('unfccc') || raw === 'cdm') return 'UNFCCC';

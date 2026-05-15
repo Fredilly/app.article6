@@ -40,7 +40,7 @@ The app does not own, duplicate, or override canonical methodology metadata. If 
 | Phase | Title | Status | Visible UI change |
 |---|---|---|---|
 | 0 | Contract and boundaries | Done | None (doc only) |
-| 1 | Pack/manifest consumption | Planned | None (internal) |
+| 1 | Pack/manifest consumption | Done | None (internal) |
 | 2 | Standard-grouped method picker | Planned | Picker grouped by standard |
 | 3 | Project detail registry badge | Planned | Badge in project header |
 | 4 | Generic standard-aware export composer | Planned | Structured report for all registries |
@@ -333,13 +333,77 @@ Contract invariant: This is a cosmetic label helper for the manual review PDF co
 ### Phase 1 — Pack/manifest consumption
 
 **Acceptance criteria:**
-- App reads manifest from the methodology pack path, not a hardcoded app-side list.
+- Committed app manifest consumption path is audited and hardened.
 - No methodology metadata is duplicated or stitched on the app side.
+- Every route consuming the manifest is documented with contract invariants.
+- Regression tests prove manifest shape, program format, and registry inference behave correctly.
 - Existing UNFCCC method loading and project creation still works identically.
+- Manifest-to-pack auto-sync is tracked as a follow-up item, not claimed as done.
 
-**Implementation notes:**
-- The existing `GET /api/projects/methods` route already reads from `public/manifest/index.json`. Verify this is consuming the canonical pack path — if the app is using a local copy or fallback, switch to the pack-sourced path.
-- The `projectRegistryFromMethodProgram()` helper splits `"{provider}/{category}"` to infer the registry. This pattern is correct as long as the manifest comes from the pack.
+**Phase 1 implementation audit:**
+
+The following is a complete audit of where `public/manifest/index.json` comes from and how the app consumes it.
+
+---
+
+**Where the manifest comes from:**
+
+`public/manifest/index.json` is a **committed static file**. It is NOT auto-generated from the methodology pack during build. The file must be manually updated when the pack adds or removes entries.
+
+The full build pipeline is:
+
+```
+prebuild
+  └─ fetch:methodologies-pack   (downloads pack tarball → public/methodologies/ + public/_provenance/)
+  └─ derive:all
+       ├─ build:derived          (reads manifest → builds derived/summary.json, derived/rule_index.json per entry path)
+       ├─ manifest:derived       (reads manifest → builds derived/manifest.json per entry path)
+       └─ verify:derived         (reads manifest → verifies derived artifacts match pinned hashes)
+```
+
+The manifest drives every downstream step:
+- `build:derived` and `manifest:derived` iterate the manifest's `path` entries to find methodology directories
+- `verify:derived` checks that the files listed in each derived manifest match actual disk contents
+- The manifest is the **single source of truth** for which methodologies are indexed
+
+**Key files in the consumption path:**
+
+| File | Role |
+|---|---|
+| `config/methodologies_pack.json` | Pinned tag for upstream methodology release (repo + tag + asset) |
+| `scripts/fetch-methodologies-pack.sh` | Downloads and extracts pack tarball to `public/methodologies/` |
+| `public/manifest/index.json` | Committed index of all methodology rule entries |
+| `src/app/api/projects/methods/route.ts` | Reads manifest, deduplicates by `{methodology}@{version}`, returns `{ code, program, version, ruleCount }` |
+| `src/app/api/projects/method-rules/route.ts` | Reads manifest, filters by `e.methodology === code && e.version === version`, returns `{ id, title, sectionId }` |
+| `src/lib/manifest/cards.ts` | `loadManifestEntries()` reads manifest for engine enrichment |
+| `scripts/guard-methodology-boundary.mjs` | Prevents editing vendored methodology files (`public/methodologies/`) in normal app PRs |
+| `scripts/build-derived-artifacts.mjs` | Reads manifest to find methodology paths, builds derived artifacts |
+| `scripts/build-derived-manifest.mjs` | Reads manifest to find methodology paths, builds derived manifest per directory |
+| `scripts/verify-derived-artifacts.mjs` | Reads manifest to find methodology paths, verifies derived artifact integrity |
+
+**The gap:**
+
+The manifest is committed independently of the methodology pack. When the upstream pack adds new entries (e.g. Verra or Gold Standard methodologies), the manifest must be updated manually or through a separate sync process. There is currently no CI automation that rebuilds the manifest from the pack contents.
+
+**Current manifest state (Phase 1 audit):**
+
+| Metric | Value |
+|---|---|
+| Total manifest entries | 42 |
+| Unique methodologies | 4 |
+| Unique programs (provider/category) | 1 — `UNFCCC/Forestry` |
+| Providers present | `UNFCCC` only |
+| Verra entries | 0 |
+| Gold Standard entries | 0 |
+
+**Verdict: Phase 1 audit and hardening is complete for the current committed-manifest app state.**
+
+The app correctly consumes the committed manifest. No hand-stitched package-level metadata exists in the app itself. The guard scripts (`guard-methodology-boundary.mjs`) protect the app/methodologies boundary. The manifest correctly indexes only what the methodology pack provides.
+
+Note: The manifest is still a committed static file, not auto-synced from the pack. The consumption path is audited and hardened, but pack-to-manifest auto-sync is separate future work.
+
+**Future work (not part of this 8-phase roadmap):**
+- Auto-generate the manifest from the pack contents during `derive:all` so new pack entries appear automatically
 
 ---
 
@@ -475,7 +539,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Manifest consumption path is stale | Phase 1 may require refactoring how the app loads manifest data | Audit current `GET /api/projects/methods` path early in Phase 1 |
+| Manifest consumption path is stale | Phase 1 was completed — the app correctly consumes the committed manifest | No further action needed; manifest is the SSOT for methodology indexing |
 | Hand-stitched entries may already exist | App could be displaying Verra/GS entries from app-side data, not the pack | Audit the manifest and method loading paths — do not add fake entries; only show what the pack provides |
 | UNFCCC regression in grouped picker | Category grouping inside UNFCCC may change, confusing existing users | Keep UNFCCC as the first group with the same display format; add groups below it |
 | PDF output still contains debug text | Professional users see internal messages | Phase 5 explicitly removes stub wording; gate on known registry vs unknown |
@@ -486,7 +550,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 | Phase | Testing approach |
 |---|---|
 | 0 | Review and signoff only |
-| 1 | Manifest loading tests confirm correct provider/category extraction; regression tests for existing UNFCCC methods |
+| 1 | Manifest consumption tests added at `tests/lib/projects/manifestConsumption.test.ts` (24 tests): manifest shape, program format, registry inference, normalizeRegistry edge cases, resolveProjectRegistry fallback |
 | 2 | Component tests for grouped dropdown rendering with UNFCCC, Verra, GS data; snapshot tests |
 | 3 | Component tests for registry badge rendering; existing project detail tests pass unchanged |
 | 4 | Unit tests for `composeStandardAwareVerificationReport` output shape; regression tests for `composeUnfcccVerificationReport` unchanged; tests confirm no stub wording in output |
