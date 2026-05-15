@@ -20,6 +20,13 @@ function deriveMetaUrl(method: MethodInventoryItem): string | null {
 }
 
 const STANDARD_FILTER_KEY = "a6:methodStandardFilter";
+const AUDITED_KEY = "a6:methodAudited";
+
+function setsEqual(a: Set<string>, b: Set<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const v of a) if (!b.has(v)) return false;
+  return true;
+}
 
 export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
   // Derived from selected method — no effect needed, synchronous before first render.
@@ -67,9 +74,16 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     return methods.filter((m) => deriveStandard(m.program) === effectiveStandard);
   }, [methods, effectiveStandard]);
 
-  // Stable audited status: fetch once per method list, keep previous results while loading.
-  // Using methods (the full list) as key, not filteredMethods, so filter changes don't trigger refetch.
-  const [audited, setAudited] = useState<Set<string>>(new Set());
+  // Restore audited set from sessionStorage so navigation between /m and /m/[code]
+  // does not clear badges and refetch (which causes a visible beat/pop-in).
+  const [audited, setAudited] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const stored = window.sessionStorage.getItem(AUDITED_KEY);
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
+  // Refetch in the background; update only when results differ from cached set.
   useEffect(() => {
     let cancelled = false;
     const entries = methods.map((m) => ({ code: m.code, metaUrl: deriveMetaUrl(m) }));
@@ -88,7 +102,12 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
       for (const r of results) {
         if (r && isSourceAuditedMeta(r.meta)) next.add(r.code);
       }
-      setAudited(next);
+      setAudited((prev) => {
+        if (setsEqual(prev, next)) return prev;
+        try { window.sessionStorage.setItem(AUDITED_KEY, JSON.stringify([...next])); }
+        catch { /* ignore */ }
+        return next;
+      });
     });
     return () => { cancelled = true; };
   }, [methods]);
