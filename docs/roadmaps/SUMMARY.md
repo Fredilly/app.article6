@@ -182,6 +182,18 @@ Details: `docs/roadmaps/safe-learning-intake-pipeline/PLAN.md`
 Lane status: Active
 Safe learning intake lane for redacted local learning cases, central untrusted intake, consent gating, triage, reviewed promotion, and downstream product/eval improvements. Manual Review local learning cases from PR #568 are the starting point.
 
+Current focus:
+- Phase 0 is done: local untrusted learning-case foundation exists in app.article6
+- Phase 1 is the next recommended implementation: server-side untrusted intake with strict separation from reviewed/promoted records
+- Keep all user-entered learning data untrusted by default
+- Do not let intake data directly update rules, models, evals, scores, prompts, or public claims
+
+Not active now:
+- Automatic training
+- Automatic promotion
+- Methodology-rule updates from user-entered learning data
+- Public claims from private intake
+
 ## standard-registry-wiring
 
 Status SSOT: `docs/roadmaps/standard-registry-wiring/phase-status.json`
@@ -199,18 +211,6 @@ Not active now:
 - Adding Verra/Gold Standard placeholder methods to the manifest
 - Changes to methodology pack data or encoding pipeline
 - Formal validation/verification claims for non-UNFCCC registries
-
-Current focus:
-- Phase 0 is done: local untrusted learning-case foundation exists in app.article6
-- Phase 1 is the next recommended implementation: server-side untrusted intake with strict separation from reviewed/promoted records
-- Keep all user-entered learning data untrusted by default
-- Do not let intake data directly update rules, models, evals, scores, prompts, or public claims
-
-Not active now:
-- Automatic training
-- Automatic promotion
-- Methodology-rule updates from user-entered learning data
-- Public claims from private intake
 
 
 ## traceable-rule-review-mvp

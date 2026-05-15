@@ -220,7 +220,7 @@ Note: This is intentionally generic. Standard-specific sections (e.g. SDG contri
 - The methodology pack must encode Verra-specific section IDs and section titles
 
 **Future Gold Standard-specific composer notes:**
-- Gold Standard reports include: Project Design, Additionally, Baseline, Monitoring, Safeguards Assessment, SDG Impact, Stakeholder Consultation
+- Gold Standard reports include: Project Design, Additionality, Baseline, Monitoring, Safeguards Assessment, SDG Impact, Stakeholder Consultation
 - GS methodology rules will need section-level metadata for these headings
 - GS4GG rules have specific safeguards and SDG reporting requirements
 
