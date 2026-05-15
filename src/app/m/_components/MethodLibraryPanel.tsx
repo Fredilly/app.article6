@@ -57,6 +57,13 @@ const STANDARD_FILTER_KEY = "a6:methodStandardFilter";
 
 export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibraryPanelProps) {
   const [standardFilter, setStandardFilter] = useState<string>(() => {
+    if (selectedCode) {
+      const method = methods.find((m) => m.code === selectedCode);
+      if (method) {
+        const derived = deriveStandard(method.program);
+        if (derived) return derived;
+      }
+    }
     if (typeof window === "undefined") return "All";
     return window.sessionStorage.getItem(STANDARD_FILTER_KEY) ?? "All";
   });
