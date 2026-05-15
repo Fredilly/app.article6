@@ -182,6 +182,24 @@ Details: `docs/roadmaps/safe-learning-intake-pipeline/PLAN.md`
 Lane status: Active
 Safe learning intake lane for redacted local learning cases, central untrusted intake, consent gating, triage, reviewed promotion, and downstream product/eval improvements. Manual Review local learning cases from PR #568 are the starting point.
 
+## standard-registry-wiring
+
+Status SSOT: `docs/roadmaps/standard-registry-wiring/phase-status.json`
+Details: `docs/roadmaps/standard-registry-wiring/PLAN.md`
+
+Lane status: Active
+Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.
+
+Current focus:
+- Freeze app-side expectations for provider, category, method code, version, display name, registry/standard label, and artifact paths (Phase 0)
+- Ensure the app consumes canonical manifest from the methodology pack, not hand-stitched entries (Phase 1)
+
+Not active now:
+- Verra-specific or Gold Standard-specific report composers
+- Adding Verra/Gold Standard placeholder methods to the manifest
+- Changes to methodology pack data or encoding pipeline
+- Formal validation/verification claims for non-UNFCCC registries
+
 Current focus:
 - Phase 0 is done: local untrusted learning-case foundation exists in app.article6
 - Phase 1 is the next recommended implementation: server-side untrusted intake with strict separation from reviewed/promoted records
