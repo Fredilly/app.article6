@@ -2,17 +2,1133 @@
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "c514d89b115b24a02898a41b6e715df14b19e75cfb819aaa99ede3c627b636de"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "d0ab6e38202e18aa7441d40e0c467d3047b44e36b973e92686f2cff9774b9bed"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "0e64d3a0b5eda14a66cb0dd2746c462d5dd7431432c0630f426c46c0c5085e45"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "68dd41cdf3b1d7e918efdde7a38ca706cc654fba650932abd2b9713766d69ada"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "8f69e7bdade2bf22395fc9b8539d67a7f16ebf41065ea7a3b9e317e80b71751f"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "d6764b8b01c62f88822ac9e81b787c011581ac1d6f4c71b199a3e8ce09dd9d1e"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "e9f88e66ca4ddf11dd365841e7acedf6dc6979b9770ea16fbd2173060fb5d31d"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "ACM0010",
+    "version": "v03-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/ACM0010/v03-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "a7d238f55c3f664ffbff7aec902d34e8e1bfb3b975c2a70de02624ebc1d0bc37"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "7b9490e0a74159951b47500049fcd002998902ea2f542f242e3f324892f55cd4"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "368b994f9bbd4cb9a8387cfe6949ee8600f1188ac181b91d629d8a01c0f06bf7"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "5cfb40e0a1b3ac79e0abc7d32b3b7b05c2794c6bcd37fb13c8d2654299898139"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "687cadb30a01a9ffe365ee36c34a4011d017249ef4d0f28205cdee274dbab346"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "3140af818c0c65901656cc6ff47ef030c7bbf2e70e08e13d3daa9387a6bf64fb"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "e9a3a688bc4f7c9d5ce4345a33fdf131ef8cc3ad7a2a3a06391b7086423e8f56"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "412248ad374ddb3d15cb791b35bfd31d99c73d012ef22cec4764eb20f73584ba"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AM0073",
+    "version": "v01-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AM0073/v01-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "f6e913ac1947379a7b9cd40c57ffd2b661bbc920b3f703a30cb37cdf6f225507"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "368d71226bf76f4de1ecd6dd97f97de3062215a9b937a12d5dcab92d64cee04a"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "db0b46028b864628fbd163bd8c3a9ee9d56cc8fcca02672adc456a0077024054"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "9e73e06a43ac5162e7eb875e3262e7537c14d7f87b6defea6e7b769d5b00f72d"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "956dc4fd1d729059c35460fbf5f7f5dc85f75f0d943cb319a05cfe0b72c0bcab"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "caa4def469f4c0ba85886ad87693eca87386e96fbf03efbce0d2f78e671ad39a"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "21f3e8b74311f8d89379347246fd9ef3279d454aec39831c424fd75b4f5c6ec8"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "6904179bda2fa5a62d13977bcb215dd7ab653df2f7d1851ae6c8d649a3868826"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AMS-III.A",
+    "version": "v03-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.A/v03-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "36b445018918d0d08f610660bb15acd2ce0993135d8f394b8e9a55ac813e0904"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "d95944e910620ed2b87dd1fc778e1025c462ab24c5972aba964390b4903154be"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "806a14f192bc9c8cbdf850c4a89917e8621fadc34b867741ea12f349757c149b"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "8658b0aadce34aa966b6792d29719b07daf6f45c18a876a8e50d9f63006c5572"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "330e3c2a6e040b52024a0c3086f575e0017287d83636e0795d2191bdeba69c57"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "3a7df08ac8a741aff2b4ebc0fcb3e02a5432790cc1366780bb4e2bd613fffbf4"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "86ee95824eabea89b0b411d23d5a1ef7b0ded845e7356309f150ad2e2385cc61"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "85578353b8824e1ff394ff847d64cc4a7a6ceed3a6cdbedef7cdacaad86f9cee"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AMS-III.AU",
+    "version": "v04-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.AU/v04-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "766050a6c1eb6851de293e5be9b43ed68eff5b76587478f109e46a076e85d375"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "3fab5846f3c356d14b74fddc4dffb98fe2e24ce54e6ef63c991953a91479c1ee"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "bc47780517d2025f4aab78c779f494f7fef9b1f26d05377fea374682cc323a6c"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "dcc69daaf19169228bea2f69f12ae0fc7f056db86b92383173625c581148a570"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "3fcccebd8500d1e9c7c7d4b10644863fa05cb8c5a32170825b7f96c45e7f1ec8"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "93889bc1018e10c158e1d9f99952e51db3cbead12b64f6f373bc357e41133b09"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "f7276b211cca8f39f0b9ba5960dc46e8ec7cfb408a98ef8728f719b80a8ff03e"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "9115d205e1f93b0787327ef3215a7f564fc9139a757644cc5ecf79aed8c28e7d"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AMS-III.BE",
+    "version": "v01-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BE/v01-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "c96cddb8e24700009509855623849cc1d06d7e835664383039ec16fdec6a151a"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "a62284a77649d6f157335ed01edfa336511a463e030f737d4b2560de5255b075"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "aafd8cc8f50f38c2942a7646d81ad3d71b72dc952d13e84825e99f75cf573082"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "a0dd0d3cea0cdc78563df41eec82db3a6fe58d5abd9d811f78cf93a41f9c2024"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "34475d827a4ee97720e56d6be79efd51677077d386c73cee5d6431f7a4cc416c"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "d56a794da99cdb2694f55f4204716f0c86d493ff7648ffbb851cd87abbf81312"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "fcc33cf0ecde7a6fc1bad6265a4ab6263d439018516b8a555c7b63caaa4f8ab8"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "5788f3b45c268b1155938673aa96ba527cf085627798f05e8890d9c09c644634"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AMS-III.BF",
+    "version": "v02-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BF/v02-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "464ad26012a54ce0d62726517af9082c77d66f9024de9075b9dda0112449beac"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "663a0a11910235ad17100b1326f0ab67122b218c96e7795926ec7446335ba5fc"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "e91b94ba73d4ca7eaef4aa2d90f7dca44f6c1b3df9fc13732d2e77678ad702dd"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "292bccc2a743b6120e025b60cb76492ac621b110bea22e416ff7ae282ae0e02b"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "d6e0fcafdd75d876b33a32d437afa7bd678e934e238a680529f9c5052a979e39"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "8b66f5245a0776ed36084658bbcccb34f95802da29e4811504429747caf52d73"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "840373fe3a696baa5e9d8e54166aa2539caf2054c4ad6d60a3b4e6adf3f6bb2b"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "4e6f84ce6b6a542bb4fc3d1e39ed538b774ca4850c317a9080d7f19a69561ef8"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AMS-III.BK",
+    "version": "v02-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.BK/v02-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "5f279825ccf8c961c261a0aca9c1075ad446d4c0417e739d3b688280e8d4e76f"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "df22b4bf54a0f94b0f78fdf8fa81bd3a4ca7fe62f8d4c24aa3a97554ed246aa8"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "a6a5bbad528637aae30b9832ffa3273a19839627cad4be2551612a246179c06f"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "a7f4990ade23acf195422ab5fea2dd1fa1bf79ea5ba07d7e1b79918d222297c4"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "c37da74f6c13fc5363cf9b163115aedd6549df878c908021018b1b447440d90b"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "08ee6694870fa1e44343a8a8b307841542a1de2800b95913ed4ff6472416d23b"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "20d9fea6b94e9d75ffae1226f33c5b9170256b5eff10a07acfd785cb31fc68b7"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "426fed09610bf33bf67bc7800a65518d59fbc321b937530a387eddc6b0c06210"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AMS-III.D",
+    "version": "v21-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.D/v21-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "b8fbc75df661f9680a9e9ebda443771f56815cf327f6f6869a961208f77470ea"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Projects aggregate manure from multiple farms and install a central methane capture system where the baseline lacks methane recovery.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "a394691723bdc00b9c7ff84e273d5d4615ee5a5c46eeca8e91167aa7bebc090b"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Baseline is the highest-IRR alternative without methane recovery determined through the methodology's IRR/NPV screening steps.",
+    "tags": [
+      "additionality",
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "7165aa3ae81588d4febbbccc1d55817bdb936b468de9834f11a2f991f8c79016"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Barrier documentation and CER transfer declarations demonstrate participation and prevent double counting.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "9e502ff79f5c36c375252e81f24fb376c4c95f6da0e5213e0a8f912227ccc12c"
+  },
+  {
+    "id": "R-4-0003",
+    "rule_id": "R-4-0003",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Project boundaries cover collection through final sludge treatment with leak-proof infrastructure and consistent fertilizer use.",
+    "tags": [
+      "parameter",
+      "project_design"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "ec9e7cbd2da77ef4bda42220634910e91ee015e357ae7df78f52db0105ec674f"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Emission reductions equal avoided manure methane minus project emissions following the referenced AM tools.",
+    "tags": [
+      "calc",
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "852ba510cb1c370e1df23d222a70c9dbf00e71b81e0b4346ecc1cdb5284445fe"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Deduct leakage from pipelines, auxiliary fuel, and offsite residue handling using monitored data or LFAD defaults.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "489703e72b002be31b2bfc51b3d61a5cbcf7c0a74e2fe82d7faf74b337eee286"
+  },
+  {
+    "id": "R-7-0005",
+    "rule_id": "R-7-0005",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Monitor biogas, methane fraction, and energy consumption continuously and report at least monthly with QA/QC evidence.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "5eaabff8a7e12212c0b14cdebe5a90e0c3fcc9aa7b5df6f2e7ad257f0c13671b"
+  },
+  {
+    "id": "R-8-0005",
+    "rule_id": "R-8-0005",
+    "methodology": "AMS-III.R",
+    "version": "v05-0",
+    "rule": "Focus DOE inspections on high-emitting farms and reconcile methane balances annually, documenting leak investigations and fixes.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Agriculture",
+    "path": "methodologies/UNFCCC/Agriculture/AMS-III.R/v05-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "cf1006cd54df276011e4b65a40d03b43cd2807138a77dfd6c4f481bfd5d63515"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
     "methodology": "AR-ACM0003",
     "version": "v02-0",
     "rule": "Project restores degraded forest lands and meets additionality tests per Tool 01.",
     "tags": [
       "eligibility"
     ],
-    "sha256": "eece4efeea1e33859370f4a08278b5e93aae51740505e98b3c7eb6e94d9f4f29",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-1"
+    "sectionId": "S-1",
+    "sha256": "d20de05df834142ce5f8315bb0f309f3bd64f724f90f374790f3b0b94923af32"
   },
   {
     "id": "R-1-0002",
@@ -21,14 +1137,14 @@
     "version": "v02-0",
     "rule": "Baseline net GHG removals derived from historical land-use data per Tool 02 guidance.",
     "tags": [
-      "calc",
-      "baseline"
+      "baseline",
+      "calc"
     ],
-    "sha256": "2be96dbebec4ac1c6cc7c2ab5c884e954a9ca97289a0a069ecd82af853796700",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-2"
+    "sectionId": "S-2",
+    "sha256": "2ee51fd967c743bd72c453002e31e3da46959c779e9e24db47c70b9a9b7140a2"
   },
   {
     "id": "R-1-0003",
@@ -40,11 +1156,11 @@
       "calc",
       "emissions"
     ],
-    "sha256": "58fd16262708861274fa19a07b97efda386f61fea077efd53c4ebf5ec7d5bc9d",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-3"
+    "sectionId": "S-3",
+    "sha256": "d0a6656d8619a9a57f6345f1d8824fcdb24c6e02ad962f189e46d4e93c9d49a5"
   },
   {
     "id": "R-1-0004",
@@ -55,11 +1171,11 @@
     "tags": [
       "leakage"
     ],
-    "sha256": "c41ee9e14878f260c59b381e1e69225194d1319d239afa01ec14fb3a78201bec",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-4"
+    "sectionId": "S-4",
+    "sha256": "b9c2df715110df297f2ef6e10f299b0657acf3ebbdc98361d1e7dd7b252b8da7"
   },
   {
     "id": "R-1-0005",
@@ -70,11 +1186,11 @@
     "tags": [
       "monitoring"
     ],
-    "sha256": "3ce1e08394525334cc5040053395fa931293828660b2461396ecc9c21fec839b",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "f133c5aa563105be21090ad5991552078927168b51091071b59fb6cd6e2ccff3"
   },
   {
     "id": "R-1-0006",
@@ -85,11 +1201,11 @@
     "tags": [
       "monitoring"
     ],
-    "sha256": "fa61f9db56dd32f49fb450b0580a5a897e6edbc00a9229dfb63893f038713ecc",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "ecaad3a684a53f80d3ae7dbf621f1e907d60d481e805785343d8006193fd233f"
   },
   {
     "id": "R-1-0007",
@@ -100,11 +1216,11 @@
     "tags": [
       "uncertainty"
     ],
-    "sha256": "b7b666a116e2d85f446a81242f8c0aaecf8834fccf90130a5e655cf090466ae0",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "23362bfadbe2edd156fed5cd46320c92263416f22b1c48fe9d1656859c499bd8"
   },
   {
     "id": "R-1-0008",
@@ -115,11 +1231,253 @@
     "tags": [
       "reporting"
     ],
-    "sha256": "cfe405bb4515c762040edb99b7912be3c6edb8c955b7996e80afd199b28ad952",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-ACM0003/v02-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "e1f9bec37a0197883804b52efb1a3008ef651a16888272ffddceb8696cfceaba"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Projects reforest lands without forest cover since 1989 and comply with national forest definitions.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "b1835179f0ca316e761af75169742de906230fc1dfed415560044a0b496fe998"
+  },
+  {
+    "id": "R-1-0002",
+    "rule_id": "R-1-0002",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Baseline biomass estimated using IPCC defaults or site-specific sampling following Tool 02.",
+    "tags": [
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "ea8de80d6a5ab94317850b5135e2f9ea4dddc57b41323b7d3930c7c94c50e1d1"
+  },
+  {
+    "id": "R-1-0003",
+    "rule_id": "R-1-0003",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Net anthropogenic removals equal project removals minus baseline emissions and leakage.",
+    "tags": [
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "cbb005a3f9b92886283eda155ca36a0b67720df047d73ebf8384372243136397"
+  },
+  {
+    "id": "R-1-0004",
+    "rule_id": "R-1-0004",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Activity shifting leakage quantified annually using Tool 14 and deducted from net removals.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "e08a2700c01307238ee7de4f721919cd488ead3f2f7c2563d978831d55bb1e08"
+  },
+  {
+    "id": "R-1-0005",
+    "rule_id": "R-1-0005",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Non-permanence risks addressed through buffer contributions per Tool 15 guidance.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "f74cf48dc66036d3d94437fdc25f59f8abcbc08023d04d876ced2ad5e912cf77"
+  },
+  {
+    "id": "R-1-0006",
+    "rule_id": "R-1-0006",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Field biomass measurements conducted at least every five years using permanent plots.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "349957b61787665f2004e471dc4c261bbc332ffb0c2b39ee526b312416ec13f4"
+  },
+  {
+    "id": "R-1-0007",
+    "rule_id": "R-1-0007",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Sampling uncertainty above 10% addressed with Tool 12 conservative adjustments.",
+    "tags": [
+      "uncertainty"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "419512b7aba9c00810d10703c9ad1557dc6f794517ff1d0186c33c1cca5dcd5c"
+  },
+  {
+    "id": "R-1-0008",
+    "rule_id": "R-1-0008",
+    "methodology": "AR-AM0014",
+    "version": "v01-0-0",
+    "rule": "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v01-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "f56b4aa52b6f70a751b95c3e6bb93e3a9c75f8c2ca8570cd2438ac2bdac77c41"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Projects reforest lands without forest cover since 1989 and comply with national forest definitions.",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "11a6383ee12e5eb37437893f9abb8b49d2b1a93409f2e4dc9310baedbb7bc8ac"
+  },
+  {
+    "id": "R-1-0002",
+    "rule_id": "R-1-0002",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Baseline biomass estimated using IPCC defaults or site-specific sampling following Tool 02.",
+    "tags": [
+      "baseline",
+      "calc"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "c21689a157839d39891b95803c96234e8bbe7c93da8be696f8c95a2df81a8070"
+  },
+  {
+    "id": "R-1-0003",
+    "rule_id": "R-1-0003",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Net anthropogenic removals equal project removals minus baseline emissions and leakage.",
+    "tags": [
+      "equation"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "4bbf0011af4772e7cacb07633512635ba56f86ef97dae2a8d23a6bf4f3d73b39"
+  },
+  {
+    "id": "R-1-0004",
+    "rule_id": "R-1-0004",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Activity shifting leakage quantified annually using Tool 14 and deducted from net removals.",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "237de3032090ccd0ceda5cc92473eab7b03a65443b33d24021749405c1ba6cf4"
+  },
+  {
+    "id": "R-1-0005",
+    "rule_id": "R-1-0005",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Non-permanence risks addressed through buffer contributions per Tool 15 guidance.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "019b9693e687042fe0ab9172b442252cea815b34793a4c64a0dc099ccc6a8da4"
+  },
+  {
+    "id": "R-1-0006",
+    "rule_id": "R-1-0006",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Field biomass measurements conducted at least every five years using permanent plots.",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "60935a9fc8a7e9ba3dd010c133289cb78de65274b2daf36556ca42e136996052"
+  },
+  {
+    "id": "R-1-0007",
+    "rule_id": "R-1-0007",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Sampling uncertainty above 10% addressed with Tool 12 conservative adjustments.",
+    "tags": [
+      "uncertainty"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "b8a9f1dbcc57036a9fb6e9eee54b9ccc5f4a50f921879cd1f096d6cbfcae1816"
+  },
+  {
+    "id": "R-1-0008",
+    "rule_id": "R-1-0008",
+    "methodology": "AR-AM0014",
+    "version": "v02-0-0",
+    "rule": "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "UNFCCC",
+    "category": "Forestry",
+    "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v02-0-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "285327d2dfe99af38692677717385f00f320cddcc76b68ab2f8b9f549a55fd16"
   },
   {
     "id": "R-1-0001",
@@ -130,11 +1488,11 @@
     "tags": [
       "eligibility"
     ],
-    "sha256": "73415d3b1d58fb838bfd3cc188231ef779ef2a2560a5a66c37808395886dd301",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-1"
+    "sectionId": "S-1",
+    "sha256": "87d7664fc71c1950936c64f94712908ea38672fe48b9572081ae03691904abc7"
   },
   {
     "id": "R-1-0002",
@@ -143,14 +1501,14 @@
     "version": "v03-0",
     "rule": "Baseline biomass estimated using IPCC defaults or site-specific sampling following Tool 02.",
     "tags": [
-      "calc",
-      "baseline"
+      "baseline",
+      "calc"
     ],
-    "sha256": "cdaf04f3bed14be94067ef94f2159d3d4f6b71ea0f2d2512282ea61b5d4aefb5",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-2"
+    "sectionId": "S-2",
+    "sha256": "33227ec87f5d3bcc28dedb165671a4ae63d7ea77fd1dc131915f4ed9f92c93a4"
   },
   {
     "id": "R-1-0003",
@@ -161,11 +1519,11 @@
     "tags": [
       "equation"
     ],
-    "sha256": "4f95a0ec1cf79744f7e5eae4fd1f8d8b4db5d1dada39095018a1dae0b8cf6f07",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-3"
+    "sectionId": "S-3",
+    "sha256": "3082ceec1e31e5c80656eb2e534686306d93212e4d6ce5130d20879515041d42"
   },
   {
     "id": "R-1-0004",
@@ -176,11 +1534,11 @@
     "tags": [
       "leakage"
     ],
-    "sha256": "2ada7e76aa6a323502c4db5c983c7b53a13aabac17b84173fc8b430e262b202c",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-4"
+    "sectionId": "S-4",
+    "sha256": "85b3568202c223b653a8aac83961e6261db407fba48dfe1525b7f99d6a72e273"
   },
   {
     "id": "R-1-0005",
@@ -191,11 +1549,11 @@
     "tags": [
       "monitoring"
     ],
-    "sha256": "a8f77f6e8f00f6ef02c0f25722cc224f1239788e8e91966ee00a4e84c60d866b",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "87f7b8f608d41d406a17f6b37d24b489cc60ef3c6dbd2748c22a98847e51be96"
   },
   {
     "id": "R-1-0006",
@@ -206,11 +1564,11 @@
     "tags": [
       "monitoring"
     ],
-    "sha256": "e8d04cccdef2d3e9f309ecfc105e1276519b0eb0c6bb4e1d0a1016775118aacd",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "353443bfa298ef61e7e9ba0db93006b89f57f8f44a38f571c3ebf6ea81c0faa1"
   },
   {
     "id": "R-1-0007",
@@ -221,11 +1579,11 @@
     "tags": [
       "uncertainty"
     ],
-    "sha256": "1de71d3735f225ca725ace153b75a3c182a77a35bd4b4454ad9cbca01f4f92e5",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "a20ce967cd40bb4e521f93ee07ad8db062de4e015cd9bd9e1c758531dd1ba7b0"
   },
   {
     "id": "R-1-0008",
@@ -236,11 +1594,11 @@
     "tags": [
       "reporting"
     ],
-    "sha256": "20392924b5cb87f77dc2c9c8e80fd0e6a07b7c42f36f62c5e6719bcb79139253",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AM0014/v03-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "df6a48a0910016379680698137315824542bde8b588b6878a606792eea2f2da3"
   },
   {
     "id": "R-1-0001",
@@ -251,11 +1609,11 @@
     "tags": [
       "eligibility"
     ],
-    "sha256": "0a9bf2b8d8faa00f312d358e8d6c68f575678257d74b9e562663697fd499d3ba",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-1"
+    "sectionId": "S-1",
+    "sha256": "b8b9e7900d40d327fb4dee8575c9713ed226f80bb712ba5f1e99cefddf9e29f2"
   },
   {
     "id": "R-1-0002",
@@ -264,14 +1622,14 @@
     "version": "v01-0",
     "rule": "Definitions for grouped smallholder projects include participants, monitoring entity, and leakage belt.",
     "tags": [
-      "eligibility",
-      "definition"
+      "definition",
+      "eligibility"
     ],
-    "sha256": "5d650f96f8684972c6c2be15a37e424ac380a8c2fdca745db42ebe1643e8cda5",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-2"
+    "sectionId": "S-2",
+    "sha256": "c81da2315d091a3c1c003f68ea9b1fb22d38c5028a98795093795a9c7c35218d"
   },
   {
     "id": "R-1-0003",
@@ -280,14 +1638,14 @@
     "version": "v01-0",
     "rule": "Project boundary includes above- and below-ground biomass, dead wood, litter, and soil carbon pools unless excluded with justification.",
     "tags": [
-      "eligibility",
-      "boundary"
+      "boundary",
+      "eligibility"
     ],
-    "sha256": "a942e22bc527f9b38347b5ad05c4825591a6bbdec10d6e08303223c35c3846f8",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-3"
+    "sectionId": "S-3",
+    "sha256": "7910ebd3a0b39eac89dd3c32e5c9860c2970d35d0e29621c731c69b1c6417dfe"
   },
   {
     "id": "R-1-0004",
@@ -296,14 +1654,14 @@
     "version": "v01-0",
     "rule": "Baseline scenario assumes continuation of pre-project land use with carbon stock change set to zero.",
     "tags": [
-      "calc",
-      "baseline"
+      "baseline",
+      "calc"
     ],
-    "sha256": "c8336f5f6ee266da4266a731726ccf24820577ca6352d3e5bf5c383e20e2a632",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-4"
+    "sectionId": "S-4",
+    "sha256": "596ce261df8377c3deaa6b52c5af948f7b480661df72551a18e89c2e364711a5"
   },
   {
     "id": "R-1-0005",
@@ -315,11 +1673,11 @@
       "calc",
       "emissions"
     ],
-    "sha256": "2f2756b82b58b1bf02f3a8463f295573d617ffecdbedf884798a45af38bd77b3",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "74b33e2c7d182ec91b369f456a467af47e65d4213632f0939313a5420763e5a6"
   },
   {
     "id": "R-1-0006",
@@ -330,11 +1688,11 @@
     "tags": [
       "leakage"
     ],
-    "sha256": "29617681672616c00d765d851338c1aa656b60727a379437594554a52bfe5f82",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-6"
+    "sectionId": "S-6",
+    "sha256": "afcbbfa7be8d8411c50a55ce4e7814b8d6683c90a028476fc93db2dd28bbd07a"
   },
   {
     "id": "R-1-0007",
@@ -345,11 +1703,11 @@
     "tags": [
       "monitoring"
     ],
-    "sha256": "18b358295d9181f30ed5edf4b4705077d1849f34837fdf91ca0e53fac38b6a8b",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-7"
+    "sectionId": "S-7",
+    "sha256": "dc7e8070c9f65c8fb746a4ee719c0af5736f64d7a0dcbe7cadaa6992810ee3cf"
   },
   {
     "id": "R-1-0008",
@@ -358,14 +1716,14 @@
     "version": "v01-0",
     "rule": "Data and parameters table specifies default biomass factors and sampling requirements.",
     "tags": [
-      "parameter",
-      "data"
+      "data",
+      "parameter"
     ],
-    "sha256": "3375e21ee36a077c878d10a74e12036c8c7d9fd6c8bcc85d93b5249ff9289353",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-8"
+    "sectionId": "S-8",
+    "sha256": "4dccb1cc010c716da23c138bf4884fbf60a40d017eab3ee71dd78070b72e8a27"
   },
   {
     "id": "R-1-0009",
@@ -376,11 +1734,11 @@
     "tags": [
       "uncertainty"
     ],
-    "sha256": "ccf66995424d01856751fb07c114cd77f2fbee12a3688be28407b0c4d603fe55",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-9"
+    "sectionId": "S-9",
+    "sha256": "24bd40c9f39d6131930f15257def21e0ac80810e844fd0c8fcd748d05052a3a3"
   },
   {
     "id": "R-1-0010",
@@ -389,14 +1747,14 @@
     "version": "v01-0",
     "rule": "Non-permanence risk buffer determined via Tool 15 and updated when risk profile changes.",
     "tags": [
-      "uncertainty",
-      "permanence"
+      "permanence",
+      "uncertainty"
     ],
-    "sha256": "cc28ee2c5b1b7bcdd8dbc8b38955e6eb871cecef3b44368080aec08199606e5b",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-10"
+    "sectionId": "S-10",
+    "sha256": "7cebeab44f004e47815c20ba4761370416311728e51ddb846b722e7fa14e7182"
   },
   {
     "id": "R-1-0011",
@@ -405,14 +1763,14 @@
     "version": "v01-0",
     "rule": "Normative tools and references (Tools 02, 08, 12, 14, 15, 16) must be accessible to grouped project manager.",
     "tags": [
-      "reporting",
-      "reference"
+      "reference",
+      "reporting"
     ],
-    "sha256": "8c0e06c585f6ec322150ef8372e5f620392a062ef16c13fc7aff78bb67e496cb",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-11"
+    "sectionId": "S-11",
+    "sha256": "48b96d779e645746f9ac2a6fccf81b0bff8cca16235e8512f9e1aa2558c992e1"
   },
   {
     "id": "R-1-0012",
@@ -423,11 +1781,11 @@
     "tags": [
       "equation"
     ],
-    "sha256": "e7b9579f7443e2622455a51484002b1bf83bb5c12ac84e5e280cf55e616e73d7",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-12"
+    "sectionId": "S-12",
+    "sha256": "67d868c14db26449fed6dcac3e188f0f93cb55e910e79f3e6fb35eccdcf1bb43"
   },
   {
     "id": "R-1-0013",
@@ -438,11 +1796,11 @@
     "tags": [
       "reporting"
     ],
-    "sha256": "ecaf6969b8847d3eb51145fba77d9cf486b0d49af5a4e3b2b4b6da824314d19b",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0003/v01-0/rules.json",
-    "sectionId": "S-13"
+    "sectionId": "S-13",
+    "sha256": "1f835fd6bf3be0fd999dadd92d9ecb7aa72a1a4008d3d0ce393d82f6dda35cc1"
   },
   {
     "id": "R-1-0001",
@@ -453,11 +1811,11 @@
     "tags": [
       "eligibility"
     ],
-    "sha256": "74246b2153daf8d271b9a4f5fcaccf913d078b7d6aaade50eff02cc3a129f021",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-1"
+    "sectionId": "S-1",
+    "sha256": "07f4ac1a32fc15e022a266c8a054bdb6c119befb3d78c3e7aa296d711dc9637b"
   },
   {
     "id": "R-1-0002",
@@ -466,14 +1824,14 @@
     "version": "v03-1",
     "rule": "Definitions clarify wetland geomorphology, participant aggregation, and leakage belt concepts.",
     "tags": [
-      "eligibility",
-      "definition"
+      "definition",
+      "eligibility"
     ],
-    "sha256": "a837df7fd85425e68421e1e3002cf012ff4675c756264336eb58149075a053d2",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-2"
+    "sectionId": "S-2",
+    "sha256": "d729bac0ed1090887ea17e1bc2f7592d46b0f7810258fdb16b3530dd3dafde53"
   },
   {
     "id": "R-1-0003",
@@ -482,14 +1840,14 @@
     "version": "v03-1",
     "rule": "Project boundary includes on-site hydrological interventions and relevant carbon pools except where justified.",
     "tags": [
-      "eligibility",
-      "boundary"
+      "boundary",
+      "eligibility"
     ],
-    "sha256": "026d02de41ef06fee779d7c94af25e7d5c1db90c13fad423e158ce666f42c094",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-3"
+    "sectionId": "S-3",
+    "sha256": "793f40e5b6c8ca8b10add9aaa6731b0ce2912168b414b5b3cafcef52c3b437d8"
   },
   {
     "id": "R-1-0004",
@@ -498,14 +1856,14 @@
     "version": "v03-1",
     "rule": "Baseline assumes continuation of pre-project wetland degradation with zero additional removals.",
     "tags": [
-      "calc",
-      "baseline"
+      "baseline",
+      "calc"
     ],
-    "sha256": "eab42f1a05ea732da552ef34fa7fb0cf321a7dcfd72663659b1731481e9dd7ec",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-4"
+    "sectionId": "S-4",
+    "sha256": "64d9d500afd3d3f7665214e0691e5862239189d3d3557af9ae0f48bcabfeafe9"
   },
   {
     "id": "R-1-0005",
@@ -517,11 +1875,11 @@
       "calc",
       "emissions"
     ],
-    "sha256": "11bbc274d72a3c9a1c1cdf2f616f009fcfc2775a9c9181ec64fbc0661a3cdfeb",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-5"
+    "sectionId": "S-5",
+    "sha256": "dfc51d919c1ea3ced7aae33b1fdc4c23a73e8ea7a54f574df2adf1a2c9cb46da"
   },
   {
     "id": "R-1-0006",
@@ -532,11 +1890,11 @@
     "tags": [
       "leakage"
     ],
-    "sha256": "919d090d94f8b9c91108c11266e7955655a33daac0905b4cd5816b43fb203566",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-6"
+    "sectionId": "S-6",
+    "sha256": "badb54fdd9c9e7b1786d86b012f54b82b2c56068d76f01e36be8a7bb0b312d6f"
   },
   {
     "id": "R-1-0007",
@@ -547,11 +1905,11 @@
     "tags": [
       "monitoring"
     ],
-    "sha256": "45019177281e97bf25b2af939e6c22aec0831a1f78aebfdf54bf0dcbf0bf58f4",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-7"
+    "sectionId": "S-7",
+    "sha256": "c5b0ca318e539dfc352b9a4a0ac00b7c7e977ab4a47bbcf03bdf5ab00216a740"
   },
   {
     "id": "R-1-0008",
@@ -560,14 +1918,14 @@
     "version": "v03-1",
     "rule": "Data tables specify default biomass factors, hydrological parameters, and monitoring records.",
     "tags": [
-      "parameter",
-      "data"
+      "data",
+      "parameter"
     ],
-    "sha256": "54ab0d3d4724f7202cdd7b40349930ea4097d2c7598e8994f6ba8e41f894f8b2",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-8"
+    "sectionId": "S-8",
+    "sha256": "2ed5d7cf4786d943c7815b26c651721eab01d690534a1d3a521b0f127ecf132e"
   },
   {
     "id": "R-1-0009",
@@ -578,11 +1936,11 @@
     "tags": [
       "uncertainty"
     ],
-    "sha256": "42ea1b7791bcf192eb31c66d4680a25a718cdb52b61e0f295d063f85191f256c",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-9"
+    "sectionId": "S-9",
+    "sha256": "a5597ba2976bceee8956bef27d32325ce9874c95aad5a11f4f3e67dd7ebe8779"
   },
   {
     "id": "R-1-0010",
@@ -591,14 +1949,14 @@
     "version": "v03-1",
     "rule": "Permanence buffer contributions determined via Tool 15 wetland risk factors.",
     "tags": [
-      "uncertainty",
-      "permanence"
+      "permanence",
+      "uncertainty"
     ],
-    "sha256": "8adab52d9161d1c71c61d67f99720eb032ed9c87461e04164ebfb08cbece779f",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-10"
+    "sectionId": "S-10",
+    "sha256": "a56e5fb1f5f36b484a1b7c807efe13521f550486f05ca2a989d9d74b2cc5d51b"
   },
   {
     "id": "R-1-0011",
@@ -607,14 +1965,14 @@
     "version": "v03-1",
     "rule": "Normative tools and references maintained for monitoring and verification teams.",
     "tags": [
-      "reporting",
-      "reference"
+      "reference",
+      "reporting"
     ],
-    "sha256": "c57da507c1f47546a76cc6d9d20ecbafc3471ce8d5785300028147461c89935d",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-11"
+    "sectionId": "S-11",
+    "sha256": "eae56c4daa850a88f7bab7c9140920b4175d9db9ffa0b76d5a94a160011644a5"
   },
   {
     "id": "R-1-0012",
@@ -625,11 +1983,11 @@
     "tags": [
       "equation"
     ],
-    "sha256": "b6caa70ca875e34ee5c82c034d9302f62417b4f1685e6422279ebca7f921b241",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-12"
+    "sectionId": "S-12",
+    "sha256": "007e1914959ff34d3e6b075064c631585f73154976dbbf8cea787af6032c5633"
   },
   {
     "id": "R-1-0013",
@@ -640,10 +1998,1045 @@
     "tags": [
       "reporting"
     ],
-    "sha256": "1a45b3e5dae01f80649fad79054dea595fca811723dbc381185e260e3c720b43",
     "provider": "UNFCCC",
     "category": "Forestry",
     "path": "methodologies/UNFCCC/Forestry/AR-AMS0007/v03-1/rules.json",
-    "sectionId": "S-13"
+    "sectionId": "S-13",
+    "sha256": "42ff027ab0d8b5e100fd9ab2679c08979cd4727805d3f2d1e67f1332180386a7"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD forest land definition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "f078f47bc8f7daaabc148b790249e518034df18d2e15f3a517e74e48a1e3bd41"
+  },
+  {
+    "id": "R-1-0002",
+    "rule_id": "R-1-0002",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD baseline deforestation category",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "e4eec6a75c0decda7f39f3e8617808f546c6165148ae88bbc286638e45ac4314"
+  },
+  {
+    "id": "R-1-0003",
+    "rule_id": "R-1-0003",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "AUDef agent criteria",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "14aea80dcc467af695236adbe99bcd76a8299fb83911c905cf809e2babc1ed8b"
+  },
+  {
+    "id": "R-1-0004",
+    "rule_id": "R-1-0004",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "APDef legal authorization",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "56c436528253e510e99c4c7a76145d1f5d8b82e79bf4b2f8a5ba0fa36ff6843c"
+  },
+  {
+    "id": "R-1-0005",
+    "rule_id": "R-1-0005",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC water table prohibition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "8894b92175f0a3592e8ebcc8ab8ee7cb9e5fadbc06a8820fb54af4f57bd02526"
+  },
+  {
+    "id": "R-1-0006",
+    "rule_id": "R-1-0006",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC organic soil burning prohibition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "488c709e1c554242915a39c2ecc8a6466e9b6795a6b7b48806c4853c4e8f5f38"
+  },
+  {
+    "id": "R-1-0007",
+    "rule_id": "R-1-0007",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC nitrogen fertilizer prohibition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "bba458bc07957c11138a68a5008d33c7c7e36332e9a5bcfeedbd5cf078a719ca"
+  },
+  {
+    "id": "R-1-0008",
+    "rule_id": "R-1-0008",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC hydrological connectivity check",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "6f963ba0c784835ccc60d7931c596c9fd4d71a01e9ad86a867e230c877e01375"
+  },
+  {
+    "id": "R-1-0009",
+    "rule_id": "R-1-0009",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "RWE prior land use requirement",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "82ef445726e39c502849f4bca8f812cb193c70ec90168d6d3feb9a3eb4b42ae2"
+  },
+  {
+    "id": "R-1-0010",
+    "rule_id": "R-1-0010",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Peatland VCS definition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "b7d2b4320c9eec621c582bb377dff5bc86c46006c4d9a8085d34c0af5c1362c8"
+  },
+  {
+    "id": "R-1-0011",
+    "rule_id": "R-1-0011",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Tidal wetland restoration activities",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "619bc9802d9a10ba4a86ea6ceb5230c189daa31a7cc807333c275a5c6d830d4b"
+  },
+  {
+    "id": "R-1-0012",
+    "rule_id": "R-1-0012",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "CIW tidal wetland conservation activities",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "892ed335608db18ff2fab14a8a0997c01e96e5fd67d7c32aec79e347d3191126"
+  },
+  {
+    "id": "R-1-0013",
+    "rule_id": "R-1-0013",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "AUWD agent criteria",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "b6ee74e570221131b1d24c515e17aed007e5839a76a6fc2e4afe0f914903ab3c"
+  },
+  {
+    "id": "R-1-0014",
+    "rule_id": "R-1-0014",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "IFM and ARR exclusion",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "711868c55beeba0cab3eefdda8571020e32ed3bcfac4a6aa2a082bcf3db6e51a"
+  },
+  {
+    "id": "R-1-0015",
+    "rule_id": "R-1-0015",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Leakage prevention activity restrictions",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-1",
+    "sha256": "3a7a90bb975fcc1eef40f67ae4915542cd3041d21ead8c7fb461bc7c1708d95f"
+  },
+  {
+    "id": "R-2-0001",
+    "rule_id": "R-2-0001",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Geographic boundary definition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "2ca49f037aaeb4ba7cef8ea0d56354c1be33b67b6448044352d7c34c73021bf1"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "No spatial overlap between baselines",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "4a955417511a74ebb006d48f0028acca81f441f561916c6e7e17edc39631e81a"
+  },
+  {
+    "id": "R-2-0003",
+    "rule_id": "R-2-0003",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Exclusion of land in other GHG programs",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "7e514de2ed1fe26eb6b6e1ee8f39b3dae93e166e6b84da76d7cd53973604c46c"
+  },
+  {
+    "id": "R-2-0004",
+    "rule_id": "R-2-0004",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD reference region definition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "6ef4035ff711c3cf7836a4173f18d008b6acf76ba78949a567ff39f5d6441f91"
+  },
+  {
+    "id": "R-2-0005",
+    "rule_id": "R-2-0005",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD proxy area definition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "7df9e4af9d07a49d94dffd288b88f98f5cfad0443a9b517fcb25c5df3b5d16e4"
+  },
+  {
+    "id": "R-2-0006",
+    "rule_id": "R-2-0006",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Stratification requirement",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "5170da1d71132a5355d2989d38a2508216807585ede08a2a5eaba0195cc86858"
+  },
+  {
+    "id": "R-2-0007",
+    "rule_id": "R-2-0007",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Carbon pool selection per activity type",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "ebc07d574c5b85b243e59bcde74f2986391fc502a5e26f5758d80382d8df8838"
+  },
+  {
+    "id": "R-2-0008",
+    "rule_id": "R-2-0008",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD mandatory carbon pools",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "3213c46827ae0266ee4066eca1d6e466de0288bdc984dc8cbbd34c27bad1a353"
+  },
+  {
+    "id": "R-2-0009",
+    "rule_id": "R-2-0009",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC carbon pools",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "5ec21bd3bc13f0a70a1bc53f864fd5f549bc7a13f6c67f73e254cfb596344b39"
+  },
+  {
+    "id": "R-2-0010",
+    "rule_id": "R-2-0010",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD GHG source identification",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "1c3fa88fd594c96a2acb83391274d8148a22e1d84b750d7a6bce1f70a3bc4ffc"
+  },
+  {
+    "id": "R-2-0011",
+    "rule_id": "R-2-0011",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC GHG source identification",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "78eecfd7e180331d18d38fae70eb3266c9e5acad2bc87167ee4f63c03325b7ce"
+  },
+  {
+    "id": "R-2-0012",
+    "rule_id": "R-2-0012",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Consistency rule: baseline-project source matching",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "8c593e798a0e3980eca243c9a2944469d48daa092ee4142f26497078951c5070"
+  },
+  {
+    "id": "R-2-0013",
+    "rule_id": "R-2-0013",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Historical reference period",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "1b04df68d07e0e8aedbd5ac05c7d70654eb8cabae58cf8ee25dcbbdc14b0e015"
+  },
+  {
+    "id": "R-2-0014",
+    "rule_id": "R-2-0014",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Crediting period duration",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "fdaae80a3aef0aa1b7636b6fb7badfab3fccbaec5fd292f4cc6053296c88cc6b"
+  },
+  {
+    "id": "R-2-0015",
+    "rule_id": "R-2-0015",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC 100-year SOC difference requirement",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "1c862f550a45b2b7a3757fee87caf5892030fcb54004b065bffdcfa04eab8721"
+  },
+  {
+    "id": "R-2-0016",
+    "rule_id": "R-2-0016",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Tidal wetland sea-level rise boundary",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-2",
+    "sha256": "59603fda54a9fe6fb12ffa82cd58f7e9ff57c6465f2e6d32839ff3a0b85fe234"
+  },
+  {
+    "id": "R-3-0001",
+    "rule_id": "R-3-0001",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Baseline scenario determination via VT0001",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "03ea421b44828b21aa98e20bf7da1f6065549ba44ecaddf771b5f23cbb7729b3"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Minimum alternative scenario list",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "0feff272cc6d7eda1898ff48f1f5d8fea5c4429312d619c8e421fdee2cb5e8fa"
+  },
+  {
+    "id": "R-3-0003",
+    "rule_id": "R-3-0003",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Barrier analysis baseline selection",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "56a2d44091fc16a6ff3622122f823a91bf929680412bdd543d118eb6a910cdd5"
+  },
+  {
+    "id": "R-3-0004",
+    "rule_id": "R-3-0004",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Investment analysis baseline selection",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "c947ff5af82886e15cd11a2596d0fe0974bad2a22abd8bc8f642b3fc644321b5"
+  },
+  {
+    "id": "R-3-0005",
+    "rule_id": "R-3-0005",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD baseline modules",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "be374dabbb0d77b6e76269e071933556389b36ab46bd9f3357085ee32e00d015"
+  },
+  {
+    "id": "R-3-0006",
+    "rule_id": "R-3-0006",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC baseline modules",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "5e11bf2cffe7f1e37ad18b79ee8a81afd20c427507cbd91b266a8e321fb090ba"
+  },
+  {
+    "id": "R-3-0007",
+    "rule_id": "R-3-0007",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Baseline reassessment frequency",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "788bf09052ea2f76ed635559773b97860b941e7389401970e47c716f92b3f623"
+  },
+  {
+    "id": "R-3-0008",
+    "rule_id": "R-3-0008",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "JNR data use",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-3",
+    "sha256": "7540946e12fd5c5637b18965349dd45521e079d1a9c758296dbe4475920a5ffe"
+  },
+  {
+    "id": "R-4-0001",
+    "rule_id": "R-4-0001",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "VT0001 additionality requirement",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-4",
+    "sha256": "707b380dc3c2054de69184cd5de821e2e7b86addae57fafa62062f4c5d76442c"
+  },
+  {
+    "id": "R-4-0002",
+    "rule_id": "R-4-0002",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Tidal wetland additionality method",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-4",
+    "sha256": "5125b7afb23a925b478ca695ef8bb062c75f067e6205dca8755c34a359573a6c"
+  },
+  {
+    "id": "R-5-0001",
+    "rule_id": "R-5-0001",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD net emission reduction equation",
+    "tags": [
+      "equation"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "57a34de56bbdd0448a7ae630ec0fc52b17905ead982ad57386677f59024baa8d"
+  },
+  {
+    "id": "R-5-0002",
+    "rule_id": "R-5-0002",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC net emission reduction equation",
+    "tags": [
+      "equation"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "ceabce709f64e7f7ed4e8cd682ff5fc82f4dda49dfc4492e7066792c1469c2d5"
+  },
+  {
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD leakage components",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "6e7f8069fb247e33dab49d7c3c06667141dbc9babdee5ef1045a1775975c5677"
+  },
+  {
+    "id": "R-5-0004",
+    "rule_id": "R-5-0004",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC leakage components",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "1dfe19dd31335f038d353f6e62926ecc0ea255b414d3fa558b5973bf11c0d2f2"
+  },
+  {
+    "id": "R-5-0005",
+    "rule_id": "R-5-0005",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Buffer pool contribution calculation",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "1c4f524596637f67b87849c58ba4ee089afd32a1e436070532da4b301a700b70"
+  },
+  {
+    "id": "R-5-0006",
+    "rule_id": "R-5-0006",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Uncertainty adjustment",
+    "tags": [
+      "uncertainty"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "b337f0b568c6daf6998af89f52beffa8481600fe64e1b86b1c4d2d74d9c2447d"
+  },
+  {
+    "id": "R-5-0007",
+    "rule_id": "R-5-0007",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "VCU calculation",
+    "tags": [
+      "equation"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "f59e64cf935983ad2a4103ba92c5b4594b2d7eb35f9aca2846d0424b40cb2c11"
+  },
+  {
+    "id": "R-5-0008",
+    "rule_id": "R-5-0008",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Carbon pool modules for REDD",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "52570ed6393cc316a310b6bc64f1c7f73879560c8a8d868bdb860a438b61c489"
+  },
+  {
+    "id": "R-5-0009",
+    "rule_id": "R-5-0009",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Project emissions modules",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-5",
+    "sha256": "61614948bc14246ebfca1195ca8421d7e3a2f056663cd9f374983ad91c6f16f3"
+  },
+  {
+    "id": "R-6-0001",
+    "rule_id": "R-6-0001",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Monitoring plan four tasks",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "6a4c6b880d487e52577dc6224817aafcbaa802b2d959ddbadd699e2f3501393e"
+  },
+  {
+    "id": "R-6-0002",
+    "rule_id": "R-6-0002",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Monitoring plan content requirements",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "bd6b95b315bc91a6378c03417e348f05f402571c60c3f2d1b1e8ff48f758c4c8"
+  },
+  {
+    "id": "R-6-0003",
+    "rule_id": "R-6-0003",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Geographic position recording",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "ea00b84b292b1aa0d1db507e71cc68a72592fa40102269506c97880633a89f9e"
+  },
+  {
+    "id": "R-6-0004",
+    "rule_id": "R-6-0004",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "SOP and QA/QC requirements",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "f15b8a23fa9f38e6ee62ae6b61ed7cc5676b17f3497086b6e949ff08edbc170b"
+  },
+  {
+    "id": "R-6-0005",
+    "rule_id": "R-6-0005",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "REDD forest cover monitoring",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "961e242d74633e7c3125ed00f8de7fbe40a2558594ea5229c06d2788b990e96d"
+  },
+  {
+    "id": "R-6-0006",
+    "rule_id": "R-6-0006",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "WRC compliance monitoring",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "6e527b9646ef056a851e0c85cfd9548e0dff7780f30aee5539aa47c06144a28f"
+  },
+  {
+    "id": "R-6-0007",
+    "rule_id": "R-6-0007",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Expert judgment documentation",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "5b5deae5cb7d43a60fc1cfa6bc35fdc01b8d40a29a4c37b30b70192e087e9e6f"
+  },
+  {
+    "id": "R-6-0008",
+    "rule_id": "R-6-0008",
+    "methodology": "VM0007",
+    "version": "v1-8",
+    "rule": "Uncertainty reduction requirements",
+    "tags": [
+      "uncertainty"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+    "sectionId": "S-6",
+    "sha256": "e3a2fc09f4ea8584984271fefe73f48fe7246fe8be997f81b4ec69d3a842ed57"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Forest definition threshold",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "8f96ffa1812122b81bc498158e7f37469881d46b40b29194897bdb2b6165b3d4"
+  },
+  {
+    "id": "R-4-0001",
+    "rule_id": "R-4-0001",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "ARR applicability land eligibility",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "76a80d38342f424a6c4630a574ddd452ced3cbf6d6bbdbe0827ced253a595c97"
+  },
+  {
+    "id": "R-4-0002",
+    "rule_id": "R-4-0002",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "ARR quantification approach selection",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "ae5092f216cca03e53be9640952239ce38b23ab4825e9ff54894d27efa03d0cd"
+  },
+  {
+    "id": "R-5-0001",
+    "rule_id": "R-5-0001",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Geographic boundary and stratification",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "f18611e838d943dc6edff03a67943dfdf307b5ebb9cea96193770a51901209f9"
+  },
+  {
+    "id": "R-5-0002",
+    "rule_id": "R-5-0002",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Carbon pool selection",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "d4be5b198b7f69d3cd942decdff2839c24c02a1dd03c6155b3271311af40bbd3"
+  },
+  {
+    "id": "R-6-0001",
+    "rule_id": "R-6-0001",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Baseline scenario determination",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-6",
+    "sha256": "f30a50e88d3256da807208228227188cdb6a9880f7e54dc506cfe423fd95b6a2"
+  },
+  {
+    "id": "R-7-0001",
+    "rule_id": "R-7-0001",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "VT0001 additionality requirement",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-7",
+    "sha256": "721f3f605a21a34a4a89ccaf3ceb2e8cca68b660dd3be23ff0a1931e5db9bb46"
+  },
+  {
+    "id": "R-8-0001",
+    "rule_id": "R-8-0001",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Area-based quantification equation",
+    "tags": [
+      "equation"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-8-2",
+    "sha256": "fdb5f582af4fc3aa4b751a787913cf719f165779435693260526ff156d526717"
+  },
+  {
+    "id": "R-8-0002",
+    "rule_id": "R-8-0002",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Leakage quantification",
+    "tags": [
+      "calc"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-8-3",
+    "sha256": "debec13e8828349a89bf3484a02438d838969f5c2ea27d325c8e2ac54f4d708f"
+  },
+  {
+    "id": "R-8-0003",
+    "rule_id": "R-8-0003",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Uncertainty deduction",
+    "tags": [
+      "uncertainty"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-8-4",
+    "sha256": "7d95adf74b50b704bc1184094a1b1a56164a4d1fd2f9f4d4bfd3ded7be599557"
+  },
+  {
+    "id": "R-9-0001",
+    "rule_id": "R-9-0001",
+    "methodology": "VM0047",
+    "version": "v1-0",
+    "rule": "Monitoring plan requirements",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "Verra",
+    "category": "AFOLU",
+    "path": "methodologies/Verra/AFOLU/VM0047/v1-0/rules.json",
+    "sectionId": "S-9-3",
+    "sha256": "f2914292e3af75899cf4fff0023c83e319fd085d8c0f9beb0509fd29bf344196"
   }
 ]
