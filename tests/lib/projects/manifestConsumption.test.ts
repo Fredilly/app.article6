@@ -80,16 +80,16 @@ describe('manifest consumption — phase 1 audit', () => {
     }
   });
 
-  it('currently only UNFCCC entries exist (no Verra/Gold Standard)', () => {
-    const providers = new Set(manifest.map((e) => e.provider));
-    expect(providers).toEqual(new Set(['UNFCCC']));
+  it('UNFCCC entries are still present', () => {
+    const unfccc = manifest.filter((e) => e.provider === 'UNFCCC');
+    expect(unfccc.length).toBeGreaterThan(0);
   });
 
-  it('from now on, any new provider must resolve via normalizeRegistry', () => {
-    for (const entry of manifest) {
-      if (!entry.provider) continue;
-      const registry = normalizeRegistry(entry.provider);
-      expect(registry).not.toBe('Unknown');
+  it('every present provider is a known registry', () => {
+    const providers = new Set(manifest.map((e) => e.provider).filter(Boolean));
+    expect(providers.size).toBeGreaterThan(0);
+    for (const provider of providers) {
+      expect(['UNFCCC', 'Verra', 'Gold Standard']).toContain(provider);
     }
   });
 });

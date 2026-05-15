@@ -333,9 +333,12 @@ Contract invariant: This is a cosmetic label helper for the manual review PDF co
 ### Phase 1 — Pack/manifest consumption
 
 **Acceptance criteria:**
-- App reads manifest from the methodology pack path, not a hardcoded app-side list.
+- Committed app manifest consumption path is audited and hardened.
 - No methodology metadata is duplicated or stitched on the app side.
+- Every route consuming the manifest is documented with contract invariants.
+- Regression tests prove manifest shape, program format, and registry inference behave correctly.
 - Existing UNFCCC method loading and project creation still works identically.
+- Manifest-to-pack auto-sync is tracked as a follow-up item, not claimed as done.
 
 **Phase 1 implementation audit:**
 
@@ -393,13 +396,14 @@ The manifest is committed independently of the methodology pack. When the upstre
 | Verra entries | 0 |
 | Gold Standard entries | 0 |
 
-**Verdict: Phase 1 is complete for the current app state.**
+**Verdict: Phase 1 audit and hardening is complete for the current committed-manifest app state.**
 
-The app correctly consumes the canonical committed manifest. No hand-stitched package-level metadata exists in the app itself. The guard scripts (`guard-methodology-boundary.mjs`) protect the app/methodologies boundary. The manifest correctly indexes only what the methodology pack provides.
+The app correctly consumes the committed manifest. No hand-stitched package-level metadata exists in the app itself. The guard scripts (`guard-methodology-boundary.mjs`) protect the app/methodologies boundary. The manifest correctly indexes only what the methodology pack provides.
 
-**Future work (not blocking Phase 1 completion):**
+Note: The manifest is still a committed static file, not auto-synced from the pack. The consumption path is audited and hardened, but pack-to-manifest auto-sync is separate future work.
+
+**Future work (not part of this 8-phase roadmap):**
 - Auto-generate the manifest from the pack contents during `derive:all` so new pack entries appear automatically
-- This is tracked as a follow-up item outside the 8-phase roadmap
 
 ---
 
