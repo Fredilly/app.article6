@@ -1,5 +1,6 @@
 import type { Project, ProjectCoverage, RuleReview } from '@/lib/projects/types';
-import { composeVerificationReport, manualRegistryLabel } from '@/lib/projects/verificationReport';
+import { manualRegistryLabel } from '@/lib/projects/verificationReport';
+import { composeStandardReport } from '@/lib/composers/composeReport';
 import type { ReportFinding } from '@/lib/projects/reportFindings';
 
 function esc(s: string): string {
@@ -193,9 +194,9 @@ function estimateFindingHeight(finding: ReportFinding): number {
   return base + rationaleLines * 12 + limitationLines * 12 + evidenceLines * 12 + 24;
 }
 
-export function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Buffer {
+export async function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Promise<Buffer> {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
-  const report = composeVerificationReport(project, coverage, now);
+  const report = await composeStandardReport(project, coverage, now);
   const isManual = project.reviewMode === 'manual';
 
   const streams: string[] = [];

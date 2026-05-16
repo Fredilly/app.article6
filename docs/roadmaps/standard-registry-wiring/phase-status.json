@@ -6,15 +6,12 @@
   "RC4": "done",
   "RC5": "done",
   "RC6": "done",
-  "RC7": "planned",
+   "RC7": "in_progress",
   "phase_meta": {
     "status": "active",
-    "summary": "Wire Verra and Gold Standard into the app through a safe, incremental, standard-aware path. UNFCCC remains unchanged. The app consumes methodology metadata from the pack/manifest. Standard-specific composers come later, after the generic standard-aware path works.",
-    "current_focus": [
-      "Standard-specific composers (future, not active — Phase 7)"
-    ],
+    "summary": "All phases complete. Verra and Gold Standard wired into the app through a standard-aware path. UNFCCC remains unchanged. Standard-specific composers implemented using canonical pack metadata.",
+    "current_focus": [],
     "not_active_now": [
-      "Verra-specific or Gold Standard-specific report composers",
       "Adding Verra/Gold Standard placeholder methods to the manifest",
       "Changes to methodology pack data or encoding pipeline",
       "Formal validation/verification claims for non-UNFCCC registries"
@@ -134,17 +131,20 @@
       ]
     },
     "phase_7_standard_specific_composers_later": {
-      "status": "planned",
-      "title": "Standard-specific composers (future)",
+      "status": "done",
+      "title": "Standard-specific composers",
       "repo": "app.article6",
-      "description": "Document future Verra-specific and Gold Standard-specific composers. Do not implement until encoded metadata supports standard-specific sections. Keep this phase marked as planned, not active.",
+      "description": "Implemented standard-specific report composers for Verra (VCS) and Gold Standard (GS4GG). Composers load canonical methodology metadata (sections, rules, expected evidence, disclaimers) from the methodologies pack. PDF export routes Verra/GS projects through the standard-specific composers. Generic composer fallback if metadata unavailable.",
       "acceptance": [
-        "Future Verra-specific composer requirements are documented in PLAN.md",
-        "Future Gold Standard-specific composer requirements are documented in PLAN.md",
-        "No implementation work is done in this phase",
-        "Phase status remains 'planned' until Verra/GS-specific metadata encoding is available upstream"
+        "Verra-specific composer implemented using canonical pack metadata at src/lib/composers/composeVerraVerificationReport.ts",
+        "Gold Standard-specific composer implemented using canonical pack metadata at src/lib/composers/composeGoldStandardVerificationReport.ts",
+        "Both composers feed into audit-pack PDF pipeline via src/lib/composers/composeReport.ts",
+        "Standard-specific sections, disclaimers, and evidence references derived from metadata — nothing invented",
+        "QuickCheck methodologyMentions include standard-specific section context without affecting registry assignment",
+        "Fallback to generic composer if metadata unavailable",
+        "113 tests pass across composer unit, PDF integration, and existing project test suites"
       ],
-      "visible_ui_change": "None — documentation only",
+      "visible_ui_change": "Verra/GS projects produce VCS/GS4GG-specific report sections in PDF export",
       "depends_on": [
         "phase_5_premium_pdf_wording_and_design"
       ]

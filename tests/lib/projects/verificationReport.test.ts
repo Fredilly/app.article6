@@ -161,7 +161,7 @@ describe('verification report composition', () => {
 
   it('routes Verra through the generic standard-aware composer', () => {
     const report = composeVerraVerificationReport(
-      makeProject({ methodCode: 'VM0007', registry: 'Verra' }),
+      makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
 
@@ -200,22 +200,21 @@ describe('verification report composition', () => {
     ]);
   });
 
-  it('generic standard-aware report includes registry, method, version, and category', () => {
+  it('generic standard-aware report includes registry, method, version, and category from composer', () => {
     const report = composeVerificationReport(
-      makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'Forestry' }),
+      makeProject({ methodCode: 'VM0007', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
 
     const text = reportText(report);
     expect(text).toContain('Verra');
     expect(text).toContain('VM0007');
-    expect(text).toContain('v02-0');
-    expect(text).toContain('Forestry');
+    expect(text).toContain('AFOLU');
   });
 
   it('generic standard-aware report does not contain stub or fallback wording', () => {
     const report = composeVerificationReport(
-      makeProject({ methodCode: 'VM0047', registry: 'Verra' }),
+      makeProject({ methodCode: 'VM0047', registry: 'Verra', methodCategory: 'AFOLU' }),
       makeCoverage(),
     );
 

@@ -71,7 +71,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
   }, 15000);
 
   it('keeps later pages legible when the export spans multiple pages', async () => {
-    const pdf = buildProjectExportPdf(makeProject(90), {
+    const pdf = await buildProjectExportPdf(makeProject(90), {
       total: 90,
       verified: 48,
       gap: 18,
@@ -125,8 +125,10 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
     expect(parsed.text).toContain('VERRA READINESS REPORT');
-    expect(parsed.text).toContain('PROJECT AND STANDARD');
-    expect(parsed.text).toContain('Registry / Standard: Verra');
+    expect(parsed.text).toContain('METHODOLOGY SOURCE SECTIONS');
+    expect(parsed.text).toContain('APPLICABILITY CONDITIONS');
+    expect(parsed.text).toContain('Registry: Verra');
+    expect(parsed.text).toContain('Standard: VCS');
     expect(parsed.text).toContain('VM0007');
     expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented/i);
   }, 15000);
@@ -147,7 +149,9 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const parsed = await extractPdfTextWithPdfParse({ bytes });
 
     expect(parsed.text).toContain('GOLD STANDARD READINESS REPORT');
-    expect(parsed.text).toContain('Registry / Standard: Gold Standard');
+    expect(parsed.text).toContain('PROJECT DESIGN');
+    expect(parsed.text).toContain('SAFEGUARDS');
+    expect(parsed.text).toContain('Registry: Gold Standard');
     expect(parsed.text).not.toMatch(/fallback|stub|not yet implemented/i);
   }, 15000);
 
@@ -248,7 +252,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
 
   it('uses a methodology-linked footer label for non-manual exports', async () => {
     const project = makeProject();
-    const pdf = buildProjectExportPdf(project, {
+    const pdf = await buildProjectExportPdf(project, {
       total: 6,
       verified: 4,
       gap: 1,
@@ -381,7 +385,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
       note: 'This unusually detailed reviewer rationale should remain visible in the exported PDF because it explains the sampled invoices, monitoring workbook cross-check, and boundary reconciliation used for the draft assessment.',
       evidenceIds: [longEvidenceId],
     };
-    const pdf = buildProjectExportPdf(project, {
+    const pdf = await buildProjectExportPdf(project, {
       total: 1,
       verified: 1,
       gap: 0,
@@ -406,7 +410,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
       note: undefined,
       evidenceIds: [],
     };
-    const pdf = buildProjectExportPdf(project, {
+    const pdf = await buildProjectExportPdf(project, {
       total: 1,
       verified: 1,
       gap: 0,
@@ -438,7 +442,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
 
   it('does not render unsupported certification or issuance phrases', async () => {
     const project = makeProject();
-    const pdf = buildProjectExportPdf(project, {
+    const pdf = await buildProjectExportPdf(project, {
       total: 6,
       verified: 4,
       gap: 1,
@@ -459,7 +463,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
     const project = makeProject();
     (project as Record<string, unknown>).createdAt = undefined;
     (project as Record<string, unknown>).lockedAt = undefined;
-    const pdf = buildProjectExportPdf(project, {
+    const pdf = await buildProjectExportPdf(project, {
       total: 6,
       verified: 4,
       gap: 1,
@@ -477,7 +481,7 @@ describe('/api/projects/[id]/export-pdf route', () => {
 
   it('PDF text contains only ASCII-safe characters (no mojibake)', async () => {
     const project = makeProject();
-    const pdf = buildProjectExportPdf(project, {
+    const pdf = await buildProjectExportPdf(project, {
       total: 6,
       verified: 4,
       gap: 1,
