@@ -15,8 +15,7 @@ type MethodLibraryPanelProps = {
 function deriveMetaUrl(method: MethodInventoryItem): string | null {
   const latest = method.latestVersion;
   if (!latest) return null;
-  const path = `/methodologies/${method.program}/${method.sector}/${method.code}/${latest}/rules.json`;
-  return metaUrlFromRulesPath(path);
+  return metaUrlFromRulesPath(method.manifestPathByVersion[latest] ?? null);
 }
 
 const STANDARD_FILTER_KEY = "a6:methodStandardFilter";
@@ -133,6 +132,13 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
     setUserOverride(s);
   };
 
+  function activeTabClasses(standard: typeof STANDARDS[number]) {
+    if (standard === "Gold Standard") {
+      return "border border-amber-300 bg-amber-100 text-amber-900";
+    }
+    return "bg-slate-900 text-white";
+  }
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="border-b border-slate-100 px-4 py-4">
@@ -156,7 +162,7 @@ export default function MethodLibraryPanel({ methods, selectedCode }: MethodLibr
               onClick={() => handleTabClick(s)}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                 (effectiveStandard === "All" ? "All" : effectiveStandard) === s
-                  ? "bg-slate-900 text-white"
+                  ? activeTabClasses(s)
                   : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
               }`}
             >

@@ -113,11 +113,12 @@ async function main() {
     total += 1;
     if (!methodPath) {
       broken.push({ ref: `${entry.rule_id ?? "unknown"} path`, reason: "manifest entry missing path" });
-    } else {
-      const fullPath = path.join(process.cwd(), "public", methodPath);
-      if (!(await fileExists(fullPath))) {
-        broken.push({ ref: methodPath, reason: "manifest path missing on disk" });
-      }
+      continue;
+    }
+
+    const fullPath = path.join(process.cwd(), "public", methodPath);
+    if (!(await fileExists(fullPath))) {
+      broken.push({ ref: methodPath, reason: "manifest path missing on disk" });
     }
 
     if (!methodDir) {
