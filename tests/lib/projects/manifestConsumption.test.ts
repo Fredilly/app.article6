@@ -107,6 +107,10 @@ describe('program-derived registry inference', () => {
     expect(projectRegistryFromMethodProgram('Gold Standard/Energy')).toBe('Gold Standard');
   });
 
+  it('projectRegistryFromMethodProgram parses GoldStandard/Energy (no space)', () => {
+    expect(projectRegistryFromMethodProgram('GoldStandard/Energy')).toBe('Gold Standard');
+  });
+
   it('projectRegistryFromMethodProgram returns Unknown for empty', () => {
     expect(projectRegistryFromMethodProgram(undefined)).toBe('Unknown');
     expect(projectRegistryFromMethodProgram('')).toBe('Unknown');
@@ -171,6 +175,8 @@ describe('normalizeRegistry edge cases', () => {
     expect(normalizeRegistry('Gold Standard')).toBe('Gold Standard');
     expect(normalizeRegistry('gold standard')).toBe('Gold Standard');
     expect(normalizeRegistry('gold-standard')).toBe('Gold Standard');
+    expect(normalizeRegistry('GoldStandard')).toBe('Gold Standard');
+    expect(normalizeRegistry('goldstandard')).toBe('Gold Standard');
     expect(normalizeRegistry('GS')).toBe('Gold Standard');
     expect(normalizeRegistry('gs')).toBe('Gold Standard');
   });
