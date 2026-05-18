@@ -18,7 +18,16 @@ async function readJson(filePath) {
   return JSON.parse(raw);
 }
 
-function collectDatasets(manifest) {
+async function dirExists(dirPath) {
+  try {
+    const info = await stat(dirPath);
+    return info.isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+async function collectDatasets(manifest) {
   const map = new Map();
   for (const entry of manifest) {
     if (!entry || typeof entry !== "object") continue;
@@ -29,6 +38,7 @@ function collectDatasets(manifest) {
     const key = `${methodCode}@${version}`;
     if (map.has(key)) continue;
     const baseDir = path.join(process.cwd(), "public", path.dirname(rulesPath));
+    if (!(await dirExists(baseDir))) continue;
     map.set(key, { methodCode, version, baseDir });
   }
   return Array.from(map.values());
@@ -44,7 +54,7 @@ async function main() {
     throw new Error("Derived manifest: manifest index invalid.");
   }
 
-  const datasets = collectDatasets(manifest);
+  const datasets = await collectDatasets(manifest);
 
   for (const dataset of datasets) {
     const derivedDir = path.join(dataset.baseDir, "derived");
