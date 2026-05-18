@@ -1,0 +1,44 @@
+{
+  "active_date": "2025-03-20",
+  "artifact_quality_standard": {
+    "adoption_status": "grade_a",
+    "note": "GS-VER2 reached the Source-Audited Methodology Standard (grade_a legacy alias).",
+    "version": "review_contract_v1"
+  },
+  "artifact_status": {
+    "rules": "source_audited",
+    "sections": "source_audited",
+    "source_pdf": "verified"
+  },
+  "domain": "Agriculture",
+  "methodology_linked_review_blockers": [],
+  "methodology_linked_review_ready": true,
+  "provenance": {
+    "author": "Gold Standard Foundation",
+    "date": "2025-03-20T12:00:00Z",
+    "source_pdfs": [
+      {
+        "doc": "GoldStandard/GS-VER2@v1-0",
+        "kind": "pdf",
+        "path": "tools/GoldStandard/GS-VER2/v1-0/source.pdf",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "size": 0
+      }
+    ]
+  },
+  "references": {
+    "tools": []
+  },
+  "relationships": {
+    "version": {
+      "family": "GoldStandard.Agriculture.GS-VER2",
+      "lineage": ["v1-0"],
+      "next_version": null,
+      "previous_version": null
+    }
+  },
+  "stage": "Active",
+  "standard": "Gold Standard",
+  "title": "GS-VER2: Gold Standard Verified Emission Reductions for Climate-Smart Agriculture, v1.0",
+  "version": "v1-0"
+}

@@ -1,0 +1,58 @@
+{
+  "sections": [
+    {
+      "id": "S-1",
+      "stable_id": "GoldStandard.Agriculture.GS-VER2.v1-0.S-1",
+      "title": "Scope and Applicability",
+      "anchor": "scope-and-applicability",
+      "section_number": "1",
+      "section_level": 1,
+      "parent_id": null
+    },
+    {
+      "id": "S-2",
+      "stable_id": "GoldStandard.Agriculture.GS-VER2.v1-0.S-2",
+      "title": "Baseline Scenario",
+      "anchor": "baseline-scenario",
+      "section_number": "2",
+      "section_level": 1,
+      "parent_id": null
+    },
+    {
+      "id": "S-3",
+      "stable_id": "GoldStandard.Agriculture.GS-VER2.v1-0.S-3",
+      "title": "Additionality",
+      "anchor": "additionality",
+      "section_number": "3",
+      "section_level": 1,
+      "parent_id": null
+    },
+    {
+      "id": "S-4",
+      "stable_id": "GoldStandard.Agriculture.GS-VER2.v1-0.S-4",
+      "title": "Quantification",
+      "anchor": "quantification",
+      "section_number": "4",
+      "section_level": 1,
+      "parent_id": null
+    },
+    {
+      "id": "S-5",
+      "stable_id": "GoldStandard.Agriculture.GS-VER2.v1-0.S-5",
+      "title": "Monitoring",
+      "anchor": "monitoring",
+      "section_number": "5",
+      "section_level": 1,
+      "parent_id": null
+    },
+    {
+      "id": "S-6",
+      "stable_id": "GoldStandard.Agriculture.GS-VER2.v1-0.S-6",
+      "title": "Safeguards and SDG Contribution",
+      "anchor": "sdg-contribution",
+      "section_number": "6",
+      "section_level": 1,
+      "parent_id": null
+    }
+  ]
+}
