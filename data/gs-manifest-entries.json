@@ -1,0 +1,319 @@
+[
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Renewable energy project eligibility",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "77f9fb4a236f8f650c0b3cff3a0dcbdad551efe3e09747adddee6f329c0cd909"
+  },
+  {
+    "id": "R-1-0002",
+    "rule_id": "R-1-0002",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Project design document requirements",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "04c0f6dcb391004aa54a43f82fad4b0c444c26c64e8534f62040af75784a34c4"
+  },
+  {
+    "id": "R-1-0003",
+    "rule_id": "R-1-0003",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Safeguards and stakeholder consultation",
+    "tags": [
+      "safeguards"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "382bdb8638b44adec6ed65f7d0f9c5fa50e1be674c4c340665f00fe150fd8dea"
+  },
+  {
+    "id": "R-2-0001",
+    "rule_id": "R-2-0001",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Baseline scenario determination",
+    "tags": [
+      "baseline",
+      "calc"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "196b446a48606ae7c909ffdbeff2a17f571b4869e767d8eae8bd7cdcbe47b492"
+  },
+  {
+    "id": "R-3-0001",
+    "rule_id": "R-3-0001",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Additionality demonstration",
+    "tags": [
+      "additionality"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "8f088456fc7296d0f4bd2b69d9405e59617b034c7bf85dce8559b3a8885b3aae"
+  },
+  {
+    "id": "R-3-0002",
+    "rule_id": "R-3-0002",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Common practice analysis",
+    "tags": [
+      "additionality"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "8ffd029f41b98a168e1946d2b976780eb149dccc96acceb18605434bbcb1a73d"
+  },
+  {
+    "id": "R-4-0001",
+    "rule_id": "R-4-0001",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Emission reduction quantification",
+    "tags": [
+      "calc"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "f2af4c558074efd1b6f5922bf101545cf5728270f20e5e72349dac80c74e2199"
+  },
+  {
+    "id": "R-4-0002",
+    "rule_id": "R-4-0002",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Leakage assessment",
+    "tags": [
+      "leakage"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "26745ba82c3d14f0c5a115bf63778db4b0eccdbe7188257cc5dd43f61a077c04"
+  },
+  {
+    "id": "R-5-0001",
+    "rule_id": "R-5-0001",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Monitoring plan requirements",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "0ccb4ffcef08ff36434be1d8aed98361b33fee8130e101761f21df088296d749"
+  },
+  {
+    "id": "R-5-0002",
+    "rule_id": "R-5-0002",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Data and parameters monitored",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "02dc0f0eb668f03c5b0b3627e8ffd812403830e1ac3a797205f7acf1bf36c4c8"
+  },
+  {
+    "id": "R-6-0001",
+    "rule_id": "R-6-0001",
+    "methodology": "GS-VER1",
+    "version": "v1-0",
+    "rule": "Sustainable Development (SDG) contribution",
+    "tags": [
+      "safeguards"
+    ],
+    "provider": "GoldStandard",
+    "category": "Energy",
+    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "sectionId": "S-6",
+    "sha256": "edac80eab5b1042438843526c00db47c1e4feeb91e2ebc10883ede1f974d9c01"
+  },
+  {
+    "id": "R-1-0001",
+    "rule_id": "R-1-0001",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Agricultural project eligibility",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "bbd1e5e73784d76ebc41a691bc79a4db404f7144c887c7065d4017b34ee00bf0"
+  },
+  {
+    "id": "R-1-0002",
+    "rule_id": "R-1-0002",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Project design and description",
+    "tags": [
+      "reporting"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "009a0097f7b6193d33046646948967a50b31d290cd6e81c69abb6cb952c1dd93"
+  },
+  {
+    "id": "R-1-0003",
+    "rule_id": "R-1-0003",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Environmental and social safeguards",
+    "tags": [
+      "safeguards"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-1",
+    "sha256": "5543ba2e79b442946763367b6370a53e54f82c470e1eb2c9d18278a986870d6f"
+  },
+  {
+    "id": "R-2-0001",
+    "rule_id": "R-2-0001",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Baseline scenario determination",
+    "tags": [
+      "baseline",
+      "calc"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "4672a0b8323956773b5041b27e61b3867037351c1194c6ebdfbea30b532c66d4"
+  },
+  {
+    "id": "R-3-0001",
+    "rule_id": "R-3-0001",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Additionality demonstration",
+    "tags": [
+      "additionality"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "4cbb979aac2c13c8b37ca9f3e9d195449506ac887e4dbf2651ca307b7b573355"
+  },
+  {
+    "id": "R-4-0001",
+    "rule_id": "R-4-0001",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Emission reduction quantification",
+    "tags": [
+      "calc"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "5e7e63d1754d48c2ec0be5979b9cc0961c06b5cc147d10ec5bc3b7c4225d7833"
+  },
+  {
+    "id": "R-4-0002",
+    "rule_id": "R-4-0002",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Uncertainty analysis",
+    "tags": [
+      "uncertainty"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-4",
+    "sha256": "1f5610e409ee4b0deffcd3ee368c39abd83d5d49e2f4339ef8b8d35e57cbbf26"
+  },
+  {
+    "id": "R-5-0001",
+    "rule_id": "R-5-0001",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Monitoring plan requirements",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "81e1a0fae9c39521f0c12a6bfc2ca37b0af165b5cc1205747e19cb84523e5e99"
+  },
+  {
+    "id": "R-5-0002",
+    "rule_id": "R-5-0002",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "Data quality and QA/QC",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "17126e68390796927ed3401c9a7629dea5227f43514e0ec71d62101718559b34"
+  },
+  {
+    "id": "R-6-0001",
+    "rule_id": "R-6-0001",
+    "methodology": "GS-VER2",
+    "version": "v1-0",
+    "rule": "SDG contribution assessment",
+    "tags": [
+      "safeguards"
+    ],
+    "provider": "GoldStandard",
+    "category": "Agriculture",
+    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "sectionId": "S-6",
+    "sha256": "e47578fcee914c019613e51a0e56ded11d732ec4bdb77c3096510f9145a40ce5"
+  }
+]
