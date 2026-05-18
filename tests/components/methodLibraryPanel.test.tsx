@@ -17,7 +17,7 @@ jest.mock('@/app/m/_components/MethodCard', () => ({
   default: ({ method }: { method: MethodInventoryItem }) => <div data-method-card={method.code}>{method.code}</div>,
 }));
 
-import MethodLibraryPanel from '@/app/m/_components/MethodLibraryPanel';
+const MethodLibraryPanel = require('@/app/m/_components/MethodLibraryPanel').default as typeof import('@/app/m/_components/MethodLibraryPanel').default;
 
 function method(overrides: Partial<MethodInventoryItem>): MethodInventoryItem {
   return {
