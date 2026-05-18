@@ -7,6 +7,12 @@ import { createRoot } from 'react-dom/client';
 import MethodLibraryPanel from '@/app/m/_components/MethodLibraryPanel';
 import type { MethodInventoryItem } from '@/app/m/_lib/methodInventory';
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    prefetch: jest.fn(),
+  }),
+}));
+
 jest.mock('@/app/m/_components/MethodCard', () => ({
   __esModule: true,
   default: ({ method }: { method: MethodInventoryItem }) => <div data-method-card={method.code}>{method.code}</div>,
