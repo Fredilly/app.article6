@@ -32,7 +32,7 @@ describe('manifest consumption — phase 1 audit', () => {
   it('all entries have a known provider', () => {
     const providers = new Set(manifest.map((e) => e.provider));
     for (const p of providers) {
-      expect(['UNFCCC', 'Verra', 'Gold Standard', undefined]).toContain(p);
+      expect(['UNFCCC', 'Verra', 'GoldStandard', 'Gold Standard', undefined]).toContain(p);
     }
   });
 
@@ -89,7 +89,7 @@ describe('manifest consumption — phase 1 audit', () => {
     const providers = new Set(manifest.map((e) => e.provider).filter(Boolean));
     expect(providers.size).toBeGreaterThan(0);
     for (const provider of providers) {
-      expect(['UNFCCC', 'Verra', 'Gold Standard']).toContain(provider);
+      expect(['UNFCCC', 'Verra', 'GoldStandard', 'Gold Standard']).toContain(provider);
     }
   });
 });
