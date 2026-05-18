@@ -56,7 +56,7 @@ export function normalizeRegistry(value: string | undefined): ProjectRegistry {
   if (!raw) return 'Unknown';
   if (raw.startsWith('unfccc') || raw === 'cdm') return 'UNFCCC';
   if (raw.startsWith('verra') || raw.includes('verified carbon standard') || raw === 'vcs') return 'Verra';
-  if (raw.startsWith('gold standard') || raw === 'gold-standard' || raw === 'gs') return 'Gold Standard';
+  if (raw.startsWith('gold standard') || raw === 'gold-standard' || raw === 'gs' || raw.startsWith('goldstandard')) return 'Gold Standard';
   return 'Unknown';
 }
 
@@ -126,7 +126,7 @@ function inferManualRegistryLabel(project: Project): string | undefined {
 
   const hasVerra = signals.some((value) => value.includes('verra') || value.includes('vcs'));
   const hasCcb = signals.some((value) => value.includes('ccb'));
-  const hasGoldStandard = signals.some((value) => value.includes('gold standard'));
+  const hasGoldStandard = signals.some((value) => value.includes('gold standard') || value.includes('goldstandard'));
   const hasUnfccc = signals.some((value) => value.includes('unfccc') || value.includes('cdm'));
 
   if (hasVerra && hasCcb) return 'Verra / VCS + CCB';

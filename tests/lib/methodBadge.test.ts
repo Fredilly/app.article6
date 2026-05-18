@@ -71,6 +71,18 @@ describe("deriveStandard", () => {
     expect(deriveStandard("Gold Standard")).toBe("Gold Standard");
   });
 
+  it("returns Gold Standard for GoldStandard (no space)", () => {
+    expect(deriveStandard("GoldStandard")).toBe("Gold Standard");
+  });
+
+  it("returns Gold Standard for goldstandard (lowercase, no space)", () => {
+    expect(deriveStandard("goldstandard")).toBe("Gold Standard");
+  });
+
+  it("returns Gold Standard for gold-standard", () => {
+    expect(deriveStandard("gold-standard")).toBe("Gold Standard");
+  });
+
   it("passes unknown programs through unchanged", () => {
     expect(deriveStandard("Other")).toBe("Other");
   });

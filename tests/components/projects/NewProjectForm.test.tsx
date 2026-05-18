@@ -50,6 +50,15 @@ describe('groupMethodsByRegistry', () => {
     expect(groups[0].registry).toBe('Gold Standard');
   });
 
+  it('groups GoldStandard (no space) methods under Gold Standard', () => {
+    const methods = [
+      method({ code: 'GS-VER1', program: 'GoldStandard/Energy' }),
+    ];
+    const groups = groupMethodsByRegistry(methods);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].registry).toBe('Gold Standard');
+  });
+
   it('places UNFCCC first, then Verra, then Gold Standard, then Unknown', () => {
     const methods = [
       method({ code: 'GS-VER1', program: 'Gold Standard/Energy' }),
