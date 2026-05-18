@@ -20,9 +20,9 @@ function makeGSProject(overrides: Partial<Project> = {}): Project {
     id: 'gs-proj-001',
     name: 'Clean Cookstoves Uganda',
     reviewMode: 'methodology-linked',
-    methodCode: 'GS-VER1',
-    methodVersion: 'v2-0',
-    methodCategory: 'Energy',
+    methodCode: 'GS-00XX',
+    methodVersion: 'v1-0',
+    methodCategory: 'AFOLU',
     registry: 'Gold Standard',
     status: 'locked',
     createdAt: '2026-05-01T00:00:00.000Z',
@@ -64,6 +64,17 @@ describe('composeGoldStandardVerificationReport', () => {
     expect(sectionTitles).toContain('REQUIREMENT FINDINGS');
     expect(sectionTitles).toContain('LIMITATIONS');
     expect(sectionTitles).toContain('PROVENANCE');
+  });
+
+  it('loads canonical Gold Standard metadata from the methodology pack', () => {
+    const report = composeGoldStandardVerificationReport(makeGSProject(), makeCoverage());
+    const overview = report.sections.find((section) => section.title === 'METHODOLOGY SOURCE SECTIONS');
+    const projectDesign = report.sections.find((section) => section.title === 'PROJECT DESIGN');
+    const monitoring = report.sections.find((section) => section.title === 'MONITORING');
+
+    expect(overview?.lines.join(' ')).toContain('GS LUF Activity Requirements v1.2.1');
+    expect(projectDesign?.lines).toContain('- Scope and Applicability (S-1)');
+    expect(monitoring?.lines).toContain('- Uncertainty of LUF Parameters (S-5)');
   });
 
   it('includes standard disclaimer language', () => {

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
 import { execSync } from "node:child_process";
-import { readFile, access, stat } from "node:fs/promises";
+import { readFile, access } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
 
 async function fileExists(filePath) {
@@ -18,16 +18,7 @@ async function readJson(filePath) {
   return JSON.parse(raw);
 }
 
-async function dirExists(dirPath) {
-  try {
-    const info = await stat(dirPath);
-    return info.isDirectory();
-  } catch {
-    return false;
-  }
-}
-
-async function collectDatasets(manifest) {
+function collectDatasets(manifest) {
   const map = new Map();
   for (const entry of manifest) {
     if (!entry || typeof entry !== "object") continue;
@@ -38,7 +29,6 @@ async function collectDatasets(manifest) {
     const key = `${methodCode}@${version}`;
     if (map.has(key)) continue;
     const baseDir = path.join(process.cwd(), "public", path.dirname(rulesPath));
-    if (!(await dirExists(baseDir))) continue;
     map.set(key, { methodCode, version, baseDir });
   }
   return Array.from(map.values());
@@ -53,7 +43,7 @@ async function loadManifestTexts() {
   if (!Array.isArray(manifest)) {
     throw new Error("Determinism: manifest index invalid.");
   }
-  const datasets = await collectDatasets(manifest);
+  const datasets = collectDatasets(manifest);
   const output = new Map();
   for (const dataset of datasets) {
     const manifestFile = path.join(dataset.baseDir, "derived", "manifest.json");

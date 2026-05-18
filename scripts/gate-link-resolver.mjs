@@ -1,5 +1,5 @@
 import path from "node:path";
-import { access, mkdir, readFile, writeFile, stat } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
 
 async function readJson(filePath) {
@@ -71,15 +71,6 @@ function collectExternalUrls(entry) {
   return urls;
 }
 
-async function dirExists(dirPath) {
-  try {
-    const info = await stat(dirPath);
-    return info.isDirectory();
-  } catch {
-    return false;
-  }
-}
-
 async function loadMethodIndex(methodDir) {
   const rulesPath = path.join(methodDir, "rules.json");
   const sectionsPath = path.join(methodDir, "sections.json");
@@ -127,9 +118,7 @@ async function main() {
 
     const fullPath = path.join(process.cwd(), "public", methodPath);
     if (!(await fileExists(fullPath))) {
-      // Entry points to data not on disk (e.g. synthetic Gold Standard entries).
-      // Skip link resolution — these entries have no source data to verify against.
-      continue;
+      broken.push({ ref: methodPath, reason: "manifest path missing on disk" });
     }
 
     if (!methodDir) {

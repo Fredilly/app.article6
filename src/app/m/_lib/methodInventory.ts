@@ -8,6 +8,7 @@ export type MethodInventoryItem = {
   program: string;
   sector: string;
   versions: string[];
+  manifestPathByVersion: Record<string, string | undefined>;
   latestVersion?: string;
   versionCount: number;
   ruleCountByVersion: Record<string, number | undefined>;
@@ -31,6 +32,7 @@ type MethodAccumulator = {
   sector?: string;
   versions: Set<string>;
   manifestPaths: Set<string>;
+  manifestPathByVersion: Map<string, string>;
   hashesByVersion: Map<string, string[]>;
   allHashes: string[];
   ruleCountByVersion: Map<string, number>;
@@ -117,6 +119,7 @@ export async function getMethodInventory(): Promise<{
         code,
         versions: new Set<string>(),
         manifestPaths: new Set<string>(),
+        manifestPathByVersion: new Map<string, string>(),
         hashesByVersion: new Map<string, string[]>(),
         allHashes: [],
         ruleCountByVersion: new Map<string, number>(),
@@ -128,7 +131,10 @@ export async function getMethodInventory(): Promise<{
     if (!current.program && program) current.program = program;
     if (!current.sector && sector) current.sector = sector;
     const manifestPath = pickString(record, ["path"]);
-    if (manifestPath) current.manifestPaths.add(manifestPath);
+    if (manifestPath) {
+      current.manifestPaths.add(manifestPath);
+      if (!current.manifestPathByVersion.has(version)) current.manifestPathByVersion.set(version, manifestPath);
+    }
 
     if (sha) {
       current.allHashes.push(sha);
@@ -152,9 +158,11 @@ export async function getMethodInventory(): Promise<{
     const latestVersion = versions.at(-1);
 
     const versionAuditHashes: Record<string, string | undefined> = {};
+    const manifestPathByVersion: Record<string, string | undefined> = {};
     const ruleCountByVersion: Record<string, number | undefined> = {};
     for (const version of versions) {
       versionAuditHashes[version] = normalizeAuditHash(method.hashesByVersion.get(version) ?? []);
+      manifestPathByVersion[version] = method.manifestPathByVersion.get(version);
       ruleCountByVersion[version] = method.ruleCountByVersion.get(version);
     }
 
@@ -165,6 +173,7 @@ export async function getMethodInventory(): Promise<{
       program: method.program ?? "—",
       sector: method.sector ?? "—",
       versions,
+      manifestPathByVersion,
       latestVersion,
       versionCount: versions.length,
       ruleCountByVersion,

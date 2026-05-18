@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import path from "node:path";
-import { mkdir, readFile, writeFile, access, stat } from "node:fs/promises";
+import { mkdir, readFile, writeFile, access } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
 import { stableStringify, sortById } from "./_stable-json.mjs";
 
@@ -28,16 +28,7 @@ function pickString(value) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-async function dirExists(dirPath) {
-  try {
-    const info = await stat(dirPath);
-    return info.isDirectory();
-  } catch {
-    return false;
-  }
-}
-
-async function collectDatasets(manifest) {
+function collectDatasets(manifest) {
   const map = new Map();
   for (const entry of manifest) {
     if (!entry || typeof entry !== "object") continue;
@@ -48,7 +39,6 @@ async function collectDatasets(manifest) {
     const key = `${methodCode}@${version}`;
     if (map.has(key)) continue;
     const baseDir = path.join(process.cwd(), "public", path.dirname(rulesPath));
-    if (!(await dirExists(baseDir))) continue;
     map.set(key, { methodCode, version, baseDir });
   }
   return Array.from(map.values());
@@ -100,7 +90,7 @@ async function main() {
     throw new Error("Derived artifacts: manifest index invalid.");
   }
 
-  const datasets = await collectDatasets(manifest);
+  const datasets = collectDatasets(manifest);
 
   for (const dataset of datasets) {
     const metaPath = path.join(dataset.baseDir, "META.json");

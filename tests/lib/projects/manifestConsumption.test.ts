@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { projectRegistryFromMethodProgram, normalizeRegistry, resolveProjectRegistry } from '@/lib/projects/verificationReport';
 
@@ -90,6 +90,22 @@ describe('manifest consumption — phase 1 audit', () => {
     expect(providers.size).toBeGreaterThan(0);
     for (const provider of providers) {
       expect(['UNFCCC', 'Verra', 'GoldStandard', 'Gold Standard']).toContain(provider);
+    }
+  });
+
+  it('Gold Standard manifest entries resolve to on-disk methodology files', () => {
+    const goldEntries = manifest.filter((entry) => normalizeRegistry(entry.provider) === 'Gold Standard');
+    expect(goldEntries.length).toBeGreaterThan(0);
+
+    for (const entry of goldEntries) {
+      expect(entry.path).toBeTruthy();
+      const rulesPath = path.join(process.cwd(), 'public', entry.path!);
+      const methodDir = path.dirname(rulesPath);
+
+      expect(existsSync(rulesPath)).toBe(true);
+      expect(existsSync(path.join(methodDir, 'META.json'))).toBe(true);
+      expect(existsSync(path.join(methodDir, 'sections.json'))).toBe(true);
+      expect(existsSync(path.join(methodDir, 'rules.rich.json'))).toBe(true);
     }
   });
 });

@@ -2,319 +2,392 @@
   {
     "id": "R-1-0001",
     "rule_id": "R-1-0001",
-    "methodology": "GS-VER1",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Renewable energy project eligibility",
+    "rule": "LUF pathway to certification",
     "tags": [
       "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-1",
-    "sha256": "77f9fb4a236f8f650c0b3cff3a0dcbdad551efe3e09747adddee6f329c0cd909"
+    "sha256": "ac29130e19747a8bedc327e60f158b4eab69c26277ffb728c5b8fabc82dac927"
   },
   {
     "id": "R-1-0002",
     "rule_id": "R-1-0002",
-    "methodology": "GS-VER1",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Project design document requirements",
+    "rule": "Conjunction with P&R and Product Requirements",
     "tags": [
-      "reporting"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-1",
-    "sha256": "04c0f6dcb391004aa54a43f82fad4b0c444c26c64e8534f62040af75784a34c4"
-  },
-  {
-    "id": "R-1-0003",
-    "rule_id": "R-1-0003",
-    "methodology": "GS-VER1",
-    "version": "v1-0",
-    "rule": "Safeguards and stakeholder consultation",
-    "tags": [
-      "safeguards"
-    ],
-    "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
-    "sectionId": "S-1",
-    "sha256": "382bdb8638b44adec6ed65f7d0f9c5fa50e1be674c4c340665f00fe150fd8dea"
+    "sha256": "5e30c88316520a3dfd263fbcdb5f10c55d6993cd67fc2811607c83ad1c0316d6"
   },
   {
     "id": "R-2-0001",
     "rule_id": "R-2-0001",
-    "methodology": "GS-VER1",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Baseline scenario determination",
+    "rule": "A/R activity types",
     "tags": [
-      "baseline",
-      "calc"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-2",
-    "sha256": "196b446a48606ae7c909ffdbeff2a17f571b4869e767d8eae8bd7cdcbe47b492"
+    "sha256": "fb45f761217a20cdd25f24a0b68d8e6fbaa81ddd75a67a142337759bcbfab234"
+  },
+  {
+    "id": "R-2-0002",
+    "rule_id": "R-2-0002",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "AGR activity types",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "d5f997ef2845e274fe170f3e11e9a2efd190beb6491e2f33b6e2a511e213f2c1"
+  },
+  {
+    "id": "R-2-0003",
+    "rule_id": "R-2-0003",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "FSC dual certification",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "bf81e63aaf42aff8402cd2655d7a49bc654387e8d37599197d1ce7eb39df8ccf"
+  },
+  {
+    "id": "R-2-0004",
+    "rule_id": "R-2-0004",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "A/R secured titles",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "bc9ada7651ebddb1fa2f950c0e106052d9456056cdfbe4f7b3511be1fc4d7081"
+  },
+  {
+    "id": "R-2-0005",
+    "rule_id": "R-2-0005",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "AGR secured titles - developer on behalf",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "a7d75cb99ec1f133b7debf022e30c09cda82127472c7ab0b3299e97d23d92bae"
+  },
+  {
+    "id": "R-2-0006",
+    "rule_id": "R-2-0006",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "AGR secured titles - developer acts alone",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "49c203ab1aced9cc9f1b6dd7845dcc3c6655e2d56b5dc2df3b57efd57896ee69"
+  },
+  {
+    "id": "R-2-0007",
+    "rule_id": "R-2-0007",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "New area addition",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "7e5fb58740e08662dc779ac0aa9484dcfd7fbbad662e6d23f2e5c03f08a45630"
+  },
+  {
+    "id": "R-2-0008",
+    "rule_id": "R-2-0008",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "Double counting prevention",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-2",
+    "sha256": "80e5601b8a5b909a78914a326f34e6bec38e6e345f66f34264eb2c9b3a08dd74"
   },
   {
     "id": "R-3-0001",
     "rule_id": "R-3-0001",
-    "methodology": "GS-VER1",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Additionality demonstration",
+    "rule": "Climate resilience - AGR",
     "tags": [
-      "additionality"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-3",
-    "sha256": "8f088456fc7296d0f4bd2b69d9405e59617b034c7bf85dce8559b3a8885b3aae"
+    "sha256": "8f22aaa36a8a08a059ea154d3c27b9f40a2c18efc817c91a78ae2e126fa6ea09"
   },
   {
     "id": "R-3-0002",
     "rule_id": "R-3-0002",
-    "methodology": "GS-VER1",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Common practice analysis",
-    "tags": [
-      "additionality"
-    ],
-    "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
-    "sectionId": "S-3",
-    "sha256": "8ffd029f41b98a168e1946d2b976780eb149dccc96acceb18605434bbcb1a73d"
-  },
-  {
-    "id": "R-4-0001",
-    "rule_id": "R-4-0001",
-    "methodology": "GS-VER1",
-    "version": "v1-0",
-    "rule": "Emission reduction quantification",
-    "tags": [
-      "calc"
-    ],
-    "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
-    "sectionId": "S-4",
-    "sha256": "f2af4c558074efd1b6f5922bf101545cf5728270f20e5e72349dac80c74e2199"
-  },
-  {
-    "id": "R-4-0002",
-    "rule_id": "R-4-0002",
-    "methodology": "GS-VER1",
-    "version": "v1-0",
-    "rule": "Leakage assessment",
-    "tags": [
-      "leakage"
-    ],
-    "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
-    "sectionId": "S-4",
-    "sha256": "26745ba82c3d14f0c5a115bf63778db4b0eccdbe7188257cc5dd43f61a077c04"
-  },
-  {
-    "id": "R-5-0001",
-    "rule_id": "R-5-0001",
-    "methodology": "GS-VER1",
-    "version": "v1-0",
-    "rule": "Monitoring plan requirements",
-    "tags": [
-      "monitoring"
-    ],
-    "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
-    "sectionId": "S-5",
-    "sha256": "0ccb4ffcef08ff36434be1d8aed98361b33fee8130e101761f21df088296d749"
-  },
-  {
-    "id": "R-5-0002",
-    "rule_id": "R-5-0002",
-    "methodology": "GS-VER1",
-    "version": "v1-0",
-    "rule": "Data and parameters monitored",
-    "tags": [
-      "monitoring"
-    ],
-    "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
-    "sectionId": "S-5",
-    "sha256": "02dc0f0eb668f03c5b0b3627e8ffd812403830e1ac3a797205f7acf1bf36c4c8"
-  },
-  {
-    "id": "R-6-0001",
-    "rule_id": "R-6-0001",
-    "methodology": "GS-VER1",
-    "version": "v1-0",
-    "rule": "Sustainable Development (SDG) contribution",
-    "tags": [
-      "safeguards"
-    ],
-    "provider": "GoldStandard",
-    "category": "Energy",
-    "path": "methodologies/GoldStandard/Energy/GS-VER1/v1-0/rules.json",
-    "sectionId": "S-6",
-    "sha256": "edac80eab5b1042438843526c00db47c1e4feeb91e2ebc10883ede1f974d9c01"
-  },
-  {
-    "id": "R-1-0001",
-    "rule_id": "R-1-0001",
-    "methodology": "GS-VER2",
-    "version": "v1-0",
-    "rule": "Agricultural project eligibility",
+    "rule": "Safeguarding assessment",
     "tags": [
       "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
-    "sectionId": "S-1",
-    "sha256": "bbd1e5e73784d76ebc41a691bc79a4db404f7144c887c7065d4017b34ee00bf0"
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "f089a6c10a518baa41ccad0fa10d91dfc978a831f48025fe1fb183ed88820519"
   },
   {
-    "id": "R-1-0002",
-    "rule_id": "R-1-0002",
-    "methodology": "GS-VER2",
+    "id": "R-3-0003",
+    "rule_id": "R-3-0003",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Project design and description",
+    "rule": "10% biodiversity protection",
     "tags": [
-      "reporting"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
-    "sectionId": "S-1",
-    "sha256": "009a0097f7b6193d33046646948967a50b31d290cd6e81c69abb6cb952c1dd93"
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "e7ac116195302b2eaf4322bcc513b83555fbcb5e45805e8e6ffb8db1953d5de0"
   },
   {
-    "id": "R-1-0003",
-    "rule_id": "R-1-0003",
-    "methodology": "GS-VER2",
+    "id": "R-3-0004",
+    "rule_id": "R-3-0004",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Environmental and social safeguards",
+    "rule": "Water body buffer zone",
     "tags": [
-      "safeguards"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
-    "sectionId": "S-1",
-    "sha256": "5543ba2e79b442946763367b6370a53e54f82c470e1eb2c9d18278a986870d6f"
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "9fc50ad0e4f51c758df8fe1d67a219ec52317cecb7cd1b2882fc36b94ac5d7a9"
   },
   {
-    "id": "R-2-0001",
-    "rule_id": "R-2-0001",
-    "methodology": "GS-VER2",
+    "id": "R-3-0005",
+    "rule_id": "R-3-0005",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Baseline scenario determination",
+    "rule": "Stakeholder consultation timing",
     "tags": [
-      "baseline",
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "309fe96d20a6b655c4a6a4a700d2c1dafa3778727df7b594e5f5cd7c11787183"
+  },
+  {
+    "id": "R-3-0006",
+    "rule_id": "R-3-0006",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "Verification frequency",
+    "tags": [
+      "monitoring"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "d5c2e681b1c46f90e9b4d2feb0703fed2c178f243888fb420b86b7129604b22a"
+  },
+  {
+    "id": "R-3-0007",
+    "rule_id": "R-3-0007",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "Additionality - CDM tool A/R",
+    "tags": [
       "calc"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
-    "sectionId": "S-2",
-    "sha256": "4672a0b8323956773b5041b27e61b3867037351c1194c6ebdfbea30b532c66d4"
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "697c7f0a7b32b142a3a300ea9fd50ee677240c6c78e8d2d6fd1d0c10a508142e"
   },
   {
-    "id": "R-3-0001",
-    "rule_id": "R-3-0001",
-    "methodology": "GS-VER2",
+    "id": "R-3-0008",
+    "rule_id": "R-3-0008",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Additionality demonstration",
+    "rule": "Additionality - CDM tool AGR",
     "tags": [
-      "additionality"
+      "calc"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-3",
-    "sha256": "4cbb979aac2c13c8b37ca9f3e9d195449506ac887e4dbf2651ca307b7b573355"
+    "sha256": "02b00d7e7084ec7ced5d481e6c884af5bb1c31bc1495487ac939267967a28763"
+  },
+  {
+    "id": "R-3-0009",
+    "rule_id": "R-3-0009",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "Additionality - positive list A/R",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "cacf7515ecd4bb91c9cd9bf4adb06de00a5079243e41ea6289c7df567641e914"
+  },
+  {
+    "id": "R-3-0010",
+    "rule_id": "R-3-0010",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "Additionality - positive list AGR",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "3a619c7bea42b65fcfe51ccd3a3b1992e3ea8de7eb6ab6527704689bb5b68064"
+  },
+  {
+    "id": "R-3-0011",
+    "rule_id": "R-3-0011",
+    "methodology": "GS-00XX",
+    "version": "v1-0",
+    "rule": "Retroactive issuance limit",
+    "tags": [
+      "eligibility"
+    ],
+    "provider": "GoldStandard",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-3",
+    "sha256": "dd9fa13dcd0b4076c1d8f97cae6fb02acc1c78500b0405a841c561567828ee45"
   },
   {
     "id": "R-4-0001",
     "rule_id": "R-4-0001",
-    "methodology": "GS-VER2",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Emission reduction quantification",
+    "rule": "GIS vector layers",
     "tags": [
-      "calc"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-4",
-    "sha256": "5e7e63d1754d48c2ec0be5979b9cc0961c06b5cc147d10ec5bc3b7c4225d7833"
+    "sha256": "0fbb4870b3b2edb988e98536e083ec3eef31b861dfa8d9c4542f49aa9e3620ef"
   },
   {
     "id": "R-4-0002",
     "rule_id": "R-4-0002",
-    "methodology": "GS-VER2",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Uncertainty analysis",
+    "rule": "GPS and mapping",
     "tags": [
-      "uncertainty"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-4",
-    "sha256": "1f5610e409ee4b0deffcd3ee368c39abd83d5d49e2f4339ef8b8d35e57cbbf26"
+    "sha256": "ecf7e970f3559428196b4e7a1dff32ef87de1836be478719899328f67cb5aea7"
   },
   {
     "id": "R-5-0001",
     "rule_id": "R-5-0001",
-    "methodology": "GS-VER2",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Monitoring plan requirements",
+    "rule": "Uncertainty target",
     "tags": [
-      "monitoring"
+      "uncertainty"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-5",
-    "sha256": "81e1a0fae9c39521f0c12a6bfc2ca37b0af165b5cc1205747e19cb84523e5e99"
+    "sha256": "7c9f30bff1e4ead42d85cbcae7e372f0c8a00ab98b788babcba61261464287aa"
   },
   {
     "id": "R-5-0002",
     "rule_id": "R-5-0002",
-    "methodology": "GS-VER2",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "Data quality and QA/QC",
+    "rule": "Three uncertainty approaches",
     "tags": [
-      "monitoring"
+      "eligibility"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
     "sectionId": "S-5",
-    "sha256": "17126e68390796927ed3401c9a7629dea5227f43514e0ec71d62101718559b34"
+    "sha256": "91f69d040f175cb082e1a36e2578a0581cc71c9c875dcc4d9331c4a20e09ce19"
   },
   {
-    "id": "R-6-0001",
-    "rule_id": "R-6-0001",
-    "methodology": "GS-VER2",
+    "id": "R-5-0003",
+    "rule_id": "R-5-0003",
+    "methodology": "GS-00XX",
     "version": "v1-0",
-    "rule": "SDG contribution assessment",
+    "rule": "Uncertainty deduction table",
     "tags": [
-      "safeguards"
+      "uncertainty"
     ],
     "provider": "GoldStandard",
-    "category": "Agriculture",
-    "path": "methodologies/GoldStandard/Agriculture/GS-VER2/v1-0/rules.json",
-    "sectionId": "S-6",
-    "sha256": "e47578fcee914c019613e51a0e56ded11d732ec4bdb77c3096510f9145a40ce5"
+    "category": "AFOLU",
+    "path": "methodologies/GoldStandard/LUF/GS-00XX/v1-0/rules.json",
+    "sectionId": "S-5",
+    "sha256": "2375dd110f2e93b617d30a2937dec52a497a6b3690e902a2e76f96f2ef1806c5"
   },
   {
     "id": "R-1-0001",
