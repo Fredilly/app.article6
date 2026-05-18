@@ -32,7 +32,7 @@ export function deriveStandard(program: string): string {
   const p = program.trim().toLowerCase();
   if (p === "unfccc") return "UNFCCC";
   if (p === "vcs" || p === "verra") return "Verra";
-  if (p === "gs" || p === "gold standard" || p === "gold_standard") return "Gold Standard";
+  if (p === "gs" || p === "gold standard" || p === "gold_standard" || p === "goldstandard" || p === "gold-standard") return "Gold Standard";
   return program.trim();
 }
 

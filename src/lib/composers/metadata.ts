@@ -50,6 +50,10 @@ const STANDARD_DISCLAIMERS: Record<string, string> = {
     + 'No GS certified emission reductions or SDG contributions have been approved based on this report.',
 };
 
+const PROVIDER_DIR: Record<string, string> = {
+  'Gold Standard': 'GoldStandard',
+};
+
 function loadJson(filePath: string): unknown {
   const resolved = path.resolve(filePath);
   if (!fs.existsSync(resolved)) return null;
@@ -63,11 +67,12 @@ export function loadMethodologyMetadata(
   methodCode: string,
   version: string,
 ): MethodologyMetadata | null {
+  const fsProvider = PROVIDER_DIR[provider] ?? provider;
   const packDir = path.join(
     process.cwd(),
     'public',
     'methodologies',
-    provider,
+    fsProvider,
     category,
     methodCode,
     version,
@@ -114,8 +119,9 @@ export function loadMethodologyMetadata(
   }
 
   const metaData = loadJson(path.join(packDir, 'META.json')) as Record<string, unknown> | null;
+  const disclaimerProvider = STANDARD_DISCLAIMERS[provider] ? provider : (Object.keys(PROVIDER_DIR).find(k => PROVIDER_DIR[k] === provider) ?? provider);
   const disclaimerText =
-    STANDARD_DISCLAIMERS[provider] ??
+    STANDARD_DISCLAIMERS[disclaimerProvider] ??
     `This draft readiness report summarizes reviewer-entered project review data. It is not a formal ${provider} validation, verification, or certification opinion.`;
 
   return {
