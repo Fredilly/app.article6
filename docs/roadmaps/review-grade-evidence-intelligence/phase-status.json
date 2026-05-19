@@ -1,0 +1,179 @@
+{
+  "RC0": "done",
+  "RC1": "in_progress",
+  "RC2": "planned",
+  "RC3": "planned",
+  "RC4": "planned",
+  "RC5": "planned",
+  "RC6": "planned",
+  "RC7": "planned",
+  "RC8": "planned",
+  "phase_meta": {
+    "status": "active",
+    "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
+    "current_focus": [
+      "Define the review-grade project export standard document",
+      "Document the evidence-fragment-fact-link-coverage pipeline",
+      "Plan phases for deterministic extraction, evidence linking, review panels, and verification pack generation"
+    ],
+    "not_active_now": [
+      "Refactoring extraction or export code — documentation and planning only in RC0-RC1",
+      "Changes to canonical methodology metadata or pack encoding",
+      "Unbounded AI classification, auto-verification, or final evidence sufficiency decisions"
+    ]
+  },
+  "phases": {
+    "phase_0_standard_definition": {
+      "status": "done",
+      "title": "Review-grade project export standard definition",
+      "repo": "app.article6",
+      "description": "Define the app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. Create the standard document at docs/standards/review-grade-project-export-standard.md. Create the roadmap plan.",
+      "acceptance": [
+        "docs/standards/review-grade-project-export-standard.md exists and defines the full pipeline from upload to premium export",
+        "Standard covers uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and PDF/ZIP export",
+        "Standard is honest about what is app-owned readiness-report logic vs canonical pack metadata",
+        "Standard is conservative enough to trust: no overclaiming of official registry verification or certification"
+      ],
+      "visible_ui_change": "None — documentation only",
+      "depends_on": []
+    },
+    "phase_1_deterministic_evidence_extraction": {
+      "status": "in_progress",
+      "title": "Deterministic evidence extraction foundation",
+      "repo": "app.article6",
+      "description": "Implement deterministic extraction of evidence fragments from uploaded documents (PDDs, workbooks, monitoring reports). Extract facts and surface candidate links to methodology rules. All extraction must be deterministic and auditable, producing stable provenance hashes.",
+      "acceptance": [
+        "Uploaded PDDs produce deterministic fragments with section/page provenance",
+        "Uploaded workbooks produce deterministic fragments with sheet/cell provenance",
+        "Extracted facts are stored with stable hashes for auditability",
+        "Candidate rule links are surfaced from extracted content",
+        "All extraction is deterministic: same input produces same output",
+        "Existing upload and evidence inventory flows are preserved"
+      ],
+      "visible_ui_change": "Evidence fragments and extracted facts appear in the evidence inventory alongside original uploads",
+      "depends_on": [
+        "phase_0_standard_definition"
+      ]
+    },
+    "phase_2_evidence_inventory_reconciliation": {
+      "status": "planned",
+      "title": "Evidence inventory reconciliation",
+      "repo": "app.article6",
+      "description": "Reconcile extracted evidence fragments and facts against the methodology coverage matrix. Surface unmatched evidence, missing coverage, and potential gaps. Enable reviewers to link evidence to rules with structured provenance.",
+      "acceptance": [
+        "Evidence fragments are cross-referenced against methodology rule sections",
+        "Unmatched evidence is surfaced for manual review",
+        "Coverage gaps are identified from missing evidence links",
+        "Reviewers can manually link evidence to rules with structured provenance",
+        "Reconciliation is deterministic: same inputs produce same coverage state"
+      ],
+      "visible_ui_change": "Evidence inventory shows reconciliation status per fragment: linked, unmatched, or gap",
+      "depends_on": [
+        "phase_1_deterministic_evidence_extraction"
+      ]
+    },
+    "phase_3_reviewer_decision_records": {
+      "status": "planned",
+      "title": "Reviewer decision records with provenance",
+      "repo": "app.article6",
+      "description": "Build structured reviewer decision records attached to evidence-linked rules. Each decision carries status, rationale, evidence reference, and provenance. Enable the coverage matrix to reflect reviewer decisions alongside evidence reconciliation.",
+      "acceptance": [
+        "Reviewer decisions are structured records with status, rationale, evidence reference, and provenance",
+        "Decisions are linked to specific evidence fragments, not just rule IDs",
+        "Coverage matrix reflects reviewer decisions alongside evidence reconciliation",
+        "Decision history is preserved and auditable",
+        "Existing review panel and decision flows are extended, not replaced"
+      ],
+      "visible_ui_change": "Coverage matrix shows reviewer decisions per rule with evidence links and provenance",
+      "depends_on": [
+        "phase_2_evidence_inventory_reconciliation"
+      ]
+    },
+    "phase_4_premium_pdf_zips_export": {
+      "status": "planned",
+      "title": "Premium PDF/ZIP export with full provenance",
+      "repo": "app.article6",
+      "description": "Build premium PDF and ZIP export pipelines that include evidence fragments, extracted facts, coverage matrix, reviewer decisions, and full provenance. The export must be beautiful enough to sell and structured enough to defend.",
+      "acceptance": [
+        "PDF export includes evidence fragments and extracted facts with provenance",
+        "PDF export includes coverage matrix with reconciliation status",
+        "PDF export includes reviewer decisions with rationale and evidence links",
+        "ZIP export includes all source documents, evidence fragments, and structured metadata",
+        "Exports are deterministic: same project state produces same output",
+        "Exports are beautiful and professional-grade in layout and typography"
+      ],
+      "visible_ui_change": "Premium PDF and ZIP export options available from project detail and review panels",
+      "depends_on": [
+        "phase_3_reviewer_decision_records"
+      ]
+    },
+    "phase_5_verification_pack_integration": {
+      "status": "planned",
+      "title": "Verification pack integration with evidence intelligence",
+      "repo": "app.article6",
+      "description": "Integrate evidence intelligence outputs (fragments, facts, links, coverage, decisions) into the existing verification pack pipeline. The verification pack becomes a richer, better-evidenced artifact.",
+      "acceptance": [
+        "Verification pack includes evidence fragments and extracted facts with provenance",
+        "Verification pack includes coverage matrix with reconciliation status",
+        "Verification pack includes reviewer decisions with evidence links",
+        "Verification pack is deterministic: same project state produces same output",
+        "Existing verification pack consumers (audit trail, export) are preserved"
+      ],
+      "visible_ui_change": "Verification pack output includes evidence fragments and structured review data",
+      "depends_on": [
+        "phase_4_premium_pdf_zips_export"
+      ]
+    },
+    "phase_6_evidence_quality_metrics": {
+      "status": "planned",
+      "title": "Evidence quality and coverage metrics",
+      "repo": "app.article6",
+      "description": "Surface evidence quality and coverage metrics in the UI: what fraction of rules have linked evidence, how many fragments per rule, what is the reconciliation confidence level. Enable reviewers to assess evidence sufficiency at a glance.",
+      "acceptance": [
+        "Evidence quality metrics are computed and displayed in the evidence inventory",
+        "Coverage metrics show fraction of rules with linked evidence per standard",
+        "Reconciliation confidence level is surfaced per evidence fragment",
+        "Metrics are deterministic: same project state produces same metrics",
+        "Metrics are advisory only — reviewers make the final sufficiency call"
+      ],
+      "visible_ui_change": "Evidence quality badges and coverage progress bars visible in evidence inventory and project overview",
+      "depends_on": [
+        "phase_3_reviewer_decision_records"
+      ]
+    },
+    "phase_7_evidence_snapshot_and_comparison": {
+      "status": "planned",
+      "title": "Evidence snapshot and comparison",
+      "repo": "app.article6",
+      "description": "Enable reviewers to take evidence snapshots at a point in time and compare evidence state across project versions or milestones. Support before/after views for re-verification and delta review scenarios.",
+      "acceptance": [
+        "Evidence snapshots capture the full evidence state at a point in time",
+        "Snapshots include fragments, facts, links, coverage, and decisions",
+        "Comparison view shows added, removed, and changed evidence between snapshots",
+        "Snapshots are deterministic: same project state at same time produces same snapshot",
+        "Snapshots are exportable for offline review and record-keeping"
+      ],
+      "visible_ui_change": "Evidence snapshot comparison timeline and diff view in project overview",
+      "depends_on": [
+        "phase_5_verification_pack_integration"
+      ]
+    },
+    "phase_8_export_standardization_and_consistency": {
+      "status": "planned",
+      "title": "Export standardization and cross-export consistency",
+      "repo": "app.article6",
+      "description": "Ensure all export outputs (PDF, ZIP, verification pack, evidence snapshot) follow the same layout conventions, terminology, and section ordering. Cross-export consistency makes the product predictable and professional.",
+      "acceptance": [
+        "All export types follow the same layout conventions and terminology",
+        "Section ordering is consistent across PDF, ZIP, verification pack, and snapshot exports",
+        "Terminology is consistent: evidence fragment, extracted fact, candidate link, coverage status, reviewer decision",
+        "Exports are deterministic: same project state produces same output across all export types",
+        "Migration path is documented for existing export consumers"
+      ],
+      "visible_ui_change": "Consistent section ordering and terminology across all export formats",
+      "depends_on": [
+        "phase_5_verification_pack_integration"
+      ]
+    }
+  }
+}
