@@ -57,7 +57,6 @@ const PROVIDER_DIR: Record<string, string> = {
 type ManifestPathCache = Map<string, string>;
 
 let manifestPathCache: ManifestPathCache | null = null;
-
 function loadJson(filePath: string): unknown {
   const resolved = path.resolve(filePath);
   if (!fs.existsSync(resolved)) return null;
@@ -111,7 +110,6 @@ function resolvePackDir(
 
   return direct;
 }
-
 export function loadMethodologyMetadata(
   provider: string,
   category: string,
