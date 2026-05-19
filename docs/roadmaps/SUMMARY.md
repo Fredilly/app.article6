@@ -193,7 +193,7 @@ Not active now:
 - Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
 
 1) RC0 — Review-grade project export standard definition: Done
-2) RC1 — Deterministic evidence extraction foundation: In progress
+2) RC1 — Deterministic evidence extraction foundation: Done
 3) RC2 — Evidence inventory reconciliation: Planned
 4) RC3 — Reviewer decision records with provenance: Planned
 5) RC4 — Premium PDF/ZIP export with full provenance: Planned
@@ -263,4 +263,3 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
-

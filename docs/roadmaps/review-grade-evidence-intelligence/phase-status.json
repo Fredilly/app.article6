@@ -38,7 +38,7 @@
       "depends_on": []
     },
     "phase_1_deterministic_evidence_extraction": {
-      "status": "in_progress",
+      "status": "done",
       "title": "Deterministic evidence extraction foundation",
       "repo": "app.article6",
       "description": "Implement deterministic extraction of evidence fragments from uploaded documents (PDDs, workbooks, monitoring reports). Extract facts and surface candidate links to methodology rules. All extraction must be deterministic and auditable, producing stable provenance hashes.",
