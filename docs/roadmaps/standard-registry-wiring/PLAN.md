@@ -554,7 +554,7 @@ The Gold Standard composer (`src/lib/composers/composeGoldStandardVerificationRe
 - `src/lib/composers/composeGoldStandardVerificationReport.ts` — GS4GG-specific composer
 - `src/lib/projects/verificationReport.ts` — Dispatcher updated to route Verra/GS to new composers; falls back to generic composer if metadata is unavailable
 - QuickCheck detection already feeds standard names (Verra, VCS, Gold Standard, GS4GG) into `methodologyMentions` without affecting registry assignment
-- Section taxonomy, disclaimer language, and evidence categories are all derived from canonical metadata — nothing is invented by the app
+- Methodology sections and rules are canonical pack metadata; report layout, disclaimers, and evidence summaries are app-owned readiness-report logic
 - 113 tests pass across all suites (20 new composer tests, 81 existing project tests, 12 QuickCheck tests)
 
 **Acceptance criteria (all met):**

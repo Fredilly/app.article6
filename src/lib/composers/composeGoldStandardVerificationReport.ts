@@ -39,7 +39,7 @@ type SectionGroup = {
 };
 
 function groupGSSections(
-  sections: { id: string; title: string }[],
+  sections: { id: string; title: string; parentId?: string | null }[],
 ): SectionGroup {
   const groups: SectionGroup = {
     design: [],
@@ -50,7 +50,7 @@ function groupGSSections(
     other: [],
   };
 
-  const topLevel = sections.filter((s) => !s.id.includes('-'));
+  const topLevel = sections.filter((s) => !s.parentId);
 
   for (const sec of topLevel) {
     const titleLc = sec.title.toLowerCase();
@@ -62,7 +62,7 @@ function groupGSSections(
     } else if (/additionality/i.test(titleLc)) {
       groups.additionality.push(`- ${sec.title} (${sec.id})`);
     } else if (/monitoring/i.test(titleLc)) {
-      const children = sections.filter((s) => s.id.startsWith(`${sec.id}-`));
+      const children = sections.filter((s) => s.parentId === sec.id);
       groups.monitoring.push(`- ${sec.title} (${sec.id})`);
       for (const child of children) {
         groups.monitoring.push(`    - ${child.title} (${child.id})`);
@@ -70,7 +70,7 @@ function groupGSSections(
     } else if (/safeguard|stakeholder|sustainable|sdg|environmental|social/i.test(titleLc)) {
       groups.safeguards.push(`- ${sec.title} (${sec.id})`);
     } else if (/quantif|removal|emission|leakage|uncertainty/i.test(titleLc)) {
-      const children = sections.filter((s) => s.id.startsWith(`${sec.id}-`));
+      const children = sections.filter((s) => s.parentId === sec.id);
       groups.monitoring.push(`- ${sec.title} (${sec.id})`);
       for (const child of children) {
         groups.monitoring.push(`    - ${child.title} (${child.id})`);

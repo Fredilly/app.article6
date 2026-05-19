@@ -66,6 +66,14 @@ describe('composeGoldStandardVerificationReport', () => {
     expect(sectionTitles).toContain('PROVENANCE');
   });
 
+  it('loads canonical Gold Standard metadata from the methodology pack', () => {
+    const report = composeGoldStandardVerificationReport(makeGSProject(), makeCoverage());
+    const overview = report.sections.find((section) => section.title === 'METHODOLOGY SOURCE SECTIONS');
+
+    expect(overview?.lines.join(' ')).toContain('GS-VER1');
+  });
+
+
   it('includes standard disclaimer language', () => {
     const report = composeGoldStandardVerificationReport(makeGSProject(), makeCoverage());
 

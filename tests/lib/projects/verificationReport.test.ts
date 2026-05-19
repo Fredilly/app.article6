@@ -261,7 +261,7 @@ describe('verification report composition', () => {
 
   it('Gold Standard generic report includes export timestamp in provenance', () => {
     const report = composeGoldStandardVerificationReport(
-      makeProject({ methodCode: 'GS-VER1', registry: 'Gold Standard' }),
+      makeProject({ methodCode: 'GS-00XX', methodVersion: 'v1-0', methodCategory: 'AFOLU', registry: 'Gold Standard' }),
       makeCoverage(),
       '2026-07-15T08:30:00Z',
     );

@@ -12,7 +12,8 @@ export async function composeStandardReport(
     try {
       const { composeVerraVerificationReport } = await import('@/lib/composers/composeVerraVerificationReport');
       return composeVerraVerificationReport(project, coverage, exportTime);
-    } catch {
+    } catch (err) {
+      console.warn(`[composeReport] Verra composer failed, falling back to generic: ${err instanceof Error ? err.message : String(err)}`);
       return genericComposer(project, coverage, exportTime);
     }
   }
@@ -20,7 +21,8 @@ export async function composeStandardReport(
     try {
       const { composeGoldStandardVerificationReport } = await import('@/lib/composers/composeGoldStandardVerificationReport');
       return composeGoldStandardVerificationReport(project, coverage, exportTime);
-    } catch {
+    } catch (err) {
+      console.warn(`[composeReport] Gold Standard composer failed, falling back to generic: ${err instanceof Error ? err.message : String(err)}`);
       return genericComposer(project, coverage, exportTime);
     }
   }

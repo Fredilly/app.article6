@@ -54,6 +54,9 @@ const PROVIDER_DIR: Record<string, string> = {
   'Gold Standard': 'GoldStandard',
 };
 
+type ManifestPathCache = Map<string, string>;
+
+let manifestPathCache: ManifestPathCache | null = null;
 function loadJson(filePath: string): unknown {
   const resolved = path.resolve(filePath);
   if (!fs.existsSync(resolved)) return null;
@@ -61,14 +64,37 @@ function loadJson(filePath: string): unknown {
   return JSON.parse(raw);
 }
 
-export function loadMethodologyMetadata(
+function loadManifestPathCache(): ManifestPathCache {
+  if (manifestPathCache) return manifestPathCache;
+
+  const cache = new Map<string, string>();
+  const manifestPath = path.join(process.cwd(), 'public', 'manifest', 'index.json');
+  const manifest = loadJson(manifestPath);
+  if (Array.isArray(manifest)) {
+    for (const entry of manifest) {
+      if (!entry || typeof entry !== 'object') continue;
+      const record = entry as Record<string, unknown>;
+      const code = typeof record.methodology === 'string' ? record.methodology.trim() : '';
+      const version = typeof record.version === 'string' ? record.version.trim() : '';
+      const rulesPath = typeof record.path === 'string' ? record.path.trim() : '';
+      if (!code || !version || !rulesPath) continue;
+      const candidate = path.join(process.cwd(), 'public', rulesPath);
+      cache.set(`${code}@${version}`, path.dirname(candidate));
+    }
+  }
+
+  manifestPathCache = cache;
+  return cache;
+}
+
+function resolvePackDir(
   provider: string,
   category: string,
   methodCode: string,
   version: string,
-): MethodologyMetadata | null {
+): string {
   const fsProvider = PROVIDER_DIR[provider] ?? provider;
-  const packDir = path.join(
+  const direct = path.join(
     process.cwd(),
     'public',
     'methodologies',
@@ -77,23 +103,37 @@ export function loadMethodologyMetadata(
     methodCode,
     version,
   );
+  if (fs.existsSync(direct)) return direct;
+
+  const manifestResolved = loadManifestPathCache().get(`${methodCode}@${version}`);
+  if (manifestResolved && fs.existsSync(manifestResolved)) return manifestResolved;
+
+  return direct;
+}
+export function loadMethodologyMetadata(
+  provider: string,
+  category: string,
+  methodCode: string,
+  version: string,
+): MethodologyMetadata | null {
+  const packDir = resolvePackDir(provider, category, methodCode, version);
 
   const sectionsData = loadJson(path.join(packDir, 'sections.json'));
   if (!sectionsData) return null;
 
-    const sectionsRaw = (sectionsData as { sections: unknown[] }).sections ?? [];
-    const sections: ComposerSection[] = sectionsRaw.map((entry: unknown) => {
-      const s = entry as Record<string, unknown>;
-      return {
-        id: String(s.id ?? ''),
-        stableId: String(s.stable_id ?? ''),
-        title: String(s.title ?? ''),
-        anchor: String(s.anchor ?? ''),
-        sectionNumber: String(s.sectionNumber ?? s.section_number ?? ''),
-        sectionLevel: Number(s.sectionLevel ?? s.section_level ?? 1),
-        parentId: (s.parentId ?? s.parent_id ?? null) as string | null,
-      };
-    });
+  const sectionsRaw = (sectionsData as { sections: unknown[] }).sections ?? [];
+  const sections: ComposerSection[] = sectionsRaw.map((entry: unknown) => {
+    const s = entry as Record<string, unknown>;
+    return {
+      id: String(s.id ?? ''),
+      stableId: String(s.stable_id ?? ''),
+      title: String(s.title ?? ''),
+      anchor: String(s.anchor ?? ''),
+      sectionNumber: String(s.sectionNumber ?? s.section_number ?? ''),
+      sectionLevel: Number(s.sectionLevel ?? s.section_level ?? 1),
+      parentId: (s.parentId ?? s.parent_id ?? null) as string | null,
+    };
+  });
 
   const rulesRaw = loadJson(path.join(packDir, 'rules.rich.json'));
   const rules: ComposerRuleRef[] = [];

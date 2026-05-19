@@ -8,6 +8,7 @@ function method(partial: Partial<MethodInventoryItem>): MethodInventoryItem {
     program: partial.program ?? "Program",
     sector: partial.sector ?? "Sector",
     versions: partial.versions ?? ["v1-0"],
+    manifestPathByVersion: partial.manifestPathByVersion ?? { "v1-0": "methodologies/Program/Sector/METH/v1-0/rules.json" },
     latestVersion: partial.latestVersion ?? "v1-0",
     versionCount: partial.versionCount ?? (partial.versions?.length ?? 1),
     ruleCountByVersion: partial.ruleCountByVersion ?? { "v1-0": 10 },
@@ -56,4 +57,3 @@ describe("MethodsInventoryApp filtering", () => {
     expect(filtered.map((m) => m.code)).toEqual(["A"]);
   });
 });
-

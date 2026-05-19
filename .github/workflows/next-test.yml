@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Fetch methodology pack data
+        run: npm run fetch:methodologies-pack
+
       - name: Ensure Jest installed
         run: npx jest --version
 

@@ -21,6 +21,9 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Fetch methodology pack data
+        run: npm run fetch:methodologies-pack
+
       - name: Validate roadmap SSOT
         run: npm run roadmap:validate
 

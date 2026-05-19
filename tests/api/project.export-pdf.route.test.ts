@@ -136,7 +136,9 @@ describe('/api/projects/[id]/export-pdf route', () => {
   it('renders a standard-aware readiness report for Gold Standard projects', async () => {
     const project = {
       ...makeProject(),
-      methodCode: 'GS-VER1',
+      methodCode: 'GS-00XX',
+      methodVersion: 'v1-0',
+      methodCategory: 'AFOLU',
       registry: 'Gold Standard' as const,
     };
     const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
@@ -160,7 +162,9 @@ describe('/api/projects/[id]/export-pdf route', () => {
       const project = {
         ...makeProject(),
         registry,
-        methodCode: registry === 'UNFCCC' ? 'AR-AMS0007' : registry === 'Verra' ? 'VM0007' : 'GS-VER1',
+        methodCode: registry === 'UNFCCC' ? 'AR-AMS0007' : registry === 'Verra' ? 'VM0007' : 'GS-00XX',
+        methodVersion: registry === 'Gold Standard' ? 'v1-0' : makeProject().methodVersion,
+        methodCategory: registry === 'Gold Standard' ? 'AFOLU' : undefined,
       };
       const req = new Request('http://localhost/api/projects/project-12345678/export-pdf', {
         method: 'POST',
