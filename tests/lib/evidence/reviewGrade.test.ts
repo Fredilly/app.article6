@@ -128,7 +128,18 @@ describe('loadReviewGradeContract', () => {
     expect(contract!.exportMetadata!.standard).toBe('Verra');
   });
 
-  it('loads full contract for GS-00XX', () => {
+  it('loads full contract for GS-00XX via manifest-resolved path when category differs from filesystem', () => {
+    const contract = loadReviewGradeContract('Gold Standard', 'AFOLU', 'GS-00XX', 'v1-0');
+    expect(contract).not.toBeNull();
+    expect(contract!.provider).toBe('Gold Standard');
+    expect(contract!.methodCode).toBe('GS-00XX');
+    expect(contract!.category).toBe('AFOLU');
+    expect(contract!.expectedEvidence.length).toBeGreaterThan(0);
+    expect(contract!.exportMetadata).not.toBeNull();
+    expect(contract!.exportMetadata!.standard).toBe('Gold Standard');
+  });
+
+  it('still loads GS-00XX when category matches filesystem path segment', () => {
     const contract = loadReviewGradeContract('Gold Standard', 'LUF', 'GS-00XX', 'v1-0');
     expect(contract).not.toBeNull();
     expect(contract!.provider).toBe('Gold Standard');

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PACK_ROOT = path.join(process.cwd(), 'public', 'methodologies');
+const MANIFEST_PATH = path.join(process.cwd(), 'public', 'manifest', 'index.json');
 
 export type EvidenceTaxonomyEntry = {
   id: string;
@@ -59,6 +60,14 @@ export type ReviewGradeContract = {
   exportMetadata: ExportMetadata | null;
 };
 
+const PROVIDER_DIR: Record<string, string> = {
+  'Gold Standard': 'GoldStandard',
+};
+
+type ManifestPathCache = Map<string, string>;
+
+let manifestPathCache: ManifestPathCache | null = null;
+
 function loadJson(filePath: string): unknown {
   const resolved = path.resolve(filePath);
   if (!fs.existsSync(resolved)) return null;
@@ -70,18 +79,41 @@ function loadJson(filePath: string): unknown {
   }
 }
 
-function providerDir(provider: string): string {
-  const dirMap: Record<string, string> = {
-    'Gold Standard': 'GoldStandard',
-    'GoldStandard': 'GoldStandard',
-    'gold standard': 'GoldStandard',
-  };
-  const mapped = dirMap[provider] ?? provider;
-  return path.join(PACK_ROOT, mapped);
+function loadManifestPathCache(): ManifestPathCache {
+  if (manifestPathCache) return manifestPathCache;
+
+  const cache = new Map<string, string>();
+  const manifest = loadJson(MANIFEST_PATH);
+  if (Array.isArray(manifest)) {
+    for (const entry of manifest) {
+      if (!entry || typeof entry !== 'object') continue;
+      const record = entry as Record<string, unknown>;
+      const code = typeof record.methodology === 'string' ? record.methodology.trim() : '';
+      const version = typeof record.version === 'string' ? record.version.trim() : '';
+      const rulesPath = typeof record.path === 'string' ? record.path.trim() : '';
+      if (!code || !version || !rulesPath) continue;
+      cache.set(`${code}@${version}`, path.join(process.cwd(), 'public', path.dirname(rulesPath)));
+    }
+  }
+
+  manifestPathCache = cache;
+  return cache;
 }
 
-function methodDir(provider: string, category: string, code: string, version: string): string {
-  return path.join(providerDir(provider), category, code, version);
+function resolvePackDir(
+  provider: string,
+  category: string,
+  methodCode: string,
+  version: string,
+): string | null {
+  const fsProvider = PROVIDER_DIR[provider] ?? provider;
+  const direct = path.join(PACK_ROOT, fsProvider, category, methodCode, version);
+  if (fs.existsSync(direct)) return direct;
+
+  const manifestResolved = loadManifestPathCache().get(`${methodCode}@${version}`);
+  if (manifestResolved && fs.existsSync(manifestResolved)) return manifestResolved;
+
+  return null;
 }
 
 export function loadEvidenceTaxonomy(): EvidenceTaxonomyEntry[] {
@@ -149,7 +181,8 @@ export function loadExpectedEvidence(packDir: string): RuleExpectedEvidence[] {
 }
 
 export function loadExportMetadata(provider: string): ExportMetadata | null {
-  const exportPath = path.join(providerDir(provider), '_export', 'export-metadata.json');
+  const fsProvider = PROVIDER_DIR[provider] ?? provider;
+  const exportPath = path.join(PACK_ROOT, fsProvider, '_export', 'export-metadata.json');
   const data = loadJson(exportPath);
   if (!data || typeof data !== 'object') return null;
   const record = data as Record<string, unknown>;
@@ -183,15 +216,15 @@ export function loadReviewGradeContract(
   code: string,
   version: string,
 ): ReviewGradeContract | null {
-  const dir = methodDir(provider, category, code, version);
-  if (!fs.existsSync(dir)) return null;
+  const packDir = resolvePackDir(provider, category, code, version);
+  if (!packDir) return null;
 
-  const meta = loadMethodMeta(dir);
+  const meta = loadMethodMeta(packDir);
   if (!meta) return null;
 
-  const adoptionStatus = loadAdoptionStatus(dir);
+  const adoptionStatus = loadAdoptionStatus(packDir);
   const reviewGrade = isReviewGrade(adoptionStatus);
-  const expectedEvidence = loadExpectedEvidence(dir);
+  const expectedEvidence = loadExpectedEvidence(packDir);
   const taxonomy = loadEvidenceTaxonomy();
   const exportMetadata = loadExportMetadata(provider);
 
