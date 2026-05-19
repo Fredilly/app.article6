@@ -190,7 +190,7 @@ Current focus:
 Not active now:
 - Refactoring extraction or export code — documentation and planning only in RC0-RC1
 - Changes to canonical methodology metadata or pack encoding
-- AI-assisted evidence classification or auto-verification
+- Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
 
 1) RC0 — Review-grade project export standard definition: Done
 2) RC1 — Deterministic evidence extraction foundation: In progress
