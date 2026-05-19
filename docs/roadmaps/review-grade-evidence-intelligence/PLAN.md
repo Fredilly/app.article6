@@ -2,10 +2,16 @@
 
 Status SSOT: `docs/roadmaps/review-grade-evidence-intelligence/phase-status.json`
 
-Tags for PR bodies and commit messages:
-- `Roadmap: review-grade-evidence-intelligence`
-- `Roadmap-Item: <phase_id>` (e.g. `Roadmap-Item: phase_0_standard_definition`)
-- `SSOT: docs/roadmaps/review-grade-evidence-intelligence/phase-status.json`
+Roadmap PRs must use the current machine-parseable directive format documented in `docs/roadmaps/README.md`:
+
+```md
+### Roadmap-Update
+- slug: review-grade-evidence-intelligence
+- items:
+  - RC<n>: in_progress
+```
+
+Use `RC<n>` to update the matching phase in `phase-status.json`. Do not use the legacy `Roadmap:` / `Roadmap-Item:` / `SSOT:` tag block for new PRs.
 
 ## Goal
 
@@ -21,7 +27,7 @@ The pipeline flows from upload through evidence inventory, fragments, extracted 
 
 - Refactoring extraction or export code — RC0 and RC1 are documentation and planning only
 - Changes to canonical methodology metadata or pack encoding
-- AI-assisted evidence classification or auto-verification — all extraction is deterministic
+- Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
 - Official registry verification or certification claims — all output is scoped as readiness review
 - Replacing the existing UNFCCC-specific report composer or verification pack pipeline — they are extended, not replaced
 
@@ -68,14 +74,15 @@ Define the app-side project export standard covering uploads, evidence inventory
 
 ### Phase 1 — Deterministic evidence extraction foundation
 
-Implement deterministic extraction of evidence fragments from uploaded documents (PDDs, workbooks, monitoring reports). Extract facts and surface candidate links to methodology rules. All extraction must be deterministic and auditable, producing stable provenance hashes.
+Implement deterministic extraction of canonical evidence fragments from uploaded documents (PDDs, workbooks, monitoring reports). Extract rule-based facts with stable provenance, then allow bounded advisory candidate intelligence where useful. Canonical extraction outputs must be deterministic and auditable; any AI-assisted suggestions must be schema-bound, provenance-tracked, non-final, and clearly separated from reviewer decisions.
 
 **Acceptance criteria:**
 - Uploaded PDDs produce deterministic fragments with section/page provenance
 - Uploaded workbooks produce deterministic fragments with sheet/cell provenance
 - Extracted facts are stored with stable hashes for auditability
 - Candidate rule links are surfaced from extracted content
-- All extraction is deterministic: same input produces same output
+- Canonical extraction artifacts are deterministic: same input produces same output
+- Any AI/ML-assisted candidate suggestions are advisory only, schema-bound, versioned, and never treated as final verification or sufficiency decisions
 - Existing upload and evidence inventory flows are preserved
 
 **Visible UI change:** Evidence fragments and extracted facts appear in the evidence inventory alongside original uploads.
