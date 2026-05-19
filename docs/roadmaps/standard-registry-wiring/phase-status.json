@@ -6,7 +6,7 @@
   "RC4": "done",
   "RC5": "done",
   "RC6": "done",
-   "RC7": "in_progress",
+   "RC7": "done",
   "phase_meta": {
     "status": "active",
     "summary": "All phases complete. Verra and Gold Standard wired into the app through a standard-aware path. UNFCCC remains unchanged. Standard-specific composers implemented using canonical pack metadata.",
@@ -139,7 +139,7 @@
         "Verra-specific composer implemented using canonical pack metadata at src/lib/composers/composeVerraVerificationReport.ts",
         "Gold Standard-specific composer implemented using canonical pack metadata at src/lib/composers/composeGoldStandardVerificationReport.ts",
         "Both composers feed into audit-pack PDF pipeline via src/lib/composers/composeReport.ts",
-        "Standard-specific sections, disclaimers, and evidence references derived from metadata — nothing invented",
+        "Standard-specific sections and rules are canonical pack metadata; report layout, disclaimers, and evidence summaries are app-owned readiness-report logic",
         "QuickCheck methodologyMentions include standard-specific section context without affecting registry assignment",
         "Fallback to generic composer if metadata unavailable",
         "113 tests pass across composer unit, PDF integration, and existing project test suites"

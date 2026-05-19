@@ -10,7 +10,6 @@
     "lint": "node --require ./scripts/node-version-shim.js ./node_modules/next/dist/bin/next lint --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "ci": "npm run guard:methodology-boundary && npm run lint && npm run typecheck && npm run check:docs-layout && npm run roadmap:validate-evidence && npm test && npm run build && npm run check:quick-check-pdf-trace && npm run roadmap:check",
-    "pretest": "npm run fetch:methodologies-pack",
     "test": "jest --passWithNoTests",
     "test:e2e": "playwright test",
     "test:audit-pack:smoke": "node scripts/test-audit-pack-smoke.mjs",
