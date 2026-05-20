@@ -83,4 +83,14 @@ describe('PDF export integration with Verra composer', () => {
 
     expect(parsed1.text.length).toBe(parsed2.text.length);
   }, 15000);
+
+  it('uses canonical export timestamp terminology in the rendered PDF', async () => {
+    const project = makeProject();
+    const pdf = await buildProjectExportPdf(project, coverage);
+    const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
+    const parsed = await extractPdfTextWithPdfParse({ bytes });
+
+    expect(parsed.text).toContain('Export timestamp');
+    expect(parsed.text).not.toContain('Export time:');
+  }, 15000);
 });

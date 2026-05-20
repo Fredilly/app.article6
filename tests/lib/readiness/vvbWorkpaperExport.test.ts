@@ -287,4 +287,23 @@ describe("buildVvbWorkpaperExport", () => {
       "VVB workpaper export contains forbidden claim language: verification opinion",
     );
   });
+
+  test("adds canonical export conventions to the manifest", async () => {
+    const result = buildVvbWorkpaperExport({ report: buildSampleReport() });
+    const zip = await JSZip.loadAsync(result.zipBytes);
+    const manifestRaw = await zip.file("manifest.json")?.async("string");
+    expect(manifestRaw).toBeTruthy();
+
+    const manifest = JSON.parse(manifestRaw ?? "{}") as {
+      export_conventions: {
+        schemaVersion: string;
+        sectionOrder: string[];
+        terminology: { candidateLink: string };
+      };
+    };
+
+    expect(manifest.export_conventions.schemaVersion).toBe("vvb_workpaper.v1");
+    expect(manifest.export_conventions.sectionOrder).toContain("evidence-and-provenance-references");
+    expect(manifest.export_conventions.terminology.candidateLink).toBe("candidate link");
+  });
 });

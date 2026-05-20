@@ -11,6 +11,7 @@ import {
   renderMetricCard,
   renderReportHtmlDocument,
 } from "@/lib/readiness/reportHtmlTheme";
+import { buildExportConventions } from "@/lib/export/conventions";
 
 export type ClientReadinessAppendixArtifact = {
   kind: "article6.client_readiness_appendix";
@@ -62,6 +63,7 @@ export type ClientReadinessExportManifest = {
   version: 1;
   generated_at: string;
   report_id: string;
+  export_conventions: ReturnType<typeof buildExportConventions>;
   files: Array<{
     path: string;
     sha256: string;
@@ -449,6 +451,7 @@ export function buildClientReadinessReportExport(
     version: 1,
     generated_at: input.report.technicalAppendix.generatedAt,
     report_id: input.report.reportId,
+    export_conventions: buildExportConventions("client_readiness"),
     files: fileEntries.map((entry) => ({
       path: entry.path,
       sha256: sha256Hex(entry.bytes),

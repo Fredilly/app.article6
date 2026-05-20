@@ -139,4 +139,23 @@ describe("buildClientReadinessReportExport", () => {
     expect(appendix.traceability.rules.map((rule) => rule.ruleId)).toEqual(["R-1", "R-2"]);
     expect(appendix.traceability.rules[0]?.linkedEvidence.map((item) => item.id)).toEqual(["ev-1"]);
   });
+
+  test("adds canonical export conventions to the manifest", async () => {
+    const result = buildSampleExport();
+    const zip = await JSZip.loadAsync(result.zipBytes);
+    const manifestRaw = await zip.file("manifest.json")?.async("string");
+    expect(manifestRaw).toBeTruthy();
+
+    const manifest = JSON.parse(manifestRaw ?? "{}") as {
+      export_conventions: {
+        schemaVersion: string;
+        sectionOrder: string[];
+        terminology: { reviewerDecision: string };
+      };
+    };
+
+    expect(manifest.export_conventions.schemaVersion).toBe("client_readiness.v1");
+    expect(manifest.export_conventions.sectionOrder).toContain("rule-findings-matrix");
+    expect(manifest.export_conventions.terminology.reviewerDecision).toBe("reviewer decision");
+  });
 });
