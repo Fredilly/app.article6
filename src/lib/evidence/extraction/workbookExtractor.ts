@@ -6,7 +6,12 @@ export async function extractWorkbookFragments(
   workbookBuffer: ArrayBuffer,
 ): Promise<DocumentFragment[]> {
   const { parseWorkbookEvidenceAsset } = await import('@/lib/evidence/workbook');
-  const asset = await parseWorkbookEvidenceAsset(workbookBuffer, doc.fileName, doc.mime);
+  const asset = await parseWorkbookEvidenceAsset({
+    bytes: workbookBuffer,
+    filename: doc.fileName,
+    mime: doc.mime,
+    fileSha256: doc.contentSha256,
+  });
   if (!asset) return [];
 
   const fragments: DocumentFragment[] = [];
