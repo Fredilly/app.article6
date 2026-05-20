@@ -12,9 +12,9 @@
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Complete evidence inventory reconciliation engine (Phase 2)",
-      "Surface reconciliation status in evidence inventory UI",
-      "Integrate candidate links with manual reviewer linking"
+      "Implement reviewer decision records with provenance (Phase 3)",
+      "Build structured reviewer decisions attached to evidence-linked rules",
+      "Integrate coverage matrix with reviewer decision status"
     ],
     "not_active_now": [
       "Refactoring extraction or export code — documentation and planning only in RC0-RC1",
@@ -59,20 +59,21 @@
       ]
     },
     "phase_2_evidence_inventory_reconciliation": {
-      "status": "in_progress",
+      "status": "done",
       "title": "Evidence inventory reconciliation",
       "repo": "app.article6",
-      "description": "Reconcile extracted evidence fragments and facts against the methodology coverage matrix. Surface unmatched evidence, missing coverage, and potential gaps. Enable reviewers to link evidence to rules with structured provenance.",
+      "description": "Reconcile extracted evidence fragments and facts against the methodology coverage matrix. Surface unmatched evidence, missing coverage, and potential gaps. Enable reviewers to link evidence to rules with structured provenance. Handles missing packs and manifests gracefully with structured status and error message.",
       "acceptance": [
         "Evidence fragments are cross-referenced against methodology rule sections",
         "Unmatched evidence is surfaced for manual review",
         "Coverage gaps are identified from missing evidence links",
         "Reviewers can manually link evidence to rules with structured provenance",
-        "Reconciliation is deterministic: same inputs produce same coverage state"
+        "Reconciliation is deterministic: same inputs produce same coverage state",
+        "Missing methodology packs or manifests return clear status and error message"
       ],
-      "visible_ui_change": "Evidence inventory shows reconciliation status per fragment: linked, unmatched, or gap",
+      "visible_ui_change": "Evidence inventory shows reconciliation status per fragment: linked (green), unmatched (yellow), or gap (red). Failed reconciliation shows inline error message.",
       "depends_on": [
-        "phase_1_deterministic_evidence_extraction"
+        "phase_0_standard_definition"
       ]
     },
     "phase_3_reviewer_decision_records": {

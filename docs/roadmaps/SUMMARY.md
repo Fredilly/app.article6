@@ -194,7 +194,7 @@ Not active now:
 
 1) RC0 — Review-grade project export standard definition: Done
 2) RC1 — Deterministic evidence extraction foundation: Done
-3) RC2 — Evidence inventory reconciliation: In progress
+3) RC2 — Evidence inventory reconciliation: Done
 4) RC3 — Reviewer decision records with provenance: Planned
 5) RC4 — Premium PDF/ZIP export with full provenance: Planned
 6) RC5 — Verification pack integration with evidence intelligence: Planned

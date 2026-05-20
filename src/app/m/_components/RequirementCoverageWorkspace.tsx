@@ -146,15 +146,19 @@ export default function RequirementCoverageWorkspace({
     selectedRow?.provenance.citations.find((citation) => citation.sectionId)?.sectionId ??
     selectedTraceSections[0]?.sectionId ??
     null;
+  const hasReconciliation = inventoryItems.some((i) => i.reconciliation_status);
   const inventoryCounts = useMemo(() => {
     return inventoryItems.reduce(
       (acc, item) => {
         acc.total += 1;
         if (item.link_state === "unlinked") acc.unlinked += 1;
         else acc.linked += 1;
+        if (item.reconciliation_status === "linked") acc.recLinked += 1;
+        else if (item.reconciliation_status === "unmatched") acc.recUnmatched += 1;
+        else if (item.reconciliation_status === "gap") acc.recGap += 1;
         return acc;
       },
-      { total: 0, linked: 0, unlinked: 0 },
+      { total: 0, linked: 0, unlinked: 0, recLinked: 0, recUnmatched: 0, recGap: 0 },
     );
   }, [inventoryItems]);
 
@@ -461,6 +465,19 @@ export default function RequirementCoverageWorkspace({
                       <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-800">
                         Linked {inventoryCounts.linked}
                       </span>
+                      {hasReconciliation ? (
+                        <>
+                          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-800">
+                            Reconciled {inventoryCounts.recLinked}
+                          </span>
+                          <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
+                            Unmatched {inventoryCounts.recUnmatched}
+                          </span>
+                          <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-red-800">
+                            Gaps {inventoryCounts.recGap}
+                          </span>
+                        </>
+                      ) : null}
                     </div>
                   </div>
                   <div className="mt-3 text-sm text-slate-700">
@@ -477,6 +494,23 @@ export default function RequirementCoverageWorkspace({
                                     <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
                                       {inventoryLinkStateLabel(item)}
                                     </span>
+                                    {item.reconciliation_status ? (
+                                      <span
+                                        className={
+                                          item.reconciliation_status === "linked"
+                                            ? "rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700"
+                                            : item.reconciliation_status === "unmatched"
+                                              ? "rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700"
+                                              : "rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700"
+                                        }
+                                      >
+                                        {item.reconciliation_status === "linked"
+                                          ? "Reconciled"
+                                          : item.reconciliation_status === "unmatched"
+                                            ? "Unmatched"
+                                            : "Gap"}
+                                      </span>
+                                    ) : null}
                                   </div>
                                   <div className="mt-2 text-xs text-slate-600">{inventoryRelationshipSummary(item)}</div>
                                 </div>
