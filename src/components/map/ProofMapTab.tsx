@@ -3430,7 +3430,7 @@ export default function ProofMapTab({
               <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
                 {evidenceInventory.filter((item) => item.link_state === "unlinked").length} unlinked
               </span>
-              {evidenceInventory.some((item) => item.reconciliation_status) ? (
+              {evidenceInventory.some((item) => item.reconciliation_status || item.reconciliation_load_error) ? (
                 <>
                   <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-800">
                     {evidenceInventory.filter((item) => item.reconciliation_status === "linked").length} reconciled
@@ -3441,10 +3441,24 @@ export default function ProofMapTab({
                   <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-red-800">
                     {evidenceInventory.filter((item) => item.reconciliation_status === "gap").length} gaps
                   </span>
+                  {evidenceInventory.some((item) => item.reconciliation_load_error) ? (
+                    <span className="rounded-full border border-red-300 bg-red-100 px-2 py-0.5 text-red-800" title="Reconciliation could not complete — check methodology pack or manifest">
+                      {evidenceInventory.filter((item) => item.reconciliation_load_error).length} error{evidenceInventory.filter((item) => item.reconciliation_load_error).length === 1 ? "" : "s"}
+                    </span>
+                  ) : null}
                 </>
               ) : null}
             </div>
           </div>
+          {!evidenceInventory.some((i) => i.reconciliation_status) && evidenceInventory.some((i) => i.reconciliation_load_error) ? (
+            <div className="mt-2 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+              <p className="font-semibold">Reconciliation incomplete</p>
+              <p className="mt-1 text-xs text-red-700">
+                Evidence inventory could not be reconciled — the methodology pack or manifest may be missing.
+                Coverage gaps cannot be determined.
+              </p>
+            </div>
+          ) : null}
           <div className="mt-2 grid gap-2">
             {evidenceInventory.length ? (
               evidenceInventory.map((item) => {
@@ -3475,12 +3489,27 @@ export default function ProofMapTab({
                                     ? "rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700"
                                     : "rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700"
                               }
+                              title={
+                                item.reconciliation_status === "linked"
+                                  ? "Evidence fragment matches a methodology rule via candidate link"
+                                  : item.reconciliation_status === "unmatched"
+                                    ? "Evidence fragment has no matching methodology rule — may require manual review"
+                                    : "No evidence covers this rule — reviewer attention needed"
+                              }
                             >
                               {item.reconciliation_status === "linked"
                                 ? "Reconciled"
                                 : item.reconciliation_status === "unmatched"
                                   ? "Unmatched"
                                   : "Gap"}
+                            </span>
+                          ) : null}
+                          {item.reconciliation_load_error ? (
+                            <span
+                              className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700"
+                              title={item.reconciliation_load_error}
+                            >
+                              Reconciliation error
                             </span>
                           ) : null}
                         </div>

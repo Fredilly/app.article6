@@ -147,6 +147,7 @@ export default function RequirementCoverageWorkspace({
     selectedTraceSections[0]?.sectionId ??
     null;
   const hasReconciliation = inventoryItems.some((i) => i.reconciliation_status);
+  const hasReconciliationError = inventoryItems.some((i) => i.reconciliation_load_error);
   const inventoryCounts = useMemo(() => {
     return inventoryItems.reduce(
       (acc, item) => {
@@ -156,9 +157,10 @@ export default function RequirementCoverageWorkspace({
         if (item.reconciliation_status === "linked") acc.recLinked += 1;
         else if (item.reconciliation_status === "unmatched") acc.recUnmatched += 1;
         else if (item.reconciliation_status === "gap") acc.recGap += 1;
+        if (item.reconciliation_load_error) acc.recError += 1;
         return acc;
       },
-      { total: 0, linked: 0, unlinked: 0, recLinked: 0, recUnmatched: 0, recGap: 0 },
+      { total: 0, linked: 0, unlinked: 0, recLinked: 0, recUnmatched: 0, recGap: 0, recError: 0 },
     );
   }, [inventoryItems]);
 
@@ -478,8 +480,22 @@ export default function RequirementCoverageWorkspace({
                           </span>
                         </>
                       ) : null}
+                      {hasReconciliationError ? (
+                        <span className="rounded-full border border-red-300 bg-red-100 px-2 py-0.5 text-red-800" title="Reconciliation could not complete — check methodology pack or manifest">
+                          {inventoryCounts.recError} reconciliation error{inventoryCounts.recError === 1 ? "" : "s"}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
+                  {!hasReconciliation && hasReconciliationError ? (
+                    <div className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+                      <p className="font-semibold">Reconciliation incomplete</p>
+                      <p className="mt-1 text-xs text-red-700">
+                        Evidence inventory could not be reconciled — the methodology pack or manifest may be missing.
+                        Coverage gaps cannot be determined. Verify the methodology is available and re-run reconciliation.
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="mt-3 text-sm text-slate-700">
                     {inventoryItems.length ? (
                       <ul className="grid gap-2">
@@ -503,12 +519,27 @@ export default function RequirementCoverageWorkspace({
                                               ? "rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700"
                                               : "rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700"
                                         }
+                                        title={
+                                          item.reconciliation_status === "linked"
+                                            ? "Evidence fragment matches a methodology rule via candidate link"
+                                            : item.reconciliation_status === "unmatched"
+                                              ? "Evidence fragment has no matching methodology rule — may require manual review"
+                                              : "No evidence covers this rule — reviewer attention needed"
+                                        }
                                       >
                                         {item.reconciliation_status === "linked"
                                           ? "Reconciled"
                                           : item.reconciliation_status === "unmatched"
                                             ? "Unmatched"
                                             : "Gap"}
+                                      </span>
+                                    ) : null}
+                                    {item.reconciliation_load_error ? (
+                                      <span
+                                        className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700"
+                                        title={item.reconciliation_load_error}
+                                      >
+                                        Reconciliation error
                                       </span>
                                     ) : null}
                                   </div>

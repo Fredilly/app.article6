@@ -34,6 +34,7 @@ export type EvidenceInventoryItem = {
   link_state: EvidenceInventoryLinkState;
   linked_requirement_ids: string[];
   reconciliation_status?: ReconciliationItemStatus;
+  reconciliation_load_error?: string;
   pdd_document?: PddDocumentAsset;
   pdd_fragments?: PddFragment[];
   pdd_fragment_links?: PddFragmentLink[];
@@ -504,8 +505,13 @@ export function unlinkPddFragmentFromRequirement(
 export function enrichInventoryWithReconciliation(
   items: EvidenceInventoryItem[],
   fragmentToStatus: Map<string, ReconciliationItemStatus>,
+  loadError?: string,
 ): EvidenceInventoryItem[] {
   return items.map((item) => {
+    if (loadError) {
+      return { ...item, reconciliation_status: undefined, reconciliation_load_error: loadError };
+    }
+
     const fragmentIds = (item.pdd_fragments ?? []).map((f) => f.fragment_id);
     const statuses = fragmentIds.map((id) => fragmentToStatus.get(id)).filter(Boolean) as ReconciliationItemStatus[];
     let reconciliation_status: ReconciliationItemStatus | undefined;
