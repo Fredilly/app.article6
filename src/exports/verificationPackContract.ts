@@ -316,6 +316,11 @@ function safeZipFilename(value: string | null | undefined, fallback: string): st
   return sanitized || fallback;
 }
 
+function anchorId(prefix: string, value: string): string {
+  const compact = value.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "").toLowerCase();
+  return `${prefix}-${compact || "item"}`;
+}
+
 function decodeBase64Bytes(value: string): Buffer {
   return Buffer.from(value, "base64");
 }
@@ -983,11 +988,17 @@ function renderVerificationReportHtml(input: {
     : `<li>No follow-up actions are recorded in this export.</li>`;
   const integrityRows = input.evidenceManifest.evidence
     .map((entry) => `<tr>
-  <td>${escapeHtml(entry.evidence_ref)}</td>
+  <td id="${anchorId("evidence-ref", entry.evidence_ref)}">${escapeHtml(entry.evidence_ref)}</td>
   <td>${escapeHtml(isPackagedEvidenceEntry(entry) ? entry.file_path ?? "Included file path unavailable" : "Referenced only — file not included")}</td>
   <td>${escapeHtml(entry.sha256 ?? "Unavailable")}</td>
 </tr>`)
     .join("\n");
+  const evidenceHrefById = Object.fromEntries(
+    input.evidenceManifest.evidence.map((entry) => [
+      entry.evidence_ref,
+      { href: `#${anchorId("evidence-ref", entry.evidence_ref)}`, label: entry.evidence_ref },
+    ]),
+  );
 
   return `<!doctype html>
 <html lang="en">
@@ -1145,7 +1156,7 @@ ${followUpActions}
       </ul>
     </section>
 
-${input.evidenceIntelligence ? renderEvidenceIntelligenceHtmlSections(input.evidenceIntelligence) : ''}
+${input.evidenceIntelligence ? renderEvidenceIntelligenceHtmlSections(input.evidenceIntelligence, { evidenceHrefById }) : ''}
 
     <section class="panel">
       <h2>Limitations</h2>

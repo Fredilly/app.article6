@@ -4,6 +4,7 @@ import { zipSync, strToU8 } from "fflate";
 import { makePackMeta } from "./packMeta";
 import { canonicalStringify, sha256Hex } from "../integrity/artifacts";
 import { buildTraceIndex } from "../lib/trace/traceIndex";
+import { buildVerificationPackEvidenceIntelligence } from "../lib/evidence/export/verificationPackDerivation";
 import {
   buildVerificationPackContractFiles,
   type CurrentMethodReviewExportInput,
@@ -118,6 +119,13 @@ export function buildAuditPackZip(
 
   const generatedAt = generatedAtForAuditPack(options.finalizedReview, options.currentReview);
   const packMeta = makePackMeta({ methodCode, version, repo, commit, generated_at: generatedAt });
+  const evidenceIntelligence = buildVerificationPackEvidenceIntelligence({
+    generatedAt,
+    rulesJson: readJsonRaw(rulesPath),
+    trace,
+    finalizedReview: options.finalizedReview ?? null,
+    currentReview: options.currentReview ?? null,
+  });
   const contractFiles = buildVerificationPackContractFiles({
     generatedAt,
     methodCode,
@@ -127,6 +135,7 @@ export function buildAuditPackZip(
     trace,
     finalizedReview: options.finalizedReview ?? null,
     currentReview: options.currentReview ?? null,
+    evidenceIntelligence,
   });
   for (const file of contractFiles) {
     files.push({

@@ -11,6 +11,11 @@ export type EvidenceIntelligenceData = {
   decisionRun?: DecisionRun;
 };
 
+type EvidenceLinkTarget = {
+  href: string;
+  label?: string;
+};
+
 export type EvidenceIntelligenceFiles = Array<{ path: string; bytes: Buffer }>;
 
 function escapeHtml(value: string): string {
@@ -30,6 +35,11 @@ function safeDate(iso: string | undefined): string {
 
 function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max - 3) + '...' : s;
+}
+
+function anchorId(prefix: string, value: string): string {
+  const compact = value.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
+  return `${prefix}-${compact || 'item'}`;
 }
 
 export function buildEvidenceIntelligenceJson(data: EvidenceIntelligenceData): Record<string, unknown> {
@@ -100,10 +110,14 @@ export function buildEvidenceIntelligenceJson(data: EvidenceIntelligenceData): R
             ruleId: d.ruleId,
             ruleTitle: d.ruleTitle,
             status: d.status,
-            rationale: d.rationale,
-            reviewerId: d.reviewerId,
-            reviewedAt: d.reviewedAt,
-            evidenceInventoryIds: d.evidenceInventoryIds,
+	          rationale: d.rationale,
+	          reviewerId: d.reviewerId,
+	          reviewedAt: d.reviewedAt,
+	            evidenceInventoryIds: [...d.evidenceInventoryIds],
+	            evidenceLinks: d.evidenceInventoryIds.map((id) => ({
+	              evidenceRef: id,
+	              reportAnchor: `#${anchorId('evidence-ref', id)}`,
+	            })),
             provenanceHash: d.provenanceHash,
           })),
         }
@@ -159,44 +173,67 @@ export function buildEvidenceIntelligenceFiles(data: EvidenceIntelligenceData): 
         totalItems: run.items.length,
         gapCount: run.gaps.length,
       },
-      gaps: run.gaps.map((g) => ({
-        ruleId: g.ruleId,
-        ruleTitle: g.ruleTitle,
-        sectionId: g.sectionId,
-        expectedEvidenceIds: g.expectedEvidenceIds,
-        matchedEvidenceIds: g.matchedEvidenceIds,
-      })),
-    };
+	      gaps: run.gaps.map((g) => ({
+	        ruleId: g.ruleId,
+	        ruleTitle: g.ruleTitle,
+	        sectionId: g.sectionId,
+	        expectedEvidenceIds: [...g.expectedEvidenceIds],
+	        matchedEvidenceIds: [...g.matchedEvidenceIds],
+	      })),
+	    };
     files.push({ path: 'coverage-matrix.json', bytes: Buffer.from(canonicalStringify(coverageJson), 'utf8') });
   }
 
-  if (hasDecisions) {
-    const run = data.decisionRun!;
-    const decisionsJson = {
-      kind: 'article6.reviewer_decisions',
-      version: 1,
-      runId: run.runId,
-      decisionSetFingerprint: run.decisionSetFingerprint,
-      decisions: run.decisions.map((d) => ({
-        decisionId: d.decisionId,
-        ruleId: d.ruleId,
-        ruleTitle: d.ruleTitle,
-        status: d.status,
-        rationale: d.rationale,
-        reviewerId: d.reviewerId,
-        reviewedAt: d.reviewedAt,
-        evidenceInventoryIds: d.evidenceInventoryIds,
-        provenanceHash: d.provenanceHash,
-      })),
-    };
-    files.push({ path: 'reviewer-decisions.json', bytes: Buffer.from(canonicalStringify(decisionsJson), 'utf8') });
-  }
+	  if (hasDecisions) {
+	    const run = data.decisionRun!;
+	    const decisionsJson = {
+	      kind: 'article6.reviewer_decisions',
+	      version: 1,
+	      runId: run.runId,
+	      decisionSetFingerprint: run.decisionSetFingerprint,
+	      decisions: run.decisions.map((d) => ({
+	        decisionId: d.decisionId,
+	        ruleId: d.ruleId,
+	        ruleTitle: d.ruleTitle,
+	        status: d.status,
+	        rationale: d.rationale,
+	        reviewerId: d.reviewerId,
+	        reviewedAt: d.reviewedAt,
+	        evidenceInventoryIds: [...d.evidenceInventoryIds],
+	        evidenceLinks: d.evidenceInventoryIds.map((id) => ({
+	          evidenceRef: id,
+	          reportAnchor: `#${anchorId('evidence-ref', id)}`,
+	        })),
+	        provenanceHash: d.provenanceHash,
+	      })),
+	    };
+	    files.push({ path: 'reviewer-decisions.json', bytes: Buffer.from(canonicalStringify(decisionsJson), 'utf8') });
+	  }
 
   return files;
 }
 
-export function renderEvidenceIntelligenceHtmlSections(data: EvidenceIntelligenceData): string {
+export function renderEvidenceIntelligenceHtmlSections(
+  data: EvidenceIntelligenceData,
+  options?: { evidenceHrefById?: Record<string, EvidenceLinkTarget> },
+): string {
   const sections: string[] = [];
+  const fragmentsById = new Map(data.fragments.map((fragment) => [fragment.fragmentId, fragment]));
+  const evidenceHrefById = options?.evidenceHrefById ?? {};
+  const renderFragmentRef = (fragmentId: string) => {
+    const fragment = fragmentsById.get(fragmentId);
+    const location = fragment?.pageStart
+      ? ` p.${fragment.pageStart}${fragment.pageEnd && fragment.pageEnd !== fragment.pageStart ? `-${fragment.pageEnd}` : ''}`
+      : fragment?.sheetName
+        ? ` ${fragment.sheetName}`
+        : '';
+    return `<a href="#${anchorId('fragment', fragmentId)}" class="ref">[${escapeHtml(fragmentId)}${escapeHtml(location)}]</a>`;
+  };
+  const renderEvidenceRef = (evidenceId: string) => {
+    const target = evidenceHrefById[evidenceId];
+    if (!target) return `<span class="ref">${escapeHtml(evidenceId)}</span>`;
+    return `<a href="${escapeHtml(target.href)}" class="ref">${escapeHtml(target.label ?? evidenceId)}</a>`;
+  };
 
   if (data.facts.length > 0) {
     const grouped = new Map<string, ExtractedFact[]>();
@@ -211,7 +248,7 @@ export function renderEvidenceIntelligenceHtmlSections(data: EvidenceIntelligenc
       .map(([type, typeFacts]) => {
         const typeLabel = type.replace(/-/g, ' ');
         const samples = typeFacts.slice(0, 5).map((f) =>
-          `<div class="muted">${escapeHtml(truncate(f.value, 120))} <span class="ref">[${escapeHtml(f.fragmentId)}]</span></div>`
+          `<div class="muted">${escapeHtml(truncate(f.value, 120))} ${renderFragmentRef(f.fragmentId)}</div>`
         ).join('\n');
         const more = typeFacts.length > 5 ? `<div class="muted">... and ${typeFacts.length - 5} more</div>` : '';
         return `<tr>
@@ -282,7 +319,7 @@ ${gapRows}
   <td>${escapeHtml(truncate(d.rationale, 200))}</td>
   <td>${escapeHtml(d.reviewerId)}</td>
   <td>${safeDate(d.reviewedAt)}</td>
-  <td>${d.evidenceInventoryIds.length > 0 ? escapeHtml(d.evidenceInventoryIds.join(', ')) : '<span class="muted">None</span>'}</td>
+  <td>${d.evidenceInventoryIds.length > 0 ? d.evidenceInventoryIds.map((id) => renderEvidenceRef(id)).join(', ') : '<span class="muted">None</span>'}</td>
 </tr>`).join('\n');
 
     sections.push(`
@@ -308,7 +345,7 @@ ${decisionRows}
   }
 
   if (data.fragments.length > 0) {
-    const fragmentRows = data.fragments.slice(0, 20).map((f) => `<tr>
+    const fragmentRows = data.fragments.slice(0, 20).map((f) => `<tr id="${anchorId('fragment', f.fragmentId)}">
   <td>${escapeHtml(f.fragmentId)}</td>
   <td>${escapeHtml(f.documentId)}</td>
   <td>${escapeHtml(f.kind)}</td>
