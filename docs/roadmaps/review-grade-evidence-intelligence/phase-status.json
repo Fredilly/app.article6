@@ -115,6 +115,9 @@
       "visible_ui_change": "Premium PDF and ZIP export options available from project detail and review panels",
       "depends_on": [
         "phase_3_reviewer_decision_records"
+      ],
+      "prs": [
+        612
       ]
     },
     "phase_5_verification_pack_integration": {
