@@ -4,5 +4,6 @@ export type {
   ReconciliationRun,
   ReconciliationItem,
   ReconciliationItemStatus,
+  ReconciliationStatus,
   CoverageGap,
 } from './types';

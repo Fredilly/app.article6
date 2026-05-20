@@ -132,4 +132,88 @@ describe('Evidence Reconciliation', () => {
     expect(result.createdAt).toBeTruthy();
     expect(new Date(result.createdAt).toISOString()).toBe(result.createdAt);
   });
+
+  it('returns status: complete for a normal run', async () => {
+    const result = await reconcileEvidence(makeInput());
+    expect(result.status).toBe('complete');
+    expect(result.loadError).toBeUndefined();
+  });
+
+  it('returns missing-manifest for a non-existent methodology', async () => {
+    const result = await reconcileEvidence(
+      makeInput({ methodCode: 'NONEXISTENT', methodVersion: 'v9-9' }),
+    );
+
+    expect(result.status).toBe('missing-manifest');
+    expect(result.loadError).toContain('not found in manifest');
+    expect(result.items).toEqual([]);
+    expect(result.gaps).toEqual([]);
+    expect(result.reconciliationFingerprint).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('returns missing-manifest for a valid methodology with bogus version', async () => {
+    const result = await reconcileEvidence(
+      makeInput({ methodCode: 'VM0047', methodVersion: 'v9-9' }),
+    );
+
+    expect(result.status).toBe('missing-manifest');
+    expect(result.loadError).toContain('not found in manifest');
+    expect(result.items).toEqual([]);
+    expect(result.gaps).toEqual([]);
+  });
+
+  it('handles empty fragments gracefully', async () => {
+    const result = await reconcileEvidence(makeInput({ fragments: [], facts: [], candidateLinks: [] }));
+
+    expect(result.status).toBe('complete');
+    expect(result.items).toEqual([]);
+    expect(result.gaps.length).toBeGreaterThan(0);
+    expect(result.reconciliationFingerprint).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('handles unmatched candidate links (links with no matching fact)', async () => {
+    const result = await reconcileEvidence(
+      makeInput({
+        facts: [],
+        candidateLinks: [
+          {
+            linkId: 'orphan_link',
+            factId: 'nonexistent_fact',
+            ruleId: 'R-1-0001',
+            ruleTitle: 'Forest definition threshold',
+            sectionId: 'S-1',
+            matchType: 'keyword-overlap',
+            matchReason: 'orphan',
+            confidence: 0.5,
+            contentSha256: 'orphan_hash',
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe('complete');
+    expect(result.items.every((i) => i.status === 'unmatched')).toBe(true);
+    expect(result.gaps.length).toBeGreaterThan(0);
+  });
+
+  it('is deterministic for missing-manifest errors', async () => {
+    const input = makeInput({ methodCode: 'NONEXISTENT', methodVersion: 'v9-9' });
+    const run1 = await reconcileEvidence(input);
+    const run2 = await reconcileEvidence(input);
+
+    expect(run1.status).toBe('missing-manifest');
+    expect(run2.status).toBe('missing-manifest');
+    expect(run1.reconciliationFingerprint).toBe(run2.reconciliationFingerprint);
+    expect(run1.loadError).toBe(run2.loadError);
+  });
+
+  it('is deterministic for empty fragments', async () => {
+    const input = makeInput({ fragments: [], facts: [], candidateLinks: [] });
+    const run1 = await reconcileEvidence(input);
+    const run2 = await reconcileEvidence(input);
+
+    expect(run1.reconciliationFingerprint).toBe(run2.reconciliationFingerprint);
+    expect(run1.items).toEqual(run2.items);
+    expect(run1.gaps).toEqual(run2.gaps);
+  });
 });

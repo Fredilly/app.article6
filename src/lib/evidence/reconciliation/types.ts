@@ -22,10 +22,18 @@ export type CoverageGap = {
   matchedEvidenceIds: string[];
 };
 
+export type ReconciliationStatus =
+  | "complete"
+  | "missing-manifest"
+  | "missing-pack"
+  | "no-rules";
+
 export type ReconciliationRun = {
   runId: string;
   createdAt: string;
   projectId: string;
+  status: ReconciliationStatus;
+  loadError?: string;
   items: ReconciliationItem[];
   gaps: CoverageGap[];
   itemFingerprint: string;

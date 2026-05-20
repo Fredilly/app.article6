@@ -6,44 +6,79 @@ import { loadExpectedEvidence } from '@/lib/evidence/reviewGrade';
 import type {
   ReconciliationInput,
   ReconciliationRun,
+  ReconciliationStatus,
   ReconciliationItem,
   CoverageGap,
 } from './types';
 
-function resolvePackDir(methodCode: string, methodVersion: string): string | null {
+function resolvePackDir(methodCode: string, methodVersion: string): { dir: string } | { error: string } {
   const manifestPath = path.join(process.cwd(), 'public', 'manifest', 'index.json');
-  if (!fs.existsSync(manifestPath)) return null;
-
-  try {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as Array<Record<string, unknown>>;
-    const entry = manifest.find(
-      (e) => String(e.methodology ?? '') === methodCode && String(e.version ?? '') === methodVersion,
-    );
-    if (entry && typeof entry.path === 'string') {
-      return path.join(process.cwd(), 'public', path.dirname(entry.path));
-    }
-  } catch {
-    return null;
+  if (!fs.existsSync(manifestPath)) {
+    return { error: 'Methodology manifest not found at public/manifest/index.json' };
   }
-  return null;
+
+  let manifest: Array<Record<string, unknown>>;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as Array<Record<string, unknown>>;
+  } catch {
+    return { error: `Failed to parse manifest at ${manifestPath}` };
+  }
+
+  const entry = manifest.find(
+    (e) => String(e.methodology ?? '') === methodCode && String(e.version ?? '') === methodVersion,
+  );
+  if (!entry) {
+    return { error: `Methodology ${methodCode} v${methodVersion} not found in manifest` };
+  }
+
+  if (typeof entry.path !== 'string') {
+    return { error: `Manifest entry for ${methodCode} v${methodVersion} has no path` };
+  }
+
+  const packDir = path.join(process.cwd(), 'public', path.dirname(entry.path));
+  if (!fs.existsSync(packDir)) {
+    return { error: `Pack directory not found at ${packDir}` };
+  }
+
+  return { dir: packDir };
 }
 
-function loadRuleSummaries(methodCode: string, methodVersion: string) {
-  const packDir = resolvePackDir(methodCode, methodVersion);
-  if (!packDir) return [];
+function loadRuleSummaries(methodCode: string, methodVersion: string):
+  { rules: Array<{ ruleId: string; ruleTitle: string; sectionId: string; evidenceLabels: string[]; evidenceIds: string[] }>; status: "ok" }
+  | { status: ReconciliationStatus; loadError: string }
+{
+  const result = resolvePackDir(methodCode, methodVersion);
+  if ('error' in result) {
+    const status: ReconciliationStatus =
+      result.error.includes('manifest') ? 'missing-manifest' : 'missing-pack';
+    return { status, loadError: result.error };
+  }
 
-  const evidence = loadExpectedEvidence(packDir);
-  return evidence.map((r) => ({
-    ruleId: r.ruleId,
-    ruleTitle: r.ruleTitle,
-    sectionId: r.sectionId,
-    evidenceLabels: r.expectedEvidence.map((e) => e.label),
-    evidenceIds: r.expectedEvidence.map((e) => e.id),
-  }));
+  const evidence = loadExpectedEvidence(result.dir);
+  if (!evidence || evidence.length === 0) {
+    return { status: 'no-rules', loadError: `No rules found in pack at ${result.dir}` };
+  }
+
+  return {
+    status: 'ok',
+    rules: evidence.map((r: { ruleId: string; ruleTitle: string; sectionId: string; expectedEvidence: Array<{ label: string; id: string }> }) => ({
+      ruleId: r.ruleId,
+      ruleTitle: r.ruleTitle,
+      sectionId: r.sectionId,
+      evidenceLabels: r.expectedEvidence.map((e) => e.label),
+      evidenceIds: r.expectedEvidence.map((e) => e.id),
+    })),
+  };
 }
 
 export async function reconcileEvidence(input: ReconciliationInput): Promise<ReconciliationRun> {
-  const rules = loadRuleSummaries(input.methodCode, input.methodVersion);
+  const loaded = loadRuleSummaries(input.methodCode, input.methodVersion);
+
+  if (loaded.status !== 'ok') {
+    return buildEmptyRun(input.projectId, loaded.status, loaded.loadError);
+  }
+
+  const rules = loaded.rules;
 
   const linkedFragmentIds = new Set<string>();
   const linkedFactIds = new Set<string>();
@@ -114,11 +149,32 @@ export async function reconcileEvidence(input: ReconciliationInput): Promise<Rec
     runId,
     createdAt: new Date().toISOString(),
     projectId: input.projectId,
+    status: 'complete',
     items,
     gaps,
     itemFingerprint,
     gapFingerprint,
     reconciliationFingerprint,
+  };
+}
+
+async function buildEmptyRun(
+  projectId: string,
+  status: ReconciliationStatus,
+  loadError: string,
+): Promise<ReconciliationRun> {
+  const emptyFingerprint = await sha256Text(canonicalJsonStringify({ status, loadError, projectId }));
+  return {
+    runId: emptyFingerprint,
+    createdAt: new Date().toISOString(),
+    projectId,
+    status,
+    loadError,
+    items: [],
+    gaps: [],
+    itemFingerprint: emptyFingerprint,
+    gapFingerprint: emptyFingerprint,
+    reconciliationFingerprint: emptyFingerprint,
   };
 }
 
