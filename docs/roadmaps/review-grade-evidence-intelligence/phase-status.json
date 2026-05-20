@@ -176,7 +176,7 @@
       ]
     },
     "phase_8_export_standardization_and_consistency": {
-      "status": "planned",
+      "status": "in_progress",
       "title": "Export standardization and cross-export consistency",
       "repo": "app.article6",
       "description": "Ensure all export outputs (PDF, ZIP, verification pack, evidence snapshot) follow the same layout conventions, terminology, and section ordering. Cross-export consistency makes the product predictable and professional.",
@@ -190,6 +190,9 @@
       "visible_ui_change": "Consistent section ordering and terminology across all export formats",
       "depends_on": [
         "phase_5_verification_pack_integration"
+      ],
+      "prs": [
+        620
       ]
     }
   }
