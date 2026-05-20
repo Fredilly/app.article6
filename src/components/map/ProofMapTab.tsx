@@ -56,6 +56,8 @@ import {
   unlinkEvidencePinFromRequirement,
   upsertPddFragmentOnEvidencePin,
 } from "@/lib/evidence/inventory";
+import { computeMetrics } from "@/lib/evidence/metrics";
+import EvidenceQualityBadge from "@/components/evidence/EvidenceQualityBadge";
 import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
 import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
 import { computeUplift, isComparable } from "@/lib/baseline/uplift";
@@ -514,6 +516,11 @@ export default function ProofMapTab({
     [evidencePins],
   );
   const evidenceInventory = useMemo(() => buildEvidenceInventory(evidencePins), [evidencePins]);
+  const evidenceMetrics = useMemo(() => computeMetrics({ inventoryItems: evidenceInventory }), [evidenceInventory]);
+  const qualityByEvidenceId = useMemo(
+    () => new Map(evidenceMetrics.fragmentQualities.map((q) => [q.evidenceId, q])),
+    [evidenceMetrics],
+  );
   const evidencePinsById = useMemo(() => new Map(evidencePins.map((pin) => [pin.id, pin])), [evidencePins]);
   const selectedRuleId = activeRuleId ?? null;
 
@@ -3511,6 +3518,12 @@ export default function ProofMapTab({
                             >
                               Reconciliation error
                             </span>
+                          ) : null}
+                          {qualityByEvidenceId.has(item.evidence_id) ? (
+                            <EvidenceQualityBadge
+                              grade={qualityByEvidenceId.get(item.evidence_id)!.grade}
+                              score={qualityByEvidenceId.get(item.evidence_id)!.score}
+                            />
                           ) : null}
                         </div>
                         <div className="mt-2 text-sm font-semibold text-slate-900">{item.display_name}</div>

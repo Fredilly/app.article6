@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatEvidenceInventoryId, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
+import { computeMetrics } from "@/lib/evidence/metrics";
+import EvidenceQualityBadge from "@/components/evidence/EvidenceQualityBadge";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_COVERAGE_STATUS_META,
@@ -162,6 +164,11 @@ export default function RequirementCoverageWorkspace({
       },
       { total: 0, linked: 0, unlinked: 0, recLinked: 0, recUnmatched: 0, recGap: 0, recError: 0 },
     );
+  }, [inventoryItems]);
+
+  const qualityByEvidenceId = useMemo(() => {
+    const metrics = computeMetrics({ inventoryItems });
+    return new Map(metrics.fragmentQualities.map((q) => [q.evidenceId, q]));
   }, [inventoryItems]);
 
   return (
@@ -541,6 +548,12 @@ export default function RequirementCoverageWorkspace({
                                       >
                                         Reconciliation error
                                       </span>
+                                    ) : null}
+                                    {qualityByEvidenceId.has(item.evidence_id) ? (
+                                      <EvidenceQualityBadge
+                                        grade={qualityByEvidenceId.get(item.evidence_id)!.grade}
+                                        score={qualityByEvidenceId.get(item.evidence_id)!.score}
+                                      />
                                     ) : null}
                                   </div>
                                   <div className="mt-2 text-xs text-slate-600">{inventoryRelationshipSummary(item)}</div>

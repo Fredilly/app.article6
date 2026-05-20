@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
 import { sha256ArrayBuffer } from '@/lib/proof/hash';
 import type {
@@ -15,6 +15,8 @@ import type {
   RuleReview,
 } from '@/lib/projects/types';
 import { resolveProjectRegistry } from '@/lib/projects/verificationReport';
+import { computeMetrics } from '@/lib/evidence/metrics';
+import { SectionCoverageBar } from '@/components/evidence/EvidenceQualityBadge';
 import {
   acceptExtractedManualFindingDraft,
   addExtractedManualFindingDrafts,
@@ -113,6 +115,12 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
       }));
     }
   }, [projectId]);
+
+  const sectionCoverages = useMemo(() => {
+    if (!project?.reviews?.length) return null;
+    const metrics = computeMetrics({ inventoryItems: [], reviews: project.reviews });
+    return metrics.sectionCoverages;
+  }, [project?.reviews]);
 
   if (!project) {
     return (
@@ -471,6 +479,29 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             <p className="mt-1 text-right text-xs text-slate-500">{coverage.percentComplete}% complete</p>
           </div>
         </>
+      ) : null}
+
+      {sectionCoverages?.length ? (
+        <section className="rounded-lg border border-slate-200 bg-white p-5">
+          <h2 className="text-lg font-semibold text-slate-900">Coverage by Section</h2>
+          <p className="mt-1 text-sm text-slate-500">Fraction of rules with linked evidence per methodology section.</p>
+          <div className="mt-4 grid gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {sectionCoverages.map((sc) => (
+                <div key={sc.sectionId} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                  <SectionCoverageBar
+                    sectionTitle={sc.sectionTitle}
+                    coverageFraction={sc.coverageFraction}
+                    totalRules={sc.totalRules}
+                  />
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    {Math.round(sc.decisionFraction * 100)}% reviewed
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       ) : null}
 
       <section className="rounded-lg border border-slate-200 bg-white p-5">

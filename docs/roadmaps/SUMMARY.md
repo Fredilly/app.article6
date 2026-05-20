@@ -40,7 +40,7 @@ Lane status: Active
 Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
 
 Current focus:
-- Verification pack integration with evidence intelligence (Phase 5)
+- Evidence snapshot and comparison (Phase 7)
 - Cover Quick Check extraction edge case tests
 - Responsive UI QA for reconciliation and decision badges
 
@@ -255,3 +255,4 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
+
