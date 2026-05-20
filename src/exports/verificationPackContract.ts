@@ -4,6 +4,8 @@ import type { EvidencePin } from "../lib/proofMap/types";
 import type { TraceIndex, TraceSectionLink } from "../lib/trace/traceIndex";
 import type { RuleReview } from "../lib/verify/reviewStore";
 import { normalizeMethodCode, normalizeVersion, type VerifierRunBundle } from "../lib/verify/runState";
+import type { EvidenceIntelligenceData } from "../lib/evidence/export/verificationPackIntegration";
+import { buildEvidenceIntelligenceFiles, renderEvidenceIntelligenceHtmlSections } from "../lib/evidence/export/verificationPackIntegration";
 
 type ContractRule = {
   id: string;
@@ -876,6 +878,7 @@ function renderVerificationReportHtml(input: {
   evidenceManifest: EvidenceManifest;
   requirementReview: RequirementReview;
   trace: VerificationPackContract["trace"];
+  evidenceIntelligence?: EvidenceIntelligenceData;
 }): string {
   const reviewedRules = input.requirementReview.rules.filter((rule) => rule.status !== "not_reviewed" && rule.status !== "awaiting_project_evidence");
   const unreviewedRules = input.requirementReview.rules.filter((rule) => rule.status === "not_reviewed" || rule.status === "awaiting_project_evidence");
@@ -997,6 +1000,10 @@ function renderVerificationReportHtml(input: {
       .panel { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px; background: #ffffff; }
       .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
       .muted { color: #64748b; font-size: 12px; margin-top: 4px; }
+      .ref { color: #64748b; font-size: 11px; font-family: monospace; }
+      .status-approved { color: #16a34a; font-weight: 600; }
+      .status-rejected { color: #dc2626; font-weight: 600; }
+      .status-needs-review { color: #ca8a04; font-weight: 600; }
       .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
       .stat { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; background: #f8fafc; }
       h1, h2, h3 { margin-bottom: 8px; }
@@ -1138,6 +1145,8 @@ ${followUpActions}
       </ul>
     </section>
 
+${input.evidenceIntelligence ? renderEvidenceIntelligenceHtmlSections(input.evidenceIntelligence) : ''}
+
     <section class="panel">
       <h2>Limitations</h2>
       <ul>
@@ -1254,6 +1263,7 @@ export function buildVerificationPackContract(input: {
   trace: TraceIndex;
   finalizedReview?: FinalizedAuditPackReviewInput | null;
   currentReview?: CurrentMethodReviewExportInput | null;
+  evidenceIntelligence?: EvidenceIntelligenceData | null;
 }): VerificationPackContract {
   const rules = extractRules(input.rulesJson);
   const sectionCount = extractSectionCount(input.sectionsJson);
@@ -1623,6 +1633,7 @@ export function buildVerificationPackContract(input: {
     evidenceManifest,
     requirementReview,
     trace,
+    evidenceIntelligence: input.evidenceIntelligence ?? undefined,
   });
 
   return { project, evidenceManifest, requirementReview, trace, trailEntries, reportHtml };
@@ -1637,9 +1648,13 @@ export function buildVerificationPackContractFiles(input: {
   trace: TraceIndex;
   finalizedReview?: FinalizedAuditPackReviewInput | null;
   currentReview?: CurrentMethodReviewExportInput | null;
+  evidenceIntelligence?: EvidenceIntelligenceData | null;
 }): Array<{ path: string; bytes: Buffer }> {
   const contract = buildVerificationPackContract(input);
   const packagedFinalizedSources = collectPackagedEvidenceSourceFiles(input.finalizedReview ?? null);
+  const evidenceIntelFiles = input.evidenceIntelligence
+    ? buildEvidenceIntelligenceFiles(input.evidenceIntelligence)
+    : [];
   return [
     {
       path: "project.json",
@@ -1669,6 +1684,7 @@ export function buildVerificationPackContractFiles(input: {
       path: source.file_path,
       bytes: source.bytes,
     })),
+    ...evidenceIntelFiles,
   ];
 }
 
