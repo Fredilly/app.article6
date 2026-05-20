@@ -183,9 +183,9 @@ Lane status: Active
 Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
 
 Current focus:
-- Complete evidence inventory reconciliation engine (Phase 2)
-- Surface reconciliation status in evidence inventory UI
-- Integrate candidate links with manual reviewer linking
+- Implement reviewer decision records with provenance (Phase 3)
+- Build structured reviewer decisions attached to evidence-linked rules
+- Integrate coverage matrix with reviewer decision status
 
 Not active now:
 - Refactoring extraction or export code — documentation and planning only in RC0-RC1
