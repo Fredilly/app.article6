@@ -20,6 +20,8 @@ export type EvidenceInventoryWorkbookGroup = WorkbookRecordGroup & {
   candidate_evidence_types: WorkbookCandidateEvidenceType[];
 };
 
+export type ReconciliationItemStatus = "linked" | "unmatched" | "gap";
+
 export type EvidenceInventoryItem = {
   evidence_id: string;
   dedupe_key: string;
@@ -31,6 +33,8 @@ export type EvidenceInventoryItem = {
   added_at: string;
   link_state: EvidenceInventoryLinkState;
   linked_requirement_ids: string[];
+  reconciliation_status?: ReconciliationItemStatus;
+  reconciliation_load_error?: string;
   pdd_document?: PddDocumentAsset;
   pdd_fragments?: PddFragment[];
   pdd_fragment_links?: PddFragmentLink[];
@@ -496,4 +500,33 @@ export function unlinkPddFragmentFromRequirement(
     };
   });
   return coalesceEvidencePins(next);
+}
+
+export function enrichInventoryWithReconciliation(
+  items: EvidenceInventoryItem[],
+  fragmentToStatus: Map<string, ReconciliationItemStatus>,
+  loadError?: string,
+): EvidenceInventoryItem[] {
+  return items.map((item) => {
+    if (loadError) {
+      return { ...item, reconciliation_status: undefined, reconciliation_load_error: loadError };
+    }
+
+    const fragmentIds = (item.pdd_fragments ?? []).map((f) => f.fragment_id);
+    const statuses = fragmentIds.map((id) => fragmentToStatus.get(id)).filter(Boolean) as ReconciliationItemStatus[];
+    let reconciliation_status: ReconciliationItemStatus | undefined;
+
+    if (statuses.includes("linked")) {
+      reconciliation_status = "linked";
+    } else if (statuses.includes("unmatched")) {
+      reconciliation_status = "unmatched";
+    }
+
+    if (!reconciliation_status) {
+      const hasLinks = (item.pdd_fragment_links ?? []).length > 0 || item.linked_requirement_ids.length > 0;
+      reconciliation_status = hasLinks ? "linked" : undefined;
+    }
+
+    return { ...item, reconciliation_status };
+  });
 }
