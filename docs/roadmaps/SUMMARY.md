@@ -183,9 +183,9 @@ Lane status: Active
 Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
 
 Current focus:
-- Complete reviewer decision engine with provenance (Phase 3)
-- Integrate decisions into coverage matrix display
-- Surface warnings for approving rules with missing evidence
+- Build premium PDF export pipeline with full provenance (Phase 4)
+- Cover Quick Check extraction edge case tests
+- Responsive UI QA for reconciliation and decision badges
 
 Not active now:
 - Refactoring extraction or export code — documentation and planning only in RC0-RC1
@@ -195,7 +195,7 @@ Not active now:
 1) RC0 — Review-grade project export standard definition: Done
 2) RC1 — Deterministic evidence extraction foundation: Done
 3) RC2 — Evidence inventory reconciliation: Done
-4) RC3 — Reviewer decision records with provenance: In progress
+4) RC3 — Reviewer decision records with provenance: Done
 5) RC4 — Premium PDF/ZIP export with full provenance: Planned
 6) RC5 — Verification pack integration with evidence intelligence: Planned
 7) RC6 — Evidence quality and coverage metrics: Planned
