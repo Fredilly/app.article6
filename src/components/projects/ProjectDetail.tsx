@@ -35,6 +35,7 @@ import {
   updateManualFinding,
   updateRuleReview,
 } from '@/lib/projects/storage';
+import { SnapshotTimeline } from '@/components/snapshot/SnapshotTimeline';
 
 type ProjectDetailProps = {
   projectId: string;
@@ -142,6 +143,14 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         ...EMPTY_MANUAL_FINDING,
         findingId: nextManualFindingId(nextProject),
       });
+    }
+  };
+
+  const reloadProject = () => {
+    const p = getProject(projectId);
+    if (p) {
+      setProject(p);
+      setCoverage(getProjectCoverage(p));
     }
   };
 
@@ -504,6 +513,8 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           </div>
         </section>
       ) : null}
+
+      <SnapshotTimeline project={project} onRefreshProject={reloadProject} />
 
       <section className="rounded-lg border border-slate-200 bg-white p-5">
         <div className="flex items-start justify-between gap-4">
