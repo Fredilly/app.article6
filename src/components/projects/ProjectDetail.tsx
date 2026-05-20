@@ -72,6 +72,22 @@ const EMPTY_MANUAL_FINDING: ManualFindingDraft = {
   reviewerNote: '',
 };
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', buffer);
+  return Array.from(new Uint8Array(digest)).map((value) => value.toString(16).padStart(2, '0')).join('');
+}
+
 export function shouldShowLockReview(project: Project, coverage: ProjectCoverage | null): boolean {
   if (project.status !== 'in-progress' || !coverage) return false;
   if (project.reviewMode === 'manual') return project.manualFindings.length > 0;
@@ -82,6 +98,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [coverage, setCoverage] = useState<ProjectCoverage | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [premiumExportingFormat, setPremiumExportingFormat] = useState<'pdf' | 'zip' | null>(null);
   const [uploading, setUploading] = useState(false);
   const [manualDraft, setManualDraft] = useState<ManualFindingDraft>(EMPTY_MANUAL_FINDING);
 
@@ -120,8 +137,8 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
     }
   };
 
-  const handleStatusChange = (ruleId: string, status: RuleReview['status']) => {
-    refreshProject(updateRuleReview(projectId, ruleId, { status }));
+  const handleReviewChange = (ruleId: string, update: Partial<RuleReview>) => {
+    refreshProject(updateRuleReview(projectId, ruleId, update));
   };
 
   const handleLock = () => {
@@ -164,18 +181,49 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
     }
   };
 
+  const handlePremiumExport = async (format: 'pdf' | 'zip') => {
+    setPremiumExportingFormat(format);
+    try {
+      const res = await fetch('/api/projects/' + projectId + '/export-premium', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project, coverage, format }),
+      });
+      if (!res.ok) throw new Error('Premium export generation failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = format === 'zip'
+        ? `premium-evidence-export-${project.id.slice(0, 8)}.zip`
+        : `premium-evidence-report-${project.id.slice(0, 8)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      if (project.reviewMode === 'manual') {
+        refreshProject(recordManualReviewLearningCase(projectId, 'export_generated'));
+      }
+    } catch (err) {
+      alert('Failed to generate premium export: ' + String(err));
+    } finally {
+      setPremiumExportingFormat(null);
+    }
+  };
+
   const handleUploadDocuments = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
     setUploading(true);
 
     for (const file of files) {
+      const fileBuffer = await file.arrayBuffer();
+      const contentBase64 = arrayBufferToBase64(fileBuffer);
+      const contentSha256 = await sha256Hex(fileBuffer);
       let extractedText = '';
       let extractionStatus: ProjectDocument['manualFindingExtractionStatus'] = 'not-run';
       let extractionMessage = '';
       let extractionTrace = '';
       let extractedDrafts: Array<Omit<ExtractedManualFindingDraft, 'id' | 'createdAt' | 'updatedAt' | 'sourceDocumentId'>> = [];
-      if ((file.type || '').includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
+      if (project.reviewMode === 'manual' && ((file.type || '').includes('pdf') || file.name.toLowerCase().endsWith('.pdf'))) {
         try {
           const response = await fetch('/api/projects/manual-review/extract-findings', {
             method: 'POST',
@@ -183,7 +231,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
               'Content-Type': 'application/pdf',
               'x-article6-filename': encodeURIComponent(file.name),
             },
-            body: await file.arrayBuffer(),
+            body: fileBuffer,
           });
           const data = await response.json();
           extractedText = typeof data.text === 'string' ? data.text.slice(0, 2000) : '';
@@ -214,6 +262,8 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         fileName: file.name,
         mimeType: file.type || 'application/octet-stream',
         sizeBytes: file.size,
+        contentBase64,
+        contentSha256,
         extractedText,
         manualFindingExtractionStatus: extractionStatus,
         manualFindingExtractionMessage: extractionMessage || undefined,
@@ -354,13 +404,29 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             </button>
           ) : null}
           {project.status === 'locked' ? (
-            <button
-              onClick={handleDownloadPack}
-              disabled={downloading}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {downloading ? 'Generating...' : 'Download Export'}
-            </button>
+            <>
+              <button
+                onClick={() => handlePremiumExport('pdf')}
+                disabled={premiumExportingFormat !== null}
+                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+              >
+                {premiumExportingFormat === 'pdf' ? 'Preparing PDF...' : 'Premium PDF'}
+              </button>
+              <button
+                onClick={() => handlePremiumExport('zip')}
+                disabled={premiumExportingFormat !== null}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {premiumExportingFormat === 'zip' ? 'Preparing ZIP...' : 'Premium ZIP'}
+              </button>
+              <button
+                onClick={handleDownloadPack}
+                disabled={downloading || premiumExportingFormat !== null}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              >
+                {downloading ? 'Generating...' : 'Standard PDF'}
+              </button>
+            </>
           ) : null}
         </div>
       </div>
@@ -407,77 +473,80 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         </>
       ) : null}
 
-      {project.reviewMode === 'manual' ? (
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
-          <section className="rounded-lg border border-slate-200 bg-white p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">Source Documents</h2>
-                <p className="mt-1 text-sm text-slate-500">Upload project documents used in manual findings reconstruction.</p>
+      <section className="rounded-lg border border-slate-200 bg-white p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Source Documents</h2>
+            <p className="mt-1 text-sm text-slate-500">Retain original uploads so premium PDF and ZIP exports can include full provenance and source evidence.</p>
+          </div>
+          {project.status === 'in-progress' ? (
+            <label className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+              {uploading ? 'Uploading...' : 'Upload Documents'}
+              <input
+                type="file"
+                multiple
+                className="hidden"
+                onChange={handleUploadDocuments}
+                disabled={uploading}
+              />
+            </label>
+          ) : null}
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3">
+          {project.documents.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+              No source documents uploaded yet.
+            </div>
+          ) : project.documents.map((document: ProjectDocument) => (
+            <div key={document.id} className="rounded-lg border border-slate-200 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-slate-800">{document.fileName}</div>
+                  <div className="mt-1 text-xs text-slate-500">
+                    {document.mimeType} · {document.sizeBytes} bytes · {new Date(document.uploadedAt).toLocaleString()}
+                  </div>
+                  {document.contentSha256 ? (
+                    <div className="mt-1 font-mono text-[11px] text-slate-400">sha256 {document.contentSha256}</div>
+                  ) : null}
+                </div>
+                {project.status === 'in-progress' ? (
+                  <button
+                    onClick={() => refreshProject(deleteProjectDocument(projectId, document.id))}
+                    className="text-xs text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                ) : null}
               </div>
-              {project.status === 'in-progress' ? (
-                <label className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-                  {uploading ? 'Uploading...' : 'Upload Documents'}
-                  <input
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleUploadDocuments}
-                    disabled={uploading}
-                  />
-                </label>
+              {document.extractedText?.trim() ? (
+                <p className="mt-2 rounded bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                  {document.extractedText.slice(0, 280)}
+                </p>
+              ) : null}
+              {document.manualFindingExtractionMessage ? (
+                <p className={`mt-2 text-xs ${
+                  document.manualFindingExtractionStatus === 'extraction-failed'
+                    ? 'text-red-600'
+                    : document.manualFindingExtractionStatus === 'no-findings'
+                      ? 'text-slate-500'
+                      : 'text-blue-600'
+                }`}>
+                  {document.manualFindingExtractionMessage}
+                </p>
+              ) : null}
+              {document.manualFindingExtractionTrace ? (
+                <p className="mt-1 font-mono text-[11px] text-slate-400">
+                  Trace: {document.manualFindingExtractionTrace}
+                </p>
               ) : null}
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="mt-4 flex flex-col gap-3">
-              {project.documents.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                  No source documents uploaded yet.
-                </div>
-              ) : project.documents.map((document: ProjectDocument) => (
-                <div key={document.id} className="rounded-lg border border-slate-200 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-slate-800">{document.fileName}</div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        {document.mimeType} · {document.sizeBytes} bytes · {new Date(document.uploadedAt).toLocaleString()}
-                      </div>
-                    </div>
-                    {project.status === 'in-progress' ? (
-                      <button
-                        onClick={() => refreshProject(deleteProjectDocument(projectId, document.id))}
-                        className="text-xs text-red-500 hover:text-red-700"
-                      >
-                        Remove
-                      </button>
-                    ) : null}
-                  </div>
-                  {document.extractedText?.trim() ? (
-                    <p className="mt-2 rounded bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                      {document.extractedText.slice(0, 280)}
-                    </p>
-                  ) : null}
-                  {document.manualFindingExtractionMessage ? (
-                    <p className={`mt-2 text-xs ${
-                      document.manualFindingExtractionStatus === 'extraction-failed'
-                        ? 'text-red-600'
-                        : document.manualFindingExtractionStatus === 'no-findings'
-                          ? 'text-slate-500'
-                          : 'text-blue-600'
-                    }`}>
-                      {document.manualFindingExtractionMessage}
-                    </p>
-                  ) : null}
-                  {document.manualFindingExtractionTrace ? (
-                    <p className="mt-1 font-mono text-[11px] text-slate-400">
-                      Trace: {document.manualFindingExtractionTrace}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          </section>
-
+      {project.reviewMode === 'manual' ? (
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
           <section className="rounded-lg border border-slate-200 bg-white p-5">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Extraction Review</h2>
@@ -892,7 +961,12 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           </section>
         </div>
       ) : (
-        <MethodologyLinkedReview project={project} onStatusChange={handleStatusChange} />
+        <MethodologyLinkedReview
+          project={project}
+          onReviewChange={handleReviewChange}
+          onPremiumExport={handlePremiumExport}
+          premiumExportingFormat={premiumExportingFormat}
+        />
       )}
     </div>
   );
@@ -900,10 +974,14 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
 function MethodologyLinkedReview({
   project,
-  onStatusChange,
+  onReviewChange,
+  onPremiumExport,
+  premiumExportingFormat,
 }: {
   project: Project;
-  onStatusChange: (ruleId: string, status: RuleReview['status']) => void;
+  onReviewChange: (ruleId: string, update: Partial<RuleReview>) => void;
+  onPremiumExport: (format: 'pdf' | 'zip') => void;
+  premiumExportingFormat: 'pdf' | 'zip' | null;
 }) {
   const grouped = project.reviews.reduce((acc, review) => {
     if (!acc[review.sectionId]) acc[review.sectionId] = [];
@@ -913,6 +991,32 @@ function MethodologyLinkedReview({
 
   return (
     <>
+      {project.status === 'locked' ? (
+        <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-slate-900">Premium Review Export</div>
+              <div className="mt-1 text-xs text-slate-500">Download the locked methodology review as a premium PDF or a provenance ZIP directly from the review workspace.</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onPremiumExport('pdf')}
+                disabled={premiumExportingFormat !== null}
+                className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+              >
+                {premiumExportingFormat === 'pdf' ? 'Preparing PDF...' : 'Premium PDF'}
+              </button>
+              <button
+                onClick={() => onPremiumExport('zip')}
+                disabled={premiumExportingFormat !== null}
+                className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {premiumExportingFormat === 'zip' ? 'Preparing ZIP...' : 'Premium ZIP'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {Object.entries(grouped).map(([sectionId, reviews]) => (
         <div key={sectionId} className="rounded-lg border border-slate-200 bg-white">
           <div className="border-b border-slate-100 px-4 py-3">
@@ -920,44 +1024,79 @@ function MethodologyLinkedReview({
           </div>
           <div className="divide-y divide-slate-50">
             {reviews.map((review) => (
-              <div key={review.ruleId} className="flex items-center gap-3 px-4 py-3">
-                <div className="flex-1">
+              <div key={review.ruleId} className="px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex-1">
                   <div className="text-sm font-medium text-slate-800">{review.ruleTitle}</div>
                   <div className="font-mono text-xs text-slate-400">{review.ruleId}</div>
+                  </div>
+                  {project.status === 'in-progress' ? (
+                    <select
+                      value={review.status}
+                      onChange={event => onReviewChange(review.ruleId, { status: event.target.value as RuleReview['status'] })}
+                      className={`rounded border px-2 py-1 text-xs font-semibold ${
+                        review.status === 'verified'
+                          ? 'border-green-300 bg-green-50 text-green-700'
+                          : review.status === 'gap'
+                            ? 'border-red-300 bg-red-50 text-red-700'
+                            : review.status === 'not-applicable'
+                              ? 'border-slate-200 bg-slate-50 text-slate-400'
+                              : 'border-slate-200 bg-white text-slate-500'
+                      }`}
+                    >
+                      <option value="not-started">Not Started</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="verified">Verified</option>
+                      <option value="gap">Gap</option>
+                      <option value="not-applicable">N/A</option>
+                    </select>
+                  ) : (
+                    <span
+                      className={`rounded px-2 py-1 text-xs font-semibold ${
+                        review.status === 'verified'
+                          ? 'bg-green-100 text-green-700'
+                          : review.status === 'gap'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {review.status}
+                    </span>
+                  )}
                 </div>
-                {project.status === 'in-progress' ? (
-                  <select
-                    value={review.status}
-                    onChange={event => onStatusChange(review.ruleId, event.target.value as RuleReview['status'])}
-                    className={`rounded border px-2 py-1 text-xs font-semibold ${
-                      review.status === 'verified'
-                        ? 'border-green-300 bg-green-50 text-green-700'
-                        : review.status === 'gap'
-                          ? 'border-red-300 bg-red-50 text-red-700'
-                          : review.status === 'not-applicable'
-                            ? 'border-slate-200 bg-slate-50 text-slate-400'
-                            : 'border-slate-200 bg-white text-slate-500'
-                    }`}
-                  >
-                    <option value="not-started">Not Started</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="verified">Verified</option>
-                    <option value="gap">Gap</option>
-                    <option value="not-applicable">N/A</option>
-                  </select>
-                ) : (
-                  <span
-                    className={`rounded px-2 py-1 text-xs font-semibold ${
-                      review.status === 'verified'
-                        ? 'bg-green-100 text-green-700'
-                        : review.status === 'gap'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-slate-100 text-slate-500'
-                    }`}
-                  >
-                    {review.status}
-                  </span>
-                )}
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <Field label="Evidence References">
+                    {project.status === 'in-progress' ? (
+                      <input
+                        type="text"
+                        value={review.evidenceIds.join(', ')}
+                        onChange={(event) => onReviewChange(review.ruleId, {
+                          evidenceIds: event.target.value
+                            .split(',')
+                            .map((value) => value.trim())
+                            .filter(Boolean),
+                        })}
+                        placeholder="document-id, fragment-id"
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                      />
+                    ) : (
+                      <StaticValue value={review.evidenceIds.length > 0 ? review.evidenceIds.join(', ') : 'No evidence refs linked'} />
+                    )}
+                  </Field>
+                  <Field label="Reviewer Rationale">
+                    {project.status === 'in-progress' ? (
+                      <textarea
+                        rows={3}
+                        value={review.note || ''}
+                        onChange={(event) => onReviewChange(review.ruleId, { note: event.target.value || undefined })}
+                        placeholder="Why this rule is verified, a gap, or still needs review."
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                      />
+                    ) : (
+                      <StaticValue value={review.note || 'No reviewer rationale recorded'} />
+                    )}
+                  </Field>
+                </div>
               </div>
             ))}
           </div>

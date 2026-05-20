@@ -1,7 +1,7 @@
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
-import { buildPremiumPdf, buildPremiumZip } from '@/lib/evidence/export';
+import { buildPremiumPdf, buildPremiumZip, buildPremiumExportInputFromProject } from '@/lib/evidence/export';
 import type { PremiumExportInput } from '@/lib/evidence/export';
 import type { Project, ProjectCoverage } from '@/lib/projects/types';
 import type { EvidenceInventoryItem } from '@/lib/evidence/inventory';
@@ -35,22 +35,31 @@ async function handlePost(request: Request) {
       notStarted: project.reviews.filter((r) => r.status === 'not-started').length,
       notApplicable: project.reviews.filter((r) => r.status === 'not-applicable').length,
       inProgress: project.reviews.filter((r) => r.status === 'in-progress').length,
-      percentComplete: 0,
+      percentComplete: Math.round(
+        (project.reviews.filter((r) => r.status === 'verified' || r.status === 'gap').length / Math.max(1, project.reviews.length - project.reviews.filter((r) => r.status === 'not-applicable').length)) * 100,
+      ),
     };
 
-    const input: PremiumExportInput = {
-      project,
-      coverage: safeCoverage,
-      inventory,
-      sources,
-      fragments,
-      facts,
-      candidateLinks,
-      reconciliationRun,
-      decisionRun,
-      exportTime: body.exportTime,
-      pipelineVersion: body.pipelineVersion ?? '1.0.0',
-    };
+    const input: PremiumExportInput = inventory.length > 0 || sources.length > 0 || fragments.length > 0 || facts.length > 0 || candidateLinks.length > 0 || reconciliationRun || decisionRun
+      ? {
+          project,
+          coverage: safeCoverage,
+          inventory,
+          sources,
+          fragments,
+          facts,
+          candidateLinks,
+          reconciliationRun,
+          decisionRun,
+          exportTime: body.exportTime,
+          pipelineVersion: body.pipelineVersion ?? '1.0.0',
+        }
+      : await buildPremiumExportInputFromProject({
+          project,
+          coverage: safeCoverage,
+          exportTime: body.exportTime,
+          pipelineVersion: body.pipelineVersion ?? '1.0.0',
+        });
 
     const fmt = format === 'zip' ? 'zip' : format === 'both' ? 'both' : 'pdf';
 

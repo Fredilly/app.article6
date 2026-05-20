@@ -118,6 +118,24 @@ function makeInput(overrides?: Partial<PremiumExportInput>): PremiumExportInput 
     },
     inventory: makeInventory(),
     sources: makeSources(),
+    sourceArtifacts: [
+      {
+        documentId: 'src-001',
+        fileName: 'PDD Malawi v2.pdf',
+        mime: 'application/pdf',
+        sizeBytes: 500000,
+        contentSha256: 'a'.repeat(64),
+        contentBase64: Buffer.from('fake-pdf-source').toString('base64'),
+      },
+      {
+        documentId: 'src-002',
+        fileName: 'Workbook.xlsx',
+        mime: 'application/xlsx',
+        sizeBytes: 200000,
+        contentSha256: 'b'.repeat(64),
+        contentBase64: Buffer.from('fake-workbook-source').toString('base64'),
+      },
+    ],
     fragments: makeFragments(),
     facts: makeFacts(),
     candidateLinks: makeCandidateLinks(),
@@ -331,6 +349,8 @@ describe('Premium ZIP Export', () => {
     expect(files).toContain('reports/premium-evidence-report.pdf');
     expect(files).toContain('fragments/frag-001.txt');
     expect(files).toContain('fragments/frag-002.txt');
+    expect(files).toContain('sources/src-001_PDD_Malawi_v2.pdf');
+    expect(files).toContain('sources/src-002_Workbook.xlsx');
   });
 
   it('contains valid JSON in export.json', async () => {
@@ -398,6 +418,14 @@ describe('Premium ZIP Export', () => {
 
     expect(Object.keys(zip.files)).toContain('export.json');
     expect(Object.keys(zip.files)).toContain('manifest.json');
+  });
+
+  it('is deterministic for the same project state', async () => {
+    const input = makeInput();
+    const zipA = await buildPremiumZip(input);
+    const zipB = await buildPremiumZip(input);
+
+    expect(zipA.equals(zipB)).toBe(true);
   });
 });
 

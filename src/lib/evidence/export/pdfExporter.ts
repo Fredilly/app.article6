@@ -104,6 +104,10 @@ function safeDate(iso: string | undefined): string {
   return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : iso.slice(0, 16);
 }
 
+function exportTimestamp(input: PremiumExportInput): string {
+  return input.exportTime ?? input.project.lockedAt ?? input.project.createdAt ?? '1970-01-01T00:00:00.000Z';
+}
+
 function centerText(y: number, font: 'F1' | 'FB', size: number, text: string, color?: string): string[] {
   const tw = textWidth(text, size);
   const x = W / 2 - tw / 2;
@@ -123,7 +127,7 @@ function makePageState(): PdfPage {
 
 function addCoverPage(state: PdfPage, input: PremiumExportInput): void {
   const { project, coverage } = input;
-  const now = input.exportTime ?? new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const now = exportTimestamp(input).replace('T', ' ').slice(0, 16);
   const cx = W / 2;
   const registry = project.registry ?? 'Unknown';
   const lines = state.ln;
@@ -289,7 +293,7 @@ function addMethodologySections(state: PdfPage, input: PremiumExportInput): void
 
 function addEvidenceInventory(state: PdfPage, input: PremiumExportInput): void {
   sec(state, 'EVIDENCE INVENTORY');
-  const { inventory, sources } = input;
+  const { inventory, sources, fragments } = input;
 
   if (inventory.length === 0) {
     bodyLine(state, 'No evidence items in the inventory.');
@@ -319,6 +323,36 @@ function addEvidenceInventory(state: PdfPage, input: PremiumExportInput): void {
       state.ln.push(...TXT(rsX, state.y, 'F1', 7, rStatus, LIGHT));
     }
     state.y -= 18;
+
+    const relatedFragments = fragments
+      .filter((fragment) => fragment.documentId === item.evidence_id)
+      .sort((a, b) => a.fragmentId.localeCompare(b.fragmentId))
+      .slice(0, 3);
+
+    if (relatedFragments.length === 0) {
+      state.ln.push(...TXT(L + 62, state.y, 'F1', 7, 'No extracted fragments with provenance for this evidence item.', LIGHTER));
+      state.y -= 14;
+    }
+
+    for (const fragment of relatedFragments) {
+      const provenance = [
+        fragment.fragmentId,
+        fragment.pageStart ? `p.${fragment.pageStart}${fragment.pageEnd && fragment.pageEnd !== fragment.pageStart ? `-${fragment.pageEnd}` : ''}` : null,
+        fragment.sheetName ? `sheet ${fragment.sheetName}` : null,
+      ].filter(Boolean).join(' · ');
+      state.ln.push(...TXT(L + 72, state.y, 'FB', 7, fragment.label, MED));
+      state.y -= 11;
+      if (provenance) {
+        state.ln.push(...TXT(L + 72, state.y, 'F1', 7, provenance, LIGHTER));
+        state.y -= 11;
+      }
+      for (const line of wrapText(truncate(fragment.text.replace(/\s+/g, ' '), 180), 82)) {
+        state.ln.push(...TXT(L + 72, state.y, 'F1', 7, line, LIGHT));
+        state.y -= 10;
+      }
+      state.ln.push(...TXT(L + 72, state.y, 'F1', 7, `sha256 ${fragment.contentSha256}`, LIGHTER));
+      state.y -= 12;
+    }
   }
   state.y -= 4;
 }
@@ -555,7 +589,7 @@ function coverageSummary(input: PremiumExportInput): string {
 }
 
 function buildPdfStream(state: PdfPage, input: PremiumExportInput): string[] {
-  const now = input.exportTime ?? new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const now = exportTimestamp(input).replace('T', ' ').slice(0, 16);
   const isManual = input.project.reviewMode === 'manual';
 
   addCoverPage(state, input);

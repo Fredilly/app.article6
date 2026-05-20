@@ -8,8 +8,20 @@ function sha256(input: string): string {
   return createHash('sha256').update(input, 'utf-8').digest('hex');
 }
 
+function sha256Buffer(input: Buffer): string {
+  return createHash('sha256').update(input).digest('hex');
+}
+
 function byteLength(input: string): number {
   return Buffer.byteLength(input, 'utf-8');
+}
+
+function exportTimestamp(input: PremiumExportInput): string {
+  return input.exportTime ?? input.project.lockedAt ?? input.project.createdAt ?? '1970-01-01T00:00:00.000Z';
+}
+
+function stableDate(input: PremiumExportInput): Date {
+  return new Date(exportTimestamp(input));
 }
 
 function buildExportJson(input: PremiumExportInput): string {
@@ -130,25 +142,13 @@ function buildExportJson(input: PremiumExportInput): string {
   return canonicalJsonStringify(data);
 }
 
-function buildManifest(entries: ManifestEntry[]): string {
-  const manifest = {
-    exportVersion: '1.0.0',
-    generatedAt: new Date().toISOString(),
-    entries: entries.map((e) => ({
-      path: e.path,
-      contentSha256: e.contentSha256,
-      sizeBytes: e.sizeBytes,
-    })),
-  };
-  return canonicalJsonStringify(manifest);
-}
-
 export async function buildPremiumZip(input: PremiumExportInput): Promise<Buffer> {
   const zip = new JSZip();
   const entries: ManifestEntry[] = [];
+  const fileDate = stableDate(input);
 
   const exportJson = buildExportJson(input);
-  zip.file('export.json', exportJson);
+  zip.file('export.json', exportJson, { date: fileDate });
   entries.push({
     path: 'export.json',
     contentSha256: sha256(exportJson),
@@ -170,7 +170,7 @@ export async function buildPremiumZip(input: PremiumExportInput): Promise<Buffer
         fragment.text,
       ].join('\n');
       const fragPath = `fragments/${fragment.fragmentId}.txt`;
-      fragmentsDir.file(`${fragment.fragmentId}.txt`, fragContent);
+      fragmentsDir.file(`${fragment.fragmentId}.txt`, fragContent, { date: fileDate });
       entries.push({
         path: fragPath,
         contentSha256: sha256(fragContent),
@@ -179,23 +179,50 @@ export async function buildPremiumZip(input: PremiumExportInput): Promise<Buffer
     }
   }
 
+  const sourcesDir = zip.folder('sources');
+  if (sourcesDir) {
+    for (const source of (input.sourceArtifacts ?? []).slice().sort((a, b) => a.documentId.localeCompare(b.documentId))) {
+      const bytes = Buffer.from(source.contentBase64, 'base64');
+      const safeFileName = `${source.documentId}_${source.fileName}`.replace(/[^a-zA-Z0-9._-]+/g, '_');
+      const sourcePath = `sources/${safeFileName}`;
+      sourcesDir.file(safeFileName, bytes, { binary: true, date: fileDate });
+      entries.push({
+        path: sourcePath,
+        contentSha256: source.contentSha256,
+        sizeBytes: bytes.length,
+      });
+    }
+  }
+
   const pdf = buildPremiumPdf(input);
-  const pdfContent = pdf.toString('binary');
-  zip.file('reports/premium-evidence-report.pdf', pdfContent, { binary: true });
+  zip.file('reports/premium-evidence-report.pdf', pdf, { binary: true, date: fileDate });
   entries.push({
     path: 'reports/premium-evidence-report.pdf',
-    contentSha256: sha256(pdf.toString('utf-8')),
+    contentSha256: sha256Buffer(pdf),
     sizeBytes: pdf.length,
   });
 
-  const manifestJson = buildManifest(entries);
-  zip.file('manifest.json', manifestJson);
+  const manifest = {
+    exportVersion: '1.0.0',
+    generatedAt: exportTimestamp(input),
+    entries: entries.map((entry) => ({
+      path: entry.path,
+      contentSha256: entry.contentSha256,
+      sizeBytes: entry.sizeBytes,
+    })),
+  };
+  const manifestJson = canonicalJsonStringify(manifest);
+  zip.file('manifest.json', manifestJson, { date: fileDate });
   entries.push({
     path: 'manifest.json',
     contentSha256: sha256(manifestJson),
     sizeBytes: byteLength(manifestJson),
   });
 
-  const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  const zipBuffer = await zip.generateAsync({
+    type: 'nodebuffer',
+    compression: 'DEFLATE',
+    platform: 'UNIX',
+  });
   return zipBuffer;
 }

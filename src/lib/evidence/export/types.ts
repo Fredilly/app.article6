@@ -4,11 +4,21 @@ import type { ReconciliationRun } from '@/lib/evidence/reconciliation/types';
 import type { DecisionRun } from '@/lib/evidence/decisions/types';
 import type { Project, ProjectCoverage } from '@/lib/projects/types';
 
+export type SourceArtifact = {
+  documentId: string;
+  fileName: string;
+  mime: string;
+  sizeBytes: number;
+  contentSha256: string;
+  contentBase64: string;
+};
+
 export type PremiumExportInput = {
   project: Project;
   coverage: ProjectCoverage;
   inventory: EvidenceInventoryItem[];
   sources: SourceDocument[];
+  sourceArtifacts?: SourceArtifact[];
   fragments: DocumentFragment[];
   facts: ExtractedFact[];
   candidateLinks: CandidateLink[];

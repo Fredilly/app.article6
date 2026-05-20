@@ -83,6 +83,8 @@ export type ProjectDocument = {
   mimeType: string;
   sizeBytes: number;
   uploadedAt: string;
+  contentSha256?: string;
+  contentBase64?: string;
   extractedText?: string;
   manualFindingExtractionStatus?: 'not-run' | 'no-findings' | 'extracted' | 'extraction-failed';
   manualFindingExtractionMessage?: string;
