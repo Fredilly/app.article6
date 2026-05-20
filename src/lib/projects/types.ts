@@ -87,6 +87,7 @@ export type ProjectDocument = {
   manualFindingExtractionStatus?: 'not-run' | 'no-findings' | 'extracted' | 'extraction-failed';
   manualFindingExtractionMessage?: string;
   manualFindingExtractionTrace?: string;
+  extractionRunId?: string;
 };
 
 export type ManualFinding = {

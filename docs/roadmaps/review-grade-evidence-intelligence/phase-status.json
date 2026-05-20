@@ -12,9 +12,9 @@
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Define the review-grade project export standard document",
-      "Document the evidence-fragment-fact-link-coverage pipeline",
-      "Plan phases for deterministic extraction, evidence linking, review panels, and verification pack generation"
+      "Implement evidence inventory reconciliation (Phase 2)",
+      "Surface unmatched evidence and coverage gaps",
+      "Enable reviewers to manually link evidence to rules"
     ],
     "not_active_now": [
       "Refactoring extraction or export code — documentation and planning only in RC0-RC1",
@@ -38,7 +38,7 @@
       "depends_on": []
     },
     "phase_1_deterministic_evidence_extraction": {
-      "status": "in_progress",
+      "status": "done",
       "title": "Deterministic evidence extraction foundation",
       "repo": "app.article6",
       "description": "Implement deterministic extraction of evidence fragments from uploaded documents (PDDs, workbooks, monitoring reports). Extract facts and surface candidate links to methodology rules. All extraction must be deterministic and auditable, producing stable provenance hashes.",
@@ -53,6 +53,9 @@
       "visible_ui_change": "Evidence fragments and extracted facts appear in the evidence inventory alongside original uploads",
       "depends_on": [
         "phase_0_standard_definition"
+      ],
+      "prs": [
+        608
       ]
     },
     "phase_2_evidence_inventory_reconciliation": {
