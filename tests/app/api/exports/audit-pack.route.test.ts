@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { strFromU8, unzipSync } from "fflate";
 import { GET, POST } from "@/app/api/exports/audit-pack/route";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 
@@ -283,5 +284,8 @@ describe("/api/exports/audit-pack route", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("application/zip");
+    const zip = unzipSync(new Uint8Array(await response.arrayBuffer()));
+    expect(zip["evidence-intelligence.json"]).toBeDefined();
+    expect(strFromU8(zip["VERIFICATION_REPORT.html"])).toContain("Reviewer Decisions");
   });
 });

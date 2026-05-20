@@ -540,6 +540,150 @@ describe("audit pack verification contract", () => {
     expect(strFromU8(entries["VERIFICATION_REPORT.html"])).not.toContain("Demo review record only.");
   });
 
+  test("integrates evidence intelligence into live audit-pack exports", () => {
+    const reviews: RuleReview[] = [
+      {
+        ruleId: "R-1-0001",
+        methodology: "AR-ACM0003",
+        version: "v02-0",
+        status: "verified",
+        rationale: "Monitoring-period evidence is linked directly to the rule.",
+        supportReference: "pin-pdd-1",
+        evidenceLink: "frag-monitoring-period",
+        evidenceAttachments: [],
+        reviewedBy: "Verifier A",
+        reviewedAt: "2026-04-24T12:00:00.000Z",
+        updatedAt: "2026-04-24T12:00:00.000Z",
+      },
+    ];
+    const evidencePins: EvidencePin[] = [
+      {
+        id: "pin-pdd-1",
+        kind: "pdd",
+        title: "Monitoring period PDD",
+        ruleId: "R-1-0001",
+        cited_ids: ["R-1-0001"],
+        created_at: "2026-04-24T11:55:00.000Z",
+        pdd_document: {
+          evidence_id: "pin-pdd-1",
+          file_name: "monitoring-period.pdf",
+          mime: "application/pdf",
+          added_at: "2026-04-24T11:55:00.000Z",
+          sha256: "a".repeat(64),
+        },
+        pdd_fragments: [
+          {
+            fragment_id: "frag-monitoring-period",
+            evidence_id: "pin-pdd-1",
+            label: "Monitoring period",
+            page_start: 12,
+            page_end: 13,
+            section_label: "Section 4",
+            section_heading: "Monitoring period",
+            excerpt: "The monitoring period covers 2023-01-01 through 2023-12-31.",
+          },
+        ],
+        pdd_fragment_links: [
+          {
+            fragment_id: "frag-monitoring-period",
+            rule_id: "R-1-0001",
+            linked_at: "2026-04-24T11:56:00.000Z",
+          },
+        ],
+      },
+    ];
+
+    const zip = withTemporaryMethodologyCheckout(() =>
+      buildAuditPackZip("AR-ACM0003", "v02-0", {
+        currentReview: {
+          latestReviewAt: "2026-04-24T12:05:00.000Z",
+          reviews,
+          evidencePins,
+          verifierBundle: {
+            runContext: {
+              runId: "run-evidence-intel-1",
+              createdAt: "2026-04-24T11:45:00.000Z",
+            },
+            savedReviewerArtifactAt: "2026-04-24T12:05:00.000Z",
+            finalizedAt: null,
+            minutes: "Reviewer minutes",
+            outcomeNote: "Draft outcome note",
+            savedReviewerArtifactContext: {
+              methodCode: "AR-ACM0003",
+              version: "v02-0",
+              ruleId: "R-1-0001",
+              runId: "run-evidence-intel-1",
+            },
+          },
+        },
+      }),
+    );
+
+    const entries = unzipSync(new Uint8Array(zip));
+    expect(entries["evidence-intelligence.json"]).toBeDefined();
+    expect(entries["evidence-fragments.json"]).toBeDefined();
+    expect(entries["coverage-matrix.json"]).toBeDefined();
+    expect(entries["reviewer-decisions.json"]).toBeDefined();
+
+    const evidenceIntel = JSON.parse(strFromU8(entries["evidence-intelligence.json"])) as {
+      summary: { fragmentCount: number; factCount: number };
+      fragments: Array<{ fragmentId: string; pageStart?: number }>;
+      decisions: { decisions: Array<{ evidenceLinks: Array<{ evidenceRef: string; reportAnchor: string }> }> };
+    };
+    expect(evidenceIntel.summary.fragmentCount).toBeGreaterThanOrEqual(1);
+    expect(evidenceIntel.summary.factCount).toBeGreaterThanOrEqual(1);
+    expect(evidenceIntel.fragments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fragmentId: "frag-monitoring-period",
+          pageStart: 12,
+        }),
+      ]),
+    );
+    expect(evidenceIntel.decisions.decisions[0]?.evidenceLinks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          evidenceRef: "frag-monitoring-period",
+          reportAnchor: "#evidence-ref-frag-monitoring-period",
+        }),
+      ]),
+    );
+
+    const html = strFromU8(entries["VERIFICATION_REPORT.html"]);
+    expect(html).toContain("Evidence Fragments");
+    expect(html).toContain("Coverage Matrix");
+    expect(html).toContain("Reviewer Decisions");
+    expect(html).toContain('href="#evidence-ref-frag-monitoring-period"');
+    expect(html).toContain('id="fragment-frag-monitoring-period"');
+
+    const secondZip = withTemporaryMethodologyCheckout(() =>
+      buildAuditPackZip("AR-ACM0003", "v02-0", {
+        currentReview: {
+          latestReviewAt: "2026-04-24T12:05:00.000Z",
+          reviews,
+          evidencePins,
+          verifierBundle: {
+            runContext: {
+              runId: "run-evidence-intel-1",
+              createdAt: "2026-04-24T11:45:00.000Z",
+            },
+            savedReviewerArtifactAt: "2026-04-24T12:05:00.000Z",
+            finalizedAt: null,
+            minutes: "Reviewer minutes",
+            outcomeNote: "Draft outcome note",
+            savedReviewerArtifactContext: {
+              methodCode: "AR-ACM0003",
+              version: "v02-0",
+              ruleId: "R-1-0001",
+              runId: "run-evidence-intel-1",
+            },
+          },
+        },
+      }),
+    );
+    expect(Buffer.from(zip).equals(Buffer.from(secondZip))).toBe(true);
+  });
+
   test("upgrades VERIFICATION_REPORT.html into a truthful readiness review skeleton when project context and files are missing", () => {
     const reviews: RuleReview[] = [
       {
