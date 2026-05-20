@@ -195,7 +195,7 @@ function estimateFindingHeight(finding: ReportFinding): number {
 }
 
 export async function buildProjectExportPdf(project: Project, coverage: ProjectCoverage): Promise<Buffer> {
-  const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const now = (project.lockedAt ?? project.createdAt ?? '1970-01-01T00:00:00.000Z').replace('T', ' ').slice(0, 16);
   const report = await composeStandardReport(project, coverage, now);
   const isManual = project.reviewMode === 'manual';
 
@@ -428,7 +428,7 @@ export async function buildProjectExportPdf(project: Project, coverage: ProjectC
   ln.push(
     LN(y),
     ...TXT(L, y - 12, 'F1', 7, truncate(report.limitation, 112), '0.65 0.65 0.65 rg'),
-    ...TXT(L, y - 24, 'F1', 7, `Export time ${safeDate(now)}.`, '0.65 0.65 0.65 rg'),
+    ...TXT(L, y - 24, 'F1', 7, `Export timestamp ${safeDate(now)}.`, '0.65 0.65 0.65 rg'),
   );
   flushPage(pg, false);
 

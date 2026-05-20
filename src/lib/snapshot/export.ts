@@ -12,7 +12,7 @@ export async function buildSnapshotExport(snapshot: EvidenceSnapshot): Promise<S
   const payload = {
     schema_version: 'evidence_snapshot.v1' as const,
     snapshot,
-    exportedAt: new Date().toISOString(),
+    exportedAt: snapshot.createdAt,
   };
 
   const json = canonicalJsonStringify(payload);

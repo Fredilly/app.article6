@@ -88,7 +88,7 @@ export function buildProvenance(
     ['Methodology', project.methodCode && project.methodVersion ? `${project.methodCode} @ ${project.methodVersion}` : 'n/a'],
     ['Created', project.createdAt || 'n/a'],
     ['Rules reviewed', `${coverage.verified + coverage.gap} of ${coverage.total}`],
-    ['Export time', exportTime],
+    ['Export timestamp', exportTime],
   ];
 
   if (project.lockedAt) items.splice(5, 0, ['Locked', project.lockedAt]);

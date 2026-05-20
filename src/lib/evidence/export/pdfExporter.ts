@@ -549,11 +549,11 @@ function addLimitations(state: PdfPage): void {
 
 function addProvenance(state: PdfPage, input: PremiumExportInput): void {
   sec(state, 'PROVENANCE CHAIN');
-  const now = input.exportTime ?? new Date().toISOString();
+  const now = exportTimestamp(input);
   const { project, inventory, fragments, facts, candidateLinks, reconciliationRun, decisionRun } = input;
 
   const provenanceItems: Array<[string, string]> = [
-    ['Export time', now],
+    ['Export timestamp', now],
     ['Project', `${project.name} (${project.id})`],
     ['Registry', project.registry ?? 'Unknown'],
     ['Methodology', project.methodCode && project.methodVersion ? `${project.methodCode} @ ${project.methodVersion}` : 'n/a'],
@@ -609,7 +609,7 @@ function buildPdfStream(state: PdfPage, input: PremiumExportInput): string[] {
   state.ln.push(
     LN(state.y),
     ...TXT(L, state.y - 12, 'F1', 7, 'This export was generated deterministically from project evidence pipeline data.', '0.65 0.65 0.65 rg'),
-    ...TXT(L, state.y - 24, 'F1', 7, `Export time ${safeDate(now)}. article6.org | Premium Evidence Export`, '0.65 0.65 0.65 rg'),
+    ...TXT(L, state.y - 24, 'F1', 7, `Export timestamp ${safeDate(now)}. article6.org | Premium Evidence Export`, '0.65 0.65 0.65 rg'),
   );
 
   flushPage(state, input.project.name, isManual, input.project.registry ?? 'Unknown', now, false);
