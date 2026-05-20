@@ -2,7 +2,7 @@
   "RC0": "done",
   "RC1": "done",
   "RC2": "in_progress",
-  "RC3": "planned",
+  "RC3": "in_progress",
   "RC4": "planned",
   "RC5": "planned",
   "RC6": "planned",
@@ -12,9 +12,9 @@
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Implement reviewer decision records with provenance (Phase 3)",
-      "Build structured reviewer decisions attached to evidence-linked rules",
-      "Integrate coverage matrix with reviewer decision status"
+      "Complete reviewer decision engine with provenance (Phase 3)",
+      "Integrate decisions into coverage matrix display",
+      "Surface warnings for approving rules with missing evidence"
     ],
     "not_active_now": [
       "Refactoring extraction or export code — documentation and planning only in RC0-RC1",
@@ -77,7 +77,7 @@
       ]
     },
     "phase_3_reviewer_decision_records": {
-      "status": "planned",
+      "status": "in_progress",
       "title": "Reviewer decision records with provenance",
       "repo": "app.article6",
       "description": "Build structured reviewer decision records attached to evidence-linked rules. Each decision carries status, rationale, evidence reference, and provenance. Enable the coverage matrix to reflect reviewer decisions alongside evidence reconciliation.",
