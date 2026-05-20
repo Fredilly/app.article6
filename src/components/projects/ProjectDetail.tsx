@@ -485,6 +485,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         <section className="rounded-lg border border-slate-200 bg-white p-5">
           <h2 className="text-lg font-semibold text-slate-900">Coverage by Section</h2>
           <p className="mt-1 text-sm text-slate-500">Fraction of rules with linked evidence per methodology section.</p>
+          <p className="mt-1 text-xs text-slate-500">Coverage metrics are advisory only and do not replace reviewer sufficiency decisions.</p>
           <div className="mt-4 grid gap-3">
             <div className="grid gap-3 sm:grid-cols-2">
               {sectionCoverages.map((sc) => (

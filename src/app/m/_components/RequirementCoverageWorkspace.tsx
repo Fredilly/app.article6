@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatEvidenceInventoryId, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { computeMetrics } from "@/lib/evidence/metrics";
-import EvidenceQualityBadge from "@/components/evidence/EvidenceQualityBadge";
+import EvidenceQualityBadge, { ReconciliationConfidenceBadge } from "@/components/evidence/EvidenceQualityBadge";
 import {
   EXPECTED_EVIDENCE_LABELS,
   REQUIREMENT_COVERAGE_STATUS_META,
@@ -170,6 +170,27 @@ export default function RequirementCoverageWorkspace({
     const metrics = computeMetrics({ inventoryItems });
     return new Map(metrics.fragmentQualities.map((q) => [q.evidenceId, q]));
   }, [inventoryItems]);
+  const inventoryMetrics = useMemo(() => computeMetrics({ inventoryItems }), [inventoryItems]);
+  const selectedRuleMetrics = useMemo(() => {
+    if (!selectedRow) return null;
+    const linkedItems = inventoryItems.filter((item) => {
+      if (item.linked_requirement_ids.includes(selectedRow.ruleId)) return true;
+      return (item.pdd_fragment_links ?? []).some((link) => link.rule_id === selectedRow.ruleId);
+    });
+    const qualityEntries = linkedItems
+      .map((item) => qualityByEvidenceId.get(item.evidence_id))
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+    const fragmentCount = qualityEntries.reduce((sum, entry) => sum + entry.fragmentCount, 0);
+    const averageQuality =
+      qualityEntries.length > 0
+        ? qualityEntries.reduce((sum, entry) => sum + entry.score, 0) / qualityEntries.length
+        : 0;
+    return {
+      evidenceItemCount: linkedItems.length,
+      fragmentCount,
+      averageQuality,
+    };
+  }, [inventoryItems, qualityByEvidenceId, selectedRow]);
 
   return (
     <div className="grid gap-4">
@@ -187,7 +208,16 @@ export default function RequirementCoverageWorkspace({
               <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-800">Unresolved {counts.unresolved}</span>
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">Complete {counts.linked}</span>
               <span className="rounded-full bg-rose-50 px-3 py-1 text-rose-800">Needs review {counts.needsReview}</span>
+              <span className="rounded-full bg-sky-50 px-3 py-1 text-sky-800">
+                Evidence coverage {Math.round(inventoryMetrics.overallCoverage * 100)}%
+              </span>
+              <span className="rounded-full bg-violet-50 px-3 py-1 text-violet-800">
+                Avg quality {Math.round(inventoryMetrics.averageQuality * 100)}%
+              </span>
             </div>
+            <p className="text-xs text-slate-500">
+              Metrics are advisory only and help reviewers assess sufficiency at a glance.
+            </p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-80">
             <div className="inline-flex w-full flex-wrap rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold text-slate-600">
@@ -297,6 +327,19 @@ export default function RequirementCoverageWorkspace({
                   <p className="mt-2 text-sm leading-relaxed text-slate-700">
                     {selectedRequirementText?.trim() || selectedRow.ruleSummary.snippet}
                   </p>
+                  {selectedRuleMetrics ? (
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                        {selectedRuleMetrics.evidenceItemCount} evidence item{selectedRuleMetrics.evidenceItemCount === 1 ? "" : "s"}
+                      </span>
+                      <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-800">
+                        {selectedRuleMetrics.fragmentCount} fragment{selectedRuleMetrics.fragmentCount === 1 ? "" : "s"}
+                      </span>
+                      <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-800">
+                        Avg quality {Math.round(selectedRuleMetrics.averageQuality * 100)}%
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
 
                 <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
@@ -550,10 +593,19 @@ export default function RequirementCoverageWorkspace({
                                       </span>
                                     ) : null}
                                     {qualityByEvidenceId.has(item.evidence_id) ? (
-                                      <EvidenceQualityBadge
-                                        grade={qualityByEvidenceId.get(item.evidence_id)!.grade}
-                                        score={qualityByEvidenceId.get(item.evidence_id)!.score}
-                                      />
+                                      <>
+                                        <EvidenceQualityBadge
+                                          grade={qualityByEvidenceId.get(item.evidence_id)!.grade}
+                                          score={qualityByEvidenceId.get(item.evidence_id)!.score}
+                                        />
+                                        <ReconciliationConfidenceBadge
+                                          level={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceLevel}
+                                          score={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceScore}
+                                        />
+                                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                                          {qualityByEvidenceId.get(item.evidence_id)!.fragmentCount} fragment{qualityByEvidenceId.get(item.evidence_id)!.fragmentCount === 1 ? "" : "s"}
+                                        </span>
+                                      </>
                                     ) : null}
                                   </div>
                                   <div className="mt-2 text-xs text-slate-600">{inventoryRelationshipSummary(item)}</div>
@@ -603,11 +655,19 @@ export default function RequirementCoverageWorkspace({
                                   {item.pdd_fragments?.length ? (
                                     <div className="grid gap-1">
                                       {item.pdd_fragments.map((fragment) => (
-                                        <div key={fragment.fragment_id}>
-                                          {fragment.label ?? fragment.section_heading ?? fragment.section_label ?? "PDD fragment"}
-                                          {fragment.page_start
-                                            ? ` • p. ${fragment.page_start}${fragment.page_end && fragment.page_end !== fragment.page_start ? `-${fragment.page_end}` : ""}`
-                                            : ""}
+                                        <div key={fragment.fragment_id} className="flex flex-wrap items-center gap-2">
+                                          <span>
+                                            {fragment.label ?? fragment.section_heading ?? fragment.section_label ?? "PDD fragment"}
+                                            {fragment.page_start
+                                              ? ` • p. ${fragment.page_start}${fragment.page_end && fragment.page_end !== fragment.page_start ? `-${fragment.page_end}` : ""}`
+                                              : ""}
+                                          </span>
+                                          {qualityByEvidenceId.has(item.evidence_id) ? (
+                                            <ReconciliationConfidenceBadge
+                                              level={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceLevel}
+                                              score={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceScore}
+                                            />
+                                          ) : null}
                                         </div>
                                       ))}
                                     </div>

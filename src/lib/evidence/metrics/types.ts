@@ -2,10 +2,12 @@ import type { EvidenceInventoryItem } from '@/lib/evidence/inventory';
 import type { RuleReview } from '@/lib/projects/types';
 
 export type QualityGrade = 'A' | 'B' | 'C' | 'D';
+export type ReconciliationConfidenceLevel = 'high' | 'medium' | 'low';
 
 export type FragmentQuality = {
   evidenceId: string;
   displayName: string;
+  fragmentCount: number;
   score: number;
   grade: QualityGrade;
   hasPageRef: boolean;
@@ -14,6 +16,8 @@ export type FragmentQuality = {
   linkedRequirementCount: number;
   isReconciled: boolean;
   hasProvenance: boolean;
+  reconciliationConfidenceScore: number;
+  reconciliationConfidenceLevel: ReconciliationConfidenceLevel;
 };
 
 export type SectionCoverage = {

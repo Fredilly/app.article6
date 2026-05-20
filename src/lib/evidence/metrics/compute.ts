@@ -1,13 +1,30 @@
 import { canonicalJsonStringify } from '@/lib/export/canonicalJson';
 import type { EvidenceInventoryItem } from '@/lib/evidence/inventory';
 import type { RuleReview } from '@/lib/projects/types';
-import type { FragmentQuality, QualityGrade, SectionCoverage, EvidenceQualityMetrics } from './types';
+import type {
+  FragmentQuality,
+  QualityGrade,
+  ReconciliationConfidenceLevel,
+  SectionCoverage,
+  EvidenceQualityMetrics,
+} from './types';
 
 function computeGrade(score: number): QualityGrade {
   if (score >= 0.8) return 'A';
   if (score >= 0.6) return 'B';
   if (score >= 0.4) return 'C';
   return 'D';
+}
+
+function computeConfidenceLevel(score: number): ReconciliationConfidenceLevel {
+  if (score >= 0.75) return 'high';
+  if (score >= 0.45) return 'medium';
+  return 'low';
+}
+
+function countEvidenceFragments(item: EvidenceInventoryItem): number {
+  const count = (item.pdd_fragments?.length ?? 0) + (item.workbook_record_groups?.length ?? 0);
+  return Math.max(count, 1);
 }
 
 function computeFragmentQuality(item: EvidenceInventoryItem): FragmentQuality {
@@ -29,6 +46,7 @@ function computeFragmentQuality(item: EvidenceInventoryItem): FragmentQuality {
   const isReconciled = item.reconciliation_status === 'linked';
   const hasProvenance =
     typeof item.provenance_summary === 'string' && item.provenance_summary.length > 0;
+  const fragmentCount = countEvidenceFragments(item);
 
   let score = 0;
   if (hasPageRef) score += 0.2;
@@ -41,9 +59,22 @@ function computeFragmentQuality(item: EvidenceInventoryItem): FragmentQuality {
 
   score = Math.min(1, Math.max(0, score));
 
+  let reconciliationConfidenceScore = 0;
+  if (item.reconciliation_status === 'linked') reconciliationConfidenceScore += 0.45;
+  else if (item.reconciliation_status === 'unmatched') reconciliationConfidenceScore += 0.15;
+  else if (item.reconciliation_status === 'gap') reconciliationConfidenceScore += 0.05;
+  else if (linkedRequirementCount > 0) reconciliationConfidenceScore += 0.3;
+  if (hasPageRef || hasSheetRef) reconciliationConfidenceScore += 0.2;
+  if (hasTextContent) reconciliationConfidenceScore += 0.15;
+  if (hasProvenance) reconciliationConfidenceScore += 0.1;
+  if (fragmentCount > 1) reconciliationConfidenceScore += 0.1;
+  reconciliationConfidenceScore = Math.min(1, Math.max(0, reconciliationConfidenceScore));
+  const reconciliationConfidenceLevel = computeConfidenceLevel(reconciliationConfidenceScore);
+
   return {
     evidenceId: item.evidence_id,
     displayName: item.display_name,
+    fragmentCount,
     score,
     grade: computeGrade(score),
     hasPageRef,
@@ -52,6 +83,8 @@ function computeFragmentQuality(item: EvidenceInventoryItem): FragmentQuality {
     linkedRequirementCount,
     isReconciled,
     hasProvenance,
+    reconciliationConfidenceScore,
+    reconciliationConfidenceLevel,
   };
 }
 
@@ -105,8 +138,11 @@ export function computeMetrics(input: {
   const metricsPayload = {
     fragmentQualities: fragmentQualities.map((f) => ({
       evidenceId: f.evidenceId,
+      fragmentCount: f.fragmentCount,
       score: Math.round(f.score * 100) / 100,
       grade: f.grade,
+      reconciliationConfidenceScore: Math.round(f.reconciliationConfidenceScore * 100) / 100,
+      reconciliationConfidenceLevel: f.reconciliationConfidenceLevel,
     })),
     sectionCoverages: sectionCoverages.map((s) => ({
       sectionId: s.sectionId,

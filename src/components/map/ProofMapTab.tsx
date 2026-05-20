@@ -57,7 +57,7 @@ import {
   upsertPddFragmentOnEvidencePin,
 } from "@/lib/evidence/inventory";
 import { computeMetrics } from "@/lib/evidence/metrics";
-import EvidenceQualityBadge from "@/components/evidence/EvidenceQualityBadge";
+import EvidenceQualityBadge, { ReconciliationConfidenceBadge } from "@/components/evidence/EvidenceQualityBadge";
 import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
 import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
 import { computeUplift, isComparable } from "@/lib/baseline/uplift";
@@ -3437,6 +3437,12 @@ export default function ProofMapTab({
               <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
                 {evidenceInventory.filter((item) => item.link_state === "unlinked").length} unlinked
               </span>
+              <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-sky-800">
+                Coverage {Math.round(evidenceMetrics.overallCoverage * 100)}%
+              </span>
+              <span className="rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-violet-800">
+                Avg quality {Math.round(evidenceMetrics.averageQuality * 100)}%
+              </span>
               {evidenceInventory.some((item) => item.reconciliation_status || item.reconciliation_load_error) ? (
                 <>
                   <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-800">
@@ -3466,6 +3472,9 @@ export default function ProofMapTab({
               </p>
             </div>
           ) : null}
+          <p className="mt-2 text-xs text-slate-500">
+            Quality and confidence metrics are advisory only and do not replace reviewer judgment.
+          </p>
           <div className="mt-2 grid gap-2">
             {evidenceInventory.length ? (
               evidenceInventory.map((item) => {
@@ -3520,10 +3529,19 @@ export default function ProofMapTab({
                             </span>
                           ) : null}
                           {qualityByEvidenceId.has(item.evidence_id) ? (
-                            <EvidenceQualityBadge
-                              grade={qualityByEvidenceId.get(item.evidence_id)!.grade}
-                              score={qualityByEvidenceId.get(item.evidence_id)!.score}
-                            />
+                            <>
+                              <EvidenceQualityBadge
+                                grade={qualityByEvidenceId.get(item.evidence_id)!.grade}
+                                score={qualityByEvidenceId.get(item.evidence_id)!.score}
+                              />
+                              <ReconciliationConfidenceBadge
+                                level={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceLevel}
+                                score={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceScore}
+                              />
+                              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                                {qualityByEvidenceId.get(item.evidence_id)!.fragmentCount} fragment{qualityByEvidenceId.get(item.evidence_id)!.fragmentCount === 1 ? "" : "s"}
+                              </span>
+                            </>
                           ) : null}
                         </div>
                         <div className="mt-2 text-sm font-semibold text-slate-900">{item.display_name}</div>
@@ -3694,8 +3712,16 @@ export default function ProofMapTab({
                                     );
                                     return (
                                       <div key={fragment.fragment_id} className="rounded border border-slate-200 bg-slate-50 p-2">
-                                        <div className="font-medium text-slate-800">
-                                          {formatPddFragmentDisplayLabel(fragment)}
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          <div className="font-medium text-slate-800">
+                                            {formatPddFragmentDisplayLabel(fragment)}
+                                          </div>
+                                          {qualityByEvidenceId.has(item.evidence_id) ? (
+                                            <ReconciliationConfidenceBadge
+                                              level={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceLevel}
+                                              score={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceScore}
+                                            />
+                                          ) : null}
                                         </div>
                                         <div className="mt-1">
                                           {[fragment.section_heading, fragment.section_label, formatPddPageLabel(fragment.page_start, fragment.page_end)]

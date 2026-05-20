@@ -42,6 +42,8 @@ describe('computeMetrics', () => {
       expect(result.fragmentQualities).toHaveLength(1);
       expect(result.fragmentQualities[0].grade).toBe('D');
       expect(result.fragmentQualities[0].score).toBe(0.1);
+      expect(result.fragmentQualities[0].reconciliationConfidenceLevel).toBe('low');
+      expect(result.fragmentQualities[0].fragmentCount).toBe(1);
     });
 
     it('assigns grade A for a high-quality item', () => {
@@ -98,6 +100,25 @@ describe('computeMetrics', () => {
       expect(q.score).toBeLessThan(0.8);
       expect(q.hasSheetRef).toBe(true);
       expect(q.linkedRequirementCount).toBe(1);
+      expect(q.reconciliationConfidenceLevel).toBe('high');
+    });
+
+    it('counts structured fragments and keeps confidence deterministic', () => {
+      const item = makeInventoryItem({
+        evidence_id: 'ev-1',
+        linked_requirement_ids: ['rule-1'],
+        pdd_fragments: [
+          { fragment_id: 'f-1', evidence_id: 'ev-1', page_start: 1, excerpt: 'This excerpt is long enough to pass the text content threshold.' },
+          { fragment_id: 'f-2', evidence_id: 'ev-1', page_start: 2, excerpt: 'This excerpt is also long enough to pass the text content threshold.' },
+        ],
+        reconciliation_status: 'linked',
+      });
+      const result1 = computeMetrics({ inventoryItems: [item] });
+      const result2 = computeMetrics({ inventoryItems: [item] });
+      expect(result1.fragmentQualities[0].fragmentCount).toBe(2);
+      expect(result1.fragmentQualities[0].reconciliationConfidenceLevel).toBe('high');
+      expect(result1.fragmentQualities[0].reconciliationConfidenceScore).toBe(result2.fragmentQualities[0].reconciliationConfidenceScore);
+      expect(result1.fingerprint).toBe(result2.fingerprint);
     });
 
     it('assigns grade C for low quality', () => {

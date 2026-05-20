@@ -169,12 +169,16 @@ describe("RequirementCoverageWorkspace", () => {
     expect(html).toContain("No linked evidence yet");
     expect(html).toContain("No workbook-derived candidates for this requirement yet.");
     expect(html).toContain("Evidence inventory");
+    expect(html).toContain("Evidence coverage");
+    expect(html).toContain("Avg quality");
     expect(html).toContain("Boundary worksheet");
     expect(html).toContain("PDD: project-design.pdf");
     expect(html).toContain("Provenance pending");
     expect(html).toContain("EV-EV1");
     expect(html).toContain("Unlinked");
     expect(html).toContain("Not linked yet");
+    expect(html).toContain("Confidence High");
+    expect(html).toContain("1 fragment");
     expect(html).toContain("More");
     expect(html).toContain("supporting evidence marker");
     expect(html).not.toContain("Pin R-1");

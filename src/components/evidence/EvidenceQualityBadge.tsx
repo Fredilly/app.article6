@@ -1,12 +1,21 @@
 'use client';
 
-import type { QualityGrade } from '@/lib/evidence/metrics';
+import type { QualityGrade, ReconciliationConfidenceLevel } from '@/lib/evidence/metrics';
 
 const GRADE_META: Record<QualityGrade, { label: string; color: string; bg: string; border: string }> = {
   A: { label: 'A', color: 'text-emerald-800', bg: 'bg-emerald-50', border: 'border-emerald-200' },
   B: { label: 'B', color: 'text-blue-800', bg: 'bg-blue-50', border: 'border-blue-200' },
   C: { label: 'C', color: 'text-amber-800', bg: 'bg-amber-50', border: 'border-amber-200' },
   D: { label: 'D', color: 'text-red-800', bg: 'bg-red-50', border: 'border-red-200' },
+};
+
+const CONFIDENCE_META: Record<
+  ReconciliationConfidenceLevel,
+  { label: string; color: string; bg: string; border: string }
+> = {
+  high: { label: 'High', color: 'text-emerald-800', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  medium: { label: 'Medium', color: 'text-amber-800', bg: 'bg-amber-50', border: 'border-amber-200' },
+  low: { label: 'Low', color: 'text-rose-800', bg: 'bg-rose-50', border: 'border-rose-200' },
 };
 
 type EvidenceQualityBadgeProps = {
@@ -22,6 +31,24 @@ export default function EvidenceQualityBadge({ grade, score }: EvidenceQualityBa
       title={`Quality score: ${(score * 100).toFixed(0)}%`}
     >
       Quality {meta.label}
+    </span>
+  );
+}
+
+export function ReconciliationConfidenceBadge({
+  level,
+  score,
+}: {
+  level: ReconciliationConfidenceLevel;
+  score: number;
+}) {
+  const meta = CONFIDENCE_META[level];
+  return (
+    <span
+      className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${meta.color} ${meta.bg} ${meta.border}`}
+      title={`Advisory reconciliation confidence: ${meta.label} (${(score * 100).toFixed(0)}%)`}
+    >
+      Confidence {meta.label}
     </span>
   );
 }
