@@ -3,7 +3,7 @@
   "RC1": "done",
   "RC2": "done",
   "RC3": "done",
-  "RC4": "in_progress",
+  "RC4": "done",
   "RC5": "planned",
   "RC6": "planned",
   "RC7": "planned",
@@ -12,7 +12,7 @@
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Complete premium PDF/ZIP export with full provenance (Phase 4)",
+      "Verification pack integration with evidence intelligence (Phase 5)",
       "Cover Quick Check extraction edge case tests",
       "Responsive UI QA for reconciliation and decision badges"
     ],
@@ -100,7 +100,7 @@
       ]
     },
     "phase_4_premium_pdf_zips_export": {
-      "status": "in_progress",
+      "status": "done",
       "title": "Premium PDF/ZIP export with full provenance",
       "repo": "app.article6",
       "description": "Build premium PDF and ZIP export pipelines that include evidence fragments, extracted facts, coverage matrix, reviewer decisions, and full provenance. The export must be beautiful enough to sell and structured enough to defend.",
