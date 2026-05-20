@@ -1,19 +1,18 @@
 {
-  "PR12": "done",
   "RC0": "done",
   "RC1": "done",
   "RC2": "done",
   "RC3": "done",
   "RC4": "done",
   "RC5": "done",
-  "RC6": "planned",
+  "RC6": "done",
   "RC7": "planned",
   "RC8": "planned",
   "phase_meta": {
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Verification pack integration with evidence intelligence (Phase 5)",
+      "Evidence snapshot and comparison (Phase 7)",
       "Cover Quick Check extraction edge case tests",
       "Responsive UI QA for reconciliation and decision badges"
     ],
@@ -139,7 +138,7 @@
       ]
     },
     "phase_6_evidence_quality_metrics": {
-      "status": "planned",
+      "status": "done",
       "title": "Evidence quality and coverage metrics",
       "repo": "app.article6",
       "description": "Surface evidence quality and coverage metrics in the UI: what fraction of rules have linked evidence, how many fragments per rule, what is the reconciliation confidence level. Enable reviewers to assess evidence sufficiency at a glance.",
@@ -153,6 +152,9 @@
       "visible_ui_change": "Evidence quality badges and coverage progress bars visible in evidence inventory and project overview",
       "depends_on": [
         "phase_3_reviewer_decision_records"
+      ],
+      "prs": [
+        614
       ]
     },
     "phase_7_evidence_snapshot_and_comparison": {
