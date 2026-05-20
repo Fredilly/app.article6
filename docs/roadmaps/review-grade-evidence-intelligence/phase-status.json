@@ -1,4 +1,5 @@
 {
+  "PR12": "done",
   "RC0": "done",
   "RC1": "done",
   "RC2": "done",
@@ -121,7 +122,7 @@
       ]
     },
     "phase_5_verification_pack_integration": {
-      "status": "planned",
+      "status": "done",
       "title": "Verification pack integration with evidence intelligence",
       "repo": "app.article6",
       "description": "Integrate evidence intelligence outputs (fragments, facts, links, coverage, decisions) into the existing verification pack pipeline. The verification pack becomes a richer, better-evidenced artifact.",
