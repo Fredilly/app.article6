@@ -9,6 +9,7 @@ import { loadVerificationRuns } from "@/lib/proofMap/storage";
 import extractStacArtifacts from "@/lib/export/extractStacArtifacts";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import buildProvenanceTxt from "@/lib/export/buildProvenanceTxt";
+import { buildExportConventions } from "@/lib/export/conventions";
 import selectRunsForAoi from "@/lib/export/selectRunsForAoi";
 
 type AuditZipEntry = { path: string; bytes: Uint8Array };
@@ -376,6 +377,8 @@ export async function buildAuditZipBytes(input: {
   const manifest = {
     kind: "article6.proof_audit_pack",
     version: 1,
+    generated_at: input.bundle.exported_at,
+    export_conventions: buildExportConventions("verification_pack"),
     files: manifestEntries,
     hashing: {
       bundle_json: "bundle.json hashed with integrity.manifest_sha256 cleared",

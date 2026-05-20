@@ -7,12 +7,12 @@
   "RC5": "done",
   "RC6": "done",
   "RC7": "done",
-  "RC8": "planned",
+  "RC8": "done",
   "phase_meta": {
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Export standardization and cross-export consistency (Phase 8)",
+      "Maintain the export-conventions contract across new export surfaces",
       "Cover Quick Check extraction edge case tests",
       "Responsive UI QA for reconciliation and decision badges"
     ],
@@ -178,7 +178,7 @@
       ]
     },
     "phase_8_export_standardization_and_consistency": {
-      "status": "planned",
+      "status": "done",
       "title": "Export standardization and cross-export consistency",
       "repo": "app.article6",
       "description": "Ensure all export outputs (PDF, ZIP, verification pack, evidence snapshot) follow the same layout conventions, terminology, and section ordering. Cross-export consistency makes the product predictable and professional.",
@@ -192,6 +192,9 @@
       "visible_ui_change": "Consistent section ordering and terminology across all export formats",
       "depends_on": [
         "phase_5_verification_pack_integration"
+      ],
+      "prs": [
+        620
       ]
     }
   }
