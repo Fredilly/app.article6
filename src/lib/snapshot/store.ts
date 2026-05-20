@@ -1,4 +1,4 @@
-import type { EvidenceSnapshot } from './types';
+import type { EvidenceSnapshot } from './types_v2';
 
 function storageKey(projectId: string): string {
   return `article6_snapshots:${projectId}`;
