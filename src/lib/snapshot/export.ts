@@ -1,8 +1,8 @@
 import { canonicalJsonStringify, sha256Hex } from './canonical';
-import type { EvidenceSnapshot } from './types';
+import type { EvidenceSnapshot } from './types_v2';
 
 export type SnapshotExport = {
-  schema_version: 'evidence_snapshot.v1';
+  schema_version: 'evidence_snapshot.v2';
   snapshot: EvidenceSnapshot;
   exportedAt: string;
   contentSha256: string;
@@ -10,9 +10,9 @@ export type SnapshotExport = {
 
 export async function buildSnapshotExport(snapshot: EvidenceSnapshot): Promise<SnapshotExport> {
   const payload = {
-    schema_version: 'evidence_snapshot.v1' as const,
+    schema_version: 'evidence_snapshot.v2' as const,
     snapshot,
-    exportedAt: new Date().toISOString(),
+    exportedAt: snapshot.capturedAt,
   };
 
   const json = canonicalJsonStringify(payload);

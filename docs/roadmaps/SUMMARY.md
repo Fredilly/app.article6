@@ -183,7 +183,7 @@ Lane status: Active
 Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
 
 Current focus:
-- Evidence snapshot and comparison (Phase 7)
+- Export standardization and cross-export consistency (Phase 8)
 - Cover Quick Check extraction edge case tests
 - Responsive UI QA for reconciliation and decision badges
 
@@ -199,7 +199,7 @@ Not active now:
 5) RC4 — Premium PDF/ZIP export with full provenance: Done
 6) RC5 — Verification pack integration with evidence intelligence: Done
 7) RC6 — Evidence quality and coverage metrics: Done
-8) RC7 — Evidence snapshot and comparison: Planned
+8) RC7 — Evidence snapshot and comparison: Done
 9) RC8 — Export standardization and cross-export consistency: Planned
 
 ## safe-learning-intake-pipeline
@@ -254,10 +254,9 @@ Lane status: Active
 Turn per-rule verification into a traceable rule review workspace. The product center is the review record, not the checklist. 8-phase path to paid VVB pilots.
 
 Current focus:
-- Phases 1-4 are complete: review panel, audit trail, finalize gate, AOI/STAC support, and document/workbook support are in place
-- Phase 5 is now in progress for method completeness across the target demo methods
-- PR #546 added the readiness-gap engine core as backend derivation only, with no visible Verify UI change yet
-- Next work: wire derived readiness facts into Verify and reviewer-facing export surfaces
+- Phases 1-5 and Phase 7 (evidence snapshot) are complete
+- Phase 6 exportable verification output is next priority
+- Phase 7: Evidence snapshot and comparison — timeline and diff view in project overview
 
 Not active now:
 - STAC auto-verification (support facts only, not auto-verify)

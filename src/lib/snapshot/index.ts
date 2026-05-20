@@ -2,20 +2,13 @@ export type {
   EvidenceSnapshot,
   EvidenceSnapshotState,
   EvidenceSnapshotDiff,
+  SnapshotComparableSectionMap,
   SnapshotDiffItem,
   SnapshotDiffKind,
+  SnapshotDiffSectionKey,
+  SnapshotDiffSectionSummary,
   SnapshotProjectMeta,
-  SnapshotReview,
-  SnapshotDocument,
-  SnapshotFinding,
-  SnapshotExtractedDraft,
-  SnapshotLearningCase,
-  SnapshotDecision,
-  SnapshotPin,
-  SnapshotVerificationRun,
-  SnapshotAoiData,
-  SnapshotCoverage,
-} from './types';
+} from './types_v2';
 
 export { buildSnapshot, buildSnapshotState, verifySnapshotFingerprint } from './builder';
 export { computeSnapshotDiff } from './diff';
