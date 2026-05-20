@@ -12,9 +12,7 @@
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Evidence snapshot and comparison (Phase 7)",
-      "Cover Quick Check extraction edge case tests",
-      "Responsive UI QA for reconciliation and decision badges"
+      "Export standardization and cross-export consistency (Phase 8)"
     ],
     "not_active_now": [
       "Refactoring extraction or export code — documentation and planning only in RC0-RC1",
@@ -158,7 +156,7 @@
       ]
     },
     "phase_7_evidence_snapshot_and_comparison": {
-      "status": "planned",
+      "status": "done",
       "title": "Evidence snapshot and comparison",
       "repo": "app.article6",
       "description": "Enable reviewers to take evidence snapshots at a point in time and compare evidence state across project versions or milestones. Support before/after views for re-verification and delta review scenarios.",
@@ -172,6 +170,9 @@
       "visible_ui_change": "Evidence snapshot comparison timeline and diff view in project overview",
       "depends_on": [
         "phase_5_verification_pack_integration"
+      ],
+      "prs": [
+        617
       ]
     },
     "phase_8_export_standardization_and_consistency": {
