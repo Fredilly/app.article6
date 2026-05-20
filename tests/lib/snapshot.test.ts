@@ -321,6 +321,9 @@ describe('snapshot builder', () => {
     expect(firstExport).toEqual(secondExport);
     expect(firstExport.exportedAt).toBe(first.capturedAt);
     expect(firstExport.schema_version).toBe('evidence_snapshot.v2');
+    expect(firstExport.exportConventions.schemaVersion).toBe('evidence_snapshot.v2');
+    expect(firstExport.exportConventions.sectionOrder).toContain('reviewer-decisions');
+    expect(firstExport.exportConventions.terminology.evidenceFragment).toBe('evidence fragment');
   });
 
   it('computes added, removed, and changed evidence across snapshots', async () => {

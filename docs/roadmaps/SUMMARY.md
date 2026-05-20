@@ -183,7 +183,7 @@ Lane status: Active
 Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
 
 Current focus:
-- Export standardization and cross-export consistency (Phase 8)
+- Maintain the export-conventions contract across new export surfaces
 - Cover Quick Check extraction edge case tests
 - Responsive UI QA for reconciliation and decision badges
 
@@ -200,7 +200,7 @@ Not active now:
 6) RC5 — Verification pack integration with evidence intelligence: Done
 7) RC6 — Evidence quality and coverage metrics: Done
 8) RC7 — Evidence snapshot and comparison: Done
-9) RC8 — Export standardization and cross-export consistency: Planned
+9) RC8 — Export standardization and cross-export consistency: Done
 
 ## safe-learning-intake-pipeline
 
