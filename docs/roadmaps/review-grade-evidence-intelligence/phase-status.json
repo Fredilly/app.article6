@@ -4,7 +4,7 @@
   "RC2": "done",
   "RC3": "done",
   "RC4": "done",
-  "RC5": "in_progress",
+  "RC5": "done",
   "RC6": "planned",
   "RC7": "planned",
   "RC8": "planned",
@@ -12,7 +12,7 @@
     "status": "active",
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
-      "Verification pack integration with evidence intelligence (Phase 5)",
+      "Evidence quality and coverage metrics (Phase 6)",
       "Cover Quick Check extraction edge case tests",
       "Responsive UI QA for reconciliation and decision badges"
     ],
@@ -121,7 +121,7 @@
       ]
     },
     "phase_5_verification_pack_integration": {
-      "status": "planned",
+      "status": "done",
       "title": "Verification pack integration with evidence intelligence",
       "repo": "app.article6",
       "description": "Integrate evidence intelligence outputs (fragments, facts, links, coverage, decisions) into the existing verification pack pipeline. The verification pack becomes a richer, better-evidenced artifact.",
@@ -135,6 +135,9 @@
       "visible_ui_change": "Verification pack output includes evidence fragments and structured review data",
       "depends_on": [
         "phase_4_premium_pdf_zips_export"
+      ],
+      "prs": [
+        613
       ]
     },
     "phase_6_evidence_quality_metrics": {
