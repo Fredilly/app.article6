@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: review-grade-evidence-intelligence, verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -30,26 +30,6 @@ Details: `docs/roadmaps/phase-assurance-surface-mvp/PLAN.md`
 5) PR15 — Verifier Mode + Audit Trail + Rule Jump: Done (PR #347)
 6) PR16 — CI Hardening + Self-Upgrading Deps: Done (PR #348)
 7) PR17 — Derived MRV artifacts + hashes (future): Done (PR #429, #432)
-
-## review-grade-evidence-intelligence
-
-Status SSOT: `docs/roadmaps/review-grade-evidence-intelligence/phase-status.json`
-Details: `docs/roadmaps/review-grade-evidence-intelligence/PLAN.md`
-
-Lane status: Active
-Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
-
-Current focus:
-- Evidence snapshot and comparison (Phase 7)
-- Cover Quick Check extraction edge case tests
-- Responsive UI QA for reconciliation and decision badges
-
-Not active now:
-- Refactoring extraction or export code — documentation and planning only in RC0-RC1
-- Changes to canonical methodology metadata or pack encoding
-- Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
-
-1) PR12: Done
 
 ## verifier-moat
 
@@ -193,6 +173,34 @@ Not active now:
 6) RC6 — Methodology version diff / impact mode: Planned — Use canonical methodology version and diff metadata to identify coverage rows and linked evidence that may need review in the app.
 7) RC7 — Fallback raw methodology PDF intake for uncovered methods: Planned — Enable lower-confidence fallback raw methodology PDF intake only for uncovered methods while preserving canonical methodology outputs as the default for covered methods.
 8) RC8 — Additional GIS formats later: Deferred — Defer broader GIS intake until reconciliation fundamentals are stable.
+
+## review-grade-evidence-intelligence
+
+Status SSOT: `docs/roadmaps/review-grade-evidence-intelligence/phase-status.json`
+Details: `docs/roadmaps/review-grade-evidence-intelligence/PLAN.md`
+
+Lane status: Active
+Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
+
+Current focus:
+- Evidence snapshot and comparison (Phase 7)
+- Cover Quick Check extraction edge case tests
+- Responsive UI QA for reconciliation and decision badges
+
+Not active now:
+- Refactoring extraction or export code — documentation and planning only in RC0-RC1
+- Changes to canonical methodology metadata or pack encoding
+- Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
+
+1) RC0 — Review-grade project export standard definition: Done
+2) RC1 — Deterministic evidence extraction foundation: Done
+3) RC2 — Evidence inventory reconciliation: Done
+4) RC3 — Reviewer decision records with provenance: Done
+5) RC4 — Premium PDF/ZIP export with full provenance: Done
+6) RC5 — Verification pack integration with evidence intelligence: Done
+7) RC6 — Evidence quality and coverage metrics: Done
+8) RC7 — Evidence snapshot and comparison: Planned
+9) RC8 — Export standardization and cross-export consistency: Planned
 
 ## safe-learning-intake-pipeline
 

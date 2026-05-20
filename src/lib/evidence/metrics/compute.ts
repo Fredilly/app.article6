@@ -1,5 +1,4 @@
-import { canonicalStringify } from '@/integrity/artifacts';
-import { sha256Hex } from '@/integrity/artifacts';
+import { canonicalJsonStringify } from '@/lib/export/canonicalJson';
 import type { EvidenceInventoryItem } from '@/lib/evidence/inventory';
 import type { RuleReview } from '@/lib/projects/types';
 import type { FragmentQuality, QualityGrade, SectionCoverage, EvidenceQualityMetrics } from './types';
@@ -118,7 +117,7 @@ export function computeMetrics(input: {
     averageQuality: Math.round(averageQuality * 100) / 100,
   };
 
-  const fingerprint = sha256Hex(Buffer.from(canonicalStringify(metricsPayload), 'utf8'));
+  const fingerprint = canonicalJsonStringify(metricsPayload);
 
   return {
     fragmentQualities,
