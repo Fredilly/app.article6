@@ -63,6 +63,14 @@ import { getReviewProgress, REVIEW_STORE_EVENT, type ReviewProgress } from "@/li
 import { deriveDocumentSupport } from "@/lib/verify/documentSupport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
+import { getProject, updateProject } from "@/lib/projects/storage";
+import type { Project } from "@/lib/projects/types";
+import {
+  ensureReviewWorkspace,
+  getReviewWorkspace,
+  touchReviewWorkspace,
+} from "@/lib/reviewWorkspaces/storage";
+import type { ReviewWorkspace } from "@/lib/reviewWorkspaces/types";
 
 type MethodDetail = {
   code: string;
@@ -134,8 +142,12 @@ export default function MethodDetailPane({
   const isEvidenceMode = mode === "evidence" || isEvidenceRoute;
   const methodsLayout = useMethodsLayout();
   const verifierMode = useMemo(() => isVerifierMode(searchParams), [searchParams]);
+  const linkedProjectId = useMemo(() => (searchParams.get("projectId") ?? "").trim() || null, [searchParams]);
+  const linkedWorkspaceId = useMemo(() => (searchParams.get("workspaceId") ?? "").trim() || null, [searchParams]);
   const urlVerifyMode = useMemo(() => getVerifyView(new URLSearchParams(searchString)), [searchString]);
   const [verifyViewMode, setVerifyViewMode] = useState<"list" | "map">(urlVerifyMode);
+  const [linkedProject, setLinkedProject] = useState<Project | null>(null);
+  const [reviewWorkspace, setReviewWorkspace] = useState<ReviewWorkspace | null>(null);
 
   const metaUrl = useMemo(() => metaUrlFromRulesPath(manifestRulesPath), [manifestRulesPath]);
   const [sourceAudited, setSourceAudited] = useState(false);
@@ -350,6 +362,7 @@ export default function MethodDetailPane({
   const [stacEvidenceByKey, setStacEvidenceByKey] = useState<Record<string, StacEvidenceState>>({});
   const [selectedStacItemId, setSelectedStacItemId] = useState<string | null>(null);
   const [coverageDrawerOpen, setCoverageDrawerOpen] = useState(false);
+  const workspaceScopeId = reviewWorkspace?.id ?? linkedWorkspaceId ?? null;
 
   const lineageVersions = method.lineage?.lineage?.length ? method.lineage.lineage : method.versions;
   const versionBadges = [
@@ -479,18 +492,83 @@ export default function MethodDetailPane({
   );
 
   useEffect(() => {
+    setLinkedProject(linkedProjectId ? getProject(linkedProjectId) ?? null : null);
+  }, [linkedProjectId]);
+
+  useEffect(() => {
+    setReviewWorkspace(linkedWorkspaceId ? getReviewWorkspace(linkedWorkspaceId) ?? null : null);
+  }, [linkedWorkspaceId]);
+
+  useEffect(() => {
+    if (!linkedProjectId || !activeVersion) return;
+    const project = getProject(linkedProjectId);
+    if (!project) return;
+    const currentWorkspace = linkedWorkspaceId ? getReviewWorkspace(linkedWorkspaceId) ?? null : null;
+    if (
+      currentWorkspace &&
+      currentWorkspace.projectId === linkedProjectId &&
+      currentWorkspace.methodCode === method.code &&
+      currentWorkspace.methodVersion === activeVersion
+    ) {
+      setLinkedProject(project);
+      setReviewWorkspace(touchReviewWorkspace(currentWorkspace.id) ?? currentWorkspace);
+      if (
+        project.lastWorkspaceId !== currentWorkspace.id ||
+        project.methodCode !== method.code ||
+        project.methodVersion !== activeVersion
+      ) {
+        setLinkedProject(
+          updateProject(project.id, {
+            methodCode: method.code,
+            methodVersion: activeVersion,
+            reportingPeriod: currentWorkspace.reportingPeriod ?? project.reportingPeriod,
+            lastWorkspaceId: currentWorkspace.id,
+          }) ?? project,
+        );
+      }
+      return;
+    }
+
+    const ensuredWorkspace = ensureReviewWorkspace({
+      projectId: project.id,
+      projectName: project.name,
+      projectCode: project.projectCode,
+      methodCode: method.code,
+      methodVersion: activeVersion,
+      reportingPeriod: project.reportingPeriod,
+    });
+    const updatedProject =
+      updateProject(project.id, {
+        methodCode: method.code,
+        methodVersion: activeVersion,
+        reportingPeriod: ensuredWorkspace.reportingPeriod ?? project.reportingPeriod,
+        lastWorkspaceId: ensuredWorkspace.id,
+      }) ?? project;
+    setLinkedProject(updatedProject);
+    setReviewWorkspace(ensuredWorkspace);
+    if (!pathname) return;
+    const params = new URLSearchParams(searchString);
+    params.set("projectId", project.id);
+    if (params.get("workspaceId") !== ensuredWorkspace.id) {
+      params.set("workspaceId", ensuredWorkspace.id);
+      const next = params.toString();
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    }
+  }, [activeVersion, linkedProjectId, linkedWorkspaceId, method.code, pathname, router, searchString]);
+
+  useEffect(() => {
     if (!activeVersion) {
       setReviewProgress(null);
       return;
     }
     const updateProgress = () => {
-      setReviewProgress(getReviewProgress(method.code, activeVersion, requirementRows.length));
+      setReviewProgress(getReviewProgress(method.code, activeVersion, requirementRows.length, workspaceScopeId));
     };
     updateProgress();
     const handleReviewStoreChange = () => updateProgress();
     window.addEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
     return () => window.removeEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
-  }, [activeVersion, method.code, requirementRows.length]);
+  }, [activeVersion, method.code, requirementRows.length, workspaceScopeId]);
 
   useEffect(() => {
     setRules([]);
@@ -541,30 +619,30 @@ export default function MethodDetailPane({
 
   useEffect(() => {
     if (!activeVersion) return;
-    setCurrentAoi(loadAoi(method.code, activeVersion));
-    setDraftAoi(loadDraftAoi(method.code, activeVersion));
-    setEvidencePins(coalesceEvidencePins(loadPins(method.code, activeVersion)));
-    setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
-    setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
+    setCurrentAoi(loadAoi(method.code, activeVersion, workspaceScopeId));
+    setDraftAoi(loadDraftAoi(method.code, activeVersion, workspaceScopeId));
+    setEvidencePins(coalesceEvidencePins(loadPins(method.code, activeVersion, workspaceScopeId)));
+    setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion, workspaceScopeId));
+    setVerificationRuns(loadVerificationRuns(method.code, activeVersion, workspaceScopeId));
     setUndoSnapshot(null);
-  }, [activeVersion, method.code]);
+  }, [activeVersion, method.code, workspaceScopeId]);
 
   const setCurrentAoiAndPersist = useCallback(
     (nextAoi: AOI | null) => {
       setCurrentAoi(nextAoi);
       if (!activeVersion) return;
-      saveAoi(method.code, activeVersion, nextAoi);
+      saveAoi(method.code, activeVersion, nextAoi, workspaceScopeId);
     },
-    [activeVersion, method.code],
+    [activeVersion, method.code, workspaceScopeId],
   );
 
   const setDraftAoiAndPersist = useCallback(
     (nextAoi: AOI | null) => {
       setDraftAoi(nextAoi);
       if (!activeVersion) return;
-      saveDraftAoi(method.code, activeVersion, nextAoi);
+      saveDraftAoi(method.code, activeVersion, nextAoi, workspaceScopeId);
     },
-    [activeVersion, method.code],
+    [activeVersion, method.code, workspaceScopeId],
   );
 
   const setActiveAoiAndPersist = useCallback(
@@ -583,11 +661,11 @@ export default function MethodDetailPane({
       setEvidencePins((current) => {
         const resolved = typeof nextPins === "function" ? nextPins(current) : nextPins;
         const normalizedPins = coalesceEvidencePins(resolved);
-        if (activeVersion) savePins(method.code, activeVersion, normalizedPins);
+        if (activeVersion) savePins(method.code, activeVersion, normalizedPins, workspaceScopeId);
         return normalizedPins;
       });
     },
-    [activeVersion, method.code],
+    [activeVersion, method.code, workspaceScopeId],
   );
   const handleLinkInventoryItem = useCallback(
     (evidenceId: string, ruleId: string, fragmentId?: string) => {
@@ -614,18 +692,18 @@ export default function MethodDetailPane({
     (nextSnapshots: ProofEvidenceItem[]) => {
       setEvidenceSnapshots(nextSnapshots);
       if (!activeVersion) return;
-      saveEvidenceSnapshots(method.code, activeVersion, nextSnapshots);
+      saveEvidenceSnapshots(method.code, activeVersion, nextSnapshots, workspaceScopeId);
     },
-    [activeVersion, method.code],
+    [activeVersion, method.code, workspaceScopeId],
   );
 
   const setVerificationRunsAndPersist = useCallback(
     (nextRuns: VerificationRun[]) => {
       setVerificationRuns(nextRuns);
       if (!activeVersion) return;
-      saveVerificationRuns(method.code, activeVersion, nextRuns);
+      saveVerificationRuns(method.code, activeVersion, nextRuns, workspaceScopeId);
     },
-    [activeVersion, method.code],
+    [activeVersion, method.code, workspaceScopeId],
   );
 
   const hasWorkspaceState = Boolean(
@@ -734,7 +812,7 @@ export default function MethodDetailPane({
 
   const startOverProofMap = useCallback(() => {
     if (!activeVersion) return;
-    clearProofMapStorage(method.code, activeVersion);
+    clearProofMapStorage(method.code, activeVersion, workspaceScopeId);
     clearStoredMapView(`${method.code}@${activeVersion}`);
 
     setCurrentAoi(null);
@@ -755,16 +833,16 @@ export default function MethodDetailPane({
       }
       return next;
     });
-  }, [activeVersion, method.code]);
+  }, [activeVersion, method.code, workspaceScopeId]);
 
   const refreshProofMapFromStorage = useCallback(() => {
     if (!activeVersion) return;
-    setCurrentAoi(loadAoi(method.code, activeVersion));
-    setDraftAoi(loadDraftAoi(method.code, activeVersion));
-    setEvidencePins(coalesceEvidencePins(loadPins(method.code, activeVersion)));
-    setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion));
-    setVerificationRuns(loadVerificationRuns(method.code, activeVersion));
-  }, [activeVersion, method.code]);
+    setCurrentAoi(loadAoi(method.code, activeVersion, workspaceScopeId));
+    setDraftAoi(loadDraftAoi(method.code, activeVersion, workspaceScopeId));
+    setEvidencePins(coalesceEvidencePins(loadPins(method.code, activeVersion, workspaceScopeId)));
+    setEvidenceSnapshots(loadEvidenceSnapshots(method.code, activeVersion, workspaceScopeId));
+    setVerificationRuns(loadVerificationRuns(method.code, activeVersion, workspaceScopeId));
+  }, [activeVersion, method.code, workspaceScopeId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -906,7 +984,7 @@ export default function MethodDetailPane({
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const path = `/m/${encodeURIComponent(method.code)}/v/${encodeURIComponent(activeVersion ?? "")}`;
       const { tab, rule, section, hash } = encodeShareState({ tab: "rules", rule: ruleId });
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchString);
       if (tab) params.set("tab", tab);
       if (rule) params.set("rule", rule);
       if (section) params.set("section", section);
@@ -914,7 +992,7 @@ export default function MethodDetailPane({
       const suffix = `${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
       return `${origin}${path}${suffix}`;
     },
-    [activeVersion, method.code],
+    [activeVersion, method.code, searchString],
   );
 
   const loadRuleDetail = useCallback(async (ruleId: string) => {
@@ -1308,6 +1386,9 @@ export default function MethodDetailPane({
     <ProofMapTab
       methodCode={method.code}
       version={activeVersion ?? ""}
+      workspaceId={workspaceScopeId}
+      linkedProject={linkedProject}
+      reviewWorkspace={reviewWorkspace}
       provenanceJson={provenanceJson}
       mode={isEvidenceMode ? "evidence" : undefined}
       viewMode={verifyViewMode}
@@ -1380,6 +1461,69 @@ export default function MethodDetailPane({
 
   const verifySurface = (
     <div className="mt-4 grid gap-4">
+      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Project</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">
+                {linkedProject?.name ?? "Unlinked method-only review"}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Project ID</div>
+              <div className="mt-1 text-sm text-slate-700">
+                {linkedProject?.projectCode ?? linkedProject?.id ?? "Missing"}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Methodology</div>
+              <div className="mt-1 text-sm text-slate-700">
+                {activeVersion ? `${method.code} ${activeVersion}` : "Select a version"}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Reporting period</div>
+              <div className="mt-1 text-sm text-slate-700">
+                {reviewWorkspace?.reportingPeriod ?? linkedProject?.reportingPeriod ?? "Not set"}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Workspace</div>
+              <div className="mt-1 text-sm text-slate-700">
+                {reviewWorkspace?.name ?? (linkedProject ? "Will be created on method selection" : "Draft / incomplete")}
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={linkedProject ? "/projects" : "/projects/new"}
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+            >
+              Change project
+            </Link>
+            <Link
+              href={linkedProjectId ? `/m?projectId=${encodeURIComponent(linkedProjectId)}` : "/m"}
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+            >
+              Change methodology/version
+            </Link>
+            {linkedProject ? (
+              <Link
+                href={`/projects/${encodeURIComponent(linkedProject.id)}`}
+                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+              >
+                Edit project details
+              </Link>
+            ) : null}
+          </div>
+        </div>
+        {!linkedProject ? (
+          <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            This verify flow is running without a linked project. Exports remain draft/incomplete and finalization will stay blocked until a project is linked.
+          </div>
+        ) : null}
+      </section>
       <VerifyHeader
         mode={verifyViewMode}
         verifierMode={verifierMode}
@@ -1433,12 +1577,27 @@ export default function MethodDetailPane({
         <TrustStrip
           methodCode={method.code}
           version={activeVersion}
+          workspaceId={workspaceScopeId}
           packTag={packTag}
           provenanceJson={provenanceJson}
           manifestRulesPath={manifestRulesPath}
           onOpenIntegrityDiff={() => setIntegrityDiffOpen(true)}
           surface="methods"
           methodReviewEvidencePins={evidencePins}
+          projectContext={
+            linkedProject
+              ? {
+                  projectId: linkedProject.id,
+                  projectName: linkedProject.name,
+                  projectCode: linkedProject.projectCode ?? null,
+                  countryLocation: linkedProject.countryLocation ?? null,
+                  proponent: linkedProject.proponent ?? null,
+                  reportingPeriod: reviewWorkspace?.reportingPeriod ?? linkedProject.reportingPeriod ?? null,
+                  workspaceId: workspaceScopeId,
+                  workspaceName: reviewWorkspace?.name ?? null,
+                }
+              : null
+          }
         />
       </div>
 
@@ -1488,6 +1647,7 @@ export default function MethodDetailPane({
         methodologyLabel={`${method.program} ${method.sector} · ${method.code} · ${activeVersion ?? "unknown version"}`}
         reviewMethodology={method.code}
         reviewVersion={activeVersion ?? null}
+        reviewWorkspaceId={workspaceScopeId}
         sourcePath={ruleDetail?.sourcePath ?? null}
         sha256={ruleDetail?.sha256 ?? null}
         ruleTags={activeRequirementRow?.ruleSummary.tags ?? []}

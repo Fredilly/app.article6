@@ -86,6 +86,8 @@ import {
 } from "@/lib/verify/runState";
 import ProofCoverageChip from "@/components/verify/ProofCoverageChip";
 import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
+import type { Project } from "@/lib/projects/types";
+import type { ReviewWorkspace } from "@/lib/reviewWorkspaces/types";
 
 type ToastState = {
   title: string;
@@ -95,6 +97,9 @@ type ToastState = {
 type ProofMapTabProps = {
   methodCode: string;
   version: string;
+  workspaceId?: string | null;
+  linkedProject?: Project | null;
+  reviewWorkspace?: ReviewWorkspace | null;
   provenanceJson?: unknown | null;
   mode?: "explorer" | "evidence";
   viewMode?: "list" | "map";
@@ -421,6 +426,9 @@ function statusPill(status: VerificationRun["status"]): { label: string; classNa
 export default function ProofMapTab({
   methodCode,
   version,
+  workspaceId = null,
+  linkedProject = null,
+  reviewWorkspace = null,
   provenanceJson,
   mode = "explorer",
   viewMode = "map",
@@ -481,8 +489,8 @@ export default function ProofMapTab({
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
-  const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version));
-  const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version));
+  const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version, workspaceId));
+  const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version, workspaceId));
   const [baselineTick, setBaselineTick] = useState(0);
   const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
   const [secondarySectionOpen, setSecondarySectionOpen] = useState(false);
@@ -655,29 +663,30 @@ export default function ProofMapTab({
   }, [fetchSelectedRuleContext, selectedRuleId]);
 
   useEffect(() => {
-    setVerifierBundle(readVerifierRunBundle(methodCode, version));
-  }, [methodCode, version]);
+    setVerifierBundle(readVerifierRunBundle(methodCode, version, workspaceId));
+  }, [methodCode, version, workspaceId]);
 
   useEffect(() => {
-    setRunHistory(readRunHistory(methodCode, version));
-  }, [methodCode, version]);
+    setRunHistory(readRunHistory(methodCode, version, workspaceId));
+  }, [methodCode, version, workspaceId]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      persistVerifierRunBundle(methodCode, version, verifierBundle);
+      persistVerifierRunBundle(methodCode, version, verifierBundle, workspaceId);
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [methodCode, verifierBundle, version]);
+  }, [methodCode, verifierBundle, version, workspaceId]);
 
   const currentReviewerContext = useMemo(
     () =>
       createReviewerArtifactContext({
         methodCode,
         version,
+        workspaceId,
         ruleId: selectedRuleId,
         runId: verifierBundle.runContext.runId,
       }),
-    [methodCode, selectedRuleId, verifierBundle.runContext.runId, version],
+    [methodCode, selectedRuleId, verifierBundle.runContext.runId, version, workspaceId],
   );
 
   useEffect(() => {
@@ -1003,7 +1012,7 @@ export default function ProofMapTab({
       historicalCurrent && canonicalJsonStringify(historicalCurrent.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
         ? {
             ...currentWorkspaceBundle,
-            runContext: createVerifierRunBundle(methodCode, version).runContext,
+            runContext: createVerifierRunBundle(methodCode, version, workspaceId).runContext,
           }
         : currentWorkspaceBundle;
     setVerifierBundle((current) =>
@@ -1011,16 +1020,16 @@ export default function ProofMapTab({
         ? current
         : { ...current, runContext: draftBundle.runContext },
     );
-    setRunHistory(saveCurrentRunToHistory(methodCode, version, draftBundle));
+    setRunHistory(saveCurrentRunToHistory(methodCode, version, draftBundle, workspaceId));
     return draftBundle.runContext.runId;
-  }, [currentWorkspaceBundle, methodCode, runHistory, verifierBundle.runContext.runId, version]);
+  }, [currentWorkspaceBundle, methodCode, runHistory, verifierBundle.runContext.runId, version, workspaceId]);
 
   const handleSaveRunHistory = useCallback(
     (bundleOverride?: ReturnType<typeof buildHistoryBundle>) => {
       const bundle = bundleOverride ?? buildHistoryBundle();
-      setRunHistory(saveCurrentRunToHistory(methodCode, version, bundle));
+      setRunHistory(saveCurrentRunToHistory(methodCode, version, bundle, workspaceId));
     },
-    [buildHistoryBundle, methodCode, version],
+    [buildHistoryBundle, methodCode, version, workspaceId],
   );
 
   const handleLoadRunHistory = useCallback(
@@ -1031,12 +1040,13 @@ export default function ProofMapTab({
         if (!confirmed) return;
         persistCurrentWorkspaceAsDraft();
       }
-      const loaded = loadRunFromHistory(methodCode, version, runId);
+      const loaded = loadRunFromHistory(methodCode, version, runId, workspaceId);
       if (!loaded) return;
-      const editableRun = createVerifierRunBundle(methodCode, version);
+      const editableRun = createVerifierRunBundle(methodCode, version, workspaceId);
       const loadedReviewerContext = createReviewerArtifactContext({
         methodCode,
         version,
+        workspaceId,
         ruleId: loaded.selectedRuleId ?? null,
         runId: editableRun.runContext.runId,
       });
@@ -1083,14 +1093,15 @@ export default function ProofMapTab({
       showToast,
       verifierBundle.runContext.runId,
       version,
+      workspaceId,
     ],
   );
 
   const handleDeleteRunHistory = useCallback(
     (runId: string) => {
-      setRunHistory(deleteRunFromHistory(methodCode, version, runId));
+      setRunHistory(deleteRunFromHistory(methodCode, version, runId, workspaceId));
     },
-    [methodCode, version],
+    [methodCode, version, workspaceId],
   );
 
   const handleSearchStac = useCallback(async () => {
@@ -1816,8 +1827,12 @@ export default function ProofMapTab({
     if (!totalRules || totalRules < 1) {
       return { canFinalize: false, reasons: ["Rule count unavailable for finalize gate."] };
     }
-    return checkFinalizeGate(methodCode, version, totalRules);
-  }, [methodCode, reviewGateVersion, totalRules, verifierMode, version]);
+    return checkFinalizeGate(methodCode, version, totalRules, {
+      workspaceId,
+      projectLinked: Boolean(linkedProject?.id),
+      methodologyLinked: Boolean(methodCode.trim() && version.trim()),
+    });
+  }, [linkedProject?.id, methodCode, reviewGateVersion, totalRules, verifierMode, version, workspaceId]);
   const selectedStacItemRecord = useMemo(() => {
     if (!selectedStacItemId) return null;
     const candidate = currentStacEvidence?.itemsById?.[selectedStacItemId];
@@ -3022,6 +3037,7 @@ export default function ProofMapTab({
         createReviewerArtifactContext({
           methodCode,
           version,
+          workspaceId,
           ruleId: savedReviewerRuleId,
           runId: verifierBundle.runContext.runId,
         }),
@@ -3039,7 +3055,7 @@ export default function ProofMapTab({
       reviewerArtifactsByRuleId,
     });
 
-    const reviewsByRuleId = getAllReviews(methodCode, version);
+    const reviewsByRuleId = getAllReviews(methodCode, version, workspaceId);
 
     const suppliedDocuments = [...evidenceInventory]
       .filter((item) => item.kind !== "stac-item")
@@ -3083,6 +3099,7 @@ export default function ProofMapTab({
     verifierBundle.savedReviewerArtifactAt,
     verifierBundle.savedReviewerArtifactContext,
     version,
+    workspaceId,
   ]);
 
   const buildClientReadinessReportPayload = useCallback(async () => {
@@ -4781,6 +4798,20 @@ export default function ProofMapTab({
                 summary={activeReviewArtifact?.summary ?? reviewSummary}
                 artifact={activeReviewArtifact}
                 evidencePins={evidencePins}
+                projectContext={
+                  linkedProject
+                    ? {
+                        projectId: linkedProject.id,
+                        projectName: linkedProject.name,
+                        projectCode: linkedProject.projectCode ?? null,
+                        countryLocation: linkedProject.countryLocation ?? null,
+                        proponent: linkedProject.proponent ?? null,
+                        reportingPeriod: reviewWorkspace?.reportingPeriod ?? linkedProject.reportingPeriod ?? null,
+                        workspaceId: workspaceId,
+                        workspaceName: reviewWorkspace?.name ?? null,
+                      }
+                    : null
+                }
                 currentRunLabel={currentRunLabel}
                 loadedFromRunLabel={loadedFromRunLabel}
                 finalizedAt={verifierBundle.finalizedAt}

@@ -12,6 +12,7 @@ export type RuleReview = {
   ruleId: string;
   methodology: string;
   version: string;
+  workspaceId?: string;
   status: ReviewStatus;
   rationale: string;
   supportReference: string;
@@ -28,10 +29,15 @@ export const REVIEW_STORE_EVENT = "article6:review-store-changed";
 type ReviewStoreEventDetail = {
   methodology: string;
   version: string;
+  workspaceId?: string;
   ruleId?: string;
 };
 
-function storageKey(methodology: string, version: string): string {
+function storageKey(methodology: string, version: string, workspaceId?: string | null): string {
+  const normalizedWorkspaceId = workspaceId?.trim();
+  if (normalizedWorkspaceId) {
+    return `${STORAGE_PREFIX}:workspace:${normalizedWorkspaceId}`;
+  }
   return `${STORAGE_PREFIX}:${methodology}:${version}`;
 }
 
@@ -44,9 +50,10 @@ export function getReview(
   ruleId: string,
   methodology: string,
   version: string,
+  workspaceId?: string | null,
 ): RuleReview | null {
   try {
-    const raw = localStorage.getItem(storageKey(methodology, version));
+    const raw = localStorage.getItem(storageKey(methodology, version, workspaceId));
     if (!raw) return null;
     const all: Record<string, RuleReview> = JSON.parse(raw);
     return all[ruleId] ?? null;
@@ -56,7 +63,8 @@ export function getReview(
 }
 
 export function saveReview(review: RuleReview): void {
-  const key = storageKey(review.methodology, review.version);
+  const workspaceId = (review as RuleReview & { workspaceId?: string | null }).workspaceId ?? null;
+  const key = storageKey(review.methodology, review.version, workspaceId);
   try {
     const raw = localStorage.getItem(key);
     const all: Record<string, RuleReview> = raw ? JSON.parse(raw) : {};
@@ -65,6 +73,7 @@ export function saveReview(review: RuleReview): void {
     emitReviewStoreEvent({
       methodology: review.methodology,
       version: review.version,
+      ...(workspaceId ? { workspaceId } : {}),
       ruleId: review.ruleId,
     });
   } catch {
@@ -75,9 +84,10 @@ export function saveReview(review: RuleReview): void {
 export function getAllReviews(
   methodology: string,
   version: string,
+  workspaceId?: string | null,
 ): Record<string, RuleReview> {
   try {
-    const raw = localStorage.getItem(storageKey(methodology, version));
+    const raw = localStorage.getItem(storageKey(methodology, version, workspaceId));
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -88,15 +98,16 @@ export function deleteReview(
   ruleId: string,
   methodology: string,
   version: string,
+  workspaceId?: string | null,
 ): void {
-  const key = storageKey(methodology, version);
+  const key = storageKey(methodology, version, workspaceId);
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return;
     const all: Record<string, RuleReview> = JSON.parse(raw);
     delete all[ruleId];
     localStorage.setItem(key, JSON.stringify(all));
-    emitReviewStoreEvent({ methodology, version, ruleId });
+    emitReviewStoreEvent({ methodology, version, ...(workspaceId ? { workspaceId } : {}), ruleId });
   } catch {
     // ignore
   }
@@ -109,8 +120,9 @@ export function addEvidenceAttachment(
   methodology: string,
   version: string,
   attachment: Omit<EvidenceAttachment, "id" | "addedAt">,
+  workspaceId?: string | null,
 ): RuleReview | null {
-  const review = getReview(ruleId, methodology, version);
+  const review = getReview(ruleId, methodology, version, workspaceId);
   if (!review) return null;
 
   const full: EvidenceAttachment = {
@@ -129,8 +141,9 @@ export function removeEvidenceAttachment(
   methodology: string,
   version: string,
   evidenceId: string,
+  workspaceId?: string | null,
 ): RuleReview | null {
-  const review = getReview(ruleId, methodology, version);
+  const review = getReview(ruleId, methodology, version, workspaceId);
   if (!review) return null;
 
   review.evidenceAttachments = (review.evidenceAttachments ?? []).filter(
@@ -156,8 +169,9 @@ export function getReviewProgress(
   methodology: string,
   version: string,
   totalRules: number,
+  workspaceId?: string | null,
 ): ReviewProgress {
-  const reviews = getAllReviews(methodology, version);
+  const reviews = getAllReviews(methodology, version, workspaceId);
   const entries = Object.values(reviews);
   const reviewed = entries.filter((r) => r.status !== "pending").length;
   const verified = entries.filter((r) => r.status === "verified").length;
@@ -187,10 +201,22 @@ export function checkFinalizeGate(
   methodology: string,
   version: string,
   totalRules: number,
+  options?: {
+    workspaceId?: string | null;
+    projectLinked?: boolean;
+    methodologyLinked?: boolean;
+  },
 ): FinalizeGate {
-  const reviews = getAllReviews(methodology, version);
+  const reviews = getAllReviews(methodology, version, options?.workspaceId);
   const entries = Object.values(reviews);
   const reasons: string[] = [];
+
+  if (options?.projectLinked === false) {
+    reasons.push("Review workspace is not linked to a project");
+  }
+  if (options?.methodologyLinked === false) {
+    reasons.push("Review workspace is missing a methodology version");
+  }
 
   // Check all rules have a non-pending review
   const completedRuleIds = new Set(

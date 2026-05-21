@@ -494,7 +494,14 @@ function buildDecisionRun(params: {
   });
   return {
     runId,
-    projectId: params.finalizedReview?.artifact?.verifier?.runId ?? params.currentReview?.verifierBundle?.runContext?.runId ?? 'method-review-export',
+    projectId:
+      params.finalizedReview?.projectContext?.projectCode?.trim()
+      || params.finalizedReview?.projectContext?.projectId?.trim()
+      || params.currentReview?.projectContext?.projectCode?.trim()
+      || params.currentReview?.projectContext?.projectId?.trim()
+      || params.finalizedReview?.artifact?.verifier?.runId
+      || params.currentReview?.verifierBundle?.runContext?.runId
+      || 'method-review-export',
     createdAt: params.generatedAt,
     decisions: sortedDecisions,
     decisionSetFingerprint,
@@ -603,7 +610,14 @@ function buildReconciliationRun(params: {
   return {
     runId: reconciliationFingerprint,
     createdAt: params.generatedAt,
-    projectId: params.finalizedReview?.artifact?.verifier?.runId ?? params.currentReview?.verifierBundle?.runContext?.runId ?? 'method-review-export',
+    projectId:
+      params.finalizedReview?.projectContext?.projectCode?.trim()
+      || params.finalizedReview?.projectContext?.projectId?.trim()
+      || params.currentReview?.projectContext?.projectCode?.trim()
+      || params.currentReview?.projectContext?.projectId?.trim()
+      || params.finalizedReview?.artifact?.verifier?.runId
+      || params.currentReview?.verifierBundle?.runContext?.runId
+      || 'method-review-export',
     status,
     items: sortByString(items, (item) => item.id),
     gaps: sortByString(gaps, (gap) => gap.ruleId),

@@ -31,6 +31,7 @@ type RuleReviewPanelProps = {
   sectionId?: string;
   methodology: string;
   version: string;
+  workspaceId?: string | null;
   anchorUrl?: string;
   existingReview: RuleReview | null;
   linkedEvidence?: Array<{
@@ -69,6 +70,7 @@ export default function RuleReviewPanel({
   sectionId,
   methodology,
   version,
+  workspaceId = null,
   anchorUrl,
   existingReview,
   linkedEvidence = [],
@@ -186,6 +188,7 @@ export default function RuleReviewPanel({
       ruleId,
       methodology,
       version,
+      ...(workspaceId ? { workspaceId } : {}),
       status,
       rationale,
       supportReference,
@@ -211,6 +214,7 @@ export default function RuleReviewPanel({
     ruleId,
     methodology,
     version,
+    workspaceId,
     status,
     rationale,
     supportReference,
@@ -232,6 +236,7 @@ export default function RuleReviewPanel({
         ruleId,
         methodology,
         version,
+        ...(workspaceId ? { workspaceId } : {}),
         status,
         rationale,
         supportReference,
@@ -249,7 +254,7 @@ export default function RuleReviewPanel({
       type: attachmentType,
       label: trimmedLabel,
       url: attachmentType === "url" ? trimmedUrl : undefined,
-    });
+    }, workspaceId);
     if (!review) return;
 
     logAuditEvent({
@@ -284,6 +289,7 @@ export default function RuleReviewPanel({
     supportReference,
     syncReview,
     version,
+    workspaceId,
   ]);
 
   const handleFileSelected = useCallback(
@@ -298,7 +304,7 @@ export default function RuleReviewPanel({
 
   const handleRemoveAttachment = useCallback(
     (attachment: EvidenceAttachment) => {
-      const review = removeEvidenceAttachment(ruleId, methodology, version, attachment.id);
+      const review = removeEvidenceAttachment(ruleId, methodology, version, attachment.id, workspaceId);
       if (!review) return;
       logAuditEvent({
         ruleId,
@@ -312,10 +318,10 @@ export default function RuleReviewPanel({
       syncReview(review);
       refreshAuditEvents();
     },
-    [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version],
+    [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version, workspaceId],
   );
 
-  const applySuggestion = useCallback(
+  const applySuggestedReview = useCallback(
     (focusRationale: boolean) => {
       setStatus(suggestion.mappedReviewStatus);
       setRationale(suggestion.whyThisJudgment);
@@ -454,14 +460,14 @@ export default function RuleReviewPanel({
               <div className="mt-4 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => applySuggestion(false)}
+                  onClick={() => applySuggestedReview(false)}
                   className="rounded-full border border-sky-700 bg-sky-700 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-800"
                 >
                   Accept suggestion
                 </button>
                 <button
                   type="button"
-                  onClick={() => applySuggestion(true)}
+                  onClick={() => applySuggestedReview(true)}
                   className="rounded-full border border-sky-200 bg-white px-4 py-2 text-xs font-semibold text-sky-700 hover:border-sky-300"
                 >
                   Edit before saving

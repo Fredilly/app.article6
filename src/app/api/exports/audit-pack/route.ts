@@ -71,8 +71,12 @@ export async function POST(req: Request) {
     const evidencePins = Array.isArray(record.evidencePins) ? (record.evidencePins as EvidencePin[]) : [];
     const sourceFiles = Array.isArray(record.sourceFiles) ? record.sourceFiles : [];
     const currentReview = asCurrentMethodReviewInput(record.currentReview);
+    const projectContext =
+      record.projectContext && typeof record.projectContext === "object" && !Array.isArray(record.projectContext)
+        ? record.projectContext
+        : null;
     const zip = buildAuditPackZip(method, version, {
-      finalizedReview: artifact ? { artifact, evidencePins, sourceFiles } : null,
+      finalizedReview: artifact ? { artifact, evidencePins, sourceFiles, projectContext } : null,
       currentReview: artifact ? null : currentReview,
     });
     return new Response(zip, {
