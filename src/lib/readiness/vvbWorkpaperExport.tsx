@@ -7,6 +7,7 @@ import {
   renderMetricCard,
   renderReportHtmlDocument,
 } from "@/lib/readiness/reportHtmlTheme";
+import { buildExportConventions } from "@/lib/export/conventions";
 import type { VvbWorkpaperReport } from "@/lib/readiness/vvbWorkpaperReport";
 
 export type VvbWorkpaperAppendixArtifact = {
@@ -43,6 +44,7 @@ export type VvbWorkpaperExportManifest = {
   version: 1;
   generated_at: string;
   report_id: string;
+  export_conventions: ReturnType<typeof buildExportConventions>;
   files: Array<{
     path: string;
     sha256: string;
@@ -414,6 +416,7 @@ export function buildVvbWorkpaperExport(input: BuildVvbWorkpaperExportInput): Vv
     version: 1,
     generated_at: input.report.generatedAt,
     report_id: input.report.reportId,
+    export_conventions: buildExportConventions("vvb_workpaper"),
     files: fileEntries.map((entry) => ({
       path: entry.path,
       sha256: sha256Hex(entry.bytes),

@@ -365,6 +365,10 @@ describe('Premium ZIP Export', () => {
     expect(parsed.exportMeta.projectId).toBe('project-12345678');
     expect(parsed.exportMeta.projectName).toBe('Malawi Verification Project');
     expect(parsed.project.methodCode).toBe('AR-AMS0007');
+    expect(parsed.exportMeta.schemaVersion).toBe('premium_export.v1');
+    expect(parsed.exportMeta.exportedAt).toBe('2026-05-20T00:00:00.000Z');
+    expect(parsed.exportMeta.exportConventions.sectionOrder).toContain('evidence-inventory');
+    expect(parsed.exportMeta.exportConventions.terminology.exportTimestamp).toBe('export timestamp');
     expect(parsed.evidenceInventory).toHaveLength(2);
     expect(parsed.fragments).toHaveLength(2);
     expect(parsed.facts).toHaveLength(3);
@@ -383,6 +387,8 @@ describe('Premium ZIP Export', () => {
     const manifest = JSON.parse(manifestJson);
 
     expect(manifest.exportVersion).toBe('1.0.0');
+    expect(manifest.exportConventions.schemaVersion).toBe('premium_export.v1');
+    expect(manifest.exportConventions.sectionOrder).toContain('reviewer-decisions');
     expect(manifest.entries.length).toBeGreaterThanOrEqual(4);
     for (const entry of manifest.entries) {
       expect(entry.path).toBeTruthy();
@@ -427,6 +433,15 @@ describe('Premium ZIP Export', () => {
 
     expect(zipA.equals(zipB)).toBe(true);
   });
+
+  it('renders canonical export timestamp terminology in the PDF', async () => {
+    const input = makeInput();
+    const pdf = buildPremiumPdf(input);
+    const text = await extractPdfText(pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength));
+
+    expect(text).toContain('Export timestamp');
+    expect(text).not.toContain('Export time:');
+  }, 15000);
 });
 
 describe('/api/projects/[id]/export-premium route', () => {

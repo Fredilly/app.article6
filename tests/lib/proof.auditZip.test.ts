@@ -159,6 +159,20 @@ describe("audit zip exporter/importer", () => {
     expect(parsed.integrity?.zip_sha256).toBeTruthy();
     expect(parsed.integrity?.manifest_sha256).toBeTruthy();
 
+    const manifestText = await zip.file("manifest.json")!.async("text");
+    const manifest = JSON.parse(manifestText) as {
+      generated_at: string;
+      export_conventions: {
+        schemaVersion: string;
+        sectionOrder: string[];
+        terminology: { coverageStatus: string };
+      };
+    };
+    expect(manifest.generated_at).toBe(bundle.exported_at);
+    expect(manifest.export_conventions.schemaVersion).toBe("article6.proof_audit_pack.v1");
+    expect(manifest.export_conventions.sectionOrder).toContain("coverage-matrix");
+    expect(manifest.export_conventions.terminology.coverageStatus).toBe("coverage status");
+
     const read = await readAuditZipBytes(zipBytes);
     expect(read.ok).toBe(true);
   });

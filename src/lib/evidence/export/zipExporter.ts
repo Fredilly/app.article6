@@ -2,6 +2,7 @@ import JSZip from 'jszip';
 import type { PremiumExportInput, ManifestEntry } from './types';
 import { buildPremiumPdf } from './pdfExporter';
 import { canonicalJsonStringify } from '@/lib/export/canonicalJson';
+import { buildExportConventions, resolveProjectExportTimestamp } from '@/lib/export/conventions';
 import { createHash } from 'crypto';
 
 function sha256(input: string): string {
@@ -17,7 +18,7 @@ function byteLength(input: string): number {
 }
 
 function exportTimestamp(input: PremiumExportInput): string {
-  return input.exportTime ?? input.project.lockedAt ?? input.project.createdAt ?? '1970-01-01T00:00:00.000Z';
+  return resolveProjectExportTimestamp(input.project, input.exportTime);
 }
 
 function stableDate(input: PremiumExportInput): Date {
@@ -33,8 +34,10 @@ function buildExportJson(input: PremiumExportInput): string {
     exportMeta: {
       exportedAt: now,
       pipelineVersion,
+      schemaVersion: 'premium_export.v1',
       projectId: project.id,
       projectName: project.name,
+      exportConventions: buildExportConventions('premium_export'),
     },
     project: {
       id: project.id,
@@ -205,6 +208,7 @@ export async function buildPremiumZip(input: PremiumExportInput): Promise<Buffer
   const manifest = {
     exportVersion: '1.0.0',
     generatedAt: exportTimestamp(input),
+    exportConventions: buildExportConventions('premium_export'),
     entries: entries.map((entry) => ({
       path: entry.path,
       contentSha256: entry.contentSha256,

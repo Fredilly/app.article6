@@ -1,5 +1,6 @@
 import type { PremiumExportInput } from './types';
 import type { ExtractedFact } from '@/lib/evidence/extraction/types';
+import { resolveProjectExportTimestamp } from '@/lib/export/conventions';
 
 function esc(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
@@ -105,7 +106,7 @@ function safeDate(iso: string | undefined): string {
 }
 
 function exportTimestamp(input: PremiumExportInput): string {
-  return input.exportTime ?? input.project.lockedAt ?? input.project.createdAt ?? '1970-01-01T00:00:00.000Z';
+  return resolveProjectExportTimestamp(input.project, input.exportTime);
 }
 
 function centerText(y: number, font: 'F1' | 'FB', size: number, text: string, color?: string): string[] {
@@ -553,7 +554,7 @@ function addProvenance(state: PdfPage, input: PremiumExportInput): void {
   const { project, inventory, fragments, facts, candidateLinks, reconciliationRun, decisionRun } = input;
 
   const provenanceItems: Array<[string, string]> = [
-    ['Export time', now],
+    ['Export timestamp', now],
     ['Project', `${project.name} (${project.id})`],
     ['Registry', project.registry ?? 'Unknown'],
     ['Methodology', project.methodCode && project.methodVersion ? `${project.methodCode} @ ${project.methodVersion}` : 'n/a'],
@@ -609,7 +610,7 @@ function buildPdfStream(state: PdfPage, input: PremiumExportInput): string[] {
   state.ln.push(
     LN(state.y),
     ...TXT(L, state.y - 12, 'F1', 7, 'This export was generated deterministically from project evidence pipeline data.', '0.65 0.65 0.65 rg'),
-    ...TXT(L, state.y - 24, 'F1', 7, `Export time ${safeDate(now)}. article6.org | Premium Evidence Export`, '0.65 0.65 0.65 rg'),
+    ...TXT(L, state.y - 24, 'F1', 7, `Export timestamp ${safeDate(now)}. article6.org | Premium Evidence Export`, '0.65 0.65 0.65 rg'),
   );
 
   flushPage(state, input.project.name, isManual, input.project.registry ?? 'Unknown', now, false);
