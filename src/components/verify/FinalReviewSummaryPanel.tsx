@@ -6,6 +6,7 @@ import type { EvidenceSnapshot } from "@/lib/proofMap/evidenceSnapshot";
 import type { EvidencePin } from "@/lib/proofMap/types";
 import type { ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
+import type { ReviewExportProjectContext } from "@/exports/verificationPackContract";
 
 type FinalReviewSummaryPanelProps = {
   summary: ReviewSummary;
@@ -16,6 +17,7 @@ type FinalReviewSummaryPanelProps = {
   reviewedRuleCount?: number | null;
   linkedEvidenceCount?: number | null;
   evidencePins?: EvidencePin[];
+  projectContext?: ReviewExportProjectContext | null;
   wizard: VerifyWizardStepDetails;
   onDownloadJson: () => void;
   onDownloadPdf: () => void;
@@ -42,6 +44,16 @@ function formatDate(value: string | null | undefined): string | null {
 function safeFilename(value: string | null | undefined): string {
   const trimmed = (value ?? "").trim() || "unknown";
   return trimmed.replace(/[^\w.\-]+/g, "_").slice(0, 64) || "unknown";
+}
+
+function exportContextFilenamePart(projectContext?: ReviewExportProjectContext | null): string {
+  const parts = [
+    projectContext?.projectCode ?? projectContext?.projectId ?? null,
+    projectContext?.workspaceName ?? projectContext?.workspaceId ?? null,
+  ]
+    .map((value) => safeFilename(value))
+    .filter((value) => value !== "unknown");
+  return parts.length ? `${parts.join(".")}.` : "";
 }
 
 function downloadBytes(bytes: Uint8Array, filename: string, mimeType: string) {
@@ -76,6 +88,7 @@ export default function FinalReviewSummaryPanel({
   reviewedRuleCount = null,
   linkedEvidenceCount = null,
   evidencePins = [],
+  projectContext = null,
   wizard,
   onDownloadJson,
   onDownloadPdf,
@@ -131,11 +144,15 @@ export default function FinalReviewSummaryPanel({
     const response = await fetch("/api/exports/audit-pack", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ method, version, artifact, evidencePins, sourceFiles }),
+      body: JSON.stringify({ method, version, artifact, evidencePins, sourceFiles, projectContext }),
     });
     if (!response.ok) throw new Error(await response.text());
     const bytes = new Uint8Array(await response.arrayBuffer());
-    downloadBytes(bytes, `audit-pack.${safeFilename(method)}.${safeFilename(version)}.${safeFilename(artifact.verifier?.runId)}.zip`, "application/zip");
+    downloadBytes(
+      bytes,
+      `audit-pack.${exportContextFilenamePart(projectContext)}${safeFilename(method)}.${safeFilename(version)}.${safeFilename(artifact.verifier?.runId)}.zip`,
+      "application/zip",
+    );
   };
 
   return (

@@ -42,11 +42,15 @@ export function getProject(id: string): Project | undefined {
 
 export function createProject(input: {
   name: string;
+  projectCode?: string;
+  countryLocation?: string;
+  proponent?: string;
   reviewMode: Project['reviewMode'];
   methodCode?: string;
   methodVersion?: string;
   methodCategory?: string;
   registry?: Project['registry'];
+  reportingPeriod?: string;
   aoiLabel?: string;
   description?: string;
   ruleIds?: Array<{ id: string; title: string; sectionId: string }>;
@@ -54,6 +58,9 @@ export function createProject(input: {
   const project: Project = {
     id: generateId(),
     name: input.name,
+    projectCode: input.projectCode,
+    countryLocation: input.countryLocation,
+    proponent: input.proponent,
     reviewMode: input.reviewMode,
     methodCode: input.methodCode,
     methodVersion: input.methodVersion,
@@ -61,6 +68,7 @@ export function createProject(input: {
     registry: input.registry,
     status: 'in-progress',
     createdAt: new Date().toISOString(),
+    reportingPeriod: input.reportingPeriod,
     aoiLabel: input.aoiLabel,
     description: input.description,
     reviews: (input.ruleIds ?? []).map(r => ({
@@ -78,6 +86,34 @@ export function createProject(input: {
 
   const projects = loadAll();
   projects.push(project);
+  saveAll(projects);
+  return project;
+}
+
+export function updateProject(
+  projectId: string,
+  update: Partial<
+    Pick<
+      Project,
+      | 'name'
+      | 'projectCode'
+      | 'countryLocation'
+      | 'proponent'
+      | 'methodCode'
+      | 'methodVersion'
+      | 'methodCategory'
+      | 'registry'
+      | 'reportingPeriod'
+      | 'aoiLabel'
+      | 'description'
+      | 'lastWorkspaceId'
+    >
+  >,
+): Project | undefined {
+  const projects = loadAll();
+  const project = projects.find((item) => item.id === projectId);
+  if (!project || project.status === 'locked') return undefined;
+  Object.assign(project, update);
   saveAll(projects);
   return project;
 }
@@ -347,6 +383,9 @@ function normalizeProject(project: Partial<Project>): Project {
   return {
     id: project.id ?? generateId(),
     name: project.name ?? 'Untitled project',
+    projectCode: project.projectCode,
+    countryLocation: project.countryLocation,
+    proponent: project.proponent,
     reviewMode: project.reviewMode ?? 'methodology-linked',
     methodCode: project.methodCode,
     methodVersion: project.methodVersion,
@@ -355,6 +394,8 @@ function normalizeProject(project: Partial<Project>): Project {
     status: project.status ?? 'in-progress',
     createdAt: project.createdAt ?? new Date().toISOString(),
     lockedAt: project.lockedAt,
+    reportingPeriod: project.reportingPeriod,
+    lastWorkspaceId: project.lastWorkspaceId,
     aoiLabel: project.aoiLabel,
     description: project.description,
     reviews: Array.isArray(project.reviews) ? project.reviews : [],

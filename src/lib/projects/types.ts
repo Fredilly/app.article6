@@ -133,6 +133,9 @@ export type ExtractedManualFindingDraft = {
 export type Project = {
   id: string;
   name: string;
+  projectCode?: string;
+  countryLocation?: string;
+  proponent?: string;
   reviewMode: ProjectReviewMode;
   methodCode?: string;
   methodVersion?: string;
@@ -141,6 +144,8 @@ export type Project = {
   status: ProjectStatus;
   createdAt: string;
   lockedAt?: string;
+  reportingPeriod?: string;
+  lastWorkspaceId?: string;
   aoiLabel?: string;
   description?: string;
   reviews: RuleReview[];

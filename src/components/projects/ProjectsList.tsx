@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Project } from '@/lib/projects/types';
 import { listProjects, getProjectCoverage, deleteProject } from '@/lib/projects/storage';
+import { listReviewWorkspacesForProject } from '@/lib/reviewWorkspaces/storage';
 
 export default function ProjectsList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -102,7 +103,31 @@ export default function ProjectsList() {
                 </div>
 
                 {project.status === 'in-progress' && (
-                  <div className="mt-3 flex justify-end">
+                  <div className="mt-3 flex items-center justify-between gap-3">
+                    <div className="flex flex-wrap gap-2">
+                      {project.reviewMode === 'methodology-linked' ? (
+                        <>
+                          <Link
+                            href={`/m?projectId=${encodeURIComponent(project.id)}`}
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                          >
+                            Start review
+                          </Link>
+                          {(() => {
+                            const latestWorkspace = listReviewWorkspacesForProject(project.id)[0];
+                            if (!latestWorkspace) return null;
+                            return (
+                              <Link
+                                href={`/m/${encodeURIComponent(latestWorkspace.methodCode)}/v/${encodeURIComponent(latestWorkspace.methodVersion)}?projectId=${encodeURIComponent(project.id)}&workspaceId=${encodeURIComponent(latestWorkspace.id)}&tab=verify`}
+                                className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
+                              >
+                                Continue review
+                              </Link>
+                            );
+                          })()}
+                        </>
+                      ) : null}
+                    </div>
                     <button
                       onClick={() => handleDelete(project.id)}
                       className="text-xs text-red-400 hover:text-red-600"

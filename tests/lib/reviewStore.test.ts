@@ -126,4 +126,46 @@ describe("reviewStore phase 2 helpers", () => {
       ],
     });
   });
+
+  it("scopes reviews to the linked workspace when a workspace id is provided", () => {
+    saveReview({ ...baseReview, workspaceId: "ws_alpha" });
+    saveReview({ ...baseReview, ruleId: "R-2", workspaceId: "ws_beta" });
+
+    expect(getReviewProgress("AR-ACM0003", "v02-0", 2, "ws_alpha")).toEqual({
+      total: 2,
+      reviewed: 1,
+      verified: 1,
+      notVerified: 0,
+      needsFollowup: 0,
+      pending: 1,
+      percentReviewed: 50,
+    });
+    expect(getReviewProgress("AR-ACM0003", "v02-0", 2, "ws_beta")).toEqual({
+      total: 2,
+      reviewed: 1,
+      verified: 1,
+      notVerified: 0,
+      needsFollowup: 0,
+      pending: 1,
+      percentReviewed: 50,
+    });
+  });
+
+  it("blocks finalize when the review workspace is missing linked project or methodology context", () => {
+    saveReview({ ...baseReview, workspaceId: "ws_alpha" });
+
+    expect(
+      checkFinalizeGate("AR-ACM0003", "v02-0", 1, {
+        workspaceId: "ws_alpha",
+        projectLinked: false,
+        methodologyLinked: false,
+      }),
+    ).toEqual({
+      canFinalize: false,
+      reasons: [
+        "Review workspace is not linked to a project",
+        "Review workspace is missing a methodology version",
+      ],
+    });
+  });
 });

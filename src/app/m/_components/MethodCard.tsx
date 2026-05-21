@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import type { MethodInventoryItem } from "@/app/m/_lib/methodInventory";
 
@@ -13,7 +13,9 @@ type MethodCardProps = {
 
 export default function MethodCard({ method, active, sourceAudited }: MethodCardProps) {
   const router = useRouter();
-  const href = `/m/${encodeURIComponent(method.code)}`;
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
+  const href = `/m/${encodeURIComponent(method.code)}${search ? `?${search}` : ""}`;
   const handleMouseEnter = useCallback(() => { router.prefetch(href); }, [router, href]);
 
   return (

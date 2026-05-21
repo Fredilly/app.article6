@@ -39,6 +39,7 @@ type RuleDetailModalProps = {
   methodologyLabel?: string | null;
   reviewMethodology?: string | null;
   reviewVersion?: string | null;
+  reviewWorkspaceId?: string | null;
   sourcePath?: string | null;
   sha256?: string | null;
   traceSections?: Array<{
@@ -122,6 +123,7 @@ function resolveRuleReviewReviewerArtifact(input: {
   canonicalRuleId?: string | null;
   reviewMethodology?: string | null;
   reviewVersion?: string | null;
+  reviewWorkspaceId?: string | null;
   reviewerMinutes?: string | null;
   reviewerOutcomeNote?: string | null;
 }): { reviewerMinutes: string | null; reviewerOutcomeNote: string | null } {
@@ -135,11 +137,12 @@ function resolveRuleReviewReviewerArtifact(input: {
 
   const methodCode = input.reviewMethodology?.trim() ?? "";
   const version = input.reviewVersion?.trim() ?? "";
+  const workspaceId = input.reviewWorkspaceId?.trim() ?? "";
   if (!methodCode || !version) {
     return { reviewerMinutes: null, reviewerOutcomeNote: null };
   }
 
-  const bundle = readVerifierRunBundle(methodCode, version);
+  const bundle = readVerifierRunBundle(methodCode, version, workspaceId);
   if (!bundle.savedReviewerArtifactAt || !bundle.savedReviewerArtifactContext) {
     return { reviewerMinutes: null, reviewerOutcomeNote: null };
   }
@@ -185,6 +188,7 @@ export default function RuleDetailModal({
   methodologyLabel,
   reviewMethodology,
   reviewVersion,
+  reviewWorkspaceId = null,
   sourcePath,
   sha256,
   traceSections = [],
@@ -216,9 +220,9 @@ export default function RuleDetailModal({
       setReviewOpen(false);
       return;
     }
-    setExistingReview(getReview(canonicalRuleId, reviewMethodology, reviewVersion));
+    setExistingReview(getReview(canonicalRuleId, reviewMethodology, reviewVersion, reviewWorkspaceId));
     setReviewOpen(false);
-  }, [canonicalRuleId, open, reviewMethodology, reviewVersion]);
+  }, [canonicalRuleId, open, reviewMethodology, reviewVersion, reviewWorkspaceId]);
 
   const handleSaveReview = useCallback(
     (review: RuleReview) => {
@@ -303,6 +307,7 @@ export default function RuleDetailModal({
     canonicalRuleId,
     reviewMethodology,
     reviewVersion,
+    reviewWorkspaceId,
     reviewerMinutes,
     reviewerOutcomeNote,
   });
@@ -387,6 +392,7 @@ export default function RuleDetailModal({
               sectionId={row.provenance.sectionId ?? undefined}
               methodology={reviewMethodologyValue}
               version={reviewVersionValue}
+              workspaceId={reviewWorkspaceId}
               anchorUrl={row.provenance.anchor ?? undefined}
               existingReview={existingReview}
               linkedEvidence={row.linkedEvidence.map((item) => ({

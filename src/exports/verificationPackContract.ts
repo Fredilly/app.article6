@@ -30,10 +30,13 @@ type ProjectJson = {
   };
   project_context: {
     project_id: string;
+    project_name: string;
     export_id: string;
+    workspace_id: string;
     display_name: string;
     reporting_period: string;
     location: string;
+    proponent: string;
     description: string;
     placeholder: boolean;
     placeholder_reason: string;
@@ -239,6 +242,7 @@ const CURRENT_METHOD_REVIEW_REASON =
 export type FinalizedAuditPackReviewInput = {
   artifact?: EvidenceSnapshot | null;
   evidencePins?: EvidencePin[] | null;
+  projectContext?: ReviewExportProjectContext | null;
   sourceFiles?: Array<{
     evidence_ref: string;
     source_pin_id?: string | null;
@@ -250,11 +254,23 @@ export type FinalizedAuditPackReviewInput = {
   }> | null;
 };
 
+export type ReviewExportProjectContext = {
+  projectId?: string | null;
+  projectName?: string | null;
+  projectCode?: string | null;
+  countryLocation?: string | null;
+  proponent?: string | null;
+  reportingPeriod?: string | null;
+  workspaceId?: string | null;
+  workspaceName?: string | null;
+};
+
 export type CurrentMethodReviewExportInput = {
   latestReviewAt?: string | null;
   reviews?: RuleReview[] | null;
   verifierBundle?: Partial<VerifierRunBundle> | null;
   evidencePins?: EvidencePin[] | null;
+  projectContext?: ReviewExportProjectContext | null;
 };
 
 function extractRules(rulesJson: unknown): ContractRule[] {
@@ -853,6 +869,12 @@ function projectIdForDisplay(project: ProjectJson): string | null {
   return projectId;
 }
 
+function projectNameForDisplay(project: ProjectJson): string | null {
+  const projectName = project.project_context.project_name?.trim() ?? "";
+  if (!projectName || isUnavailableToken(projectName) || projectName === "Demo placeholder project context") return null;
+  return projectName;
+}
+
 function exportIdForDisplay(project: ProjectJson): string | null {
   const exportId = project.project_context.export_id?.trim() ?? "";
   if (!exportId || isUnavailableToken(exportId)) return null;
@@ -869,6 +891,12 @@ function workspaceLabelForDisplay(project: ProjectJson): string | null {
   const label = project.project_context.display_name?.trim() ?? "";
   if (!label || isUnavailableToken(label) || label === "Demo placeholder project context") return null;
   return label;
+}
+
+function proponentForDisplay(project: ProjectJson): string | null {
+  const proponent = project.project_context.proponent?.trim() ?? "";
+  if (!proponent || isUnavailableToken(proponent)) return null;
+  return proponent;
 }
 
 function reportingPeriodForDisplay(project: ProjectJson): string | null {
@@ -1068,10 +1096,10 @@ function renderVerificationReportHtml(input: {
     <section class="panel">
       <h2>Project Context</h2>
       <dl>
-        <dt>Project name</dt><dd>Not provided</dd>
+        <dt>Project name</dt><dd>${renderFieldValue(projectNameForDisplay(input.project), "Not provided")}</dd>
         <dt>Project ID</dt><dd>${renderFieldValue(projectIdForDisplay(input.project), "Not provided")}</dd>
         <dt>Country / location</dt><dd>${renderFieldValue(projectLocationForDisplay(input.project), "Not provided")}</dd>
-        <dt>Proponent</dt><dd>Not provided</dd>
+        <dt>Proponent</dt><dd>${renderFieldValue(proponentForDisplay(input.project), "Not provided")}</dd>
         <dt>Methodology / version</dt><dd>${escapeHtml(input.project.method.code)} @ ${escapeHtml(input.project.method.version)}</dd>
         <dt>Reporting period</dt><dd>${renderFieldValue(reportingPeriodForDisplay(input.project), "Not provided")}</dd>
         <dt>Review workspace</dt><dd>${renderFieldValue(workspaceLabelForDisplay(input.project), "Unavailable")}</dd>
@@ -1284,6 +1312,7 @@ export function buildVerificationPackContract(input: {
   const currentReviewPins = currentReview?.evidencePins ?? [];
   const currentReviewEntries = currentReview?.reviews ?? [];
   const currentVerifierBundle = currentReview?.verifierBundle ?? null;
+  const linkedProjectContext = input.finalizedReview?.projectContext ?? currentReview?.projectContext ?? null;
   const finalizedRuleId = selectedRuleFromArtifact(finalizedArtifact);
   const finalizedRuleIds = ruleIdsFromFinalizedContext(finalizedRuleId, finalizedArtifact);
   const packagedFinalizedSources = collectPackagedEvidenceSourceFiles(input.finalizedReview ?? null);
@@ -1341,17 +1370,36 @@ export function buildVerificationPackContract(input: {
       not_a_formal_opinion: true,
     },
     project_context: {
-      project_id: hasFinalizedReview || hasCurrentReview ? "not-supplied-in-method-review" : "local-method-review",
+      project_id:
+        linkedProjectContext?.projectCode?.trim() ||
+        linkedProjectContext?.projectId?.trim() ||
+        (hasFinalizedReview || hasCurrentReview ? "not-supplied-in-method-review" : "local-method-review"),
+      project_name:
+        linkedProjectContext?.projectName?.trim() ||
+        (hasCurrentReview ? "Unlinked method review" : "Demo placeholder project context"),
       export_id:
         finalizedArtifact?.verifier?.runId ??
         currentVerifierBundle?.runContext?.runId?.trim() ??
         currentVerifierBundle?.savedReviewerArtifactContext?.runId?.trim() ??
         "local-method-review",
-      display_name: finalizedArtifact?.summary?.aoiLabel ?? (hasCurrentReview ? "Current method review workspace" : "Demo placeholder project context"),
-      reporting_period: hasCurrentReview ? "not-supplied-in-method-review" : "placeholder-not-provided",
+      workspace_id:
+        linkedProjectContext?.workspaceId?.trim() ??
+        currentVerifierBundle?.runContext?.runId?.trim() ??
+        "local-method-review",
+      display_name:
+        linkedProjectContext?.workspaceName?.trim() ??
+        finalizedArtifact?.summary?.aoiLabel ??
+        (hasCurrentReview ? "Current method review workspace" : "Demo placeholder project context"),
+      reporting_period:
+        linkedProjectContext?.reportingPeriod?.trim() ??
+        (hasCurrentReview ? "not-supplied-in-method-review" : "placeholder-not-provided"),
       location:
+        linkedProjectContext?.countryLocation?.trim() ??
         finalizedArtifact?.summary?.aoiLabel ??
         (hasCurrentReview ? "Unavailable in local method review export" : "placeholder-not-provided"),
+      proponent:
+        linkedProjectContext?.proponent?.trim() ??
+        (hasCurrentReview ? "not-supplied-in-method-review" : "placeholder-not-provided"),
       description: hasFinalizedReview
         ? "Finalized local review context is included where present; absent project fields remain explicitly unavailable."
         : hasCurrentReview

@@ -72,6 +72,7 @@ export type VerifierRunContext = {
 export type ReviewerArtifactContext = {
   methodCode: string;
   version: string;
+  workspaceId?: string | null;
   ruleId: string | null;
   runId: string;
 };
@@ -298,41 +299,63 @@ export function normalizeVersion(raw: string): string {
   return trimmed;
 }
 
-export function buildVerifyRunKey(methodCode: string, version: string): string {
+function normalizeWorkspaceId(raw?: string | null): string {
+  return (raw ?? "").trim();
+}
+
+export function buildVerifyRunKey(methodCode: string, version: string, workspaceId?: string | null): string {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
+  const normalizedWorkspaceId = normalizeWorkspaceId(workspaceId);
+  if (normalizedWorkspaceId) {
+    return `verify:workspace:${normalizedWorkspaceId}`;
+  }
   return `verify:${normalizedMethod}:${normalizedVersion}`;
 }
 
-function buildRunHistoryKey(methodCode: string, version: string): string {
+function buildRunHistoryKey(methodCode: string, version: string, workspaceId?: string | null): string {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
+  const normalizedWorkspaceId = normalizeWorkspaceId(workspaceId);
+  if (normalizedWorkspaceId) {
+    return `verifyRunHistory:workspace:${normalizedWorkspaceId}`;
+  }
   return `verifyRunHistory:${normalizedMethod}:${normalizedVersion}`;
 }
 
 function buildReviewerArtifactStorageKey(context: ReviewerArtifactContext): string {
+  const normalizedWorkspaceId = normalizeWorkspaceId(context.workspaceId);
   const normalizedMethod = normalizeMethodCode(context.methodCode);
   const normalizedVersion = normalizeVersion(context.version);
   const normalizedRuleId = (context.ruleId ?? "").trim() || "__no_rule__";
   const normalizedRunId = context.runId.trim();
+  if (normalizedWorkspaceId) {
+    return `verifyReviewerArtifact:workspace:${normalizedWorkspaceId}:${normalizedRuleId}:${normalizedRunId}`;
+  }
   return `verifyReviewerArtifact:${normalizedMethod}:${normalizedVersion}:${normalizedRuleId}:${normalizedRunId}`;
 }
 
-export function buildLinkedRulesKey(methodCode: string, version: string): string {
+export function buildLinkedRulesKey(methodCode: string, version: string, workspaceId?: string | null): string {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
+  const normalizedWorkspaceId = normalizeWorkspaceId(workspaceId);
+  if (normalizedWorkspaceId) {
+    return `verifyLinkedRules:workspace:${normalizedWorkspaceId}`;
+  }
   return `verifyLinkedRules:${normalizedMethod}:${normalizedVersion}`;
 }
 
 export function createReviewerArtifactContext(input: {
   methodCode: string;
   version: string;
+  workspaceId?: string | null;
   ruleId: string | null;
   runId: string;
 }): ReviewerArtifactContext {
   return {
     methodCode: normalizeMethodCode(input.methodCode),
     version: normalizeVersion(input.version),
+    workspaceId: normalizeWorkspaceId(input.workspaceId) || null,
     ruleId: asNonEmptyString(input.ruleId) ?? null,
     runId: input.runId.trim(),
   };
@@ -346,6 +369,7 @@ export function reviewerArtifactContextMatches(
   return (
     normalizeMethodCode(left.methodCode) === normalizeMethodCode(right.methodCode) &&
     normalizeVersion(left.version) === normalizeVersion(right.version) &&
+    normalizeWorkspaceId(left.workspaceId) === normalizeWorkspaceId(right.workspaceId) &&
     (asNonEmptyString(left.ruleId) ?? null) === (asNonEmptyString(right.ruleId) ?? null) &&
     left.runId.trim() === right.runId.trim()
   );
@@ -357,6 +381,7 @@ function normalizeReviewerArtifactContext(raw: unknown, fallback: ReviewerArtifa
   return {
     methodCode: asNonEmptyString(record.methodCode) ?? fallback.methodCode,
     version: asNonEmptyString(record.version) ?? fallback.version,
+    workspaceId: asNonEmptyString(record.workspaceId) ?? fallback.workspaceId ?? null,
     ruleId: asNonEmptyString(record.ruleId) ?? null,
     runId: asNonEmptyString(record.runId) ?? fallback.runId,
   };
@@ -407,9 +432,10 @@ export function persistReviewerArtifactState(state: ReviewerArtifactState): void
   storage.setItem(key, JSON.stringify(state));
 }
 
-function migrateLinkedRulesKey(methodCode: string, version: string): void {
+function migrateLinkedRulesKey(methodCode: string, version: string, workspaceId?: string | null): void {
   const storage = getLocalStorage();
   if (!storage) return;
+  if (normalizeWorkspaceId(workspaceId)) return;
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
   const canonical = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
@@ -445,10 +471,15 @@ function migrateLinkedRulesKey(methodCode: string, version: string): void {
   for (const key of keysToMerge) storage.removeItem(key);
 }
 
-export function readLinkedRuleIdsFromStorage(methodCode: string, version: string): string[] {
+export function readLinkedRuleIdsFromStorage(methodCode: string, version: string, workspaceId?: string | null): string[] {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  migrateLinkedRulesKey(normalizedMethod, normalizedVersion);
+  const normalizedWorkspaceId = normalizeWorkspaceId(workspaceId);
+  if (!normalizedWorkspaceId) {
+    migrateLinkedRulesKey(normalizedMethod, normalizedVersion);
+  }
+  const scoped = loadLinkedRuleIds(buildLinkedRulesKey(normalizedMethod, normalizedVersion, normalizedWorkspaceId));
+  if (scoped.length || normalizedWorkspaceId) return scoped;
   return loadLinkedRuleIds(buildLinkedRulesKey(normalizedMethod, normalizedVersion));
 }
 
@@ -487,22 +518,23 @@ export function addLinkedRuleIdToStorage(
   methodCode: string,
   version: string,
   ruleId: string | null | undefined,
+  workspaceId?: string | null,
 ): string[] {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  const key = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  const key = buildLinkedRulesKey(normalizedMethod, normalizedVersion, workspaceId);
   return addLinkedRuleIdToKey(key, ruleId);
 }
 
-export function setLinkedRuleIdsInStorage(methodCode: string, version: string, ids: string[]): string[] {
+export function setLinkedRuleIdsInStorage(methodCode: string, version: string, ids: string[], workspaceId?: string | null): string[] {
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  const key = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  const key = buildLinkedRulesKey(normalizedMethod, normalizedVersion, workspaceId);
   persistLinkedRuleIds(key, ids);
   return loadLinkedRuleIds(key);
 }
 
-export function createVerifierRunBundle(methodCode: string, version: string): VerifierRunBundle {
+export function createVerifierRunBundle(methodCode: string, version: string, workspaceId?: string | null): VerifierRunBundle {
   const createdAt = nowIso();
   const runId = buildRunId(methodCode, version, new Date(createdAt));
   return {
@@ -513,6 +545,7 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
     reviewerContext: createReviewerArtifactContext({
       methodCode,
       version,
+      workspaceId,
       ruleId: null,
       runId,
     }),
@@ -534,15 +567,16 @@ export function createVerifierRunBundle(methodCode: string, version: string): Ve
   };
 }
 
-export function readVerifierRunBundle(methodCode: string, version: string): VerifierRunBundle {
+export function readVerifierRunBundle(methodCode: string, version: string, workspaceId?: string | null): VerifierRunBundle {
   const storage = getLocalStorage();
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  const canonical = buildVerifyRunKey(normalizedMethod, normalizedVersion);
-  const fallback = createVerifierRunBundle(normalizedMethod, normalizedVersion);
+  const normalizedWorkspaceId = normalizeWorkspaceId(workspaceId);
+  const canonical = buildVerifyRunKey(normalizedMethod, normalizedVersion, normalizedWorkspaceId);
+  const fallback = createVerifierRunBundle(normalizedMethod, normalizedVersion, normalizedWorkspaceId);
   if (!storage) return fallback;
 
-  if (!storage.getItem(canonical)) {
+  if (!storage.getItem(canonical) && !normalizedWorkspaceId) {
     const legacyKeys = [
       `verify:${normalizedMethod}@${normalizedVersion}`,
       `verify:${normalizedMethod}`,
@@ -577,6 +611,7 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
     const reviewerContextFallback = createReviewerArtifactContext({
       methodCode: normalizedMethod,
       version: normalizedVersion,
+      workspaceId: normalizedWorkspaceId,
       ruleId: null,
       runId,
     });
@@ -611,17 +646,17 @@ export function readVerifierRunBundle(methodCode: string, version: string): Veri
   }
 }
 
-export function persistVerifierRunBundle(methodCode: string, version: string, bundle: VerifierRunBundle): void {
+export function persistVerifierRunBundle(methodCode: string, version: string, bundle: VerifierRunBundle, workspaceId?: string | null): void {
   const storage = getLocalStorage();
   if (!storage) return;
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  const key = buildVerifyRunKey(normalizedMethod, normalizedVersion);
+  const key = buildVerifyRunKey(normalizedMethod, normalizedVersion, workspaceId);
   storage.setItem(key, JSON.stringify(bundle));
   if (typeof window !== "undefined") {
     window.dispatchEvent(
       new CustomEvent(VERIFY_RUN_BUNDLE_EVENT, {
-        detail: { methodCode: normalizedMethod, version: normalizedVersion },
+        detail: { methodCode: normalizedMethod, version: normalizedVersion, workspaceId: normalizeWorkspaceId(workspaceId) || undefined },
       }),
     );
   }
@@ -642,10 +677,10 @@ function normalizeRunHistory(raw: unknown): VerifyRunHistoryEntry[] {
   return entries;
 }
 
-export function readRunHistory(methodCode: string, version: string): VerifyRunHistoryEntry[] {
+export function readRunHistory(methodCode: string, version: string, workspaceId?: string | null): VerifyRunHistoryEntry[] {
   const storage = getLocalStorage();
   if (!storage) return [];
-  const key = buildRunHistoryKey(methodCode, version);
+  const key = buildRunHistoryKey(methodCode, version, workspaceId);
   const raw = storage.getItem(key);
   if (!raw) return [];
   try {
@@ -660,13 +695,14 @@ export function saveCurrentRunToHistory(
   methodCode: string,
   version: string,
   bundle: VerifyRunHistoryBundle,
+  workspaceId?: string | null,
 ): VerifyRunHistoryEntry[] {
   const storage = getLocalStorage();
   if (!storage) return [];
-  const key = buildRunHistoryKey(methodCode, version);
+  const key = buildRunHistoryKey(methodCode, version, workspaceId);
   const createdAt = bundle.runContext.createdAt || nowIso();
   const entry: VerifyRunHistoryEntry = { runId: bundle.runContext.runId, createdAt, bundle };
-  const existing = readRunHistory(methodCode, version);
+  const existing = readRunHistory(methodCode, version, workspaceId);
   const without = existing.filter((item) => item.runId !== entry.runId);
   const next = [entry, ...without].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 10);
   storage.setItem(key, JSON.stringify(next));
@@ -677,17 +713,18 @@ export function loadRunFromHistory(
   methodCode: string,
   version: string,
   runId: string,
+  workspaceId?: string | null,
 ): VerifyRunHistoryBundle | null {
-  const history = readRunHistory(methodCode, version);
+  const history = readRunHistory(methodCode, version, workspaceId);
   const match = history.find((entry) => entry.runId === runId);
   return match ? match.bundle : null;
 }
 
-export function deleteRunFromHistory(methodCode: string, version: string, runId: string): VerifyRunHistoryEntry[] {
+export function deleteRunFromHistory(methodCode: string, version: string, runId: string, workspaceId?: string | null): VerifyRunHistoryEntry[] {
   const storage = getLocalStorage();
   if (!storage) return [];
-  const next = readRunHistory(methodCode, version).filter((entry) => entry.runId !== runId);
-  storage.setItem(buildRunHistoryKey(methodCode, version), JSON.stringify(next));
+  const next = readRunHistory(methodCode, version, workspaceId).filter((entry) => entry.runId !== runId);
+  storage.setItem(buildRunHistoryKey(methodCode, version, workspaceId), JSON.stringify(next));
   return next;
 }
 
@@ -696,13 +733,18 @@ export function shortRunId(runId: string, length = 8): string {
   return runId.length <= length ? runId : runId.slice(-length);
 }
 
-export function clearLinkedRuleIdsFromStorage(methodCode: string, version: string): void {
+export function clearLinkedRuleIdsFromStorage(methodCode: string, version: string, workspaceId?: string | null): void {
   const storage = getLocalStorage();
   if (!storage) return;
   const normalizedMethod = normalizeMethodCode(methodCode);
   const normalizedVersion = normalizeVersion(version);
-  const canonical = buildLinkedRulesKey(normalizedMethod, normalizedVersion);
+  const normalizedWorkspaceId = normalizeWorkspaceId(workspaceId);
+  const canonical = buildLinkedRulesKey(normalizedMethod, normalizedVersion, normalizedWorkspaceId);
   storage.removeItem(canonical);
+  if (normalizedWorkspaceId) {
+    notifyLinkedRuleListeners();
+    return;
+  }
   const legacyPrefixes = [
     `verifyLinkedRules:${normalizedMethod}:`,
     `verifyLinkedRules:${normalizedMethod}@`,
