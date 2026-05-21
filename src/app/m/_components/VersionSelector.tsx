@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { MethodVersionLineage } from "@/app/m/_lib/methodVersionMetadata";
 
 type VersionSelectorProps = {
@@ -19,7 +19,12 @@ export default function VersionSelector({
   lineage,
 }: VersionSelectorProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const value = selectedVersion ?? "";
+  const search = searchParams.toString();
+
+  const buildHref = (version: string) =>
+    `/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}${search ? `?${search}` : ""}`;
 
   const options = useMemo(() => {
     return versions.map((version) => {
@@ -49,7 +54,7 @@ export default function VersionSelector({
           onChange={(event) => {
             const next = event.target.value;
             if (!next) return;
-            router.push(`/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(next)}`);
+            router.push(buildHref(next));
           }}
         >
           <option value="" disabled>
@@ -69,7 +74,7 @@ export default function VersionSelector({
             return (
               <Link
                 key={version}
-                href={`/m/${encodeURIComponent(methodCode)}/v/${encodeURIComponent(version)}`}
+                href={buildHref(version)}
                 className={`rounded-full border px-2.5 py-1 font-semibold ${
                   active
                     ? "border-sky-300 bg-sky-50 text-sky-700"

@@ -17,12 +17,23 @@ import { useRouter } from "next/navigation";
 type TrustStripProps = {
   methodCode?: string;
   version?: string;
+  workspaceId?: string | null;
   packTag?: string | null;
   provenanceJson?: unknown | null;
   manifestRulesPath?: string | null;
   onOpenIntegrityDiff?: () => void;
   surface?: "default" | "methods";
   methodReviewEvidencePins?: EvidencePin[];
+  projectContext?: {
+    projectId?: string | null;
+    projectName?: string | null;
+    projectCode?: string | null;
+    countryLocation?: string | null;
+    proponent?: string | null;
+    reportingPeriod?: string | null;
+    workspaceId?: string | null;
+    workspaceName?: string | null;
+  } | null;
 };
 
 type ExportArtifact = "provenance" | "META" | "rules" | "sections" | "rich";
@@ -121,11 +132,14 @@ function readLiveMethodReviewState(
   methodCode: string | undefined,
   version: string | undefined,
   evidencePins: EvidencePin[],
+  workspaceId?: string | null,
+  projectContext?: TrustStripProps["projectContext"],
 ): {
   latestReviewAt: string | null;
   reviews: RuleReview[];
   verifierBundle: VerifierRunBundle | null;
   evidencePins: EvidencePin[];
+  projectContext?: TrustStripProps["projectContext"];
 } {
   const normalizedMethod = methodCode?.trim() ?? "";
   const normalizedVersion = version?.trim() ?? "";
@@ -138,8 +152,8 @@ function readLiveMethodReviewState(
     };
   }
 
-  const reviews = Object.values(getAllReviews(normalizedMethod, normalizedVersion));
-  const verifierBundle = readVerifierRunBundle(normalizedMethod, normalizedVersion);
+  const reviews = Object.values(getAllReviews(normalizedMethod, normalizedVersion, workspaceId));
+  const verifierBundle = readVerifierRunBundle(normalizedMethod, normalizedVersion, workspaceId);
   const latestReviewAt = pickLatestTimestamp([
     ...reviews.flatMap((review) => [review.reviewedAt, review.updatedAt]),
     verifierBundle.savedReviewerArtifactAt,
@@ -151,6 +165,7 @@ function readLiveMethodReviewState(
     reviews,
     verifierBundle,
     evidencePins: [...evidencePins],
+    projectContext,
   };
 }
 
@@ -163,6 +178,11 @@ async function downloadBlob(blob: Blob, filename: string) {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+function safeFilenamePart(value: string | null | undefined): string {
+  const trimmed = (value ?? "").trim();
+  return trimmed ? trimmed.replace(/[^\w.\-]+/g, "_").slice(0, 64) : "";
 }
 
 function buildFilename(
@@ -260,12 +280,14 @@ function ChipButton({
 export default function TrustStrip({
   methodCode,
   version,
+  workspaceId = null,
   packTag,
   provenanceJson,
   manifestRulesPath,
   onOpenIntegrityDiff,
   surface = "default",
   methodReviewEvidencePins = [],
+  projectContext = null,
 }: TrustStripProps) {
   const router = useRouter();
   const provenancePicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
@@ -357,7 +379,7 @@ export default function TrustStrip({
     if (surface !== "methods") return;
     if (typeof window === "undefined") return;
     const update = () => {
-      const next = readLiveMethodReviewState(methodCode, version, methodReviewEvidencePins);
+      const next = readLiveMethodReviewState(methodCode, version, methodReviewEvidencePins, workspaceId, projectContext);
       setMethodReviewLastReviewedAt(next.latestReviewAt);
     };
     update();
@@ -369,7 +391,7 @@ export default function TrustStrip({
       window.removeEventListener(VERIFY_RUN_BUNDLE_EVENT, update);
       window.removeEventListener("proofbundle:imported", update);
     };
-  }, [methodCode, methodReviewEvidencePins, surface, version]);
+  }, [methodCode, methodReviewEvidencePins, projectContext, surface, version, workspaceId]);
 
   const audit = metaPicked.auditHashes;
 
@@ -433,7 +455,7 @@ export default function TrustStrip({
     setExportError(null);
     setExportingAuditPack(true);
     try {
-      const currentReview = readLiveMethodReviewState(methodCode, version, methodReviewEvidencePins);
+      const currentReview = readLiveMethodReviewState(methodCode, version, methodReviewEvidencePins, workspaceId, projectContext);
       const response = await fetch("/api/exports/audit-pack", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -448,14 +470,17 @@ export default function TrustStrip({
         throw new Error(message || `Export failed with ${response.status}`);
       }
       const blob = await response.blob();
-      await downloadBlob(blob, `audit-pack__${methodCode}__${version}.zip`);
+      const projectPart = safeFilenamePart(projectContext?.projectCode ?? projectContext?.projectId);
+      const workspacePart = safeFilenamePart(projectContext?.workspaceName ?? projectContext?.workspaceId);
+      const prefix = [projectPart, workspacePart].filter(Boolean).join("__");
+      await downloadBlob(blob, `audit-pack__${prefix ? `${prefix}__` : ""}${methodCode}__${version}.zip`);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Audit pack export failed.";
       setExportError(message);
     } finally {
       setExportingAuditPack(false);
     }
-  }, [methodCode, methodReviewEvidencePins, version]);
+  }, [methodCode, methodReviewEvidencePins, projectContext, version, workspaceId]);
 
   const showStrip = Boolean(methodCode || version || generatedAt || metaAvailable || rulesUrl || provenanceJson);
   if (!showStrip) return null;

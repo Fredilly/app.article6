@@ -34,6 +34,10 @@ export default function NewProjectForm() {
   const [methods, setMethods] = useState<MethodOption[]>([]);
   const [reviewMode, setReviewMode] = useState<ProjectReviewMode>('methodology-linked');
   const [name, setName] = useState('');
+  const [projectCode, setProjectCode] = useState('');
+  const [countryLocation, setCountryLocation] = useState('');
+  const [proponent, setProponent] = useState('');
+  const [reportingPeriod, setReportingPeriod] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [aoiLabel, setAoiLabel] = useState('');
   const [description, setDescription] = useState('');
@@ -61,7 +65,11 @@ export default function NewProjectForm() {
       if (reviewMode === 'manual') {
         const project = createProject({
           name,
+          projectCode: projectCode || undefined,
+          countryLocation: countryLocation || undefined,
+          proponent: proponent || undefined,
           reviewMode,
+          reportingPeriod: reportingPeriod || undefined,
           aoiLabel: aoiLabel || undefined,
           description: description || undefined,
         });
@@ -85,11 +93,15 @@ export default function NewProjectForm() {
       const category = parts.length > 1 ? parts.slice(1).join('/') : undefined;
       const project = createProject({
         name,
+        projectCode: projectCode || undefined,
+        countryLocation: countryLocation || undefined,
+        proponent: proponent || undefined,
         reviewMode,
         methodCode: code,
         methodVersion: version,
         methodCategory: category,
         registry: projectRegistryFromMethodProgram(selectedMethodRecord?.program),
+        reportingPeriod: reportingPeriod || undefined,
         aoiLabel: aoiLabel || undefined,
         description: description || undefined,
         ruleIds: rules.map((r: { id: string; title: string; sectionId?: string }) => ({
@@ -164,6 +176,52 @@ export default function NewProjectForm() {
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
             required
           />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Project ID / Code</label>
+            <input
+              type="text"
+              value={projectCode}
+              onChange={e => setProjectCode(e.target.value)}
+              placeholder="e.g., VCS-1530"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Reporting Period</label>
+            <input
+              type="text"
+              value={reportingPeriod}
+              onChange={e => setReportingPeriod(e.target.value)}
+              placeholder="e.g., 2024-01-01 to 2024-12-31"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Country / Location</label>
+            <input
+              type="text"
+              value={countryLocation}
+              onChange={e => setCountryLocation(e.target.value)}
+              placeholder="e.g., Malawi"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Proponent</label>
+            <input
+              type="text"
+              value={proponent}
+              onChange={e => setProponent(e.target.value)}
+              placeholder="e.g., Article6 Climate"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
         </div>
 
         {reviewMode === 'methodology-linked' ? (

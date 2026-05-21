@@ -752,7 +752,7 @@ describe("audit pack verification contract", () => {
     expect(html).toContain("This report is not a formal validation opinion.");
     expect(html).toContain("local/browser-state review data");
 
-    expect(html).toContain("<dt>Project name</dt><dd>Not provided</dd>");
+    expect(html).toContain("<dt>Project name</dt><dd>Unlinked method review</dd>");
     expect(html).toContain("<dt>Project ID</dt><dd>Not provided</dd>");
     expect(html).toContain("<dt>Country / location</dt><dd>Not provided</dd>");
     expect(html).toContain("<dt>Proponent</dt><dd>Not provided</dd>");
@@ -843,6 +843,51 @@ describe("audit pack verification contract", () => {
         }),
       }),
     );
+  });
+
+  test("uses linked project and workspace context in the HTML report when provided", () => {
+    const zip = withTemporaryMethodologyCheckout(
+      () =>
+        buildAuditPackZip("AR-ACM0003", "v02-0", {
+          currentReview: {
+            latestReviewAt: "2026-05-21T09:05:00.000Z",
+            reviews: [],
+            evidencePins: [],
+            verifierBundle: {
+              runContext: {
+                runId: "run-linked-project-1",
+                createdAt: "2026-05-21T09:00:00.000Z",
+              },
+            },
+            projectContext: {
+              projectId: "proj_liwonde",
+              projectCode: "VCS-1530",
+              projectName: "Liwonde National Park REDD+",
+              countryLocation: "Malawi",
+              proponent: "Article6 Climate",
+              reportingPeriod: "2024-01-01 to 2024-12-31",
+              workspaceId: "ws_liwonde_review",
+              workspaceName: "Liwonde REDD+ · AR-ACM0003 v02-0 review",
+            },
+          },
+        }),
+      {
+        methodCode: "AR-ACM0003",
+        version: "v02-0",
+        rules: readinessSkeletonRulesJson,
+        sections: readinessSkeletonSectionsJson,
+      },
+    );
+
+    const entries = unzipSync(new Uint8Array(zip));
+    const html = strFromU8(entries["VERIFICATION_REPORT.html"]);
+
+    expect(html).toContain("<dt>Project name</dt><dd>Liwonde National Park REDD+</dd>");
+    expect(html).toContain("<dt>Project ID</dt><dd>VCS-1530</dd>");
+    expect(html).toContain("<dt>Country / location</dt><dd>Malawi</dd>");
+    expect(html).toContain("<dt>Proponent</dt><dd>Article6 Climate</dd>");
+    expect(html).toContain("Liwonde REDD+ · AR-ACM0003 v02-0 review");
+    expect(html).not.toContain("<dt>Project name</dt><dd>Not provided</dd>");
   });
 
   test("does not attach reviewer artifact text from another method into AR-AMS0007 current-review exports", () => {

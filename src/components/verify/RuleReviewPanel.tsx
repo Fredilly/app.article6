@@ -31,6 +31,7 @@ type RuleReviewPanelProps = {
   sectionId?: string;
   methodology: string;
   version: string;
+  workspaceId?: string | null;
   anchorUrl?: string;
   existingReview: RuleReview | null;
   linkedEvidence?: Array<{
@@ -69,6 +70,7 @@ export default function RuleReviewPanel({
   sectionId,
   methodology,
   version,
+  workspaceId = null,
   anchorUrl,
   existingReview,
   linkedEvidence = [],
@@ -186,6 +188,7 @@ export default function RuleReviewPanel({
       ruleId,
       methodology,
       version,
+      ...(workspaceId ? { workspaceId } : {}),
       status,
       rationale,
       supportReference,
@@ -232,6 +235,7 @@ export default function RuleReviewPanel({
         ruleId,
         methodology,
         version,
+        ...(workspaceId ? { workspaceId } : {}),
         status,
         rationale,
         supportReference,
@@ -249,7 +253,7 @@ export default function RuleReviewPanel({
       type: attachmentType,
       label: trimmedLabel,
       url: attachmentType === "url" ? trimmedUrl : undefined,
-    });
+    }, workspaceId);
     if (!review) return;
 
     logAuditEvent({
@@ -298,7 +302,7 @@ export default function RuleReviewPanel({
 
   const handleRemoveAttachment = useCallback(
     (attachment: EvidenceAttachment) => {
-      const review = removeEvidenceAttachment(ruleId, methodology, version, attachment.id);
+      const review = removeEvidenceAttachment(ruleId, methodology, version, attachment.id, workspaceId);
       if (!review) return;
       logAuditEvent({
         ruleId,

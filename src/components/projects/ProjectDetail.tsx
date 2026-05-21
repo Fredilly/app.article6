@@ -36,6 +36,7 @@ import {
   updateRuleReview,
 } from '@/lib/projects/storage';
 import { SnapshotTimeline } from '@/components/snapshot/SnapshotTimeline';
+import { listReviewWorkspacesForProject } from '@/lib/reviewWorkspaces/storage';
 
 type ProjectDetailProps = {
   projectId: string;
@@ -369,6 +370,10 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
     .find((document) => document.manualFindingExtractionStatus === 'no-findings' || document.manualFindingExtractionStatus === 'extraction-failed')
     ?.manualFindingExtractionMessage;
 
+  const latestWorkspace = project.reviewMode === 'methodology-linked'
+    ? listReviewWorkspacesForProject(project.id)[0] ?? null
+    : null;
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-12 md:px-8">
       <Link href="/projects" className="text-sm text-slate-500 hover:text-slate-700">
@@ -412,6 +417,24 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          {project.reviewMode === 'methodology-linked' ? (
+            <>
+              <Link
+                href={`/m?projectId=${encodeURIComponent(project.id)}`}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Start review
+              </Link>
+              {latestWorkspace ? (
+                <Link
+                  href={`/m/${encodeURIComponent(latestWorkspace.methodCode)}/v/${encodeURIComponent(latestWorkspace.methodVersion)}?projectId=${encodeURIComponent(project.id)}&workspaceId=${encodeURIComponent(latestWorkspace.id)}&tab=verify`}
+                  className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  Continue review
+                </Link>
+              ) : null}
+            </>
+          ) : null}
           {shouldShowLockReview(project, coverage) ? (
             <button
               onClick={handleLock}
