@@ -401,9 +401,11 @@ export default function RuleDetailModal({
               ruleNotes={ruleNotes?.trim() || row.ruleSummary.notes || null}
               ruleWhen={renderedWhen ?? null}
               expectedEvidence={row.expectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type] ?? type)}
+              expectedEvidenceTypes={row.expectedEvidenceTypes}
               sourcePath={sourcePath ?? null}
               sha256={sha256 ?? null}
               ruleTags={ruleTags}
+              linkedEvidenceDetails={row.linkedEvidence}
               stacSupportState={stacSupportState}
               documentSupport={documentSupport}
               onSave={handleSaveReview}
