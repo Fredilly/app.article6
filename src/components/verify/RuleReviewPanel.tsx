@@ -214,6 +214,7 @@ export default function RuleReviewPanel({
     ruleId,
     methodology,
     version,
+    workspaceId,
     status,
     rationale,
     supportReference,
@@ -288,6 +289,7 @@ export default function RuleReviewPanel({
     supportReference,
     syncReview,
     version,
+    workspaceId,
   ]);
 
   const handleFileSelected = useCallback(
@@ -316,7 +318,7 @@ export default function RuleReviewPanel({
       syncReview(review);
       refreshAuditEvents();
     },
-    [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version],
+    [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version, workspaceId],
   );
 
   const applySuggestion = useCallback(
