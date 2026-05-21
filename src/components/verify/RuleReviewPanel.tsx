@@ -321,7 +321,7 @@ export default function RuleReviewPanel({
     [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version, workspaceId],
   );
 
-  const applySuggestion = useCallback(
+  const applySuggestedReview = useCallback(
     (focusRationale: boolean) => {
       setStatus(suggestion.mappedReviewStatus);
       setRationale(suggestion.whyThisJudgment);
@@ -460,14 +460,14 @@ export default function RuleReviewPanel({
               <div className="mt-4 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => applySuggestion(false)}
+                  onClick={() => applySuggestedReview(false)}
                   className="rounded-full border border-sky-700 bg-sky-700 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-800"
                 >
                   Accept suggestion
                 </button>
                 <button
                   type="button"
-                  onClick={() => applySuggestion(true)}
+                  onClick={() => applySuggestedReview(true)}
                   className="rounded-full border border-sky-200 bg-white px-4 py-2 text-xs font-semibold text-sky-700 hover:border-sky-300"
                 >
                   Edit before saving
