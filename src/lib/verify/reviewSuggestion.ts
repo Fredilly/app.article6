@@ -26,6 +26,13 @@ export type ReviewSuggestion = {
   reason: string;
 };
 
+export type SuggestedPddFragmentDraft = {
+  label: string;
+  sectionLabel: string;
+  sectionHeading: string;
+  reason: string;
+};
+
 export type BuildReviewSuggestionInput = {
   ruleId: string;
   ruleText: string;
@@ -452,4 +459,60 @@ export function suggestedOutcomeLabel(outcome: SuggestedReviewOutcome): string {
     case "not_applicable":
       return "Not applicable";
   }
+}
+
+export function suggestPddFragmentDraft(input: {
+  ruleText: string;
+  ruleTags?: string[];
+  sectionId?: string | null;
+  sectionTitle?: string | null;
+  expectedEvidenceTypes?: RequirementCoverageExpectedEvidenceType[];
+}): SuggestedPddFragmentDraft {
+  const intents = ruleIntentCategories({
+    ruleText: input.ruleText,
+    ruleTags: input.ruleTags ?? [],
+    expectedEvidenceTypes: input.expectedEvidenceTypes ?? [],
+  });
+  const normalizedSectionTitle = input.sectionTitle?.trim() ?? "";
+  const normalizedSectionId = input.sectionId?.trim() ?? "";
+  const sectionHeading =
+    normalizedSectionTitle ||
+    (intents.includes("boundary")
+      ? "Project boundary"
+      : intents.includes("baseline")
+        ? "Baseline scenario"
+        : intents.includes("uncertainty")
+          ? "Monitoring plan"
+          : intents.includes("monitoring")
+            ? "Monitoring plan"
+            : intents.includes("eligibility")
+              ? "Eligibility evidence"
+              : intents.includes("qa_qc")
+                ? "QA/QC procedure"
+                : intents.includes("calculation")
+                  ? "Calculation support"
+                  : "Rule support excerpt");
+  const label =
+    intents.includes("boundary")
+      ? normalizedSectionTitle || "Boundary overview"
+      : intents.includes("baseline")
+        ? normalizedSectionTitle || "Baseline scenario"
+        : intents.includes("uncertainty")
+          ? normalizedSectionTitle || "Monitoring plan"
+          : intents.includes("monitoring")
+            ? normalizedSectionTitle || "Monitoring plan"
+            : intents.includes("eligibility")
+              ? normalizedSectionTitle || "Eligibility evidence"
+              : intents.includes("qa_qc")
+                ? normalizedSectionTitle || "QA/QC support"
+                : intents.includes("calculation")
+                  ? normalizedSectionTitle || "Calculation support"
+                  : normalizedSectionTitle || "Rule support excerpt";
+
+  return {
+    label,
+    sectionLabel: normalizedSectionId,
+    sectionHeading,
+    reason: `Suggested from the selected rule intent${normalizedSectionTitle ? ` and methodology section ${normalizedSectionTitle}` : ""}. Source excerpt still needs reviewer confirmation from the PDD.`,
+  };
 }

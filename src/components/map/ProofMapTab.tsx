@@ -38,6 +38,7 @@ import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExpo
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isStacEligible } from "@/lib/verify/stacEligibility";
 import { checkFinalizeGate, getAllReviews, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
+import { suggestPddFragmentDraft } from "@/lib/verify/reviewSuggestion";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { EXPECTED_EVIDENCE_LABELS } from "@/app/m/_lib/requirementCoverage";
 import { deriveRuleReadinessGaps } from "@/lib/readiness/gapEngine";
@@ -340,6 +341,11 @@ const EMPTY_PDD_FRAGMENT_DRAFT: PddFragmentDraft = {
   sectionHeading: "",
   excerpt: "",
 };
+
+function isEmptyPddFragmentDraft(draft: PddFragmentDraft | undefined): boolean {
+  if (!draft) return true;
+  return !draft.label.trim() && !draft.pageStart.trim() && !draft.pageEnd.trim() && !draft.sectionLabel.trim() && !draft.sectionHeading.trim() && !draft.excerpt.trim();
+}
 
 function formatPddFragmentDisplayLabel(fragment: {
   label?: string;
@@ -1872,6 +1878,16 @@ export default function ProofMapTab({
     if (!selectedRuleContext) return "Rule readiness is not available until rule expectations load for the current selection.";
     return null;
   }, [selectedRuleContext, selectedRuleId]);
+  const suggestedPddFragmentDraft = useMemo(() => {
+    if (!selectedRuleId || !selectedRuleContext?.text) return null;
+    return suggestPddFragmentDraft({
+      ruleText: selectedRuleContext.text,
+      ruleTags: selectedRuleContext.tags ?? [],
+      sectionId: selectedRuleContext.sectionId ?? null,
+      sectionTitle: selectedRuleContext.sectionTitle ?? null,
+      expectedEvidenceTypes: selectedRuleCoverageRow?.expectedEvidenceTypes ?? [],
+    });
+  }, [selectedRuleContext, selectedRuleCoverageRow?.expectedEvidenceTypes, selectedRuleId]);
   const selectedRuleReconciliation = useMemo(
     () =>
       reconcileRequirement({
@@ -2722,6 +2738,43 @@ export default function ProofMapTab({
       },
     }));
   }, []);
+
+  const applySuggestedPddFragmentDraft = useCallback(
+    (evidenceId: string) => {
+      if (!suggestedPddFragmentDraft) return;
+      setPddFragmentDrafts((current) => ({
+        ...current,
+        [evidenceId]: {
+          ...(current[evidenceId] ?? EMPTY_PDD_FRAGMENT_DRAFT),
+          label: suggestedPddFragmentDraft.label,
+          sectionLabel: suggestedPddFragmentDraft.sectionLabel,
+          sectionHeading: suggestedPddFragmentDraft.sectionHeading,
+        },
+      }));
+      showToast(`Seeded fragment metadata for ${selectedRuleId ?? "selected rule"}`);
+    },
+    [selectedRuleId, showToast, suggestedPddFragmentDraft],
+  );
+
+  useEffect(() => {
+    if (!selectedRuleId || !suggestedPddFragmentDraft) return;
+    setPddFragmentDrafts((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const pin of evidencePins) {
+        if (!pin.pdd_document) continue;
+        if (!isEmptyPddFragmentDraft(current[pin.id])) continue;
+        next[pin.id] = {
+          ...EMPTY_PDD_FRAGMENT_DRAFT,
+          label: suggestedPddFragmentDraft.label,
+          sectionLabel: suggestedPddFragmentDraft.sectionLabel,
+          sectionHeading: suggestedPddFragmentDraft.sectionHeading,
+        };
+        changed = true;
+      }
+      return changed ? next : current;
+    });
+  }, [evidencePins, selectedRuleId, suggestedPddFragmentDraft]);
 
   const handlePddUpload = useCallback(async (file: File | null) => {
     if (!file) return;
@@ -3633,6 +3686,30 @@ export default function ProofMapTab({
                                 {item.pdd_document.file_name} • {item.pdd_document.mime}
                                 {item.pdd_document.sha256 ? ` • ${shortSha(item.pdd_document.sha256)}` : ""}
                               </div>
+                              {selectedRuleId && suggestedPddFragmentDraft ? (
+                                <div className="grid gap-2 rounded-lg border border-sky-200 bg-sky-50/60 p-2 text-[11px] text-slate-700">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <div className="font-semibold text-sky-800">Suggested fragment metadata for {selectedRuleId}</div>
+                                    <button
+                                      type="button"
+                                      className="rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                                      onClick={() => applySuggestedPddFragmentDraft(pin.id)}
+                                    >
+                                      Use suggestion
+                                    </button>
+                                  </div>
+                                  <div>
+                                    Label: <span className="font-medium text-slate-900">{suggestedPddFragmentDraft.label}</span>
+                                    {suggestedPddFragmentDraft.sectionHeading
+                                      ? ` · Heading: ${suggestedPddFragmentDraft.sectionHeading}`
+                                      : ""}
+                                    {suggestedPddFragmentDraft.sectionLabel
+                                      ? ` · Section: ${suggestedPddFragmentDraft.sectionLabel}`
+                                      : ""}
+                                  </div>
+                                  <div className="text-slate-600">{suggestedPddFragmentDraft.reason}</div>
+                                </div>
+                              ) : null}
                               <div className="grid gap-2 md:grid-cols-2">
                                 <label className="grid gap-1 md:col-span-2">
                                   <span>Fragment label</span>
