@@ -3037,6 +3037,7 @@ export default function ProofMapTab({
         createReviewerArtifactContext({
           methodCode,
           version,
+          workspaceId,
           ruleId: savedReviewerRuleId,
           runId: verifierBundle.runContext.runId,
         }),
@@ -3098,6 +3099,7 @@ export default function ProofMapTab({
     verifierBundle.savedReviewerArtifactAt,
     verifierBundle.savedReviewerArtifactContext,
     version,
+    workspaceId,
   ]);
 
   const buildClientReadinessReportPayload = useCallback(async () => {
