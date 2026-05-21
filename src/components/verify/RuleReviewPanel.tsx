@@ -1,6 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type {
+  RequirementCoverageExpectedEvidenceType,
+  RequirementCoverageLinkedEvidence,
+} from "@/app/m/_lib/requirementCoverage";
 import {
   addEvidenceAttachment,
   removeEvidenceAttachment,
@@ -16,6 +20,7 @@ import {
 import { getAuditTrailForRule, logAuditEvent, type AuditEvent } from "@/lib/verify/auditTrail";
 import { isStacEligible, stacEligibilityReason } from "@/lib/verify/stacEligibility";
 import type { StacSupportFactsState } from "@/lib/verify/stacSupportFacts";
+import { buildReviewSuggestion, suggestedOutcomeLabel } from "@/lib/verify/reviewSuggestion";
 import StacSupportSection from "@/components/verify/StacSupportSection";
 import DocumentSupportSection from "@/components/verify/DocumentSupportSection";
 import type { DocumentSupportEntry } from "@/lib/verify/documentSupport";
@@ -40,9 +45,11 @@ type RuleReviewPanelProps = {
   ruleNotes?: string | null;
   ruleWhen?: string[] | null;
   expectedEvidence?: string[];
+  expectedEvidenceTypes?: RequirementCoverageExpectedEvidenceType[];
   sourcePath?: string | null;
   sha256?: string | null;
   ruleTags?: string[];
+  linkedEvidenceDetails?: RequirementCoverageLinkedEvidence[];
   stacSupportState?: StacSupportFactsState | null;
   documentSupport?: DocumentSupportEntry[];
   onSave: (review: RuleReview) => void;
@@ -70,9 +77,11 @@ export default function RuleReviewPanel({
   ruleNotes,
   ruleWhen,
   expectedEvidence = [],
+  expectedEvidenceTypes = [],
   sourcePath,
   sha256,
   ruleTags = [],
+  linkedEvidenceDetails = [],
   stacSupportState = null,
   documentSupport = [],
   onSave,
@@ -101,8 +110,22 @@ export default function RuleReviewPanel({
   );
   const [errors, setErrors] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
+  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const stacEligible = isStacEligible(ruleTags);
   const stacReason = stacEligibilityReason(ruleTags);
+  const suggestion = useMemo(
+    () =>
+      buildReviewSuggestion({
+        ruleId,
+        ruleText,
+        ruleTags,
+        expectedEvidenceTypes,
+        linkedEvidence: linkedEvidenceDetails,
+        documentSupport,
+        stacSupportState,
+      }),
+    [documentSupport, expectedEvidenceTypes, linkedEvidenceDetails, ruleId, ruleTags, ruleText, stacSupportState],
+  );
   const reviewExplanation = useMemo(() => {
     switch (status) {
       case "verified":
@@ -140,6 +163,11 @@ export default function RuleReviewPanel({
     }
   }, [status]);
   const actorLabel = existingReview?.reviewedBy?.trim() || "local-reviewer";
+  const suggestionVisible = !suggestionDismissed;
+
+  useEffect(() => {
+    setSuggestionDismissed(false);
+  }, [ruleId, methodology, version]);
 
   const refreshAuditEvents = useCallback(() => {
     setAuditEvents(getAuditTrailForRule(ruleId, methodology, version).slice(-5).reverse());
@@ -287,6 +315,24 @@ export default function RuleReviewPanel({
     [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version],
   );
 
+  const applySuggestion = useCallback(
+    (focusRationale: boolean) => {
+      setStatus(suggestion.mappedReviewStatus);
+      setRationale(suggestion.whyThisJudgment);
+      setSupportReference(suggestion.supportingTrace);
+      setSuggestionDismissed(false);
+      setErrors([]);
+      if (focusRationale && typeof document !== "undefined") {
+        window.setTimeout(() => {
+          const field = document.querySelector<HTMLTextAreaElement>(`textarea[data-rule-rationale="${ruleId}"]`);
+          field?.focus();
+          field?.setSelectionRange(field.value.length, field.value.length);
+        }, 0);
+      }
+    },
+    [ruleId, suggestion],
+  );
+
   return (
     <section className="rounded-[24px] border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 px-5 py-4">
@@ -326,6 +372,131 @@ export default function RuleReviewPanel({
 
       <div className="grid gap-6 px-5 py-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
         <div className="space-y-5">
+          {suggestionVisible ? (
+            <section className="rounded-[20px] border border-sky-200 bg-sky-50/80 px-4 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-700">
+                    Suggested review
+                  </div>
+                  <div className="mt-1 text-sm text-slate-700">
+                    Machine suggestion only. Reviewer acceptance and save are still required before finalization.
+                  </div>
+                </div>
+                <div className="rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold text-sky-700">
+                  {suggestedOutcomeLabel(suggestion.suggestedOutcome)}
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-sky-100 bg-white px-3 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Suggested fragment
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-slate-900">
+                    {suggestion.suggestedFragment?.label ?? "No strong fragment match found"}
+                  </div>
+                  {suggestion.suggestedFragment?.detail ? (
+                    <div className="mt-1 text-xs text-slate-500">{suggestion.suggestedFragment.detail}</div>
+                  ) : null}
+                </div>
+                <div className="rounded-2xl border border-sky-100 bg-white px-3 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Suggested evidence attachment
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-slate-900">
+                    {suggestion.suggestedEvidence?.label ?? "No strong evidence attachment match found"}
+                  </div>
+                  {suggestion.suggestedEvidence?.detail ? (
+                    <div className="mt-1 text-xs text-slate-500">{suggestion.suggestedEvidence.detail}</div>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-2xl border border-sky-100 bg-white px-3 py-3">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Missing expected evidence
+                </div>
+                {suggestion.missingExpectedEvidence.length ? (
+                  <ul className="mt-2 grid gap-1 text-sm text-slate-700">
+                    {suggestion.missingExpectedEvidence.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="mt-1 text-sm text-slate-600">No obvious expected-evidence gap detected from the current linked record.</div>
+                )}
+              </div>
+
+              <div className="mt-3 grid gap-3">
+                <div className="rounded-2xl border border-sky-100 bg-white px-3 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Draft Why this judgment
+                  </div>
+                  <div className="mt-1 text-sm leading-6 text-slate-700">{suggestion.whyThisJudgment}</div>
+                </div>
+                <div className="rounded-2xl border border-sky-100 bg-white px-3 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Draft Supporting trace
+                  </div>
+                  <div className="mt-1 text-sm leading-6 text-slate-700">
+                    {suggestion.supportingTrace || "No trace string generated from the current evidence context."}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-sky-100 bg-white px-3 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Why this was suggested
+                  </div>
+                  <div className="mt-1 text-sm leading-6 text-slate-700">{suggestion.reason}</div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => applySuggestion(false)}
+                  className="rounded-full border border-sky-700 bg-sky-700 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-800"
+                >
+                  Accept suggestion
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applySuggestion(true)}
+                  className="rounded-full border border-sky-200 bg-white px-4 py-2 text-xs font-semibold text-sky-700 hover:border-sky-300"
+                >
+                  Edit before saving
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSuggestionDismissed(true)}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
+                >
+                  Reject suggestion / mark manually
+                </button>
+              </div>
+            </section>
+          ) : (
+            <section className="rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Suggested review
+                  </div>
+                  <div className="mt-1 text-sm text-slate-600">
+                    Suggestion dismissed for manual review. Unaccepted suggestions are not saved or exported.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSuggestionDismissed(false)}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
+                >
+                  Restore suggestion
+                </button>
+              </div>
+            </section>
+          )}
+
           <section className="space-y-3">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Current judgment
@@ -368,6 +539,7 @@ export default function RuleReviewPanel({
               <textarea
                 value={rationale}
                 onChange={(e) => setRationale(e.target.value)}
+                data-rule-rationale={ruleId}
                 placeholder="State the reviewer’s reason in plain language."
                 rows={4}
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
