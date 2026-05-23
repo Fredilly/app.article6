@@ -114,6 +114,12 @@ type ExtractionDiagnostic =
     }
   | null;
 
+type DetectedMethodologyConstraint = {
+  methodologyId: string;
+  methodologyVersion: string;
+  sourceMention: string;
+};
+
 type QueryResultWithSignals = QueryResponse["results"][number] & {
   _signalBoost: number;
   _matchedQueries: string[];
@@ -509,6 +515,14 @@ function pickPrimaryMethodologyMention(mentions: string[]): string | null {
   return specific ?? mentions[0] ?? null;
 }
 
+function normalizeMethodologyMentionToMethodCode(mention: string): string | null {
+  const normalized = mention.trim().toUpperCase();
+  if (!normalized) return null;
+  if (normalized === "VM0007") return "VM0007";
+  if (normalized === "REDD+ MF" || normalized === "REDD+ METHODOLOGY FRAMEWORK") return "VM0007";
+  return null;
+}
+
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
@@ -719,13 +733,33 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const selected = draft.methodologyId.trim().toUpperCase();
     const primaryMention = pickPrimaryMethodologyMention(extractionPreview.methodologyMentions);
     if (!primaryMention) return null;
-    const matches = primaryMention.trim().toUpperCase() === selected;
+    const normalizedMention = normalizeMethodologyMentionToMethodCode(primaryMention) ?? primaryMention;
+    const matches = normalizedMention.trim().toUpperCase() === selected;
     if (matches) return null;
     return {
-      mention: primaryMention,
+      mention: normalizedMention,
       selectedMethod: draft.methodologyId.trim(),
     };
   }, [draft.methodologyId, extractionPreview]);
+  const detectedMethodologyConstraint = useMemo<DetectedMethodologyConstraint | null>(() => {
+    if (draft.methodologyId.trim()) return null;
+    if (!extractionPreview?.methodologyMentions.length) return null;
+    for (const mention of extractionPreview.methodologyMentions) {
+      const methodologyId = normalizeMethodologyMentionToMethodCode(mention);
+      if (!methodologyId) continue;
+      const methodRecord = methods.find((item) => item.code === methodologyId);
+      const methodologyVersion = pickVersion(methodRecord, null);
+      if (!methodologyVersion) continue;
+      return {
+        methodologyId,
+        methodologyVersion,
+        sourceMention: mention,
+      };
+    }
+    return null;
+  }, [draft.methodologyId, extractionPreview, methods]);
+  const effectiveMethodologyId = draft.methodologyId.trim() || detectedMethodologyConstraint?.methodologyId || "";
+  const effectiveMethodologyVersion = draft.methodologyVersion.trim() || detectedMethodologyConstraint?.methodologyVersion || "";
   const extractionDiagnostic = useMemo<ExtractionDiagnostic>(() => {
     if (methodologyMismatch) {
       return {
@@ -1282,7 +1316,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setRecoveryState(buildWeakExtractionRecoveryState());
         return;
       }
-      const selectedMethodologyId = draft.methodologyId.trim();
+      const selectedMethodologyId = effectiveMethodologyId;
       if (selectedMethodologyId && !methods.some((method) => method.code === selectedMethodologyId)) {
         setShowMethodology(true);
         setFieldErrors({});
@@ -1301,8 +1335,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       let candidates = buildMatchCandidates(
         mergedResults,
         methods,
-        draft.methodologyId,
-        draft.methodologyVersion,
+        effectiveMethodologyId,
+        effectiveMethodologyVersion,
         draft.claimText.trim(),
         evidenceAnalysis,
         claimIntents,
@@ -1348,9 +1382,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         }
       }
 
+      if (detectedMethodologyConstraint && !draft.methodologyId.trim() && !candidates.length) {
+        setFieldErrors({});
+        setRecoveryState(
+          buildNoValidAnalysisPathRecoveryState({
+            methodologyId: detectedMethodologyConstraint.methodologyId,
+            evidenceSignals: evidenceAnalysis,
+          }),
+        );
+        return;
+      }
+
       if (!candidates.length) {
-        const methodSubset = draft.methodologyId.trim()
-          ? methods.filter((method) => method.code === draft.methodologyId)
+        const methodSubset = effectiveMethodologyId
+          ? methods.filter((method) => method.code === effectiveMethodologyId)
           : methods;
         candidates = await buildLocalFallbackCandidates(methodSubset, evidenceAnalysis);
       }
@@ -1390,6 +1435,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
+      if (!resolvedCandidates.length && detectedMethodologyConstraint && !draft.methodologyId.trim()) {
+        setFieldErrors({});
+        setRecoveryState(
+          buildNoValidAnalysisPathRecoveryState({
+            methodologyId: detectedMethodologyConstraint.methodologyId,
+            evidenceSignals: evidenceAnalysis,
+          }),
+        );
+        return;
+      }
+
       if (!resolvedCandidates.length && !draft.methodologyId.trim()) {
         const broaderCandidates =
           allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
@@ -1421,7 +1477,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      if (!draft.methodologyId.trim() && requiresMethodologyConfirmation(resolvedCandidates)) {
+      if (!draft.methodologyId.trim() && !detectedMethodologyConstraint && requiresMethodologyConfirmation(resolvedCandidates)) {
         setShowMethodology(true);
         setMatchCandidates(resolvedCandidates);
         setFieldErrors({});
@@ -1675,6 +1731,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     </div>
                   ) : extractionPreview ? (
                     <>
+                      {detectedMethodologyConstraint ? (
+                        <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
+                          Detected methodology: {detectedMethodologyConstraint.methodologyId}. Requirement matches are narrowed to Verra {detectedMethodologyConstraint.methodologyId}.
+                        </div>
+                      ) : null}
                       <div className="mt-4 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
                         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                           <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">What we found first</div>
