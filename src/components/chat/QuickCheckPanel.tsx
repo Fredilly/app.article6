@@ -510,9 +510,25 @@ function isSpecificMethodologyMention(value: string): boolean {
     || /\b(?:APD|ARR|RWE|APWD)\b/.test(value);
 }
 
+function methodologyMentionPriority(value: string): number {
+  const normalized = value.trim().toUpperCase();
+  if (normalized === "VM0007") return 0;
+  if (normalized === "REDD+ MF" || normalized === "REDD+ METHODOLOGY FRAMEWORK") return 1;
+  if (/^VMD\d{4}$/.test(normalized)) return 2;
+  if (/^(APD|ARR|RWE|APWD)$/.test(normalized)) return 3;
+  return 4;
+}
+
 function pickPrimaryMethodologyMention(mentions: string[]): string | null {
-  const specific = mentions.find((mention) => isSpecificMethodologyMention(mention));
-  return specific ?? mentions[0] ?? null;
+  const specific = mentions.filter((mention) => isSpecificMethodologyMention(mention));
+  if (specific.length) {
+    return [...specific].sort(
+      (left, right) =>
+        methodologyMentionPriority(left) - methodologyMentionPriority(right) ||
+        left.localeCompare(right),
+    )[0] ?? null;
+  }
+  return mentions[0] ?? null;
 }
 
 function normalizeMethodologyMentionToMethodCode(mention: string): string | null {
@@ -521,6 +537,14 @@ function normalizeMethodologyMentionToMethodCode(mention: string): string | null
   if (normalized === "VM0007") return "VM0007";
   if (normalized === "REDD+ MF" || normalized === "REDD+ METHODOLOGY FRAMEWORK") return "VM0007";
   return null;
+}
+
+function methodologyMentionsForDetection(input: {
+  analysis: QuickCheckEvidenceAnalysis | null;
+  extraction: QuickCheckExtractionSnapshot | null;
+}): string[] {
+  const mentions = input.analysis?.methodologyMentions ?? input.extraction?.methodologyMentions ?? [];
+  return Array.from(new Set(mentions.map((mention) => mention.trim()).filter(Boolean)));
 }
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
@@ -728,10 +752,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     () => (extractionPreview ? deriveQuickCheckExtractionState(extractionPreview) : null),
     [extractionPreview],
   );
+  const detectedMethodologyMentions = useMemo(
+    () => methodologyMentionsForDetection({ analysis: extractionState.analysis, extraction: extractionPreview }),
+    [extractionPreview, extractionState.analysis],
+  );
   const methodologyMismatch = useMemo(() => {
-    if (!draft.methodologyId.trim() || !extractionPreview?.methodologyMentions.length) return null;
+    if (!draft.methodologyId.trim() || !detectedMethodologyMentions.length) return null;
     const selected = draft.methodologyId.trim().toUpperCase();
-    const primaryMention = pickPrimaryMethodologyMention(extractionPreview.methodologyMentions);
+    const primaryMention = pickPrimaryMethodologyMention(detectedMethodologyMentions);
     if (!primaryMention) return null;
     const normalizedMention = normalizeMethodologyMentionToMethodCode(primaryMention) ?? primaryMention;
     const matches = normalizedMention.trim().toUpperCase() === selected;
@@ -740,11 +768,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       mention: normalizedMention,
       selectedMethod: draft.methodologyId.trim(),
     };
-  }, [draft.methodologyId, extractionPreview]);
+  }, [detectedMethodologyMentions, draft.methodologyId]);
   const detectedMethodologyConstraint = useMemo<DetectedMethodologyConstraint | null>(() => {
     if (draft.methodologyId.trim()) return null;
-    if (!extractionPreview?.methodologyMentions.length) return null;
-    for (const mention of extractionPreview.methodologyMentions) {
+    if (!detectedMethodologyMentions.length) return null;
+    for (const mention of detectedMethodologyMentions) {
       const methodologyId = normalizeMethodologyMentionToMethodCode(mention);
       if (!methodologyId) continue;
       const methodRecord = methods.find((item) => item.code === methodologyId);
@@ -757,7 +785,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
     }
     return null;
-  }, [draft.methodologyId, extractionPreview, methods]);
+  }, [detectedMethodologyMentions, draft.methodologyId, methods]);
   const effectiveMethodologyId = draft.methodologyId.trim() || detectedMethodologyConstraint?.methodologyId || "";
   const effectiveMethodologyVersion = draft.methodologyVersion.trim() || detectedMethodologyConstraint?.methodologyVersion || "";
   const extractionDiagnostic = useMemo<ExtractionDiagnostic>(() => {

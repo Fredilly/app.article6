@@ -20,7 +20,7 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "baseline.pdf": "Monitoring report for the full reporting period.",
-  "plum-verra-demo-excerpt.pdf": "Project Description / PD. PLUM Project. Verra VCS / CCB. VM0007. REDD+ Methodology Framework. Section 3.1 Application of Methodology. Section 3.3 Monitoring. Project boundary description for the PLUM Project. The mapped project area polygon and AOI are referenced in the boundary map. Project location described for the project area. Monitoring report for the full reporting period.",
+  "plum-verra-demo-excerpt.pdf": "Project Description / PD. PLUM Project. Verra VCS / CCB. APD. ARR. VMD0001. VMD0006. VMD0009. VM0007. REDD+ Methodology Framework. Section 3.1 Application of Methodology. Section 3.3 Monitoring. Project boundary description for the PLUM Project. The mapped project area polygon and AOI are referenced in the boundary map. Project location described for the project area. Monitoring report for the full reporting period.",
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
