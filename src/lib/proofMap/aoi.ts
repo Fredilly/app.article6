@@ -181,12 +181,20 @@ function normalizeFeatureId(name: string, index: number): string {
   return safe ? `aoi-feature-${index + 1}-${safe}` : `aoi-feature-${index + 1}`;
 }
 
+function inferRoleFromFeatureName(name: string, input: { polygonCount: number; isPolygon: boolean }): AoiFeatureRole {
+  const normalized = name.trim().toLowerCase();
+  if (input.isPolygon && normalized.includes("project area")) return "primary_project_area";
+  if (input.isPolygon && normalized.includes("project zone")) return "project_zone";
+  if (input.isPolygon && input.polygonCount === 1) return "primary_project_area";
+  return "other";
+}
+
 function primaryFeatureFromAoi(aoi: AOI): AoiFeature | null {
   const features = aoi.features ?? [];
   const selectedId = aoi.primary_feature_id?.trim() ?? "";
-  const byToggle = features.find((feature) => feature.use_for_satellite_search);
+  const byRole = features.find((feature) => feature.role === "primary_project_area");
   const explicit = selectedId ? features.find((feature) => feature.id === selectedId) : null;
-  const candidate = explicit ?? byToggle ?? null;
+  const candidate = explicit ?? byRole ?? null;
   if (!candidate || !isPolygonGeometry(candidate.geojson.geometry)) return null;
   return candidate;
 }
@@ -198,13 +206,15 @@ function buildAoiFromFeatures(input: {
   source: AoiSourceInfo;
   createdAt?: string;
   previousFingerprint?: string | null;
+  declaredAreaKm2?: number | null;
+  declaredAreaSource?: string | null;
 }): AOI {
   const createdAt = input.createdAt ?? nowIso();
   const primary = (() => {
-    const selected = input.features.find((feature) => feature.use_for_satellite_search);
-    if (!selected) return null;
-    if (!isPolygonGeometry(selected.geojson.geometry)) return null;
-    return selected;
+    const primaryFeatures = input.features.filter((feature) => feature.role === "primary_project_area");
+    if (primaryFeatures.length !== 1) return null;
+    const selected = primaryFeatures[0];
+    return isPolygonGeometry(selected.geojson.geometry) ? selected : null;
   })();
   return {
     id: input.id ?? `aoi_${createdAt}`,
@@ -231,13 +241,10 @@ function buildAoiFromFeatures(input: {
       geojson: structuredClone(feature.geojson),
       bbox: feature.bbox ? [...feature.bbox] as [number, number, number, number] : null,
     })),
+    declared_area_km2: typeof input.declaredAreaKm2 === "number" && Number.isFinite(input.declaredAreaKm2) ? input.declaredAreaKm2 : null,
+    declared_area_source: input.declaredAreaSource?.trim() || null,
     created_at: createdAt,
   };
-}
-
-function roleForAutoSelection(input: { polygonCount: number; isPolygon: boolean }): AoiFeatureRole {
-  if (input.isPolygon && input.polygonCount === 1) return "primary_project_area";
-  return "other";
 }
 
 export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResult {
@@ -261,20 +268,19 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
   const features: AoiFeature[] = normalized.features.map((feature, index) => {
     const isPolygon = isPolygonGeometry(feature.geometry);
     const bbox = bboxForGeometry(feature.geometry);
-    const role = roleForAutoSelection({ polygonCount, isPolygon });
-    const useForSatelliteSearch = role === "primary_project_area";
+    const name = featureName(feature, index, fallbackName);
+    const role = inferRoleFromFeatureName(name, { polygonCount, isPolygon });
     const area_km2 = (() => {
       if (!isPolygonGeometry(feature.geometry)) return null;
       return Math.max(0, areaKm2ForPolygon(feature.geometry));
     })();
     return {
-      id: normalizeFeatureId(featureName(feature, index, fallbackName), index),
-      name: featureName(feature, index, fallbackName),
+      id: normalizeFeatureId(name, index),
+      name,
       role,
       geometry_type: feature.geometry.type,
       area_km2,
       bbox,
-      use_for_satellite_search: useForSatelliteSearch,
       geojson: structuredClone(feature),
     };
   });
@@ -294,20 +300,15 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
 }
 
 export function updateAoiFeatureRole(aoi: AOI, featureId: string, role: AoiFeatureRole): AOI {
-  const features = (aoi.features ?? []).map((feature) => {
-    if (feature.id !== featureId) {
-      if (role === "primary_project_area" && feature.role === "primary_project_area" && feature.use_for_satellite_search) {
-        return { ...feature, use_for_satellite_search: false };
-      }
-      return feature;
+  const features: AoiFeature[] = (aoi.features ?? []).map((feature) => {
+    if (feature.id === featureId) {
+      const nextRole = role === "primary_project_area" && feature.area_km2 == null ? "other" : role;
+      return { ...feature, role: nextRole };
     }
-    const nextUseForSatelliteSearch =
-      role === "primary_project_area" ? feature.use_for_satellite_search : false;
-    return {
-      ...feature,
-      role,
-      use_for_satellite_search: nextUseForSatelliteSearch,
-    };
+    if (role === "primary_project_area" && feature.role === "primary_project_area") {
+      return { ...feature, role: "other" };
+    }
+    return feature;
   });
 
   return buildAoiFromFeatures({
@@ -319,19 +320,22 @@ export function updateAoiFeatureRole(aoi: AOI, featureId: string, role: AoiFeatu
       featureCount: aoi.aoi_source_feature_count ?? features.length,
     },
     createdAt: aoi.created_at,
+    previousFingerprint: aoi.aoi_fingerprint,
+    declaredAreaKm2: aoi.declared_area_km2,
+    declaredAreaSource: aoi.declared_area_source,
   });
 }
 
 export function setAoiPrimaryFeature(aoi: AOI, featureId: string, enabled: boolean): AOI {
-  const features = (aoi.features ?? []).map((feature) => {
+  const features: AoiFeature[] = (aoi.features ?? []).map((feature) => {
     const isTarget = feature.id === featureId;
-    const shouldEnable = enabled && isTarget;
-    const nextRole = shouldEnable ? "primary_project_area" : feature.role;
-    return {
-      ...feature,
-      role: nextRole,
-      use_for_satellite_search: shouldEnable ? true : false,
-    };
+    if (enabled) {
+      if (isTarget) return { ...feature, role: feature.area_km2 == null ? "other" : "primary_project_area" };
+      if (feature.role === "primary_project_area") return { ...feature, role: "other" };
+      return feature;
+    }
+    if (isTarget && feature.role === "primary_project_area") return { ...feature, role: "other" };
+    return feature;
   });
   return buildAoiFromFeatures({
     id: aoi.id,
@@ -342,11 +346,54 @@ export function setAoiPrimaryFeature(aoi: AOI, featureId: string, enabled: boole
       featureCount: aoi.aoi_source_feature_count ?? features.length,
     },
     createdAt: aoi.created_at,
+    previousFingerprint: aoi.aoi_fingerprint,
+    declaredAreaKm2: aoi.declared_area_km2,
+    declaredAreaSource: aoi.declared_area_source,
   });
 }
 
 export function ensurePrimaryProjectAreaSelected(aoi: AOI): boolean {
   return Boolean(primaryFeatureFromAoi(aoi));
+}
+
+export function setAoiDeclaredArea(input: {
+  aoi: AOI;
+  declaredAreaKm2: number | null;
+  declaredAreaSource?: string | null;
+}): AOI {
+  return buildAoiFromFeatures({
+    id: input.aoi.id,
+    name: input.aoi.name,
+    features: input.aoi.features ?? [],
+    source: {
+      sourceType: input.aoi.aoi_source_type ?? "FeatureCollection",
+      featureCount: input.aoi.aoi_source_feature_count ?? input.aoi.features?.length ?? 0,
+    },
+    createdAt: input.aoi.created_at,
+    previousFingerprint: input.aoi.aoi_fingerprint,
+    declaredAreaKm2: input.declaredAreaKm2,
+    declaredAreaSource: input.declaredAreaSource ?? input.aoi.declared_area_source,
+  });
+}
+
+export function aoiDeclaredAreaComparison(aoi: AOI | null): {
+  declaredAreaKm2: number;
+  measuredAreaKm2: number;
+  relativeDifference: number;
+  exceedsThreshold: boolean;
+} | null {
+  if (!aoi || !Number.isFinite(aoi.declared_area_km2 ?? NaN) || !(aoi.declared_area_km2! > 0) || !Number.isFinite(aoi.area_km2)) {
+    return null;
+  }
+  const declaredAreaKm2 = aoi.declared_area_km2 as number;
+  const measuredAreaKm2 = aoi.area_km2;
+  const relativeDifference = Math.abs(measuredAreaKm2 - declaredAreaKm2) / declaredAreaKm2;
+  return {
+    declaredAreaKm2,
+    measuredAreaKm2,
+    relativeDifference,
+    exceedsThreshold: relativeDifference > 0.05,
+  };
 }
 
 export function activeAoiSearchFeature(aoi: AOI | null): GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null {

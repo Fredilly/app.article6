@@ -1,6 +1,6 @@
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 
-test("accepts FeatureCollection with multiple features and requires primary selection when multiple polygons exist", () => {
+test("infers PLUM-style project area and zone roles from feature names", () => {
   const input = {
     type: "FeatureCollection",
     features: [
@@ -11,11 +11,13 @@ test("accepts FeatureCollection with multiple features and requires primary sele
   const result = parseAoiGeoJson(input, "multi");
   expect(result.ok).toBe(true);
   if (!result.ok) return;
-  expect(result.aoi.geojson).toBeNull();
-  expect(result.aoi.primary_feature_id).toBeNull();
+  expect(result.aoi.geojson?.geometry.type).toBe("Polygon");
+  expect(result.aoi.primary_feature_id).toBe(result.aoi.features?.[0]?.id);
   expect(result.aoi.aoi_source_feature_count).toBe(2);
   expect(result.aoi.features).toHaveLength(2);
   expect(result.aoi.feature_collection?.features).toHaveLength(2);
+  expect(result.aoi.features?.[0]?.role).toBe("primary_project_area");
+  expect(result.aoi.features?.[1]?.role).toBe("project_zone");
 });
 
 test("accepts FeatureCollection with one feature", () => {
@@ -71,4 +73,20 @@ test("auto-selects the only polygon as primary even when non-polygon features ar
   expect(result.aoi.geojson?.geometry.type).toBe("Polygon");
   expect(result.aoi.primary_feature_id).toBe(result.aoi.features?.[0]?.id);
   expect(result.aoi.features?.[1]?.area_km2).toBeNull();
+});
+
+test("requires manual primary selection when multiple polygons lack recognizable role names", () => {
+  const input = {
+    type: "FeatureCollection",
+    features: [
+      { type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0],[1, 0],[1, 1],[0, 0]]] }, properties: { name: "Boundary A" } },
+      { type: "Feature", geometry: { type: "Polygon", coordinates: [[[2, 2],[3, 2],[3, 3],[2, 2]]] }, properties: { name: "Boundary B" } },
+    ],
+  };
+  const result = parseAoiGeoJson(input, "ambiguous");
+  expect(result.ok).toBe(true);
+  if (!result.ok) return;
+  expect(result.aoi.geojson).toBeNull();
+  expect(result.aoi.primary_feature_id).toBeNull();
+  expect(result.aoi.features?.every((feature) => feature.role === "other")).toBe(true);
 });

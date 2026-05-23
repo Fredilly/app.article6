@@ -13,7 +13,7 @@ import RuleReadinessFacts from "@/components/verify/RuleReadinessFacts";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import VerifyReadinessStrip, { type VerifyReadinessChip } from "@/components/verify/VerifyReadinessStrip";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
-import { ensurePrimaryProjectAreaSelected, parseAoiGeoJson, setAoiPrimaryFeature, updateAoiFeatureRole } from "@/lib/proofMap/aoi";
+import { aoiDeclaredAreaComparison, ensurePrimaryProjectAreaSelected, parseAoiGeoJson, setAoiDeclaredArea, updateAoiFeatureRole } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import Tooltip from "@/components/ui/Tooltip";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
@@ -475,6 +475,7 @@ export default function ProofMapTab({
   const [currentAoiHashForCompare, setCurrentAoiHashForCompare] = useState<string | null>(null);
   const [draftAoiFingerprint, setDraftAoiFingerprint] = useState<string | null>(null);
   const [showSameAoiPrompt, setShowSameAoiPrompt] = useState(false);
+  const [declaredAreaInput, setDeclaredAreaInput] = useState("");
   const [draftTask, setDraftTask] = useState("");
   const [showDraftTask, setShowDraftTask] = useState(false);
   const draftTaskInputRef = useRef<HTMLInputElement | null>(null);
@@ -523,6 +524,11 @@ export default function ProofMapTab({
     if (parts.some((n) => !Number.isFinite(n))) return null;
     return [parts[0], parts[1], parts[2], parts[3]];
   });
+
+  useEffect(() => {
+    const declaredArea = aoi?.declared_area_km2;
+    setDeclaredAreaInput(typeof declaredArea === "number" && Number.isFinite(declaredArea) ? String(declaredArea) : "");
+  }, [aoi?.declared_area_km2, aoi?.id]);
   const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
   const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
   const linkedPinsCount = useMemo(
@@ -828,7 +834,7 @@ export default function ProofMapTab({
         onSelectStacItemId(null);
         onUploadAoi(result.aoi);
         if (!ensurePrimaryProjectAreaSelected(result.aoi)) {
-          setError("Select one primary project area feature to continue.");
+          setError("Select exactly one primary project area feature to continue.");
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -1109,7 +1115,7 @@ export default function ProofMapTab({
 
   const handleSearchStac = useCallback(async () => {
     if (!aoi?.geojson) {
-      setError("Select one primary project area feature to continue.");
+      setError("Select exactly one primary project area feature to continue.");
       return;
     }
     setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
@@ -1690,6 +1696,7 @@ export default function ProofMapTab({
           hash: currentAoiFingerprint,
           bbox: aoi?.bbox ?? null,
           areaKm2: typeof aoi?.area_km2 === "number" ? aoi.area_km2 : null,
+          declaredAreaKm2: typeof aoi?.declared_area_km2 === "number" ? aoi.declared_area_km2 : null,
         },
         stac: {
           query: stacQuery,
@@ -2401,8 +2408,21 @@ export default function ProofMapTab({
         method: { code: methodCode, version },
         aoi: aoi
           ? {
+              id: aoi.id,
               bbox: aoi.bbox,
               geojson: aoi.geojson,
+              feature_collection: aoi.feature_collection,
+              primary_feature_id: aoi.primary_feature_id ?? null,
+              features: (aoi.features ?? []).map((feature) => ({
+                id: feature.id,
+                name: feature.name,
+                role: feature.role,
+                geometry_type: feature.geometry_type,
+                area_km2: feature.area_km2,
+                bbox: feature.bbox,
+              })),
+              declared_area_km2: aoi.declared_area_km2 ?? null,
+              declared_area_source: aoi.declared_area_source ?? null,
             }
           : undefined,
         evidence_source: evidenceSource,
@@ -2649,13 +2669,13 @@ export default function ProofMapTab({
   const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
   const hasRule = Boolean(selectedRuleId);
   const hasAoi = Boolean(aoi?.geojson);
+  const declaredAreaComparison = useMemo(() => aoiDeclaredAreaComparison(aoi), [aoi]);
   const aoiFeatureRows = (aoi?.features ?? []).map((feature) => ({
     id: feature.id,
     name: feature.name,
     geometryType: feature.geometry_type,
     areaKm2: feature.area_km2,
     role: feature.role,
-    useForSatelliteSearch: feature.use_for_satellite_search,
   }));
   const hasSearchResults = (stacFeatureIds?.length ?? 0) > 0;
   const hasSelectedItem = Boolean(selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId]);
@@ -4886,6 +4906,10 @@ export default function ProofMapTab({
                         showSameAoiPrompt,
                         areaKm2: aoi.area_km2 ?? null,
                         bboxLabel,
+                        declaredAreaKm2: aoi.declared_area_km2 ?? null,
+                        declaredAreaSource: aoi.declared_area_source ?? null,
+                        areaMismatchRelative: declaredAreaComparison?.relativeDifference ?? null,
+                        areaMismatchWarning: declaredAreaComparison?.exceedsThreshold ?? false,
                         requiresPrimarySelection: !Boolean(aoi.geojson),
                       }
                     : null
@@ -4896,12 +4920,24 @@ export default function ProofMapTab({
                   const next = updateAoiFeatureRole(aoi, featureId, role);
                   onSetAoi(next);
                   if (next.geojson) setError(null);
+                  else setError("Select exactly one primary project area feature to continue.");
                 }}
-                onAoiFeaturePrimaryToggle={(featureId, enabled) => {
+                declaredAreaInput={declaredAreaInput}
+                onDeclaredAreaInputChange={(value) => {
+                  setDeclaredAreaInput(value);
                   if (!aoi) return;
-                  const next = setAoiPrimaryFeature(aoi, featureId, enabled);
-                  onSetAoi(next);
-                  setError(next.geojson ? null : "Select one primary project area feature to continue.");
+                  const trimmed = value.trim();
+                  if (!trimmed) {
+                    onSetAoi(setAoiDeclaredArea({ aoi, declaredAreaKm2: null, declaredAreaSource: null }));
+                    return;
+                  }
+                  const parsed = Number(trimmed);
+                  if (!Number.isFinite(parsed) || parsed <= 0) return;
+                  onSetAoi(setAoiDeclaredArea({
+                    aoi,
+                    declaredAreaKm2: parsed,
+                    declaredAreaSource: "manual_compare_input",
+                  }));
                 }}
                 searchDisabled={searchDisabled}
                 isRunning={isRunning}

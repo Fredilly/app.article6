@@ -28,7 +28,7 @@ export function buildVerificationRunInputFromPins(pins: EvidencePin[]): Verifica
 }
 
 export async function aoiFingerprint(geojson: AOI["geojson"]): Promise<string> {
-  if (!geojson) throw new Error("Select one primary project area feature to continue.");
+  if (!geojson) throw new Error("Select exactly one primary project area feature to continue.");
   return await sha256Hex(canonicalJson(geojson));
 }
 
@@ -149,8 +149,8 @@ export async function runStacEvidenceSearch(input: {
     return {
       provider: "stac",
       runStatus: "error",
-      summary: "Select one primary project area feature to continue.",
-      result_json: { ok: false, message: "Select one primary project area feature to continue." },
+      summary: "Select exactly one primary project area feature to continue.",
+      result_json: { ok: false, message: "Select exactly one primary project area feature to continue." },
     };
   }
   const stac = await fetchJson("/api/stac/search", { aoi_geojson: searchFeature });

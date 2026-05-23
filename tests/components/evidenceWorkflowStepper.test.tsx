@@ -250,6 +250,9 @@ describe("EvidenceWorkflowStepper", () => {
           showSameAoiPrompt: false,
           areaKm2: 0,
           bboxLabel: "0.00, 0.00 → 1.00, 1.00",
+          declaredAreaKm2: 15,
+          areaMismatchRelative: 0.177,
+          areaMismatchWarning: true,
           requiresPrimarySelection: true,
         }}
         aoiFeatures={[
@@ -258,8 +261,7 @@ describe("EvidenceWorkflowStepper", () => {
             name: "Project area",
             geometryType: "Polygon",
             areaKm2: 12.34,
-            role: "other",
-            useForSatelliteSearch: false,
+            role: "primary_project_area",
           },
           {
             id: "project-zone",
@@ -267,11 +269,11 @@ describe("EvidenceWorkflowStepper", () => {
             geometryType: "Polygon",
             areaKm2: 21.43,
             role: "project_zone",
-            useForSatelliteSearch: false,
           },
         ]}
         onAoiFeatureRoleChange={() => {}}
-        onAoiFeaturePrimaryToggle={() => {}}
+        declaredAreaInput="15"
+        onDeclaredAreaInputChange={() => {}}
         searchDisabled
         isRunning={false}
         hasSearchResults={false}
@@ -309,13 +311,15 @@ describe("EvidenceWorkflowStepper", () => {
       />,
     );
 
-    expect(html).toContain("Select one primary project area feature to continue.");
+    expect(html).toContain("Select exactly one primary project area feature to continue.");
     expect(html).toContain("Feature name");
-    expect(html).toContain("Use for satellite search");
+    expect(html).toContain("Satellite use");
     expect(html).toContain("Project area");
     expect(html).toContain("Project zone");
     expect(html).toContain("primary_project_area");
     expect(html).toContain("project_zone");
+    expect(html).toContain("Declared area (km²)");
+    expect(html).toContain("Uploaded geometry differs from declared area by 17.7%");
   });
 
   it("reopens the completed workflow on demand after finalization", async () => {

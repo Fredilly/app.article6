@@ -18,7 +18,6 @@ export type AoiFeature = {
   geometry_type: GeoJSON.Geometry["type"];
   area_km2: number | null;
   bbox: [number, number, number, number] | null;
-  use_for_satellite_search: boolean;
   geojson: GeoJSON.Feature<GeoJSON.Geometry>;
 };
 
@@ -35,6 +34,8 @@ export type AOI = {
   primary_feature_id?: string | null;
   feature_collection?: GeoJSON.FeatureCollection<GeoJSON.Geometry>;
   features?: AoiFeature[];
+  declared_area_km2?: number | null;
+  declared_area_source?: string | null;
   created_at: string;
 };
 
