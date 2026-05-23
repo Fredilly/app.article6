@@ -2003,7 +2003,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Selected methodology mismatch");
-    expect(text).toContain("Evidence appears to reference VM0007, but current selected method is ACM0010.");
+    expect(text).toContain("Evidence references VM0007, but current selected method is ACM0010.");
   });
 
   it("narrows a PLUM boundary claim to VM0007 candidates only", async () => {
@@ -2017,7 +2017,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to Verra VM0007.");
+    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2043,7 +2043,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to Verra VM0007.");
+    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
 
     await act(async () => {
       clickButton("Run quick check");
