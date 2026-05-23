@@ -1730,6 +1730,7 @@ export default function ProofMapTab({
       }),
     [
       aoi?.area_km2,
+      aoi?.declared_area_km2,
       aoi?.bbox,
       currentAoiFingerprint,
       linkedRuleIds,
