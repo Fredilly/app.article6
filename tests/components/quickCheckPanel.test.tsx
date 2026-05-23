@@ -2075,7 +2075,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Selected methodology mismatch");
-    expect(text).toContain("Evidence references VM0007, but current selected method is ACM0010.");
+    expect(text).toContain("Evidence appears to reference VM0007, but current selected method is ACM0010.");
   });
 
   it("narrows a PLUM boundary claim to VM0007 candidates only", async () => {
