@@ -236,7 +236,7 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).not.toContain("R-1-0001 - UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
   });
 
-  it("renders the AOI feature picker and primary-selection guidance for multi-feature uploads", () => {
+  it("renders the compact confirm-area summary and advanced spatial disclosure", () => {
     const html = renderToStaticMarkup(
       <EvidenceWorkflowStepper
         ruleOptions={[{ id: "R-1", title: "Rule" }]}
@@ -248,9 +248,13 @@ describe("EvidenceWorkflowStepper", () => {
           willClearWork: false,
           isSameAoi: false,
           showSameAoiPrompt: false,
+          primaryFeatureName: "PLUM project area",
           areaKm2: 0,
           bboxLabel: "0.00, 0.00 → 1.00, 1.00",
           declaredAreaKm2: 15,
+          declaredAreaSource: "PLUM demo fixture metadata",
+          projectZoneCount: 1,
+          supportingFeatureCount: 1,
           areaMismatchRelative: 0.177,
           areaMismatchWarning: true,
           requiresPrimarySelection: true,
@@ -274,6 +278,9 @@ describe("EvidenceWorkflowStepper", () => {
         onAoiFeatureRoleChange={() => {}}
         declaredAreaInput="15"
         onDeclaredAreaInputChange={() => {}}
+        onConfirmArea={() => {}}
+        canConfirmArea
+        isAreaConfirmed={false}
         searchDisabled
         isRunning={false}
         hasSearchResults={false}
@@ -311,13 +318,14 @@ describe("EvidenceWorkflowStepper", () => {
       />,
     );
 
+    expect(html).toContain("Primary Project Area");
+    expect(html).toContain("PLUM project area");
+    expect(html).toContain("Supporting Features");
+    expect(html).toContain("1 project zone");
+    expect(html).toContain("1 supporting");
     expect(html).toContain("Select exactly one primary project area feature to continue.");
-    expect(html).toContain("Feature name");
-    expect(html).toContain("Satellite use");
-    expect(html).toContain("Project area");
-    expect(html).toContain("Project zone");
-    expect(html).toContain("primary_project_area");
-    expect(html).toContain("project_zone");
+    expect(html).toContain("Advanced: view spatial features");
+    expect(html).toContain("Confirm area");
     expect(html).toContain("Declared area (km²)");
     expect(html).toContain("Uploaded geometry differs from declared area by 17.7%");
   });
