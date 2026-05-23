@@ -2140,6 +2140,33 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("No valid analysis path in VM0007");
   });
 
+  it("opens full review in the detected VM0007 workspace from recovery", async () => {
+    seedSession({
+      claimText: "The leakage deduction is justified by the evidence.",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel onContinueToWorkspace={pushMock} />);
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+    await flushUntilText("No valid analysis path in VM0007");
+
+    await act(async () => {
+      clickButton("Open full review");
+    });
+
+    expect(pushMock).toHaveBeenLastCalledWith("/m/VM0007/v/v1-0?tab=verify&mode=list");
+  });
+
   it("requires methodology confirmation when multiple detected methods are present", async () => {
     seedSession({
       claimText: "The monitoring report covers the full reporting period.",

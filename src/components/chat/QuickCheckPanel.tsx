@@ -735,6 +735,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods }),
     [detectedMethodologyMentions, methods],
   );
+  const resolvedWorkspaceMethod = useMemo(
+    () => (methodologyResolution.status === "single" ? methodologyResolution.matchedMethods[0] ?? null : null),
+    [methodologyResolution],
+  );
+  const workspaceMethodologyId = useMemo(() => {
+    if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyId) {
+      return resolvedWorkspaceMethod.methodologyId;
+    }
+    return draft.methodologyId.trim() || resolvedWorkspaceMethod?.methodologyId || "";
+  }, [draft.methodologyId, draft.status, resolvedWorkspaceMethod]);
+  const workspaceMethodologyVersion = useMemo(() => {
+    if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyVersion) {
+      return resolvedWorkspaceMethod.methodologyVersion;
+    }
+    return draft.methodologyVersion.trim() || resolvedWorkspaceMethod?.methodologyVersion || "";
+  }, [draft.methodologyVersion, draft.status, resolvedWorkspaceMethod]);
   const methodologyMismatch = useMemo(() => {
     if (!draft.methodologyId.trim()) return null;
     const selected = draft.methodologyId.trim().toUpperCase();
@@ -930,13 +946,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   function openFullReviewFromRecovery() {
-    if (draft.methodologyId.trim() && draft.methodologyVersion.trim() && onContinueToWorkspace) {
-      onContinueToWorkspace(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+    if (workspaceMethodologyId && workspaceMethodologyVersion && onContinueToWorkspace) {
+      onContinueToWorkspace(`/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`);
       return;
     }
-    if (draft.methodologyId.trim() && draft.methodologyVersion.trim()) {
+    if (workspaceMethodologyId && workspaceMethodologyVersion) {
       if (typeof window !== "undefined") {
-        window.location.assign(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+        window.location.assign(`/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`);
       }
       return;
     }
@@ -1605,7 +1621,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   function handleContinueToWorkspace() {
-    const handoff = ensureQuickCheckWorkspaceHandoff(draft);
+    const handoff = ensureQuickCheckWorkspaceHandoff({
+      ...draft,
+      methodologyId: workspaceMethodologyId,
+      methodologyVersion: workspaceMethodologyVersion,
+    });
     const nextSession = { draft: handoff.draft, result, stagedUploads };
     saveQuickCheckSession(nextSession);
     setSession(nextSession);
