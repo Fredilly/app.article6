@@ -712,7 +712,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [extractionPreview],
   );
   // ── Methodology signal resolution ────────────────────────────────────
-  const methodProgramMap = useMemo(() => buildMethodProgramMap(methods), [methods]);
   const methodCodeSet = useMemo(() => new Set(methods.map((m) => m.code)), [methods]);
 
   const rawMethodologyMentions = useMemo(() => {
