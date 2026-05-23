@@ -25,27 +25,36 @@ export async function resolveQuickCheckPdfText(input: {
       metadata?: {
         parser?: "pdf-parse" | "heuristic";
         fallbackReason?: string;
+        diagnostics?: {
+          failureKind?: "file-too-large" | "parser-failed" | "no-selectable-text";
+        };
       };
     };
     const engine =
       payload.engine === "heuristic" || payload.metadata?.parser === "heuristic"
         ? "heuristic"
         : "pdf-parse";
+    const failureKind = payload.metadata?.diagnostics?.failureKind;
+    const warning =
+      engine === "heuristic"
+        ? failureKind === "no-selectable-text"
+          ? "No selectable text found in this PDF."
+          : payload.metadata?.fallbackReason
+            ? `PDF parser fallback: ${payload.metadata.fallbackReason}`
+            : "PDF parser fallback: heuristic extraction was used."
+        : undefined;
     return {
       text: payload.text ?? "",
       engine,
-      warning:
-        engine === "heuristic"
-          ? payload.metadata?.fallbackReason
-            ? `PDF parser fallback: ${payload.metadata.fallbackReason}`
-            : "PDF parser fallback: heuristic extraction was used."
-          : undefined,
+      warning,
+      diagnosticCode: failureKind,
     };
   } catch {
     return {
       text: extractPdfText(input.bytes),
       engine: "heuristic",
       warning: "PDF parser fallback: client request failed, using heuristic extraction.",
+      diagnosticCode: "parser-failed",
     };
   }
 }

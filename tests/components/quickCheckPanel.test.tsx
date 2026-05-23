@@ -20,6 +20,7 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "baseline.pdf": "Monitoring report for the full reporting period.",
+  "plum-verra-demo-excerpt.pdf": "Project Description / PD. PLUM Project. Verra VCS / CCB. APD. ARR. VMD0001. VMD0006. VMD0009. VM0007. REDD+ Methodology Framework. Section 3.1 Application of Methodology. Section 3.3 Monitoring. Project boundary description for the PLUM Project. The mapped project area polygon and AOI are referenced in the boundary map. Project location described for the project area. Monitoring report for the full reporting period.",
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
@@ -134,6 +135,7 @@ describe("QuickCheckPanel claim-first flow", () => {
               { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
               { code: "AR-AM0014", latestVersion: "v03-0", versions: ["v03-0"] },
               { code: "AR-AMS0007", latestVersion: "v01-0", versions: ["v01-0"] },
+              { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
             ],
           }),
           { status: 200 },
@@ -231,11 +233,99 @@ describe("QuickCheckPanel claim-first flow", () => {
           { status: 200 },
         );
       }
+      if (url.includes("/api/methods/VM0007/v/v1-0/rules")) {
+        return new Response(
+          JSON.stringify({
+            rules: [
+              {
+                id: "R-7-0001",
+                title: "Project boundary consistency",
+                snippet: "Boundary evidence aligns with the VM0007 project description.",
+                summary: "Boundary evidence aligns with the VM0007 project description.",
+                tags: ["boundary", "project area", "vm0007"],
+              },
+              {
+                id: "R-7-0002",
+                title: "Monitoring procedure",
+                snippet: "Monitoring evidence aligns with VM0007 section 3.3.",
+                summary: "Monitoring evidence aligns with VM0007 section 3.3.",
+                tags: ["monitoring", "vm0007"],
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
       if (url.includes("/api/query?text=")) {
         const decoded = decodeURIComponent(url.split("text=")[1] ?? "");
         const lower = decoded.toLowerCase();
         const quickCheckSession = window.localStorage.getItem("a6:quick-check:claim-first:v1") ?? "";
         const kenyaSecondCheck = quickCheckSession.includes("kenya-second-check-evidence.pdf");
+        const plumVm0007 = quickCheckSession.includes("plum-verra-demo-excerpt.pdf");
+        if (plumVm0007 && lower.includes("monitoring report")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-7-0002",
+                  section_title: "Monitoring procedure",
+                  methodology_id: "VM0007",
+                  methodology_version: "v1-0",
+                  score: 0.78,
+                },
+                {
+                  id: "R-1-0001",
+                  section_title: "Monitoring frequency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.91,
+                },
+                {
+                  id: "R-1-0008",
+                  section_title: "Monitoring report consolidation",
+                  methodology_id: "AR-AM0014",
+                  methodology_version: "v03-0",
+                  score: 0.88,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (plumVm0007 && (lower.includes("mapped area boundary") || lower.includes("project coordinates boundary") || lower.includes("project location boundary") || lower.includes("boundary description matches the mapped project area"))) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-7-0001",
+                  section_title: "Project boundary consistency",
+                  methodology_id: "VM0007",
+                  methodology_version: "v1-0",
+                  score: 0.72,
+                },
+                {
+                  id: "R-1-0002",
+                  section_title: "Boundary consistency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.92,
+                },
+                {
+                  id: "R-2-0001",
+                  section_title: "Boundary delineation",
+                  methodology_id: "AR-AMS0007",
+                  methodology_version: "v01-0",
+                  score: 0.89,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
         if (kenyaSecondCheck && quickCheckSession.includes("kenya no valid analysis path")) {
           return new Response(
             JSON.stringify({
@@ -660,6 +750,12 @@ describe("QuickCheckPanel claim-first flow", () => {
     const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
     expect(button).toBeTruthy();
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }
+
+  function clickButtonIfPresent(label: string) {
+    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
+    if (!button) return;
+    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
   function setClaimValue(value: string) {
@@ -1863,5 +1959,112 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain("Likely requirement matches");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("shows methodology not detected as a distinct extraction diagnostic", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "monitoring-report.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("The PDF states a monitoring or reporting period");
+    await act(async () => {
+      clickButtonIfPresent("Show extraction details");
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Extraction diagnostic");
+    expect(text).toContain("Methodology not detected");
+    expect(text).toContain("did not detect a methodology reference");
+  });
+
+  it("shows the exact VM0007 mismatch warning when evidence conflicts with the selected method", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "ACM0010",
+      methodologyVersion: "v01-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("Project Description / PD");
+    await act(async () => {
+      clickButtonIfPresent("Show extraction details");
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Selected methodology mismatch");
+    expect(text).toContain("Evidence references VM0007, but current selected method is ACM0010.");
+  });
+
+  it("narrows a PLUM boundary claim to VM0007 candidates only", async () => {
+    seedSession({
+      claimText: "The boundary description matches the mapped project area.",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("VM0007 · v1-0");
+    expect(text).toContain("Narrowing matches to VM0007 · v1-0.");
+    expect(text).not.toContain("AR-ACM0003 · v02-0");
+    expect(text).not.toContain("AR-AMS0007 · v01-0");
+    // Must not leak non-Verra or unrelated method candidates
+    expect(text).not.toContain("ACM0010");
+    expect(text).not.toContain("AM0073");
+    expect(text).not.toContain("AMS-III.A");
+    expect(text).not.toContain("AMS-III.AU");
+    expect(text).not.toContain("No valid analysis path in VM0007");
+  });
+
+  it("narrows a PLUM monitoring claim to VM0007 candidates only", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("VM0007 · v1-0");
+    expect(text).toContain("Narrowing matches to VM0007 · v1-0.");
+    expect(text).not.toContain("AR-ACM0003 · v02-0");
+    expect(text).not.toContain("AR-AM0014 · v03-0");
+    // Must not leak non-Verra or unrelated method candidates
+    expect(text).not.toContain("ACM0010");
+    expect(text).not.toContain("AM0073");
+    expect(text).not.toContain("AMS-III.A");
+    expect(text).not.toContain("AMS-III.AU");
+    expect(text).not.toContain("No valid analysis path in VM0007");
   });
 });

@@ -56,6 +56,12 @@ export type QuickCheckResolvedPdfText = {
   text: string;
   engine: "pdf-parse" | "heuristic";
   warning?: string;
+  diagnosticCode?:
+    | "file-too-large"
+    | "parser-failed"
+    | "no-selectable-text"
+    | "selected-methodology-mismatch"
+    | "methodology-not-detected";
 };
 type ResolvePdfText = (input: {
   attachmentId: string;
@@ -595,7 +601,7 @@ export function extractMethodologyMentions(text: string): string[] {
   }
 
   // Verra / VCS standalone mentions
-  for (const match of text.matchAll(/\b(Verra|VCS)\b/g)) {
+  for (const match of text.matchAll(/\b(Verra|VCS|CCB)\b/g)) {
     mentions.add(match[1]);
   }
 
@@ -615,6 +621,20 @@ export function extractMethodologyMentions(text: string): string[] {
   }
   for (const match of text.matchAll(/\b(VM)\s+(\d{4})\b/g)) {
     mentions.add(`${match[1]}${match[2]}`);
+  }
+
+  // Requested Verra detection terms and related abbreviations.
+  for (const match of text.matchAll(/\b(REDD\+\s+Methodology\s+Framework|REDD\+\s+MF)\b/gi)) {
+    mentions.add(normalizeWhitespace(match[1] ?? ""));
+  }
+  for (const match of text.matchAll(/\b(VMD\d{4})\b/g)) {
+    mentions.add(match[1]);
+  }
+  for (const match of text.matchAll(/\b(VMD)\s+(\d{4})\b/g)) {
+    mentions.add(`${match[1]}${match[2]}`);
+  }
+  for (const match of text.matchAll(/\b(APD|ARR|RWE|APWD)\b/g)) {
+    mentions.add(match[1]);
   }
 
   // VMR-prefixed methodology codes: VMR001, VMR 001

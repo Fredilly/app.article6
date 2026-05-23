@@ -5,7 +5,18 @@ import { extractPdfPagesWithPdfParse, PdfExtractionError, type PdfExtractionDiag
 import { withMetrics } from "@/lib/metrics";
 import { extractManualFindingDraftsFromPages } from "@/lib/projects/manualFindingExtraction";
 
+const MAX_UPLOADABLE_PDF_BYTES = 20 * 1024 * 1024;
+
 function summarizeDiagnostics(diagnostics: PdfExtractionDiagnostics): string {
+  if (diagnostics.failureKind === "file-too-large") {
+    return "file too large";
+  }
+  if (diagnostics.failureKind === "parser-failed") {
+    return "parser failed";
+  }
+  if (diagnostics.failureKind === "no-selectable-text") {
+    return "no selectable text";
+  }
   if (diagnostics.extractedTextLength > 0 && diagnostics.textFallbackAttempted) {
     return "partial text recovered";
   }
@@ -19,6 +30,9 @@ function summarizeDiagnostics(diagnostics: PdfExtractionDiagnostics): string {
 }
 
 function diagnosticReason(diagnostics: PdfExtractionDiagnostics): string | undefined {
+  if (diagnostics.failureKind === "file-too-large") {
+    return `File exceeds the 20MB upload limit (${(MAX_UPLOADABLE_PDF_BYTES / (1024 * 1024)).toFixed(0)}MB max).`;
+  }
   if (diagnostics.textFallbackError) return diagnostics.textFallbackError;
   if (diagnostics.pageExtractionError) return diagnostics.pageExtractionError;
   if (diagnostics.likelyScannedOrImageOnly) return "No extractable text found in PDF.";
@@ -36,6 +50,7 @@ function buildFailureDiagnostics(error: unknown): PdfExtractionDiagnostics {
   }
 
   return {
+    failureKind: "parser-failed",
     parserPath: "unknown",
     pageExtractionAttempted: true,
     pageExtractionError: error instanceof Error ? error.message : String(error),
@@ -52,6 +67,31 @@ async function handlePost(request: Request) {
   const bytes = await request.arrayBuffer().catch(() => null);
   if (!bytes || bytes.byteLength === 0) {
     return NextResponse.json({ error: "Missing PDF bytes." }, { status: 400 });
+  }
+  if (bytes.byteLength > MAX_UPLOADABLE_PDF_BYTES) {
+    const diagnostics: PdfExtractionDiagnostics = {
+      failureKind: "file-too-large",
+      parserPath: "unknown",
+      pageExtractionAttempted: false,
+      textFallbackAttempted: false,
+      extractedTextLength: 0,
+      pageCount: 0,
+      likelyScannedOrImageOnly: false,
+      partialTextRecovered: false,
+    };
+    return NextResponse.json(
+      {
+        text: "",
+        pages: [],
+        drafts: [],
+        message: "Could not extract findings from this PDF. You can still add findings manually.",
+        diagnosticSummary: summarizeDiagnostics(diagnostics),
+        diagnosticReason: diagnosticReason(diagnostics),
+        diagnostics,
+        extractionFailed: true,
+      },
+      { status: 200 },
+    );
   }
 
   try {

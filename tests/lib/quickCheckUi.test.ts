@@ -70,6 +70,30 @@ describe("quick check ui helpers", () => {
     ]);
   });
 
+  it("prioritizes specific methodology codes in the extraction preview", () => {
+    const snapshot = buildQuickCheckExtractionSnapshot({
+      claimText: "The boundary description matches the mapped project area",
+      analysis: {
+        facts: [
+          {
+            id: "boundary",
+            category: "boundary",
+            summary: "The project boundary is described in the PDD",
+            matchText: "project boundary described",
+            sourceLabel: "plum-verra-demo-excerpt.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["plum-verra-demo-excerpt.pdf"],
+        documentTypes: ["PDD / PDF"],
+        methodologyMentions: ["APD", "ARR", "CCB", "VCS", "VMD0001", "VMD0006", "VMD0009", "VM0007", "REDD+ Methodology Framework"],
+        extractionConfidence: 0.81,
+        warnings: [],
+      },
+    });
+
+    expect(snapshot.methodologyMentions).toEqual(["VM0007", "REDD+ Methodology Framework", "VMD0001", "VMD0006"]);
+  });
+
   it("normalizes a preliminary match result", () => {
     const view = normalizeQuickCheckUiResult({
       claim: "The monitoring report covers the full reporting period.",

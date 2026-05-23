@@ -58,6 +58,24 @@ function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
+function methodologyMentionPriority(value: string): number {
+  const normalized = value.trim().toUpperCase();
+  if (/^VM\d{4}$/.test(normalized)) return 0;
+  if (normalized === "REDD+ MF" || normalized === "REDD+ METHODOLOGY FRAMEWORK") return 1;
+  if (/^VMD\d{4}$/.test(normalized)) return 2;
+  if (/^(VERIFIED CARBON STANDARD|VERRA|VCS|CCB)$/.test(normalized)) return 3;
+  if (/^(APD|ARR|RWE|APWD)$/.test(normalized)) return 4;
+  return 5;
+}
+
+function prioritizeMethodologyMentions(values: string[]): string[] {
+  return dedupe(values).sort(
+    (left, right) =>
+      methodologyMentionPriority(left) - methodologyMentionPriority(right) ||
+      left.localeCompare(right),
+  );
+}
+
 function formatFactPreview(fact: QuickCheckEvidenceFact, options?: { useDetail?: boolean }): string {
   const detail = fact.detail?.trim();
   if (!options?.useDetail || !detail) return fact.summary;
@@ -159,7 +177,7 @@ export function buildQuickCheckExtractionSnapshot(input: {
   return {
     documentType: input.analysis.documentTypes[0] ?? "Unknown document",
     extractedFacts,
-    methodologyMentions: dedupe(input.analysis.methodologyMentions).slice(0, 4),
+    methodologyMentions: prioritizeMethodologyMentions(input.analysis.methodologyMentions).slice(0, 4),
     warnings,
     signals: {
       parsedEvidenceCount: input.analysis.parsedEvidenceLabels.length,
