@@ -13,7 +13,7 @@ import RuleReadinessFacts from "@/components/verify/RuleReadinessFacts";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import VerifyReadinessStrip, { type VerifyReadinessChip } from "@/components/verify/VerifyReadinessStrip";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
-import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
+import { ensurePrimaryProjectAreaSelected, parseAoiGeoJson, setAoiPrimaryFeature, updateAoiFeatureRole } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import Tooltip from "@/components/ui/Tooltip";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
@@ -813,7 +813,7 @@ export default function ProofMapTab({
           setError(result.error);
           return;
         }
-        if (onAuditEvent) {
+        if (onAuditEvent && result.aoi.geojson) {
           try {
             const hash = await aoiFingerprint(result.aoi.geojson);
             onAuditEvent({
@@ -827,6 +827,9 @@ export default function ProofMapTab({
         setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
         onSelectStacItemId(null);
         onUploadAoi(result.aoi);
+        if (!ensurePrimaryProjectAreaSelected(result.aoi)) {
+          setError("Select one primary project area feature to continue.");
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
@@ -1105,7 +1108,10 @@ export default function ProofMapTab({
   );
 
   const handleSearchStac = useCallback(async () => {
-    if (!aoi) return;
+    if (!aoi?.geojson) {
+      setError("Select one primary project area feature to continue.");
+      return;
+    }
     setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     setError(null);
     if (isRunning) return;
@@ -1378,7 +1384,7 @@ export default function ProofMapTab({
 
   useEffect(() => {
     let cancelled = false;
-    if (!aoi) {
+    if (!aoi?.geojson) {
       setCurrentAoiFingerprint(null);
       return () => {
         cancelled = true;
@@ -1429,6 +1435,12 @@ export default function ProofMapTab({
         cancelled = true;
       };
     }
+    if (!currentAoi.geojson) {
+      setCurrentAoiHashForCompare(null);
+      return () => {
+        cancelled = true;
+      };
+    }
     (async () => {
       try {
         const fp = await aoiFingerprint(currentAoi.geojson);
@@ -1446,6 +1458,13 @@ export default function ProofMapTab({
   useEffect(() => {
     let cancelled = false;
     if (!draftAoi) {
+      setDraftAoiFingerprint(null);
+      setShowSameAoiPrompt(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+    if (!draftAoi.geojson) {
       setDraftAoiFingerprint(null);
       setShowSameAoiPrompt(false);
       return () => {
@@ -2630,6 +2649,14 @@ export default function ProofMapTab({
   const searchDisabled = shouldDisableRunVerification({ isRunning, aoi, currentAoiFingerprint, methodCode, version, evidencePins });
   const hasRule = Boolean(selectedRuleId);
   const hasAoi = Boolean(aoi?.geojson);
+  const aoiFeatureRows = (aoi?.features ?? []).map((feature) => ({
+    id: feature.id,
+    name: feature.name,
+    geometryType: feature.geometry_type,
+    areaKm2: feature.area_km2,
+    role: feature.role,
+    useForSatelliteSearch: feature.use_for_satellite_search,
+  }));
   const hasSearchResults = (stacFeatureIds?.length ?? 0) > 0;
   const hasSelectedItem = Boolean(selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId]);
   const currentPinItemId = hasSelectedItem ? selectedStacItemId : null;
@@ -4859,9 +4886,23 @@ export default function ProofMapTab({
                         showSameAoiPrompt,
                         areaKm2: aoi.area_km2 ?? null,
                         bboxLabel,
+                        requiresPrimarySelection: !Boolean(aoi.geojson),
                       }
                     : null
                 }
+                aoiFeatures={aoiFeatureRows}
+                onAoiFeatureRoleChange={(featureId, role) => {
+                  if (!aoi) return;
+                  const next = updateAoiFeatureRole(aoi, featureId, role);
+                  onSetAoi(next);
+                  if (next.geojson) setError(null);
+                }}
+                onAoiFeaturePrimaryToggle={(featureId, enabled) => {
+                  if (!aoi) return;
+                  const next = setAoiPrimaryFeature(aoi, featureId, enabled);
+                  onSetAoi(next);
+                  setError(next.geojson ? null : "Select one primary project area feature to continue.");
+                }}
                 searchDisabled={searchDisabled}
                 isRunning={isRunning}
                 hasSearchResults={hasSearchResults}

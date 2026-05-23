@@ -384,7 +384,15 @@ function normalizeAoi(aoi: AOI | null): AOI | null {
   return {
     ...aoi,
     bbox: [...aoi.bbox] as AOI['bbox'],
-    geojson: structuredClone(aoi.geojson),
+    geojson: aoi.geojson ? structuredClone(aoi.geojson) : null,
+    feature_collection: aoi.feature_collection ? structuredClone(aoi.feature_collection) : undefined,
+    features: aoi.features
+      ? aoi.features.map((feature) => ({
+          ...feature,
+          bbox: feature.bbox ? [...feature.bbox] as [number, number, number, number] : null,
+          geojson: structuredClone(feature.geojson),
+        }))
+      : undefined,
   };
 }
 

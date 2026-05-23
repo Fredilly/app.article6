@@ -236,6 +236,88 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).not.toContain("R-1-0001 - UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
   });
 
+  it("renders the AOI feature picker and primary-selection guidance for multi-feature uploads", () => {
+    const html = renderToStaticMarkup(
+      <EvidenceWorkflowStepper
+        ruleOptions={[{ id: "R-1", title: "Rule" }]}
+        selectedRuleId="R-1"
+        hasAoi={false}
+        aoiLabel="PLUM boundaries"
+        aoiSummary={{
+          isPreview: false,
+          willClearWork: false,
+          isSameAoi: false,
+          showSameAoiPrompt: false,
+          areaKm2: 0,
+          bboxLabel: "0.00, 0.00 → 1.00, 1.00",
+          requiresPrimarySelection: true,
+        }}
+        aoiFeatures={[
+          {
+            id: "project-area",
+            name: "Project area",
+            geometryType: "Polygon",
+            areaKm2: 12.34,
+            role: "other",
+            useForSatelliteSearch: false,
+          },
+          {
+            id: "project-zone",
+            name: "Project zone",
+            geometryType: "Polygon",
+            areaKm2: 21.43,
+            role: "project_zone",
+            useForSatelliteSearch: false,
+          },
+        ]}
+        onAoiFeatureRoleChange={() => {}}
+        onAoiFeaturePrimaryToggle={() => {}}
+        searchDisabled
+        isRunning={false}
+        hasSearchResults={false}
+        stacResultCount={0}
+        selectedStacItemId={null}
+        onClearSelectedItem={() => {}}
+        canCreatePin={false}
+        createPinDisabledReason=""
+        pinsCount={0}
+        onUploadAoi={() => {}}
+        onSearchStac={() => {}}
+        onCreatePin={() => {}}
+        draftMinutes=""
+        draftOutcomeNote=""
+        savedMinutes=""
+        savedOutcomeNote=""
+        onReviewerMinutesChange={() => {}}
+        onReviewerOutcomeNoteChange={() => {}}
+        onSaveReviewerArtifact={() => {}}
+        onFinalizeRun={() => {}}
+        currentRunLabel="run-1234"
+        isEditedDraft={false}
+        hasUnsavedWorkspaceEdits={false}
+        currentWorkspaceIsFinal={false}
+        wizard={getVerifyWizardStepDetails({
+          selectedRuleId: "R-1",
+          aoiHash: null,
+          stacItemIds: [],
+          selectedStacItemId: null,
+          linkedRuleIds: [],
+          reviewerArtifactSavedAt: null,
+        })}
+        onStartAnotherRun={() => {}}
+        onViewRunHistory={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Select one primary project area feature to continue.");
+    expect(html).toContain("Feature name");
+    expect(html).toContain("Use for satellite search");
+    expect(html).toContain("Project area");
+    expect(html).toContain("Project zone");
+    expect(html).toContain("primary_project_area");
+    expect(html).toContain("project_zone");
+  });
+
   it("reopens the completed workflow on demand after finalization", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);

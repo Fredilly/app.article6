@@ -58,6 +58,7 @@ export const EvidenceSnapshotSchema = z
         id: z.string().min(1).optional(),
         bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
         geojson: z.unknown().optional(),
+        feature_collection: z.unknown().optional(),
       })
       .optional(),
     evidence_source: z.object({

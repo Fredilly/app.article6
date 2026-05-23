@@ -377,7 +377,7 @@ function collectPackagedEvidenceSourceFiles(input: FinalizedAuditPackReviewInput
       evidence_type: "uploaded_source",
     });
   }
-  const artifactAoi = input?.artifact?.aoi?.geojson;
+  const artifactAoi = input?.artifact?.aoi?.feature_collection ?? input?.artifact?.aoi?.geojson;
   if (artifactAoi) {
     const aoiId = input?.artifact?.aoi?.id?.trim() || "aoi";
     const aoiLabel = input?.artifact?.summary?.aoiLabel?.trim() || "active-area";

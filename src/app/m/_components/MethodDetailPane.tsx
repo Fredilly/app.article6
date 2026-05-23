@@ -741,6 +741,7 @@ export default function MethodDetailPane({
       }
       setApplyToken((value) => value + 1);
       void (async () => {
+        if (!nextAoi.geojson) return;
         try {
           const hash = await aoiFingerprint(nextAoi.geojson);
           appendAuditEvent({

@@ -1,4 +1,5 @@
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
+import { activeAoiSearchFeature } from "@/lib/proofMap/aoi";
 import { canonicalJson, sha256Hex } from "@/lib/proof/fingerprints";
 import { dedupeStrings } from "@/lib/proofMap/pins";
 
@@ -27,6 +28,7 @@ export function buildVerificationRunInputFromPins(pins: EvidencePin[]): Verifica
 }
 
 export async function aoiFingerprint(geojson: AOI["geojson"]): Promise<string> {
+  if (!geojson) throw new Error("Select one primary project area feature to continue.");
   return await sha256Hex(canonicalJson(geojson));
 }
 
@@ -86,7 +88,7 @@ export function shouldDisableRunVerification(input: {
   evidencePins: EvidencePin[];
 }): boolean {
   if (input.isRunning) return true;
-  if (!input.aoi) return true;
+  if (!input.aoi?.geojson) return true;
   if (!input.currentAoiFingerprint) return true;
   if (!input.methodCode.trim() || !input.version.trim()) return true;
   return false;
@@ -142,7 +144,16 @@ export async function runStacEvidenceSearch(input: {
   cited_ids: string[];
   attachment_sha256: string[];
 }): Promise<{ provider: VerificationRun["provider"]; runStatus: VerificationRun["status"]; summary: string; result_json: unknown }> {
-  const stac = await fetchJson("/api/stac/search", { aoi_geojson: input.aoi.geojson });
+  const searchFeature = activeAoiSearchFeature(input.aoi);
+  if (!searchFeature) {
+    return {
+      provider: "stac",
+      runStatus: "error",
+      summary: "Select one primary project area feature to continue.",
+      result_json: { ok: false, message: "Select one primary project area feature to continue." },
+    };
+  }
+  const stac = await fetchJson("/api/stac/search", { aoi_geojson: searchFeature });
   if (!stac.ok) {
     return {
       provider: "stac",

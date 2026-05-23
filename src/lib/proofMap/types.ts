@@ -1,13 +1,40 @@
+export type AoiFeatureRole =
+  | "primary_project_area"
+  | "project_zone"
+  | "leakage_belt"
+  | "reference_region"
+  | "excluded_area"
+  | "stratum"
+  | "monitoring_plot"
+  | "canal_block"
+  | "dipwell"
+  | "subsidence_pole"
+  | "other";
+
+export type AoiFeature = {
+  id: string;
+  name: string;
+  role: AoiFeatureRole;
+  geometry_type: GeoJSON.Geometry["type"];
+  area_km2: number | null;
+  bbox: [number, number, number, number] | null;
+  use_for_satellite_search: boolean;
+  geojson: GeoJSON.Feature<GeoJSON.Geometry>;
+};
+
 export type AOI = {
   id: string;
   name: string;
-  geojson: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
+  geojson: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null;
   bbox: [number, number, number, number];
   area_km2: number;
   aoi_source_type?: "FeatureCollection" | "Feature" | "Geometry";
   aoi_source_feature_count?: number;
-  aoi_policy?: "reject_multi";
+  aoi_policy?: "reject_multi" | "select_primary";
   aoi_fingerprint?: string;
+  primary_feature_id?: string | null;
+  feature_collection?: GeoJSON.FeatureCollection<GeoJSON.Geometry>;
+  features?: AoiFeature[];
   created_at: string;
 };
 

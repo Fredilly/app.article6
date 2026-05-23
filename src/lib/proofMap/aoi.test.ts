@@ -1,15 +1,21 @@
 import { parseAoiGeoJson } from "@/lib/proofMap/aoi";
 
-test("rejects FeatureCollection with multiple features", () => {
+test("accepts FeatureCollection with multiple features and requires primary selection when multiple polygons exist", () => {
   const input = {
     type: "FeatureCollection",
     features: [
-      { type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0],[1, 0],[1, 1],[0, 0]]] }, properties: {} },
-      { type: "Feature", geometry: { type: "Polygon", coordinates: [[[2, 2],[3, 2],[3, 3],[2, 2]]] }, properties: {} },
+      { type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0],[1, 0],[1, 1],[0, 0]]] }, properties: { name: "Project area" } },
+      { type: "Feature", geometry: { type: "Polygon", coordinates: [[[2, 2],[3, 2],[3, 3],[2, 2]]] }, properties: { name: "Project zone" } },
     ],
   };
   const result = parseAoiGeoJson(input, "multi");
-  expect(result.ok).toBe(false);
+  expect(result.ok).toBe(true);
+  if (!result.ok) return;
+  expect(result.aoi.geojson).toBeNull();
+  expect(result.aoi.primary_feature_id).toBeNull();
+  expect(result.aoi.aoi_source_feature_count).toBe(2);
+  expect(result.aoi.features).toHaveLength(2);
+  expect(result.aoi.feature_collection?.features).toHaveLength(2);
 });
 
 test("accepts FeatureCollection with one feature", () => {
@@ -24,6 +30,8 @@ test("accepts FeatureCollection with one feature", () => {
   if (result.ok) {
     expect(result.aoi.aoi_source_type).toBe("FeatureCollection");
     expect(result.aoi.aoi_source_feature_count).toBe(1);
+    expect(result.aoi.primary_feature_id).toBeTruthy();
+    expect(result.aoi.features?.[0]?.role).toBe("primary_project_area");
   }
 });
 
@@ -39,4 +47,28 @@ test("accepts Feature Polygon", () => {
     expect(result.aoi.aoi_source_type).toBe("Feature");
     expect(result.aoi.aoi_source_feature_count).toBe(1);
   }
+});
+
+test("auto-selects the only polygon as primary even when non-polygon features are present", () => {
+  const input = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        geometry: { type: "Polygon", coordinates: [[[0, 0],[1, 0],[1, 1],[0, 0]]] },
+        properties: { name: "Project area" },
+      },
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [0.25, 0.25] },
+        properties: { name: "Dipwell A" },
+      },
+    ],
+  };
+  const result = parseAoiGeoJson(input, "mixed");
+  expect(result.ok).toBe(true);
+  if (!result.ok) return;
+  expect(result.aoi.geojson?.geometry.type).toBe("Polygon");
+  expect(result.aoi.primary_feature_id).toBe(result.aoi.features?.[0]?.id);
+  expect(result.aoi.features?.[1]?.area_km2).toBeNull();
 });

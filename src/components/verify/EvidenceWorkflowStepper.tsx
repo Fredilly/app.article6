@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Tooltip from "@/components/ui/Tooltip";
+import type { AoiFeatureRole } from "@/lib/proofMap/types";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
 type RuleOption = { id: string; title: string };
@@ -37,7 +38,18 @@ type EvidenceWorkflowStepperProps = {
     showSameAoiPrompt: boolean;
     areaKm2: number | null;
     bboxLabel: string | null;
+    requiresPrimarySelection?: boolean;
   } | null;
+  aoiFeatures?: Array<{
+    id: string;
+    name: string;
+    geometryType: string;
+    areaKm2: number | null;
+    role: AoiFeatureRole;
+    useForSatelliteSearch: boolean;
+  }>;
+  onAoiFeatureRoleChange?: (featureId: string, role: AoiFeatureRole) => void;
+  onAoiFeaturePrimaryToggle?: (featureId: string, enabled: boolean) => void;
   searchDisabled: boolean;
   isRunning: boolean;
   hasSearchResults: boolean;
@@ -108,6 +120,20 @@ function formatDate(value: string | null | undefined): string | null {
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
 }
+
+const AOI_ROLE_OPTIONS: Array<{ value: AoiFeatureRole; label: string }> = [
+  { value: "primary_project_area", label: "primary_project_area" },
+  { value: "project_zone", label: "project_zone" },
+  { value: "leakage_belt", label: "leakage_belt" },
+  { value: "reference_region", label: "reference_region" },
+  { value: "excluded_area", label: "excluded_area" },
+  { value: "stratum", label: "stratum" },
+  { value: "monitoring_plot", label: "monitoring_plot" },
+  { value: "canal_block", label: "canal_block" },
+  { value: "dipwell", label: "dipwell" },
+  { value: "subsidence_pole", label: "subsidence_pole" },
+  { value: "other", label: "other" },
+];
 
 function CompletedWorkflowSummary(props: {
   methodCode?: string;
@@ -340,6 +366,9 @@ export default function EvidenceWorkflowStepper({
   hasAoi,
   aoiLabel,
   aoiSummary = null,
+  aoiFeatures = [],
+  onAoiFeatureRoleChange,
+  onAoiFeaturePrimaryToggle,
   searchDisabled,
   isRunning,
   hasSearchResults,
@@ -569,8 +598,59 @@ export default function EvidenceWorkflowStepper({
                     <div>Area: {aoiLabel ?? "none"}</div>
                     <div>area: {typeof aoiSummary.areaKm2 === "number" ? aoiSummary.areaKm2.toFixed(2) : "—"} km²</div>
                     <div className="break-words">bbox: {aoiSummary.bboxLabel ?? "—"}</div>
+                    {aoiSummary.requiresPrimarySelection ? (
+                      <div className="font-semibold text-amber-700">Select one primary project area feature to continue.</div>
+                    ) : null}
                   </div>
                 )}
+              </div>
+            ) : null}
+            {aoiFeatures.length > 1 ? (
+              <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+                <table className="min-w-full divide-y divide-slate-200 text-left text-[11px] text-slate-700">
+                  <thead className="bg-slate-50 text-[10px] uppercase tracking-[0.16em] text-slate-500">
+                    <tr>
+                      <th className="px-3 py-2 font-semibold">Feature name</th>
+                      <th className="px-3 py-2 font-semibold">Geometry</th>
+                      <th className="px-3 py-2 font-semibold">Area</th>
+                      <th className="px-3 py-2 font-semibold">Role</th>
+                      <th className="px-3 py-2 font-semibold">Use for satellite search</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {aoiFeatures.map((feature) => (
+                      <tr key={feature.id}>
+                        <td className="px-3 py-2 font-medium text-slate-900">{feature.name}</td>
+                        <td className="px-3 py-2">{feature.geometryType}</td>
+                        <td className="px-3 py-2">
+                          {typeof feature.areaKm2 === "number" ? `${feature.areaKm2.toFixed(2)} km²` : "—"}
+                        </td>
+                        <td className="px-3 py-2">
+                          <select
+                            className="min-w-[180px] rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-700"
+                            value={feature.role}
+                            onChange={(event) => onAoiFeatureRoleChange?.(feature.id, event.target.value as AoiFeatureRole)}
+                          >
+                            {AOI_ROLE_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-3 py-2">
+                          <label className="inline-flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={feature.useForSatelliteSearch}
+                              disabled={feature.areaKm2 == null}
+                              onChange={(event) => onAoiFeaturePrimaryToggle?.(feature.id, event.target.checked)}
+                            />
+                            <span>{feature.areaKm2 == null ? "Polygon required" : feature.useForSatelliteSearch ? "Selected" : "Set primary"}</span>
+                          </label>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : null}
           </div>
