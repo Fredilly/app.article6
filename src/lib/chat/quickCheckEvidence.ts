@@ -637,6 +637,15 @@ export function extractMethodologyMentions(text: string): string[] {
     mentions.add(match[1]);
   }
 
+  // UNFCCC methodology codes: ACM0010, AM0014, AMS-III.AU, AMS0007
+  for (const match of text.matchAll(/\b((?:ACM|AM)\d{4})\b/g)) {
+    mentions.add(match[1]);
+  }
+  for (const match of text.matchAll(/\bAMS[- ]?([A-Z0-9.]+)\b/gi)) {
+    const suffix = String(match[1] ?? "").toUpperCase().replace(/\s+/g, "");
+    if (suffix) mentions.add(`AMS-${suffix}`);
+  }
+
   // VMR-prefixed methodology codes: VMR001, VMR 001
   for (const match of text.matchAll(/\b(VMR\d{3,4})\b/g)) {
     mentions.add(match[1]);
