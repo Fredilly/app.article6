@@ -511,6 +511,11 @@ describe("extractMethodologyMentions — standard detection hardening", () => {
     expect(mentions).toContain("AR-ACM0003");
   });
 
+  it("detects direct UNFCCC methodology codes", () => {
+    const mentions = extractMethodologyMentions("ACM0010 methodology reference");
+    expect(mentions).toContain("ACM0010");
+  });
+
   it("detects multiple standards in one text", () => {
     const mentions = extractMethodologyMentions("VM0007 (Verra) and GS-VER1 (Gold Standard)");
     expect(mentions).toContain("VM0007");

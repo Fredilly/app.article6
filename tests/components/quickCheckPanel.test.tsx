@@ -21,6 +21,9 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "baseline.pdf": "Monitoring report for the full reporting period.",
   "plum-verra-demo-excerpt.pdf": "Project Description / PD. PLUM Project. Verra VCS / CCB. APD. ARR. VMD0001. VMD0006. VMD0009. VM0007. REDD+ Methodology Framework. Section 3.1 Application of Methodology. Section 3.3 Monitoring. Project boundary description for the PLUM Project. The mapped project area polygon and AOI are referenced in the boundary map. Project location described for the project area. Monitoring report for the full reporting period.",
+  "ambiguous-methods.pdf": "Methodology references include VM0007, GS-VER1, and the monitoring report for the full reporting period.",
+  "unknown-acm0010.pdf": "Evidence references ACM0010 and the monitoring report for the full reporting period.",
+  "no-method-detected.pdf": "Monitoring report for the full reporting period without any explicit methodology code.",
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
@@ -135,6 +138,7 @@ describe("QuickCheckPanel claim-first flow", () => {
               { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
               { code: "AR-AM0014", latestVersion: "v03-0", versions: ["v03-0"] },
               { code: "AR-AMS0007", latestVersion: "v01-0", versions: ["v01-0"] },
+              { code: "GS-VER1", latestVersion: "v2-0", versions: ["v2-0"] },
               { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
             ],
           }),
@@ -256,12 +260,30 @@ describe("QuickCheckPanel claim-first flow", () => {
           { status: 200 },
         );
       }
+      if (url.includes("/api/methods/GS-VER1/v/v2-0/rules")) {
+        return new Response(
+          JSON.stringify({
+            rules: [
+              {
+                id: "R-GS-0001",
+                title: "Gold Standard monitoring evidence",
+                snippet: "Monitoring evidence aligns with GS-VER1.",
+                summary: "Monitoring evidence aligns with GS-VER1.",
+                tags: ["monitoring", "gs-ver1"],
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
       if (url.includes("/api/query?text=")) {
         const decoded = decodeURIComponent(url.split("text=")[1] ?? "");
         const lower = decoded.toLowerCase();
         const quickCheckSession = window.localStorage.getItem("a6:quick-check:claim-first:v1") ?? "";
         const kenyaSecondCheck = quickCheckSession.includes("kenya-second-check-evidence.pdf");
         const plumVm0007 = quickCheckSession.includes("plum-verra-demo-excerpt.pdf");
+        const ambiguousMethods = quickCheckSession.includes("ambiguous-methods.pdf");
+        const unknownAcm0010 = quickCheckSession.includes("unknown-acm0010.pdf");
         if (plumVm0007 && lower.includes("monitoring report")) {
           return new Response(
             JSON.stringify({
@@ -288,6 +310,56 @@ describe("QuickCheckPanel claim-first flow", () => {
                   methodology_id: "AR-AM0014",
                   methodology_version: "v03-0",
                   score: 0.88,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (ambiguousMethods && lower.includes("monitoring report")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-7-0002",
+                  section_title: "Monitoring procedure",
+                  methodology_id: "VM0007",
+                  methodology_version: "v1-0",
+                  score: 0.81,
+                },
+                {
+                  id: "R-GS-0001",
+                  section_title: "Gold Standard monitoring evidence",
+                  methodology_id: "GS-VER1",
+                  methodology_version: "v2-0",
+                  score: 0.8,
+                },
+                {
+                  id: "R-1-0001",
+                  section_title: "Monitoring frequency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.92,
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (unknownAcm0010 && lower.includes("monitoring report")) {
+          return new Response(
+            JSON.stringify({
+              engineTag: "test",
+              metrics: [],
+              results: [
+                {
+                  id: "R-1-0001",
+                  section_title: "Monitoring frequency",
+                  methodology_id: "AR-ACM0003",
+                  methodology_version: "v02-0",
+                  score: 0.95,
                 },
               ],
             }),
@@ -2003,7 +2075,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Selected methodology mismatch");
-    expect(text).toContain("Evidence references VM0007, but current selected method is ACM0010.");
+    expect(text).toContain("Evidence appears to reference VM0007, but current selected method is ACM0010.");
   });
 
   it("narrows a PLUM boundary claim to VM0007 candidates only", async () => {
@@ -2066,5 +2138,95 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("AMS-III.A");
     expect(text).not.toContain("AMS-III.AU");
     expect(text).not.toContain("No valid analysis path in VM0007");
+  });
+
+  it("opens full review in the detected VM0007 workspace from recovery", async () => {
+    seedSession({
+      claimText: "The leakage deduction is justified by the evidence.",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel onContinueToWorkspace={pushMock} />);
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+    await flushUntilText("No valid analysis path in VM0007");
+
+    await act(async () => {
+      clickButton("Open full review");
+    });
+
+    expect(pushMock).toHaveBeenLastCalledWith("/m/VM0007/v/v1-0?tab=verify&mode=list");
+  });
+
+  it("requires methodology confirmation when multiple detected methods are present", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "ambiguous-methods.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("Methodology needs confirmation. Requirement matches are limited to VM0007, GS-VER1.");
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("Methodology needs confirmation");
+    expect(text).toContain("GS-VER1 · v2-0");
+    expect(text).toContain("VM0007 · v1-0");
+    expect(text).not.toContain("Monitoring frequency");
+  });
+
+  it("does not fall back to unrelated methods when the detected method pack is unavailable", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "unknown-acm0010.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("Detected ACM0010, but no matching method pack is available.");
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("Detected ACM0010, but no matching method pack is available.");
+    expect(text).not.toContain("Likely requirement matches");
+    expect(text).not.toContain("Monitoring frequency");
+  });
+
+  it("labels broad matching when no methodology is detected", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "no-method-detected.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("No methodology detected. Requirement matches use broad matching and may be unrelated.");
   });
 });

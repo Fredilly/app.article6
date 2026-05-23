@@ -1,4 +1,5 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
+import { prioritizeMethodologyMentions } from "@/lib/chat/quickCheckMethodology";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
@@ -56,24 +57,6 @@ function isMethodologyGrounded(extraction: QuickCheckExtractionSnapshot): boolea
 
 function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
-}
-
-function methodologyMentionPriority(value: string): number {
-  const normalized = value.trim().toUpperCase();
-  if (/^VM\d{4}$/.test(normalized)) return 0;
-  if (normalized === "REDD+ MF" || normalized === "REDD+ METHODOLOGY FRAMEWORK") return 1;
-  if (/^VMD\d{4}$/.test(normalized)) return 2;
-  if (/^(VERIFIED CARBON STANDARD|VERRA|VCS|CCB)$/.test(normalized)) return 3;
-  if (/^(APD|ARR|RWE|APWD)$/.test(normalized)) return 4;
-  return 5;
-}
-
-function prioritizeMethodologyMentions(values: string[]): string[] {
-  return dedupe(values).sort(
-    (left, right) =>
-      methodologyMentionPriority(left) - methodologyMentionPriority(right) ||
-      left.localeCompare(right),
-  );
 }
 
 function formatFactPreview(fact: QuickCheckEvidenceFact, options?: { useDetail?: boolean }): string {

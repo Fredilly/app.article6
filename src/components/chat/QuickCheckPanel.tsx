@@ -23,6 +23,7 @@ import {
   type QuickCheckClaimIntent,
   type QuickCheckEvidenceAnalysis,
 } from "@/lib/chat/quickCheckEvidence";
+import { resolveQuickCheckMethodology, type QuickCheckMethodologyResolution } from "@/lib/chat/quickCheckMethodology";
 import {
   buildQuickCheckResult,
   ensureQuickCheckWorkspaceHandoff,
@@ -49,14 +50,12 @@ import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
-import {
-  resolveMethodologySignals,
-  gatingMethodCodes,
-  buildMethodProgramMap,
-  detectUnavailableMethod,
-  type MethodInventoryRecord,
-  type MethodologySignalResult,
-} from "@/lib/chat/quickCheckMethodSignals";
+
+type MethodInventoryRecord = {
+  code: string;
+  versions: string[];
+  latestVersion?: string;
+};
 
 type QuickCheckPanelProps = {
   initialMethod?: string | null;
@@ -110,17 +109,17 @@ type RecoveryState =
 
 type ExtractionDiagnostic =
   | {
-      code: "parser-failed" | "no-selectable-text" | "selected-methodology-mismatch" | "methodology-not-detected" | "method-unavailable";
+      code:
+        | "parser-failed"
+        | "no-selectable-text"
+        | "selected-methodology-mismatch"
+        | "methodology-not-detected"
+        | "methodology-needs-confirmation"
+        | "methodology-pack-unavailable";
       label: string;
       message: string;
     }
   | null;
-
-type DetectedMethodologyConstraint = {
-  methodologyId: string;
-  methodologyVersion: string;
-  sourceMention: string;
-};
 
 type QueryResultWithSignals = QueryResponse["results"][number] & {
   _signalBoost: number;
@@ -225,14 +224,18 @@ function boostForClaimPhrases(result: QueryResultWithSignals, claimText: string)
 function buildMatchCandidates(
   results: QueryResultWithSignals[],
   methods: MethodInventoryRecord[],
-  selectedMethodologyId: string,
-  selectedMethodologyVersion: string,
+  filters: {
+    allowedMethodologyIds?: Set<string>;
+    selectedMethodologyId?: string;
+    selectedMethodologyVersion?: string;
+  },
   claimText: string,
   analysis: QuickCheckEvidenceAnalysis,
   claimIntents: QuickCheckClaimIntent[],
 ): MatchCandidate[] {
-  const selectedMethod = selectedMethodologyId.trim();
-  const selectedVersion = selectedMethodologyVersion.trim();
+  const selectedMethod = filters.selectedMethodologyId?.trim() ?? "";
+  const selectedVersion = filters.selectedMethodologyVersion?.trim() ?? "";
+  const allowedMethodologyIds = filters.allowedMethodologyIds;
   const unique = new Map<string, MatchCandidate>();
 
   for (const result of results) {
@@ -241,6 +244,7 @@ function buildMatchCandidates(
       (typeof result.methodologyId === "string" && result.methodologyId.trim()) ||
       "";
     if (!methodologyId) continue;
+    if (allowedMethodologyIds?.size && !allowedMethodologyIds.has(methodologyId)) continue;
     if (selectedMethod && methodologyId !== selectedMethod) continue;
 
     const methodRecord = methods.find((item) => item.code === methodologyId);
@@ -422,9 +426,9 @@ function buildRecoveryState(input: {
 function buildUnsupportedMethodRecoveryState(methodologyId: string): RecoveryState {
   return {
     kind: "no-match",
-    title: `Unsupported methodology: ${methodologyId}`,
-    description: "We extracted usable evidence, but this methodology is not available in the supported Quick Check methods for this workspace.",
-    note: "Choose a supported methodology, clear the methodology filter, or open the full review to inspect the evidence without a preliminary match.",
+    title: "Method pack unavailable",
+    description: `Detected ${methodologyId}, but no matching method pack is available.`,
+    note: "Quick Check will not fall back to unrelated methods when the detected methodology is unsupported. Open full review or add the matching method pack.",
   };
 }
 
@@ -504,6 +508,18 @@ function buildWeakExtractionRecoveryState(): RecoveryState {
     description: "Quick Check couldn't extract enough claim-relevant facts from this file yet.",
     note: "Open full review to inspect the evidence manually or continue with a broader workflow.",
   };
+}
+
+function methodologyMentionsForDetection(input: {
+  analysis: QuickCheckEvidenceAnalysis | null;
+  extraction: QuickCheckExtractionSnapshot | null;
+}): string[] {
+  const mentions = input.analysis?.methodologyMentions ?? input.extraction?.methodologyMentions ?? [];
+  return Array.from(new Set(mentions.map((mention) => mention.trim()).filter(Boolean)));
+}
+
+function joinMethodologyLabels(values: string[]): string {
+  return values.join(", ");
 }
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
@@ -711,77 +727,53 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     () => (extractionPreview ? deriveQuickCheckExtractionState(extractionPreview) : null),
     [extractionPreview],
   );
-  // ── Methodology signal resolution ────────────────────────────────────
-  const methodCodeSet = useMemo(() => new Set(methods.map((m) => m.code)), [methods]);
-
-  const rawMethodologyMentions = useMemo(() => {
-    const mentions = extractionState.analysis?.methodologyMentions ?? extractionPreview?.methodologyMentions ?? [];
-    return Array.from(new Set(mentions.map((m) => m.trim()).filter(Boolean)));
-  }, [extractionPreview, extractionState.analysis]);
-
-  const methodSignalResult = useMemo<MethodologySignalResult>(() => {
-    if (!rawMethodologyMentions.length) {
-      return {
-        detectedMethods: [], detectedPrograms: [], activitySignals: [],
-        rawMentions: [],
-        exactlyOne: false, multiplePossible: false, noMethodDetected: true,
-        programOnly: false, activitySignalsOnly: false, canonicalCodes: [],
-      };
+  const detectedMethodologyMentions = useMemo(
+    () => methodologyMentionsForDetection({ analysis: extractionState.analysis, extraction: extractionPreview }),
+    [extractionPreview, extractionState.analysis],
+  );
+  const methodologyResolution = useMemo<QuickCheckMethodologyResolution>(
+    () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods }),
+    [detectedMethodologyMentions, methods],
+  );
+  const resolvedWorkspaceMethod = useMemo(
+    () => (methodologyResolution.status === "single" ? methodologyResolution.matchedMethods[0] ?? null : null),
+    [methodologyResolution],
+  );
+  const workspaceMethodologyId = useMemo(() => {
+    if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyId) {
+      return resolvedWorkspaceMethod.methodologyId;
     }
-    return resolveMethodologySignals(rawMethodologyMentions, methodCodeSet);
-  }, [rawMethodologyMentions, methodCodeSet]);
-
-  const unavailableMethod = useMemo(() => {
-    if (!rawMethodologyMentions.length || !methodCodeSet.size) return null;
-    return detectUnavailableMethod(rawMethodologyMentions, methodCodeSet);
-  }, [rawMethodologyMentions, methodCodeSet]);
-
+    return draft.methodologyId.trim() || resolvedWorkspaceMethod?.methodologyId || "";
+  }, [draft.methodologyId, draft.status, resolvedWorkspaceMethod]);
+  const workspaceMethodologyVersion = useMemo(() => {
+    if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyVersion) {
+      return resolvedWorkspaceMethod.methodologyVersion;
+    }
+    return draft.methodologyVersion.trim() || resolvedWorkspaceMethod?.methodologyVersion || "";
+  }, [draft.methodologyVersion, draft.status, resolvedWorkspaceMethod]);
   const methodologyMismatch = useMemo(() => {
-    if (!draft.methodologyId.trim() || methodSignalResult.noMethodDetected) return null;
+    if (!draft.methodologyId.trim()) return null;
     const selected = draft.methodologyId.trim().toUpperCase();
-    const detectedCodes = new Set(methodSignalResult.canonicalCodes.map((c) => c.toUpperCase()));
-    if (detectedCodes.size === 0) return null;
-    if (detectedCodes.has(selected)) return null;
-    // Evidence references a different method than what user selected
+    const detectedMethodIds = new Set(methodologyResolution.matchedMethods.map((method) => method.methodologyId.toUpperCase()));
+    if (detectedMethodIds.has(selected)) return null;
+    const firstDetectedMethod = methodologyResolution.matchedMethods[0]?.methodologyId ?? null;
+    const firstUnsupportedMethod = methodologyResolution.unsupportedCanonicalKeys[0] ?? null;
+    const mismatchMethod = firstDetectedMethod ?? firstUnsupportedMethod;
+    if (!mismatchMethod) return null;
     return {
-      mention: methodSignalResult.canonicalCodes.join(", "),
+      mention: mismatchMethod,
       selectedMethod: draft.methodologyId.trim(),
     };
-  }, [draft.methodologyId, methodSignalResult]);
-
-  const detectedMethodologyConstraint = useMemo<DetectedMethodologyConstraint | null>(() => {
-    if (draft.methodologyId.trim()) return null;
-    if (!methodSignalResult.exactlyOne) return null;
-    const detected = methodSignalResult.detectedMethods[0]!;
-    const methodRecord = methods.find((item) => item.code === detected.methodCode);
-    const methodologyVersion = pickVersion(methodRecord, null);
-    if (!methodologyVersion) return null;
-    return {
-      methodologyId: detected.methodCode,
-      methodologyVersion,
-      sourceMention: detected.sourceMention,
-    };
-  }, [draft.methodologyId, methodSignalResult, methods]);
-
-  const effectiveMethodologyId = draft.methodologyId.trim() || detectedMethodologyConstraint?.methodologyId || "";
-  const effectiveMethodologyVersion = draft.methodologyVersion.trim() || detectedMethodologyConstraint?.methodologyVersion || "";
-
+  }, [draft.methodologyId, methodologyResolution]);
   const extractionDiagnostic = useMemo<ExtractionDiagnostic>(() => {
     if (methodologyMismatch) {
       return {
         code: "selected-methodology-mismatch",
         label: "Selected methodology mismatch",
-        message: `Evidence references ${methodologyMismatch.mention}, but current selected method is ${methodologyMismatch.selectedMethod}.`,
+        message: `Evidence appears to reference ${methodologyMismatch.mention}, but current selected method is ${methodologyMismatch.selectedMethod}.`,
       };
     }
     if (!extractionPreview) return null;
-    if (unavailableMethod && !draft.methodologyId.trim()) {
-      return {
-        code: "method-unavailable",
-        label: "Method not available",
-        message: `Detected ${unavailableMethod}, but no matching method pack is available.`,
-      };
-    }
     if (extractionPreview.warnings.some((warning) => /no selectable text|no extractable text/i.test(warning))) {
       return {
         code: "no-selectable-text",
@@ -796,7 +788,23 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         message: "The primary PDF parser could not read this file cleanly, so Quick Check fell back to a weaker extraction path.",
       };
     }
-    if ((extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 && rawMethodologyMentions.length === 0) {
+    if (methodologyResolution.status === "unsupported" && methodologyResolution.unsupportedCanonicalKeys.length) {
+      const detected = joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys);
+      return {
+        code: "methodology-pack-unavailable",
+        label: "Method pack unavailable",
+        message: `Detected ${detected}, but no matching method pack is available.`,
+      };
+    }
+    if (methodologyResolution.status === "multiple") {
+      const detected = joinMethodologyLabels(methodologyResolution.matchedMethods.map((method) => method.methodologyId));
+      return {
+        code: "methodology-needs-confirmation",
+        label: "Methodology needs confirmation",
+        message: `Evidence references multiple methodologies. Requirement matches are limited to ${detected}.`,
+      };
+    }
+    if ((extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 && extractionPreview.methodologyMentions.length === 0) {
       return {
         code: "methodology-not-detected",
         label: "Methodology not detected",
@@ -804,7 +812,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
     }
     return null;
-  }, [extractionPreview, methodologyMismatch, unavailableMethod, draft.methodologyId, rawMethodologyMentions.length]);
+  }, [extractionPreview, methodologyMismatch, methodologyResolution]);
   const showAdvancedOptions = showAdvanced || showSavedEvidence || showMethodology;
   const extractionHighlights = extractionPreview?.extractedFacts.slice(0, 3) ?? [];
   const normalizedResult = useMemo(
@@ -938,13 +946,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   function openFullReviewFromRecovery() {
-    if (draft.methodologyId.trim() && draft.methodologyVersion.trim() && onContinueToWorkspace) {
-      onContinueToWorkspace(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+    if (workspaceMethodologyId && workspaceMethodologyVersion && onContinueToWorkspace) {
+      onContinueToWorkspace(`/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`);
       return;
     }
-    if (draft.methodologyId.trim() && draft.methodologyVersion.trim()) {
+    if (workspaceMethodologyId && workspaceMethodologyVersion) {
       if (typeof window !== "undefined") {
-        window.location.assign(`/m/${encodeURIComponent(draft.methodologyId)}/v/${encodeURIComponent(draft.methodologyVersion)}?tab=verify&mode=list`);
+        window.location.assign(`/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`);
       }
       return;
     }
@@ -1324,18 +1332,33 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     try {
       const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
       const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
+      const currentMethodologyResolution = resolveQuickCheckMethodology({
+        mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
+        methods,
+      });
       if (!evidenceAnalysis.facts.length) {
         setFieldErrors({});
         setRecoveryState(buildWeakExtractionRecoveryState());
         return;
       }
-      const selectedMethodologyId = effectiveMethodologyId;
-      if (selectedMethodologyId && !methods.some((method) => method.code === selectedMethodologyId)) {
+
+      if (!draft.methodologyId.trim() && currentMethodologyResolution.status === "unsupported") {
         setShowMethodology(true);
         setFieldErrors({});
-        setRecoveryState(buildUnsupportedMethodRecoveryState(selectedMethodologyId));
+        setRecoveryState(buildUnsupportedMethodRecoveryState(currentMethodologyResolution.unsupportedCanonicalKeys[0] ?? "unknown methodology"));
         return;
       }
+
+      const selectedMethodologyId = draft.methodologyId.trim()
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
+      const selectedMethodologyVersion = draft.methodologyVersion.trim()
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
+      const allowedMethodologyIds = draft.methodologyId.trim()
+        ? new Set([draft.methodologyId.trim()])
+        : currentMethodologyResolution.status === "single" || currentMethodologyResolution.status === "multiple"
+        ? new Set(currentMethodologyResolution.matchedMethods.map((method) => method.methodologyId))
+        : new Set<string>();
+
       const queryTexts = buildQuickCheckQueryTexts(draft.claimText.trim(), evidenceAnalysis.facts, claimIntents);
       const responses = await Promise.all(
         queryTexts.map(async (query) => ({
@@ -1344,106 +1367,26 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         })),
       );
       const mergedResults = mergeQueryResults(responses);
-
-      // ── Methodology-aware candidate gating ──────────────────────────
-      // Re-resolve signals using the fresh evidence analysis
-      const freshMentions = evidenceAnalysis.methodologyMentions
-        .map((m) => m.trim())
-        .filter(Boolean);
-      const freshMethodCodeSet = new Set(methods.map((m) => m.code));
-      const freshMethodProgramMap = buildMethodProgramMap(methods);
-      const freshMethodSignals = freshMentions.length
-        ? resolveMethodologySignals(
-            Array.from(new Set(freshMentions)),
-            freshMethodCodeSet,
-          )
-        : methodSignalResult;
-
-      const freshUnavailableMethod = freshMentions.length && methods.length
-        ? detectUnavailableMethod(
-            Array.from(new Set(freshMentions)),
-            freshMethodCodeSet,
-          )
-        : unavailableMethod;
-
-      // Determine gating: which method codes should we restrict to?
-      const gate = !draft.methodologyId.trim()
-        ? gatingMethodCodes(freshMethodSignals, freshMethodProgramMap)
-        : null;
-
-      // Method unavailable check
-      if (freshUnavailableMethod && !draft.methodologyId.trim() && !gate) {
-        setShowMethodology(true);
-        setFieldErrors({});
-        setRecoveryState({
-          kind: "no-match",
-          title: 'Detected ' + freshUnavailableMethod,
-          description: 'Evidence references ' + freshUnavailableMethod + ', but no matching method pack is available.',
-          note: "Upload a different methodology pack to enable verification for this project.",
-        });
-        return;
-      }
-
-      // Build all candidates (unfiltered) for fallback
       const allCandidates = buildMatchCandidates(
-        mergedResults, methods, "", "",
-        draft.claimText.trim(), evidenceAnalysis, claimIntents,
+        mergedResults,
+        methods,
+        {},
+        draft.claimText.trim(),
+        evidenceAnalysis,
+        claimIntents,
       );
-
-      // Build gated candidates
-      let candidates: MatchCandidate[];
-      if (draft.methodologyId.trim()) {
-        candidates = buildMatchCandidates(
-          mergedResults, methods,
-          effectiveMethodologyId, effectiveMethodologyVersion,
-          draft.claimText.trim(), evidenceAnalysis, claimIntents,
-        );
-      } else if (gate && gate.length === 1) {
-        // Exactly one method detected — hard-gate to it
-        const gatedMethod = gate[0]!;
-        const gatedRecord = methods.find((m) => m.code === gatedMethod);
-        const gatedVersion = pickVersion(gatedRecord, null);
-        candidates = buildMatchCandidates(
-          mergedResults, methods,
-          gatedMethod, gatedVersion,
-          draft.claimText.trim(), evidenceAnalysis, claimIntents,
-        );
-        if (!candidates.length) {
-          setShowMethodology(true);
-          setFieldErrors({});
-          setRecoveryState(
-            buildNoValidAnalysisPathRecoveryState({
-              methodologyId: gatedMethod,
-              evidenceSignals: evidenceAnalysis,
-            }),
-          );
-          return;
-        }
-      } else if (gate && gate.length > 1) {
-        // Multiple methods detected — restrict to detected methods only
-        candidates = [];
-        for (const gatedMethod of gate) {
-          const gatedRecord = methods.find((m) => m.code === gatedMethod);
-          const gatedVersion = pickVersion(gatedRecord, null);
-          const methodCandidates = buildMatchCandidates(
-            mergedResults, methods,
-            gatedMethod, gatedVersion,
-            draft.claimText.trim(), evidenceAnalysis, claimIntents,
-          );
-          for (const c of methodCandidates) {
-            if (!candidates.some((existing) => existing.key === c.key)) {
-              candidates.push(c);
-            }
-          }
-        }
-        candidates.sort(
-          (a, b) => (b.score ?? -1) - (a.score ?? -1) || a.requirementLabel.localeCompare(b.requirementLabel),
-        );
-        candidates = candidates.slice(0, 8);
-      } else {
-        // No gating — broad match (label will indicate this in UI)
-        candidates = allCandidates;
-      }
+      let candidates = buildMatchCandidates(
+        mergedResults,
+        methods,
+        {
+          allowedMethodologyIds,
+          selectedMethodologyId,
+          selectedMethodologyVersion,
+        },
+        draft.claimText.trim(),
+        evidenceAnalysis,
+        claimIntents,
+      );
 
       if (draft.methodologyId.trim() && !candidates.length && allCandidates.length) {
         const broaderResolvedCandidates = await resolveQuickCheckCandidates({
@@ -1485,15 +1428,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         }
       }
 
-      // ── Local fallback if no semantic candidates ────────────────────
+      if (currentMethodologyResolution.status === "single" && !draft.methodologyId.trim() && !candidates.length) {
+        setFieldErrors({});
+        setRecoveryState(
+          buildNoValidAnalysisPathRecoveryState({
+            methodologyId: currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "",
+            evidenceSignals: evidenceAnalysis,
+          }),
+        );
+        return;
+      }
+
       if (!candidates.length) {
-        const methodSubset = effectiveMethodologyId
-          ? methods.filter((method) => method.code === effectiveMethodologyId)
-          : gate && gate.length === 1
-            ? methods.filter((method) => method.code === gate[0])
-            : gate && gate.length > 1
-              ? methods.filter((method) => gate.includes(method.code))
-              : methods;
+        const methodSubset = allowedMethodologyIds.size
+          ? methods.filter((method) => allowedMethodologyIds.has(method.code))
+          : methods;
         candidates = await buildLocalFallbackCandidates(methodSubset, evidenceAnalysis);
       }
 
@@ -1532,16 +1481,29 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      if (!resolvedCandidates.length && gate && gate.length === 1 && !draft.methodologyId.trim()) {
-        // Detected a method but no candidates found — show recovery for that method
-        setShowMethodology(true);
+      if (!resolvedCandidates.length && currentMethodologyResolution.status === "single" && !draft.methodologyId.trim()) {
         setFieldErrors({});
         setRecoveryState(
           buildNoValidAnalysisPathRecoveryState({
-            methodologyId: gate[0]!,
+            methodologyId: currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "",
             evidenceSignals: evidenceAnalysis,
           }),
         );
+        return;
+      }
+
+      if (!draft.methodologyId.trim() && currentMethodologyResolution.status === "multiple") {
+        const detectedResolvedCandidates = resolvedCandidates.filter((candidate) => allowedMethodologyIds.has(candidate.methodologyId));
+        if (detectedResolvedCandidates.length) {
+          setShowMethodology(true);
+          setMatchCandidates(detectedResolvedCandidates);
+          setFieldErrors({});
+          setRecoveryState(buildMethodologyConfirmationRecoveryState());
+          return;
+        }
+        setShowMethodology(true);
+        setFieldErrors({});
+        setRecoveryState(buildMethodologyConfirmationRecoveryState());
         return;
       }
 
@@ -1556,20 +1518,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         if (resolvedCandidates.length) {
           setMatchCandidates(resolvedCandidates);
           setRecoveryState(null);
-          if (gate && gate.length > 1) {
-            setShowMethodology(true);
-            setFieldErrors({
-              general: "Multiple methodologies detected. Select one below or narrow your search.",
-            });
-          } else if (!gate && !draft.methodologyId.trim()) {
-            setFieldErrors({
-              general: "Broad match (no methodology detected in evidence). Pick a likely match or narrow by methodology.",
-            });
-          } else {
-            setFieldErrors({
-              general: "Broad match. Narrow by methodology.",
-            });
-          }
+          setFieldErrors({
+            general: "This methodology filter removed closer matches. Pick a likely match below or try another methodology.",
+          });
           return;
         }
       }
@@ -1587,8 +1538,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      // ── Methodology confirmation when detection is ambiguous ─────────
-      if (!draft.methodologyId.trim() && !methodSignalResult.exactlyOne && requiresMethodologyConfirmation(resolvedCandidates)) {
+      if (!draft.methodologyId.trim() && currentMethodologyResolution.status === "none" && requiresMethodologyConfirmation(resolvedCandidates)) {
         setShowMethodology(true);
         setMatchCandidates(resolvedCandidates);
         setFieldErrors({});
@@ -1671,7 +1621,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   function handleContinueToWorkspace() {
-    const handoff = ensureQuickCheckWorkspaceHandoff(draft);
+    const handoff = ensureQuickCheckWorkspaceHandoff({
+      ...draft,
+      methodologyId: workspaceMethodologyId,
+      methodologyVersion: workspaceMethodologyVersion,
+    });
     const nextSession = { draft: handoff.draft, result, stagedUploads };
     saveQuickCheckSession(nextSession);
     setSession(nextSession);
@@ -1842,17 +1796,24 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     </div>
                   ) : extractionPreview ? (
                     <>
-                      {detectedMethodologyConstraint ? (
+                      {!draft.methodologyId.trim() && methodologyResolution.status === "single" ? (
                         <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-                          Detected methodology: {detectedMethodologyConstraint.methodologyId}. Requirement matches are narrowed to {detectedMethodologyConstraint.methodologyId}.
+                          Detected methodology: {methodologyResolution.matchedMethods[0].methodologyId}. Requirement matches are narrowed to {methodologyResolution.matchedMethods[0].methodologyId}.
                         </div>
-                      ) : methodSignalResult.multiplePossible ? (
+                      ) : null}
+                      {!draft.methodologyId.trim() && methodologyResolution.status === "multiple" ? (
+                        <div className="mt-3 rounded-2xl border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900">
+                          Methodology needs confirmation. Requirement matches are limited to {joinMethodologyLabels(methodologyResolution.matchedMethods.map((method) => method.methodologyId))}.
+                        </div>
+                      ) : null}
+                      {!draft.methodologyId.trim() && methodologyResolution.status === "unsupported" ? (
                         <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                          Multiple methodologies detected ({methodSignalResult.canonicalCodes.join(", ")}). Pick one before running Quick Check.
+                          Detected {joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys)}, but no matching method pack is available.
                         </div>
-                      ) : methodSignalResult.programOnly ? (
-                        <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
-                          Detected program: {methodSignalResult.detectedPrograms.map((p) => p.program).join(", ")} — broad match within program.
+                      ) : null}
+                      {!draft.methodologyId.trim() && methodologyResolution.status === "none" && (extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 ? (
+                        <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+                          No methodology detected. Requirement matches use broad matching and may be unrelated.
                         </div>
                       ) : null}
                       <div className="mt-4 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
@@ -2195,9 +2156,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
-          {selectedMethodRecord && draft.methodologyVersion ? (
+          {(selectedMethodRecord && draft.methodologyVersion) || (methodologyResolution.status === "single" && !draft.methodologyId.trim()) ? (
             <div className="text-xs text-slate-500" aria-live="polite">
-              Narrowing matches to {selectedMethodRecord.code} · {draft.methodologyVersion}.
+              Narrowing matches to {(selectedMethodRecord?.code ?? methodologyResolution.matchedMethods[0]?.methodologyId) ?? ""} · {(draft.methodologyVersion || methodologyResolution.matchedMethods[0]?.methodologyVersion) ?? ""}.
             </div>
           ) : null}
         </div>
