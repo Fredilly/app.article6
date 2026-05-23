@@ -730,7 +730,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
     }
     return resolveMethodologySignals(rawMethodologyMentions, methodCodeSet);
-  }, [rawMethodologyMentions, methodCodeSet, methodProgramMap]);
+  }, [rawMethodologyMentions, methodCodeSet]);
 
   const unavailableMethod = useMemo(() => {
     if (!rawMethodologyMentions.length || !methodCodeSet.size) return null;
