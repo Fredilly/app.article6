@@ -22,9 +22,12 @@ describe("parseAoiGeoJson", () => {
     });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.aoi.geojson.geometry.type).toBe("Polygon");
+    expect(result.aoi.aoi_source_type).toBe("Geometry");
+    expect(result.aoi.aoi_source_feature_count).toBe(1);
+    expect(result.aoi.features).toHaveLength(1);
+    expect(result.aoi.features?.[0]?.geojson.geometry.type).toBe("Polygon");
+    expect(result.aoi.geojson).toBeNull();
     expect(result.aoi.bbox.length).toBe(4);
-    expect(result.aoi.area_km2).toBeGreaterThan(0);
+    expect(result.aoi.area_km2).toBe(0);
   });
 });
-
