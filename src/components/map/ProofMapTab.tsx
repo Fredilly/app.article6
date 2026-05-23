@@ -13,7 +13,7 @@ import RuleReadinessFacts from "@/components/verify/RuleReadinessFacts";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
 import VerifyReadinessStrip, { type VerifyReadinessChip } from "@/components/verify/VerifyReadinessStrip";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
-import { aoiDeclaredAreaComparison, ensurePrimaryProjectAreaSelected, parseAoiGeoJson, setAoiDeclaredArea, updateAoiFeatureRole } from "@/lib/proofMap/aoi";
+import { aoiDeclaredAreaComparison, ensurePrimaryProjectAreaSelected, parseAoiGeoJson, resolvePrimaryAreaFeature, setAoiDeclaredArea, updateAoiFeatureRole } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import Tooltip from "@/components/ui/Tooltip";
 import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
@@ -479,6 +479,7 @@ export default function ProofMapTab({
   const [declaredAreaInput, setDeclaredAreaInput] = useState("");
   const [draftTask, setDraftTask] = useState("");
   const [showDraftTask, setShowDraftTask] = useState(false);
+  const pendingAutoConfirmAoiRef = useRef(false);
   const draftTaskInputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [mapReadyTick, setMapReadyTick] = useState(0);
@@ -549,6 +550,13 @@ export default function ProofMapTab({
 
   const hasConfirmedArea = Boolean(currentAoiConfirmationKey && confirmedAoiKey === currentAoiConfirmationKey);
   const confirmedAoiFingerprint = hasConfirmedArea ? currentAoiFingerprint : null;
+
+  useEffect(() => {
+    if (!pendingAutoConfirmAoiRef.current) return;
+    if (!currentAoiConfirmationKey) return;
+    setConfirmedAoiKey(currentAoiConfirmationKey);
+    pendingAutoConfirmAoiRef.current = false;
+  }, [currentAoiConfirmationKey]);
   const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
   const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
   const linkedPinsCount = useMemo(
@@ -839,9 +847,10 @@ export default function ProofMapTab({
           setError(result.error);
           return;
         }
-        if (onAuditEvent && result.aoi.geojson) {
+        const resolved = resolvePrimaryAreaFeature(result.aoi);
+        if (onAuditEvent && resolved.aoi.geojson) {
           try {
-            const hash = await aoiFingerprint(result.aoi.geojson);
+            const hash = await aoiFingerprint(resolved.aoi.geojson);
             onAuditEvent({
               kind: "evidence.input",
               payload: { geojson_hash: hash, aoi_hash: hash },
@@ -852,15 +861,20 @@ export default function ProofMapTab({
         }
         setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
         onSelectStacItemId(null);
-        onUploadAoi(result.aoi);
-        if (!ensurePrimaryProjectAreaSelected(result.aoi)) {
-          setError("Select exactly one primary project area feature to continue.");
+        pendingAutoConfirmAoiRef.current = resolved.ok && resolved.status === "confirmed";
+        if (!resolved.ok) setConfirmedAoiKey(null);
+        onUploadAoi(resolved.aoi);
+        if (resolved.ok) {
+          setError(null);
+          showToast({ title: "Primary project area detected. Review or confirm to continue." });
+        } else if (!ensurePrimaryProjectAreaSelected(resolved.aoi)) {
+          setError(resolved.error ?? "Select exactly one primary project area feature to continue.");
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
     },
-    [markBundleEdited, onAuditEvent, onSelectStacItemId, onUploadAoi],
+    [markBundleEdited, onAuditEvent, onSelectStacItemId, onUploadAoi, showToast],
   );
 
   const handleDeltaChange = useCallback((value: string) => {

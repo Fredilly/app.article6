@@ -249,15 +249,15 @@ describe("EvidenceWorkflowStepper", () => {
           isSameAoi: false,
           showSameAoiPrompt: false,
           primaryFeatureName: "PLUM project area",
-          areaKm2: 0,
+          areaKm2: 325.64,
           bboxLabel: "0.00, 0.00 → 1.00, 1.00",
-          declaredAreaKm2: 15,
+          declaredAreaKm2: 231.54,
           declaredAreaSource: "PLUM demo fixture metadata",
           projectZoneCount: 1,
           supportingFeatureCount: 1,
-          areaMismatchRelative: 0.177,
+          areaMismatchRelative: 0.406,
           areaMismatchWarning: true,
-          requiresPrimarySelection: true,
+          requiresPrimarySelection: false,
         }}
         aoiFeatures={[
           {
@@ -280,7 +280,7 @@ describe("EvidenceWorkflowStepper", () => {
         onDeclaredAreaInputChange={() => {}}
         onConfirmArea={() => {}}
         canConfirmArea
-        isAreaConfirmed={false}
+        isAreaConfirmed
         searchDisabled
         isRunning={false}
         hasSearchResults={false}
@@ -323,11 +323,12 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).toContain("Supporting Features");
     expect(html).toContain("1 project zone");
     expect(html).toContain("1 supporting");
-    expect(html).toContain("Select exactly one primary project area feature to continue.");
-    expect(html).toContain("Advanced: view spatial features");
+    expect(html).toContain("Primary project area detected. Review or confirm to continue.");
+    expect(html).toContain("Advanced: edit spatial features");
     expect(html).toContain("Confirm area");
     expect(html).toContain("Declared area (km²)");
-    expect(html).toContain("Uploaded geometry differs from declared area by 17.7%");
+    expect(html).toContain("Boundary appears approximate. Declared area is 231.54 km²; uploaded geometry is 325.64 km².");
+    expect(html).toContain("Confirmed for satellite search");
   });
 
   it("reopens the completed workflow on demand after finalization", async () => {

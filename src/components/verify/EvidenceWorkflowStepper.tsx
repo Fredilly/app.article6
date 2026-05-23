@@ -657,10 +657,12 @@ export default function EvidenceWorkflowStepper({
                     ) : null}
                     {aoiSummary.areaMismatchWarning && typeof aoiSummary.areaMismatchRelative === "number" ? (
                       <div className="rounded-md border border-amber-200 bg-amber-50 px-2 py-2 font-medium text-amber-800">
-                        Uploaded geometry differs from declared area by {(aoiSummary.areaMismatchRelative * 100).toFixed(1)}%.
+                        Boundary appears approximate. Declared area is {formatAreaKm2(aoiSummary.declaredAreaKm2)}; uploaded geometry is {formatAreaKm2(aoiSummary.areaKm2)}.
                       </div>
                     ) : null}
-                    {aoiSummary.requiresPrimarySelection ? (
+                    {aoiSummary.primaryFeatureName ? (
+                      <div className="font-semibold text-slate-700">Primary project area detected. Review or confirm to continue.</div>
+                    ) : aoiSummary.requiresPrimarySelection ? (
                       <div className="font-semibold text-amber-700">Select exactly one primary project area feature to continue.</div>
                     ) : null}
                     <div className="flex flex-wrap items-center gap-2">
@@ -689,7 +691,7 @@ export default function EvidenceWorkflowStepper({
                 onToggle={(event) => setAdvancedSpatialOpen((event.currentTarget as HTMLDetailsElement).open)}
               >
                 <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-700">
-                  Advanced: view spatial features
+                  Advanced: edit spatial features
                 </summary>
                 <div className="grid gap-2 border-t border-slate-100 px-3 py-3">
                   {aoiFeatures.map((feature) => (

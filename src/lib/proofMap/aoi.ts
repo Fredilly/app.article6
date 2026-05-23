@@ -185,9 +185,8 @@ function includesPattern(value: string, pattern: RegExp): boolean {
   return pattern.test(value);
 }
 
-function inferRoleFromFeatureName(name: string, input: { polygonCount: number; isPolygon: boolean }): AoiFeatureRole {
+function inferSupportingRoleFromFeatureName(name: string, input: { polygonCount: number; isPolygon: boolean }): AoiFeatureRole {
   const normalized = name.trim().toLowerCase();
-  if (input.isPolygon && includesPattern(normalized, /\bproject area\b/)) return "primary_project_area";
   if (input.isPolygon && includesPattern(normalized, /\bproject zone\b/)) return "project_zone";
   if (input.isPolygon && includesPattern(normalized, /\bleakage\b/)) return "leakage_belt";
   if (input.isPolygon && includesPattern(normalized, /\breference\b/)) return "reference_region";
@@ -197,8 +196,18 @@ function inferRoleFromFeatureName(name: string, input: { polygonCount: number; i
   if (includesPattern(normalized, /\bcanal\b/)) return "canal_block";
   if (includesPattern(normalized, /\bdipwell\b/)) return "dipwell";
   if (includesPattern(normalized, /\bsubsidence\b/)) return "subsidence_pole";
-  if (input.isPolygon && input.polygonCount === 1) return "primary_project_area";
   return "other";
+}
+
+function isPrimaryAreaCandidateName(name: string): boolean {
+  const normalized = name.trim().toLowerCase();
+  return (
+    includesPattern(normalized, /\bprimary project area\b/) ||
+    includesPattern(normalized, /\bproject area\b/) ||
+    includesPattern(normalized, /\bproject boundary\b/) ||
+    includesPattern(normalized, /\bcarbon accounting area\b/) ||
+    includesPattern(normalized, /\baccounting area\b/)
+  );
 }
 
 function defaultDeclaredAreaMetadata(input: {
@@ -299,7 +308,7 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
     const isPolygon = isPolygonGeometry(feature.geometry);
     const bbox = bboxForGeometry(feature.geometry);
     const name = featureName(feature, index, fallbackName);
-    const role = inferRoleFromFeatureName(name, { polygonCount, isPolygon });
+    const role = inferSupportingRoleFromFeatureName(name, { polygonCount, isPolygon });
     const area_km2 = (() => {
       if (!isPolygonGeometry(feature.geometry)) return null;
       return Math.max(0, areaKm2ForPolygon(feature.geometry));
@@ -326,6 +335,83 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
       features,
       source: normalized.source,
     }),
+  };
+}
+
+export function resolvePrimaryAreaFeature(aoi: AOI): {
+  ok: boolean;
+  aoi: AOI;
+  status: "confirmed" | "ready_to_confirm";
+  error?: string;
+} {
+  const features = aoi.features ?? [];
+  const polygonFeatures = features.filter((feature) => feature.area_km2 != null && isPolygonGeometry(feature.geojson.geometry));
+  if (polygonFeatures.length === 0) {
+    return {
+      ok: false,
+      aoi,
+      status: "ready_to_confirm",
+      error: "Select exactly one primary project area feature to continue.",
+    };
+  }
+
+  let primaryId: string | null = null;
+  if (polygonFeatures.length === 1) {
+    primaryId = polygonFeatures[0]?.id ?? null;
+  } else {
+    const candidates = polygonFeatures.filter((feature) => isPrimaryAreaCandidateName(feature.name));
+    if (candidates.length === 0) {
+      return {
+        ok: false,
+        aoi,
+        status: "ready_to_confirm",
+        error: "No primary project area could be inferred from the uploaded GeoJSON.",
+      };
+    }
+    if (candidates.length > 1) {
+      return {
+        ok: false,
+        aoi,
+        status: "ready_to_confirm",
+        error: "More than one primary project area candidate was found in the uploaded GeoJSON.",
+      };
+    }
+    primaryId = candidates[0]?.id ?? null;
+  }
+
+  const resolved = buildAoiFromFeatures({
+    id: aoi.id,
+    name: aoi.name,
+    features: features.map((feature) => ({
+      ...feature,
+      role: feature.id === primaryId ? "primary_project_area" : inferSupportingRoleFromFeatureName(feature.name, {
+        polygonCount: polygonFeatures.length,
+        isPolygon: feature.area_km2 != null && isPolygonGeometry(feature.geojson.geometry),
+      }),
+    })),
+    source: {
+      sourceType: aoi.aoi_source_type ?? "FeatureCollection",
+      featureCount: aoi.aoi_source_feature_count ?? features.length,
+    },
+    createdAt: aoi.created_at,
+    previousFingerprint: aoi.aoi_fingerprint,
+    declaredAreaKm2: aoi.declared_area_km2,
+    declaredAreaSource: aoi.declared_area_source,
+  });
+
+  if (!resolved.geojson || !isPolygonGeometry(resolved.geojson.geometry)) {
+    return {
+      ok: false,
+      aoi: resolved,
+      status: "ready_to_confirm",
+      error: "The selected primary project area must be a Polygon or MultiPolygon.",
+    };
+  }
+
+  return {
+    ok: true,
+    aoi: resolved,
+    status: "confirmed",
   };
 }
 
