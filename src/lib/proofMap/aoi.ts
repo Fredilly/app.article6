@@ -251,6 +251,12 @@ export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResu
 
   const fallbackName = (nameHint ?? "Area").trim() || "Area";
   const polygonCount = normalized.features.filter((feature) => isPolygonGeometry(feature.geometry)).length;
+  if (polygonCount === 0) {
+    return {
+      ok: false,
+      error: "Area must include at least one Polygon or MultiPolygon feature.",
+    };
+  }
 
   const features: AoiFeature[] = normalized.features.map((feature, index) => {
     const isPolygon = isPolygonGeometry(feature.geometry);
