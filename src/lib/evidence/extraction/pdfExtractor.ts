@@ -1,35 +1,27 @@
 import { sha256Text } from '@/lib/proof/hash';
+import { extractPdfPagesWithPdfParse } from '@/lib/chat/quickCheckPdfExtractor';
 import type { SourceDocument, DocumentFragment } from './types';
 
 export async function extractPdfFragments(
   doc: SourceDocument,
   pdfBuffer: ArrayBuffer,
 ): Promise<DocumentFragment[]> {
-  const mod = await import('pdf-parse');
-  const PdfParse = mod.PDFParse;
-  const parser = new PdfParse({ data: new Uint8Array(pdfBuffer) });
-
-  let result: { pages: Array<{ num: number; text: string }>; text: string };
-  try {
-    result = await parser.getText();
-  } finally {
-    await parser.destroy().catch(() => undefined);
-  }
+  const result = await extractPdfPagesWithPdfParse({ bytes: pdfBuffer });
 
   const fragments: DocumentFragment[] = [];
 
   for (const page of result.pages) {
     const contentSha256 = await sha256Text(page.text);
     fragments.push({
-      fragmentId: `${doc.id}__page_${page.num}`,
+      fragmentId: `${doc.id}__page_${page.pageNumber}`,
       documentId: doc.id,
       kind: 'pdd',
       index: fragments.length,
-      label: `Page ${page.num}`,
+      label: `Page ${page.pageNumber}`,
       text: page.text,
       contentSha256,
-      pageStart: page.num,
-      pageEnd: page.num,
+      pageStart: page.pageNumber,
+      pageEnd: page.pageNumber,
     });
   }
 

@@ -213,4 +213,30 @@ describe('/api/projects/manual-review/extract-findings route', () => {
     expect(far05).not.toHaveProperty('auditTeamEvaluation');
     expect(far05?.evidenceExcerpt).not.toContain('APPENDIX 2: AUDIT PLAN');
   });
+
+  it('returns a distinct file-too-large diagnostic before attempting extraction', async () => {
+    const req = new Request('http://localhost/api/projects/manual-review/extract-findings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/pdf',
+        'x-article6-filename': encodeURIComponent('oversized.pdf'),
+      },
+      body: new Uint8Array((20 * 1024 * 1024) + 1).buffer,
+    });
+
+    const res = await POST(req);
+    const body = await res.json() as {
+      extractionFailed: boolean;
+      diagnosticSummary: string;
+      diagnosticReason: string;
+      diagnostics: { failureKind?: string };
+    };
+
+    expect(res.status).toBe(200);
+    expect(extractPdfPagesWithPdfParseMock).not.toHaveBeenCalled();
+    expect(body.extractionFailed).toBe(true);
+    expect(body.diagnosticSummary).toBe('file too large');
+    expect(body.diagnosticReason).toContain('20MB upload limit');
+    expect(body.diagnostics.failureKind).toBe('file-too-large');
+  });
 });

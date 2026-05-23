@@ -185,4 +185,22 @@ describe("quick check pdf-parse extractor", () => {
       partialTextRecovered: true,
     }));
   });
+
+  it("extracts the PLUM Verra demo fixture through the real helper-backed parser path", async () => {
+    const fixturePath = path.join(process.cwd(), "tests/fixtures/quick-check/plum-verra-demo-excerpt.pdf");
+    const bytes = fs.readFileSync(fixturePath);
+    const arrayBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+
+    const result = await extractPdfTextWithPdfParse({
+      bytes: arrayBuffer,
+    });
+
+    expect(result.engine).toBe("pdf-parse");
+    expect(result.text).toContain("Project Description / PD");
+    expect(result.text).toContain("PLUM Project");
+    expect(result.text).toContain("Verra VCS / CCB");
+    expect(result.text).toContain("VM0007");
+    expect(result.text).toContain("Section 3.1 Application of Methodology");
+    expect(result.text).toContain("Section 3.3 Monitoring");
+  }, 15000);
 });

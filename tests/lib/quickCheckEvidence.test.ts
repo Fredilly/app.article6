@@ -517,4 +517,19 @@ describe("extractMethodologyMentions — standard detection hardening", () => {
     expect(mentions).toContain("Verra");
     expect(mentions).toContain("GS-VER1");
   });
+
+  it("detects requested Verra REDD and VMD terms", () => {
+    const mentions = extractMethodologyMentions("REDD+ Methodology Framework REDD+ MF VMD0001 VMD 0006 VMD0009 APD ARR RWE APWD");
+    expect(mentions).toEqual(expect.arrayContaining([
+      "REDD+ Methodology Framework",
+      "REDD+ MF",
+      "VMD0001",
+      "VMD0006",
+      "VMD0009",
+      "APD",
+      "ARR",
+      "RWE",
+      "APWD",
+    ]));
+  });
 });

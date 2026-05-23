@@ -34,6 +34,7 @@ type HelperOverrides = {
 };
 
 export type PdfExtractionDiagnostics = {
+  failureKind?: "file-too-large" | "parser-failed" | "no-selectable-text";
   parserPath:
     | "provided-parser"
     | "bundled-pdf-parse"
@@ -181,6 +182,7 @@ function buildPageExtractionResult(
   if (!combinedText) {
     const failureDiagnostics = {
       ...diagnostics,
+      failureKind: "no-selectable-text" as const,
       extractedTextLength: 0,
       pageCount: 0,
       likelyScannedOrImageOnly: true,
@@ -305,6 +307,7 @@ export async function extractPdfTextWithPdfParse(input: {
         parser: "pdf-parse",
         diagnostics: {
           ...buildEmptyDiagnostics(),
+          failureKind: helperText ? "parser-failed" : "no-selectable-text",
           parserPath: "helper-text",
           pageExtractionAttempted: true,
           pageExtractionError: parserError,
@@ -366,6 +369,7 @@ export async function extractPdfPagesWithPdfParse(input: {
             diagnostics.pageExtractionError,
             diagnostics.textFallbackError,
           ].filter(Boolean) as string[]);
+          diagnostics.failureKind = diagnostics.likelyScannedOrImageOnly ? "no-selectable-text" : "parser-failed";
 
           throw new PdfExtractionError(
             `PDF extraction failed. Page extraction: ${diagnostics.pageExtractionError}. Text fallback: ${diagnostics.textFallbackError}.`,
@@ -379,6 +383,7 @@ export async function extractPdfPagesWithPdfParse(input: {
         diagnostics.pageExtractionError,
         diagnostics.textFallbackError,
       ].filter(Boolean) as string[]);
+      diagnostics.failureKind = diagnostics.likelyScannedOrImageOnly ? "no-selectable-text" : "parser-failed";
 
       throw new PdfExtractionError(
         `PDF extraction failed. Page extraction: ${diagnostics.pageExtractionError}. Text fallback: ${diagnostics.textFallbackError}.`,

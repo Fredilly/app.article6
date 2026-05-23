@@ -77,6 +77,8 @@ const EMPTY_MANUAL_FINDING: ManualFindingDraft = {
   reviewerNote: '',
 };
 
+const MAX_UPLOADABLE_PROJECT_PDF_BYTES = 20 * 1024 * 1024;
+
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let binary = '';
@@ -242,37 +244,44 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
       let extractionTrace = '';
       let extractedDrafts: Array<Omit<ExtractedManualFindingDraft, 'id' | 'createdAt' | 'updatedAt' | 'sourceDocumentId'>> = [];
       if (project.reviewMode === 'manual' && ((file.type || '').includes('pdf') || file.name.toLowerCase().endsWith('.pdf'))) {
-        try {
-          const response = await fetch('/api/projects/manual-review/extract-findings', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/pdf',
-              'x-article6-filename': encodeURIComponent(file.name),
-            },
-            body: fileBuffer,
-          });
-          const data = await response.json();
-          extractedText = typeof data.text === 'string' ? data.text.slice(0, 2000) : '';
-          extractedDrafts = Array.isArray(data.drafts) ? data.drafts : [];
-          extractionStatus = data.extractionFailed
-            ? 'extraction-failed'
-            : extractedDrafts.length > 0
-              ? 'extracted'
-              : 'no-findings';
-          const baseMessage = typeof data.message === 'string'
-            ? data.message
-            : 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
-          extractionMessage = data.extractionFailed && typeof data.diagnosticReason === 'string'
-            ? `${baseMessage} Reason: ${data.diagnosticReason}.`
-            : data.extractionFailed && typeof data.diagnosticSummary === 'string'
-              ? `${baseMessage} Reason: ${data.diagnosticSummary}.`
-              : baseMessage;
-          extractionTrace = typeof data.traceLabel === 'string' ? data.traceLabel : '';
-        } catch {
+        if (fileBuffer.byteLength > MAX_UPLOADABLE_PROJECT_PDF_BYTES) {
           extractedText = '';
           extractionStatus = 'extraction-failed';
-          extractionMessage = 'Could not extract findings from this PDF. You can still add findings manually.';
+          extractionMessage = 'Could not extract findings from this PDF. You can still add findings manually. Reason: file too large.';
           extractionTrace = '';
+        } else {
+          try {
+            const response = await fetch('/api/projects/manual-review/extract-findings', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/pdf',
+                'x-article6-filename': encodeURIComponent(file.name),
+              },
+              body: fileBuffer,
+            });
+            const data = await response.json();
+            extractedText = typeof data.text === 'string' ? data.text.slice(0, 2000) : '';
+            extractedDrafts = Array.isArray(data.drafts) ? data.drafts : [];
+            extractionStatus = data.extractionFailed
+              ? 'extraction-failed'
+              : extractedDrafts.length > 0
+                ? 'extracted'
+                : 'no-findings';
+            const baseMessage = typeof data.message === 'string'
+              ? data.message
+              : 'No structured CAR/CL/FAR findings detected. You can still add findings manually.';
+            extractionMessage = data.extractionFailed && typeof data.diagnosticReason === 'string'
+              ? `${baseMessage} Reason: ${data.diagnosticReason}.`
+              : data.extractionFailed && typeof data.diagnosticSummary === 'string'
+                ? `${baseMessage} Reason: ${data.diagnosticSummary}.`
+                : baseMessage;
+            extractionTrace = typeof data.traceLabel === 'string' ? data.traceLabel : '';
+          } catch {
+            extractedText = '';
+            extractionStatus = 'extraction-failed';
+            extractionMessage = 'Could not extract findings from this PDF. You can still add findings manually.';
+            extractionTrace = '';
+          }
         }
       }
 

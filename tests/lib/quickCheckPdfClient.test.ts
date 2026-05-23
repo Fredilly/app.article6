@@ -48,4 +48,30 @@ describe("quick check pdf client", () => {
     expect(result.text).toContain("Monitoring report");
     expect(result.warning).toContain("client request failed");
   });
+
+  it("surfaces no-selectable-text as a distinct diagnostic", async () => {
+    global.fetch = jest.fn(async () =>
+      new Response(
+        JSON.stringify({
+          text: "",
+          engine: "heuristic",
+          metadata: {
+            parser: "heuristic",
+            fallbackReason: "pdf-parse returned empty text",
+            diagnostics: {
+              failureKind: "no-selectable-text",
+            },
+          },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const result = await resolveQuickCheckPdfText({
+      bytes: new TextEncoder().encode("%PDF-empty").buffer,
+      filename: "image-only.pdf",
+    });
+
+    expect(result.warning).toBe("No selectable text found in this PDF.");
+    expect(result.diagnosticCode).toBe("no-selectable-text");
+  });
 });

@@ -20,6 +20,7 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "baseline.pdf": "Monitoring report for the full reporting period.",
+  "plum-verra-demo-excerpt.pdf": "Project Description / PD. PLUM Project. Verra VCS / CCB. VM0007. Section 3.1 Application of Methodology. Section 3.3 Monitoring.",
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
@@ -660,6 +661,12 @@ describe("QuickCheckPanel claim-first flow", () => {
     const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
     expect(button).toBeTruthy();
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }
+
+  function clickButtonIfPresent(label: string) {
+    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
+    if (!button) return;
+    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
   function setClaimValue(value: string) {
@@ -1863,5 +1870,50 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain("Likely requirement matches");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+  });
+
+  it("shows methodology not detected as a distinct extraction diagnostic", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "monitoring-report.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("The PDF states a monitoring or reporting period");
+    await act(async () => {
+      clickButtonIfPresent("Show extraction details");
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Extraction diagnostic");
+    expect(text).toContain("Methodology not detected");
+    expect(text).toContain("did not detect a methodology reference");
+  });
+
+  it("shows the exact VM0007 mismatch warning when evidence conflicts with the selected method", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "ACM0010",
+      methodologyVersion: "v01-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUntilText("Project Description / PD");
+    await act(async () => {
+      clickButtonIfPresent("Show extraction details");
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Selected methodology mismatch");
+    expect(text).toContain("Evidence appears to reference VM0007, but current selected method is ACM0010.");
   });
 });

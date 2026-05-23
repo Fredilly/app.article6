@@ -106,6 +106,14 @@ type RecoveryState =
     }
   | null;
 
+type ExtractionDiagnostic =
+  | {
+      code: "parser-failed" | "no-selectable-text" | "selected-methodology-mismatch" | "methodology-not-detected";
+      label: string;
+      message: string;
+    }
+  | null;
+
 type QueryResultWithSignals = QueryResponse["results"][number] & {
   _signalBoost: number;
   _matchedQueries: string[];
@@ -490,6 +498,17 @@ function buildWeakExtractionRecoveryState(): RecoveryState {
   };
 }
 
+function isSpecificMethodologyMention(value: string): boolean {
+  return /\b(?:VMR?\d{3,4}|VMD\d{4}|[A-Z]{2}-[A-Z]{3,}\d{4}|GS-VER\d+)\b/.test(value)
+    || /\b(?:REDD\+\s+Methodology\s+Framework|REDD\+\s+MF)\b/i.test(value)
+    || /\b(?:APD|ARR|RWE|APWD)\b/.test(value);
+}
+
+function pickPrimaryMethodologyMention(mentions: string[]): string | null {
+  const specific = mentions.find((mention) => isSpecificMethodologyMention(mention));
+  return specific ?? mentions[0] ?? null;
+}
+
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
@@ -698,13 +717,47 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const methodologyMismatch = useMemo(() => {
     if (!draft.methodologyId.trim() || !extractionPreview?.methodologyMentions.length) return null;
     const selected = draft.methodologyId.trim().toUpperCase();
-    const matches = extractionPreview.methodologyMentions.some((m) => m.trim().toUpperCase() === selected);
+    const primaryMention = pickPrimaryMethodologyMention(extractionPreview.methodologyMentions);
+    if (!primaryMention) return null;
+    const matches = primaryMention.trim().toUpperCase() === selected;
     if (matches) return null;
     return {
-      mentions: extractionPreview.methodologyMentions.join(", "),
+      mention: primaryMention,
       selectedMethod: draft.methodologyId.trim(),
     };
   }, [draft.methodologyId, extractionPreview]);
+  const extractionDiagnostic = useMemo<ExtractionDiagnostic>(() => {
+    if (methodologyMismatch) {
+      return {
+        code: "selected-methodology-mismatch",
+        label: "Selected methodology mismatch",
+        message: `Evidence appears to reference ${methodologyMismatch.mention}, but current selected method is ${methodologyMismatch.selectedMethod}.`,
+      };
+    }
+    if (!extractionPreview) return null;
+    if (extractionPreview.warnings.some((warning) => /no selectable text|no extractable text/i.test(warning))) {
+      return {
+        code: "no-selectable-text",
+        label: "No selectable text",
+        message: "The file appears readable, but no selectable text could be extracted from the uploaded PDF.",
+      };
+    }
+    if (extractionPreview.warnings.some((warning) => /pdf parser fallback|pdf extraction failed|parser/i.test(warning))) {
+      return {
+        code: "parser-failed",
+        label: "Parser failed",
+        message: "The primary PDF parser could not read this file cleanly, so Quick Check fell back to a weaker extraction path.",
+      };
+    }
+    if ((extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 && extractionPreview.methodologyMentions.length === 0) {
+      return {
+        code: "methodology-not-detected",
+        label: "Methodology not detected",
+        message: "We extracted text from the file, but did not detect a methodology reference in the uploaded evidence.",
+      };
+    }
+    return null;
+  }, [extractionPreview, methodologyMismatch]);
   const showAdvancedOptions = showAdvanced || showSavedEvidence || showMethodology;
   const extractionHighlights = extractionPreview?.extractedFacts.slice(0, 3) ?? [];
   const normalizedResult = useMemo(
@@ -1677,6 +1730,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             ) : null}
                           </div>
                           <div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction diagnostic</div>
+                            <div className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
+                              {extractionDiagnostic ? (
+                                <>
+                                  <strong>{extractionDiagnostic.label}:</strong> {extractionDiagnostic.message}
+                                </>
+                              ) : (
+                                "No extraction diagnostic from the active source."
+                              )}
+                            </div>
+                          </div>
+                          <div>
                             <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology mentions</div>
                             <div className="mt-2 flex flex-wrap gap-2">
                               {(extractionPreview.methodologyMentions.length ? extractionPreview.methodologyMentions : ["None detected"]).map((mention) => (
@@ -1685,13 +1750,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 </span>
                               ))}
                             </div>
-                            {methodologyMismatch ? (
-                              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                                Detected evidence mentions: <strong>{methodologyMismatch.mentions}</strong>.
-                                Current review method: <strong>{methodologyMismatch.selectedMethod}</strong>.
-                                This evidence may belong to a different methodology.
-                              </div>
-                            ) : null}
                           </div>
                           <div className="md:col-span-2">
                             <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>
