@@ -112,11 +112,9 @@ const PRIMARY_ALIASES: AliasEntry[] = [
   // AR-ACM0003, AR-AMS0007, AR-AMS0003, AR-AM0014 matched by exact code
 
   // ── Gold Standard ──
-  {
-    pattern: /^GS[- ]?VER\d+$/i,
-    canonical: "GS-00XX",
-    priority: 0,
-  },
+  // No primary aliases — Gold Standard signals are program-level (Tier 2).
+  // GS-VER1, GS-VER2, etc. are caught by detectUnavailableMethod if no
+  // matching pack exists in the inventory.
 ];
 
 // ─── Tier 2: Program / standard signals ──────────────────────────────────
@@ -206,9 +204,9 @@ export function resolveMethodologySignals(
   const activitySignals: DetectedActivitySignal[] = [];
 
   for (const mention of cleanedMentions) {
-    // Tier 1: Try alias first
+    // Tier 1: Try alias first (only if the canonical code exists in inventory)
     const alias = resolveAlias(mention);
-    if (alias) {
+    if (alias && methodCodes.has(alias.canonical)) {
       const canonical = alias.canonical;
       if (!detectedMethods.has(canonical)) {
         detectedMethods.set(canonical, {
@@ -371,7 +369,7 @@ export function buildMethodProgramMap(
  * Pattern that matches mentions that look like methodology codes.
  * Used to detect when evidence references a method we don't have a pack for.
  */
-const METHOD_CODE_PATTERN = /\b(?:VM\d{4}|VMD\d{4}|VMR\d{3,4}|AR-ACM\d{4}|AR-AMS\d{4}|AR-AM\d{4}|ACM\d{4}|AM\d{4}|AM\d{3,4}|GS[- ]?(?:VER\d+)?)\b/i;
+const METHOD_CODE_PATTERN = /\b(?:VM\d{4}|VMD\d{4}|VMR\d{3,4}|AR-ACM\d{4}|AR-AMS\d{4}|AR-AM\d{4}|ACM\d{4}|AM\d{4}|AM\d{3,4}|GS[- ]?VER\d+)\b/i;
 
 /**
  * Check if evidence mentions contain a methodology code that isn't in our

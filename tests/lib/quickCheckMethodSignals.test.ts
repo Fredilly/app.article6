@@ -3,6 +3,7 @@ import {
   gatingMethodCodes,
   gatingLabel,
   buildMethodProgramMap,
+  detectUnavailableMethod,
   type MethodInventoryRecord,
 } from "@/lib/chat/quickCheckMethodSignals";
 
@@ -472,5 +473,54 @@ describe("PLUM regression tests", () => {
     expect(
       result.canonicalCodes.some((c) => c.startsWith("AR-") || c === "ACM0010"),
     ).toBe(false);
+  });
+
+  it("GS-VER1 does not resolve to a canonical method code", () => {
+    // GS-VER1 is a real Gold Standard methodology, but no pack exists.
+    // It should not be resolved via alias to GS-00XX or anything else.
+    const result = resolveMethodologySignals(
+      ["GS-VER1"],
+      fullInventory,
+    );
+    expect(result.noMethodDetected).toBe(true);
+    expect(result.detectedMethods).toHaveLength(0);
+    // But it should still be detectable as an unavailable method
+    const unavailable = detectUnavailableMethod(["GS-VER1"], fullInventory);
+    expect(unavailable).toBe("GS-VER1");
+  });
+
+  it("GS VER2 (with space) is caught by detectUnavailableMethod", () => {
+    const unavailable = detectUnavailableMethod(
+      ["GS VER2"],
+      makeInventory(["VM0007", "ACM0010"]),
+    );
+    expect(unavailable).toBe("GSVER2");
+  });
+
+  it("VM0007 detected but no pack → method-unavailable, no fallback to unrelated methods", () => {
+    // Simulate: evidence mentions VM0007 but inventory only has ACM0010 and UNFCCC
+    const inventory = makeInventory(["ACM0010", "AR-ACM0003", "AR-AMS0007"]);
+    const mentions = ["VM0007", "REDD+ MF", "APD"];
+
+    // Signal resolution: VM0007 not in inventory → no primary method detected
+    const signals = resolveMethodologySignals(mentions, inventory);
+    expect(signals.noMethodDetected).toBe(true);
+    expect(signals.detectedMethods).toHaveLength(0);
+
+    // detectUnavailableMethod catches VM0007 as unavailable
+    const unavailable = detectUnavailableMethod(mentions, inventory);
+    expect(unavailable).toBe("VM0007");
+
+    // gatingMethodCodes returns null — no method to gate on
+    const programMap = buildMethodProgramMap(
+      makeMethodRecords(["ACM0010", "AR-ACM0003", "AR-AMS0007"]),
+    );
+    const gate = gatingMethodCodes(signals, programMap);
+    expect(gate).toBeNull();
+
+    // Caller should:
+    // 1. See detectUnavailableMethod returns "VM0007"
+    // 2. Show "Detected VM0007, but no matching method pack is available"
+    // 3. NOT fall back to broad match with ACM0010/AR-ACM0003 candidates
   });
 });

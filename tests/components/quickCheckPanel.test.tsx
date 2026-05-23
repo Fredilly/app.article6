@@ -2029,6 +2029,11 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).toContain("Narrowing matches to VM0007 · v1-0.");
     expect(text).not.toContain("AR-ACM0003 · v02-0");
     expect(text).not.toContain("AR-AMS0007 · v01-0");
+    // Must not leak non-Verra or unrelated method candidates
+    expect(text).not.toContain("ACM0010");
+    expect(text).not.toContain("AM0073");
+    expect(text).not.toContain("AMS-III.A");
+    expect(text).not.toContain("AMS-III.AU");
     expect(text).not.toContain("No valid analysis path in VM0007");
   });
 
@@ -2055,6 +2060,11 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).toContain("Narrowing matches to VM0007 · v1-0.");
     expect(text).not.toContain("AR-ACM0003 · v02-0");
     expect(text).not.toContain("AR-AM0014 · v03-0");
+    // Must not leak non-Verra or unrelated method candidates
+    expect(text).not.toContain("ACM0010");
+    expect(text).not.toContain("AM0073");
+    expect(text).not.toContain("AMS-III.A");
+    expect(text).not.toContain("AMS-III.AU");
     expect(text).not.toContain("No valid analysis path in VM0007");
   });
 });
