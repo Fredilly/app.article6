@@ -729,7 +729,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         programOnly: false, activitySignalsOnly: false, canonicalCodes: [],
       };
     }
-    return resolveMethodologySignals(rawMethodologyMentions, methodCodeSet, methodProgramMap);
+    return resolveMethodologySignals(rawMethodologyMentions, methodCodeSet);
   }, [rawMethodologyMentions, methodCodeSet, methodProgramMap]);
 
   const unavailableMethod = useMemo(() => {
@@ -1357,7 +1357,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         ? resolveMethodologySignals(
             Array.from(new Set(freshMentions)),
             freshMethodCodeSet,
-            freshMethodProgramMap,
           )
         : methodSignalResult;
 

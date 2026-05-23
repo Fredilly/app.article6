@@ -196,7 +196,6 @@ function resolveExactCode(
 export function resolveMethodologySignals(
   rawMentions: string[],
   methodCodes: Set<string>,
-  methodProgramMap?: Map<string, string>,
 ): MethodologySignalResult {
   const cleanedMentions = rawMentions
     .map((m) => normalize(m))
