@@ -8,9 +8,6 @@ export async function resolveQuickCheckPdfText(input: {
   bytes: ArrayBuffer;
   filename: string;
 }): Promise<QuickCheckResolvedPdfText> {
-  const localHeuristicText = extractPdfText(input.bytes);
-  const localHeuristicMentions = extractMethodologyMentions(localHeuristicText);
-
   try {
     const response = await fetch("/api/quick-check/pdf-extract", {
       method: "POST",
@@ -54,8 +51,9 @@ export async function resolveQuickCheckPdfText(input: {
     const serverMentions = extractMethodologyMentions(serverText);
     const shouldRecoverTextLocally =
       !serverText.trim() &&
-      Boolean(localHeuristicText.trim()) &&
       (failureKind === "parser-failed" || failureKind === "no-selectable-text");
+    const localHeuristicText = shouldRecoverTextLocally ? extractPdfText(input.bytes) : "";
+    const localHeuristicMentions = shouldRecoverTextLocally ? extractMethodologyMentions(localHeuristicText) : [];
     const text = shouldRecoverTextLocally ? localHeuristicText : serverText;
     return {
       text,
@@ -65,6 +63,8 @@ export async function resolveQuickCheckPdfText(input: {
       diagnosticCode: failureKind,
     };
   } catch {
+    const localHeuristicText = extractPdfText(input.bytes);
+    const localHeuristicMentions = extractMethodologyMentions(localHeuristicText);
     return {
       text: localHeuristicText,
       engine: "heuristic",

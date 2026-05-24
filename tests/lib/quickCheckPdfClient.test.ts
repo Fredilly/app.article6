@@ -106,26 +106,4 @@ describe("quick check pdf client", () => {
     );
   });
 
-  it("adds local methodology mentions without rewriting successful parser text", async () => {
-    global.fetch = jest.fn(async () =>
-      new Response(
-        JSON.stringify({
-          text: "Boundary description for the project area.",
-          engine: "pdf-parse",
-          metadata: {
-            parser: "pdf-parse",
-          },
-        }),
-        { status: 200 },
-      )) as typeof fetch;
-
-    const result = await resolveQuickCheckPdfText({
-      bytes: new TextEncoder().encode("%PDF-1.4\n(Boundary description for the project area. VM0007)\n%%EOF").buffer,
-      filename: "plum.pdf",
-    });
-
-    expect(result.engine).toBe("pdf-parse");
-    expect(result.text).toBe("Boundary description for the project area.");
-    expect(result.methodologyMentions).toEqual(expect.arrayContaining(["VM0007"]));
-  });
 });
