@@ -724,6 +724,7 @@ export default function ProofMapTab({
     [methodCode, selectedRuleId, verifierBundle.runContext.runId, version, workspaceId],
   );
   const activeRuleReview = useMemo<RuleReview | null>(() => {
+    void reviewGateVersion;
     if (!selectedRuleId) return null;
     return getReview(selectedRuleId, methodCode, version, workspaceId, verifierBundle.runContext.runId);
   }, [methodCode, reviewGateVersion, selectedRuleId, verifierBundle.runContext.runId, version, workspaceId]);
@@ -2393,7 +2394,7 @@ export default function ProofMapTab({
         );
       }
     },
-    [activeRuleReview, methodCode, selectedRuleId, version, workspaceId],
+    [activeRuleReview, methodCode, selectedRuleId, version],
   );
 
   const buildFinalReviewArtifact = useCallback(
@@ -2629,6 +2630,7 @@ export default function ProofMapTab({
     });
   }, [
     activeHistoryEntry,
+    activeRuleReview?.reviewerArtifactSavedAt,
     buildFinalReviewArtifact,
     buildHistoryBundle,
     currentWorkspaceBundle,
@@ -3151,6 +3153,7 @@ export default function ProofMapTab({
   }, [activeReviewArtifact, buildFinalReviewArtifact, methodCode, verifierBundle, version]);
 
   const buildReadinessExportContext = useCallback(async () => {
+    void reviewGateVersion;
     const generatedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
     if (!generatedAt) {
       throw new Error("Finalize the current Verify run before exporting a readiness artifact.");
