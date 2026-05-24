@@ -55,6 +55,7 @@ type ResolveAttachmentBytes = (attachmentId: string) => Promise<ArrayBuffer | nu
 export type QuickCheckResolvedPdfText = {
   text: string;
   engine: "pdf-parse" | "heuristic";
+  methodologyMentions?: string[];
   warning?: string;
   diagnosticCode?:
     | "file-too-large"
@@ -945,6 +946,9 @@ export async function analyzeQuickCheckEvidence(
           });
           text = resolved?.text ?? "";
           if (resolved?.warning) warningSet.add(resolved.warning);
+          for (const mention of resolved?.methodologyMentions ?? []) {
+            methodologyMentions.add(mention);
+          }
         } catch {
           text = extractPdfText(bytes);
         }

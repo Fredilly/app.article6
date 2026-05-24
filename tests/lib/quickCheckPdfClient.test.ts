@@ -30,6 +30,7 @@ describe("quick check pdf client", () => {
     expect(result).toEqual({
       text: "Recovered fallback text",
       engine: "heuristic",
+      methodologyMentions: [],
       warning: "PDF parser fallback: broken pdf",
     });
   });
@@ -46,6 +47,7 @@ describe("quick check pdf client", () => {
 
     expect(result.engine).toBe("heuristic");
     expect(result.text).toContain("Monitoring report");
+    expect(result.methodologyMentions).toEqual([]);
     expect(result.warning).toContain("client request failed");
   });
 
@@ -73,5 +75,57 @@ describe("quick check pdf client", () => {
 
     expect(result.warning).toBe("No selectable text found in this PDF.");
     expect(result.diagnosticCode).toBe("no-selectable-text");
+  });
+
+  it("recovers local text when the server extractor returns an empty failure payload", async () => {
+    global.fetch = jest.fn(async () =>
+      new Response(
+        JSON.stringify({
+          text: "",
+          engine: "heuristic",
+          metadata: {
+            parser: "heuristic",
+            fallbackReason: "broken pdf",
+            diagnostics: {
+              failureKind: "parser-failed",
+            },
+          },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const result = await resolveQuickCheckPdfText({
+      bytes: new TextEncoder().encode("%PDF-1.4\n(VM0007 REDD+ Methodology Framework)\n%%EOF").buffer,
+      filename: "plum.pdf",
+    });
+
+    expect(result.engine).toBe("heuristic");
+    expect(result.text).toContain("VM0007");
+    expect(result.methodologyMentions).toEqual(
+      expect.arrayContaining(["VM0007", "REDD+ Methodology Framework"]),
+    );
+  });
+
+  it("adds local methodology mentions without rewriting successful parser text", async () => {
+    global.fetch = jest.fn(async () =>
+      new Response(
+        JSON.stringify({
+          text: "Boundary description for the project area.",
+          engine: "pdf-parse",
+          metadata: {
+            parser: "pdf-parse",
+          },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const result = await resolveQuickCheckPdfText({
+      bytes: new TextEncoder().encode("%PDF-1.4\n(Boundary description for the project area. VM0007)\n%%EOF").buffer,
+      filename: "plum.pdf",
+    });
+
+    expect(result.engine).toBe("pdf-parse");
+    expect(result.text).toBe("Boundary description for the project area.");
+    expect(result.methodologyMentions).toEqual(expect.arrayContaining(["VM0007"]));
   });
 });
