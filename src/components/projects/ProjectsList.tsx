@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Project } from '@/lib/projects/types';
 import { listProjects, getProjectCoverage, deleteProject } from '@/lib/projects/storage';
 import { listReviewWorkspacesForProject } from '@/lib/reviewWorkspaces/storage';
+import { buildProjectReviewHref } from '@/lib/projects/reviewHandoff';
 
 export default function ProjectsList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -41,6 +42,17 @@ export default function ProjectsList() {
         <div className="flex flex-col gap-3">
           {projects.map(project => {
             const coverage = getProjectCoverage(project);
+            const latestWorkspace = project.reviewMode === 'methodology-linked'
+              ? listReviewWorkspacesForProject(project.id)[0] ?? null
+              : null;
+            const startReviewHref = project.reviewMode === 'methodology-linked' && project.methodCode && project.methodVersion
+              ? buildProjectReviewHref({
+                  methodCode: project.methodCode,
+                  methodVersion: project.methodVersion,
+                  projectId: project.id,
+                  workspaceId: latestWorkspace?.id ?? project.lastWorkspaceId ?? null,
+                })
+              : `/m?projectId=${encodeURIComponent(project.id)}`;
             return (
               <div
                 key={project.id}
@@ -108,17 +120,21 @@ export default function ProjectsList() {
                       {project.reviewMode === 'methodology-linked' ? (
                         <>
                           <Link
-                            href={`/m?projectId=${encodeURIComponent(project.id)}`}
+                            href={startReviewHref}
                             className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
                           >
                             Start review
                           </Link>
                           {(() => {
-                            const latestWorkspace = listReviewWorkspacesForProject(project.id)[0];
                             if (!latestWorkspace) return null;
                             return (
                               <Link
-                                href={`/m/${encodeURIComponent(latestWorkspace.methodCode)}/v/${encodeURIComponent(latestWorkspace.methodVersion)}?projectId=${encodeURIComponent(project.id)}&workspaceId=${encodeURIComponent(latestWorkspace.id)}&tab=verify`}
+                                href={buildProjectReviewHref({
+                                  methodCode: latestWorkspace.methodCode,
+                                  methodVersion: latestWorkspace.methodVersion,
+                                  projectId: project.id,
+                                  workspaceId: latestWorkspace.id,
+                                })}
                                 className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
                               >
                                 Continue review

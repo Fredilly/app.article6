@@ -65,6 +65,7 @@ import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isSourceAuditedMeta, metaUrlFromRulesPath } from "@/lib/methodBadge";
 import { getProject, updateProject } from "@/lib/projects/storage";
 import type { Project } from "@/lib/projects/types";
+import { stagePendingProjectReviewHandoff } from "@/lib/projects/reviewHandoff";
 import {
   ensureReviewWorkspace,
   getReviewWorkspace,
@@ -205,6 +206,16 @@ export default function MethodDetailPane({
     },
     [method.code, methodBasePath, searchString],
   );
+  const handleCreateProjectHandoff = useCallback(() => {
+    if (!activeVersion) return;
+    stagePendingProjectReviewHandoff({
+      methodCode: method.code,
+      methodVersion: activeVersion,
+      workspaceId: reviewWorkspace?.id ?? linkedWorkspaceId ?? null,
+      projectId: linkedProjectId,
+    });
+    router.push("/projects/new?handoff=active-review");
+  }, [activeVersion, linkedProjectId, linkedWorkspaceId, method.code, reviewWorkspace?.id, router]);
   const { events: auditEvents, appendEvent, clearTrail, exportJson, exportSha256 } = useAuditTrail();
   const appendAuditEvent = useCallback(
     (input: AuditTrailEventInput) => {
@@ -1520,8 +1531,19 @@ export default function MethodDetailPane({
           </div>
         </div>
         {!linkedProject ? (
-          <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            This verify flow is running without a linked project. Exports remain draft/incomplete and finalization will stay blocked until a project is linked.
+          <div className="mt-3 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-xs text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              This verify flow is running without a linked project. Exports remain draft/incomplete and finalization will stay blocked until a project is linked.
+            </div>
+            {activeVersion ? (
+              <button
+                type="button"
+                onClick={handleCreateProjectHandoff}
+                className="rounded-full border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 shadow-sm hover:border-amber-400"
+              >
+                Create project and carry over this review
+              </button>
+            ) : null}
           </div>
         ) : null}
       </section>
