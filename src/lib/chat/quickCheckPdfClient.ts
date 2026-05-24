@@ -1,4 +1,8 @@
-import { extractPdfText, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
+import { extractMethodologyMentions, extractPdfText, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
+
+function uniqueMentions(...groups: Array<string[] | undefined>): string[] {
+  return Array.from(new Set(groups.flatMap((group) => group ?? []).map((item) => item.trim()).filter(Boolean)));
+}
 
 export async function resolveQuickCheckPdfText(input: {
   bytes: ArrayBuffer;
@@ -43,16 +47,28 @@ export async function resolveQuickCheckPdfText(input: {
             ? `PDF parser fallback: ${payload.metadata.fallbackReason}`
             : "PDF parser fallback: heuristic extraction was used."
         : undefined;
+    const serverText = payload.text ?? "";
+    const serverMentions = extractMethodologyMentions(serverText);
+    const shouldRecoverTextLocally =
+      !serverText.trim() &&
+      (failureKind === "parser-failed" || failureKind === "no-selectable-text");
+    const localHeuristicText = shouldRecoverTextLocally ? extractPdfText(input.bytes) : "";
+    const localHeuristicMentions = shouldRecoverTextLocally ? extractMethodologyMentions(localHeuristicText) : [];
+    const text = shouldRecoverTextLocally ? localHeuristicText : serverText;
     return {
-      text: payload.text ?? "",
-      engine,
+      text,
+      engine: shouldRecoverTextLocally ? "heuristic" : engine,
+      methodologyMentions: uniqueMentions(serverMentions, localHeuristicMentions),
       warning,
       diagnosticCode: failureKind,
     };
   } catch {
+    const localHeuristicText = extractPdfText(input.bytes);
+    const localHeuristicMentions = extractMethodologyMentions(localHeuristicText);
     return {
-      text: extractPdfText(input.bytes),
+      text: localHeuristicText,
       engine: "heuristic",
+      methodologyMentions: localHeuristicMentions,
       warning: "PDF parser fallback: client request failed, using heuristic extraction.",
       diagnosticCode: "parser-failed",
     };
