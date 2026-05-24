@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createProject } from '@/lib/projects/storage';
 import { projectRegistryFromMethodProgram } from '@/lib/projects/verificationReport';
 import type { ProjectRegistry, ProjectReviewMode } from '@/lib/projects/types';
+import { importMethodologyReviewIntoProject, readPendingProjectReviewHandoff } from '@/lib/projects/reviewHandoff';
 
 export type MethodOption = {
   code: string;
@@ -31,6 +32,7 @@ export function groupMethodsByRegistry(methods: MethodOption[]): Array<{ registr
 
 export default function NewProjectForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [methods, setMethods] = useState<MethodOption[]>([]);
   const [reviewMode, setReviewMode] = useState<ProjectReviewMode>('methodology-linked');
   const [name, setName] = useState('');
@@ -43,6 +45,8 @@ export default function NewProjectForm() {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [handoffDetected, setHandoffDetected] = useState(false);
+  const [handoffMethodLabel, setHandoffMethodLabel] = useState('');
 
   const groupedMethods = useMemo(() => groupMethodsByRegistry(methods), [methods]);
 
@@ -52,6 +56,16 @@ export default function NewProjectForm() {
       .then(data => setMethods(data.methods || []))
       .catch(() => setMethods([]));
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get('handoff') !== 'active-review') return;
+    const handoff = readPendingProjectReviewHandoff();
+    if (!handoff) return;
+    setHandoffDetected(true);
+    setReviewMode('methodology-linked');
+    setSelectedMethod(`${handoff.source.methodCode}@${handoff.source.methodVersion}`);
+    setHandoffMethodLabel(`${handoff.source.methodCode} ${handoff.source.methodVersion}`);
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +91,7 @@ export default function NewProjectForm() {
         return;
       }
 
+      const handoff = handoffDetected ? readPendingProjectReviewHandoff() : null;
       const [code, version] = selectedMethod.split('@');
       const rulesRes = await fetch(`/api/projects/method-rules?code=${code}&version=${version}`);
       const rulesData = await rulesRes.json();
@@ -91,6 +106,26 @@ export default function NewProjectForm() {
       const selectedMethodRecord = methods.find((method) => `${method.code}@${method.version}` === selectedMethod);
       const parts = (selectedMethodRecord?.program ?? '').split('/');
       const category = parts.length > 1 ? parts.slice(1).join('/') : undefined;
+      if (handoff && handoff.source.methodCode === code && handoff.source.methodVersion === version) {
+        const result = importMethodologyReviewIntoProject({
+          handoff,
+          projectFields: {
+            name,
+            projectCode: projectCode || undefined,
+            countryLocation: countryLocation || undefined,
+            proponent: proponent || undefined,
+            methodCategory: category,
+            registry: projectRegistryFromMethodProgram(selectedMethodRecord?.program),
+            reportingPeriod: reportingPeriod || undefined,
+            aoiLabel: aoiLabel || undefined,
+            description: description || undefined,
+          },
+          rules,
+        });
+        router.push(result.href);
+        return;
+      }
+
       const project = createProject({
         name,
         projectCode: projectCode || undefined,
@@ -115,7 +150,7 @@ export default function NewProjectForm() {
     } catch {
       setError(reviewMode === 'manual'
         ? 'Failed to create manual review. Try again.'
-        : 'Failed to load methodology rules. Try again.');
+        : 'Failed to create project handoff. Try again.');
       setLoading(false);
     }
   };
@@ -141,8 +176,9 @@ export default function NewProjectForm() {
           <div className="grid gap-3 md:grid-cols-2">
             <button
               type="button"
+              disabled={handoffDetected}
               onClick={() => setReviewMode('methodology-linked')}
-              className={`rounded-lg border px-4 py-3 text-left ${
+              className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? 'cursor-not-allowed opacity-60' : ''} ${
                 reviewMode === 'methodology-linked'
                   ? 'border-blue-500 bg-blue-50 text-blue-900'
                   : 'border-slate-200 bg-white text-slate-700'
@@ -153,8 +189,9 @@ export default function NewProjectForm() {
             </button>
             <button
               type="button"
+              disabled={handoffDetected}
               onClick={() => setReviewMode('manual')}
-              className={`rounded-lg border px-4 py-3 text-left ${
+              className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? 'cursor-not-allowed opacity-60' : ''} ${
                 reviewMode === 'manual'
                   ? 'border-blue-500 bg-blue-50 text-blue-900'
                   : 'border-slate-200 bg-white text-slate-700'
@@ -165,6 +202,12 @@ export default function NewProjectForm() {
             </button>
           </div>
         </div>
+
+        {handoffDetected ? (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+            Create a project and carry over the active review for {handoffMethodLabel}. Existing evidence links, rule reviews, reviewer notes, and draft finalization state will be imported.
+          </div>
+        ) : null}
 
         <div>
           <label className="mb-1 block text-sm font-semibold text-slate-700">Project Name</label>
@@ -230,6 +273,7 @@ export default function NewProjectForm() {
             <select
               value={selectedMethod}
               onChange={e => setSelectedMethod(e.target.value)}
+              disabled={handoffDetected}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               required
             >

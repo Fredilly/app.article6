@@ -54,6 +54,7 @@ export function createProject(input: {
   aoiLabel?: string;
   description?: string;
   ruleIds?: Array<{ id: string; title: string; sectionId: string }>;
+  initialReviews?: RuleReview[];
 }): Project {
   const project: Project = {
     id: generateId(),
@@ -71,7 +72,7 @@ export function createProject(input: {
     reportingPeriod: input.reportingPeriod,
     aoiLabel: input.aoiLabel,
     description: input.description,
-    reviews: (input.ruleIds ?? []).map(r => ({
+    reviews: input.initialReviews ?? (input.ruleIds ?? []).map(r => ({
       ruleId: r.id,
       ruleTitle: r.title,
       sectionId: r.sectionId,
