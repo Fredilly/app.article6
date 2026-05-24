@@ -35,6 +35,8 @@ import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
 describe("QuickCheckPanel upload regression", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
+  const originalLocation = window.location;
+  const assignMock = jest.fn();
 
   function asArrayBuffer(value: Uint8Array): ArrayBuffer {
     return value.buffer.slice(
@@ -45,7 +47,7 @@ describe("QuickCheckPanel upload regression", () => {
 
   async function uploadEvidence(file: File) {
     const input = container.querySelector(
-      'input[type="file"]',
+      'input[data-testid="quick-check-evidence-input"]',
     ) as HTMLInputElement;
     Object.defineProperty(input, "files", {
       configurable: true,
@@ -76,6 +78,12 @@ describe("QuickCheckPanel upload regression", () => {
     document.body.appendChild(container);
     root = createRoot(container);
     window.localStorage.clear();
+    delete (window as Partial<Window>).location;
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...originalLocation, assign: assignMock },
+    });
+    assignMock.mockReset();
 
     createAndStoreEvidenceAttachmentMock.mockReset();
     createAndStoreEvidenceAttachmentMock.mockImplementation(
@@ -204,6 +212,10 @@ describe("QuickCheckPanel upload regression", () => {
     container.remove();
     jest.clearAllMocks();
     window.localStorage.clear();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: originalLocation,
+    });
   });
 
   it("clears stale recovery UI as soon as a new upload replaces the prior evidence", async () => {

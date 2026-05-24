@@ -734,6 +734,7 @@ export default function QuickCheckPanel({
   onContinueToWorkspace,
 }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const projectDocumentRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
@@ -1705,6 +1706,46 @@ export default function QuickCheckPanel({
     }
   }
 
+  async function handleProjectDocumentUpload(file: File | null) {
+    if (!file) return;
+
+    setCreatingProjectDraft(true);
+    setFieldErrors((current) => ({
+      ...current,
+      general: undefined,
+    }));
+    try {
+      const evidenceId = newPinId();
+      const attachmentResult = await createAndStoreEvidenceAttachment({
+        pin_id: evidenceId,
+        file,
+      });
+      if (!attachmentResult.ok) {
+        setFieldErrors({ general: attachmentResult.message });
+        return;
+      }
+
+      await stageProjectDocumentDraftFromAttachment({
+        origin: "quick-check",
+        evidenceId,
+        attachmentId: attachmentResult.attachment.id,
+        fileName: attachmentResult.attachment.filename,
+        mimeType: attachmentResult.attachment.mime,
+        contentSha256: attachmentResult.attachment.sha256,
+      });
+      if (typeof window !== "undefined") {
+        window.location.assign("/projects/new?handoff=document-metadata");
+      }
+    } catch (error) {
+      setFieldErrors({
+        general: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setCreatingProjectDraft(false);
+      if (projectDocumentRef.current) projectDocumentRef.current.value = "";
+    }
+  }
+
   function selectExistingEvidence(evidenceId: string) {
     if (!evidenceId) return;
     const selectedItem =
@@ -2228,23 +2269,73 @@ export default function QuickCheckPanel({
   return (
     <div className="w-full">
       <div className="mx-auto w-full max-w-2xl px-4 md:px-0">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex w-full items-start justify-center">
-            <div className="w-full">
+        <div className="rounded-[1.8rem] border border-slate-200 bg-white px-5 py-6 text-left shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div>
               <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-                Quick Check
+                Start Review
               </h1>
-              <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-                Upload evidence. Get a preliminary match in seconds.
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 md:text-[15px]">
+                Upload a PDD, monitoring report, or evidence file. Article6 will
+                detect the project, method, and next review step.
               </p>
             </div>
-            {loadingMethods || submitting ? (
+            {loadingMethods || creatingProjectDraft ? (
               <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" />
             ) : null}
+          </div>
+          <input
+            ref={projectDocumentRef}
+            type="file"
+            data-testid="project-document-input"
+            className="hidden"
+            accept=".pdf"
+            onChange={(event) =>
+              void handleProjectDocumentUpload(event.target.files?.[0] ?? null)
+            }
+          />
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => projectDocumentRef.current?.click()}
+              disabled={creatingProjectDraft}
+              className="inline-flex items-center gap-2 rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-900 disabled:opacity-50"
+            >
+              {creatingProjectDraft ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              Upload project document
+            </button>
+            <button
+              type="button"
+              onClick={() => claimRef.current?.focus()}
+              className="text-sm font-semibold text-slate-600 underline underline-offset-4 transition hover:text-slate-900"
+            >
+              Run a quick evidence check instead
+            </button>
           </div>
         </div>
 
         <div className="mt-8 grid gap-8">
+          <div className="flex w-full items-start justify-between gap-4">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Quick evidence check
+              </div>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950">
+                Quick Check
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600 md:text-[15px]">
+                Upload evidence. Get a preliminary match in seconds.
+              </p>
+            </div>
+            {submitting ? (
+              <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" />
+            ) : null}
+          </div>
+
           <div>
             <label className="grid gap-2 text-sm text-slate-700">
               <span className="font-medium text-slate-900">Claim</span>
@@ -2323,6 +2414,7 @@ export default function QuickCheckPanel({
               <input
                 ref={fileRef}
                 type="file"
+                data-testid="quick-check-evidence-input"
                 className="hidden"
                 accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
                 onChange={(event) =>

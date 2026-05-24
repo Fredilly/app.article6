@@ -1,6 +1,13 @@
 /** @jest-environment jsdom */
 
-import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from "@jest/globals";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -20,18 +27,26 @@ describe("ChatApp claim-first landing", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
     root = createRoot(container);
-    (global.fetch as typeof fetch | undefined) = jest.fn(async (input: RequestInfo | URL) => {
-      const url = String(input);
-      if (url.includes("/api/methods/inventory")) {
-        return new Response(
-          JSON.stringify({
-            methods: [{ code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] }],
-          }),
-          { status: 200 },
-        );
-      }
-      throw new Error(`Unhandled fetch ${url}`);
-    }) as typeof fetch;
+    (global.fetch as typeof fetch | undefined) = jest.fn(
+      async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes("/api/methods/inventory")) {
+          return new Response(
+            JSON.stringify({
+              methods: [
+                {
+                  code: "AR-ACM0003",
+                  latestVersion: "v02-0",
+                  versions: ["v02-0"],
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        throw new Error(`Unhandled fetch ${url}`);
+      },
+    ) as typeof fetch;
   });
 
   afterEach(async () => {
@@ -43,13 +58,23 @@ describe("ChatApp claim-first landing", () => {
     jest.clearAllMocks();
   });
 
-  it("renders the claim-first command card and removes chat from the landing page", async () => {
+  it("renders the review intake surface before the quick evidence check UI", async () => {
     await act(async () => {
       root.render(<ChatApp />);
     });
 
+    expect(container.textContent).toContain("Start Review");
+    expect(container.textContent).toContain(
+      "Upload a PDD, monitoring report, or evidence file. Article6 will detect the project, method, and next review step.",
+    );
+    expect(container.textContent).toContain("Upload project document");
+    expect(container.textContent).toContain(
+      "Run a quick evidence check instead",
+    );
     expect(container.textContent).toContain("Quick Check");
-    expect(container.textContent).toContain("Upload evidence. Get a preliminary match in seconds.");
+    expect(container.textContent).toContain(
+      "Upload evidence. Get a preliminary match in seconds.",
+    );
     expect(container.textContent).toContain("Evidence");
     expect(container.textContent).toContain("Try demo check");
     expect(container.textContent).toContain("Run quick check");

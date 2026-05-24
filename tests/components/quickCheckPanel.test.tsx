@@ -2,7 +2,14 @@
 
 import fs from "fs";
 import path from "path";
-import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from "@jest/globals";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { putAttachmentBytes } from "@/lib/proofMap/attachments";
@@ -10,25 +17,37 @@ import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 const pushMock = jest.fn();
 const createAndStoreEvidenceAttachmentMock = jest.fn();
 const PDF_TEXT_BY_FILENAME: Record<string, string> = {
-  "fresh-monitoring-report.pdf": "Monitoring report for the full reporting period. Gold Standard TPDD TEC Version 4.0. AR-ACM0003 methodology reference.",
+  "fresh-monitoring-report.pdf":
+    "Monitoring report for the full reporting period. Gold Standard TPDD TEC Version 4.0. AR-ACM0003 methodology reference.",
   "monitoring-report.pdf": "Monitoring report for the full reporting period.",
-  "demo-monitoring-report.pdf": "Monitoring report for the full reporting period.",
+  "demo-monitoring-report.pdf":
+    "Monitoring report for the full reporting period.",
   "opaque-scan.pdf": "",
-  "kenya-second-check-evidence.pdf": "Reporting period 1 April 2024 - 31 March 2025. Project area Makueni County and Kitui County. The monitoring report covers the full reporting period.",
-  "malawi-pdd.pdf": "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
-  "synthetic-malawi-pdd.pdf": "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
-  "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
-  "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
+  "kenya-second-check-evidence.pdf":
+    "Reporting period 1 April 2024 - 31 March 2025. Project area Makueni County and Kitui County. The monitoring report covers the full reporting period.",
+  "malawi-pdd.pdf":
+    "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
+  "synthetic-malawi-pdd.pdf":
+    "Project boundary description for the Malawi grouped activity. Project location Machinga District, Malawi. Project coordinates -15.2345, 35.6789. The mapped project area polygon and AOI are referenced in the boundary map. Documented monitoring plan for the project. Spreadsheet workbook annex referenced for monitoring evidence.",
+  "boundary.pdf":
+    "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
+  "boundary-note.pdf":
+    "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "baseline.pdf": "Monitoring report for the full reporting period.",
-  "plum-verra-demo-excerpt.pdf": "Project Description / PD. PLUM Project. Verra VCS / CCB. APD. ARR. VMD0001. VMD0006. VMD0009. VM0007. REDD+ Methodology Framework. Section 3.1 Application of Methodology. Section 3.3 Monitoring. Project boundary description for the PLUM Project. The mapped project area polygon and AOI are referenced in the boundary map. Project location described for the project area. Monitoring report for the full reporting period.",
-  "ambiguous-methods.pdf": "Methodology references include VM0007, GS-VER1, and the monitoring report for the full reporting period.",
-  "unknown-acm0010.pdf": "Evidence references ACM0010 and the monitoring report for the full reporting period.",
-  "no-method-detected.pdf": "Monitoring report for the full reporting period without any explicit methodology code.",
+  "plum-verra-demo-excerpt.pdf":
+    "Project Description / PD. PLUM Project. Verra VCS / CCB. APD. ARR. VMD0001. VMD0006. VMD0009. VM0007. REDD+ Methodology Framework. Section 3.1 Application of Methodology. Section 3.3 Monitoring. Project boundary description for the PLUM Project. The mapped project area polygon and AOI are referenced in the boundary map. Project location described for the project area. Monitoring report for the full reporting period.",
+  "ambiguous-methods.pdf":
+    "Methodology references include VM0007, GS-VER1, and the monitoring report for the full reporting period.",
+  "unknown-acm0010.pdf":
+    "Evidence references ACM0010 and the monitoring report for the full reporting period.",
+  "no-method-detected.pdf":
+    "Monitoring report for the full reporting period without any explicit methodology code.",
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
-  createAndStoreEvidenceAttachment: (...args: unknown[]) => createAndStoreEvidenceAttachmentMock(...args),
+  createAndStoreEvidenceAttachment: (...args: unknown[]) =>
+    createAndStoreEvidenceAttachmentMock(...args),
 }));
 
 jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
@@ -45,17 +64,30 @@ import { loadPins } from "@/lib/proofMap/storage";
 describe("QuickCheckPanel claim-first flow", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
+  const originalLocation = window.location;
+  const assignMock = jest.fn();
 
   function asArrayBuffer(value: Uint8Array): ArrayBuffer {
-    return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
+    return value.buffer.slice(
+      value.byteOffset,
+      value.byteOffset + value.byteLength,
+    );
   }
 
   async function seedAttachmentText(attachmentId: string, text: string) {
-    await putAttachmentBytes(attachmentId, asArrayBuffer(new TextEncoder().encode(text)));
+    await putAttachmentBytes(
+      attachmentId,
+      asArrayBuffer(new TextEncoder().encode(text)),
+    );
   }
 
-  async function seedAttachmentFixture(attachmentId: string, fixtureName: string) {
-    const bytes = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check", fixtureName));
+  async function seedAttachmentFixture(
+    attachmentId: string,
+    fixtureName: string,
+  ) {
+    const bytes = fs.readFileSync(
+      path.join(process.cwd(), "tests/fixtures/quick-check", fixtureName),
+    );
     await putAttachmentBytes(attachmentId, asArrayBuffer(bytes));
   }
 
@@ -112,445 +144,665 @@ describe("QuickCheckPanel claim-first flow", () => {
     document.body.appendChild(container);
     root = createRoot(container);
     window.localStorage.clear();
+    delete (window as Partial<Window>).location;
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...originalLocation, assign: assignMock },
+    });
+    assignMock.mockReset();
     pushMock.mockReset();
     createAndStoreEvidenceAttachmentMock.mockReset();
-    createAndStoreEvidenceAttachmentMock.mockImplementation(async (input: { pin_id: string; file: File }) => {
-      const bytes = new Uint8Array(await input.file.arrayBuffer());
-      const attachment = {
-        id: `att-${input.pin_id}`,
-        pin_id: input.pin_id,
-        filename: input.file.name,
-        mime: input.file.type || "application/pdf",
-        size: bytes.byteLength,
-        sha256: `sha-${input.pin_id}`,
-        created_at: "2026-04-04T00:00:00Z",
-      };
-      await putAttachmentBytes(attachment.id, asArrayBuffer(bytes));
-      return { ok: true, attachment };
-    });
+    createAndStoreEvidenceAttachmentMock.mockImplementation(
+      async (input: { pin_id: string; file: File }) => {
+        const bytes = new Uint8Array(await input.file.arrayBuffer());
+        const attachment = {
+          id: `att-${input.pin_id}`,
+          pin_id: input.pin_id,
+          filename: input.file.name,
+          mime: input.file.type || "application/pdf",
+          size: bytes.byteLength,
+          sha256: `sha-${input.pin_id}`,
+          created_at: "2026-04-04T00:00:00Z",
+        };
+        await putAttachmentBytes(attachment.id, asArrayBuffer(bytes));
+        return { ok: true, attachment };
+      },
+    );
 
-    (global.fetch as typeof fetch | undefined) = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input);
-      if (url.includes("/api/methods/inventory")) {
-        return new Response(
-          JSON.stringify({
-            methods: [
-              { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
-              { code: "AR-AM0014", latestVersion: "v03-0", versions: ["v03-0"] },
-              { code: "AR-AMS0007", latestVersion: "v01-0", versions: ["v01-0"] },
-              { code: "GS-VER1", latestVersion: "v2-0", versions: ["v2-0"] },
-              { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
-      if (url.includes("/api/quick-check/pdf-extract")) {
-        const headers = new Headers(init?.headers);
-        const encodedFilename = headers.get("x-article6-filename") ?? "";
-        const filename = decodeURIComponent(encodedFilename);
-        return new Response(
-          JSON.stringify({
-            text: PDF_TEXT_BY_FILENAME[filename] ?? "",
-            engine: "pdf-parse",
-            metadata: {
-              parser: "pdf-parse",
-            },
-          }),
-          { status: 200 },
-        );
-      }
-      if (url.includes("/api/methods/AR-ACM0003/v/v02-0/rules")) {
-        return new Response(
-          JSON.stringify({
-            rules: [
-              {
-                id: "R-1-0001",
-                title: "Monitoring frequency",
-                snippet: "Maintain a monitoring report.",
-                summary: "Maintain a monitoring report.",
-                logic: "Review the report for the reporting period.",
-                tags: [],
-                expectedEvidence: ["monitoring-report"],
-                refs: { primarySection: "S-10", sectionAnchor: "#S-10", tools: ["UNFCCC/TOOL-1"] },
-                citations: [{ sectionId: "S-10", label: "Section 10" }],
-              },
-              {
-                id: "R-1-0003",
-                title: "Monitoring plan",
-                snippet: "Document the monitoring plan for the project.",
-                summary: "Document the monitoring plan for the project.",
-                logic: "Use the PDD and monitoring annexes to confirm the monitoring plan.",
-                tags: ["monitoring", "plan"],
-                expectedEvidence: ["monitoring-report"],
-              },
-              {
-                id: "R-1-0004",
-                title: "Workbook monitoring records",
-                snippet: "Maintain workbook-backed monitoring records for the reporting period.",
-                summary: "Maintain workbook-backed monitoring records for the reporting period.",
-                logic: "Workbook records should identify plots and reporting periods.",
-                tags: ["monitoring", "workbook", "plots"],
-                expectedEvidence: ["spreadsheet-workbook"],
-              },
-              {
-                id: "R-1-0002",
-                title: "Boundary consistency",
-                snippet: "Boundary description aligns to the mapped area.",
-                tags: [],
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
-      if (url.includes("/api/methods/AR-AM0014/v/v03-0/rules")) {
-        return new Response(
-          JSON.stringify({
-            rules: [
-              {
-                id: "R-1-0008",
-                title: "Monitoring report consolidation",
-                snippet: "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
-                summary: "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
-                logic: "Use monitoring reports to confirm mapped-area, inventory, and QA/QC evidence are consolidated.",
-                tags: ["monitoring", "reporting", "maps"],
-                expectedEvidence: ["monitoring-report"],
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
-      if (url.includes("/api/methods/AR-AMS0007/v/v01-0/rules")) {
-        return new Response(
-          JSON.stringify({
-            rules: [
-              {
-                id: "R-2-0001",
-                title: "Boundary delineation",
-                snippet: "Boundary text is internally consistent.",
-                tags: [],
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
-      if (url.includes("/api/methods/VM0007/v/v1-0/rules")) {
-        return new Response(
-          JSON.stringify({
-            rules: [
-              {
-                id: "R-7-0001",
-                title: "Project boundary consistency",
-                snippet: "Boundary evidence aligns with the VM0007 project description.",
-                summary: "Boundary evidence aligns with the VM0007 project description.",
-                tags: ["boundary", "project area", "vm0007"],
-              },
-              {
-                id: "R-7-0002",
-                title: "Monitoring procedure",
-                snippet: "Monitoring evidence aligns with VM0007 section 3.3.",
-                summary: "Monitoring evidence aligns with VM0007 section 3.3.",
-                tags: ["monitoring", "vm0007"],
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
-      if (url.includes("/api/methods/GS-VER1/v/v2-0/rules")) {
-        return new Response(
-          JSON.stringify({
-            rules: [
-              {
-                id: "R-GS-0001",
-                title: "Gold Standard monitoring evidence",
-                snippet: "Monitoring evidence aligns with GS-VER1.",
-                summary: "Monitoring evidence aligns with GS-VER1.",
-                tags: ["monitoring", "gs-ver1"],
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
-      if (url.includes("/api/query?text=")) {
-        const decoded = decodeURIComponent(url.split("text=")[1] ?? "");
-        const lower = decoded.toLowerCase();
-        const quickCheckSession = window.localStorage.getItem("a6:quick-check:claim-first:v1") ?? "";
-        const kenyaSecondCheck = quickCheckSession.includes("kenya-second-check-evidence.pdf");
-        const plumVm0007 = quickCheckSession.includes("plum-verra-demo-excerpt.pdf");
-        const ambiguousMethods = quickCheckSession.includes("ambiguous-methods.pdf");
-        const unknownAcm0010 = quickCheckSession.includes("unknown-acm0010.pdf");
-        if (plumVm0007 && lower.includes("monitoring report")) {
+    (global.fetch as typeof fetch | undefined) = jest.fn(
+      async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        if (url.includes("/api/methods/inventory")) {
           return new Response(
             JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
+              methods: [
                 {
-                  id: "R-7-0002",
-                  section_title: "Monitoring procedure",
-                  methodology_id: "VM0007",
-                  methodology_version: "v1-0",
-                  score: 0.78,
+                  code: "AR-ACM0003",
+                  latestVersion: "v02-0",
+                  versions: ["v02-0"],
                 },
+                {
+                  code: "AR-AM0014",
+                  latestVersion: "v03-0",
+                  versions: ["v03-0"],
+                },
+                {
+                  code: "AR-AMS0007",
+                  latestVersion: "v01-0",
+                  versions: ["v01-0"],
+                },
+                { code: "GS-VER1", latestVersion: "v2-0", versions: ["v2-0"] },
+                { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/api/quick-check/pdf-extract")) {
+          const headers = new Headers(init?.headers);
+          const encodedFilename = headers.get("x-article6-filename") ?? "";
+          const filename = decodeURIComponent(encodedFilename);
+          return new Response(
+            JSON.stringify({
+              text: PDF_TEXT_BY_FILENAME[filename] ?? "",
+              engine: "pdf-parse",
+              metadata: {
+                parser: "pdf-parse",
+              },
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/api/methods/AR-ACM0003/v/v02-0/rules")) {
+          return new Response(
+            JSON.stringify({
+              rules: [
                 {
                   id: "R-1-0001",
-                  section_title: "Monitoring frequency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.91,
+                  title: "Monitoring frequency",
+                  snippet: "Maintain a monitoring report.",
+                  summary: "Maintain a monitoring report.",
+                  logic: "Review the report for the reporting period.",
+                  tags: [],
+                  expectedEvidence: ["monitoring-report"],
+                  refs: {
+                    primarySection: "S-10",
+                    sectionAnchor: "#S-10",
+                    tools: ["UNFCCC/TOOL-1"],
+                  },
+                  citations: [{ sectionId: "S-10", label: "Section 10" }],
                 },
+                {
+                  id: "R-1-0003",
+                  title: "Monitoring plan",
+                  snippet: "Document the monitoring plan for the project.",
+                  summary: "Document the monitoring plan for the project.",
+                  logic:
+                    "Use the PDD and monitoring annexes to confirm the monitoring plan.",
+                  tags: ["monitoring", "plan"],
+                  expectedEvidence: ["monitoring-report"],
+                },
+                {
+                  id: "R-1-0004",
+                  title: "Workbook monitoring records",
+                  snippet:
+                    "Maintain workbook-backed monitoring records for the reporting period.",
+                  summary:
+                    "Maintain workbook-backed monitoring records for the reporting period.",
+                  logic:
+                    "Workbook records should identify plots and reporting periods.",
+                  tags: ["monitoring", "workbook", "plots"],
+                  expectedEvidence: ["spreadsheet-workbook"],
+                },
+                {
+                  id: "R-1-0002",
+                  title: "Boundary consistency",
+                  snippet: "Boundary description aligns to the mapped area.",
+                  tags: [],
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/api/methods/AR-AM0014/v/v03-0/rules")) {
+          return new Response(
+            JSON.stringify({
+              rules: [
                 {
                   id: "R-1-0008",
-                  section_title: "Monitoring report consolidation",
-                  methodology_id: "AR-AM0014",
-                  methodology_version: "v03-0",
-                  score: 0.88,
+                  title: "Monitoring report consolidation",
+                  snippet:
+                    "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
+                  summary:
+                    "Monitoring reports consolidate maps, inventory data, leakage deductions, and QA/QC evidence.",
+                  logic:
+                    "Use monitoring reports to confirm mapped-area, inventory, and QA/QC evidence are consolidated.",
+                  tags: ["monitoring", "reporting", "maps"],
+                  expectedEvidence: ["monitoring-report"],
                 },
               ],
             }),
             { status: 200 },
           );
         }
-        if (ambiguousMethods && lower.includes("monitoring report")) {
+        if (url.includes("/api/methods/AR-AMS0007/v/v01-0/rules")) {
           return new Response(
             JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
+              rules: [
                 {
-                  id: "R-7-0002",
-                  section_title: "Monitoring procedure",
-                  methodology_id: "VM0007",
-                  methodology_version: "v1-0",
-                  score: 0.81,
-                },
-                {
-                  id: "R-GS-0001",
-                  section_title: "Gold Standard monitoring evidence",
-                  methodology_id: "GS-VER1",
-                  methodology_version: "v2-0",
-                  score: 0.8,
-                },
-                {
-                  id: "R-1-0001",
-                  section_title: "Monitoring frequency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.92,
+                  id: "R-2-0001",
+                  title: "Boundary delineation",
+                  snippet: "Boundary text is internally consistent.",
+                  tags: [],
                 },
               ],
             }),
             { status: 200 },
           );
         }
-        if (unknownAcm0010 && lower.includes("monitoring report")) {
+        if (url.includes("/api/methods/VM0007/v/v1-0/rules")) {
           return new Response(
             JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0001",
-                  section_title: "Monitoring frequency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.95,
-                },
-              ],
-            }),
-            { status: 200 },
-          );
-        }
-        if (plumVm0007 && (lower.includes("mapped area boundary") || lower.includes("project coordinates boundary") || lower.includes("project location boundary") || lower.includes("boundary description matches the mapped project area"))) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
+              rules: [
                 {
                   id: "R-7-0001",
-                  section_title: "Project boundary consistency",
-                  methodology_id: "VM0007",
-                  methodology_version: "v1-0",
-                  score: 0.72,
+                  title: "Project boundary consistency",
+                  snippet:
+                    "Boundary evidence aligns with the VM0007 project description.",
+                  summary:
+                    "Boundary evidence aligns with the VM0007 project description.",
+                  tags: ["boundary", "project area", "vm0007"],
                 },
                 {
-                  id: "R-1-0002",
-                  section_title: "Boundary consistency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.92,
-                },
-                {
-                  id: "R-2-0001",
-                  section_title: "Boundary delineation",
-                  methodology_id: "AR-AMS0007",
-                  methodology_version: "v01-0",
-                  score: 0.89,
+                  id: "R-7-0002",
+                  title: "Monitoring procedure",
+                  snippet:
+                    "Monitoring evidence aligns with VM0007 section 3.3.",
+                  summary:
+                    "Monitoring evidence aligns with VM0007 section 3.3.",
+                  tags: ["monitoring", "vm0007"],
                 },
               ],
             }),
             { status: 200 },
           );
         }
-        if (kenyaSecondCheck && quickCheckSession.includes("kenya no valid analysis path")) {
+        if (url.includes("/api/methods/GS-VER1/v/v2-0/rules")) {
           return new Response(
             JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
+              rules: [
                 {
-                  id: "R-9-9999",
-                  section_title: "Wrong AR-AM0014 candidate",
-                  methodology_id: "AR-AM0014",
-                  methodology_version: "v03-0",
-                  score: 0.94,
+                  id: "R-GS-0001",
+                  title: "Gold Standard monitoring evidence",
+                  snippet: "Monitoring evidence aligns with GS-VER1.",
+                  summary: "Monitoring evidence aligns with GS-VER1.",
+                  tags: ["monitoring", "gs-ver1"],
                 },
               ],
             }),
             { status: 200 },
           );
         }
-        if (kenyaSecondCheck && quickCheckSession.includes("kenya cross-method confirmation")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0008",
-                  section_title: "Monitoring report consolidation",
-                  methodology_id: "AR-AM0014",
-                  methodology_version: "v03-0",
-                  score: 0.92,
-                },
-                {
-                  id: "R-1-0001",
-                  section_title: "Monitoring frequency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.86,
-                },
-              ],
-            }),
-            { status: 200 },
+        if (url.includes("/api/query?text=")) {
+          const decoded = decodeURIComponent(url.split("text=")[1] ?? "");
+          const lower = decoded.toLowerCase();
+          const quickCheckSession =
+            window.localStorage.getItem("a6:quick-check:claim-first:v1") ?? "";
+          const kenyaSecondCheck = quickCheckSession.includes(
+            "kenya-second-check-evidence.pdf",
           );
-        }
-        if (lower.includes("monitoring report")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0001",
-                  section_title: "Monitoring frequency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.91,
-                },
-              ],
-            }),
-            { status: 200 },
+          const plumVm0007 = quickCheckSession.includes(
+            "plum-verra-demo-excerpt.pdf",
           );
-        }
-        if (lower.includes("invalid top candidate")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-9-9999",
-                  section_title: "Broken top result",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.97,
-                },
-                {
-                  id: "R-1-0001",
-                  section_title: "Monitoring frequency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.91,
-                },
-              ],
-            }),
-            { status: 200 },
+          const ambiguousMethods = quickCheckSession.includes(
+            "ambiguous-methods.pdf",
           );
-        }
-        if (lower.includes("shortlist with unresolved")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-9-9999",
-                  section_title: "Broken top result",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.95,
-                },
-                {
-                  id: "R-1-0002",
-                  section_title: "Boundary consistency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.85,
-                },
-                {
-                  id: "R-2-0001",
-                  section_title: "Boundary delineation",
-                  methodology_id: "AR-AMS0007",
-                  methodology_version: "v01-0",
-                  score: 0.84,
-                },
-              ],
-            }),
-            { status: 200 },
+          const unknownAcm0010 = quickCheckSession.includes(
+            "unknown-acm0010.pdf",
           );
-        }
-        if (lower.includes("the boundary description matches the mapped project area")) {
+          if (plumVm0007 && lower.includes("monitoring report")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-7-0002",
+                    section_title: "Monitoring procedure",
+                    methodology_id: "VM0007",
+                    methodology_version: "v1-0",
+                    score: 0.78,
+                  },
+                  {
+                    id: "R-1-0001",
+                    section_title: "Monitoring frequency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.91,
+                  },
+                  {
+                    id: "R-1-0008",
+                    section_title: "Monitoring report consolidation",
+                    methodology_id: "AR-AM0014",
+                    methodology_version: "v03-0",
+                    score: 0.88,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (ambiguousMethods && lower.includes("monitoring report")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-7-0002",
+                    section_title: "Monitoring procedure",
+                    methodology_id: "VM0007",
+                    methodology_version: "v1-0",
+                    score: 0.81,
+                  },
+                  {
+                    id: "R-GS-0001",
+                    section_title: "Gold Standard monitoring evidence",
+                    methodology_id: "GS-VER1",
+                    methodology_version: "v2-0",
+                    score: 0.8,
+                  },
+                  {
+                    id: "R-1-0001",
+                    section_title: "Monitoring frequency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.92,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (unknownAcm0010 && lower.includes("monitoring report")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0001",
+                    section_title: "Monitoring frequency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.95,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
           if (
-            window.localStorage.getItem("a6:quick-check:claim-first:v1")?.includes("synthetic-malawi-pdd.pdf") ||
-            window.localStorage.getItem("pins:AR-ACM0003:v02-0")?.includes("synthetic-malawi-pdd.pdf")
+            plumVm0007 &&
+            (lower.includes("mapped area boundary") ||
+              lower.includes("project coordinates boundary") ||
+              lower.includes("project location boundary") ||
+              lower.includes(
+                "boundary description matches the mapped project area",
+              ))
           ) {
             return new Response(
               JSON.stringify({
                 engineTag: "test",
                 metrics: [],
+                results: [
+                  {
+                    id: "R-7-0001",
+                    section_title: "Project boundary consistency",
+                    methodology_id: "VM0007",
+                    methodology_version: "v1-0",
+                    score: 0.72,
+                  },
+                  {
+                    id: "R-1-0002",
+                    section_title: "Boundary consistency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.92,
+                  },
+                  {
+                    id: "R-2-0001",
+                    section_title: "Boundary delineation",
+                    methodology_id: "AR-AMS0007",
+                    methodology_version: "v01-0",
+                    score: 0.89,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (
+            kenyaSecondCheck &&
+            quickCheckSession.includes("kenya no valid analysis path")
+          ) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-9-9999",
+                    section_title: "Wrong AR-AM0014 candidate",
+                    methodology_id: "AR-AM0014",
+                    methodology_version: "v03-0",
+                    score: 0.94,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (
+            kenyaSecondCheck &&
+            quickCheckSession.includes("kenya cross-method confirmation")
+          ) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0008",
+                    section_title: "Monitoring report consolidation",
+                    methodology_id: "AR-AM0014",
+                    methodology_version: "v03-0",
+                    score: 0.92,
+                  },
+                  {
+                    id: "R-1-0001",
+                    section_title: "Monitoring frequency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.86,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("monitoring report")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0001",
+                    section_title: "Monitoring frequency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.91,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("invalid top candidate")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-9-9999",
+                    section_title: "Broken top result",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.97,
+                  },
+                  {
+                    id: "R-1-0001",
+                    section_title: "Monitoring frequency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.91,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("shortlist with unresolved")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-9-9999",
+                    section_title: "Broken top result",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.95,
+                  },
+                  {
+                    id: "R-1-0002",
+                    section_title: "Boundary consistency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.85,
+                  },
+                  {
+                    id: "R-2-0001",
+                    section_title: "Boundary delineation",
+                    methodology_id: "AR-AMS0007",
+                    methodology_version: "v01-0",
+                    score: 0.84,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (
+            lower.includes(
+              "the boundary description matches the mapped project area",
+            )
+          ) {
+            if (
+              window.localStorage
+                .getItem("a6:quick-check:claim-first:v1")
+                ?.includes("synthetic-malawi-pdd.pdf") ||
+              window.localStorage
+                .getItem("pins:AR-ACM0003:v02-0")
+                ?.includes("synthetic-malawi-pdd.pdf")
+            ) {
+              return new Response(
+                JSON.stringify({
+                  engineTag: "test",
+                  metrics: [],
+                  results: [],
+                }),
+                { status: 200 },
+              );
+            }
+          }
+          if (lower.includes("documented monitoring plan")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0003",
+                    section_title: "Monitoring plan",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.88,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("project boundary described")) {
+            if (
+              window.localStorage
+                .getItem("a6:quick-check:claim-first:v1")
+                ?.includes("local-fallback")
+            ) {
+              return new Response(
+                JSON.stringify({
+                  engineTag: "test",
+                  metrics: [],
+                  results: [],
+                }),
+                { status: 200 },
+              );
+            }
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0002",
+                    section_title: "Boundary consistency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.86,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (
+            lower.includes("project coordinates present") ||
+            lower.includes("mapped project area referenced") ||
+            lower.includes("project location described")
+          ) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0002",
+                    section_title: "Boundary consistency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.84,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (
+            lower.includes("mapped area boundary") ||
+            lower.includes("project coordinates boundary") ||
+            lower.includes("project location boundary")
+          ) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0002",
+                    section_title: "Boundary consistency",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.82,
+                  },
+                  {
+                    id: "R-2-0001",
+                    section_title: "Boundary delineation",
+                    methodology_id: "AR-AMS0007",
+                    methodology_version: "v01-0",
+                    score: 0.78,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("monitoring data 5 plots")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0004",
+                    section_title: "Workbook monitoring records",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.87,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("2026-q1 monitoring records")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0004",
+                    section_title: "Workbook monitoring records",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.89,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("documented monitoring evidence")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
+                results: [
+                  {
+                    id: "R-1-0003",
+                    section_title: "Monitoring plan",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.82,
+                  },
+                  {
+                    id: "R-1-0004",
+                    section_title: "Workbook monitoring records",
+                    methodology_id: "AR-ACM0003",
+                    methodology_version: "v02-0",
+                    score: 0.8,
+                  },
+                ],
+              }),
+              { status: 200 },
+            );
+          }
+          if (lower.includes("workbook referenced in pdd")) {
+            return new Response(
+              JSON.stringify({
+                engineTag: "test",
+                metrics: [],
                 results: [],
               }),
               { status: 200 },
             );
           }
-        }
-        if (lower.includes("documented monitoring plan")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0003",
-                  section_title: "Monitoring plan",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.88,
-                },
-              ],
-            }),
-            { status: 200 },
-          );
-        }
-        if (lower.includes("project boundary described")) {
-          if (window.localStorage.getItem("a6:quick-check:claim-first:v1")?.includes("local-fallback")) {
+          if (lower.includes("unsupported claim")) {
             return new Response(
               JSON.stringify({
                 engineTag: "test",
@@ -566,174 +818,34 @@ describe("QuickCheckPanel claim-first flow", () => {
               metrics: [],
               results: [
                 {
-                  id: "R-1-0002",
-                  section_title: "Boundary consistency",
+                  id: "baseline-carbon-44-12",
+                  section_title: "Baseline carbon memo",
                   methodology_id: "AR-ACM0003",
                   methodology_version: "v02-0",
-                  score: 0.86,
+                  score: 0.99,
                 },
-              ],
-            }),
-            { status: 200 },
-          );
-        }
-        if (lower.includes("project coordinates present") || lower.includes("mapped project area referenced") || lower.includes("project location described")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
                 {
                   id: "R-1-0002",
                   section_title: "Boundary consistency",
                   methodology_id: "AR-ACM0003",
                   methodology_version: "v02-0",
-                  score: 0.84,
-                },
-              ],
-            }),
-            { status: 200 },
-          );
-        }
-        if (lower.includes("mapped area boundary") || lower.includes("project coordinates boundary") || lower.includes("project location boundary")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0002",
-                  section_title: "Boundary consistency",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.82,
+                  score: 0.83,
                 },
                 {
                   id: "R-2-0001",
                   section_title: "Boundary delineation",
                   methodology_id: "AR-AMS0007",
                   methodology_version: "v01-0",
-                  score: 0.78,
+                  score: 0.81,
                 },
               ],
             }),
             { status: 200 },
           );
         }
-        if (lower.includes("monitoring data 5 plots")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0004",
-                  section_title: "Workbook monitoring records",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.87,
-                },
-              ],
-            }),
-            { status: 200 },
-          );
-        }
-        if (lower.includes("2026-q1 monitoring records")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0004",
-                  section_title: "Workbook monitoring records",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.89,
-                },
-              ],
-            }),
-            { status: 200 },
-          );
-        }
-        if (lower.includes("documented monitoring evidence")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [
-                {
-                  id: "R-1-0003",
-                  section_title: "Monitoring plan",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.82,
-                },
-                {
-                  id: "R-1-0004",
-                  section_title: "Workbook monitoring records",
-                  methodology_id: "AR-ACM0003",
-                  methodology_version: "v02-0",
-                  score: 0.8,
-                },
-              ],
-            }),
-            { status: 200 },
-          );
-        }
-        if (lower.includes("workbook referenced in pdd")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [],
-            }),
-            { status: 200 },
-          );
-        }
-        if (lower.includes("unsupported claim")) {
-          return new Response(
-            JSON.stringify({
-              engineTag: "test",
-              metrics: [],
-              results: [],
-            }),
-            { status: 200 },
-          );
-        }
-        return new Response(
-          JSON.stringify({
-            engineTag: "test",
-            metrics: [],
-            results: [
-              {
-                id: "baseline-carbon-44-12",
-                section_title: "Baseline carbon memo",
-                methodology_id: "AR-ACM0003",
-                methodology_version: "v02-0",
-                score: 0.99,
-              },
-              {
-                id: "R-1-0002",
-                section_title: "Boundary consistency",
-                methodology_id: "AR-ACM0003",
-                methodology_version: "v02-0",
-                score: 0.83,
-              },
-              {
-                id: "R-2-0001",
-                section_title: "Boundary delineation",
-                methodology_id: "AR-AMS0007",
-                methodology_version: "v01-0",
-                score: 0.81,
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      }
-      throw new Error(`Unhandled fetch ${url}`);
-    }) as typeof fetch;
+        throw new Error(`Unhandled fetch ${url}`);
+      },
+    ) as typeof fetch;
 
     window.localStorage.setItem(
       "pins:AR-ACM0003:v02-0",
@@ -808,6 +920,10 @@ describe("QuickCheckPanel claim-first flow", () => {
     container.remove();
     jest.clearAllMocks();
     window.localStorage.clear();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: originalLocation,
+    });
   });
 
   function claimInput(): HTMLTextAreaElement {
@@ -815,31 +931,42 @@ describe("QuickCheckPanel claim-first flow", () => {
   }
 
   function primaryCta(): HTMLButtonElement {
-    return Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Run quick check")) as HTMLButtonElement;
+    return Array.from(container.querySelectorAll("button")).find((node) =>
+      node.textContent?.includes("Run quick check"),
+    ) as HTMLButtonElement;
   }
 
   function clickButton(label: string) {
-    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
+    const button = Array.from(container.querySelectorAll("button")).find(
+      (node) => node.textContent?.includes(label),
+    );
     expect(button).toBeTruthy();
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
   function clickButtonIfPresent(label: string) {
-    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
+    const button = Array.from(container.querySelectorAll("button")).find(
+      (node) => node.textContent?.includes(label),
+    );
     if (!button) return;
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
   function setClaimValue(value: string) {
     const input = claimInput();
-    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+    const setter = Object.getOwnPropertyDescriptor(
+      HTMLTextAreaElement.prototype,
+      "value",
+    )?.set;
     setter?.call(input, value);
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   async function uploadEvidence(file: File) {
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const input = container.querySelector(
+      'input[data-testid="quick-check-evidence-input"]',
+    ) as HTMLInputElement;
     Object.defineProperty(input, "files", {
       configurable: true,
       value: [file],
@@ -870,7 +997,9 @@ describe("QuickCheckPanel claim-first flow", () => {
   }
 
   async function openExtractionDetails() {
-    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Show extraction details"));
+    const button = Array.from(container.querySelectorAll("button")).find(
+      (node) => node.textContent?.includes("Show extraction details"),
+    );
     if (button) {
       await act(async () => {
         button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -884,8 +1013,16 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     const pageText = container.textContent ?? "";
+    expect(pageText).toContain("Start Review");
+    expect(pageText).toContain(
+      "Upload a PDD, monitoring report, or evidence file. Article6 will detect the project, method, and next review step.",
+    );
+    expect(pageText).toContain("Upload project document");
+    expect(pageText).toContain("Run a quick evidence check instead");
     expect(pageText).toContain("Quick Check");
-    expect(pageText).toContain("Upload evidence. Get a preliminary match in seconds.");
+    expect(pageText).toContain(
+      "Upload evidence. Get a preliminary match in seconds.",
+    );
     expect(pageText).toContain("Upload evidence");
     expect(pageText).toContain("Try demo check");
     expect(pageText).toContain("Options");
@@ -899,7 +1036,9 @@ describe("QuickCheckPanel claim-first flow", () => {
       root.render(<QuickCheckPanel />);
     });
 
-    const demoButton = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Try demo check"));
+    const demoButton = Array.from(container.querySelectorAll("button")).find(
+      (node) => node.textContent?.includes("Try demo check"),
+    );
     expect(demoButton).toBeTruthy();
     expect((demoButton as HTMLButtonElement).disabled).toBe(false);
     expect(primaryCta().disabled).toBe(true);
@@ -911,7 +1050,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     const chip = Array.from(container.querySelectorAll("button")).find((node) =>
-      node.textContent?.includes("The monitoring report covers the full reporting period."),
+      node.textContent?.includes(
+        "The monitoring report covers the full reporting period.",
+      ),
     );
     expect(chip).toBeTruthy();
 
@@ -919,12 +1060,16 @@ describe("QuickCheckPanel claim-first flow", () => {
       chip?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    expect(claimInput().value).toBe("The monitoring report covers the full reporting period.");
+    expect(claimInput().value).toBe(
+      "The monitoring report covers the full reporting period.",
+    );
   });
 
   it("keeps the CTA disabled until claim and evidence are both present", async () => {
     await act(async () => {
-      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+      root.render(
+        <QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />,
+      );
     });
 
     expect(primaryCta().disabled).toBe(true);
@@ -941,7 +1086,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await uploadEvidence(
       new File(
-        ["%PDF-1.4\n(Monitoring report for the full reporting period. AR-ACM0003 methodology reference.)\n%%EOF"],
+        [
+          "%PDF-1.4\n(Monitoring report for the full reporting period. AR-ACM0003 methodology reference.)\n%%EOF",
+        ],
         "fresh-monitoring-report.pdf",
         { type: "application/pdf" },
       ),
@@ -954,7 +1101,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Source");
     expect(container.textContent).toContain("Uploaded file");
     expect(container.textContent).toContain("Grounded");
-    expect(container.textContent).toContain("The project has documented monitoring evidence");
+    expect(container.textContent).toContain(
+      "The project has documented monitoring evidence",
+    );
     await openExtractionDetails();
     expect(container.textContent).toContain("Extraction signal");
     expect(container.textContent).toContain("AR-ACM0003");
@@ -976,7 +1125,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).not.toContain("Open full review");
     expect(container.textContent).not.toContain(QUICK_CHECK_DEMO.filename);
     expect(container.textContent).not.toContain("Match confidence");
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("renders an extraction failure state when uploaded parsing yields insufficient data", async () => {
@@ -994,12 +1145,19 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Weak");
     await openExtractionDetails();
     expect(container.textContent).toContain("Extraction signal");
-    expect(container.textContent).toContain("We couldn't extract enough usable data from this file for a reliable preliminary match yet.");
-    expect(container.textContent).toContain("We couldn't extract usable text from this file yet.");
+    expect(container.textContent).toContain(
+      "We couldn't extract enough usable data from this file for a reliable preliminary match yet.",
+    );
+    expect(container.textContent).toContain(
+      "We couldn't extract usable text from this file yet.",
+    );
   });
 
   it("shows a single fallback path when extraction stays weak", async () => {
-    seedSession({ claimText: "The monitoring report covers the full reporting period.", filename: "opaque-scan.pdf" });
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "opaque-scan.pdf",
+    });
     await seedAttachmentText("att-upload-1", "%%%%");
 
     await act(async () => {
@@ -1024,7 +1182,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
   it("enables the CTA only when one claim and one evidence item are present", async () => {
     await act(async () => {
-      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+      root.render(
+        <QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />,
+      );
     });
 
     expect(primaryCta().disabled).toBe(true);
@@ -1038,7 +1198,9 @@ describe("QuickCheckPanel claim-first flow", () => {
       openOptions();
     });
 
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = container.querySelector(
+      "select",
+    ) as HTMLSelectElement;
     await act(async () => {
       inventorySelect.value = "ev-1";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1054,14 +1216,22 @@ describe("QuickCheckPanel claim-first flow", () => {
     );
 
     await act(async () => {
-      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" onContinueToWorkspace={pushMock} />);
+      root.render(
+        <QuickCheckPanel
+          initialMethod="AR-ACM0003"
+          initialVersion="v02-0"
+          onContinueToWorkspace={pushMock}
+        />,
+      );
     });
 
     await act(async () => {
       openOptions();
     });
 
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = container.querySelector(
+      "select",
+    ) as HTMLSelectElement;
 
     await act(async () => {
       clickButton("The monitoring report covers the full reporting period.");
@@ -1077,7 +1247,9 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Run quick check");
     });
 
-    expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
+    expect(container.textContent).toContain(
+      "The monitoring report covers the full reporting period.",
+    );
     expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("R-1-0001");
@@ -1096,7 +1268,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     // Compact triage card contract: verdict + claim + rationale + signal + one action
     const resultText = container.textContent ?? "";
-    expect(resultText).toMatch(/^(?!.*Preliminary match found)(?!.*Candidate from current catalog).*/); // old titles gone
+    expect(resultText).toMatch(
+      /^(?!.*Preliminary match found)(?!.*Candidate from current catalog).*/,
+    ); // old titles gone
     expect(resultText).toContain("Needs review");
     expect(resultText).toContain("Evidence found but inconclusive");
     expect(resultText).toContain("Open full review"); // one primary action
@@ -1112,9 +1286,13 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=saved_evidence");
+    expect(pushMock).toHaveBeenCalledWith(
+      "/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=saved_evidence",
+    );
     expect(loadPins("AR-ACM0003", "v02-0")[0]?.ruleId).toBe("R-1-0001");
-    expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain("R-1-0001");
+    expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain(
+      "R-1-0001",
+    );
   });
 
   it("renders a strong evidence match as triage only and still hands off into full review", async () => {
@@ -1128,7 +1306,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await uploadEvidence(
       new File(
-        ["%PDF-1.4\n(Monitoring report for the full reporting period. AR-ACM0003 methodology reference.)\n%%EOF"],
+        [
+          "%PDF-1.4\n(Monitoring report for the full reporting period. AR-ACM0003 methodology reference.)\n%%EOF",
+        ],
         "fresh-monitoring-report.pdf",
         { type: "application/pdf" },
       ),
@@ -1147,14 +1327,18 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("Strong evidence match");
-    expect(container.textContent).toContain("Triage strength — open full review to lock");
+    expect(container.textContent).toContain(
+      "Triage strength — open full review to lock",
+    );
     expect(container.textContent).toContain("Open full review");
 
     await act(async () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=uploaded_file");
+    expect(pushMock).toHaveBeenCalledWith(
+      "/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=uploaded_file",
+    );
   });
 
   it("surfaces an in-scope boundary match instead of failing opaquely", async () => {
@@ -1163,7 +1347,8 @@ describe("QuickCheckPanel claim-first flow", () => {
       JSON.stringify({
         draft: {
           id: "draft-ambiguous",
-          claimText: "The boundary description matches the mapped project area.",
+          claimText:
+            "The boundary description matches the mapped project area.",
           methodologyId: "",
           methodologyVersion: "",
           evidenceIds: ["upload-1"],
@@ -1213,7 +1398,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).not.toContain("baseline-carbon-44-12");
     expect(text).not.toContain("Baseline carbon memo");
     expect(text).not.toContain("The matched requirement could not be loaded.");
-    expect(/Likely requirement matches|Supported|Needs review|Partial/.test(text)).toBe(true);
+    expect(
+      /Likely requirement matches|Supported|Needs review|Partial/.test(text),
+    ).toBe(true);
   });
 
   it("renders recovery actions when no clear match is found", async () => {
@@ -1239,12 +1426,20 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).not.toContain("Detected from evidence");
     expect(container.textContent).toContain("Monitoring plan");
     expect(container.textContent).toMatch(/Needs review|Partial|Supported/);
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("returns a plausible result for a PDD boundary claim using parsed uploaded evidence", async () => {
-    seedSession({ claimText: "The project boundary is described in the PDD", filename: "malawi-pdd.pdf" });
-    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF");
+    seedSession({
+      claimText: "The project boundary is described in the PDD",
+      filename: "malawi-pdd.pdf",
+    });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1263,8 +1458,14 @@ describe("QuickCheckPanel claim-first flow", () => {
   });
 
   it("falls back to a likely boundary match when retrieval misses but evidence facts are strong", async () => {
-    seedSession({ claimText: "local-fallback: The project boundary is described in the PDD", filename: "malawi-pdd.pdf" });
-    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF");
+    seedSession({
+      claimText: "local-fallback: The project boundary is described in the PDD",
+      filename: "malawi-pdd.pdf",
+    });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1279,13 +1480,21 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toMatch(/Needs review|Partial|Supported/);
-    expect(container.textContent).toMatch(/Likely requirement matches|Supported|Needs review|Partial/);
+    expect(container.textContent).toMatch(
+      /Likely requirement matches|Supported|Needs review|Partial/,
+    );
     expect(container.textContent).not.toContain("No clear match yet");
   });
 
   it("returns a plausible result for a monitoring-plan claim using parsed uploaded evidence", async () => {
-    seedSession({ claimText: "The project has a documented monitoring plan", filename: "malawi-pdd.pdf" });
-    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Documented monitoring plan for the project.)\n%%EOF");
+    seedSession({
+      claimText: "The project has a documented monitoring plan",
+      filename: "malawi-pdd.pdf",
+    });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Documented monitoring plan for the project.)\n%%EOF",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1296,7 +1505,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     expect(container.textContent).toContain("Monitoring plan");
-    expect(container.textContent).toMatch(/Open full review|Likely requirement matches/);
+    expect(container.textContent).toMatch(
+      /Open full review|Likely requirement matches/,
+    );
   });
 
   it("returns a plausible result for a five-plots workbook claim", async () => {
@@ -1334,11 +1545,31 @@ describe("QuickCheckPanel claim-first flow", () => {
             row_count: 5,
             column_names: ["plot_id", "monitoring_period", "qa_status"],
             rows: [
-              { plot_id: "P-1", monitoring_period: "2026-Q1", qa_status: "checked" },
-              { plot_id: "P-2", monitoring_period: "2026-Q1", qa_status: "checked" },
-              { plot_id: "P-3", monitoring_period: "2026-Q1", qa_status: "checked" },
-              { plot_id: "P-4", monitoring_period: "2026-Q1", qa_status: "checked" },
-              { plot_id: "P-5", monitoring_period: "2026-Q1", qa_status: "checked" },
+              {
+                plot_id: "P-1",
+                monitoring_period: "2026-Q1",
+                qa_status: "checked",
+              },
+              {
+                plot_id: "P-2",
+                monitoring_period: "2026-Q1",
+                qa_status: "checked",
+              },
+              {
+                plot_id: "P-3",
+                monitoring_period: "2026-Q1",
+                qa_status: "checked",
+              },
+              {
+                plot_id: "P-4",
+                monitoring_period: "2026-Q1",
+                qa_status: "checked",
+              },
+              {
+                plot_id: "P-5",
+                monitoring_period: "2026-Q1",
+                qa_status: "checked",
+              },
             ],
             provenance_summary: "malawi-monitoring.csv • Monitoring • A1:C6",
           },
@@ -1423,7 +1654,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     );
 
     await act(async () => {
-      root.render(<QuickCheckPanel initialMethod="AR-AMS0007" initialVersion="v01-0" />);
+      root.render(
+        <QuickCheckPanel initialMethod="AR-AMS0007" initialVersion="v01-0" />,
+      );
     });
 
     await act(async () => {
@@ -1431,7 +1664,9 @@ describe("QuickCheckPanel claim-first flow", () => {
       openOptions();
     });
 
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = container.querySelector(
+      "select",
+    ) as HTMLSelectElement;
     await act(async () => {
       inventorySelect.value = "ev-ams-1";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1453,7 +1688,8 @@ describe("QuickCheckPanel claim-first flow", () => {
       JSON.stringify({
         draft: {
           id: "draft-narrowed-shortlist",
-          claimText: "The boundary description matches the mapped project area.",
+          claimText:
+            "The boundary description matches the mapped project area.",
           methodologyId: "AR-ACM0003",
           methodologyVersion: "v02-0",
           evidenceIds: ["upload-1"],
@@ -1534,12 +1770,16 @@ describe("QuickCheckPanel claim-first flow", () => {
 
   it("shows a blocked state when Kenya extraction is usable but AR-AM0014 has no valid analysis path", async () => {
     seedSession({
-      claimText: "kenya no valid analysis path: The monitoring report covers the full reporting period.",
+      claimText:
+        "kenya no valid analysis path: The monitoring report covers the full reporting period.",
       methodologyId: "AR-AM0014",
       methodologyVersion: "v03-0",
       filename: "kenya-second-check-evidence.pdf",
     });
-    await seedAttachmentFixture("att-upload-1", "kenya-second-check-evidence.pdf");
+    await seedAttachmentFixture(
+      "att-upload-1",
+      "kenya-second-check-evidence.pdf",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1591,7 +1831,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("No valid match in AR-AMS0007");
-    expect(text).toContain("selected methodology did not produce a valid requirement match");
+    expect(text).toContain(
+      "selected methodology did not produce a valid requirement match",
+    );
     expect(text).toContain("Likely requirement matches");
     expect(text).toMatch(/Supported|Needs review|Partial|Open full review/);
     expect(text).toContain("AR-ACM0003 · v02-0");
@@ -1600,10 +1842,14 @@ describe("QuickCheckPanel claim-first flow", () => {
 
   it("asks for methodology confirmation instead of auto-narrowing Kenya evidence across methods", async () => {
     seedSession({
-      claimText: "kenya cross-method confirmation: The monitoring report covers the full reporting period.",
+      claimText:
+        "kenya cross-method confirmation: The monitoring report covers the full reporting period.",
       filename: "kenya-second-check-evidence.pdf",
     });
-    await seedAttachmentFixture("att-upload-1", "kenya-second-check-evidence.pdf");
+    await seedAttachmentFixture(
+      "att-upload-1",
+      "kenya-second-check-evidence.pdf",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1621,7 +1867,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Methodology needs confirmation");
-    expect(text).toContain("closest supported matches still span multiple methodologies");
+    expect(text).toContain(
+      "closest supported matches still span multiple methodologies",
+    );
     expect(text).toContain("Likely requirement matches");
     expect(text).toContain("AR-AM0014 · v03-0");
     expect(text).toContain("AR-ACM0003 · v02-0");
@@ -1633,7 +1881,10 @@ describe("QuickCheckPanel claim-first flow", () => {
       claimText: "The monitoring report covers the full reporting period.",
       filename: "kenya-second-check-evidence.pdf",
     });
-    await seedAttachmentFixture("att-upload-1", "kenya-second-check-evidence.pdf");
+    await seedAttachmentFixture(
+      "att-upload-1",
+      "kenya-second-check-evidence.pdf",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1656,8 +1907,14 @@ describe("QuickCheckPanel claim-first flow", () => {
   });
 
   it("falls back safely when the top direct-match candidate is unresolved", async () => {
-    seedSession({ claimText: "invalid top candidate", filename: "monitoring-report.pdf" });
-    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Monitoring report for the reporting period.)\n%%EOF");
+    seedSession({
+      claimText: "invalid top candidate",
+      filename: "monitoring-report.pdf",
+    });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Monitoring report for the reporting period.)\n%%EOF",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1678,8 +1935,14 @@ describe("QuickCheckPanel claim-first flow", () => {
   });
 
   it("filters unresolved shortlist entries before rendering them", async () => {
-    seedSession({ claimText: "shortlist with unresolved", filename: "boundary.pdf" });
-    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF");
+    seedSession({
+      claimText: "shortlist with unresolved",
+      filename: "boundary.pdf",
+    });
+    await seedAttachmentText(
+      "att-upload-1",
+      "%PDF-1.4\n(Project boundary description for the Malawi project.)\n%%EOF",
+    );
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1711,13 +1974,17 @@ describe("QuickCheckPanel claim-first flow", () => {
     );
 
     await act(async () => {
-      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+      root.render(
+        <QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />,
+      );
     });
 
     await act(async () => {
       openOptions();
     });
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = container.querySelector(
+      "select",
+    ) as HTMLSelectElement;
     await act(async () => {
       inventorySelect.value = "ev-pdd-malawi";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1748,13 +2015,17 @@ describe("QuickCheckPanel claim-first flow", () => {
     );
 
     await act(async () => {
-      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+      root.render(
+        <QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />,
+      );
     });
 
     await act(async () => {
       openOptions();
     });
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = container.querySelector(
+      "select",
+    ) as HTMLSelectElement;
     await act(async () => {
       inventorySelect.value = "ev-pdd-malawi";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1784,13 +2055,17 @@ describe("QuickCheckPanel claim-first flow", () => {
     );
 
     await act(async () => {
-      root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
+      root.render(
+        <QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />,
+      );
     });
 
     await act(async () => {
       openOptions();
     });
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = container.querySelector(
+      "select",
+    ) as HTMLSelectElement;
     await act(async () => {
       inventorySelect.value = "ev-pdd-malawi";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1806,7 +2081,10 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     const text = container.textContent ?? "";
-    if (text.includes("Likely requirement matches") || text.includes("Boundary consistency")) {
+    if (
+      text.includes("Likely requirement matches") ||
+      text.includes("Boundary consistency")
+    ) {
       expect(text).not.toContain("Boundary delineation");
       expect(text).not.toContain("Baseline carbon memo");
       return;
@@ -1830,7 +2108,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
     expect(container.textContent).toContain("Needs review");
-    
+
     // Compact triage card contract
     const demoText = container.textContent ?? "";
     expect(demoText).toContain("Needs review");
@@ -1842,7 +2120,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(demoText).not.toContain("What we found in the file");
     expect(demoText).not.toContain("What remains unresolved");
     expect(demoText).not.toContain("Upload stronger evidence");
-    expect(demoText).not.toContain("The matched requirement could not be loaded.");
+    expect(demoText).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("preserves demo context when opening the full review", async () => {
@@ -1862,14 +2142,27 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=demo_evidence");
-    expect(loadPins("AR-ACM0003", "v02-0").find((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId)?.ruleId).toBe("R-1-0001");
-    expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain("R-1-0001");
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(pushMock).toHaveBeenCalledWith(
+      "/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=demo_evidence",
+    );
+    expect(
+      loadPins("AR-ACM0003", "v02-0").find(
+        (pin) => pin.id === QUICK_CHECK_DEMO.evidenceId,
+      )?.ruleId,
+    ).toBe("R-1-0001");
+    expect(window.localStorage.getItem("verify:AR-ACM0003:v02-0")).toContain(
+      "R-1-0001",
+    );
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("keeps the uploaded-evidence path working after adding the demo shortcut", async () => {
-    seedSession({ claimText: "The monitoring report covers the full reporting period.", filename: "monitoring-report.pdf" });
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "monitoring-report.pdf",
+    });
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -1893,7 +2186,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Use match");
     expect(container.textContent).not.toContain("Open full review");
     expect(container.textContent).toContain("monitoring-report.pdf");
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("keeps repeated demo runs deterministic", async () => {
@@ -1909,9 +2204,13 @@ describe("QuickCheckPanel claim-first flow", () => {
       await Promise.resolve();
     });
 
-    const firstPins = loadPins("AR-ACM0003", "v02-0").filter((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId);
+    const firstPins = loadPins("AR-ACM0003", "v02-0").filter(
+      (pin) => pin.id === QUICK_CHECK_DEMO.evidenceId,
+    );
     expect(firstPins).toHaveLength(1);
-    expect(container.textContent).toMatch(/Supported|Needs review|Partial|Open full review/);
+    expect(container.textContent).toMatch(
+      /Supported|Needs review|Partial|Open full review/,
+    );
 
     await act(async () => {
       clickButton("Try demo check");
@@ -1921,13 +2220,19 @@ describe("QuickCheckPanel claim-first flow", () => {
       await Promise.resolve();
     });
 
-    const repeatedPins = loadPins("AR-ACM0003", "v02-0").filter((pin) => pin.id === QUICK_CHECK_DEMO.evidenceId);
+    const repeatedPins = loadPins("AR-ACM0003", "v02-0").filter(
+      (pin) => pin.id === QUICK_CHECK_DEMO.evidenceId,
+    );
     expect(repeatedPins).toHaveLength(1);
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toMatch(/Supported|Needs review|Partial|Open full review/);
+    expect(container.textContent).toMatch(
+      /Supported|Needs review|Partial|Open full review/,
+    );
     expect(container.textContent).not.toContain("Likely requirement matches");
     expect(container.textContent).not.toContain("No clear match yet");
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("keeps the demo result stable across a reload", async () => {
@@ -1942,7 +2247,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     await flushUi();
 
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.claimText);
-    expect(container.textContent).toMatch(/Supported|Needs review|Partial|Open full review/);
+    expect(container.textContent).toMatch(
+      /Supported|Needs review|Partial|Open full review/,
+    );
 
     await act(async () => {
       root.unmount();
@@ -1962,13 +2269,17 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
     expect(container.textContent).toContain("Needs review");
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
 
     await act(async () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenLastCalledWith("/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=demo_evidence");
+    expect(pushMock).toHaveBeenLastCalledWith(
+      "/m/AR-ACM0003/v/v02-0?tab=verify&mode=list&rule=R-1-0001&quickCheckSource=demo_evidence",
+    );
   });
 
   it("ignores prior manual edits when running the demo", async () => {
@@ -1996,8 +2307,12 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(claimInput().value).toBe(QUICK_CHECK_DEMO.claimText);
     expect(container.textContent).toContain(QUICK_CHECK_DEMO.filename);
     expect(container.textContent).not.toContain("manual-boundary-note.pdf");
-    expect(container.textContent).toMatch(/Supported|Needs review|Partial|Open full review/);
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(container.textContent).toMatch(
+      /Supported|Needs review|Partial|Open full review/,
+    );
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("replaces a prior no-match state with the same demo result", async () => {
@@ -2030,7 +2345,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain("Likely requirement matches");
-    expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
+    expect(container.textContent).not.toContain(
+      "The matched requirement could not be loaded.",
+    );
   });
 
   it("shows methodology not detected as a distinct extraction diagnostic", async () => {
@@ -2075,7 +2392,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Selected methodology mismatch");
-    expect(text).toContain("Evidence appears to reference VM0007, but current selected method is ACM0010.");
+    expect(text).toContain(
+      "Evidence appears to reference VM0007, but current selected method is ACM0010.",
+    );
   });
 
   it("narrows a PLUM boundary claim to VM0007 candidates only", async () => {
@@ -2089,7 +2408,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+    expect(container.textContent).toContain(
+      "Detected methodology: VM0007. Requirement matches are narrowed to VM0007.",
+    );
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2120,7 +2441,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+    expect(container.textContent).toContain(
+      "Detected methodology: VM0007. Requirement matches are narrowed to VM0007.",
+    );
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2151,7 +2474,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+    expect(container.textContent).toContain(
+      "Detected methodology: VM0007. Requirement matches are narrowed to VM0007.",
+    );
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2164,7 +2489,9 @@ describe("QuickCheckPanel claim-first flow", () => {
       clickButton("Open full review");
     });
 
-    expect(pushMock).toHaveBeenLastCalledWith("/m/VM0007/v/v1-0?tab=verify&mode=list");
+    expect(pushMock).toHaveBeenLastCalledWith(
+      "/m/VM0007/v/v1-0?tab=verify&mode=list",
+    );
   });
 
   it("requires methodology confirmation when multiple detected methods are present", async () => {
@@ -2178,7 +2505,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Methodology needs confirmation. Requirement matches are limited to VM0007, GS-VER1.");
+    expect(container.textContent).toContain(
+      "Methodology needs confirmation. Requirement matches are limited to VM0007, GS-VER1.",
+    );
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2203,7 +2532,9 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected ACM0010, but no matching method pack is available.");
+    expect(container.textContent).toContain(
+      "Detected ACM0010, but no matching method pack is available.",
+    );
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2211,7 +2542,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await flushUi();
     const text = container.textContent ?? "";
-    expect(text).toContain("Detected ACM0010, but no matching method pack is available.");
+    expect(text).toContain(
+      "Detected ACM0010, but no matching method pack is available.",
+    );
     expect(text).not.toContain("Likely requirement matches");
     expect(text).not.toContain("Monitoring frequency");
   });
@@ -2227,6 +2560,8 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("No methodology detected. Requirement matches use broad matching and may be unrelated.");
+    expect(container.textContent).toContain(
+      "No methodology detected. Requirement matches use broad matching and may be unrelated.",
+    );
   });
 });
