@@ -23,7 +23,10 @@ import {
   type QuickCheckClaimIntent,
   type QuickCheckEvidenceAnalysis,
 } from "@/lib/chat/quickCheckEvidence";
-import { resolveQuickCheckMethodology, type QuickCheckMethodologyResolution } from "@/lib/chat/quickCheckMethodology";
+import {
+  resolveQuickCheckMethodology,
+  type QuickCheckMethodologyResolution,
+} from "@/lib/chat/quickCheckMethodology";
 import {
   buildQuickCheckResult,
   ensureQuickCheckWorkspaceHandoff,
@@ -37,16 +40,27 @@ import {
   type QuickCheckSourceMode,
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
-import { buildQuickCheckDemoCandidate, prepareQuickCheckDemo, QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
+import {
+  buildQuickCheckDemoCandidate,
+  prepareQuickCheckDemo,
+  QUICK_CHECK_DEMO,
+} from "@/lib/chat/quickCheckDemo";
 import { stageProjectDocumentDraftFromAttachment } from "@/lib/projects/documentMetadata";
 import {
   resolveQuickCheckCandidate,
   resolveQuickCheckCandidates,
   type QuickCheckResolvedCandidate,
 } from "@/lib/chat/quickCheckResolver";
-import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
+import {
+  buildQuickCheckExtractionSnapshot,
+  deriveQuickCheckExtractionState,
+  normalizeQuickCheckUiResult,
+} from "@/lib/chat/quickCheckUi";
 import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
-import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
+import {
+  coalesceEvidencePins,
+  type EvidenceInventoryItem,
+} from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
@@ -108,19 +122,17 @@ type RecoveryState =
     }
   | null;
 
-type ExtractionDiagnostic =
-  | {
-      code:
-        | "parser-failed"
-        | "no-selectable-text"
-        | "selected-methodology-mismatch"
-        | "methodology-not-detected"
-        | "methodology-needs-confirmation"
-        | "methodology-pack-unavailable";
-      label: string;
-      message: string;
-    }
-  | null;
+type ExtractionDiagnostic = {
+  code:
+    | "parser-failed"
+    | "no-selectable-text"
+    | "selected-methodology-mismatch"
+    | "methodology-not-detected"
+    | "methodology-needs-confirmation"
+    | "methodology-pack-unavailable";
+  label: string;
+  message: string;
+} | null;
 
 type QueryResultWithSignals = QueryResponse["results"][number] & {
   _signalBoost: number;
@@ -144,17 +156,24 @@ function nowIso(): string {
 }
 
 function newPinId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function")
+    return crypto.randomUUID();
   return `pin-${nowIso()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function pickVersion(method: MethodInventoryRecord | undefined, preferred?: string | null): string {
+function pickVersion(
+  method: MethodInventoryRecord | undefined,
+  preferred?: string | null,
+): string {
   if (!method) return preferred?.trim() ?? "";
-  if (preferred?.trim() && method.versions.includes(preferred.trim())) return preferred.trim();
+  if (preferred?.trim() && method.versions.includes(preferred.trim()))
+    return preferred.trim();
   return method.latestVersion ?? method.versions[0] ?? "";
 }
 
-function pickRequirementLabel(result: QueryResponse["results"][number]): string {
+function pickRequirementLabel(
+  result: QueryResponse["results"][number],
+): string {
   const explicit =
     (typeof result.section_title === "string" && result.section_title.trim()) ||
     (typeof result.sectionTitle === "string" && result.sectionTitle.trim()) ||
@@ -168,56 +187,160 @@ function boostForEvidenceFacts(
   analysis: QuickCheckEvidenceAnalysis,
   claimIntents: QuickCheckClaimIntent[],
 ): number {
-  const haystack = `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
+  const haystack =
+    `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
   let boost = 0;
-  const prefersBoundaryLocation = claimIntents.some((intent) =>
-    intent === "boundary" ||
-    intent === "project-area" ||
-    intent === "mapped-area" ||
-    intent === "aoi" ||
-    intent === "coordinates" ||
-    intent === "location",
+  const prefersBoundaryLocation = claimIntents.some(
+    (intent) =>
+      intent === "boundary" ||
+      intent === "project-area" ||
+      intent === "mapped-area" ||
+      intent === "aoi" ||
+      intent === "coordinates" ||
+      intent === "location",
   );
   const prefersMonitoring = claimIntents.includes("monitoring-plan");
   for (const fact of analysis.facts) {
-    if (fact.category === "boundary" && haystack.includes("boundary")) boost += prefersMonitoring ? 0.04 : 0.16;
-    if (fact.category === "coordinates" && (haystack.includes("coordinate") || haystack.includes("location") || haystack.includes("boundary"))) boost += prefersMonitoring ? 0.04 : 0.16;
-    if (fact.category === "mapped-area" && (haystack.includes("mapped area") || haystack.includes("project area") || haystack.includes("aoi") || haystack.includes("polygon") || haystack.includes("map") || haystack.includes("boundary"))) boost += prefersMonitoring ? 0.05 : 0.18;
-    if (fact.category === "project-location" && (haystack.includes("location") || haystack.includes("boundary") || haystack.includes("area") || haystack.includes("map"))) boost += prefersMonitoring ? 0.04 : 0.14;
-    if (fact.category === "monitoring-plan" && haystack.includes("monitoring")) boost += prefersBoundaryLocation ? 0.1 : 0.16;
-    if (fact.category === "workbook-reference" && (haystack.includes("workbook") || haystack.includes("spreadsheet"))) boost += prefersBoundaryLocation ? 0.08 : 0.12;
-    if (fact.category === "monitoring-evidence" && haystack.includes("monitoring")) boost += prefersBoundaryLocation ? 0.06 : 0.1;
-    if (fact.category === "plot-count" && (haystack.includes("plot") || haystack.includes("sampling") || haystack.includes("monitoring"))) boost += 0.12;
-    if (fact.category === "reporting-period" && (haystack.includes("period") || haystack.includes("monitoring"))) boost += 0.12;
-    if (fact.category === "monitoring-records" && (haystack.includes("monitoring") || haystack.includes("workbook"))) boost += prefersBoundaryLocation ? 0.06 : 0.1;
-    if (fact.category === "qa-summary" && (haystack.includes("quality") || haystack.includes("review") || haystack.includes("qa"))) boost += 0.08;
+    if (fact.category === "boundary" && haystack.includes("boundary"))
+      boost += prefersMonitoring ? 0.04 : 0.16;
+    if (
+      fact.category === "coordinates" &&
+      (haystack.includes("coordinate") ||
+        haystack.includes("location") ||
+        haystack.includes("boundary"))
+    )
+      boost += prefersMonitoring ? 0.04 : 0.16;
+    if (
+      fact.category === "mapped-area" &&
+      (haystack.includes("mapped area") ||
+        haystack.includes("project area") ||
+        haystack.includes("aoi") ||
+        haystack.includes("polygon") ||
+        haystack.includes("map") ||
+        haystack.includes("boundary"))
+    )
+      boost += prefersMonitoring ? 0.05 : 0.18;
+    if (
+      fact.category === "project-location" &&
+      (haystack.includes("location") ||
+        haystack.includes("boundary") ||
+        haystack.includes("area") ||
+        haystack.includes("map"))
+    )
+      boost += prefersMonitoring ? 0.04 : 0.14;
+    if (fact.category === "monitoring-plan" && haystack.includes("monitoring"))
+      boost += prefersBoundaryLocation ? 0.1 : 0.16;
+    if (
+      fact.category === "workbook-reference" &&
+      (haystack.includes("workbook") || haystack.includes("spreadsheet"))
+    )
+      boost += prefersBoundaryLocation ? 0.08 : 0.12;
+    if (
+      fact.category === "monitoring-evidence" &&
+      haystack.includes("monitoring")
+    )
+      boost += prefersBoundaryLocation ? 0.06 : 0.1;
+    if (
+      fact.category === "plot-count" &&
+      (haystack.includes("plot") ||
+        haystack.includes("sampling") ||
+        haystack.includes("monitoring"))
+    )
+      boost += 0.12;
+    if (
+      fact.category === "reporting-period" &&
+      (haystack.includes("period") || haystack.includes("monitoring"))
+    )
+      boost += 0.12;
+    if (
+      fact.category === "monitoring-records" &&
+      (haystack.includes("monitoring") || haystack.includes("workbook"))
+    )
+      boost += prefersBoundaryLocation ? 0.06 : 0.1;
+    if (
+      fact.category === "qa-summary" &&
+      (haystack.includes("quality") ||
+        haystack.includes("review") ||
+        haystack.includes("qa"))
+    )
+      boost += 0.08;
   }
   return Math.min(boost, 0.4);
 }
 
-function boostForClaimIntents(result: QueryResultWithSignals, claimIntents: QuickCheckClaimIntent[]): number {
-  const haystack = `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
+function boostForClaimIntents(
+  result: QueryResultWithSignals,
+  claimIntents: QuickCheckClaimIntent[],
+): number {
+  const haystack =
+    `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
   let boost = 0;
   for (const intent of claimIntents) {
     if (intent === "boundary" && haystack.includes("boundary")) boost += 0.16;
-    if (intent === "project-area" && (haystack.includes("project area") || haystack.includes("boundary") || haystack.includes("area"))) boost += 0.12;
-    if (intent === "mapped-area" && (haystack.includes("mapped area") || haystack.includes("map") || haystack.includes("boundary") || haystack.includes("aoi"))) boost += 0.15;
-    if (intent === "aoi" && (haystack.includes("aoi") || haystack.includes("area of interest") || haystack.includes("polygon") || haystack.includes("boundary"))) boost += 0.14;
-    if (intent === "coordinates" && (haystack.includes("coordinate") || haystack.includes("location") || haystack.includes("boundary"))) boost += 0.14;
-    if (intent === "location" && (haystack.includes("location") || haystack.includes("site") || haystack.includes("boundary"))) boost += 0.12;
-    if (intent === "monitoring-plan" && haystack.includes("monitoring")) boost += 0.12;
+    if (
+      intent === "project-area" &&
+      (haystack.includes("project area") ||
+        haystack.includes("boundary") ||
+        haystack.includes("area"))
+    )
+      boost += 0.12;
+    if (
+      intent === "mapped-area" &&
+      (haystack.includes("mapped area") ||
+        haystack.includes("map") ||
+        haystack.includes("boundary") ||
+        haystack.includes("aoi"))
+    )
+      boost += 0.15;
+    if (
+      intent === "aoi" &&
+      (haystack.includes("aoi") ||
+        haystack.includes("area of interest") ||
+        haystack.includes("polygon") ||
+        haystack.includes("boundary"))
+    )
+      boost += 0.14;
+    if (
+      intent === "coordinates" &&
+      (haystack.includes("coordinate") ||
+        haystack.includes("location") ||
+        haystack.includes("boundary"))
+    )
+      boost += 0.14;
+    if (
+      intent === "location" &&
+      (haystack.includes("location") ||
+        haystack.includes("site") ||
+        haystack.includes("boundary"))
+    )
+      boost += 0.12;
+    if (intent === "monitoring-plan" && haystack.includes("monitoring"))
+      boost += 0.12;
   }
   return Math.min(boost, 0.36);
 }
 
-function boostForClaimPhrases(result: QueryResultWithSignals, claimText: string): number {
-  const haystack = `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
+function boostForClaimPhrases(
+  result: QueryResultWithSignals,
+  claimText: string,
+): number {
+  const haystack =
+    `${pickRequirementLabel(result)} ${result.text ?? ""} ${(result.tags ?? []).join(" ")} ${(result.refs ?? []).join(" ")}`.toLowerCase();
   const claim = claimText.trim().toLowerCase();
   let boost = 0;
 
-  if (claim.includes("monitoring report") && haystack.includes("report")) boost += 0.12;
-  if (claim.includes("reporting period") && (haystack.includes("period") || haystack.includes("frequency"))) boost += 0.09;
-  if (claim.includes("mapped project area") && (haystack.includes("mapped area") || haystack.includes("boundary"))) boost += 0.06;
+  if (claim.includes("monitoring report") && haystack.includes("report"))
+    boost += 0.12;
+  if (
+    claim.includes("reporting period") &&
+    (haystack.includes("period") || haystack.includes("frequency"))
+  )
+    boost += 0.09;
+  if (
+    claim.includes("mapped project area") &&
+    (haystack.includes("mapped area") || haystack.includes("boundary"))
+  )
+    boost += 0.06;
 
   return Math.min(boost, 0.24);
 }
@@ -241,20 +364,33 @@ function buildMatchCandidates(
 
   for (const result of results) {
     const methodologyId =
-      (typeof result.methodology_id === "string" && result.methodology_id.trim()) ||
-      (typeof result.methodologyId === "string" && result.methodologyId.trim()) ||
+      (typeof result.methodology_id === "string" &&
+        result.methodology_id.trim()) ||
+      (typeof result.methodologyId === "string" &&
+        result.methodologyId.trim()) ||
       "";
     if (!methodologyId) continue;
-    if (allowedMethodologyIds?.size && !allowedMethodologyIds.has(methodologyId)) continue;
+    if (
+      allowedMethodologyIds?.size &&
+      !allowedMethodologyIds.has(methodologyId)
+    )
+      continue;
     if (selectedMethod && methodologyId !== selectedMethod) continue;
 
     const methodRecord = methods.find((item) => item.code === methodologyId);
     const methodologyVersion =
-      (typeof result.methodology_version === "string" && result.methodology_version.trim()) ||
-      (typeof result.methodologyVersion === "string" && result.methodologyVersion.trim()) ||
+      (typeof result.methodology_version === "string" &&
+        result.methodology_version.trim()) ||
+      (typeof result.methodologyVersion === "string" &&
+        result.methodologyVersion.trim()) ||
       pickVersion(methodRecord);
     if (!methodologyVersion) continue;
-    if (selectedMethod && selectedVersion && methodologyVersion !== selectedVersion) continue;
+    if (
+      selectedMethod &&
+      selectedVersion &&
+      methodologyVersion !== selectedVersion
+    )
+      continue;
 
     const requirementId = result.id?.trim();
     if (!requirementId) continue;
@@ -283,17 +419,31 @@ function buildMatchCandidates(
   }
 
   return Array.from(unique.values())
-    .sort((a, b) => (b.score ?? -1) - (a.score ?? -1) || a.requirementLabel.localeCompare(b.requirementLabel))
+    .sort(
+      (a, b) =>
+        (b.score ?? -1) - (a.score ?? -1) ||
+        a.requirementLabel.localeCompare(b.requirementLabel),
+    )
     .slice(0, 4);
 }
 
-function claimPrefersMonitoringRequirement(claimText: string, claimIntents: QuickCheckClaimIntent[]): boolean {
+function claimPrefersMonitoringRequirement(
+  claimText: string,
+  claimIntents: QuickCheckClaimIntent[],
+): boolean {
   const normalized = claimText.toLowerCase();
-  return claimIntents.includes("monitoring-plan") || /monitoring\s+(report|plan|approach|procedure|evidence)|reporting period/.test(normalized);
+  return (
+    claimIntents.includes("monitoring-plan") ||
+    /monitoring\s+(report|plan|approach|procedure|evidence)|reporting period/.test(
+      normalized,
+    )
+  );
 }
 
 function candidateLooksMonitoringAligned(candidate: MatchCandidate): boolean {
-  return /monitoring|reporting period|report\b|workbook|sampling|plot/.test(candidate.requirementLabel.toLowerCase());
+  return /monitoring|reporting period|report\b|workbook|sampling|plot/.test(
+    candidate.requirementLabel.toLowerCase(),
+  );
 }
 
 function isAmbiguousMatch(candidates: MatchCandidate[]): boolean {
@@ -304,11 +454,16 @@ function isAmbiguousMatch(candidates: MatchCandidate[]): boolean {
   return Math.abs(first.score - second.score) < 0.035;
 }
 
-function requiresMethodologyConfirmation(candidates: MatchCandidate[]): boolean {
+function requiresMethodologyConfirmation(
+  candidates: MatchCandidate[],
+): boolean {
   if (candidates.length <= 1) return false;
   const [first] = candidates;
   if (!first) return false;
-  const closestOtherMethod = candidates.find((candidate) => candidate.methodologyId !== first.methodologyId) ?? null;
+  const closestOtherMethod =
+    candidates.find(
+      (candidate) => candidate.methodologyId !== first.methodologyId,
+    ) ?? null;
   if (!closestOtherMethod) return false;
   if (first.score == null || closestOtherMethod.score == null) return true;
   return Math.abs(first.score - closestOtherMethod.score) < 0.12;
@@ -318,10 +473,16 @@ function methodOptionLabel(method: MethodInventoryRecord): string {
   return `${method.code} · ${pickVersion(method, null)}`;
 }
 
-function splitRequirementLabel(label: string): { title: string; id: string | null } {
+function splitRequirementLabel(label: string): {
+  title: string;
+  id: string | null;
+} {
   const trimmed = label.trim();
   if (!trimmed) return { title: "", id: null };
-  const parts = trimmed.split("·").map((part) => part.trim()).filter(Boolean);
+  const parts = trimmed
+    .split("·")
+    .map((part) => part.trim())
+    .filter(Boolean);
   if (parts.length >= 2) {
     const [first, ...rest] = parts;
     if (/^R-\d/i.test(first)) {
@@ -331,27 +492,41 @@ function splitRequirementLabel(label: string): { title: string; id: string | nul
   return { title: trimmed, id: null };
 }
 
-function mergeQueryResults(responses: Array<{ query: string; results: QueryResponse["results"] }>): QueryResultWithSignals[] {
+function mergeQueryResults(
+  responses: Array<{ query: string; results: QueryResponse["results"] }>,
+): QueryResultWithSignals[] {
   const merged = new Map<string, QueryResultWithSignals>();
   for (const [index, response] of responses.entries()) {
-    const queryBoost = index === 0 ? 0 : Math.max(0.08 - (index - 1) * 0.01, 0.05);
+    const queryBoost =
+      index === 0 ? 0 : Math.max(0.08 - (index - 1) * 0.01, 0.05);
     for (const result of response.results) {
       const methodologyId =
-        (typeof result.methodology_id === "string" && result.methodology_id.trim()) ||
-        (typeof result.methodologyId === "string" && result.methodologyId.trim()) ||
+        (typeof result.methodology_id === "string" &&
+          result.methodology_id.trim()) ||
+        (typeof result.methodologyId === "string" &&
+          result.methodologyId.trim()) ||
         "";
       const methodologyVersion =
-        (typeof result.methodology_version === "string" && result.methodology_version.trim()) ||
-        (typeof result.methodologyVersion === "string" && result.methodologyVersion.trim()) ||
+        (typeof result.methodology_version === "string" &&
+          result.methodology_version.trim()) ||
+        (typeof result.methodologyVersion === "string" &&
+          result.methodologyVersion.trim()) ||
         "";
       const key = `${methodologyId}@@${methodologyVersion}@@${result.id}`;
       const existing = merged.get(key);
       if (existing) {
-        existing._signalBoost = Number((existing._signalBoost + queryBoost).toFixed(4));
-        if (!existing._matchedQueries.includes(response.query)) existing._matchedQueries.push(response.query);
-        if ((typeof result.score === "number" ? result.score : -1) > (typeof existing.score === "number" ? existing.score : -1)) {
+        existing._signalBoost = Number(
+          (existing._signalBoost + queryBoost).toFixed(4),
+        );
+        if (!existing._matchedQueries.includes(response.query))
+          existing._matchedQueries.push(response.query);
+        if (
+          (typeof result.score === "number" ? result.score : -1) >
+          (typeof existing.score === "number" ? existing.score : -1)
+        ) {
           existing.score = result.score;
-          existing.section_title = result.section_title ?? existing.section_title;
+          existing.section_title =
+            result.section_title ?? existing.section_title;
           existing.sectionTitle = result.sectionTitle ?? existing.sectionTitle;
           existing.text = result.text ?? existing.text;
           existing.tags = result.tags ?? existing.tags;
@@ -377,19 +552,21 @@ function buildRecoveryState(input: {
   const evidenceFacts = input.evidenceAnalysis?.facts ?? [];
   const claimIntents = input.claimIntents ?? [];
   const hasBoundaryLocationSignals =
-    evidenceFacts.some((fact) =>
-      fact.category === "boundary" ||
-      fact.category === "coordinates" ||
-      fact.category === "mapped-area" ||
-      fact.category === "project-location",
+    evidenceFacts.some(
+      (fact) =>
+        fact.category === "boundary" ||
+        fact.category === "coordinates" ||
+        fact.category === "mapped-area" ||
+        fact.category === "project-location",
     ) ||
-    claimIntents.some((intent) =>
-      intent === "boundary" ||
-      intent === "project-area" ||
-      intent === "mapped-area" ||
-      intent === "aoi" ||
-      intent === "coordinates" ||
-      intent === "location",
+    claimIntents.some(
+      (intent) =>
+        intent === "boundary" ||
+        intent === "project-area" ||
+        intent === "mapped-area" ||
+        intent === "aoi" ||
+        intent === "coordinates" ||
+        intent === "location",
     );
 
   if (input.selectedMethodologyId.trim()) {
@@ -404,7 +581,8 @@ function buildRecoveryState(input: {
     return {
       kind: "no-match",
       title: `No clear match in ${input.selectedMethodologyId} yet`,
-      description: "The current methodology narrowing is stricter than the evidence signals we found.",
+      description:
+        "The current methodology narrowing is stricter than the evidence signals we found.",
       note: "Try another methodology or keep the claim and broaden the check.",
     };
   }
@@ -412,19 +590,23 @@ function buildRecoveryState(input: {
     return {
       kind: "no-match",
       title: "No clear match yet",
-      description: "We found project boundary/location evidence in your uploaded PDD, but no confident requirement match yet.",
+      description:
+        "We found project boundary/location evidence in your uploaded PDD, but no confident requirement match yet.",
       note: "Edit the claim or try another methodology to guide the check.",
     };
   }
   return {
     kind: "no-match",
     title: "No clear match yet",
-    description: "We couldn't find a requirement to check from this claim and evidence yet.",
+    description:
+      "We couldn't find a requirement to check from this claim and evidence yet.",
     note: "Edit the claim or try another methodology to guide the check.",
   };
 }
 
-function buildUnsupportedMethodRecoveryState(methodologyId: string): RecoveryState {
+function buildUnsupportedMethodRecoveryState(
+  methodologyId: string,
+): RecoveryState {
   return {
     kind: "no-match",
     title: "Method pack unavailable",
@@ -433,19 +615,27 @@ function buildUnsupportedMethodRecoveryState(methodologyId: string): RecoverySta
   };
 }
 
-function buildMismatchedMethodRecoveryState(methodologyId: string): RecoveryState {
+function buildMismatchedMethodRecoveryState(
+  methodologyId: string,
+): RecoveryState {
   return {
     kind: "no-match",
     title: `No valid match in ${methodologyId}`,
-    description: "We extracted usable evidence, but the selected methodology did not produce a valid requirement match.",
+    description:
+      "We extracted usable evidence, but the selected methodology did not produce a valid requirement match.",
     note: "The likely matches shown below are from other supported methodologies. Pick one only if it is the intended methodology, or change the methodology filter.",
   };
 }
 
-function evidenceMentionsMethodologyCode(evidenceSignals: MethodologyEvidenceSignals, methodologyId: string): boolean {
+function evidenceMentionsMethodologyCode(
+  evidenceSignals: MethodologyEvidenceSignals,
+  methodologyId: string,
+): boolean {
   const normalizedMethodologyId = methodologyId.trim().toUpperCase();
   if (!normalizedMethodologyId) return false;
-  return (evidenceSignals?.methodologyMentions ?? []).some((mention) => mention.trim().toUpperCase() === normalizedMethodologyId);
+  return (evidenceSignals?.methodologyMentions ?? []).some(
+    (mention) => mention.trim().toUpperCase() === normalizedMethodologyId,
+  );
 }
 
 function buildNoValidAnalysisPathRecoveryState(input: {
@@ -453,7 +643,10 @@ function buildNoValidAnalysisPathRecoveryState(input: {
   evidenceSignals?: MethodologyEvidenceSignals;
 }): RecoveryState {
   const methodologyId = input.methodologyId.trim();
-  const methodConfirmedByEvidence = evidenceMentionsMethodologyCode(input.evidenceSignals, methodologyId);
+  const methodConfirmedByEvidence = evidenceMentionsMethodologyCode(
+    input.evidenceSignals,
+    methodologyId,
+  );
 
   return {
     kind: "no-match",
@@ -469,7 +662,8 @@ function buildMethodologyConfirmationRecoveryState(): RecoveryState {
   return {
     kind: "no-match",
     title: "Methodology needs confirmation",
-    description: "We extracted usable evidence, but the closest supported matches still span multiple methodologies.",
+    description:
+      "We extracted usable evidence, but the closest supported matches still span multiple methodologies.",
     note: "Quick Check will not auto-narrow to one methodology without clearer evidence. Pick the intended match below or narrow by methodology first.",
   };
 }
@@ -489,13 +683,18 @@ function asPinForUpload(upload: QuickCheckStagedUpload): EvidencePin {
   };
 }
 
-function extractionStateBadgeClass(value: "grounded" | "partial" | "weak"): string {
-  if (value === "grounded") return "border-emerald-200 bg-emerald-50 text-emerald-800";
+function extractionStateBadgeClass(
+  value: "grounded" | "partial" | "weak",
+): string {
+  if (value === "grounded")
+    return "border-emerald-200 bg-emerald-50 text-emerald-800";
   if (value === "partial") return "border-amber-200 bg-amber-50 text-amber-800";
   return "border-rose-200 bg-rose-50 text-rose-800";
 }
 
-function sourceModeLabel(sourceMode: QuickCheckSourceMode | null | undefined): string {
+function sourceModeLabel(
+  sourceMode: QuickCheckSourceMode | null | undefined,
+): string {
   if (sourceMode === "uploaded_file") return "Uploaded file";
   if (sourceMode === "saved_evidence") return "Saved evidence";
   if (sourceMode === "demo_evidence") return "Demo evidence";
@@ -506,7 +705,8 @@ function buildWeakExtractionRecoveryState(): RecoveryState {
   return {
     kind: "weak-extraction",
     title: "Weak extraction",
-    description: "Quick Check couldn't extract enough claim-relevant facts from this file yet.",
+    description:
+      "Quick Check couldn't extract enough claim-relevant facts from this file yet.",
     note: "Open full review to inspect the evidence manually or continue with a broader workflow.",
   };
 }
@@ -515,15 +715,24 @@ function methodologyMentionsForDetection(input: {
   analysis: QuickCheckEvidenceAnalysis | null;
   extraction: QuickCheckExtractionSnapshot | null;
 }): string[] {
-  const mentions = input.analysis?.methodologyMentions ?? input.extraction?.methodologyMentions ?? [];
-  return Array.from(new Set(mentions.map((mention) => mention.trim()).filter(Boolean)));
+  const mentions =
+    input.analysis?.methodologyMentions ??
+    input.extraction?.methodologyMentions ??
+    [];
+  return Array.from(
+    new Set(mentions.map((mention) => mention.trim()).filter(Boolean)),
+  );
 }
 
 function joinMethodologyLabels(values: string[]): string {
   return values.join(", ");
 }
 
-export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
+export default function QuickCheckPanel({
+  initialMethod,
+  initialVersion,
+  onContinueToWorkspace,
+}: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -534,13 +743,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [recoveryState, setRecoveryState] = useState<RecoveryState>(null);
-  const [matchCandidates, setMatchCandidates] = useState<ResolvedMatchCandidate[]>([]);
+  const [matchCandidates, setMatchCandidates] = useState<
+    ResolvedMatchCandidate[]
+  >([]);
   const [pendingInventoryId, setPendingInventoryId] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showSavedEvidence, setShowSavedEvidence] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
-  const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
+  const [validatedResultKey, setValidatedResultKey] = useState<string | null>(
+    null,
+  );
   const [creatingProjectDraft, setCreatingProjectDraft] = useState(false);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
@@ -559,38 +772,54 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const stagedUploads = session.stagedUploads;
 
   const inventoryItems = useMemo(
-    () => loadQuickCheckInventory(draft.methodologyId, draft.methodologyVersion),
+    () =>
+      loadQuickCheckInventory(draft.methodologyId, draft.methodologyVersion),
     [draft.methodologyId, draft.methodologyVersion],
   );
 
   const selectedInventoryEvidence = useMemo(
-    () => inventoryItems.filter((item) => draft.evidenceIds.includes(item.evidence_id)),
+    () =>
+      inventoryItems.filter((item) =>
+        draft.evidenceIds.includes(item.evidence_id),
+      ),
     [draft.evidenceIds, inventoryItems],
   );
 
   const selectedPins = useMemo(() => {
-    if (!draft.methodologyId.trim() || !draft.methodologyVersion.trim()) return [];
+    if (!draft.methodologyId.trim() || !draft.methodologyVersion.trim())
+      return [];
     const selectedIds = new Set(draft.evidenceIds);
-    return coalesceEvidencePins(loadPins(draft.methodologyId, draft.methodologyVersion)).filter((pin) => selectedIds.has(pin.id));
+    return coalesceEvidencePins(
+      loadPins(draft.methodologyId, draft.methodologyVersion),
+    ).filter((pin) => selectedIds.has(pin.id));
   }, [draft.evidenceIds, draft.methodologyId, draft.methodologyVersion]);
 
   const selectedUploadEvidence = useMemo(
-    () => stagedUploads.filter((upload) => draft.evidenceIds.includes(upload.evidenceId)),
+    () =>
+      stagedUploads.filter((upload) =>
+        draft.evidenceIds.includes(upload.evidenceId),
+      ),
     [draft.evidenceIds, stagedUploads],
   );
 
   const availableInventory = useMemo(
-    () => inventoryItems.filter((item) => !draft.evidenceIds.includes(item.evidence_id)),
+    () =>
+      inventoryItems.filter(
+        (item) => !draft.evidenceIds.includes(item.evidence_id),
+      ),
     [draft.evidenceIds, inventoryItems],
   );
 
-  const updateSession = useCallback((mutator: (current: QuickCheckSessionState) => QuickCheckSessionState) => {
-    setSession((current) => {
-      const next = mutator(current);
-      saveQuickCheckSession(next);
-      return next;
-    });
-  }, []);
+  const updateSession = useCallback(
+    (mutator: (current: QuickCheckSessionState) => QuickCheckSessionState) => {
+      setSession((current) => {
+        const next = mutator(current);
+        saveQuickCheckSession(next);
+        return next;
+      });
+    },
+    [],
+  );
 
   const replaceSession = useCallback((nextSession: QuickCheckSessionState) => {
     saveQuickCheckSession(nextSession);
@@ -599,11 +828,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   const updateDraft = useCallback(
     (
-      mutator: (draft: QuickCheckDraft, current: QuickCheckSessionState) => QuickCheckDraft,
+      mutator: (
+        draft: QuickCheckDraft,
+        current: QuickCheckSessionState,
+      ) => QuickCheckDraft,
       nextResult?: QuickCheckResult | null,
     ) => {
       updateSession((current) => {
-        const resolvedResult = nextResult === undefined ? current.result : nextResult;
+        const resolvedResult =
+          nextResult === undefined ? current.result : nextResult;
         const mutatedDraft = mutator(current.draft, current);
         const nextDraft: QuickCheckDraft = {
           ...mutatedDraft,
@@ -631,7 +864,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       if (initialMethod?.trim()) {
         return {
           methodologyId: initialMethod.trim(),
-          methodologyVersion: initialVersion?.trim() || draftState.methodologyVersion,
+          methodologyVersion:
+            initialVersion?.trim() || draftState.methodologyVersion,
         };
       }
       return {
@@ -642,10 +876,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [initialMethod, initialVersion],
   );
 
-  const fetchMethodInventory = useCallback(async (): Promise<MethodInventoryRecord[]> => {
-    const response = await fetch("/api/methods/inventory", { cache: "no-store" });
-    if (!response.ok) throw new Error(`Method inventory request failed with ${response.status}`);
-    const payload = (await response.json()) as { methods?: MethodInventoryRecord[] };
+  const fetchMethodInventory = useCallback(async (): Promise<
+    MethodInventoryRecord[]
+  > => {
+    const response = await fetch("/api/methods/inventory", {
+      cache: "no-store",
+    });
+    if (!response.ok)
+      throw new Error(
+        `Method inventory request failed with ${response.status}`,
+      );
+    const payload = (await response.json()) as {
+      methods?: MethodInventoryRecord[];
+    };
     const nextMethods = Array.isArray(payload.methods) ? payload.methods : [];
     return nextMethods.sort((a, b) => a.code.localeCompare(b.code));
   }, []);
@@ -660,7 +903,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       })
       .catch((error) => {
         if (cancelled) return;
-        setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+        setFieldErrors({
+          general: error instanceof Error ? error.message : String(error),
+        });
       })
       .finally(() => {
         if (!cancelled) setLoadingMethods(false);
@@ -672,7 +917,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   useEffect(() => {
     if (!methods.length || !initialMethod?.trim()) return;
-    const matchedMethod = methods.find((item) => item.code === initialMethod.trim());
+    const matchedMethod = methods.find(
+      (item) => item.code === initialMethod.trim(),
+    );
     if (!matchedMethod) return;
     const version = pickVersion(matchedMethod, initialVersion);
     if (!version) return;
@@ -682,7 +929,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       methodologyId: matchedMethod.code,
       methodologyVersion: version,
     }));
-  }, [draft.methodologyId, draft.methodologyVersion, initialMethod, initialVersion, methods, updateDraft]);
+  }, [
+    draft.methodologyId,
+    draft.methodologyVersion,
+    initialMethod,
+    initialVersion,
+    methods,
+    updateDraft,
+  ]);
 
   useEffect(() => {
     // Only remove evidence IDs that were in staged uploads but the upload was removed.
@@ -694,72 +948,129 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         .filter((upload) => draft.evidenceIds.includes(upload.evidenceId))
         .map((upload) => upload.evidenceId),
     );
-    const hasDroppedStaged = draft.evidenceIds.some((id) => stagedIds.has(id) && !validStagedIds.has(id));
+    const hasDroppedStaged = draft.evidenceIds.some(
+      (id) => stagedIds.has(id) && !validStagedIds.has(id),
+    );
     if (!hasDroppedStaged) return;
-    const filteredIds = draft.evidenceIds.filter((id) => !stagedIds.has(id) || validStagedIds.has(id));
+    const filteredIds = draft.evidenceIds.filter(
+      (id) => !stagedIds.has(id) || validStagedIds.has(id),
+    );
     if (filteredIds.length === draft.evidenceIds.length) return;
     updateDraft((current) => ({ ...current, evidenceIds: filteredIds }), null);
   }, [draft.evidenceIds, inventoryItems, stagedUploads, updateDraft]);
 
-  const selectedMethodRecord = methods.find((item) => item.code === draft.methodologyId);
+  const selectedMethodRecord = methods.find(
+    (item) => item.code === draft.methodologyId,
+  );
   const selectedEvidenceCount = draft.evidenceIds.length;
   const selectedUpload = selectedUploadEvidence[0] ?? null;
   const selectedInventoryItem = selectedInventoryEvidence[0] ?? null;
-  const selectedEvidenceLabel = draft.evidenceFileName || (selectedUpload
-    ? selectedUpload.filename
-    : selectedInventoryItem
-    ? selectedInventoryItem.display_name
-    : "");
+  const selectedEvidenceLabel =
+    draft.evidenceFileName ||
+    (selectedUpload
+      ? selectedUpload.filename
+      : selectedInventoryItem
+        ? selectedInventoryItem.display_name
+        : "");
   const activeSourceMode: QuickCheckSourceMode | null =
     draft.sourceMode ??
-    (selectedUpload ? "uploaded_file" : selectedInventoryItem ? "saved_evidence" : null);
-  const selectedEvidenceMeta = activeSourceMode ? sourceModeLabel(activeSourceMode) : "";
-  const canRunQuickCheck = Boolean(draft.claimText.trim()) && selectedEvidenceCount === 1 && !submitting;
+    (selectedUpload
+      ? "uploaded_file"
+      : selectedInventoryItem
+        ? "saved_evidence"
+        : null);
+  const selectedEvidenceMeta = activeSourceMode
+    ? sourceModeLabel(activeSourceMode)
+    : "";
+  const canRunQuickCheck =
+    Boolean(draft.claimText.trim()) &&
+    selectedEvidenceCount === 1 &&
+    !submitting;
   const activeResultKey =
-    result && draft.methodologyId.trim() && draft.methodologyVersion.trim() && draft.matchedRequirementId?.trim()
+    result &&
+    draft.methodologyId.trim() &&
+    draft.methodologyVersion.trim() &&
+    draft.matchedRequirementId?.trim()
       ? `${draft.methodologyId.trim()}@@${draft.methodologyVersion.trim()}@@${draft.matchedRequirementId.trim()}`
       : null;
-  const canRenderResult = Boolean(result && activeResultKey && validatedResultKey === activeResultKey);
+  const canRenderResult = Boolean(
+    result && activeResultKey && validatedResultKey === activeResultKey,
+  );
   const renderedResult = canRenderResult ? result : null;
   const extractionPreview = useMemo(
-    () => (extractionState.analysis ? buildQuickCheckExtractionSnapshot({ claimText: draft.claimText, analysis: extractionState.analysis }) : null),
+    () =>
+      extractionState.analysis
+        ? buildQuickCheckExtractionSnapshot({
+            claimText: draft.claimText,
+            analysis: extractionState.analysis,
+          })
+        : null,
     [draft.claimText, extractionState.analysis],
   );
   const extractionPreviewState = useMemo(
-    () => (extractionPreview ? deriveQuickCheckExtractionState(extractionPreview) : null),
+    () =>
+      extractionPreview
+        ? deriveQuickCheckExtractionState(extractionPreview)
+        : null,
     [extractionPreview],
   );
   const detectedMethodologyMentions = useMemo(
-    () => methodologyMentionsForDetection({ analysis: extractionState.analysis, extraction: extractionPreview }),
+    () =>
+      methodologyMentionsForDetection({
+        analysis: extractionState.analysis,
+        extraction: extractionPreview,
+      }),
     [extractionPreview, extractionState.analysis],
   );
   const methodologyResolution = useMemo<QuickCheckMethodologyResolution>(
-    () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods }),
+    () =>
+      resolveQuickCheckMethodology({
+        mentions: detectedMethodologyMentions,
+        methods,
+      }),
     [detectedMethodologyMentions, methods],
   );
   const resolvedWorkspaceMethod = useMemo(
-    () => (methodologyResolution.status === "single" ? methodologyResolution.matchedMethods[0] ?? null : null),
+    () =>
+      methodologyResolution.status === "single"
+        ? (methodologyResolution.matchedMethods[0] ?? null)
+        : null,
     [methodologyResolution],
   );
   const workspaceMethodologyId = useMemo(() => {
     if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyId) {
       return resolvedWorkspaceMethod.methodologyId;
     }
-    return draft.methodologyId.trim() || resolvedWorkspaceMethod?.methodologyId || "";
+    return (
+      draft.methodologyId.trim() || resolvedWorkspaceMethod?.methodologyId || ""
+    );
   }, [draft.methodologyId, draft.status, resolvedWorkspaceMethod]);
   const workspaceMethodologyVersion = useMemo(() => {
-    if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyVersion) {
+    if (
+      draft.status !== "checked" &&
+      resolvedWorkspaceMethod?.methodologyVersion
+    ) {
       return resolvedWorkspaceMethod.methodologyVersion;
     }
-    return draft.methodologyVersion.trim() || resolvedWorkspaceMethod?.methodologyVersion || "";
+    return (
+      draft.methodologyVersion.trim() ||
+      resolvedWorkspaceMethod?.methodologyVersion ||
+      ""
+    );
   }, [draft.methodologyVersion, draft.status, resolvedWorkspaceMethod]);
   const methodologyMismatch = useMemo(() => {
     if (!draft.methodologyId.trim()) return null;
     const selected = draft.methodologyId.trim().toUpperCase();
-    const detectedMethodIds = new Set(methodologyResolution.matchedMethods.map((method) => method.methodologyId.toUpperCase()));
+    const detectedMethodIds = new Set(
+      methodologyResolution.matchedMethods.map((method) =>
+        method.methodologyId.toUpperCase(),
+      ),
+    );
     if (detectedMethodIds.has(selected)) return null;
-    const firstDetectedMethod = methodologyResolution.matchedMethods[0]?.methodologyId ?? null;
-    const firstUnsupportedMethod = methodologyResolution.unsupportedCanonicalKeys[0] ?? null;
+    const firstDetectedMethod =
+      methodologyResolution.matchedMethods[0]?.methodologyId ?? null;
+    const firstUnsupportedMethod =
+      methodologyResolution.unsupportedCanonicalKeys[0] ?? null;
     const mismatchMethod = firstDetectedMethod ?? firstUnsupportedMethod;
     if (!mismatchMethod) return null;
     return {
@@ -776,22 +1087,37 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
     }
     if (!extractionPreview) return null;
-    if (extractionPreview.warnings.some((warning) => /no selectable text|no extractable text/i.test(warning))) {
+    if (
+      extractionPreview.warnings.some((warning) =>
+        /no selectable text|no extractable text/i.test(warning),
+      )
+    ) {
       return {
         code: "no-selectable-text",
         label: "No selectable text",
-        message: "The file appears readable, but no selectable text could be extracted from the uploaded PDF.",
+        message:
+          "The file appears readable, but no selectable text could be extracted from the uploaded PDF.",
       };
     }
-    if (extractionPreview.warnings.some((warning) => /pdf parser fallback|pdf extraction failed|parser/i.test(warning))) {
+    if (
+      extractionPreview.warnings.some((warning) =>
+        /pdf parser fallback|pdf extraction failed|parser/i.test(warning),
+      )
+    ) {
       return {
         code: "parser-failed",
         label: "Parser failed",
-        message: "The primary PDF parser could not read this file cleanly, so Quick Check fell back to a weaker extraction path.",
+        message:
+          "The primary PDF parser could not read this file cleanly, so Quick Check fell back to a weaker extraction path.",
       };
     }
-    if (methodologyResolution.status === "unsupported" && methodologyResolution.unsupportedCanonicalKeys.length) {
-      const detected = joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys);
+    if (
+      methodologyResolution.status === "unsupported" &&
+      methodologyResolution.unsupportedCanonicalKeys.length
+    ) {
+      const detected = joinMethodologyLabels(
+        methodologyResolution.unsupportedCanonicalKeys,
+      );
       return {
         code: "methodology-pack-unavailable",
         label: "Method pack unavailable",
@@ -799,30 +1125,43 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
     }
     if (methodologyResolution.status === "multiple") {
-      const detected = joinMethodologyLabels(methodologyResolution.matchedMethods.map((method) => method.methodologyId));
+      const detected = joinMethodologyLabels(
+        methodologyResolution.matchedMethods.map(
+          (method) => method.methodologyId,
+        ),
+      );
       return {
         code: "methodology-needs-confirmation",
         label: "Methodology needs confirmation",
         message: `Evidence references multiple methodologies. Requirement matches are limited to ${detected}.`,
       };
     }
-    if ((extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 && extractionPreview.methodologyMentions.length === 0) {
+    if (
+      (extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 &&
+      extractionPreview.methodologyMentions.length === 0
+    ) {
       return {
         code: "methodology-not-detected",
         label: "Methodology not detected",
-        message: "We extracted text from the file, but did not detect a methodology reference in the uploaded evidence.",
+        message:
+          "We extracted text from the file, but did not detect a methodology reference in the uploaded evidence.",
       };
     }
     return null;
   }, [extractionPreview, methodologyMismatch, methodologyResolution]);
-  const showAdvancedOptions = showAdvanced || showSavedEvidence || showMethodology;
-  const extractionHighlights = extractionPreview?.extractedFacts.slice(0, 3) ?? [];
+  const showAdvancedOptions =
+    showAdvanced || showSavedEvidence || showMethodology;
+  const extractionHighlights =
+    extractionPreview?.extractedFacts.slice(0, 3) ?? [];
   const normalizedResult = useMemo(
     () =>
       renderedResult
         ? normalizeQuickCheckUiResult({
             claim: renderedResult.claimText,
-            evidenceFileName: renderedResult.evidenceFileName || selectedEvidenceLabel || "evidence",
+            evidenceFileName:
+              renderedResult.evidenceFileName ||
+              selectedEvidenceLabel ||
+              "evidence",
             sourceMode: renderedResult.sourceMode ?? activeSourceMode,
             extraction: renderedResult.extraction ?? extractionPreview,
             methodologyCode: draft.methodologyId,
@@ -830,18 +1169,40 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             result: renderedResult,
           })
         : null,
-    [activeSourceMode, draft.methodologyId, draft.methodologyVersion, extractionPreview, renderedResult, selectedEvidenceLabel],
+    [
+      activeSourceMode,
+      draft.methodologyId,
+      draft.methodologyVersion,
+      extractionPreview,
+      renderedResult,
+      selectedEvidenceLabel,
+    ],
   );
-  const hasStrongEvidenceMatch = normalizedResult?.supportStrength.value === "strong_evidence_match";
-  const resultToneClass = hasStrongEvidenceMatch ? "border-emerald-200 bg-emerald-50/75" : "border-amber-200 bg-amber-50/80";
-  const resultEyebrowClass = hasStrongEvidenceMatch ? "text-emerald-800" : "text-amber-800";
+  const hasStrongEvidenceMatch =
+    normalizedResult?.supportStrength.value === "strong_evidence_match";
+  const resultToneClass = hasStrongEvidenceMatch
+    ? "border-emerald-200 bg-emerald-50/75"
+    : "border-amber-200 bg-amber-50/80";
+  const resultEyebrowClass = hasStrongEvidenceMatch
+    ? "text-emerald-800"
+    : "text-amber-800";
   const resultTitle = normalizedResult?.supportStrength.label ?? "Needs review";
   const resultSignalNote = normalizedResult?.supportStrength.description ?? "";
   const selectedEvidenceSources = useMemo(() => {
-    const sources = new Map<string, { evidenceId: string; sourceLabel: string; attachments: EvidencePin["attachments"]; pddFragments?: PddFragment[] }>();
+    const sources = new Map<
+      string,
+      {
+        evidenceId: string;
+        sourceLabel: string;
+        attachments: EvidencePin["attachments"];
+        pddFragments?: PddFragment[];
+      }
+    >();
 
     for (const item of selectedInventoryEvidence) {
-      const pin = selectedPins.find((candidate) => candidate.id === item.evidence_id) ?? null;
+      const pin =
+        selectedPins.find((candidate) => candidate.id === item.evidence_id) ??
+        null;
       sources.set(item.evidence_id, {
         evidenceId: item.evidence_id,
         sourceLabel: draft.evidenceFileName || item.display_name,
@@ -864,10 +1225,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       attachments: source.attachments ?? [],
       pddFragments: source.pddFragments,
     }));
-  }, [draft.evidenceFileName, selectedInventoryEvidence, selectedPins, selectedUploadEvidence]);
+  }, [
+    draft.evidenceFileName,
+    selectedInventoryEvidence,
+    selectedPins,
+    selectedUploadEvidence,
+  ]);
 
   const resolvePdfText = useCallback(
-    async (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
+    async (input: {
+      attachmentId: string;
+      filename: string;
+      mime: string;
+      bytes: ArrayBuffer;
+    }) => {
       if (input.mime !== "application/pdf") {
         return {
           text: extractPdfText(input.bytes),
@@ -948,38 +1319,59 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   function openFullReviewFromRecovery() {
-    if (workspaceMethodologyId && workspaceMethodologyVersion && onContinueToWorkspace) {
-      onContinueToWorkspace(`/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`);
+    if (
+      workspaceMethodologyId &&
+      workspaceMethodologyVersion &&
+      onContinueToWorkspace
+    ) {
+      onContinueToWorkspace(
+        `/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`,
+      );
       return;
     }
     if (workspaceMethodologyId && workspaceMethodologyVersion) {
       if (typeof window !== "undefined") {
-        window.location.assign(`/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`);
+        window.location.assign(
+          `/m/${encodeURIComponent(workspaceMethodologyId)}/v/${encodeURIComponent(workspaceMethodologyVersion)}?tab=verify&mode=list`,
+        );
       }
       return;
     }
     if (typeof window !== "undefined") window.location.assign("/m");
   }
 
-  const fetchRules = useCallback(async (methodologyId: string, methodologyVersion: string): Promise<RuleSummary[]> => {
-    const cacheKey = `${methodologyId}@@${methodologyVersion}`;
-    const cached = rulesCache.current.get(cacheKey);
-    if (cached) return cached;
-    const response = await fetch(
-      `/api/methods/${encodeURIComponent(methodologyId)}/v/${encodeURIComponent(methodologyVersion)}/rules`,
-      { cache: "no-store" },
-    );
-    if (!response.ok) throw new Error(`Rules request failed with ${response.status}`);
-    const payload = (await response.json()) as { rules?: RuleSummary[] };
-    const rules = Array.isArray(payload.rules) ? payload.rules : [];
-    rulesCache.current.set(cacheKey, rules);
-    return rules;
-  }, []);
+  const fetchRules = useCallback(
+    async (
+      methodologyId: string,
+      methodologyVersion: string,
+    ): Promise<RuleSummary[]> => {
+      const cacheKey = `${methodologyId}@@${methodologyVersion}`;
+      const cached = rulesCache.current.get(cacheKey);
+      if (cached) return cached;
+      const response = await fetch(
+        `/api/methods/${encodeURIComponent(methodologyId)}/v/${encodeURIComponent(methodologyVersion)}/rules`,
+        { cache: "no-store" },
+      );
+      if (!response.ok)
+        throw new Error(`Rules request failed with ${response.status}`);
+      const payload = (await response.json()) as { rules?: RuleSummary[] };
+      const rules = Array.isArray(payload.rules) ? payload.rules : [];
+      rulesCache.current.set(cacheKey, rules);
+      return rules;
+    },
+    [],
+  );
 
   const ensureMethodsReady = useCallback(
-    async (methodologyId: string, methodologyVersion: string): Promise<MethodInventoryRecord[]> => {
+    async (
+      methodologyId: string,
+      methodologyVersion: string,
+    ): Promise<MethodInventoryRecord[]> => {
       const hasMethod = methods.some(
-        (method) => method.code === methodologyId && Array.isArray(method.versions) && method.versions.includes(methodologyVersion),
+        (method) =>
+          method.code === methodologyId &&
+          Array.isArray(method.versions) &&
+          method.versions.includes(methodologyVersion),
       );
       if (hasMethod) return methods;
       const nextMethods = await fetchMethodInventory();
@@ -1044,7 +1436,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             buildRecoveryState({
               selectedMethodologyId: draft.methodologyId,
               evidenceAnalysis: undefined,
-              claimIntents: classifyQuickCheckClaimIntents(draft.claimText.trim()),
+              claimIntents: classifyQuickCheckClaimIntents(
+                draft.claimText.trim(),
+              ),
             }),
           );
         }
@@ -1053,7 +1447,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       () => {
         if (cancelled) return;
         setFieldErrors({
-          general: "Quick Check couldn't revalidate this result. Try running the check again.",
+          general:
+            "Quick Check couldn't revalidate this result. Try running the check again.",
         });
       },
     );
@@ -1075,26 +1470,34 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     validatedResultKey,
   ]);
 
-  async function buildLocalFallbackCandidates(methodSubset: MethodInventoryRecord[], analysis: QuickCheckEvidenceAnalysis): Promise<MatchCandidate[]> {
+  async function buildLocalFallbackCandidates(
+    methodSubset: MethodInventoryRecord[],
+    analysis: QuickCheckEvidenceAnalysis,
+  ): Promise<MatchCandidate[]> {
     const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
     const hasBoundaryLocationSignals =
-      analysis.facts.some((fact) =>
-        fact.category === "boundary" ||
-        fact.category === "coordinates" ||
-        fact.category === "mapped-area" ||
-        fact.category === "project-location",
+      analysis.facts.some(
+        (fact) =>
+          fact.category === "boundary" ||
+          fact.category === "coordinates" ||
+          fact.category === "mapped-area" ||
+          fact.category === "project-location",
       ) ||
-      claimIntents.some((intent) =>
-        intent === "boundary" ||
-        intent === "project-area" ||
-        intent === "mapped-area" ||
-        intent === "aoi" ||
-        intent === "coordinates" ||
-        intent === "location",
+      claimIntents.some(
+        (intent) =>
+          intent === "boundary" ||
+          intent === "project-area" ||
+          intent === "mapped-area" ||
+          intent === "aoi" ||
+          intent === "coordinates" ||
+          intent === "location",
       );
     const perMethodCandidates = await Promise.all(
       methodSubset.map(async (method) => {
-        const methodologyVersion = pickVersion(method, draft.methodologyId === method.code ? draft.methodologyVersion : null);
+        const methodologyVersion = pickVersion(
+          method,
+          draft.methodologyId === method.code ? draft.methodologyVersion : null,
+        );
         if (!methodologyVersion) return [];
         const rules = await fetchRules(method.code, methodologyVersion);
         return buildLocalRuleCandidates({
@@ -1116,7 +1519,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
     return perMethodCandidates
       .flat()
-      .sort((a, b) => (b.score ?? -1) - (a.score ?? -1) || a.requirementLabel.localeCompare(b.requirementLabel))
+      .sort(
+        (a, b) =>
+          (b.score ?? -1) - (a.score ?? -1) ||
+          a.requirementLabel.localeCompare(b.requirementLabel),
+      )
       .slice(0, 4);
   }
 
@@ -1125,17 +1532,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     methodologyVersion: string,
     activeSession: QuickCheckSessionState = session,
   ): Promise<string[]> {
-    if (!activeSession.stagedUploads.length) return activeSession.draft.evidenceIds;
-    const currentPins = coalesceEvidencePins(loadPins(methodologyId, methodologyVersion));
+    if (!activeSession.stagedUploads.length)
+      return activeSession.draft.evidenceIds;
+    const currentPins = coalesceEvidencePins(
+      loadPins(methodologyId, methodologyVersion),
+    );
     const existingIds = new Set(currentPins.map((item) => item.id));
     const nextPins = coalesceEvidencePins([
       ...currentPins,
-      ...activeSession.stagedUploads.filter((upload) => !existingIds.has(upload.evidenceId)).map(asPinForUpload),
+      ...activeSession.stagedUploads
+        .filter((upload) => !existingIds.has(upload.evidenceId))
+        .map(asPinForUpload),
     ]);
     savePins(methodologyId, methodologyVersion, nextPins);
     updateSession((current) => ({
       ...current,
-      stagedUploads: current.stagedUploads.filter((upload) => !activeSession.draft.evidenceIds.includes(upload.evidenceId)),
+      stagedUploads: current.stagedUploads.filter(
+        (upload) =>
+          !activeSession.draft.evidenceIds.includes(upload.evidenceId),
+      ),
     }));
     return activeSession.draft.evidenceIds;
   }
@@ -1143,7 +1558,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   async function completeQuickCheck(
     candidate: ResolvedMatchCandidate,
     activeSession: QuickCheckSessionState = session,
-    options?: { manageSubmitting?: boolean; analysis?: QuickCheckEvidenceAnalysis | null },
+    options?: {
+      manageSubmitting?: boolean;
+      analysis?: QuickCheckEvidenceAnalysis | null;
+    },
   ) {
     const shouldManageSubmitting = options?.manageSubmitting !== false;
     const activeDraft = activeSession.draft;
@@ -1151,7 +1569,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setFieldErrors({});
     setRecoveryState(null);
     try {
-      await materializeUploads(candidate.methodologyId, candidate.methodologyVersion, activeSession);
+      await materializeUploads(
+        candidate.methodologyId,
+        candidate.methodologyVersion,
+        activeSession,
+      );
 
       const nextDraft: QuickCheckDraft = {
         ...activeDraft,
@@ -1162,7 +1584,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         status: "draft",
       };
 
-      const inventory = loadQuickCheckInventory(candidate.methodologyId, candidate.methodologyVersion);
+      const inventory = loadQuickCheckInventory(
+        candidate.methodologyId,
+        candidate.methodologyVersion,
+      );
       const extraction = options?.analysis
         ? buildQuickCheckExtractionSnapshot({
             claimText: activeDraft.claimText,
@@ -1194,7 +1619,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               ...extraction.warnings,
               "Quick Check is preliminary. Open full review to confirm the requirement against the full methodology context.",
             ]
-          : ["Quick Check is preliminary. Open full review to confirm the requirement against the full methodology context."],
+          : [
+              "Quick Check is preliminary. Open full review to confirm the requirement against the full methodology context.",
+            ],
         extraction,
       });
 
@@ -1216,7 +1643,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       setMatchCandidates([]);
       setRecoveryState(null);
     } catch (error) {
-      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+      setFieldErrors({
+        general: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       if (shouldManageSubmitting) setSubmitting(false);
     }
@@ -1227,11 +1656,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
     setSubmitting(true);
     resetQuickCheckUi();
-    setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
+    setFieldErrors((current) => ({
+      ...current,
+      evidence: undefined,
+      general: undefined,
+    }));
     setRecoveryState(null);
     try {
       const evidenceId = newPinId();
-      const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file });
+      const attachmentResult = await createAndStoreEvidenceAttachment({
+        pin_id: evidenceId,
+        file,
+      });
       if (!attachmentResult.ok) {
         setFieldErrors({ evidence: attachmentResult.message });
         return;
@@ -1271,9 +1707,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   function selectExistingEvidence(evidenceId: string) {
     if (!evidenceId) return;
-    const selectedItem = inventoryItems.find((item) => item.evidence_id === evidenceId) ?? null;
-    const selectedPin = selectedPins.find((item) => item.id === evidenceId) ?? null;
-    const evidenceFileName = selectedPin?.attachments?.[0]?.filename ?? selectedItem?.display_name ?? evidenceId;
+    const selectedItem =
+      inventoryItems.find((item) => item.evidence_id === evidenceId) ?? null;
+    const selectedPin =
+      selectedPins.find((item) => item.id === evidenceId) ?? null;
+    const evidenceFileName =
+      selectedPin?.attachments?.[0]?.filename ??
+      selectedItem?.display_name ??
+      evidenceId;
     updateSession((current) => ({
       ...current,
       draft: (() => {
@@ -1305,20 +1746,26 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         ...current.draft,
         sourceMode: undefined,
         evidenceFileName: undefined,
-        evidenceIds: current.draft.evidenceIds.filter((id) => id !== evidenceId),
+        evidenceIds: current.draft.evidenceIds.filter(
+          (id) => id !== evidenceId,
+        ),
         status: "draft",
         result: null,
         resultId: undefined,
         updatedAt: nowIso(),
       },
       result: null,
-      stagedUploads: current.stagedUploads.filter((upload) => upload.evidenceId !== evidenceId),
+      stagedUploads: current.stagedUploads.filter(
+        (upload) => upload.evidenceId !== evidenceId,
+      ),
     }));
     clearDecisionState();
   }
 
   async function runQuickCheck() {
-    const validationErrors = validateQuickCheckDraft(draft, { stagedEvidenceCount: stagedUploads.length });
+    const validationErrors = validateQuickCheckDraft(draft, {
+      stagedEvidenceCount: stagedUploads.length,
+    });
     if (validationErrors.length) {
       setFieldErrors({
         claim: validationErrors.find((item) => item.includes("claim")),
@@ -1332,10 +1779,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setRecoveryState(null);
     setMatchCandidates([]);
     try {
-      const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
-      const claimIntents = classifyQuickCheckClaimIntents(draft.claimText.trim());
+      const evidenceAnalysis = await analyzeQuickCheckEvidence(
+        selectedEvidenceSources,
+        { resolvePdfText },
+      );
+      const claimIntents = classifyQuickCheckClaimIntents(
+        draft.claimText.trim(),
+      );
       const currentMethodologyResolution = resolveQuickCheckMethodology({
-        mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
+        mentions: methodologyMentionsForDetection({
+          analysis: evidenceAnalysis,
+          extraction: null,
+        }),
         methods,
       });
       if (!evidenceAnalysis.facts.length) {
@@ -1344,24 +1799,49 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      if (!draft.methodologyId.trim() && currentMethodologyResolution.status === "unsupported") {
+      if (
+        !draft.methodologyId.trim() &&
+        currentMethodologyResolution.status === "unsupported"
+      ) {
         setShowMethodology(true);
         setFieldErrors({});
-        setRecoveryState(buildUnsupportedMethodRecoveryState(currentMethodologyResolution.unsupportedCanonicalKeys[0] ?? "unknown methodology"));
+        setRecoveryState(
+          buildUnsupportedMethodRecoveryState(
+            currentMethodologyResolution.unsupportedCanonicalKeys[0] ??
+              "unknown methodology",
+          ),
+        );
         return;
       }
 
-      const selectedMethodologyId = draft.methodologyId.trim()
-        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
-      const selectedMethodologyVersion = draft.methodologyVersion.trim()
-        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
+      const selectedMethodologyId =
+        draft.methodologyId.trim() ||
+        (currentMethodologyResolution.status === "single"
+          ? (currentMethodologyResolution.matchedMethods[0]?.methodologyId ??
+            "")
+          : "");
+      const selectedMethodologyVersion =
+        draft.methodologyVersion.trim() ||
+        (currentMethodologyResolution.status === "single"
+          ? (currentMethodologyResolution.matchedMethods[0]
+              ?.methodologyVersion ?? "")
+          : "");
       const allowedMethodologyIds = draft.methodologyId.trim()
         ? new Set([draft.methodologyId.trim()])
-        : currentMethodologyResolution.status === "single" || currentMethodologyResolution.status === "multiple"
-        ? new Set(currentMethodologyResolution.matchedMethods.map((method) => method.methodologyId))
-        : new Set<string>();
+        : currentMethodologyResolution.status === "single" ||
+            currentMethodologyResolution.status === "multiple"
+          ? new Set(
+              currentMethodologyResolution.matchedMethods.map(
+                (method) => method.methodologyId,
+              ),
+            )
+          : new Set<string>();
 
-      const queryTexts = buildQuickCheckQueryTexts(draft.claimText.trim(), evidenceAnalysis.facts, claimIntents);
+      const queryTexts = buildQuickCheckQueryTexts(
+        draft.claimText.trim(),
+        evidenceAnalysis.facts,
+        claimIntents,
+      );
       const responses = await Promise.all(
         queryTexts.map(async (query) => ({
           query,
@@ -1390,7 +1870,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         claimIntents,
       );
 
-      if (draft.methodologyId.trim() && !candidates.length && allCandidates.length) {
+      if (
+        draft.methodologyId.trim() &&
+        !candidates.length &&
+        allCandidates.length
+      ) {
         const broaderResolvedCandidates = await resolveQuickCheckCandidates({
           candidates: allCandidates,
           methods,
@@ -1399,7 +1883,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         if (broaderResolvedCandidates.length) {
           setShowMethodology(true);
           setMatchCandidates(broaderResolvedCandidates);
-          setRecoveryState(buildMismatchedMethodRecoveryState(draft.methodologyId.trim()));
+          setRecoveryState(
+            buildMismatchedMethodRecoveryState(draft.methodologyId.trim()),
+          );
           setFieldErrors({});
           return;
         }
@@ -1408,11 +1894,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       if (
         draft.methodologyId.trim() &&
         candidates.length &&
-        claimPrefersMonitoringRequirement(draft.claimText.trim(), claimIntents) &&
+        claimPrefersMonitoringRequirement(
+          draft.claimText.trim(),
+          claimIntents,
+        ) &&
         !candidates.some(candidateLooksMonitoringAligned)
       ) {
         const broaderMonitoringCandidates = allCandidates.filter(
-          (candidate) => candidate.methodologyId !== draft.methodologyId.trim() && candidateLooksMonitoringAligned(candidate),
+          (candidate) =>
+            candidate.methodologyId !== draft.methodologyId.trim() &&
+            candidateLooksMonitoringAligned(candidate),
         );
         if (broaderMonitoringCandidates.length) {
           const broaderResolvedCandidates = await resolveQuickCheckCandidates({
@@ -1423,18 +1914,26 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           if (broaderResolvedCandidates.length) {
             setShowMethodology(true);
             setMatchCandidates(broaderResolvedCandidates);
-            setRecoveryState(buildMismatchedMethodRecoveryState(draft.methodologyId.trim()));
+            setRecoveryState(
+              buildMismatchedMethodRecoveryState(draft.methodologyId.trim()),
+            );
             setFieldErrors({});
             return;
           }
         }
       }
 
-      if (currentMethodologyResolution.status === "single" && !draft.methodologyId.trim() && !candidates.length) {
+      if (
+        currentMethodologyResolution.status === "single" &&
+        !draft.methodologyId.trim() &&
+        !candidates.length
+      ) {
         setFieldErrors({});
         setRecoveryState(
           buildNoValidAnalysisPathRecoveryState({
-            methodologyId: currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "",
+            methodologyId:
+              currentMethodologyResolution.matchedMethods[0]?.methodologyId ??
+              "",
             evidenceSignals: evidenceAnalysis,
           }),
         );
@@ -1445,7 +1944,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         const methodSubset = allowedMethodologyIds.size
           ? methods.filter((method) => allowedMethodologyIds.has(method.code))
           : methods;
-        candidates = await buildLocalFallbackCandidates(methodSubset, evidenceAnalysis);
+        candidates = await buildLocalFallbackCandidates(
+          methodSubset,
+          evidenceAnalysis,
+        );
       }
 
       let resolvedCandidates = await resolveQuickCheckCandidates({
@@ -1456,7 +1958,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
       if (!resolvedCandidates.length && draft.methodologyId.trim()) {
         const broaderCandidates =
-          allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
+          allCandidates.length > 0
+            ? allCandidates
+            : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
         const broaderResolvedCandidates = await resolveQuickCheckCandidates({
           candidates: broaderCandidates,
           methods,
@@ -1465,7 +1969,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         if (broaderResolvedCandidates.length) {
           setShowMethodology(true);
           setMatchCandidates(broaderResolvedCandidates);
-          setRecoveryState(buildMismatchedMethodRecoveryState(draft.methodologyId.trim()));
+          setRecoveryState(
+            buildMismatchedMethodRecoveryState(draft.methodologyId.trim()),
+          );
           setFieldErrors({});
           return;
         }
@@ -1483,19 +1989,30 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      if (!resolvedCandidates.length && currentMethodologyResolution.status === "single" && !draft.methodologyId.trim()) {
+      if (
+        !resolvedCandidates.length &&
+        currentMethodologyResolution.status === "single" &&
+        !draft.methodologyId.trim()
+      ) {
         setFieldErrors({});
         setRecoveryState(
           buildNoValidAnalysisPathRecoveryState({
-            methodologyId: currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "",
+            methodologyId:
+              currentMethodologyResolution.matchedMethods[0]?.methodologyId ??
+              "",
             evidenceSignals: evidenceAnalysis,
           }),
         );
         return;
       }
 
-      if (!draft.methodologyId.trim() && currentMethodologyResolution.status === "multiple") {
-        const detectedResolvedCandidates = resolvedCandidates.filter((candidate) => allowedMethodologyIds.has(candidate.methodologyId));
+      if (
+        !draft.methodologyId.trim() &&
+        currentMethodologyResolution.status === "multiple"
+      ) {
+        const detectedResolvedCandidates = resolvedCandidates.filter(
+          (candidate) => allowedMethodologyIds.has(candidate.methodologyId),
+        );
         if (detectedResolvedCandidates.length) {
           setShowMethodology(true);
           setMatchCandidates(detectedResolvedCandidates);
@@ -1511,7 +2028,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
       if (!resolvedCandidates.length && !draft.methodologyId.trim()) {
         const broaderCandidates =
-          allCandidates.length > 0 ? allCandidates : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
+          allCandidates.length > 0
+            ? allCandidates
+            : await buildLocalFallbackCandidates(methods, evidenceAnalysis);
         resolvedCandidates = await resolveQuickCheckCandidates({
           candidates: broaderCandidates,
           methods,
@@ -1521,7 +2040,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           setMatchCandidates(resolvedCandidates);
           setRecoveryState(null);
           setFieldErrors({
-            general: "This methodology filter removed closer matches. Pick a likely match below or try another methodology.",
+            general:
+              "This methodology filter removed closer matches. Pick a likely match below or try another methodology.",
           });
           return;
         }
@@ -1540,7 +2060,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         return;
       }
 
-      if (!draft.methodologyId.trim() && currentMethodologyResolution.status === "none" && requiresMethodologyConfirmation(resolvedCandidates)) {
+      if (
+        !draft.methodologyId.trim() &&
+        currentMethodologyResolution.status === "none" &&
+        requiresMethodologyConfirmation(resolvedCandidates)
+      ) {
         setShowMethodology(true);
         setMatchCandidates(resolvedCandidates);
         setFieldErrors({});
@@ -1553,7 +2077,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         if (!draft.methodologyId.trim()) setShowMethodology(true);
         setRecoveryState(null);
         setFieldErrors({
-          general: "Multiple requirements could fit this claim. Pick the closest match or narrow by methodology.",
+          general:
+            "Multiple requirements could fit this claim. Pick the closest match or narrow by methodology.",
         });
         return;
       }
@@ -1562,7 +2087,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         analysis: evidenceAnalysis,
       });
     } catch (error) {
-      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+      setFieldErrors({
+        general: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -1573,19 +2100,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     resetQuickCheckUi();
     try {
       const demo = await prepareQuickCheckDemo();
-      const readyMethods = await ensureMethodsReady(QUICK_CHECK_DEMO.methodologyId, QUICK_CHECK_DEMO.methodologyVersion);
+      const readyMethods = await ensureMethodsReady(
+        QUICK_CHECK_DEMO.methodologyId,
+        QUICK_CHECK_DEMO.methodologyVersion,
+      );
       const nextSession: QuickCheckSessionState = {
         draft: demo.draft,
         result: null,
         stagedUploads: [demo.stagedUpload],
       };
-      const demoAnalysis = await analyzeQuickCheckEvidence([
-        {
-          evidenceId: demo.stagedUpload.evidenceId,
-          sourceLabel: demo.stagedUpload.filename,
-          attachments: [demo.stagedUpload.attachment],
-        },
-      ], { resolvePdfText });
+      const demoAnalysis = await analyzeQuickCheckEvidence(
+        [
+          {
+            evidenceId: demo.stagedUpload.evidenceId,
+            sourceLabel: demo.stagedUpload.filename,
+            attachments: [demo.stagedUpload.attachment],
+          },
+        ],
+        { resolvePdfText },
+      );
       replaceSession(nextSession);
       const resolvedDemoCandidate = await resolveQuickCheckCandidate({
         candidate: buildQuickCheckDemoCandidate(),
@@ -1594,29 +2127,33 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       });
       if (!resolvedDemoCandidate) {
         if (process.env.NODE_ENV !== "production") {
-          console.error("Quick Check demo fixture could not be resolved.", buildQuickCheckDemoCandidate());
+          console.error(
+            "Quick Check demo fixture could not be resolved.",
+            buildQuickCheckDemoCandidate(),
+          );
         }
         setRecoveryState(
           buildRecoveryState({
             selectedMethodologyId: QUICK_CHECK_DEMO.methodologyId,
-            claimIntents: classifyQuickCheckClaimIntents(QUICK_CHECK_DEMO.claimText),
+            claimIntents: classifyQuickCheckClaimIntents(
+              QUICK_CHECK_DEMO.claimText,
+            ),
           }),
         );
         setFieldErrors({
-          general: "Demo check is unavailable right now. Try your own claim or upload evidence.",
+          general:
+            "Demo check is unavailable right now. Try your own claim or upload evidence.",
         });
         return;
       }
-      await completeQuickCheck(
-        resolvedDemoCandidate,
-        nextSession,
-        {
-          manageSubmitting: false,
-          analysis: demoAnalysis,
-        },
-      );
+      await completeQuickCheck(resolvedDemoCandidate, nextSession, {
+        manageSubmitting: false,
+        analysis: demoAnalysis,
+      });
     } catch (error) {
-      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+      setFieldErrors({
+        general: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -1640,11 +2177,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   async function handleCreateProjectFromDocument() {
     const uploadAttachment = selectedUpload?.attachment ?? null;
-    const selectedPdfAttachment = uploadAttachment
-      ?? selectedPins.flatMap((pin) => pin.attachments ?? []).find((attachment) => attachment.mime === "application/pdf")
-      ?? null;
+    const selectedPdfAttachment =
+      uploadAttachment ??
+      selectedPins
+        .flatMap((pin) => pin.attachments ?? [])
+        .find((attachment) => attachment.mime === "application/pdf") ??
+      null;
     if (!selectedPdfAttachment || !draft.evidenceIds[0]) {
-      setFieldErrors({ general: "Select one uploaded PDF or saved PDD before creating a project draft." });
+      setFieldErrors({
+        general:
+          "Select one uploaded PDF or saved PDD before creating a project draft.",
+      });
       return;
     }
     setCreatingProjectDraft(true);
@@ -1662,7 +2205,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         window.location.assign("/projects/new?handoff=document-metadata");
       }
     } catch (error) {
-      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+      setFieldErrors({
+        general: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       setCreatingProjectDraft(false);
     }
@@ -1693,7 +2238,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 Upload evidence. Get a preliminary match in seconds.
               </p>
             </div>
-            {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
+            {loadingMethods || submitting ? (
+              <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" />
+            ) : null}
           </div>
         </div>
 
@@ -1705,29 +2252,31 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 value={draft.claimText}
                 onChange={(event) => {
                   const value = event.target.value;
-                  updateDraft(
-                    (current) => {
-                      const nextMethodology = resetMethodologyForUserInput(current);
-                      return {
-                        ...current,
-                        ...nextMethodology,
-                        claimText: value,
-                        matchedRequirementId: undefined,
-                        matchedRequirementLabel: undefined,
-                        status: "draft",
-                        resultId: undefined,
-                      };
-                    },
-                    null,
-                );
-                clearDecisionState();
-              }}
-              rows={3}
-              placeholder="Example: The monitoring report covers the full reporting period."
+                  updateDraft((current) => {
+                    const nextMethodology =
+                      resetMethodologyForUserInput(current);
+                    return {
+                      ...current,
+                      ...nextMethodology,
+                      claimText: value,
+                      matchedRequirementId: undefined,
+                      matchedRequirementLabel: undefined,
+                      status: "draft",
+                      resultId: undefined,
+                    };
+                  }, null);
+                  clearDecisionState();
+                }}
+                rows={3}
+                placeholder="Example: The monitoring report covers the full reporting period."
                 className="w-full rounded-[1.25rem] border border-slate-200 bg-white p-5 text-lg leading-8 text-slate-950 outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:bg-white"
                 ref={claimRef}
               />
-              {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
+              {fieldErrors.claim ? (
+                <span className="text-sm text-rose-700">
+                  {fieldErrors.claim}
+                </span>
+              ) : null}
             </label>
             <div className="mt-4">
               <div className="text-xs text-slate-400">Try an example</div>
@@ -1737,21 +2286,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     key={suggestion}
                     type="button"
                     onClick={() => {
-                      updateDraft(
-                        (current) => {
-                          const nextMethodology = resetMethodologyForUserInput(current);
-                          return {
-                            ...current,
-                            ...nextMethodology,
-                            claimText: suggestion,
-                            matchedRequirementId: undefined,
-                            matchedRequirementLabel: undefined,
-                            status: "draft",
-                            resultId: undefined,
-                          };
-                        },
-                        null,
-                      );
+                      updateDraft((current) => {
+                        const nextMethodology =
+                          resetMethodologyForUserInput(current);
+                        return {
+                          ...current,
+                          ...nextMethodology,
+                          claimText: suggestion,
+                          matchedRequirementId: undefined,
+                          matchedRequirementLabel: undefined,
+                          status: "draft",
+                          resultId: undefined,
+                        };
+                      }, null);
                       clearDecisionState();
                     }}
                     className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
@@ -1766,15 +2313,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           <div>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-sm font-medium text-slate-900">Evidence</div>
-                <div className="mt-1 text-sm text-slate-600">Upload one file.</div>
+                <div className="text-sm font-medium text-slate-900">
+                  Evidence
+                </div>
+                <div className="mt-1 text-sm text-slate-600">
+                  Upload one file.
+                </div>
               </div>
               <input
                 ref={fileRef}
                 type="file"
                 className="hidden"
                 accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
-                onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
+                onChange={(event) =>
+                  void handleUpload(event.target.files?.[0] ?? null)
+                }
               />
               <button
                 type="button"
@@ -1794,8 +2347,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <>
                 <div className="mt-4 flex items-center justify-between gap-3 rounded-[1.2rem] border border-slate-200 bg-white px-4 py-3">
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-slate-900">{selectedEvidenceLabel}</div>
-                    <div className="mt-1 text-xs text-slate-500">{selectedEvidenceMeta}</div>
+                    <div className="truncate text-sm font-medium text-slate-900">
+                      {selectedEvidenceLabel}
+                    </div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {selectedEvidenceMeta}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -1809,71 +2366,122 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 <div className="mt-3 rounded-[1.2rem] border border-slate-200 bg-white px-4 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <div className="text-sm font-medium text-slate-900">Extraction preview</div>
-                      <div className="mt-1 text-sm text-slate-600">Review the evidence signal.</div>
+                      <div className="text-sm font-medium text-slate-900">
+                        Extraction preview
+                      </div>
+                      <div className="mt-1 text-sm text-slate-600">
+                        Review the evidence signal.
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {extractionPreviewState ? (
-                        <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
+                        <span
+                          className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}
+                        >
                           {extractionPreviewState.label}
                         </span>
                       ) : null}
-                      {extractionState.loading ? <Loader2 className="h-4 w-4 animate-spin text-slate-400" /> : null}
+                      {extractionState.loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                      ) : null}
                     </div>
                   </div>
 
                   {extractionState.error ? (
                     <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                      Extraction preview is unavailable right now. {extractionState.error}
+                      Extraction preview is unavailable right now.{" "}
+                      {extractionState.error}
                     </div>
                   ) : extractionPreview ? (
                     <>
-                      {!draft.methodologyId.trim() && methodologyResolution.status === "single" ? (
+                      {!draft.methodologyId.trim() &&
+                      methodologyResolution.status === "single" ? (
                         <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-                          Detected methodology: {methodologyResolution.matchedMethods[0].methodologyId}. Requirement matches are narrowed to {methodologyResolution.matchedMethods[0].methodologyId}.
+                          Detected methodology:{" "}
+                          {
+                            methodologyResolution.matchedMethods[0]
+                              .methodologyId
+                          }
+                          . Requirement matches are narrowed to{" "}
+                          {
+                            methodologyResolution.matchedMethods[0]
+                              .methodologyId
+                          }
+                          .
                         </div>
                       ) : null}
-                      {!draft.methodologyId.trim() && methodologyResolution.status === "multiple" ? (
+                      {!draft.methodologyId.trim() &&
+                      methodologyResolution.status === "multiple" ? (
                         <div className="mt-3 rounded-2xl border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900">
-                          Methodology needs confirmation. Requirement matches are limited to {joinMethodologyLabels(methodologyResolution.matchedMethods.map((method) => method.methodologyId))}.
+                          Methodology needs confirmation. Requirement matches
+                          are limited to{" "}
+                          {joinMethodologyLabels(
+                            methodologyResolution.matchedMethods.map(
+                              (method) => method.methodologyId,
+                            ),
+                          )}
+                          .
                         </div>
                       ) : null}
-                      {!draft.methodologyId.trim() && methodologyResolution.status === "unsupported" ? (
+                      {!draft.methodologyId.trim() &&
+                      methodologyResolution.status === "unsupported" ? (
                         <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                          Detected {joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys)}, but no matching method pack is available.
+                          Detected{" "}
+                          {joinMethodologyLabels(
+                            methodologyResolution.unsupportedCanonicalKeys,
+                          )}
+                          , but no matching method pack is available.
                         </div>
                       ) : null}
-                      {!draft.methodologyId.trim() && methodologyResolution.status === "none" && (extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 ? (
+                      {!draft.methodologyId.trim() &&
+                      methodologyResolution.status === "none" &&
+                      (extractionPreview.signals?.parsedEvidenceCount ?? 0) >
+                        0 ? (
                         <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                          No methodology detected. Requirement matches use broad matching and may be unrelated.
+                          No methodology detected. Requirement matches use broad
+                          matching and may be unrelated.
                         </div>
                       ) : null}
                       <div className="mt-4 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
                         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">What we found first</div>
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                            What we found first
+                          </div>
                           {extractionHighlights.length ? (
                             <div className="mt-2 flex flex-wrap gap-2">
                               {extractionHighlights.map((fact) => (
-                                <span key={fact} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                <span
+                                  key={fact}
+                                  className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700"
+                                >
                                   {fact}
                                 </span>
                               ))}
                             </div>
                           ) : (
                             <div className="mt-2 text-sm text-amber-900">
-                              We couldn&apos;t extract enough usable data from this file for a reliable preliminary match yet.
+                              We couldn&apos;t extract enough usable data from
+                              this file for a reliable preliminary match yet.
                             </div>
                           )}
                         </div>
                         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                           <div className="grid gap-2 text-sm text-slate-700">
                             <div>
-                              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
-                              <div className="mt-1 font-medium text-slate-900">{sourceModeLabel(activeSourceMode)}</div>
+                              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                Source
+                              </div>
+                              <div className="mt-1 font-medium text-slate-900">
+                                {sourceModeLabel(activeSourceMode)}
+                              </div>
                             </div>
                             <div>
-                              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document type</div>
-                              <div className="mt-1 font-medium text-slate-900">{extractionPreview.documentType}</div>
+                              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                Document type
+                              </div>
+                              <div className="mt-1 font-medium text-slate-900">
+                                {extractionPreview.documentType}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1881,33 +2489,50 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
                       <button
                         type="button"
-                        onClick={() => setShowExtractionDetails((value) => !value)}
+                        onClick={() =>
+                          setShowExtractionDetails((value) => !value)
+                        }
                         className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                         aria-expanded={showExtractionDetails}
                       >
-                        {showExtractionDetails ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                        {showExtractionDetails ? "Hide extraction details" : "Show extraction details"}
+                        {showExtractionDetails ? (
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        ) : (
+                          <ChevronRight className="h-3.5 w-3.5" />
+                        )}
+                        {showExtractionDetails
+                          ? "Hide extraction details"
+                          : "Show extraction details"}
                       </button>
 
                       {showExtractionDetails ? (
                         <div className="mt-4 grid gap-4 md:grid-cols-2">
                           <div>
-                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction signal</div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Extraction signal
+                            </div>
                             {extractionPreviewState ? (
                               <>
-                                <span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
+                                <span
+                                  className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}
+                                >
                                   {extractionPreviewState.label}
                                 </span>
-                                <div className="mt-2 text-xs text-slate-500">{extractionPreviewState.description}</div>
+                                <div className="mt-2 text-xs text-slate-500">
+                                  {extractionPreviewState.description}
+                                </div>
                               </>
                             ) : null}
                           </div>
                           <div>
-                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction diagnostic</div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Extraction diagnostic
+                            </div>
                             <div className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
                               {extractionDiagnostic ? (
                                 <>
-                                  <strong>{extractionDiagnostic.label}:</strong> {extractionDiagnostic.message}
+                                  <strong>{extractionDiagnostic.label}:</strong>{" "}
+                                  {extractionDiagnostic.message}
                                 </>
                               ) : (
                                 "No extraction diagnostic from the active source."
@@ -1915,20 +2540,38 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology mentions</div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Methodology mentions
+                            </div>
                             <div className="mt-2 flex flex-wrap gap-2">
-                              {(extractionPreview.methodologyMentions.length ? extractionPreview.methodologyMentions : ["None detected"]).map((mention) => (
-                                <span key={mention} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                              {(extractionPreview.methodologyMentions.length
+                                ? extractionPreview.methodologyMentions
+                                : ["None detected"]
+                              ).map((mention) => (
+                                <span
+                                  key={mention}
+                                  className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700"
+                                >
                                   {mention}
                                 </span>
                               ))}
                             </div>
                           </div>
                           <div className="md:col-span-2">
-                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Warnings
+                            </div>
                             <div className="mt-2 grid gap-2">
-                              {(extractionPreview.warnings.length ? extractionPreview.warnings : ["No extraction warnings from the active source."]).map((warning) => (
-                                <div key={warning} className="text-sm text-slate-600">
+                              {(extractionPreview.warnings.length
+                                ? extractionPreview.warnings
+                                : [
+                                    "No extraction warnings from the active source.",
+                                  ]
+                              ).map((warning) => (
+                                <div
+                                  key={warning}
+                                  className="text-sm text-slate-600"
+                                >
                                   {warning}
                                 </div>
                               ))}
@@ -1941,7 +2584,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 </div>
               </>
             )}
-            {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
+            {fieldErrors.evidence ? (
+              <div className="mt-3 text-sm text-rose-700">
+                {fieldErrors.evidence}
+              </div>
+            ) : null}
           </div>
 
           <div className="grid gap-3">
@@ -1985,12 +2632,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
           {showAdvancedOptions ? (
             <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Options</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Options
+              </div>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <div className={`rounded-2xl border px-4 py-3 ${showSavedEvidence ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
-                  <div className="text-sm font-medium text-slate-900">Saved evidence</div>
+                <div
+                  className={`rounded-2xl border px-4 py-3 ${showSavedEvidence ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}
+                >
+                  <div className="text-sm font-medium text-slate-900">
+                    Saved evidence
+                  </div>
                   {!draft.methodologyId || !draft.methodologyVersion ? (
-                    <div className="mt-2 text-sm text-slate-600">Choose a methodology first to reuse saved evidence.</div>
+                    <div className="mt-2 text-sm text-slate-600">
+                      Choose a methodology first to reuse saved evidence.
+                    </div>
                   ) : (
                     <div className="mt-3">
                       <select
@@ -2005,7 +2660,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       >
                         <option value="">Select saved evidence</option>
                         {availableInventory.map((item) => (
-                          <option key={item.evidence_id} value={item.evidence_id}>
+                          <option
+                            key={item.evidence_id}
+                            value={item.evidence_id}
+                          >
                             {inventoryEvidenceLabel(item)}
                           </option>
                         ))}
@@ -2013,25 +2671,39 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     </div>
                   )}
                 </div>
-                <div className={`rounded-2xl border px-4 py-3 ${showMethodology ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
+                <div
+                  className={`rounded-2xl border px-4 py-3 ${showMethodology ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}
+                >
                   <label className="grid gap-2 text-sm text-slate-700">
-                    <span className="font-medium text-slate-900">Methodology</span>
+                    <span className="font-medium text-slate-900">
+                      Methodology
+                    </span>
                     <select
                       value={draft.methodologyId}
                       onChange={(event) => {
                         const methodologyId = event.target.value;
-                        const method = methods.find((item) => item.code === methodologyId);
-                        const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
+                        const method = methods.find(
+                          (item) => item.code === methodologyId,
+                        );
+                        const methodologyVersion = methodologyId
+                          ? pickVersion(method, initialVersion)
+                          : "";
                         setShowMethodology(Boolean(methodologyId));
                         updateSession((current) => {
-                          const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
+                          const stagedIds = new Set(
+                            current.stagedUploads.map(
+                              (upload) => upload.evidenceId,
+                            ),
+                          );
                           return {
                             ...current,
                             draft: {
                               ...current.draft,
                               methodologyId,
                               methodologyVersion,
-                              evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
+                              evidenceIds: current.draft.evidenceIds.filter(
+                                (id) => stagedIds.has(id),
+                              ),
                               matchedRequirementId: undefined,
                               matchedRequirementLabel: undefined,
                               status: "draft",
@@ -2054,7 +2726,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         </option>
                       ))}
                     </select>
-                    <span className="text-xs text-slate-500">Optional. Use this only when you want to narrow the match.</span>
+                    <span className="text-xs text-slate-500">
+                      Optional. Use this only when you want to narrow the match.
+                    </span>
                   </label>
                 </div>
               </div>
@@ -2063,9 +2737,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
           {recoveryState ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4">
-              <div className="text-sm font-semibold text-slate-900">{recoveryState.title}</div>
-              <div className="mt-1 text-sm text-slate-700">{recoveryState.description}</div>
-              {recoveryState.note ? <div className="mt-3 text-sm text-slate-600">{recoveryState.note}</div> : null}
+              <div className="text-sm font-semibold text-slate-900">
+                {recoveryState.title}
+              </div>
+              <div className="mt-1 text-sm text-slate-700">
+                {recoveryState.description}
+              </div>
+              {recoveryState.note ? (
+                <div className="mt-3 text-sm text-slate-600">
+                  {recoveryState.note}
+                </div>
+              ) : null}
               <div className="mt-4 flex flex-wrap gap-2">
                 {recoveryState.kind === "weak-extraction" ? (
                   <button
@@ -2106,7 +2788,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           ) : null}
 
           {fieldErrors.general ? (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900" role="status" aria-live="polite">
+            <div
+              className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900"
+              role="status"
+              aria-live="polite"
+            >
               <div className="flex items-start gap-2.5">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
                 <div>{fieldErrors.general}</div>
@@ -2119,7 +2805,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <div className="flex items-start gap-3">
                 <SearchCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" />
                 <div className="min-w-0">
-                  <div className="text-sm font-semibold text-slate-900">Likely requirement matches</div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    Likely requirement matches
+                  </div>
                   <div className="mt-1 text-sm text-slate-600">
                     Choose the best match for this claim.
                   </div>
@@ -2133,11 +2821,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       >
                         <div className="min-w-0">
                           <div className="text-sm font-medium text-slate-900">
-                            {splitRequirementLabel(candidate.requirementLabel).title}
+                            {
+                              splitRequirementLabel(candidate.requirementLabel)
+                                .title
+                            }
                           </div>
                           <div className="mt-1 text-xs text-slate-500">
-                            {candidate.methodologyId} · {candidate.methodologyVersion}
-                            {splitRequirementLabel(candidate.requirementLabel).id
+                            {candidate.methodologyId} ·{" "}
+                            {candidate.methodologyVersion}
+                            {splitRequirementLabel(candidate.requirementLabel)
+                              .id
                               ? ` · ${splitRequirementLabel(candidate.requirementLabel).id}`
                               : ""}
                           </div>
@@ -2162,16 +2855,26 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               role="status"
               aria-live="polite"
             >
-              <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${resultEyebrowClass}`}>{resultTitle}</div>
-              <div className="mt-2 text-sm text-slate-600">{normalizedResult.claim}</div>
-              <div className="mt-2 text-sm text-slate-700">{resultSignalNote}</div>
+              <div
+                className={`text-xs font-semibold uppercase tracking-[0.18em] ${resultEyebrowClass}`}
+              >
+                {resultTitle}
+              </div>
+              <div className="mt-2 text-sm text-slate-600">
+                {normalizedResult.claim}
+              </div>
+              <div className="mt-2 text-sm text-slate-700">
+                {resultSignalNote}
+              </div>
               <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 px-4 py-3">
                 <div className="text-sm text-slate-800">
                   {normalizedResult.match.rationale}
                 </div>
               </div>
               <div className="mt-3 flex items-center gap-3">
-                <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(normalizedResult.extractionState.value)}`}>
+                <span
+                  className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(normalizedResult.extractionState.value)}`}
+                >
                   {normalizedResult.extractionState.label} evidence signal
                 </span>
               </div>
@@ -2192,8 +2895,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       disabled={creatingProjectDraft}
                       className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 disabled:opacity-50"
                     >
-                      {creatingProjectDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
-                      Create project from document
+                      {creatingProjectDraft ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ArrowUpRight className="h-4 w-4" />
+                      )}
+                      Start Review
                     </button>
                   ) : null}
                 </div>
@@ -2201,11 +2908,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
-          {!renderedResult && selectedEvidenceCount === 1 && activeSourceMode === "uploaded_file" ? (
+          {!renderedResult &&
+          selectedEvidenceCount === 1 &&
+          activeSourceMode === "uploaded_file" ? (
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-              <div className="text-sm font-semibold text-slate-900">Project setup</div>
+              <div className="text-sm font-semibold text-slate-900">
+                Review detected details
+              </div>
               <div className="mt-1 text-sm text-slate-600">
-                Use the uploaded document to prefill a project draft before or after running the evidence check.
+                Use this document to detect project and method details, then
+                confirm before continuing.
               </div>
               <button
                 type="button"
@@ -2213,15 +2925,29 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 disabled={creatingProjectDraft}
                 className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 disabled:opacity-50"
               >
-                {creatingProjectDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
-                Create project from document
+                {creatingProjectDraft ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowUpRight className="h-4 w-4" />
+                )}
+                Start review from this document
               </button>
             </div>
           ) : null}
 
-          {(selectedMethodRecord && draft.methodologyVersion) || (methodologyResolution.status === "single" && !draft.methodologyId.trim()) ? (
+          {(selectedMethodRecord && draft.methodologyVersion) ||
+          (methodologyResolution.status === "single" &&
+            !draft.methodologyId.trim()) ? (
             <div className="text-xs text-slate-500" aria-live="polite">
-              Narrowing matches to {(selectedMethodRecord?.code ?? methodologyResolution.matchedMethods[0]?.methodologyId) ?? ""} · {(draft.methodologyVersion || methodologyResolution.matchedMethods[0]?.methodologyVersion) ?? ""}.
+              Narrowing matches to{" "}
+              {selectedMethodRecord?.code ??
+                methodologyResolution.matchedMethods[0]?.methodologyId ??
+                ""}{" "}
+              ·{" "}
+              {(draft.methodologyVersion ||
+                methodologyResolution.matchedMethods[0]?.methodologyVersion) ??
+                ""}
+              .
             </div>
           ) : null}
         </div>
