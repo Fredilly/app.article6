@@ -38,6 +38,7 @@ import {
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
 import { buildQuickCheckDemoCandidate, prepareQuickCheckDemo, QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
+import { stageProjectDocumentDraftFromAttachment } from "@/lib/projects/documentMetadata";
 import {
   resolveQuickCheckCandidate,
   resolveQuickCheckCandidates,
@@ -540,6 +541,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showMethodology, setShowMethodology] = useState(false);
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
+  const [creatingProjectDraft, setCreatingProjectDraft] = useState(false);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
     analysis: null,
@@ -1636,6 +1638,36 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (typeof window !== "undefined") window.location.assign(handoff.url);
   }
 
+  async function handleCreateProjectFromDocument() {
+    const uploadAttachment = selectedUpload?.attachment ?? null;
+    const selectedPdfAttachment = uploadAttachment
+      ?? selectedPins.flatMap((pin) => pin.attachments ?? []).find((attachment) => attachment.mime === "application/pdf")
+      ?? null;
+    if (!selectedPdfAttachment || !draft.evidenceIds[0]) {
+      setFieldErrors({ general: "Select one uploaded PDF or saved PDD before creating a project draft." });
+      return;
+    }
+    setCreatingProjectDraft(true);
+    setFieldErrors({});
+    try {
+      await stageProjectDocumentDraftFromAttachment({
+        origin: "quick-check",
+        evidenceId: draft.evidenceIds[0],
+        attachmentId: selectedPdfAttachment.id,
+        fileName: selectedPdfAttachment.filename,
+        mimeType: selectedPdfAttachment.mime,
+        contentSha256: selectedPdfAttachment.sha256,
+      });
+      if (typeof window !== "undefined") {
+        window.location.assign("/projects/new?handoff=document-metadata");
+      }
+    } catch (error) {
+      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+    } finally {
+      setCreatingProjectDraft(false);
+    }
+  }
+
   function handleTryAnotherMethodology() {
     setShowMethodology(true);
     setRecoveryState(null);
@@ -2144,15 +2176,46 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 </span>
               </div>
               <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={handleContinueToWorkspace}
-                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
-                >
-                  <FolderOpen className="h-4 w-4" />
-                  Open full review
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handleContinueToWorkspace}
+                    className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    <FolderOpen className="h-4 w-4" />
+                    Open full review
+                  </button>
+                  {selectedEvidenceCount === 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleCreateProjectFromDocument()}
+                      disabled={creatingProjectDraft}
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 disabled:opacity-50"
+                    >
+                      {creatingProjectDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
+                      Create project from document
+                    </button>
+                  ) : null}
+                </div>
               </div>
+            </div>
+          ) : null}
+
+          {!renderedResult && selectedEvidenceCount === 1 && activeSourceMode === "uploaded_file" ? (
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+              <div className="text-sm font-semibold text-slate-900">Project setup</div>
+              <div className="mt-1 text-sm text-slate-600">
+                Use the uploaded document to prefill a project draft before or after running the evidence check.
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleCreateProjectFromDocument()}
+                disabled={creatingProjectDraft}
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 disabled:opacity-50"
+              >
+                {creatingProjectDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
+                Create project from document
+              </button>
             </div>
           ) : null}
 

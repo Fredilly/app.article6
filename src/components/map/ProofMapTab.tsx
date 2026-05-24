@@ -63,6 +63,7 @@ import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
 import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
 import { computeUplift, isComparable } from "@/lib/baseline/uplift";
 import { addIntakeItem } from "@/lib/intake/storage";
+import { stageProjectDocumentDraftFromAttachment } from "@/lib/projects/documentMetadata";
 import {
   SNAPSHOT_SCHEMA_VERSION,
   addTaskWithText,
@@ -466,6 +467,7 @@ export default function ProofMapTab({
   const isEvidenceMode = mode === "evidence";
   const isListMode = viewMode === "list";
   const [error, setError] = useState<string | null>(null);
+  const [projectDraftReady, setProjectDraftReady] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [undoVisible, setUndoVisible] = useState(false);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
@@ -2992,6 +2994,17 @@ export default function ProofMapTab({
         const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
         return existingPin ? coalesceEvidencePins(current) : coalesceEvidencePins([candidate, ...current]);
       });
+      void stageProjectDocumentDraftFromAttachment({
+        origin: "pdd-upload",
+        evidenceId: pinId,
+        attachmentId: result.attachment.id,
+        fileName: result.attachment.filename,
+        mimeType: result.attachment.mime,
+        contentSha256: result.attachment.sha256,
+      }).then(() => {
+        setProjectDraftReady(true);
+        showToast({ title: "Project draft ready", subtitle: "Open New Project to review extracted metadata from this PDD." });
+      }).catch(() => undefined);
       setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
       showToast(existing ? `${file.name} is already in inventory` : `Added PDD ${file.name} to inventory`);
     } catch (error) {
@@ -3649,6 +3662,17 @@ export default function ProofMapTab({
                   }}
                 />
               </label>
+              {projectDraftReady ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined") window.location.assign("/projects/new?handoff=document-metadata");
+                  }}
+                  className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800"
+                >
+                  Create project from document
+                </button>
+              ) : null}
               <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5">
                 {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
               </span>

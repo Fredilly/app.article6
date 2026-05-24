@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { attachPendingProjectDocumentToProject, clearPendingProjectDocumentDraft, readPendingProjectDocumentDraft } from '@/lib/projects/documentMetadata';
 import { createProject } from '@/lib/projects/storage';
 import { projectRegistryFromMethodProgram } from '@/lib/projects/verificationReport';
-import type { ProjectRegistry, ProjectReviewMode } from '@/lib/projects/types';
+import type { ExistingProjectMatch, ProjectDocumentMetadataDraft, ProjectRegistry, ProjectReviewMode } from '@/lib/projects/types';
 import { importMethodologyReviewIntoProject, readPendingProjectReviewHandoff } from '@/lib/projects/reviewHandoff';
 
 export type MethodOption = {
@@ -15,6 +16,23 @@ export type MethodOption = {
 };
 
 const REGISTRY_ORDER: ProjectRegistry[] = ['UNFCCC', 'Verra', 'Gold Standard', 'Unknown'];
+type ProjectCreationMode = 'create' | 'attach';
+
+function confidenceTone(confidence: ProjectDocumentMetadataDraft['fields']['projectTitle']['confidence']): string {
+  if (confidence === 'high') return 'border-emerald-200 bg-emerald-50 text-emerald-800';
+  if (confidence === 'medium') return 'border-sky-200 bg-sky-50 text-sky-800';
+  if (confidence === 'low') return 'border-amber-200 bg-amber-50 text-amber-800';
+  return 'border-slate-200 bg-slate-100 text-slate-500';
+}
+
+function maybeSelectMethod(methods: MethodOption[], rawValue: string | undefined): string {
+  const value = rawValue?.trim();
+  if (!value) return '';
+  const exact = methods.find((method) => method.code.toLowerCase() === value.toLowerCase());
+  if (exact) return `${exact.code}@${exact.version}`;
+  const matched = methods.find((method) => value.toLowerCase().includes(method.code.toLowerCase()));
+  return matched ? `${matched.code}@${matched.version}` : '';
+}
 
 export function groupMethodsByRegistry(methods: MethodOption[]): Array<{ registry: ProjectRegistry; methods: MethodOption[] }> {
   const groups = new Map<ProjectRegistry, MethodOption[]>();
@@ -47,8 +65,19 @@ export default function NewProjectForm() {
   const [error, setError] = useState('');
   const [handoffDetected, setHandoffDetected] = useState(false);
   const [handoffMethodLabel, setHandoffMethodLabel] = useState('');
+  const [methodology, setMethodology] = useState('');
+  const [standard, setStandard] = useState('');
+  const [sourceDocumentType, setSourceDocumentType] = useState('');
+  const [sourceDocumentVersion, setSourceDocumentVersion] = useState('');
+  const [sourceDocumentDate, setSourceDocumentDate] = useState('');
+  const [documentDraft, setDocumentDraft] = useState<ProjectDocumentMetadataDraft | null>(null);
+  const [creationMode, setCreationMode] = useState<ProjectCreationMode>('create');
+  const [confirmDocumentDraft, setConfirmDocumentDraft] = useState(false);
+  const [attachProjectId, setAttachProjectId] = useState('');
 
   const groupedMethods = useMemo(() => groupMethodsByRegistry(methods), [methods]);
+  const attachMatches = useMemo<ExistingProjectMatch[]>(() => documentDraft?.suggestedExistingProjects ?? [], [documentDraft]);
+  const searchKey = searchParams.toString();
 
   useEffect(() => {
     fetch('/api/projects/methods')
@@ -65,28 +94,74 @@ export default function NewProjectForm() {
     setReviewMode('methodology-linked');
     setSelectedMethod(`${handoff.source.methodCode}@${handoff.source.methodVersion}`);
     setHandoffMethodLabel(`${handoff.source.methodCode} ${handoff.source.methodVersion}`);
-  }, [searchParams]);
+  }, [searchKey, searchParams]);
+
+  useEffect(() => {
+    if (searchParams.get('handoff') !== 'document-metadata') return;
+    const stagedDraft = readPendingProjectDocumentDraft();
+    if (!stagedDraft) return;
+    if (documentDraft?.source.attachmentId === stagedDraft.source.attachmentId) return;
+    setDocumentDraft(stagedDraft);
+    setName(stagedDraft.fields.projectTitle.value ?? '');
+    setProjectCode(stagedDraft.fields.projectId.value ?? '');
+    setCountryLocation(stagedDraft.fields.country.value ?? '');
+    setProponent(stagedDraft.fields.proponent.value ?? '');
+    setMethodology(stagedDraft.fields.methodology.value ?? '');
+    setStandard(stagedDraft.fields.standard.value ?? '');
+    setSourceDocumentType(stagedDraft.fields.documentType.value ?? '');
+    setSourceDocumentVersion(stagedDraft.fields.version.value ?? '');
+    setSourceDocumentDate(stagedDraft.fields.documentDate.value ?? '');
+    const suggestedAttach = stagedDraft.suggestedExistingProjects[0];
+    if (suggestedAttach) {
+      setAttachProjectId(suggestedAttach.projectId);
+    }
+  }, [documentDraft?.source.attachmentId, searchKey, searchParams]);
+
+  useEffect(() => {
+    if (!documentDraft || !methods.length || selectedMethod) return;
+    const maybeMethod = maybeSelectMethod(methods, documentDraft.fields.methodology.value);
+    if (maybeMethod) setSelectedMethod(maybeMethod);
+  }, [documentDraft, methods, selectedMethod]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
     if (reviewMode === 'methodology-linked' && !selectedMethod) return;
+    if (documentDraft && !confirmDocumentDraft) return;
+    if (creationMode === 'attach' && !attachProjectId) return;
 
     setLoading(true);
     setError('');
 
     try {
+      if (creationMode === 'attach') {
+        await attachPendingProjectDocumentToProject(attachProjectId);
+        clearPendingProjectDocumentDraft();
+        router.push(`/projects/${attachProjectId}`);
+        return;
+      }
+
       if (reviewMode === 'manual') {
         const project = createProject({
           name,
           projectCode: projectCode || undefined,
           countryLocation: countryLocation || undefined,
           proponent: proponent || undefined,
+          methodology: methodology || undefined,
+          standard: standard || undefined,
+          sourceDocumentType: sourceDocumentType || undefined,
+          sourceDocumentVersion: sourceDocumentVersion || undefined,
+          sourceDocumentDate: sourceDocumentDate || undefined,
           reviewMode,
           reportingPeriod: reportingPeriod || undefined,
           aoiLabel: aoiLabel || undefined,
           description: description || undefined,
+          createdFromDocumentDraft: documentDraft ?? undefined,
         });
+        if (documentDraft) {
+          await attachPendingProjectDocumentToProject(project.id);
+          clearPendingProjectDocumentDraft();
+        }
         router.push(`/projects/${project.id}`);
         return;
       }
@@ -114,14 +189,24 @@ export default function NewProjectForm() {
             projectCode: projectCode || undefined,
             countryLocation: countryLocation || undefined,
             proponent: proponent || undefined,
+            methodology: methodology || undefined,
+            standard: standard || undefined,
             methodCategory: category,
             registry: projectRegistryFromMethodProgram(selectedMethodRecord?.program),
             reportingPeriod: reportingPeriod || undefined,
             aoiLabel: aoiLabel || undefined,
             description: description || undefined,
+            sourceDocumentType: sourceDocumentType || undefined,
+            sourceDocumentVersion: sourceDocumentVersion || undefined,
+            sourceDocumentDate: sourceDocumentDate || undefined,
+            createdFromDocumentDraft: documentDraft ?? undefined,
           },
           rules,
         });
+        if (documentDraft) {
+          await attachPendingProjectDocumentToProject(result.project.id);
+          clearPendingProjectDocumentDraft();
+        }
         router.push(result.href);
         return;
       }
@@ -131,6 +216,8 @@ export default function NewProjectForm() {
         projectCode: projectCode || undefined,
         countryLocation: countryLocation || undefined,
         proponent: proponent || undefined,
+        methodology: methodology || undefined,
+        standard: standard || undefined,
         reviewMode,
         methodCode: code,
         methodVersion: version,
@@ -139,6 +226,10 @@ export default function NewProjectForm() {
         reportingPeriod: reportingPeriod || undefined,
         aoiLabel: aoiLabel || undefined,
         description: description || undefined,
+        sourceDocumentType: sourceDocumentType || undefined,
+        sourceDocumentVersion: sourceDocumentVersion || undefined,
+        sourceDocumentDate: sourceDocumentDate || undefined,
+        createdFromDocumentDraft: documentDraft ?? undefined,
         ruleIds: rules.map((r: { id: string; title: string; sectionId?: string }) => ({
           id: r.id,
           title: r.title,
@@ -146,11 +237,17 @@ export default function NewProjectForm() {
         })),
       });
 
+      if (documentDraft) {
+        await attachPendingProjectDocumentToProject(project.id);
+        clearPendingProjectDocumentDraft();
+      }
       router.push(`/projects/${project.id}`);
     } catch {
       setError(reviewMode === 'manual'
         ? 'Failed to create manual review. Try again.'
-        : 'Failed to create project handoff. Try again.');
+        : creationMode === 'attach'
+          ? 'Failed to attach the document to the existing project. Try again.'
+          : 'Failed to create project handoff. Try again.');
       setLoading(false);
     }
   };
@@ -163,6 +260,15 @@ export default function NewProjectForm() {
           Create a long-lived project review workspace
         </p>
       </div>
+
+      {documentDraft ? (
+        <div className="rounded-lg border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700">
+          <div className="font-semibold text-slate-900">Create project from document</div>
+          <div className="mt-1">
+            Extracted metadata from {documentDraft.source.fileName}. Review every field, then confirm before creating a new project or attaching the document to an existing one.
+          </div>
+        </div>
+      ) : null}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -207,6 +313,57 @@ export default function NewProjectForm() {
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
             Create a project and carry over the active review for {handoffMethodLabel}. Existing evidence links, rule reviews, reviewer notes, and draft finalization state will be imported.
           </div>
+        ) : null}
+
+        {documentDraft ? (
+          <>
+            <div className="grid gap-3 md:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setCreationMode('create')}
+                className={`rounded-lg border px-4 py-3 text-left ${creationMode === 'create' ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-slate-200 bg-white text-slate-700'}`}
+              >
+                <div className="text-sm font-semibold">Create new project</div>
+                <div className="mt-1 text-xs text-slate-500">Use the extracted fields to prefill a new project review.</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCreationMode('attach')}
+                disabled={!attachMatches.length}
+                className={`rounded-lg border px-4 py-3 text-left ${creationMode === 'attach' ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-slate-200 bg-white text-slate-700'} ${!attachMatches.length ? 'cursor-not-allowed opacity-50' : ''}`}
+              >
+                <div className="text-sm font-semibold">Attach to existing project</div>
+                <div className="mt-1 text-xs text-slate-500">Use this when the extracted metadata appears to match an existing record.</div>
+              </button>
+            </div>
+
+            {attachMatches.length ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                <div className="mb-2 text-sm font-semibold text-slate-900">Possible existing project matches</div>
+                <div className="grid gap-2">
+                  {attachMatches.map((match) => (
+                    <label key={match.projectId} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3">
+                      <input
+                        type="radio"
+                        name="attach-project"
+                        checked={attachProjectId === match.projectId}
+                        onChange={() => setAttachProjectId(match.projectId)}
+                        className="mt-1"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-medium text-slate-900">{match.projectName}</span>
+                          {match.projectCode ? <span className="text-xs text-slate-500">{match.projectCode}</span> : null}
+                          <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${confidenceTone(match.confidence)}`}>{match.confidence}</span>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-600">{match.matchReasons.join(' · ')}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </>
         ) : null}
 
         <div>
@@ -267,6 +424,62 @@ export default function NewProjectForm() {
           </div>
         </div>
 
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Methodology (document field)</label>
+            <input
+              type="text"
+              value={methodology}
+              onChange={e => setMethodology(e.target.value)}
+              placeholder="e.g., VM0007"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Standard</label>
+            <input
+              type="text"
+              value={standard}
+              onChange={e => setStandard(e.target.value)}
+              placeholder="e.g., VCS Standard v4.7"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Document Type</label>
+            <input
+              type="text"
+              value={sourceDocumentType}
+              onChange={e => setSourceDocumentType(e.target.value)}
+              placeholder="e.g., Project Design Document"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Document Version</label>
+            <input
+              type="text"
+              value={sourceDocumentVersion}
+              onChange={e => setSourceDocumentVersion(e.target.value)}
+              placeholder="e.g., v1.3"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Document Date</label>
+            <input
+              type="text"
+              value={sourceDocumentDate}
+              onChange={e => setSourceDocumentDate(e.target.value)}
+              placeholder="e.g., 2026-05-24"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
         {reviewMode === 'methodology-linked' ? (
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">Methodology</label>
@@ -317,12 +530,55 @@ export default function NewProjectForm() {
           />
         </div>
 
+        {documentDraft ? (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+            <div className="mb-3 text-sm font-semibold text-slate-900">Extraction provenance</div>
+            <div className="grid gap-3">
+              {Object.values(documentDraft.fields).map((field) => (
+                <div key={field.key} className="rounded-lg border border-slate-200 bg-white px-3 py-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-slate-900">{field.label}</span>
+                    <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${confidenceTone(field.confidence)}`}>{field.confidence}</span>
+                  </div>
+                  <div className="mt-1 text-sm text-slate-700">{field.value || 'No value extracted'}</div>
+                  {field.provenance ? (
+                    <div className="mt-1 text-xs text-slate-500">
+                      {field.provenance.fileName} · page {field.provenance.pageRange || field.provenance.page || '?'}
+                      {field.provenance.excerpt ? ` · "${field.provenance.excerpt}"` : ''}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+            <label className="mt-4 flex items-start gap-3 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={confirmDocumentDraft}
+                onChange={(event) => setConfirmDocumentDraft(event.target.checked)}
+                className="mt-1"
+              />
+              <span>I reviewed the extracted metadata and want to continue with this project action.</span>
+            </label>
+          </div>
+        ) : null}
+
         <button
           type="submit"
-          disabled={loading || !name || (reviewMode === 'methodology-linked' && !selectedMethod)}
+          disabled={
+            loading
+            || (creationMode === 'create' && (!name || (reviewMode === 'methodology-linked' && !selectedMethod)))
+            || (creationMode === 'attach' && !attachProjectId)
+            || Boolean(documentDraft && !confirmDocumentDraft)
+          }
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? 'Creating...' : 'Create Project Review'}
+          {loading
+            ? (creationMode === 'attach' ? 'Attaching...' : 'Creating...')
+            : creationMode === 'attach'
+              ? 'Attach Document To Existing Project'
+              : documentDraft
+                ? 'Create Project From Document'
+                : 'Create Project Review'}
         </button>
       </form>
     </div>

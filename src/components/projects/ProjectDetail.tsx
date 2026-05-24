@@ -432,6 +432,18 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           </div>
           {project.aoiLabel ? <p className="mt-1 text-sm text-slate-400">Project area: {project.aoiLabel}</p> : null}
           {project.description ? <p className="mt-2 max-w-3xl text-sm text-slate-500">{project.description}</p> : null}
+          {(project.projectCode || project.countryLocation || project.proponent || project.methodology || project.standard || project.sourceDocumentType || project.sourceDocumentVersion || project.sourceDocumentDate) ? (
+            <div className="mt-3 flex max-w-4xl flex-wrap gap-2 text-xs text-slate-600">
+              {project.projectCode ? <span className="rounded bg-slate-100 px-2 py-1">Project ID: {project.projectCode}</span> : null}
+              {project.countryLocation ? <span className="rounded bg-slate-100 px-2 py-1">Country: {project.countryLocation}</span> : null}
+              {project.proponent ? <span className="rounded bg-slate-100 px-2 py-1">Proponent: {project.proponent}</span> : null}
+              {project.methodology ? <span className="rounded bg-slate-100 px-2 py-1">Methodology: {project.methodology}</span> : null}
+              {project.standard ? <span className="rounded bg-slate-100 px-2 py-1">Standard: {project.standard}</span> : null}
+              {project.sourceDocumentType ? <span className="rounded bg-slate-100 px-2 py-1">Document: {project.sourceDocumentType}</span> : null}
+              {project.sourceDocumentVersion ? <span className="rounded bg-slate-100 px-2 py-1">Version: {project.sourceDocumentVersion}</span> : null}
+              {project.sourceDocumentDate ? <span className="rounded bg-slate-100 px-2 py-1">Date: {project.sourceDocumentDate}</span> : null}
+            </div>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2">
