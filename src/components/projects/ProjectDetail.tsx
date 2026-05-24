@@ -15,6 +15,7 @@ import type {
   RuleReview,
 } from '@/lib/projects/types';
 import { resolveProjectRegistry } from '@/lib/projects/verificationReport';
+import { buildProjectReviewHref } from '@/lib/projects/reviewHandoff';
 import { computeMetrics } from '@/lib/evidence/metrics';
 import { SectionCoverageBar } from '@/components/evidence/EvidenceQualityBadge';
 import {
@@ -382,6 +383,14 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const latestWorkspace = project.reviewMode === 'methodology-linked'
     ? listReviewWorkspacesForProject(project.id)[0] ?? null
     : null;
+  const startReviewHref = project.reviewMode === 'methodology-linked' && project.methodCode && project.methodVersion
+    ? buildProjectReviewHref({
+        methodCode: project.methodCode,
+        methodVersion: project.methodVersion,
+        projectId: project.id,
+        workspaceId: latestWorkspace?.id ?? project.lastWorkspaceId ?? null,
+      })
+    : `/m?projectId=${encodeURIComponent(project.id)}`;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-12 md:px-8">
@@ -429,14 +438,19 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           {project.reviewMode === 'methodology-linked' ? (
             <>
               <Link
-                href={`/m?projectId=${encodeURIComponent(project.id)}`}
+                href={startReviewHref}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Start review
               </Link>
               {latestWorkspace ? (
                 <Link
-                  href={`/m/${encodeURIComponent(latestWorkspace.methodCode)}/v/${encodeURIComponent(latestWorkspace.methodVersion)}?projectId=${encodeURIComponent(project.id)}&workspaceId=${encodeURIComponent(latestWorkspace.id)}&tab=verify`}
+                  href={buildProjectReviewHref({
+                    methodCode: latestWorkspace.methodCode,
+                    methodVersion: latestWorkspace.methodVersion,
+                    projectId: project.id,
+                    workspaceId: latestWorkspace.id,
+                  })}
                   className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
                 >
                   Continue review
