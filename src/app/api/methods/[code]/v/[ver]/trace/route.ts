@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { loadMethodTrace } from "@/app/m/_lib/methodTrace";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type Params = {
   code: string;
   ver: string;
