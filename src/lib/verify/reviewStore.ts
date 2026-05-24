@@ -13,6 +13,7 @@ export type RuleReview = {
   methodology: string;
   version: string;
   workspaceId?: string;
+  runId?: string | null;
   status: ReviewStatus;
   rationale: string;
   supportReference: string;
@@ -21,6 +22,9 @@ export type RuleReview = {
   reviewedBy: string;
   reviewedAt: string;
   updatedAt: string;
+  reviewerArtifactSavedAt?: string | null;
+  reviewerMinutes?: string;
+  reviewerOutcomeNote?: string;
 };
 
 const STORAGE_PREFIX = "article6:reviews";
@@ -31,7 +35,61 @@ type ReviewStoreEventDetail = {
   version: string;
   workspaceId?: string;
   ruleId?: string;
+  runId?: string | null;
 };
+
+function normalizeRunId(runId?: string | null): string | null {
+  const trimmed = runId?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function reviewRecordKey(ruleId: string, runId?: string | null): string {
+  const normalizedRunId = normalizeRunId(runId);
+  return normalizedRunId ? `${normalizedRunId}::${ruleId}` : ruleId;
+}
+
+function parseStoredReview(value: unknown): RuleReview | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as Partial<RuleReview>;
+  if (
+    typeof record.ruleId !== "string" ||
+    typeof record.methodology !== "string" ||
+    typeof record.version !== "string" ||
+    typeof record.status !== "string" ||
+    typeof record.rationale !== "string" ||
+    typeof record.supportReference !== "string" ||
+    !Array.isArray(record.evidenceAttachments) ||
+    typeof record.reviewedBy !== "string" ||
+    typeof record.reviewedAt !== "string" ||
+    typeof record.updatedAt !== "string"
+  ) {
+    return null;
+  }
+  return {
+    ...record,
+    workspaceId: record.workspaceId?.trim() || undefined,
+    runId: normalizeRunId(record.runId),
+    reviewerArtifactSavedAt: record.reviewerArtifactSavedAt?.trim() || null,
+    reviewerMinutes: typeof record.reviewerMinutes === "string" ? record.reviewerMinutes : "",
+    reviewerOutcomeNote: typeof record.reviewerOutcomeNote === "string" ? record.reviewerOutcomeNote : "",
+  } as RuleReview;
+}
+
+function loadReviewMap(methodology: string, version: string, workspaceId?: string | null): Record<string, RuleReview> {
+  try {
+    const raw = localStorage.getItem(storageKey(methodology, version, workspaceId));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const next: Record<string, RuleReview> = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      const review = parseStoredReview(value);
+      if (review) next[key] = review;
+    }
+    return next;
+  } catch {
+    return {};
+  }
+}
 
 function storageKey(methodology: string, version: string, workspaceId?: string | null): string {
   const normalizedWorkspaceId = workspaceId?.trim();
@@ -51,30 +109,44 @@ export function getReview(
   methodology: string,
   version: string,
   workspaceId?: string | null,
+  runId?: string | null,
 ): RuleReview | null {
-  try {
-    const raw = localStorage.getItem(storageKey(methodology, version, workspaceId));
-    if (!raw) return null;
-    const all: Record<string, RuleReview> = JSON.parse(raw);
-    return all[ruleId] ?? null;
-  } catch {
-    return null;
+  const all = loadReviewMap(methodology, version, workspaceId);
+  const direct = all[reviewRecordKey(ruleId, runId)] ?? null;
+  if (direct) return direct;
+  const normalizedRunId = normalizeRunId(runId);
+  if (!normalizedRunId) return all[ruleId] ?? null;
+  for (const review of Object.values(all)) {
+    if (review.ruleId !== ruleId) continue;
+    if (normalizeRunId(review.runId) === normalizedRunId) return review;
   }
+  const legacy = all[ruleId] ?? null;
+  return legacy && !normalizeRunId(legacy.runId) ? legacy : null;
 }
 
 export function saveReview(review: RuleReview): void {
   const workspaceId = (review as RuleReview & { workspaceId?: string | null }).workspaceId ?? null;
   const key = storageKey(review.methodology, review.version, workspaceId);
   try {
-    const raw = localStorage.getItem(key);
-    const all: Record<string, RuleReview> = raw ? JSON.parse(raw) : {};
-    all[review.ruleId] = { ...review, updatedAt: new Date().toISOString() };
+    const all = loadReviewMap(review.methodology, review.version, workspaceId);
+    const normalizedRunId = normalizeRunId(review.runId);
+    const storedKey = reviewRecordKey(review.ruleId, normalizedRunId);
+    all[storedKey] = {
+      ...review,
+      workspaceId: review.workspaceId?.trim() || undefined,
+      runId: normalizedRunId,
+      reviewerArtifactSavedAt: review.reviewerArtifactSavedAt?.trim() || null,
+      reviewerMinutes: review.reviewerMinutes ?? "",
+      reviewerOutcomeNote: review.reviewerOutcomeNote ?? "",
+      updatedAt: new Date().toISOString(),
+    };
     localStorage.setItem(key, JSON.stringify(all));
     emitReviewStoreEvent({
       methodology: review.methodology,
       version: review.version,
       ...(workspaceId ? { workspaceId } : {}),
       ruleId: review.ruleId,
+      runId: normalizedRunId,
     });
   } catch {
     // Storage full or unavailable — fail silently
@@ -85,13 +157,14 @@ export function getAllReviews(
   methodology: string,
   version: string,
   workspaceId?: string | null,
+  runId?: string | null,
 ): Record<string, RuleReview> {
-  try {
-    const raw = localStorage.getItem(storageKey(methodology, version, workspaceId));
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  const all = loadReviewMap(methodology, version, workspaceId);
+  const normalizedRunId = normalizeRunId(runId);
+  if (!normalizedRunId) return all;
+  return Object.fromEntries(
+    Object.entries(all).filter(([, review]) => normalizeRunId(review.runId) === normalizedRunId),
+  );
 }
 
 export function deleteReview(
@@ -99,15 +172,14 @@ export function deleteReview(
   methodology: string,
   version: string,
   workspaceId?: string | null,
+  runId?: string | null,
 ): void {
   const key = storageKey(methodology, version, workspaceId);
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return;
-    const all: Record<string, RuleReview> = JSON.parse(raw);
-    delete all[ruleId];
+    const all = loadReviewMap(methodology, version, workspaceId);
+    delete all[reviewRecordKey(ruleId, runId)];
     localStorage.setItem(key, JSON.stringify(all));
-    emitReviewStoreEvent({ methodology, version, ...(workspaceId ? { workspaceId } : {}), ruleId });
+    emitReviewStoreEvent({ methodology, version, ...(workspaceId ? { workspaceId } : {}), ruleId, runId: normalizeRunId(runId) });
   } catch {
     // ignore
   }
@@ -121,8 +193,9 @@ export function addEvidenceAttachment(
   version: string,
   attachment: Omit<EvidenceAttachment, "id" | "addedAt">,
   workspaceId?: string | null,
+  runId?: string | null,
 ): RuleReview | null {
-  const review = getReview(ruleId, methodology, version, workspaceId);
+  const review = getReview(ruleId, methodology, version, workspaceId, runId);
   if (!review) return null;
 
   const full: EvidenceAttachment = {
@@ -142,8 +215,9 @@ export function removeEvidenceAttachment(
   version: string,
   evidenceId: string,
   workspaceId?: string | null,
+  runId?: string | null,
 ): RuleReview | null {
-  const review = getReview(ruleId, methodology, version, workspaceId);
+  const review = getReview(ruleId, methodology, version, workspaceId, runId);
   if (!review) return null;
 
   review.evidenceAttachments = (review.evidenceAttachments ?? []).filter(
@@ -170,8 +244,9 @@ export function getReviewProgress(
   version: string,
   totalRules: number,
   workspaceId?: string | null,
+  runId?: string | null,
 ): ReviewProgress {
-  const reviews = getAllReviews(methodology, version, workspaceId);
+  const reviews = getAllReviews(methodology, version, workspaceId, runId);
   const entries = Object.values(reviews);
   const reviewed = entries.filter((r) => r.status !== "pending").length;
   const verified = entries.filter((r) => r.status === "verified").length;
@@ -203,11 +278,12 @@ export function checkFinalizeGate(
   totalRules: number,
   options?: {
     workspaceId?: string | null;
+    runId?: string | null;
     projectLinked?: boolean;
     methodologyLinked?: boolean;
   },
 ): FinalizeGate {
-  const reviews = getAllReviews(methodology, version, options?.workspaceId);
+  const reviews = getAllReviews(methodology, version, options?.workspaceId, options?.runId);
   const entries = Object.values(reviews);
   const reasons: string[] = [];
 

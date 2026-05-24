@@ -141,6 +141,12 @@ export const EXPECTED_EVIDENCE_LABELS: Record<RequirementCoverageExpectedEvidenc
   other: "Other evidence",
 };
 
+function reconciliationEvidenceLabel(type: RequirementCoverageExpectedEvidenceType): string {
+  if (type === "gis") return "official boundary";
+  if (type === "other") return "supporting document";
+  return EXPECTED_EVIDENCE_LABELS[type] ?? type;
+}
+
 export const REQUIREMENT_RECONCILIATION_META: Record<
   RequirementReconciliationStatus,
   { label: RequirementReconciliation["label"]; tone: string }
@@ -412,14 +418,14 @@ export function reconcileRequirement(input: {
 
   if (expected.length) {
     if (missingExpectedEvidenceTypes.length) {
-      const missingLabels = missingExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ");
+      const detailedMissingLabels = missingExpectedEvidenceTypes.map((type) => reconciliationEvidenceLabel(type)).join(", ");
       const satisfiedLabels = satisfiedExpectedEvidenceTypes.length
-        ? ` Satisfied: ${satisfiedExpectedEvidenceTypes.map((type) => EXPECTED_EVIDENCE_LABELS[type]).join(", ")}.`
+        ? ` Satisfied: ${satisfiedExpectedEvidenceTypes.map((type) => reconciliationEvidenceLabel(type)).join(", ")}.`
         : "";
       return {
         status: "partial",
         label: REQUIREMENT_RECONCILIATION_META.partial.label,
-        reason: `Missing expected evidence: ${missingLabels}.${satisfiedLabels}`,
+        reason: `Missing expected evidence: ${detailedMissingLabels}.${satisfiedLabels}`,
         satisfiedExpectedEvidenceTypes,
         missingExpectedEvidenceTypes,
       };

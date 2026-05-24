@@ -534,8 +534,18 @@ function reviewerArtifactForCurrentRule(
   ruleId: string,
   methodCode: string,
   version: string,
+  review: RuleReview | null,
   bundle: Partial<VerifierRunBundle> | null | undefined,
 ): RequirementReviewEntry["reviewer_artifact"] | undefined {
+  if (review && (review.reviewerArtifactSavedAt || review.reviewerMinutes?.trim() || review.reviewerOutcomeNote?.trim())) {
+    return {
+      run_id: review.runId?.trim() || null,
+      finalized_state: review.reviewerArtifactSavedAt ? "draft" : null,
+      finalized_at: null,
+      minutes_present: Boolean(review.reviewerMinutes?.trim()),
+      outcome_note: review.reviewerOutcomeNote?.trim() || null,
+    };
+  }
   if (!bundle) return undefined;
   const contextMethodCode = bundle.savedReviewerArtifactContext?.methodCode?.trim() ?? null;
   const contextVersion = bundle.savedReviewerArtifactContext?.version?.trim() ?? null;
@@ -1517,7 +1527,7 @@ export function buildVerificationPackContract(input: {
       "current_method_review",
       "Current review evidence",
     ).map((entry) => entry.evidence_ref);
-    const reviewerArtifact = reviewerArtifactForCurrentRule(rule.id, input.methodCode, input.version, currentVerifierBundle);
+    const reviewerArtifact = reviewerArtifactForCurrentRule(rule.id, input.methodCode, input.version, review, currentVerifierBundle);
     const reviewedAt = pickLatestTimestamp([review?.reviewedAt, review?.updatedAt, reviewerArtifact?.finalized_at]);
 
     return {

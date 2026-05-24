@@ -32,6 +32,7 @@ type RuleReviewPanelProps = {
   methodology: string;
   version: string;
   workspaceId?: string | null;
+  runId?: string | null;
   anchorUrl?: string;
   existingReview: RuleReview | null;
   linkedEvidence?: Array<{
@@ -53,6 +54,7 @@ type RuleReviewPanelProps = {
   linkedEvidenceDetails?: RequirementCoverageLinkedEvidence[];
   stacSupportState?: StacSupportFactsState | null;
   documentSupport?: DocumentSupportEntry[];
+  readOnly?: boolean;
   onSave: (review: RuleReview) => void;
   onReviewChange?: (review: RuleReview) => void;
 };
@@ -71,6 +73,7 @@ export default function RuleReviewPanel({
   methodology,
   version,
   workspaceId = null,
+  runId = null,
   anchorUrl,
   existingReview,
   linkedEvidence = [],
@@ -86,6 +89,7 @@ export default function RuleReviewPanel({
   linkedEvidenceDetails = [],
   stacSupportState = null,
   documentSupport = [],
+  readOnly = false,
   onSave,
   onReviewChange,
 }: RuleReviewPanelProps) {
@@ -171,6 +175,15 @@ export default function RuleReviewPanel({
     setSuggestionDismissed(false);
   }, [ruleId, methodology, version]);
 
+  useEffect(() => {
+    setStatus(existingReview?.status ?? "pending");
+    setRationale(existingReview?.rationale ?? "");
+    setSupportReference(existingReview?.supportReference ?? "");
+    setEvidenceLink(existingReview?.evidenceLink ?? "");
+    setAttachments(existingReview?.evidenceAttachments ?? []);
+    setErrors([]);
+  }, [existingReview]);
+
   const refreshAuditEvents = useCallback(() => {
     setAuditEvents(getAuditTrailForRule(ruleId, methodology, version).slice(-5).reverse());
   }, [methodology, ruleId, version]);
@@ -189,6 +202,7 @@ export default function RuleReviewPanel({
       methodology,
       version,
       ...(workspaceId ? { workspaceId } : {}),
+      ...(runId ? { runId } : {}),
       status,
       rationale,
       supportReference,
@@ -197,6 +211,9 @@ export default function RuleReviewPanel({
       reviewedBy: existingReview?.reviewedBy ?? "local-reviewer",
       reviewedAt: existingReview?.reviewedAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      reviewerArtifactSavedAt: existingReview?.reviewerArtifactSavedAt ?? null,
+      reviewerMinutes: existingReview?.reviewerMinutes ?? "",
+      reviewerOutcomeNote: existingReview?.reviewerOutcomeNote ?? "",
     };
 
     const validationErrors = validateReview(review);
@@ -215,6 +232,7 @@ export default function RuleReviewPanel({
     methodology,
     version,
     workspaceId,
+    runId,
     status,
     rationale,
     supportReference,
@@ -237,6 +255,7 @@ export default function RuleReviewPanel({
         methodology,
         version,
         ...(workspaceId ? { workspaceId } : {}),
+        ...(runId ? { runId } : {}),
         status,
         rationale,
         supportReference,
@@ -245,6 +264,9 @@ export default function RuleReviewPanel({
         reviewedBy: actorLabel,
         reviewedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        reviewerArtifactSavedAt: null,
+        reviewerMinutes: "",
+        reviewerOutcomeNote: "",
       };
       saveReview(seededReview);
       syncReview(seededReview);
@@ -254,7 +276,7 @@ export default function RuleReviewPanel({
       type: attachmentType,
       label: trimmedLabel,
       url: attachmentType === "url" ? trimmedUrl : undefined,
-    }, workspaceId);
+    }, workspaceId, runId);
     if (!review) return;
 
     logAuditEvent({
@@ -290,6 +312,7 @@ export default function RuleReviewPanel({
     syncReview,
     version,
     workspaceId,
+    runId,
   ]);
 
   const handleFileSelected = useCallback(
@@ -304,7 +327,7 @@ export default function RuleReviewPanel({
 
   const handleRemoveAttachment = useCallback(
     (attachment: EvidenceAttachment) => {
-      const review = removeEvidenceAttachment(ruleId, methodology, version, attachment.id, workspaceId);
+      const review = removeEvidenceAttachment(ruleId, methodology, version, attachment.id, workspaceId, runId);
       if (!review) return;
       logAuditEvent({
         ruleId,
@@ -318,7 +341,7 @@ export default function RuleReviewPanel({
       syncReview(review);
       refreshAuditEvents();
     },
-    [actorLabel, methodology, refreshAuditEvents, ruleId, syncReview, version, workspaceId],
+    [actorLabel, methodology, refreshAuditEvents, ruleId, runId, syncReview, version, workspaceId],
   );
 
   const applySuggestedReview = useCallback(
@@ -461,6 +484,7 @@ export default function RuleReviewPanel({
                 <button
                   type="button"
                   onClick={() => applySuggestedReview(false)}
+                  disabled={readOnly}
                   className="rounded-full border border-sky-700 bg-sky-700 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-800"
                 >
                   Accept suggestion
@@ -468,6 +492,7 @@ export default function RuleReviewPanel({
                 <button
                   type="button"
                   onClick={() => applySuggestedReview(true)}
+                  disabled={readOnly}
                   className="rounded-full border border-sky-200 bg-white px-4 py-2 text-xs font-semibold text-sky-700 hover:border-sky-300"
                 >
                   Edit before saving
@@ -475,6 +500,7 @@ export default function RuleReviewPanel({
                 <button
                   type="button"
                   onClick={() => setSuggestionDismissed(true)}
+                  disabled={readOnly}
                   className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
                 >
                   Reject suggestion / mark manually
@@ -495,6 +521,7 @@ export default function RuleReviewPanel({
                 <button
                   type="button"
                   onClick={() => setSuggestionDismissed(false)}
+                  disabled={readOnly}
                   className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
                 >
                   Restore suggestion
@@ -514,7 +541,8 @@ export default function RuleReviewPanel({
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setStatus(s)}
+                    onClick={() => !readOnly && setStatus(s)}
+                    disabled={readOnly}
                     className={`rounded-2xl border px-4 py-3 text-left text-sm transition ${
                       isActive
                         ? statusTone.button
@@ -548,6 +576,7 @@ export default function RuleReviewPanel({
                 data-rule-rationale={ruleId}
                 placeholder="State the reviewer’s reason in plain language."
                 rows={4}
+                disabled={readOnly}
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
             </div>
@@ -561,6 +590,7 @@ export default function RuleReviewPanel({
                 value={supportReference}
                 onChange={(e) => setSupportReference(e.target.value)}
                 placeholder="Cite the best supporting trace: section, fragment, scene, workbook cell, or note."
+                disabled={readOnly}
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
             </div>
@@ -574,6 +604,7 @@ export default function RuleReviewPanel({
                 value={evidenceLink}
                 onChange={(e) => setEvidenceLink(e.target.value)}
                 placeholder="Optional link to the supporting document, upload, or external trace."
+                disabled={readOnly}
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
             </div>
@@ -592,6 +623,7 @@ export default function RuleReviewPanel({
                 <select
                   value={attachmentType}
                   onChange={(event) => setAttachmentType(event.target.value as EvidenceAttachment["type"])}
+                  disabled={readOnly}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 >
                   <option value="url">URL</option>
@@ -602,6 +634,7 @@ export default function RuleReviewPanel({
                   <input
                     type="file"
                     onChange={(event) => handleFileSelected(event.target.files?.[0] ?? null)}
+                    disabled={readOnly}
                     className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 file:mr-3 file:rounded-full file:border-0 file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
                   />
                 ) : (
@@ -610,6 +643,7 @@ export default function RuleReviewPanel({
                     value={attachmentLabel}
                     onChange={(event) => setAttachmentLabel(event.target.value)}
                     placeholder={attachmentType === "reference" ? "Reference label" : "Attachment label"}
+                    disabled={readOnly}
                     className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                   />
                 )}
@@ -617,13 +651,14 @@ export default function RuleReviewPanel({
                   type="text"
                   value={attachmentUrl}
                   onChange={(event) => setAttachmentUrl(event.target.value)}
-                  disabled={attachmentType !== "url"}
+                  disabled={readOnly || attachmentType !== "url"}
                   placeholder={attachmentType === "url" ? "https://…" : attachmentType === "file" ? "Stored as file name only" : "Optional location or note"}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                 />
                 <button
                   type="button"
                   onClick={handleAddAttachment}
+                  disabled={readOnly}
                   className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
                 >
                   Add
@@ -644,6 +679,7 @@ export default function RuleReviewPanel({
                       <button
                         type="button"
                         onClick={() => handleRemoveAttachment(attachment)}
+                        disabled={readOnly}
                         className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
                       >
                         Remove
@@ -744,19 +780,21 @@ export default function RuleReviewPanel({
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
         <div className="text-xs text-slate-500">
-          Non-pending decisions require both a reason and a supporting trace.
+          {readOnly ? "Finalized reviews are read-only." : "Non-pending decisions require both a reason and a supporting trace."}
         </div>
-        <button
-          type="button"
-          onClick={handleSave}
-          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-            saved
-              ? "bg-emerald-600 text-white"
-              : "bg-slate-900 text-white hover:bg-slate-700"
-          }`}
-        >
-          {saved ? "Saved" : "Save review"}
-        </button>
+        {!readOnly ? (
+          <button
+            type="button"
+            onClick={handleSave}
+            className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+              saved
+                ? "bg-emerald-600 text-white"
+                : "bg-slate-900 text-white hover:bg-slate-700"
+            }`}
+          >
+            {saved ? "Saved" : "Save review"}
+          </button>
+        ) : null}
       </div>
 
       <details className="group border-t border-slate-100 px-5 py-4">

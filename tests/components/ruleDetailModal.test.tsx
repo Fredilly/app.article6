@@ -7,6 +7,7 @@ import {
   createVerifierRunBundle,
   persistVerifierRunBundle,
 } from "@/lib/verify/runState";
+import { saveReview } from "@/lib/verify/reviewStore";
 
 const linkedRow: RequirementCoverageRow = {
   ruleId: "R-1",
@@ -363,5 +364,95 @@ describe("RuleDetailModal", () => {
 
     expect(draftOnlyHtml).toContain("Linked evidence is present, but no reviewer artifact is saved yet.");
     expect(draftOnlyHtml).not.toContain("Linked evidence is present and reviewer artifact is saved.");
+  });
+
+  it("shows verified-with-caveats support labels for document-backed VM0007 review records", () => {
+    const storage = ensureLocalStorage();
+    storage.clear();
+    saveReview({
+      ruleId: "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      methodology: "VM0007",
+      version: "v1-8",
+      status: "verified",
+      rationale: "Boundary support is acceptable for review.",
+      supportReference: "PLUM boundary appendix",
+      evidenceAttachments: [],
+      reviewedBy: "local-reviewer",
+      reviewedAt: "2026-05-24T10:00:00Z",
+      updatedAt: "2026-05-24T10:00:00Z",
+      reviewerArtifactSavedAt: "2026-05-24T10:05:00Z",
+      reviewerMinutes: "Verified against uploaded documents.",
+      reviewerOutcomeNote: "Verified with caveats.",
+    });
+
+    const html = renderToStaticMarkup(
+      <RuleDetailModal
+        open
+        row={{
+          ...linkedNoExpectedEvidenceRow,
+          ruleId: "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+          linkedEvidence: [
+            {
+              id: "frag-boundary-1",
+              title: "PLUM project area boundary",
+              type: "PDD",
+              source: "inventory",
+              fragmentId: "frag-boundary-1",
+              fragmentLabel: "Project area boundary",
+              documentLabel: "plum-pdd.pdf",
+              sectionHeading: "Project boundary",
+            },
+            {
+              id: "scene-1",
+              title: "Sentinel scene 1",
+              type: "STAC item",
+              source: "pin",
+            },
+          ],
+        }}
+        canonicalRuleId="Verra.AFOLU.VM0007.v1-8.R-1-0001"
+        ruleText="Document the project boundary for review."
+        methodologyLabel="Verra AFOLU · VM0007 · v1-8"
+        reviewMethodology="VM0007"
+        reviewVersion="v1-8"
+        documentSupport={[
+          {
+            id: "frag-boundary-1",
+            kind: "pdd_excerpt",
+            source: "plum-pdd.pdf",
+            title: "Project area boundary",
+            provenance: "plum-pdd.pdf · Project boundary",
+            excerpt: "Approximate digitized boundary for project area.",
+            ruleLinked: true,
+          },
+        ]}
+        stacSupportState={{
+          lookupStatus: "results_available",
+          lookupMessage: "1 result available.",
+          searchResultCount: 1,
+          linkedFacts: [],
+          unlinkedFacts: [
+            {
+              id: "scene-1",
+              sourcePinIds: ["pin-1"],
+              linkedRuleIds: [],
+            },
+          ],
+          staleFacts: [],
+          availableUnlinkedIds: ["scene-1"],
+        }}
+        sourcePath={null}
+        sha256={null}
+        traceSections={[]}
+        onClose={() => {}}
+        onOpenSourceContext={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Rule status:</span> Verified");
+    expect(html).toContain("Document support:</span> Satisfied");
+    expect(html).toContain("Spatial support:</span> Approximate");
+    expect(html).toContain("Satellite support:</span> Selected, not interpreted");
+    expect(html).toContain("Overall:</span> Verified with caveats");
   });
 });
