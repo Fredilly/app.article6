@@ -15,12 +15,15 @@ import { stagePendingProjectDocumentDraft } from "@/lib/projects/documentMetadat
 import { createProject } from "@/lib/projects/storage";
 
 const pushMock = jest.fn();
+const replaceMock = jest.fn();
+let searchParamsValue = "handoff=document-metadata";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: pushMock,
+    replace: replaceMock,
   }),
-  useSearchParams: () => new URLSearchParams("handoff=document-metadata"),
+  useSearchParams: () => new URLSearchParams(searchParamsValue),
 }));
 
 const NewProjectForm = require("@/components/projects/NewProjectForm")
@@ -36,6 +39,8 @@ describe("NewProjectForm document handoff", () => {
     document.body.appendChild(container);
     root = createRoot(container);
     pushMock.mockReset();
+    replaceMock.mockReset();
+    searchParamsValue = "handoff=document-metadata";
     window.localStorage.clear();
     window.sessionStorage.clear();
   });
@@ -52,6 +57,35 @@ describe("NewProjectForm document handoff", () => {
     } else {
       delete (global as { fetch?: typeof fetch }).fetch;
     }
+  });
+
+  it("shows the default intake surface without requiring a pre-staged draft", async () => {
+    searchParamsValue = "";
+
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/projects/methods") {
+        return new Response(JSON.stringify({ methods: [] }), { status: 200 });
+      }
+      throw new Error(`Unhandled fetch ${url}`);
+    }) as typeof fetch;
+
+    await act(async () => {
+      root.render(<NewProjectForm />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Start Review");
+    expect(text).toContain(
+      "Upload a PDD, monitoring report, or evidence file. Article6 will detect the project, method, and next review step.",
+    );
+    expect(text).toContain("Upload project document");
+    expect(text).toContain("Set up review manually");
+    expect(text).not.toContain("We found a project");
   });
 
   it("prefills extracted fields and requires confirmation before creation", async () => {
