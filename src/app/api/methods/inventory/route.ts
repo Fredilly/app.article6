@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getMethodInventory } from "@/app/m/_lib/methodInventory";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const { methods, generatedAt, datasetHash } = await getMethodInventory();
 
@@ -14,4 +17,3 @@ export async function GET() {
     })),
   });
 }
-
