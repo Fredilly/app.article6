@@ -37,7 +37,7 @@ import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
 import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isStacEligible } from "@/lib/verify/stacEligibility";
-import { checkFinalizeGate, getAllReviews, REVIEW_STORE_EVENT } from "@/lib/verify/reviewStore";
+import { checkFinalizeGate, getAllReviews, getReview, REVIEW_STORE_EVENT, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
 import { suggestPddFragmentDraft } from "@/lib/verify/reviewSuggestion";
 import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { EXPECTED_EVIDENCE_LABELS } from "@/app/m/_lib/requirementCoverage";
@@ -710,6 +710,7 @@ export default function ProofMapTab({
     }, 300);
     return () => window.clearTimeout(timer);
   }, [methodCode, verifierBundle, version, workspaceId]);
+  const [reviewGateVersion, setReviewGateVersion] = useState(0);
 
   const currentReviewerContext = useMemo(
     () =>
@@ -722,6 +723,10 @@ export default function ProofMapTab({
       }),
     [methodCode, selectedRuleId, verifierBundle.runContext.runId, version, workspaceId],
   );
+  const activeRuleReview = useMemo<RuleReview | null>(() => {
+    if (!selectedRuleId) return null;
+    return getReview(selectedRuleId, methodCode, version, workspaceId, verifierBundle.runContext.runId);
+  }, [methodCode, reviewGateVersion, selectedRuleId, verifierBundle.runContext.runId, version, workspaceId]);
 
   useEffect(() => {
     setVerifierBundle((current) => {
@@ -739,6 +744,34 @@ export default function ProofMapTab({
       };
     });
   }, [currentReviewerContext]);
+
+  useEffect(() => {
+    if (!selectedRuleId) return;
+    setVerifierBundle((current) => {
+      if (!reviewerArtifactContextMatches(current.reviewerContext, currentReviewerContext)) return current;
+      const savedReviewerArtifactAt = activeRuleReview?.reviewerArtifactSavedAt ?? null;
+      const minutes = activeRuleReview?.reviewerMinutes ?? "";
+      const outcomeNote = activeRuleReview?.reviewerOutcomeNote ?? "";
+      if (
+        current.savedReviewerArtifactAt === savedReviewerArtifactAt &&
+        current.minutes === minutes &&
+        current.outcomeNote === outcomeNote &&
+        current.draftMinutes === minutes &&
+        current.draftOutcomeNote === outcomeNote
+      ) {
+        return current;
+      }
+      return {
+        ...current,
+        savedReviewerArtifactContext: savedReviewerArtifactAt ? currentReviewerContext : null,
+        savedReviewerArtifactAt,
+        minutes,
+        outcomeNote,
+        draftMinutes: minutes,
+        draftOutcomeNote: outcomeNote,
+      };
+    });
+  }, [activeRuleReview, currentReviewerContext, selectedRuleId]);
 
   useEffect(() => {
     persistReviewerArtifactState({
@@ -808,15 +841,36 @@ export default function ProofMapTab({
   }, []);
 
   const handleSaveReviewerArtifact = useCallback(() => {
+    if (!selectedRuleId) return;
     const savedAt = new Date().toISOString();
+    let nextReview: RuleReview | null = null;
     setVerifierBundle((current) => {
       const hasSavedArtifact = Boolean(current.draftMinutes.trim() || current.draftOutcomeNote.trim());
       const reviewerContext = createReviewerArtifactContext({
         methodCode,
         version,
+        workspaceId,
         ruleId: selectedRuleId,
         runId: current.runContext.runId,
       });
+      nextReview = {
+        ruleId: selectedRuleId,
+        methodology: methodCode,
+        version,
+        ...(workspaceId ? { workspaceId } : {}),
+        runId: current.runContext.runId,
+        status: activeRuleReview?.status ?? "pending",
+        rationale: activeRuleReview?.rationale ?? "",
+        supportReference: activeRuleReview?.supportReference ?? "",
+        evidenceLink: activeRuleReview?.evidenceLink,
+        evidenceAttachments: activeRuleReview?.evidenceAttachments ?? [],
+        reviewedBy: activeRuleReview?.reviewedBy ?? "local-reviewer",
+        reviewedAt: activeRuleReview?.reviewedAt ?? savedAt,
+        updatedAt: savedAt,
+        reviewerArtifactSavedAt: hasSavedArtifact ? savedAt : null,
+        reviewerMinutes: current.draftMinutes,
+        reviewerOutcomeNote: current.draftOutcomeNote,
+      };
       return {
         ...current,
         reviewerContext,
@@ -830,8 +884,9 @@ export default function ProofMapTab({
             Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
       };
     });
+    if (nextReview) saveReview(nextReview);
     showToast({ title: "Reviewer artifact saved", subtitle: "Saved text now counts for run completion" });
-  }, [methodCode, selectedRuleId, showToast, version]);
+  }, [activeRuleReview, methodCode, selectedRuleId, showToast, version, workspaceId]);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -1879,7 +1934,6 @@ export default function ProofMapTab({
     ],
   );
   const currentWorkspaceIsFinal = Boolean(verifierBundle.finalizedAt);
-  const [reviewGateVersion, setReviewGateVersion] = useState(0);
   useEffect(() => {
     if (!verifierMode) return;
     const handleReviewStoreChange = () => setReviewGateVersion((current) => current + 1);
@@ -1895,10 +1949,11 @@ export default function ProofMapTab({
     }
     return checkFinalizeGate(methodCode, version, totalRules, {
       workspaceId,
+      runId: verifierBundle.runContext.runId,
       projectLinked: Boolean(linkedProject?.id),
       methodologyLinked: Boolean(methodCode.trim() && version.trim()),
     });
-  }, [linkedProject?.id, methodCode, reviewGateVersion, totalRules, verifierMode, version, workspaceId]);
+  }, [linkedProject?.id, methodCode, reviewGateVersion, totalRules, verifierBundle.runContext.runId, verifierMode, version, workspaceId]);
   const selectedStacItemRecord = useMemo(() => {
     if (!selectedStacItemId) return null;
     const candidate = currentStacEvidence?.itemsById?.[selectedStacItemId];
@@ -1933,11 +1988,11 @@ export default function ProofMapTab({
         outcomeNote?: string | null;
       }
     >();
-    if (verifierBundle.savedReviewerArtifactAt) {
+    if (activeRuleReview?.reviewerArtifactSavedAt || activeRuleReview?.reviewerMinutes?.trim() || activeRuleReview?.reviewerOutcomeNote?.trim()) {
       reviewerArtifactsByRuleId.set(selectedRuleId, {
-        savedAt: verifierBundle.savedReviewerArtifactAt,
-        minutes: verifierBundle.minutes,
-        outcomeNote: verifierBundle.outcomeNote,
+        savedAt: activeRuleReview?.reviewerArtifactSavedAt ?? null,
+        minutes: activeRuleReview?.reviewerMinutes ?? "",
+        outcomeNote: activeRuleReview?.reviewerOutcomeNote ?? "",
       });
     }
     return (
@@ -1950,9 +2005,7 @@ export default function ProofMapTab({
     selectedRuleContext,
     selectedRuleCoverageRow,
     selectedRuleId,
-    verifierBundle.minutes,
-    verifierBundle.outcomeNote,
-    verifierBundle.savedReviewerArtifactAt,
+    activeRuleReview,
   ]);
   const selectedRuleReadinessUnavailableReason = useMemo(() => {
     if (!selectedRuleId) return null;
@@ -1974,10 +2027,10 @@ export default function ProofMapTab({
       reconcileRequirement({
         linkedEvidence: selectedRuleCoverageRow?.linkedEvidence ?? [],
         expectedEvidenceTypes: selectedRuleCoverageRow?.expectedEvidenceTypes ?? [],
-        reviewerMinutes: verifierBundle.minutes,
-        reviewerOutcomeNote: verifierBundle.outcomeNote,
+        reviewerMinutes: activeRuleReview?.reviewerMinutes ?? verifierBundle.minutes,
+        reviewerOutcomeNote: activeRuleReview?.reviewerOutcomeNote ?? verifierBundle.outcomeNote,
       }),
-    [selectedRuleCoverageRow, verifierBundle.minutes, verifierBundle.outcomeNote],
+    [activeRuleReview?.reviewerMinutes, activeRuleReview?.reviewerOutcomeNote, selectedRuleCoverageRow, verifierBundle.minutes, verifierBundle.outcomeNote],
   );
   const stacSupportFacts = useMemo(
     () =>
@@ -2327,23 +2380,20 @@ export default function ProofMapTab({
 
   const assertReviewerArtifactContext = useCallback(
     (runContext: { runId: string; createdAt: string }) => {
-      if (!verifierBundle.savedReviewerArtifactAt) return;
-      const expectedContext = createReviewerArtifactContext({
-        methodCode,
-        version,
-        ruleId: selectedRuleId,
-        runId: runContext.runId,
-      });
-      if (!verifierBundle.savedReviewerArtifactContext) {
+      if (!activeRuleReview?.reviewerArtifactSavedAt) return;
+      if ((activeRuleReview.runId?.trim() ?? runContext.runId) !== runContext.runId) {
+        throw new Error("Reviewer artifact is saved for a different run. Save reviewer artifact again for the current rule before finalizing.");
+      }
+      if (!selectedRuleId) {
         throw new Error("Reviewer artifact context is missing. Save reviewer artifact again for the current rule before finalizing.");
       }
-      if (!reviewerArtifactContextMatches(verifierBundle.savedReviewerArtifactContext, expectedContext)) {
+      if ((activeRuleReview.ruleId ?? null) !== (selectedRuleId ?? null)) {
         throw new Error(
-          `Reviewer artifact mismatch. Current context is ${methodCode}@${version} ${selectedRuleId ?? "no-rule"} ${shortRunId(runContext.runId)}, but saved notes belong to ${verifierBundle.savedReviewerArtifactContext.methodCode}@${verifierBundle.savedReviewerArtifactContext.version} ${verifierBundle.savedReviewerArtifactContext.ruleId ?? "no-rule"} ${shortRunId(verifierBundle.savedReviewerArtifactContext.runId)}. Save reviewer artifact again for the current rule before finalizing or exporting.`,
+          `Reviewer artifact mismatch. Current context is ${methodCode}@${version} ${selectedRuleId ?? "no-rule"} ${shortRunId(runContext.runId)}. Save reviewer artifact again for the current rule before finalizing or exporting.`,
         );
       }
     },
-    [methodCode, selectedRuleId, verifierBundle.savedReviewerArtifactAt, verifierBundle.savedReviewerArtifactContext, version],
+    [activeRuleReview, methodCode, selectedRuleId, version, workspaceId],
   );
 
   const buildFinalReviewArtifact = useCallback(
@@ -2358,11 +2408,13 @@ export default function ProofMapTab({
       const evidenceSource = buildEvidenceSource();
       const checklistExport = prepareChecklistExport(options.checklist);
       assertReviewerArtifactContext(options.runContext);
+      const reviewerMinutes = activeRuleReview?.reviewerMinutes ?? verifierBundle.minutes;
+      const reviewerOutcomeNote = activeRuleReview?.reviewerOutcomeNote ?? verifierBundle.outcomeNote;
       const verifierSnapshot = {
         runId: options.runContext.runId,
         createdAt: options.runContext.createdAt,
-        minutes: verifierBundle.minutes,
-        outcomeNote: verifierBundle.outcomeNote,
+        minutes: reviewerMinutes,
+        outcomeNote: reviewerOutcomeNote,
         finalizedAt: options.summaryState === "finalized" ? options.finalizedAt : null,
         finalizedState: options.summaryState,
         delta: verifierBundle.delta,
@@ -2420,8 +2472,8 @@ export default function ProofMapTab({
       const reconciliation = reconcileRequirement({
         linkedEvidence: ruleCoverageRow?.linkedEvidence ?? [],
         expectedEvidenceTypes: ruleCoverageRow?.expectedEvidenceTypes ?? [],
-        reviewerMinutes: verifierBundle.minutes,
-        reviewerOutcomeNote: verifierBundle.outcomeNote,
+        reviewerMinutes,
+        reviewerOutcomeNote,
       });
       const summary = buildReviewSummary({
         method: { code: methodCode, version },
@@ -2508,6 +2560,7 @@ export default function ProofMapTab({
       selectedStacItemRecord,
       stacSupportFacts,
       totalRules,
+      activeRuleReview,
       verifierBundle,
       version,
     ],
@@ -2536,7 +2589,7 @@ export default function ProofMapTab({
 
   const handleFinalizeRun = useCallback(() => {
     if (finalizeGate && !finalizeGate.canFinalize) return;
-    if (!linkedRuleIds.length || !verifierBundle.savedReviewerArtifactAt) return;
+    if (!linkedRuleIds.length || !activeRuleReview?.reviewerArtifactSavedAt) return;
     void (async () => {
       const finalizedAt = new Date().toISOString();
       const nextRunContext =
@@ -3126,6 +3179,7 @@ export default function ProofMapTab({
       inventoryItems: evidenceInventory,
     });
 
+    const reviewsByRuleId = getAllReviews(methodCode, version, workspaceId, verifierBundle.runContext.runId);
     const reviewerArtifactsByRuleId = new Map<
       string,
       {
@@ -3133,35 +3187,23 @@ export default function ProofMapTab({
         minutes?: string | null;
         outcomeNote?: string | null;
       }
-    >();
-    const savedReviewerRuleId = verifierBundle.savedReviewerArtifactContext?.ruleId ?? null;
-    if (
-      verifierBundle.savedReviewerArtifactAt &&
-      savedReviewerRuleId &&
-      reviewerArtifactContextMatches(
-        verifierBundle.savedReviewerArtifactContext,
-        createReviewerArtifactContext({
-          methodCode,
-          version,
-          workspaceId,
-          ruleId: savedReviewerRuleId,
-          runId: verifierBundle.runContext.runId,
-        }),
-      )
-    ) {
-      reviewerArtifactsByRuleId.set(savedReviewerRuleId, {
-        savedAt: verifierBundle.savedReviewerArtifactAt,
-        minutes: verifierBundle.minutes,
-        outcomeNote: verifierBundle.outcomeNote,
-      });
-    }
+    >(
+      Object.values(reviewsByRuleId)
+        .filter((review) => review.reviewerArtifactSavedAt || review.reviewerMinutes?.trim() || review.reviewerOutcomeNote?.trim())
+        .map((review) => [
+          review.ruleId,
+          {
+            savedAt: review.reviewerArtifactSavedAt ?? null,
+            minutes: review.reviewerMinutes ?? "",
+            outcomeNote: review.reviewerOutcomeNote ?? "",
+          },
+        ]),
+    );
 
     const readinessGaps = deriveRuleReadinessGaps({
       rows,
       reviewerArtifactsByRuleId,
     });
-
-    const reviewsByRuleId = getAllReviews(methodCode, version, workspaceId);
 
     const suppliedDocuments = [...evidenceInventory]
       .filter((item) => item.kind !== "stac-item")
@@ -3199,13 +3241,10 @@ export default function ProofMapTab({
     ruleOptions,
     verifierBundle.exportedAt,
     verifierBundle.finalizedAt,
-    verifierBundle.minutes,
-    verifierBundle.outcomeNote,
     verifierBundle.runContext.runId,
-    verifierBundle.savedReviewerArtifactAt,
-    verifierBundle.savedReviewerArtifactContext,
     version,
     workspaceId,
+    reviewGateVersion,
   ]);
 
   const buildClientReadinessReportPayload = useCallback(async () => {

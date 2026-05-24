@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, ChevronDown, FileSearch, FileText, Link2, NotebookText, Scale, Shapes, ShieldAlert } from "lucide-react";
 import { formatEvidenceInventoryId } from "@/lib/evidence/inventory";
 import RuleReviewPanel from "@/components/verify/RuleReviewPanel";
-import { getReview, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
+import { getReview, REVIEW_STORE_EVENT, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
 import { logAuditEvent } from "@/lib/verify/auditTrail";
 import { statusLabel } from "@/lib/verify/reviewValidation";
 import type { DocumentSupportEntry } from "@/lib/verify/documentSupport";
@@ -40,6 +40,8 @@ type RuleDetailModalProps = {
   reviewMethodology?: string | null;
   reviewVersion?: string | null;
   reviewWorkspaceId?: string | null;
+  reviewRunId?: string | null;
+  reviewReadOnly?: boolean;
   sourcePath?: string | null;
   sha256?: string | null;
   traceSections?: Array<{
@@ -89,6 +91,66 @@ function unresolvedNextStep(row: RequirementCoverageRow): string {
   return "Next: link supporting evidence or leave a reviewer note.";
 }
 
+function buildSupportBreakdown(input: {
+  row: RequirementCoverageRow;
+  reviewStatus: RuleReview["status"];
+  stacSupportState?: StacSupportFactsState | null;
+  documentSupport?: DocumentSupportEntry[];
+}): {
+  ruleStatus: string;
+  documentSupport: string;
+  spatialSupport: string;
+  satelliteSupport: string;
+  overall: string;
+  caveats: string[];
+} {
+  const documentLinked =
+    (input.documentSupport ?? []).some((entry) => entry.ruleLinked) ||
+    input.row.linkedEvidence.some((item) => {
+      const type = item.type.toLowerCase();
+      return type.includes("pdd") || type.includes("document") || type.includes("report") || type.includes("workbook");
+    });
+  const spatialLinked = input.row.linkedEvidence.some((item) => {
+    const haystack = [item.type, item.title, item.fragmentLabel, item.sectionHeading, item.sectionLabel]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes("boundary") || haystack.includes("project area") || haystack.includes("zone") || haystack.includes("map");
+  });
+  const satelliteSelected =
+    input.row.linkedEvidence.some((item) => item.type.toLowerCase().includes("stac")) ||
+    Boolean(input.stacSupportState && input.stacSupportState.searchResultCount > 0);
+  const satelliteInterpreted = Boolean(input.stacSupportState?.linkedFacts.length);
+  const caveats: string[] = [];
+  if (!spatialLinked) caveats.push("official boundary missing");
+  if (satelliteSelected && !satelliteInterpreted) caveats.push("satellite interpretation not run");
+  if (!documentLinked) caveats.push("supporting document missing");
+  return {
+    ruleStatus:
+      input.reviewStatus === "verified"
+        ? "Verified"
+        : input.reviewStatus === "not_verified"
+          ? "Not verified"
+          : input.reviewStatus === "needs_followup"
+            ? "Needs follow-up"
+            : "Pending",
+    documentSupport: documentLinked ? "Satisfied" : "Missing",
+    spatialSupport: spatialLinked ? "Approximate" : "Missing",
+    satelliteSupport: satelliteSelected ? (satelliteInterpreted ? "Interpreted" : "Selected, not interpreted") : "Not selected",
+    overall:
+      input.reviewStatus === "verified"
+        ? caveats.length
+          ? "Verified with caveats"
+          : "Verified"
+        : input.reviewStatus === "not_verified"
+          ? "Not verified"
+          : input.reviewStatus === "needs_followup"
+            ? "Needs follow-up"
+            : "Pending review",
+    caveats,
+  };
+}
+
 function formatPddLinkedEvidenceMeta(item: RequirementCoverageRow["linkedEvidence"][number]): string | null {
   const details = [item.documentLabel, item.sectionHeading, item.sectionLabel].filter(Boolean);
   if (typeof item.pageStart === "number" && typeof item.pageEnd === "number" && item.pageStart !== item.pageEnd) {
@@ -124,6 +186,7 @@ function resolveRuleReviewReviewerArtifact(input: {
   reviewMethodology?: string | null;
   reviewVersion?: string | null;
   reviewWorkspaceId?: string | null;
+  reviewRunId?: string | null;
   reviewerMinutes?: string | null;
   reviewerOutcomeNote?: string | null;
 }): { reviewerMinutes: string | null; reviewerOutcomeNote: string | null } {
@@ -138,18 +201,31 @@ function resolveRuleReviewReviewerArtifact(input: {
   const methodCode = input.reviewMethodology?.trim() ?? "";
   const version = input.reviewVersion?.trim() ?? "";
   const workspaceId = input.reviewWorkspaceId?.trim() ?? "";
+  const runId = input.reviewRunId?.trim() ?? "";
   if (!methodCode || !version) {
-    return { reviewerMinutes: null, reviewerOutcomeNote: null };
-  }
-
-  const bundle = readVerifierRunBundle(methodCode, version, workspaceId);
-  if (!bundle.savedReviewerArtifactAt || !bundle.savedReviewerArtifactContext) {
     return { reviewerMinutes: null, reviewerOutcomeNote: null };
   }
 
   const candidateRuleIds = Array.from(
     new Set([input.canonicalRuleId?.trim() ?? "", input.rowRuleId.trim()].filter(Boolean)),
   );
+  if (runId) {
+    for (const ruleId of candidateRuleIds) {
+      const review = getReview(ruleId, methodCode, version, workspaceId, runId);
+      if (!review) continue;
+      if (review.reviewerArtifactSavedAt || review.reviewerMinutes?.trim() || review.reviewerOutcomeNote?.trim()) {
+        return {
+          reviewerMinutes: review.reviewerMinutes ?? null,
+          reviewerOutcomeNote: review.reviewerOutcomeNote ?? null,
+        };
+      }
+    }
+  }
+
+  const bundle = readVerifierRunBundle(methodCode, version, workspaceId);
+  if (!bundle.savedReviewerArtifactAt || !bundle.savedReviewerArtifactContext) {
+    return { reviewerMinutes: null, reviewerOutcomeNote: null };
+  }
   const matchesCurrentRule = candidateRuleIds.some((ruleId) =>
     reviewerArtifactContextMatches(
       bundle.savedReviewerArtifactContext,
@@ -189,6 +265,8 @@ export default function RuleDetailModal({
   reviewMethodology,
   reviewVersion,
   reviewWorkspaceId = null,
+  reviewRunId = null,
+  reviewReadOnly = false,
   sourcePath,
   sha256,
   traceSections = [],
@@ -196,7 +274,10 @@ export default function RuleDetailModal({
   onOpenSourceContext,
 }: RuleDetailModalProps) {
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [existingReview, setExistingReview] = useState<RuleReview | null>(null);
+  const [existingReview, setExistingReview] = useState<RuleReview | null>(() => {
+    if (!canonicalRuleId || !reviewMethodology || !reviewVersion) return null;
+    return getReview(canonicalRuleId, reviewMethodology, reviewVersion, reviewWorkspaceId, reviewRunId);
+  });
 
   useEffect(() => {
     if (!open) return undefined;
@@ -220,9 +301,15 @@ export default function RuleDetailModal({
       setReviewOpen(false);
       return;
     }
-    setExistingReview(getReview(canonicalRuleId, reviewMethodology, reviewVersion, reviewWorkspaceId));
+    const refreshReview = () => {
+      setExistingReview(getReview(canonicalRuleId, reviewMethodology, reviewVersion, reviewWorkspaceId, reviewRunId));
+    };
+    refreshReview();
     setReviewOpen(false);
-  }, [canonicalRuleId, open, reviewMethodology, reviewVersion, reviewWorkspaceId]);
+    const handleStoreChange = () => refreshReview();
+    window.addEventListener(REVIEW_STORE_EVENT, handleStoreChange);
+    return () => window.removeEventListener(REVIEW_STORE_EVENT, handleStoreChange);
+  }, [canonicalRuleId, open, reviewMethodology, reviewRunId, reviewVersion, reviewWorkspaceId]);
 
   const handleSaveReview = useCallback(
     (review: RuleReview) => {
@@ -308,6 +395,7 @@ export default function RuleDetailModal({
     reviewMethodology,
     reviewVersion,
     reviewWorkspaceId,
+    reviewRunId,
     reviewerMinutes,
     reviewerOutcomeNote,
   });
@@ -318,6 +406,12 @@ export default function RuleDetailModal({
     reviewerOutcomeNote: resolvedReviewerArtifact.reviewerOutcomeNote,
   });
   const reconciliationMeta = REQUIREMENT_RECONCILIATION_META[reconciliation.status];
+  const supportBreakdown = buildSupportBreakdown({
+    row,
+    reviewStatus,
+    stacSupportState,
+    documentSupport,
+  });
 
   return (
     <div
@@ -370,7 +464,7 @@ export default function RuleDetailModal({
                 }`}
                 onClick={() => setReviewOpen((current) => !current)}
               >
-                {reviewOpen ? "Hide review" : existingReview ? `Review (${existingReview.status})` : "Review"}
+                {reviewOpen ? "Hide review" : reviewReadOnly ? "View rule" : existingReview ? `Review (${existingReview.status})` : "Review"}
               </button>
             ) : null}
             <button
@@ -393,6 +487,7 @@ export default function RuleDetailModal({
               methodology={reviewMethodologyValue}
               version={reviewVersionValue}
               workspaceId={reviewWorkspaceId}
+              runId={reviewRunId}
               anchorUrl={row.provenance.anchor ?? undefined}
               existingReview={existingReview}
               linkedEvidence={row.linkedEvidence.map((item) => ({
@@ -414,14 +509,15 @@ export default function RuleDetailModal({
               linkedEvidenceDetails={row.linkedEvidence}
               stacSupportState={stacSupportState}
               documentSupport={documentSupport}
+              readOnly={reviewReadOnly}
               onSave={handleSaveReview}
               onReviewChange={handleReviewChange}
             />
           ) : (
             <div className="grid gap-4">
-              <section className="rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm">
-                <div className="text-sm font-semibold text-slate-900">Current support picture</div>
-                <div className="mt-2.5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+            <section className="rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm">
+              <div className="text-sm font-semibold text-slate-900">Current support picture</div>
+              <div className="mt-2.5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                   <div className="flex items-start gap-2.5">
                     {reconciliation.status === "supported" ? (
                       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
@@ -437,6 +533,18 @@ export default function RuleDetailModal({
                       <div className="mt-2 text-sm text-slate-700">{reconciliation.reason}</div>
                     </div>
                   </div>
+                </div>
+                <div className="mt-4 grid gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700">
+                  <div><span className="font-semibold text-slate-900">Rule status:</span> {supportBreakdown.ruleStatus}</div>
+                  <div><span className="font-semibold text-slate-900">Document support:</span> {supportBreakdown.documentSupport}</div>
+                  <div><span className="font-semibold text-slate-900">Spatial support:</span> {supportBreakdown.spatialSupport}</div>
+                  <div><span className="font-semibold text-slate-900">Satellite support:</span> {supportBreakdown.satelliteSupport}</div>
+                  <div><span className="font-semibold text-slate-900">Overall:</span> {supportBreakdown.overall}</div>
+                  {supportBreakdown.caveats.length ? (
+                    <div className="pt-1 text-xs text-slate-600">
+                      Caveats: {supportBreakdown.caveats.join("; ")}.
+                    </div>
+                  ) : null}
                 </div>
               </section>
 

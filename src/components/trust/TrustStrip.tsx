@@ -152,10 +152,16 @@ function readLiveMethodReviewState(
     };
   }
 
-  const reviews = Object.values(getAllReviews(normalizedMethod, normalizedVersion, workspaceId));
   const verifierBundle = readVerifierRunBundle(normalizedMethod, normalizedVersion, workspaceId);
+  const scopedReviews = Object.values(
+    getAllReviews(normalizedMethod, normalizedVersion, workspaceId, verifierBundle.runContext.runId),
+  );
+  const reviews = scopedReviews.length
+    ? scopedReviews
+    : Object.values(getAllReviews(normalizedMethod, normalizedVersion, workspaceId));
   const latestReviewAt = pickLatestTimestamp([
     ...reviews.flatMap((review) => [review.reviewedAt, review.updatedAt]),
+    ...reviews.flatMap((review) => [review.reviewerArtifactSavedAt]),
     verifierBundle.savedReviewerArtifactAt,
     verifierBundle.finalizedAt,
   ]);
