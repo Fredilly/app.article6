@@ -1,9 +1,19 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
+import { extractMethodologyMentions, extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
 import { withMetrics } from "@/lib/metrics";
+
+function mergePdfExtractionText(primaryText: string, supplementalText: string): string {
+  const primary = primaryText.trim();
+  const supplemental = supplementalText.trim();
+  if (!primary) return supplemental;
+  if (!supplemental || supplemental === primary) return primary;
+  if (supplemental.includes(primary)) return supplemental;
+  if (primary.includes(supplemental)) return primary;
+  return `${primary}\n${supplemental}`;
+}
 
 async function handlePost(request: Request) {
   const bytes = await request.arrayBuffer().catch(() => null);
@@ -20,8 +30,15 @@ async function handlePost(request: Request) {
     // pdf-parse can succeed but return empty text for ASCII85-encoded streams.
     // Fall through to heuristic extractor which has custom ASCII85 + FlateDecode.
     if (extraction.text.trim().length > 0) {
+      const heuristicText = extractPdfText(bytes);
+      const parserMentions = new Set(extractMethodologyMentions(extraction.text));
+      const heuristicMentions = new Set(extractMethodologyMentions(heuristicText));
+      const heuristicAddsMethodologySignals = Array.from(heuristicMentions).some((mention) => !parserMentions.has(mention));
+      const text = heuristicAddsMethodologySignals
+        ? mergePdfExtractionText(extraction.text, heuristicText)
+        : extraction.text;
       return NextResponse.json({
-        text: extraction.text,
+        text,
         engine: extraction.engine,
         metadata: extraction.metadata,
       });
