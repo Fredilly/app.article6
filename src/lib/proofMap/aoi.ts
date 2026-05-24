@@ -1,8 +1,22 @@
-import type { AOI } from "@/lib/proofMap/types";
+import type { AOI, AoiFeature, AoiFeatureRole } from "@/lib/proofMap/types";
 
 export type AoiParseResult =
   | { ok: true; aoi: AOI }
   | { ok: false; error: string };
+
+export const AOI_FEATURE_ROLE_OPTIONS: AoiFeatureRole[] = [
+  "primary_project_area",
+  "project_zone",
+  "leakage_belt",
+  "reference_region",
+  "excluded_area",
+  "stratum",
+  "monitoring_plot",
+  "canal_block",
+  "dipwell",
+  "subsidence_pole",
+  "other",
+];
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -13,68 +27,100 @@ type AoiSourceInfo = {
   featureCount: number;
 };
 
-function isPolygonFeature(
-  value: unknown,
-): value is GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> {
+function isGeometry(value: unknown): value is GeoJSON.Geometry {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
-  if (record.type !== "Feature") return false;
-  const geometry = record.geometry;
-  if (!geometry || typeof geometry !== "object") return false;
-  const geom = geometry as Record<string, unknown>;
-  return geom.type === "Polygon" || geom.type === "MultiPolygon";
+  return typeof record.type === "string" && Array.isArray(record.coordinates);
 }
 
-function ensureFeature(
+function isFeature(value: unknown): value is GeoJSON.Feature<GeoJSON.Geometry> {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return record.type === "Feature" && isGeometry(record.geometry);
+}
+
+function isPolygonGeometry(
+  geometry: GeoJSON.Geometry | null | undefined,
+): geometry is GeoJSON.Polygon | GeoJSON.MultiPolygon {
+  return Boolean(geometry && (geometry.type === "Polygon" || geometry.type === "MultiPolygon"));
+}
+
+function asFeatureCollection(
   value: unknown,
-): { feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>; source: AoiSourceInfo } | null {
-  if (isPolygonFeature(value)) {
-    return { feature: value, source: { sourceType: "Feature", featureCount: 1 } };
+): { features: GeoJSON.Feature<GeoJSON.Geometry>[]; source: AoiSourceInfo } | null {
+  if (isFeature(value)) {
+    return { features: [value], source: { sourceType: "Feature", featureCount: 1 } };
   }
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
-  if (record.type === "Polygon" || record.type === "MultiPolygon") {
+  if (isGeometry(value)) {
     return {
-      feature: {
-        type: "Feature",
-        geometry: record as unknown as GeoJSON.Polygon | GeoJSON.MultiPolygon,
-        properties: {},
-      },
+      features: [
+        {
+          type: "Feature",
+          geometry: value,
+          properties: {},
+        },
+      ],
       source: { sourceType: "Geometry", featureCount: 1 },
     };
   }
-  if (record.type === "FeatureCollection" && Array.isArray(record.features) && record.features.length) {
-    const first = record.features[0];
-    if (!isPolygonFeature(first)) return null;
-    return { feature: first, source: { sourceType: "FeatureCollection", featureCount: record.features.length } };
+  if (record.type !== "FeatureCollection" || !Array.isArray(record.features) || !record.features.length) {
+    return null;
   }
-  return null;
+  const features = record.features.filter(isFeature);
+  if (!features.length || features.length !== record.features.length) return null;
+  return {
+    features,
+    source: { sourceType: "FeatureCollection", featureCount: features.length },
+  };
 }
 
-function bboxForFeature(
-  feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
-): [number, number, number, number] {
+function walkCoordinates(value: unknown, fn: (lng: number, lat: number) => void) {
+  if (!Array.isArray(value)) return;
+  if (value.length >= 2 && typeof value[0] === "number" && typeof value[1] === "number") {
+    fn(value[0], value[1]);
+    return;
+  }
+  for (const child of value) walkCoordinates(child, fn);
+}
+
+function bboxForGeometry(geometry: GeoJSON.Geometry): [number, number, number, number] | null {
   let minLng = Infinity;
   let minLat = Infinity;
   let maxLng = -Infinity;
   let maxLat = -Infinity;
 
-  const walk = (value: unknown) => {
-    if (!Array.isArray(value)) return;
-    if (value.length >= 2 && typeof value[0] === "number" && typeof value[1] === "number") {
-      const lng = value[0];
-      const lat = value[1];
-      minLng = Math.min(minLng, lng);
-      minLat = Math.min(minLat, lat);
-      maxLng = Math.max(maxLng, lng);
-      maxLat = Math.max(maxLat, lat);
-      return;
-    }
-    for (const child of value) walk(child);
-  };
+  walkCoordinates((geometry as { coordinates?: unknown }).coordinates, (lng, lat) => {
+    minLng = Math.min(minLng, lng);
+    minLat = Math.min(minLat, lat);
+    maxLng = Math.max(maxLng, lng);
+    maxLat = Math.max(maxLat, lat);
+  });
 
-  walk(feature.geometry.coordinates);
+  if (
+    !Number.isFinite(minLng) ||
+    !Number.isFinite(minLat) ||
+    !Number.isFinite(maxLng) ||
+    !Number.isFinite(maxLat)
+  ) {
+    return null;
+  }
+  return [minLng, minLat, maxLng, maxLat];
+}
 
+function unionBbox(values: Array<[number, number, number, number] | null | undefined>): [number, number, number, number] {
+  let minLng = Infinity;
+  let minLat = Infinity;
+  let maxLng = -Infinity;
+  let maxLat = -Infinity;
+  for (const bbox of values) {
+    if (!bbox) continue;
+    minLng = Math.min(minLng, bbox[0]);
+    minLat = Math.min(minLat, bbox[1]);
+    maxLng = Math.max(maxLng, bbox[2]);
+    maxLat = Math.max(maxLat, bbox[3]);
+  }
   if (
     !Number.isFinite(minLng) ||
     !Number.isFinite(minLat) ||
@@ -86,8 +132,7 @@ function bboxForFeature(
   return [minLng, minLat, maxLng, maxLat];
 }
 
-// Approximate area (km^2) using planar shoelace on lon/lat degrees projected to meters at mean latitude.
-function areaKm2(feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>): number {
+function areaKm2ForPolygon(geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon): number {
   const toMeters = (lng: number, lat: number, meanLat: number) => {
     const rad = (meanLat * Math.PI) / 180;
     const mPerDegLat = 111_320;
@@ -95,7 +140,7 @@ function areaKm2(feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon
     return { x: lng * mPerDegLng, y: lat * mPerDegLat };
   };
 
-  const polygons = feature.geometry.type === "Polygon" ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+  const polygons = geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates;
   let total = 0;
 
   for (const polygon of polygons) {
@@ -116,44 +161,364 @@ function areaKm2(feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon
   return total / 1_000_000;
 }
 
-export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResult {
-  if (input && typeof input === "object") {
-    const record = input as Record<string, unknown>;
-    if (record.type === "FeatureCollection" && Array.isArray(record.features)) {
-      if (record.features.length !== 1) {
-        return { ok: false, error: "Area must contain exactly one feature." };
-      }
-    }
-  }
+function featureName(feature: GeoJSON.Feature<GeoJSON.Geometry>, index: number, fallback: string): string {
+  const props = feature.properties && typeof feature.properties === "object"
+    ? feature.properties as Record<string, unknown>
+    : null;
+  const explicit = [
+    props?.name,
+    props?.title,
+    props?.label,
+    props?.feature_name,
+    props?.id,
+  ].find((value) => typeof value === "string" && value.trim());
+  if (typeof explicit === "string" && explicit.trim()) return explicit.trim();
+  return index === 0 ? fallback : `Feature ${index + 1}`;
+}
 
-  const result = ensureFeature(input);
-  if (!result) {
+function normalizeFeatureId(name: string, index: number): string {
+  const safe = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return safe ? `aoi-feature-${index + 1}-${safe}` : `aoi-feature-${index + 1}`;
+}
+
+function includesPattern(value: string, pattern: RegExp): boolean {
+  return pattern.test(value);
+}
+
+function inferSupportingRoleFromFeatureName(name: string, input: { polygonCount: number; isPolygon: boolean }): AoiFeatureRole {
+  const normalized = name.trim().toLowerCase();
+  if (input.isPolygon && includesPattern(normalized, /\bproject zone\b/)) return "project_zone";
+  if (input.isPolygon && includesPattern(normalized, /\bleakage\b/)) return "leakage_belt";
+  if (input.isPolygon && includesPattern(normalized, /\breference\b/)) return "reference_region";
+  if (input.isPolygon && includesPattern(normalized, /\bexcluded\b|\bexclusion\b/)) return "excluded_area";
+  if (input.isPolygon && includesPattern(normalized, /\bstratum\b|\bstrata\b/)) return "stratum";
+  if (includesPattern(normalized, /\bvegetation plot\b|\bplot\b/)) return "monitoring_plot";
+  if (includesPattern(normalized, /\bcanal\b/)) return "canal_block";
+  if (includesPattern(normalized, /\bdipwell\b/)) return "dipwell";
+  if (includesPattern(normalized, /\bsubsidence\b/)) return "subsidence_pole";
+  return "other";
+}
+
+function isPrimaryAreaCandidateName(name: string): boolean {
+  const normalized = name.trim().toLowerCase();
+  return (
+    includesPattern(normalized, /\bprimary project area\b/) ||
+    includesPattern(normalized, /\bproject area\b/) ||
+    includesPattern(normalized, /\bproject boundary\b/) ||
+    includesPattern(normalized, /\bcarbon accounting area\b/) ||
+    includesPattern(normalized, /\baccounting area\b/)
+  );
+}
+
+function defaultDeclaredAreaMetadata(input: {
+  name: string;
+  features: AoiFeature[];
+}): { declaredAreaKm2: number | null; declaredAreaSource: string | null } {
+  const labels = [input.name, ...input.features.map((feature) => feature.name)].join(" ").toLowerCase();
+  if (labels.includes("plum")) {
+    return {
+      declaredAreaKm2: 231.54,
+      declaredAreaSource: "PLUM demo fixture metadata",
+    };
+  }
+  return { declaredAreaKm2: null, declaredAreaSource: null };
+}
+
+function primaryFeatureFromAoi(aoi: AOI): AoiFeature | null {
+  const features = aoi.features ?? [];
+  const selectedId = aoi.primary_feature_id?.trim() ?? "";
+  const byRole = features.find((feature) => feature.role === "primary_project_area");
+  const explicit = selectedId ? features.find((feature) => feature.id === selectedId) : null;
+  const candidate = explicit ?? byRole ?? null;
+  if (!candidate || !isPolygonGeometry(candidate.geojson.geometry)) return null;
+  return candidate;
+}
+
+function buildAoiFromFeatures(input: {
+  id?: string;
+  name: string;
+  features: AoiFeature[];
+  source: AoiSourceInfo;
+  createdAt?: string;
+  previousFingerprint?: string | null;
+  declaredAreaKm2?: number | null;
+  declaredAreaSource?: string | null;
+}): AOI {
+  const createdAt = input.createdAt ?? nowIso();
+  const inferredDeclaredArea = defaultDeclaredAreaMetadata({ name: input.name, features: input.features });
+  const primary = (() => {
+    const primaryFeatures = input.features.filter((feature) => feature.role === "primary_project_area");
+    if (primaryFeatures.length !== 1) return null;
+    const selected = primaryFeatures[0];
+    return isPolygonGeometry(selected.geojson.geometry) ? selected : null;
+  })();
+  return {
+    id: input.id ?? `aoi_${createdAt}`,
+    name: input.name.trim() || "Area",
+    geojson: primary && isPolygonGeometry(primary.geojson.geometry)
+      ? {
+          ...primary.geojson,
+          geometry: primary.geojson.geometry,
+        } as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>
+      : null,
+    bbox: primary?.bbox ?? unionBbox(input.features.map((feature) => feature.bbox)),
+    area_km2: primary?.area_km2 ?? 0,
+    aoi_source_type: input.source.sourceType,
+    aoi_source_feature_count: input.source.featureCount,
+    aoi_policy: input.source.featureCount > 1 ? "select_primary" : "reject_multi",
+    aoi_fingerprint: primary ? input.previousFingerprint?.trim() || undefined : undefined,
+    primary_feature_id: primary?.id ?? null,
+    feature_collection: {
+      type: "FeatureCollection",
+      features: input.features.map((feature) => feature.geojson),
+    },
+    features: input.features.map((feature) => ({
+      ...feature,
+      geojson: structuredClone(feature.geojson),
+      bbox: feature.bbox ? [...feature.bbox] as [number, number, number, number] : null,
+    })),
+    declared_area_km2:
+      typeof input.declaredAreaKm2 === "number" && Number.isFinite(input.declaredAreaKm2)
+        ? input.declaredAreaKm2
+        : inferredDeclaredArea.declaredAreaKm2,
+    declared_area_source: input.declaredAreaSource?.trim() || inferredDeclaredArea.declaredAreaSource,
+    created_at: createdAt,
+  };
+}
+
+export function parseAoiGeoJson(input: unknown, nameHint?: string): AoiParseResult {
+  const normalized = asFeatureCollection(input);
+  if (!normalized) {
     return {
       ok: false,
-      error: "Area must be a GeoJSON Polygon or MultiPolygon (or Feature/FeatureCollection containing one).",
+      error: "Area must be GeoJSON geometry, Feature, or FeatureCollection.",
     };
   }
 
-  const { feature, source } = result;
-
-  if (feature.geometry.type !== "Polygon" && feature.geometry.type !== "MultiPolygon") {
-    return { ok: false, error: "Area geometry must be Polygon or MultiPolygon." };
+  const fallbackName = (nameHint ?? "Area").trim() || "Area";
+  const polygonCount = normalized.features.filter((feature) => isPolygonGeometry(feature.geometry)).length;
+  if (polygonCount === 0) {
+    return {
+      ok: false,
+      error: "Area must include at least one Polygon or MultiPolygon feature.",
+    };
   }
 
-  const bbox = bboxForFeature(feature);
-  const area_km2 = areaKm2(feature);
-  const name = (nameHint ?? "Area").trim() || "Area";
+  const features: AoiFeature[] = normalized.features.map((feature, index) => {
+    const isPolygon = isPolygonGeometry(feature.geometry);
+    const bbox = bboxForGeometry(feature.geometry);
+    const name = featureName(feature, index, fallbackName);
+    const role = inferSupportingRoleFromFeatureName(name, { polygonCount, isPolygon });
+    const area_km2 = (() => {
+      if (!isPolygonGeometry(feature.geometry)) return null;
+      return Math.max(0, areaKm2ForPolygon(feature.geometry));
+    })();
+    return {
+      id: normalizeFeatureId(name, index),
+      name,
+      role,
+      geometry_type: feature.geometry.type,
+      area_km2,
+      bbox,
+      geojson: structuredClone(feature),
+    };
+  });
 
-  const aoi: AOI = {
-    id: `aoi_${nowIso()}`,
-    name,
-    geojson: feature,
-    bbox,
-    area_km2: Number.isFinite(area_km2) ? Math.max(0, area_km2) : 0,
-    aoi_source_type: source.sourceType,
-    aoi_source_feature_count: source.featureCount,
-    aoi_policy: "reject_multi",
-    created_at: nowIso(),
+  if (!features.length) {
+    return { ok: false, error: "Area file did not contain any valid GeoJSON features." };
+  }
+
+  return {
+    ok: true,
+    aoi: buildAoiFromFeatures({
+      name: fallbackName,
+      features,
+      source: normalized.source,
+    }),
   };
-  return { ok: true, aoi };
+}
+
+export function resolvePrimaryAreaFeature(aoi: AOI): {
+  ok: boolean;
+  aoi: AOI;
+  status: "confirmed" | "ready_to_confirm";
+  error?: string;
+} {
+  const features = aoi.features ?? [];
+  const polygonFeatures = features.filter((feature) => feature.area_km2 != null && isPolygonGeometry(feature.geojson.geometry));
+  if (polygonFeatures.length === 0) {
+    return {
+      ok: false,
+      aoi,
+      status: "ready_to_confirm",
+      error: "Select exactly one primary project area feature to continue.",
+    };
+  }
+
+  let primaryId: string | null = null;
+  if (polygonFeatures.length === 1) {
+    primaryId = polygonFeatures[0]?.id ?? null;
+  } else {
+    const candidates = polygonFeatures.filter((feature) => isPrimaryAreaCandidateName(feature.name));
+    if (candidates.length === 0) {
+      return {
+        ok: false,
+        aoi,
+        status: "ready_to_confirm",
+        error: "No primary project area could be inferred from the uploaded GeoJSON.",
+      };
+    }
+    if (candidates.length > 1) {
+      return {
+        ok: false,
+        aoi,
+        status: "ready_to_confirm",
+        error: "More than one primary project area candidate was found in the uploaded GeoJSON.",
+      };
+    }
+    primaryId = candidates[0]?.id ?? null;
+  }
+
+  const resolved = buildAoiFromFeatures({
+    id: aoi.id,
+    name: aoi.name,
+    features: features.map((feature) => ({
+      ...feature,
+      role: feature.id === primaryId ? "primary_project_area" : inferSupportingRoleFromFeatureName(feature.name, {
+        polygonCount: polygonFeatures.length,
+        isPolygon: feature.area_km2 != null && isPolygonGeometry(feature.geojson.geometry),
+      }),
+    })),
+    source: {
+      sourceType: aoi.aoi_source_type ?? "FeatureCollection",
+      featureCount: aoi.aoi_source_feature_count ?? features.length,
+    },
+    createdAt: aoi.created_at,
+    previousFingerprint: aoi.aoi_fingerprint,
+    declaredAreaKm2: aoi.declared_area_km2,
+    declaredAreaSource: aoi.declared_area_source,
+  });
+
+  if (!resolved.geojson || !isPolygonGeometry(resolved.geojson.geometry)) {
+    return {
+      ok: false,
+      aoi: resolved,
+      status: "ready_to_confirm",
+      error: "The selected primary project area must be a Polygon or MultiPolygon.",
+    };
+  }
+
+  return {
+    ok: true,
+    aoi: resolved,
+    status: "confirmed",
+  };
+}
+
+export function updateAoiFeatureRole(aoi: AOI, featureId: string, role: AoiFeatureRole): AOI {
+  const features: AoiFeature[] = (aoi.features ?? []).map((feature) => {
+    if (feature.id === featureId) {
+      const nextRole = role === "primary_project_area" && feature.area_km2 == null ? "other" : role;
+      return { ...feature, role: nextRole };
+    }
+    if (role === "primary_project_area" && feature.role === "primary_project_area") {
+      return { ...feature, role: "other" };
+    }
+    return feature;
+  });
+
+  return buildAoiFromFeatures({
+    id: aoi.id,
+    name: aoi.name,
+    features,
+    source: {
+      sourceType: aoi.aoi_source_type ?? "FeatureCollection",
+      featureCount: aoi.aoi_source_feature_count ?? features.length,
+    },
+    createdAt: aoi.created_at,
+    previousFingerprint: aoi.aoi_fingerprint,
+    declaredAreaKm2: aoi.declared_area_km2,
+    declaredAreaSource: aoi.declared_area_source,
+  });
+}
+
+export function setAoiPrimaryFeature(aoi: AOI, featureId: string, enabled: boolean): AOI {
+  const features: AoiFeature[] = (aoi.features ?? []).map((feature) => {
+    const isTarget = feature.id === featureId;
+    if (enabled) {
+      if (isTarget) return { ...feature, role: feature.area_km2 == null ? "other" : "primary_project_area" };
+      if (feature.role === "primary_project_area") return { ...feature, role: "other" };
+      return feature;
+    }
+    if (isTarget && feature.role === "primary_project_area") return { ...feature, role: "other" };
+    return feature;
+  });
+  return buildAoiFromFeatures({
+    id: aoi.id,
+    name: aoi.name,
+    features,
+    source: {
+      sourceType: aoi.aoi_source_type ?? "FeatureCollection",
+      featureCount: aoi.aoi_source_feature_count ?? features.length,
+    },
+    createdAt: aoi.created_at,
+    previousFingerprint: aoi.aoi_fingerprint,
+    declaredAreaKm2: aoi.declared_area_km2,
+    declaredAreaSource: aoi.declared_area_source,
+  });
+}
+
+export function ensurePrimaryProjectAreaSelected(aoi: AOI): boolean {
+  return Boolean(primaryFeatureFromAoi(aoi));
+}
+
+export function setAoiDeclaredArea(input: {
+  aoi: AOI;
+  declaredAreaKm2: number | null;
+  declaredAreaSource?: string | null;
+}): AOI {
+  return buildAoiFromFeatures({
+    id: input.aoi.id,
+    name: input.aoi.name,
+    features: input.aoi.features ?? [],
+    source: {
+      sourceType: input.aoi.aoi_source_type ?? "FeatureCollection",
+      featureCount: input.aoi.aoi_source_feature_count ?? input.aoi.features?.length ?? 0,
+    },
+    createdAt: input.aoi.created_at,
+    previousFingerprint: input.aoi.aoi_fingerprint,
+    declaredAreaKm2: input.declaredAreaKm2,
+    declaredAreaSource: input.declaredAreaSource ?? input.aoi.declared_area_source,
+  });
+}
+
+export function aoiDeclaredAreaComparison(aoi: AOI | null): {
+  declaredAreaKm2: number;
+  measuredAreaKm2: number;
+  relativeDifference: number;
+  exceedsThreshold: boolean;
+} | null {
+  if (!aoi || !Number.isFinite(aoi.declared_area_km2 ?? NaN) || !(aoi.declared_area_km2! > 0) || !Number.isFinite(aoi.area_km2)) {
+    return null;
+  }
+  const declaredAreaKm2 = aoi.declared_area_km2 as number;
+  const measuredAreaKm2 = aoi.area_km2;
+  const relativeDifference = Math.abs(measuredAreaKm2 - declaredAreaKm2) / declaredAreaKm2;
+  return {
+    declaredAreaKm2,
+    measuredAreaKm2,
+    relativeDifference,
+    exceedsThreshold: relativeDifference > 0.05,
+  };
+}
+
+export function activeAoiSearchFeature(aoi: AOI | null): GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null {
+  if (!aoi) return null;
+  if (aoi.geojson && isPolygonGeometry(aoi.geojson.geometry)) return aoi.geojson;
+  const primary = primaryFeatureFromAoi(aoi);
+  if (!primary || !isPolygonGeometry(primary.geojson.geometry)) return null;
+  return {
+    ...primary.geojson,
+    geometry: primary.geojson.geometry,
+  } as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
 }

@@ -5,7 +5,16 @@ import type { StacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 
 export async function buildOutcomeSnapshot(input: {
   method: { code: string; version: string };
-  aoi?: { id?: string | null; bbox?: [number, number, number, number] | null; geojson?: unknown };
+  aoi?: {
+    id?: string | null;
+    bbox?: [number, number, number, number] | null;
+    geojson?: unknown;
+    feature_collection?: unknown;
+    primary_feature_id?: string | null;
+    features?: Array<Record<string, unknown>> | null;
+    declared_area_km2?: number | null;
+    declared_area_source?: string | null;
+  };
   evidence_source: {
     type: "stac_url" | "upload" | "unknown";
     ref: string;

@@ -236,6 +236,101 @@ describe("EvidenceWorkflowStepper", () => {
     expect(html).not.toContain("R-1-0001 - UNFCCC.Forestry.AR-ACM0003.v02-0.R-1-0001");
   });
 
+  it("renders the compact confirm-area summary and advanced spatial disclosure", () => {
+    const html = renderToStaticMarkup(
+      <EvidenceWorkflowStepper
+        ruleOptions={[{ id: "R-1", title: "Rule" }]}
+        selectedRuleId="R-1"
+        hasAoi={false}
+        aoiLabel="PLUM boundaries"
+        aoiSummary={{
+          isPreview: false,
+          willClearWork: false,
+          isSameAoi: false,
+          showSameAoiPrompt: false,
+          primaryFeatureName: "PLUM project area",
+          areaKm2: 325.64,
+          bboxLabel: "0.00, 0.00 → 1.00, 1.00",
+          declaredAreaKm2: 231.54,
+          declaredAreaSource: "PLUM demo fixture metadata",
+          projectZoneCount: 1,
+          supportingFeatureCount: 1,
+          areaMismatchRelative: 0.406,
+          areaMismatchWarning: true,
+          requiresPrimarySelection: false,
+        }}
+        aoiFeatures={[
+          {
+            id: "project-area",
+            name: "Project area",
+            geometryType: "Polygon",
+            areaKm2: 12.34,
+            role: "primary_project_area",
+          },
+          {
+            id: "project-zone",
+            name: "Project zone",
+            geometryType: "Polygon",
+            areaKm2: 21.43,
+            role: "project_zone",
+          },
+        ]}
+        onAoiFeatureRoleChange={() => {}}
+        declaredAreaInput="15"
+        onDeclaredAreaInputChange={() => {}}
+        onConfirmArea={() => {}}
+        canConfirmArea
+        isAreaConfirmed
+        searchDisabled
+        isRunning={false}
+        hasSearchResults={false}
+        stacResultCount={0}
+        selectedStacItemId={null}
+        onClearSelectedItem={() => {}}
+        canCreatePin={false}
+        createPinDisabledReason=""
+        pinsCount={0}
+        onUploadAoi={() => {}}
+        onSearchStac={() => {}}
+        onCreatePin={() => {}}
+        draftMinutes=""
+        draftOutcomeNote=""
+        savedMinutes=""
+        savedOutcomeNote=""
+        onReviewerMinutesChange={() => {}}
+        onReviewerOutcomeNoteChange={() => {}}
+        onSaveReviewerArtifact={() => {}}
+        onFinalizeRun={() => {}}
+        currentRunLabel="run-1234"
+        isEditedDraft={false}
+        hasUnsavedWorkspaceEdits={false}
+        currentWorkspaceIsFinal={false}
+        wizard={getVerifyWizardStepDetails({
+          selectedRuleId: "R-1",
+          aoiHash: null,
+          stacItemIds: [],
+          selectedStacItemId: null,
+          linkedRuleIds: [],
+          reviewerArtifactSavedAt: null,
+        })}
+        onStartAnotherRun={() => {}}
+        onViewRunHistory={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Primary Project Area");
+    expect(html).toContain("PLUM project area");
+    expect(html).toContain("Supporting Features");
+    expect(html).toContain("1 project zone");
+    expect(html).toContain("1 supporting");
+    expect(html).toContain("Primary project area detected. Review or confirm to continue.");
+    expect(html).toContain("Advanced: edit spatial features");
+    expect(html).toContain("Confirm area");
+    expect(html).toContain("Declared area (km²)");
+    expect(html).toContain("Boundary appears approximate. Declared area is 231.54 km²; uploaded geometry is 325.64 km².");
+    expect(html).toContain("Confirmed for satellite search");
+  });
+
   it("reopens the completed workflow on demand after finalization", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);

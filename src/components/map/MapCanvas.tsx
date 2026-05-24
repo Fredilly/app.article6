@@ -539,10 +539,13 @@ export default function MapCanvas({
         const source = map.getSource?.("aoi") as unknown as GeoJSONSource | undefined;
         if (!source?.setData) return;
 
-        const data: GeoJSON.FeatureCollection<GeoJSON.Geometry> = {
-          type: "FeatureCollection",
-          features: aoi ? ([aoi.geojson] as unknown as Array<GeoJSON.Feature<GeoJSON.Geometry>>) : [],
-        };
+        const data: GeoJSON.FeatureCollection<GeoJSON.Geometry> =
+          aoi?.feature_collection
+            ? aoi.feature_collection
+            : {
+                type: "FeatureCollection",
+                features: aoi?.geojson ? ([aoi.geojson] as unknown as Array<GeoJSON.Feature<GeoJSON.Geometry>>) : [],
+              };
         source.setData(data);
 
         if (aoi?.bbox && !hasAppliedInitialViewportRef.current) {

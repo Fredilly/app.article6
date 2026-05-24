@@ -58,6 +58,11 @@ export const EvidenceSnapshotSchema = z
         id: z.string().min(1).optional(),
         bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
         geojson: z.unknown().optional(),
+        feature_collection: z.unknown().optional(),
+        primary_feature_id: z.string().nullable().optional(),
+        features: z.array(z.record(z.unknown())).optional(),
+        declared_area_km2: z.number().nullable().optional(),
+        declared_area_source: z.string().nullable().optional(),
       })
       .optional(),
     evidence_source: z.object({
@@ -108,6 +113,7 @@ export const EvidenceSnapshotSchema = z
           hash: z.string().nullable(),
           bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).nullable(),
           areaKm2: z.number().nullable(),
+          declaredAreaKm2: z.number().nullable().optional(),
         }),
         stac: z.object({
           query: z.object({
@@ -343,7 +349,16 @@ function normalizeSupportFacts(input: StacSupportFactsState | null | undefined) 
 
 export async function buildEvidenceSnapshot(input: {
   method: { code: string; version: string };
-  aoi?: { id?: string | null; bbox?: [number, number, number, number] | null; geojson?: unknown };
+  aoi?: {
+    id?: string | null;
+    bbox?: [number, number, number, number] | null;
+    geojson?: unknown;
+    feature_collection?: unknown;
+    primary_feature_id?: string | null;
+    features?: Array<Record<string, unknown>> | null;
+    declared_area_km2?: number | null;
+    declared_area_source?: string | null;
+  };
   evidence_source: {
     type: "stac_url" | "upload" | "unknown";
     ref: string;
@@ -392,6 +407,7 @@ export async function buildEvidenceSnapshot(input: {
   const selectedIds = uniqSorted((input.selected?.ids ?? undefined) ?? undefined);
   const selectedId = asNonEmptyString(input.selected?.id ?? undefined);
   const aoiGeojson = input.aoi?.geojson ?? undefined;
+  const aoiFeatureCollection = input.aoi?.feature_collection ?? undefined;
   const aoiId = aoiGeojson ? `aoi_${await sha256Text(canonicalJsonStringify(aoiGeojson))}` : undefined;
   const verifier =
     input.verifier ??
@@ -422,6 +438,14 @@ export async function buildEvidenceSnapshot(input: {
             id: aoiId,
             bbox: input.aoi.bbox ?? undefined,
             geojson: aoiGeojson,
+            feature_collection: aoiFeatureCollection,
+            primary_feature_id: asNonEmptyString(input.aoi.primary_feature_id ?? undefined) ?? null,
+            features: input.aoi.features ?? undefined,
+            declared_area_km2:
+              typeof input.aoi.declared_area_km2 === "number" && Number.isFinite(input.aoi.declared_area_km2)
+                ? input.aoi.declared_area_km2
+                : null,
+            declared_area_source: asNonEmptyString(input.aoi.declared_area_source ?? undefined) ?? null,
           })
         : undefined,
       evidence_source: stripUndefined({

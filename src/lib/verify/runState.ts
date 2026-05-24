@@ -6,6 +6,7 @@ export type RunSummary = {
     hash: string | null;
     bbox: [number, number, number, number] | null;
     areaKm2: number | null;
+    declaredAreaKm2?: number | null;
   };
   stac: {
     query: {
@@ -818,6 +819,7 @@ export function buildRunSummary(input: Partial<RunSummary>): RunSummary {
       hash: input.aoi?.hash ?? null,
       bbox: input.aoi?.bbox ?? null,
       areaKm2: typeof input.aoi?.areaKm2 === "number" ? input.aoi.areaKm2 : null,
+      declaredAreaKm2: typeof input.aoi?.declaredAreaKm2 === "number" ? input.aoi.declaredAreaKm2 : null,
     },
     stac: {
       query: input.stac?.query ?? {},

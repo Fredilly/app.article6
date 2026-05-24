@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Tooltip from "@/components/ui/Tooltip";
+import type { AoiFeatureRole } from "@/lib/proofMap/types";
 import type { VerifyWizardStepDetails } from "@/lib/verify/runState";
 
 type RuleOption = { id: string; title: string };
@@ -35,9 +36,30 @@ type EvidenceWorkflowStepperProps = {
     willClearWork: boolean;
     isSameAoi: boolean;
     showSameAoiPrompt: boolean;
+    primaryFeatureName?: string | null;
     areaKm2: number | null;
     bboxLabel: string | null;
+    declaredAreaKm2?: number | null;
+    declaredAreaSource?: string | null;
+    projectZoneCount?: number;
+    supportingFeatureCount?: number;
+    areaMismatchRelative?: number | null;
+    areaMismatchWarning?: boolean;
+    requiresPrimarySelection?: boolean;
   } | null;
+  aoiFeatures?: Array<{
+    id: string;
+    name: string;
+    geometryType: string;
+    areaKm2: number | null;
+    role: AoiFeatureRole;
+  }>;
+  onAoiFeatureRoleChange?: (featureId: string, role: AoiFeatureRole) => void;
+  declaredAreaInput?: string;
+  onDeclaredAreaInputChange?: (value: string) => void;
+  onConfirmArea?: () => void;
+  canConfirmArea?: boolean;
+  isAreaConfirmed?: boolean;
   searchDisabled: boolean;
   isRunning: boolean;
   hasSearchResults: boolean;
@@ -108,6 +130,24 @@ function formatDate(value: string | null | undefined): string | null {
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
 }
+
+function formatAreaKm2(value: number | null | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(2)} km²` : "—";
+}
+
+const AOI_ROLE_OPTIONS: Array<{ value: AoiFeatureRole; label: string }> = [
+  { value: "primary_project_area", label: "primary_project_area" },
+  { value: "project_zone", label: "project_zone" },
+  { value: "leakage_belt", label: "leakage_belt" },
+  { value: "reference_region", label: "reference_region" },
+  { value: "excluded_area", label: "excluded_area" },
+  { value: "stratum", label: "stratum" },
+  { value: "monitoring_plot", label: "monitoring_plot" },
+  { value: "canal_block", label: "canal_block" },
+  { value: "dipwell", label: "dipwell" },
+  { value: "subsidence_pole", label: "subsidence_pole" },
+  { value: "other", label: "other" },
+];
 
 function CompletedWorkflowSummary(props: {
   methodCode?: string;
@@ -340,6 +380,13 @@ export default function EvidenceWorkflowStepper({
   hasAoi,
   aoiLabel,
   aoiSummary = null,
+  aoiFeatures = [],
+  onAoiFeatureRoleChange,
+  declaredAreaInput = "",
+  onDeclaredAreaInputChange,
+  onConfirmArea,
+  canConfirmArea = false,
+  isAreaConfirmed = false,
   searchDisabled,
   isRunning,
   hasSearchResults,
@@ -397,6 +444,7 @@ export default function EvidenceWorkflowStepper({
     !finalizeBlocked && (step7.active || (reviewerArtifactSaved && !currentWorkspaceIsFinal && !step7.disabled));
   const stepShellClass = currentWorkspaceIsFinal ? "opacity-45 transition" : "transition";
   const [completedWorkflowExpanded, setCompletedWorkflowExpanded] = useState(false);
+  const [advancedSpatialOpen, setAdvancedSpatialOpen] = useState(false);
   const completedCounts = [
     typeof reviewedRuleCount === "number"
       ? `${reviewedRuleCount} reviewed rule${reviewedRuleCount === 1 ? "" : "s"}`
@@ -565,13 +613,123 @@ export default function EvidenceWorkflowStepper({
                     ) : null}
                   </>
                 ) : (
-                  <div className="grid gap-1 text-[11px] text-slate-600">
-                    <div>Area: {aoiLabel ?? "none"}</div>
-                    <div>area: {typeof aoiSummary.areaKm2 === "number" ? aoiSummary.areaKm2.toFixed(2) : "—"} km²</div>
+                  <div className="grid gap-3 text-[11px] text-slate-600">
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Primary Project Area</div>
+                        <div className="mt-1 break-words font-semibold text-slate-900">{aoiSummary.primaryFeatureName ?? "Not selected"}</div>
+                      </div>
+                      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Uploaded Geometry Area</div>
+                        <div className="mt-1 font-semibold text-slate-900">{formatAreaKm2(aoiSummary.areaKm2)}</div>
+                      </div>
+                      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Declared Area</div>
+                        <div className="mt-1 font-semibold text-slate-900">{formatAreaKm2(aoiSummary.declaredAreaKm2)}</div>
+                        {aoiSummary.declaredAreaSource ? <div className="mt-1 break-words text-slate-500">{aoiSummary.declaredAreaSource}</div> : null}
+                      </div>
+                      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Supporting Features</div>
+                        <div className="mt-1 font-semibold text-slate-900">
+                          {aoiSummary.projectZoneCount ?? 0} project zone{(aoiSummary.projectZoneCount ?? 0) === 1 ? "" : "s"}
+                          {" · "}
+                          {aoiSummary.supportingFeatureCount ?? 0} supporting
+                        </div>
+                      </div>
+                    </div>
                     <div className="break-words">bbox: {aoiSummary.bboxLabel ?? "—"}</div>
+                    <label className="grid gap-1 text-[11px] text-slate-600">
+                      <span>Declared area (km²)</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={declaredAreaInput}
+                        onChange={(event) => onDeclaredAreaInputChange?.(event.target.value)}
+                        placeholder="Optional PDD / registry value"
+                        className="w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-700"
+                      />
+                    </label>
+                    {typeof aoiSummary.declaredAreaKm2 === "number" ? (
+                      <div>
+                        declared area: {aoiSummary.declaredAreaKm2.toFixed(2)} km²
+                        {aoiSummary.declaredAreaSource ? ` (${aoiSummary.declaredAreaSource})` : ""}
+                      </div>
+                    ) : null}
+                    {aoiSummary.areaMismatchWarning && typeof aoiSummary.areaMismatchRelative === "number" ? (
+                      <div className="rounded-md border border-amber-200 bg-amber-50 px-2 py-2 font-medium text-amber-800">
+                        Boundary appears approximate. Declared area is {formatAreaKm2(aoiSummary.declaredAreaKm2)}; uploaded geometry is {formatAreaKm2(aoiSummary.areaKm2)}.
+                      </div>
+                    ) : null}
+                    {aoiSummary.primaryFeatureName ? (
+                      <div className="font-semibold text-slate-700">Primary project area detected. Review or confirm to continue.</div>
+                    ) : aoiSummary.requiresPrimarySelection ? (
+                      <div className="font-semibold text-amber-700">Select exactly one primary project area feature to continue.</div>
+                    ) : null}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        className="rounded-full border border-sky-200 bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={onConfirmArea}
+                        disabled={!canConfirmArea}
+                      >
+                        Confirm area
+                      </button>
+                      {isAreaConfirmed ? (
+                        <span className="text-[11px] font-semibold text-emerald-700">Confirmed for satellite search</span>
+                      ) : (
+                        <span className="text-[11px] text-slate-500">Satellite search stays locked until the area is confirmed.</span>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
+            ) : null}
+            {aoiFeatures.length > 0 ? (
+              <details
+                className="mt-3 rounded-lg border border-slate-200 bg-white"
+                open={advancedSpatialOpen}
+                onToggle={(event) => setAdvancedSpatialOpen((event.currentTarget as HTMLDetailsElement).open)}
+              >
+                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-700">
+                  Advanced: edit spatial features
+                </summary>
+                <div className="grid gap-2 border-t border-slate-100 px-3 py-3">
+                  {aoiFeatures.map((feature) => (
+                    <div
+                      key={feature.id}
+                      className="grid gap-2 rounded-lg border border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Feature</div>
+                        <div className="mt-1 break-words font-medium text-slate-900">{feature.name}</div>
+                        <div className="mt-1 text-slate-500">{feature.geometryType}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Area</div>
+                        <div className="mt-1 text-slate-900">{formatAreaKm2(feature.areaKm2)}</div>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Role</div>
+                        <select
+                          className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-700"
+                          value={feature.role}
+                          onChange={(event) => onAoiFeatureRoleChange?.(feature.id, event.target.value as AoiFeatureRole)}
+                        >
+                          {AOI_ROLE_OPTIONS.map((option) => (
+                            <option
+                              key={option.value}
+                              value={option.value}
+                              disabled={option.value === "primary_project_area" && feature.areaKm2 == null}
+                            >
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
             ) : null}
           </div>
         </div>
