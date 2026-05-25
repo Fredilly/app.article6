@@ -31,7 +31,7 @@ describe("DemoNav", () => {
     jest.clearAllMocks();
   });
 
-  it("shows Quick Check, Methods, and Projects destinations", async () => {
+  it("shows Start Review, Methods, and Projects destinations", async () => {
     pathnameState.value = "/";
     await act(async () => {
       root.render(<DemoNav />);
@@ -39,22 +39,22 @@ describe("DemoNav", () => {
 
     const links = Array.from(container.querySelectorAll("a"));
     expect(links.map((link) => link.textContent)).toEqual(
-      expect.arrayContaining(["Quick Check", "Methods", "Projects"]),
+      expect.arrayContaining(["Start Review", "Methods", "Projects"]),
     );
-    expect(links.find((link) => link.textContent?.includes("Quick Check"))?.getAttribute("href")).toBe("/");
+    expect(links.find((link) => link.textContent?.includes("Start Review"))?.getAttribute("href")).toBe("/projects/new");
     expect(links.find((link) => link.textContent?.includes("Methods"))?.getAttribute("href")).toBe("/m");
     expect(links.find((link) => link.textContent?.includes("Projects"))?.getAttribute("href")).toBe("/projects");
   });
 
-  it("lets the user return to Quick Check from Methods in one click", async () => {
+  it("lets the user return to Start Review from Methods in one click", async () => {
     pathnameState.value = "/m";
     await act(async () => {
       root.render(<DemoNav />);
     });
 
-    const quickCheckLink = Array.from(container.querySelectorAll("a")).find((link) =>
-      link.textContent?.includes("Quick Check"),
+    const startReviewLink = Array.from(container.querySelectorAll("a")).find((link) =>
+      link.textContent?.includes("Start Review"),
     );
-    expect(quickCheckLink?.getAttribute("href")).toBe("/");
+    expect(startReviewLink?.getAttribute("href")).toBe("/projects/new");
   });
 });

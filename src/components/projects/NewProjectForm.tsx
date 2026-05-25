@@ -3,6 +3,14 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  CheckCircle2,
+  CloudUpload,
+  FileBadge2,
+  FileText,
+  GitBranch,
+  ShieldCheck,
+} from "lucide-react";
+import {
   attachPendingProjectDocumentToProject,
   clearPendingProjectDocumentDraft,
   readPendingProjectDocumentDraft,
@@ -130,6 +138,7 @@ export default function NewProjectForm() {
   const [showManualSetup, setShowManualSetup] = useState(false);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [editingDetails, setEditingDetails] = useState(false);
 
   const groupedMethods = useMemo(
     () => groupMethodsByRegistry(methods),
@@ -147,37 +156,54 @@ export default function NewProjectForm() {
               label: "Detected project",
               value:
                 documentDraft.fields.projectTitle.value?.trim() ||
-                "No project title detected",
+                "Not detected",
             },
             {
               label: "Detected method",
               value:
                 documentDraft.fields.methodology.value?.trim() ||
-                "No method detected",
+                "Not detected",
             },
             {
               label: "Detected standard",
               value:
                 documentDraft.fields.standard.value?.trim() ||
-                "No standard detected",
+                "Not detected",
             },
             {
               label: "Document type",
-              value: documentDraft.fields.documentType.value?.trim(),
+              value:
+                documentDraft.fields.documentType.value?.trim() ||
+                "Not detected",
             },
             {
-              label: "Version / date",
-              value: [
-                documentDraft.fields.version.value?.trim(),
-                documentDraft.fields.documentDate.value?.trim(),
-              ]
-                .filter(Boolean)
-                .join(" · "),
+              label: "Country",
+              value: documentDraft.fields.country.value?.trim() || "Not detected",
             },
-          ].filter((field) => field.value)
+            {
+              label: "Proponent",
+              value:
+                documentDraft.fields.proponent.value?.trim() || "Not detected",
+            },
+          ]
         : [],
     [documentDraft],
   );
+  const detectedResultChips = useMemo(() => {
+    if (!documentDraft) return [];
+    const fields = Object.values(documentDraft.fields);
+    const chips: string[] = [];
+    if (fields.some((field) => field.confidence === "high")) {
+      chips.push("High confidence");
+    }
+    if (documentDraft.fields.methodology.value?.trim()) {
+      chips.push("Method suggested");
+    }
+    if (fields.some((field) => field.provenance)) {
+      chips.push("Provenance captured");
+    }
+    return chips;
+  }, [documentDraft]);
   const createModeActive = creationMode === "create";
   const searchKey = searchParams.toString();
   const intakeActive = !documentDraft && !handoffDetected && !showManualSetup;
@@ -187,6 +213,7 @@ export default function NewProjectForm() {
       setDocumentDraft(stagedDraft);
       setCreationMode("create");
       setConfirmDocumentDraft(false);
+      setEditingDetails(false);
       setShowManualSetup(true);
       setName(stagedDraft.fields.projectTitle.value ?? "");
       setProjectCode(stagedDraft.fields.projectId.value ?? "");
@@ -450,16 +477,21 @@ export default function NewProjectForm() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-12 md:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 md:px-8 md:py-14">
       {intakeActive ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-bold text-slate-900">Start Review</h1>
-          <p className="mt-2 max-w-xl text-sm text-slate-600">
+        <div className="mx-auto w-full max-w-4xl text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
+            Start Review
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-[15px]">
             Upload a PDD, monitoring report, or evidence file. Article6 will
             detect the project, method, and next review step.
           </p>
           <div
-            className={`mt-5 rounded-2xl border-2 border-dashed px-5 py-8 text-center transition ${dragActive ? "border-blue-400 bg-blue-50" : "border-slate-300 bg-slate-50"}`}
+            className={`mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)] md:p-8`}
+          >
+            <div
+              className={`rounded-[1.5rem] border-2 border-dashed px-6 py-12 text-center transition md:px-10 md:py-16 ${dragActive ? "border-sky-400 bg-sky-50" : "border-slate-300 bg-slate-50/80"}`}
             onDragOver={(event) => {
               event.preventDefault();
               setDragActive(true);
@@ -474,87 +506,192 @@ export default function NewProjectForm() {
               void handleIntakeUpload(event.dataTransfer.files?.[0] ?? null);
             }}
           >
-            <div className="text-sm font-semibold text-slate-900">
-              Upload project document
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
+                <CloudUpload className="h-6 w-6" />
+              </div>
+              <div className="mt-5 text-xl font-semibold text-slate-950">
+                Drag and drop your project document
+              </div>
+              <div className="mt-2 text-sm text-slate-500">
+                PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP
+              </div>
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept="application/pdf,.pdf,.doc,.docx,.xlsx,.geojson,.kml,.zip"
+                className="hidden"
+                onChange={(event) => {
+                  void handleIntakeUpload(event.target.files?.[0] ?? null);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => uploadInputRef.current?.click()}
+                disabled={uploadingDocument}
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+              >
+                <CloudUpload className="h-4 w-4" />
+                {uploadingDocument
+                  ? "Detecting project details..."
+                  : "Upload project document"}
+              </button>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowManualSetup(true);
+                    setReviewMode("manual");
+                    setError("");
+                  }}
+                  className="text-sm font-medium text-slate-600 underline-offset-4 transition hover:text-slate-900 hover:underline"
+                >
+                  Set up review manually
+                </button>
+              </div>
             </div>
-            <div className="mt-1 text-sm text-slate-500">
-              Drop a PDF here or choose a file to detect project details.
-            </div>
-            <input
-              ref={uploadInputRef}
-              type="file"
-              accept="application/pdf,.pdf"
-              className="hidden"
-              onChange={(event) => {
-                void handleIntakeUpload(event.target.files?.[0] ?? null);
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => uploadInputRef.current?.click()}
-              disabled={uploadingDocument}
-              className="mt-4 inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-            >
-              {uploadingDocument
-                ? "Detecting project details..."
-                : "Upload document"}
-            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setShowManualSetup(true);
-              setReviewMode("manual");
-              setError("");
-            }}
-            className="mt-4 text-sm font-semibold text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline"
-          >
-            Set up review manually
-          </button>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
+                  <FileText className="h-4 w-4" />
+                </div>
+                <div className="text-sm font-semibold text-slate-900">
+                  Detects project metadata
+                </div>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
+                  <GitBranch className="h-4 w-4" />
+                </div>
+                <div className="text-sm font-semibold text-slate-900">
+                  Suggests methodology
+                </div>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <div className="text-sm font-semibold text-slate-900">
+                  Preserves provenance &amp; confidence
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Start Review</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Upload a project document, review the detected details, then
-            continue into the project review workspace.
+        <div className={`mx-auto w-full ${documentDraft ? "max-w-5xl text-center" : "max-w-3xl"}`}>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+            Start Review
+          </h1>
+          <p className="mt-3 text-sm leading-7 text-slate-600 md:text-[15px]">
+            {documentDraft
+              ? "We reviewed your uploaded document and found the most relevant project details."
+              : "Upload a project document, review the detected details, then continue into the project review workspace."}
           </p>
         </div>
       )}
 
       {documentDraft ? (
-        <div className="rounded-lg border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700">
-          <div className="font-semibold text-slate-900">We found a project</div>
-          <div className="mt-1">
-            Review detected details from {documentDraft.source.fileName}, then
-            confirm before continuing.
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-900 shadow-sm">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-700">
+                <FileBadge2 className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-emerald-950">
+                  {documentDraft.source.fileName}
+                </div>
+                <div className="text-xs text-emerald-800/80">
+                  Uploaded and ready for review
+                </div>
+              </div>
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-800">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Ready
+              </span>
+            </div>
           </div>
-          <div className="mt-3 grid gap-3 md:grid-cols-2">
+
+          <div className="rounded-[2rem] border border-slate-200 bg-white px-6 py-6 text-sm text-slate-700 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)] md:px-8 md:py-8">
+            <div className="text-2xl font-semibold tracking-tight text-slate-950">
+              We found a project
+            </div>
+            <div className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+              Review the detected details, then continue into the review
+              workspace.
+            </div>
+            {detectedResultChips.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {detectedResultChips.map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {detectedSummaryFields.map((field) => (
               <div
                 key={field.label}
-                className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
               >
-                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   {field.label}
                 </div>
-                <div className="mt-1 text-sm font-medium text-slate-900">
+                <div className="mt-2 text-sm font-medium text-slate-900">
                   {field.value}
                 </div>
               </div>
             ))}
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-slate-200 bg-white px-6 py-6 shadow-sm">
+            <div className="text-base font-semibold text-slate-950">
+              What happens next
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {[
+                "Confirm details",
+                "Review evidence",
+                "Export verification pack",
+              ].map((step, index) => (
+                <div
+                  key={step}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+                >
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Step {index + 1}
+                  </div>
+                  <div className="mt-2 text-sm font-medium text-slate-900">
+                    {step}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ) : null}
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mx-auto w-full max-w-4xl rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {!intakeActive ? (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-5xl flex-col gap-4">
+          {!documentDraft || editingDetails ? (
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               {documentDraft ? "Review route" : "Review Type"}
@@ -604,8 +741,9 @@ export default function NewProjectForm() {
               </button>
             </div>
           </div>
+          ) : null}
 
-          {handoffDetected ? (
+          {handoffDetected && (!documentDraft || editingDetails) ? (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
               Create a project and carry over the active review for{" "}
               {handoffMethodLabel}. Existing evidence links, rule reviews,
@@ -618,19 +756,25 @@ export default function NewProjectForm() {
               <div className="grid gap-3 md:grid-cols-2">
                 <button
                   type="button"
-                  onClick={() => setCreationMode("create")}
+                  onClick={() => {
+                    setCreationMode("create");
+                    setEditingDetails(false);
+                  }}
                   className={`rounded-lg border px-4 py-3 text-left ${creationMode === "create" ? "border-blue-500 bg-blue-50 text-blue-900" : "border-slate-200 bg-white text-slate-700"}`}
                 >
                   <div className="text-sm font-semibold">
-                    Start review from this document
+                    Continue to review workspace
                   </div>
                   <div className="mt-1 text-xs text-slate-500">
-                    Create a review workspace using the detected details below.
+                    Create a review workspace using the detected details above.
                   </div>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCreationMode("attach")}
+                  onClick={() => {
+                    setCreationMode("attach");
+                    setEditingDetails(false);
+                  }}
                   disabled={!attachMatches.length}
                   className={`rounded-lg border px-4 py-3 text-left ${creationMode === "attach" ? "border-blue-500 bg-blue-50 text-blue-900" : "border-slate-200 bg-white text-slate-700"} ${!attachMatches.length ? "cursor-not-allowed opacity-50" : ""}`}
                 >
@@ -644,7 +788,17 @@ export default function NewProjectForm() {
                 </button>
               </div>
 
-              {attachMatches.length ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingDetails((current) => !current)}
+                  className="inline-flex items-center rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                >
+                  {editingDetails ? "Hide edit details" : "Edit details"}
+                </button>
+              </div>
+
+              {attachMatches.length && creationMode === "attach" ? (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
                   <div className="mb-2 text-sm font-semibold text-slate-900">
                     Existing project matches
@@ -690,7 +844,7 @@ export default function NewProjectForm() {
             </>
           ) : null}
 
-          {createModeActive ? (
+          {createModeActive && (!documentDraft || editingDetails) ? (
             <>
               <div>
                 <label className="mb-1 block text-sm font-semibold text-slate-700">
@@ -930,7 +1084,7 @@ export default function NewProjectForm() {
                       </span>
                     </div>
                     <div className="mt-1 text-sm text-slate-700">
-                      {field.value || "No value extracted"}
+                      {field.value || "Not detected"}
                     </div>
                     {field.provenance ? (
                       <div className="mt-1 text-xs text-slate-500">
@@ -973,7 +1127,7 @@ export default function NewProjectForm() {
               (creationMode === "attach" && !attachProjectId) ||
               Boolean(documentDraft && !confirmDocumentDraft)
             }
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
           >
             {loading
               ? creationMode === "attach"
@@ -982,7 +1136,7 @@ export default function NewProjectForm() {
               : creationMode === "attach"
                 ? "Continue with this document"
                 : documentDraft
-                  ? "Start Review"
+                  ? "Continue to review workspace"
                   : "Create Project Review"}
           </button>
         </form>

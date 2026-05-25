@@ -71,16 +71,16 @@ describe("ChatApp claim-first landing", () => {
     expect(container.textContent).toContain(
       "Run a quick evidence check instead",
     );
-    expect(container.textContent).toContain("Quick Check");
-    expect(container.textContent).toContain(
+    expect(container.textContent).not.toContain("Quick Check");
+    expect(container.textContent).not.toContain(
       "Upload evidence. Get a preliminary match in seconds.",
     );
-    expect(container.textContent).toContain("Evidence");
-    expect(container.textContent).toContain("Try demo check");
-    expect(container.textContent).toContain("Run quick check");
-    expect(container.textContent).toContain("Upload evidence");
-    expect(container.querySelectorAll("textarea").length).toBe(1);
-    expect(container.textContent).toContain("Options");
+    expect(container.textContent).not.toContain("Evidence");
+    expect(container.textContent).not.toContain("Try demo check");
+    expect(container.textContent).not.toContain("Run quick check");
+    expect(container.textContent).not.toContain("Upload evidence");
+    expect(container.querySelectorAll("textarea").length).toBe(0);
+    expect(container.textContent).not.toContain("Options");
     expect(container.textContent).not.toContain("Select saved evidence");
     expect(container.textContent).not.toContain("MethodologyAny methodology");
     expect(container.textContent).not.toContain("Ask in chat instead");

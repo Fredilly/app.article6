@@ -76,6 +76,7 @@ type QuickCheckPanelProps = {
   initialMethod?: string | null;
   initialVersion?: string | null;
   onContinueToWorkspace?: (url: string) => void;
+  collapseQuickEvidenceByDefault?: boolean;
 };
 
 type MatchCandidate = {
@@ -732,6 +733,7 @@ export default function QuickCheckPanel({
   initialMethod,
   initialVersion,
   onContinueToWorkspace,
+  collapseQuickEvidenceByDefault = false,
 }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const projectDocumentRef = useRef<HTMLInputElement | null>(null);
@@ -750,6 +752,9 @@ export default function QuickCheckPanel({
   const [pendingInventoryId, setPendingInventoryId] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showSavedEvidence, setShowSavedEvidence] = useState(false);
+  const [showQuickEvidenceCheck, setShowQuickEvidenceCheck] = useState(
+    !collapseQuickEvidenceByDefault,
+  );
   const [showMethodology, setShowMethodology] = useState(false);
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(
@@ -771,6 +776,14 @@ export default function QuickCheckPanel({
   const draft = session.draft;
   const result = session.result;
   const stagedUploads = session.stagedUploads;
+
+  useEffect(() => {
+    if (!showQuickEvidenceCheck) return;
+    const timeoutId = window.setTimeout(() => {
+      claimRef.current?.focus();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [showQuickEvidenceCheck]);
 
   const inventoryItems = useMemo(
     () =>
@@ -2310,7 +2323,7 @@ export default function QuickCheckPanel({
             </button>
             <button
               type="button"
-              onClick={() => claimRef.current?.focus()}
+              onClick={() => setShowQuickEvidenceCheck(true)}
               className="text-sm font-semibold text-slate-600 underline underline-offset-4 transition hover:text-slate-900"
             >
               Run a quick evidence check instead
@@ -2318,6 +2331,7 @@ export default function QuickCheckPanel({
           </div>
         </div>
 
+        {showQuickEvidenceCheck ? (
         <div className="mt-8 grid gap-8">
           <div className="flex w-full items-start justify-between gap-4">
             <div>
@@ -3043,6 +3057,7 @@ export default function QuickCheckPanel({
             </div>
           ) : null}
         </div>
+        ) : null}
       </div>
     </div>
   );

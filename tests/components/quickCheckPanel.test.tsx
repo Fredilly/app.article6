@@ -926,11 +926,26 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
   });
 
+  function revealQuickEvidenceCheck() {
+    const revealButton = Array.from(container.querySelectorAll("button")).find(
+      (node) => node.textContent?.includes("Run a quick evidence check instead"),
+    );
+    if (
+      revealButton &&
+      !container.querySelector("textarea") &&
+      !container.textContent?.includes("Quick Check")
+    ) {
+      revealButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    }
+  }
+
   function claimInput(): HTMLTextAreaElement {
+    revealQuickEvidenceCheck();
     return container.querySelector("textarea") as HTMLTextAreaElement;
   }
 
   function primaryCta(): HTMLButtonElement {
+    revealQuickEvidenceCheck();
     return Array.from(container.querySelectorAll("button")).find((node) =>
       node.textContent?.includes("Run quick check"),
     ) as HTMLButtonElement;
@@ -964,6 +979,7 @@ describe("QuickCheckPanel claim-first flow", () => {
   }
 
   async function uploadEvidence(file: File) {
+    revealQuickEvidenceCheck();
     const input = container.querySelector(
       'input[data-testid="quick-check-evidence-input"]',
     ) as HTMLInputElement;
@@ -1009,7 +1025,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
   it("renders a minimal default state with secondary controls collapsed", async () => {
     await act(async () => {
-      root.render(<QuickCheckPanel />);
+      root.render(<QuickCheckPanel collapseQuickEvidenceByDefault />);
     });
 
     const pageText = container.textContent ?? "";
@@ -1019,16 +1035,15 @@ describe("QuickCheckPanel claim-first flow", () => {
     );
     expect(pageText).toContain("Upload project document");
     expect(pageText).toContain("Run a quick evidence check instead");
-    expect(pageText).toContain("Quick Check");
-    expect(pageText).toContain(
+    expect(pageText).not.toContain("Quick Check");
+    expect(pageText).not.toContain(
       "Upload evidence. Get a preliminary match in seconds.",
     );
-    expect(pageText).toContain("Upload evidence");
-    expect(pageText).toContain("Try demo check");
-    expect(pageText).toContain("Options");
+    expect(pageText).not.toContain("Upload evidence");
+    expect(pageText).not.toContain("Try demo check");
+    expect(pageText).not.toContain("Options");
     expect(pageText).not.toContain("Select saved evidence");
     expect(pageText).not.toContain("MethodologyAny methodology");
-    expect(primaryCta().disabled).toBe(true);
   });
 
   it("renders Try demo check as an always-available secondary shortcut", async () => {

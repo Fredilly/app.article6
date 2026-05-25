@@ -6,10 +6,18 @@ import { usePathname } from "next/navigation";
 type DemoRoute = {
   href: string;
   title: string;
+  matches?: (pathname: string) => boolean;
 };
 
 const demoRoutes: DemoRoute[] = [
-  { href: "/", title: "Quick Check" },
+  {
+    href: "/projects/new",
+    title: "Start Review",
+    matches: (pathname) =>
+      pathname === "/" ||
+      pathname === "/projects/new" ||
+      pathname.startsWith("/projects/new/"),
+  },
   { href: "/m", title: "Methods" },
   { href: "/projects", title: "Projects" },
 ];
@@ -20,9 +28,10 @@ export default function DemoNav() {
   return (
     <nav className="flex flex-wrap items-center gap-2 text-xs text-slate-600" aria-label="Primary">
       {demoRoutes.map(route => {
-        const isActive =
-          pathname === route.href ||
-          (route.href !== "/" && pathname.startsWith(`${route.href}/`));
+        const isActive = route.matches
+          ? route.matches(pathname)
+          : pathname === route.href ||
+            (route.href !== "/" && pathname.startsWith(`${route.href}/`));
         const base = "inline-flex items-center rounded-full border px-3 py-1.5 font-medium transition";
         const appearance = isActive
           ? "border-black bg-black text-white hover:bg-neutral-900"

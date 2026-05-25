@@ -42,7 +42,11 @@ export default function ChatApp() {
           </div>
         ) : null}
 
-        <QuickCheckPanel initialMethod={selectedMethod} initialVersion={selectedVersion} />
+        <QuickCheckPanel
+          initialMethod={selectedMethod}
+          initialVersion={selectedVersion}
+          collapseQuickEvidenceByDefault
+        />
       </div>
     </div>
   );

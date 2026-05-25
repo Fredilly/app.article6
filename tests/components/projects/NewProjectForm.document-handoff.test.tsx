@@ -83,7 +83,11 @@ describe("NewProjectForm document handoff", () => {
     expect(text).toContain(
       "Upload a PDD, monitoring report, or evidence file. Article6 will detect the project, method, and next review step.",
     );
+    expect(text).toContain("Drag and drop your project document");
     expect(text).toContain("Upload project document");
+    expect(text).toContain("Detects project metadata");
+    expect(text).toContain("Suggests methodology");
+    expect(text).toContain("Preserves provenance & confidence");
     expect(text).toContain("Set up review manually");
     expect(text).not.toContain("We found a project");
   });
@@ -183,12 +187,30 @@ describe("NewProjectForm document handoff", () => {
       await Promise.resolve();
     });
 
+    expect(container.textContent).toContain("We found a project");
+    expect(container.textContent).toContain("Review detected details");
+    expect(container.textContent).toContain("Detected project");
+    expect(container.textContent).toContain("Detected method");
+    expect(container.textContent).toContain("Detected standard");
+    expect(container.textContent).toContain("Document type");
+    expect(container.textContent).toContain("Country");
+    expect(container.textContent).toContain("Proponent");
+    expect(container.textContent).toContain("Continue to review workspace");
+
+    const editDetailsButton = Array.from(
+      container.querySelectorAll("button"),
+    ).find((button) => button.textContent?.includes("Edit details"));
+    expect(editDetailsButton).toBeDefined();
+    await act(async () => {
+      editDetailsButton!.dispatchEvent(
+        new MouseEvent("click", { bubbles: true }),
+      );
+    });
+
     const titleInput = Array.from(container.querySelectorAll("input")).find(
       (input) => (input as HTMLInputElement).value === "Malawi Demo Project",
     ) as HTMLInputElement | undefined;
     expect(titleInput?.value).toBe("Malawi Demo Project");
-    expect(container.textContent).toContain("We found a project");
-    expect(container.textContent).toContain("Review detected details");
 
     const manualReviewButton = Array.from(
       container.querySelectorAll("button"),
@@ -203,7 +225,9 @@ describe("NewProjectForm document handoff", () => {
     });
 
     const submitButton = Array.from(container.querySelectorAll("button")).find(
-      (button) => button.textContent?.includes("Start Review"),
+      (button) =>
+        button.getAttribute("type") === "submit" &&
+        button.textContent?.includes("Continue to review workspace"),
     ) as HTMLButtonElement | undefined;
     expect(submitButton).toBeDefined();
     expect(submitButton?.disabled).toBe(true);

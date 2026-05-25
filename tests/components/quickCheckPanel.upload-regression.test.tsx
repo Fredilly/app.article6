@@ -225,7 +225,20 @@ describe("QuickCheckPanel upload regression", () => {
     );
 
     await act(async () => {
-      root.render(<QuickCheckPanel />);
+      root.render(<QuickCheckPanel collapseQuickEvidenceByDefault />);
+    });
+
+    await flushUi();
+
+    expect(container.textContent).toContain("Start Review");
+    expect(container.textContent).toContain("Upload project document");
+    expect(container.textContent).toContain(
+      "Run a quick evidence check instead",
+    );
+    expect(container.textContent).not.toContain("Quick Check");
+
+    await act(async () => {
+      clickButton("Run a quick evidence check instead");
     });
 
     await flushUi();
