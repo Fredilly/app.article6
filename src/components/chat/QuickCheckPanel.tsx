@@ -2202,7 +2202,7 @@ export default function QuickCheckPanel({
         contentSha256: selectedPdfAttachment.sha256,
       });
       if (typeof window !== "undefined") {
-        window.location.assign("/projects/new?handoff=document-metadata");
+        window.location.assign("/start-review?handoff=document-metadata");
       }
     } catch (error) {
       setFieldErrors({

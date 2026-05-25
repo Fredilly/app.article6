@@ -1,14 +1,22 @@
-import type { Metadata } from "next";
-import NewProjectForm from "@/components/projects/NewProjectForm";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Start Review | app.article6",
+type ProjectsNewPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default function NewProjectPage() {
-  return (
-    <main className="min-h-screen bg-slate-50">
-      <NewProjectForm />
-    </main>
-  );
+function appendParams(pathname: string, params: Record<string, string | string[] | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) {
+      for (const entry of value) search.append(key, entry);
+      continue;
+    }
+    if (typeof value === "string") search.set(key, value);
+  }
+  const query = search.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+export default async function NewProjectPage({ searchParams }: ProjectsNewPageProps) {
+  redirect(appendParams("/start-review", await searchParams));
 }
