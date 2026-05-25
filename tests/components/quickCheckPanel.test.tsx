@@ -885,8 +885,9 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const pageText = container.textContent ?? "";
     expect(pageText).toContain("Quick Check");
-    expect(pageText).toContain("Upload evidence. Get a preliminary match in seconds.");
-    expect(pageText).toContain("Upload evidence");
+    expect(pageText).toContain("Check a carbon project document in minutes.");
+    expect(pageText).toContain("Drag and drop your project document");
+    expect(pageText).toContain("Upload document");
     expect(pageText).toContain("Try demo check");
     expect(pageText).toContain("Options");
     expect(pageText).not.toContain("Select saved evidence");
@@ -973,7 +974,8 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Extraction signal");
     expect(container.textContent).toContain("Grounded");
     expect(container.textContent).toContain("Use match");
-    expect(container.textContent).not.toContain("Open full review");
+    expect(container.textContent).toContain("Next actions");
+    expect(container.textContent).toContain("Open full review");
     expect(container.textContent).not.toContain(QUICK_CHECK_DEMO.filename);
     expect(container.textContent).not.toContain("Match confidence");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
@@ -1891,7 +1893,8 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).toContain("Use match");
-    expect(container.textContent).not.toContain("Open full review");
+    expect(container.textContent).toContain("Next actions");
+    expect(container.textContent).toContain("Open full review");
     expect(container.textContent).toContain("monitoring-report.pdf");
     expect(container.textContent).not.toContain("The matched requirement could not be loaded.");
   });

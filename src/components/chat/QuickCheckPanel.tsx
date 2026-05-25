@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -1760,18 +1761,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 <div className="mt-1 text-sm text-slate-600">{SUPPORTED_FORMATS_LABEL}</div>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm">
-                <a
+                <Link
                   href="/methods"
                   className="font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-700"
                 >
                   Browse methods
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/projects"
                   className="font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-700"
                 >
                   Open Projects
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -1809,12 +1810,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             {!selectedEvidenceLabel ? (
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
                 <span>Drop in one file to extract metadata and start a review path.</span>
-                <a
+                <Link
                   href="/methods"
                   className="font-medium text-slate-700 underline underline-offset-4 transition hover:text-slate-900"
                 >
                   Run against another method
-                </a>
+                </Link>
               </div>
             ) : (
               <>
@@ -2073,12 +2074,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               </div>
             ) : null}
             <div className="text-center">
-              <a
+              <Link
                 href="/methods"
                 className="text-xs text-slate-500 underline underline-offset-4 transition hover:text-slate-700"
               >
                 Run against another method
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -2244,12 +2245,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 >
                   Run against another method
                 </button>
-                <a
+                <Link
                   href="/methods"
                   className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
                 >
                   Browse methods
-                </a>
+                </Link>
               </div>
             </div>
           ) : null}
@@ -2340,12 +2341,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 >
                   Run against another method
                 </button>
-                <a
+                <Link
                   href="/methods"
                   className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
                 >
                   Browse methods
-                </a>
+                </Link>
               </div>
             </div>
           ) : null}
