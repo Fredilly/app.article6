@@ -82,9 +82,12 @@ export function groupMethodsByRegistry(
 export default function NewProjectForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const manualModeRequested = searchParams.get("mode") === "manual";
   const [methods, setMethods] = useState<MethodOption[]>([]);
   const [reviewMode, setReviewMode] =
-    useState<ProjectReviewMode>("methodology-linked");
+    useState<ProjectReviewMode>(
+      manualModeRequested ? "manual" : "methodology-linked",
+    );
   const [name, setName] = useState("");
   const [projectCode, setProjectCode] = useState("");
   const [countryLocation, setCountryLocation] = useState("");
@@ -126,6 +129,8 @@ export default function NewProjectForm() {
     documentDraft?.fields.standard.value?.trim() || "No standard detected";
   const createModeActive = creationMode === "create";
   const searchKey = searchParams.toString();
+  const manualOnlyView =
+    manualModeRequested && !documentDraft && !handoffDetected;
 
   useEffect(() => {
     fetch("/api/projects/methods")
@@ -178,6 +183,11 @@ export default function NewProjectForm() {
     );
     if (maybeMethod) setSelectedMethod(maybeMethod);
   }, [documentDraft, methods, selectedMethod]);
+
+  useEffect(() => {
+    if (!manualOnlyView) return;
+    setReviewMode("manual");
+  }, [manualOnlyView]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -338,10 +348,13 @@ export default function NewProjectForm() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-12 md:px-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Start Review</h1>
+        <h1 className="text-2xl font-bold text-slate-900">
+          {manualOnlyView ? "Set up review manually" : "Start Review"}
+        </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Upload a project document, review the detected details, then continue
-          into the project review workspace.
+          {manualOnlyView
+            ? "Create a project review without uploading a source document first. You can attach documents and evidence later."
+            : "Upload a project document, review the detected details, then continue into the project review workspace."}
         </p>
       </div>
 
@@ -388,55 +401,57 @@ export default function NewProjectForm() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">
-            {documentDraft ? "Review route" : "Review Type"}
-          </label>
-          <div className="grid gap-3 md:grid-cols-2">
-            <button
-              type="button"
-              disabled={handoffDetected}
-              onClick={() => setReviewMode("methodology-linked")}
-              className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? "cursor-not-allowed opacity-60" : ""} ${
-                reviewMode === "methodology-linked"
-                  ? "border-blue-500 bg-blue-50 text-blue-900"
-                  : "border-slate-200 bg-white text-slate-700"
-              }`}
-            >
-              <div className="text-sm font-semibold">
-                {documentDraft
-                  ? "Continue with detected method"
-                  : "Methodology-linked review"}
-              </div>
-              <div className="mt-1 text-xs text-slate-500">
-                {documentDraft
-                  ? "Use the detected method and its rule set in the review workspace."
-                  : "Use a selected methodology and its rule set."}
-              </div>
-            </button>
-            <button
-              type="button"
-              disabled={handoffDetected}
-              onClick={() => setReviewMode("manual")}
-              className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? "cursor-not-allowed opacity-60" : ""} ${
-                reviewMode === "manual"
-                  ? "border-blue-500 bg-blue-50 text-blue-900"
-                  : "border-slate-200 bg-white text-slate-700"
-              }`}
-            >
-              <div className="text-sm font-semibold">
-                {documentDraft
-                  ? "Continue without a linked method"
-                  : "Manual Review"}
-              </div>
-              <div className="mt-1 text-xs text-slate-500">
-                {documentDraft
-                  ? "Keep the document details, but continue without a detected method."
-                  : "Project-level manual review / VVB findings reconstruction."}
-              </div>
-            </button>
+        {!manualOnlyView ? (
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">
+              {documentDraft ? "Review route" : "Review Type"}
+            </label>
+            <div className="grid gap-3 md:grid-cols-2">
+              <button
+                type="button"
+                disabled={handoffDetected}
+                onClick={() => setReviewMode("methodology-linked")}
+                className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? "cursor-not-allowed opacity-60" : ""} ${
+                  reviewMode === "methodology-linked"
+                    ? "border-blue-500 bg-blue-50 text-blue-900"
+                    : "border-slate-200 bg-white text-slate-700"
+                }`}
+              >
+                <div className="text-sm font-semibold">
+                  {documentDraft
+                    ? "Continue with detected method"
+                    : "Methodology-linked review"}
+                </div>
+                <div className="mt-1 text-xs text-slate-500">
+                  {documentDraft
+                    ? "Use the detected method and its rule set in the review workspace."
+                    : "Use a selected methodology and its rule set."}
+                </div>
+              </button>
+              <button
+                type="button"
+                disabled={handoffDetected}
+                onClick={() => setReviewMode("manual")}
+                className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? "cursor-not-allowed opacity-60" : ""} ${
+                  reviewMode === "manual"
+                    ? "border-blue-500 bg-blue-50 text-blue-900"
+                    : "border-slate-200 bg-white text-slate-700"
+                }`}
+              >
+                <div className="text-sm font-semibold">
+                  {documentDraft
+                    ? "Continue without a linked method"
+                    : "Manual Review"}
+                </div>
+                <div className="mt-1 text-xs text-slate-500">
+                  {documentDraft
+                    ? "Keep the document details, but continue without a detected method."
+                    : "Project-level manual review / VVB findings reconstruction."}
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {handoffDetected ? (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
@@ -699,7 +714,9 @@ export default function NewProjectForm() {
               <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                 {documentDraft
                   ? "This route keeps the detected project details and document, but does not require you to confirm a method before continuing."
-                  : "Manual Review does not require a methodology selection. Use this mode for project-specific findings reconstruction, evidence gaps, reviewer notes, and export."}
+                  : manualOnlyView
+                    ? "This setup does not require a methodology selection before creating the project review. You can attach documents and evidence later."
+                    : "Manual Review does not require a methodology selection. Use this mode for project-specific findings reconstruction, evidence gaps, reviewer notes, and export."}
               </div>
             )}
 

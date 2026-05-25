@@ -5,7 +5,7 @@ import NewProjectForm from "@/components/projects/NewProjectForm";
 
 export const metadata: Metadata = {
   title: "Start Review | app.article6",
-  description: "Upload project documents, run a quick evidence check, or set up a review workspace.",
+  description: "Upload a PDD, monitoring report, or evidence file to start a review.",
 };
 
 type StartReviewPageProps = {
@@ -30,11 +30,12 @@ export default async function StartReviewPage({ searchParams }: StartReviewPageP
         <NewProjectForm />
       ) : (
         <div className="pb-12">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 pt-8 md:px-8">
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-start justify-between gap-6 px-4 pt-8 md:px-8">
             <div>
               <h1 className="text-2xl font-semibold text-slate-950">Start Review</h1>
-              <p className="mt-1 text-sm text-slate-600">
-                Upload a project document, run a quick evidence check, or switch to manual setup.
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                Upload a PDD, monitoring report, or evidence file. Article6 will detect
+                project metadata, methodology, standard, and the next review step.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -52,7 +53,7 @@ export default async function StartReviewPage({ searchParams }: StartReviewPageP
               </Link>
             </div>
           </div>
-          <ChatApp />
+          <ChatApp surface="start-review" />
         </div>
       )}
     </main>

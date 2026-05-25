@@ -4,17 +4,15 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-[#f9f9f9]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 md:px-8 md:py-24">
-        <section className="grid gap-8 rounded-[2rem] border border-slate-200 bg-white px-6 py-8 shadow-sm md:grid-cols-[1.4fr_0.9fr] md:px-10 md:py-12">
+        <section className="grid gap-8 rounded-[2rem] border border-slate-200 bg-white px-6 py-8 shadow-sm md:px-10 md:py-12">
           <div className="max-w-2xl">
-            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
-              Review Intake
-            </div>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 md:text-5xl">
-              Launch a review without turning Home into the workflow itself.
+              Review carbon project documents faster.
             </h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">
-              Start Review is now the dedicated intake surface for document upload,
-              quick evidence checks, metadata-driven project creation, and manual setup.
+              Upload a PDD, monitoring report, or evidence file. Article6 extracts
+              project metadata, identifies the method, and helps prepare a
+              review-ready project record.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -37,22 +35,31 @@ export default function Page() {
               </Link>
             </div>
           </div>
-          <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                On Start Review
+              <div className="text-sm font-semibold text-slate-900">
+                Start from document
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-700">
-                Upload a project document, run a quick evidence check, carry forward extracted metadata,
-                or attach the document to an existing project when a match is detected.
+                Upload a PDD or monitoring report and turn extracted metadata
+                into a project draft.
               </p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                In Projects
+              <div className="text-sm font-semibold text-slate-900">
+                Run a quick check
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-700">
-                Return to durable review records, continue saved workspaces, and inspect existing project state.
+                Check one document against a methodology before creating a full
+                project record.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="text-sm font-semibold text-slate-900">
+                Continue a review
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                Open saved projects, evidence maps, and review records.
               </p>
             </div>
           </div>

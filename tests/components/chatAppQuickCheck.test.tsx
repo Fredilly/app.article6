@@ -63,4 +63,18 @@ describe("ChatApp claim-first landing", () => {
     expect(container.textContent).not.toContain("Welcome to Article6");
     expect(container.textContent).not.toContain("One claim. One file.");
   });
+
+  it("renders the document-first start review surface when requested", async () => {
+    await act(async () => {
+      root.render(<ChatApp surface="start-review" />);
+    });
+
+    expect(container.textContent).toContain("Drag and drop your project document");
+    expect(container.textContent).toContain("PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP");
+    expect(container.textContent).toContain("Upload project document");
+    expect(container.textContent).toContain("Set up review manually");
+    expect(container.textContent).toContain("Run a quick evidence check instead");
+    expect(container.textContent).not.toContain("Quick Check");
+    expect(container.querySelectorAll("textarea").length).toBe(0);
+  });
 });

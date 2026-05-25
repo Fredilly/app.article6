@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import {
   ArrowUpRight,
   ChevronDown,
@@ -73,6 +74,7 @@ type MethodInventoryRecord = {
 };
 
 type QuickCheckPanelProps = {
+  surface?: "quick-check" | "start-review";
   initialMethod?: string | null;
   initialVersion?: string | null;
   onContinueToWorkspace?: (url: string) => void;
@@ -729,10 +731,12 @@ function joinMethodologyLabels(values: string[]): string {
 }
 
 export default function QuickCheckPanel({
+  surface = "quick-check",
   initialMethod,
   initialVersion,
   onContinueToWorkspace,
 }: QuickCheckPanelProps) {
+  const isStartReviewSurface = surface === "start-review";
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -750,6 +754,9 @@ export default function QuickCheckPanel({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showSavedEvidence, setShowSavedEvidence] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
+  const [showQuickCheckTools, setShowQuickCheckTools] = useState(
+    !isStartReviewSurface,
+  );
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(
     null,
@@ -2225,27 +2232,39 @@ export default function QuickCheckPanel({
     claimRef.current?.focus();
   }
 
+  function handleEnableQuickCheck() {
+    setShowQuickCheckTools(true);
+    setRecoveryState(null);
+    setFieldErrors({});
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => claimRef.current?.focus());
+    }
+  }
+
   return (
     <div className="w-full">
       <div className="mx-auto w-full max-w-2xl px-4 md:px-0">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex w-full items-start justify-center">
-            <div className="w-full">
-              <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-                Quick Check
-              </h1>
-              <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-                Upload evidence. Get a preliminary match in seconds.
-              </p>
+        {showQuickCheckTools ? (
+          <div className="flex flex-col items-center text-center">
+            <div className="flex w-full items-start justify-center">
+              <div className="w-full">
+                <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+                  Quick Check
+                </h1>
+                <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
+                  Upload evidence. Get a preliminary match in seconds.
+                </p>
+              </div>
+              {loadingMethods || submitting ? (
+                <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" />
+              ) : null}
             </div>
-            {loadingMethods || submitting ? (
-              <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" />
-            ) : null}
           </div>
-        </div>
+        ) : null}
 
         <div className="mt-8 grid gap-8">
-          <div>
+          {showQuickCheckTools ? (
+            <div>
             <label className="grid gap-2 text-sm text-slate-700">
               <span className="font-medium text-slate-900">Claim</span>
               <textarea
@@ -2308,23 +2327,28 @@ export default function QuickCheckPanel({
                 ))}
               </div>
             </div>
-          </div>
+            </div>
+          ) : null}
 
           <div>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-sm font-medium text-slate-900">
-                  Evidence
+                  {isStartReviewSurface && !showQuickCheckTools
+                    ? "Drag and drop your project document"
+                    : "Evidence"}
                 </div>
                 <div className="mt-1 text-sm text-slate-600">
-                  Upload one file.
+                  {isStartReviewSurface && !showQuickCheckTools
+                    ? "PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP"
+                    : "Upload one file."}
                 </div>
               </div>
               <input
                 ref={fileRef}
                 type="file"
                 className="hidden"
-                accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
+                accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.docx,.geojson,.kml,.zip"
                 onChange={(event) =>
                   void handleUpload(event.target.files?.[0] ?? null)
                 }
@@ -2335,13 +2359,17 @@ export default function QuickCheckPanel({
                 className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-slate-50"
               >
                 <Upload className="h-4 w-4" />
-                Upload evidence
+                {isStartReviewSurface && !showQuickCheckTools
+                  ? "Upload project document"
+                  : "Upload evidence"}
               </button>
             </div>
 
             {!selectedEvidenceLabel ? (
               <div className="mt-4 rounded-[1.25rem] border border-slate-200 bg-slate-50/50 px-4 py-5 text-sm text-slate-600">
-                Drop in one file or use the upload button.
+                {isStartReviewSurface && !showQuickCheckTools
+                  ? "Drop in a project document or use the upload button."
+                  : "Drop in one file or use the upload button."}
               </div>
             ) : (
               <>
@@ -2589,9 +2617,27 @@ export default function QuickCheckPanel({
                 {fieldErrors.evidence}
               </div>
             ) : null}
+            {isStartReviewSurface && !showQuickCheckTools ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+                <Link
+                  href="/start-review?mode=manual"
+                  className="text-slate-700 underline underline-offset-4 transition hover:text-slate-900"
+                >
+                  Set up review manually
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleEnableQuickCheck}
+                  className="text-slate-500 underline underline-offset-4 transition hover:text-slate-700"
+                >
+                  Run a quick evidence check instead
+                </button>
+              </div>
+            ) : null}
           </div>
 
-          <div className="grid gap-3">
+          {showQuickCheckTools ? (
+            <div className="grid gap-3">
             <button
               type="button"
               disabled={!canRunQuickCheck}
@@ -2628,7 +2674,8 @@ export default function QuickCheckPanel({
                 </button>
               </div>
             ) : null}
-          </div>
+            </div>
+          ) : null}
 
           {showAdvancedOptions ? (
             <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
