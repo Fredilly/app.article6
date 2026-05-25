@@ -4660,7 +4660,7 @@ export default function ProofMapTab({
                   onClick={() => {
                     if (typeof window !== "undefined")
                       window.location.assign(
-                        "/projects/new?handoff=document-metadata",
+                        "/start-review?handoff=document-metadata",
                       );
                   }}
                   className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800"

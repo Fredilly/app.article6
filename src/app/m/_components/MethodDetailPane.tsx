@@ -214,7 +214,7 @@ export default function MethodDetailPane({
       workspaceId: reviewWorkspace?.id ?? linkedWorkspaceId ?? null,
       projectId: linkedProjectId,
     });
-    router.push("/projects/new?handoff=active-review");
+    router.push("/start-review?handoff=active-review");
   }, [activeVersion, linkedProjectId, linkedWorkspaceId, method.code, reviewWorkspace?.id, router]);
   const { events: auditEvents, appendEvent, clearTrail, exportJson, exportSha256 } = useAuditTrail();
   const appendAuditEvent = useCallback(
@@ -1509,7 +1509,7 @@ export default function MethodDetailPane({
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
-              href={linkedProject ? "/projects" : "/projects/new"}
+              href={linkedProject ? "/projects" : "/start-review?mode=manual"}
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
             >
               Change project

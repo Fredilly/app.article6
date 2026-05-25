@@ -27,10 +27,10 @@ export default function ProjectsList() {
           <p className="mt-1 text-sm text-slate-500">Long-lived project review workspace for methodology-linked and manual reviews</p>
         </div>
         <Link
-          href="/projects/new"
+          href="/start-review"
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          + New Project Review
+          Start Review
         </Link>
       </div>
 
