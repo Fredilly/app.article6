@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -108,10 +109,13 @@ export function groupMethodsByRegistry(
 export default function NewProjectForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const manualModeRequested = searchParams.get("mode") === "manual";
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
   const [methods, setMethods] = useState<MethodOption[]>([]);
   const [reviewMode, setReviewMode] =
-    useState<ProjectReviewMode>("methodology-linked");
+    useState<ProjectReviewMode>(
+      manualModeRequested ? "manual" : "methodology-linked",
+    );
   const [name, setName] = useState("");
   const [projectCode, setProjectCode] = useState("");
   const [countryLocation, setCountryLocation] = useState("");
@@ -206,7 +210,10 @@ export default function NewProjectForm() {
   }, [documentDraft]);
   const createModeActive = creationMode === "create";
   const searchKey = searchParams.toString();
-  const intakeActive = !documentDraft && !handoffDetected && !showManualSetup;
+  const manualOnlyView =
+    manualModeRequested && !documentDraft && !handoffDetected;
+  const intakeActive =
+    !documentDraft && !handoffDetected && !showManualSetup && !manualModeRequested;
 
   const hydrateDocumentDraft = useCallback(
     (stagedDraft: ProjectDocumentMetadataDraft) => {
@@ -262,7 +269,7 @@ export default function NewProjectForm() {
         contentSha256: attachmentResult.attachment.sha256,
       });
       hydrateDocumentDraft(stagedDraft);
-      router.replace("/projects/new?handoff=document-metadata");
+      router.replace("/start-review?handoff=document-metadata");
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
@@ -319,6 +326,11 @@ export default function NewProjectForm() {
     );
     if (maybeMethod) setSelectedMethod(maybeMethod);
   }, [documentDraft, methods, selectedMethod]);
+
+  useEffect(() => {
+    if (!manualOnlyView) return;
+    setReviewMode("manual");
+  }, [manualOnlyView]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -480,13 +492,31 @@ export default function NewProjectForm() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 md:px-8 md:py-14">
       {intakeActive ? (
         <div className="mx-auto w-full max-w-4xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
-            Start Review
-          </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-[15px]">
-            Upload a PDD, monitoring report, or evidence file. Article6 will
-            detect the project, method, and next review step.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-6 text-left">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
+                Start Review
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-[15px]">
+                Upload a PDD, monitoring report, or evidence file. Article6 will
+                detect project metadata, methodology, standard, and the next review step.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/start-review?mode=manual"
+                className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400"
+              >
+                Set up manually
+              </Link>
+              <Link
+                href="/projects"
+                className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400"
+              >
+                Existing projects
+              </Link>
+            </div>
+          </div>
           <div
             className={`mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)] md:p-8`}
           >
@@ -536,17 +566,12 @@ export default function NewProjectForm() {
                   : "Upload project document"}
               </button>
               <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowManualSetup(true);
-                    setReviewMode("manual");
-                    setError("");
-                  }}
+                <Link
+                  href="/start-review?mode=quick-check"
                   className="text-sm font-medium text-slate-600 underline-offset-4 transition hover:text-slate-900 hover:underline"
                 >
-                  Set up review manually
-                </button>
+                  Run a quick evidence check instead
+                </Link>
               </div>
             </div>
           </div>
@@ -587,10 +612,12 @@ export default function NewProjectForm() {
       ) : (
         <div className={`mx-auto w-full ${documentDraft ? "max-w-5xl text-center" : "max-w-3xl"}`}>
           <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-            Start Review
+            {manualOnlyView ? "Set up review manually" : "Start Review"}
           </h1>
           <p className="mt-3 text-sm leading-7 text-slate-600 md:text-[15px]">
-            {documentDraft
+            {manualOnlyView
+              ? "Create a project review without uploading a source document first. You can attach documents and evidence later."
+              : documentDraft
               ? "We reviewed your uploaded document and found the most relevant project details."
               : "Upload a project document, review the detected details, then continue into the project review workspace."}
           </p>
@@ -691,7 +718,7 @@ export default function NewProjectForm() {
 
       {!intakeActive ? (
         <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-5xl flex-col gap-4">
-          {!documentDraft || editingDetails ? (
+          {(!documentDraft || editingDetails) && !manualOnlyView ? (
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               {documentDraft ? "Review route" : "Review Type"}
@@ -1020,7 +1047,9 @@ export default function NewProjectForm() {
                 <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                   {documentDraft
                     ? "This route keeps the detected project details and document, but does not require you to confirm a method before continuing."
-                    : "Manual Review does not require a methodology selection. Use this mode for project-specific findings reconstruction, evidence gaps, reviewer notes, and export."}
+                    : manualOnlyView
+                      ? "This setup does not require a methodology selection before creating the project review. You can attach documents and evidence later."
+                      : "Manual Review does not require a methodology selection. Use this mode for project-specific findings reconstruction, evidence gaps, reviewer notes, and export."}
                 </div>
               )}
 

@@ -81,14 +81,14 @@ describe("NewProjectForm document handoff", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Start Review");
     expect(text).toContain(
-      "Upload a PDD, monitoring report, or evidence file. Article6 will detect the project, method, and next review step.",
+      "Upload a PDD, monitoring report, or evidence file. Article6 will detect project metadata, methodology, standard, and the next review step.",
     );
     expect(text).toContain("Drag and drop your project document");
     expect(text).toContain("Upload project document");
     expect(text).toContain("Detects project metadata");
     expect(text).toContain("Suggests methodology");
     expect(text).toContain("Preserves provenance & confidence");
-    expect(text).toContain("Set up review manually");
+    expect(text).toContain("Set up manually");
     expect(text).not.toContain("We found a project");
   });
 
