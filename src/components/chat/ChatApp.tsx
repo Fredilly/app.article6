@@ -11,8 +11,7 @@ export default function ChatApp() {
   const selectedVersion = deeplink.resolved.resolvedVersion;
 
   return (
-    <div className="min-h-screen bg-[#f9f9f9]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-10 md:px-8 md:py-16">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-10 md:px-8 md:py-16">
         {selectedMethod || deeplinkWarnings.length ? (
           <div className="mx-auto w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -43,7 +42,6 @@ export default function ChatApp() {
         ) : null}
 
         <QuickCheckPanel initialMethod={selectedMethod} initialVersion={selectedVersion} />
-      </div>
     </div>
   );
 }

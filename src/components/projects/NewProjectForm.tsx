@@ -2,10 +2,15 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createProject } from '@/lib/projects/storage';
+import { addProjectDocument, createProject } from '@/lib/projects/storage';
 import { projectRegistryFromMethodProgram } from '@/lib/projects/verificationReport';
 import type { ProjectRegistry, ProjectReviewMode } from '@/lib/projects/types';
 import { importMethodologyReviewIntoProject, readPendingProjectReviewHandoff } from '@/lib/projects/reviewHandoff';
+import {
+  clearPendingQuickCheckProjectHandoff,
+  readPendingQuickCheckProjectHandoff,
+  type PendingQuickCheckProjectHandoff,
+} from '@/lib/projects/quickCheckHandoff';
 
 export type MethodOption = {
   code: string;
@@ -33,8 +38,9 @@ export function groupMethodsByRegistry(methods: MethodOption[]): Array<{ registr
 export default function NewProjectForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const handoffMode = searchParams.get('handoff');
   const [methods, setMethods] = useState<MethodOption[]>([]);
-  const [reviewMode, setReviewMode] = useState<ProjectReviewMode>('methodology-linked');
+  const [reviewMode, setReviewMode] = useState<ProjectReviewMode>('manual');
   const [name, setName] = useState('');
   const [projectCode, setProjectCode] = useState('');
   const [countryLocation, setCountryLocation] = useState('');
@@ -47,6 +53,7 @@ export default function NewProjectForm() {
   const [error, setError] = useState('');
   const [handoffDetected, setHandoffDetected] = useState(false);
   const [handoffMethodLabel, setHandoffMethodLabel] = useState('');
+  const [quickCheckHandoff, setQuickCheckHandoff] = useState<PendingQuickCheckProjectHandoff | null>(null);
 
   const groupedMethods = useMemo(() => groupMethodsByRegistry(methods), [methods]);
 
@@ -58,14 +65,32 @@ export default function NewProjectForm() {
   }, []);
 
   useEffect(() => {
-    if (searchParams.get('handoff') !== 'active-review') return;
-    const handoff = readPendingProjectReviewHandoff();
+    if (handoffMode === 'active-review') {
+      const handoff = readPendingProjectReviewHandoff();
+      if (!handoff) return;
+      setHandoffDetected(true);
+      setReviewMode('methodology-linked');
+      setSelectedMethod(`${handoff.source.methodCode}@${handoff.source.methodVersion}`);
+      setHandoffMethodLabel(`${handoff.source.methodCode} ${handoff.source.methodVersion}`);
+      return;
+    }
+
+    if (handoffMode !== 'quick-check-document') return;
+    const handoff = readPendingQuickCheckProjectHandoff();
     if (!handoff) return;
-    setHandoffDetected(true);
-    setReviewMode('methodology-linked');
-    setSelectedMethod(`${handoff.source.methodCode}@${handoff.source.methodVersion}`);
-    setHandoffMethodLabel(`${handoff.source.methodCode} ${handoff.source.methodVersion}`);
-  }, [searchParams]);
+    setQuickCheckHandoff(handoff);
+    setName(handoff.projectName);
+    setReportingPeriod(handoff.reportingPeriod ?? '');
+    setAoiLabel(handoff.aoiLabel ?? '');
+    setDescription(handoff.description ?? '');
+    if (handoff.methodCode && handoff.methodVersion) {
+      setReviewMode('methodology-linked');
+      setSelectedMethod(`${handoff.methodCode}@${handoff.methodVersion}`);
+      setHandoffMethodLabel(`${handoff.methodCode} ${handoff.methodVersion}`);
+    } else {
+      setReviewMode('manual');
+    }
+  }, [handoffMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +112,18 @@ export default function NewProjectForm() {
           aoiLabel: aoiLabel || undefined,
           description: description || undefined,
         });
+        if (quickCheckHandoff) {
+          addProjectDocument(project.id, {
+            fileName: quickCheckHandoff.sourceDocument.fileName,
+            mimeType: quickCheckHandoff.sourceDocument.mimeType,
+            sizeBytes: quickCheckHandoff.sourceDocument.sizeBytes,
+            contentSha256: quickCheckHandoff.sourceDocument.contentSha256,
+            contentBase64: quickCheckHandoff.sourceDocument.contentBase64,
+            extractedText: quickCheckHandoff.sourceDocument.extractedText,
+            manualFindingExtractionStatus: 'not-run',
+          });
+          clearPendingQuickCheckProjectHandoff();
+        }
         router.push(`/projects/${project.id}`);
         return;
       }
@@ -122,6 +159,18 @@ export default function NewProjectForm() {
           },
           rules,
         });
+        if (quickCheckHandoff) {
+          addProjectDocument(result.project.id, {
+            fileName: quickCheckHandoff.sourceDocument.fileName,
+            mimeType: quickCheckHandoff.sourceDocument.mimeType,
+            sizeBytes: quickCheckHandoff.sourceDocument.sizeBytes,
+            contentSha256: quickCheckHandoff.sourceDocument.contentSha256,
+            contentBase64: quickCheckHandoff.sourceDocument.contentBase64,
+            extractedText: quickCheckHandoff.sourceDocument.extractedText,
+            manualFindingExtractionStatus: 'not-run',
+          });
+          clearPendingQuickCheckProjectHandoff();
+        }
         router.push(result.href);
         return;
       }
@@ -145,6 +194,18 @@ export default function NewProjectForm() {
           sectionId: r.sectionId || '',
         })),
       });
+      if (quickCheckHandoff) {
+        addProjectDocument(project.id, {
+          fileName: quickCheckHandoff.sourceDocument.fileName,
+          mimeType: quickCheckHandoff.sourceDocument.mimeType,
+          sizeBytes: quickCheckHandoff.sourceDocument.sizeBytes,
+          contentSha256: quickCheckHandoff.sourceDocument.contentSha256,
+          contentBase64: quickCheckHandoff.sourceDocument.contentBase64,
+          extractedText: quickCheckHandoff.sourceDocument.extractedText,
+          manualFindingExtractionStatus: 'not-run',
+        });
+        clearPendingQuickCheckProjectHandoff();
+      }
 
       router.push(`/projects/${project.id}`);
     } catch {
@@ -158,9 +219,13 @@ export default function NewProjectForm() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-12 md:px-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">New Project Review</h1>
+        <h1 className="text-2xl font-bold text-slate-900">
+          {quickCheckHandoff ? 'Create project draft from document' : 'New manual project'}
+        </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Create a long-lived project review workspace
+          {quickCheckHandoff
+            ? 'Confirm the project details extracted from Quick Check before opening the saved review workspace.'
+            : 'Create a review workspace without starting from a document upload.'}
         </p>
       </div>
 
@@ -171,41 +236,54 @@ export default function NewProjectForm() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">Review Type</label>
-          <div className="grid gap-3 md:grid-cols-2">
-            <button
-              type="button"
-              disabled={handoffDetected}
-              onClick={() => setReviewMode('methodology-linked')}
-              className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? 'cursor-not-allowed opacity-60' : ''} ${
-                reviewMode === 'methodology-linked'
-                  ? 'border-blue-500 bg-blue-50 text-blue-900'
-                  : 'border-slate-200 bg-white text-slate-700'
-              }`}
-            >
-              <div className="text-sm font-semibold">Methodology-linked review</div>
-              <div className="mt-1 text-xs text-slate-500">Use a selected methodology and its rule set.</div>
-            </button>
-            <button
-              type="button"
-              disabled={handoffDetected}
-              onClick={() => setReviewMode('manual')}
-              className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? 'cursor-not-allowed opacity-60' : ''} ${
-                reviewMode === 'manual'
-                  ? 'border-blue-500 bg-blue-50 text-blue-900'
-                  : 'border-slate-200 bg-white text-slate-700'
-              }`}
-            >
-              <div className="text-sm font-semibold">Manual Review</div>
-              <div className="mt-1 text-xs text-slate-500">Project-level manual review / VVB findings reconstruction.</div>
-            </button>
+        {handoffDetected || quickCheckHandoff ? (
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Review Type</label>
+            <div className="grid gap-3 md:grid-cols-2">
+              <button
+                type="button"
+                disabled={handoffDetected}
+                onClick={() => setReviewMode('methodology-linked')}
+                className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? 'cursor-not-allowed opacity-60' : ''} ${
+                  reviewMode === 'methodology-linked'
+                    ? 'border-blue-500 bg-blue-50 text-blue-900'
+                    : 'border-slate-200 bg-white text-slate-700'
+                }`}
+              >
+                <div className="text-sm font-semibold">Methodology-linked review</div>
+                <div className="mt-1 text-xs text-slate-500">Use a selected methodology and its rule set.</div>
+              </button>
+              <button
+                type="button"
+                disabled={handoffDetected}
+                onClick={() => setReviewMode('manual')}
+                className={`rounded-lg border px-4 py-3 text-left ${handoffDetected ? 'cursor-not-allowed opacity-60' : ''} ${
+                  reviewMode === 'manual'
+                    ? 'border-blue-500 bg-blue-50 text-blue-900'
+                    : 'border-slate-200 bg-white text-slate-700'
+                }`}
+              >
+                <div className="text-sm font-semibold">Manual Review</div>
+                <div className="mt-1 text-xs text-slate-500">Project-level manual review / VVB findings reconstruction.</div>
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            Manual project setup is the fallback path when you want to create a saved review without starting in Quick Check.
+          </div>
+        )}
 
         {handoffDetected ? (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
             Create a project and carry over the active review for {handoffMethodLabel}. Existing evidence links, rule reviews, reviewer notes, and draft finalization state will be imported.
+          </div>
+        ) : null}
+
+        {quickCheckHandoff ? (
+          <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+            {quickCheckHandoff.sourceDocument.fileName} will be attached to this project after creation.
+            {handoffMethodLabel ? ` Quick Check suggested ${handoffMethodLabel}.` : ''}
           </div>
         ) : null}
 

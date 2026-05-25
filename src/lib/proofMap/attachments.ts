@@ -11,10 +11,18 @@ export const ALLOWED_EVIDENCE_ATTACHMENT_MIME_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
   "image/png",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "application/vnd.ms-excel",
   "text/csv",
   "application/csv",
+  "application/geo+json",
+  "application/json",
+  "application/vnd.google-earth.kml+xml",
+  "application/xml",
+  "text/xml",
+  "application/zip",
+  "application/x-zip-compressed",
 ]);
 
 function openDb(): Promise<IDBDatabase> {
@@ -79,8 +87,12 @@ function normalizeMime(file: File): string {
   if (lower.endsWith(".pdf")) return "application/pdf";
   if (lower.endsWith(".png")) return "image/png";
   if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   if (lower.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   if (lower.endsWith(".csv")) return "text/csv";
+  if (lower.endsWith(".geojson")) return "application/geo+json";
+  if (lower.endsWith(".kml")) return "application/vnd.google-earth.kml+xml";
+  if (lower.endsWith(".zip")) return "application/zip";
   return "application/octet-stream";
 }
 
@@ -100,7 +112,7 @@ export async function createAndStoreEvidenceAttachment(input: {
 
   const mime = normalizeMime(file);
   if (!ALLOWED_EVIDENCE_ATTACHMENT_MIME_TYPES.has(mime) && !isSupportedWorkbookUpload({ filename: file.name, mime })) {
-    return { ok: false, message: "Unsupported file type (allowed: pdf, jpg, png, csv, xlsx)." };
+    return { ok: false, message: "Unsupported file type (allowed: pdf, docx, xlsx, geojson, kml, shp zip, jpg, png, csv)." };
   }
 
   const bytes =

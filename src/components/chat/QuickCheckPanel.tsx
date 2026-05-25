@@ -50,6 +50,7 @@ import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
+import { stagePendingQuickCheckProjectHandoff } from "@/lib/projects/quickCheckHandoff";
 
 type MethodInventoryRecord = {
   code: string;
@@ -138,8 +139,23 @@ const CLAIM_SUGGESTIONS = [
   "The baseline methodology is clearly justified by the evidence.",
 ];
 
+const SUPPORTED_FORMATS_LABEL = "PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP";
+
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function trimFileExtension(fileName: string): string {
+  return fileName.replace(/\.[^/.]+$/, "").trim();
+}
+
+function deriveProjectName(fileName: string): string {
+  const baseName = trimFileExtension(fileName);
+  if (!baseName) return "Project review draft";
+  return baseName
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function newPinId(): string {
@@ -540,6 +556,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showMethodology, setShowMethodology] = useState(false);
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [creatingProject, setCreatingProject] = useState(false);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
     analysis: null,
@@ -713,6 +731,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     (selectedUpload ? "uploaded_file" : selectedInventoryItem ? "saved_evidence" : null);
   const selectedEvidenceMeta = activeSourceMode ? sourceModeLabel(activeSourceMode) : "";
   const canRunQuickCheck = Boolean(draft.claimText.trim()) && selectedEvidenceCount === 1 && !submitting;
+  const canCreateProjectFromDocument = Boolean(selectedUpload) && !creatingProject;
   const activeResultKey =
     result && draft.methodologyId.trim() && draft.methodologyVersion.trim() && draft.matchedRequirementId?.trim()
       ? `${draft.methodologyId.trim()}@@${draft.methodologyVersion.trim()}@@${draft.matchedRequirementId.trim()}`
@@ -765,6 +784,28 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       selectedMethod: draft.methodologyId.trim(),
     };
   }, [draft.methodologyId, methodologyResolution]);
+  const projectDraftMethod = useMemo(() => {
+    if (workspaceMethodologyId && workspaceMethodologyVersion) {
+      return { code: workspaceMethodologyId, version: workspaceMethodologyVersion };
+    }
+    if (draft.methodologyId.trim() && draft.methodologyVersion.trim()) {
+      return { code: draft.methodologyId.trim(), version: draft.methodologyVersion.trim() };
+    }
+    if (methodologyResolution.status === "single") {
+      const matched = methodologyResolution.matchedMethods[0];
+      if (matched?.methodologyId && matched?.methodologyVersion) {
+        return { code: matched.methodologyId, version: matched.methodologyVersion };
+      }
+    }
+    return null;
+  }, [
+    draft.methodologyId,
+    draft.methodologyVersion,
+    methodologyResolution.matchedMethods,
+    methodologyResolution.status,
+    workspaceMethodologyId,
+    workspaceMethodologyVersion,
+  ]);
   const extractionDiagnostic = useMemo<ExtractionDiagnostic>(() => {
     if (methodologyMismatch) {
       return {
@@ -1224,6 +1265,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (!file) return;
 
     setSubmitting(true);
+    setIsDragActive(false);
     resetQuickCheckUi();
     setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
     setRecoveryState(null);
@@ -1264,6 +1306,49 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     } finally {
       setSubmitting(false);
       if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  function handleDragOver(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    if (!submitting) setIsDragActive(true);
+  }
+
+  function handleDragLeave(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragActive(false);
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragActive(false);
+    if (submitting) return;
+    void handleUpload(event.dataTransfer.files?.[0] ?? null);
+  }
+
+  async function handleCreateProjectFromDocument() {
+    if (!selectedUpload) return;
+    setCreatingProject(true);
+    setFieldErrors((current) => ({ ...current, general: undefined }));
+    try {
+      await stagePendingQuickCheckProjectHandoff({
+        projectName: deriveProjectName(selectedUpload.filename),
+        methodCode: projectDraftMethod?.code,
+        methodVersion: projectDraftMethod?.version,
+        description: extractionPreview
+          ? `${extractionPreview.documentType} uploaded through Quick Check.`
+          : "Document uploaded through Quick Check.",
+        attachment: selectedUpload.attachment,
+      });
+      if (typeof window !== "undefined") {
+        window.location.assign("/projects/new?handoff=quick-check-document");
+      }
+    } catch (error) {
+      setFieldErrors({
+        general: error instanceof Error ? error.message : "Failed to stage the project draft from this document.",
+      });
+    } finally {
+      setCreatingProject(false);
     }
   }
 
@@ -1654,11 +1739,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         <div className="flex flex-col items-center text-center">
           <div className="flex w-full items-start justify-center">
             <div className="w-full">
-              <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-                Quick Check
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Quick Check</div>
+              <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-950">
+                Check a carbon project document in minutes.
               </h1>
               <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-                Upload evidence. Get a preliminary match in seconds.
+                Upload a PDD, monitoring report, or evidence file. Article6 extracts text,
+                detects project metadata, and checks whether the document can support a methodology review.
               </p>
             </div>
             {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
@@ -1666,97 +1753,68 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         </div>
 
         <div className="mt-8 grid gap-8">
-          <div>
-            <label className="grid gap-2 text-sm text-slate-700">
-              <span className="font-medium text-slate-900">Claim</span>
-              <textarea
-                value={draft.claimText}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  updateDraft(
-                    (current) => {
-                      const nextMethodology = resetMethodologyForUserInput(current);
-                      return {
-                        ...current,
-                        ...nextMethodology,
-                        claimText: value,
-                        matchedRequirementId: undefined,
-                        matchedRequirementLabel: undefined,
-                        status: "draft",
-                        resultId: undefined,
-                      };
-                    },
-                    null,
-                );
-                clearDecisionState();
-              }}
-              rows={3}
-              placeholder="Example: The monitoring report covers the full reporting period."
-                className="w-full rounded-[1.25rem] border border-slate-200 bg-white p-5 text-lg leading-8 text-slate-950 outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:bg-white"
-                ref={claimRef}
-              />
-              {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
-            </label>
-            <div className="mt-4">
-              <div className="text-xs text-slate-400">Try an example</div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    onClick={() => {
-                      updateDraft(
-                        (current) => {
-                          const nextMethodology = resetMethodologyForUserInput(current);
-                          return {
-                            ...current,
-                            ...nextMethodology,
-                            claimText: suggestion,
-                            matchedRequirementId: undefined,
-                            matchedRequirementLabel: undefined,
-                            status: "draft",
-                            resultId: undefined,
-                          };
-                        },
-                        null,
-                      );
-                      clearDecisionState();
-                    }}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div>
+          <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-sm font-medium text-slate-900">Evidence</div>
-                <div className="mt-1 text-sm text-slate-600">Upload one file.</div>
+                <div className="text-lg font-semibold text-slate-900">Drag and drop your project document</div>
+                <div className="mt-1 text-sm text-slate-600">{SUPPORTED_FORMATS_LABEL}</div>
               </div>
-              <input
-                ref={fileRef}
-                type="file"
-                className="hidden"
-                accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
-                onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
-              />
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-slate-50"
-              >
-                <Upload className="h-4 w-4" />
-                Upload evidence
-              </button>
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                <a
+                  href="/methods"
+                  className="font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-700"
+                >
+                  Browse methods
+                </a>
+                <a
+                  href="/projects"
+                  className="font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-700"
+                >
+                  Open Projects
+                </a>
+              </div>
             </div>
 
+            <input
+              ref={fileRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.docx,.xlsx,.csv,.geojson,.kml,.zip,.png,.jpg,.jpeg"
+              onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
+            />
+
+            <label
+              className={`mt-5 flex cursor-pointer flex-col items-center justify-center rounded-[1.5rem] border border-dashed px-6 py-10 text-center transition ${
+                isDragActive
+                  ? "border-slate-900 bg-slate-100"
+                  : "border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-white"
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-900 shadow-sm">
+                <Upload className="h-5 w-5" />
+              </div>
+              <div className="mt-4 text-lg font-semibold text-slate-900">Upload document</div>
+              <div className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
+                You can run a quick check first or create a project draft after upload.
+              </div>
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-black px-5 py-3 text-sm font-semibold text-white">
+                <Upload className="h-4 w-4" />
+                Upload document
+              </div>
+            </label>
+
             {!selectedEvidenceLabel ? (
-              <div className="mt-4 rounded-[1.25rem] border border-slate-200 bg-slate-50/50 px-4 py-5 text-sm text-slate-600">
-                Drop in one file or use the upload button.
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+                <span>Drop in one file to extract metadata and start a review path.</span>
+                <a
+                  href="/methods"
+                  className="font-medium text-slate-700 underline underline-offset-4 transition hover:text-slate-900"
+                >
+                  Run against another method
+                </a>
               </div>
             ) : (
               <>
@@ -1912,6 +1970,71 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
 
+          <div>
+            <label className="grid gap-2 text-sm text-slate-700">
+              <span className="font-medium text-slate-900">Claim</span>
+              <textarea
+                value={draft.claimText}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  updateDraft(
+                    (current) => {
+                      const nextMethodology = resetMethodologyForUserInput(current);
+                      return {
+                        ...current,
+                        ...nextMethodology,
+                        claimText: value,
+                        matchedRequirementId: undefined,
+                        matchedRequirementLabel: undefined,
+                        status: "draft",
+                        resultId: undefined,
+                      };
+                    },
+                    null,
+                  );
+                  clearDecisionState();
+                }}
+                rows={3}
+                placeholder="Example: The monitoring report covers the full reporting period."
+                className="w-full rounded-[1.25rem] border border-slate-200 bg-white p-5 text-lg leading-8 text-slate-950 outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:bg-white"
+                ref={claimRef}
+              />
+              {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
+            </label>
+            <div className="mt-4">
+              <div className="text-xs text-slate-400">Try an example</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => {
+                      updateDraft(
+                        (current) => {
+                          const nextMethodology = resetMethodologyForUserInput(current);
+                          return {
+                            ...current,
+                            ...nextMethodology,
+                            claimText: suggestion,
+                            matchedRequirementId: undefined,
+                            matchedRequirementLabel: undefined,
+                            status: "draft",
+                            resultId: undefined,
+                          };
+                        },
+                        null,
+                      );
+                      clearDecisionState();
+                    }}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-3">
             <button
               type="button"
@@ -1949,6 +2072,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 </button>
               </div>
             ) : null}
+            <div className="text-center">
+              <a
+                href="/methods"
+                className="text-xs text-slate-500 underline underline-offset-4 transition hover:text-slate-700"
+              >
+                Run against another method
+              </a>
+            </div>
           </div>
 
           {showAdvancedOptions ? (
@@ -2082,6 +2213,47 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
+          {selectedUpload ? (
+            <div className="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Next actions</div>
+              <div className="mt-2 text-sm text-slate-600">
+                Don&apos;t stop at the upload. Use the document to start a project draft, continue in a full review workspace, or compare against another method.
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleCreateProjectFromDocument()}
+                  disabled={!canCreateProjectFromDocument}
+                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                >
+                  {creatingProject ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  Create project from document
+                </button>
+                <button
+                  type="button"
+                  onClick={handleContinueToWorkspace}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                >
+                  <FolderOpen className="h-4 w-4" />
+                  Open full review
+                </button>
+                <button
+                  type="button"
+                  onClick={handleTryAnotherMethodology}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                >
+                  Run against another method
+                </button>
+                <a
+                  href="/methods"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                >
+                  Browse methods
+                </a>
+              </div>
+            </div>
+          ) : null}
+
           {matchCandidates.length ? (
             <div className="rounded-2xl border border-sky-200 bg-sky-50/80 p-4">
               <div className="flex items-start gap-3">
@@ -2143,15 +2315,37 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   {normalizedResult.extractionState.label} evidence signal
                 </span>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleCreateProjectFromDocument()}
+                  disabled={!canCreateProjectFromDocument}
+                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                >
+                  {creatingProject ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  Create project from document
+                </button>
                 <button
                   type="button"
                   onClick={handleContinueToWorkspace}
-                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
                 >
                   <FolderOpen className="h-4 w-4" />
                   Open full review
                 </button>
+                <button
+                  type="button"
+                  onClick={handleTryAnotherMethodology}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                >
+                  Run against another method
+                </button>
+                <a
+                  href="/methods"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                >
+                  Browse methods
+                </a>
               </div>
             </div>
           ) : null}

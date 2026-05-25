@@ -97,9 +97,9 @@ export default async function MethodsFinder({
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 md:px-8">
         <header className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Method Library</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Methods</h1>
           <p className="text-sm text-slate-600">
-            Select a methodology to begin review.
+            Browse methodology packs, inspect versions, and jump back into Quick Check with the method you want to test.
           </p>
         </header>
 

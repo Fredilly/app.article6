@@ -7,12 +7,12 @@ import { createRoot } from "react-dom/client";
 jest.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
-  usePathname: () => "/",
+  usePathname: () => "/quick-check",
 }));
 
 import ChatApp from "@/components/chat/ChatApp";
 
-describe("ChatApp claim-first landing", () => {
+describe("ChatApp quick-check workspace", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
 
@@ -43,17 +43,19 @@ describe("ChatApp claim-first landing", () => {
     jest.clearAllMocks();
   });
 
-  it("renders the claim-first command card and removes chat from the landing page", async () => {
+  it("renders the document-first quick-check surface and keeps the evidence workflow controls", async () => {
     await act(async () => {
       root.render(<ChatApp />);
     });
 
     expect(container.textContent).toContain("Quick Check");
-    expect(container.textContent).toContain("Upload evidence. Get a preliminary match in seconds.");
-    expect(container.textContent).toContain("Evidence");
+    expect(container.textContent).toContain("Check a carbon project document in minutes.");
+    expect(container.textContent).toContain("Drag and drop your project document");
+    expect(container.textContent).toContain("Upload document");
+    expect(container.textContent).toContain("PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP");
     expect(container.textContent).toContain("Try demo check");
     expect(container.textContent).toContain("Run quick check");
-    expect(container.textContent).toContain("Upload evidence");
+    expect(container.textContent).toContain("Run against another method");
     expect(container.querySelectorAll("textarea").length).toBe(1);
     expect(container.textContent).toContain("Options");
     expect(container.textContent).not.toContain("Select saved evidence");
@@ -61,6 +63,5 @@ describe("ChatApp claim-first landing", () => {
     expect(container.textContent).not.toContain("Ask in chat instead");
     expect(container.textContent).not.toContain("Send");
     expect(container.textContent).not.toContain("Welcome to Article6");
-    expect(container.textContent).not.toContain("One claim. One file.");
   });
 });

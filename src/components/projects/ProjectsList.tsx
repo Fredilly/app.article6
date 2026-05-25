@@ -30,13 +30,13 @@ export default function ProjectsList() {
           href="/projects/new"
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          + New Project Review
+          New manual project
         </Link>
       </div>
 
       {projects.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
-          <p className="text-slate-500">No project reviews yet. Create one to start a durable review workspace.</p>
+          <p className="text-slate-500">No saved reviews yet. Start in Quick Check or create a manual project when you need a fallback.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">

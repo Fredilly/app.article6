@@ -2,27 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-type DemoRoute = {
-  href: string;
-  title: string;
-};
-
-const demoRoutes: DemoRoute[] = [
-  { href: "/", title: "Quick Check" },
-  { href: "/m", title: "Methods" },
-  { href: "/projects", title: "Projects" },
-];
+import { isPrimaryNavActive, PRIMARY_NAV_ITEMS } from "@/lib/nav/primaryNav";
 
 export default function DemoNav() {
   const pathname = usePathname() ?? "/";
 
   return (
     <nav className="flex flex-wrap items-center gap-2 text-xs text-slate-600" aria-label="Primary">
-      {demoRoutes.map(route => {
-        const isActive =
-          pathname === route.href ||
-          (route.href !== "/" && pathname.startsWith(`${route.href}/`));
+      {PRIMARY_NAV_ITEMS.map((route) => {
+        const isActive = isPrimaryNavActive(pathname, route.key);
         const base = "inline-flex items-center rounded-full border px-3 py-1.5 font-medium transition";
         const appearance = isActive
           ? "border-black bg-black text-white hover:bg-neutral-900"

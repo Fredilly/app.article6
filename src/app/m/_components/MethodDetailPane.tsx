@@ -1515,7 +1515,7 @@ export default function MethodDetailPane({
               Change project
             </Link>
             <Link
-              href={linkedProjectId ? `/m?projectId=${encodeURIComponent(linkedProjectId)}` : "/m"}
+              href={linkedProjectId ? `/methods?projectId=${encodeURIComponent(linkedProjectId)}` : "/methods"}
               className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
             >
               Change methodology/version
@@ -1625,6 +1625,14 @@ export default function MethodDetailPane({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+        {activeVersion ? (
+          <Link
+            href={`/quick-check?method=${encodeURIComponent(method.code)}&version=${encodeURIComponent(activeVersion)}`}
+            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+          >
+            Quick check with this method
+          </Link>
+        ) : null}
         {isEvidenceMode ? (
           <Link
             href={buildVerifyHref()}

@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import MethodsFinder from "@/app/m/_components/MethodsFinder";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Methods | app.article6",
-  description: "Methods-first inventory finder.",
-};
-
-export default function MethodsInventoryPage() {
-  return <MethodsFinder />;
+export default function LegacyMethodsPage() {
+  redirect("/methods");
 }

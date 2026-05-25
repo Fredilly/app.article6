@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import NewProjectForm from '@/components/projects/NewProjectForm';
 
 export const metadata: Metadata = {
-  title: 'New Project Review | app.article6',
+  title: 'New Manual Project | app.article6',
 };
 
 export default function NewProjectPage() {
