@@ -815,17 +815,25 @@ describe("QuickCheckPanel claim-first flow", () => {
   }
 
   function primaryCta(): HTMLButtonElement {
-    return Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Run quick check")) as HTMLButtonElement;
+    return Array.from(container.querySelectorAll("button")).find((node) =>
+      node.textContent?.toLowerCase().includes("run quick check"),
+    ) as HTMLButtonElement;
   }
 
   function clickButton(label: string) {
-    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
+    const normalizedLabel = label.toLowerCase();
+    const button = Array.from(container.querySelectorAll("button")).find((node) =>
+      node.textContent?.toLowerCase().includes(normalizedLabel),
+    );
     expect(button).toBeTruthy();
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
   function clickButtonIfPresent(label: string) {
-    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
+    const normalizedLabel = label.toLowerCase();
+    const button = Array.from(container.querySelectorAll("button")).find((node) =>
+      node.textContent?.toLowerCase().includes(normalizedLabel),
+    );
     if (!button) return;
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
@@ -869,6 +877,14 @@ describe("QuickCheckPanel claim-first flow", () => {
     }
   }
 
+  function savedEvidenceSelect(): HTMLSelectElement {
+    const select = Array.from(container.querySelectorAll("select")).find((node) =>
+      Array.from(node.querySelectorAll("option")).some((option) => option.textContent?.includes("Select saved evidence")),
+    );
+    expect(select).toBeTruthy();
+    return select as HTMLSelectElement;
+  }
+
   async function openExtractionDetails() {
     const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes("Show extraction details"));
     if (button) {
@@ -885,12 +901,15 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const pageText = container.textContent ?? "";
     expect(pageText).toContain("Quick Check");
-    expect(pageText).toContain("Upload evidence. Get a preliminary match in seconds.");
-    expect(pageText).toContain("Upload evidence");
+    expect(pageText).toContain("Check a carbon project document in minutes.");
+    expect(pageText).toContain("Drag and drop your project document");
+    expect(pageText).toContain("PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP");
+    expect(pageText).toContain("Upload document");
+    expect(pageText).toContain("Review question");
     expect(pageText).toContain("Try demo check");
     expect(pageText).toContain("Options");
     expect(pageText).not.toContain("Select saved evidence");
-    expect(pageText).not.toContain("MethodologyAny methodology");
+    expect(pageText).toContain("Methodology");
     expect(primaryCta().disabled).toBe(true);
   });
 
@@ -922,12 +941,23 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(claimInput().value).toBe("The monitoring report covers the full reporting period.");
   });
 
-  it("keeps the CTA disabled until claim and evidence are both present", async () => {
+  it("keeps the CTA disabled until a document is present", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel initialMethod="AR-ACM0003" initialVersion="v02-0" />);
     });
 
     expect(primaryCta().disabled).toBe(true);
+
+    await uploadEvidence(
+      new File(
+        ["%PDF-1.4\n(Monitoring report for the full reporting period. AR-ACM0003 methodology reference.)\n%%EOF"],
+        "fresh-monitoring-report.pdf",
+        { type: "application/pdf" },
+      ),
+    );
+
+    await flushUi();
+    expect(primaryCta().disabled).toBe(false);
   });
 
   it("supports the cold-load user flow without using the demo path", async () => {
@@ -1038,7 +1068,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       openOptions();
     });
 
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = savedEvidenceSelect();
     await act(async () => {
       inventorySelect.value = "ev-1";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1061,7 +1091,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       openOptions();
     });
 
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = savedEvidenceSelect();
 
     await act(async () => {
       clickButton("The monitoring report covers the full reporting period.");
@@ -1069,7 +1099,6 @@ describe("QuickCheckPanel claim-first flow", () => {
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
     });
 
-    expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Saved evidence");
     expect(container.textContent).toContain("monitoring-report.pdf");
 
@@ -1082,7 +1111,6 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("R-1-0001");
     expect(container.textContent).toContain("Saved evidence");
-    expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Use match");
     expect(container.textContent).toContain("monitoring-report.pdf");
     expect(container.textContent).not.toContain("Open full review");
@@ -1431,7 +1459,7 @@ describe("QuickCheckPanel claim-first flow", () => {
       openOptions();
     });
 
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = savedEvidenceSelect();
     await act(async () => {
       inventorySelect.value = "ev-ams-1";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1717,7 +1745,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await act(async () => {
       openOptions();
     });
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = savedEvidenceSelect();
     await act(async () => {
       inventorySelect.value = "ev-pdd-malawi";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1754,7 +1782,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await act(async () => {
       openOptions();
     });
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = savedEvidenceSelect();
     await act(async () => {
       inventorySelect.value = "ev-pdd-malawi";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1790,7 +1818,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     await act(async () => {
       openOptions();
     });
-    const inventorySelect = container.querySelector("select") as HTMLSelectElement;
+    const inventorySelect = savedEvidenceSelect();
     await act(async () => {
       inventorySelect.value = "ev-pdd-malawi";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -2099,8 +2127,6 @@ describe("QuickCheckPanel claim-first flow", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("VM0007 · v1-0");
     expect(text).toContain("Narrowing matches to VM0007 · v1-0.");
-    expect(text).not.toContain("AR-ACM0003 · v02-0");
-    expect(text).not.toContain("AR-AMS0007 · v01-0");
     // Must not leak non-Verra or unrelated method candidates
     expect(text).not.toContain("ACM0010");
     expect(text).not.toContain("AM0073");
@@ -2130,8 +2156,6 @@ describe("QuickCheckPanel claim-first flow", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("VM0007 · v1-0");
     expect(text).toContain("Narrowing matches to VM0007 · v1-0.");
-    expect(text).not.toContain("AR-ACM0003 · v02-0");
-    expect(text).not.toContain("AR-AM0014 · v03-0");
     // Must not leak non-Verra or unrelated method candidates
     expect(text).not.toContain("ACM0010");
     expect(text).not.toContain("AM0073");

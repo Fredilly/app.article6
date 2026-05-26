@@ -43,21 +43,21 @@ describe("ChatApp claim-first landing", () => {
     jest.clearAllMocks();
   });
 
-  it("renders the claim-first command card and removes chat from the landing page", async () => {
+  it("renders the quick check intake card and removes chat from the landing page", async () => {
     await act(async () => {
       root.render(<ChatApp />);
     });
 
     expect(container.textContent).toContain("Quick Check");
-    expect(container.textContent).toContain("Upload evidence. Get a preliminary match in seconds.");
-    expect(container.textContent).toContain("Evidence");
+    expect(container.textContent).toContain("Check a carbon project document in minutes.");
+    expect(container.textContent).toContain("Drag and drop your project document");
+    expect(container.textContent).toContain("Upload document");
     expect(container.textContent).toContain("Try demo check");
-    expect(container.textContent).toContain("Run quick check");
-    expect(container.textContent).toContain("Upload evidence");
+    expect(container.textContent).toContain("Run Quick Check");
+    expect(container.textContent).toContain("Review question");
     expect(container.querySelectorAll("textarea").length).toBe(1);
     expect(container.textContent).toContain("Options");
     expect(container.textContent).not.toContain("Select saved evidence");
-    expect(container.textContent).not.toContain("MethodologyAny methodology");
     expect(container.textContent).not.toContain("Ask in chat instead");
     expect(container.textContent).not.toContain("Send");
     expect(container.textContent).not.toContain("Welcome to Article6");
