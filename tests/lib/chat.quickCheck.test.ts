@@ -47,7 +47,7 @@ describe("chat quick check helpers", () => {
       { stagedEvidenceCount: 0 },
     );
 
-    expect(errors).toEqual(["Enter a claim to check.", "Upload or select one evidence item."]);
+    expect(errors).toEqual(["Upload or select one evidence item."]);
   });
 
   it("reuses the linked run id on repeated workspace handoff", () => {

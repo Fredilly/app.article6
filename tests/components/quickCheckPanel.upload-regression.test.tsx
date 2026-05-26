@@ -51,7 +51,10 @@ describe("QuickCheckPanel upload regression", () => {
   }
 
   function clickButton(label: string) {
-    const button = Array.from(container.querySelectorAll("button")).find((node) => node.textContent?.includes(label));
+    const normalizedLabel = label.toLowerCase();
+    const button = Array.from(container.querySelectorAll("button")).find((node) =>
+      node.textContent?.toLowerCase().includes(normalizedLabel),
+    );
     expect(button).toBeTruthy();
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }

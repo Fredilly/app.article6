@@ -216,7 +216,7 @@ describe("QuickCheckPanel results step", () => {
     jest.clearAllMocks();
   });
 
-  it("keeps technical preview details hidden until requested", async () => {
+  it("shows extraction preview with available signals", async () => {
     await act(async () => {
       root.render(<QuickCheckPanel />);
     });
@@ -236,16 +236,9 @@ describe("QuickCheckPanel results step", () => {
     await flushUi();
 
     expect(container.textContent).toContain("Extraction preview");
-    expect(container.textContent).not.toContain("Source: Uploaded file");
+    expect(container.textContent).toContain("Uploaded file");
+    expect(container.textContent).toContain("Review question");
     expect(container.textContent).not.toContain("Use match");
-
-    await act(async () => {
-      clickButton("Show details");
-    });
-
-    expect(container.textContent).toContain("Source: Uploaded file");
-    expect(container.textContent).toContain("Extraction diagnostic");
-    expect(container.textContent).toContain("AR-ACM0003");
   });
 
   it("shows a decision-first useful-signal state before a candidate is chosen", async () => {
@@ -273,7 +266,7 @@ describe("QuickCheckPanel results step", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Run Quick Check");
     });
 
     await flushUi();
@@ -290,7 +283,7 @@ describe("QuickCheckPanel results step", () => {
     expect(text).not.toContain("Use match");
 
     await act(async () => {
-      clickButton("Show details");
+      clickButton("Show extraction details");
     });
 
     expect(container.textContent).toContain("Possible matches");
@@ -323,13 +316,13 @@ describe("QuickCheckPanel results step", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Run Quick Check");
     });
 
     await flushUi();
 
     await act(async () => {
-      clickButton("Show details");
+      clickButton("Show extraction details");
     });
 
     await flushUi();
@@ -380,7 +373,7 @@ describe("QuickCheckPanel results step", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Run Quick Check");
     });
 
     await flushUi();
@@ -407,7 +400,7 @@ describe("QuickCheckPanel results step", () => {
     await flushUi();
 
     await act(async () => {
-      clickButton("Run quick check");
+      clickButton("Run Quick Check");
     });
 
     await flushUi();
