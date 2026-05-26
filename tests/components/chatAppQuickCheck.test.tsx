@@ -49,8 +49,8 @@ describe("ChatApp claim-first landing", () => {
     });
 
     expect(container.textContent).toContain("Quick Check");
-    expect(container.textContent).toContain("Check a carbon project document in minutes.");
-    expect(container.textContent).toContain("Drag and drop your project document");
+    expect(container.textContent).toContain("Assess a carbon project document fast.");
+    expect(container.textContent).toContain("Drop your document");
     expect(container.textContent).toContain("Upload document");
     expect(container.textContent).toContain("Try demo check");
     expect(container.textContent).toContain("Run Quick Check");

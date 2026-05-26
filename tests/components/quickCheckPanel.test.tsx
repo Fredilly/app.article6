@@ -901,8 +901,8 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const pageText = container.textContent ?? "";
     expect(pageText).toContain("Quick Check");
-    expect(pageText).toContain("Check a carbon project document in minutes.");
-    expect(pageText).toContain("Drag and drop your project document");
+    expect(pageText).toContain("Assess a carbon project document fast.");
+    expect(pageText).toContain("Drop your document");
     expect(pageText).toContain("PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP");
     expect(pageText).toContain("Upload document");
     expect(pageText).toContain("Review question");
@@ -1024,7 +1024,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(container.textContent).toContain("Weak");
     await openExtractionDetails();
     expect(container.textContent).toContain("Extraction signal");
-    expect(container.textContent).toContain("We couldn't extract enough usable data from this file for a reliable preliminary match yet.");
+    expect(container.textContent).toContain("Not enough usable signal yet.");
     expect(container.textContent).toContain("We couldn't extract usable text from this file yet.");
   });
 

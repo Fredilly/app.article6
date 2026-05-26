@@ -1696,10 +1696,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 Quick Check
               </h1>
               <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-                Check a carbon project document in minutes.
+                Assess a carbon project document fast.
               </p>
               <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500 md:text-[15px]">
-                Upload a PDD, monitoring report, or evidence file. Article6 extracts text, detects useful metadata, and checks whether the document can support a methodology review.
+                Upload one file. We extract the signal, detect the method, and tell you if it can support review.
               </p>
             </div>
             {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
@@ -1709,7 +1709,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         <div className="mt-8 grid gap-8">
           <div>
             <div
-              className={`rounded-[2rem] border bg-white p-5 shadow-sm transition md:p-7 ${isDragActive ? "border-slate-900 ring-2 ring-slate-200" : "border-slate-200"}`}
+              className={`rounded-[2rem] border bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,0.06)] transition md:p-7 ${isDragActive ? "border-slate-950 ring-2 ring-slate-200" : "border-slate-200"}`}
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
@@ -1725,7 +1725,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="max-w-xl">
                   <div className="text-xl font-semibold text-slate-950 md:text-2xl">
-                    Drag and drop your project document
+                    Drop your document
                   </div>
                   <div className="mt-2 text-sm text-slate-600">
                     PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP
@@ -1747,10 +1747,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <Upload className="h-6 w-6" />
                   </div>
                   <div className="mt-4 text-base font-medium text-slate-900">
-                    Drop your document here
+                    Start with the file
                   </div>
                   <div className="mt-2 text-sm text-slate-600">
-                    Start with the file. You can confirm methodology and add a review question after upload.
+                    Upload first. Then confirm method and question.
                   </div>
                 </div>
               ) : (
@@ -1773,7 +1773,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="text-sm font-medium text-slate-900">Extraction preview</div>
-                        <div className="mt-1 text-sm text-slate-600">Review the evidence signal.</div>
+                        <div className="mt-1 text-sm text-slate-600">Signal from this file.</div>
                       </div>
                       <div className="flex items-center gap-2">
                         {extractionPreviewState ? (
@@ -1813,7 +1813,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         ) : null}
                         <div className="mt-4 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
                           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">What we found first</div>
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">First signals</div>
                             {extractionHighlights.length ? (
                               <div className="mt-2 flex flex-wrap gap-2">
                                 {extractionHighlights.map((fact) => (
@@ -1824,7 +1824,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               </div>
                             ) : (
                               <div className="mt-2 text-sm text-amber-900">
-                                We couldn&apos;t extract enough usable data from this file for a reliable preliminary match yet.
+                                Not enough usable signal yet.
                               </div>
                             )}
                           </div>
@@ -1950,7 +1950,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 ))}
               </select>
               <span className="text-xs text-slate-500">
-                Confirm the detected method or narrow the review before you run Quick Check.
+                Confirm or narrow the method.
               </span>
             </label>
           </div>
@@ -1959,7 +1959,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             <label className="grid gap-2 text-sm text-slate-700">
               <span className="font-medium text-slate-900">Review question</span>
               <span className="text-xs text-slate-500">
-                Optional. Leave blank to run a general evidence check against the selected methodology.
+                Optional. Leave blank for a general check.
               </span>
               <textarea
                 value={draft.claimText}
@@ -1983,7 +1983,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   clearDecisionState();
                 }}
                 rows={4}
-                placeholder="Check whether this document contains enough evidence to support the selected methodology requirements."
+                placeholder="Does this file support the selected methodology?"
                 className="w-full rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
                 ref={claimRef}
               />
