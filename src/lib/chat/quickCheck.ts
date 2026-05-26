@@ -182,9 +182,6 @@ export function validateQuickCheckDraft(
   options?: { stagedEvidenceCount?: number },
 ): string[] {
   const errors: string[] = [];
-  if (!draft.claimText.trim()) {
-    errors.push("Enter a claim to check.");
-  }
   const evidenceCount = draft.evidenceIds.length + (options?.stagedEvidenceCount ?? 0);
   if (!evidenceCount) {
     errors.push("Upload or select one evidence item.");
