@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, developer-readiness-gap-mvp, project-verification, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -119,6 +119,28 @@ Not active now:
 
 1) PR542: Done (PR #542)
 2) PR555: Done (PR #555)
+
+## developer-readiness-gap-mvp
+
+Status SSOT: `docs/roadmaps/developer-readiness-gap-mvp/phase-status.json`
+Details: `docs/roadmaps/developer-readiness-gap-mvp/PLAN.md`
+
+Lane status: Active
+Developer-first readiness lane for pre-verification evidence mapping, gap visibility, and readiness-safe exports.
+
+Current focus:
+- Reframe Quick Check, Projects, Methods, and Exports around developer readiness
+- Surface missing evidence, weak support, follow-up needs, and recommended fixes
+- Keep the data model compatible with a later VVB workflow without exposing VVB-first UI
+
+Not active now:
+- Formal verification workflow
+- verify.article6.org
+- Final assurance or approval claims
+
+1) RC1 — Developer Surface Reframe: Active — Shift developer-facing surfaces toward pre-verification readiness language and summarize the top missing or weak evidence items per project.
+2) RC2 — Readiness Gap Export: Planned — Turn project readiness summaries into a repeatable export path for developer follow-up.
+3) RC3 — Future VVB Lane: Planned — Preserve compatibility for a later VVB workflow without exposing VVB-specific UI in this MVP.
 
 ## project-verification
 
