@@ -50,6 +50,7 @@ import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
+import { stageProjectDocumentDraftFromAttachment } from "@/lib/projects/documentMetadata";
 
 type MethodInventoryRecord = {
   code: string;
@@ -58,6 +59,7 @@ type MethodInventoryRecord = {
 };
 
 type QuickCheckPanelProps = {
+  surface?: "quick-check" | "start-review";
   initialMethod?: string | null;
   initialVersion?: string | null;
   onContinueToWorkspace?: (url: string) => void;
@@ -530,7 +532,12 @@ function joinMethodologyLabels(values: string[]): string {
   return values.join(", ");
 }
 
-export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
+export default function QuickCheckPanel({
+  surface = "quick-check",
+  initialMethod,
+  initialVersion,
+  onContinueToWorkspace,
+}: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -1659,6 +1666,35 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   function handleContinueToWorkspace() {
+    if (surface === "start-review") {
+      const upload = selectedUploadEvidence[0] ?? null;
+      if (!upload) {
+        setFieldErrors({ general: "Upload a project document to continue into readiness setup." });
+        return;
+      }
+      setSubmitting(true);
+      void stageProjectDocumentDraftFromAttachment({
+        origin: "quick-check",
+        evidenceId: upload.evidenceId,
+        attachmentId: upload.attachment.id,
+        fileName: upload.filename,
+        mimeType: upload.mime,
+        contentSha256: upload.attachment.sha256,
+      })
+        .then(() => {
+          if (typeof window !== "undefined") {
+            window.location.assign("/start-review?handoff=document-metadata");
+          }
+        })
+        .catch((error) => {
+          setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+        })
+        .finally(() => {
+          setSubmitting(false);
+        });
+      return;
+    }
+
     const handoff = ensureQuickCheckWorkspaceHandoff({
       ...draft,
       methodologyId: workspaceMethodologyId,
@@ -1696,10 +1732,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 Quick Check
               </h1>
               <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-                Assess a carbon project document fast.
+                {surface === "start-review"
+                  ? "Start with the project document."
+                  : "Assess a carbon project document fast."}
               </p>
               <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500 md:text-[15px]">
-                Upload one file. We extract the signal, detect the method, and tell you if it can support review.
+                {surface === "start-review"
+                  ? "Upload one file. Article6 extracts the signal, detects the method when possible, and prepares the next readiness step."
+                  : "Upload one file. We extract the signal, detect the method, and tell you if it can support review."}
               </p>
             </div>
             {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
@@ -2033,7 +2073,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Run Quick Check
             </button>
-            {process.env.NODE_ENV !== "production" ? (
+            {process.env.NODE_ENV !== "production" && surface !== "start-review" ? (
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <button
                   type="button"
@@ -2216,7 +2256,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                 >
                   <FolderOpen className="h-4 w-4" />
-                  Open full review
+                  {surface === "start-review" ? "Continue to project details" : "Open full review"}
                 </button>
               </div>
             </div>

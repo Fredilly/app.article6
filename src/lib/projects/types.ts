@@ -5,6 +5,56 @@ export type ProjectReviewMode = 'methodology-linked' | 'manual';
 export type RuleReviewStatus = 'not-started' | 'in-progress' | 'verified' | 'gap' | 'not-applicable';
 
 export type ProjectRegistry = 'UNFCCC' | 'Verra' | 'Gold Standard' | 'Unknown';
+export type MetadataConfidence = 'high' | 'medium' | 'low' | 'missing';
+export type ProjectMetadataFieldKey =
+  | 'projectTitle'
+  | 'country'
+  | 'projectId'
+  | 'methodology'
+  | 'standard'
+  | 'proponent'
+  | 'documentType'
+  | 'version'
+  | 'documentDate';
+
+export type ProjectMetadataFieldProvenance = {
+  attachmentId?: string;
+  fileName: string;
+  page?: number;
+  pageRange?: string;
+  excerpt?: string;
+};
+
+export type ProjectMetadataField = {
+  key: ProjectMetadataFieldKey;
+  label: string;
+  value?: string;
+  confidence: MetadataConfidence;
+  provenance?: ProjectMetadataFieldProvenance | null;
+};
+
+export type ExistingProjectMatch = {
+  projectId: string;
+  projectName: string;
+  projectCode?: string;
+  confidence: MetadataConfidence;
+  score: number;
+  matchReasons: string[];
+};
+
+export type ProjectDocumentMetadataDraft = {
+  source: {
+    origin: 'quick-check' | 'pdd-upload';
+    evidenceId: string;
+    attachmentId: string;
+    fileName: string;
+    mimeType: string;
+    contentSha256?: string;
+    extractedAt: string;
+  };
+  fields: Record<ProjectMetadataFieldKey, ProjectMetadataField>;
+  suggestedExistingProjects: ExistingProjectMatch[];
+};
 
 export type ManualFindingType = 'CAR' | 'CL' | 'FAR' | 'VVB finding' | 'evidence gap';
 

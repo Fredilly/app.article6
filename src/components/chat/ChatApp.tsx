@@ -4,7 +4,11 @@ import { Loader2 } from "lucide-react";
 import QuickCheckPanel from "./QuickCheckPanel";
 import useDeeplinkMethodVersion from "@/hooks/useDeeplinkMethodVersion";
 
-export default function ChatApp() {
+type ChatAppProps = {
+  surface?: "quick-check" | "start-review";
+};
+
+export default function ChatApp({ surface = "quick-check" }: ChatAppProps) {
   const deeplink = useDeeplinkMethodVersion();
   const deeplinkWarnings = deeplink.resolved.warnings;
   const selectedMethod = deeplink.resolved.method;
@@ -42,7 +46,11 @@ export default function ChatApp() {
           </div>
         ) : null}
 
-        <QuickCheckPanel initialMethod={selectedMethod} initialVersion={selectedVersion} />
+        <QuickCheckPanel
+          surface={surface}
+          initialMethod={selectedMethod}
+          initialVersion={selectedVersion}
+        />
       </div>
     </div>
   );
