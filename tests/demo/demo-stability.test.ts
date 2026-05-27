@@ -22,7 +22,7 @@ describe("demo stability regression harness", () => {
     expect(manifestPage).toContain("MethodsInventoryApp");
 
     const inventoryApp = read("src/components/manifest/MethodsInventoryApp.tsx");
-    expect(inventoryApp).toContain('Start with methods.');
+    expect(inventoryApp).toContain("Methodology and rule source for readiness work.");
     expect(inventoryApp).toContain("Search methods");
   });
 

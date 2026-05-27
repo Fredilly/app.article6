@@ -101,7 +101,7 @@ describe('ProjectDetail manual extraction workflow', () => {
     expect(container.textContent).toContain('3 draft finding sections detected. Review before accepting.');
     expect(container.textContent).toContain('Trace: bundled-pdf-parse');
     expect(container.textContent).toContain('CAR01');
-    expect(container.textContent).toContain('Manual Findings');
+    expect(container.textContent).toContain('Readiness Items');
   });
 
   it('calls the manual review extraction route on upload and keeps manual entry available on failure', async () => {
@@ -155,7 +155,7 @@ describe('ProjectDetail manual extraction workflow', () => {
       }),
     );
     expect(container.textContent).toContain('Could not extract findings from this PDF. You can still add findings manually. Reason: likely scanned/image-only.');
-    expect(container.textContent).toContain('Add Review Item');
+    expect(container.textContent).toContain('Add readiness item');
 
     const storedProjects = JSON.parse(window.localStorage.getItem('article6_projects') || '[]') as Project[];
     expect(storedProjects[0]?.documents[0]?.manualFindingExtractionStatus).toBe('extraction-failed');
