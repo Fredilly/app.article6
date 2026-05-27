@@ -41,7 +41,7 @@ describe("DemoNav", () => {
     expect(links.map((link) => link.textContent)).toEqual(
       expect.arrayContaining(["Quick Check", "Methods", "Projects"]),
     );
-    expect(links.find((link) => link.textContent?.includes("Quick Check"))?.getAttribute("href")).toBe("/");
+    expect(links.find((link) => link.textContent?.includes("Quick Check"))?.getAttribute("href")).toBe("/start-review");
     expect(links.find((link) => link.textContent?.includes("Methods"))?.getAttribute("href")).toBe("/m");
     expect(links.find((link) => link.textContent?.includes("Projects"))?.getAttribute("href")).toBe("/projects");
   });
@@ -55,6 +55,6 @@ describe("DemoNav", () => {
     const quickCheckLink = Array.from(container.querySelectorAll("a")).find((link) =>
       link.textContent?.includes("Quick Check"),
     );
-    expect(quickCheckLink?.getAttribute("href")).toBe("/");
+    expect(quickCheckLink?.getAttribute("href")).toBe("/start-review");
   });
 });

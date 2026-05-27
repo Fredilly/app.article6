@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
-import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
+import { extractPdfPagesWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
 import { withMetrics } from "@/lib/metrics";
 
 async function handlePost(request: Request) {
@@ -15,13 +15,14 @@ async function handlePost(request: Request) {
   let diagnostics: PdfExtractionDiagnostics | undefined;
 
   try {
-    const extraction = await extractPdfTextWithPdfParse({ bytes });
+    const extraction = await extractPdfPagesWithPdfParse({ bytes });
     diagnostics = extraction.metadata.diagnostics;
     // pdf-parse can succeed but return empty text for ASCII85-encoded streams.
     // Fall through to heuristic extractor which has custom ASCII85 + FlateDecode.
     if (extraction.text.trim().length > 0) {
       return NextResponse.json({
         text: extraction.text,
+        pages: extraction.pages,
         engine: extraction.engine,
         metadata: extraction.metadata,
       });
@@ -37,6 +38,7 @@ async function handlePost(request: Request) {
   const fallbackText = extractPdfText(bytes);
   return NextResponse.json({
     text: fallbackText,
+    pages: fallbackText.trim().length > 0 ? [{ pageNumber: 1, text: fallbackText }] : [],
     engine: "heuristic",
     metadata: {
       parser: "heuristic",

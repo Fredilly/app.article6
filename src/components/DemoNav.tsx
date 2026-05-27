@@ -9,7 +9,7 @@ type DemoRoute = {
 };
 
 const demoRoutes: DemoRoute[] = [
-  { href: "/", title: "Quick Check" },
+  { href: "/start-review", title: "Quick Check" },
   { href: "/m", title: "Methods" },
   { href: "/projects", title: "Projects" },
 ];
