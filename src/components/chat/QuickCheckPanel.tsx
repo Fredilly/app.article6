@@ -1279,6 +1279,25 @@ export default function QuickCheckPanel({
           },
         ],
       }));
+
+      if (surface === "start-review") {
+        void stageProjectDocumentDraftFromAttachment({
+          origin: "quick-check",
+          evidenceId,
+          attachmentId: attachmentResult.attachment.id,
+          fileName: attachmentResult.attachment.filename,
+          mimeType: attachmentResult.attachment.mime,
+          contentSha256: attachmentResult.attachment.sha256,
+        })
+          .then(() => {
+            if (typeof window !== "undefined") {
+              window.location.assign("/start-review?handoff=document-metadata");
+            }
+          })
+          .catch((error) => {
+            setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+          });
+      }
     } finally {
       setSubmitting(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -1725,26 +1744,24 @@ export default function QuickCheckPanel({
   return (
     <div className="w-full">
       <div className="mx-auto w-full max-w-2xl px-4 md:px-0">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex w-full items-start justify-center">
-            <div className="w-full">
-              <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-                Quick Check
-              </h1>
-              <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-                {surface === "start-review"
-                  ? "Start with the project document."
-                  : "Assess a carbon project document fast."}
-              </p>
-              <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500 md:text-[15px]">
-                {surface === "start-review"
-                  ? "Upload one file. Article6 extracts the signal, detects the method when possible, and prepares the next readiness step."
-                  : "Upload one file. We extract the signal, detect the method, and tell you if it can support review."}
-              </p>
+        {surface !== "start-review" ? (
+          <div className="flex flex-col items-center text-center">
+            <div className="flex w-full items-start justify-center">
+              <div className="w-full">
+                <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+                  Quick Check
+                </h1>
+                <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
+                  Assess a carbon project document fast.
+                </p>
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500 md:text-[15px]">
+                  Upload one file. We extract the signal, detect the method, and tell you if it can support review.
+                </p>
+              </div>
+              {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
             </div>
-            {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}
           </div>
-        </div>
+        ) : null}
 
         <div className="mt-8 grid gap-8">
           <div>
@@ -1787,10 +1804,10 @@ export default function QuickCheckPanel({
                     <Upload className="h-6 w-6" />
                   </div>
                   <div className="mt-4 text-base font-medium text-slate-900">
-                    Start with the file
+                    {surface === "start-review" ? "Start with the project file" : "Start with the file"}
                   </div>
                   <div className="mt-2 text-sm text-slate-600">
-                    Upload first. Then confirm method and question.
+                    {surface === "start-review" ? "Upload a PDD, monitoring report, or evidence file." : "Upload first. Then confirm method and question."}
                   </div>
                 </div>
               ) : (
@@ -1948,158 +1965,164 @@ export default function QuickCheckPanel({
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
 
-          <div className={`rounded-[1.6rem] border px-4 py-4 ${showMethodology ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
-            <label className="grid gap-2 text-sm text-slate-700">
-              <span className="font-medium text-slate-900">Methodology</span>
-              <select
-                value={draft.methodologyId}
-                onChange={(event) => {
-                  const methodologyId = event.target.value;
-                  const method = methods.find((item) => item.code === methodologyId);
-                  const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
-                  setShowMethodology(Boolean(methodologyId));
-                  updateSession((current) => {
-                    const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
-                    return {
-                      ...current,
-                      draft: {
-                        ...current.draft,
-                        methodologyId,
-                        methodologyVersion,
-                        evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
-                        matchedRequirementId: undefined,
-                        matchedRequirementLabel: undefined,
-                        status: "draft",
-                        result: null,
-                        resultId: undefined,
-                        updatedAt: nowIso(),
-                      },
-                      result: null,
-                    };
-                  });
-                  setPendingInventoryId("");
-                  clearDecisionState();
-                }}
-                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
-              >
-                <option value="">Any methodology</option>
-                {methods.map((method) => (
-                  <option key={method.code} value={method.code}>
-                    {methodOptionLabel(method)}
-                  </option>
-                ))}
-              </select>
-              <span className="text-xs text-slate-500">
-                Confirm or narrow the method.
-              </span>
-            </label>
-          </div>
-
-          <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
-            <label className="grid gap-2 text-sm text-slate-700">
-              <span className="font-medium text-slate-900">Review question</span>
-              <span className="text-xs text-slate-500">
-                Optional. Leave blank for a general check.
-              </span>
-              <textarea
-                value={draft.claimText}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  updateDraft(
-                    (current) => {
-                      const nextMethodology = resetMethodologyForUserInput(current);
+          {surface !== "start-review" ? (
+            <div className={`rounded-[1.6rem] border px-4 py-4 ${showMethodology ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
+              <label className="grid gap-2 text-sm text-slate-700">
+                <span className="font-medium text-slate-900">Methodology</span>
+                <select
+                  value={draft.methodologyId}
+                  onChange={(event) => {
+                    const methodologyId = event.target.value;
+                    const method = methods.find((item) => item.code === methodologyId);
+                    const methodologyVersion = methodologyId ? pickVersion(method, initialVersion) : "";
+                    setShowMethodology(Boolean(methodologyId));
+                    updateSession((current) => {
+                      const stagedIds = new Set(current.stagedUploads.map((upload) => upload.evidenceId));
                       return {
                         ...current,
-                        ...nextMethodology,
-                        claimText: value,
-                        matchedRequirementId: undefined,
-                        matchedRequirementLabel: undefined,
-                        status: "draft",
-                        resultId: undefined,
-                      };
-                    },
-                    null,
-                  );
-                  clearDecisionState();
-                }}
-                rows={4}
-                placeholder="Does this file support the selected methodology?"
-                className="w-full rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
-                ref={claimRef}
-              />
-              {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
-            </label>
-            <div className="mt-4">
-              <div className="text-xs text-slate-400">Try an example</div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    onClick={() => {
-                      updateDraft(
-                        (current) => {
-                          const nextMethodology = resetMethodologyForUserInput(current);
-                          return {
-                            ...current,
-                            ...nextMethodology,
-                            claimText: suggestion,
-                            matchedRequirementId: undefined,
-                            matchedRequirementLabel: undefined,
-                            status: "draft",
-                            resultId: undefined,
-                          };
+                        draft: {
+                          ...current.draft,
+                          methodologyId,
+                          methodologyVersion,
+                          evidenceIds: current.draft.evidenceIds.filter((id) => stagedIds.has(id)),
+                          matchedRequirementId: undefined,
+                          matchedRequirementLabel: undefined,
+                          status: "draft",
+                          result: null,
+                          resultId: undefined,
+                          updatedAt: nowIso(),
                         },
-                        null,
-                      );
-                      clearDecisionState();
-                    }}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
+                        result: null,
+                      };
+                    });
+                    setPendingInventoryId("");
+                    clearDecisionState();
+                  }}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
+                >
+                  <option value="">Any methodology</option>
+                  {methods.map((method) => (
+                    <option key={method.code} value={method.code}>
+                      {methodOptionLabel(method)}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xs text-slate-500">
+                  Confirm or narrow the method.
+                </span>
+              </label>
+            </div>
+          ) : null}
+
+          {surface !== "start-review" ? (
+            <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
+              <label className="grid gap-2 text-sm text-slate-700">
+                <span className="font-medium text-slate-900">Review question</span>
+                <span className="text-xs text-slate-500">
+                  Optional. Leave blank for a general check.
+                </span>
+                <textarea
+                  value={draft.claimText}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    updateDraft(
+                      (current) => {
+                        const nextMethodology = resetMethodologyForUserInput(current);
+                        return {
+                          ...current,
+                          ...nextMethodology,
+                          claimText: value,
+                          matchedRequirementId: undefined,
+                          matchedRequirementLabel: undefined,
+                          status: "draft",
+                          resultId: undefined,
+                        };
+                      },
+                      null,
+                    );
+                    clearDecisionState();
+                  }}
+                  rows={4}
+                  placeholder="Does this file support the selected methodology?"
+                  className="w-full rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
+                  ref={claimRef}
+                />
+                {fieldErrors.claim ? <span className="text-sm text-rose-700">{fieldErrors.claim}</span> : null}
+              </label>
+              <div className="mt-4">
+                <div className="text-xs text-slate-400">Try an example</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {CLAIM_SUGGESTIONS.slice(0, 2).map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => {
+                        updateDraft(
+                          (current) => {
+                            const nextMethodology = resetMethodologyForUserInput(current);
+                            return {
+                              ...current,
+                              ...nextMethodology,
+                              claimText: suggestion,
+                              matchedRequirementId: undefined,
+                              matchedRequirementLabel: undefined,
+                              status: "draft",
+                              resultId: undefined,
+                            };
+                          },
+                          null,
+                        );
+                        clearDecisionState();
+                      }}
+                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
 
-          <div className="grid gap-3">
-            <button
-              type="button"
-              disabled={!canRunQuickCheck}
-              onClick={() => void runQuickCheck()}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-black px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-900 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
-            >
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Run Quick Check
-            </button>
-            {process.env.NODE_ENV !== "production" && surface !== "start-review" ? (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => void handleTryDemoCheck()}
-                  disabled={submitting}
-                  className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
-                >
-                  Try demo check
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextValue = !showAdvancedOptions;
-                    setShowAdvanced(nextValue);
-                    if (!nextValue) {
-                      setShowSavedEvidence(false);
-                    }
-                  }}
-                  className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600"
-                  aria-expanded={showAdvancedOptions}
-                >
-                  Options
-                </button>
-              </div>
-            ) : null}
-          </div>
+          {surface !== "start-review" ? (
+            <div className="grid gap-3">
+              <button
+                type="button"
+                disabled={!canRunQuickCheck}
+                onClick={() => void runQuickCheck()}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-black px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-900 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+              >
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Run Quick Check
+              </button>
+              {process.env.NODE_ENV !== "production" ? (
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleTryDemoCheck()}
+                    disabled={submitting}
+                    className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+                  >
+                    Try demo check
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextValue = !showAdvancedOptions;
+                      setShowAdvanced(nextValue);
+                      if (!nextValue) {
+                        setShowSavedEvidence(false);
+                      }
+                    }}
+                    className="text-xs text-slate-400 underline underline-offset-4 transition hover:text-slate-600"
+                    aria-expanded={showAdvancedOptions}
+                  >
+                    Options
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           
           {showAdvancedOptions ? (
             <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
@@ -2135,7 +2158,7 @@ export default function QuickCheckPanel({
             </div>
           ) : null}
 
-          {recoveryState ? (
+          {surface !== "start-review" && recoveryState ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4">
               <div className="text-sm font-semibold text-slate-900">{recoveryState.title}</div>
               <div className="mt-1 text-sm text-slate-700">{recoveryState.description}</div>
@@ -2188,7 +2211,7 @@ export default function QuickCheckPanel({
             </div>
           ) : null}
 
-          {matchCandidates.length ? (
+          {surface !== "start-review" && matchCandidates.length ? (
             <div className="rounded-2xl border border-sky-200 bg-sky-50/80 p-4">
               <div className="flex items-start gap-3">
                 <SearchCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" />
@@ -2228,7 +2251,7 @@ export default function QuickCheckPanel({
             </div>
           ) : null}
 
-          {renderedResult && normalizedResult?.match ? (
+          {surface !== "start-review" && renderedResult && normalizedResult?.match ? (
             <div
               ref={resultRef}
               tabIndex={-1}
@@ -2256,13 +2279,13 @@ export default function QuickCheckPanel({
                   className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                 >
                   <FolderOpen className="h-4 w-4" />
-                  {surface === "start-review" ? "Continue to project details" : "Open full review"}
+                  Open full review
                 </button>
               </div>
             </div>
           ) : null}
 
-          {(selectedMethodRecord && draft.methodologyVersion) || (methodologyResolution.status === "single" && !draft.methodologyId.trim()) ? (
+          {surface !== "start-review" && ((selectedMethodRecord && draft.methodologyVersion) || (methodologyResolution.status === "single" && !draft.methodologyId.trim())) ? (
             <div className="text-xs text-slate-500" aria-live="polite">
               Narrowing matches to {(selectedMethodRecord?.code ?? methodologyResolution.matchedMethods[0]?.methodologyId) ?? ""} · {(draft.methodologyVersion || methodologyResolution.matchedMethods[0]?.methodologyVersion) ?? ""}.
             </div>

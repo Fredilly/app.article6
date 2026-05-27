@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import ChatApp from '@/components/chat/ChatApp';
 import NewProjectForm from '@/components/projects/NewProjectForm';
 
 export const metadata: Metadata = {
   title: 'Quick Check | app.article6',
-  description: 'Run a first document scan to identify methodology fit and readiness gaps.',
+  description: 'Upload a project document. Article6 will detect the project details, identify the likely methodology, and prepare the next readiness step.',
 };
 
 type StartReviewPageProps = {
@@ -20,9 +19,8 @@ function pickFirst(value: string | string[] | undefined): string | null {
 export default async function StartReviewPage({ searchParams }: StartReviewPageProps) {
   const params = await searchParams;
   const handoff = pickFirst(params.handoff);
-  const mode = pickFirst(params.mode);
   const showProjectSetup =
-    handoff === 'document-metadata' || handoff === 'active-review' || mode === 'manual';
+    handoff === 'document-metadata' || handoff === 'active-review';
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -30,19 +28,13 @@ export default async function StartReviewPage({ searchParams }: StartReviewPageP
         <NewProjectForm />
       ) : (
         <div className="pb-12">
-          <div className="mx-auto flex w-full max-w-6xl items-start justify-between gap-6 px-4 pt-8 md:px-8">
+          <div className="mx-auto flex w-full max-w-6xl items-start gap-6 px-4 pt-8 md:px-8">
             <div>
               <h1 className="text-2xl font-semibold text-slate-950">Quick Check</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                Upload a project document first. Article6 will detect project details, identify the methodology when possible, and prepare the next readiness step.
+                Upload a project document. Article6 will detect the project details, identify the likely methodology, and prepare the next readiness step.
               </p>
             </div>
-            <Link
-              href="/start-review?mode=manual"
-              className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:border-slate-400"
-            >
-              Set up manually
-            </Link>
           </div>
           <ChatApp surface="start-review" />
         </div>
