@@ -16,7 +16,7 @@ function writeWorkspaces(workspaces: ReviewWorkspace[]) {
   window.localStorage.setItem('article6_review_workspaces', JSON.stringify(workspaces));
 }
 
-describe('project review routing', () => {
+describe('project readiness routing', () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
 
@@ -35,7 +35,7 @@ describe('project review routing', () => {
     window.sessionStorage.clear();
   });
 
-  it('uses the project methodology workspace for Start review and does not show 0% when imported rule reviews already exist', async () => {
+  it('uses the project methodology workspace for the readiness link and does not show 0% when imported rule reviews already exist', async () => {
     writeProjects([
       {
         id: 'proj-vm0007',
@@ -92,7 +92,7 @@ describe('project review routing', () => {
     expect(percentageDisplay).toBeTruthy();
 
     const anchors = Array.from(container.querySelectorAll('a'));
-    const startReview = anchors.find((anchor) => anchor.textContent?.trim() === 'Start review');
+    const startReview = anchors.find((anchor) => anchor.textContent?.trim() === 'Open readiness workspace');
     expect(startReview?.getAttribute('href')).toBe('/m/VM0007/v/v1-8?projectId=proj-vm0007&workspaceId=ws-vm0007&tab=verify');
     expect(startReview?.getAttribute('href')).not.toContain('ACM0010');
     expect(startReview?.getAttribute('href')).not.toBe('/m?projectId=proj-vm0007');

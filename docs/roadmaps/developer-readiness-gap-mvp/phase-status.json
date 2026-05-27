@@ -1,0 +1,34 @@
+{
+  "RC1": "active",
+  "phase_meta": {
+    "status": "active",
+    "summary": "Developer-first readiness lane for pre-verification evidence mapping, gap visibility, and readiness-safe exports.",
+    "current_focus": [
+      "Reframe Quick Check, Projects, Methods, and Exports around developer readiness",
+      "Surface missing evidence, weak support, follow-up needs, and recommended fixes",
+      "Keep the data model compatible with a later VVB workflow without exposing VVB-first UI"
+    ],
+    "not_active_now": [
+      "Formal verification workflow",
+      "verify.article6.org",
+      "Final assurance or approval claims"
+    ]
+  },
+  "phases": {
+    "phase_1_developer_surface_reframe": {
+      "status": "active",
+      "title": "Developer Surface Reframe",
+      "summary": "Shift developer-facing surfaces toward pre-verification readiness language and summarize the top missing or weak evidence items per project."
+    },
+    "phase_2_readiness_gap_export": {
+      "status": "planned",
+      "title": "Readiness Gap Export",
+      "summary": "Turn project readiness summaries into a repeatable export path for developer follow-up."
+    },
+    "phase_3_future_vvb_lane": {
+      "status": "planned",
+      "title": "Future VVB Lane",
+      "summary": "Preserve compatibility for a later VVB workflow without exposing VVB-specific UI in this MVP."
+    }
+  }
+}

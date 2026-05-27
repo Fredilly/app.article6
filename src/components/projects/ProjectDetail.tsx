@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
+import type { RuleSummary } from '@/app/m/_lib/methodRules';
 import { sha256ArrayBuffer } from '@/lib/proof/hash';
 import type {
   ExtractedManualFindingDraft,
@@ -36,6 +37,7 @@ import {
   updateManualFinding,
   updateRuleReview,
 } from '@/lib/projects/storage';
+import { buildProjectReadinessSummary, type ProjectReadinessSummary } from '@/lib/readiness/projectReadinessSummary';
 import { SnapshotTimeline } from '@/components/snapshot/SnapshotTimeline';
 import { listReviewWorkspacesForProject } from '@/lib/reviewWorkspaces/storage';
 
@@ -95,6 +97,38 @@ async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
   return sha256ArrayBuffer(buffer);
 }
 
+function manualFindingTypeLabel(value: ManualFindingType): string {
+  switch (value) {
+    case 'CAR':
+      return 'Corrective action';
+    case 'CL':
+      return 'Clarification';
+    case 'FAR':
+      return 'Forward action';
+    case 'VVB finding':
+      return 'Readiness finding';
+    case 'evidence gap':
+      return 'Evidence gap';
+  }
+}
+
+function readinessStateLabel(value: ProjectReadinessSummary['topItems'][number]['state']): string {
+  switch (value) {
+    case 'missing_evidence':
+      return 'missing evidence';
+    case 'missing_reviewer_record':
+      return 'needs follow-up';
+    case 'needs_review':
+      return 'weak support';
+    case 'not_started':
+      return 'not started';
+    case 'unknown_expectation':
+      return 'method needs follow-up';
+    case 'ready':
+      return 'ready';
+  }
+}
+
 export function shouldShowLockReview(project: Project, coverage: ProjectCoverage | null): boolean {
   if (project.status !== 'in-progress' || !coverage) return false;
   if (project.reviewMode === 'manual') return project.manualFindings.length > 0;
@@ -108,6 +142,9 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const [premiumExportingFormat, setPremiumExportingFormat] = useState<'pdf' | 'zip' | null>(null);
   const [uploading, setUploading] = useState(false);
   const [manualDraft, setManualDraft] = useState<ManualFindingDraft>(EMPTY_MANUAL_FINDING);
+  const [methodRules, setMethodRules] = useState<RuleSummary[]>([]);
+  const [readinessExporting, setReadinessExporting] = useState(false);
+  const [readinessExportError, setReadinessExportError] = useState<string | null>(null);
 
   useEffect(() => {
     const p = getProject(projectId);
@@ -126,6 +163,36 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
     const metrics = computeMetrics({ inventoryItems: [], reviews: project.reviews });
     return metrics.sectionCoverages;
   }, [project?.reviews]);
+
+  useEffect(() => {
+    if (!project || project.reviewMode !== 'methodology-linked' || !project.methodCode || !project.methodVersion) {
+      setMethodRules([]);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/methods/${encodeURIComponent(project.methodCode)}/v/${encodeURIComponent(project.methodVersion)}/rules`)
+      .then((response) => response.json())
+      .then((payload) => {
+        if (cancelled) return;
+        setMethodRules(Array.isArray(payload.rules) ? payload.rules : []);
+      })
+      .catch(() => {
+        if (!cancelled) setMethodRules([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [project]);
+
+  const readinessSummary = useMemo(() => {
+    if (!project || project.reviewMode !== 'methodology-linked' || !project.methodCode || !project.methodVersion || !methodRules.length) {
+      return null;
+    }
+    return buildProjectReadinessSummary({
+      project,
+      rules: methodRules,
+    });
+  }, [methodRules, project]);
 
   if (!project) {
     return (
@@ -160,6 +227,34 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
   const handleReviewChange = (ruleId: string, update: Partial<RuleReview>) => {
     refreshProject(updateRuleReview(projectId, ruleId, update));
+  };
+
+  const handleExportReadinessGapReport = async () => {
+    if (!readinessSummary) return;
+    setReadinessExporting(true);
+    setReadinessExportError(null);
+    try {
+      const response = await fetch('/api/exports/client-readiness-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          report: readinessSummary.report,
+          readinessGaps: readinessSummary.readinessGaps,
+        }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `developer-readiness-gap-report-${projectId.slice(0, 8)}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setReadinessExportError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setReadinessExporting(false);
+    }
   };
 
   const handleLock = () => {
@@ -403,7 +498,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
           <h1 className="text-2xl font-bold text-slate-900">{project.name}</h1>
           <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-slate-500">
             <span className="rounded bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
-              {project.reviewMode === 'manual' ? 'Manual Review' : 'Methodology-linked review'}
+              {project.reviewMode === 'manual' ? 'Evidence-led readiness' : 'Methodology-linked readiness'}
             </span>
             {project.reviewMode === 'methodology-linked' && project.methodCode && project.methodVersion ? (
               <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs">
@@ -427,11 +522,23 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                   : 'bg-amber-100 text-amber-700'
               }`}
             >
-              {project.status}
+              {project.status === 'locked' ? 'snapshot locked' : 'pre-verification'}
             </span>
           </div>
           {project.aoiLabel ? <p className="mt-1 text-sm text-slate-400">Project area: {project.aoiLabel}</p> : null}
           {project.description ? <p className="mt-2 max-w-3xl text-sm text-slate-500">{project.description}</p> : null}
+          {(project.projectCode || project.countryLocation || project.proponent || project.methodology || project.standard || project.sourceDocumentType || project.sourceDocumentVersion || project.sourceDocumentDate) ? (
+            <div className="mt-3 flex max-w-4xl flex-wrap gap-2 text-xs text-slate-600">
+              {project.projectCode ? <span className="rounded bg-slate-100 px-2 py-1">Project ID: {project.projectCode}</span> : null}
+              {project.countryLocation ? <span className="rounded bg-slate-100 px-2 py-1">Country: {project.countryLocation}</span> : null}
+              {project.proponent ? <span className="rounded bg-slate-100 px-2 py-1">Proponent: {project.proponent}</span> : null}
+              {project.methodology ? <span className="rounded bg-slate-100 px-2 py-1">Methodology: {project.methodology}</span> : null}
+              {project.standard ? <span className="rounded bg-slate-100 px-2 py-1">Standard: {project.standard}</span> : null}
+              {project.sourceDocumentType ? <span className="rounded bg-slate-100 px-2 py-1">Document: {project.sourceDocumentType}</span> : null}
+              {project.sourceDocumentVersion ? <span className="rounded bg-slate-100 px-2 py-1">Version: {project.sourceDocumentVersion}</span> : null}
+              {project.sourceDocumentDate ? <span className="rounded bg-slate-100 px-2 py-1">Date: {project.sourceDocumentDate}</span> : null}
+            </div>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2">
@@ -441,7 +548,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                 href={startReviewHref}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
-                Start review
+                Open readiness workspace
               </Link>
               {latestWorkspace ? (
                 <Link
@@ -453,7 +560,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                   })}
                   className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
                 >
-                  Continue review
+                  Continue readiness workspace
                 </Link>
               ) : null}
             </>
@@ -463,7 +570,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
               onClick={handleLock}
               className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
             >
-              Lock Review
+              Lock readiness snapshot
             </button>
           ) : null}
           {project.status === 'locked' ? (
@@ -501,9 +608,9 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
               ? [
                 { label: 'Closed', value: coverage.verified, color: 'text-green-600' },
                 { label: 'Open', value: coverage.gap, color: 'text-red-600' },
-                { label: 'In Review', value: coverage.inProgress, color: 'text-amber-600' },
-                { label: 'Documents', value: project.documents.length, color: 'text-slate-700' },
-                { label: 'Findings', value: coverage.total, color: 'text-slate-900' },
+                { label: 'Needs follow-up', value: coverage.inProgress, color: 'text-amber-600' },
+                { label: 'Evidence', value: project.documents.length, color: 'text-slate-700' },
+                { label: 'Items', value: coverage.total, color: 'text-slate-900' },
               ].map(stat => (
                 <div key={stat.label} className="rounded-lg border border-slate-200 bg-white p-3 text-center">
                   <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
@@ -511,11 +618,11 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                 </div>
               ))
               : [
-                { label: 'Verified', value: coverage.verified, color: 'text-green-600' },
-                { label: 'Gaps', value: coverage.gap, color: 'text-red-600' },
-                { label: 'In Progress', value: coverage.inProgress, color: 'text-amber-600' },
-                { label: 'Pending', value: coverage.notStarted, color: 'text-slate-400' },
-                { label: 'N/A', value: coverage.notApplicable, color: 'text-slate-300' },
+                { label: 'Ready', value: coverage.verified, color: 'text-green-600' },
+                { label: 'Needs follow-up', value: coverage.gap, color: 'text-red-600' },
+                { label: 'Weak support', value: coverage.inProgress, color: 'text-amber-600' },
+                { label: 'Missing evidence', value: coverage.notStarted, color: 'text-slate-400' },
+                { label: 'Out of scope', value: coverage.notApplicable, color: 'text-slate-300' },
               ].map(stat => (
                 <div key={stat.label} className="rounded-lg border border-slate-200 bg-white p-3 text-center">
                   <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
@@ -531,16 +638,85 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                 style={{ width: `${coverage.percentComplete}%` }}
               />
             </div>
-            <p className="mt-1 text-right text-xs text-slate-500">{coverage.percentComplete}% complete</p>
+            <p className="mt-1 text-right text-xs text-slate-500">{coverage.percentComplete}% of actionable readiness items touched</p>
           </div>
         </>
       ) : null}
 
+      {readinessSummary ? (
+        <section className="rounded-lg border border-slate-200 bg-white p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Readiness Summary</h2>
+              <p className="mt-1 max-w-3xl text-sm text-slate-500">
+                Pre-verification view for project developers. This summarizes missing evidence, weak support, and the next recommended fix without implying a final assurance decision.
+              </p>
+            </div>
+            <button
+              onClick={handleExportReadinessGapReport}
+              disabled={readinessExporting}
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+            >
+              {readinessExporting ? 'Preparing readiness export...' : 'Export readiness gap report'}
+            </button>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <SummaryCard label="Selected methodology" value={`${project.methodCode}@${project.methodVersion}`} />
+            <SummaryCard label="Uploaded evidence count" value={String(readinessSummary.uploadedEvidenceCount)} />
+            <SummaryCard label="Recommended next action" value={readinessSummary.recommendedNextAction} />
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="text-sm font-semibold text-slate-900">Top missing or weak evidence items</div>
+              <div className="mt-3 grid gap-3">
+                {readinessSummary.topItems.length > 0 ? readinessSummary.topItems.map((item) => (
+                  <div key={item.ruleId} className="rounded-lg border border-slate-200 bg-white p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-xs text-slate-500">{item.ruleId}</span>
+                      <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                        {readinessStateLabel(item.state)}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-sm font-medium text-slate-900">{item.title}</div>
+                    <div className="mt-1 text-sm text-slate-600">{item.summary}</div>
+                    <div className="mt-2 text-xs text-slate-500">Recommended fix: {item.recommendedFix}</div>
+                  </div>
+                )) : (
+                  <div className="rounded-lg border border-dashed border-slate-200 bg-white px-3 py-4 text-sm text-slate-600">
+                    No major missing evidence or weak support items are currently surfaced.
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="text-sm font-semibold text-slate-900">Linked methodology references</div>
+              <div className="mt-3 grid gap-2">
+                {readinessSummary.methodologyReferences.map((reference) => (
+                  <Link
+                    key={reference.ruleId}
+                    href={`/m/${encodeURIComponent(project.methodCode ?? '')}/v/${encodeURIComponent(project.methodVersion ?? '')}?tab=overview&rule=${encodeURIComponent(reference.ruleId)}`}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:border-slate-300 hover:text-slate-900"
+                  >
+                    <span className="font-mono text-xs text-slate-500">{reference.ruleId}</span>
+                    <span className="ml-2">{reference.title}</span>
+                  </Link>
+                ))}
+              </div>
+              {readinessExportError ? (
+                <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+                  {readinessExportError}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {sectionCoverages?.length ? (
         <section className="rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="text-lg font-semibold text-slate-900">Coverage by Section</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Readiness by Section</h2>
           <p className="mt-1 text-sm text-slate-500">Fraction of rules with linked evidence per methodology section.</p>
-          <p className="mt-1 text-xs text-slate-500">Coverage metrics are advisory only and do not replace reviewer sufficiency decisions.</p>
+          <p className="mt-1 text-xs text-slate-500">These metrics are advisory only and do not replace project follow-up or later verifier judgment.</p>
           <div className="mt-4 grid gap-3">
             <div className="grid gap-3 sm:grid-cols-2">
               {sectionCoverages.map((sc) => (
@@ -565,12 +741,12 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
       <section className="rounded-lg border border-slate-200 bg-white p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Source Documents</h2>
-            <p className="mt-1 text-sm text-slate-500">Retain original uploads so premium PDF and ZIP exports can include full provenance and source evidence.</p>
+            <h2 className="text-lg font-semibold text-slate-900">Evidence</h2>
+            <p className="mt-1 text-sm text-slate-500">Keep the source evidence set together so readiness exports can point to missing evidence, weak support, and provenance.</p>
           </div>
           {project.status === 'in-progress' ? (
             <label className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-              {uploading ? 'Uploading...' : 'Upload Documents'}
+              {uploading ? 'Uploading...' : 'Upload evidence'}
               <input
                 type="file"
                 multiple
@@ -585,7 +761,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         <div className="mt-4 flex flex-col gap-3">
           {project.documents.length === 0 ? (
             <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-              No source documents uploaded yet.
+              No evidence uploaded yet.
             </div>
           ) : project.documents.map((document: ProjectDocument) => (
             <div key={document.id} className="rounded-lg border border-slate-200 p-3">
@@ -638,14 +814,14 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         <div className="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
           <section className="rounded-lg border border-slate-200 bg-white p-5">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Extraction Review</h2>
-              <p className="mt-1 text-sm text-slate-500">Review extracted CAR, CL, and FAR drafts before adding them to Manual Findings.</p>
+              <h2 className="text-lg font-semibold text-slate-900">Evidence Extraction Review</h2>
+              <p className="mt-1 text-sm text-slate-500">Review extracted readiness drafts before adding them to the project follow-up list.</p>
             </div>
 
             <div className="mt-4 flex flex-col gap-4">
               {project.extractedManualFindingDrafts.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                  {latestNoFindingsMessage || 'Upload a VVB report appendix to extract draft CAR/CL/FAR findings.'}
+                  {latestNoFindingsMessage || 'Upload supporting evidence to extract draft readiness items.'}
                 </div>
               ) : project.extractedManualFindingDrafts.map((draft) => {
                 const sourceDocument = project.documents.find((document) => document.id === draft.sourceDocumentId);
@@ -705,12 +881,12 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                           >
                             <option value="">Needs review...</option>
-                            <option value="CAR">CAR</option>
-                            <option value="CL">CL</option>
-                            <option value="FAR">FAR</option>
+                            <option value="CAR">Corrective action</option>
+                            <option value="CL">Clarification</option>
+                            <option value="FAR">Forward action</option>
                           </select>
                         ) : (
-                          <StaticValue value={draft.findingType || 'Needs review'} />
+                          <StaticValue value={draft.findingType ? manualFindingTypeLabel(draft.findingType as ManualFindingType) : 'Needs review'} />
                         )}
                       </Field>
                     </div>
@@ -797,8 +973,8 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
           <section className="rounded-lg border border-slate-200 bg-white p-5">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Manual Findings</h2>
-              <p className="mt-1 text-sm text-slate-500">Track CAR, CL, FAR, VVB findings, evidence gaps, responses, and reviewer notes.</p>
+              <h2 className="text-lg font-semibold text-slate-900">Readiness Items</h2>
+              <p className="mt-1 text-sm text-slate-500">Track missing evidence, weak support, follow-up items, responses, and notes.</p>
             </div>
 
             {project.status === 'in-progress' ? (
@@ -821,11 +997,11 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                       onChange={(event) => setManualDraft((current) => ({ ...current, findingType: event.target.value as ManualFindingType }))}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                     >
-                      <option value="CAR">CAR</option>
-                      <option value="CL">CL</option>
-                      <option value="FAR">FAR</option>
-                      <option value="VVB finding">VVB finding</option>
-                      <option value="evidence gap">evidence gap</option>
+                      <option value="CAR">Corrective action</option>
+                      <option value="CL">Clarification</option>
+                      <option value="FAR">Forward action</option>
+                      <option value="VVB finding">Readiness finding</option>
+                      <option value="evidence gap">Evidence gap</option>
                     </select>
                   </div>
                 </div>
@@ -895,7 +1071,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                     type="submit"
                     className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                   >
-                    Add Review Item
+                    Add readiness item
                   </button>
                 </div>
               </form>
@@ -904,7 +1080,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             <div className="mt-4 flex flex-col gap-4">
               {project.manualFindings.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                  No manual review items yet.
+                  No readiness items yet.
                 </div>
               ) : project.manualFindings.map((finding) => {
                 const sourceDocument = project.documents.find((document) => document.id === finding.sourceDocumentId);
@@ -914,7 +1090,7 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                       <div>
                         <div className="text-sm font-semibold text-slate-900">{finding.findingId}</div>
                         <div className="mt-1 text-xs text-slate-500">
-                          {finding.findingType} · {manualFindingClosureLabel(finding.closureStatus)} · {sourceDocument?.fileName || 'No source document'}{finding.sourcePageRange ? ` · p.${finding.sourcePageRange}` : ''}
+                          {manualFindingTypeLabel(finding.findingType)} · {manualFindingClosureLabel(finding.closureStatus)} · {sourceDocument?.fileName || 'No source document'}{finding.sourcePageRange ? ` · p.${finding.sourcePageRange}` : ''}
                         </div>
                       </div>
                       {project.status === 'in-progress' ? (
@@ -935,14 +1111,14 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
                             onChange={(event) => updateFindingField(finding.id, 'findingType', event.target.value)}
                             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                           >
-                            <option value="CAR">CAR</option>
-                            <option value="CL">CL</option>
-                            <option value="FAR">FAR</option>
-                            <option value="VVB finding">VVB finding</option>
-                            <option value="evidence gap">evidence gap</option>
+                            <option value="CAR">Corrective action</option>
+                            <option value="CL">Clarification</option>
+                            <option value="FAR">Forward action</option>
+                            <option value="VVB finding">Readiness finding</option>
+                            <option value="evidence gap">Evidence gap</option>
                           </select>
                         ) : (
-                          <StaticValue value={finding.findingType} />
+                          <StaticValue value={manualFindingTypeLabel(finding.findingType)} />
                         )}
                       </Field>
 
@@ -1084,8 +1260,8 @@ function MethodologyLinkedReview({
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="text-sm font-semibold text-slate-900">Premium Review Export</div>
-              <div className="mt-1 text-xs text-slate-500">Download the locked methodology review as a premium PDF or a provenance ZIP directly from the review workspace.</div>
+              <div className="text-sm font-semibold text-slate-900">Exports</div>
+              <div className="mt-1 text-xs text-slate-500">Download the locked readiness workspace as a premium PDF or a provenance ZIP without claiming a final assurance outcome.</div>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -1093,14 +1269,14 @@ function MethodologyLinkedReview({
                 disabled={premiumExportingFormat !== null}
                 className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
               >
-                {premiumExportingFormat === 'pdf' ? 'Preparing PDF...' : 'Premium PDF'}
+                {premiumExportingFormat === 'pdf' ? 'Preparing PDF...' : 'Readiness PDF'}
               </button>
               <button
                 onClick={() => onPremiumExport('zip')}
                 disabled={premiumExportingFormat !== null}
                 className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                {premiumExportingFormat === 'zip' ? 'Preparing ZIP...' : 'Premium ZIP'}
+                {premiumExportingFormat === 'zip' ? 'Preparing ZIP...' : 'Readiness ZIP'}
               </button>
             </div>
           </div>
@@ -1133,10 +1309,10 @@ function MethodologyLinkedReview({
                               : 'border-slate-200 bg-white text-slate-500'
                       }`}
                     >
-                      <option value="not-started">Not Started</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="verified">Verified</option>
-                      <option value="gap">Gap</option>
+                      <option value="not-started">Missing evidence</option>
+                      <option value="in-progress">Weak support</option>
+                      <option value="verified">Ready</option>
+                      <option value="gap">Needs follow-up</option>
                       <option value="not-applicable">N/A</option>
                     </select>
                   ) : (
@@ -1178,7 +1354,7 @@ function MethodologyLinkedReview({
                         rows={3}
                         value={review.note || ''}
                         onChange={(event) => onReviewChange(review.ruleId, { note: event.target.value || undefined })}
-                        placeholder="Why this rule is verified, a gap, or still needs review."
+                        placeholder="Explain the readiness position, missing evidence, or follow-up needed."
                         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                       />
                     ) : (
@@ -1200,6 +1376,15 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
     <div>
       <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</div>
       {children}
+    </div>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</div>
+      <div className="mt-1 text-sm font-medium text-slate-900">{value}</div>
     </div>
   );
 }

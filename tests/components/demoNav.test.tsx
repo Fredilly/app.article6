@@ -39,9 +39,9 @@ describe("DemoNav", () => {
 
     const links = Array.from(container.querySelectorAll("a"));
     expect(links.map((link) => link.textContent)).toEqual(
-      expect.arrayContaining(["Start Review", "Methods", "Projects"]),
+      expect.arrayContaining(["Quick Check", "Methods", "Projects"]),
     );
-    expect(links.find((link) => link.textContent?.includes("Start Review"))?.getAttribute("href")).toBe("/start-review");
+    expect(links.find((link) => link.textContent?.includes("Quick Check"))?.getAttribute("href")).toBe("/start-review");
     expect(links.find((link) => link.textContent?.includes("Methods"))?.getAttribute("href")).toBe("/methods");
     expect(links.find((link) => link.textContent?.includes("Projects"))?.getAttribute("href")).toBe("/projects");
   });

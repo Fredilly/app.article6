@@ -24,19 +24,19 @@ export default function ProjectsList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
-          <p className="mt-1 text-sm text-slate-500">Long-lived project review workspace for methodology-linked and manual reviews</p>
+          <p className="mt-1 text-sm text-slate-500">Long-lived readiness workspace for evidence, rule references, and gap follow-up</p>
         </div>
         <Link
           href="/start-review"
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          Start Review
+          Open Quick Check
         </Link>
       </div>
 
       {projects.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
-          <p className="text-slate-500">No project reviews yet. Create one to start a durable review workspace.</p>
+          <p className="text-slate-500">No readiness workspaces yet. Create one to start tracking evidence gaps and follow-up.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -68,7 +68,7 @@ export default function ProjectsList() {
                     </Link>
                     <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
                       <span className="rounded bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
-                        {project.reviewMode === 'manual' ? 'Manual Review' : 'Methodology-linked review'}
+                        {project.reviewMode === 'manual' ? 'Evidence-led readiness' : 'Methodology-linked readiness'}
                       </span>
                       {project.reviewMode === 'methodology-linked' && project.methodCode && project.methodVersion ? (
                         <span className="rounded bg-slate-100 px-2 py-0.5 font-mono">
@@ -82,7 +82,7 @@ export default function ProjectsList() {
                             : 'bg-amber-100 text-amber-700'
                         }`}
                       >
-                        {project.status}
+                        {project.status === 'locked' ? 'snapshot locked' : 'needs follow-up'}
                       </span>
                       <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                     </div>
@@ -93,7 +93,7 @@ export default function ProjectsList() {
                   <div className="ml-4 text-right">
                     <div className="text-2xl font-bold text-slate-900">{coverage.percentComplete}%</div>
                     <div className="text-xs text-slate-500">
-                      {coverage.verified}/{coverage.total - coverage.notApplicable} rules
+                      {coverage.verified + coverage.gap}/{coverage.total - coverage.notApplicable} readiness items touched
                     </div>
                   </div>
                 </div>
@@ -106,9 +106,9 @@ export default function ProjectsList() {
                     />
                   </div>
                   <div className="mt-1 flex gap-3 text-xs text-slate-400">
-                    <span>{coverage.verified} {project.reviewMode === 'manual' ? 'closed' : 'verified'}</span>
-                    <span>{coverage.gap} {project.reviewMode === 'manual' ? 'open' : 'gaps'}</span>
-                    <span>{coverage.inProgress} {project.reviewMode === 'manual' ? 'in review' : 'in progress'}</span>
+                    <span>{coverage.verified} {project.reviewMode === 'manual' ? 'closed' : 'ready'}</span>
+                    <span>{coverage.gap} {project.reviewMode === 'manual' ? 'open' : 'needs follow-up'}</span>
+                    <span>{coverage.inProgress} {project.reviewMode === 'manual' ? 'in review' : 'weak support'}</span>
                     {project.reviewMode === 'methodology-linked' ? <span>{coverage.notStarted} pending</span> : null}
                     {coverage.notApplicable > 0 && <span>{coverage.notApplicable} n/a</span>}
                   </div>
@@ -123,7 +123,7 @@ export default function ProjectsList() {
                             href={startReviewHref}
                             className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900"
                           >
-                            Start review
+                            Open readiness workspace
                           </Link>
                           {(() => {
                             if (!latestWorkspace) return null;
@@ -137,7 +137,7 @@ export default function ProjectsList() {
                                 })}
                                 className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
                               >
-                                Continue review
+                                Continue readiness workspace
                               </Link>
                             );
                           })()}

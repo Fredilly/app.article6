@@ -127,9 +127,9 @@ export default function MethodsInventoryApp({ methods, generatedAt, datasetHash 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Methodology manifest</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Methods</h1>
         <p className="max-w-2xl text-sm text-slate-600">
-          Start with methods. Select one to open the full detail view (versions, rules, document, rich evidence).
+          Methodology and rule source for readiness work. Select one to inspect versions, rules, and supporting evidence references.
         </p>
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
           <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700">

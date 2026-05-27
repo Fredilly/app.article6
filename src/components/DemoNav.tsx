@@ -11,7 +11,7 @@ type DemoRoute = {
 };
 
 const demoRoutes: DemoRoute[] = [
-  { href: "/start-review", title: "Start Review", key: "start-review" },
+  { href: "/start-review", title: "Quick Check", key: "start-review" },
   { href: "/projects", title: "Projects", key: "projects" },
   { href: "/methods", title: "Methods", key: "methods" },
 ];

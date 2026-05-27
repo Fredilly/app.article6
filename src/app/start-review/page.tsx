@@ -4,8 +4,8 @@ import ChatApp from "@/components/chat/ChatApp";
 import NewProjectForm from "@/components/projects/NewProjectForm";
 
 export const metadata: Metadata = {
-  title: "Start Review | app.article6",
-  description: "Upload a PDD, monitoring report, or evidence file to start a review.",
+  title: "Quick Check | app.article6",
+  description: "Run a first document scan to identify methodology fit and readiness gaps.",
 };
 
 type StartReviewPageProps = {
@@ -32,10 +32,11 @@ export default async function StartReviewPage({ searchParams }: StartReviewPageP
         <div className="pb-12">
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-start justify-between gap-6 px-4 pt-8 md:px-8">
             <div>
-              <h1 className="text-2xl font-semibold text-slate-950">Start Review</h1>
+              <h1 className="text-2xl font-semibold text-slate-950">Quick Check</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                Upload a PDD, monitoring report, or evidence file. Article6 will detect
-                project metadata, methodology, standard, and the next review step.
+                Run a first document scan against a PDD, monitoring report, or
+                evidence file. Article6 will detect project metadata,
+                methodology signals, and the next readiness step.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
