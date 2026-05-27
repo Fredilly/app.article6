@@ -333,14 +333,14 @@ export default function NewProjectForm() {
         clearPendingProjectDocumentDraft();
       }
       router.push(`/projects/${project.id}`);
-    } catch {
-      setError(
+    } catch (error) {
+      const fallbackMessage =
         reviewMode === "manual"
           ? "Failed to create manual review. Try again."
           : creationMode === "attach"
             ? "Failed to attach the document to the existing project. Try again."
-            : "Failed to create project handoff. Try again.",
-      );
+            : "Failed to create project handoff. Try again.";
+      setError(error instanceof Error && error.message ? error.message : fallbackMessage);
       setLoading(false);
     }
   };

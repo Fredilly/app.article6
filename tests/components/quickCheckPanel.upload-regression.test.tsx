@@ -5,7 +5,12 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 
+const pushMock = jest.fn();
 const createAndStoreEvidenceAttachmentMock = jest.fn();
+
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ push: pushMock, replace: jest.fn() }),
+}));
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
@@ -22,7 +27,7 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
   }),
 }));
 
-import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
+const QuickCheckPanel = require("@/components/chat/QuickCheckPanel").default as typeof import("@/components/chat/QuickCheckPanel").default;
 
 describe("QuickCheckPanel upload regression", () => {
   let container: HTMLDivElement;
@@ -33,6 +38,13 @@ describe("QuickCheckPanel upload regression", () => {
   }
 
   async function uploadEvidence(file: File) {
+    if (typeof file.arrayBuffer !== "function") {
+      const fallbackBytes = new TextEncoder().encode(file.name);
+      Object.defineProperty(file, "arrayBuffer", {
+        configurable: true,
+        value: async () => asArrayBuffer(fallbackBytes),
+      });
+    }
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
     Object.defineProperty(input, "files", {
       configurable: true,
@@ -64,6 +76,7 @@ describe("QuickCheckPanel upload regression", () => {
     document.body.appendChild(container);
     root = createRoot(container);
     window.localStorage.clear();
+    pushMock.mockReset();
 
     createAndStoreEvidenceAttachmentMock.mockReset();
     createAndStoreEvidenceAttachmentMock.mockImplementation(async (input: { pin_id: string; file: File }) => {

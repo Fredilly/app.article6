@@ -38,7 +38,11 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
   }),
 }));
 
-import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ push: pushMock, replace: jest.fn() }),
+}));
+
+const QuickCheckPanel = require("@/components/chat/QuickCheckPanel").default as typeof import("@/components/chat/QuickCheckPanel").default;
 import { QUICK_CHECK_DEMO } from "@/lib/chat/quickCheckDemo";
 import { loadPins } from "@/lib/proofMap/storage";
 
@@ -847,6 +851,13 @@ describe("QuickCheckPanel claim-first flow", () => {
   }
 
   async function uploadEvidence(file: File) {
+    if (typeof file.arrayBuffer !== "function") {
+      const fallbackBytes = new TextEncoder().encode(file.name);
+      Object.defineProperty(file, "arrayBuffer", {
+        configurable: true,
+        value: async () => asArrayBuffer(fallbackBytes),
+      });
+    }
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
     Object.defineProperty(input, "files", {
       configurable: true,

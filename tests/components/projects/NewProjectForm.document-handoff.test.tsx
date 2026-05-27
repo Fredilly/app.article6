@@ -11,8 +11,9 @@ import {
   jest,
 } from "@jest/globals";
 import { createRoot } from "react-dom/client";
+import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 import { stagePendingProjectDocumentDraft } from "@/lib/projects/documentMetadata";
-import { createProject } from "@/lib/projects/storage";
+import { createProject, lockProject } from "@/lib/projects/storage";
 
 const pushMock = jest.fn();
 
@@ -30,6 +31,10 @@ describe("NewProjectForm document handoff", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
   const originalFetch = global.fetch;
+
+  function asArrayBuffer(value: Uint8Array): ArrayBuffer {
+    return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
+  }
 
   beforeEach(() => {
     container = document.createElement("div");
@@ -55,6 +60,7 @@ describe("NewProjectForm document handoff", () => {
   });
 
   it("prefills extracted fields and requires confirmation before creation", async () => {
+    await putAttachmentBytes("att-pdd-1", asArrayBuffer(new TextEncoder().encode("demo-pdd")));
     stagePendingProjectDocumentDraft({
       source: {
         origin: "quick-check",
@@ -199,6 +205,7 @@ describe("NewProjectForm document handoff", () => {
       reviewMode: "manual",
     });
 
+    await putAttachmentBytes("att-pdd-2", asArrayBuffer(new TextEncoder().encode("demo-pdd-2")));
     stagePendingProjectDocumentDraft({
       source: {
         origin: "quick-check",
@@ -333,5 +340,91 @@ describe("NewProjectForm document handoff", () => {
     });
 
     expect(pushMock).toHaveBeenCalledWith(`/projects/${existingProject.id}`);
+  });
+
+  it("keeps the staged draft and stays on the form when attachment to an existing project fails", async () => {
+    const lockedProject = createProject({
+      name: "Locked Review Workspace",
+      reviewMode: "manual",
+    });
+    lockProject(lockedProject.id);
+
+    await putAttachmentBytes("att-pdd-3", asArrayBuffer(new TextEncoder().encode("locked-project")));
+    stagePendingProjectDocumentDraft({
+      source: {
+        origin: "quick-check",
+        evidenceId: "ev-pdd-3",
+        attachmentId: "att-pdd-3",
+        fileName: "locked-project.pdf",
+        mimeType: "application/pdf",
+        contentSha256: "sha-demo-3",
+        extractedAt: "2026-05-24T00:00:00.000Z",
+      },
+      fields: {
+        projectTitle: { key: "projectTitle", label: "Project Title", value: "Locked Review Workspace", confidence: "high", provenance: null },
+        country: { key: "country", label: "Country", value: "Malawi", confidence: "high", provenance: null },
+        projectId: { key: "projectId", label: "Registry / Project ID", value: "VCS-2001", confidence: "high", provenance: null },
+        methodology: { key: "methodology", label: "Methodology", value: "VM0007", confidence: "medium", provenance: null },
+        standard: { key: "standard", label: "Standard", value: "VCS Standard v4.7", confidence: "medium", provenance: null },
+        proponent: { key: "proponent", label: "Proponent", value: "Article6 Climate", confidence: "high", provenance: null },
+        documentType: { key: "documentType", label: "Document Type", value: "Project Design Document", confidence: "high", provenance: null },
+        version: { key: "version", label: "Version", value: "v1.0", confidence: "medium", provenance: null },
+        documentDate: { key: "documentDate", label: "Document Date", value: "2026-05-24", confidence: "medium", provenance: null },
+      },
+      suggestedExistingProjects: [
+        {
+          projectId: lockedProject.id,
+          projectName: lockedProject.name,
+          projectCode: lockedProject.projectCode,
+          confidence: "high",
+          score: 0.99,
+          matchReasons: ["Matching project title"],
+        },
+      ],
+    });
+
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/projects/methods") {
+        return new Response(JSON.stringify({ methods: [] }), { status: 200 });
+      }
+      throw new Error(`Unhandled fetch ${url}`);
+    }) as typeof fetch;
+
+    await act(async () => {
+      root.render(<NewProjectForm />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const attachButton = Array.from(container.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("Attach to existing project"),
+    ) as HTMLButtonElement | undefined;
+    expect(attachButton).toBeDefined();
+    await act(async () => {
+      attachButton!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    const checkbox = container.querySelector('input[type="checkbox"]') as HTMLInputElement | null;
+    expect(checkbox).not.toBeNull();
+    await act(async () => {
+      checkbox!.click();
+    });
+
+    const submitButton = Array.from(container.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("Continue with this document"),
+    ) as HTMLButtonElement | undefined;
+    expect(submitButton).toBeDefined();
+
+    await act(async () => {
+      submitButton!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("The selected project is locked and cannot accept new documents.");
+    expect(window.sessionStorage.getItem("article6:pending-project-document-draft")).toContain("locked-project.pdf");
   });
 });

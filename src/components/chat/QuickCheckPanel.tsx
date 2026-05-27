@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowUpRight,
   ChevronDown,
@@ -49,6 +50,7 @@ import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
+import { stageProjectDocumentDraftFromAttachment } from "@/lib/projects/documentMetadata";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
 
 type MethodInventoryRecord = {
@@ -537,7 +539,7 @@ export default function QuickCheckPanel({
   initialVersion,
   onContinueToWorkspace,
 }: QuickCheckPanelProps) {
-  void surface;
+  const router = useRouter();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -1250,6 +1252,18 @@ export default function QuickCheckPanel({
       const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file });
       if (!attachmentResult.ok) {
         setFieldErrors({ evidence: attachmentResult.message });
+        return;
+      }
+      if (surface === "start-review") {
+        await stageProjectDocumentDraftFromAttachment({
+          origin: "quick-check",
+          evidenceId,
+          attachmentId: attachmentResult.attachment.id,
+          fileName: attachmentResult.attachment.filename,
+          mimeType: attachmentResult.attachment.mime,
+          contentSha256: attachmentResult.attachment.sha256,
+        });
+        router.push("/start-review?handoff=document-metadata");
         return;
       }
       updateSession((current) => ({

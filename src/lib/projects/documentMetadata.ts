@@ -392,11 +392,22 @@ export async function stageProjectDocumentDraftFromAttachment(input: {
 
 export async function attachPendingProjectDocumentToProject(projectId: string): Promise<void> {
   const draft = readPendingProjectDocumentDraft();
-  if (!draft) return;
+  if (!draft) {
+    throw new Error("No staged document draft is available.");
+  }
   const bytes = await getAttachmentBytes(draft.source.attachmentId);
-  if (!bytes) return;
+  if (!bytes) {
+    throw new Error("The staged document attachment is unavailable.");
+  }
+  const project = listProjects().find((candidate) => candidate.id === projectId);
+  if (!project) {
+    throw new Error("The selected project no longer exists.");
+  }
+  if (project.status === "locked") {
+    throw new Error("The selected project is locked and cannot accept new documents.");
+  }
   const contentBase64 = arrayBufferToBase64(bytes);
-  addProjectDocument(projectId, {
+  const updatedProject = addProjectDocument(projectId, {
     fileName: draft.source.fileName,
     mimeType: draft.source.mimeType,
     sizeBytes: bytes.byteLength,
@@ -407,4 +418,7 @@ export async function attachPendingProjectDocumentToProject(projectId: string): 
       .filter(Boolean)
       .join("\n"),
   });
+  if (!updatedProject) {
+    throw new Error("Failed to attach the staged document to the selected project.");
+  }
 }
