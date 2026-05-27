@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ChangeEvent,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import MapCanvas from "@/components/map/MapCanvas";
 import AuditTrailPanel from "@/components/verifier/AuditTrailPanel";
 import DeltaImpactTasksPanel from "@/components/verify/DeltaImpactTasksPanel";
@@ -18,78 +11,35 @@ import ReviewSummaryCard from "@/components/verify/ReviewSummaryCard";
 import RunHistoryPanel from "@/components/verify/RunHistoryPanel";
 import RuleReadinessFacts from "@/components/verify/RuleReadinessFacts";
 import EvidenceWorkflowStepper from "@/components/verify/EvidenceWorkflowStepper";
-import VerifyReadinessStrip, {
-  type VerifyReadinessChip,
-} from "@/components/verify/VerifyReadinessStrip";
+import VerifyReadinessStrip, { type VerifyReadinessChip } from "@/components/verify/VerifyReadinessStrip";
 import type { AOI, EvidencePin, VerificationRun } from "@/lib/proofMap/types";
-import {
-  aoiDeclaredAreaComparison,
-  ensurePrimaryProjectAreaSelected,
-  parseAoiGeoJson,
-  resolvePrimaryAreaFeature,
-  setAoiDeclaredArea,
-  updateAoiFeatureRole,
-} from "@/lib/proofMap/aoi";
+import { aoiDeclaredAreaComparison, ensurePrimaryProjectAreaSelected, parseAoiGeoJson, resolvePrimaryAreaFeature, setAoiDeclaredArea, updateAoiFeatureRole } from "@/lib/proofMap/aoi";
 import type { ProofEvidenceItem } from "@/lib/proof/bundle";
 import Tooltip from "@/components/ui/Tooltip";
-import {
-  createAndStoreEvidenceAttachment,
-  deleteAttachmentBytes,
-} from "@/lib/proofMap/attachments";
-import {
-  aoiFingerprint,
-  createQueuedVerificationRun,
-  runInputFingerprint,
-  runsForCurrentAoi,
-  runStacEvidenceSearch,
-  selectLatestNonQueuedRunForAoi,
-  shouldDisableRunVerification,
-} from "@/lib/proofMap/verificationRuns";
+import { createAndStoreEvidenceAttachment, deleteAttachmentBytes } from "@/lib/proofMap/attachments";
+import { aoiFingerprint, createQueuedVerificationRun, runInputFingerprint, runsForCurrentAoi, runStacEvidenceSearch, selectLatestNonQueuedRunForAoi, shouldDisableRunVerification } from "@/lib/proofMap/verificationRuns";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import selectLatestOkStacRunForActiveAoi from "@/lib/runs/selectLatestOkStacRunForActiveAoi";
 import normalizeStacItems from "@/lib/stac/normalizeStacItems";
-import {
-  pickProvenanceFields,
-  shortSha as shortCommitSha,
-} from "@/lib/trustFormat";
+import { pickProvenanceFields, shortSha as shortCommitSha } from "@/lib/trustFormat";
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 import { canonicalJsonStringify as canonicalAuditJsonStringify } from "@/lib/auditTrail/canonicalJson";
 import { sha256Hex as auditSha256Hex } from "@/lib/auditTrail/hash";
-import type {
-  AuditTrailEvent,
-  AuditTrailEventInput,
-} from "@/lib/auditTrail/types";
+import type { AuditTrailEvent, AuditTrailEventInput } from "@/lib/auditTrail/types";
 import deriveLinksFromProperties from "@/lib/proofMap/deriveLinksFromProperties";
 import { getWorkspaceWorkFlags } from "@/lib/proofMap/workspace";
 import getFeatureBbox from "@/lib/map/getFeatureBbox";
 import { bboxIntersects, centerFromBbox, unionBbox } from "@/lib/map/bbox";
 import { TICKETS_FEATURE_ENABLED } from "@/lib/flags";
 import { buildOutcomeSnapshot } from "@/lib/verify/snapshotExport";
-import {
-  buildReviewSummary,
-  type ReviewSummary,
-} from "@/lib/verify/buildReviewSummary";
+import { buildReviewSummary, type ReviewSummary } from "@/lib/verify/buildReviewSummary";
 import { buildReviewSummaryPdf } from "@/lib/verify/reviewSummaryPdf";
-import {
-  buildFinalizedExportKpis,
-  buildSelectedStacExport,
-  prepareChecklistExport,
-} from "@/lib/verify/finalizedExport";
+import { buildFinalizedExportKpis, buildSelectedStacExport, prepareChecklistExport } from "@/lib/verify/finalizedExport";
 import { buildStacSupportFactsState } from "@/lib/verify/stacSupportFacts";
 import { isStacEligible } from "@/lib/verify/stacEligibility";
-import {
-  checkFinalizeGate,
-  getAllReviews,
-  getReview,
-  REVIEW_STORE_EVENT,
-  saveReview,
-  type RuleReview,
-} from "@/lib/verify/reviewStore";
+import { checkFinalizeGate, getAllReviews, getReview, REVIEW_STORE_EVENT, saveReview, type RuleReview } from "@/lib/verify/reviewStore";
 import { suggestPddFragmentDraft } from "@/lib/verify/reviewSuggestion";
-import {
-  buildRequirementCoverageRows,
-  reconcileRequirement,
-} from "@/app/m/_lib/requirementCoverage";
+import { buildRequirementCoverageRows, reconcileRequirement } from "@/app/m/_lib/requirementCoverage";
 import { EXPECTED_EVIDENCE_LABELS } from "@/app/m/_lib/requirementCoverage";
 import { deriveRuleReadinessGaps } from "@/lib/readiness/gapEngine";
 import { buildClientReadinessReport } from "@/lib/readiness/clientReadinessReport";
@@ -108,19 +58,11 @@ import {
   upsertPddFragmentOnEvidencePin,
 } from "@/lib/evidence/inventory";
 import { computeMetrics } from "@/lib/evidence/metrics";
-import EvidenceQualityBadge, {
-  ReconciliationConfidenceBadge,
-} from "@/components/evidence/EvidenceQualityBadge";
+import EvidenceQualityBadge, { ReconciliationConfidenceBadge } from "@/components/evidence/EvidenceQualityBadge";
 import type { BaselineKey, BaselineRecord } from "@/lib/baseline/baselineStore";
-import {
-  clearBaseline,
-  getLatestBaselineForMethod,
-  rotateBaseline,
-  setBaseline,
-} from "@/lib/baseline/baselineStore";
+import { clearBaseline, getLatestBaselineForMethod, rotateBaseline, setBaseline } from "@/lib/baseline/baselineStore";
 import { computeUplift, isComparable } from "@/lib/baseline/uplift";
 import { addIntakeItem } from "@/lib/intake/storage";
-import { stageProjectDocumentDraftFromAttachment } from "@/lib/projects/documentMetadata";
 import {
   SNAPSHOT_SCHEMA_VERSION,
   addTaskWithText,
@@ -169,13 +111,15 @@ type ProofMapTabProps = {
   draftAoi: AOI | null;
   evidencePins: EvidencePin[];
   verificationRuns: VerificationRun[];
-  stacEvidenceState: {
-    aoiFingerprint: string;
-    fc: GeoJSON.FeatureCollection;
-    itemsById: Record<string, unknown>;
-    runId: string;
-    source?: { type: "stac_url" | "unknown"; ref: string };
-  } | null;
+  stacEvidenceState:
+    | {
+        aoiFingerprint: string;
+        fc: GeoJSON.FeatureCollection;
+        itemsById: Record<string, unknown>;
+        runId: string;
+        source?: { type: "stac_url" | "unknown"; ref: string };
+      }
+    | null;
   selectedStacItemId: string | null;
   evidenceSnapshots?: ProofEvidenceItem[];
   onSetAoi: (aoi: AOI | null) => void;
@@ -184,25 +128,22 @@ type ProofMapTabProps = {
   onCancelDraftAoi: () => void;
   onUndoApplyAoi: () => void;
   applyToken: number;
-  onSetEvidencePins: (
-    pins: EvidencePin[] | ((current: EvidencePin[]) => EvidencePin[]),
-  ) => void;
+  onSetEvidencePins: (pins: EvidencePin[] | ((current: EvidencePin[]) => EvidencePin[])) => void;
   onSetVerificationRuns: (runs: VerificationRun[]) => void;
   onSetStacEvidenceState: (
-    next: {
-      aoiFingerprint: string;
-      fc: GeoJSON.FeatureCollection;
-      itemsById: Record<string, unknown>;
-      runId: string;
-      source?: { type: "stac_url" | "unknown"; ref: string };
-    } | null,
+    next:
+      | {
+          aoiFingerprint: string;
+          fc: GeoJSON.FeatureCollection;
+          itemsById: Record<string, unknown>;
+          runId: string;
+          source?: { type: "stac_url" | "unknown"; ref: string };
+        }
+      | null,
   ) => void;
   onSelectStacItemId: (id: string | null) => void;
   onStartOver: () => void;
-  onNavigateEvidence: (
-    type: "rule" | "section",
-    id: string,
-  ) => Promise<boolean>;
+  onNavigateEvidence: (type: "rule" | "section", id: string) => Promise<boolean>;
   ruleOptions?: Array<{ id: string; title: string }>;
   onSelectRuleId?: (ruleId: string | null) => void;
   onViewRule?: (ruleId: string) => void;
@@ -217,14 +158,7 @@ type ProofMapTabProps = {
     onJumpToRule: (ruleId: string) => void;
     onOpenEvidence: (url: string) => void;
   } | null;
-  onEvidenceSelectionChange?: (
-    selection: {
-      kind: "evidence";
-      id: string;
-      ruleIds: string[];
-      sectionIds: string[];
-    } | null,
-  ) => void;
+  onEvidenceSelectionChange?: (selection: { kind: "evidence"; id: string; ruleIds: string[]; sectionIds: string[] } | null) => void;
 };
 
 function formatNum(value: number): string {
@@ -242,9 +176,7 @@ function asTrimmedOrNull(value: string | null | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
-export function finalizedArtifactRuleId(
-  artifact: EvidenceSnapshot | null,
-): string | null {
+export function finalizedArtifactRuleId(artifact: EvidenceSnapshot | null): string | null {
   return (
     asTrimmedOrNull(artifact?.summary?.ruleId) ??
     asTrimmedOrNull(artifact?.outcome?.linkage.selectedRuleId) ??
@@ -264,27 +196,11 @@ export function finalizedArtifactMatchesContext(input: {
   const { artifact } = input;
   if (!artifact) return false;
   if (artifact.verifier?.finalizedState !== "finalized") return false;
-  if (
-    asTrimmedOrNull(artifact.verifier?.finalizedAt) !==
-    asTrimmedOrNull(input.finalizedAt)
-  )
-    return false;
-  if (
-    asTrimmedOrNull(artifact.verifier?.runId) !== asTrimmedOrNull(input.runId)
-  )
-    return false;
-  if (
-    asTrimmedOrNull(artifact.method.code) !== asTrimmedOrNull(input.methodCode)
-  )
-    return false;
-  if (
-    asTrimmedOrNull(artifact.method.version) !== asTrimmedOrNull(input.version)
-  )
-    return false;
-  if (
-    finalizedArtifactRuleId(artifact) !== asTrimmedOrNull(input.selectedRuleId)
-  )
-    return false;
+  if (asTrimmedOrNull(artifact.verifier?.finalizedAt) !== asTrimmedOrNull(input.finalizedAt)) return false;
+  if (asTrimmedOrNull(artifact.verifier?.runId) !== asTrimmedOrNull(input.runId)) return false;
+  if (asTrimmedOrNull(artifact.method.code) !== asTrimmedOrNull(input.methodCode)) return false;
+  if (asTrimmedOrNull(artifact.method.version) !== asTrimmedOrNull(input.version)) return false;
+  if (finalizedArtifactRuleId(artifact) !== asTrimmedOrNull(input.selectedRuleId)) return false;
   return true;
 }
 
@@ -302,10 +218,7 @@ function downloadJson(value: unknown, filename: string) {
 }
 
 function downloadBytes(bytes: Uint8Array, filename: string, mimeType: string) {
-  const blobPart = bytes.buffer.slice(
-    bytes.byteOffset,
-    bytes.byteOffset + bytes.byteLength,
-  ) as ArrayBuffer;
+  const blobPart = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
   const blob = new Blob([blobPart], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -322,19 +235,11 @@ function safeFilename(value: string): string {
   return trimmed.replace(/[^\w.\-]+/g, "_").slice(0, 64) || "unknown";
 }
 
-function clientReadinessReportId(
-  methodCode: string,
-  version: string,
-  runId: string,
-): string {
+function clientReadinessReportId(methodCode: string, version: string, runId: string): string {
   return `CRR-${safeFilename(methodCode)}-${safeFilename(version)}-${safeFilename(runId)}`;
 }
 
-function vvbWorkpaperReportId(
-  methodCode: string,
-  version: string,
-  runId: string,
-): string {
+function vvbWorkpaperReportId(methodCode: string, version: string, runId: string): string {
   return `VVB-WP-${safeFilename(methodCode)}-${safeFilename(version)}-${safeFilename(runId)}`;
 }
 
@@ -346,10 +251,7 @@ function inventoryHaystack(item: EvidenceInventoryItem): string {
     item.source_summary,
     item.provenance_summary,
     item.pdd_document?.file_name,
-    ...(item.workbook_assets ?? []).flatMap((asset) => [
-      asset.file_name,
-      asset.file_kind,
-    ]),
+    ...(item.workbook_assets ?? []).flatMap((asset) => [asset.file_name, asset.file_kind]),
   ]
     .filter(Boolean)
     .join(" ")
@@ -361,43 +263,13 @@ function inventoryMatchesExpectedEvidence(
   expectedType: keyof typeof EXPECTED_EVIDENCE_LABELS,
 ): boolean {
   const haystack = inventoryHaystack(item);
-  if (expectedType === "monitoring-report")
-    return (
-      haystack.includes("monitoring report") ||
-      haystack.includes("monitoring-report")
-    );
-  if (expectedType === "spreadsheet-workbook")
-    return (
-      haystack.includes("spreadsheet") ||
-      haystack.includes("workbook") ||
-      haystack.includes(".xlsx") ||
-      haystack.includes(".csv")
-    );
-  if (expectedType === "pdd")
-    return (
-      haystack.includes("pdd") || haystack.includes("project design document")
-    );
-  if (expectedType === "gis")
-    return (
-      haystack.includes("gis") ||
-      haystack.includes("satellite") ||
-      haystack.includes("stac") ||
-      haystack.includes("map evidence")
-    );
-  if (expectedType === "qa-qc-record")
-    return (
-      haystack.includes("qa/qc") ||
-      haystack.includes("qa qc") ||
-      haystack.includes("qa-qc")
-    );
-  if (expectedType === "eligibility-proof")
-    return haystack.includes("eligibility");
-  if (expectedType === "calculation-support")
-    return (
-      haystack.includes("calculation") ||
-      haystack.includes("parameter") ||
-      haystack.includes("support")
-    );
+  if (expectedType === "monitoring-report") return haystack.includes("monitoring report") || haystack.includes("monitoring-report");
+  if (expectedType === "spreadsheet-workbook") return haystack.includes("spreadsheet") || haystack.includes("workbook") || haystack.includes(".xlsx") || haystack.includes(".csv");
+  if (expectedType === "pdd") return haystack.includes("pdd") || haystack.includes("project design document");
+  if (expectedType === "gis") return haystack.includes("gis") || haystack.includes("satellite") || haystack.includes("stac") || haystack.includes("map evidence");
+  if (expectedType === "qa-qc-record") return haystack.includes("qa/qc") || haystack.includes("qa qc") || haystack.includes("qa-qc");
+  if (expectedType === "eligibility-proof") return haystack.includes("eligibility");
+  if (expectedType === "calculation-support") return haystack.includes("calculation") || haystack.includes("parameter") || haystack.includes("support");
   return item.link_state === "linked" || item.kind !== "stac-item";
 }
 
@@ -416,13 +288,7 @@ function parseBbox(value: unknown): [number, number, number, number] | null {
   const b = value[1];
   const c = value[2];
   const d = value[3];
-  if (
-    typeof a !== "number" ||
-    typeof b !== "number" ||
-    typeof c !== "number" ||
-    typeof d !== "number"
-  )
-    return null;
+  if (typeof a !== "number" || typeof b !== "number" || typeof c !== "number" || typeof d !== "number") return null;
   if (![a, b, c, d].every((n) => Number.isFinite(n))) return null;
   return [a, b, c, d];
 }
@@ -434,17 +300,11 @@ function formatLocalDateTime(iso: string): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 }
 
-function formatSnapshotSummaryTime(value: string | null | undefined): {
-  label: string;
-  title?: string;
-} {
+function formatSnapshotSummaryTime(value: string | null | undefined): { label: string; title?: string } {
   if (!value) return { label: "Not exported" };
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return { label: "Exported", title: value };
-  const time = date.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return { label: `Exported ${time}`, title: date.toISOString() };
 }
 
@@ -456,20 +316,12 @@ function inventoryLinkStateLabel(linkedRequirementIds: string[]): string {
 
 function inventoryRelationshipSummary(linkedRequirementIds: string[]): string {
   if (!linkedRequirementIds.length) return "Not linked yet";
-  if (linkedRequirementIds.length === 1)
-    return `Linked to ${linkedRequirementIds[0]}`;
+  if (linkedRequirementIds.length === 1) return `Linked to ${linkedRequirementIds[0]}`;
   return `Linked to ${linkedRequirementIds.join(", ")}`;
 }
 
-function formatPddPageLabel(
-  pageStart?: number,
-  pageEnd?: number,
-): string | null {
-  if (
-    typeof pageStart === "number" &&
-    typeof pageEnd === "number" &&
-    pageStart !== pageEnd
-  ) {
+function formatPddPageLabel(pageStart?: number, pageEnd?: number): string | null {
+  if (typeof pageStart === "number" && typeof pageEnd === "number" && pageStart !== pageEnd) {
     return `p. ${pageStart}-${pageEnd}`;
   }
   if (typeof pageStart === "number") return `p. ${pageStart}`;
@@ -497,14 +349,7 @@ const EMPTY_PDD_FRAGMENT_DRAFT: PddFragmentDraft = {
 
 function isEmptyPddFragmentDraft(draft: PddFragmentDraft | undefined): boolean {
   if (!draft) return true;
-  return (
-    !draft.label.trim() &&
-    !draft.pageStart.trim() &&
-    !draft.pageEnd.trim() &&
-    !draft.sectionLabel.trim() &&
-    !draft.sectionHeading.trim() &&
-    !draft.excerpt.trim()
-  );
+  return !draft.label.trim() && !draft.pageStart.trim() && !draft.pageEnd.trim() && !draft.sectionLabel.trim() && !draft.sectionHeading.trim() && !draft.excerpt.trim();
 }
 
 function formatPddFragmentDisplayLabel(fragment: {
@@ -513,18 +358,12 @@ function formatPddFragmentDisplayLabel(fragment: {
   section_label?: string;
   fragment_id: string;
 }): string {
-  return (
-    fragment.label?.trim() ||
-    fragment.section_heading?.trim() ||
-    fragment.section_label?.trim() ||
-    fragment.fragment_id
-  );
+  return fragment.label?.trim() || fragment.section_heading?.trim() || fragment.section_label?.trim() || fragment.fragment_id;
 }
 
 function formatDelta(value: number, suffix = "", digits = 0): string {
   const sign = value > 0 ? "+" : value < 0 ? "" : "";
-  const rounded =
-    digits > 0 ? value.toFixed(digits) : String(Math.trunc(value));
+  const rounded = digits > 0 ? value.toFixed(digits) : String(Math.trunc(value));
   return `${sign}${rounded}${suffix}`;
 }
 
@@ -542,11 +381,7 @@ function extractItemIdsFromRuns(runs: VerificationRun[]): string[] {
   return [];
 }
 
-function zoomToBbox(
-  map: MapLibreMap | null,
-  bbox: [number, number, number, number] | null,
-  padding = 70,
-) {
+function zoomToBbox(map: MapLibreMap | null, bbox: [number, number, number, number] | null, padding = 70) {
   if (!map?.fitBounds) return;
   if (!bbox) return;
   try {
@@ -580,34 +415,12 @@ function asNonEmptyString(value: unknown): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-function statusPill(status: VerificationRun["status"]): {
-  label: string;
-  className: string;
-} {
-  if (status === "ok")
-    return {
-      label: "OK",
-      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    };
-  if (status === "warn")
-    return {
-      label: "WARN",
-      className: "bg-amber-50 text-amber-800 border-amber-200",
-    };
-  if (status === "fail")
-    return {
-      label: "FAIL",
-      className: "bg-rose-50 text-rose-700 border-rose-200",
-    };
-  if (status === "queued")
-    return {
-      label: "QUEUED",
-      className: "bg-slate-50 text-slate-700 border-slate-200",
-    };
-  return {
-    label: "ERROR",
-    className: "bg-rose-50 text-rose-700 border-rose-200",
-  };
+function statusPill(status: VerificationRun["status"]): { label: string; className: string } {
+  if (status === "ok") return { label: "OK", className: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+  if (status === "warn") return { label: "WARN", className: "bg-amber-50 text-amber-800 border-amber-200" };
+  if (status === "fail") return { label: "FAIL", className: "bg-rose-50 text-rose-700 border-rose-200" };
+  if (status === "queued") return { label: "QUEUED", className: "bg-slate-50 text-slate-700 border-slate-200" };
+  return { label: "ERROR", className: "bg-rose-50 text-rose-700 border-rose-200" };
 }
 
 export default function ProofMapTab({
@@ -653,22 +466,15 @@ export default function ProofMapTab({
   const isEvidenceMode = mode === "evidence";
   const isListMode = viewMode === "list";
   const [error, setError] = useState<string | null>(null);
-  const [projectDraftReady, setProjectDraftReady] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [undoVisible, setUndoVisible] = useState(false);
   const [snapshot, setSnapshot] = useState<ProofEvidenceItem | null>(null);
   const [runJson, setRunJson] = useState<VerificationRun | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<
-    string | null
-  >(null);
+  const [currentAoiFingerprint, setCurrentAoiFingerprint] = useState<string | null>(null);
   const [confirmedAoiKey, setConfirmedAoiKey] = useState<string | null>(null);
-  const [currentAoiHashForCompare, setCurrentAoiHashForCompare] = useState<
-    string | null
-  >(null);
-  const [draftAoiFingerprint, setDraftAoiFingerprint] = useState<string | null>(
-    null,
-  );
+  const [currentAoiHashForCompare, setCurrentAoiHashForCompare] = useState<string | null>(null);
+  const [draftAoiFingerprint, setDraftAoiFingerprint] = useState<string | null>(null);
   const [showSameAoiPrompt, setShowSameAoiPrompt] = useState(false);
   const [declaredAreaInput, setDeclaredAreaInput] = useState("");
   const [draftTask, setDraftTask] = useState("");
@@ -678,28 +484,18 @@ export default function ProofMapTab({
   const mapRef = useRef<MapLibreMap | null>(null);
   const [mapReadyTick, setMapReadyTick] = useState(0);
   const [stacCentroidsEnabled, setStacCentroidsEnabled] = useState(true);
-  const [viewportBbox, setViewportBbox] = useState<
-    [number, number, number, number] | null
-  >(null);
+  const [viewportBbox, setViewportBbox] = useState<[number, number, number, number] | null>(null);
   const stacEvidenceCardRef = useRef<HTMLDivElement | null>(null);
   const [stacInspectOpen, setStacInspectOpen] = useState(false);
-  const [lastSelectionSource, setLastSelectionSource] = useState<
-    "pin" | "polygon" | null
-  >(null);
+  const [lastSelectionSource, setLastSelectionSource] = useState<"pin" | "polygon" | null>(null);
   const lastAoiSelectionResetKeyRef = useRef<string | null>(null);
   const [startOverOpen, setStartOverOpen] = useState(false);
   const [startOverBusy, setStartOverBusy] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
-  const [verifierBundle, setVerifierBundle] = useState(() =>
-    readVerifierRunBundle(methodCode, version, workspaceId),
-  );
-  const [runHistory, setRunHistory] = useState(() =>
-    readRunHistory(methodCode, version, workspaceId),
-  );
+  const [verifierBundle, setVerifierBundle] = useState(() => readVerifierRunBundle(methodCode, version, workspaceId));
+  const [runHistory, setRunHistory] = useState(() => readRunHistory(methodCode, version, workspaceId));
   const [baselineTick, setBaselineTick] = useState(0);
-  const [currentInputFingerprint, setCurrentInputFingerprint] = useState<
-    string | null
-  >(null);
+  const [currentInputFingerprint, setCurrentInputFingerprint] = useState<string | null>(null);
   const [secondarySectionOpen, setSecondarySectionOpen] = useState(false);
   const [runHistoryOpen, setRunHistoryOpen] = useState(false);
   const [outcomeOpen, setOutcomeOpen] = useState(false);
@@ -711,28 +507,17 @@ export default function ProofMapTab({
     expectedEvidence: string[];
     tags: string[];
   } | null>(null);
-  const [reviewArtifact, setReviewArtifact] = useState<EvidenceSnapshot | null>(
-    null,
-  );
+  const [reviewArtifact, setReviewArtifact] = useState<EvidenceSnapshot | null>(null);
   const [reviewPdfBusy, setReviewPdfBusy] = useState(false);
   const [reviewPdfError, setReviewPdfError] = useState<string | null>(null);
-  const [clientReadinessExportBusy, setClientReadinessExportBusy] =
-    useState(false);
-  const [clientReadinessExportError, setClientReadinessExportError] = useState<
-    string | null
-  >(null);
+  const [clientReadinessExportBusy, setClientReadinessExportBusy] = useState(false);
+  const [clientReadinessExportError, setClientReadinessExportError] = useState<string | null>(null);
   const [vvbWorkpaperExportBusy, setVvbWorkpaperExportBusy] = useState(false);
-  const [vvbWorkpaperExportError, setVvbWorkpaperExportError] = useState<
-    string | null
-  >(null);
+  const [vvbWorkpaperExportError, setVvbWorkpaperExportError] = useState<string | null>(null);
   const uploadAoiInputRef = useRef<HTMLInputElement | null>(null);
   const uploadPddInputRef = useRef<HTMLInputElement | null>(null);
-  const [pddFragmentDrafts, setPddFragmentDrafts] = useState<
-    Record<string, PddFragmentDraft>
-  >({});
-  const [initialViewportBbox, setInitialViewportBbox] = useState<
-    [number, number, number, number] | null
-  >(() => {
+  const [pddFragmentDrafts, setPddFragmentDrafts] = useState<Record<string, PddFragmentDraft>>({});
+  const [initialViewportBbox, setInitialViewportBbox] = useState<[number, number, number, number] | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = new URLSearchParams(window.location.search).get("bbox");
     if (!raw) return null;
@@ -744,11 +529,7 @@ export default function ProofMapTab({
 
   useEffect(() => {
     const declaredArea = aoi?.declared_area_km2;
-    setDeclaredAreaInput(
-      typeof declaredArea === "number" && Number.isFinite(declaredArea)
-        ? String(declaredArea)
-        : "",
-    );
+    setDeclaredAreaInput(typeof declaredArea === "number" && Number.isFinite(declaredArea) ? String(declaredArea) : "");
   }, [aoi?.declared_area_km2, aoi?.id]);
 
   const currentAoiConfirmationKey = useMemo(() => {
@@ -767,12 +548,8 @@ export default function ProofMapTab({
     });
   }, [aoi, currentAoiFingerprint]);
 
-  const hasConfirmedArea = Boolean(
-    currentAoiConfirmationKey && confirmedAoiKey === currentAoiConfirmationKey,
-  );
-  const confirmedAoiFingerprint = hasConfirmedArea
-    ? currentAoiFingerprint
-    : null;
+  const hasConfirmedArea = Boolean(currentAoiConfirmationKey && confirmedAoiKey === currentAoiConfirmationKey);
+  const confirmedAoiFingerprint = hasConfirmedArea ? currentAoiFingerprint : null;
 
   useEffect(() => {
     if (!pendingAutoConfirmAoiRef.current) return;
@@ -780,48 +557,26 @@ export default function ProofMapTab({
     setConfirmedAoiKey(currentAoiConfirmationKey);
     pendingAutoConfirmAoiRef.current = false;
   }, [currentAoiConfirmationKey]);
-  const viewStorageKey = useMemo(
-    () => `${methodCode}@${version}`,
-    [methodCode, version],
-  );
-  const linkedRuleIds = useMemo(
-    () => linkedRuleIdsFromPins(evidencePins),
-    [evidencePins],
-  );
+  const viewStorageKey = useMemo(() => `${methodCode}@${version}`, [methodCode, version]);
+  const linkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
   const linkedPinsCount = useMemo(
-    () =>
-      evidencePins.filter((pin) => linkedRuleIdsFromPins([pin]).length > 0)
-        .length,
+    () => evidencePins.filter((pin) => linkedRuleIdsFromPins([pin]).length > 0).length,
     [evidencePins],
   );
-  const evidenceInventory = useMemo(
-    () => buildEvidenceInventory(evidencePins),
-    [evidencePins],
-  );
-  const evidenceMetrics = useMemo(
-    () => computeMetrics({ inventoryItems: evidenceInventory }),
-    [evidenceInventory],
-  );
+  const evidenceInventory = useMemo(() => buildEvidenceInventory(evidencePins), [evidencePins]);
+  const evidenceMetrics = useMemo(() => computeMetrics({ inventoryItems: evidenceInventory }), [evidenceInventory]);
   const qualityByEvidenceId = useMemo(
-    () =>
-      new Map(evidenceMetrics.fragmentQualities.map((q) => [q.evidenceId, q])),
+    () => new Map(evidenceMetrics.fragmentQualities.map((q) => [q.evidenceId, q])),
     [evidenceMetrics],
   );
-  const evidencePinsById = useMemo(
-    () => new Map(evidencePins.map((pin) => [pin.id, pin])),
-    [evidencePins],
-  );
+  const evidencePinsById = useMemo(() => new Map(evidencePins.map((pin) => [pin.id, pin])), [evidencePins]);
   const selectedRuleId = activeRuleId ?? null;
 
   const showToast = useCallback((message: string | ToastState) => {
     const next = typeof message === "string" ? { title: message } : message;
     setToast(next);
     window.setTimeout(() => {
-      setToast((current) =>
-        current?.title === next.title && current?.subtitle === next.subtitle
-          ? null
-          : current,
-      );
+      setToast((current) => (current?.title === next.title && current?.subtitle === next.subtitle ? null : current));
     }, 1600);
   }, []);
 
@@ -841,14 +596,8 @@ export default function ProofMapTab({
       };
     }
     const cited_ids = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-    const attachment_sha256 = evidencePins.flatMap((pin) =>
-      (pin.attachments ?? []).map((att) => att.sha256),
-    );
-    runInputFingerprint({
-      aoi_fp: currentAoiFingerprint,
-      cited_ids,
-      attachment_sha256,
-    })
+    const attachment_sha256 = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
+    runInputFingerprint({ aoi_fp: currentAoiFingerprint, cited_ids, attachment_sha256 })
       .then((hash) => {
         if (active) setCurrentInputFingerprint(hash);
       })
@@ -860,17 +609,14 @@ export default function ProofMapTab({
     };
   }, [currentAoiFingerprint, evidencePins]);
 
-  const copyToClipboard = useCallback(
-    async (value: string) => {
-      try {
-        await navigator.clipboard.writeText(value);
-        showToast("Copied");
-      } catch {
-        showToast("Copy failed");
-      }
-    },
-    [showToast],
-  );
+  const copyToClipboard = useCallback(async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      showToast("Copied");
+    } catch {
+      showToast("Copy failed");
+    }
+  }, [showToast]);
 
   const fetchSelectedRuleContext = useCallback(
     async (ruleId: string | null) => {
@@ -889,9 +635,7 @@ export default function ProofMapTab({
           { cache: "no-store" },
         );
         if (!ruleResponse.ok) return fallback;
-        const rulePayload = (await ruleResponse.json()) as {
-          rule?: Record<string, unknown>;
-        };
+        const rulePayload = (await ruleResponse.json()) as { rule?: Record<string, unknown> };
         const ruleRecord = rulePayload.rule;
         if (!ruleRecord || typeof ruleRecord !== "object") return fallback;
         const sectionId = asNonEmptyString(ruleRecord.sectionId) ?? null;
@@ -903,16 +647,10 @@ export default function ProofMapTab({
               { cache: "no-store" },
             );
             if (sectionsResponse.ok) {
-              const sectionsPayload = (await sectionsResponse.json()) as {
-                sections?: Array<Record<string, unknown>>;
-              };
+              const sectionsPayload = (await sectionsResponse.json()) as { sections?: Array<Record<string, unknown>> };
               const match =
-                sectionsPayload.sections?.find(
-                  (item) => asNonEmptyString(item.id) === sectionId,
-                ) ?? null;
-              sectionTitle = match
-                ? (asNonEmptyString(match.title) ?? sectionId)
-                : sectionId;
+                sectionsPayload.sections?.find((item) => asNonEmptyString(item.id) === sectionId) ?? null;
+              sectionTitle = match ? asNonEmptyString(match.title) ?? sectionId : sectionId;
             } else {
               sectionTitle = sectionId;
             }
@@ -926,39 +664,18 @@ export default function ProofMapTab({
           sectionId,
           sectionTitle,
           expectedEvidence: Array.isArray(ruleRecord.expectedEvidence)
-            ? ruleRecord.expectedEvidence.filter(
-                (value): value is string => typeof value === "string",
-              )
-            : Array.isArray(
-                  (
-                    ruleRecord.requirement_coverage as
-                      | { expected_evidence?: unknown }
-                      | undefined
-                  )?.expected_evidence,
+            ? ruleRecord.expectedEvidence.filter((value): value is string => typeof value === "string")
+            : Array.isArray((ruleRecord.requirement_coverage as { expected_evidence?: unknown } | undefined)?.expected_evidence)
+              ? ((ruleRecord.requirement_coverage as { expected_evidence?: unknown[] }).expected_evidence ?? []).filter(
+                  (value): value is string => typeof value === "string",
                 )
-              ? (
-                  (
-                    ruleRecord.requirement_coverage as {
-                      expected_evidence?: unknown[];
-                    }
-                  ).expected_evidence ?? []
-                ).filter((value): value is string => typeof value === "string")
               : [],
           tags: Array.isArray(ruleRecord.tags)
-            ? ruleRecord.tags.filter(
-                (value): value is string => typeof value === "string",
-              )
-            : Array.isArray(
-                  (
-                    ruleRecord.requirement_coverage as
-                      | { tags?: unknown }
-                      | undefined
-                  )?.tags,
+            ? ruleRecord.tags.filter((value): value is string => typeof value === "string")
+            : Array.isArray((ruleRecord.requirement_coverage as { tags?: unknown } | undefined)?.tags)
+              ? ((ruleRecord.requirement_coverage as { tags?: unknown[] }).tags ?? []).filter(
+                  (value): value is string => typeof value === "string",
                 )
-              ? (
-                  (ruleRecord.requirement_coverage as { tags?: unknown[] })
-                    .tags ?? []
-                ).filter((value): value is string => typeof value === "string")
               : [],
         };
       } catch {
@@ -989,12 +706,7 @@ export default function ProofMapTab({
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      persistVerifierRunBundle(
-        methodCode,
-        version,
-        verifierBundle,
-        workspaceId,
-      );
+      persistVerifierRunBundle(methodCode, version, verifierBundle, workspaceId);
     }, 300);
     return () => window.clearTimeout(timer);
   }, [methodCode, verifierBundle, version, workspaceId]);
@@ -1009,49 +721,22 @@ export default function ProofMapTab({
         ruleId: selectedRuleId,
         runId: verifierBundle.runContext.runId,
       }),
-    [
-      methodCode,
-      selectedRuleId,
-      verifierBundle.runContext.runId,
-      version,
-      workspaceId,
-    ],
+    [methodCode, selectedRuleId, verifierBundle.runContext.runId, version, workspaceId],
   );
   const activeRuleReview = useMemo<RuleReview | null>(() => {
     void reviewGateVersion;
     if (!selectedRuleId) return null;
-    return getReview(
-      selectedRuleId,
-      methodCode,
-      version,
-      workspaceId,
-      verifierBundle.runContext.runId,
-    );
-  }, [
-    methodCode,
-    reviewGateVersion,
-    selectedRuleId,
-    verifierBundle.runContext.runId,
-    version,
-    workspaceId,
-  ]);
+    return getReview(selectedRuleId, methodCode, version, workspaceId, verifierBundle.runContext.runId);
+  }, [methodCode, reviewGateVersion, selectedRuleId, verifierBundle.runContext.runId, version, workspaceId]);
 
   useEffect(() => {
     setVerifierBundle((current) => {
-      if (
-        reviewerArtifactContextMatches(
-          current.reviewerContext,
-          currentReviewerContext,
-        )
-      )
-        return current;
+      if (reviewerArtifactContextMatches(current.reviewerContext, currentReviewerContext)) return current;
       const scopedState = readReviewerArtifactState(currentReviewerContext);
       return {
         ...current,
         reviewerContext: currentReviewerContext,
-        savedReviewerArtifactContext: scopedState?.savedReviewerArtifactAt
-          ? scopedState.context
-          : null,
+        savedReviewerArtifactContext: scopedState?.savedReviewerArtifactAt ? scopedState.context : null,
         minutes: scopedState?.minutes ?? "",
         outcomeNote: scopedState?.outcomeNote ?? "",
         draftMinutes: scopedState?.draftMinutes ?? "",
@@ -1064,15 +749,8 @@ export default function ProofMapTab({
   useEffect(() => {
     if (!selectedRuleId) return;
     setVerifierBundle((current) => {
-      if (
-        !reviewerArtifactContextMatches(
-          current.reviewerContext,
-          currentReviewerContext,
-        )
-      )
-        return current;
-      const savedReviewerArtifactAt =
-        activeRuleReview?.reviewerArtifactSavedAt ?? null;
+      if (!reviewerArtifactContextMatches(current.reviewerContext, currentReviewerContext)) return current;
+      const savedReviewerArtifactAt = activeRuleReview?.reviewerArtifactSavedAt ?? null;
       const minutes = activeRuleReview?.reviewerMinutes ?? "";
       const outcomeNote = activeRuleReview?.reviewerOutcomeNote ?? "";
       if (
@@ -1086,9 +764,7 @@ export default function ProofMapTab({
       }
       return {
         ...current,
-        savedReviewerArtifactContext: savedReviewerArtifactAt
-          ? currentReviewerContext
-          : null,
+        savedReviewerArtifactContext: savedReviewerArtifactAt ? currentReviewerContext : null,
         savedReviewerArtifactAt,
         minutes,
         outcomeNote,
@@ -1103,10 +779,7 @@ export default function ProofMapTab({
       context: verifierBundle.reviewerContext,
       savedReviewerArtifactAt:
         verifierBundle.savedReviewerArtifactContext &&
-        reviewerArtifactContextMatches(
-          verifierBundle.savedReviewerArtifactContext,
-          verifierBundle.reviewerContext,
-        )
+        reviewerArtifactContextMatches(verifierBundle.savedReviewerArtifactContext, verifierBundle.reviewerContext)
           ? verifierBundle.savedReviewerArtifactAt
           : null,
       minutes: verifierBundle.minutes,
@@ -1127,30 +800,18 @@ export default function ProofMapTab({
   const markBundleEdited = useCallback(
     (
       current: typeof verifierBundle,
-      options: {
-        invalidateFinality?: boolean;
-        clearSavedReviewerArtifact?: boolean;
-      } = {},
+      options: { invalidateFinality?: boolean; clearSavedReviewerArtifact?: boolean } = {},
     ) => {
       const invalidateFinality = options.invalidateFinality ?? false;
-      const clearSavedReviewerArtifact =
-        options.clearSavedReviewerArtifact ?? invalidateFinality;
+      const clearSavedReviewerArtifact = options.clearSavedReviewerArtifact ?? invalidateFinality;
       return {
         ...current,
         isEditedDraft:
           current.isEditedDraft ||
-          Boolean(
-            current.loadedFromRunId ||
-            current.derivedFromRunId ||
-            current.exportedAt,
-          ),
+          Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt),
         exportedAt: invalidateFinality ? null : current.exportedAt,
-        savedReviewerArtifactAt: clearSavedReviewerArtifact
-          ? null
-          : current.savedReviewerArtifactAt,
-        savedReviewerArtifactContext: clearSavedReviewerArtifact
-          ? null
-          : current.savedReviewerArtifactContext,
+        savedReviewerArtifactAt: clearSavedReviewerArtifact ? null : current.savedReviewerArtifactAt,
+        savedReviewerArtifactContext: clearSavedReviewerArtifact ? null : current.savedReviewerArtifactContext,
         finalizedAt: invalidateFinality ? null : current.finalizedAt,
         minutes: clearSavedReviewerArtifact ? "" : current.minutes,
         outcomeNote: clearSavedReviewerArtifact ? "" : current.outcomeNote,
@@ -1165,12 +826,7 @@ export default function ProofMapTab({
       draftMinutes: value,
       isEditedDraft:
         current.isEditedDraft ||
-        (value !== current.minutes &&
-          Boolean(
-            current.loadedFromRunId ||
-            current.derivedFromRunId ||
-            current.exportedAt,
-          )),
+        (value !== current.minutes && Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
     }));
   }, []);
 
@@ -1181,11 +837,7 @@ export default function ProofMapTab({
       isEditedDraft:
         current.isEditedDraft ||
         (value !== current.outcomeNote &&
-          Boolean(
-            current.loadedFromRunId ||
-            current.derivedFromRunId ||
-            current.exportedAt,
-          )),
+          Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
     }));
   }, []);
 
@@ -1194,9 +846,7 @@ export default function ProofMapTab({
     const savedAt = new Date().toISOString();
     let nextReview: RuleReview | null = null;
     setVerifierBundle((current) => {
-      const hasSavedArtifact = Boolean(
-        current.draftMinutes.trim() || current.draftOutcomeNote.trim(),
-      );
+      const hasSavedArtifact = Boolean(current.draftMinutes.trim() || current.draftOutcomeNote.trim());
       const reviewerContext = createReviewerArtifactContext({
         methodCode,
         version,
@@ -1231,28 +881,13 @@ export default function ProofMapTab({
         savedReviewerArtifactAt: hasSavedArtifact ? savedAt : null,
         isEditedDraft:
           current.isEditedDraft ||
-          ((current.draftMinutes !== current.minutes ||
-            current.draftOutcomeNote !== current.outcomeNote) &&
-            Boolean(
-              current.loadedFromRunId ||
-              current.derivedFromRunId ||
-              current.exportedAt,
-            )),
+          ((current.draftMinutes !== current.minutes || current.draftOutcomeNote !== current.outcomeNote) &&
+            Boolean(current.loadedFromRunId || current.derivedFromRunId || current.exportedAt)),
       };
     });
     if (nextReview) saveReview(nextReview);
-    showToast({
-      title: "Reviewer artifact saved",
-      subtitle: "Saved text now counts for run completion",
-    });
-  }, [
-    activeRuleReview,
-    methodCode,
-    selectedRuleId,
-    showToast,
-    version,
-    workspaceId,
-  ]);
+    showToast({ title: "Reviewer artifact saved", subtitle: "Saved text now counts for run completion" });
+  }, [activeRuleReview, methodCode, selectedRuleId, showToast, version, workspaceId]);
 
   const handleUploadAoiChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -1263,10 +898,7 @@ export default function ProofMapTab({
       try {
         const text = await file.text();
         const parsed = JSON.parse(text) as unknown;
-        const result = parseAoiGeoJson(
-          parsed,
-          file.name.replace(/\.(geojson|json)$/i, ""),
-        );
+        const result = parseAoiGeoJson(parsed, file.name.replace(/\.(geojson|json)$/i, ""));
         if (!result.ok) {
           setError(result.error);
           return;
@@ -1283,58 +915,31 @@ export default function ProofMapTab({
             // ignore hash failures
           }
         }
-        setVerifierBundle((current) =>
-          markBundleEdited(current, { invalidateFinality: true }),
-        );
+        setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
         onSelectStacItemId(null);
-        pendingAutoConfirmAoiRef.current =
-          resolved.ok && resolved.status === "confirmed";
+        pendingAutoConfirmAoiRef.current = resolved.ok && resolved.status === "confirmed";
         if (!resolved.ok) setConfirmedAoiKey(null);
         onUploadAoi(resolved.aoi);
         if (resolved.ok) {
           setError(null);
-          showToast({
-            title:
-              "Primary project area detected. Review or confirm to continue.",
-          });
+          showToast({ title: "Primary project area detected. Review or confirm to continue." });
         } else if (!ensurePrimaryProjectAreaSelected(resolved.aoi)) {
-          setError(
-            resolved.error ??
-              "Select exactly one primary project area feature to continue.",
-          );
+          setError(resolved.error ?? "Select exactly one primary project area feature to continue.");
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
     },
-    [
-      markBundleEdited,
-      onAuditEvent,
-      onSelectStacItemId,
-      onUploadAoi,
-      showToast,
-    ],
+    [markBundleEdited, onAuditEvent, onSelectStacItemId, onUploadAoi, showToast],
   );
 
-  const handleDeltaChange = useCallback(
-    (value: string) => {
-      setVerifierBundle((current) => ({
-        ...markBundleEdited(current, { invalidateFinality: true }),
-        delta: value,
-      }));
-    },
-    [markBundleEdited],
-  );
+  const handleDeltaChange = useCallback((value: string) => {
+    setVerifierBundle((current) => ({ ...markBundleEdited(current, { invalidateFinality: true }), delta: value }));
+  }, [markBundleEdited]);
 
-  const handleImpactChange = useCallback(
-    (value: string) => {
-      setVerifierBundle((current) => ({
-        ...markBundleEdited(current, { invalidateFinality: true }),
-        impact: value,
-      }));
-    },
-    [markBundleEdited],
-  );
+  const handleImpactChange = useCallback((value: string) => {
+    setVerifierBundle((current) => ({ ...markBundleEdited(current, { invalidateFinality: true }), impact: value }));
+  }, [markBundleEdited]);
 
   const commitDraftTask = useCallback(() => {
     const text = draftTask.trim();
@@ -1355,45 +960,32 @@ export default function ProofMapTab({
     });
   }, []);
 
-  const handleToggleTask = useCallback(
-    (id: string) => {
-      const timestamp = new Date().toISOString();
-      setVerifierBundle((current) => ({
-        ...markBundleEdited(current, { invalidateFinality: true }),
-        tasks: current.tasks.map((task) =>
-          task.id === id
-            ? { ...task, done: !task.done, updatedAt: timestamp }
-            : task,
-        ),
-      }));
-    },
-    [markBundleEdited],
-  );
+  const handleToggleTask = useCallback((id: string) => {
+    const timestamp = new Date().toISOString();
+    setVerifierBundle((current) => ({
+      ...markBundleEdited(current, { invalidateFinality: true }),
+      tasks: current.tasks.map((task) =>
+        task.id === id ? { ...task, done: !task.done, updatedAt: timestamp } : task,
+      ),
+    }));
+  }, [markBundleEdited]);
 
-  const handleUpdateTask = useCallback(
-    (id: string, value: string) => {
-      const timestamp = new Date().toISOString();
-      setVerifierBundle((current) => ({
-        ...markBundleEdited(current, { invalidateFinality: true }),
-        tasks: current.tasks.map((task) =>
-          task.id === id
-            ? { ...task, text: value, updatedAt: timestamp }
-            : task,
-        ),
-      }));
-    },
-    [markBundleEdited],
-  );
+  const handleUpdateTask = useCallback((id: string, value: string) => {
+    const timestamp = new Date().toISOString();
+    setVerifierBundle((current) => ({
+      ...markBundleEdited(current, { invalidateFinality: true }),
+      tasks: current.tasks.map((task) =>
+        task.id === id ? { ...task, text: value, updatedAt: timestamp } : task,
+      ),
+    }));
+  }, [markBundleEdited]);
 
-  const handleDeleteTask = useCallback(
-    (id: string) => {
-      setVerifierBundle((current) => ({
-        ...markBundleEdited(current, { invalidateFinality: true }),
-        tasks: current.tasks.filter((task) => task.id !== id),
-      }));
-    },
-    [markBundleEdited],
-  );
+  const handleDeleteTask = useCallback((id: string) => {
+    setVerifierBundle((current) => ({
+      ...markBundleEdited(current, { invalidateFinality: true }),
+      tasks: current.tasks.filter((task) => task.id !== id),
+    }));
+  }, [markBundleEdited]);
 
   const buildHistoryBundle = useCallback(() => {
     return {
@@ -1421,30 +1013,13 @@ export default function ProofMapTab({
       verificationRuns,
       selectedStacItemId,
     };
-  }, [
-    aoi,
-    evidencePins,
-    linkedRuleIds,
-    selectedRuleId,
-    selectedStacItemId,
-    verificationRuns,
-    verifierBundle,
-  ]);
+  }, [aoi, evidencePins, linkedRuleIds, selectedRuleId, selectedStacItemId, verificationRuns, verifierBundle]);
 
-  const currentWorkspaceBundle = useMemo(
-    () => buildHistoryBundle(),
-    [buildHistoryBundle],
-  );
+  const currentWorkspaceBundle = useMemo(() => buildHistoryBundle(), [buildHistoryBundle]);
   const currentRunId = verifierBundle.runContext.runId;
   const currentRunLabel = shortRunId(currentRunId);
-  const loadedFromRunLabel = verifierBundle.loadedFromRunId
-    ? shortRunId(verifierBundle.loadedFromRunId)
-    : null;
-  const activeHistoryRunId =
-    verifierBundle.loadedFromRunId ??
-    (runHistory.some((entry) => entry.runId === currentRunId)
-      ? currentRunId
-      : null);
+  const loadedFromRunLabel = verifierBundle.loadedFromRunId ? shortRunId(verifierBundle.loadedFromRunId) : null;
+  const activeHistoryRunId = verifierBundle.loadedFromRunId ?? (runHistory.some((entry) => entry.runId === currentRunId) ? currentRunId : null);
   const activeHistoryEntry = useMemo(
     () => runHistory.find((entry) => entry.runId === currentRunId) ?? null,
     [currentRunId, runHistory],
@@ -1453,25 +1028,22 @@ export default function ProofMapTab({
     if (!activeHistoryEntry) {
       return Boolean(
         aoi ||
-        evidencePins.length ||
-        verificationRuns.length ||
-        selectedStacItemId ||
-        verifierBundle.exportedAt ||
-        verifierBundle.savedReviewerArtifactAt ||
-        verifierBundle.finalizedAt ||
-        verifierBundle.minutes.trim() ||
-        verifierBundle.outcomeNote.trim() ||
-        verifierBundle.draftMinutes.trim() ||
-        verifierBundle.draftOutcomeNote.trim() ||
-        verifierBundle.delta.trim() ||
-        verifierBundle.impact.trim() ||
-        verifierBundle.tasks.length,
+          evidencePins.length ||
+          verificationRuns.length ||
+          selectedStacItemId ||
+          verifierBundle.exportedAt ||
+          verifierBundle.savedReviewerArtifactAt ||
+          verifierBundle.finalizedAt ||
+          verifierBundle.minutes.trim() ||
+          verifierBundle.outcomeNote.trim() ||
+          verifierBundle.draftMinutes.trim() ||
+          verifierBundle.draftOutcomeNote.trim() ||
+          verifierBundle.delta.trim() ||
+          verifierBundle.impact.trim() ||
+          verifierBundle.tasks.length,
       );
     }
-    return (
-      canonicalJsonStringify(activeHistoryEntry.bundle) !==
-      canonicalJsonStringify(currentWorkspaceBundle)
-    );
+    return canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle);
   }, [
     activeHistoryEntry,
     aoi,
@@ -1503,43 +1075,22 @@ export default function ProofMapTab({
           itemId: pin.itemId ?? null,
           attachments: (pin.attachments ?? []).length,
         })),
-        runs: verificationRuns.map((run) => ({
-          id: run.id,
-          status: run.status,
-          ended_at: run.ended_at ?? null,
-        })),
+        runs: verificationRuns.map((run) => ({ id: run.id, status: run.status, ended_at: run.ended_at ?? null })),
       }),
-    [
-      aoi?.id,
-      currentAoiFingerprint,
-      evidencePins,
-      selectedRuleId,
-      selectedStacItemId,
-      verificationRuns,
-    ],
+    [aoi?.id, currentAoiFingerprint, evidencePins, selectedRuleId, selectedStacItemId, verificationRuns],
   );
-  const previousMutableWorkspaceRef = useRef<{
-    runId: string;
-    fingerprint: string;
-  } | null>(null);
+  const previousMutableWorkspaceRef = useRef<{ runId: string; fingerprint: string } | null>(null);
   const ignoredMutableWorkspaceRunIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!verifierBundle.finalizedAt) return;
-    if (
-      ignoredMutableWorkspaceRunIdRef.current ===
-      verifierBundle.runContext.runId
-    )
-      return;
+    if (ignoredMutableWorkspaceRunIdRef.current === verifierBundle.runContext.runId) return;
     ignoredMutableWorkspaceRunIdRef.current = verifierBundle.runContext.runId;
   }, [verifierBundle.finalizedAt, verifierBundle.runContext.runId]);
 
   useEffect(() => {
     const previous = previousMutableWorkspaceRef.current;
-    const current = {
-      runId: verifierBundle.runContext.runId,
-      fingerprint: mutableWorkspaceFingerprint,
-    };
+    const current = { runId: verifierBundle.runContext.runId, fingerprint: mutableWorkspaceFingerprint };
     if (!previous || previous.runId !== current.runId) {
       previousMutableWorkspaceRef.current = current;
       return;
@@ -1551,31 +1102,16 @@ export default function ProofMapTab({
       return;
     }
     previousMutableWorkspaceRef.current = current;
-    setVerifierBundle((bundle) =>
-      markBundleEdited(bundle, { invalidateFinality: true }),
-    );
-  }, [
-    markBundleEdited,
-    mutableWorkspaceFingerprint,
-    verifierBundle.runContext.runId,
-  ]);
+    setVerifierBundle((bundle) => markBundleEdited(bundle, { invalidateFinality: true }));
+  }, [markBundleEdited, mutableWorkspaceFingerprint, verifierBundle.runContext.runId]);
 
   const persistCurrentWorkspaceAsDraft = useCallback(() => {
-    const historicalCurrent =
-      runHistory.find(
-        (entry) => entry.runId === verifierBundle.runContext.runId,
-      ) ?? null;
+    const historicalCurrent = runHistory.find((entry) => entry.runId === verifierBundle.runContext.runId) ?? null;
     const draftBundle =
-      historicalCurrent &&
-      canonicalJsonStringify(historicalCurrent.bundle) !==
-        canonicalJsonStringify(currentWorkspaceBundle)
+      historicalCurrent && canonicalJsonStringify(historicalCurrent.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
         ? {
             ...currentWorkspaceBundle,
-            runContext: createVerifierRunBundle(
-              methodCode,
-              version,
-              workspaceId,
-            ).runContext,
+            runContext: createVerifierRunBundle(methodCode, version, workspaceId).runContext,
           }
         : currentWorkspaceBundle;
     setVerifierBundle((current) =>
@@ -1583,25 +1119,14 @@ export default function ProofMapTab({
         ? current
         : { ...current, runContext: draftBundle.runContext },
     );
-    setRunHistory(
-      saveCurrentRunToHistory(methodCode, version, draftBundle, workspaceId),
-    );
+    setRunHistory(saveCurrentRunToHistory(methodCode, version, draftBundle, workspaceId));
     return draftBundle.runContext.runId;
-  }, [
-    currentWorkspaceBundle,
-    methodCode,
-    runHistory,
-    verifierBundle.runContext.runId,
-    version,
-    workspaceId,
-  ]);
+  }, [currentWorkspaceBundle, methodCode, runHistory, verifierBundle.runContext.runId, version, workspaceId]);
 
   const handleSaveRunHistory = useCallback(
     (bundleOverride?: ReturnType<typeof buildHistoryBundle>) => {
       const bundle = bundleOverride ?? buildHistoryBundle();
-      setRunHistory(
-        saveCurrentRunToHistory(methodCode, version, bundle, workspaceId),
-      );
+      setRunHistory(saveCurrentRunToHistory(methodCode, version, bundle, workspaceId));
     },
     [buildHistoryBundle, methodCode, version, workspaceId],
   );
@@ -1610,24 +1135,13 @@ export default function ProofMapTab({
     (runId: string) => {
       if (runId === verifierBundle.runContext.runId) return;
       if (hasUnsavedWorkspaceEdits && typeof window !== "undefined") {
-        const confirmed = window.confirm(
-          "Save the current workspace as a draft before loading another run?",
-        );
+        const confirmed = window.confirm("Save the current workspace as a draft before loading another run?");
         if (!confirmed) return;
         persistCurrentWorkspaceAsDraft();
       }
-      const loaded = loadRunFromHistory(
-        methodCode,
-        version,
-        runId,
-        workspaceId,
-      );
+      const loaded = loadRunFromHistory(methodCode, version, runId, workspaceId);
       if (!loaded) return;
-      const editableRun = createVerifierRunBundle(
-        methodCode,
-        version,
-        workspaceId,
-      );
+      const editableRun = createVerifierRunBundle(methodCode, version, workspaceId);
       const loadedReviewerContext = createReviewerArtifactContext({
         methodCode,
         version,
@@ -1663,10 +1177,7 @@ export default function ProofMapTab({
       onEvidenceSelectionChange?.(null);
       setSecondarySectionOpen(true);
       setRunHistoryOpen(true);
-      showToast({
-        title: `Loaded run ${shortRunId(runId)}`,
-        subtitle: "Saved evidence and review state restored",
-      });
+      showToast({ title: `Loaded run ${shortRunId(runId)}`, subtitle: "Saved evidence and review state restored" });
     },
     [
       hasUnsavedWorkspaceEdits,
@@ -1687,9 +1198,7 @@ export default function ProofMapTab({
 
   const handleDeleteRunHistory = useCallback(
     (runId: string) => {
-      setRunHistory(
-        deleteRunFromHistory(methodCode, version, runId, workspaceId),
-      );
+      setRunHistory(deleteRunFromHistory(methodCode, version, runId, workspaceId));
     },
     [methodCode, version, workspaceId],
   );
@@ -1700,22 +1209,16 @@ export default function ProofMapTab({
       return;
     }
     if (!hasConfirmedArea) {
-      setError(
-        "Confirm the selected project area before running satellite search.",
-      );
+      setError("Confirm the selected project area before running satellite search.");
       return;
     }
-    setVerifierBundle((current) =>
-      markBundleEdited(current, { invalidateFinality: true }),
-    );
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     setError(null);
     if (isRunning) return;
     if (!currentAoiFingerprint) return;
 
     const cited_ids = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-    const attachment_sha256 = evidencePins.flatMap((pin) =>
-      (pin.attachments ?? []).map((att) => att.sha256),
-    );
+    const attachment_sha256 = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
     const input_fingerprint = await runInputFingerprint({
       aoi_fp: currentAoiFingerprint,
       cited_ids,
@@ -1754,16 +1257,9 @@ export default function ProofMapTab({
       if (res.provider === "stac" && res.runStatus === "ok") {
         const normalized = normalizeStacItems(res.result_json);
         const endpoint = (() => {
-          const root =
-            res.result_json && typeof res.result_json === "object"
-              ? (res.result_json as Record<string, unknown>)
-              : null;
-          const prov =
-            root && root.provenance && typeof root.provenance === "object"
-              ? (root.provenance as Record<string, unknown>)
-              : null;
-          const url =
-            prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
+          const root = res.result_json && typeof res.result_json === "object" ? (res.result_json as Record<string, unknown>) : null;
+          const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
+          const url = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
           return url && url.trim() ? url.trim() : null;
         })();
 
@@ -1772,18 +1268,13 @@ export default function ProofMapTab({
           fc: normalized.featureCollection,
           itemsById: normalized.itemsById,
           runId: updated.id,
-          source: endpoint
-            ? { type: "stac_url", ref: endpoint }
-            : { type: "unknown", ref: "unknown" },
+          source: endpoint ? { type: "stac_url", ref: endpoint } : { type: "unknown", ref: "unknown" },
         });
         onSelectStacItemId(null);
         if (onAuditEvent) {
           onAuditEvent({
             kind: "evidence.input",
-            payload: {
-              stac_url: endpoint ?? "unknown",
-              aoi_hash: currentAoiFingerprint,
-            },
+            payload: { stac_url: endpoint ?? "unknown", aoi_hash: currentAoiFingerprint },
           });
         }
 
@@ -1793,10 +1284,7 @@ export default function ProofMapTab({
           const record = item as Record<string, unknown>;
           evidenceBbox = unionBbox(evidenceBbox, getFeatureBbox(record));
         }
-        const targetBbox =
-          unionBbox(parseBbox(aoi.bbox), evidenceBbox) ??
-          evidenceBbox ??
-          parseBbox(aoi.bbox);
+        const targetBbox = unionBbox(parseBbox(aoi.bbox), evidenceBbox) ?? evidenceBbox ?? parseBbox(aoi.bbox);
         if (targetBbox && mapRef.current?.fitBounds) {
           try {
             mapRef.current.fitBounds(
@@ -1845,11 +1333,7 @@ export default function ProofMapTab({
     version,
   ]);
 
-  const isSameAoi = Boolean(
-    draftAoiFingerprint &&
-    currentAoiHashForCompare &&
-    draftAoiFingerprint === currentAoiHashForCompare,
-  );
+  const isSameAoi = Boolean(draftAoiFingerprint && currentAoiHashForCompare && draftAoiFingerprint === currentAoiHashForCompare);
   const handleApplyDraftAoiClick = useCallback(() => {
     if (isSameAoi) {
       setShowSameAoiPrompt(true);
@@ -1881,10 +1365,7 @@ export default function ProofMapTab({
     setSecondarySectionOpen(false);
     setRunHistoryOpen(false);
     setOutcomeOpen(false);
-    showToast({
-      title: "Started new run",
-      subtitle: "Fresh review workspace created",
-    });
+    showToast({ title: "Started new run", subtitle: "Fresh review workspace created" });
   }, [
     methodCode,
     onEvidenceSelectionChange,
@@ -1910,33 +1391,23 @@ export default function ProofMapTab({
   }, []);
 
   const selectEvidence = (id: string, source: "pin" | "polygon") => {
-    setVerifierBundle((current) =>
-      markBundleEdited(current, { invalidateFinality: true }),
-    );
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
     onSelectStacItemId(id);
     setLastSelectionSource(source);
     setStacInspectOpen(true);
     if (onAuditEvent) {
       void (async () => {
-        const payload: Record<string, unknown> = {
-          layer_id: "stac",
-          feature_id: id,
-        };
+        const payload: Record<string, unknown> = { layer_id: "stac", feature_id: id };
         const record = currentStacEvidence?.itemsById?.[id];
         if (record && typeof record === "object") {
-          payload.feature_hash = await auditSha256Hex(
-            canonicalAuditJsonStringify(record),
-          );
+          payload.feature_hash = await auditSha256Hex(canonicalAuditJsonStringify(record));
         }
         onAuditEvent({ kind: "evidence.feature.select", payload });
       })();
     }
     requestAnimationFrame(() => {
       try {
-        stacEvidenceCardRef.current?.scrollIntoView({
-          block: "start",
-          behavior: "smooth",
-        });
+        stacEvidenceCardRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
       } catch {
         // ignore
       }
@@ -1966,10 +1437,7 @@ export default function ProofMapTab({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(
-      "a6:verify:panelCollapsed",
-      panelCollapsed ? "1" : "0",
-    );
+    window.localStorage.setItem("a6:verify:panelCollapsed", panelCollapsed ? "1" : "0");
   }, [panelCollapsed]);
 
   useEffect(() => {
@@ -2122,8 +1590,7 @@ export default function ProofMapTab({
     if (!aoi || !currentAoiFingerprint) return;
     const nextPins = evidencePins.map((pin) => {
       if (pin.aoi_fingerprint) return pin;
-      if (pin.aoi_id && pin.aoi_id === aoi.id)
-        return { ...pin, aoi_fingerprint: currentAoiFingerprint };
+      if (pin.aoi_id && pin.aoi_id === aoi.id) return { ...pin, aoi_fingerprint: currentAoiFingerprint };
       return pin;
     });
     const changed = nextPins.some((pin, idx) => pin !== evidencePins[idx]);
@@ -2138,10 +1605,7 @@ export default function ProofMapTab({
     return runsForCurrentAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
   const latestRun = useMemo(() => {
-    return selectLatestNonQueuedRunForAoi({
-      runs: verificationRuns,
-      currentAoiFingerprint,
-    });
+    return selectLatestNonQueuedRunForAoi({ runs: verificationRuns, currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
   const intakeSuggestion = useMemo(() => {
     if (!latestRun) return null;
@@ -2152,10 +1616,7 @@ export default function ProofMapTab({
   }, [latestRun]);
 
   const latestStacRun = useMemo(() => {
-    return selectLatestOkStacRunForActiveAoi({
-      runs: verificationRuns,
-      activeAoiFingerprint: currentAoiFingerprint,
-    });
+    return selectLatestOkStacRunForActiveAoi({ runs: verificationRuns, activeAoiFingerprint: currentAoiFingerprint });
   }, [currentAoiFingerprint, verificationRuns]);
 
   const currentStacEvidence = useMemo(() => {
@@ -2179,16 +1640,9 @@ export default function ProofMapTab({
       const id =
         feature && typeof feature === "object"
           ? (() => {
-              const record = feature as unknown as {
-                id?: unknown;
-                properties?: unknown;
-              };
-              const props =
-                record.properties && typeof record.properties === "object"
-                  ? (record.properties as Record<string, unknown>)
-                  : null;
-              const pid =
-                props && typeof props.id === "string" ? props.id : null;
+              const record = feature as unknown as { id?: unknown; properties?: unknown };
+              const props = record.properties && typeof record.properties === "object" ? (record.properties as Record<string, unknown>) : null;
+              const pid = props && typeof props.id === "string" ? props.id : null;
               const fid = typeof record.id === "string" ? record.id : null;
               return pid ?? fid ?? null;
             })()
@@ -2204,18 +1658,13 @@ export default function ProofMapTab({
 
     const inView =
       viewportBbox && total
-        ? Array.from(byIdBbox.values()).reduce(
-            (acc, bbox) => (bboxIntersects(viewportBbox, bbox) ? acc + 1 : acc),
-            0,
-          )
+        ? Array.from(byIdBbox.values()).reduce((acc, bbox) => (bboxIntersects(viewportBbox, bbox) ? acc + 1 : acc), 0)
         : null;
 
     return { total, valid, skipped: total - valid, bounds, byIdBbox, inView };
   }, [currentStacEvidence?.fc?.features, viewportBbox]);
 
-  const stacCentroids = useMemo<
-    GeoJSON.FeatureCollection<GeoJSON.Point>
-  >(() => {
+  const stacCentroids = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>>(() => {
     const features: Array<GeoJSON.Feature<GeoJSON.Point>> = [];
     for (const [id, bbox] of evidenceDiagnostics.byIdBbox.entries()) {
       const [lng, lat] = centerFromBbox(bbox);
@@ -2241,14 +1690,10 @@ export default function ProofMapTab({
     if (!record || typeof record !== "object") return null;
 
     const selected = record as Record<string, unknown>;
-    const props = isRecord(selected.properties)
-      ? (selected.properties as Record<string, unknown>)
-      : null;
+    const props = isRecord(selected.properties) ? (selected.properties as Record<string, unknown>) : null;
     const links = deriveLinksFromProperties(props);
     const bbox = parseBbox(selected.bbox);
-    const bboxLabel = bbox
-      ? `${formatNum(bbox[0])}, ${formatNum(bbox[1])} → ${formatNum(bbox[2])}, ${formatNum(bbox[3])}`
-      : "—";
+    const bboxLabel = bbox ? `${formatNum(bbox[0])}, ${formatNum(bbox[1])} → ${formatNum(bbox[2])}, ${formatNum(bbox[3])}` : "—";
 
     const rawDatetime =
       (props && typeof props.datetime === "string" ? props.datetime : null) ??
@@ -2256,10 +1701,7 @@ export default function ProofMapTab({
 
     const cloudCover = props ? props["eo:cloud_cover"] : null;
 
-    const assets =
-      props && isRecord(props.assets)
-        ? (props.assets as Record<string, unknown>)
-        : null;
+    const assets = props && isRecord(props.assets) ? (props.assets as Record<string, unknown>) : null;
     const assetRows = assets
       ? (Object.entries(assets)
           .map(([key, value]) => {
@@ -2274,8 +1716,7 @@ export default function ProofMapTab({
           .filter(Boolean) as Array<{ key: string; href: string }>)
       : [];
 
-    const propsLinks =
-      props && Array.isArray(props.links) ? (props.links as unknown[]) : [];
+    const propsLinks = props && Array.isArray(props.links) ? (props.links as unknown[]) : [];
     const linkRows = propsLinks
       .map((link) => {
         if (!isRecord(link)) return null;
@@ -2314,43 +1755,27 @@ export default function ProofMapTab({
   }, [onEvidenceSelectionChange, selectedStacDetails]);
 
   const stacEndpointUrl = useMemo(() => {
-    if (currentStacEvidence?.source?.type === "stac_url")
-      return currentStacEvidence.source.ref;
+    if (currentStacEvidence?.source?.type === "stac_url") return currentStacEvidence.source.ref;
     if (!latestStacRun) return null;
     const root =
       latestStacRun.result_json && typeof latestStacRun.result_json === "object"
         ? (latestStacRun.result_json as Record<string, unknown>)
         : null;
-    const prov =
-      root && root.provenance && typeof root.provenance === "object"
-        ? (root.provenance as Record<string, unknown>)
-        : null;
-    const endpoint =
-      prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
+    const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
+    const endpoint = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
     return endpoint && endpoint.trim() ? endpoint.trim() : null;
   }, [currentStacEvidence?.source, latestStacRun]);
 
-  const stacQuery = useMemo(
-    () => extractStacQuery(latestStacRun?.result_json),
-    [latestStacRun],
-  );
+  const stacQuery = useMemo(() => extractStacQuery(latestStacRun?.result_json), [latestStacRun]);
 
   const localEvidenceHashInputs = useMemo(() => {
     const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-    const attachmentSha = evidencePins.flatMap((pin) =>
-      (pin.attachments ?? []).map((att) => att.sha256),
-    );
-    const combined = [
-      ...citedIds.map((v) => `cited:${v}`),
-      ...attachmentSha.map((v) => `att:${v}`),
-    ].filter(Boolean);
+    const attachmentSha = evidencePins.flatMap((pin) => (pin.attachments ?? []).map((att) => att.sha256));
+    const combined = [...citedIds.map((v) => `cited:${v}`), ...attachmentSha.map((v) => `att:${v}`)].filter(Boolean);
     return combined.length ? combined : null;
   }, [evidencePins]);
 
-  const trustPicked = useMemo(
-    () => pickProvenanceFields(provenanceJson),
-    [provenanceJson],
-  );
+  const trustPicked = useMemo(() => pickProvenanceFields(provenanceJson), [provenanceJson]);
   const auditHashes = trustPicked.auditHashes;
   const appCommit = shortCommitSha(process.env.NEXT_PUBLIC_GIT_SHA || "");
   const selectedEvidenceItemIds = useMemo(() => {
@@ -2366,10 +1791,7 @@ export default function ProofMapTab({
           hash: currentAoiFingerprint,
           bbox: aoi?.bbox ?? null,
           areaKm2: typeof aoi?.area_km2 === "number" ? aoi.area_km2 : null,
-          declaredAreaKm2:
-            typeof aoi?.declared_area_km2 === "number"
-              ? aoi.declared_area_km2
-              : null,
+          declaredAreaKm2: typeof aoi?.declared_area_km2 === "number" ? aoi.declared_area_km2 : null,
         },
         stac: {
           query: stacQuery,
@@ -2424,12 +1846,7 @@ export default function ProofMapTab({
         selectedEvidenceItemIds,
         snapshotExportedAt: runSummary.exportState.snapshotExportedAt,
       }),
-    [
-      evidencePins,
-      runSummary.exportState.snapshotExportedAt,
-      selectedEvidenceItemIds,
-      totalRules,
-    ],
+    [evidencePins, runSummary.exportState.snapshotExportedAt, selectedEvidenceItemIds, totalRules],
   );
 
   const currentBaselineProvenance = useMemo<BaselineKey>(
@@ -2445,28 +1862,23 @@ export default function ProofMapTab({
   const baselineMissing = useMemo(() => {
     const missing: string[] = [];
     if (!currentAoiFingerprint) missing.push("Area");
-    if (
-      !currentBaselineProvenance.methodId ||
-      !currentBaselineProvenance.versionId
-    )
-      missing.push("method/version");
-    if (!currentBaselineProvenance.harnessVersion)
-      missing.push("harness version");
+    if (!currentBaselineProvenance.methodId || !currentBaselineProvenance.versionId) missing.push("method/version");
+    if (!currentBaselineProvenance.harnessVersion) missing.push("harness version");
     if (!currentBaselineProvenance.datasetHash) missing.push("dataset hash");
     return missing;
   }, [currentAoiFingerprint, currentBaselineProvenance]);
 
-  const latestBaseline = useMemo(() => {
-    void baselineTick;
-    return getLatestBaselineForMethod(methodCode.trim(), version.trim());
-  }, [baselineTick, methodCode, version]);
+  const latestBaseline = useMemo(
+    () => {
+      void baselineTick;
+      return getLatestBaselineForMethod(methodCode.trim(), version.trim());
+    },
+    [baselineTick, methodCode, version],
+  );
 
   const baselineComparable = useMemo(() => {
     if (!latestBaseline) return { ok: false, reasons: [] as string[] };
-    return isComparable(
-      latestBaseline.baselineProvenance,
-      currentBaselineProvenance,
-    );
+    return isComparable(latestBaseline.baselineProvenance, currentBaselineProvenance);
   }, [currentBaselineProvenance, latestBaseline]);
   const hasComparisonContext = Boolean(latestBaseline && baselineComparable.ok);
 
@@ -2484,10 +1896,8 @@ export default function ProofMapTab({
     if (baselineComparable.ok) return null;
     if (verifierBundle.isEditedDraft || verifierBundle.loadedFromRunId) {
       return {
-        title:
-          "Comparison unavailable: current workspace changed since baseline",
-        detail:
-          "AOI, selected evidence, pin changes, or unsaved draft edits can invalidate baseline comparison.",
+        title: "Comparison unavailable: current workspace changed since baseline",
+        detail: "AOI, selected evidence, pin changes, or unsaved draft edits can invalidate baseline comparison.",
       };
     }
     return {
@@ -2496,12 +1906,7 @@ export default function ProofMapTab({
         baselineComparable.reasons.join("; ") ||
         "Current workspace does not match the method, version, harness, or dataset context used for the baseline.",
     };
-  }, [
-    baselineComparable,
-    latestBaseline,
-    verifierBundle.isEditedDraft,
-    verifierBundle.loadedFromRunId,
-  ]);
+  }, [baselineComparable, latestBaseline, verifierBundle.isEditedDraft, verifierBundle.loadedFromRunId]);
   const wizardDetails = useMemo(
     () =>
       getVerifyWizardStepDetails({
@@ -2532,21 +1937,16 @@ export default function ProofMapTab({
   const currentWorkspaceIsFinal = Boolean(verifierBundle.finalizedAt);
   useEffect(() => {
     if (!verifierMode) return;
-    const handleReviewStoreChange = () =>
-      setReviewGateVersion((current) => current + 1);
+    const handleReviewStoreChange = () => setReviewGateVersion((current) => current + 1);
     window.addEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
-    return () =>
-      window.removeEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
+    return () => window.removeEventListener(REVIEW_STORE_EVENT, handleReviewStoreChange);
   }, [verifierMode]);
   const finalizeGate = useMemo(() => {
     void reviewGateVersion;
     if (!verifierMode) return null;
     if (!methodCode.trim() || !version.trim()) return null;
     if (!totalRules || totalRules < 1) {
-      return {
-        canFinalize: false,
-        reasons: ["Rule count unavailable for finalize gate."],
-      };
+      return { canFinalize: false, reasons: ["Rule count unavailable for finalize gate."] };
     }
     return checkFinalizeGate(methodCode, version, totalRules, {
       workspaceId,
@@ -2554,22 +1954,11 @@ export default function ProofMapTab({
       projectLinked: Boolean(linkedProject?.id),
       methodologyLinked: Boolean(methodCode.trim() && version.trim()),
     });
-  }, [
-    linkedProject?.id,
-    methodCode,
-    reviewGateVersion,
-    totalRules,
-    verifierBundle.runContext.runId,
-    verifierMode,
-    version,
-    workspaceId,
-  ]);
+  }, [linkedProject?.id, methodCode, reviewGateVersion, totalRules, verifierBundle.runContext.runId, verifierMode, version, workspaceId]);
   const selectedStacItemRecord = useMemo(() => {
     if (!selectedStacItemId) return null;
     const candidate = currentStacEvidence?.itemsById?.[selectedStacItemId];
-    return candidate && typeof candidate === "object"
-      ? (candidate as Record<string, unknown>)
-      : null;
+    return candidate && typeof candidate === "object" ? (candidate as Record<string, unknown>) : null;
   }, [currentStacEvidence?.itemsById, selectedStacItemId]);
   const selectedRuleCoverageRow = useMemo(() => {
     if (!selectedRuleId) return null;
@@ -2591,8 +1980,7 @@ export default function ProofMapTab({
     );
   }, [evidenceInventory, selectedRuleContext, selectedRuleId]);
   const selectedRuleReadinessGap = useMemo(() => {
-    if (!selectedRuleId || !selectedRuleContext || !selectedRuleCoverageRow)
-      return null;
+    if (!selectedRuleId || !selectedRuleContext || !selectedRuleCoverageRow) return null;
     const reviewerArtifactsByRuleId = new Map<
       string,
       {
@@ -2601,11 +1989,7 @@ export default function ProofMapTab({
         outcomeNote?: string | null;
       }
     >();
-    if (
-      activeRuleReview?.reviewerArtifactSavedAt ||
-      activeRuleReview?.reviewerMinutes?.trim() ||
-      activeRuleReview?.reviewerOutcomeNote?.trim()
-    ) {
+    if (activeRuleReview?.reviewerArtifactSavedAt || activeRuleReview?.reviewerMinutes?.trim() || activeRuleReview?.reviewerOutcomeNote?.trim()) {
       reviewerArtifactsByRuleId.set(selectedRuleId, {
         savedAt: activeRuleReview?.reviewerArtifactSavedAt ?? null,
         minutes: activeRuleReview?.reviewerMinutes ?? "",
@@ -2626,8 +2010,7 @@ export default function ProofMapTab({
   ]);
   const selectedRuleReadinessUnavailableReason = useMemo(() => {
     if (!selectedRuleId) return null;
-    if (!selectedRuleContext)
-      return "Rule readiness is not available until rule expectations load for the current selection.";
+    if (!selectedRuleContext) return "Rule readiness is not available until rule expectations load for the current selection.";
     return null;
   }, [selectedRuleContext, selectedRuleId]);
   const suggestedPddFragmentDraft = useMemo(() => {
@@ -2637,32 +2020,18 @@ export default function ProofMapTab({
       ruleTags: selectedRuleContext.tags ?? [],
       sectionId: selectedRuleContext.sectionId ?? null,
       sectionTitle: selectedRuleContext.sectionTitle ?? null,
-      expectedEvidenceTypes:
-        selectedRuleCoverageRow?.expectedEvidenceTypes ?? [],
+      expectedEvidenceTypes: selectedRuleCoverageRow?.expectedEvidenceTypes ?? [],
     });
-  }, [
-    selectedRuleContext,
-    selectedRuleCoverageRow?.expectedEvidenceTypes,
-    selectedRuleId,
-  ]);
+  }, [selectedRuleContext, selectedRuleCoverageRow?.expectedEvidenceTypes, selectedRuleId]);
   const selectedRuleReconciliation = useMemo(
     () =>
       reconcileRequirement({
         linkedEvidence: selectedRuleCoverageRow?.linkedEvidence ?? [],
-        expectedEvidenceTypes:
-          selectedRuleCoverageRow?.expectedEvidenceTypes ?? [],
-        reviewerMinutes:
-          activeRuleReview?.reviewerMinutes ?? verifierBundle.minutes,
-        reviewerOutcomeNote:
-          activeRuleReview?.reviewerOutcomeNote ?? verifierBundle.outcomeNote,
+        expectedEvidenceTypes: selectedRuleCoverageRow?.expectedEvidenceTypes ?? [],
+        reviewerMinutes: activeRuleReview?.reviewerMinutes ?? verifierBundle.minutes,
+        reviewerOutcomeNote: activeRuleReview?.reviewerOutcomeNote ?? verifierBundle.outcomeNote,
       }),
-    [
-      activeRuleReview?.reviewerMinutes,
-      activeRuleReview?.reviewerOutcomeNote,
-      selectedRuleCoverageRow,
-      verifierBundle.minutes,
-      verifierBundle.outcomeNote,
-    ],
+    [activeRuleReview?.reviewerMinutes, activeRuleReview?.reviewerOutcomeNote, selectedRuleCoverageRow, verifierBundle.minutes, verifierBundle.outcomeNote],
   );
   const stacSupportFacts = useMemo(
     () =>
@@ -2713,11 +2082,7 @@ export default function ProofMapTab({
         reconciliation: selectedRuleReconciliation,
         rule: selectedRuleContext,
         supportFacts: stacSupportFacts,
-        generatedAt:
-          verifierBundle.finalizedAt ??
-          verifierBundle.exportedAt ??
-          runSummary.provenance.generatedAt ??
-          null,
+        generatedAt: verifierBundle.finalizedAt ?? verifierBundle.exportedAt ?? runSummary.provenance.generatedAt ?? null,
       }),
     [
       aoi?.bbox,
@@ -2743,20 +2108,14 @@ export default function ProofMapTab({
   const pinsSectionRef = useRef<HTMLDivElement | null>(null);
   const reviewerSectionRef = useRef<HTMLDivElement | null>(null);
   const finalSummarySectionRef = useRef<HTMLDivElement | null>(null);
-  const scrollToSection = useCallback(
-    (ref: { current: HTMLDivElement | null }) => {
-      ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    },
-    [],
-  );
+  const scrollToSection = useCallback((ref: { current: HTMLDivElement | null }) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
   const selectedRuleStacEligible = useMemo(
     () => isStacEligible(selectedRuleContext?.tags ?? []),
     [selectedRuleContext?.tags],
   );
-  const hasReviewerDraft = Boolean(
-    verifierBundle.draftMinutes.trim() ||
-    verifierBundle.draftOutcomeNote.trim(),
-  );
+  const hasReviewerDraft = Boolean(verifierBundle.draftMinutes.trim() || verifierBundle.draftOutcomeNote.trim());
   const verifyReadinessChips = useMemo<VerifyReadinessChip[]>(() => {
     const hasAoiLoaded = Boolean(aoi?.geojson);
     const stacStatus =
@@ -2769,16 +2128,16 @@ export default function ProofMapTab({
           : latestRun.status === "warn" && stacFeatureIds.length > 0
             ? "results found"
             : "failed";
-    const satelliteDetail = !hasAoiLoaded
-      ? "Upload an area before running satellite search."
-      : !latestRun
-        ? "No satellite search has been run for the current area."
-        : stacStatus === "results found"
-          ? `${stacFeatureIds.length} satellite result${stacFeatureIds.length === 1 ? "" : "s"} found for the current area.`
-          : stacStatus === "no results"
-            ? "Satellite search completed but returned no results for the current area."
-            : latestRun.summary?.trim() ||
-              "Satellite search failed for the current area.";
+    const satelliteDetail =
+      !hasAoiLoaded
+        ? "Upload an area before running satellite search."
+        : !latestRun
+          ? "No satellite search has been run for the current area."
+          : stacStatus === "results found"
+            ? `${stacFeatureIds.length} satellite result${stacFeatureIds.length === 1 ? "" : "s"} found for the current area.`
+            : stacStatus === "no results"
+              ? "Satellite search completed but returned no results for the current area."
+              : latestRun.summary?.trim() || "Satellite search failed for the current area.";
     const supportFactsStatus = !selectedRuleId
       ? "select rule"
       : stacSupportFacts.linkedFacts.length > 0
@@ -2802,19 +2161,9 @@ export default function ProofMapTab({
       : hasReviewerDraft
         ? "draft"
         : "missing";
-    const finalizeReady = Boolean(
-      finalizeGate?.canFinalize &&
-      linkedRuleIds.length > 0 &&
-      verifierBundle.savedReviewerArtifactAt,
-    );
+    const finalizeReady = Boolean(finalizeGate?.canFinalize && linkedRuleIds.length > 0 && verifierBundle.savedReviewerArtifactAt);
     const hasDraftExport = Boolean(verifierBundle.exportedAt);
-    const exportStatus = currentWorkspaceIsFinal
-      ? "finalized"
-      : finalizeReady
-        ? "ready"
-        : hasDraftExport
-          ? "draft available"
-          : "not ready";
+    const exportStatus = currentWorkspaceIsFinal ? "finalized" : finalizeReady ? "ready" : hasDraftExport ? "draft available" : "not ready";
     const exportDetail = currentWorkspaceIsFinal
       ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}`
       : finalizeReady
@@ -2822,7 +2171,7 @@ export default function ProofMapTab({
         : hasDraftExport
           ? `Draft snapshot exported ${formatLocalDateTime(verifierBundle.exportedAt ?? "")}. Final export still needs finalize requirements to pass.`
           : finalizeGate && !finalizeGate.canFinalize
-            ? (finalizeGate.reasons[0] ?? "Finalize gate is blocked.")
+            ? finalizeGate.reasons[0] ?? "Finalize gate is blocked."
             : !linkedRuleIds.length
               ? "Link evidence to at least one rule before finalizing the export."
               : !verifierBundle.savedReviewerArtifactAt
@@ -2834,9 +2183,7 @@ export default function ProofMapTab({
         key: "aoi",
         label: "Area",
         value: hasAoiLoaded ? "ready" : "missing",
-        detail: hasAoiLoaded
-          ? (aoi?.name ?? bboxLabel ?? "Area ready.")
-          : "Upload or confirm an area to scope the review.",
+        detail: hasAoiLoaded ? aoi?.name ?? bboxLabel ?? "Area ready." : "Upload or confirm an area to scope the review.",
         tone: hasAoiLoaded ? "ok" : "blocked",
         onClick: () => scrollToSection(aoiSectionRef),
       },
@@ -2845,21 +2192,13 @@ export default function ProofMapTab({
         label: "Satellite",
         value: stacStatus === "results found" ? "found" : stacStatus,
         detail: satelliteDetail,
-        tone:
-          stacStatus === "results found"
-            ? "ok"
-            : stacStatus === "failed"
-              ? "blocked"
-              : "warn",
+        tone: stacStatus === "results found" ? "ok" : stacStatus === "failed" ? "blocked" : "warn",
         onClick: () => scrollToSection(stacSectionRef),
       },
       {
         key: "support-facts",
         label: "Support",
-        value:
-          supportFactsStatus === "select rule"
-            ? "select rule"
-            : supportFactsStatus,
+        value: supportFactsStatus === "select rule" ? "select rule" : supportFactsStatus,
         detail: supportFactsDetail,
         tone:
           supportFactsStatus === "linked"
@@ -2879,12 +2218,7 @@ export default function ProofMapTab({
           : hasReviewerDraft
             ? "Draft reviewer notes exist but are not saved yet."
             : "No reviewer artifact is saved for the active rule and run.",
-        tone:
-          reviewerRecordStatus === "saved"
-            ? "ok"
-            : reviewerRecordStatus === "draft"
-              ? "warn"
-              : "blocked",
+        tone: reviewerRecordStatus === "saved" ? "ok" : reviewerRecordStatus === "draft" ? "warn" : "blocked",
         onClick: () => scrollToSection(reviewerSectionRef),
       },
       {
@@ -2892,12 +2226,7 @@ export default function ProofMapTab({
         label: "Export",
         value: exportStatus === "draft available" ? "draft" : exportStatus,
         detail: exportDetail,
-        tone:
-          currentWorkspaceIsFinal || finalizeReady
-            ? "ok"
-            : hasDraftExport
-              ? "warn"
-              : "blocked",
+        tone: currentWorkspaceIsFinal || finalizeReady ? "ok" : hasDraftExport ? "warn" : "blocked",
         onClick: () => scrollToSection(finalSummarySectionRef),
       },
     ];
@@ -2945,86 +2274,43 @@ export default function ProofMapTab({
     if (wizardDetails.isComplete) {
       return {
         title: "Run complete",
-        instruction:
-          "This workspace is finalized. Start another run to continue with a fresh review.",
+        instruction: "This workspace is finalized. Start another run to continue with a fresh review.",
         stepLabel: "Complete",
       };
     }
     switch (wizardDetails.activeStep) {
       case 1:
-        return {
-          title: "Pick rule",
-          instruction:
-            "Choose the rule you are verifying before building evidence context.",
-          stepLabel: "Step 1 of 7",
-        };
+        return { title: "Pick rule", instruction: "Choose the rule you are verifying before building evidence context.", stepLabel: "Step 1 of 7" };
       case 2:
-        return {
-          title: "Confirm Area",
-          instruction:
-            "Upload or confirm the Area so the evidence search has a clear scope.",
-          stepLabel: "Step 2 of 7",
-        };
+        return { title: "Confirm Area", instruction: "Upload or confirm the Area so the evidence search has a clear scope.", stepLabel: "Step 2 of 7" };
       case 3:
-        return {
-          title: "Search Satellite",
-          instruction:
-            "Run the evidence search and inspect the returned context in the left pane.",
-          stepLabel: "Step 3 of 7",
-        };
+        return { title: "Search Satellite", instruction: "Run the evidence search and inspect the returned context in the left pane.", stepLabel: "Step 3 of 7" };
       case 4:
-        return {
-          title: "Select item",
-          instruction:
-            "Pick the most relevant satellite result from the returned evidence set.",
-          stepLabel: "Step 4 of 7",
-        };
+        return { title: "Select item", instruction: "Pick the most relevant satellite result from the returned evidence set.", stepLabel: "Step 4 of 7" };
       case 5:
         return {
           title: "Evidence inventory",
-          instruction:
-            "Create an evidence object first, then link or unlink it against the selected rule.",
+          instruction: "Create an evidence object first, then link or unlink it against the selected rule.",
           stepLabel: "Step 5 of 7",
         };
       case 6:
-        return {
-          title: "Save reviewer artifact",
-          instruction:
-            "Write concise reviewer notes, then save them explicitly before finalization.",
-          stepLabel: "Step 6 of 7",
-        };
+        return { title: "Save reviewer artifact", instruction: "Write concise reviewer notes, then save them explicitly before finalization.", stepLabel: "Step 6 of 7" };
       case 7:
-        return {
-          title: "Finalize run",
-          instruction:
-            "Finalize to export the single immutable run artifact with evidence and reviewer notes.",
-          stepLabel: "Step 7 of 7",
-        };
+        return { title: "Finalize run", instruction: "Finalize to export the single immutable run artifact with evidence and reviewer notes.", stepLabel: "Step 7 of 7" };
       default:
-        return {
-          title: "Verify run",
-          instruction:
-            "Use the right pane to continue the canonical wizard flow.",
-          stepLabel: "Step",
-        };
+        return { title: "Verify run", instruction: "Use the right pane to continue the canonical wizard flow.", stepLabel: "Step" };
     }
   }, [wizardDetails.activeStep, wizardDetails.isComplete]);
 
   useEffect(() => {
     const ref =
-      activeLeftSection === "rule"
-        ? ruleSectionRef
-        : activeLeftSection === "aoi"
-          ? aoiSectionRef
-          : activeLeftSection === "stac"
-            ? stacSectionRef
-            : activeLeftSection === "selected"
-              ? selectedItemSectionRef
-              : activeLeftSection === "pins"
-                ? pinsSectionRef
-                : activeLeftSection === "reviewer"
-                  ? reviewerSectionRef
-                  : finalSummarySectionRef;
+      activeLeftSection === "rule" ? ruleSectionRef :
+      activeLeftSection === "aoi" ? aoiSectionRef :
+      activeLeftSection === "stac" ? stacSectionRef :
+      activeLeftSection === "selected" ? selectedItemSectionRef :
+      activeLeftSection === "pins" ? pinsSectionRef :
+      activeLeftSection === "reviewer" ? reviewerSectionRef :
+      finalSummarySectionRef;
     ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [activeLeftSection]);
 
@@ -3045,18 +2331,9 @@ export default function ProofMapTab({
         runId: verifierBundle.runContext.runId,
         finalizedAt: verifierBundle.finalizedAt,
       }),
-    [
-      methodCode,
-      reviewArtifact,
-      selectedRuleId,
-      verifierBundle.finalizedAt,
-      verifierBundle.runContext.runId,
-      version,
-    ],
+    [methodCode, reviewArtifact, selectedRuleId, verifierBundle.finalizedAt, verifierBundle.runContext.runId, version],
   );
-  const activeReviewArtifact = reviewArtifactMatchesCurrentContext
-    ? reviewArtifact
-    : null;
+  const activeReviewArtifact = reviewArtifactMatchesCurrentContext ? reviewArtifact : null;
 
   useEffect(() => {
     if (!reviewArtifact) return;
@@ -3065,19 +2342,13 @@ export default function ProofMapTab({
   }, [reviewArtifact, reviewArtifactMatchesCurrentContext]);
 
   const buildStacItemsJson = useCallback(() => {
-    if (!latestStacRun || latestStacRun.status !== "ok")
-      return { items: [] as Array<Record<string, unknown>> };
-    if (!latestStacRun.result_json)
-      return { items: [] as Array<Record<string, unknown>> };
+    if (!latestStacRun || latestStacRun.status !== "ok") return { items: [] as Array<Record<string, unknown>> };
+    if (!latestStacRun.result_json) return { items: [] as Array<Record<string, unknown>> };
     const normalized = normalizeStacItems(latestStacRun.result_json);
     const items = Object.values(normalized.itemsById).map((item) => {
       const props = isRecord(item.properties) ? item.properties : null;
-      const collection =
-        props && typeof props.collection === "string"
-          ? props.collection
-          : undefined;
-      const cloudCover =
-        item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
+      const collection = props && typeof props.collection === "string" ? props.collection : undefined;
+      const cloudCover = item.cloud_cover ?? (props ? props["eo:cloud_cover"] : undefined);
       return {
         id: item.id,
         datetime: item.datetime,
@@ -3096,11 +2367,7 @@ export default function ProofMapTab({
       evidencePins,
     });
     const citedIds = evidencePins.flatMap((pin) => pin.cited_ids ?? []);
-    const selectedIds = selectedStacItemId
-      ? [selectedStacItemId]
-      : citedIds.length
-        ? citedIds
-        : undefined;
+    const selectedIds = selectedStacItemId ? [selectedStacItemId] : citedIds.length ? citedIds : undefined;
     return { minimalItem, selectedIds };
   }, [evidencePins, selectedStacItemId, selectedStacItemRecord]);
 
@@ -3108,29 +2375,18 @@ export default function ProofMapTab({
     return stacEndpointUrl
       ? { type: "stac_url" as const, ref: stacEndpointUrl }
       : localEvidenceHashInputs
-        ? {
-            type: "upload" as const,
-            ref: "local_pins",
-            hash_inputs: localEvidenceHashInputs,
-          }
+        ? { type: "upload" as const, ref: "local_pins", hash_inputs: localEvidenceHashInputs }
         : { type: "unknown" as const, ref: "unknown" };
   }, [localEvidenceHashInputs, stacEndpointUrl]);
 
   const assertReviewerArtifactContext = useCallback(
     (runContext: { runId: string; createdAt: string }) => {
       if (!activeRuleReview?.reviewerArtifactSavedAt) return;
-      if (
-        (activeRuleReview.runId?.trim() ?? runContext.runId) !==
-        runContext.runId
-      ) {
-        throw new Error(
-          "Reviewer artifact is saved for a different run. Save reviewer artifact again for the current rule before finalizing.",
-        );
+      if ((activeRuleReview.runId?.trim() ?? runContext.runId) !== runContext.runId) {
+        throw new Error("Reviewer artifact is saved for a different run. Save reviewer artifact again for the current rule before finalizing.");
       }
       if (!selectedRuleId) {
-        throw new Error(
-          "Reviewer artifact context is missing. Save reviewer artifact again for the current rule before finalizing.",
-        );
+        throw new Error("Reviewer artifact context is missing. Save reviewer artifact again for the current rule before finalizing.");
       }
       if ((activeRuleReview.ruleId ?? null) !== (selectedRuleId ?? null)) {
         throw new Error(
@@ -3153,17 +2409,14 @@ export default function ProofMapTab({
       const evidenceSource = buildEvidenceSource();
       const checklistExport = prepareChecklistExport(options.checklist);
       assertReviewerArtifactContext(options.runContext);
-      const reviewerMinutes =
-        activeRuleReview?.reviewerMinutes ?? verifierBundle.minutes;
-      const reviewerOutcomeNote =
-        activeRuleReview?.reviewerOutcomeNote ?? verifierBundle.outcomeNote;
+      const reviewerMinutes = activeRuleReview?.reviewerMinutes ?? verifierBundle.minutes;
+      const reviewerOutcomeNote = activeRuleReview?.reviewerOutcomeNote ?? verifierBundle.outcomeNote;
       const verifierSnapshot = {
         runId: options.runContext.runId,
         createdAt: options.runContext.createdAt,
         minutes: reviewerMinutes,
         outcomeNote: reviewerOutcomeNote,
-        finalizedAt:
-          options.summaryState === "finalized" ? options.finalizedAt : null,
+        finalizedAt: options.summaryState === "finalized" ? options.finalizedAt : null,
         finalizedState: options.summaryState,
         delta: verifierBundle.delta,
         impact: verifierBundle.impact,
@@ -3202,7 +2455,7 @@ export default function ProofMapTab({
       const ruleContext = await fetchSelectedRuleContext(selectedRuleId);
       const ruleCoverageRow =
         selectedRuleId && ruleContext
-          ? (buildRequirementCoverageRows({
+          ? buildRequirementCoverageRows({
               rules: [
                 {
                   id: selectedRuleId,
@@ -3215,7 +2468,7 @@ export default function ProofMapTab({
                 },
               ],
               inventoryItems: evidenceInventory,
-            })[0] ?? null)
+            })[0] ?? null
           : null;
       const reconciliation = reconcileRequirement({
         linkedEvidence: ruleCoverageRow?.linkedEvidence ?? [],
@@ -3242,9 +2495,7 @@ export default function ProofMapTab({
         generatedAt: options.finalizedAt,
       });
       if ((summary.ruleId ?? null) !== (selectedRuleId ?? null)) {
-        throw new Error(
-          "Review summary rule context mismatch. Refresh the current rule context and save reviewer artifact again before finalizing.",
-        );
+        throw new Error("Review summary rule context mismatch. Refresh the current rule context and save reviewer artifact again before finalizing.");
       }
       const artifact = await buildOutcomeSnapshot({
         method: { code: methodCode, version },
@@ -3278,21 +2529,8 @@ export default function ProofMapTab({
           env: asNonEmptyString(process.env.NEXT_PUBLIC_VERCEL_ENV),
           version: asNonEmptyString(process.env.NEXT_PUBLIC_APP_VERSION),
         },
-        items:
-          options.summaryState === "finalized"
-            ? undefined
-            : selectedStacItemId
-              ? [
-                  {
-                    id: selectedStacItemId,
-                    linked_rules: minimalItem?.linked_rules ?? [],
-                  },
-                ]
-              : [],
-        stacItemsJson:
-          options.summaryState === "finalized"
-            ? undefined
-            : buildStacItemsJson(),
+        items: options.summaryState === "finalized" ? undefined : selectedStacItemId ? [{ id: selectedStacItemId, linked_rules: minimalItem?.linked_rules ?? [] }] : [],
+        stacItemsJson: options.summaryState === "finalized" ? undefined : buildStacItemsJson(),
         outcome,
         kpis,
         verifier: exportVerifierSnapshot,
@@ -3330,12 +2568,7 @@ export default function ProofMapTab({
   );
 
   useEffect(() => {
-    if (
-      !currentWorkspaceIsFinal ||
-      activeReviewArtifact ||
-      !verifierBundle.finalizedAt
-    )
-      return;
+    if (!currentWorkspaceIsFinal || activeReviewArtifact || !verifierBundle.finalizedAt) return;
     let active = true;
     void buildFinalReviewArtifact({
       finalizedAt: verifierBundle.finalizedAt,
@@ -3353,23 +2586,15 @@ export default function ProofMapTab({
     return () => {
       active = false;
     };
-  }, [
-    activeReviewArtifact,
-    buildFinalReviewArtifact,
-    currentWorkspaceIsFinal,
-    verifierBundle,
-  ]);
+  }, [activeReviewArtifact, buildFinalReviewArtifact, currentWorkspaceIsFinal, verifierBundle]);
 
   const handleFinalizeRun = useCallback(() => {
     if (finalizeGate && !finalizeGate.canFinalize) return;
-    if (!linkedRuleIds.length || !activeRuleReview?.reviewerArtifactSavedAt)
-      return;
+    if (!linkedRuleIds.length || !activeRuleReview?.reviewerArtifactSavedAt) return;
     void (async () => {
       const finalizedAt = new Date().toISOString();
       const nextRunContext =
-        activeHistoryEntry &&
-        canonicalJsonStringify(activeHistoryEntry.bundle) !==
-          canonicalJsonStringify(currentWorkspaceBundle)
+        activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
           ? createVerifierRunBundle(methodCode, version).runContext
           : verifierBundle.runContext;
       const { artifact } = await buildFinalReviewArtifact({
@@ -3398,11 +2623,7 @@ export default function ProofMapTab({
         isEditedDraft: false,
       });
       setSecondarySectionOpen(true);
-      showToast({
-        title: "Run complete",
-        subtitle:
-          "Review summary ready. Download JSON or PDF from the result card.",
-      });
+      showToast({ title: "Run complete", subtitle: "Review summary ready. Download JSON or PDF from the result card." });
     })().catch((error) => {
       setError(error instanceof Error ? error.message : String(error));
       showToast("Finalize failed");
@@ -3426,19 +2647,14 @@ export default function ProofMapTab({
     (entry: VerifyRunHistoryEntry) => {
       if (!latestBaseline) return null;
       const runs = entry.bundle.verificationRuns ?? [];
-      const datasetHash =
-        runs.find((run) => typeof run.input_fingerprint === "string")
-          ?.input_fingerprint ?? "";
+      const datasetHash = runs.find((run) => typeof run.input_fingerprint === "string")?.input_fingerprint ?? "";
       const entryProv: BaselineKey = {
         methodId: currentBaselineProvenance.methodId,
         versionId: currentBaselineProvenance.versionId,
         harnessVersion: currentBaselineProvenance.harnessVersion,
         datasetHash,
       };
-      const comparable = isComparable(
-        latestBaseline.baselineProvenance,
-        entryProv,
-      );
+      const comparable = isComparable(latestBaseline.baselineProvenance, entryProv);
       if (!comparable.ok) {
         return {
           label: "≠",
@@ -3448,8 +2664,7 @@ export default function ProofMapTab({
       }
       const itemIds = extractItemIdsFromRuns(runs);
       const historyItemId =
-        typeof entry.bundle.selectedStacItemId === "string" &&
-        entry.bundle.selectedStacItemId.trim()
+        typeof entry.bundle.selectedStacItemId === "string" && entry.bundle.selectedStacItemId.trim()
           ? entry.bundle.selectedStacItemId
           : itemIds.length === 1
             ? itemIds[0]
@@ -3507,11 +2722,7 @@ export default function ProofMapTab({
 
   const evidenceChip = useMemo(() => {
     if (stacEndpointUrl) {
-      return {
-        label: "evidence",
-        display: hostnamePathFromUrl(stacEndpointUrl),
-        value: stacEndpointUrl,
-      };
+      return { label: "evidence", display: hostnamePathFromUrl(stacEndpointUrl), value: stacEndpointUrl };
     }
     return null;
   }, [stacEndpointUrl]);
@@ -3523,11 +2734,7 @@ export default function ProofMapTab({
     const hasEvidence = (currentStacEvidence?.fc?.features?.length ?? 0) > 0;
     const hasRuns = verificationRuns.length > 0;
     const hasSnapshots = (evidenceSnapshots ?? []).length > 0;
-    const hasComparisonNotes = Boolean(
-      verifierBundle.delta.trim() ||
-      verifierBundle.impact.trim() ||
-      verifierBundle.tasks.length,
-    );
+    const hasComparisonNotes = Boolean(verifierBundle.delta.trim() || verifierBundle.impact.trim() || verifierBundle.tasks.length);
     const hasWorkspaceRunState = Boolean(
       verifierBundle.exportedAt ||
       verifierBundle.savedReviewerArtifactAt ||
@@ -3535,17 +2742,7 @@ export default function ProofMapTab({
       verifierBundle.loadedFromRunId ||
       verifierBundle.derivedFromRunId,
     );
-    return (
-      hasAoi ||
-      hasPins ||
-      hasSelection ||
-      hasEvidence ||
-      hasRuns ||
-      hasSnapshots ||
-      hasReviewerDraft ||
-      hasComparisonNotes ||
-      hasWorkspaceRunState
-    );
+    return hasAoi || hasPins || hasSelection || hasEvidence || hasRuns || hasSnapshots || hasReviewerDraft || hasComparisonNotes || hasWorkspaceRunState;
   }, [
     aoi,
     currentStacEvidence?.fc?.features?.length,
@@ -3574,28 +2771,17 @@ export default function ProofMapTab({
   });
   const hasRule = Boolean(selectedRuleId);
   const hasAoi = hasConfirmedArea;
-  const declaredAreaComparison = useMemo(
-    () => aoiDeclaredAreaComparison(aoi),
-    [aoi],
-  );
+  const declaredAreaComparison = useMemo(() => aoiDeclaredAreaComparison(aoi), [aoi]);
   const primaryAoiFeature = useMemo(
-    () =>
-      (aoi?.features ?? []).find(
-        (feature) => feature.role === "primary_project_area",
-      ) ?? null,
+    () => (aoi?.features ?? []).find((feature) => feature.role === "primary_project_area") ?? null,
     [aoi?.features],
   );
   const projectZoneCount = useMemo(
-    () =>
-      (aoi?.features ?? []).filter((feature) => feature.role === "project_zone")
-        .length,
+    () => (aoi?.features ?? []).filter((feature) => feature.role === "project_zone").length,
     [aoi?.features],
   );
   const supportingFeatureCount = useMemo(
-    () =>
-      (aoi?.features ?? []).filter(
-        (feature) => feature.role !== "primary_project_area",
-      ).length,
+    () => (aoi?.features ?? []).filter((feature) => feature.role !== "primary_project_area").length,
     [aoi?.features],
   );
   const aoiFeatureRows = (aoi?.features ?? []).map((feature) => ({
@@ -3606,9 +2792,7 @@ export default function ProofMapTab({
     role: feature.role,
   }));
   const hasSearchResults = (stacFeatureIds?.length ?? 0) > 0;
-  const hasSelectedItem = Boolean(
-    selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId],
-  );
+  const hasSelectedItem = Boolean(selectedStacItemId && currentStacEvidence?.itemsById?.[selectedStacItemId]);
   const currentPinItemId = hasSelectedItem ? selectedStacItemId : null;
   const canCreatePin = hasRule && hasSelectedItem;
   const canAddSelectedItemToInventory = Boolean(currentPinItemId);
@@ -3631,8 +2815,7 @@ export default function ProofMapTab({
       const ts = new Date().toISOString();
       const candidate: EvidencePin = {
         id:
-          typeof crypto !== "undefined" &&
-          typeof crypto.randomUUID === "function"
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
             ? crypto.randomUUID()
             : `pin_${ts}_${Math.random().toString(16).slice(2)}`,
         kind: "note",
@@ -3649,29 +2832,15 @@ export default function ProofMapTab({
         created_at: ts,
       };
       const dedupeKey = evidencePinDedupeKey(candidate);
-      const existing = evidencePins.find(
-        (pin) => evidencePinDedupeKey(pin) === dedupeKey,
-      );
+      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
       onSetEvidencePins((current) => {
-        const existingPin = current.find(
-          (pin) => evidencePinDedupeKey(pin) === dedupeKey,
-        );
+        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
         return existingPin
-          ? linkEvidencePinToRequirement(
-              current,
-              existingPin.id,
-              selectedRuleId,
-            )
+          ? linkEvidencePinToRequirement(current, existingPin.id, selectedRuleId)
           : coalesceEvidencePins([candidate, ...current]);
       });
-      setVerifierBundle((current) =>
-        markBundleEdited(current, { invalidateFinality: true }),
-      );
-      showToast(
-        existing
-          ? `Updated ${currentPinItemId} in inventory`
-          : `Added ${currentPinItemId} and linked it to ${selectedRuleId}`,
-      );
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+      showToast(existing ? `Updated ${currentPinItemId} in inventory` : `Added ${currentPinItemId} and linked it to ${selectedRuleId}`);
     } catch (error) {
       setError(error instanceof Error ? error.message : String(error));
       showToast("Inventory update failed. Selection kept.");
@@ -3696,8 +2865,7 @@ export default function ProofMapTab({
       const ts = new Date().toISOString();
       const candidate: EvidencePin = {
         id:
-          typeof crypto !== "undefined" &&
-          typeof crypto.randomUUID === "function"
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
             ? crypto.randomUUID()
             : `pin_${ts}_${Math.random().toString(16).slice(2)}`,
         kind: "note",
@@ -3713,25 +2881,13 @@ export default function ProofMapTab({
         created_at: ts,
       };
       const dedupeKey = evidencePinDedupeKey(candidate);
-      const existing = evidencePins.find(
-        (pin) => evidencePinDedupeKey(pin) === dedupeKey,
-      );
+      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
       onSetEvidencePins((current) => {
-        const existingPin = current.find(
-          (pin) => evidencePinDedupeKey(pin) === dedupeKey,
-        );
-        return existingPin
-          ? coalesceEvidencePins(current)
-          : coalesceEvidencePins([candidate, ...current]);
+        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+        return existingPin ? coalesceEvidencePins(current) : coalesceEvidencePins([candidate, ...current]);
       });
-      setVerifierBundle((current) =>
-        markBundleEdited(current, { invalidateFinality: true }),
-      );
-      showToast(
-        existing
-          ? `${currentPinItemId} is already in inventory`
-          : `Added ${currentPinItemId} to inventory`,
-      );
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+      showToast(existing ? `${currentPinItemId} is already in inventory` : `Added ${currentPinItemId} to inventory`);
     } catch (error) {
       setError(error instanceof Error ? error.message : String(error));
       showToast("Inventory capture failed. Selection kept.");
@@ -3749,18 +2905,15 @@ export default function ProofMapTab({
     version,
   ]);
 
-  const updatePddFragmentDraft = useCallback(
-    (evidenceId: string, patch: Partial<PddFragmentDraft>) => {
-      setPddFragmentDrafts((current) => ({
-        ...current,
-        [evidenceId]: {
-          ...(current[evidenceId] ?? EMPTY_PDD_FRAGMENT_DRAFT),
-          ...patch,
-        },
-      }));
-    },
-    [],
-  );
+  const updatePddFragmentDraft = useCallback((evidenceId: string, patch: Partial<PddFragmentDraft>) => {
+    setPddFragmentDrafts((current) => ({
+      ...current,
+      [evidenceId]: {
+        ...(current[evidenceId] ?? EMPTY_PDD_FRAGMENT_DRAFT),
+        ...patch,
+      },
+    }));
+  }, []);
 
   const applySuggestedPddFragmentDraft = useCallback(
     (evidenceId: string) => {
@@ -3774,9 +2927,7 @@ export default function ProofMapTab({
           sectionHeading: suggestedPddFragmentDraft.sectionHeading,
         },
       }));
-      showToast(
-        `Seeded fragment metadata for ${selectedRuleId ?? "selected rule"}`,
-      );
+      showToast(`Seeded fragment metadata for ${selectedRuleId ?? "selected rule"}`);
     },
     [selectedRuleId, showToast, suggestedPddFragmentDraft],
   );
@@ -3801,158 +2952,104 @@ export default function ProofMapTab({
     });
   }, [evidencePins, selectedRuleId, suggestedPddFragmentDraft]);
 
-  const handlePddUpload = useCallback(
-    async (file: File | null) => {
-      if (!file) return;
-      setError(null);
-      const ts = new Date().toISOString();
-      const pinId =
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
-      try {
-        const result = await createAndStoreEvidenceAttachment({
-          pin_id: pinId,
-          file,
-        });
-        if (!result.ok) {
-          setError(result.message);
-          return;
-        }
-        const candidate: EvidencePin = {
-          id: pinId,
-          kind: "pdd",
-          title: file.name,
-          ts,
-          note: `${methodCode}@${version}`,
-          aoi_id: aoi?.id ?? null,
-          aoi_fingerprint: currentAoiFingerprint ?? undefined,
-          cited_ids: [],
-          attachments: [result.attachment],
-          pdd_document: {
-            evidence_id: pinId,
-            attachment_id: result.attachment.id,
-            file_name: result.attachment.filename,
-            mime: result.attachment.mime,
-            added_at: result.attachment.created_at,
-            sha256: result.attachment.sha256,
-          },
-          created_at: ts,
-        };
-        const dedupeKey = evidencePinDedupeKey(candidate);
-        const existing = evidencePins.find(
-          (pin) => evidencePinDedupeKey(pin) === dedupeKey,
-        );
-        onSetEvidencePins((current) => {
-          const existingPin = current.find(
-            (pin) => evidencePinDedupeKey(pin) === dedupeKey,
-          );
-          return existingPin
-            ? coalesceEvidencePins(current)
-            : coalesceEvidencePins([candidate, ...current]);
-        });
-        void stageProjectDocumentDraftFromAttachment({
-          origin: "pdd-upload",
-          evidenceId: pinId,
-          attachmentId: result.attachment.id,
-          fileName: result.attachment.filename,
-          mimeType: result.attachment.mime,
-          contentSha256: result.attachment.sha256,
-        })
-          .then(() => {
-            setProjectDraftReady(true);
-            showToast({
-              title: "Project draft ready",
-              subtitle:
-                "Open New Project to review extracted metadata from this PDD.",
-            });
-          })
-          .catch(() => undefined);
-        setVerifierBundle((current) =>
-          markBundleEdited(current, { invalidateFinality: true }),
-        );
-        showToast(
-          existing
-            ? `${file.name} is already in inventory`
-            : `Added PDD ${file.name} to inventory`,
-        );
-      } catch (error) {
-        setError(error instanceof Error ? error.message : String(error));
-        showToast("PDD intake failed.");
-      }
-    },
-    [
-      aoi?.id,
-      currentAoiFingerprint,
-      evidencePins,
-      markBundleEdited,
-      methodCode,
-      onSetEvidencePins,
-      showToast,
-      version,
-    ],
-  );
-
-  const handleSavePddFragment = useCallback(
-    (pin: EvidencePin) => {
-      const draft = pddFragmentDrafts[pin.id] ?? EMPTY_PDD_FRAGMENT_DRAFT;
-      const parsePage = (value: string): number | undefined => {
-        const trimmed = value.trim();
-        if (!trimmed) return undefined;
-        const parsed = Number(trimmed);
-        return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
-      };
-      const pageStart = parsePage(draft.pageStart);
-      const pageEnd = parsePage(draft.pageEnd) ?? pageStart;
-      const label = draft.label.trim();
-      const sectionLabel = draft.sectionLabel.trim();
-      const sectionHeading = draft.sectionHeading.trim();
-      const excerpt = draft.excerpt.trim();
-      if (
-        !label &&
-        !pageStart &&
-        !pageEnd &&
-        !sectionLabel &&
-        !sectionHeading &&
-        !excerpt
-      ) {
-        setError("Add at least one fragment field before saving.");
+  const handlePddUpload = useCallback(async (file: File | null) => {
+    if (!file) return;
+    setError(null);
+    const ts = new Date().toISOString();
+    const pinId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `pin_${ts}_${Math.random().toString(16).slice(2)}`;
+    try {
+      const result = await createAndStoreEvidenceAttachment({ pin_id: pinId, file });
+      if (!result.ok) {
+        setError(result.message);
         return;
       }
-      onSetEvidencePins((current) =>
-        upsertPddFragmentOnEvidencePin(current, pin.id, {
-          label: label || undefined,
-          page_start: pageStart,
-          page_end: pageEnd,
-          section_label: sectionLabel || undefined,
-          section_heading: sectionHeading || undefined,
-          excerpt: excerpt || undefined,
-        }),
-      );
-      setPddFragmentDrafts((current) => ({
-        ...current,
-        [pin.id]: EMPTY_PDD_FRAGMENT_DRAFT,
-      }));
-      setVerifierBundle((current) =>
-        markBundleEdited(current, { invalidateFinality: true }),
-      );
-      showToast("PDD fragment saved");
-    },
-    [markBundleEdited, onSetEvidencePins, pddFragmentDrafts, showToast],
-  );
+      const candidate: EvidencePin = {
+        id: pinId,
+        kind: "pdd",
+        title: file.name,
+        ts,
+        note: `${methodCode}@${version}`,
+        aoi_id: aoi?.id ?? null,
+        aoi_fingerprint: currentAoiFingerprint ?? undefined,
+        cited_ids: [],
+        attachments: [result.attachment],
+        pdd_document: {
+          evidence_id: pinId,
+          attachment_id: result.attachment.id,
+          file_name: result.attachment.filename,
+          mime: result.attachment.mime,
+          added_at: result.attachment.created_at,
+          sha256: result.attachment.sha256,
+        },
+        created_at: ts,
+      };
+      const dedupeKey = evidencePinDedupeKey(candidate);
+      const existing = evidencePins.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+      onSetEvidencePins((current) => {
+        const existingPin = current.find((pin) => evidencePinDedupeKey(pin) === dedupeKey);
+        return existingPin ? coalesceEvidencePins(current) : coalesceEvidencePins([candidate, ...current]);
+      });
+      setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+      showToast(existing ? `${file.name} is already in inventory` : `Added PDD ${file.name} to inventory`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      showToast("PDD intake failed.");
+    }
+  }, [
+    aoi?.id,
+    currentAoiFingerprint,
+    evidencePins,
+    markBundleEdited,
+    methodCode,
+    onSetEvidencePins,
+    showToast,
+    version,
+  ]);
+
+  const handleSavePddFragment = useCallback((pin: EvidencePin) => {
+    const draft = pddFragmentDrafts[pin.id] ?? EMPTY_PDD_FRAGMENT_DRAFT;
+    const parsePage = (value: string): number | undefined => {
+      const trimmed = value.trim();
+      if (!trimmed) return undefined;
+      const parsed = Number(trimmed);
+      return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+    };
+    const pageStart = parsePage(draft.pageStart);
+    const pageEnd = parsePage(draft.pageEnd) ?? pageStart;
+    const label = draft.label.trim();
+    const sectionLabel = draft.sectionLabel.trim();
+    const sectionHeading = draft.sectionHeading.trim();
+    const excerpt = draft.excerpt.trim();
+    if (!label && !pageStart && !pageEnd && !sectionLabel && !sectionHeading && !excerpt) {
+      setError("Add at least one fragment field before saving.");
+      return;
+    }
+    onSetEvidencePins((current) =>
+      upsertPddFragmentOnEvidencePin(current, pin.id, {
+        label: label || undefined,
+        page_start: pageStart,
+        page_end: pageEnd,
+        section_label: sectionLabel || undefined,
+        section_heading: sectionHeading || undefined,
+        excerpt: excerpt || undefined,
+      }),
+    );
+    setPddFragmentDrafts((current) => ({ ...current, [pin.id]: EMPTY_PDD_FRAGMENT_DRAFT }));
+    setVerifierBundle((current) => markBundleEdited(current, { invalidateFinality: true }));
+    showToast("PDD fragment saved");
+  }, [markBundleEdited, onSetEvidencePins, pddFragmentDrafts, showToast]);
 
   const handleExportSnapshot = useCallback(async () => {
     const exportedAt = new Date().toISOString();
     const nextRunContext =
-      activeHistoryEntry &&
-      canonicalJsonStringify(activeHistoryEntry.bundle) !==
-        canonicalJsonStringify(currentWorkspaceBundle)
+      activeHistoryEntry && canonicalJsonStringify(activeHistoryEntry.bundle) !== canonicalJsonStringify(currentWorkspaceBundle)
         ? createVerifierRunBundle(methodCode, version).runContext
         : verifierBundle.runContext;
     const checklistAfterExport = verifierBundle.checklist.map((item) =>
-      item.id === "exported-snapshot"
-        ? { ...item, checked: true, updatedAt: exportedAt }
-        : item,
+      item.id === "exported-snapshot" ? { ...item, checked: true, updatedAt: exportedAt } : item,
     );
     const verifierSnapshot = {
       runId: nextRunContext.runId,
@@ -3992,10 +3089,7 @@ export default function ProofMapTab({
       isEditedDraft: false,
     }));
     handleSaveRunHistory({
-      runContext: {
-        runId: verifierSnapshot.runId,
-        createdAt: verifierSnapshot.createdAt,
-      },
+      runContext: { runId: verifierSnapshot.runId, createdAt: verifierSnapshot.createdAt },
       reviewerContext: nextReviewerContext,
       savedReviewerArtifactContext: verifierBundle.savedReviewerArtifactContext,
       exportedAt,
@@ -4056,21 +3150,13 @@ export default function ProofMapTab({
     setReviewArtifact(artifact);
     const filename = `verify-final.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.json`;
     downloadJson(artifact, filename);
-  }, [
-    activeReviewArtifact,
-    buildFinalReviewArtifact,
-    methodCode,
-    verifierBundle,
-    version,
-  ]);
+  }, [activeReviewArtifact, buildFinalReviewArtifact, methodCode, verifierBundle, version]);
 
   const buildReadinessExportContext = useCallback(async () => {
     void reviewGateVersion;
     const generatedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
     if (!generatedAt) {
-      throw new Error(
-        "Finalize the current Verify run before exporting a readiness artifact.",
-      );
+      throw new Error("Finalize the current Verify run before exporting a readiness artifact.");
     }
     if (!ruleOptions.length) {
       throw new Error("No method rules are available for readiness export.");
@@ -4096,12 +3182,7 @@ export default function ProofMapTab({
       inventoryItems: evidenceInventory,
     });
 
-    const reviewsByRuleId = getAllReviews(
-      methodCode,
-      version,
-      workspaceId,
-      verifierBundle.runContext.runId,
-    );
+    const reviewsByRuleId = getAllReviews(methodCode, version, workspaceId, verifierBundle.runContext.runId);
     const reviewerArtifactsByRuleId = new Map<
       string,
       {
@@ -4111,12 +3192,7 @@ export default function ProofMapTab({
       }
     >(
       Object.values(reviewsByRuleId)
-        .filter(
-          (review) =>
-            review.reviewerArtifactSavedAt ||
-            review.reviewerMinutes?.trim() ||
-            review.reviewerOutcomeNote?.trim(),
-        )
+        .filter((review) => review.reviewerArtifactSavedAt || review.reviewerMinutes?.trim() || review.reviewerOutcomeNote?.trim())
         .map((review) => [
           review.ruleId,
           {
@@ -4145,12 +3221,7 @@ export default function ProofMapTab({
     const missingDocuments = Array.from(
       new Set(readinessGaps.flatMap((gap) => gap.missingExpectedEvidenceTypes)),
     )
-      .filter(
-        (expectedType) =>
-          !evidenceInventory.some((item) =>
-            inventoryMatchesExpectedEvidence(item, expectedType),
-          ),
-      )
+      .filter((expectedType) => !evidenceInventory.some((item) => inventoryMatchesExpectedEvidence(item, expectedType)))
       .sort((a, b) => a.localeCompare(b))
       .map((expectedType) => ({
         id: `missing-${expectedType}`,
@@ -4180,20 +3251,18 @@ export default function ProofMapTab({
   ]);
 
   const buildClientReadinessReportPayload = useCallback(async () => {
-    const { generatedAt, readinessGaps, suppliedDocuments, missingDocuments } =
-      await buildReadinessExportContext();
+    const {
+      generatedAt,
+      readinessGaps,
+      suppliedDocuments,
+      missingDocuments,
+    } = await buildReadinessExportContext();
 
     const report = buildClientReadinessReport({
-      reportId: clientReadinessReportId(
-        methodCode,
-        version,
-        verifierBundle.runContext.runId,
-      ),
+      reportId: clientReadinessReportId(methodCode, version, verifierBundle.runContext.runId),
       generatedAt,
       project: {
-        name:
-          aoi?.name?.trim() ||
-          `Client readiness workspace ${methodCode}@${version}`,
+        name: aoi?.name?.trim() || `Client readiness workspace ${methodCode}@${version}`,
         description: `Pre-verification readiness export generated from finalized Verify run ${verifierBundle.runContext.runId}.`,
       },
       methodology: {
@@ -4224,15 +3293,9 @@ export default function ProofMapTab({
       missingDocuments,
     } = await buildReadinessExportContext();
 
-    const reviewerArtifactsRecord = Object.fromEntries(
-      reviewerArtifactsByRuleId.entries(),
-    );
+    const reviewerArtifactsRecord = Object.fromEntries(reviewerArtifactsByRuleId.entries());
     const report = buildVvbWorkpaperReport({
-      reportId: vvbWorkpaperReportId(
-        methodCode,
-        version,
-        verifierBundle.runContext.runId,
-      ),
+      reportId: vvbWorkpaperReportId(methodCode, version, verifierBundle.runContext.runId),
       generatedAt,
       project: {
         name: aoi?.name?.trim() || `VVB workspace ${methodCode}@${version}`,
@@ -4249,19 +3312,11 @@ export default function ProofMapTab({
       reviewerArtifactsByRuleId: reviewerArtifactsRecord,
       provenance: {
         sourceRunId: verifierBundle.runContext.runId,
-        artifactState: verifierBundle.finalizedAt
-          ? "finalized"
-          : verifierBundle.exportedAt
-            ? "draft"
-            : "unavailable",
+        artifactState: verifierBundle.finalizedAt ? "finalized" : verifierBundle.exportedAt ? "draft" : "unavailable",
         snapshotExportedAt: verifierBundle.exportedAt ?? null,
         finalizedAt: verifierBundle.finalizedAt ?? null,
         auditPackReference: `audit-pack.${safeFilename(methodCode)}.${safeFilename(version)}.${safeFilename(verifierBundle.runContext.runId)}.zip`,
-        clientReadinessReference: clientReadinessReportId(
-          methodCode,
-          version,
-          verifierBundle.runContext.runId,
-        ),
+        clientReadinessReference: clientReadinessReportId(methodCode, version, verifierBundle.runContext.runId),
         traceBundleReference: `verify-run:${verifierBundle.runContext.runId}`,
       },
     });
@@ -4300,13 +3355,7 @@ export default function ProofMapTab({
     } finally {
       setClientReadinessExportBusy(false);
     }
-  }, [
-    buildClientReadinessReportPayload,
-    methodCode,
-    showToast,
-    verifierBundle.runContext.runId,
-    version,
-  ]);
+  }, [buildClientReadinessReportPayload, methodCode, showToast, verifierBundle.runContext.runId, version]);
 
   const handleExportVvbWorkpaper = useCallback(async () => {
     setVvbWorkpaperExportBusy(true);
@@ -4331,13 +3380,7 @@ export default function ProofMapTab({
     } finally {
       setVvbWorkpaperExportBusy(false);
     }
-  }, [
-    buildVvbWorkpaperPayload,
-    methodCode,
-    showToast,
-    verifierBundle.runContext.runId,
-    version,
-  ]);
+  }, [buildVvbWorkpaperPayload, methodCode, showToast, verifierBundle.runContext.runId, version]);
 
   const handleDownloadReviewSummaryPdf = useCallback(async () => {
     const finalizedAt = verifierBundle.finalizedAt ?? verifierBundle.exportedAt;
@@ -4365,14 +3408,7 @@ export default function ProofMapTab({
     } finally {
       setReviewPdfBusy(false);
     }
-  }, [
-    activeReviewArtifact,
-    buildFinalReviewArtifact,
-    methodCode,
-    reviewSummary,
-    verifierBundle,
-    version,
-  ]);
+  }, [activeReviewArtifact, buildFinalReviewArtifact, methodCode, reviewSummary, verifierBundle, version]);
 
   const handleCopyReviewSummaryLink = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -4405,23 +3441,14 @@ export default function ProofMapTab({
     setBaseline(currentBaselineProvenance, baseline);
     setBaselineTick((value) => value + 1);
     showToast("Baseline set");
-  }, [
-    baselineMissing,
-    currentBaselineProvenance,
-    runKpis,
-    runSummary.verifier.runId,
-    showToast,
-  ]);
+  }, [baselineMissing, currentBaselineProvenance, runKpis, runSummary.verifier.runId, showToast]);
 
   const handleRotateBaseline = useCallback(() => {
     if (baselineMissing.length) {
       showToast(`Cannot rotate baseline (${baselineMissing.join(", ")})`);
       return;
     }
-    const reason =
-      typeof window !== "undefined"
-        ? window.prompt("Reason for baseline rotation?")
-        : null;
+    const reason = typeof window !== "undefined" ? window.prompt("Reason for baseline rotation?") : null;
     if (!reason || !reason.trim()) return;
     const next: BaselineRecord = {
       baselineRunId: runSummary.verifier.runId ?? "run",
@@ -4432,18 +3459,11 @@ export default function ProofMapTab({
     rotateBaseline(currentBaselineProvenance, next, reason.trim());
     setBaselineTick((value) => value + 1);
     showToast("Baseline rotated");
-  }, [
-    baselineMissing,
-    currentBaselineProvenance,
-    runKpis,
-    runSummary.verifier.runId,
-    showToast,
-  ]);
+  }, [baselineMissing, currentBaselineProvenance, runKpis, runSummary.verifier.runId, showToast]);
 
   const handleClearBaseline = useCallback(() => {
     if (!latestBaseline) return;
-    const confirmed =
-      typeof window !== "undefined" ? window.confirm("Clear baseline?") : false;
+    const confirmed = typeof window !== "undefined" ? window.confirm("Clear baseline?") : false;
     if (!confirmed) return;
     clearBaseline(latestBaseline.baselineProvenance);
     setBaselineTick((value) => value + 1);
@@ -4465,14 +3485,7 @@ export default function ProofMapTab({
       status: "new",
     });
     showToast("Intake item added");
-  }, [
-    activeRuleId,
-    intakeSuggestion,
-    linkedRuleIds,
-    methodCode,
-    showToast,
-    version,
-  ]);
+  }, [activeRuleId, intakeSuggestion, linkedRuleIds, methodCode, showToast, version]);
 
   const runStartOver = useCallback(async () => {
     if (startOverBusy) return;
@@ -4534,27 +3547,18 @@ export default function ProofMapTab({
     if (!currentAoiFingerprint) return;
     if (!latestStacRun) return;
 
-    if (
-      stacEvidenceState &&
-      stacEvidenceState.aoiFingerprint === currentAoiFingerprint &&
-      stacEvidenceState.runId === latestStacRun.id
-    ) {
+    if (stacEvidenceState && stacEvidenceState.aoiFingerprint === currentAoiFingerprint && stacEvidenceState.runId === latestStacRun.id) {
       return;
     }
 
     const normalized = normalizeStacItems(latestStacRun.result_json);
     const endpoint = (() => {
       const root =
-        latestStacRun.result_json &&
-        typeof latestStacRun.result_json === "object"
+        latestStacRun.result_json && typeof latestStacRun.result_json === "object"
           ? (latestStacRun.result_json as Record<string, unknown>)
           : null;
-      const prov =
-        root && root.provenance && typeof root.provenance === "object"
-          ? (root.provenance as Record<string, unknown>)
-          : null;
-      const url =
-        prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
+      const prov = root && root.provenance && typeof root.provenance === "object" ? (root.provenance as Record<string, unknown>) : null;
+      const url = prov && typeof prov.endpoint === "string" ? prov.endpoint : null;
       return url && url.trim() ? url.trim() : null;
     })();
 
@@ -4563,16 +3567,9 @@ export default function ProofMapTab({
       fc: normalized.featureCollection,
       itemsById: normalized.itemsById,
       runId: latestStacRun.id,
-      source: endpoint
-        ? { type: "stac_url", ref: endpoint }
-        : { type: "unknown", ref: "unknown" },
+      source: endpoint ? { type: "stac_url", ref: endpoint } : { type: "unknown", ref: "unknown" },
     });
-  }, [
-    currentAoiFingerprint,
-    latestStacRun,
-    onSetStacEvidenceState,
-    stacEvidenceState,
-  ]);
+  }, [currentAoiFingerprint, latestStacRun, onSetStacEvidenceState, stacEvidenceState]);
 
   useEffect(() => {
     if (selectedStacItemId && !latestStacRun) onSelectStacItemId(null);
@@ -4635,9 +3632,7 @@ export default function ProofMapTab({
         <div>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="text-xs font-semibold text-slate-700">
-                Evidence inventory
-              </div>
+              <div className="text-xs font-semibold text-slate-700">Evidence inventory</div>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-600">
               <label className="cursor-pointer rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
@@ -4654,31 +3649,11 @@ export default function ProofMapTab({
                   }}
                 />
               </label>
-              {projectDraftReady ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof window !== "undefined")
-                      window.location.assign(
-                        "/start-review?handoff=document-metadata",
-                      );
-                  }}
-                  className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800"
-                >
-                  Start review from document
-                </button>
-              ) : null}
               <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5">
-                {evidenceInventory.length} item
-                {evidenceInventory.length === 1 ? "" : "s"}
+                {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
               </span>
               <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
-                {
-                  evidenceInventory.filter(
-                    (item) => item.link_state === "unlinked",
-                  ).length
-                }{" "}
-                unlinked
+                {evidenceInventory.filter((item) => item.link_state === "unlinked").length} unlinked
               </span>
               <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-sky-800">
                 Coverage {Math.round(evidenceMetrics.overallCoverage * 100)}%
@@ -4686,90 +3661,47 @@ export default function ProofMapTab({
               <span className="rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-violet-800">
                 Avg quality {Math.round(evidenceMetrics.averageQuality * 100)}%
               </span>
-              {evidenceInventory.some(
-                (item) =>
-                  item.reconciliation_status || item.reconciliation_load_error,
-              ) ? (
+              {evidenceInventory.some((item) => item.reconciliation_status || item.reconciliation_load_error) ? (
                 <>
                   <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-800">
-                    {
-                      evidenceInventory.filter(
-                        (item) => item.reconciliation_status === "linked",
-                      ).length
-                    }{" "}
-                    reconciled
+                    {evidenceInventory.filter((item) => item.reconciliation_status === "linked").length} reconciled
                   </span>
                   <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
-                    {
-                      evidenceInventory.filter(
-                        (item) => item.reconciliation_status === "unmatched",
-                      ).length
-                    }{" "}
-                    unmatched
+                    {evidenceInventory.filter((item) => item.reconciliation_status === "unmatched").length} unmatched
                   </span>
                   <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-red-800">
-                    {
-                      evidenceInventory.filter(
-                        (item) => item.reconciliation_status === "gap",
-                      ).length
-                    }{" "}
-                    gaps
+                    {evidenceInventory.filter((item) => item.reconciliation_status === "gap").length} gaps
                   </span>
-                  {evidenceInventory.some(
-                    (item) => item.reconciliation_load_error,
-                  ) ? (
-                    <span
-                      className="rounded-full border border-red-300 bg-red-100 px-2 py-0.5 text-red-800"
-                      title="Reconciliation could not complete — check methodology pack or manifest"
-                    >
-                      {
-                        evidenceInventory.filter(
-                          (item) => item.reconciliation_load_error,
-                        ).length
-                      }{" "}
-                      error
-                      {evidenceInventory.filter(
-                        (item) => item.reconciliation_load_error,
-                      ).length === 1
-                        ? ""
-                        : "s"}
+                  {evidenceInventory.some((item) => item.reconciliation_load_error) ? (
+                    <span className="rounded-full border border-red-300 bg-red-100 px-2 py-0.5 text-red-800" title="Reconciliation could not complete — check methodology pack or manifest">
+                      {evidenceInventory.filter((item) => item.reconciliation_load_error).length} error{evidenceInventory.filter((item) => item.reconciliation_load_error).length === 1 ? "" : "s"}
                     </span>
                   ) : null}
                 </>
               ) : null}
             </div>
           </div>
-          {!evidenceInventory.some((i) => i.reconciliation_status) &&
-          evidenceInventory.some((i) => i.reconciliation_load_error) ? (
+          {!evidenceInventory.some((i) => i.reconciliation_status) && evidenceInventory.some((i) => i.reconciliation_load_error) ? (
             <div className="mt-2 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
               <p className="font-semibold">Reconciliation incomplete</p>
               <p className="mt-1 text-xs text-red-700">
-                Evidence inventory could not be reconciled — the methodology
-                pack or manifest may be missing. Coverage gaps cannot be
-                determined.
+                Evidence inventory could not be reconciled — the methodology pack or manifest may be missing.
+                Coverage gaps cannot be determined.
               </p>
             </div>
           ) : null}
           <p className="mt-2 text-xs text-slate-500">
-            Quality and confidence metrics are advisory only and do not replace
-            reviewer judgment.
+            Quality and confidence metrics are advisory only and do not replace reviewer judgment.
           </p>
           <div className="mt-2 grid gap-2">
             {evidenceInventory.length ? (
               evidenceInventory.map((item) => {
                 const pin = evidencePinsById.get(item.evidence_id);
                 if (!pin) return null;
-                const linkedToSelectedRule = Boolean(
-                  selectedRuleId &&
-                  item.linked_requirement_ids.includes(selectedRuleId),
-                );
-                const pddDraft =
-                  pddFragmentDrafts[pin.id] ?? EMPTY_PDD_FRAGMENT_DRAFT;
+                const linkedToSelectedRule = Boolean(selectedRuleId && item.linked_requirement_ids.includes(selectedRuleId));
+                const pddDraft = pddFragmentDrafts[pin.id] ?? EMPTY_PDD_FRAGMENT_DRAFT;
                 return (
-                  <div
-                    key={item.evidence_id}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-3"
-                  >
+                  <div key={item.evidence_id} className="rounded-lg border border-slate-200 bg-white px-3 py-3">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
@@ -4780,9 +3712,7 @@ export default function ProofMapTab({
                                 : "border-amber-200 bg-amber-50 text-amber-800"
                             }`}
                           >
-                            {inventoryLinkStateLabel(
-                              item.linked_requirement_ids,
-                            )}
+                            {inventoryLinkStateLabel(item.linked_requirement_ids)}
                           </span>
                           {item.reconciliation_status ? (
                             <span
@@ -4819,46 +3749,22 @@ export default function ProofMapTab({
                           {qualityByEvidenceId.has(item.evidence_id) ? (
                             <>
                               <EvidenceQualityBadge
-                                grade={
-                                  qualityByEvidenceId.get(item.evidence_id)!
-                                    .grade
-                                }
-                                score={
-                                  qualityByEvidenceId.get(item.evidence_id)!
-                                    .score
-                                }
+                                grade={qualityByEvidenceId.get(item.evidence_id)!.grade}
+                                score={qualityByEvidenceId.get(item.evidence_id)!.score}
                               />
                               <ReconciliationConfidenceBadge
-                                level={
-                                  qualityByEvidenceId.get(item.evidence_id)!
-                                    .reconciliationConfidenceLevel
-                                }
-                                score={
-                                  qualityByEvidenceId.get(item.evidence_id)!
-                                    .reconciliationConfidenceScore
-                                }
+                                level={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceLevel}
+                                score={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceScore}
                               />
                               <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                                {
-                                  qualityByEvidenceId.get(item.evidence_id)!
-                                    .fragmentCount
-                                }{" "}
-                                fragment
-                                {qualityByEvidenceId.get(item.evidence_id)!
-                                  .fragmentCount === 1
-                                  ? ""
-                                  : "s"}
+                                {qualityByEvidenceId.get(item.evidence_id)!.fragmentCount} fragment{qualityByEvidenceId.get(item.evidence_id)!.fragmentCount === 1 ? "" : "s"}
                               </span>
                             </>
                           ) : null}
                         </div>
-                        <div className="mt-2 text-sm font-semibold text-slate-900">
-                          {item.display_name}
-                        </div>
+                        <div className="mt-2 text-sm font-semibold text-slate-900">{item.display_name}</div>
                         <div className="mt-1 text-[11px] text-slate-600">
-                          {inventoryRelationshipSummary(
-                            item.linked_requirement_ids,
-                          )}
+                          {inventoryRelationshipSummary(item.linked_requirement_ids)}
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -4868,16 +3774,8 @@ export default function ProofMapTab({
                               type="button"
                               className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                               onClick={() => {
-                                onSetEvidencePins((current) =>
-                                  unlinkEvidencePinFromRequirement(
-                                    current,
-                                    pin.id,
-                                    selectedRuleId,
-                                  ),
-                                );
-                                showToast(
-                                  `Unlinked ${formatEvidenceInventoryId(pin.id)} from ${selectedRuleId}`,
-                                );
+                                onSetEvidencePins((current) => unlinkEvidencePinFromRequirement(current, pin.id, selectedRuleId));
+                                showToast(`Unlinked ${formatEvidenceInventoryId(pin.id)} from ${selectedRuleId}`);
                               }}
                             >
                               Unlink
@@ -4887,16 +3785,8 @@ export default function ProofMapTab({
                               type="button"
                               className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
                               onClick={() => {
-                                onSetEvidencePins((current) =>
-                                  linkEvidencePinToRequirement(
-                                    current,
-                                    pin.id,
-                                    selectedRuleId,
-                                  ),
-                                );
-                                showToast(
-                                  `Linked ${formatEvidenceInventoryId(pin.id)} to ${selectedRuleId}`,
-                                );
+                                onSetEvidencePins((current) => linkEvidencePinToRequirement(current, pin.id, selectedRuleId));
+                                showToast(`Linked ${formatEvidenceInventoryId(pin.id)} to ${selectedRuleId}`);
                               }}
                             >
                               Link
@@ -4909,343 +3799,232 @@ export default function ProofMapTab({
                         ) : null}
                       </div>
                     </div>
-                    <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50">
+                      <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50">
                       <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-700">
                         More
                       </summary>
-                      <div className="grid gap-2 px-3 pb-3 text-[11px] text-slate-600">
-                        <div>
-                          ID: {formatEvidenceInventoryId(item.evidence_id)}
-                        </div>
-                        <div>Type: {item.type}</div>
-                        <div>
-                          {item.source_summary} · added{" "}
-                          {formatLocalDateTime(item.added_at)}
-                        </div>
-                        {item.workbook_assets?.length ? (
-                          <div>
-                            Workbook summary:{" "}
-                            {item.workbook_assets[0]?.sheet_count ?? 0} sheet
-                            {item.workbook_assets[0]?.sheet_count === 1
-                              ? ""
-                              : "s"}{" "}
-                            • {item.workbook_record_groups?.length ?? 0}{" "}
-                            candidate group
-                            {(item.workbook_record_groups?.length ?? 0) === 1
-                              ? ""
-                              : "s"}
-                          </div>
-                        ) : (
-                          <div>
-                            {(pin.stac_item_ids ?? []).length} STAC item
-                            {(pin.stac_item_ids ?? []).length === 1 ? "" : "s"}
-                            {" · "}
-                            {(pin.attachments ?? []).length} attachment
-                            {(pin.attachments ?? []).length === 1 ? "" : "s"}
-                          </div>
-                        )}
-                        <div>Provenance: {item.provenance_summary}</div>
-                        {item.workbook_assets?.length ? (
-                          <div className="grid gap-1">
-                            {item.workbook_assets.flatMap((asset) =>
-                              asset.sheets.map((sheet) => (
-                                <div
-                                  key={`${asset.workbook_id}:${sheet.sheet_name}`}
-                                >
-                                  Sheet {sheet.sheet_name} • {sheet.row_count}{" "}
-                                  row{sheet.row_count === 1 ? "" : "s"} •{" "}
-                                  {sheet.column_count} column
-                                  {sheet.column_count === 1 ? "" : "s"}
-                                  {sheet.bounds_ref
-                                    ? ` • ${sheet.bounds_ref}`
-                                    : ""}
-                                </div>
-                              )),
-                            )}
-                          </div>
-                        ) : null}
-                        {item.workbook_record_groups?.length ? (
-                          <div className="grid gap-1">
-                            {item.workbook_record_groups.map((group) => (
-                              <div key={group.group_id}>
-                                {group.display_name} • {group.group_type} •{" "}
-                                {group.source_sheet}
-                                {group.source_range
-                                  ? ` • ${group.source_range}`
-                                  : ""}
-                              </div>
-                            ))}
-                          </div>
-                        ) : null}
-                        {item.pdd_document ? (
-                          <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-2">
-                            <div className="font-semibold text-slate-700">
-                              PDD document
-                            </div>
+                        <div className="grid gap-2 px-3 pb-3 text-[11px] text-slate-600">
+                          <div>ID: {formatEvidenceInventoryId(item.evidence_id)}</div>
+                          <div>Type: {item.type}</div>
+                          <div>{item.source_summary} · added {formatLocalDateTime(item.added_at)}</div>
+                          {item.workbook_assets?.length ? (
                             <div>
-                              {item.pdd_document.file_name} •{" "}
-                              {item.pdd_document.mime}
-                              {item.pdd_document.sha256
-                                ? ` • ${shortSha(item.pdd_document.sha256)}`
-                                : ""}
+                              Workbook summary: {item.workbook_assets[0]?.sheet_count ?? 0} sheet{item.workbook_assets[0]?.sheet_count === 1 ? "" : "s"} •{" "}
+                              {item.workbook_record_groups?.length ?? 0} candidate group{(item.workbook_record_groups?.length ?? 0) === 1 ? "" : "s"}
                             </div>
-                            {selectedRuleId && suggestedPddFragmentDraft ? (
-                              <div className="grid gap-2 rounded-lg border border-sky-200 bg-sky-50/60 p-2 text-[11px] text-slate-700">
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <div className="font-semibold text-sky-800">
-                                    Suggested fragment metadata for{" "}
-                                    {selectedRuleId}
+                          ) : (
+                            <div>
+                              {(pin.stac_item_ids ?? []).length} STAC item
+                              {(pin.stac_item_ids ?? []).length === 1 ? "" : "s"}
+                              {" · "}
+                              {(pin.attachments ?? []).length} attachment
+                              {(pin.attachments ?? []).length === 1 ? "" : "s"}
+                            </div>
+                          )}
+                          <div>Provenance: {item.provenance_summary}</div>
+                          {item.workbook_assets?.length ? (
+                            <div className="grid gap-1">
+                              {item.workbook_assets.flatMap((asset) =>
+                                asset.sheets.map((sheet) => (
+                                  <div key={`${asset.workbook_id}:${sheet.sheet_name}`}>
+                                    Sheet {sheet.sheet_name} • {sheet.row_count} row{sheet.row_count === 1 ? "" : "s"} • {sheet.column_count} column{sheet.column_count === 1 ? "" : "s"}
+                                    {sheet.bounds_ref ? ` • ${sheet.bounds_ref}` : ""}
                                   </div>
-                                  <button
-                                    type="button"
-                                    className="rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
-                                    onClick={() =>
-                                      applySuggestedPddFragmentDraft(pin.id)
-                                    }
-                                  >
-                                    Use suggestion
-                                  </button>
+                                )),
+                              )}
+                            </div>
+                          ) : null}
+                          {item.workbook_record_groups?.length ? (
+                            <div className="grid gap-1">
+                              {item.workbook_record_groups.map((group) => (
+                                <div key={group.group_id}>
+                                  {group.display_name} • {group.group_type} • {group.source_sheet}
+                                  {group.source_range ? ` • ${group.source_range}` : ""}
                                 </div>
-                                <div>
-                                  Label:{" "}
-                                  <span className="font-medium text-slate-900">
-                                    {suggestedPddFragmentDraft.label}
-                                  </span>
-                                  {suggestedPddFragmentDraft.sectionHeading
-                                    ? ` · Heading: ${suggestedPddFragmentDraft.sectionHeading}`
-                                    : ""}
-                                  {suggestedPddFragmentDraft.sectionLabel
-                                    ? ` · Section: ${suggestedPddFragmentDraft.sectionLabel}`
-                                    : ""}
-                                </div>
-                                <div className="text-slate-600">
-                                  {suggestedPddFragmentDraft.reason}
-                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                          {item.pdd_document ? (
+                            <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-2">
+                              <div className="font-semibold text-slate-700">PDD document</div>
+                              <div>
+                                {item.pdd_document.file_name} • {item.pdd_document.mime}
+                                {item.pdd_document.sha256 ? ` • ${shortSha(item.pdd_document.sha256)}` : ""}
                               </div>
-                            ) : null}
-                            <div className="grid gap-2 md:grid-cols-2">
-                              <label className="grid gap-1 md:col-span-2">
-                                <span>Fragment label</span>
-                                <input
-                                  type="text"
-                                  value={pddDraft.label}
-                                  onChange={(event) =>
-                                    updatePddFragmentDraft(pin.id, {
-                                      label: event.target.value,
-                                    })
-                                  }
-                                  placeholder="Boundary overview"
-                                  className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
-                                />
-                              </label>
-                              <label className="grid gap-1">
-                                <span>Section label</span>
-                                <input
-                                  type="text"
-                                  value={pddDraft.sectionLabel}
-                                  onChange={(event) =>
-                                    updatePddFragmentDraft(pin.id, {
-                                      sectionLabel: event.target.value,
-                                    })
-                                  }
-                                  className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
-                                />
-                              </label>
-                              <label className="grid gap-1">
-                                <span>Section heading</span>
-                                <input
-                                  type="text"
-                                  value={pddDraft.sectionHeading}
-                                  onChange={(event) =>
-                                    updatePddFragmentDraft(pin.id, {
-                                      sectionHeading: event.target.value,
-                                    })
-                                  }
-                                  className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
-                                />
-                              </label>
-                              <label className="grid gap-1">
-                                <span>Page start</span>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={pddDraft.pageStart}
-                                  onChange={(event) =>
-                                    updatePddFragmentDraft(pin.id, {
-                                      pageStart: event.target.value,
-                                    })
-                                  }
-                                  className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
-                                />
-                              </label>
-                              <label className="grid gap-1">
-                                <span>Page end</span>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={pddDraft.pageEnd}
-                                  onChange={(event) =>
-                                    updatePddFragmentDraft(pin.id, {
-                                      pageEnd: event.target.value,
-                                    })
-                                  }
-                                  className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
-                                />
-                              </label>
-                            </div>
-                            <label className="grid gap-1">
-                              <span>Excerpt</span>
-                              <textarea
-                                value={pddDraft.excerpt}
-                                onChange={(event) =>
-                                  updatePddFragmentDraft(pin.id, {
-                                    excerpt: event.target.value,
-                                  })
-                                }
-                                rows={3}
-                                className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
-                              />
-                            </label>
-                            <div>
-                              <button
-                                type="button"
-                                className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
-                                onClick={() => handleSavePddFragment(pin)}
-                              >
-                                Save fragment
-                              </button>
-                            </div>
-                            {item.pdd_fragments?.length ? (
-                              <div className="grid gap-2">
-                                {item.pdd_fragments.map((fragment) => {
-                                  const linkedRuleIds = (
-                                    pin.pdd_fragment_links ?? []
-                                  )
-                                    .filter(
-                                      (link) =>
-                                        link.fragment_id ===
-                                        fragment.fragment_id,
-                                    )
-                                    .map((link) => link.rule_id);
-                                  const linkedToSelectedFragment = Boolean(
-                                    selectedRuleId &&
-                                    linkedRuleIds.includes(selectedRuleId),
-                                  );
-                                  return (
-                                    <div
-                                      key={fragment.fragment_id}
-                                      className="rounded border border-slate-200 bg-slate-50 p-2"
+                              {selectedRuleId && suggestedPddFragmentDraft ? (
+                                <div className="grid gap-2 rounded-lg border border-sky-200 bg-sky-50/60 p-2 text-[11px] text-slate-700">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <div className="font-semibold text-sky-800">Suggested fragment metadata for {selectedRuleId}</div>
+                                    <button
+                                      type="button"
+                                      className="rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                                      onClick={() => applySuggestedPddFragmentDraft(pin.id)}
                                     >
-                                      <div className="flex flex-wrap items-center gap-2">
-                                        <div className="font-medium text-slate-800">
-                                          {formatPddFragmentDisplayLabel(
-                                            fragment,
-                                          )}
+                                      Use suggestion
+                                    </button>
+                                  </div>
+                                  <div>
+                                    Label: <span className="font-medium text-slate-900">{suggestedPddFragmentDraft.label}</span>
+                                    {suggestedPddFragmentDraft.sectionHeading
+                                      ? ` · Heading: ${suggestedPddFragmentDraft.sectionHeading}`
+                                      : ""}
+                                    {suggestedPddFragmentDraft.sectionLabel
+                                      ? ` · Section: ${suggestedPddFragmentDraft.sectionLabel}`
+                                      : ""}
+                                  </div>
+                                  <div className="text-slate-600">{suggestedPddFragmentDraft.reason}</div>
+                                </div>
+                              ) : null}
+                              <div className="grid gap-2 md:grid-cols-2">
+                                <label className="grid gap-1 md:col-span-2">
+                                  <span>Fragment label</span>
+                                  <input
+                                    type="text"
+                                    value={pddDraft.label}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { label: event.target.value })}
+                                    placeholder="Boundary overview"
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span>Section label</span>
+                                  <input
+                                    type="text"
+                                    value={pddDraft.sectionLabel}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { sectionLabel: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span>Section heading</span>
+                                  <input
+                                    type="text"
+                                    value={pddDraft.sectionHeading}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { sectionHeading: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span>Page start</span>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={pddDraft.pageStart}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { pageStart: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span>Page end</span>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={pddDraft.pageEnd}
+                                    onChange={(event) => updatePddFragmentDraft(pin.id, { pageEnd: event.target.value })}
+                                    className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                  />
+                                </label>
+                              </div>
+                              <label className="grid gap-1">
+                                <span>Excerpt</span>
+                                <textarea
+                                  value={pddDraft.excerpt}
+                                  onChange={(event) => updatePddFragmentDraft(pin.id, { excerpt: event.target.value })}
+                                  rows={3}
+                                  className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-900"
+                                />
+                              </label>
+                              <div>
+                                <button
+                                  type="button"
+                                  className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                                  onClick={() => handleSavePddFragment(pin)}
+                                >
+                                  Save fragment
+                                </button>
+                              </div>
+                              {item.pdd_fragments?.length ? (
+                                <div className="grid gap-2">
+                                  {item.pdd_fragments.map((fragment) => {
+                                    const linkedRuleIds = (pin.pdd_fragment_links ?? [])
+                                      .filter((link) => link.fragment_id === fragment.fragment_id)
+                                      .map((link) => link.rule_id);
+                                    const linkedToSelectedFragment = Boolean(
+                                      selectedRuleId && linkedRuleIds.includes(selectedRuleId),
+                                    );
+                                    return (
+                                      <div key={fragment.fragment_id} className="rounded border border-slate-200 bg-slate-50 p-2">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          <div className="font-medium text-slate-800">
+                                            {formatPddFragmentDisplayLabel(fragment)}
+                                          </div>
+                                          {qualityByEvidenceId.has(item.evidence_id) ? (
+                                            <ReconciliationConfidenceBadge
+                                              level={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceLevel}
+                                              score={qualityByEvidenceId.get(item.evidence_id)!.reconciliationConfidenceScore}
+                                            />
+                                          ) : null}
                                         </div>
-                                        {qualityByEvidenceId.has(
-                                          item.evidence_id,
-                                        ) ? (
-                                          <ReconciliationConfidenceBadge
-                                            level={
-                                              qualityByEvidenceId.get(
-                                                item.evidence_id,
-                                              )!.reconciliationConfidenceLevel
-                                            }
-                                            score={
-                                              qualityByEvidenceId.get(
-                                                item.evidence_id,
-                                              )!.reconciliationConfidenceScore
-                                            }
-                                          />
+                                        <div className="mt-1">
+                                          {[fragment.section_heading, fragment.section_label, formatPddPageLabel(fragment.page_start, fragment.page_end)]
+                                            .filter(Boolean)
+                                            .join(" • ") || "Fragment metadata pending"}
+                                        </div>
+                                        {fragment.excerpt ? (
+                                          <div className="mt-1 rounded border border-slate-200 bg-white px-2 py-1 text-slate-700">
+                                            {fragment.excerpt}
+                                          </div>
+                                        ) : null}
+                                        {linkedRuleIds.length ? (
+                                          <div className="mt-1">Linked to: {linkedRuleIds.join(", ")}</div>
+                                        ) : null}
+                                        {selectedRuleId ? (
+                                          <div className="mt-2">
+                                            {linkedToSelectedFragment ? (
+                                              <button
+                                                type="button"
+                                                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                                                onClick={() => {
+                                                  onSetEvidencePins((current) =>
+                                                    unlinkPddFragmentFromRequirement(current, pin.id, fragment.fragment_id, selectedRuleId),
+                                                  );
+                                                  showToast(`Unlinked ${fragment.fragment_id} from ${selectedRuleId}`);
+                                                }}
+                                              >
+                                                Unlink fragment
+                                              </button>
+                                            ) : (
+                                              <button
+                                                type="button"
+                                                className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+                                                onClick={() => {
+                                                  onSetEvidencePins((current) =>
+                                                    linkPddFragmentToRequirement(current, pin.id, fragment.fragment_id, selectedRuleId),
+                                                  );
+                                                  showToast(`Reused ${formatPddFragmentDisplayLabel(fragment)} for ${selectedRuleId}`);
+                                                }}
+                                              >
+                                                Reuse for {selectedRuleId}
+                                              </button>
+                                            )}
+                                          </div>
                                         ) : null}
                                       </div>
-                                      <div className="mt-1">
-                                        {[
-                                          fragment.section_heading,
-                                          fragment.section_label,
-                                          formatPddPageLabel(
-                                            fragment.page_start,
-                                            fragment.page_end,
-                                          ),
-                                        ]
-                                          .filter(Boolean)
-                                          .join(" • ") ||
-                                          "Fragment metadata pending"}
-                                      </div>
-                                      {fragment.excerpt ? (
-                                        <div className="mt-1 rounded border border-slate-200 bg-white px-2 py-1 text-slate-700">
-                                          {fragment.excerpt}
-                                        </div>
-                                      ) : null}
-                                      {linkedRuleIds.length ? (
-                                        <div className="mt-1">
-                                          Linked to: {linkedRuleIds.join(", ")}
-                                        </div>
-                                      ) : null}
-                                      {selectedRuleId ? (
-                                        <div className="mt-2">
-                                          {linkedToSelectedFragment ? (
-                                            <button
-                                              type="button"
-                                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                                              onClick={() => {
-                                                onSetEvidencePins((current) =>
-                                                  unlinkPddFragmentFromRequirement(
-                                                    current,
-                                                    pin.id,
-                                                    fragment.fragment_id,
-                                                    selectedRuleId,
-                                                  ),
-                                                );
-                                                showToast(
-                                                  `Unlinked ${fragment.fragment_id} from ${selectedRuleId}`,
-                                                );
-                                              }}
-                                            >
-                                              Unlink fragment
-                                            </button>
-                                          ) : (
-                                            <button
-                                              type="button"
-                                              className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100"
-                                              onClick={() => {
-                                                onSetEvidencePins((current) =>
-                                                  linkPddFragmentToRequirement(
-                                                    current,
-                                                    pin.id,
-                                                    fragment.fragment_id,
-                                                    selectedRuleId,
-                                                  ),
-                                                );
-                                                showToast(
-                                                  `Reused ${formatPddFragmentDisplayLabel(fragment)} for ${selectedRuleId}`,
-                                                );
-                                              }}
-                                            >
-                                              Reuse for {selectedRuleId}
-                                            </button>
-                                          )}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            ) : null}
-                          </div>
-                        ) : null}
-                        {item.linked_requirement_ids.length ? (
-                          <div className="flex flex-wrap gap-2">
-                            {item.linked_requirement_ids.map((id) => (
+                                    );
+                                  })}
+                                </div>
+                              ) : null}
+                            </div>
+                          ) : null}
+                          {item.linked_requirement_ids.length ? (
+                            <div className="flex flex-wrap gap-2">
+                              {item.linked_requirement_ids.map((id) => (
                               <button
                                 key={`${pin.id}:${id}`}
                                 type="button"
                                 className="rounded-full border border-slate-200 bg-white px-2 py-0.5 font-mono text-[11px] text-slate-700 hover:bg-slate-50"
                                 onClick={async () => {
-                                  const ok = await handleNavigateEvidence(
-                                    "rule",
-                                    id,
-                                  );
+                                  const ok = await handleNavigateEvidence("rule", id);
                                   if (!ok) showToast("Rule not found");
                                 }}
                               >
@@ -5267,11 +4046,7 @@ export default function ProofMapTab({
                                 if (!file) return;
                                 setError(null);
                                 try {
-                                  const result =
-                                    await createAndStoreEvidenceAttachment({
-                                      pin_id: pin.id,
-                                      file,
-                                    });
+                                  const result = await createAndStoreEvidenceAttachment({ pin_id: pin.id, file });
                                   if (!result.ok) {
                                     setError(result.message);
                                     return;
@@ -5282,10 +4057,7 @@ export default function ProofMapTab({
                                         existing.id === pin.id
                                           ? {
                                               ...existing,
-                                              attachments: [
-                                                ...(existing.attachments ?? []),
-                                                result.attachment,
-                                              ],
+                                              attachments: [...(existing.attachments ?? []), result.attachment],
                                             }
                                           : existing,
                                       ),
@@ -5293,9 +4065,7 @@ export default function ProofMapTab({
                                   );
                                   showToast("Attachment saved");
                                 } catch (e) {
-                                  setError(
-                                    e instanceof Error ? e.message : String(e),
-                                  );
+                                  setError(e instanceof Error ? e.message : String(e));
                                 }
                               }}
                             />
@@ -5309,16 +4079,12 @@ export default function ProofMapTab({
                                   coalesceEvidencePins(
                                     current.map((entry) => {
                                       if (entry.id !== pin.id) return entry;
-                                      const existing = new Set(
-                                        entry.stac_item_ids ?? [],
-                                      );
+                                      const existing = new Set(entry.stac_item_ids ?? []);
                                       existing.add(selectedStacItemId);
                                       return {
                                         ...entry,
                                         stac_item_ids: Array.from(existing),
-                                        stac_run_id:
-                                          entry.stac_run_id ??
-                                          currentStacEvidence.runId,
+                                        stac_run_id: entry.stac_run_id ?? currentStacEvidence.runId,
                                       };
                                     }),
                                   ),
@@ -5336,29 +4102,19 @@ export default function ProofMapTab({
                 );
               })
             ) : (
-              <div className="text-xs text-slate-500">
-                No evidence inventory yet. Add a STAC item to inventory to
-                create the first evidence object.
-              </div>
+              <div className="text-xs text-slate-500">No evidence inventory yet. Add a STAC item to inventory to create the first evidence object.</div>
             )}
           </div>
         </div>
       )}
 
       <div>
-        <div className="text-xs font-semibold text-slate-700">
-          STAC Evidence
-        </div>
+        <div className="text-xs font-semibold text-slate-700">STAC Evidence</div>
         <div className="mt-2 grid gap-2">
           {aoi && currentAoiFingerprint && stacRenderedCount ? (
-            <div
-              ref={stacEvidenceCardRef}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-2"
-            >
+            <div ref={stacEvidenceCardRef} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-xs font-semibold text-slate-900">
-                  {stacRenderedCount} feature(s)
-                </div>
+                <div className="text-xs font-semibold text-slate-900">{stacRenderedCount} feature(s)</div>
                 <button
                   type="button"
                   className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -5368,27 +4124,21 @@ export default function ProofMapTab({
                   Clear selection
                 </button>
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">
-                Rendered: {stacRenderedCount}
-              </div>
+              <div className="mt-1 text-[11px] text-slate-500">Rendered: {stacRenderedCount}</div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
                 <span>
-                  Valid: {evidenceDiagnostics.valid}, Skipped:{" "}
-                  {evidenceDiagnostics.skipped}
+                  Valid: {evidenceDiagnostics.valid}, Skipped: {evidenceDiagnostics.skipped}
                 </span>
                 {evidenceDiagnostics.inView != null ? (
                   <span>
-                    In view: {evidenceDiagnostics.inView}/
-                    {evidenceDiagnostics.valid}
+                    In view: {evidenceDiagnostics.inView}/{evidenceDiagnostics.valid}
                   </span>
                 ) : null}
               </div>
               {evidenceDiagnostics.bounds ? (
                 <div className="mt-1 break-words font-mono text-[11px] text-slate-500">
-                  Bounds: {formatNum(evidenceDiagnostics.bounds[0])},{" "}
-                  {formatNum(evidenceDiagnostics.bounds[1])} →{" "}
-                  {formatNum(evidenceDiagnostics.bounds[2])},{" "}
-                  {formatNum(evidenceDiagnostics.bounds[3])}
+                  Bounds: {formatNum(evidenceDiagnostics.bounds[0])}, {formatNum(evidenceDiagnostics.bounds[1])} →{" "}
+                  {formatNum(evidenceDiagnostics.bounds[2])}, {formatNum(evidenceDiagnostics.bounds[3])}
                 </div>
               ) : (
                 <div className="mt-1 text-[11px] text-slate-500">Bounds: —</div>
@@ -5398,8 +4148,7 @@ export default function ProofMapTab({
                   type="button"
                   className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                   onClick={() => {
-                    if (!evidenceDiagnostics.bounds)
-                      return void showToast("No valid evidence geometry/bbox");
+                    if (!evidenceDiagnostics.bounds) return void showToast("No valid evidence geometry/bbox");
                     zoomToBbox(mapRef.current, evidenceDiagnostics.bounds, 80);
                   }}
                   title="Zoom map to evidence bounds"
@@ -5427,8 +4176,7 @@ export default function ProofMapTab({
                   <div className="mt-2 max-h-40 overflow-auto">
                     <div className="grid gap-1">
                       {stacFeatureIds.slice(0, 60).map((id) => {
-                        const bbox =
-                          evidenceDiagnostics.byIdBbox.get(id) ?? null;
+                        const bbox = evidenceDiagnostics.byIdBbox.get(id) ?? null;
                         const selected = id === selectedStacItemId;
                         return (
                           <button
@@ -5471,10 +4219,7 @@ export default function ProofMapTab({
                 <div className="mt-3 grid gap-2">
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
                     <div className="text-xs font-semibold text-slate-900">
-                      Selected:{" "}
-                      <span className="font-mono">
-                        {selectedStacDetails.id}
-                      </span>
+                      Selected: <span className="font-mono">{selectedStacDetails.id}</span>
                       {lastSelectionSource ? (
                         <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           via {lastSelectionSource}
@@ -5492,9 +4237,7 @@ export default function ProofMapTab({
                   </div>
                   <div className="grid gap-1 text-xs text-slate-700">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-semibold text-slate-900">
-                        Item ID
-                      </span>
+                      <span className="font-semibold text-slate-900">Item ID</span>
                       <button
                         type="button"
                         className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
@@ -5503,9 +4246,7 @@ export default function ProofMapTab({
                         Copy
                       </button>
                     </div>
-                    <div className="break-words font-mono text-[11px] text-slate-600">
-                      {selectedStacDetails.id}
-                    </div>
+                    <div className="break-words font-mono text-[11px] text-slate-600">{selectedStacDetails.id}</div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Tooltip content={addInventoryDisabledReason}>
@@ -5531,36 +4272,24 @@ export default function ProofMapTab({
                   </div>
                   <div className="grid gap-1 text-xs text-slate-700">
                     <div className="font-semibold text-slate-900">BBox</div>
-                    <div className="font-mono text-[11px] text-slate-600">
-                      {selectedStacDetails.bbox}
-                    </div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.bbox}</div>
                   </div>
                   <div className="grid gap-1 text-xs text-slate-700">
                     <div className="font-semibold text-slate-900">Datetime</div>
-                    <div className="font-mono text-[11px] text-slate-600">
-                      {selectedStacDetails.datetime}
-                    </div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.datetime}</div>
                   </div>
                   <div className="grid gap-1 text-xs text-slate-700">
-                    <div className="font-semibold text-slate-900">
-                      Cloud cover
-                    </div>
-                    <div className="font-mono text-[11px] text-slate-600">
-                      {selectedStacDetails.cloudCover}
-                    </div>
+                    <div className="font-semibold text-slate-900">Cloud cover</div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.cloudCover}</div>
                   </div>
                   <div className="grid gap-1 text-xs text-slate-700">
                     <div className="font-semibold text-slate-900">Assets</div>
-                    <div className="font-mono text-[11px] text-slate-600">
-                      {selectedStacDetails.assetsCount}
-                    </div>
+                    <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.assetsCount}</div>
                   </div>
                   {selectedStacDetails.runId ? (
                     <div className="grid gap-1 text-xs text-slate-700">
                       <div className="font-semibold text-slate-900">Run</div>
-                      <div className="font-mono text-[11px] text-slate-600">
-                        {selectedStacDetails.runId}
-                      </div>
+                      <div className="font-mono text-[11px] text-slate-600">{selectedStacDetails.runId}</div>
                     </div>
                   ) : null}
                   <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
@@ -5575,10 +4304,7 @@ export default function ProofMapTab({
                             type="button"
                             className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                             onClick={async () => {
-                              const ok = await handleNavigateEvidence(
-                                "rule",
-                                id,
-                              );
+                              const ok = await handleNavigateEvidence("rule", id);
                               if (!ok) showToast("Rule not found");
                             }}
                             title={`Open rule ${id}`}
@@ -5604,10 +4330,7 @@ export default function ProofMapTab({
                               type="button"
                               className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
                               onClick={async () => {
-                                const ok = await handleNavigateEvidence(
-                                  "section",
-                                  id,
-                                );
+                                const ok = await handleNavigateEvidence("section", id);
                                 if (!ok) showToast("Section not found");
                               }}
                               title={`Open section ${id}`}
@@ -5621,22 +4344,13 @@ export default function ProofMapTab({
                   </div>
                   {selectedStacDetails.assetRows.length ? (
                     <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        Assets
-                      </div>
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Assets</div>
                       <div className="mt-2 grid gap-2">
                         {selectedStacDetails.assetRows.map((row) => (
-                          <div
-                            key={row.key}
-                            className="flex items-start justify-between gap-2"
-                          >
+                          <div key={row.key} className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <div className="text-xs font-semibold text-slate-800">
-                                {row.key}
-                              </div>
-                              <div className="break-words font-mono text-[11px] text-slate-600">
-                                {row.href}
-                              </div>
+                              <div className="text-xs font-semibold text-slate-800">{row.key}</div>
+                              <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
                             </div>
                             <button
                               type="button"
@@ -5652,22 +4366,13 @@ export default function ProofMapTab({
                   ) : null}
                   {selectedStacDetails.linkRows.length ? (
                     <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        Links
-                      </div>
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Links</div>
                       <div className="mt-2 grid gap-2">
                         {selectedStacDetails.linkRows.map((row, idx) => (
-                          <div
-                            key={`${row.href}:${idx}`}
-                            className="flex items-start justify-between gap-2"
-                          >
+                          <div key={`${row.href}:${idx}`} className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <div className="text-xs font-semibold text-slate-800">
-                                {row.rel}
-                              </div>
-                              <div className="break-words font-mono text-[11px] text-slate-600">
-                                {row.href}
-                              </div>
+                              <div className="text-xs font-semibold text-slate-800">{row.rel}</div>
+                              <div className="break-words font-mono text-[11px] text-slate-600">{row.href}</div>
                             </div>
                             <button
                               type="button"
@@ -5683,9 +4388,7 @@ export default function ProofMapTab({
                   ) : null}
                 </div>
               ) : (
-                <div className="mt-2 text-xs text-slate-500">
-                  Click a footprint/marker on the map to inspect.
-                </div>
+                <div className="mt-2 text-xs text-slate-500">Click a footprint/marker on the map to inspect.</div>
               )}
             </div>
           ) : (
@@ -5701,33 +4404,20 @@ export default function ProofMapTab({
       </div>
 
       <div>
-        <div className="text-xs font-semibold text-slate-700">
-          Evidence searches (current AOI)
-        </div>
+        <div className="text-xs font-semibold text-slate-700">Evidence searches (current AOI)</div>
         <div className="mt-2 grid gap-2">
           {aoi && currentAoiFingerprint && currentRuns.length ? (
             currentRuns.map((run) => {
               const pill = statusPill(run.status);
               return (
-                <div
-                  key={run.id}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-2"
-                >
+                <div key={run.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span
-                      className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}
-                    >
+                    <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${pill.className}`}>
                       {pill.label}
                     </span>
-                    <span className="text-xs text-slate-500">
-                      {formatLocalDateTime(run.created_at)}
-                    </span>
+                    <span className="text-xs text-slate-500">{formatLocalDateTime(run.created_at)}</span>
                   </div>
-                  {run.summary ? (
-                    <div className="mt-1 text-xs text-slate-700">
-                      {run.summary}
-                    </div>
-                  ) : null}
+                  {run.summary ? <div className="mt-1 text-xs text-slate-700">{run.summary}</div> : null}
                   {run.result_json ? (
                     <button
                       type="button"
@@ -5754,74 +4444,41 @@ export default function ProofMapTab({
     </>
   );
 
-  const summarySnapshot = formatSnapshotSummaryTime(
-    runKpis.snapshotExportedAt ?? null,
-  );
+  const summarySnapshot = formatSnapshotSummaryTime(runKpis.snapshotExportedAt ?? null);
 
   return (
     <div className="mt-4 grid gap-4">
       <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
         <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Review summary
-            </div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Review summary</div>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="text-xs text-slate-500">
-                method:{" "}
-                <span className="font-mono font-semibold text-slate-900">
-                  {methodCode}@{version}
-                </span>
+                method: <span className="font-mono font-semibold text-slate-900">{methodCode}@{version}</span>
               </span>
               <span className="text-xs text-slate-500">
-                Items:{" "}
-                <span className="font-semibold text-slate-900">
-                  {runKpis.itemsCount}
-                </span>
+                Items: <span className="font-semibold text-slate-900">{runKpis.itemsCount}</span>
               </span>
               <span className="text-xs text-slate-500">
-                Linked:{" "}
-                <span className="font-semibold text-slate-900">
-                  {runKpis.linkedRulesCount}
-                </span>
+                Linked: <span className="font-semibold text-slate-900">{runKpis.linkedRulesCount}</span>
               </span>
-              <span
-                className="text-xs text-slate-500"
-                title={summarySnapshot.title}
-              >
-                Snapshot:{" "}
-                <span className="font-semibold text-slate-900">
-                  {summarySnapshot.label}
-                </span>
+              <span className="text-xs text-slate-500" title={summarySnapshot.title}>
+                Snapshot: <span className="font-semibold text-slate-900">{summarySnapshot.label}</span>
               </span>
             </div>
           </div>
-          <div className="text-xs text-slate-500">
-            Keep reviewer-useful state visible. Open technical metadata only
-            when needed.
-          </div>
+          <div className="text-xs text-slate-500">Keep reviewer-useful state visible. Open technical metadata only when needed.</div>
         </div>
       </div>
 
-      <details
-        className="group rounded-xl border border-slate-200 bg-white"
-        data-testid="verify-technical-metadata"
-      >
+      <details className="group rounded-xl border border-slate-200 bg-white" data-testid="verify-technical-metadata">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-left marker:hidden">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Technical metadata
-            </div>
-            <div className="mt-1 text-sm font-medium text-slate-700">
-              Export context, hashes, and debug details
-            </div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Technical metadata</div>
+            <div className="mt-1 text-sm font-medium text-slate-700">Export context, hashes, and debug details</div>
           </div>
-          <span className="text-xs font-semibold text-slate-500 group-open:hidden">
-            Show
-          </span>
-          <span className="hidden text-xs font-semibold text-slate-500 group-open:inline">
-            Hide
-          </span>
+          <span className="text-xs font-semibold text-slate-500 group-open:hidden">Show</span>
+          <span className="hidden text-xs font-semibold text-slate-500 group-open:inline">Hide</span>
         </summary>
         <div className="border-t border-slate-100 px-4 py-3">
           <div className="flex flex-col gap-3">
@@ -5836,9 +4493,7 @@ export default function ProofMapTab({
                 title={`Copy method ${methodCode}@${version}`}
               >
                 <span className="text-slate-500">method:</span>
-                <span className="font-mono">
-                  {methodCode}@{version}
-                </span>
+                <span className="font-mono">{methodCode}@{version}</span>
               </button>
 
               {appCommit ? (
@@ -5875,21 +4530,14 @@ export default function ProofMapTab({
                   onClick={async () => {
                     const snapshot = await buildOutcomeSnapshot({
                       method: { code: methodCode, version },
-                      evidence_source: {
-                        type: "upload",
-                        ref: "local_pins",
-                        hash_inputs: localEvidenceHashInputs,
-                      },
+                      evidence_source: { type: "upload", ref: "local_pins", hash_inputs: localEvidenceHashInputs },
                     });
-                    if (snapshot.evidence_source.hash)
-                      await copyToClipboard(snapshot.evidence_source.hash);
+                    if (snapshot.evidence_source.hash) await copyToClipboard(snapshot.evidence_source.hash);
                   }}
                   title="Copy local evidence hash"
                 >
                   <span className="text-slate-500">evidence:</span>
-                  <span className="font-mono">
-                    local:{localEvidenceHashInputs.length}
-                  </span>
+                  <span className="font-mono">local:{localEvidenceHashInputs.length}</span>
                 </button>
               ) : (
                 <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
@@ -5905,24 +4553,18 @@ export default function ProofMapTab({
                   title="Copy rules_sha256"
                 >
                   <span className="text-slate-500">rules:</span>
-                  <span className="font-mono">
-                    {shortSha(auditHashes.rules)}
-                  </span>
+                  <span className="font-mono">{shortSha(auditHashes.rules)}</span>
                 </button>
               ) : null}
               {auditHashes?.sections ? (
                 <button
                   type="button"
                   className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                  onClick={async () =>
-                    copyToClipboard(auditHashes.sections ?? "")
-                  }
+                  onClick={async () => copyToClipboard(auditHashes.sections ?? "")}
                   title="Copy sections_sha256"
                 >
                   <span className="text-slate-500">sections:</span>
-                  <span className="font-mono">
-                    {shortSha(auditHashes.sections)}
-                  </span>
+                  <span className="font-mono">{shortSha(auditHashes.sections)}</span>
                 </button>
               ) : null}
             </div>
@@ -5936,9 +4578,7 @@ export default function ProofMapTab({
                 type="button"
                 className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                 onClick={() => {
-                  document
-                    .getElementById("verify-outcome")
-                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  document.getElementById("verify-outcome")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               >
                 Outcome
@@ -5970,20 +4610,14 @@ export default function ProofMapTab({
           }`}
         >
           <div className="font-semibold text-slate-900">{toast.title}</div>
-          {toast.subtitle ? (
-            <div className="mt-0.5 text-[11px] text-slate-500">
-              {toast.subtitle}
-            </div>
-          ) : null}
+          {toast.subtitle ? <div className="mt-0.5 text-[11px] text-slate-500">{toast.subtitle}</div> : null}
         </div>
       ) : null}
       {snapshot ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
           <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
             <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-              <div className="text-sm font-semibold text-slate-900">
-                Bundle snapshot
-              </div>
+              <div className="text-sm font-semibold text-slate-900">Bundle snapshot</div>
               <button
                 type="button"
                 className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
@@ -5996,17 +4630,10 @@ export default function ProofMapTab({
               <div className="text-xs font-semibold text-slate-900">
                 {snapshot.kind}: {snapshot.id}
               </div>
-              {snapshot.title ? (
-                <div className="text-sm text-slate-800">{snapshot.title}</div>
-              ) : null}
-              {snapshot.snippet ? (
-                <div className="text-sm text-slate-700">{snapshot.snippet}</div>
-              ) : null}
+              {snapshot.title ? <div className="text-sm text-slate-800">{snapshot.title}</div> : null}
+              {snapshot.snippet ? <div className="text-sm text-slate-700">{snapshot.snippet}</div> : null}
               {snapshot.stable_ref ? (
-                <a
-                  className="break-words font-mono text-xs text-slate-600 underline"
-                  href={snapshot.stable_ref}
-                >
+                <a className="break-words font-mono text-xs text-slate-600 underline" href={snapshot.stable_ref}>
                   {snapshot.stable_ref}
                 </a>
               ) : null}
@@ -6018,9 +4645,7 @@ export default function ProofMapTab({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
           <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
             <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-              <div className="text-sm font-semibold text-slate-900">
-                Evidence search JSON
-              </div>
+              <div className="text-sm font-semibold text-slate-900">Evidence search JSON</div>
               <button
                 type="button"
                 className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
@@ -6041,14 +4666,11 @@ export default function ProofMapTab({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center">
           <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl">
             <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-              <div className="text-sm font-semibold text-slate-900">
-                Start over?
-              </div>
+              <div className="text-sm font-semibold text-slate-900">Start over?</div>
             </div>
             <div className="grid gap-4 px-5 py-4">
               <div className="text-sm text-slate-700">
-                This clears the current AOI, evidence links, export state,
-                reviewer draft, and comparison notes for this method/version.
+                This clears the current AOI, evidence links, export state, reviewer draft, and comparison notes for this method/version.
               </div>
               <div className="flex items-center justify-end gap-2">
                 <button
@@ -6075,9 +4697,7 @@ export default function ProofMapTab({
 
       <div
         className={`grid gap-4 min-w-0 ${
-          panelCollapsed
-            ? "lg:grid-cols-[minmax(0,1fr)]"
-            : "lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
+          panelCollapsed ? "lg:grid-cols-[minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
         }`}
       >
         <div className="grid min-w-0 gap-3">
@@ -6099,11 +4719,7 @@ export default function ProofMapTab({
               chips={verifyReadinessChips}
               embedded
               showRuleLabel={false}
-              helperText={
-                selectedRuleId
-                  ? "Current review status."
-                  : "Select a rule to inspect rule-specific readiness."
-              }
+              helperText={selectedRuleId ? "Current review status." : "Select a rule to inspect rule-specific readiness."}
             />
             <div ref={ruleSectionRef}>
               <RuleReadinessFacts
@@ -6124,39 +4740,21 @@ export default function ProofMapTab({
             }`}
           >
             <div className="flex items-center justify-between gap-2">
-              <div
-                className={`font-semibold ${currentWorkspaceIsFinal ? "text-slate-700" : "text-slate-900"}`}
-              >
-                {leftPaneHeader.title}
-              </div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                {leftPaneHeader.stepLabel}
-              </div>
+              <div className={`font-semibold ${currentWorkspaceIsFinal ? "text-slate-700" : "text-slate-900"}`}>{leftPaneHeader.title}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{leftPaneHeader.stepLabel}</div>
             </div>
-            <div className="mt-1 text-xs text-slate-600">
-              {leftPaneHeader.instruction}
-            </div>
+            <div className="mt-1 text-xs text-slate-600">{leftPaneHeader.instruction}</div>
           </div>
-          <details
-            className={`rounded-2xl border border-slate-200/70 bg-white/90 transition ${currentWorkspaceIsFinal ? "opacity-60" : ""}`}
-          >
-            <summary
-              className="cursor-pointer list-none px-4 py-3"
-              data-testid="verify-technical-context-toggle"
-            >
+          <details className={`rounded-2xl border border-slate-200/70 bg-white/90 transition ${currentWorkspaceIsFinal ? "opacity-60" : ""}`}>
+            <summary className="cursor-pointer list-none px-4 py-3" data-testid="verify-technical-context-toggle">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                    Technical context
-                  </div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Technical context</div>
                   <div className="mt-1 text-sm font-medium text-slate-700">
-                    AOI, STAC, selected item, inventory, reviewer artifact, and
-                    finalization metadata
+                    AOI, STAC, selected item, inventory, reviewer artifact, and finalization metadata
                   </div>
                 </div>
-                <span className="text-xs font-semibold text-slate-500">
-                  Show
-                </span>
+                <span className="text-xs font-semibold text-slate-500">Show</span>
               </div>
             </summary>
             <div className="grid gap-2 border-t border-slate-100 px-4 pb-4 pt-3">
@@ -6165,56 +4763,35 @@ export default function ProofMapTab({
                 data-testid="left-section-aoi"
                 className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "aoi" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
               >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  AOI summary
-                </div>
-                <div className="mt-1 text-sm font-semibold text-slate-900">
-                  {aoi?.name ?? "No AOI loaded"}
-                </div>
-                <div className="mt-1 text-[11px] text-slate-500">
-                  {bboxLabel ?? "Upload an AOI to continue."}
-                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">AOI summary</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{aoi?.name ?? "No AOI loaded"}</div>
+                <div className="mt-1 text-[11px] text-slate-500">{bboxLabel ?? "Upload an AOI to continue."}</div>
               </div>
               <div
                 ref={stacSectionRef}
                 data-testid="left-section-stac"
                 className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "stac" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
               >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  STAC evidence
-                </div>
-                <div className="mt-1 text-sm font-semibold text-slate-900">
-                  {stacFeatureIds.length} item
-                  {stacFeatureIds.length === 1 ? "" : "s"}
-                </div>
-                <div className="mt-1 text-[11px] text-slate-500">
-                  {stacQuery.source ??
-                    "Run a STAC search to load evidence context."}
-                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">STAC evidence</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{stacFeatureIds.length} item{stacFeatureIds.length === 1 ? "" : "s"}</div>
+                <div className="mt-1 text-[11px] text-slate-500">{stacQuery.source ?? "Run a STAC search to load evidence context."}</div>
               </div>
               <div
                 ref={selectedItemSectionRef}
                 data-testid="left-section-selected"
                 className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "selected" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
               >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Selected item
-                </div>
-                <div className="mt-1 text-sm font-semibold text-slate-900">
-                  {selectedStacItemId ?? "No item selected"}
-                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Selected item</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{selectedStacItemId ?? "No item selected"}</div>
               </div>
               <div
                 ref={pinsSectionRef}
                 data-testid="left-section-pins"
                 className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "pins" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
               >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Evidence inventory
-                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence inventory</div>
                 <div className="mt-1 text-sm font-semibold text-slate-900">
-                  {evidenceInventory.length} item
-                  {evidenceInventory.length === 1 ? "" : "s"}
+                  {evidenceInventory.length} item{evidenceInventory.length === 1 ? "" : "s"}
                 </div>
               </div>
               <div
@@ -6222,20 +4799,12 @@ export default function ProofMapTab({
                 data-testid="left-section-reviewer"
                 className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "reviewer" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
               >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Reviewer artifact
-                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reviewer artifact</div>
                 <div className="mt-1 text-sm font-semibold text-slate-900">
-                  {verifierBundle.savedReviewerArtifactAt
-                    ? "Saved reviewer artifact"
-                    : "Draft reviewer artifact"}
+                  {verifierBundle.savedReviewerArtifactAt ? "Saved reviewer artifact" : "Draft reviewer artifact"}
                 </div>
                 <div className="mt-1 line-clamp-2 text-[11px] text-slate-500">
-                  {(verifierBundle.savedReviewerArtifactAt
-                    ? verifierBundle.minutes || verifierBundle.outcomeNote
-                    : verifierBundle.draftMinutes ||
-                      verifierBundle.draftOutcomeNote) ||
-                    "No reviewer notes yet."}
+                  {(verifierBundle.savedReviewerArtifactAt ? verifierBundle.minutes || verifierBundle.outcomeNote : verifierBundle.draftMinutes || verifierBundle.draftOutcomeNote) || "No reviewer notes yet."}
                 </div>
               </div>
               <div
@@ -6243,18 +4812,10 @@ export default function ProofMapTab({
                 data-testid="left-section-summary"
                 className={`rounded-xl border px-3 py-2 transition ${activeLeftSection === "summary" ? "border-sky-300 bg-sky-50/40" : "border-slate-200/70 bg-slate-50/40"}`}
               >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Final summary
-                </div>
-                <div className="mt-1 text-sm font-semibold text-slate-900">
-                  {currentWorkspaceIsFinal
-                    ? "Final artifact written"
-                    : "Not finalized yet"}
-                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Final summary</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">{currentWorkspaceIsFinal ? "Final artifact written" : "Not finalized yet"}</div>
                 <div className="mt-1 text-[11px] text-slate-500">
-                  {currentWorkspaceIsFinal
-                    ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}`
-                    : "Finalize run to export the single immutable artifact."}
+                  {currentWorkspaceIsFinal ? `Finalized ${formatLocalDateTime(verifierBundle.finalizedAt ?? "")}` : "Finalize run to export the single immutable artifact."}
                 </div>
               </div>
             </div>
@@ -6265,12 +4826,11 @@ export default function ProofMapTab({
                 ? `grid gap-3 rounded-2xl border bg-white/95 p-4 transition ${
                     currentWorkspaceIsFinal
                       ? "border-slate-200/70 bg-slate-50/80 opacity-45 shadow-none"
-                      : wizardDetails.activeStep === 4 ||
-                          wizardDetails.activeStep === 5
-                        ? "border-sky-300/80 shadow-sm shadow-sky-100/60"
-                        : wizardDetails.activeStep === 3
-                          ? "border-amber-300/80 shadow-sm shadow-amber-100/60"
-                          : "border-slate-200/70 shadow-sm shadow-slate-200/30"
+                      : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
+                      ? "border-sky-300/80 shadow-sm shadow-sky-100/60"
+                      : wizardDetails.activeStep === 3
+                        ? "border-amber-300/80 shadow-sm shadow-amber-100/60"
+                        : "border-slate-200/70 shadow-sm shadow-slate-200/30"
                   }`
                 : "hidden"
             }
@@ -6283,12 +4843,11 @@ export default function ProofMapTab({
                 ? "hidden"
                 : currentWorkspaceIsFinal
                   ? "rounded-2xl border border-slate-200/70 opacity-45 shadow-none"
-                  : wizardDetails.activeStep === 4 ||
-                      wizardDetails.activeStep === 5
-                    ? "rounded-2xl border border-sky-300/80 shadow-sm shadow-sky-100/60"
-                    : wizardDetails.activeStep === 3
-                      ? "rounded-2xl border border-amber-300/80 shadow-sm shadow-amber-100/60"
-                      : undefined
+                : wizardDetails.activeStep === 4 || wizardDetails.activeStep === 5
+                  ? "rounded-2xl border border-sky-300/80 shadow-sm shadow-sky-100/60"
+                : wizardDetails.activeStep === 3
+                    ? "rounded-2xl border border-amber-300/80 shadow-sm shadow-amber-100/60"
+                    : undefined
             }
           >
             <MapCanvas
@@ -6332,19 +4891,14 @@ export default function ProofMapTab({
             onChange={handleUploadAoiChange}
           />
 
-          <div
-            className={`flex items-start justify-between gap-3 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}
-          >
+          <div className={`flex items-start justify-between gap-3 ${currentWorkspaceIsFinal ? "opacity-70" : ""}`}>
             <div>
               <div className="text-sm font-semibold text-slate-900">
-                {currentWorkspaceIsFinal
-                  ? "Final Review Summary"
-                  : "Evidence workflow"}
+                {currentWorkspaceIsFinal ? "Final Review Summary" : "Evidence workflow"}
               </div>
               {currentWorkspaceIsFinal ? (
                 <div className="mt-1 text-xs text-slate-500">
-                  Finalized result, exports, and summary are now the primary
-                  right-panel surface.
+                  Finalized result, exports, and summary are now the primary right-panel surface.
                 </div>
               ) : null}
             </div>
@@ -6400,10 +4954,7 @@ export default function ProofMapTab({
                         projectCode: linkedProject.projectCode ?? null,
                         countryLocation: linkedProject.countryLocation ?? null,
                         proponent: linkedProject.proponent ?? null,
-                        reportingPeriod:
-                          reviewWorkspace?.reportingPeriod ??
-                          linkedProject.reportingPeriod ??
-                          null,
+                        reportingPeriod: reviewWorkspace?.reportingPeriod ?? linkedProject.reportingPeriod ?? null,
                         workspaceId: workspaceId,
                         workspaceName: reviewWorkspace?.name ?? null,
                       }
@@ -6413,11 +4964,7 @@ export default function ProofMapTab({
                 loadedFromRunLabel={loadedFromRunLabel}
                 finalizedAt={verifierBundle.finalizedAt}
                 reviewedRuleCount={linkedRuleIds.length}
-                linkedEvidenceCount={
-                  evidenceInventory.filter(
-                    (item) => item.link_state === "linked",
-                  ).length
-                }
+                linkedEvidenceCount={evidenceInventory.filter((item) => item.link_state === "linked").length}
                 wizard={wizardDetails}
                 onDownloadJson={() => {
                   void handleDownloadReviewSummaryJson();
@@ -6465,10 +5012,8 @@ export default function ProofMapTab({
                         declaredAreaSource: aoi.declared_area_source ?? null,
                         projectZoneCount,
                         supportingFeatureCount,
-                        areaMismatchRelative:
-                          declaredAreaComparison?.relativeDifference ?? null,
-                        areaMismatchWarning:
-                          declaredAreaComparison?.exceedsThreshold ?? false,
+                        areaMismatchRelative: declaredAreaComparison?.relativeDifference ?? null,
+                        areaMismatchWarning: declaredAreaComparison?.exceedsThreshold ?? false,
                         requiresPrimarySelection: !Boolean(aoi.geojson),
                       }
                     : null
@@ -6480,10 +5025,7 @@ export default function ProofMapTab({
                   const next = updateAoiFeatureRole(aoi, featureId, role);
                   onSetAoi(next);
                   if (next.geojson) setError(null);
-                  else
-                    setError(
-                      "Select exactly one primary project area feature to continue.",
-                    );
+                  else setError("Select exactly one primary project area feature to continue.");
                 }}
                 declaredAreaInput={declaredAreaInput}
                 onDeclaredAreaInputChange={(value) => {
@@ -6492,38 +5034,26 @@ export default function ProofMapTab({
                   setConfirmedAoiKey(null);
                   const trimmed = value.trim();
                   if (!trimmed) {
-                    onSetAoi(
-                      setAoiDeclaredArea({
-                        aoi,
-                        declaredAreaKm2: null,
-                        declaredAreaSource: null,
-                      }),
-                    );
+                    onSetAoi(setAoiDeclaredArea({ aoi, declaredAreaKm2: null, declaredAreaSource: null }));
                     return;
                   }
                   const parsed = Number(trimmed);
                   if (!Number.isFinite(parsed) || parsed <= 0) return;
-                  onSetAoi(
-                    setAoiDeclaredArea({
-                      aoi,
-                      declaredAreaKm2: parsed,
-                      declaredAreaSource: "manual_compare_input",
-                    }),
-                  );
+                  onSetAoi(setAoiDeclaredArea({
+                    aoi,
+                    declaredAreaKm2: parsed,
+                    declaredAreaSource: "manual_compare_input",
+                  }));
                 }}
                 onConfirmArea={() => {
                   if (!currentAoiConfirmationKey || !aoi?.geojson) {
-                    setError(
-                      "Select exactly one primary project area feature to continue.",
-                    );
+                    setError("Select exactly one primary project area feature to continue.");
                     return;
                   }
                   setConfirmedAoiKey(currentAoiConfirmationKey);
                   setError(null);
                 }}
-                canConfirmArea={Boolean(
-                  currentAoiConfirmationKey && aoi?.geojson,
-                )}
+                canConfirmArea={Boolean(currentAoiConfirmationKey && aoi?.geojson)}
                 isAreaConfirmed={hasConfirmedArea}
                 searchDisabled={searchDisabled}
                 isRunning={isRunning}
@@ -6568,22 +5098,10 @@ export default function ProofMapTab({
                 methodCode={methodCode}
                 version={version}
                 reviewedRuleCount={linkedRuleIds.length}
-                linkedEvidenceCount={
-                  evidenceInventory.filter(
-                    (item) => item.link_state === "linked",
-                  ).length
-                }
-                finalizeBlocked={Boolean(
-                  finalizeGate && !finalizeGate.canFinalize,
-                )}
+                linkedEvidenceCount={evidenceInventory.filter((item) => item.link_state === "linked").length}
+                finalizeBlocked={Boolean(finalizeGate && !finalizeGate.canFinalize)}
                 finalizeGateBanner={
-                  finalizeGate ? (
-                    <FinalizeGateBanner
-                      gate={finalizeGate}
-                      onFinalize={handleFinalizeRun}
-                      showAction={false}
-                    />
-                  ) : null
+                  finalizeGate ? <FinalizeGateBanner gate={finalizeGate} onFinalize={handleFinalizeRun} showAction={false} /> : null
                 }
                 finalizedResult={
                   <ReviewSummaryCard
@@ -6614,16 +5132,10 @@ export default function ProofMapTab({
               data-testid="secondary-context-toggle"
             >
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Secondary context
-                </div>
-                <div className="mt-1 text-sm font-semibold text-slate-900">
-                  Baseline, comparison notes, run history, and outcome
-                </div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Secondary context</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">Baseline, comparison notes, run history, and outcome</div>
               </div>
-              <span className="text-xs font-semibold text-slate-500">
-                {secondarySectionOpen ? "Hide" : "Show"}
-              </span>
+              <span className="text-xs font-semibold text-slate-500">{secondarySectionOpen ? "Hide" : "Show"}</span>
             </button>
           </div>
 
@@ -6631,40 +5143,26 @@ export default function ProofMapTab({
             <div className="grid gap-3" data-testid="secondary-context">
               <div className="rounded-xl border border-slate-200 bg-white p-4">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-slate-900">
-                    Baseline
-                  </div>
+                  <div className="text-sm font-semibold text-slate-900">Baseline</div>
                   {latestBaseline ? (
-                    <div className="text-[11px] text-slate-500">
-                      Run {shortRunId(latestBaseline.baselineRunId)}
-                    </div>
+                    <div className="text-[11px] text-slate-500">Run {shortRunId(latestBaseline.baselineRunId)}</div>
                   ) : null}
                 </div>
                 <div className="mt-1 text-xs text-slate-500">
-                  {latestBaseline
-                    ? `Set ${formatLocalDateTime(latestBaseline.baselineTs)}`
-                    : "No baseline set"}
+                  {latestBaseline ? `Set ${formatLocalDateTime(latestBaseline.baselineTs)}` : "No baseline set"}
                 </div>
-                <div className="mt-1 text-xs text-slate-500">
-                  Comparing to: {compareTargetLabel}
-                </div>
+                <div className="mt-1 text-xs text-slate-500">Comparing to: {compareTargetLabel}</div>
                 {latestBaseline ? (
                   <div className="mt-2 text-xs text-slate-600">
                     {baselineComparable.ok ? (
                       <Tooltip content="Same method/version + harness + dataset hash">
-                        <span className="font-semibold text-emerald-700">
-                          Comparable ✅
-                        </span>
+                        <span className="font-semibold text-emerald-700">Comparable ✅</span>
                       </Tooltip>
                     ) : (
                       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
-                        <div className="font-semibold text-amber-800">
-                          {comparisonUnavailableMessage?.title ??
-                            "Comparison unavailable"}
-                        </div>
+                        <div className="font-semibold text-amber-800">{comparisonUnavailableMessage?.title ?? "Comparison unavailable"}</div>
                         <div className="mt-1 text-[11px] text-amber-700">
-                          {comparisonUnavailableMessage?.detail ??
-                            "Current workspace cannot be compared to the saved baseline."}
+                          {comparisonUnavailableMessage?.detail ?? "Current workspace cannot be compared to the saved baseline."}
                         </div>
                       </div>
                     )}
@@ -6675,8 +5173,7 @@ export default function ProofMapTab({
                     {upliftSummary.coverageDeltaPct != null ? (
                       <Tooltip content="Δ(covered rules / total rules) vs baseline. Based on persisted link artifacts.">
                         <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                          Δ Coverage{" "}
-                          {formatDelta(upliftSummary.coverageDeltaPct, "%", 1)}
+                          Δ Coverage {formatDelta(upliftSummary.coverageDeltaPct, "%", 1)}
                         </span>
                       </Tooltip>
                     ) : null}
@@ -6698,13 +5195,7 @@ export default function ProofMapTab({
                 ) : null}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {!latestBaseline ? (
-                    <Tooltip
-                      content={
-                        baselineActionsDisabled
-                          ? baselineDisabledTooltip
-                          : "Set baseline"
-                      }
-                    >
+                    <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Set baseline"}>
                       <button
                         type="button"
                         className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -6716,13 +5207,7 @@ export default function ProofMapTab({
                     </Tooltip>
                   ) : (
                     <>
-                      <Tooltip
-                        content={
-                          baselineActionsDisabled
-                            ? baselineDisabledTooltip
-                            : "Rotate baseline"
-                        }
-                      >
+                      <Tooltip content={baselineActionsDisabled ? baselineDisabledTooltip : "Rotate baseline"}>
                         <button
                           type="button"
                           className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -6750,9 +5235,7 @@ export default function ProofMapTab({
                 impact={verifierBundle.impact}
                 tasks={verifierBundle.tasks}
                 draftTask={draftTask}
-                showDraftTask={
-                  showDraftTask || verifierBundle.tasks.length === 0
-                }
+                showDraftTask={showDraftTask || verifierBundle.tasks.length === 0}
                 draftTaskInputRef={draftTaskInputRef}
                 onDraftTaskChange={setDraftTask}
                 onCommitDraftTask={commitDraftTask}
@@ -6767,25 +5250,16 @@ export default function ProofMapTab({
               <details
                 className="rounded-xl border border-slate-200 bg-white"
                 open={runHistoryOpen}
-                onToggle={(event) =>
-                  setRunHistoryOpen(event.currentTarget.open)
-                }
+                onToggle={(event) => setRunHistoryOpen(event.currentTarget.open)}
               >
-                <summary
-                  className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900"
-                  data-testid="run-history-toggle"
-                >
+                <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-slate-900" data-testid="run-history-toggle">
                   Run history
-                  <span className="ml-2 text-[11px] font-medium text-slate-500">
-                    {runHistory.length} runs
-                  </span>
+                  <span className="ml-2 text-[11px] font-medium text-slate-500">{runHistory.length} runs</span>
                 </summary>
                 <div className="px-3 pb-3">
                   <div className="mb-3 text-xs text-slate-500">
                     <div>New run starts a fresh review.</div>
-                    <div>
-                      Load restores this run into the editable workspace.
-                    </div>
+                    <div>Load restores this run into the editable workspace.</div>
                   </div>
                   <RunHistoryPanel
                     items={runHistory}
@@ -6810,9 +5284,7 @@ export default function ProofMapTab({
                   {intakeSuggestion ? (
                     <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="font-semibold">
-                          Hard-case intake suggested
-                        </div>
+                        <div className="font-semibold">Hard-case intake suggested</div>
                         <button
                           type="button"
                           className="rounded-full border border-amber-300 bg-amber-200 px-3 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-300"
@@ -6822,9 +5294,7 @@ export default function ProofMapTab({
                         </button>
                       </div>
                       <div className="mt-1 text-[11px] text-amber-800">
-                        Status {intakeSuggestion.run.status}.{" "}
-                        {intakeSuggestion.summary ??
-                          "Add this run to the pilot queue."}
+                        Status {intakeSuggestion.run.status}. {intakeSuggestion.summary ?? "Add this run to the pilot queue."}
                       </div>
                     </div>
                   ) : null}
@@ -6840,10 +5310,7 @@ export default function ProofMapTab({
                     debugLinkedCount={linkedRuleIds.length}
                     provenance={{
                       repo: trustPicked.repo ?? null,
-                      sha:
-                        trustPicked.sha ??
-                        process.env.NEXT_PUBLIC_GIT_SHA ??
-                        null,
+                      sha: trustPicked.sha ?? process.env.NEXT_PUBLIC_GIT_SHA ?? null,
                       generatedAt: trustPicked.generatedAt ?? null,
                     }}
                   />

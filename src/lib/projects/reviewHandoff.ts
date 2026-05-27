@@ -228,11 +228,17 @@ export function importMethodologyReviewIntoProject(input: {
     projectCode?: string;
     countryLocation?: string;
     proponent?: string;
+    methodology?: string;
+    standard?: string;
     reportingPeriod?: string;
     aoiLabel?: string;
     description?: string;
+    sourceDocumentType?: string;
+    sourceDocumentVersion?: string;
+    sourceDocumentDate?: string;
     methodCategory?: string;
     registry?: Project["registry"];
+    createdFromDocumentDraft?: Project["createdFromDocumentDraft"];
   };
   rules: Array<{ id: string; title: string; sectionId?: string }>;
 }): { project: Project; workspace: ReviewWorkspace; href: string } {

@@ -1,5 +1,6 @@
 import { buildManualReviewLearningCase } from './learningCase';
 import type {
+  ProjectDocumentMetadataDraft,
   ExtractedManualFindingDraft,
   LearningCaseTrigger,
   ManualFinding,
@@ -45,6 +46,11 @@ export function createProject(input: {
   projectCode?: string;
   countryLocation?: string;
   proponent?: string;
+  methodology?: string;
+  standard?: string;
+  sourceDocumentType?: string;
+  sourceDocumentVersion?: string;
+  sourceDocumentDate?: string;
   reviewMode: Project['reviewMode'];
   methodCode?: string;
   methodVersion?: string;
@@ -55,6 +61,7 @@ export function createProject(input: {
   description?: string;
   ruleIds?: Array<{ id: string; title: string; sectionId: string }>;
   initialReviews?: RuleReview[];
+  createdFromDocumentDraft?: ProjectDocumentMetadataDraft;
 }): Project {
   const project: Project = {
     id: generateId(),
@@ -62,6 +69,11 @@ export function createProject(input: {
     projectCode: input.projectCode,
     countryLocation: input.countryLocation,
     proponent: input.proponent,
+    methodology: input.methodology,
+    standard: input.standard,
+    sourceDocumentType: input.sourceDocumentType,
+    sourceDocumentVersion: input.sourceDocumentVersion,
+    sourceDocumentDate: input.sourceDocumentDate,
     reviewMode: input.reviewMode,
     methodCode: input.methodCode,
     methodVersion: input.methodVersion,
@@ -83,6 +95,7 @@ export function createProject(input: {
     manualFindings: [],
     extractedManualFindingDrafts: [],
     learningCases: [],
+    createdFromDocumentDraft: input.createdFromDocumentDraft,
   };
 
   const projects = loadAll();
@@ -100,6 +113,8 @@ export function updateProject(
       | 'projectCode'
       | 'countryLocation'
       | 'proponent'
+      | 'methodology'
+      | 'standard'
       | 'methodCode'
       | 'methodVersion'
       | 'methodCategory'
@@ -107,6 +122,9 @@ export function updateProject(
       | 'reportingPeriod'
       | 'aoiLabel'
       | 'description'
+      | 'sourceDocumentType'
+      | 'sourceDocumentVersion'
+      | 'sourceDocumentDate'
       | 'lastWorkspaceId'
     >
   >,
@@ -387,6 +405,11 @@ function normalizeProject(project: Partial<Project>): Project {
     projectCode: project.projectCode,
     countryLocation: project.countryLocation,
     proponent: project.proponent,
+    methodology: project.methodology,
+    standard: project.standard,
+    sourceDocumentType: project.sourceDocumentType,
+    sourceDocumentVersion: project.sourceDocumentVersion,
+    sourceDocumentDate: project.sourceDocumentDate,
     reviewMode: project.reviewMode ?? 'methodology-linked',
     methodCode: project.methodCode,
     methodVersion: project.methodVersion,
@@ -404,6 +427,7 @@ function normalizeProject(project: Partial<Project>): Project {
     manualFindings: Array.isArray(project.manualFindings) ? project.manualFindings : [],
     extractedManualFindingDrafts: Array.isArray(project.extractedManualFindingDrafts) ? project.extractedManualFindingDrafts : [],
     learningCases: Array.isArray(project.learningCases) ? project.learningCases : [],
+    createdFromDocumentDraft: project.createdFromDocumentDraft,
   };
 }
 

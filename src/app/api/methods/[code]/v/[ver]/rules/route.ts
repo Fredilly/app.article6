@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { loadMethodRules } from "@/app/m/_lib/methodRules";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type Params = {
   code: string;
   ver: string;
@@ -26,4 +29,3 @@ export async function GET(request: Request, context: { params: Promise<Params> }
 
   return NextResponse.json({ rules: result.rules, source: result.source });
 }
-
