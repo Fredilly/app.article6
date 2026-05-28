@@ -61,6 +61,25 @@ export function extractPddSections(rawText: string): Record<string, string> {
     }
   }
 
+  if (headings.length === 0) {
+    const lines = cleaned.split("\n");
+    const linePos = (idx: number) => {
+      let pos = 0;
+      for (let j = 0; j < idx; j++) pos += lines[j]!.length + 1;
+      return pos;
+    };
+    for (let i = 0; i < lines.length - 1; i++) {
+      const numMatch = lines[i]!.match(/^\s*(\d+(?:\.\d+)*)\s*$/);
+      if (!numMatch) continue;
+      const num = numMatch[1]!;
+      const title = lines[i + 1]!.trim();
+      if (!title) continue;
+      if (/^\d/.test(title)) continue;
+      if (title.length > 120) continue;
+      headings.push({ num, title, start: linePos(i), end: linePos(i + 2) });
+    }
+  }
+
   if (headings.length === 0) return sections;
 
   for (let i = 0; i < headings.length; i++) {

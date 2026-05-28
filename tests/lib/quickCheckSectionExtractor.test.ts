@@ -72,6 +72,20 @@ const WRAPPED_HEADING_TEXT = [
 
 const NO_SECTION_TEXT = "This is a plain document with no section headings whatsoever.";
 
+const SPLIT_HEADING_TEXT = [
+  "Some introductory text.",
+  "",
+  "2.4",
+  "Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario",
+  "in the absence of the project activity.",
+  "",
+  "2.5",
+  "Additionality",
+  "The project is additional and faces barriers to implementation.",
+  "",
+].join("\n");
+
 describe("extractPddSections", () => {
   it("extracts section 2.4 (Baseline Scenario) from VM0007 PDD text", () => {
     const sections = extractPddSections(VM0007_PDD_TEXT);
@@ -138,6 +152,16 @@ describe("extractPddSections", () => {
 
   it("returns an empty object for text with no section headings", () => {
     expect(extractPddSections(NO_SECTION_TEXT)).toEqual({});
+  });
+
+  it("handles split headings where number and title are on separate lines", () => {
+    const sections = extractPddSections(SPLIT_HEADING_TEXT);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("Baseline Scenario");
+    expect(sections["2.4"]).toContain("most likely land-use scenario");
+    expect(sections["2.5"]).toBeDefined();
+    expect(sections["2.5"]).toContain("Additionality");
+    expect(sections["2.5"]).toContain("barriers to implementation");
   });
 
   it("strips page break characters before parsing", () => {
