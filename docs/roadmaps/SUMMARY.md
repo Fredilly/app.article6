@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, project-verification, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -119,6 +119,26 @@ Not active now:
 
 1) PR542: Done (PR #542)
 2) PR555: Done (PR #555)
+
+## review-grade-quick-check
+
+Status SSOT: `docs/roadmaps/review-grade-quick-check/phase-status.json`
+Details: `docs/roadmaps/review-grade-quick-check/PLAN.md`
+
+Lane status: Active
+Turn Quick Check from a requirement matcher / section router into an evidence-backed verification-readiness review engine. Phased path from routing to readiness note export.
+
+Current focus:
+- Phase 0: routing MVP — detect review question path, classify review area, route to VM0007 sections (PR 642)
+
+Not active now:
+- Full multi-methodology section extraction (phase 1 starts after VM0007 routing is stable)
+- Evidence-backed verdicts and gap detection (phase 2+)
+- Review area rubrics (phase 3+)
+- Regression evaluation suite (phase 4+)
+- Readiness note export (phase 5+)
+
+1) PR642: Active
 
 ## project-verification
 

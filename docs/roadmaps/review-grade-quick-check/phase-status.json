@@ -1,0 +1,54 @@
+{
+  "phase_meta": {
+    "status": "active",
+    "summary": "Turn Quick Check from a requirement matcher / section router into an evidence-backed verification-readiness review engine. Phased path from routing to readiness note export.",
+    "current_focus": [
+      "Phase 0: routing MVP — detect review question path, classify review area, route to VM0007 sections (PR 642)"
+    ],
+    "not_active_now": [
+      "Full multi-methodology section extraction (phase 1 starts after VM0007 routing is stable)",
+      "Evidence-backed verdicts and gap detection (phase 2+)",
+      "Review area rubrics (phase 3+)",
+      "Regression evaluation suite (phase 4+)",
+      "Readiness note export (phase 5+)"
+    ],
+    "last_updated_at": "2026-05-28T00:00:00Z"
+  },
+  "phase_0_routing_mvp": {
+    "status": "active",
+    "title": "Routing MVP — review question detection and section routing",
+    "summary": "Detect broad review questions, classify review area, route to relevant VM0007 PDD sections. Narrow first implementation to VM0007 baseline review question only."
+  },
+  "phase_1_section_extraction": {
+    "status": "planned",
+    "title": "Section extraction — retrieve and render PDD section content",
+    "summary": "Extract section content from uploaded PDD pages. Map section numbers to extracted text. Render section excerpts inline in the review-question result."
+  },
+  "phase_2_baseline_evidence_backed_review": {
+    "status": "planned",
+    "title": "Baseline evidence-backed review — verdicts and gaps",
+    "summary": "For baseline review questions, produce evidence-backed verdicts (supported / partial / missing) with gap explanations. Reference extracted PDD section content. Surface next-step follow-up documents."
+  },
+  "phase_3_review_area_rubrics": {
+    "status": "planned",
+    "title": "Review area rubrics — per-area evidence criteria",
+    "summary": "Define rubric criteria for each review area (baseline, boundary, additionality, leakage, monitoring, deviations, right of use). Each rubric maps area keywords to expected evidence signals and minimum confidence thresholds."
+  },
+  "phase_4_regression_evals": {
+    "status": "planned",
+    "title": "Regression evaluation suite — automated eval harness",
+    "summary": "Build an automated eval harness that runs known review questions against known PDDs, records verdicts, and detects regressions. Benchmark routing accuracy, section extraction fidelity, and verdict correctness against labelled test cases."
+  },
+  "phase_5_readiness_note_export": {
+    "status": "planned",
+    "title": "Readiness note export — shareable verification-readiness summary",
+    "summary": "Export the review-question result as a readiness note: review area, methodology, sections reviewed, evidence-backed verdicts, gaps, and recommended follow-up documents. PDF or shareable link format."
+  },
+  "PR642": "active",
+  "pr_evidence": {
+    "PR642": ["640", "641", "642"]
+  },
+  "pr_notes": {
+    "PR642": "Routing MVP: detect review question path, classify review area, route to VM0007 sections. Covers additionality, baseline, boundary, deviations, leakage, monitoring, right_of_use."
+  }
+}
