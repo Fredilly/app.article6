@@ -1,4 +1,4 @@
-import { extractSectionContent } from "@/lib/chat/quickCheckSectionExtractor";
+import { extractRoutedSections } from "@/lib/chat/quickCheckSectionExtractor";
 
 export type ReviewArea =
   | "additionality"
@@ -108,13 +108,8 @@ export function buildReviewQuestionResult(input: {
   const reviewArea = classifyReviewArea(input.claimText);
   const relevantSections = resolveReviewSections(input.methodologyId, reviewArea);
   const sectionContent: Record<string, string> = {};
-  if (input.rawPddText) {
-    for (const section of relevantSections) {
-      const content = extractSectionContent(input.rawPddText, section);
-      if (content !== null) {
-        sectionContent[section] = content;
-      }
-    }
+  if (input.rawPddText && relevantSections.length > 0) {
+    Object.assign(sectionContent, extractRoutedSections(input.rawPddText, relevantSections));
   }
   return {
     path: "review_question_answering",

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
-import { extractPddSections, extractSectionContent } from "@/lib/chat/quickCheckSectionExtractor";
+import {
+  extractPddSections,
+  extractSectionContent,
+  extractRoutedSections,
+  SECTION_EXCERPT_MAX_CHARS,
+} from "@/lib/chat/quickCheckSectionExtractor";
 
 const VM0007_PDD_TEXT = [
   "1.10  Leakage",
@@ -20,6 +25,49 @@ const VM0007_PDD_TEXT = [
   "Mitigation measures include fire management and grazing control.",
   "",
 ].join("\n");
+
+const REALISTIC_PDD_TEXT = [
+  "VM0007 Version 1.1",
+  "Project Description Document",
+  "",
+  "Page 1 of 42",
+  "",
+  "1.9  Project Boundary",
+  "The project area is located in the central region.",
+  "Geographic coordinates are provided in the annex.",
+  "The leakage belt extends 3 km from the project boundary.",
+  "",
+  "Page 2 of 42",
+  "",
+  "2.4  Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario",
+  "in the absence of the project activity. The project area",
+  "consists of degraded grassland that has been subject to",
+  "overgrazing for the past decade.",
+  "",
+  "Page 3 of 42",
+  "VM0007 Version 1.1",
+  "",
+  "2.5  Additionality",
+  "The project is additional because it faces significant",
+  "barriers to implementation. A barrier analysis is provided",
+  "in the following paragraphs.",
+  "",
+].join("\n");
+
+const WRAPPED_HEADING_TEXT = [
+  "2.4  Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario",
+  "in the absence of the project activity.",
+  "",
+  "a) Sub-section one",
+  "This is a sub-section that could be confused with a heading.",
+  "b) Sub-section two",
+  "This is another sub-section.",
+  "",
+].join("\n");
+
+const NO_SECTION_TEXT = "This is a plain document with no section headings whatsoever.";
 
 describe("extractPddSections", () => {
   it("extracts section 2.4 (Baseline Scenario) from VM0007 PDD text", () => {
@@ -43,6 +91,31 @@ describe("extractPddSections", () => {
     expect(sections["1.10"]).toContain("3 km buffer");
   });
 
+  it("handles realistic PDD text with page breaks and header/footer noise", () => {
+    const sections = extractPddSections(REALISTIC_PDD_TEXT);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("degraded grassland");
+    expect(sections["2.4"]).not.toContain("VM0007 Version 1.1");
+    expect(sections["2.5"]).toBeDefined();
+    expect(sections["2.5"]).toContain("barrier analysis");
+  });
+
+  it("extracts section 1.9 from realistic PDD text with header/footer noise", () => {
+    const sections = extractPddSections(REALISTIC_PDD_TEXT);
+    expect(sections["1.9"]).toBeDefined();
+    expect(sections["1.9"]).toContain("project area");
+    expect(sections["1.9"]).not.toContain("Page 1 of 42");
+  });
+
+  it("does not confuse lettered sub-sections (a), b)) with section headings", () => {
+    const sections = extractPddSections(WRAPPED_HEADING_TEXT);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("Sub-section one");
+    expect(sections["2.4"]).toContain("Sub-section two");
+    expect(Object.keys(sections)).not.toContain("a");
+    expect(Object.keys(sections)).not.toContain("b");
+  });
+
   it("returns undefined for a section that does not exist in the text", () => {
     const sections = extractPddSections(VM0007_PDD_TEXT);
     expect(sections["3.3"]).toBeUndefined();
@@ -61,7 +134,23 @@ describe("extractPddSections", () => {
   });
 
   it("returns an empty object for text with no section headings", () => {
-    expect(extractPddSections("Some random text without any section numbers.")).toEqual({});
+    expect(extractPddSections(NO_SECTION_TEXT)).toEqual({});
+  });
+
+  it("strips page break characters before parsing", () => {
+    const text = "2.4  Baseline Scenario\fSome content after page break.\fMore content.";
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toContain("page break");
+    expect(sections["2.4"]).toContain("More content");
+  });
+
+  it("applies excerpt limit to prevent overflow", () => {
+    const longBody = "Word. ".repeat(SECTION_EXCERPT_MAX_CHARS);
+    const text = `2.4  Baseline Scenario\n${longBody}`;
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]!.length).toBeLessThan(SECTION_EXCERPT_MAX_CHARS + 200);
+    expect(sections["2.4"]).toMatch(/\[…\]$/);
   });
 });
 
@@ -83,5 +172,39 @@ describe("extractSectionContent", () => {
   it("preserves the heading text in the extracted content", () => {
     const content = extractSectionContent(VM0007_PDD_TEXT, "2.5");
     expect(content).toContain("Additionality");
+  });
+
+  it("extracts from realistic PDD text with noise", () => {
+    const content = extractSectionContent(REALISTIC_PDD_TEXT, "2.4");
+    expect(content).not.toBeNull();
+    expect(content).toContain("overgrazing");
+    expect(content).not.toContain("Page 3 of 42");
+  });
+});
+
+describe("extractRoutedSections", () => {
+  it("extracts only the requested sections in a single pass", () => {
+    const result = extractRoutedSections(VM0007_PDD_TEXT, ["2.4", "2.5"]);
+    expect(Object.keys(result)).toEqual(["2.4", "2.5"]);
+    expect(result["2.4"]).toContain("degraded grassland");
+    expect(result["2.5"]).toContain("barrier analysis");
+    expect(result["1.10"]).toBeUndefined();
+  });
+
+  it("returns empty object when none of the requested sections exist", () => {
+    const result = extractRoutedSections(VM0007_PDD_TEXT, ["9.9", "10.1"]);
+    expect(result).toEqual({});
+  });
+
+  it("returns empty object for empty relevant sections", () => {
+    const result = extractRoutedSections(VM0007_PDD_TEXT, []);
+    expect(result).toEqual({});
+  });
+
+  it("works with realistic noisy PDD text", () => {
+    const result = extractRoutedSections(REALISTIC_PDD_TEXT, ["1.9", "2.4"]);
+    expect(result["1.9"]).toContain("project area");
+    expect(result["2.4"]).toContain("overgrazing");
+    expect(result["1.9"]).not.toContain("Page 2 of 42");
   });
 });

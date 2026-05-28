@@ -21,6 +21,43 @@ const VM0007_BASELINE_PDD_TEXT = [
   "",
 ].join("\n");
 
+const REALISTIC_PDD_TEXT = [
+  "VM0007 Version 1.1",
+  "Project Description Document",
+  "",
+  "Page 1 of 42",
+  "",
+  "1.9  Project Boundary",
+  "The project area is located in the central region.",
+  "Geographic coordinates are provided in the annex.",
+  "",
+  "Page 2 of 42",
+  "",
+  "2.4  Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario",
+  "in the absence of the project activity. The project area",
+  "consists of degraded grassland that has been subject to",
+  "overgrazing for the past decade.",
+  "",
+  "Page 3 of 42",
+  "VM0007 Version 1.1",
+  "",
+  "2.5  Additionality",
+  "The project is additional because it faces significant",
+  "barriers to implementation. A barrier analysis is provided",
+  "in the following paragraphs.",
+  "",
+].join("\n");
+
+const PDD_WITH_PAGE_BREAKS = [
+  "1.10  Leakage",
+  "The leakage belt is defined as a 3 km buffer around the project area.\f",
+  "Monitoring of the leakage belt will occur annually.\f",
+  "2.4  Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario.\f",
+  "Carbon stocks are expected to decline without the project.",
+].join("\n");
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -250,5 +287,46 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     expect(result.reviewArea).toBe("general");
     expect(result.relevantSections).toEqual([]);
     expect(result.sectionContent).toEqual({});
+  });
+
+  it("extracts sections from realistic PDD text with header/footer noise", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is the baseline scenario appropriate?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REALISTIC_PDD_TEXT,
+    });
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.4"]).toContain("overgrazing");
+    expect(result.sectionContent["2.4"]).not.toContain("VM0007 Version");
+    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toContain("barrier analysis");
+  });
+
+  it("extracts sections from PDD text with page break characters", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is the baseline scenario appropriate?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PDD_WITH_PAGE_BREAKS,
+    });
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.4"]).toContain("land-use scenario");
+    expect(result.sectionContent["2.4"]).toContain("Carbon stocks");
+    expect(result.sectionContent["1.10"]).toBeDefined();
+    expect(result.sectionContent["1.10"]).toContain("Monitoring of the leakage belt");
+  });
+
+  it("extracts all three baseline sections from real-world PDD noise", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REALISTIC_PDD_TEXT,
+    });
+    expect(result.relevantSections).toEqual(["2.4", "2.5", "1.10"]);
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["1.9"]).toBeUndefined();
   });
 });
