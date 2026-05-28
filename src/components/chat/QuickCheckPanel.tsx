@@ -56,6 +56,7 @@ import {
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
+import { debugSectionExtraction } from "@/lib/chat/quickCheckSectionExtractor";
 
 type MethodInventoryRecord = {
   code: string;
@@ -1401,6 +1402,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
 
       if (detectReviewPath(effectiveClaimText) === "review_question_answering") {
+        if (process.env.NODE_ENV !== "production") {
+          const rawText = evidenceAnalysis.rawPddText;
+          if (!rawText) {
+            console.warn("[quick-check-debug] rawPddText is undefined or empty");
+          } else {
+            const diag = debugSectionExtraction(rawText);
+            console.info("[quick-check-debug]", diag);
+          }
+        }
         const questionResult = buildReviewQuestionResult({
           claimText: effectiveClaimText,
           methodologyId: resolvedMethodologyId,

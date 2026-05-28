@@ -1,10 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
+import fs from "fs";
+import path from "path";
 import {
   extractPddSections,
   extractSectionContent,
   extractRoutedSections,
   SECTION_EXCERPT_MAX_CHARS,
 } from "@/lib/chat/quickCheckSectionExtractor";
+import { buildReviewQuestionResult } from "@/lib/chat/quickCheckReviewQuestion";
 
 const VM0007_PDD_TEXT = [
   "1.10  Leakage",
@@ -206,5 +209,56 @@ describe("extractRoutedSections", () => {
     expect(result["1.9"]).toContain("project area");
     expect(result["2.4"]).toContain("overgrazing");
     expect(result["1.9"]).not.toContain("Page 2 of 42");
+  });
+});
+
+describe("fixture-based regression — real extracted PDD text format", () => {
+  const fixturePath = path.join(__dirname, "..", "fixtures", "quick-check", "vm0007-pdd-extracted.txt");
+  const fixtureText = fs.readFileSync(fixturePath, "utf-8");
+
+  it("extracts sections 2.4, 2.5, and 1.10 from the fixture", () => {
+    const sections = extractPddSections(fixtureText);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.5"]).toBeDefined();
+    expect(sections["1.10"]).toBeDefined();
+  });
+
+  it("extracts section 2.4 (Baseline) content from the fixture", () => {
+    const sections = extractPddSections(fixtureText);
+    expect(sections["2.4"]).toContain("most likely land-use scenario");
+  });
+
+  it("extracts section 2.5 (Additionality) content from the fixture", () => {
+    const sections = extractPddSections(fixtureText);
+    expect(sections["2.5"]).toContain("barrier analysis");
+    expect(sections["2.5"]).toContain("investment analysis");
+  });
+
+  it("extracts section 1.10 (Leakage) content from the fixture", () => {
+    const sections = extractPddSections(fixtureText);
+    expect(sections["1.10"]).toContain("leakage belt");
+    expect(sections["1.10"]).toContain("3 km buffer");
+  });
+
+  it("routes and extracts all baseline sections from fixture via buildReviewQuestionResult", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD support the baseline scenario under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: fixtureText,
+    });
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["1.10"]).toBeDefined();
+    expect(result.sectionContent["2.4"]).toContain("overgrazing");
+    expect(result.sectionContent["2.5"]).toContain("carbon revenue");
+    expect(result.sectionContent["1.10"]).toContain("3 km buffer");
+  });
+
+  it("strips header/footer noise from fixture-extracted section content", () => {
+    const sections = extractPddSections(fixtureText);
+    expect(sections["2.4"]).not.toContain("VM0007 Version");
+    expect(sections["2.5"]).not.toContain("Page 4 of 42");
+    expect(sections["1.10"]).not.toContain("v1.1");
   });
 });

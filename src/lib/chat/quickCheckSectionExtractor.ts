@@ -1,6 +1,6 @@
 export const SECTION_EXCERPT_MAX_CHARS = 3000;
 
-const SECTION_HEADING_RE = /^\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+)/i;
+const SECTION_HEADING_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/gm;
 
 function stripHeaderFooterNoise(text: string): string {
   return text
@@ -14,39 +14,70 @@ function stripHeaderFooterNoise(text: string): string {
     .join("\n");
 }
 
-function normalizePageBreaks(text: string): string {
-  return text.replace(/\f/g, "\n");
+function normalizeText(raw: string): string {
+  return stripHeaderFooterNoise(raw)
+    .replace(/\f/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n");
+}
+
+type HeadingMatch = {
+  num: string;
+  title: string;
+  start: number;
+  end: number;
+};
+
+function extractHeadings(text: string): HeadingMatch[] {
+  const headings: HeadingMatch[] = [];
+  SECTION_HEADING_RE.lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = SECTION_HEADING_RE.exec(text)) !== null) {
+    const num = match[1]!;
+    const title = match[2]!.trim();
+    if (!title) continue;
+    if (/^\d/.test(title)) continue;
+    if (title.length > 120) continue;
+    headings.push({ num, title, start: match.index, end: match.index + match[0].length });
+  }
+  SECTION_HEADING_RE.lastIndex = 0;
+  return headings;
 }
 
 export function extractPddSections(rawText: string): Record<string, string> {
-  const cleaned = normalizePageBreaks(stripHeaderFooterNoise(rawText));
+  const cleaned = normalizeText(rawText);
   const sections: Record<string, string> = {};
-  const lines = cleaned.split("\n");
-  let currentNumber: string | null = null;
-  let currentContent: string[] = [];
+  const headings = extractHeadings(cleaned);
 
-  function flush() {
-    if (currentNumber) {
-      let content = currentContent.join("\n").trim();
-      if (content.length > SECTION_EXCERPT_MAX_CHARS) {
-        content = content.slice(0, SECTION_EXCERPT_MAX_CHARS).replace(/\s+\S*$/, "") + " […]";
-      }
-      sections[currentNumber] = content;
+  if (headings.length === 0) {
+    const inlineRe = /\b(\d+(?:\.\d+)*)\s{2,}([A-Z][A-Za-z\s-]{2,60})(?=\n|$)/g;
+    let match: RegExpExecArray | null;
+    while ((match = inlineRe.exec(cleaned)) !== null) {
+      const num = match[1]!;
+      const title = match[2]!.trim();
+      if (!title) continue;
+      if (/^\d/.test(title)) continue;
+      headings.push({ num, title, start: match.index, end: match.index + match[0].length });
     }
   }
 
-  for (const line of lines) {
-    const match = line.match(SECTION_HEADING_RE);
-    if (match) {
-      flush();
-      currentNumber = match[1]!;
-      currentContent = [match[2]!.trim()];
-    } else if (currentNumber) {
-      currentContent.push(line);
-    }
-  }
+  if (headings.length === 0) return sections;
 
-  flush();
+  for (let i = 0; i < headings.length; i++) {
+    const h = headings[i]!;
+    const contentStart = h.end;
+    const nextStart = i + 1 < headings.length ? headings[i + 1]!.start : cleaned.length;
+    let content = cleaned.slice(contentStart, nextStart).trim();
+    if (content) {
+      content = `${h.title}\n${content}`;
+    } else {
+      content = h.title;
+    }
+    if (content.length > SECTION_EXCERPT_MAX_CHARS) {
+      content = content.slice(0, SECTION_EXCERPT_MAX_CHARS).replace(/\s+\S*$/, "") + " […]";
+    }
+    sections[h.num] = content;
+  }
 
   return sections;
 }
@@ -72,4 +103,13 @@ export function extractRoutedSections(
     }
   }
   return result;
+}
+
+export function debugSectionExtraction(rawText: string): Record<string, string> {
+  return {
+    rawPddTextLength: String(rawText.length),
+    rawPddTextPreview: rawText.slice(0, 2000),
+    detectedSections: JSON.stringify(Object.keys(extractPddSections(rawText))),
+    headingMatches: JSON.stringify(extractHeadings(normalizeText(rawText)).map((h) => h.num)),
+  };
 }
