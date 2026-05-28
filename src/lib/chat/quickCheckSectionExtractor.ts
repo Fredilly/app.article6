@@ -124,11 +124,52 @@ export function extractRoutedSections(
   return result;
 }
 
+function diagnoseHeadingCandidates(rawText: string): string[] {
+  const lines = normalizeText(rawText).split("\n");
+  const candidates: string[] = [];
+  const seen = new Set<string>();
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!.trim();
+    if (!line || line.length < 2 || line.length > 200) continue;
+
+    const patterns: RegExp[] = [
+      /^\d+(?:\.\d+)*\s+[A-Z]/,
+      /^\d+(?:\.\d+)*\s*[.:]\s*[A-Z]/,
+      /^Section\s+\d+(?:\.\d+)*/i,
+      /^\d+(?:\.\d+)*\s*$/,
+      /^[A-Z][A-Z\s-]{3,60}$/,
+      /\bSECTION\s+\d/i,
+      /\bTABLE\s+OF\s+CONTENTS/i,
+      /^\d+(?:\.\d+)*\s{2,}[A-Z]/,
+    ];
+
+    const nextLine = i + 1 < lines.length ? lines[i + 1]!.trim() : "";
+
+    for (const pattern of patterns) {
+      if (pattern.test(line)) {
+        const nextContext = nextLine && !/^\d/.test(nextLine) ? ` → ${nextLine.slice(0, 60)}` : "";
+        const key = `${line.slice(0, 80)}${nextContext}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          candidates.push(`${line.slice(0, 80)}${nextContext}`);
+        }
+        break;
+      }
+    }
+
+    if (candidates.length >= 50) break;
+  }
+
+  return candidates;
+}
+
 export function debugSectionExtraction(rawText: string): Record<string, string> {
   return {
     rawPddTextLength: String(rawText.length),
     rawPddTextPreview: rawText.slice(0, 2000),
     detectedSections: JSON.stringify(Object.keys(extractPddSections(rawText))),
     headingMatches: JSON.stringify(extractHeadings(normalizeText(rawText)).map((h) => h.num)),
+    headingCandidates: JSON.stringify(diagnoseHeadingCandidates(rawText)),
   };
 }
