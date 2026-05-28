@@ -50,6 +50,12 @@ import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
+import {
+  buildReviewQuestionResult,
+  detectReviewPath,
+  reviewAreaLabel,
+  type ReviewQuestionResult,
+} from "@/lib/chat/quickCheckReviewQuestion";
 
 type MethodInventoryRecord = {
   code: string;
@@ -548,6 +554,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showMethodology, setShowMethodology] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
+  const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
@@ -944,6 +951,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setRecoveryState(null);
     setMatchCandidates([]);
     setValidatedResultKey(null);
+    setReviewQuestionResult(null);
   }
 
   function resetQuickCheckUi() {
@@ -1386,6 +1394,26 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setRecoveryState(buildUnsupportedMethodRecoveryState(currentMethodologyResolution.unsupportedCanonicalKeys[0] ?? "unknown methodology"));
         return;
       }
+
+      const resolvedMethodologyId = draft.methodologyId.trim()
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
+      const resolvedMethodologyVersion = draft.methodologyVersion.trim()
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
+
+      if (detectReviewPath(effectiveClaimText) === "review_question_answering") {
+        const questionResult = buildReviewQuestionResult({
+          claimText: effectiveClaimText,
+          methodologyId: resolvedMethodologyId,
+          methodologyVersion: resolvedMethodologyVersion,
+        });
+        setReviewQuestionResult(questionResult);
+        setRecoveryState(null);
+        setFieldErrors({});
+        setSubmitting(false);
+        return;
+      }
+
+      setReviewQuestionResult(null);
 
       const selectedMethodologyId = draft.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
@@ -2090,6 +2118,57 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </select>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {reviewQuestionResult ? (
+            <div className="rounded-[1.6rem] border border-sky-200 bg-sky-50/80 p-5">
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-800">Review question</div>
+                  <div className="mt-2 text-sm text-slate-600">{draft.claimText}</div>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Review area</div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">{reviewAreaLabel(reviewQuestionResult.reviewArea)}</div>
+                    </div>
+                    {reviewQuestionResult.methodologyId ? (
+                      <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology</div>
+                        <div className="mt-1 text-sm font-medium text-slate-900">{reviewQuestionResult.methodologyId} · {reviewQuestionResult.methodologyVersion || "—"}</div>
+                      </div>
+                    ) : null}
+                  </div>
+                  {reviewQuestionResult.relevantSections.length > 0 ? (
+                    <div className="mt-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Relevant PDD sections</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {reviewQuestionResult.relevantSections.map((section) => (
+                          <span key={section} className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sm font-medium text-sky-900">
+                            Section {section}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="mt-2 text-xs text-slate-500">
+                        Open the full review to inspect these sections in the uploaded document.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+                      No methodology-specific section routing is available yet. Check the methodology document directly.
+                    </div>
+                  )}
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setReviewQuestionResult(null)}
+                      className="rounded-full border border-sky-200 bg-white px-4 py-2 text-sm font-medium text-sky-800 transition hover:border-sky-300"
+                    >
+                      Return to requirement match
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
