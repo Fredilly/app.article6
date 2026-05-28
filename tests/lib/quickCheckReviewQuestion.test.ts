@@ -1,11 +1,25 @@
 import { describe, expect, it } from "@jest/globals";
 import {
+  buildReviewQuestionResult,
   classifyReviewArea,
   detectReviewPath,
   resolveReviewSections,
   reviewAreaLabel,
   type ReviewArea,
 } from "@/lib/chat/quickCheckReviewQuestion";
+
+const VM0007_BASELINE_PDD_TEXT = [
+  "1.10  Leakage",
+  "The leakage belt is defined as a 3 km buffer.",
+  "",
+  "2.4  Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario without the project.",
+  "The project area consists of degraded grassland.",
+  "",
+  "2.5  Additionality",
+  "The project is additional and faces barriers to implementation.",
+  "",
+].join("\n");
 
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
@@ -165,4 +179,76 @@ describe("reviewAreaLabel", () => {
       expect(reviewAreaLabel(area).length).toBeGreaterThan(0);
     });
   }
+});
+
+describe("buildReviewQuestionResult — section content extraction (Phase 1)", () => {
+  it("populates sectionContent for VM0007 baseline sections when PDD text is provided", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is the baseline scenario appropriate?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: VM0007_BASELINE_PDD_TEXT,
+    });
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.4"]).toContain("degraded grassland");
+    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toContain("barriers to implementation");
+  });
+
+  it("returns empty sectionContent when no PDD text is provided", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is the baseline scenario appropriate?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+    });
+    expect(result.sectionContent).toEqual({});
+  });
+
+  it("returns empty sectionContent for non-VM0007 methodology even with PDD text", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is the baseline scenario appropriate?",
+      methodologyId: "AR-ACM0003",
+      methodologyVersion: "1.0",
+      rawPddText: VM0007_BASELINE_PDD_TEXT,
+    });
+    expect(result.sectionContent).toEqual({});
+  });
+
+  it("leaves sectionContent empty for sections that cannot be extracted", () => {
+    const textWithoutRelevantSections = "This PDD text has no section headings at all.";
+    const result = buildReviewQuestionResult({
+      claimText: "Is the baseline scenario appropriate?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: textWithoutRelevantSections,
+    });
+    expect(result.relevantSections).toContain("2.4");
+    expect(result.relevantSections).toContain("1.10");
+    expect(result.sectionContent["2.4"]).toBeUndefined();
+    expect(result.sectionContent["1.10"]).toBeUndefined();
+  });
+
+  it("extracts section 1.10 content even when it is not in the baseline route priority", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is the baseline scenario appropriate?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: VM0007_BASELINE_PDD_TEXT,
+    });
+    expect(result.relevantSections).toContain("1.10");
+    expect(result.sectionContent["1.10"]).toBeDefined();
+    expect(result.sectionContent["1.10"]).toContain("3 km buffer");
+  });
+
+  it("handles empty claim text gracefully", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: VM0007_BASELINE_PDD_TEXT,
+    });
+    expect(result.reviewArea).toBe("general");
+    expect(result.relevantSections).toEqual([]);
+    expect(result.sectionContent).toEqual({});
+  });
 });

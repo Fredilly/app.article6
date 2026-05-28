@@ -1405,6 +1405,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           claimText: effectiveClaimText,
           methodologyId: resolvedMethodologyId,
           methodologyVersion: resolvedMethodologyVersion,
+          rawPddText: evidenceAnalysis.rawPddText,
         });
         setReviewQuestionResult(questionResult);
         setRecoveryState(null);
@@ -2150,6 +2151,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             Section {section}
                           </span>
                         ))}
+                      </div>
+                      <div className="mt-3 grid gap-3">
+                        {reviewQuestionResult.relevantSections.map((section) => {
+                          const content = reviewQuestionResult.sectionContent[section];
+                          return (
+                            <div key={section} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                              <div className="text-xs font-semibold text-slate-500">Section {section}</div>
+                              {content ? (
+                                <div className="mt-1.5 max-h-32 overflow-y-auto text-sm leading-relaxed text-slate-700">
+                                  {content}
+                                </div>
+                              ) : (
+                                <div className="mt-1.5 text-sm text-amber-700">
+                                  Section not found in uploaded document.
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                       <p className="mt-2 text-xs text-slate-500">
                         Open the full review to inspect these sections in the uploaded document.
