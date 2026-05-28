@@ -1,6 +1,13 @@
 export const SECTION_EXCERPT_MAX_CHARS = 3000;
+const SECTION_KEY_NORMALIZE_RE = /[^\d.]/g;
 
 const SECTION_HEADING_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/gm;
+const SECTION_HEADING_DOT_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\.\s+(.+))\s*$/gm;
+const SECTION_HEADING_PAREN_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s+\((.+)\))\s*$/gm;
+
+export function normalizeSectionKey(key: string): string {
+  return key.replace(SECTION_KEY_NORMALIZE_RE, "").replace(/\.+$/, "").trim();
+}
 
 function stripHeaderFooterNoise(text: string): string {
   return text
@@ -28,20 +35,33 @@ type HeadingMatch = {
   end: number;
 };
 
-function extractHeadings(text: string): HeadingMatch[] {
+function tryHeadingPatterns(text: string, patterns: RegExp[]): HeadingMatch[] {
   const headings: HeadingMatch[] = [];
-  SECTION_HEADING_RE.lastIndex = 0;
-  let match: RegExpExecArray | null;
-  while ((match = SECTION_HEADING_RE.exec(text)) !== null) {
-    const num = match[1]!;
-    const title = match[2]!.trim();
-    if (!title) continue;
-    if (/^\d/.test(title)) continue;
-    if (title.length > 120) continue;
-    headings.push({ num, title, start: match.index, end: match.index + match[0].length });
+  for (const re of patterns) {
+    re.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = re.exec(text)) !== null) {
+      const num = match[1]!;
+      const title = match[2]!.trim();
+      if (!title) continue;
+      if (/^\d/.test(title)) continue;
+      if (title.length > 120) continue;
+      if (headings.some((h) => h.num === num)) continue;
+      headings.push({ num, title, start: match.index, end: match.index + match[0].length });
+    }
+    re.lastIndex = 0;
   }
-  SECTION_HEADING_RE.lastIndex = 0;
   return headings;
+}
+
+const DEFAULT_HEADING_PATTERNS = [
+  SECTION_HEADING_RE,
+  SECTION_HEADING_DOT_RE,
+  SECTION_HEADING_PAREN_RE,
+];
+
+function extractHeadings(text: string): HeadingMatch[] {
+  return tryHeadingPatterns(text, DEFAULT_HEADING_PATTERNS);
 }
 
 export function extractPddSections(rawText: string): Record<string, string> {
@@ -95,7 +115,7 @@ export function extractPddSections(rawText: string): Record<string, string> {
     if (content.length > SECTION_EXCERPT_MAX_CHARS) {
       content = content.slice(0, SECTION_EXCERPT_MAX_CHARS).replace(/\s+\S*$/, "") + " […]";
     }
-    sections[h.num] = content;
+    sections[normalizeSectionKey(h.num)] = content;
   }
 
   return sections;
@@ -106,7 +126,8 @@ export function extractSectionContent(
   sectionNumber: string,
 ): string | null {
   const sections = extractPddSections(rawText);
-  return sections[sectionNumber] ?? null;
+  const key = normalizeSectionKey(sectionNumber);
+  return sections[key] ?? Object.entries(sections).find(([k]) => normalizeSectionKey(k) === key)?.[1] ?? null;
 }
 
 export function extractRoutedSections(
@@ -116,7 +137,12 @@ export function extractRoutedSections(
   const allSections = extractPddSections(rawText);
   const result: Record<string, string> = {};
   for (const section of relevantSections) {
-    const content = allSections[section];
+    const key = normalizeSectionKey(section);
+    let content = allSections[key] ?? allSections[section];
+    if (!content) {
+      const entry = Object.entries(allSections).find(([k]) => normalizeSectionKey(k) === key);
+      if (entry) content = entry[1];
+    }
     if (content) {
       result[section] = content;
     }
@@ -185,6 +211,27 @@ function findNumericFragments(text: string, maxResults = 50): string[] {
   return results;
 }
 
+function rawLinesAround(rawText: string, sectionNum: string, windowSize = 3): string[] {
+  const lines = rawText.split("\n");
+  const result: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i]!.trim();
+    const headingMatch = trimmed.match(
+      /^(?:Section\s+)?\d+(?:\.\d+)*\s*[.:]?\s+\S/,
+    );
+    if (!headingMatch && !trimmed.startsWith(sectionNum)) continue;
+    const numOnLine = trimmed.match(/\b\d+(?:\.\d+)*\b/)?.[0];
+    if (numOnLine !== sectionNum) continue;
+    const start = Math.max(0, i - windowSize);
+    const end = Math.min(lines.length, i + windowSize + 1);
+    for (let j = start; j < end; j++) {
+      result.push(`L${j + 1}: ${lines[j]}`);
+    }
+    break;
+  }
+  return result;
+}
+
 function diagnoseTextStructure(rawText: string): Record<string, string> {
   const text = rawText.replace(/\s+/g, " ").trim();
 
@@ -202,6 +249,15 @@ function diagnoseTextStructure(rawText: string): Record<string, string> {
   const headingLike = findHeadingLikeFragments(text, 50);
   const numericLike = findNumericFragments(text, 50);
 
+  const rawLines_2_4 = rawLinesAround(rawText, "2.4", 3);
+  const rawLines_2_5 = rawLinesAround(rawText, "2.5", 3);
+  const rawLines_1_10 = rawLinesAround(rawText, "1.10", 3);
+
+  const sections = extractPddSections(rawText);
+  const parsed_2_4 = sections[normalizeSectionKey("2.4")] ? "found" : "missing";
+  const parsed_2_5 = sections[normalizeSectionKey("2.5")] ? "found" : "missing";
+  const parsed_1_10 = sections[normalizeSectionKey("1.10")] ? "found" : "missing";
+
   return {
     rawPddTextLength: String(rawText.length),
     includes_2_4: String(has2_4),
@@ -210,6 +266,12 @@ function diagnoseTextStructure(rawText: string): Record<string, string> {
     includes_baseline: String(hasBaseline),
     includes_additionality: String(hasAdditionality),
     includes_leakage: String(hasLeakage),
+    parsed_2_4,
+    parsed_2_5,
+    parsed_1_10,
+    raw_lines_2_4: JSON.stringify(rawLines_2_4),
+    raw_lines_2_5: JSON.stringify(rawLines_2_5),
+    raw_lines_1_10: JSON.stringify(rawLines_1_10),
     snippets_baseline: JSON.stringify(baselineSnippets),
     snippets_additionality: JSON.stringify(additionalitySnippets),
     snippets_leakage: JSON.stringify(leakageSnippets),

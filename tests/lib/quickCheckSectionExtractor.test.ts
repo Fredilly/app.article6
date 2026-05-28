@@ -5,6 +5,7 @@ import {
   extractPddSections,
   extractSectionContent,
   extractRoutedSections,
+  normalizeSectionKey,
   SECTION_EXCERPT_MAX_CHARS,
 } from "@/lib/chat/quickCheckSectionExtractor";
 import { buildReviewQuestionResult } from "@/lib/chat/quickCheckReviewQuestion";
@@ -71,6 +72,58 @@ const WRAPPED_HEADING_TEXT = [
 ].join("\n");
 
 const NO_SECTION_TEXT = "This is a plain document with no section headings whatsoever.";
+
+const EXACT_RAW_LINES_TEXT = [
+  "VM0007 Version 1.1",
+  "Project Description Document",
+  "",
+  "Page 1 of 42",
+  "",
+  "1.1  Project Background",
+  "This project is a reforestation activity in the central highlands.",
+  "",
+  "Page 2 of 42",
+  "",
+  "1.9  Project Boundary",
+  "The project area is located in the central region of the country.",
+  "",
+  "v1.1",
+  "",
+  "2.3  Carbon Pools",
+  "Above-ground biomass, below-ground biomass.",
+  "",
+  "Page 3 of 42",
+  "",
+  "2.4  Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario in the",
+  "absence of the project activity. The project area consists of",
+  "degraded grassland that has been subject to overgrazing for the",
+  "past decade. Without the project, carbon stocks would continue",
+  "to decline.",
+  "",
+  "VM0007 Version 1.1",
+  "",
+  "2.5  Additionality",
+  "The project is additional because it faces significant barriers",
+  "to implementation. A barrier analysis is provided in the",
+  "following paragraphs. The investment analysis demonstrates that",
+  "the project is not financially viable without carbon revenue.",
+  "",
+  "Page 4 of 42",
+  "",
+  "2.6  Deviations",
+  "No deviations from the methodology are proposed.",
+  "",
+  "1.10  Leakage",
+  "The leakage belt for this project is determined using the",
+  "default 3 km buffer approach as specified in VM0007.",
+  "Activity shifting leakage is expected to be minimal.",
+  "",
+  "3.3  Monitoring",
+  "Monitoring will be conducted annually using permanent sample",
+  "plots. A total of 50 plots are established across the project",
+  "area.",
+].join("\n");
 
 const SPLIT_HEADING_TEXT = [
   "Some introductory text.",
@@ -178,6 +231,108 @@ describe("extractPddSections", () => {
     expect(sections["2.4"]).toBeDefined();
     expect(sections["2.4"]!.length).toBeLessThan(SECTION_EXCERPT_MAX_CHARS + 200);
     expect(sections["2.4"]).toMatch(/\[…\]$/);
+  });
+});
+
+describe("normalizeSectionKey", () => {
+  it("passes through a clean section key unchanged", () => {
+    expect(normalizeSectionKey("2.4")).toBe("2.4");
+  });
+
+  it("strips trailing punctuation after the section number", () => {
+    expect(normalizeSectionKey("2.4.")).toBe("2.4");
+    expect(normalizeSectionKey("2.4:")).toBe("2.4");
+  });
+
+  it("removes whitespace inside the section number", () => {
+    expect(normalizeSectionKey("2 . 4")).toBe("2.4");
+    expect(normalizeSectionKey("2 .4")).toBe("2.4");
+    expect(normalizeSectionKey("2. 4")).toBe("2.4");
+  });
+
+  it("strips title text after the number", () => {
+    expect(normalizeSectionKey("2.4 (Baseline Scenario)")).toBe("2.4");
+    expect(normalizeSectionKey("2.4 Baseline Scenario")).toBe("2.4");
+  });
+
+  it("handles sub-section numbers", () => {
+    expect(normalizeSectionKey("1.10")).toBe("1.10");
+    expect(normalizeSectionKey("1.10.1")).toBe("1.10.1");
+    expect(normalizeSectionKey("1.12.1.")).toBe("1.12.1");
+  });
+});
+
+describe("heading format variations", () => {
+  it("extracts section with dot after number: 2.4. Title", () => {
+    const text = "2.4. Baseline Scenario\nThe baseline scenario text.";
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("baseline scenario text");
+  });
+
+  it("extracts section with title in parentheses: 2.4 (Title)", () => {
+    const text = "2.4 (Baseline Scenario)\nThe baseline scenario text.";
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("baseline scenario text");
+  });
+
+  it("extracts section with a single space between number and title", () => {
+    const text = "2.4 Baseline Scenario\nThe baseline scenario text.";
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("baseline scenario text");
+  });
+
+  it("extracts section with colon after number: 2.4: Title", () => {
+    const text = "2.4: Baseline Scenario\nThe baseline scenario text.";
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("baseline scenario text");
+  });
+});
+
+describe("lookup normalization", () => {
+  it("extractSectionContent finds section with normalized key", () => {
+    const text = "2.4. Baseline Scenario\nSome content.";
+    const content = extractSectionContent(text, "2.4");
+    expect(content).not.toBeNull();
+    expect(content).toContain("Some content");
+  });
+
+  it("extractRoutedSections finds section with normalized key", () => {
+    const text = "2.5. Additionality\nSome additionality content.";
+    const result = extractRoutedSections(text, ["2.5"]);
+    expect(result["2.5"]).toBeDefined();
+    expect(result["2.5"]).toContain("additionality content");
+  });
+});
+
+describe("exact raw lines from fixture", () => {
+  const text = EXACT_RAW_LINES_TEXT;
+
+  it("extracts section 2.4 from exact fixture raw lines (line 26)", () => {
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("most likely land-use scenario");
+    expect(sections["2.4"]).toContain("overgrazing");
+    expect(sections["2.4"]).toContain("carbon stocks");
+  });
+
+  it("extracts section 2.5 from exact fixture raw lines (line 35)", () => {
+    const sections = extractPddSections(text);
+    expect(sections["2.5"]).toBeDefined();
+    expect(sections["2.5"]).toContain("barrier analysis");
+    expect(sections["2.5"]).toContain("investment analysis");
+    expect(sections["2.5"]).toContain("carbon revenue");
+  });
+
+  it("extracts section 1.10 from exact fixture raw lines (line 46)", () => {
+    const sections = extractPddSections(text);
+    expect(sections["1.10"]).toBeDefined();
+    expect(sections["1.10"]).toContain("leakage belt");
+    expect(sections["1.10"]).toContain("3 km buffer");
+    expect(sections["1.10"]).toContain("Activity shifting");
   });
 });
 
