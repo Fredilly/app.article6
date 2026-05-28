@@ -1,4 +1,5 @@
 export type ReviewArea =
+  | "additionality"
   | "baseline"
   | "boundary"
   | "deviations"
@@ -23,9 +24,17 @@ const BROAD_QUESTION_PATTERNS: RegExp[] = [
   /^does\s+this\s+pdd\s+explain/i,
   /^does\s+this\s+pdd\s+disclose/i,
   /^does\s+this\s+pdd\s+support/i,
+  /^does\s+this\s+pdd\s+define/i,
+  /^does\s+this\s+pdd\s+describe/i,
+  /^does\s+this\s+pdd\s+identify/i,
+  /^is\s+the\s+baseline/i,
+  /^is\s+additionality/i,
+  /^check\s+the/i,
+  /^review\s+the/i,
 ];
 
 const VM0007_SECTION_ROUTES: Record<ReviewArea, string[]> = {
+  additionality: ["2.5", "2.4", "1.10"],
   baseline: ["2.4", "2.5", "1.10"],
   boundary: ["2.3", "1.9"],
   deviations: ["2.6"],
@@ -36,6 +45,7 @@ const VM0007_SECTION_ROUTES: Record<ReviewArea, string[]> = {
 };
 
 const REVIEW_AREA_LABELS: Record<ReviewArea, string> = {
+  additionality: "Additionality",
   baseline: "Baseline scenario",
   boundary: "Project boundary",
   deviations: "Deviations from methodology",
@@ -55,10 +65,18 @@ export function detectReviewPath(claimText: string): QuickCheckPath {
 
 export function classifyReviewArea(claimText: string): ReviewArea {
   const normalized = claimText.trim().toLowerCase();
+
+  const hasBoundaryPair =
+    /\bleakage\s+belt\b/i.test(normalized) &&
+    (/\bproject\s+area\b/i.test(normalized) || /\breference\s+region\b/i.test(normalized));
+  if (hasBoundaryPair) return "boundary";
+
+  if (/additionality|VT0001|barrier\s+analysis|investment\s+analysis|common\s+practice|first\s+of\s+its\s+kind/i.test(normalized)) return "additionality";
+
   if (/justify|baseline|scenario/i.test(normalized)) return "baseline";
-  if (/boundary|area\s+of|spatial|geographic|polygon/i.test(normalized)) return "boundary";
+  if (/leakage\s+belt\b|reference\s+region\b|RRD\b|boundary|geographic\s+boundary|project\s+area|area\s+of|spatial|geographic|polygon/i.test(normalized)) return "boundary";
   if (/deviations|departure|variance|deviation/i.test(normalized)) return "deviations";
-  if (/leakage|displacement/i.test(normalized)) return "leakage";
+  if (/leakage\s+risk|activity\s+shifting|LK-ASU|displacement/i.test(normalized)) return "leakage";
   if (/monitoring|sampling|plot|measur/i.test(normalized)) return "monitoring";
   if (/right of use|land tenure|carbon right|entitlement/i.test(normalized)) return "right_of_use";
   return "general";
