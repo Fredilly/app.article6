@@ -124,44 +124,68 @@ export function extractRoutedSections(
   return result;
 }
 
-function diagnoseHeadingCandidates(rawText: string): string[] {
-  const lines = normalizeText(rawText).split("\n");
-  const candidates: string[] = [];
-  const seen = new Set<string>();
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!.trim();
-    if (!line || line.length < 2 || line.length > 200) continue;
-
-    const patterns: RegExp[] = [
-      /^\d+(?:\.\d+)*\s+[A-Z]/,
-      /^\d+(?:\.\d+)*\s*[.:]\s*[A-Z]/,
-      /^Section\s+\d+(?:\.\d+)*/i,
-      /^\d+(?:\.\d+)*\s*$/,
-      /^[A-Z][A-Z\s-]{3,60}$/,
-      /\bSECTION\s+\d/i,
-      /\bTABLE\s+OF\s+CONTENTS/i,
-      /^\d+(?:\.\d+)*\s{2,}[A-Z]/,
-    ];
-
-    const nextLine = i + 1 < lines.length ? lines[i + 1]!.trim() : "";
-
-    for (const pattern of patterns) {
-      if (pattern.test(line)) {
-        const nextContext = nextLine && !/^\d/.test(nextLine) ? ` → ${nextLine.slice(0, 60)}` : "";
-        const key = `${line.slice(0, 80)}${nextContext}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          candidates.push(`${line.slice(0, 80)}${nextContext}`);
-        }
-        break;
-      }
+function findLiteralOccurrences(text: string, queries: string[]): string[] {
+  const results: string[] = [];
+  for (const q of queries) {
+    let idx = 0;
+    const count = results.length;
+    while (idx < text.length) {
+      const pos = text.toLowerCase().indexOf(q.toLowerCase(), idx);
+      if (pos === -1) break;
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(text.length, pos + q.length + 120);
+      let snippet = text.slice(start, end);
+      snippet = snippet.replace(/\s+/g, " ").trim();
+      if (start > 0) snippet = `...${snippet}`;
+      if (end < text.length) snippet = `${snippet}...`;
+      results.push(`${q} @${pos}: ${snippet.slice(0, 200)}`);
+      idx = pos + 1;
+      if (results.length - count >= 5) break;
     }
-
-    if (candidates.length >= 50) break;
   }
+  return results;
+}
 
-  return candidates;
+function diagnoseTextStructure(rawText: string): Record<string, string> {
+  const text = rawText.replace(/\s+/g, " ").trim();
+  const newlineCount = (rawText.match(/\n/g) ?? []).length;
+  const lines = rawText.split("\n").filter((l) => l.trim());
+  const longLineCount = lines.filter((l) => l.length > 200).length;
+  const shortLineCount = lines.filter((l) => l.length <= 200).length;
+
+  const sectionNumberMatches = [...text.matchAll(/\b(\d+(?:\.\d+)*)\b/g)]
+    .map((m) => m[1]!)
+    .filter((n) => /^\d+\.\d+$/.test(n) || /^\d+$/.test(n));
+
+  const topSectionNumbers = Array.from(new Set(sectionNumberMatches))
+    .filter((n) => {
+      const parts = n.split(".");
+      const first = parseInt(parts[0]!, 10);
+      return first >= 1 && first <= 10;
+    })
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    .slice(0, 50);
+
+  const titleCaseHeadingCandidates = [...text.matchAll(/\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,5})\b/g)]
+    .map((m) => m[1]!)
+    .filter((t) => t.length >= 10 && t.length <= 80 && /^(?:Baseline|Additionality|Leakage|Project|Boundary|Monitoring).*/i.test(t));
+
+  const uniqueTitles = Array.from(new Set(titleCaseHeadingCandidates)).slice(0, 20);
+
+  const literalOccurrences = findLiteralOccurrences(text, [
+    "2.4", "2.5", "1.10",
+    "Baseline Scenario", "Additionality", "Leakage",
+    "Project Description",
+  ]);
+
+  return {
+    newlineCount: String(newlineCount),
+    longLinesOver200: String(longLineCount),
+    shortLinesUnder200: String(shortLineCount),
+    topSectionNumbers: JSON.stringify(topSectionNumbers),
+    titleCaseHeadings: JSON.stringify(uniqueTitles),
+    literalOccurrences: JSON.stringify(literalOccurrences),
+  };
 }
 
 export function debugSectionExtraction(rawText: string): Record<string, string> {
@@ -170,6 +194,6 @@ export function debugSectionExtraction(rawText: string): Record<string, string> 
     rawPddTextPreview: rawText.slice(0, 2000),
     detectedSections: JSON.stringify(Object.keys(extractPddSections(rawText))),
     headingMatches: JSON.stringify(extractHeadings(normalizeText(rawText)).map((h) => h.num)),
-    headingCandidates: JSON.stringify(diagnoseHeadingCandidates(rawText)),
+    ...diagnoseTextStructure(rawText),
   };
 }
