@@ -1,4 +1,4 @@
-import { extractRoutedSections } from "@/lib/chat/quickCheckSectionExtractor";
+import { debugSectionExtraction, extractRoutedSections } from "@/lib/chat/quickCheckSectionExtractor";
 
 export type ReviewArea =
   | "additionality"
@@ -19,6 +19,7 @@ export type ReviewQuestionResult = {
   methodologyVersion: string;
   relevantSections: string[];
   sectionContent: Record<string, string>;
+  diagnostic?: Record<string, string>;
 };
 
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
@@ -118,5 +119,8 @@ export function buildReviewQuestionResult(input: {
     methodologyVersion: input.methodologyVersion,
     relevantSections,
     sectionContent,
+    ...(process.env.NODE_ENV !== "production" && input.rawPddText
+      ? { diagnostic: debugSectionExtraction(input.rawPddText) }
+      : {}),
   };
 }

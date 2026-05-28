@@ -56,7 +56,6 @@ import {
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
-import { debugSectionExtraction } from "@/lib/chat/quickCheckSectionExtractor";
 
 type MethodInventoryRecord = {
   code: string;
@@ -1402,15 +1401,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
 
       if (detectReviewPath(effectiveClaimText) === "review_question_answering") {
-        if (process.env.NODE_ENV !== "production") {
-          const rawText = evidenceAnalysis.rawPddText;
-          if (!rawText) {
-            console.warn("[quick-check-debug] rawPddText is undefined or empty");
-          } else {
-            const diag = debugSectionExtraction(rawText);
-            console.info("[quick-check-debug]", diag);
-          }
-        }
         const questionResult = buildReviewQuestionResult({
           claimText: effectiveClaimText,
           methodologyId: resolvedMethodologyId,
@@ -2184,6 +2174,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <p className="mt-2 text-xs text-slate-500">
                         Open the full review to inspect these sections in the uploaded document.
                       </p>
+                      {reviewQuestionResult.diagnostic && process.env.NODE_ENV !== "production" ? (
+                        <details className="mt-3">
+                          <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">
+                            Extraction diagnostic
+                          </summary>
+                          <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-[10px] leading-relaxed text-slate-600">
+                            {JSON.stringify(reviewQuestionResult.diagnostic, null, 2)}
+                          </pre>
+                        </details>
+                      ) : null}
                     </div>
                   ) : (
                     <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
