@@ -124,76 +124,100 @@ export function extractRoutedSections(
   return result;
 }
 
-function findLiteralOccurrences(text: string, queries: string[]): string[] {
+function findSnippets(text: string, query: string, maxResults = 5): string[] {
   const results: string[] = [];
-  for (const q of queries) {
-    let idx = 0;
-    const count = results.length;
-    while (idx < text.length) {
-      const pos = text.toLowerCase().indexOf(q.toLowerCase(), idx);
-      if (pos === -1) break;
-      const start = Math.max(0, pos - 60);
-      const end = Math.min(text.length, pos + q.length + 120);
-      let snippet = text.slice(start, end);
-      snippet = snippet.replace(/\s+/g, " ").trim();
-      if (start > 0) snippet = `...${snippet}`;
-      if (end < text.length) snippet = `${snippet}...`;
-      results.push(`${q} @${pos}: ${snippet.slice(0, 200)}`);
-      idx = pos + 1;
-      if (results.length - count >= 5) break;
+  const lower = text.toLowerCase();
+  const q = query.toLowerCase();
+  let idx = 0;
+  while (idx < text.length) {
+    const pos = lower.indexOf(q, idx);
+    if (pos === -1) break;
+    const start = Math.max(0, pos - 80);
+    const end = Math.min(text.length, pos + q.length + 120);
+    let snippet = text.slice(start, end).replace(/\s+/g, " ").trim();
+    if (start > 0) snippet = `…${snippet}`;
+    if (end < text.length) snippet = `${snippet}…`;
+    results.push(snippet);
+    idx = pos + 1;
+    if (results.length >= maxResults) break;
+  }
+  return results;
+}
+
+function findHeadingLikeFragments(text: string, maxResults = 50): string[] {
+  const results: string[] = [];
+  const seen = new Set<string>();
+
+  const patterns: RegExp[] = [
+    /\b(\d+(?:\.\d+)*)\s{2,}([A-Z][A-Za-z\s-]{3,60})(?=[\s,.])/g,
+    /\b(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]\s+([A-Z][A-Za-z\s-]{3,60})/g,
+    /\b([A-Z][A-Z\s-]{5,60})\b/g,
+  ];
+
+  for (const p of patterns) {
+    for (const match of text.replace(/\s+/g, "  ").matchAll(p)) {
+      const fragment = match[0]!.trim();
+      if (!fragment || seen.has(fragment)) continue;
+      if (fragment.length > 120) continue;
+      seen.add(fragment);
+      results.push(fragment);
+      if (results.length >= maxResults) break;
     }
+    if (results.length >= maxResults) break;
+  }
+  return results.slice(0, maxResults);
+}
+
+function findNumericFragments(text: string, maxResults = 50): string[] {
+  const results: string[] = [];
+  const seen = new Set<string>();
+  const normalized = text.replace(/\s+/g, " ");
+
+  for (const match of normalized.matchAll(/\b(\d+(?:\.\d+)*)\s{0,3}([A-Z][A-Za-z\s-]{2,60})?/g)) {
+    const num = match[1]!;
+    const title = match[2]?.trim() ?? "";
+    const fragment = title ? `${num} ${title.slice(0, 60)}` : num;
+    if (seen.has(num)) continue;
+    seen.add(num);
+    results.push(fragment.slice(0, 100));
+    if (results.length >= maxResults) break;
   }
   return results;
 }
 
 function diagnoseTextStructure(rawText: string): Record<string, string> {
   const text = rawText.replace(/\s+/g, " ").trim();
-  const newlineCount = (rawText.match(/\n/g) ?? []).length;
-  const lines = rawText.split("\n").filter((l) => l.trim());
-  const longLineCount = lines.filter((l) => l.length > 200).length;
-  const shortLineCount = lines.filter((l) => l.length <= 200).length;
 
-  const sectionNumberMatches = [...text.matchAll(/\b(\d+(?:\.\d+)*)\b/g)]
-    .map((m) => m[1]!)
-    .filter((n) => /^\d+\.\d+$/.test(n) || /^\d+$/.test(n));
+  const has2_4 = /\b2\.4\b/.test(text);
+  const has2_5 = /\b2\.5\b/.test(text);
+  const has1_10 = /\b1\.10\b/.test(text);
+  const hasBaseline = /\bbaseline\b/i.test(text);
+  const hasAdditionality = /\badditionality\b/i.test(text);
+  const hasLeakage = /\bleakage\b/i.test(text);
 
-  const topSectionNumbers = Array.from(new Set(sectionNumberMatches))
-    .filter((n) => {
-      const parts = n.split(".");
-      const first = parseInt(parts[0]!, 10);
-      return first >= 1 && first <= 10;
-    })
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-    .slice(0, 50);
+  const baselineSnippets = findSnippets(text, "baseline", 5);
+  const additionalitySnippets = findSnippets(text, "additionality", 5);
+  const leakageSnippets = findSnippets(text, "leakage", 5);
 
-  const titleCaseHeadingCandidates = [...text.matchAll(/\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,5})\b/g)]
-    .map((m) => m[1]!)
-    .filter((t) => t.length >= 10 && t.length <= 80 && /^(?:Baseline|Additionality|Leakage|Project|Boundary|Monitoring).*/i.test(t));
-
-  const uniqueTitles = Array.from(new Set(titleCaseHeadingCandidates)).slice(0, 20);
-
-  const literalOccurrences = findLiteralOccurrences(text, [
-    "2.4", "2.5", "1.10",
-    "Baseline Scenario", "Additionality", "Leakage",
-    "Project Description",
-  ]);
+  const headingLike = findHeadingLikeFragments(text, 50);
+  const numericLike = findNumericFragments(text, 50);
 
   return {
-    newlineCount: String(newlineCount),
-    longLinesOver200: String(longLineCount),
-    shortLinesUnder200: String(shortLineCount),
-    topSectionNumbers: JSON.stringify(topSectionNumbers),
-    titleCaseHeadings: JSON.stringify(uniqueTitles),
-    literalOccurrences: JSON.stringify(literalOccurrences),
+    rawPddTextLength: String(rawText.length),
+    includes_2_4: String(has2_4),
+    includes_2_5: String(has2_5),
+    includes_1_10: String(has1_10),
+    includes_baseline: String(hasBaseline),
+    includes_additionality: String(hasAdditionality),
+    includes_leakage: String(hasLeakage),
+    snippets_baseline: JSON.stringify(baselineSnippets),
+    snippets_additionality: JSON.stringify(additionalitySnippets),
+    snippets_leakage: JSON.stringify(leakageSnippets),
+    heading_like_fragments: JSON.stringify(headingLike),
+    numeric_fragments: JSON.stringify(numericLike),
   };
 }
 
 export function debugSectionExtraction(rawText: string): Record<string, string> {
-  return {
-    rawPddTextLength: String(rawText.length),
-    rawPddTextPreview: rawText.slice(0, 2000),
-    detectedSections: JSON.stringify(Object.keys(extractPddSections(rawText))),
-    headingMatches: JSON.stringify(extractHeadings(normalizeText(rawText)).map((h) => h.num)),
-    ...diagnoseTextStructure(rawText),
-  };
+  return diagnoseTextStructure(rawText);
 }
