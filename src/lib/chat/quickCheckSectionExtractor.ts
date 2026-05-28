@@ -10,8 +10,9 @@ export function normalizeSectionKey(key: string): string {
 }
 
 function stripHeaderFooterNoise(text: string): string {
-  return text
-    .split("\n")
+  const lines = text.split("\n");
+  if (lines.length <= 1) return text;
+  return lines
     .filter((line) => {
       const trimmed = line.trim();
       if (!trimmed) return true;
@@ -64,6 +65,42 @@ function extractHeadings(text: string): HeadingMatch[] {
   return tryHeadingPatterns(text, DEFAULT_HEADING_PATTERNS);
 }
 
+function findHeadingsInContinuousText(text: string): HeadingMatch[] {
+  const headings: HeadingMatch[] = [];
+  const re = /\b(\d+(?:\.\d+)*)\s{1,4}/g;
+  const seen = new Set<string>();
+
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(text)) !== null) {
+    const num = match[1]!;
+    if (seen.has(num)) continue;
+    seen.add(num);
+
+    const beforeCtx = text.slice(Math.max(0, match.index - 30), match.index).toLowerCase();
+    if (/\b(?:page|version)\s*$/.test(beforeCtx)) continue;
+
+    const after = text.slice(match.index + match[0].length, match.index + match[0].length + 60);
+    const titleMatch = after.match(/^([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3})/);
+    if (!titleMatch) continue;
+    let title = titleMatch[1]!.trim();
+    if (title.length < 3 || title.length > 120) continue;
+    if (/^\d/.test(title)) continue;
+    if (headings.some((h) => h.num === num)) continue;
+
+    const articleRe = /\b(?:The|A|An|This|That|These|Those|For|With|From)\b/i;
+    const words = title.split(/\s+/);
+    const filteredWords = words.filter((w) => !articleRe.test(w));
+    title = filteredWords.length > 0 ? filteredWords.join(" ") : words[0]!;
+
+    if (title.length < 2) continue;
+
+    const end = match.index + match[0].length + titleMatch[0].length;
+    headings.push({ num, title, start: match.index, end });
+  }
+
+  return headings;
+}
+
 export function extractPddSections(rawText: string): Record<string, string> {
   const cleaned = normalizeText(rawText);
   const sections: Record<string, string> = {};
@@ -98,6 +135,11 @@ export function extractPddSections(rawText: string): Record<string, string> {
       if (title.length > 120) continue;
       headings.push({ num, title, start: linePos(i), end: linePos(i + 2) });
     }
+  }
+
+  if (headings.length === 0) {
+    const continuousHeadings = findHeadingsInContinuousText(cleaned);
+    headings.push(...continuousHeadings);
   }
 
   if (headings.length === 0) return sections;

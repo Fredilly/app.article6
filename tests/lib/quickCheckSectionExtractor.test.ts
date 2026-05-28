@@ -308,6 +308,32 @@ describe("lookup normalization", () => {
   });
 });
 
+describe("continuous text (whitespace-collapsed, no line breaks)", () => {
+  it("extracts sections from continuous text that mimics heuristic PDF fallback output", () => {
+    const text = "VM0007 Version 1.1 Project Description Document Page 1 of 42 1.1 Project Background This project is a reforestation activity. Page 2 of 42 2.4 Baseline Scenario The baseline scenario is the most likely land-use scenario in the absence of the project activity. The project area consists of degraded grassland. 2.5 Additionality The project is additional because it faces significant barriers to implementation. 1.10 Leakage The leakage belt for this project is determined using the default 3 km buffer approach.";
+    const sections = extractPddSections(text);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.5"]).toBeDefined();
+    expect(sections["1.10"]).toBeDefined();
+    expect(sections["2.4"]).toContain("most likely land-use scenario");
+    expect(sections["2.5"]).toContain("barriers to implementation");
+    expect(sections["1.10"]).toContain("3 km buffer");
+  });
+
+  it("extracts all three baseline sections from continuous text via buildReviewQuestionResult", () => {
+    const text = "2.4 Baseline Scenario The baseline scenario is the most likely land-use scenario. 2.5 Additionality The project is additional. 1.10 Leakage The leakage belt is determined.";
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD support the baseline scenario under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: text,
+    });
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["1.10"]).toBeDefined();
+  });
+});
+
 describe("exact raw lines from fixture", () => {
   const text = EXACT_RAW_LINES_TEXT;
 
