@@ -467,3 +467,85 @@ describe("fixture-based regression — real extracted PDD text format", () => {
     expect(sections["1.10"]).not.toContain("v1.1");
   });
 });
+
+describe("PD_REDD_v1_130 fixture — parentheses heading format", () => {
+  const fixturePath = path.join(__dirname, "..", "fixtures", "quick-check", "pd_redd_v1_130-extracted.txt");
+  const fixtureText = fs.readFileSync(fixturePath, "utf-8");
+
+  it("extracts sections 2.4, 2.5, and 1.10 with parentheses heading format", () => {
+    const sections = extractPddSections(fixtureText);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.5"]).toBeDefined();
+    expect(sections["1.10"]).toBeDefined();
+  });
+
+  it("extracts section 2.4 (Baseline Scenario) content from PD_REDD fixture", () => {
+    const sections = extractPddSections(fixtureText);
+    const c = sections["2.4"]!;
+    expect(c).toContain("most likely land-use scenario");
+    expect(c.replace(/\n/g, " ")).toContain("deforestation rates");
+    expect(c.replace(/\n/g, " ")).toContain("1.2%");
+  });
+
+  it("extracts section 2.5 (Additionality) content from PD_REDD fixture", () => {
+    const sections = extractPddSections(fixtureText);
+    const c = sections["2.5"]!;
+    expect(c).toContain("barrier analysis");
+    expect(c.replace(/\n/g, " ")).toContain("common practice analysis");
+  });
+
+  it("extracts section 1.10 (Leakage) content from PD_REDD fixture", () => {
+    const sections = extractPddSections(fixtureText);
+    const c = sections["1.10"]!;
+    expect(c).toContain("Activity shifting");
+    expect(c.replace(/\n/g, " ")).toMatch(/\b5\s*km\s*buffer\b/);
+  });
+
+  it("routes and extracts all baseline sections from PD_REDD fixture via buildReviewQuestionResult", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD support the baseline scenario under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: fixtureText,
+    });
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["1.10"]).toBeDefined();
+    const c24 = result.sectionContent["2.4"]!;
+    const c25 = result.sectionContent["2.5"]!;
+    const c110 = result.sectionContent["1.10"]!;
+    expect(c24).toContain("satellite imagery");
+    expect(c25).toContain("barrier analysis");
+    expect(c110.replace(/\n/g, " ")).toMatch(/\b5\s*km\s*buffer\b/);
+  });
+
+  it("strips header/footer noise from PD_REDD fixture section content", () => {
+    const sections = extractPddSections(fixtureText);
+    expect(sections["2.4"]).not.toContain("Page 10 of 85");
+    expect(sections["2.5"]).not.toContain("VM0007 Version");
+    expect(sections["1.10"]).not.toContain("v4.2");
+  });
+
+  it("returns phase1Diagnostic with target lines and section previews", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD support the baseline scenario under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: fixtureText,
+      evidenceSourceLabel: "PD_REDD_v1_130.pdf",
+      evidenceDocumentType: "pdd",
+    });
+    expect(result.phase1Diagnostic).toBeDefined();
+    expect(result.phase1Diagnostic!.sourceLabel).toBe("PD_REDD_v1_130.pdf");
+    expect(result.phase1Diagnostic!.rawPddTextLength).toBeGreaterThan(100);
+    expect(result.phase1Diagnostic!.detectedSections).toContain("2.4");
+    expect(result.phase1Diagnostic!.detectedSections).toContain("2.5");
+    expect(result.phase1Diagnostic!.detectedSections).toContain("1.10");
+    expect(result.phase1Diagnostic!.targetLine_2_4).toContain("Baseline Scenario");
+    expect(result.phase1Diagnostic!.targetLine_2_5).toContain("Additionality");
+    expect(result.phase1Diagnostic!.targetLine_1_10).toContain("Leakage");
+    expect(result.phase1Diagnostic!.sectionContent_2_4_preview).toContain("most likely");
+    expect(result.phase1Diagnostic!.sectionContent_2_5_preview).toContain("barrier");
+    expect(result.phase1Diagnostic!.sectionContent_1_10_preview).toContain("leakage belt");
+  });
+});

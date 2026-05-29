@@ -1401,11 +1401,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
 
       if (detectReviewPath(effectiveClaimText) === "review_question_answering") {
+        const firstSource = selectedEvidenceSources[0];
         const questionResult = buildReviewQuestionResult({
           claimText: effectiveClaimText,
           methodologyId: resolvedMethodologyId,
           methodologyVersion: resolvedMethodologyVersion,
           rawPddText: evidenceAnalysis.rawPddText,
+          evidenceSourceLabel: firstSource?.sourceLabel,
+          evidenceDocumentType: evidenceAnalysis.documentTypes[0],
         });
         setReviewQuestionResult(questionResult);
         setRecoveryState(null);
@@ -2174,13 +2177,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <p className="mt-2 text-xs text-slate-500">
                         Open the full review to inspect these sections in the uploaded document.
                       </p>
-                      {reviewQuestionResult.diagnostic && process.env.NODE_ENV !== "production" ? (
-                        <details className="mt-3">
+                      {reviewQuestionResult.phase1Diagnostic && process.env.NODE_ENV !== "production" ? (
+                        <details className="mt-3" open>
                           <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">
                             Extraction diagnostic
                           </summary>
                           <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-[10px] leading-relaxed text-slate-600">
-                            {JSON.stringify(reviewQuestionResult.diagnostic, null, 2)}
+                            {JSON.stringify(reviewQuestionResult.phase1Diagnostic, null, 2)}
                           </pre>
                         </details>
                       ) : null}

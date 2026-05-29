@@ -1,4 +1,4 @@
-import { debugSectionExtraction, extractRoutedSections } from "@/lib/chat/quickCheckSectionExtractor";
+import { debugSectionExtraction, extractPddSections, extractRoutedSections, normalizeSectionKey } from "@/lib/chat/quickCheckSectionExtractor";
 
 export type ReviewArea =
   | "additionality"
@@ -12,6 +12,28 @@ export type ReviewArea =
 
 export type QuickCheckPath = "claim_to_requirement_match" | "review_question_answering";
 
+export type ReviewQuestionDiagnostic = {
+  sourceLabel?: string;
+  documentType?: string;
+  rawPddTextLength: number;
+  rawPddTextPreview: string;
+  rawLinesCount: number;
+  includes_2_4: string;
+  includes_2_5: string;
+  includes_1_10: string;
+  includes_baseline: string;
+  includes_additionality: string;
+  includes_leakage: string;
+  targetLine_2_4: string;
+  targetLine_2_5: string;
+  targetLine_1_10: string;
+  detectedSections: string[];
+  sectionContentKeys: string[];
+  sectionContent_2_4_preview: string;
+  sectionContent_2_5_preview: string;
+  sectionContent_1_10_preview: string;
+};
+
 export type ReviewQuestionResult = {
   path: QuickCheckPath;
   reviewArea: ReviewArea;
@@ -20,6 +42,7 @@ export type ReviewQuestionResult = {
   relevantSections: string[];
   sectionContent: Record<string, string>;
   diagnostic?: Record<string, string>;
+  phase1Diagnostic?: ReviewQuestionDiagnostic;
 };
 
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
@@ -105,6 +128,8 @@ export function buildReviewQuestionResult(input: {
   methodologyId: string;
   methodologyVersion: string;
   rawPddText?: string;
+  evidenceSourceLabel?: string;
+  evidenceDocumentType?: string;
 }): ReviewQuestionResult {
   const reviewArea = classifyReviewArea(input.claimText);
   const relevantSections = resolveReviewSections(input.methodologyId, reviewArea);
@@ -112,6 +137,15 @@ export function buildReviewQuestionResult(input: {
   if (input.rawPddText && relevantSections.length > 0) {
     Object.assign(sectionContent, extractRoutedSections(input.rawPddText, relevantSections));
   }
+
+  const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
+    ? debugSectionExtraction(input.rawPddText)
+    : undefined;
+
+  const phase1Diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
+    ? buildPhase1Diagnostic(input.rawPddText, sectionContent, input.evidenceSourceLabel, input.evidenceDocumentType)
+    : undefined;
+
   return {
     path: "review_question_answering",
     reviewArea,
@@ -119,8 +153,47 @@ export function buildReviewQuestionResult(input: {
     methodologyVersion: input.methodologyVersion,
     relevantSections,
     sectionContent,
-    ...(process.env.NODE_ENV !== "production" && input.rawPddText
-      ? { diagnostic: debugSectionExtraction(input.rawPddText) }
-      : {}),
+    diagnostic,
+    phase1Diagnostic,
+  };
+}
+
+function targetLine(rawText: string, sectionNum: string): string {
+  const lines = rawText.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i]!.includes(sectionNum)) return `L${i + 1}: ${lines[i]!.trim().slice(0, 120)}`;
+  }
+  return "not found";
+}
+
+function buildPhase1Diagnostic(
+  rawPddText: string,
+  sectionContent: Record<string, string>,
+  sourceLabel?: string,
+  documentType?: string,
+): ReviewQuestionDiagnostic {
+  const allSections = extractPddSections(rawPddText);
+  const text = rawPddText.replace(/\s+/g, " ").trim();
+
+  return {
+    sourceLabel,
+    documentType,
+    rawPddTextLength: rawPddText.length,
+    rawPddTextPreview: text.slice(0, 200),
+    rawLinesCount: rawPddText.split("\n").length,
+    includes_2_4: String(/\b2\.4\b/.test(text)),
+    includes_2_5: String(/\b2\.5\b/.test(text)),
+    includes_1_10: String(/\b1\.10\b/.test(text)),
+    includes_baseline: String(/\bbaseline\b/i.test(text)),
+    includes_additionality: String(/\badditionality\b/i.test(text)),
+    includes_leakage: String(/\bleakage\b/i.test(text)),
+    targetLine_2_4: targetLine(rawPddText, "2.4"),
+    targetLine_2_5: targetLine(rawPddText, "2.5"),
+    targetLine_1_10: targetLine(rawPddText, "1.10"),
+    detectedSections: Object.keys(allSections),
+    sectionContentKeys: Object.keys(sectionContent),
+    sectionContent_2_4_preview: (sectionContent[normalizeSectionKey("2.4")] ?? "missing").slice(0, 150),
+    sectionContent_2_5_preview: (sectionContent[normalizeSectionKey("2.5")] ?? "missing").slice(0, 150),
+    sectionContent_1_10_preview: (sectionContent[normalizeSectionKey("1.10")] ?? "missing").slice(0, 150),
   };
 }
