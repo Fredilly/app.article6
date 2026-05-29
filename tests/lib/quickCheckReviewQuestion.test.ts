@@ -1,8 +1,12 @@
 import { describe, expect, it } from "@jest/globals";
+import fs from "fs";
+import path from "path";
 import {
   buildReviewQuestionResult,
   classifyReviewArea,
   detectReviewPath,
+  extractClaimKeywords,
+  findMatchedSectionNumbers,
   resolveReviewSections,
   reviewAreaLabel,
   type ReviewArea,
@@ -331,5 +335,175 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     });
     expect(leakResult.sectionContent["1.10"]).toBeDefined();
     expect(leakResult.sectionContent["1.10"]).toContain("Monitoring of the leakage belt");
+  });
+});
+
+const PLUM_FIXTURE_PATH = path.join(__dirname, "..", "fixtures", "quick-check", "plum-pdd-regression.txt");
+const PLUM_TEXT = fs.readFileSync(PLUM_FIXTURE_PATH, "utf-8");
+
+const CUSTOM_HEADING_PDD = [
+  "2.1  Project Goals, Design and Long-Term Viability",
+  "The project goals are to restore degraded land.",
+  "The project design includes reforestation of 5,000 hectares.",
+  "",
+  "2.3  Stakeholder Engagement",
+  "Stakeholder engagement was conducted through community meetings.",
+  "",
+  "3.3.3.1  Remote Sensing",
+  "Remote sensing data from satellites is used for monitoring.",
+  "NDVI analysis is conducted quarterly.",
+  "",
+  "3.5  Biodiversity Assessment",
+  "Biodiversity is assessed annually using transect surveys.",
+  "",
+  "20.0  Financial Analysis",
+  "The financial analysis shows IRR of 12%.",
+  "",
+].join("\n");
+
+describe("extractClaimKeywords", () => {
+  it("extracts phrases and words from a stakeholder engagement question", () => {
+    const { phrases, words } = extractClaimKeywords("Does this PDD describe stakeholder engagement?");
+    expect(phrases).toEqual(["stakeholder engagement"]);
+    expect(words).toContain("stakeholder");
+    expect(words).toContain("engagement");
+  });
+
+  it("extracts phrases split by 'and' and commas", () => {
+    const { phrases, words } = extractClaimKeywords("Does this PDD describe the project goals, design, and long-term viability?");
+    expect(phrases).toContain("project goals");
+    expect(phrases).toContain("design");
+    expect(phrases).toContain("long-term viability");
+    expect(words).toContain("goals");
+    expect(words).toContain("viability");
+  });
+
+  it("extracts methodology-related keywords without stripping them", () => {
+    const { phrases, words } = extractClaimKeywords("Does this PDD explain applicability of VM0007 methodology?");
+    expect(phrases).toContain("applicability of vm0007 methodology");
+    expect(words).toContain("applicability");
+    expect(words).toContain("vm0007");
+    expect(words).toContain("methodology");
+  });
+
+  it("filters out generic stop words like 'project' and 'area'", () => {
+    const { words } = extractClaimKeywords("Does this PDD explain the project area and project zone boundary?");
+    expect(words).not.toContain("project");
+    expect(words).not.toContain("area");
+    expect(words).toContain("zone");
+    expect(words).toContain("boundary");
+  });
+
+  it("returns empty for very short text", () => {
+    const { phrases, words } = extractClaimKeywords("Hi");
+    expect(phrases).toEqual([]);
+    expect(words).toEqual([]);
+  });
+});
+
+describe("claim-text-based heading matching (acceptance tests)", () => {
+  it("matches stakeholder engagement question to section 2.3", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe stakeholder engagement?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.relevantSections).toContain("2.3");
+    expect(result.sectionContent["2.3"]).toBeDefined();
+    expect(result.sectionContent["2.3"]).toContain("Stakeholder engagement");
+  });
+
+  it("matches without-project land use scenario and additionality question to section 2.2", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD explain the without-project land use scenario and additionality?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.relevantSections).toContain("2.2");
+    expect(result.sectionContent["2.2"]).toBeDefined();
+    expect(result.sectionContent["2.2"]).toContain("without-project land use scenario");
+  });
+
+  it("matches project goals question to section 2.1 by heading title keywords", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe the project goals, design, and long-term viability?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: CUSTOM_HEADING_PDD,
+    });
+    expect(result.relevantSections).toContain("2.1");
+    expect(result.sectionContent["2.1"]).toBeDefined();
+    expect(result.sectionContent["2.1"]).toContain("restore degraded land");
+  });
+
+  it("matches applicability of VM0007 methodology question to methodology-related sections", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD explain applicability of VM0007 methodology?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.relevantSections).toContain("3.1");
+    expect(result.sectionContent["3.1"]).toBeDefined();
+    expect(result.sectionContent["3.1"]).toContain("Methodology");
+  });
+
+  it("matches remote sensing for monitoring question to monitoring-related sections", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe remote sensing for monitoring?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: CUSTOM_HEADING_PDD,
+    });
+    expect(result.relevantSections).toContain("3.3.3.1");
+    expect(result.sectionContent["3.3.3.1"]).toBeDefined();
+    expect(result.sectionContent["3.3.3.1"]).toContain("Remote sensing");
+  });
+
+  it("does not match random sections like biodiversity or financial analysis", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD explain the project area and project zone boundary?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: CUSTOM_HEADING_PDD,
+    });
+    expect(result.sectionContent["3.5"]).toBeUndefined();
+    expect(result.sectionContent["20.0"]).toBeUndefined();
+  });
+
+  it("returns relevantSections sorted by relevance (best match first)", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe remote sensing for monitoring?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: CUSTOM_HEADING_PDD,
+    });
+    const sections = result.relevantSections;
+    expect(sections.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("works even when reviewArea is 'general' with no keywords (pure claim-text matching)", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe stakeholder engagement?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(classifyReviewArea("Does this PDD describe stakeholder engagement?")).toBe("general");
+    expect(result.relevantSections.length).toBeGreaterThan(0);
+    expect(result.relevantSections).toContain("2.3");
+  });
+
+  it("returns empty when no heading matches claim keywords or review area", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe stakeholder engagement?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: "This PDD has no numbered sections at all.",
+    });
+    expect(result.relevantSections).toEqual([]);
+    expect(result.sectionContent).toEqual({});
   });
 });

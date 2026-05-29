@@ -109,24 +109,101 @@ export function classifyReviewArea(claimText: string): ReviewArea {
   return "general";
 }
 
+const CLAIM_PREFIX_RE = /^(?:does this PDD\s+)?(?:explain|describe|review|check|evaluate|assess|identify|discuss|justify|mention|outline|summarize|present|provide|include|support|demonstrate|define|show|disclose)\s+/i;
+
+const LEADING_ARTICLE_RE = /^(?:the|a|an)\s+/i;
+
+const CLAIM_STOP_WORDS = new Set([
+  'the', 'this', 'that', 'these', 'those', 'with', 'from', 'what', 'how',
+  'why', 'when', 'where', 'which', 'were', 'been', 'being', 'have', 'has',
+  'had', 'does', 'will', 'would', 'could', 'should', 'shall', 'may', 'might',
+  'must', 'can', 'also', 'very', 'just', 'then', 'than', 'into', 'over',
+  'about', 'after', 'before', 'under', 'above', 'below', 'between', 'through',
+  'during', 'without', 'within', 'along', 'pdd',
+  'project', 'area', 'section', 'plan', 'analysis', 'assessment', 'report', 'data', 'using',
+  'describe', 'explain', 'identify', 'justify', 'review', 'check', 'assess',
+  'evaluate', 'discuss', 'mention', 'outline', 'summarize', 'present', 'provide',
+  'include', 'support', 'demonstrate', 'define', 'show', 'disclose',
+]);
+
+const MIN_SCORE_THRESHOLD = 3;
+
+export function extractClaimKeywords(claimText: string): { phrases: string[]; words: string[] } {
+  const cleaned = claimText
+    .replace(CLAIM_PREFIX_RE, '')
+    .replace(/\?/g, '')
+    .replace(LEADING_ARTICLE_RE, '')
+    .trim();
+
+  if (!cleaned || cleaned.length < 3) return { phrases: [], words: [] };
+
+  const lower = cleaned.toLowerCase();
+
+  const phrases = lower
+    .split(/\band\b|,\s*/)
+    .map(p => p.trim())
+    .filter(p => p.length > 3);
+
+  const words = lower
+    .split(/[\s,]+/)
+    .map(w => w.replace(/^[^a-z0-9-]+|[^a-z0-9-]+$/g, ''))
+    .filter(w => w.length >= 4 && !CLAIM_STOP_WORDS.has(w));
+
+  return { phrases: [...new Set(phrases)], words: [...new Set(words)] };
+}
+
+function scoreSection(
+  title: string,
+  body: string,
+  reviewKeywords: string[],
+  claimKeywords: { phrases: string[]; words: string[] },
+): number {
+  const lowerTitle = title.toLowerCase();
+  const lowerBody = body.toLowerCase();
+  let score = 0;
+
+  for (const kw of reviewKeywords) {
+    if (lowerTitle.includes(kw)) score += 10;
+    else if (lowerBody.includes(kw)) score += 3;
+  }
+
+  for (const phrase of claimKeywords.phrases) {
+    if (lowerTitle.includes(phrase)) score += 8;
+    else if (lowerBody.includes(phrase)) score += 2;
+  }
+
+  for (const word of claimKeywords.words) {
+    if (lowerTitle.includes(word)) score += 4;
+    else if (lowerBody.includes(word)) score += 1;
+  }
+
+  return score;
+}
+
 export function findMatchedSectionNumbers(
   rawPddText: string,
   reviewArea: ReviewArea,
+  claimText?: string,
 ): string[] {
   const allSections = extractPddSections(rawPddText);
-  const keywords = REVIEW_AREA_KEYWORDS[reviewArea] ?? [];
+  const reviewKeywords = REVIEW_AREA_KEYWORDS[reviewArea] ?? [];
+  const claimKeywords = claimText ? extractClaimKeywords(claimText) : { phrases: [], words: [] };
 
-  if (keywords.length === 0) return [];
+  if (reviewKeywords.length === 0 && claimKeywords.phrases.length === 0 && claimKeywords.words.length === 0) {
+    return [];
+  }
 
-  const matched: string[] = [];
+  const scored: { num: string; score: number }[] = [];
+
   for (const [num, content] of Object.entries(allSections)) {
     const title = content.split("\n").find((l) => l.trim().length > 0) ?? "";
-    const lowerTitle = title.toLowerCase();
-    if (keywords.some((kw) => lowerTitle.includes(kw.toLowerCase()))) {
-      matched.push(num);
+    const score = scoreSection(title, content, reviewKeywords, claimKeywords);
+    if (score >= MIN_SCORE_THRESHOLD) {
+      scored.push({ num, score });
     }
   }
-  return matched;
+
+  return scored.sort((a, b) => b.score - a.score).map(s => s.num);
 }
 
 export function resolveReviewSections(
@@ -152,7 +229,7 @@ export function buildReviewQuestionResult(input: {
 }): ReviewQuestionResult {
   const reviewArea = classifyReviewArea(input.claimText);
   const relevantSections = input.rawPddText
-    ? findMatchedSectionNumbers(input.rawPddText, reviewArea)
+    ? findMatchedSectionNumbers(input.rawPddText, reviewArea, input.claimText)
     : resolveReviewSections(input.methodologyId, reviewArea);
   const sectionContent: Record<string, string> = {};
   if (input.rawPddText && relevantSections.length > 0) {
