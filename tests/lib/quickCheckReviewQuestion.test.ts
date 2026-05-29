@@ -4,12 +4,14 @@ import path from "path";
 import {
   buildReviewQuestionResult,
   classifyReviewArea,
+  computeSectionMatchResults,
   detectReviewPath,
   extractClaimKeywords,
   findMatchedSectionNumbers,
   resolveReviewSections,
   reviewAreaLabel,
   type ReviewArea,
+  type SectionMatchResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
 
 const VM0007_BASELINE_PDD_TEXT = [
@@ -505,5 +507,105 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     });
     expect(result.relevantSections).toEqual([]);
     expect(result.sectionContent).toEqual({});
+  });
+
+  it("does not include section 1.1 (Project Background) when asking about project goals and design", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe the project goals, design, and long-term viability?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: CUSTOM_HEADING_PDD,
+    });
+    expect(result.relevantSections).not.toContain("1.1");
+    expect(result.relevantSections).toContain("2.1");
+  });
+
+  it("caps primary sections to top 3", () => {
+    const manySections = [
+      "1.1  Introduction",
+      "Intro content.",
+      "2.1  Additionality and Baseline",
+      "Additionality and baseline content.",
+      "2.2  Baseline Scenario and Additionality",
+      "More baseline content.",
+      "2.3  Additionality Analysis",
+      "Additionality analysis.",
+      "2.4  Another Additionality Section",
+      "More additionality.",
+      "2.5  Additionality Evidence",
+      "Evidence for additionality.",
+    ].join("\n");
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD demonstrate additionality?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: manySections,
+    });
+    expect(result.relevantSections.length).toBeLessThanOrEqual(3);
+  });
+});
+
+describe("computeSectionMatchResults — match diagnostics", () => {
+  const PDD = [
+    "2.1  Project Area",
+    "The project area comprises 5,000 hectares.",
+    "",
+    "2.2  Baseline Scenario",
+    "The baseline scenario is the most likely land-use scenario.",
+    "",
+  ].join("\n");
+
+  it("reports heading matches with correct scores", () => {
+    const results = computeSectionMatchResults(PDD, "baseline", "Does this PDD contain the baseline scenario?");
+    const match2_2 = results.find(r => r.section === "2.2")!;
+    expect(match2_2).toBeDefined();
+    expect(match2_2.headingScore).toBeGreaterThan(0);
+    expect(match2_2.matchedTerms.length).toBeGreaterThan(0);
+    expect(match2_2.included).toBe(true);
+  });
+
+  it("reports non-matching sections with rejection reasons", () => {
+    const results = computeSectionMatchResults(PDD, "baseline", "Does this PDD contain the baseline scenario?");
+    const match2_1 = results.find(r => r.section === "2.1")!;
+    expect(match2_1).toBeDefined();
+    expect(match2_1.totalScore).toBe(0);
+    expect(match2_1.rejectionReason).toContain("below absolute threshold");
+    expect(match2_1.included).toBe(false);
+  });
+
+  it("reports source (heading, body, or both)", () => {
+    const results = computeSectionMatchResults(PDD, "baseline", "Does this PDD contain the baseline scenario?");
+    const match2_2 = results.find(r => r.section === "2.2")!;
+    expect(["heading", "both"]).toContain(match2_2.source);
+    const match2_1 = results.find(r => r.section === "2.1")!;
+    expect(match2_1.source).toBe("none");
+  });
+
+  it("rejects unreasonable section IDs (standalone integer without decimal)", () => {
+    const pddWithBadIds = [
+      "20. Some section without sub-number",
+      "Content for section 20.",
+    ].join("\n");
+    const results = computeSectionMatchResults(pddWithBadIds, "general", "Does this PDD describe something?");
+    const badMatch = results.find(r => r.section === "20");
+    expect(badMatch).toBeDefined();
+    expect(badMatch!.rejectionReason).toContain("unreasonable section");
+    expect(badMatch!.included).toBe(false);
+  });
+
+  it("populates phase1Diagnostic.matchResults in dev mode", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD contain the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PDD,
+    });
+    expect(result.phase1Diagnostic).toBeDefined();
+    if (result.phase1Diagnostic) {
+      expect(result.phase1Diagnostic.matchResults).toBeDefined();
+      expect(result.phase1Diagnostic.matchResults.length).toBeGreaterThan(0);
+      expect(result.phase1Diagnostic.claimKeywords).toBeDefined();
+      expect(result.phase1Diagnostic.claimKeywords.phrases.length).toBeGreaterThan(0);
+    }
   });
 });
