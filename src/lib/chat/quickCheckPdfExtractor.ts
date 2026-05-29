@@ -84,10 +84,6 @@ export class PdfHelperError extends Error {
   }
 }
 
-function normalizeWhitespace(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
-
 function normalizePageWhitespace(value: string): string {
   return String(value || "")
     .replace(/\r\n?/g, "\n")
@@ -199,7 +195,7 @@ function buildPageExtractionResult(
   };
 
   return {
-    text: normalizeWhitespace(combinedText),
+    text: normalizePageWhitespace(combinedText),
     pages,
     engine: "pdf-parse",
     metadata: {
@@ -241,7 +237,7 @@ async function runPdfHelper(bytes: ArrayBuffer, includePages: boolean): Promise<
 
 async function extractPdfTextViaHelper(bytes: ArrayBuffer): Promise<string> {
   const payload = await runPdfHelper(bytes, false);
-  return normalizeWhitespace(payload.text ?? "");
+  return normalizePageWhitespace(payload.text ?? "");
 }
 
 async function loadBundledPdfParseClass(): Promise<PdfParseLike> {
@@ -298,7 +294,7 @@ export async function extractPdfTextWithPdfParse(input: {
   } catch (error) {
     const parserError = sanitizeDiagnosticMessage(toErrorMessage(error));
     const helperText = input.helperOverrides?.extractTextViaHelper
-      ? normalizeWhitespace((await input.helperOverrides.extractTextViaHelper(input.bytes)).text ?? "")
+      ? normalizePageWhitespace((await input.helperOverrides.extractTextViaHelper(input.bytes)).text ?? "")
       : await extractPdfTextViaHelper(input.bytes);
     return {
       text: helperText,

@@ -721,3 +721,55 @@ describe("PD_REDD_v1_130 fixture — parentheses heading format", () => {
     expect(result.phase1Diagnostic!.sectionContent_1_10_preview).toContain("leakage belt");
   });
 });
+
+describe("pipeline-normalized text (preserves newlines like normalizePageWhitespace)", () => {
+  const PIPELINE_TEXT = [
+    "Table of Contents",
+    "",
+    "1.1  Project Background .................................................. 5",
+    "1.9  Project Boundary ................................................... 8",
+    "2.3  Carbon Pools ...................................................... 12",
+    "2.4  Baseline Scenario ................................................. 14",
+    "2.5  Additionality ..................................................... 16",
+    "2.6  Deviations ........................................................ 18",
+    "1.10  Leakage .......................................................... 20",
+    "3.3  Monitoring ........................................................ 22",
+    "",
+    "--- Document Body ---",
+    "",
+    "1.1  Project Background",
+    "This project is a reforestation activity in the central highlands.",
+    "",
+    "1.9  Project Boundary",
+    "The project area is located in the central region of the country.",
+    "",
+    "2.4  Baseline Scenario",
+    "The baseline scenario is the most likely land-use scenario in the",
+    "absence of the project activity. Carbon stocks would continue to decline.",
+    "",
+    "2.5  Additionality",
+    "The project is additional because it faces significant barriers",
+    "to implementation. A barrier analysis is provided below.",
+    "",
+    "1.10  Leakage",
+    "The leakage belt for this project is determined using the default",
+    "3 km buffer approach as specified in VM0007.",
+  ].join("\n");
+
+  it("extracts body content, not TOC entries, from pipeline-normalized text", () => {
+    const sections = extractPddSections(PIPELINE_TEXT);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("most likely land-use scenario");
+    expect(sections["2.4"]).not.toMatch(/\.{3,}/);
+    expect(sections["2.5"]).toContain("barrier analysis");
+    expect(sections["2.5"]).not.toMatch(/\.{3,}/);
+    expect(sections["1.10"]).toContain("leakage belt");
+    expect(sections["1.10"]).toContain("3 km buffer");
+  });
+
+  it("rejects TOC entries and selects only body sections", () => {
+    const sections = extractPddSections(PIPELINE_TEXT);
+    const hasDottedLeaders = Object.values(sections).some((v) => /\.{4,}/.test(v));
+    expect(hasDottedLeaders).toBe(false);
+  });
+});
