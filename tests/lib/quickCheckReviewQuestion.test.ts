@@ -467,6 +467,18 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.sectionContent["3.3.3.1"]!.toLowerCase()).toContain("remote sensing");
   });
 
+  it("matches legal status and property rights question to section 2.5", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe legal status and property rights?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.relevantSections).toContain("2.5");
+    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toContain("land tenure");
+  });
+
   it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD explain the project area and project zone boundary?",

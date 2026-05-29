@@ -11,9 +11,10 @@ Table of Contents
 2.1  Project Area .............................................................. 6
 2.2  Without-project Land Use Scenario and Additionality ........................ 7
 2.3  Stakeholder Engagement .................................................... 8
-3.1  Application of Methodology ................................................ 9
-3.3  Monitoring ................................................................ 10
-3.3.3  Monitoring Plan ........................................................ 12
+2.5  Legal Status and Property Rights .......................................... 9
+3.1  Application of Methodology ................................................ 10
+3.3  Monitoring ................................................................ 11
+3.3.3  Monitoring Plan ........................................................ 13
 
 --- Document Body ---
 
@@ -41,6 +42,10 @@ that carbon finance is essential to overcome the investment barrier.
 2.3  Stakeholder Engagement
 Stakeholder engagement was conducted through community meetings.
 Local communities were consulted about the project design.
+
+2.5  Legal Status and Property Rights
+The project area has clear land tenure and carbon rights.
+Property rights are held by the local community association.
 
 3.1  Application of Methodology
 The methodology VM0007 is applied to quantify emission reductions.
