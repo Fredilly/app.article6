@@ -37,7 +37,7 @@ type HeadingMatch = {
 };
 
 function tryHeadingPatterns(text: string, patterns: RegExp[]): HeadingMatch[] {
-  const headings: HeadingMatch[] = [];
+  const allCandidates: HeadingMatch[] = [];
   for (const re of patterns) {
     re.lastIndex = 0;
     let match: RegExpExecArray | null;
@@ -46,13 +46,17 @@ function tryHeadingPatterns(text: string, patterns: RegExp[]): HeadingMatch[] {
       const title = match[2]!.trim();
       if (!title) continue;
       if (/^\d/.test(title)) continue;
+      if (/^[a-z]/.test(title)) continue;
       if (title.length > 120) continue;
-      if (headings.some((h) => h.num === num)) continue;
-      headings.push({ num, title, start: match.index, end: match.index + match[0].length });
+      allCandidates.push({ num, title, start: match.index, end: match.index + match[0].length });
     }
     re.lastIndex = 0;
   }
-  return headings;
+  return allCandidates;
+}
+
+function isTocTitle(title: string): boolean {
+  return /\.{4,}\s*\d+\s*$/.test(title) || /\bpage\s+\d+\s*$/i.test(title);
 }
 
 const DEFAULT_HEADING_PATTERNS = [
@@ -62,7 +66,46 @@ const DEFAULT_HEADING_PATTERNS = [
 ];
 
 function extractHeadings(text: string): HeadingMatch[] {
-  return tryHeadingPatterns(text, DEFAULT_HEADING_PATTERNS);
+  const allCandidates = tryHeadingPatterns(text, DEFAULT_HEADING_PATTERNS);
+
+  const tocCandidates: HeadingMatch[] = [];
+  const bodyCandidates: HeadingMatch[] = [];
+
+  for (const h of allCandidates) {
+    if (isTocTitle(h.title)) {
+      tocCandidates.push(h);
+    } else {
+      bodyCandidates.push(h);
+    }
+  }
+
+  const tocByNum = new Map<string, HeadingMatch>();
+  for (const h of tocCandidates) {
+    if (!tocByNum.has(h.num)) tocByNum.set(h.num, h);
+  }
+
+  const bodyByNum = new Map<string, HeadingMatch>();
+  for (const h of bodyCandidates) {
+    if (!bodyByNum.has(h.num)) bodyByNum.set(h.num, h);
+  }
+
+  const chosen: HeadingMatch[] = [];
+  const seen = new Set<string>();
+
+  for (const h of bodyCandidates) {
+    if (seen.has(h.num)) continue;
+    seen.add(h.num);
+    chosen.push(h);
+  }
+
+  for (const h of tocCandidates) {
+    if (seen.has(h.num)) continue;
+    seen.add(h.num);
+    chosen.push(h);
+  }
+
+  chosen.sort((a, b) => a.start - b.start);
+  return chosen;
 }
 
 function findHeadingsInContinuousText(text: string): HeadingMatch[] {
@@ -141,6 +184,19 @@ export function extractPddSections(rawText: string): Record<string, string> {
     const continuousHeadings = findHeadingsInContinuousText(cleaned);
     headings.push(...continuousHeadings);
   }
+
+  if (headings.length === 0) return sections;
+
+  const finalHeadings: HeadingMatch[] = [];
+  const seenFinal = new Set<string>();
+  for (const h of headings) {
+    if (isTocTitle(h.title)) continue;
+    if (seenFinal.has(h.num)) continue;
+    seenFinal.add(h.num);
+    finalHeadings.push(h);
+  }
+  headings.length = 0;
+  headings.push(...finalHeadings);
 
   if (headings.length === 0) return sections;
 

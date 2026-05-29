@@ -417,6 +417,95 @@ describe("extractRoutedSections", () => {
   });
 });
 
+const TOC_THEN_BODY_TEXT = [
+  "Table of Contents",
+  "",
+  "1.1  Project Background .................................................. 5",
+  "1.9  Project Boundary ................................................... 8",
+  "2.3  Carbon Pools ...................................................... 12",
+  "2.4  Baseline Scenario ................................................. 14",
+  "2.5  Additionality ..................................................... 16",
+  "2.6  Deviations ........................................................ 18",
+  "1.10  Leakage .......................................................... 20",
+  "3.3  Monitoring ........................................................ 22",
+  "",
+  "--- Document Body ---",
+  "",
+  "1.1  Project Background",
+  "This project is a reforestation activity in the central highlands.",
+  "",
+  "1.9  Project Boundary",
+  "The project area is located in the central region of the country.",
+  "",
+  "2.3  Carbon Pools",
+  "Above-ground biomass, below-ground biomass, dead wood, litter.",
+  "",
+  "2.4  Baseline Scenario",
+  "The baseline scenario is the most likely land-use scenario in the",
+  "absence of the project activity. Carbon stocks would continue to decline.",
+  "",
+  "2.5  Additionality",
+  "The project is additional because it faces significant barriers",
+  "to implementation. A barrier analysis is provided below.",
+  "",
+  "2.6  Deviations",
+  "No deviations from the methodology are proposed.",
+  "",
+  "1.10  Leakage",
+  "The leakage belt for this project is determined using the default",
+  "3 km buffer approach as specified in VM0007.",
+  "",
+  "3.3  Monitoring",
+  "Monitoring will be conducted annually using permanent sample plots.",
+].join("\n");
+
+describe("TOC vs body content", () => {
+  it("extracts section 2.4 body content, not the TOC dotted-leader line", () => {
+    const sections = extractPddSections(TOC_THEN_BODY_TEXT);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).not.toMatch(/\.{3,}/);
+    expect(sections["2.4"]).not.toMatch(/\d+\s*$/);
+    expect(sections["2.4"]).toContain("most likely land-use scenario");
+  });
+
+  it("extracts section 2.5 body content, not the TOC dotted-leader line", () => {
+    const sections = extractPddSections(TOC_THEN_BODY_TEXT);
+    const c = sections["2.5"]!;
+    expect(c).toBeDefined();
+    expect(c).not.toMatch(/\.{3,}/);
+    expect(c.replace(/\n/g, " ")).toMatch(/barriers?\s+to\s+implementation/);
+  });
+
+  it("extracts section 1.10 body content, not the TOC dotted-leader line", () => {
+    const sections = extractPddSections(TOC_THEN_BODY_TEXT);
+    const c = sections["1.10"]!;
+    expect(c).toBeDefined();
+    expect(c).not.toMatch(/\.{3,}/);
+    expect(c).toContain("leakage belt");
+    expect(c.replace(/\s+/g, " ")).toMatch(/\b3\s*km\s*buffer\b/);
+    expect(c.length).toBeGreaterThan(50);
+  });
+
+  it("extracts body sections via buildReviewQuestionResult, not TOC lines", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD support the baseline scenario under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: TOC_THEN_BODY_TEXT,
+    });
+    const c24 = result.sectionContent["2.4"];
+    const c25 = result.sectionContent["2.5"];
+    const c110 = result.sectionContent["1.10"];
+    expect(c24).toBeDefined();
+    expect(c25).toBeDefined();
+    expect(c110).toBeDefined();
+    expect(c24).toContain("most likely land-use scenario");
+    expect(c25.replace(/\n/g, " ")).toMatch(/barrier\s+analysis/);
+    expect(c110.replace(/\s+/g, " ")).toMatch(/\b3\s*km\s*buffer\b/);
+    expect(c24).not.toMatch(/\.{3,}/);
+  });
+});
+
 describe("fixture-based regression — real extracted PDD text format", () => {
   const fixturePath = path.join(__dirname, "..", "fixtures", "quick-check", "vm0007-pdd-extracted.txt");
   const fixtureText = fs.readFileSync(fixturePath, "utf-8");
