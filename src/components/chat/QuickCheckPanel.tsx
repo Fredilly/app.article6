@@ -2145,89 +2145,97 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                     ) : null}
                   </div>
-                  {reviewQuestionResult.relevantSections.length > 0 ? (
+                  {reviewQuestionResult.relevantSections.length > 0 || reviewQuestionResult.phase1Diagnostic ? (
                     <div className="mt-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Relevant PDD sections</div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {reviewQuestionResult.relevantSections.map((section) => (
-                          <span key={section} className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sm font-medium text-sky-900">
-                            Section {section}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="mt-3 grid gap-3">
-                        {reviewQuestionResult.relevantSections.map((section) => {
-                          const content = reviewQuestionResult.sectionContent[section];
-                          return (
-                            <div key={section} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-                              <div className="text-xs font-semibold text-slate-500">Section {section}</div>
-                              {content ? (
-                                <div className="mt-1.5 max-h-32 overflow-y-auto text-sm leading-relaxed text-slate-700">
-                                  {content}
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Matched document sections</div>
+                      {reviewQuestionResult.relevantSections.length > 0 ? (
+                        <>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {reviewQuestionResult.relevantSections.map((section) => (
+                              <span key={section} className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sm font-medium text-sky-900">
+                                Section {section}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="mt-3 grid gap-3">
+                            {reviewQuestionResult.relevantSections.map((section) => {
+                              const content = reviewQuestionResult.sectionContent[section];
+                              return (
+                                <div key={section} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                                  <div className="text-xs font-semibold text-slate-500">Section {section}</div>
+                                  {content ? (
+                                    <div className="mt-1.5 max-h-32 overflow-y-auto text-sm leading-relaxed text-slate-700">
+                                      {content}
+                                    </div>
+                                  ) : (
+                                    <div className="mt-1.5 text-sm text-amber-700">
+                                      No matching document section found
+                                    </div>
+                                  )}
                                 </div>
-                              ) : (
-                                <div className="mt-1.5 text-sm text-amber-700">
-                                  Section not found in uploaded document.
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="mt-2 text-sm text-amber-700">
+                          No matching document section found for this review area in the uploaded document.
+                        </div>
+                      )}
                       <p className="mt-2 text-xs text-slate-500">
                         Open the full review to inspect these sections in the uploaded document.
                       </p>
-                      {reviewQuestionResult.phase1Diagnostic && process.env.NODE_ENV !== "production" ? (
-                        <details className="mt-3" open>
-                          <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">
-                            Extraction diagnostic
-                          </summary>
-                          {reviewQuestionResult.phase1Diagnostic.sectionCandidates ? (
-                            <div className="mt-2 space-y-2">
-                              {Object.entries(reviewQuestionResult.phase1Diagnostic.sectionCandidates).map(([num, info]) => (
-                                <details key={num} className="rounded-lg border border-slate-200 bg-white text-[10px]">
-                                  <summary className="cursor-pointer px-3 py-2 font-medium text-slate-700 hover:bg-slate-50">
-                                    Section {num} — {info.selectedCandidate.includes("all") ? "⚠" : "✓"} {info.selectedCandidate.slice(0, 80)}
-                                  </summary>
-                                  <div className="border-t border-slate-100 px-3 py-2 text-slate-600">
-                                    <div className="mb-1">
-                                      <span className="font-semibold text-slate-500">Reason: </span>
-                                      {info.selectedReason}
-                                    </div>
-                                    {info.allCandidateLines.length > 0 && (
-                                      <div className="mb-1">
-                                        <span className="font-semibold text-slate-500">Candidates ({info.allCandidateLines.length}):</span>
-                                        <ul className="ml-2 list-disc list-inside">
-                                          {info.allCandidateLines.map((line, idx) => (
-                                            <li key={idx} className="truncate font-mono">{line}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                    {info.rejectedCandidates.length > 0 && (
-                                      <div className="mb-1">
-                                        <span className="font-semibold text-slate-500">Rejected:</span>
-                                        <ul className="ml-2 list-disc list-inside">
-                                          {info.rejectedCandidates.map((reason, idx) => (
-                                            <li key={idx} className="truncate font-mono text-rose-600">{reason}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                    <div>
-                                      <span className="font-semibold text-slate-500">Body preview: </span>
-                                      <span className="font-mono">{info.sectionBodyPreview}</span>
-                                    </div>
+                    {reviewQuestionResult.phase1Diagnostic && process.env.NODE_ENV !== "production" ? (
+                      <details className="mt-3" open>
+                        <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">
+                          Extraction diagnostic
+                        </summary>
+                        {reviewQuestionResult.phase1Diagnostic.sectionCandidates ? (
+                          <div className="mt-2 space-y-2">
+                            {Object.entries(reviewQuestionResult.phase1Diagnostic.sectionCandidates).map(([num, info]) => (
+                              <details key={num} className="rounded-lg border border-slate-200 bg-white text-[10px]">
+                                <summary className="cursor-pointer px-3 py-2 font-medium text-slate-700 hover:bg-slate-50">
+                                  Section {num} — {info.selectedCandidate.includes("all") ? "⚠" : "✓"} {info.selectedCandidate.slice(0, 80)}
+                                </summary>
+                                <div className="border-t border-slate-100 px-3 py-2 text-slate-600">
+                                  <div className="mb-1">
+                                    <span className="font-semibold text-slate-500">Reason: </span>
+                                    {info.selectedReason}
                                   </div>
-                                </details>
-                              ))}
-                            </div>
-                          ) : null}
-                          <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-[10px] leading-relaxed text-slate-600">
-                            {JSON.stringify(reviewQuestionResult.phase1Diagnostic, null, 2)}
-                          </pre>
-                        </details>
-                      ) : null}
+                                  {info.allCandidateLines.length > 0 && (
+                                    <div className="mb-1">
+                                      <span className="font-semibold text-slate-500">Candidates ({info.allCandidateLines.length}):</span>
+                                      <ul className="ml-2 list-disc list-inside">
+                                        {info.allCandidateLines.map((line, idx) => (
+                                          <li key={idx} className="truncate font-mono">{line}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {info.rejectedCandidates.length > 0 && (
+                                    <div className="mb-1">
+                                      <span className="font-semibold text-slate-500">Rejected:</span>
+                                      <ul className="ml-2 list-disc list-inside">
+                                        {info.rejectedCandidates.map((reason, idx) => (
+                                          <li key={idx} className="truncate font-mono text-rose-600">{reason}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <span className="font-semibold text-slate-500">Body preview: </span>
+                                    <span className="font-mono">{info.sectionBodyPreview}</span>
+                                  </div>
+                                </div>
+                              </details>
+                            ))}
+                          </div>
+                        ) : null}
+                        <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-[10px] leading-relaxed text-slate-600">
+                          {JSON.stringify(reviewQuestionResult.phase1Diagnostic, null, 2)}
+                        </pre>
+                      </details>
+                    ) : null}
                     </div>
                   ) : (
                     <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">

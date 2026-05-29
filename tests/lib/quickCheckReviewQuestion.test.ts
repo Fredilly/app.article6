@@ -172,36 +172,15 @@ describe("classifyReviewArea — deviations", () => {
   });
 });
 
-describe("resolveReviewSections — VM0007", () => {
-  it("maps additionality to sections 2.5, 2.4, 1.10", () => {
-    expect(resolveReviewSections("VM0007", "additionality")).toEqual(["2.5", "2.4", "1.10"]);
-  });
-
-  it("maps baseline to sections 2.4, 2.5, 1.10", () => {
-    expect(resolveReviewSections("VM0007", "baseline")).toEqual(["2.4", "2.5", "1.10"]);
-  });
-
-  it("maps boundary to sections 2.3, 1.9", () => {
-    expect(resolveReviewSections("VM0007", "boundary")).toEqual(["2.3", "1.9"]);
-  });
-
-  it("maps deviations to section 2.6", () => {
-    expect(resolveReviewSections("VM0007", "deviations")).toEqual(["2.6"]);
-  });
-
-  it("maps leakage to sections 1.13, 3.3", () => {
-    expect(resolveReviewSections("VM0007", "leakage")).toEqual(["1.13", "3.3"]);
-  });
-
-  it("maps monitoring to section 4", () => {
-    expect(resolveReviewSections("VM0007", "monitoring")).toEqual(["4"]);
-  });
-
-  it("maps right_of_use to sections 1.11, 1.12.1", () => {
-    expect(resolveReviewSections("VM0007", "right_of_use")).toEqual(["1.11", "1.12.1"]);
-  });
-
-  it("returns empty array for non-VM0007 methodology", () => {
+describe("resolveReviewSections — static routing (deprecated, returns empty)", () => {
+  it("returns empty array for any methodology", () => {
+    expect(resolveReviewSections("VM0007", "additionality")).toEqual([]);
+    expect(resolveReviewSections("VM0007", "baseline")).toEqual([]);
+    expect(resolveReviewSections("VM0007", "boundary")).toEqual([]);
+    expect(resolveReviewSections("VM0007", "deviations")).toEqual([]);
+    expect(resolveReviewSections("VM0007", "leakage")).toEqual([]);
+    expect(resolveReviewSections("VM0007", "monitoring")).toEqual([]);
+    expect(resolveReviewSections("VM0007", "right_of_use")).toEqual([]);
     expect(resolveReviewSections("AR-ACM0003", "baseline")).toEqual([]);
   });
 });
@@ -219,7 +198,7 @@ describe("reviewAreaLabel", () => {
 });
 
 describe("buildReviewQuestionResult — section content extraction (Phase 1)", () => {
-  it("populates sectionContent for VM0007 baseline sections when PDD text is provided", () => {
+  it("populates sectionContent for baseline heading when PDD text is provided", () => {
     const result = buildReviewQuestionResult({
       claimText: "Is the baseline scenario appropriate?",
       methodologyId: "VM0007",
@@ -228,6 +207,15 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     });
     expect(result.sectionContent["2.4"]).toBeDefined();
     expect(result.sectionContent["2.4"]).toContain("degraded grassland");
+  });
+
+  it("populates sectionContent for additionality heading", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is additionality demonstrated?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: VM0007_BASELINE_PDD_TEXT,
+    });
     expect(result.sectionContent["2.5"]).toBeDefined();
     expect(result.sectionContent["2.5"]).toContain("barriers to implementation");
   });
@@ -241,17 +229,18 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     expect(result.sectionContent).toEqual({});
   });
 
-  it("returns empty sectionContent for non-VM0007 methodology even with PDD text", () => {
+  it("does not use methodology to restrict section extraction — any methodology works", () => {
     const result = buildReviewQuestionResult({
       claimText: "Is the baseline scenario appropriate?",
       methodologyId: "AR-ACM0003",
       methodologyVersion: "1.0",
       rawPddText: VM0007_BASELINE_PDD_TEXT,
     });
-    expect(result.sectionContent).toEqual({});
+    expect(result.sectionContent["2.4"]).toBeDefined();
+    expect(result.sectionContent["2.4"]).toContain("degraded grassland");
   });
 
-  it("leaves sectionContent empty for sections that cannot be extracted", () => {
+  it("leaves sectionContent empty when no headings can be extracted", () => {
     const textWithoutRelevantSections = "This PDD text has no section headings at all.";
     const result = buildReviewQuestionResult({
       claimText: "Is the baseline scenario appropriate?",
@@ -259,15 +248,13 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
       methodologyVersion: "1.0",
       rawPddText: textWithoutRelevantSections,
     });
-    expect(result.relevantSections).toContain("2.4");
-    expect(result.relevantSections).toContain("1.10");
-    expect(result.sectionContent["2.4"]).toBeUndefined();
-    expect(result.sectionContent["1.10"]).toBeUndefined();
+    expect(result.relevantSections).toEqual([]);
+    expect(result.sectionContent).toEqual({});
   });
 
-  it("extracts section 1.10 content even when it is not in the baseline route priority", () => {
+  it("extracts section 1.10 content for leakage review area", () => {
     const result = buildReviewQuestionResult({
-      claimText: "Is the baseline scenario appropriate?",
+      claimText: "Does this PDD disclose leakage risk?",
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
       rawPddText: VM0007_BASELINE_PDD_TEXT,
@@ -289,7 +276,7 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     expect(result.sectionContent).toEqual({});
   });
 
-  it("extracts sections from realistic PDD text with header/footer noise", () => {
+  it("extracts baseline section from realistic PDD text with header/footer noise", () => {
     const result = buildReviewQuestionResult({
       claimText: "Is the baseline scenario appropriate?",
       methodologyId: "VM0007",
@@ -299,8 +286,6 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     expect(result.sectionContent["2.4"]).toBeDefined();
     expect(result.sectionContent["2.4"]).toContain("overgrazing");
     expect(result.sectionContent["2.4"]).not.toContain("VM0007 Version");
-    expect(result.sectionContent["2.5"]).toBeDefined();
-    expect(result.sectionContent["2.5"]).toContain("barrier analysis");
   });
 
   it("extracts sections from PDD text with page break characters", () => {
@@ -313,20 +298,38 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     expect(result.sectionContent["2.4"]).toBeDefined();
     expect(result.sectionContent["2.4"]).toContain("land-use scenario");
     expect(result.sectionContent["2.4"]).toContain("Carbon stocks");
-    expect(result.sectionContent["1.10"]).toBeDefined();
-    expect(result.sectionContent["1.10"]).toContain("Monitoring of the leakage belt");
   });
 
-  it("extracts all three baseline sections from real-world PDD noise", () => {
+  it("matches sections by heading title not by static route", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
       rawPddText: REALISTIC_PDD_TEXT,
     });
-    expect(result.relevantSections).toEqual(["2.4", "2.5", "1.10"]);
+    expect(result.relevantSections).toEqual(["2.4"]);
     expect(result.sectionContent["2.4"]).toBeDefined();
-    expect(result.sectionContent["2.5"]).toBeDefined();
+    expect(result.sectionContent["2.5"]).toBeUndefined();
     expect(result.sectionContent["1.9"]).toBeUndefined();
+  });
+
+  it("extracts additionality, leakage sections using their own claim texts", () => {
+    const addResult = buildReviewQuestionResult({
+      claimText: "Is additionality demonstrated?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REALISTIC_PDD_TEXT,
+    });
+    expect(addResult.sectionContent["2.5"]).toBeDefined();
+    expect(addResult.sectionContent["2.5"]).toContain("barrier analysis");
+
+    const leakResult = buildReviewQuestionResult({
+      claimText: "Does this PDD disclose leakage risk?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PDD_WITH_PAGE_BREAKS,
+    });
+    expect(leakResult.sectionContent["1.10"]).toBeDefined();
+    expect(leakResult.sectionContent["1.10"]).toContain("Monitoring of the leakage belt");
   });
 });

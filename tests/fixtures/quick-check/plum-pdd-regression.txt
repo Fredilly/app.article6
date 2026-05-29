@@ -1,0 +1,57 @@
+Project Description / PD
+PLUM Project
+Verra VCS / CCB
+VM0007
+
+Table of Contents
+
+1.1  Project Background ........................................................ 3
+1.2  Project Objective ......................................................... 4
+1.3  Project Location .......................................................... 5
+2.1  Project Area .............................................................. 6
+2.2  Without-project Land Use Scenario and Additionality ........................ 7
+2.3  Stakeholder Engagement .................................................... 8
+3.1  Application of Methodology ................................................ 9
+3.3  Monitoring ................................................................ 10
+3.3.3  Monitoring Plan ........................................................ 12
+
+--- Document Body ---
+
+1.1  Project Background
+This project is a reforestation activity in the central highlands.
+The project area encompasses 5,000 hectares of degraded land.
+
+1.2  Project Objective
+The objective of this project is to restore degraded forest landscapes.
+
+1.3  Project Location
+The project is located in the central region of the country.
+
+2.1  Project Area
+The project area comprises 5,000 hectares of degraded grassland.
+The geographic coordinates are provided in Annex 1.
+The project zone extends 3 km beyond the project boundary.
+
+2.2  Without-project Land Use Scenario and Additionality
+The without-project land use scenario assumes continued degradation
+of grassland due to overgrazing. The project is additional because it
+faces significant barriers to implementation. A barrier analysis shows
+that carbon finance is essential to overcome the investment barrier.
+
+2.3  Stakeholder Engagement
+Stakeholder engagement was conducted through community meetings.
+Local communities were consulted about the project design.
+
+3.1  Application of Methodology
+The methodology VM0007 is applied to quantify emission reductions.
+Carbon pools included are above-ground biomass, below-ground biomass,
+dead wood, litter, and soil organic carbon.
+
+3.3  Monitoring
+Monitoring will be conducted annually using permanent sample plots.
+A total of 50 plots are established across the project area.
+The monitoring plan includes measurements of tree diameter and height.
+
+3.3.3  Monitoring Plan
+The monitoring plan specifies the sampling design and measurement
+protocols. Data and parameters are recorded in the monitoring database.

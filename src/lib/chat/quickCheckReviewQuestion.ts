@@ -60,14 +60,14 @@ const BROAD_QUESTION_PATTERNS: RegExp[] = [
   /^review\s+the/i,
 ];
 
-const VM0007_SECTION_ROUTES: Record<ReviewArea, string[]> = {
-  additionality: ["2.5", "2.4", "1.10"],
-  baseline: ["2.4", "2.5", "1.10"],
-  boundary: ["2.3", "1.9"],
-  deviations: ["2.6"],
-  leakage: ["1.13", "3.3"],
-  monitoring: ["4"],
-  right_of_use: ["1.11", "1.12.1"],
+const REVIEW_AREA_KEYWORDS: Record<ReviewArea, string[]> = {
+  additionality: ["additionality"],
+  baseline: ["baseline", "without-project", "without project", "land use scenario"],
+  boundary: ["boundary", "project area", "project zone", "geographic", "location"],
+  leakage: ["leakage"],
+  monitoring: ["monitoring", "monitoring plan", "data and parameters"],
+  deviations: [],
+  right_of_use: [],
   general: [],
 };
 
@@ -109,14 +109,32 @@ export function classifyReviewArea(claimText: string): ReviewArea {
   return "general";
 }
 
-export function resolveReviewSections(
-  methodologyId: string,
+export function findMatchedSectionNumbers(
+  rawPddText: string,
   reviewArea: ReviewArea,
 ): string[] {
-  const normalizedMethod = methodologyId.trim().toUpperCase();
-  if (normalizedMethod === "VM0007") {
-    return VM0007_SECTION_ROUTES[reviewArea] ?? [];
+  const allSections = extractPddSections(rawPddText);
+  const keywords = REVIEW_AREA_KEYWORDS[reviewArea] ?? [];
+
+  if (keywords.length === 0) return [];
+
+  const matched: string[] = [];
+  for (const [num, content] of Object.entries(allSections)) {
+    const title = content.split("\n").find((l) => l.trim().length > 0) ?? "";
+    const lowerTitle = title.toLowerCase();
+    if (keywords.some((kw) => lowerTitle.includes(kw.toLowerCase()))) {
+      matched.push(num);
+    }
   }
+  return matched;
+}
+
+export function resolveReviewSections(
+  _methodologyId: string,
+  _reviewArea: ReviewArea,
+): string[] {
+  void _methodologyId;
+  void _reviewArea;
   return [];
 }
 
@@ -133,7 +151,9 @@ export function buildReviewQuestionResult(input: {
   evidenceDocumentType?: string;
 }): ReviewQuestionResult {
   const reviewArea = classifyReviewArea(input.claimText);
-  const relevantSections = resolveReviewSections(input.methodologyId, reviewArea);
+  const relevantSections = input.rawPddText
+    ? findMatchedSectionNumbers(input.rawPddText, reviewArea)
+    : resolveReviewSections(input.methodologyId, reviewArea);
   const sectionContent: Record<string, string> = {};
   if (input.rawPddText && relevantSections.length > 0) {
     Object.assign(sectionContent, extractRoutedSections(input.rawPddText, relevantSections));

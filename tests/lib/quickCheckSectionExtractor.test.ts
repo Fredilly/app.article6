@@ -9,7 +9,7 @@ import {
   normalizeSectionKey,
   SECTION_EXCERPT_MAX_CHARS,
 } from "@/lib/chat/quickCheckSectionExtractor";
-import { buildReviewQuestionResult } from "@/lib/chat/quickCheckReviewQuestion";
+import { buildReviewQuestionResult, findMatchedSectionNumbers } from "@/lib/chat/quickCheckReviewQuestion";
 
 const VM0007_PDD_TEXT = [
   "1.10  Leakage",
@@ -321,17 +321,31 @@ describe("continuous text (whitespace-collapsed, no line breaks)", () => {
     expect(sections["1.10"]).toContain("3 km buffer");
   });
 
-  it("extracts all three baseline sections from continuous text via buildReviewQuestionResult", () => {
+  it("extracts matched sections from continuous text via buildReviewQuestionResult", () => {
     const text = "2.4 Baseline Scenario The baseline scenario is the most likely land-use scenario. 2.5 Additionality The project is additional. 1.10 Leakage The leakage belt is determined.";
-    const result = buildReviewQuestionResult({
+    const baselineResult = buildReviewQuestionResult({
       claimText: "Does this PDD support the baseline scenario under VM0007?",
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
       rawPddText: text,
     });
-    expect(result.sectionContent["2.4"]).toBeDefined();
-    expect(result.sectionContent["2.5"]).toBeDefined();
-    expect(result.sectionContent["1.10"]).toBeDefined();
+    expect(baselineResult.sectionContent["2.4"]).toBeDefined();
+
+    const additionalityResult = buildReviewQuestionResult({
+      claimText: "Is additionality justified under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: text,
+    });
+    expect(additionalityResult.sectionContent["2.5"]).toBeDefined();
+
+    const leakageResult = buildReviewQuestionResult({
+      claimText: "Does this PDD identify leakage risk under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: text,
+    });
+    expect(leakageResult.sectionContent["1.10"]).toBeDefined();
   });
 });
 
@@ -488,22 +502,36 @@ describe("TOC vs body content", () => {
   });
 
   it("extracts body sections via buildReviewQuestionResult, not TOC lines", () => {
-    const result = buildReviewQuestionResult({
+    const baselineResult = buildReviewQuestionResult({
       claimText: "Does this PDD support the baseline scenario under VM0007?",
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
       rawPddText: TOC_THEN_BODY_TEXT,
     });
-    const c24 = result.sectionContent["2.4"];
-    const c25 = result.sectionContent["2.5"];
-    const c110 = result.sectionContent["1.10"];
+    const c24 = baselineResult.sectionContent["2.4"];
     expect(c24).toBeDefined();
-    expect(c25).toBeDefined();
-    expect(c110).toBeDefined();
     expect(c24).toContain("most likely land-use scenario");
-    expect(c25.replace(/\n/g, " ")).toMatch(/barrier\s+analysis/);
-    expect(c110.replace(/\s+/g, " ")).toMatch(/\b3\s*km\s*buffer\b/);
     expect(c24).not.toMatch(/\.{3,}/);
+
+    const additionalityResult = buildReviewQuestionResult({
+      claimText: "Is additionality justified under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: TOC_THEN_BODY_TEXT,
+    });
+    const c25 = additionalityResult.sectionContent["2.5"];
+    expect(c25).toBeDefined();
+    expect(c25.replace(/\n/g, " ")).toMatch(/barrier\s+analysis/);
+
+    const leakageResult = buildReviewQuestionResult({
+      claimText: "Does this PDD identify leakage risk under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: TOC_THEN_BODY_TEXT,
+    });
+    const c110 = leakageResult.sectionContent["1.10"];
+    expect(c110).toBeDefined();
+    expect(c110.replace(/\s+/g, " ")).toMatch(/\b3\s*km\s*buffer\b/);
   });
 
   it("analyzeSectionCandidates returns all candidates with rejection reasons", () => {
@@ -617,19 +645,34 @@ describe("fixture-based regression — real extracted PDD text format", () => {
     expect(sections["1.10"]).toContain("3 km buffer");
   });
 
-  it("routes and extracts all baseline sections from fixture via buildReviewQuestionResult", () => {
-    const result = buildReviewQuestionResult({
+  it("routes and extracts matched sections per review area from fixture via buildReviewQuestionResult", () => {
+    const baselineResult = buildReviewQuestionResult({
       claimText: "Does this PDD support the baseline scenario under VM0007?",
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
       rawPddText: fixtureText,
     });
-    expect(result.sectionContent["2.4"]).toBeDefined();
-    expect(result.sectionContent["2.5"]).toBeDefined();
-    expect(result.sectionContent["1.10"]).toBeDefined();
-    expect(result.sectionContent["2.4"]).toContain("overgrazing");
-    expect(result.sectionContent["2.5"]).toContain("carbon revenue");
-    expect(result.sectionContent["1.10"]).toContain("3 km buffer");
+    expect(baselineResult.sectionContent["2.4"]).toBeDefined();
+    expect(baselineResult.sectionContent["2.4"]).toContain("overgrazing");
+    expect(baselineResult.sectionContent["2.5"]).toBeUndefined();
+
+    const additionalityResult = buildReviewQuestionResult({
+      claimText: "Is additionality justified under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: fixtureText,
+    });
+    expect(additionalityResult.sectionContent["2.5"]).toBeDefined();
+    expect(additionalityResult.sectionContent["2.5"]).toContain("carbon revenue");
+
+    const leakageResult = buildReviewQuestionResult({
+      claimText: "Does this PDD identify leakage risk under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: fixtureText,
+    });
+    expect(leakageResult.sectionContent["1.10"]).toBeDefined();
+    expect(leakageResult.sectionContent["1.10"]).toContain("3 km buffer");
   });
 
   it("strips header/footer noise from fixture-extracted section content", () => {
@@ -673,22 +716,25 @@ describe("PD_REDD_v1_130 fixture — parentheses heading format", () => {
     expect(c.replace(/\n/g, " ")).toMatch(/\b5\s*km\s*buffer\b/);
   });
 
-  it("routes and extracts all baseline sections from PD_REDD fixture via buildReviewQuestionResult", () => {
-    const result = buildReviewQuestionResult({
+  it("routes and extracts matched sections from PD_REDD fixture via buildReviewQuestionResult", () => {
+    const baselineResult = buildReviewQuestionResult({
       claimText: "Does this PDD support the baseline scenario under VM0007?",
       methodologyId: "VM0007",
       methodologyVersion: "4.2",
       rawPddText: fixtureText,
     });
-    expect(result.sectionContent["2.4"]).toBeDefined();
-    expect(result.sectionContent["2.5"]).toBeDefined();
-    expect(result.sectionContent["1.10"]).toBeDefined();
-    const c24 = result.sectionContent["2.4"]!;
-    const c25 = result.sectionContent["2.5"]!;
-    const c110 = result.sectionContent["1.10"]!;
-    expect(c24).toContain("satellite imagery");
-    expect(c25).toContain("barrier analysis");
-    expect(c110.replace(/\n/g, " ")).toMatch(/\b5\s*km\s*buffer\b/);
+    expect(baselineResult.sectionContent["2.4"]).toBeDefined();
+    expect(baselineResult.sectionContent["2.4"]).toContain("satellite imagery");
+    expect(baselineResult.sectionContent["2.5"]).toBeUndefined();
+
+    const additionalityResult = buildReviewQuestionResult({
+      claimText: "Is additionality justified under VM0007?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: fixtureText,
+    });
+    expect(additionalityResult.sectionContent["2.5"]).toBeDefined();
+    expect(additionalityResult.sectionContent["2.5"]).toContain("barrier analysis");
   });
 
   it("strips header/footer noise from PD_REDD fixture section content", () => {
@@ -714,11 +760,7 @@ describe("PD_REDD_v1_130 fixture — parentheses heading format", () => {
     expect(result.phase1Diagnostic!.detectedSections).toContain("2.5");
     expect(result.phase1Diagnostic!.detectedSections).toContain("1.10");
     expect(result.phase1Diagnostic!.targetLine_2_4).toContain("Baseline Scenario");
-    expect(result.phase1Diagnostic!.targetLine_2_5).toContain("Additionality");
-    expect(result.phase1Diagnostic!.targetLine_1_10).toContain("Leakage");
     expect(result.phase1Diagnostic!.sectionContent_2_4_preview).toContain("most likely");
-    expect(result.phase1Diagnostic!.sectionContent_2_5_preview).toContain("barrier");
-    expect(result.phase1Diagnostic!.sectionContent_1_10_preview).toContain("leakage belt");
   });
 });
 
@@ -771,5 +813,62 @@ describe("pipeline-normalized text (preserves newlines like normalizePageWhitesp
     const sections = extractPddSections(PIPELINE_TEXT);
     const hasDottedLeaders = Object.values(sections).some((v) => /\.{4,}/.test(v));
     expect(hasDottedLeaders).toBe(false);
+  });
+});
+
+describe("PLUM PDD regression — heading-matched section routing", () => {
+  const fixturePath = path.join(__dirname, "..", "fixtures", "quick-check", "plum-pdd-regression.txt");
+  const PLUM_TEXT = fs.readFileSync(fixturePath, "utf-8");
+
+  it("additionality matches section 2.2 (Without-project Land Use Scenario and Additionality)", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is additionality justified in this project?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.sectionContent["2.2"]).toBeDefined();
+    expect(result.sectionContent["2.2"]).toContain("significant barriers");
+    expect(result.sectionContent["2.5"]).toBeUndefined();
+  });
+
+  it("monitoring matches sections containing monitoring in their title", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does the monitoring plan comply with VM0007 requirements?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.sectionContent["3.3"]).toBeDefined();
+    expect(result.sectionContent["3.3.3"]).toBeDefined();
+    expect(result.sectionContent["3.3"]).toContain("Monitoring");
+  });
+
+  it("boundary does not falsely match section 2.3 (Stakeholder Engagement)", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What is the project boundary for this project?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.sectionContent["2.3"]).toBeUndefined();
+    expect(result.sectionContent["2.1"]).toBeDefined();
+    expect(result.sectionContent["2.1"]).toContain("Project Area");
+  });
+
+  it("baseline matches section 2.2 via without-project and land-use-scenario keywords", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    expect(result.sectionContent["2.2"]).toBeDefined();
+    expect(result.sectionContent["2.2"]).toContain("without-project land use scenario");
+  });
+
+  it("findMatchedSectionNumbers returns empty for keywords with no match", () => {
+    const matched = findMatchedSectionNumbers(PLUM_TEXT, "deviations");
+    expect(matched).toEqual([]);
   });
 });
