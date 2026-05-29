@@ -151,7 +151,6 @@ const SCORE = {
 } as const;
 
 const PRIMARY_HEADING_THRESHOLD = 5;
-const BODY_ONLY_TOTAL_THRESHOLD = 8;
 const ABSOLUTE_THRESHOLD = 3;
 const MAX_PRIMARY_SECTIONS = 3;
 
@@ -254,8 +253,7 @@ export function findMatchedSectionNumbers(
     return [];
   }
 
-  const primarySections: { num: string; totalScore: number }[] = [];
-  const bodyOnlySections: { num: string; totalScore: number }[] = [];
+  const scored: { num: string; totalScore: number }[] = [];
 
   for (const [num, content] of Object.entries(allSections)) {
     if (!isReasonableSectionId(num)) continue;
@@ -265,24 +263,14 @@ export function findMatchedSectionNumbers(
     const totalScore = result.headingScore + result.bodyScore;
 
     if (totalScore < ABSOLUTE_THRESHOLD) continue;
+    if (result.headingScore < PRIMARY_HEADING_THRESHOLD) continue;
 
-    if (result.headingScore >= PRIMARY_HEADING_THRESHOLD) {
-      primarySections.push({ num, totalScore });
-    } else if (result.bodyScore >= BODY_ONLY_TOTAL_THRESHOLD) {
-      bodyOnlySections.push({ num, totalScore });
-    }
+    scored.push({ num, totalScore });
   }
 
-  primarySections.sort((a, b) => b.totalScore - a.totalScore);
-  bodyOnlySections.sort((a, b) => b.totalScore - a.totalScore);
+  scored.sort((a, b) => b.totalScore - a.totalScore);
 
-  const result = primarySections.slice(0, MAX_PRIMARY_SECTIONS).map(s => s.num);
-
-  if (result.length === 0 && bodyOnlySections.length > 0) {
-    result.push(bodyOnlySections[0]!.num);
-  }
-
-  return result;
+  return scored.slice(0, MAX_PRIMARY_SECTIONS).map(s => s.num);
 }
 
 export function computeSectionMatchResults(
@@ -312,12 +300,10 @@ export function computeSectionMatchResults(
       rejectionReason = `below absolute threshold (${totalScore} < ${ABSOLUTE_THRESHOLD})`;
     } else if (score.headingScore >= PRIMARY_HEADING_THRESHOLD) {
       // heading match — included as primary
-    } else if (score.bodyScore >= BODY_ONLY_TOTAL_THRESHOLD) {
-      // body match — included as fallback
+    } else if (score.bodyScore > 0 && score.headingScore === 0) {
+      rejectionReason = `body-only match (score ${score.bodyScore}) — heading-first strategy requires heading title match`;
     } else if (score.headingScore > 0 && score.headingScore < PRIMARY_HEADING_THRESHOLD) {
       rejectionReason = `heading score ${score.headingScore} below primary threshold ${PRIMARY_HEADING_THRESHOLD}`;
-    } else if (score.bodyScore > 0 && score.bodyScore < BODY_ONLY_TOTAL_THRESHOLD) {
-      rejectionReason = `body score ${score.bodyScore} below body-only threshold ${BODY_ONLY_TOTAL_THRESHOLD}`;
     }
 
     const matchedTerms = score.matchedTerms;

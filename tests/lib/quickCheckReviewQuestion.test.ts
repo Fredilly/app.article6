@@ -351,9 +351,12 @@ const CUSTOM_HEADING_PDD = [
   "2.3  Stakeholder Engagement",
   "Stakeholder engagement was conducted through community meetings.",
   "",
-  "3.3.3.1  Remote Sensing",
+  "3.3.1  Remote Sensing",
   "Remote sensing data from satellites is used for monitoring.",
   "NDVI analysis is conducted quarterly.",
+  "",
+  "3.3.3.1  Remote Sensing — Detailed Methods",
+  "Detailed remote sensing methods are described here.",
   "",
   "3.5  Biodiversity Assessment",
   "Biodiversity is assessed annually using transect surveys.",
@@ -461,10 +464,10 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     });
     expect(result.relevantSections).toContain("3.3.3.1");
     expect(result.sectionContent["3.3.3.1"]).toBeDefined();
-    expect(result.sectionContent["3.3.3.1"]).toContain("Remote sensing");
+    expect(result.sectionContent["3.3.3.1"]!.toLowerCase()).toContain("remote sensing");
   });
 
-  it("does not match random sections like biodiversity or financial analysis", () => {
+  it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD explain the project area and project zone boundary?",
       methodologyId: "VM0007",
@@ -473,6 +476,7 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     });
     expect(result.sectionContent["3.5"]).toBeUndefined();
     expect(result.sectionContent["20.0"]).toBeUndefined();
+    expect(result.sectionContent["3.3.1"]).toBeUndefined();
   });
 
   it("returns relevantSections sorted by relevance (best match first)", () => {
