@@ -13,6 +13,7 @@ import {
   type ReviewArea,
   type SectionMatchResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
+import { filterPddHeadingsByQuery } from "@/lib/chat/quickCheckSectionExtractor";
 
 const VM0007_BASELINE_PDD_TEXT = [
   "1.10  Leakage",
@@ -536,7 +537,7 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.relevantSections).toContain("2.1");
   });
 
-  it("caps primary sections to top 3", () => {
+  it("returns all matching headings from filter (no artificial cap)", () => {
     const manySections = [
       "1.1  Introduction",
       "Intro content.",
@@ -557,7 +558,49 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
       methodologyVersion: "1.0",
       rawPddText: manySections,
     });
-    expect(result.relevantSections.length).toBeLessThanOrEqual(3);
+    // Phase 1: filter returns *all* title matches (no artificial top-3 cap from scoring logic)
+    expect(result.relevantSections.length).toBeGreaterThan(3);
+    expect(result.relevantSections).toContain("2.1");
+    expect(result.relevantSections).toContain("2.5");
+  });
+
+  it("PLUM PDD heading index includes required sections and question phrases filter correctly (Phase 1 acceptance)", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PLUM_TEXT,
+    });
+    const nums = new Set(result.headingIndex.map((h) => h.sectionNumber));
+    expect(nums.has("2.1")).toBe(true);
+    expect(nums.has("2.2")).toBe(true);
+    expect(nums.has("2.3")).toBe(true);
+    expect(nums.has("2.5")).toBe(true);
+    expect(nums.has("3.1.2")).toBe(true);
+    expect(nums.has("3.3")).toBe(true);
+
+    // filter by acceptance phrases surfaces correct heading (title match only)
+    const goals = filterPddHeadingsByQuery(result.headingIndex, "Project Goals, Design and Long-Term Viability");
+    expect(goals[0]?.sectionNumber).toBe("2.1");
+
+    const without = filterPddHeadingsByQuery(result.headingIndex, "Without-project Land Use Scenario and Additionality");
+    expect(without[0]?.sectionNumber).toBe("2.2");
+
+    const stake = filterPddHeadingsByQuery(result.headingIndex, "Stakeholder Engagement");
+    expect(stake[0]?.sectionNumber).toBe("2.3");
+
+    const legal = filterPddHeadingsByQuery(result.headingIndex, "Legal Status and Property Rights");
+    expect(legal[0]?.sectionNumber).toBe("2.5");
+
+    const appl = filterPddHeadingsByQuery(result.headingIndex, "Applicability of Methodology");
+    expect(appl.some((h) => h.sectionNumber === "3.1.2")).toBe(true);
+
+    const mon = filterPddHeadingsByQuery(result.headingIndex, "Monitoring");
+    expect(mon.some((h) => h.sectionNumber === "3.3")).toBe(true);
+
+    // no match case
+    const none = filterPddHeadingsByQuery(result.headingIndex, "biodiversity credits xyz");
+    expect(none.length).toBe(0);
   });
 });
 

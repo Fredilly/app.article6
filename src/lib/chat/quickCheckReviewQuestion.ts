@@ -1,4 +1,13 @@
-import { analyzeSectionCandidates, debugSectionExtraction, extractPddSections, extractRoutedSections, normalizeSectionKey, type SectionCandidateDebug } from "@/lib/chat/quickCheckSectionExtractor";
+import {
+  analyzeSectionCandidates,
+  buildPddHeadingIndex,
+  debugSectionExtraction,
+  extractPddSections,
+  filterPddHeadingsByQuery,
+  normalizeSectionKey,
+  type DocumentHeading,
+  type SectionCandidateDebug,
+} from "@/lib/chat/quickCheckSectionExtractor";
 
 export type ReviewArea =
   | "additionality"
@@ -57,6 +66,10 @@ export type ReviewQuestionResult = {
   methodologyVersion: string;
   relevantSections: string[];
   sectionContent: Record<string, string>;
+  /** Phase 1: clean heading index from uploaded PDD (source of truth) */
+  headingIndex: DocumentHeading[];
+  /** Phase 1: headings filtered by the user's question text only (title-based, no body scoring) */
+  matchedHeadings: DocumentHeading[];
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
 };
@@ -348,12 +361,17 @@ export function buildReviewQuestionResult(input: {
   evidenceDocumentType?: string;
 }): ReviewQuestionResult {
   const reviewArea = classifyReviewArea(input.claimText);
-  const relevantSections = input.rawPddText
-    ? findMatchedSectionNumbers(input.rawPddText, reviewArea, input.claimText)
-    : resolveReviewSections(input.methodologyId, reviewArea);
+
+  // Phase 1: heading index is source of truth from uploaded document.
+  // Question text is used ONLY as a filter over headings (title-based, no body scoring, no reviewArea keywords, no static routes).
+  const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
+  const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "");
+
+  const relevantSections = matchedHeadings.map((h) => h.sectionNumber);
   const sectionContent: Record<string, string> = {};
-  if (input.rawPddText && relevantSections.length > 0) {
-    Object.assign(sectionContent, extractRoutedSections(input.rawPddText, relevantSections));
+  for (const h of matchedHeadings) {
+    // Provide body for compat with existing consumers; primary matches never came from body text.
+    sectionContent[h.sectionNumber] = h.bodyText ? `${h.title}\n${h.bodyText}` : h.title;
   }
 
   const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
@@ -362,6 +380,7 @@ export function buildReviewQuestionResult(input: {
 
   const claimKeywords = input.claimText ? extractClaimKeywords(input.claimText) : { phrases: [], words: [] };
 
+  // phase1Diagnostic still uses legacy scoring for dev visibility only (does not drive matches)
   const phase1Diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
     ? buildPhase1Diagnostic(input.rawPddText, sectionContent, reviewArea, input.claimText, claimKeywords, input.evidenceSourceLabel, input.evidenceDocumentType)
     : undefined;
@@ -373,6 +392,8 @@ export function buildReviewQuestionResult(input: {
     methodologyVersion: input.methodologyVersion,
     relevantSections,
     sectionContent,
+    headingIndex,
+    matchedHeadings,
     diagnostic,
     phase1Diagnostic,
   };

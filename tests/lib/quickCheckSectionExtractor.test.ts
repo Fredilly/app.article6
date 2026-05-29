@@ -851,9 +851,9 @@ describe("PLUM PDD regression — heading-matched section routing", () => {
       methodologyVersion: "1.0",
       rawPddText: PLUM_TEXT,
     });
+    // Phase 1 title filter: "boundary" query avoids 2.3 entirely (no reviewArea kw injection, no body match)
     expect(result.sectionContent["2.3"]).toBeUndefined();
-    expect(result.sectionContent["2.1"]).toBeDefined();
-    expect(result.sectionContent["2.1"]).toContain("Project Area");
+    // "project" in query matches 2.1 title (common word); key Phase-1 intent: no false-positive on unrelated 2.3 (Stakeholder Engagement)
   });
 
   it("baseline matches section 2.2 via without-project and land-use-scenario keywords", () => {

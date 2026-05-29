@@ -496,3 +496,68 @@ export function analyzeSectionCandidates(rawText: string, sectionNum: string): S
 export function debugSectionExtraction(rawText: string): Record<string, string> {
   return diagnoseTextStructure(rawText);
 }
+
+export type DocumentHeading = {
+  sectionNumber: string;
+  title: string;
+  normalizedTitle: string;
+  bodyPreview: string;
+  bodyText: string;
+};
+
+const HEADING_PREVIEW_MAX = 220;
+const HEADING_BODY_MAX = 4000;
+
+function normalizeHeadingTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s.-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function makeBodyPreview(body: string): string {
+  const t = body.trim();
+  if (!t) return "";
+  if (t.length <= HEADING_PREVIEW_MAX) return t;
+  return t.slice(0, HEADING_PREVIEW_MAX).replace(/\s+\S*$/, "") + " […]";
+}
+
+export function buildPddHeadingIndex(rawPddText: string): DocumentHeading[] {
+  if (!rawPddText || rawPddText.trim().length < 10) return [];
+  const sections = extractPddSections(rawPddText);
+  const headings: DocumentHeading[] = [];
+  for (const [num, content] of Object.entries(sections)) {
+    const lines = content.split("\n").filter((l) => l.trim().length > 0);
+    if (lines.length === 0) continue;
+    const title = lines[0]!.trim();
+    const body = lines.slice(1).join("\n").trim();
+    const normalizedTitle = normalizeHeadingTitle(title);
+    const bodyPreview = makeBodyPreview(body || title);
+    const bodyText = (body || title).slice(0, HEADING_BODY_MAX);
+    headings.push({
+      sectionNumber: num,
+      title,
+      normalizedTitle,
+      bodyPreview,
+      bodyText,
+    });
+  }
+  return headings;
+}
+
+export function headingMatchesQuery(heading: DocumentHeading, query: string): boolean {
+  const q = normalizeHeadingTitle(query);
+  if (!q || q.length < 2) return false;
+  if (heading.normalizedTitle.includes(q)) return true;
+  const STOP = new Set(["project", "pdd", "this", "that", "what", "does", "the", "and", "for", "with", "from"]);
+  const words = q.split(/\s+/).filter((w) => w.length >= 4 && !STOP.has(w));
+  if (words.length === 0) return false;
+  return words.some((w) => heading.normalizedTitle.includes(w));
+}
+
+export function filterPddHeadingsByQuery(headings: DocumentHeading[], query: string): DocumentHeading[] {
+  const q = query.trim();
+  if (!q) return [];
+  return headings.filter((h) => headingMatchesQuery(h, q));
+}

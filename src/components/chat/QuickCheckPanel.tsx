@@ -56,6 +56,7 @@ import {
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
+import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 
 type MethodInventoryRecord = {
   code: string;
@@ -555,6 +556,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [isDragActive, setIsDragActive] = useState(false);
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
+  const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
@@ -952,6 +954,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setMatchCandidates([]);
     setValidatedResultKey(null);
     setReviewQuestionResult(null);
+    setSelectedHeading(null);
+  }
+
+  function handleHeadingClick(heading: DocumentHeading) {
+    setSelectedHeading(heading);
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      void navigator.clipboard.writeText(`§${heading.sectionNumber} ${heading.title}`).catch(() => undefined);
+    }
   }
 
   function resetQuickCheckUi() {
@@ -1411,6 +1421,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           evidenceDocumentType: evidenceAnalysis.documentTypes[0],
         });
         setReviewQuestionResult(questionResult);
+        setSelectedHeading(null);
         setRecoveryState(null);
         setFieldErrors({});
         setSubmitting(false);
@@ -1418,6 +1429,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
 
       setReviewQuestionResult(null);
+      setSelectedHeading(null);
 
       const selectedMethodologyId = draft.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
@@ -2135,54 +2147,71 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   <div className="mt-2 text-sm text-slate-600">{draft.claimText}</div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Review area</div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Review area (classified)</div>
                       <div className="mt-1 text-sm font-medium text-slate-900">{reviewAreaLabel(reviewQuestionResult.reviewArea)}</div>
                     </div>
                     {reviewQuestionResult.methodologyId ? (
                       <div>
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology</div>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology (from input)</div>
                         <div className="mt-1 text-sm font-medium text-slate-900">{reviewQuestionResult.methodologyId} · {reviewQuestionResult.methodologyVersion || "—"}</div>
                       </div>
                     ) : null}
                   </div>
                   <div className="mt-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Matched document sections</div>
-                    {reviewQuestionResult.relevantSections.length > 0 ? (
-                      <>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {reviewQuestionResult.relevantSections.map((section) => (
-                            <span key={section} className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sm font-medium text-sky-900">
-                              Section {section}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="mt-3 grid gap-3">
-                          {reviewQuestionResult.relevantSections.map((section) => {
-                            const content = reviewQuestionResult.sectionContent[section];
-                            return (
-                              <div key={section} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-                                <div className="text-xs font-semibold text-slate-500">Section {section}</div>
-                                {content ? (
-                                  <div className="mt-1.5 max-h-32 overflow-y-auto text-sm leading-relaxed text-slate-700">
-                                    {content}
-                                  </div>
-                                ) : (
-                                  <div className="mt-1.5 text-sm text-amber-700">
-                                    No matching document section found
-                                  </div>
-                                )}
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — question is filter only)</div>
+                    <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Your question filters titles (no body matching, no methodology routes).</p>
+                    {reviewQuestionResult.matchedHeadings.length > 0 ? (
+                      <div className="mt-3 space-y-2">
+                        {reviewQuestionResult.matchedHeadings.map((h) => {
+                          const isSelected = selectedHeading?.sectionNumber === h.sectionNumber;
+                          return (
+                            <button
+                              key={h.sectionNumber}
+                              type="button"
+                              onClick={() => handleHeadingClick(h)}
+                              className={`w-full rounded-xl border px-4 py-3 text-left transition ${isSelected ? "border-sky-400 bg-sky-100" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}
+                            >
+                              <div className="flex items-baseline gap-2">
+                                <span className="font-mono text-xs font-semibold text-sky-700">§{h.sectionNumber}</span>
+                                <span className="text-sm font-medium text-slate-900">{h.title}</span>
                               </div>
-                            );
-                          })}
-                        </div>
-                      </>
+                              {h.bodyPreview ? (
+                                <div className="mt-1.5 text-xs leading-relaxed text-slate-600 line-clamp-2">{h.bodyPreview}</div>
+                              ) : null}
+                              <div className="mt-1 text-[10px] text-slate-400">Click to select / copy reference</div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     ) : (
                       <div className="mt-2 text-sm text-amber-700">
-                        No matching document section found for this review area in the uploaded document.
+                        No matching document heading found.
                       </div>
                     )}
+
+                    {selectedHeading ? (
+                      <div className="mt-3 rounded-xl border border-sky-300 bg-white p-4">
+                        <div className="text-xs font-semibold text-sky-700">Selected: §{selectedHeading.sectionNumber} {selectedHeading.title}</div>
+                        <div className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-slate-700 border border-slate-100 bg-slate-50 p-2 rounded">
+                          {selectedHeading.bodyText || selectedHeading.bodyPreview}
+                        </div>
+                        <div className="mt-2 text-[10px] text-slate-500">Reference copied to clipboard. Use in full review for evidence citation.</div>
+                      </div>
+                    ) : null}
+
+                    {reviewQuestionResult.matchedHeadings.length === 0 && reviewQuestionResult.headingIndex.length > 0 ? (
+                      <details className="mt-2 text-xs">
+                        <summary className="cursor-pointer text-slate-500">Show all {reviewQuestionResult.headingIndex.length} headings from document</summary>
+                        <div className="mt-2 grid gap-1">
+                          {reviewQuestionResult.headingIndex.slice(0, 12).map((h) => (
+                            <button key={h.sectionNumber} type="button" onClick={() => handleHeadingClick(h)} className="text-left text-[11px] text-slate-600 hover:text-sky-700 font-mono">§{h.sectionNumber} {h.title}</button>
+                          ))}
+                        </div>
+                      </details>
+                    ) : null}
+
                     <p className="mt-2 text-xs text-slate-500">
-                      Open the full review to inspect these sections in the uploaded document.
+                      Open full review to inspect these sections against the full document and methodology.
                     </p>
                   {reviewQuestionResult.phase1Diagnostic && process.env.NODE_ENV !== "production" ? (
                     <details className="mt-3" open>

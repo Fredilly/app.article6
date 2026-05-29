@@ -8,11 +8,12 @@ Table of Contents
 1.1  Project Background ........................................................ 3
 1.2  Project Objective ......................................................... 4
 1.3  Project Location .......................................................... 5
-2.1  Project Area .............................................................. 6
+2.1  Project Goals, Design and Long-Term Viability ............................. 6
 2.2  Without-project Land Use Scenario and Additionality ........................ 7
 2.3  Stakeholder Engagement .................................................... 8
 2.5  Legal Status and Property Rights .......................................... 9
 3.1  Application of Methodology ................................................ 10
+3.1.2  Applicability of Methodology ........................................... 10.5
 3.3  Monitoring ................................................................ 11
 3.3.3  Monitoring Plan ........................................................ 13
 
@@ -28,10 +29,8 @@ The objective of this project is to restore degraded forest landscapes.
 1.3  Project Location
 The project is located in the central region of the country.
 
-2.1  Project Area
-The project area comprises 5,000 hectares of degraded grassland.
-The geographic coordinates are provided in Annex 1.
-The project zone extends 3 km beyond the project boundary.
+2.1  Project Goals, Design and Long-Term Viability
+The project goals are to restore degraded forest landscapes and ensure long-term viability through carbon finance. The project design includes reforestation of 5,000 hectares with native species. Long-term management plans secure permanence.
 
 2.2  Without-project Land Use Scenario and Additionality
 The without-project land use scenario assumes continued degradation
@@ -51,6 +50,9 @@ Property rights are held by the local community association.
 The methodology VM0007 is applied to quantify emission reductions.
 Carbon pools included are above-ground biomass, below-ground biomass,
 dead wood, litter, and soil organic carbon.
+
+3.1.2  Applicability of Methodology
+The project meets all applicability conditions of VM0007. The land is degraded and reforestation is eligible. No wetlands or peat soils are present in the project area.
 
 3.3  Monitoring
 Monitoring will be conducted annually using permanent sample plots.
