@@ -211,7 +211,8 @@ function scoreSection(
   for (const phrase of claimKeywords.phrases) {
     if (lowerTitle.includes(phrase)) {
       headingScore += SCORE.CLAIM_PHRASE_TITLE;
-      matchedTerms.push(`phrase:${phrase}`);
+      if (phrase.split(/\s+/).length >= 2) { headingScore += 15; matchedTerms.push(`phrase:${phrase}(+15)`); }
+      else matchedTerms.push(`phrase:${phrase}`);
     } else if (lowerBody.includes(phrase)) {
       bodyScore += SCORE.CLAIM_PHRASE_BODY;
       matchedTerms.push(`phrase(body):${phrase}`);
