@@ -1,4 +1,4 @@
-import { debugSectionExtraction, extractPddSections, extractRoutedSections, normalizeSectionKey } from "@/lib/chat/quickCheckSectionExtractor";
+import { analyzeSectionCandidates, debugSectionExtraction, extractPddSections, extractRoutedSections, normalizeSectionKey, type SectionCandidateDebug } from "@/lib/chat/quickCheckSectionExtractor";
 
 export type ReviewArea =
   | "additionality"
@@ -32,6 +32,7 @@ export type ReviewQuestionDiagnostic = {
   sectionContent_2_4_preview: string;
   sectionContent_2_5_preview: string;
   sectionContent_1_10_preview: string;
+  sectionCandidates: Record<string, SectionCandidateDebug>;
 };
 
 export type ReviewQuestionResult = {
@@ -195,5 +196,10 @@ function buildPhase1Diagnostic(
     sectionContent_2_4_preview: (sectionContent[normalizeSectionKey("2.4")] ?? "missing").slice(0, 150),
     sectionContent_2_5_preview: (sectionContent[normalizeSectionKey("2.5")] ?? "missing").slice(0, 150),
     sectionContent_1_10_preview: (sectionContent[normalizeSectionKey("1.10")] ?? "missing").slice(0, 150),
+    sectionCandidates: {
+      [normalizeSectionKey("2.4")]: analyzeSectionCandidates(rawPddText, "2.4"),
+      [normalizeSectionKey("2.5")]: analyzeSectionCandidates(rawPddText, "2.5"),
+      [normalizeSectionKey("1.10")]: analyzeSectionCandidates(rawPddText, "1.10"),
+    },
   };
 }

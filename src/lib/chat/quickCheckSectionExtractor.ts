@@ -59,54 +59,68 @@ function isTocTitle(title: string): boolean {
   return /\.{4,}\s*\d+\s*$/.test(title) || /\bpage\s+\d+\s*$/i.test(title);
 }
 
+function findTocBlockBounds(text: string): { start: number; end: number } | null {
+  const lines = text.split("\n");
+  const lineEndPositions: number[] = [];
+  let pos = 0;
+  for (const line of lines) {
+    pos += line.length;
+    lineEndPositions.push(pos);
+    pos += 1;
+  }
+
+  let headerLineIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i]!.toLowerCase().trim().match(/^(table\s+of\s+contents|contents)$/)) {
+      headerLineIdx = i;
+      break;
+    }
+  }
+  if (headerLineIdx === -1) return null;
+
+  let tocEndLine = headerLineIdx + 1;
+  for (let i = headerLineIdx + 1; i < lines.length; i++) {
+    const trimmed = lines[i]!.trim();
+    if (!trimmed) {
+      if (i === headerLineIdx + 1) continue;
+      tocEndLine = i;
+      break;
+    }
+    if (!/^\d+(?:\.\d+)*\s+[A-Z]/.test(trimmed)) {
+      tocEndLine = i;
+      break;
+    }
+  }
+
+  const tocStart = headerLineIdx > 0 ? lineEndPositions[headerLineIdx - 1]! + 1 : 0;
+  const tocEnd = tocEndLine < lines.length ? lineEndPositions[tocEndLine - 1]! + 1 : text.length;
+  return { start: tocStart, end: tocEnd };
+}
+
+function isInsideTocBlock(pos: number, tocBlock: { start: number; end: number } | null): boolean {
+  if (!tocBlock) return false;
+  return pos >= tocBlock.start && pos < tocBlock.end;
+}
+
+function hasBodyTextAfter(text: string, startPos: number): boolean {
+  const after = text.slice(startPos);
+  const re = SECTION_HEADING_RE;
+  re.lastIndex = 0;
+  const nextMatch = re.exec(after);
+  const between = nextMatch ? after.slice(0, nextMatch.index).trim() : after.trim();
+  if (between.length < 5) return false;
+  if (/[a-z]{4,}/.test(between)) return true;
+  if (/[.!?]\s+[A-Z]/.test(between)) return true;
+  return false;
+}
+
 const DEFAULT_HEADING_PATTERNS = [
   SECTION_HEADING_RE,
   SECTION_HEADING_DOT_RE,
   SECTION_HEADING_PAREN_RE,
 ];
 
-function extractHeadings(text: string): HeadingMatch[] {
-  const allCandidates = tryHeadingPatterns(text, DEFAULT_HEADING_PATTERNS);
 
-  const tocCandidates: HeadingMatch[] = [];
-  const bodyCandidates: HeadingMatch[] = [];
-
-  for (const h of allCandidates) {
-    if (isTocTitle(h.title)) {
-      tocCandidates.push(h);
-    } else {
-      bodyCandidates.push(h);
-    }
-  }
-
-  const tocByNum = new Map<string, HeadingMatch>();
-  for (const h of tocCandidates) {
-    if (!tocByNum.has(h.num)) tocByNum.set(h.num, h);
-  }
-
-  const bodyByNum = new Map<string, HeadingMatch>();
-  for (const h of bodyCandidates) {
-    if (!bodyByNum.has(h.num)) bodyByNum.set(h.num, h);
-  }
-
-  const chosen: HeadingMatch[] = [];
-  const seen = new Set<string>();
-
-  for (const h of bodyCandidates) {
-    if (seen.has(h.num)) continue;
-    seen.add(h.num);
-    chosen.push(h);
-  }
-
-  for (const h of tocCandidates) {
-    if (seen.has(h.num)) continue;
-    seen.add(h.num);
-    chosen.push(h);
-  }
-
-  chosen.sort((a, b) => a.start - b.start);
-  return chosen;
-}
 
 function findHeadingsInContinuousText(text: string): HeadingMatch[] {
   const headings: HeadingMatch[] = [];
@@ -144,12 +158,11 @@ function findHeadingsInContinuousText(text: string): HeadingMatch[] {
   return headings;
 }
 
-export function extractPddSections(rawText: string): Record<string, string> {
-  const cleaned = normalizeText(rawText);
-  const sections: Record<string, string> = {};
-  const headings = extractHeadings(cleaned);
-
-  if (headings.length === 0) {
+function findAllRawCandidates(cleaned: string): HeadingMatch[] {
+  const all: HeadingMatch[] = [];
+  const raw = tryHeadingPatterns(cleaned, DEFAULT_HEADING_PATTERNS);
+  all.push(...raw);
+  if (all.length === 0) {
     const inlineRe = /\b(\d+(?:\.\d+)*)\s{2,}([A-Z][A-Za-z\s-]{2,60})(?=\n|$)/g;
     let match: RegExpExecArray | null;
     while ((match = inlineRe.exec(cleaned)) !== null) {
@@ -157,11 +170,10 @@ export function extractPddSections(rawText: string): Record<string, string> {
       const title = match[2]!.trim();
       if (!title) continue;
       if (/^\d/.test(title)) continue;
-      headings.push({ num, title, start: match.index, end: match.index + match[0].length });
+      all.push({ num, title, start: match.index, end: match.index + match[0].length });
     }
   }
-
-  if (headings.length === 0) {
+  if (all.length === 0) {
     const lines = cleaned.split("\n");
     const linePos = (idx: number) => {
       let pos = 0;
@@ -176,34 +188,63 @@ export function extractPddSections(rawText: string): Record<string, string> {
       if (!title) continue;
       if (/^\d/.test(title)) continue;
       if (title.length > 120) continue;
-      headings.push({ num, title, start: linePos(i), end: linePos(i + 2) });
+      all.push({ num, title, start: linePos(i), end: linePos(i + 2) });
+    }
+  }
+  return all;
+}
+
+export function extractPddSections(rawText: string): Record<string, string> {
+  const cleaned = normalizeText(rawText);
+  const sections: Record<string, string> = {};
+
+  let allCandidates = findAllRawCandidates(cleaned);
+
+  if (allCandidates.length === 0) {
+    const continuousHeadings = findHeadingsInContinuousText(cleaned);
+    allCandidates = continuousHeadings;
+  }
+
+  if (allCandidates.length === 0) return sections;
+
+  const tocBlock = findTocBlockBounds(cleaned);
+  // TOC block detected: only candidates outside it survive the proximity check
+  const bestByNum = new Map<string, { heading: HeadingMatch; reason: string | null }>();
+
+  for (const h of allCandidates) {
+    const existing = bestByNum.get(h.num);
+    const reason: string | null = (() => {
+      if (isTocTitle(h.title)) return "line-level TOC markers";
+      if (tocBlock && isInsideTocBlock(h.start, tocBlock)) return "inside TOC block";
+      if (!hasBodyTextAfter(cleaned, h.end)) return "no body text after heading";
+      return null;
+    })();
+
+    if (!existing) {
+      bestByNum.set(h.num, { heading: h, reason });
+      continue;
+    }
+
+    if (reason === null && existing.reason !== null) {
+      bestByNum.set(h.num, { heading: h, reason: null });
+    } else if (reason === null && existing.reason === null && h.start > existing.heading.start) {
+      bestByNum.set(h.num, { heading: h, reason: null });
     }
   }
 
-  if (headings.length === 0) {
-    const continuousHeadings = findHeadingsInContinuousText(cleaned);
-    headings.push(...continuousHeadings);
+  const selectedHeadings: HeadingMatch[] = [];
+  for (const [, entry] of bestByNum) {
+    if (entry.reason === null) {
+      selectedHeadings.push(entry.heading);
+    }
   }
 
-  if (headings.length === 0) return sections;
+  if (selectedHeadings.length === 0) return sections;
 
-  const finalHeadings: HeadingMatch[] = [];
-  const seenFinal = new Set<string>();
-  for (const h of headings) {
-    if (isTocTitle(h.title)) continue;
-    if (seenFinal.has(h.num)) continue;
-    seenFinal.add(h.num);
-    finalHeadings.push(h);
-  }
-  headings.length = 0;
-  headings.push(...finalHeadings);
-
-  if (headings.length === 0) return sections;
-
-  for (let i = 0; i < headings.length; i++) {
-    const h = headings[i]!;
+  for (let i = 0; i < selectedHeadings.length; i++) {
+    const h = selectedHeadings[i]!;
     const contentStart = h.end;
-    const nextStart = i + 1 < headings.length ? headings[i + 1]!.start : cleaned.length;
+    const nextStart = i + 1 < selectedHeadings.length ? selectedHeadings[i + 1]!.start : cleaned.length;
     let content = cleaned.slice(contentStart, nextStart).trim();
     if (content) {
       content = `${h.title}\n${content}`;
@@ -375,6 +416,80 @@ function diagnoseTextStructure(rawText: string): Record<string, string> {
     snippets_leakage: JSON.stringify(leakageSnippets),
     heading_like_fragments: JSON.stringify(headingLike),
     numeric_fragments: JSON.stringify(numericLike),
+  };
+}
+
+export type SectionCandidateDebug = {
+  allCandidateLines: string[];
+  rejectedCandidates: string[];
+  selectedCandidate: string;
+  selectedReason: string;
+  sectionBodyPreview: string;
+};
+
+export function analyzeSectionCandidates(rawText: string, sectionNum: string): SectionCandidateDebug {
+  const cleaned = normalizeText(rawText);
+  const tocBlock = findTocBlockBounds(cleaned);
+  const sections = extractPddSections(rawText);
+  const key = normalizeSectionKey(sectionNum);
+  const bodyContent = sections[key] ?? null;
+  const lines = rawText.split("\n");
+
+  const allCandidateLines: string[] = [];
+  const rejectedCandidates: string[] = [];
+  let selectedCandidate = "none";
+  let selectedReason = "section not found in extracted output";
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i]!.trim();
+    const headingMatch = trimmed.match(
+      /^(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+?)(?:\s*\.{4,}\s*\d+\s*)?$/,
+    );
+    if (!headingMatch) continue;
+    if (headingMatch[1] !== sectionNum) continue;
+    const title = headingMatch[2]!.trim();
+    const lineText = `L${i + 1}: ${trimmed.slice(0, 120)}`;
+    allCandidateLines.push(lineText);
+
+    const rejectReasons: string[] = [];
+    if (isTocTitle(title)) {
+      rejectReasons.push("line-level TOC markers");
+    }
+    if (tocBlock) {
+      const linePos = lines.slice(0, i).reduce((sum, l) => sum + l.length + 1, 0);
+      if (isInsideTocBlock(linePos, tocBlock)) {
+        rejectReasons.push("inside TOC block");
+      }
+    }
+    const lineEndPos = lines.slice(0, i + 1).reduce((sum, l) => sum + l.length + 1, 0);
+    if (!hasBodyTextAfter(cleaned, lineEndPos)) {
+      rejectReasons.push("no body text after heading");
+    }
+    if (rejectReasons.length > 0) {
+      rejectedCandidates.push(`L${i + 1}: ${trimmed.slice(0, 80)} — rejected: ${rejectReasons.join(", ")}`);
+    } else {
+      selectedCandidate = `L${i + 1}: ${trimmed.slice(0, 120)}`;
+      selectedReason = "passes all checks";
+    }
+  }
+
+  const allRejected = rejectedCandidates.length;
+  const allFound = allCandidateLines.length;
+  if (allFound === 0) {
+    selectedReason = "no heading candidates found for this section number";
+  } else if (selectedCandidate === "none" && allRejected > 0) {
+    selectedCandidate = `all ${allFound} candidate(s) rejected`;
+    selectedReason = "all candidates matched one or more rejection criteria";
+  } else if (selectedCandidate === "none") {
+    selectedReason = "unknown — heading found but not selected";
+  }
+
+  return {
+    allCandidateLines,
+    rejectedCandidates,
+    selectedCandidate,
+    selectedReason,
+    sectionBodyPreview: (bodyContent ?? "missing").slice(0, 200),
   };
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 import {
+  analyzeSectionCandidates,
   extractPddSections,
   extractSectionContent,
   extractRoutedSections,
@@ -503,6 +504,88 @@ describe("TOC vs body content", () => {
     expect(c25.replace(/\n/g, " ")).toMatch(/barrier\s+analysis/);
     expect(c110.replace(/\s+/g, " ")).toMatch(/\b3\s*km\s*buffer\b/);
     expect(c24).not.toMatch(/\.{3,}/);
+  });
+
+  it("analyzeSectionCandidates returns all candidates with rejection reasons", () => {
+    const debug = analyzeSectionCandidates(TOC_THEN_BODY_TEXT, "2.4");
+    expect(debug.allCandidateLines.length).toBeGreaterThanOrEqual(2);
+    expect(debug.rejectedCandidates.length).toBeGreaterThanOrEqual(1);
+    expect(debug.selectedCandidate).toContain("Baseline Scenario");
+    expect(debug.selectedReason).toBe("passes all checks");
+    expect(debug.sectionBodyPreview).toContain("land-use scenario");
+  });
+
+  it("analyzeSectionCandidates reports rejection reason for TOC-only section", () => {
+    const debug = analyzeSectionCandidates(TOC_THEN_BODY_TEXT, "1.1");
+    // 1.1 appears in both TOC and body — body is selected
+    expect(debug.allCandidateLines.length).toBeGreaterThanOrEqual(2);
+    expect(debug.rejectedCandidates.length).toBeGreaterThanOrEqual(1);
+    expect(debug.selectedCandidate).toContain("Project Background");
+  });
+});
+
+describe("block-level TOC detection — heading inside Table of Contents block", () => {
+  const TOC_BLOCK_TEXT = [
+    "Table of Contents",
+    "",
+    "1.1  Project Background",
+    "1.9  Project Boundary",
+    "2.4  Baseline Scenario",
+    "2.5  Additionality",
+    "1.10  Leakage",
+    "",
+    "1.1  Project Background",
+    "This reforestation project is located in the central highlands.",
+    "The project area covers approximately 5,000 hectares of degraded land.",
+    "",
+    "2.4  Baseline Scenario",
+    "The baseline scenario represents the most likely land use in the",
+    "absence of the project. Historical deforestation rates are applied.",
+    "",
+  ].join("\n");
+
+  it("rejects TOC-block heading inside Table of Contents, selects body heading", () => {
+    const sections = extractPddSections(TOC_BLOCK_TEXT);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("most likely land use");
+    expect(sections["2.4"]).not.toMatch(/^Baseline Scenario\s*$/);
+  });
+
+  it("analyzeSectionCandidates shows TOC block rejection for 2.4", () => {
+    const debug = analyzeSectionCandidates(TOC_BLOCK_TEXT, "2.4");
+    expect(debug.rejectedCandidates.some((r) => r.includes("inside TOC block"))).toBe(true);
+    expect(debug.selectedCandidate).toContain("Baseline Scenario");
+  });
+});
+
+describe("body-text proximity check — heading with no follow-on body text", () => {
+  const NO_BODY_TEXT = [
+    "2.4  Baseline Scenario",
+    "2.5  Additionality",
+    "2.6  Deviations",
+    "",
+    "2.4  Baseline Scenario",
+    "The baseline scenario represents the most likely land use in the",
+    "absence of the project. Historical deforestation rates are applied.",
+    "",
+    "2.5  Additionality",
+    "The project is additional because it overcomes barriers to",
+    "implementation using carbon finance to support reforestation.",
+    "",
+  ].join("\n");
+
+  it("prefers heading with body text over heading that is immediately followed by another heading", () => {
+    const sections = extractPddSections(NO_BODY_TEXT);
+    expect(sections["2.4"]).toBeDefined();
+    expect(sections["2.4"]).toContain("most likely land use");
+    expect(sections["2.5"]).toContain("additional");
+    expect(sections["2.6"]).toBeUndefined();
+  });
+
+  it("analyzeSectionCandidates shows no-body-text rejection for first occurrence", () => {
+    const debug = analyzeSectionCandidates(NO_BODY_TEXT, "2.4");
+    expect(debug.rejectedCandidates.length).toBeGreaterThanOrEqual(1);
+    expect(debug.selectedCandidate).toContain("Baseline Scenario");
   });
 });
 

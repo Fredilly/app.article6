@@ -2182,6 +2182,47 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">
                             Extraction diagnostic
                           </summary>
+                          {reviewQuestionResult.phase1Diagnostic.sectionCandidates ? (
+                            <div className="mt-2 space-y-2">
+                              {Object.entries(reviewQuestionResult.phase1Diagnostic.sectionCandidates).map(([num, info]) => (
+                                <details key={num} className="rounded-lg border border-slate-200 bg-white text-[10px]">
+                                  <summary className="cursor-pointer px-3 py-2 font-medium text-slate-700 hover:bg-slate-50">
+                                    Section {num} — {info.selectedCandidate.includes("all") ? "⚠" : "✓"} {info.selectedCandidate.slice(0, 80)}
+                                  </summary>
+                                  <div className="border-t border-slate-100 px-3 py-2 text-slate-600">
+                                    <div className="mb-1">
+                                      <span className="font-semibold text-slate-500">Reason: </span>
+                                      {info.selectedReason}
+                                    </div>
+                                    {info.allCandidateLines.length > 0 && (
+                                      <div className="mb-1">
+                                        <span className="font-semibold text-slate-500">Candidates ({info.allCandidateLines.length}):</span>
+                                        <ul className="ml-2 list-disc list-inside">
+                                          {info.allCandidateLines.map((line, idx) => (
+                                            <li key={idx} className="truncate font-mono">{line}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    {info.rejectedCandidates.length > 0 && (
+                                      <div className="mb-1">
+                                        <span className="font-semibold text-slate-500">Rejected:</span>
+                                        <ul className="ml-2 list-disc list-inside">
+                                          {info.rejectedCandidates.map((reason, idx) => (
+                                            <li key={idx} className="truncate font-mono text-rose-600">{reason}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <span className="font-semibold text-slate-500">Body preview: </span>
+                                      <span className="font-mono">{info.sectionBodyPreview}</span>
+                                    </div>
+                                  </div>
+                                </details>
+                              ))}
+                            </div>
+                          ) : null}
                           <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-[10px] leading-relaxed text-slate-600">
                             {JSON.stringify(reviewQuestionResult.phase1Diagnostic, null, 2)}
                           </pre>
