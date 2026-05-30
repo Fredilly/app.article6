@@ -400,9 +400,10 @@ describe('/api/projects/[id]/export-pdf route', () => {
     });
     const bytes = pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength);
     const parsed = await extractPdfTextWithPdfParse({ bytes });
+    const normalizedText = parsed.text.replace(/\s+/g, ' ');
 
-    expect(parsed.text).toContain('sampled invoices, monitoring workbook cross-check');
-    expect(parsed.text).toContain('boundary reconciliation used for the draft assessment');
+    expect(normalizedText).toContain('sampled invoices, monitoring workbook cross-check');
+    expect(normalizedText).toContain('boundary reconciliation used for the draft assessment');
     expect(parsed.text).toContain('0123456789abcdef0123456789abcdef');
   }, 15000);
 
