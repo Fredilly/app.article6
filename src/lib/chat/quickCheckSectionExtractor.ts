@@ -36,6 +36,40 @@ type HeadingMatch = {
   end: number;
 };
 
+function isConnectorWord(word: string): boolean {
+  return /^(?:a|an|and|as|at|by|for|from|in|into|of|on|or|the|to|with|without)$/i.test(word);
+}
+
+function isLikelyTopLevelSectionTitle(num: string, title: string): boolean {
+  if (num.includes(".")) return true;
+  if (/[!?/\\@]/.test(title)) return false;
+  if (title.length > 80) return false;
+
+  const words = title.split(/\s+/).filter(Boolean);
+  if (words.length === 0 || words.length > 8) return false;
+
+  const headingishWords = words.filter((word) => {
+    const cleaned = word.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9+()-]+$/g, "");
+    if (!cleaned) return false;
+    if (isConnectorWord(cleaned)) return true;
+    if (/^[A-Z][a-z][A-Za-z-]*$/.test(cleaned)) return true;
+    if (/^[A-Z]{3,}$/.test(cleaned)) return true;
+    return false;
+  });
+
+  if (headingishWords.length / words.length < 0.6) return false;
+  if (!words.some((word) => /[A-Za-z]{4,}/.test(word) && !/^[A-Z]{2,}$/.test(word))) return false;
+  return true;
+}
+
+function isLikelyHeadingCandidate(num: string, title: string): boolean {
+  if (!title) return false;
+  if (/^\d/.test(title)) return false;
+  if (/^[a-z]/.test(title)) return false;
+  if (title.length > 120) return false;
+  return isLikelyTopLevelSectionTitle(num, title);
+}
+
 function tryHeadingPatterns(text: string, patterns: RegExp[]): HeadingMatch[] {
   const allCandidates: HeadingMatch[] = [];
   for (const re of patterns) {
@@ -44,10 +78,7 @@ function tryHeadingPatterns(text: string, patterns: RegExp[]): HeadingMatch[] {
     while ((match = re.exec(text)) !== null) {
       const num = match[1]!;
       const title = match[2]!.trim();
-      if (!title) continue;
-      if (/^\d/.test(title)) continue;
-      if (/^[a-z]/.test(title)) continue;
-      if (title.length > 120) continue;
+      if (!isLikelyHeadingCandidate(num, title)) continue;
       allCandidates.push({ num, title, start: match.index, end: match.index + match[0].length });
     }
     re.lastIndex = 0;
@@ -102,15 +133,29 @@ function isInsideTocBlock(pos: number, tocBlock: { start: number; end: number } 
   return pos >= tocBlock.start && pos < tocBlock.end;
 }
 
-function hasBodyTextAfter(text: string, startPos: number): boolean {
-  const after = text.slice(startPos);
-  const re = SECTION_HEADING_RE;
-  re.lastIndex = 0;
-  const nextMatch = re.exec(after);
-  const between = nextMatch ? after.slice(0, nextMatch.index).trim() : after.trim();
-  if (between.length < 5) return false;
-  if (/[a-z]{4,}/.test(between)) return true;
-  if (/[.!?]\s+[A-Z]/.test(between)) return true;
+function extractHeadingNumberFromLine(line: string): string | null {
+  const match = line.match(/^\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+\S/);
+  return match?.[1] ?? null;
+}
+
+function hasBodyTextAfter(text: string, startPos: number, sectionNum: string): boolean {
+  const lines = text.slice(startPos).split("\n");
+  for (const rawLine of lines) {
+    const trimmed = rawLine.trim();
+    if (!trimmed) continue;
+
+    const nextHeadingNum = extractHeadingNumberFromLine(trimmed);
+    if (nextHeadingNum) {
+      if (nextHeadingNum.startsWith(`${sectionNum}.`)) {
+        continue;
+      }
+      return false;
+    }
+
+    if (trimmed.length < 5) continue;
+    if (/[a-z]{4,}/.test(trimmed)) return true;
+    if (/[.!?]\s+[A-Z]/.test(trimmed)) return true;
+  }
   return false;
 }
 
@@ -168,8 +213,7 @@ function findAllRawCandidates(cleaned: string): HeadingMatch[] {
     while ((match = inlineRe.exec(cleaned)) !== null) {
       const num = match[1]!;
       const title = match[2]!.trim();
-      if (!title) continue;
-      if (/^\d/.test(title)) continue;
+      if (!isLikelyHeadingCandidate(num, title)) continue;
       all.push({ num, title, start: match.index, end: match.index + match[0].length });
     }
   }
@@ -185,9 +229,7 @@ function findAllRawCandidates(cleaned: string): HeadingMatch[] {
       if (!numMatch) continue;
       const num = numMatch[1]!;
       const title = lines[i + 1]!.trim();
-      if (!title) continue;
-      if (/^\d/.test(title)) continue;
-      if (title.length > 120) continue;
+      if (!isLikelyHeadingCandidate(num, title)) continue;
       all.push({ num, title, start: linePos(i), end: linePos(i + 2) });
     }
   }
@@ -216,7 +258,7 @@ export function extractPddSections(rawText: string): Record<string, string> {
     const reason: string | null = (() => {
       if (isTocTitle(h.title)) return "line-level TOC markers";
       if (tocBlock && isInsideTocBlock(h.start, tocBlock)) return "inside TOC block";
-      if (!hasBodyTextAfter(cleaned, h.end)) return "no body text after heading";
+      if (!hasBodyTextAfter(cleaned, h.end, h.num)) return "no body text after heading";
       return null;
     })();
 
@@ -245,7 +287,14 @@ export function extractPddSections(rawText: string): Record<string, string> {
   for (let i = 0; i < selectedHeadings.length; i++) {
     const h = selectedHeadings[i]!;
     const contentStart = h.end;
-    const nextStart = i + 1 < selectedHeadings.length ? selectedHeadings[i + 1]!.start : cleaned.length;
+    let nextStart = cleaned.length;
+    for (let j = i + 1; j < selectedHeadings.length; j++) {
+      const candidate = selectedHeadings[j]!;
+      if (!candidate.num.startsWith(`${h.num}.`)) {
+        nextStart = candidate.start;
+        break;
+      }
+    }
     let content = cleaned.slice(contentStart, nextStart).trim();
     if (content) {
       content = `${h.title}\n${content}`;
@@ -463,7 +512,7 @@ export function analyzeSectionCandidates(rawText: string, sectionNum: string): S
       }
     }
     const lineEndPos = lines.slice(0, i + 1).reduce((sum, l) => sum + l.length + 1, 0);
-    if (!hasBodyTextAfter(cleaned, lineEndPos)) {
+    if (!hasBodyTextAfter(cleaned, lineEndPos, sectionNum)) {
       rejectReasons.push("no body text after heading");
     }
     if (rejectReasons.length > 0) {

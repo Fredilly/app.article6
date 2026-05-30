@@ -173,7 +173,9 @@ function buildPageExtractionResult(
       .filter((page) => page.text)
     : [];
   const pages = parsedPages.length > 0 ? parsedPages : buildSyntheticPages(rawText);
-  const combinedText = rawText || pages.map((page) => page.text).join("\n\n");
+  const combinedText = parsedPages.length > 0
+    ? pages.map((page) => page.text).join("\n\n")
+    : rawText;
 
   if (!combinedText) {
     const failureDiagnostics = {
@@ -235,11 +237,6 @@ async function runPdfHelper(bytes: ArrayBuffer, includePages: boolean): Promise<
   }
 }
 
-async function extractPdfTextViaHelper(bytes: ArrayBuffer): Promise<string> {
-  const payload = await runPdfHelper(bytes, false);
-  return normalizePageWhitespace(payload.text ?? "");
-}
-
 async function loadBundledPdfParseClass(): Promise<PdfParseLike> {
   await ensurePdfJsNodeGlobals();
   const mod = await import("pdf-parse");
@@ -293,28 +290,49 @@ export async function extractPdfTextWithPdfParse(input: {
     };
   } catch (error) {
     const parserError = sanitizeDiagnosticMessage(toErrorMessage(error));
-    const helperText = input.helperOverrides?.extractTextViaHelper
-      ? normalizePageWhitespace((await input.helperOverrides.extractTextViaHelper(input.bytes)).text ?? "")
-      : await extractPdfTextViaHelper(input.bytes);
-    return {
-      text: helperText,
-      engine: "pdf-parse",
-      metadata: {
-        parser: "pdf-parse",
-        diagnostics: {
-          ...buildEmptyDiagnostics(),
-          failureKind: helperText ? "parser-failed" : "no-selectable-text",
-          parserPath: "helper-text",
-          pageExtractionAttempted: true,
-          pageExtractionError: parserError,
-          textFallbackAttempted: true,
-          extractedTextLength: helperText.length,
-          pageCount: helperText ? 1 : 0,
-          likelyScannedOrImageOnly: !helperText,
-          partialTextRecovered: Boolean(helperText),
-        },
-      },
+    const diagnostics = {
+      ...buildEmptyDiagnostics(),
+      pageExtractionAttempted: true,
+      pageExtractionError: parserError,
+      textFallbackAttempted: true,
     };
+    const extractPagesViaHelper = input.helperOverrides?.extractPagesViaHelper
+      ?? ((bytes: ArrayBuffer) => runPdfHelper(bytes, true));
+    const extractTextViaHelper = input.helperOverrides?.extractTextViaHelper
+      ?? ((bytes: ArrayBuffer) => runPdfHelper(bytes, false));
+
+    try {
+      diagnostics.parserPath = "helper-pages";
+      const pageResult = buildPageExtractionResult(await extractPagesViaHelper(input.bytes), diagnostics);
+      return {
+        text: pageResult.text,
+        engine: "pdf-parse",
+        metadata: pageResult.metadata,
+      };
+    } catch (helperPageError) {
+      const helperPageMessage = sanitizeDiagnosticMessage(toErrorMessage(helperPageError));
+      const helperText = normalizePageWhitespace((await extractTextViaHelper(input.bytes)).text ?? "");
+      return {
+        text: helperText,
+        engine: "pdf-parse",
+        metadata: {
+          parser: "pdf-parse",
+          diagnostics: {
+            ...buildEmptyDiagnostics(),
+            failureKind: helperText ? "parser-failed" : "no-selectable-text",
+            parserPath: "helper-text-after-helper-pages",
+            pageExtractionAttempted: true,
+            pageExtractionError: parserError,
+            textFallbackAttempted: true,
+            textFallbackError: helperPageMessage,
+            extractedTextLength: helperText.length,
+            pageCount: helperText ? 1 : 0,
+            likelyScannedOrImageOnly: !helperText,
+            partialTextRecovered: Boolean(helperText),
+          },
+        },
+      };
+    }
   }
 }
 

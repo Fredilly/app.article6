@@ -617,6 +617,46 @@ describe("body-text proximity check — heading with no follow-on body text", ()
   });
 });
 
+describe("nested subsection handling and top-level noise rejection", () => {
+  const NESTED_SECTION_TEXT = [
+    "2.1  Project Goals, Design and Long-Term Viability",
+    "2.1.1  Summary Description of the Project (G1.2)",
+    "The project restores degraded forest and peatland landscapes.",
+    "2.1.2  Project Location",
+    "The project is located in Central Kalimantan.",
+    "",
+    "3.3  Monitoring",
+    "3.3.1  Data and Parameters Available at Validation",
+    "Monitoring data are available at validation.",
+  ].join("\n");
+
+  const NOISY_TOP_LEVEL_TEXT = [
+    "3.3.3  Data Management",
+    "The following table provides the list of monitoring team members.",
+    "1  TBD / Technical Director Oversee and provide technical advice on all processes",
+    "2  TBD / GIS-Remote Sensing Manager Supervise SOPs development",
+    "10  Pandji A. Fauzan / Biodiversity & Forest Protection Coordinator",
+    "",
+    "1  Summary of Project Benefits",
+    "High-level project summary.",
+  ].join("\n");
+
+  it("keeps parent headings when body begins under nested subsections", () => {
+    const sections = extractPddSections(NESTED_SECTION_TEXT);
+    expect(sections["2.1"]).toBeDefined();
+    expect(sections["2.1"]).toContain("Summary Description of the Project");
+    expect(sections["3.3"]).toBeDefined();
+    expect(sections["3.3"]).toContain("Data and Parameters Available at Validation");
+  });
+
+  it("rejects noisy top-level table rows and keeps actual top-level headings", () => {
+    const sections = extractPddSections(NOISY_TOP_LEVEL_TEXT);
+    expect(sections["1"]).toBeDefined();
+    expect(sections["2"]).toBeUndefined();
+    expect(sections["10"]).toBeUndefined();
+  });
+});
+
 describe("fixture-based regression — real extracted PDD text format", () => {
   const fixturePath = path.join(__dirname, "..", "fixtures", "quick-check", "vm0007-pdd-extracted.txt");
   const fixtureText = fs.readFileSync(fixturePath, "utf-8");
