@@ -451,9 +451,9 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
       methodologyVersion: "1.0",
       rawPddText: PLUM_TEXT,
     });
+    expect(result.relevantSections[0]).toBe("3.1.2");
     expect(result.relevantSections).toContain("3.1");
     expect(result.sectionContent["3.1"]).toBeDefined();
-    expect(result.sectionContent["3.1"]).toContain("Methodology");
   });
 
   it("matches remote sensing for monitoring question to monitoring-related sections", () => {
@@ -490,6 +490,17 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.sectionContent["3.5"]).toBeUndefined();
     expect(result.sectionContent["20.0"]).toBeUndefined();
     expect(result.sectionContent["3.3.1"]).toBeUndefined();
+  });
+
+  it("returns no match when only generic project words overlap but no heading is a strong title match", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe the project boundary?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: CUSTOM_HEADING_PDD,
+    });
+    expect(result.relevantSections).toEqual([]);
+    expect(result.sectionContent).toEqual({});
   });
 
   it("returns relevantSections sorted by relevance (best match first)", () => {
@@ -582,6 +593,7 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     // filter by acceptance phrases surfaces correct heading (title match only)
     const goals = filterPddHeadingsByQuery(result.headingIndex, "Project Goals, Design and Long-Term Viability");
     expect(goals[0]?.sectionNumber).toBe("2.1");
+    expect(goals.some((h) => h.sectionNumber === "2.3")).toBe(false);
 
     const without = filterPddHeadingsByQuery(result.headingIndex, "Without-project Land Use Scenario and Additionality");
     expect(without[0]?.sectionNumber).toBe("2.2");
@@ -628,28 +640,28 @@ describe("computeSectionMatchResults — match diagnostics", () => {
     const match2_1 = results.find(r => r.section === "2.1")!;
     expect(match2_1).toBeDefined();
     expect(match2_1.totalScore).toBe(0);
-    expect(match2_1.rejectionReason).toContain("below absolute threshold");
+    expect(match2_1.rejectionReason).toContain("no heading/title match");
     expect(match2_1.included).toBe(false);
   });
 
-  it("reports source (heading, body, or both)", () => {
+  it("reports source as heading-only for primary matches", () => {
     const results = computeSectionMatchResults(PDD, "baseline", "Does this PDD contain the baseline scenario?");
     const match2_2 = results.find(r => r.section === "2.2")!;
-    expect(["heading", "both"]).toContain(match2_2.source);
+    expect(match2_2.source).toBe("heading");
     const match2_1 = results.find(r => r.section === "2.1")!;
     expect(match2_1.source).toBe("none");
   });
 
-  it("rejects unreasonable section IDs (standalone integer without decimal)", () => {
+  it("accepts top-level section numbers when the heading title is a strong match", () => {
     const pddWithBadIds = [
-      "20. Some section without sub-number",
-      "Content for section 20.",
+      "4  Monitoring",
+      "Monitoring is conducted annually.",
     ].join("\n");
-    const results = computeSectionMatchResults(pddWithBadIds, "general", "Does this PDD describe something?");
-    const badMatch = results.find(r => r.section === "20");
-    expect(badMatch).toBeDefined();
-    expect(badMatch!.rejectionReason).toContain("unreasonable section");
-    expect(badMatch!.included).toBe(false);
+    const results = computeSectionMatchResults(pddWithBadIds, "monitoring", "Does this PDD describe monitoring?");
+    const match = results.find(r => r.section === "4");
+    expect(match).toBeDefined();
+    expect(match!.included).toBe(true);
+    expect(match!.source).toBe("heading");
   });
 
   it("populates phase1Diagnostic.matchResults in dev mode", () => {

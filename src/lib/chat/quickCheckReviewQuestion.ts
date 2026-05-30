@@ -5,6 +5,7 @@ import {
   extractPddSections,
   filterPddHeadingsByQuery,
   normalizeSectionKey,
+  scoreHeadingAgainstQuery,
   type DocumentHeading,
   type SectionCandidateDebug,
 } from "@/lib/chat/quickCheckSectionExtractor";
@@ -91,11 +92,11 @@ const BROAD_QUESTION_PATTERNS: RegExp[] = [
 const REVIEW_AREA_KEYWORDS: Record<ReviewArea, string[]> = {
   additionality: ["additionality"],
   baseline: ["baseline", "without-project", "without project", "land use scenario"],
-  boundary: ["boundary", "project area", "project zone", "geographic", "location"],
-  leakage: ["leakage"],
+  boundary: ["boundary", "project area", "project zone", "geographic boundary", "project location"],
+  leakage: ["leakage", "leakage belt"],
   monitoring: ["monitoring", "monitoring plan", "data and parameters"],
-  deviations: [],
-  right_of_use: [],
+  deviations: ["deviations", "deviation"],
+  right_of_use: ["right of use", "land tenure", "carbon rights", "property rights"],
   general: [],
 };
 
@@ -154,18 +155,8 @@ const CLAIM_STOP_WORDS = new Set([
   'include', 'support', 'demonstrate', 'define', 'show', 'disclose',
 ]);
 
-const SCORE = {
-  REVIEW_KW_TITLE: 15,
-  REVIEW_KW_BODY: 3,
-  CLAIM_PHRASE_TITLE: 12,
-  CLAIM_PHRASE_BODY: 2,
-  CLAIM_WORD_TITLE: 5,
-  CLAIM_WORD_BODY: 1,
-} as const;
-
-const PRIMARY_HEADING_THRESHOLD = 5;
-const ABSOLUTE_THRESHOLD = 3;
 const MAX_PRIMARY_SECTIONS = 3;
+const HEADING_MATCH_MIN_COVERAGE = 0.6;
 
 export function extractClaimKeywords(claimText: string): { phrases: string[]; words: string[] } {
   const cleaned = claimText
@@ -191,67 +182,8 @@ export function extractClaimKeywords(claimText: string): { phrases: string[]; wo
   return { phrases: [...new Set(phrases)], words: [...new Set(words)] };
 }
 
-type SectionScore = {
-  title: string;
-  headingScore: number;
-  bodyScore: number;
-  matchedTerms: string[];
-};
-
-function scoreSection(
-  title: string,
-  body: string,
-  reviewKeywords: string[],
-  claimKeywords: { phrases: string[]; words: string[] },
-): SectionScore {
-  const lowerTitle = title.toLowerCase();
-  const lowerBody = body.toLowerCase();
-  let headingScore = 0;
-  let bodyScore = 0;
-  const matchedTerms: string[] = [];
-
-  for (const kw of reviewKeywords) {
-    const lowerKw = kw.toLowerCase();
-    if (lowerTitle.includes(lowerKw)) {
-      headingScore += SCORE.REVIEW_KW_TITLE;
-      matchedTerms.push(`review_kw:${kw}`);
-    } else if (lowerBody.includes(lowerKw)) {
-      bodyScore += SCORE.REVIEW_KW_BODY;
-      matchedTerms.push(`review_kw(body):${kw}`);
-    }
-  }
-
-  for (const phrase of claimKeywords.phrases) {
-    if (lowerTitle.includes(phrase)) {
-      headingScore += SCORE.CLAIM_PHRASE_TITLE;
-      if (phrase.split(/\s+/).length >= 2) { headingScore += 15; matchedTerms.push(`phrase:${phrase}(+15)`); }
-      else matchedTerms.push(`phrase:${phrase}`);
-    } else if (lowerBody.includes(phrase)) {
-      bodyScore += SCORE.CLAIM_PHRASE_BODY;
-      matchedTerms.push(`phrase(body):${phrase}`);
-    }
-  }
-
-  for (const word of claimKeywords.words) {
-    if (lowerTitle.includes(word)) {
-      headingScore += SCORE.CLAIM_WORD_TITLE;
-      matchedTerms.push(`word:${word}`);
-    } else if (lowerBody.includes(word)) {
-      bodyScore += SCORE.CLAIM_WORD_BODY;
-      matchedTerms.push(`word(body):${word}`);
-    }
-  }
-
-  return {
-    title,
-    headingScore,
-    bodyScore,
-    matchedTerms,
-  };
-}
-
 function isReasonableSectionId(num: string): boolean {
-  return /^\d+(\.\d+)+$/.test(num) && !/^\d+$/.test(num);
+  return /^\d+(?:\.\d+)*$/.test(num);
 }
 
 export function findMatchedSectionNumbers(
@@ -259,32 +191,11 @@ export function findMatchedSectionNumbers(
   reviewArea: ReviewArea,
   claimText?: string,
 ): string[] {
-  const allSections = extractPddSections(rawPddText);
-  const reviewKeywords = REVIEW_AREA_KEYWORDS[reviewArea] ?? [];
-  const claimKeywords = claimText ? extractClaimKeywords(claimText) : { phrases: [], words: [] };
-
-  if (reviewKeywords.length === 0 && claimKeywords.phrases.length === 0 && claimKeywords.words.length === 0) {
-    return [];
-  }
-
-  const scored: { num: string; totalScore: number }[] = [];
-
-  for (const [num, content] of Object.entries(allSections)) {
-    if (!isReasonableSectionId(num)) continue;
-
-    const title = content.split("\n").find((l) => l.trim().length > 0) ?? "";
-    const result = scoreSection(title, content, reviewKeywords, claimKeywords);
-    const totalScore = result.headingScore + result.bodyScore;
-
-    if (totalScore < ABSOLUTE_THRESHOLD) continue;
-    if (result.headingScore < PRIMARY_HEADING_THRESHOLD) continue;
-
-    scored.push({ num, totalScore });
-  }
-
-  scored.sort((a, b) => b.totalScore - a.totalScore);
-
-  return scored.slice(0, MAX_PRIMARY_SECTIONS).map(s => s.num);
+  if (!claimText?.trim()) return [];
+  return filterPddHeadingsByQuery(buildPddHeadingIndex(rawPddText), claimText, REVIEW_AREA_KEYWORDS[reviewArea] ?? [])
+    .filter((heading) => isReasonableSectionId(heading.sectionNumber))
+    .slice(0, MAX_PRIMARY_SECTIONS)
+    .map((heading) => heading.sectionNumber);
 }
 
 export function computeSectionMatchResults(
@@ -292,44 +203,41 @@ export function computeSectionMatchResults(
   reviewArea: ReviewArea,
   claimText: string,
 ): SectionMatchResult[] {
-  const allSections = extractPddSections(rawPddText);
-  const reviewKeywords = REVIEW_AREA_KEYWORDS[reviewArea] ?? [];
-  const claimKeywords = claimText ? extractClaimKeywords(claimText) : { phrases: [], words: [] };
+  const headingIndex = buildPddHeadingIndex(rawPddText);
+  const fallbackKeywords = REVIEW_AREA_KEYWORDS[reviewArea] ?? [];
   const results: SectionMatchResult[] = [];
 
-  for (const [num, content] of Object.entries(allSections)) {
-    const title = content.split("\n").find((l) => l.trim().length > 0) ?? "";
-    const score = scoreSection(title, content, reviewKeywords, claimKeywords);
-    const totalScore = score.headingScore + score.bodyScore;
-
-    let source: SectionMatchResult["source"] = "none";
-    if (score.headingScore > 0 && score.bodyScore > 0) source = "both";
-    else if (score.headingScore > 0) source = "heading";
-    else if (score.bodyScore > 0) source = "body";
+  for (const heading of headingIndex) {
+    const score = scoreHeadingAgainstQuery(heading, claimText, fallbackKeywords);
+    const headingScore = score.score;
+    const bodyScore = 0;
+    const totalScore = headingScore;
 
     let rejectionReason: string | undefined;
-    if (!isReasonableSectionId(num)) {
-      rejectionReason = `unreasonable section ID: ${num}`;
-    } else if (totalScore < ABSOLUTE_THRESHOLD) {
-      rejectionReason = `below absolute threshold (${totalScore} < ${ABSOLUTE_THRESHOLD})`;
-    } else if (score.headingScore >= PRIMARY_HEADING_THRESHOLD) {
-      // heading match — included as primary
-    } else if (score.bodyScore > 0 && score.headingScore === 0) {
-      rejectionReason = `body-only match (score ${score.bodyScore}) — heading-first strategy requires heading title match`;
-    } else if (score.headingScore > 0 && score.headingScore < PRIMARY_HEADING_THRESHOLD) {
-      rejectionReason = `heading score ${score.headingScore} below primary threshold ${PRIMARY_HEADING_THRESHOLD}`;
+    if (!isReasonableSectionId(heading.sectionNumber)) {
+      rejectionReason = `unreasonable section ID: ${heading.sectionNumber}`;
+    } else if (!score.strong) {
+      rejectionReason = headingScore > 0
+        ? `title match too weak (${headingScore}) — exact or near-exact heading phrase required`
+        : "no heading/title match";
     }
 
-    const matchedTerms = score.matchedTerms;
+    const matchedTerms = [
+      ...score.exactTokenMatches.map((token) => `title:${token}`),
+      ...score.softTokenMatches.map((token) => `title~:${token}`),
+      ...score.fallbackKeywordMatches.map((token) => `review_title:${token}`),
+    ];
+    if (score.exactTitleMatch) matchedTerms.unshift("exact_title");
+    else if (score.fullPhraseMatch) matchedTerms.unshift("phrase_title");
 
     results.push({
-      section: num,
-      headingTitle: title,
-      headingScore: score.headingScore,
-      bodyScore: score.bodyScore,
+      section: heading.sectionNumber,
+      headingTitle: heading.title,
+      headingScore,
+      bodyScore,
       totalScore,
       matchedTerms,
-      source,
+      source: headingScore > 0 ? "heading" : "none",
       included: !rejectionReason,
       rejectionReason,
     });
@@ -365,7 +273,7 @@ export function buildReviewQuestionResult(input: {
   // Phase 1: heading index is source of truth from uploaded document.
   // Question text is used ONLY as a filter over headings (title-based, no body scoring, no reviewArea keywords, no static routes).
   const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
-  const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "");
+  const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "", REVIEW_AREA_KEYWORDS[reviewArea] ?? []);
 
   const relevantSections = matchedHeadings.map((h) => h.sectionNumber);
   const sectionContent: Record<string, string> = {};
@@ -448,6 +356,6 @@ function buildPhase1Diagnostic(
     },
     matchResults,
     claimKeywords,
-    threshold: PRIMARY_HEADING_THRESHOLD,
+    threshold: HEADING_MATCH_MIN_COVERAGE,
   };
 }

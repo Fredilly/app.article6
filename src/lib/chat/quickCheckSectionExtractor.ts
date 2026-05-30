@@ -240,6 +240,7 @@ export function extractPddSections(rawText: string): Record<string, string> {
   }
 
   if (selectedHeadings.length === 0) return sections;
+  selectedHeadings.sort((a, b) => a.start - b.start);
 
   for (let i = 0; i < selectedHeadings.length; i++) {
     const h = selectedHeadings[i]!;
@@ -505,6 +506,18 @@ export type DocumentHeading = {
   bodyText: string;
 };
 
+export type HeadingQueryMatch = {
+  heading: DocumentHeading;
+  score: number;
+  exactTitleMatch: boolean;
+  fullPhraseMatch: boolean;
+  exactTokenMatches: string[];
+  softTokenMatches: string[];
+  fallbackKeywordMatches: string[];
+  coverage: number;
+  strong: boolean;
+};
+
 const HEADING_PREVIEW_MAX = 220;
 const HEADING_BODY_MAX = 4000;
 
@@ -514,6 +527,226 @@ function normalizeHeadingTitle(title: string): string {
     .replace(/[^\w\s.-]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+const HEADING_QUERY_PREFIX_RE = /^(?:(?:does|can|could|should|would|will|is|are)\s+(?:this|the)\s+(?:pdd|document)\s+|(?:what|where|when|why|how)\s+(?:is|are|does)\s+(?:this|the)?\s*(?:pdd|document)?\s*|please\s+)+/i;
+const HEADING_QUERY_VERB_RE = /^(?:explain|describe|review|check|evaluate|assess|identify|discuss|justify|mention|outline|summarize|present|provide|include|support|demonstrate|define|show|disclose|contain|address)\s+/i;
+const HEADING_QUERY_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "by",
+  "does",
+  "for",
+  "from",
+  "how",
+  "in",
+  "into",
+  "is",
+  "it",
+  "of",
+  "on",
+  "or",
+  "pdd",
+  "project",
+  "section",
+  "that",
+  "the",
+  "their",
+  "this",
+  "those",
+  "under",
+  "what",
+  "when",
+  "where",
+  "which",
+  "with",
+]);
+const HEADING_QUERY_LOW_SIGNAL_TOKENS = new Set([
+  "adequate",
+  "analysis",
+  "assessment",
+  "check",
+  "compliance",
+  "comply",
+  "conditions",
+  "demonstrated",
+  "demonstrate",
+  "describe",
+  "document",
+  "explain",
+  "identify",
+  "justified",
+  "justify",
+  "meets",
+  "evaluate",
+  "evidence",
+  "appropriate",
+  "present",
+  "provide",
+  "question",
+  "report",
+  "requirements",
+  "review",
+  "risk",
+  "show",
+  "support",
+  "suitable",
+]);
+
+function stripHeadingQueryBoilerplate(query: string): string {
+  return normalizeHeadingTitle(query)
+    .replace(HEADING_QUERY_PREFIX_RE, "")
+    .replace(HEADING_QUERY_VERB_RE, "")
+    .trim();
+}
+
+function tokenizeHeadingMatchText(text: string): string[] {
+  return normalizeHeadingTitle(text).split(/\s+/).filter(Boolean);
+}
+
+function buildHeadingQueryTokens(query: string): string[] {
+  return tokenizeHeadingMatchText(stripHeadingQueryBoilerplate(query))
+    .filter((token) => token.length >= 3)
+    .filter((token) => !/[a-z]+\d+|\d+[a-z]+/.test(token))
+    .filter((token) => !HEADING_QUERY_STOP_WORDS.has(token))
+    .filter((token) => !HEADING_QUERY_LOW_SIGNAL_TOKENS.has(token));
+}
+
+function sharedPrefixLength(a: string, b: string): number {
+  const max = Math.min(a.length, b.length);
+  let idx = 0;
+  while (idx < max && a[idx] === b[idx]) idx += 1;
+  return idx;
+}
+
+function tokensLooselyMatch(a: string, b: string): boolean {
+  if (a === b) return true;
+  const shorter = Math.min(a.length, b.length);
+  if (shorter < 6) return false;
+  const prefix = sharedPrefixLength(a, b);
+  return prefix >= 6 && prefix / shorter >= 0.5;
+}
+
+function countContiguousQueryBigrams(queryTokens: string[], titleTokens: string[]): number {
+  if (queryTokens.length < 2 || titleTokens.length < 2) return 0;
+  const titleBigrams = new Set<string>();
+  for (let i = 0; i < titleTokens.length - 1; i += 1) {
+    titleBigrams.add(`${titleTokens[i]} ${titleTokens[i + 1]}`);
+  }
+  let count = 0;
+  for (let i = 0; i < queryTokens.length - 1; i += 1) {
+    if (titleBigrams.has(`${queryTokens[i]} ${queryTokens[i + 1]}`)) count += 1;
+  }
+  return count;
+}
+
+function hasOrderedTokenMatch(queryTokens: string[], titleTokens: string[], allowLoose: boolean): boolean {
+  if (queryTokens.length === 0) return false;
+  let titleIndex = 0;
+  for (const queryToken of queryTokens) {
+    let found = false;
+    while (titleIndex < titleTokens.length) {
+      const titleToken = titleTokens[titleIndex]!;
+      const matched = allowLoose ? tokensLooselyMatch(queryToken, titleToken) : queryToken === titleToken;
+      titleIndex += 1;
+      if (matched) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) return false;
+  }
+  return true;
+}
+
+export function scoreHeadingAgainstQuery(
+  heading: DocumentHeading,
+  query: string,
+  fallbackKeywords: string[] = [],
+): HeadingQueryMatch {
+  const strippedQuery = stripHeadingQueryBoilerplate(query);
+  const queryTokens = buildHeadingQueryTokens(query);
+  const titleTokens = tokenizeHeadingMatchText(heading.normalizedTitle);
+
+  if (!strippedQuery || queryTokens.length === 0) {
+    return {
+      heading,
+      score: 0,
+      exactTitleMatch: false,
+      fullPhraseMatch: false,
+      exactTokenMatches: [],
+      softTokenMatches: [],
+      fallbackKeywordMatches: [],
+      coverage: 0,
+      strong: false,
+    };
+  }
+
+  const exactTokenMatches: string[] = [];
+  const softTokenMatches: string[] = [];
+
+  for (const queryToken of queryTokens) {
+    if (titleTokens.includes(queryToken)) {
+      exactTokenMatches.push(queryToken);
+      continue;
+    }
+    if (titleTokens.some((titleToken) => tokensLooselyMatch(queryToken, titleToken))) {
+      softTokenMatches.push(queryToken);
+    }
+  }
+
+  const exactTitleMatch = heading.normalizedTitle === strippedQuery;
+  const fullPhraseMatch = queryTokens.length >= 2 && heading.normalizedTitle.includes(strippedQuery);
+  const exactOrderedMatch = hasOrderedTokenMatch(queryTokens, titleTokens, false);
+  const looseOrderedMatch = hasOrderedTokenMatch(queryTokens, titleTokens, true);
+  const contiguousBigrams = countContiguousQueryBigrams(queryTokens, titleTokens);
+  const fallbackKeywordMatches = fallbackKeywords.filter((keyword) => {
+    const normalizedKeyword = normalizeHeadingTitle(keyword);
+    return normalizedKeyword.length > 0 && heading.normalizedTitle.includes(normalizedKeyword);
+  });
+  const weightedMatches = exactTokenMatches.length + softTokenMatches.length * 0.7;
+  const coverage = queryTokens.length > 0 ? weightedMatches / queryTokens.length : 0;
+
+  let score = 0;
+  if (exactTitleMatch) score += 280;
+  if (fullPhraseMatch) score += 220;
+  if (exactOrderedMatch && queryTokens.length >= 2) score += 120;
+  else if (looseOrderedMatch && queryTokens.length >= 2) score += 90;
+  score += exactTokenMatches.length * 40;
+  score += softTokenMatches.length * 18;
+  score += contiguousBigrams * 35;
+  score += Math.round(coverage * 100);
+  score += fallbackKeywordMatches.reduce((total, keyword) => total + (keyword.includes(" ") ? 28 : 18), 0);
+  if (queryTokens.length === 1 && exactTokenMatches.length > 0) score += 120;
+  else if (queryTokens.length === 1 && softTokenMatches.length > 0) score += 80;
+
+  const strong =
+    exactTitleMatch
+    || fullPhraseMatch
+    || (fallbackKeywordMatches.length > 0 && (exactTokenMatches.length > 0 || softTokenMatches.length > 0))
+    || (queryTokens.length === 1
+      ? exactTokenMatches.length > 0 || softTokenMatches.length > 0
+      : coverage >= 0.6 && (
+        exactTokenMatches.length >= 2
+        || looseOrderedMatch
+        || contiguousBigrams > 0
+      ));
+
+  return {
+    heading,
+    score,
+    exactTitleMatch,
+    fullPhraseMatch,
+    exactTokenMatches,
+    softTokenMatches,
+    fallbackKeywordMatches,
+    coverage,
+    strong,
+  };
 }
 
 function makeBodyPreview(body: string): string {
@@ -547,17 +780,19 @@ export function buildPddHeadingIndex(rawPddText: string): DocumentHeading[] {
 }
 
 export function headingMatchesQuery(heading: DocumentHeading, query: string): boolean {
-  const q = normalizeHeadingTitle(query);
-  if (!q || q.length < 2) return false;
-  if (heading.normalizedTitle.includes(q)) return true;
-  const STOP = new Set(["project", "pdd", "this", "that", "what", "does", "the", "and", "for", "with", "from"]);
-  const words = q.split(/\s+/).filter((w) => w.length >= 4 && !STOP.has(w));
-  if (words.length === 0) return false;
-  return words.some((w) => heading.normalizedTitle.includes(w));
+  return scoreHeadingAgainstQuery(heading, query).strong;
 }
 
-export function filterPddHeadingsByQuery(headings: DocumentHeading[], query: string): DocumentHeading[] {
+export function filterPddHeadingsByQuery(
+  headings: DocumentHeading[],
+  query: string,
+  fallbackKeywords: string[] = [],
+): DocumentHeading[] {
   const q = query.trim();
   if (!q) return [];
-  return headings.filter((h) => headingMatchesQuery(h, q));
+  return headings
+    .map((heading) => scoreHeadingAgainstQuery(heading, q, fallbackKeywords))
+    .filter((match) => match.strong)
+    .sort((a, b) => b.score - a.score || a.heading.sectionNumber.localeCompare(b.heading.sectionNumber, undefined, { numeric: true }))
+    .map((match) => match.heading);
 }

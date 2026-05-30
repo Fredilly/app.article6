@@ -2185,7 +2185,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                     ) : (
                       <div className="mt-2 text-sm text-amber-700">
-                        No matching document heading found.
+                        No matching document section found.
                       </div>
                     )}
 
