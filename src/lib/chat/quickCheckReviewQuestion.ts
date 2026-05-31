@@ -21,6 +21,7 @@ export type ReviewArea =
   | "leakage"
   | "monitoring"
   | "right_of_use"
+  | "stakeholder"
   | "general";
 
 export type QuickCheckPath = "claim_to_requirement_match" | "review_question_answering";
@@ -114,6 +115,15 @@ const REVIEW_AREA_KEYWORDS: Record<ReviewArea, string[]> = {
     "statutes",
     "regulatory frameworks",
   ],
+  stakeholder: [
+    "stakeholder",
+    "stakeholder engagement",
+    "stakeholder consultation",
+    "stakeholder participation",
+    "stakeholder comments",
+    "local communities",
+    "community consultation",
+  ],
   general: [],
 };
 
@@ -125,8 +135,49 @@ const REVIEW_AREA_LABELS: Record<ReviewArea, string> = {
   leakage: "Leakage",
   monitoring: "Monitoring approach",
   right_of_use: "Right of use / land tenure",
+  stakeholder: "Stakeholder consultation",
   general: "General review",
 };
+
+const VM0007_STYLE_IDS = new Set(["VM0007", "PD_REDD_V1_130"]);
+
+function isVm0007StylePdd(methodologyId: string, rawPddText?: string): boolean {
+  if (VM0007_STYLE_IDS.has(methodologyId.trim().toUpperCase())) return true;
+  const text = rawPddText?.toUpperCase() ?? "";
+  return text.includes("PD_REDD_V1_130") || text.includes("VM0007");
+}
+
+function reviewAreaKeywordsForInput(input: {
+  reviewArea: ReviewArea;
+  methodologyId: string;
+  rawPddText?: string;
+}): string[] {
+  const baseKeywords = REVIEW_AREA_KEYWORDS[input.reviewArea] ?? [];
+  if (!isVm0007StylePdd(input.methodologyId, input.rawPddText)) return baseKeywords;
+
+  if (input.reviewArea === "right_of_use") {
+    return [
+      ...baseKeywords,
+      "compliance with laws",
+      "compliance with laws statutes and other regulatory frameworks",
+      "right of use",
+      "ownership",
+      "land and resource use rights",
+    ];
+  }
+
+  if (input.reviewArea === "stakeholder") {
+    return [
+      ...baseKeywords,
+      "stakeholder comments",
+      "consultation",
+      "participation",
+      "local communities",
+    ];
+  }
+
+  return baseKeywords;
+}
 
 export function detectReviewPath(claimText: string): QuickCheckPath {
   const normalized = claimText.trim();
@@ -147,11 +198,12 @@ export function classifyReviewArea(claimText: string): ReviewArea {
   if (/additionality|VT0001|barrier\s+analysis|investment\s+analysis|common\s+practice|first\s+of\s+its\s+kind/i.test(normalized)) return "additionality";
 
   if (/justify|baseline|scenario|without-project|without project/i.test(normalized)) return "baseline";
+  if (/legal authority|legal right of use|property rights|ownership|use rights|right of use|land tenure|land and resource use rights|resource use rights|carbon right|entitlement|compliance with laws|statutes|regulatory frameworks|legal status/i.test(normalized)) return "right_of_use";
   if (/leakage\s+belt\b|reference\s+region\b|RRD\b|boundary|geographic\s+boundary|project\s+area|area\s+of|spatial|geographic|polygon/i.test(normalized)) return "boundary";
   if (/deviations|departure|variance|deviation/i.test(normalized)) return "deviations";
   if (/leakage\s+risk|activity\s+shifting|LK-ASU|displacement/i.test(normalized)) return "leakage";
   if (/monitoring|sampling|plot|measur/i.test(normalized)) return "monitoring";
-  if (/legal status|property rights|ownership|right of use|land tenure|carbon right|entitlement|compliance with laws|statutes|regulatory frameworks/i.test(normalized)) return "right_of_use";
+  if (/stakeholder|consultation|participation|local communities|community engagement|community consultation/i.test(normalized)) return "stakeholder";
   return "general";
 }
 
@@ -207,9 +259,14 @@ export function findMatchedSectionNumbers(
   rawPddText: string,
   reviewArea: ReviewArea,
   claimText?: string,
+  methodologyId = "",
 ): string[] {
   if (!claimText?.trim()) return [];
-  return filterPddHeadingsByQuery(buildPddHeadingIndex(rawPddText), claimText, REVIEW_AREA_KEYWORDS[reviewArea] ?? [])
+  return filterPddHeadingsByQuery(
+    buildPddHeadingIndex(rawPddText),
+    claimText,
+    reviewAreaKeywordsForInput({ reviewArea, methodologyId, rawPddText }),
+  )
     .filter((heading) => isReasonableSectionId(heading.sectionNumber))
     .slice(0, MAX_PRIMARY_SECTIONS)
     .map((heading) => heading.sectionNumber);
@@ -219,9 +276,10 @@ export function computeSectionMatchResults(
   rawPddText: string,
   reviewArea: ReviewArea,
   claimText: string,
+  methodologyId = "",
 ): SectionMatchResult[] {
   const headingIndex = buildPddHeadingIndex(rawPddText);
-  const fallbackKeywords = REVIEW_AREA_KEYWORDS[reviewArea] ?? [];
+  const fallbackKeywords = reviewAreaKeywordsForInput({ reviewArea, methodologyId, rawPddText });
   const results: SectionMatchResult[] = [];
 
   for (const heading of headingIndex) {
@@ -299,14 +357,19 @@ export function buildReviewQuestionResult(input: {
   evidenceDocumentType?: string;
 }): ReviewQuestionResult {
   const reviewArea = classifyReviewArea(input.claimText);
+  const reviewAreaKeywords = reviewAreaKeywordsForInput({
+    reviewArea,
+    methodologyId: input.methodologyId,
+    rawPddText: input.rawPddText,
+  });
 
   // Phase 1: heading index is source of truth from uploaded document.
   // Question text is used ONLY as a filter over headings (title-based, no body scoring, no reviewArea keywords, no static routes).
   const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
-  const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "", REVIEW_AREA_KEYWORDS[reviewArea] ?? []);
+  const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "", reviewAreaKeywords);
   const rejectedMatches =
     matchedHeadings.length === 0 && input.rawPddText
-      ? findRejectedHeadingMatches(input.rawPddText, input.claimText || "", REVIEW_AREA_KEYWORDS[reviewArea] ?? [])
+      ? findRejectedHeadingMatches(input.rawPddText, input.claimText || "", reviewAreaKeywords)
       : [];
   const noMatchExplanation = matchedHeadings.length === 0 ? buildNoMatchExplanation(rejectedMatches) : undefined;
 

@@ -16,7 +16,7 @@
     "summary": "For baseline review questions, produce evidence-backed verdicts (supported / partial / missing) with gap explanations. Reference extracted PDD section content. Surface next-step follow-up documents."
   },
   "phase_3_review_area_rubrics": {
-    "status": "planned",
+    "status": "active",
     "title": "Review area rubrics — per-area evidence criteria",
     "summary": "Define rubric criteria for each review area (baseline, boundary, additionality, leakage, monitoring, deviations, right of use). Each rubric maps area keywords to expected evidence signals and minimum confidence thresholds."
   },
@@ -33,9 +33,8 @@
   "phase_meta": {
     "status": "active",
     "summary": "Turn Quick Check from a requirement matcher / section router into an evidence-backed verification-readiness review engine. Phased path from routing to readiness note export.",
-    "current_focus": "Phase 2 complete (baseline evidence-backed review with fixture-backed tests and UI). Phase 3 (review-area rubrics) not started per instructions.",
+    "current_focus": "Phase 2 complete (baseline evidence-backed review with fixture-backed tests and UI). Phase 3 is active for narrow routing + section matching on right_of_use and stakeholder questions; non-baseline verdicts remain intentionally unimplemented.",
     "not_active_now": [
-      "Review area rubrics (phase 3+)",
       "Regression evaluation suite (phase 4+)",
       "Readiness note export (phase 5+)"
     ],

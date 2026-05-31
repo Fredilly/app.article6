@@ -2216,8 +2216,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     </div>
                   ) : null}
                   <div className="mt-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — question is filter only)</div>
-                    <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Your question filters titles (no body matching, no methodology routes).</p>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — title matching)</div>
+                    <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Quick Check matches section titles using your question, with limited methodology-aware fallback for certain review areas.</p>
                     {reviewQuestionResult.matchedHeadings.length > 0 ? (
                       <div className="mt-3 space-y-2">
                         {reviewQuestionResult.matchedHeadings.map((h) => {

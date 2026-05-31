@@ -56,6 +56,23 @@ const REALISTIC_PDD_TEXT = [
   "",
 ].join("\n");
 
+const VM0007_PHASE_3_PDD_TEXT = [
+  "VM0007 Version 4.2",
+  "Project Description Document: PD_REDD_v1_130",
+  "",
+  "1.11  Compliance with Laws, Statutes and Other Regulatory Frameworks",
+  "The project complies with applicable laws and regulatory frameworks for the project area.",
+  "",
+  "1.12.1  Right of Use",
+  "The project proponent has legal right of use and authority to manage the project area.",
+  "Land and resource use rights are held by the community association and documented in agreements.",
+  "",
+  "6  Stakeholder Comments",
+  "Stakeholder consultation and participation were conducted through community meetings.",
+  "Local communities were consulted and their comments were summarized in this section.",
+  "",
+].join("\n");
+
 const PDD_WITH_PAGE_BREAKS = [
   "1.10  Leakage",
   "The leakage belt is defined as a 3 km buffer around the project area.\f",
@@ -191,6 +208,21 @@ describe("classifyReviewArea — right_of_use", () => {
   it("classifies compliance with laws and ownership", () => {
     expect(classifyReviewArea("Does this PDD explain compliance with laws and ownership?")).toBe("right_of_use");
   });
+
+  it("classifies legal right of use / authority questions", () => {
+    expect(classifyReviewArea("Does this PDD demonstrate legal right of use for the project area?")).toBe("right_of_use");
+    expect(classifyReviewArea("Does the project have legal authority to manage the project area?")).toBe("right_of_use");
+    expect(classifyReviewArea("Does the PDD identify who has land and resource use rights?")).toBe("right_of_use");
+    expect(classifyReviewArea("Does the PDD explain ownership or use rights for the project area?")).toBe("right_of_use");
+  });
+});
+
+describe("classifyReviewArea — stakeholder", () => {
+  it("classifies stakeholder consultation and participation questions", () => {
+    expect(classifyReviewArea("Does this PDD describe stakeholder consultation and participation?")).toBe("stakeholder");
+    expect(classifyReviewArea("Does this PDD explain stakeholder engagement?")).toBe("stakeholder");
+    expect(classifyReviewArea("Were local communities consulted?")).toBe("stakeholder");
+  });
 });
 
 describe("resolveReviewSections — static routing (deprecated, returns empty)", () => {
@@ -202,6 +234,7 @@ describe("resolveReviewSections — static routing (deprecated, returns empty)",
     expect(resolveReviewSections("VM0007", "leakage")).toEqual([]);
     expect(resolveReviewSections("VM0007", "monitoring")).toEqual([]);
     expect(resolveReviewSections("VM0007", "right_of_use")).toEqual([]);
+    expect(resolveReviewSections("VM0007", "stakeholder")).toEqual([]);
     expect(resolveReviewSections("AR-ACM0003", "baseline")).toEqual([]);
   });
 });
@@ -209,7 +242,7 @@ describe("resolveReviewSections — static routing (deprecated, returns empty)",
 describe("reviewAreaLabel", () => {
   const areas: ReviewArea[] = [
     "additionality", "baseline", "boundary", "deviations",
-    "leakage", "monitoring", "right_of_use", "general",
+    "leakage", "monitoring", "right_of_use", "stakeholder", "general",
   ];
   for (const area of areas) {
     it(`returns a non-empty label for ${area}`, () => {
@@ -586,14 +619,14 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(sections.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("works even when reviewArea is 'general' with no keywords (pure claim-text matching)", () => {
+  it("routes stakeholder engagement to the stakeholder review area and still matches 2.3", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD describe stakeholder engagement?",
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
       rawPddText: PLUM_TEXT,
     });
-    expect(classifyReviewArea("Does this PDD describe stakeholder engagement?")).toBe("general");
+    expect(classifyReviewArea("Does this PDD describe stakeholder engagement?")).toBe("stakeholder");
     expect(result.relevantSections.length).toBeGreaterThan(0);
     expect(result.relevantSections).toContain("2.3");
   });
@@ -685,6 +718,45 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     // no match case
     const none = filterPddHeadingsByQuery(result.headingIndex, "biodiversity credits xyz");
     expect(none.length).toBe(0);
+  });
+
+  it.each([
+    "Does this PDD demonstrate legal right of use for the project area?",
+    "Does the project have legal authority to manage the project area?",
+    "Does the PDD identify who has land and resource use rights?",
+    "Does the PDD explain ownership or use rights for the project area?",
+  ])("routes exact right-of-use manual-preview question: %s", (claimText) => {
+    const result = buildReviewQuestionResult({
+      claimText,
+      methodologyId: "PD_REDD_v1_130",
+      methodologyVersion: "v4-2",
+      rawPddText: VM0007_PHASE_3_PDD_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("right_of_use");
+    expect(result.relevantSections).toEqual(expect.arrayContaining(["1.11", "1.12.1"]));
+    expect(result.sectionContent["1.11"]).toContain("complies with applicable laws");
+    expect(result.sectionContent["1.12.1"]).toContain("legal right of use and authority to manage");
+    expect(result.baselineReview).toBeUndefined();
+  });
+
+  it.each([
+    "Does this PDD describe stakeholder consultation and participation?",
+    "Does this PDD explain stakeholder engagement?",
+    "Were local communities consulted?",
+  ])("routes exact stakeholder manual-preview question: %s", (claimText) => {
+    const result = buildReviewQuestionResult({
+      claimText,
+      methodologyId: "PD_REDD_v1_130",
+      methodologyVersion: "v4-2",
+      rawPddText: VM0007_PHASE_3_PDD_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("stakeholder");
+    expect(result.relevantSections).toContain("6");
+    expect(result.sectionContent["6"]).toContain("Stakeholder consultation and participation");
+    expect(result.sectionContent["6"]).toContain("Local communities were consulted");
+    expect(result.baselineReview).toBeUndefined();
   });
 });
 
