@@ -134,6 +134,7 @@ Not active now:
 - Readiness note export (phase 5+)
 
 1) PR642: Done (PR #640, #641, #642)
+2) PR656: Done
 
 ## project-verification
 
@@ -277,4 +278,3 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
-
