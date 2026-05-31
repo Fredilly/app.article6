@@ -2157,6 +2157,46 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                     ) : null}
                   </div>
+                  {reviewQuestionResult.baselineReview ? (
+                    <div className="mt-4 rounded-xl border border-emerald-200 bg-white/80 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700">Baseline review</div>
+                      <div className="mt-2 text-sm font-medium text-slate-900">
+                        Verdict: {reviewQuestionResult.baselineReview.verdict}
+                      </div>
+                      <div className="mt-2 text-sm leading-relaxed text-slate-700">
+                        {reviewQuestionResult.baselineReview.evidence_summary}
+                      </div>
+                      <div className="mt-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Cited sections</div>
+                        <div className="mt-1 text-sm text-slate-700">
+                          {reviewQuestionResult.baselineReview.cited_sections.length > 0
+                            ? reviewQuestionResult.baselineReview.cited_sections.map((section) => `§${section}`).join(", ")
+                            : "None"}
+                        </div>
+                      </div>
+                      {reviewQuestionResult.baselineReview.gaps.length > 0 ? (
+                        <div className="mt-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Gaps</div>
+                          <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">
+                            {reviewQuestionResult.baselineReview.gaps.map((gap) => (
+                              <li key={gap}>{gap}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                      <div className="mt-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Recommended follow-up documents</div>
+                        <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">
+                          {reviewQuestionResult.baselineReview.recommended_follow_up_documents.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <p className="mt-3 text-xs text-slate-500">
+                        Conservative Quick Check signal only. This is not a review-grade certainty finding.
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="mt-4">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — question is filter only)</div>
                     <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Your question filters titles (no body matching, no methodology routes).</p>
