@@ -149,4 +149,25 @@ describe("baseline evidence-backed review", () => {
     // Should still detect some evidence signals but lack a properly tied quantitative claim
     expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
+
+  // Regression for bare date ranges (previously allowed by the removed from-YYYY-to-YYYY pattern)
+  const BASELINE_WITH_BARE_DATE_RANGE = [
+    "2.4  Baseline Scenario",
+    "The baseline scenario is the most likely land-use scenario in the absence of the project.",
+    "Historical land use data from 2000 to 2020 was reviewed.",
+    "Satellite data was used to observe changes in the reference region.",
+  ].join("\n");
+
+  it("does not return 'supported' for bare date ranges without a tied rate or measurement (regression)", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BASELINE_WITH_BARE_DATE_RANGE,
+    });
+
+    expect(result.baselineReview?.verdict).not.toBe("supported");
+    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
+  });
 });

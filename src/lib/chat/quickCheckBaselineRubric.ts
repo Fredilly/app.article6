@@ -55,7 +55,6 @@ const BASELINE_QUANT_CONTEXT_PATTERNS = [
 
   // Historical / observed quantification
   /\b(historical|observed)\s+(?:deforestation|degradation|land.use|trend|rate|loss)\s+(?:of\s+)?\d+/i,
-  /\bfrom\s+\d{4}\s+to\s+\d{4}/i, // e.g. "from 2000 to 2020" in a trend context
 
   // Common PDD baseline units
   /\b\d+(?:\.\d+)?\s*(?:ha|hectare|hectares|tCO2|tCO₂|tons?|tonnes?)\s*(?:per|\/)?\s*(?:year|annum)/i,
