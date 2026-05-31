@@ -170,10 +170,9 @@ describe("reviewAreaLabel", () => {
 
 // ============================================================================
 // Phase 2 regression: harden baseline question detection for natural variants
-// (See user query for the 5 exact questions that must route to reviewArea: baseline
-// and review_question_answering when PDD has recoverable baseline section like 2.4
-// in PD_REDD_v1_130 / extracted fixture.)
-// Preserves additionality + boundary separation. No Phase 3 changes.
+// (Original 5 questions from prior work + article-prefixed variant for PR #657.)
+// All must route to reviewArea: baseline and review_question_answering.
+// Preserves additionality + boundary separation. No Phase 3 changes. Do not mark Phase 2 done.
 // ============================================================================
 describe("Phase 2 baseline question detection hardening — natural language variants", () => {
   const BASELINE_QUESTIONS: string[] = [
@@ -214,6 +213,21 @@ describe("Phase 2 baseline question detection hardening — natural language var
         expect(result.relevantSections).toContain("2.4");
       });
     }
+
+    // Additional regression test for article-prefixed variant (PR #657)
+    it('"Is there a baseline justification in this PDD?" (with article) yields reviewArea=baseline + review_question_answering', () => {
+      const q = "Is there a baseline justification in this PDD?";
+      const result = buildReviewQuestionResult({
+        claimText: q,
+        methodologyId: "VM0007",
+        methodologyVersion: "4.2",
+      });
+      expect(detectReviewPath(q)).toBe("review_question_answering");
+      expect(classifyReviewArea(q)).toBe("baseline");
+      expect(result.reviewArea).toBe("baseline");
+      expect(result.path).toBe("review_question_answering");
+      expect(result.relevantSections).toContain("2.4");
+    });
 
     it("preserves boundary separation (boundary question does not become baseline even with baseline PDD content present)", () => {
       const result = buildReviewQuestionResult({

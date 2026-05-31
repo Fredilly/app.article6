@@ -21,13 +21,16 @@ export type ReviewQuestionResult = {
 
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
   // Phase 2 hardening: support natural baseline question variants (and other review questions)
-  // so real user phrasing like the 5 listed below route to review_question_answering + reviewArea: baseline.
-  // Accepts "this PDD" / "the PDD", "provide ... estimate", "Is there baseline...", while preserving
+  // so real user phrasing (including optional articles like "a baseline...") route to
+  // review_question_answering + reviewArea: baseline.
+  // Accepts "this PDD" / "the PDD", "provide ... estimate", "Is there [a] baseline...", while preserving
   // separation for additionality/boundary (which have earlier checks in classifyReviewArea).
   /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate)/i,
   /^is\s+the\s+baseline/i,
   /^is\s+additionality/i,
-  /^is\s+there\s+(?:baseline|justification|evidence|support)/i,
+  // Support optional article ("a", "an", "the") after "is there" for real user phrasing
+  // e.g. "Is there a baseline justification in this PDD?"
+  /^is\s+there\s+(?:(?:a|an|the)\s+)?(?:baseline|justification|evidence|support)/i,
   /^check\s+the/i,
   /^review\s+the/i,
 ];
