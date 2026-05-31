@@ -2184,8 +2184,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         })}
                       </div>
                     ) : (
-                      <div className="mt-2 text-sm text-amber-700">
-                        No matching document section found.
+                      <div className="mt-2 space-y-1">
+                        <div className="text-sm text-amber-700">
+                          No matching document section found.
+                        </div>
+                        {reviewQuestionResult.noMatchExplanation ? (
+                          <div className="text-xs leading-relaxed text-amber-800">
+                            {reviewQuestionResult.noMatchExplanation}
+                          </div>
+                        ) : null}
                       </div>
                     )}
 

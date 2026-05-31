@@ -48,6 +48,10 @@ function isLikelyTopLevelSectionTitle(num: string, title: string): boolean {
   const words = title.split(/\s+/).filter(Boolean);
   if (words.length === 0 || words.length > 8) return false;
 
+  const cleanedWords = words
+    .map((word) => word.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9+()-]+$/g, ""))
+    .filter(Boolean);
+
   const headingishWords = words.filter((word) => {
     const cleaned = word.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9+()-]+$/g, "");
     if (!cleaned) return false;
@@ -58,7 +62,9 @@ function isLikelyTopLevelSectionTitle(num: string, title: string): boolean {
   });
 
   if (headingishWords.length / words.length < 0.6) return false;
-  if (!words.some((word) => /[A-Za-z]{4,}/.test(word) && !/^[A-Z]{2,}$/.test(word))) return false;
+  const hasMixedCaseLongWord = cleanedWords.some((word) => /[A-Za-z]{4,}/.test(word) && !/^[A-Z]{2,}$/.test(word));
+  const allCapsLongWordCount = cleanedWords.filter((word) => /^[A-Z]{4,}$/.test(word)).length;
+  if (!hasMixedCaseLongWord && allCapsLongWordCount < 2) return false;
   return true;
 }
 
@@ -88,6 +94,10 @@ function tryHeadingPatterns(text: string, patterns: RegExp[]): HeadingMatch[] {
 
 function isTocTitle(title: string): boolean {
   return /\.{4,}\s*\d+\s*$/.test(title) || /\bpage\s+\d+\s*$/i.test(title);
+}
+
+function stripTocSuffix(title: string): string {
+  return title.replace(/\s*\.{4,}\s*\d+\s*$/g, "").replace(/\bpage\s+\d+\s*$/gi, "").trim();
 }
 
 function findTocBlockBounds(text: string): { start: number; end: number } | null {
@@ -252,6 +262,7 @@ export function extractPddSections(rawText: string): Record<string, string> {
   const tocBlock = findTocBlockBounds(cleaned);
   // TOC block detected: only candidates outside it survive the proximity check
   const bestByNum = new Map<string, { heading: HeadingMatch; reason: string | null }>();
+  const validCandidates: HeadingMatch[] = [];
 
   for (const h of allCandidates) {
     const existing = bestByNum.get(h.num);
@@ -262,14 +273,14 @@ export function extractPddSections(rawText: string): Record<string, string> {
       return null;
     })();
 
+    if (reason === null) validCandidates.push(h);
+
     if (!existing) {
       bestByNum.set(h.num, { heading: h, reason });
       continue;
     }
 
     if (reason === null && existing.reason !== null) {
-      bestByNum.set(h.num, { heading: h, reason: null });
-    } else if (reason === null && existing.reason === null && h.start > existing.heading.start) {
       bestByNum.set(h.num, { heading: h, reason: null });
     }
   }
@@ -283,17 +294,18 @@ export function extractPddSections(rawText: string): Record<string, string> {
 
   if (selectedHeadings.length === 0) return sections;
   selectedHeadings.sort((a, b) => a.start - b.start);
+  validCandidates.sort((a, b) => a.start - b.start);
 
   for (let i = 0; i < selectedHeadings.length; i++) {
     const h = selectedHeadings[i]!;
     const contentStart = h.end;
     let nextStart = cleaned.length;
-    for (let j = i + 1; j < selectedHeadings.length; j++) {
-      const candidate = selectedHeadings[j]!;
-      if (!candidate.num.startsWith(`${h.num}.`)) {
-        nextStart = candidate.start;
-        break;
-      }
+    for (const candidate of validCandidates) {
+      if (candidate.start <= h.start) continue;
+      if (candidate.start === h.start && candidate.num === h.num) continue;
+      if (candidate.num !== h.num && candidate.num.startsWith(`${h.num}.`)) continue;
+      nextStart = candidate.start;
+      break;
     }
     let content = cleaned.slice(contentStart, nextStart).trim();
     if (content) {
@@ -565,6 +577,17 @@ export type HeadingQueryMatch = {
   fallbackKeywordMatches: string[];
   coverage: number;
   strong: boolean;
+};
+
+export type RejectedHeadingQueryMatch = {
+  sectionNumber: string;
+  title: string;
+  normalizedTitle: string;
+  reasons: string[];
+  score: number;
+  exactTitleMatch: boolean;
+  fullPhraseMatch: boolean;
+  fallbackKeywordMatches: string[];
 };
 
 const HEADING_PREVIEW_MAX = 220;
@@ -844,4 +867,65 @@ export function filterPddHeadingsByQuery(
     .filter((match) => match.strong)
     .sort((a, b) => b.score - a.score || a.heading.sectionNumber.localeCompare(b.heading.sectionNumber, undefined, { numeric: true }))
     .map((match) => match.heading);
+}
+
+export function findRejectedHeadingMatches(
+  rawPddText: string,
+  query: string,
+  fallbackKeywords: string[] = [],
+): RejectedHeadingQueryMatch[] {
+  if (!rawPddText || !query.trim()) return [];
+
+  const cleaned = normalizeText(rawPddText);
+  let allCandidates = findAllRawCandidates(cleaned);
+  if (allCandidates.length === 0) {
+    allCandidates = findHeadingsInContinuousText(cleaned);
+  }
+  if (allCandidates.length === 0) return [];
+
+  const tocBlock = findTocBlockBounds(cleaned);
+  const matches: RejectedHeadingQueryMatch[] = [];
+  const seen = new Set<string>();
+
+  for (const candidate of allCandidates) {
+    const reasons: string[] = [];
+    if (isTocTitle(candidate.title)) reasons.push("line-level TOC markers");
+    if (tocBlock && isInsideTocBlock(candidate.start, tocBlock)) reasons.push("inside TOC block");
+    if (!hasBodyTextAfter(cleaned, candidate.end, candidate.num)) reasons.push("no body text after heading");
+    if (reasons.length === 0) continue;
+
+    const title = stripTocSuffix(candidate.title);
+    const normalizedTitle = normalizeHeadingTitle(title);
+    const score = scoreHeadingAgainstQuery(
+      {
+        sectionNumber: candidate.num,
+        title,
+        normalizedTitle,
+        bodyPreview: "",
+        bodyText: "",
+      },
+      query,
+      fallbackKeywords,
+    );
+    if (!score.strong) continue;
+
+    const key = `${candidate.num}::${normalizedTitle}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    matches.push({
+      sectionNumber: candidate.num,
+      title,
+      normalizedTitle,
+      reasons,
+      score: score.score,
+      exactTitleMatch: score.exactTitleMatch,
+      fullPhraseMatch: score.fullPhraseMatch,
+      fallbackKeywordMatches: score.fallbackKeywordMatches,
+    });
+  }
+
+  return matches.sort(
+    (a, b) => b.score - a.score || a.sectionNumber.localeCompare(b.sectionNumber, undefined, { numeric: true }),
+  );
 }

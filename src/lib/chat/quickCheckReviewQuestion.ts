@@ -3,9 +3,11 @@ import {
   buildPddHeadingIndex,
   debugSectionExtraction,
   extractPddSections,
+  findRejectedHeadingMatches,
   filterPddHeadingsByQuery,
   normalizeSectionKey,
   scoreHeadingAgainstQuery,
+  type RejectedHeadingQueryMatch,
   type DocumentHeading,
   type SectionCandidateDebug,
 } from "@/lib/chat/quickCheckSectionExtractor";
@@ -71,6 +73,7 @@ export type ReviewQuestionResult = {
   headingIndex: DocumentHeading[];
   /** Phase 1: headings filtered by the user's question text only (title-based, no body scoring) */
   matchedHeadings: DocumentHeading[];
+  noMatchExplanation?: string;
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
 };
@@ -273,6 +276,19 @@ export function reviewAreaLabel(area: ReviewArea): string {
   return REVIEW_AREA_LABELS[area];
 }
 
+function buildNoMatchExplanation(rejectedMatches: RejectedHeadingQueryMatch[]): string | undefined {
+  const top = rejectedMatches[0];
+  if (!top) return undefined;
+  const headingLabel = `\u00a7${top.sectionNumber} ${top.title}`;
+  if (top.reasons.includes("inside TOC block") || top.reasons.includes("line-level TOC markers")) {
+    return `Closest title match was ${headingLabel}, but it only appeared in the table of contents and was not recovered as a body heading.`;
+  }
+  if (top.reasons.includes("no body text after heading")) {
+    return `Closest title match was ${headingLabel}, but Quick Check could not recover section body text after that heading from the uploaded document.`;
+  }
+  return undefined;
+}
+
 export function buildReviewQuestionResult(input: {
   claimText: string;
   methodologyId: string;
@@ -287,6 +303,11 @@ export function buildReviewQuestionResult(input: {
   // Question text is used ONLY as a filter over headings (title-based, no body scoring, no reviewArea keywords, no static routes).
   const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
   const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "", REVIEW_AREA_KEYWORDS[reviewArea] ?? []);
+  const rejectedMatches =
+    matchedHeadings.length === 0 && input.rawPddText
+      ? findRejectedHeadingMatches(input.rawPddText, input.claimText || "", REVIEW_AREA_KEYWORDS[reviewArea] ?? [])
+      : [];
+  const noMatchExplanation = matchedHeadings.length === 0 ? buildNoMatchExplanation(rejectedMatches) : undefined;
 
   const relevantSections = matchedHeadings.map((h) => h.sectionNumber);
   const sectionContent: Record<string, string> = {};
@@ -315,6 +336,7 @@ export function buildReviewQuestionResult(input: {
     sectionContent,
     headingIndex,
     matchedHeadings,
+    noMatchExplanation,
     diagnostic,
     phase1Diagnostic,
   };

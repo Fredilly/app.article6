@@ -533,6 +533,25 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.sectionContent["6"]).toContain("Stakeholder comments");
   });
 
+  it("explains TOC-only stakeholder matches instead of treating them as body headings", () => {
+    const pdd = [
+      "Table of Contents",
+      "6  Stakeholder Comments",
+      "",
+      "1.9  Project Location",
+      "The project location is described in the body text.",
+    ].join("\n");
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD include stakeholder comments?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: pdd,
+    });
+    expect(result.relevantSections).toEqual([]);
+    expect(result.noMatchExplanation).toContain("§6 Stakeholder Comments");
+    expect(result.noMatchExplanation).toContain("table of contents");
+  });
+
   it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD explain the project area and project zone boundary?",

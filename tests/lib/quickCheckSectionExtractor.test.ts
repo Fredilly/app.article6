@@ -756,6 +756,24 @@ describe("PD_REDD_v1_130 fixture — parentheses heading format", () => {
     expect(c.replace(/\n/g, " ")).toMatch(/\b5\s*km\s*buffer\b/);
   });
 
+  it("keeps the first valid body heading when a later duplicate section number appears", () => {
+    const duplicateSectionText = [
+      "Table of Contents",
+      "6 Stakeholder Comments",
+      "",
+      "6 STAKEHOLDER COMMENTS",
+      "The REDD project builds upon a long tradition of stakeholder consultation.",
+      "",
+      "6 APPENDIX SUMMARY",
+      "Appendix content unrelated to stakeholder comments.",
+    ].join("\n");
+    const sections = extractPddSections(duplicateSectionText);
+    expect(sections["6"]).toBeDefined();
+    expect(sections["6"]).toContain("STAKEHOLDER COMMENTS");
+    expect(sections["6"]).toContain("long tradition of stakeholder consultation");
+    expect(sections["6"]).not.toContain("APPENDIX SUMMARY");
+  });
+
   it("routes and extracts matched sections from PD_REDD fixture via buildReviewQuestionResult", () => {
     const baselineResult = buildReviewQuestionResult({
       claimText: "Does this PDD support the baseline scenario under VM0007?",
@@ -775,6 +793,7 @@ describe("PD_REDD_v1_130 fixture — parentheses heading format", () => {
     });
     expect(additionalityResult.sectionContent["2.5"]).toBeDefined();
     expect(additionalityResult.sectionContent["2.5"]).toContain("barrier analysis");
+
   });
 
   it("strips header/footer noise from PD_REDD fixture section content", () => {
