@@ -1,5 +1,6 @@
 {
   "PR642": "done",
+  "PR657": "done",
   "phase_0_routing_mvp": {
     "status": "done",
     "title": "Routing MVP — review question detection and section routing",
@@ -42,17 +43,21 @@
     "last_updated_at": "2026-05-31T00:00:00Z"
   },
   "pr_evidence": {
-    "PR642": [640, 641, 642],
     "646": {
       "title": "Phase 1 — Uploaded PDD section extraction and heading matching"
     },
     "656": {
       "title": "Phase 2 — Baseline evidence-backed review (rubric hardening, fixture regression, UI clarity)"
-    }
+    },
+    "PR642": [
+      640,
+      641,
+      642
+    ]
   },
   "pr_notes": {
-    "PR642": "Routing MVP: detect review question path, classify review area, route to VM0007 sections. Covers additionality, baseline, boundary, deviations, leakage, monitoring, right_of_use.",
     "646": "completed Phase 1 MVP with uploaded PDD heading extraction, section body rendering, TOC skipping, all-caps heading recovery, duplicate heading handling, question-to-heading filtering, cross-document anti-hardcoding tests, and safe no-match behavior.",
-    "656": "Phase 2 complete: hardened baseline rubric (verdicts limited to supported/partial/missing, quant false-positive guards), full baselineReview shape (review_area, verdict, evidence_summary, cited_sections, gaps, recommended_follow_up_documents), strong/weak/missing + boundary/additionality + extracted VM0007 fixture tests (not just synthetic), clearer UI badges+labels for baseline review output. PR #654 protected regression path; this closes Phase 2 criteria."
+    "656": "Phase 2 complete: hardened baseline rubric (verdicts limited to supported/partial/missing, quant false-positive guards), full baselineReview shape (review_area, verdict, evidence_summary, cited_sections, gaps, recommended_follow_up_documents), strong/weak/missing + boundary/additionality + extracted VM0007 fixture tests (not just synthetic), clearer UI badges+labels for baseline review output. PR #654 protected regression path; this closes Phase 2 criteria.",
+    "PR642": "Routing MVP: detect review question path, classify review area, route to VM0007 sections. Covers additionality, baseline, boundary, deviations, leakage, monitoring, right_of_use."
   }
 }
