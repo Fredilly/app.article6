@@ -326,6 +326,25 @@ function uniqueHeadings(headings: DocumentHeading[]): DocumentHeading[] {
   });
 }
 
+function withMonitoringAncestors(headings: DocumentHeading[], reviewArea: ReviewArea, headingIndex: DocumentHeading[]): DocumentHeading[] {
+  if (reviewArea !== "monitoring" || headings.length === 0) return headings;
+  const expanded = [...headings];
+  for (const heading of headings) {
+    const parts = heading.sectionNumber.split(".");
+    if (parts.length < 2) continue;
+    for (let depth = parts.length - 1; depth >= 1; depth -= 1) {
+      const parentSection = parts.slice(0, depth).join(".");
+      const parent = headingIndex.find((candidate) =>
+        candidate.sectionNumber === parentSection && candidate.normalizedTitle.includes("monitoring"),
+      );
+      if (parent) expanded.push(parent);
+    }
+  }
+  return uniqueHeadings(expanded).sort(
+    (left, right) => left.sectionNumber.localeCompare(right.sectionNumber, undefined, { numeric: true }),
+  );
+}
+
 function exactHeadingMatches(headings: DocumentHeading[], claimText: string): DocumentHeading[] {
   const normalizedClaim = normalizeReviewText(
     claimText
@@ -428,12 +447,12 @@ function resolveReviewQuestionSections(input: {
 
   const exactMatches = uniqueHeadings(exactHeadingMatches(input.headingIndex, input.claimText));
   if (exactMatches.length > 0) {
-    return { matchedHeadings: exactMatches, rejectedMatches: [], matchStage: "exact_heading" };
+    return { matchedHeadings: withMonitoringAncestors(exactMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "exact_heading" };
   }
 
   const normalizedMatches = uniqueHeadings(filterPddHeadingsByQuery(input.headingIndex, input.claimText, []));
   if (normalizedMatches.length > 0) {
-    return { matchedHeadings: normalizedMatches, rejectedMatches: [], matchStage: "normalized_heading" };
+    return { matchedHeadings: withMonitoringAncestors(normalizedMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "normalized_heading" };
   }
 
   const aliasMatches = uniqueHeadings([
@@ -441,12 +460,12 @@ function resolveReviewQuestionSections(input: {
     ...filterPddHeadingsByQuery(input.headingIndex, input.claimText, [...reviewAreaKeywords, ...aliases]),
   ]);
   if (aliasMatches.length > 0) {
-    return { matchedHeadings: aliasMatches, rejectedMatches: [], matchStage: "alias_heading" };
+    return { matchedHeadings: withMonitoringAncestors(aliasMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "alias_heading" };
   }
 
   const semanticMatches = uniqueHeadings(semanticFallbackMatches(input.headingIndex, input.reviewArea, searchTerms, claimKeywords));
   if (semanticMatches.length > 0) {
-    return { matchedHeadings: semanticMatches, rejectedMatches: [], matchStage: "semantic_fallback" };
+    return { matchedHeadings: withMonitoringAncestors(semanticMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "semantic_fallback" };
   }
 
   const rejectedMatches = input.rawPddText
