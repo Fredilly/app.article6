@@ -751,8 +751,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [extractionPreview, extractionState.analysis],
   );
   const methodologyResolution = useMemo<QuickCheckMethodologyResolution>(
-    () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods }),
-    [detectedMethodologyMentions, methods],
+    () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods, rawText: extractionState.analysis?.rawPddText }),
+    [detectedMethodologyMentions, extractionState.analysis?.rawPddText, methods],
   );
   const resolvedWorkspaceMethod = useMemo(
     () => (methodologyResolution.status === "single" ? methodologyResolution.matchedMethods[0] ?? null : null),
@@ -808,7 +808,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
     }
     if (methodologyResolution.status === "unsupported" && methodologyResolution.unsupportedCanonicalKeys.length) {
-      const detected = joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys);
+      const detected = methodologyResolution.primaryMethodology?.canonicalKey
+        ? methodologyResolution.primaryMethodology.canonicalKey
+        : joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys);
       return {
         code: "methodology-pack-unavailable",
         label: "Method pack unavailable",
@@ -1837,7 +1839,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <>
                         {!draft.methodologyId.trim() && methodologyResolution.status === "single" ? (
                           <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-                            Detected methodology: {methodologyResolution.matchedMethods[0].methodologyId}. Requirement matches are narrowed to {methodologyResolution.matchedMethods[0].methodologyId}.
+                            Primary detected methodology: {methodologyResolution.primaryMethodology?.supported ? methodologyResolution.primaryMethodology.matchedMethod.methodologyId : methodologyResolution.matchedMethods[0].methodologyId}. Requirement matches are narrowed to {methodologyResolution.primaryMethodology?.supported ? methodologyResolution.primaryMethodology.matchedMethod.methodologyId : methodologyResolution.matchedMethods[0].methodologyId}.
+                            {methodologyResolution.primaryMethodology?.secondaryCanonicalKeys.length ? ` Secondary referenced methods: ${joinMethodologyLabels(methodologyResolution.primaryMethodology.secondaryCanonicalKeys)}.` : ""}
                           </div>
                         ) : null}
                         {!draft.methodologyId.trim() && methodologyResolution.status === "multiple" ? (
@@ -1847,7 +1850,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         ) : null}
                         {!draft.methodologyId.trim() && methodologyResolution.status === "unsupported" ? (
                           <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                            Detected {joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys)}, but no matching method pack is available.
+                            Primary detected methodology: {methodologyResolution.primaryMethodology?.canonicalKey ?? joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys)}. No matching method pack is available.
+                            {methodologyResolution.primaryMethodology?.secondaryCanonicalKeys.length ? ` Secondary referenced methods: ${joinMethodologyLabels(methodologyResolution.primaryMethodology.secondaryCanonicalKeys)}.` : ""}
                           </div>
                         ) : null}
                         {!draft.methodologyId.trim() && methodologyResolution.status === "none" && (extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 ? (
