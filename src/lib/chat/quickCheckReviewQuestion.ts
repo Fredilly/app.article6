@@ -12,6 +12,7 @@ import {
   type SectionCandidateDebug,
 } from "@/lib/chat/quickCheckSectionExtractor";
 import { evaluateBaselineReview, type BaselineReviewResult } from "@/lib/chat/quickCheckBaselineRubric";
+import { evaluateReviewRubric, type ReviewRubricResult } from "@/lib/chat/quickCheckReviewRubric";
 
 export type ReviewArea =
   | "additionality"
@@ -76,6 +77,7 @@ export type ReviewQuestionResult = {
   /** Phase 1: headings filtered by the user's question text only (title-based, no body scoring) */
   matchedHeadings: DocumentHeading[];
   baselineReview?: BaselineReviewResult;
+  reviewAreaReview?: ReviewRubricResult;
   noMatchExplanation?: string;
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
@@ -363,8 +365,8 @@ export function buildReviewQuestionResult(input: {
     rawPddText: input.rawPddText,
   });
 
-  // Phase 1: heading index is source of truth from uploaded document.
-  // Question text is used ONLY as a filter over headings (title-based, no body scoring, no reviewArea keywords, no static routes).
+  // Heading extraction remains the source of truth from the uploaded document.
+  // Question text primarily matches section titles, with limited review-area and methodology-aware fallback keywords for supported areas.
   const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
   const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "", reviewAreaKeywords);
   const rejectedMatches =
@@ -376,12 +378,16 @@ export function buildReviewQuestionResult(input: {
   const relevantSections = matchedHeadings.map((h) => h.sectionNumber);
   const sectionContent: Record<string, string> = {};
   for (const h of matchedHeadings) {
-    // Provide body for compat with existing consumers; primary matches never came from body text.
+    // Preserve recovered section text for downstream rubric evaluation and UI rendering.
     sectionContent[h.sectionNumber] = h.bodyText ? `${h.title}\n${h.bodyText}` : h.title;
   }
   const baselineReview = reviewArea === "baseline"
     ? evaluateBaselineReview({ matchedHeadings })
     : undefined;
+  const reviewAreaReview =
+    reviewArea === "baseline" || reviewArea === "right_of_use" || reviewArea === "stakeholder"
+      ? evaluateReviewRubric({ reviewArea, matchedHeadings })
+      : undefined;
 
   const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
     ? debugSectionExtraction(input.rawPddText)
@@ -389,7 +395,7 @@ export function buildReviewQuestionResult(input: {
 
   const claimKeywords = input.claimText ? extractClaimKeywords(input.claimText) : { phrases: [], words: [] };
 
-  // phase1Diagnostic still uses legacy scoring for dev visibility only (does not drive matches)
+  // phase1Diagnostic still uses the scoring path for dev visibility only; it does not determine the final routed sections or rubric verdicts.
   const phase1Diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
     ? buildPhase1Diagnostic(input.rawPddText, sectionContent, reviewArea, input.claimText, claimKeywords, input.evidenceSourceLabel, input.evidenceDocumentType)
     : undefined;
@@ -404,6 +410,7 @@ export function buildReviewQuestionResult(input: {
     headingIndex,
     matchedHeadings,
     baselineReview,
+    reviewAreaReview,
     noMatchExplanation,
     diagnostic,
     phase1Diagnostic,

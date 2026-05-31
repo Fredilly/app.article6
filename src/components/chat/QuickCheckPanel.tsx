@@ -2157,12 +2157,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                     ) : null}
                   </div>
-                  {reviewQuestionResult.baselineReview ? (
+                  {reviewQuestionResult.reviewAreaReview ? (
                     <div className="mt-4 rounded-xl border border-emerald-200 bg-white/80 p-4">
                       <div className="flex items-center gap-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700">Baseline review</div>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                          {reviewQuestionResult.reviewArea === "baseline"
+                            ? "Baseline review"
+                            : `${reviewAreaLabel(reviewQuestionResult.reviewArea)} review`}
+                        </div>
                         {(() => {
-                          const v = reviewQuestionResult.baselineReview.verdict;
+                          const v = reviewQuestionResult.reviewAreaReview.verdict;
                           const badge =
                             v === "supported"
                               ? "bg-emerald-100 text-emerald-800 border-emerald-200"
@@ -2179,33 +2183,35 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence summary</div>
                         <div className="mt-1 text-sm leading-relaxed text-slate-700">
-                          {reviewQuestionResult.baselineReview.evidence_summary}
+                          {reviewQuestionResult.reviewAreaReview.evidence_summary}
                         </div>
                       </div>
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Cited sections</div>
                         <div className="mt-1 text-sm text-slate-700 font-mono">
-                          {reviewQuestionResult.baselineReview.cited_sections.length > 0
-                            ? reviewQuestionResult.baselineReview.cited_sections.map((section) => `§${section}`).join(", ")
+                          {reviewQuestionResult.reviewAreaReview.cited_sections.length > 0
+                            ? reviewQuestionResult.reviewAreaReview.cited_sections.map((section) => `§${section}`).join(", ")
                             : "None"}
                         </div>
                       </div>
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Gaps</div>
-                        {reviewQuestionResult.baselineReview.gaps.length > 0 ? (
+                        {reviewQuestionResult.reviewAreaReview.gaps.length > 0 ? (
                           <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">
-                            {reviewQuestionResult.baselineReview.gaps.map((gap) => (
+                            {reviewQuestionResult.reviewAreaReview.gaps.map((gap) => (
                               <li key={gap}>{gap}</li>
                             ))}
                           </ul>
                         ) : (
-                          <div className="mt-1 text-sm text-emerald-700">None identified — baseline scenario appears supported by extracted PDD content.</div>
+                          <div className="mt-1 text-sm text-emerald-700">
+                            None identified — the extracted PDD content meets the current Quick Check rubric for this review area.
+                          </div>
                         )}
                       </div>
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Recommended follow-up documents</div>
                         <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">
-                          {reviewQuestionResult.baselineReview.recommended_follow_up_documents.map((item) => (
+                          {reviewQuestionResult.reviewAreaReview.recommended_follow_up_documents.map((item) => (
                             <li key={item}>{item}</li>
                           ))}
                         </ul>
