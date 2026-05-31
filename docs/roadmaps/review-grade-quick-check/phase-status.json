@@ -11,7 +11,7 @@
     "summary": "Extract section content from uploaded PDD pages. Map section numbers to extracted text. Render section excerpts inline in the review-question result."
   },
   "phase_2_baseline_evidence_backed_review": {
-    "status": "active",
+    "status": "done",
     "title": "Baseline evidence-backed review — verdicts and gaps",
     "summary": "For baseline review questions, produce evidence-backed verdicts (supported / partial / missing) with gap explanations. Reference extracted PDD section content. Surface next-step follow-up documents."
   },
@@ -33,22 +33,26 @@
   "phase_meta": {
     "status": "active",
     "summary": "Turn Quick Check from a requirement matcher / section router into an evidence-backed verification-readiness review engine. Phased path from routing to readiness note export.",
-    "current_focus": "Phase 2: baseline evidence-backed review — verdicts and gaps",
+    "current_focus": "Phase 2 complete (baseline evidence-backed review with fixture-backed tests and UI). Phase 3 (review-area rubrics) not started per instructions.",
     "not_active_now": [
       "Review area rubrics (phase 3+)",
       "Regression evaluation suite (phase 4+)",
       "Readiness note export (phase 5+)"
     ],
-    "last_updated_at": "2026-05-28T00:00:00Z"
+    "last_updated_at": "2026-05-31T00:00:00Z"
   },
   "pr_evidence": {
     "PR642": [640, 641, 642],
     "646": {
       "title": "Phase 1 — Uploaded PDD section extraction and heading matching"
+    },
+    "655": {
+      "title": "Phase 2 — Baseline evidence-backed review (rubric hardening, fixture regression, UI clarity)"
     }
   },
   "pr_notes": {
     "PR642": "Routing MVP: detect review question path, classify review area, route to VM0007 sections. Covers additionality, baseline, boundary, deviations, leakage, monitoring, right_of_use.",
-    "646": "completed Phase 1 MVP with uploaded PDD heading extraction, section body rendering, TOC skipping, all-caps heading recovery, duplicate heading handling, question-to-heading filtering, cross-document anti-hardcoding tests, and safe no-match behavior."
+    "646": "completed Phase 1 MVP with uploaded PDD heading extraction, section body rendering, TOC skipping, all-caps heading recovery, duplicate heading handling, question-to-heading filtering, cross-document anti-hardcoding tests, and safe no-match behavior.",
+    "655": "Phase 2 complete: hardened baseline rubric (verdicts limited to supported/partial/missing, quant false-positive guards), full baselineReview shape (review_area, verdict, evidence_summary, cited_sections, gaps, recommended_follow_up_documents), strong/weak/missing + boundary/additionality + extracted VM0007 fixture tests (not just synthetic), clearer UI badges+labels for baseline review output. PR #654 protected regression path; this closes Phase 2 criteria."
   }
 }

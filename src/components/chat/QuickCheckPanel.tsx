@@ -2159,31 +2159,49 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   </div>
                   {reviewQuestionResult.baselineReview ? (
                     <div className="mt-4 rounded-xl border border-emerald-200 bg-white/80 p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700">Baseline review</div>
-                      <div className="mt-2 text-sm font-medium text-slate-900">
-                        Verdict: {reviewQuestionResult.baselineReview.verdict}
+                      <div className="flex items-center gap-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700">Baseline review</div>
+                        {(() => {
+                          const v = reviewQuestionResult.baselineReview.verdict;
+                          const badge =
+                            v === "supported"
+                              ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                              : v === "partial"
+                                ? "bg-amber-100 text-amber-800 border-amber-200"
+                                : "bg-rose-100 text-rose-800 border-rose-200";
+                          return (
+                            <span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] border ${badge}`}>
+                              {v}
+                            </span>
+                          );
+                        })()}
                       </div>
-                      <div className="mt-2 text-sm leading-relaxed text-slate-700">
-                        {reviewQuestionResult.baselineReview.evidence_summary}
+                      <div className="mt-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence summary</div>
+                        <div className="mt-1 text-sm leading-relaxed text-slate-700">
+                          {reviewQuestionResult.baselineReview.evidence_summary}
+                        </div>
                       </div>
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Cited sections</div>
-                        <div className="mt-1 text-sm text-slate-700">
+                        <div className="mt-1 text-sm text-slate-700 font-mono">
                           {reviewQuestionResult.baselineReview.cited_sections.length > 0
                             ? reviewQuestionResult.baselineReview.cited_sections.map((section) => `§${section}`).join(", ")
                             : "None"}
                         </div>
                       </div>
-                      {reviewQuestionResult.baselineReview.gaps.length > 0 ? (
-                        <div className="mt-3">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Gaps</div>
+                      <div className="mt-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Gaps</div>
+                        {reviewQuestionResult.baselineReview.gaps.length > 0 ? (
                           <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">
                             {reviewQuestionResult.baselineReview.gaps.map((gap) => (
                               <li key={gap}>{gap}</li>
                             ))}
                           </ul>
-                        </div>
-                      ) : null}
+                        ) : (
+                          <div className="mt-1 text-sm text-emerald-700">None identified — baseline scenario appears supported by extracted PDD content.</div>
+                        )}
+                      </div>
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Recommended follow-up documents</div>
                         <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">

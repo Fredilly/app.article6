@@ -56,6 +56,11 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "no-method-detected.pdf": "Monitoring report for the full reporting period without any explicit methodology code.",
 };
 
+// Load real extracted VM0007 PDD fixture text (Phase 2 requirement: prove extracted-PDD fixture, not only synthetic inline strings)
+const REDD_EXTRACTED_FIXTURE_PATH = path.join(process.cwd(), "tests/fixtures/quick-check/pd_redd_v1_130-extracted.txt");
+const REDD_EXTRACTED_FIXTURE_TEXT = fs.readFileSync(REDD_EXTRACTED_FIXTURE_PATH, "utf-8");
+PDF_TEXT_BY_FILENAME["pd_redd_v1_130-extracted.pdf"] = REDD_EXTRACTED_FIXTURE_TEXT;
+
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
   createAndStoreEvidenceAttachment: (...args: unknown[]) => createAndStoreEvidenceAttachmentMock(...args),
@@ -1019,6 +1024,7 @@ describe("QuickCheckPanel claim-first flow", () => {
   });
 
   it("renders the baseline evidence-backed verdict for a baseline review question", async () => {
+    // Uses inline synthetic strong baseline (see lib tests for extracted-PDD fixture proving complete baselineReview from real VM0007 text)
     seedSession({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
@@ -1041,8 +1047,11 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Baseline review");
-    expect(text).toContain("Verdict: supported");
+    expect(text).toContain("supported");
     expect(text).toContain("§2.4");
+    expect(text).toContain("Evidence summary");
+    expect(text).toContain("Gaps");
+    expect(text).toContain("Recommended follow-up documents");
     expect(text).toContain("Conservative Quick Check signal only");
   });
 

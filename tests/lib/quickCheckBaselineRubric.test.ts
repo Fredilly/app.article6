@@ -121,7 +121,7 @@ describe("baseline evidence-backed review", () => {
     });
 
     expect(result.baselineReview?.verdict).not.toBe("supported");
-    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.verdict).toBe("partial");
     expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
 
@@ -167,7 +167,7 @@ describe("baseline evidence-backed review", () => {
     });
 
     expect(result.baselineReview?.verdict).not.toBe("supported");
-    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.verdict).toBe("partial");
     expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
 });
@@ -200,6 +200,13 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     expect(result.reviewArea).toBe("baseline");
     expect(result.baselineReview).toBeDefined();
     expect(result.baselineReview?.review_area).toBe("baseline");
+    // Phase 2 complete: extracted fixture (not synthetic) produces full evidence-backed baselineReview
+    expect(result.baselineReview?.verdict).toBe("supported");
+    expect(result.baselineReview?.cited_sections).toEqual(["2.4"]);
+    expect(result.baselineReview?.gaps).toEqual([]);
+    expect(Array.isArray(result.baselineReview?.recommended_follow_up_documents)).toBe(true);
+    expect(result.baselineReview!.recommended_follow_up_documents.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.evidence_summary).toContain("§2.4 (Baseline Scenario)");
   });
 
   it("baseline result from real extracted PDD includes cited extracted sections", () => {
@@ -211,8 +218,8 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     });
 
     expect(result.baselineReview).toBeDefined();
-    expect(Array.isArray(result.baselineReview?.cited_sections)).toBe(true);
-    expect(result.baselineReview!.cited_sections.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.cited_sections).toEqual(["2.4"]);
+    expect(result.baselineReview?.verdict).toBe("supported");
   });
 
   it("baseline result from real extracted PDD includes follow-up document recommendations", () => {
@@ -224,8 +231,8 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     });
 
     expect(result.baselineReview).toBeDefined();
-    expect(Array.isArray(result.baselineReview?.recommended_follow_up_documents)).toBe(true);
-    expect(result.baselineReview!.recommended_follow_up_documents.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.recommended_follow_up_documents.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.gaps).toEqual([]);
   });
 
   it("boundary question on real extracted VM0007 PDD returns reviewArea: boundary and does not produce baselineReview", () => {
@@ -343,7 +350,7 @@ describe("real-document-style baseline regression evals (VM0007 only)", () => {
 
     expect(result.reviewArea).toBe("baseline");
     expect(result.baselineReview?.verdict).not.toBe("supported");
-    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.verdict).toBe("partial");
     expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
 
