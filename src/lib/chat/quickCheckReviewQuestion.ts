@@ -20,15 +20,14 @@ export type ReviewQuestionResult = {
 };
 
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
-  /^does\s+this\s+pdd\s+justify/i,
-  /^does\s+this\s+pdd\s+explain/i,
-  /^does\s+this\s+pdd\s+disclose/i,
-  /^does\s+this\s+pdd\s+support/i,
-  /^does\s+this\s+pdd\s+define/i,
-  /^does\s+this\s+pdd\s+describe/i,
-  /^does\s+this\s+pdd\s+identify/i,
+  // Phase 2 hardening: support natural baseline question variants (and other review questions)
+  // so real user phrasing like the 5 listed below route to review_question_answering + reviewArea: baseline.
+  // Accepts "this PDD" / "the PDD", "provide ... estimate", "Is there baseline...", while preserving
+  // separation for additionality/boundary (which have earlier checks in classifyReviewArea).
+  /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate)/i,
   /^is\s+the\s+baseline/i,
   /^is\s+additionality/i,
+  /^is\s+there\s+(?:baseline|justification|evidence|support)/i,
   /^check\s+the/i,
   /^review\s+the/i,
 ];
@@ -73,7 +72,7 @@ export function classifyReviewArea(claimText: string): ReviewArea {
 
   if (/additionality|VT0001|barrier\s+analysis|investment\s+analysis|common\s+practice|first\s+of\s+its\s+kind/i.test(normalized)) return "additionality";
 
-  if (/justify|baseline|scenario/i.test(normalized)) return "baseline";
+  if (/justify|baseline|scenario|without-project|without project/i.test(normalized)) return "baseline";
   if (/leakage\s+belt\b|reference\s+region\b|RRD\b|boundary|geographic\s+boundary|project\s+area|area\s+of|spatial|geographic|polygon/i.test(normalized)) return "boundary";
   if (/deviations|departure|variance|deviation/i.test(normalized)) return "deviations";
   if (/leakage\s+risk|activity\s+shifting|LK-ASU|displacement/i.test(normalized)) return "leakage";

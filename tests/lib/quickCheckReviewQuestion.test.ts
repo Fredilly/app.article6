@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import {
+  buildReviewQuestionResult,
   classifyReviewArea,
   detectReviewPath,
   resolveReviewSections,
@@ -165,4 +166,75 @@ describe("reviewAreaLabel", () => {
       expect(reviewAreaLabel(area).length).toBeGreaterThan(0);
     });
   }
+});
+
+// ============================================================================
+// Phase 2 regression: harden baseline question detection for natural variants
+// (See user query for the 5 exact questions that must route to reviewArea: baseline
+// and review_question_answering when PDD has recoverable baseline section like 2.4
+// in PD_REDD_v1_130 / extracted fixture.)
+// Preserves additionality + boundary separation. No Phase 3 changes.
+// ============================================================================
+describe("Phase 2 baseline question detection hardening — natural language variants", () => {
+  const BASELINE_QUESTIONS: string[] = [
+    "Does this PDD justify the baseline scenario?",
+    "Is there baseline justification in this PDD?",
+    "Does this PDD provide a reasonable baseline estimate?",
+    "Does the PDD explain the without-project scenario?",
+    "Is the baseline scenario supported by evidence?",
+  ];
+
+  describe("detectReviewPath routes the 5 natural baseline variants to review_question_answering", () => {
+    for (const q of BASELINE_QUESTIONS) {
+      it(`routes "${q}" to review_question_answering`, () => {
+        expect(detectReviewPath(q)).toBe("review_question_answering");
+      });
+    }
+  });
+
+  describe("classifyReviewArea maps the 5 natural baseline variants to reviewArea: baseline", () => {
+    for (const q of BASELINE_QUESTIONS) {
+      it(`classifies "${q}" as baseline`, () => {
+        expect(classifyReviewArea(q)).toBe("baseline");
+      });
+    }
+  });
+
+  describe("buildReviewQuestionResult + VM0007 static routes (PD_REDD_v1_130 equivalent synthetic) recovers baseline section for the variants", () => {
+    for (const q of BASELINE_QUESTIONS) {
+      it(`"${q}" yields reviewArea=baseline with recoverable 2.4 baseline section`, () => {
+        const result = buildReviewQuestionResult({
+          claimText: q,
+          methodologyId: "VM0007",
+          methodologyVersion: "4.2",
+        });
+        expect(result.reviewArea).toBe("baseline");
+        expect(result.path).toBe("review_question_answering");
+        // VM0007 baseline routes include the recoverable baseline section (2.4)
+        expect(result.relevantSections).toContain("2.4");
+      });
+    }
+
+    it("preserves boundary separation (boundary question does not become baseline even with baseline PDD content present)", () => {
+      const result = buildReviewQuestionResult({
+        claimText: "Does this PDD describe the project boundary and leakage belt?",
+        methodologyId: "VM0007",
+        methodologyVersion: "1.0",
+      });
+      expect(result.reviewArea).toBe("boundary");
+      expect(result.relevantSections).toContain("2.3");
+      // Must not leak into baseline
+      expect(classifyReviewArea("Does this PDD describe the project boundary and leakage belt?")).toBe("boundary");
+    });
+
+    it("preserves additionality separation (additionality question does not become baseline)", () => {
+      const result = buildReviewQuestionResult({
+        claimText: "Is additionality demonstrated via investment analysis and common practice?",
+        methodologyId: "VM0007",
+        methodologyVersion: "1.0",
+      });
+      expect(result.reviewArea).toBe("additionality");
+      expect(classifyReviewArea("Is additionality demonstrated via investment analysis and common practice?")).toBe("additionality");
+    });
+  });
 });
