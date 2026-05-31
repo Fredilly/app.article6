@@ -46,11 +46,7 @@
     "last_updated_at": "2026-05-28T00:00:00Z"
   },
   "pr_evidence": {
-    "PR642": [
-      "640",
-      "641",
-      "642"
-    ]
+    "PR642": [640, 641, 642]
   },
   "pr_notes": {
     "PR642": "Routing MVP: detect review question path, classify review area, route to VM0007 sections. Covers additionality, baseline, boundary, deviations, leakage, monitoring, right_of_use."

@@ -98,7 +98,7 @@ describe("quick check pdf-parse extractor", () => {
       { pageNumber: 1, text: "Page one text" },
       { pageNumber: 2, text: "Page two text" },
     ]);
-    expect(result.text).toBe("Page one text Page two text");
+    expect(result.text).toBe("Page one text\n\nPage two text");
     expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
       parserPath: "provided-parser",
       pageExtractionAttempted: true,
@@ -183,6 +183,35 @@ describe("quick check pdf-parse extractor", () => {
       extractedTextLength: 97,
       pageCount: 1,
       partialTextRecovered: true,
+    }));
+  });
+
+  it("prefers page text over flattened full-document text when both are available", async () => {
+    getTextMock.mockResolvedValue({
+      text: "2.1 Project Goals, Design and Long-Term Viability 16 2.2 Without-project Land Use Scenario and Additionality 54",
+      pages: [
+        { num: 1, text: "2.1 Project Goals, Design and Long-Term Viability\nProject goals body." },
+        { num: 2, text: "2.2 Without-project Land Use Scenario and Additionality\nAdditionality body." },
+      ],
+    });
+
+    const result = await extractPdfTextWithPdfParse({
+      bytes: new TextEncoder().encode("%PDF-helper-pages").buffer,
+      PdfParseClass: PdfParseClassMock as never,
+    });
+
+    expect(result.text).toBe([
+      "2.1 Project Goals, Design and Long-Term Viability",
+      "Project goals body.",
+      "",
+      "2.2 Without-project Land Use Scenario and Additionality",
+      "Additionality body.",
+    ].join("\n"));
+    expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
+      parserPath: "provided-parser",
+      pageExtractionAttempted: true,
+      textFallbackAttempted: false,
+      pageCount: 2,
     }));
   });
 

@@ -1,0 +1,54 @@
+VM0007 Version 1.1
+Project Description Document
+
+Page 1 of 42
+
+1.1  Project Background
+This project is a reforestation activity in the central highlands.
+The project area encompasses 5,000 hectares of degraded land.
+
+Page 2 of 42
+
+1.9  Project Boundary
+The project area is located in the central region of the country.
+Geographic coordinates are provided in Annex 1.
+The leakage belt extends 3 km from the project boundary.
+
+v1.1
+
+2.3  Carbon Pools
+The following carbon pools are included in the project boundary:
+Above-ground biomass, below-ground biomass, dead wood, litter,
+and soil organic carbon.
+
+Page 3 of 42
+
+2.4  Baseline Scenario
+The baseline scenario is the most likely land-use scenario in the
+absence of the project activity. The project area consists of
+degraded grassland that has been subject to overgrazing for the
+past decade. Without the project, carbon stocks would continue
+to decline.
+
+VM0007 Version 1.1
+
+2.5  Additionality
+The project is additional because it faces significant barriers
+to implementation. A barrier analysis is provided in the
+following paragraphs. The investment analysis demonstrates that
+the project is not financially viable without carbon revenue.
+
+Page 4 of 42
+
+2.6  Deviations
+No deviations from the methodology are proposed.
+
+1.10  Leakage
+The leakage belt for this project is determined using the
+default 3 km buffer approach as specified in VM0007.
+Activity shifting leakage is expected to be minimal.
+
+3.3  Monitoring
+Monitoring will be conducted annually using permanent sample
+plots. A total of 50 plots are established across the project
+area.

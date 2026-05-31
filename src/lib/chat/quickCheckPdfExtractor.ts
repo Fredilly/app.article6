@@ -84,10 +84,6 @@ export class PdfHelperError extends Error {
   }
 }
 
-function normalizeWhitespace(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
-
 function normalizePageWhitespace(value: string): string {
   return String(value || "")
     .replace(/\r\n?/g, "\n")
@@ -177,7 +173,9 @@ function buildPageExtractionResult(
       .filter((page) => page.text)
     : [];
   const pages = parsedPages.length > 0 ? parsedPages : buildSyntheticPages(rawText);
-  const combinedText = rawText || pages.map((page) => page.text).join("\n\n");
+  const combinedText = parsedPages.length > 0
+    ? pages.map((page) => page.text).join("\n\n")
+    : rawText;
 
   if (!combinedText) {
     const failureDiagnostics = {
@@ -199,7 +197,7 @@ function buildPageExtractionResult(
   };
 
   return {
-    text: normalizeWhitespace(combinedText),
+    text: normalizePageWhitespace(combinedText),
     pages,
     engine: "pdf-parse",
     metadata: {
@@ -237,11 +235,6 @@ async function runPdfHelper(bytes: ArrayBuffer, includePages: boolean): Promise<
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true }).catch(() => undefined);
   }
-}
-
-async function extractPdfTextViaHelper(bytes: ArrayBuffer): Promise<string> {
-  const payload = await runPdfHelper(bytes, false);
-  return normalizeWhitespace(payload.text ?? "");
 }
 
 async function loadBundledPdfParseClass(): Promise<PdfParseLike> {
@@ -297,28 +290,49 @@ export async function extractPdfTextWithPdfParse(input: {
     };
   } catch (error) {
     const parserError = sanitizeDiagnosticMessage(toErrorMessage(error));
-    const helperText = input.helperOverrides?.extractTextViaHelper
-      ? normalizeWhitespace((await input.helperOverrides.extractTextViaHelper(input.bytes)).text ?? "")
-      : await extractPdfTextViaHelper(input.bytes);
-    return {
-      text: helperText,
-      engine: "pdf-parse",
-      metadata: {
-        parser: "pdf-parse",
-        diagnostics: {
-          ...buildEmptyDiagnostics(),
-          failureKind: helperText ? "parser-failed" : "no-selectable-text",
-          parserPath: "helper-text",
-          pageExtractionAttempted: true,
-          pageExtractionError: parserError,
-          textFallbackAttempted: true,
-          extractedTextLength: helperText.length,
-          pageCount: helperText ? 1 : 0,
-          likelyScannedOrImageOnly: !helperText,
-          partialTextRecovered: Boolean(helperText),
-        },
-      },
+    const diagnostics = {
+      ...buildEmptyDiagnostics(),
+      pageExtractionAttempted: true,
+      pageExtractionError: parserError,
+      textFallbackAttempted: true,
     };
+    const extractPagesViaHelper = input.helperOverrides?.extractPagesViaHelper
+      ?? ((bytes: ArrayBuffer) => runPdfHelper(bytes, true));
+    const extractTextViaHelper = input.helperOverrides?.extractTextViaHelper
+      ?? ((bytes: ArrayBuffer) => runPdfHelper(bytes, false));
+
+    try {
+      diagnostics.parserPath = "helper-pages";
+      const pageResult = buildPageExtractionResult(await extractPagesViaHelper(input.bytes), diagnostics);
+      return {
+        text: pageResult.text,
+        engine: "pdf-parse",
+        metadata: pageResult.metadata,
+      };
+    } catch (helperPageError) {
+      const helperPageMessage = sanitizeDiagnosticMessage(toErrorMessage(helperPageError));
+      const helperText = normalizePageWhitespace((await extractTextViaHelper(input.bytes)).text ?? "");
+      return {
+        text: helperText,
+        engine: "pdf-parse",
+        metadata: {
+          parser: "pdf-parse",
+          diagnostics: {
+            ...buildEmptyDiagnostics(),
+            failureKind: helperText ? "parser-failed" : "no-selectable-text",
+            parserPath: "helper-text-after-helper-pages",
+            pageExtractionAttempted: true,
+            pageExtractionError: parserError,
+            textFallbackAttempted: true,
+            textFallbackError: helperPageMessage,
+            extractedTextLength: helperText.length,
+            pageCount: helperText ? 1 : 0,
+            likelyScannedOrImageOnly: !helperText,
+            partialTextRecovered: Boolean(helperText),
+          },
+        },
+      };
+    }
   }
 }
 

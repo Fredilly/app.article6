@@ -1,0 +1,59 @@
+VCS Version 4.2
+VM0007 REDD+ Methodology Modules
+
+Project Description Document: PD_REDD_v1_130
+
+Page 1 of 85
+
+1.1  Project Background
+The project is located in the central region of the country and encompasses
+approximately 15,000 hectares of tropical forest. The area has been subject
+to deforestation pressure from agricultural expansion and illegal logging.
+
+1.9  Project Boundary
+The project area is defined by the following geographic coordinates as
+provided in Annex 1. The leakage belt extends 5 km from the project boundary.
+
+v4.2
+
+2.3  Carbon Pools
+The following carbon pools are included in the project boundary:
+Above-ground biomass, below-ground biomass, dead wood, litter,
+and soil organic carbon.
+
+Page 10 of 85
+
+2.4 (Baseline Scenario)
+The baseline scenario is the most likely land-use scenario in the absence
+of the project activity. The project area consists of tropical forest that
+would otherwise be converted to agricultural land. Historical deforestation
+rates have been estimated at 1.2% per year based on satellite imagery
+analysis covering the period 2010-2020. Without the project, carbon stocks
+would continue to decline due to ongoing deforestation and forest degradation.
+
+VM0007 Version 4.2
+
+2.5 (Additionality)
+The project is additional because it faces significant barriers to
+implementation. A barrier analysis is provided in the following paragraphs.
+The investment analysis demonstrates that the project is not financially
+viable without carbon revenue. The common practice analysis confirms that
+similar REDD+ activities are not widespread in the region.
+
+Page 15 of 85
+
+2.6  Deviations
+No deviations from the methodology are proposed at this time.
+
+1.10 (Leakage)
+The leakage belt for this project is determined using the default 5 km
+buffer approach as specified in VM0007. Activity shifting leakage is
+expected to be minimal due to the limited availability of alternative
+forest areas for displacement. Market leakage is not expected to be
+significant given the small scale of the project relative to the regional
+timber market.
+
+3.3  Monitoring
+Monitoring will be conducted annually using permanent sample plots.
+A total of 75 plots are established across the project area using a
+stratified random sampling design.
