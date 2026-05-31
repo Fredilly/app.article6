@@ -1,6 +1,6 @@
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 
-export type BaselineReviewVerdict = "supported" | "partial" | "missing" | "needs_review";
+export type BaselineReviewVerdict = "supported" | "partial" | "missing";
 
 export type BaselineReviewResult = {
   review_area: "baseline";
@@ -132,7 +132,7 @@ export function evaluateBaselineReview(input: EvaluateBaselineReviewInput): Base
       ? "supported"
       : scenarioSignals.length > 0
         ? "partial"
-        : "needs_review";
+        : "missing";
 
   const followUps = gaps.length > 0
     ? BASELINE_FOLLOW_UP_DEFAULT

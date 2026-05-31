@@ -121,7 +121,7 @@ describe("baseline evidence-backed review", () => {
     });
 
     expect(result.baselineReview?.verdict).not.toBe("supported");
-    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.verdict).toBe("partial");
     expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
 
@@ -167,7 +167,7 @@ describe("baseline evidence-backed review", () => {
     });
 
     expect(result.baselineReview?.verdict).not.toBe("supported");
-    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.verdict).toBe("partial");
     expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
 });
@@ -193,46 +193,53 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
     expect(result.reviewArea).toBe("baseline");
     expect(result.baselineReview).toBeDefined();
     expect(result.baselineReview?.review_area).toBe("baseline");
+    // Phase 2 complete: extracted fixture (not synthetic) produces full evidence-backed baselineReview
+    expect(result.baselineReview?.verdict).toBe("supported");
+    expect(result.baselineReview?.cited_sections).toEqual(["2.4"]);
+    expect(result.baselineReview?.gaps).toEqual([]);
+    expect(Array.isArray(result.baselineReview?.recommended_follow_up_documents)).toBe(true);
+    expect(result.baselineReview!.recommended_follow_up_documents.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.evidence_summary).toContain("§2.4 (Baseline Scenario)");
   });
 
   it("baseline result from real extracted PDD includes cited extracted sections", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
     expect(result.baselineReview).toBeDefined();
-    expect(Array.isArray(result.baselineReview?.cited_sections)).toBe(true);
-    expect(result.baselineReview!.cited_sections.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.cited_sections).toEqual(["2.4"]);
+    expect(result.baselineReview?.verdict).toBe("supported");
   });
 
   it("baseline result from real extracted PDD includes follow-up document recommendations", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
     expect(result.baselineReview).toBeDefined();
-    expect(Array.isArray(result.baselineReview?.recommended_follow_up_documents)).toBe(true);
-    expect(result.baselineReview!.recommended_follow_up_documents.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.recommended_follow_up_documents.length).toBeGreaterThan(0);
+    expect(result.baselineReview?.gaps).toEqual([]);
   });
 
   it("boundary question on real extracted VM0007 PDD returns reviewArea: boundary and does not produce baselineReview", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD describe the project boundary?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
@@ -244,7 +251,7 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     const result = buildReviewQuestionResult({
       claimText: "Is additionality demonstrated in this PDD?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
@@ -343,7 +350,7 @@ describe("real-document-style baseline regression evals (VM0007 only)", () => {
 
     expect(result.reviewArea).toBe("baseline");
     expect(result.baselineReview?.verdict).not.toBe("supported");
-    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.verdict).toBe("partial");
     expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
 
@@ -382,85 +389,5 @@ describe("real-document-style baseline regression evals (VM0007 only)", () => {
 
     expect(resultAdditionality.reviewArea).toBe("additionality");
     expect(resultAdditionality.baselineReview).toBeUndefined();
-  });
-});
-
-// ============================================================================
-// Real extracted PDD regression — VM0007 (Phase 2 follow-up)
-// Uses actual extracted fixture text (pd_redd_v1_130-extracted.txt) to protect
-// the real extracted-PDD code path for baseline routing + baselineReview.
-// ============================================================================
-
-import * as fs from "fs";
-import * as path from "path";
-
-const REDD_EXTRACTED_FIXTURE = path.join(
-  __dirname,
-  "../fixtures/quick-check/pd_redd_v1_130-extracted.txt"
-);
-const REDD_EXTRACTED_TEXT = fs.readFileSync(REDD_EXTRACTED_FIXTURE, "utf-8");
-
-describe("real extracted PDD regression — VM0007 baseline routing + baselineReview", () => {
-  it("baseline question on real extracted VM0007 PDD returns reviewArea: baseline and produces baselineReview", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD justify the baseline scenario?",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in pd_redd_v1_130-extracted.txt
-      rawPddText: REDD_EXTRACTED_TEXT,
-    });
-
-    expect(result.reviewArea).toBe("baseline");
-    expect(result.baselineReview).toBeDefined();
-    expect(result.baselineReview?.review_area).toBe("baseline");
-  });
-
-  it("baseline result from real extracted PDD includes cited extracted sections", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD justify the baseline scenario?",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in pd_redd_v1_130-extracted.txt
-      rawPddText: REDD_EXTRACTED_TEXT,
-    });
-
-    expect(result.baselineReview).toBeDefined();
-    expect(Array.isArray(result.baselineReview?.cited_sections)).toBe(true);
-    expect(result.baselineReview!.cited_sections.length).toBeGreaterThan(0);
-  });
-
-  it("baseline result from real extracted PDD includes follow-up document recommendations", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD justify the baseline scenario?",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in pd_redd_v1_130-extracted.txt
-      rawPddText: REDD_EXTRACTED_TEXT,
-    });
-
-    expect(result.baselineReview).toBeDefined();
-    expect(Array.isArray(result.baselineReview?.recommended_follow_up_documents)).toBe(true);
-    expect(result.baselineReview!.recommended_follow_up_documents.length).toBeGreaterThan(0);
-  });
-
-  it("boundary question on real extracted VM0007 PDD returns reviewArea: boundary and does not produce baselineReview", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD describe the project boundary?",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in pd_redd_v1_130-extracted.txt
-      rawPddText: REDD_EXTRACTED_TEXT,
-    });
-
-    expect(result.reviewArea).toBe("boundary");
-    expect(result.baselineReview).toBeUndefined();
-  });
-
-  it("additionality question on real extracted VM0007 PDD returns reviewArea: additionality and does not produce baselineReview", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Is additionality demonstrated in this PDD?",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in pd_redd_v1_130-extracted.txt
-      rawPddText: REDD_EXTRACTED_TEXT,
-    });
-
-    expect(result.reviewArea).toBe("additionality");
-    expect(result.baselineReview).toBeUndefined();
   });
 });

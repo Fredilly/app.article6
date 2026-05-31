@@ -1019,6 +1019,7 @@ describe("QuickCheckPanel claim-first flow", () => {
   });
 
   it("renders the baseline evidence-backed verdict for a baseline review question", async () => {
+    // Uses inline synthetic strong baseline (see lib tests for extracted-PDD fixture proving complete baselineReview from real VM0007 text)
     seedSession({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
@@ -1041,8 +1042,11 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Baseline review");
-    expect(text).toContain("Verdict: supported");
+    expect(text).toContain("supported");
     expect(text).toContain("§2.4");
+    expect(text).toContain("Evidence summary");
+    expect(text).toContain("Gaps");
+    expect(text).toContain("Recommended follow-up documents");
     expect(text).toContain("Conservative Quick Check signal only");
   });
 
