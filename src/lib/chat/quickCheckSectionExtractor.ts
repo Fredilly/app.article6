@@ -562,9 +562,12 @@ export function debugSectionExtraction(rawText: string): Record<string, string> 
 export type DocumentHeading = {
   sectionNumber: string;
   title: string;
+  originalTitle: string;
   normalizedTitle: string;
   bodyPreview: string;
   bodyText: string;
+  originalBodyText: string;
+  normalizedBodyText: string;
 };
 
 export type HeadingQueryMatch = {
@@ -593,8 +596,21 @@ export type RejectedHeadingQueryMatch = {
 const HEADING_PREVIEW_MAX = 220;
 const HEADING_BODY_MAX = 4000;
 
+function repairPdfExtractionJoins(text: string): string {
+  return text
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]{2,})([A-Z][a-z])/g, "$1 $2")
+    .replace(/([a-zA-Z])([/|])([A-Za-z])/g, "$1 $2 $3");
+}
+
+function cleanExtractedDisplayText(text: string): string {
+  return repairPdfExtractionJoins(text)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizeHeadingTitle(title: string): string {
-  return title
+  return cleanExtractedDisplayText(title)
     .toLowerCase()
     .replace(/[^\w\s.-]/g, " ")
     .replace(/\s+/g, " ")
@@ -835,17 +851,22 @@ export function buildPddHeadingIndex(rawPddText: string): DocumentHeading[] {
   for (const [num, content] of Object.entries(sections)) {
     const lines = content.split("\n").filter((l) => l.trim().length > 0);
     if (lines.length === 0) continue;
-    const title = lines[0]!.trim();
-    const body = lines.slice(1).join("\n").trim();
+    const originalTitle = lines[0]!.trim();
+    const originalBodyText = lines.slice(1).join("\n").trim();
+    const title = cleanExtractedDisplayText(originalTitle);
+    const body = cleanExtractedDisplayText(originalBodyText);
     const normalizedTitle = normalizeHeadingTitle(title);
     const bodyPreview = makeBodyPreview(body || title);
     const bodyText = (body || title).slice(0, HEADING_BODY_MAX);
     headings.push({
       sectionNumber: num,
       title,
+      originalTitle,
       normalizedTitle,
       bodyPreview,
       bodyText,
+      originalBodyText,
+      normalizedBodyText: normalizeHeadingTitle(bodyText),
     });
   }
   return headings;
@@ -900,9 +921,12 @@ export function findRejectedHeadingMatches(
       {
         sectionNumber: candidate.num,
         title,
+        originalTitle: title,
         normalizedTitle,
         bodyPreview: "",
         bodyText: "",
+        originalBodyText: "",
+        normalizedBodyText: "",
       },
       query,
       fallbackKeywords,
