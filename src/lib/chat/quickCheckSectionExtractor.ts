@@ -776,7 +776,7 @@ export function scoreHeadingAgainstQuery(
   const strong =
     exactTitleMatch
     || fullPhraseMatch
-    || (fallbackKeywordMatches.length > 0 && (exactTokenMatches.length > 0 || softTokenMatches.length > 0))
+    || fallbackKeywordMatches.length > 0
     || (queryTokens.length === 1
       ? exactTokenMatches.length > 0 || softTokenMatches.length > 0
       : coverage >= 0.6 && (

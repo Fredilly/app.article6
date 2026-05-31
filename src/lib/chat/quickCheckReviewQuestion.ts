@@ -83,6 +83,8 @@ const BROAD_QUESTION_PATTERNS: RegExp[] = [
   /^does\s+this\s+pdd\s+define/i,
   /^does\s+this\s+pdd\s+describe/i,
   /^does\s+this\s+pdd\s+identify/i,
+  /^does\s+this\s+pdd\s+include/i,
+  /^does\s+this\s+pdd\s+contain/i,
   /^is\s+the\s+baseline/i,
   /^is\s+additionality/i,
   /^check\s+the/i,
@@ -96,7 +98,18 @@ const REVIEW_AREA_KEYWORDS: Record<ReviewArea, string[]> = {
   leakage: ["leakage", "leakage belt"],
   monitoring: ["monitoring", "monitoring plan", "data and parameters"],
   deviations: ["deviations", "deviation"],
-  right_of_use: ["right of use", "land tenure", "carbon rights", "property rights"],
+  right_of_use: [
+    "legal status",
+    "property rights",
+    "ownership",
+    "right of use",
+    "land tenure",
+    "carbon rights",
+    "compliance",
+    "laws",
+    "statutes",
+    "regulatory frameworks",
+  ],
   general: [],
 };
 
@@ -134,7 +147,7 @@ export function classifyReviewArea(claimText: string): ReviewArea {
   if (/deviations|departure|variance|deviation/i.test(normalized)) return "deviations";
   if (/leakage\s+risk|activity\s+shifting|LK-ASU|displacement/i.test(normalized)) return "leakage";
   if (/monitoring|sampling|plot|measur/i.test(normalized)) return "monitoring";
-  if (/right of use|land tenure|carbon right|entitlement/i.test(normalized)) return "right_of_use";
+  if (/legal status|property rights|ownership|right of use|land tenure|carbon right|entitlement|compliance with laws|statutes|regulatory frameworks/i.test(normalized)) return "right_of_use";
   return "general";
 }
 

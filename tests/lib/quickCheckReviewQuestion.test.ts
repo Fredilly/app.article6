@@ -78,6 +78,10 @@ describe("detectReviewPath", () => {
     expect(detectReviewPath("Does this PDD disclose methodology deviations?")).toBe("review_question_answering");
   });
 
+  it("routes 'Does this PDD include stakeholder comments?' to review_question_answering", () => {
+    expect(detectReviewPath("Does this PDD include stakeholder comments?")).toBe("review_question_answering");
+  });
+
   it("routes 'Is the baseline scenario appropriate?' to review_question_answering", () => {
     expect(detectReviewPath("Is the baseline scenario appropriate?")).toBe("review_question_answering");
   });
@@ -176,6 +180,16 @@ describe("classifyReviewArea — leakage", () => {
 describe("classifyReviewArea — deviations", () => {
   it("classifies methodology deviations", () => {
     expect(classifyReviewArea("Does this PDD disclose methodology deviations?")).toBe("deviations");
+  });
+});
+
+describe("classifyReviewArea — right_of_use", () => {
+  it("classifies legal status and property rights", () => {
+    expect(classifyReviewArea("Does this PDD explain legal status and property rights?")).toBe("right_of_use");
+  });
+
+  it("classifies compliance with laws and ownership", () => {
+    expect(classifyReviewArea("Does this PDD explain compliance with laws and ownership?")).toBe("right_of_use");
   });
 });
 
@@ -478,6 +492,45 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.relevantSections).toContain("2.5");
     expect(result.sectionContent["2.5"]).toBeDefined();
     expect(result.sectionContent["2.5"]).toContain("land tenure");
+  });
+
+  it("matches legal status / property rights query to compliance, ownership, and right-of-use headings", () => {
+    const pdd = [
+      "1.11  Compliance with Laws, Statutes and Other Regulatory Frameworks",
+      "The project complies with laws and regulations.",
+      "",
+      "1.12  Ownership and Other Programs",
+      "Ownership of the project area is documented.",
+      "",
+      "1.12.1  Right of Use",
+      "The proponent has the right of use over the project area.",
+      "",
+    ].join("\n");
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD explain legal status and property rights?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: pdd,
+    });
+    expect(result.relevantSections).toEqual(expect.arrayContaining(["1.11", "1.12", "1.12.1"]));
+  });
+
+  it("matches stakeholder comments when the document has a real body heading for it", () => {
+    const pdd = [
+      "6  Stakeholder Comments",
+      "Stakeholder comments were collected during consultation and summarized here.",
+      "",
+      "6.1  Resolution of Comments",
+      "The project addressed the comments in follow-up meetings.",
+    ].join("\n");
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD include stakeholder comments?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: pdd,
+    });
+    expect(result.relevantSections).toContain("6");
+    expect(result.sectionContent["6"]).toContain("Stakeholder comments");
   });
 
   it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {
