@@ -67,7 +67,7 @@ describe("baseline evidence-backed review", () => {
       "No clear baseline justification basis was found, such as historical trends, drivers, or reference data.",
     );
     expect(result.baselineReview?.gaps).toContain(
-      "No quantitative baseline assumption, rate, or measurement was found in the matched section text.",
+      "No quantitative baseline assumption, rate, or measurement clearly tied to baseline reasoning was found (dates, page numbers, or unrelated figures do not count).",
     );
   });
 
@@ -87,5 +87,66 @@ describe("baseline evidence-backed review", () => {
     }));
     expect(result.baselineReview?.evidence_summary).toContain("No baseline-matched document section was recovered");
     expect(result.baselineReview?.gaps[0]).toContain("No uploaded PDD section heading matched");
+  });
+
+  // --- False positive hardening tests (numbers that should NOT trigger "supported") ---
+
+  const BASELINE_WITH_DATE_ONLY = [
+    "2.4  Baseline Scenario",
+    "The baseline scenario is the most likely land-use scenario in the absence of the project.",
+    "Historical land use data from the reference region was collected in 2018.",
+    "The project is expected to start operations in 2025.",
+  ].join("\n");
+
+  const BASELINE_WITH_UNRELATED_PERCENT = [
+    "2.4  Baseline Scenario",
+    "The baseline scenario assumes continuation of current land use practices.",
+    "Satellite imagery from the reference region shows that 65% of the area remains forested.",
+    "The project boundary covers approximately 12,500 ha.",
+  ].join("\n");
+
+  const BASELINE_WITH_SECTION_AND_PAGE_NUMBERS = [
+    "2.4  Baseline Scenario",
+    "The baseline scenario is described in detail on page 47 of this PDD (see also section 3.2).",
+    "Without the project, land-use patterns observed in 2005-2010 would continue.",
+    "Version 1.2 of the methodology was used for this analysis.",
+  ].join("\n");
+
+  it("does not return 'supported' when the only numbers are dates (false positive guard)", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BASELINE_WITH_DATE_ONLY,
+    });
+
+    expect(result.baselineReview?.verdict).not.toBe("supported");
+    expect(["partial", "needs_review"]).toContain(result.baselineReview?.verdict);
+    expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
+  });
+
+  it("does not return 'supported' for unrelated percentages or area sizes without baseline rate context", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BASELINE_WITH_UNRELATED_PERCENT,
+    });
+
+    expect(result.baselineReview?.verdict).not.toBe("supported");
+    expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
+  });
+
+  it("does not return 'supported' when numbers are page numbers, section references, versions, or years without rate context", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BASELINE_WITH_SECTION_AND_PAGE_NUMBERS,
+    });
+
+    expect(result.baselineReview?.verdict).not.toBe("supported");
+    // Should still detect some evidence signals but lack a properly tied quantitative claim
+    expect(result.baselineReview?.gaps.some(g => g.includes("quantitative baseline assumption"))).toBe(true);
   });
 });

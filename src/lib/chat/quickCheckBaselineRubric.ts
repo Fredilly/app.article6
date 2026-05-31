@@ -41,7 +41,25 @@ const BASELINE_EVIDENCE_SIGNALS = [
   "observed",
 ];
 
-const BASELINE_QUANT_SIGNAL = /\b\d+(?:\.\d+)?%?\b/;
+/**
+ * Stronger, contextual patterns for baseline-related quantitative claims.
+ * These require the number to appear together with baseline-specific reasoning language.
+ */
+const BASELINE_QUANT_CONTEXT_PATTERNS = [
+  // Rates over time explicitly tied to baseline
+  /\b\d+(?:\.\d+)?%?\s*(?:per|\/)\s*(?:year|annum|annual)/i,
+  /\bannual\s+(?:loss|deforestation|degradation|change|rate|trend)\s+(?:of\s+)?\d+/i,
+  /\bdeforestation\s+rate\s+(?:of\s+)?\d+/i,
+  /\bdegradation\s+rate\s+(?:of\s+)?\d+/i,
+  /\b\d+(?:\.\d+)?%?\s*(?:annual|per year|per annum)/i,
+
+  // Historical / observed quantification
+  /\b(historical|observed)\s+(?:deforestation|degradation|land.use|trend|rate|loss)\s+(?:of\s+)?\d+/i,
+  /\bfrom\s+\d{4}\s+to\s+\d{4}/i, // e.g. "from 2000 to 2020" in a trend context
+
+  // Common PDD baseline units
+  /\b\d+(?:\.\d+)?\s*(?:ha|hectare|hectares|tCO2|tCO₂|tons?|tonnes?)\s*(?:per|\/)?\s*(?:year|annum)/i,
+];
 
 const BASELINE_FOLLOW_UP_DEFAULT = [
   "Historical land-use change analysis or baseline modelling note",
@@ -92,7 +110,10 @@ export function evaluateBaselineReview(input: EvaluateBaselineReviewInput): Base
   const normalized = normalizeForSignal(combinedText);
   const scenarioSignals = collectMatchedSignalLabels(normalized, BASELINE_SCENARIO_SIGNALS);
   const evidenceSignals = collectMatchedSignalLabels(normalized, BASELINE_EVIDENCE_SIGNALS);
-  const hasQuantitativeIndicator = BASELINE_QUANT_SIGNAL.test(combinedText);
+
+  const hasContextualQuantitative = BASELINE_QUANT_CONTEXT_PATTERNS.some((pattern) =>
+    pattern.test(combinedText)
+  );
 
   const gaps: string[] = [];
   if (scenarioSignals.length === 0) {
@@ -101,12 +122,14 @@ export function evaluateBaselineReview(input: EvaluateBaselineReviewInput): Base
   if (evidenceSignals.length === 0) {
     gaps.push("No clear baseline justification basis was found, such as historical trends, drivers, or reference data.");
   }
-  if (!hasQuantitativeIndicator) {
-    gaps.push("No quantitative baseline assumption, rate, or measurement was found in the matched section text.");
+  if (!hasContextualQuantitative) {
+    gaps.push(
+      "No quantitative baseline assumption, rate, or measurement clearly tied to baseline reasoning was found (dates, page numbers, or unrelated figures do not count)."
+    );
   }
 
   const verdict: BaselineReviewVerdict =
-    scenarioSignals.length > 0 && evidenceSignals.length > 0 && hasQuantitativeIndicator
+    scenarioSignals.length > 0 && evidenceSignals.length > 0 && hasContextualQuantitative
       ? "supported"
       : scenarioSignals.length > 0
         ? "partial"
