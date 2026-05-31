@@ -128,12 +128,7 @@ Details: `docs/roadmaps/review-grade-quick-check/PLAN.md`
 Lane status: Active
 Turn Quick Check from a requirement matcher / section router into an evidence-backed verification-readiness review engine. Phased path from routing to readiness note export.
 
-Current focus:
-- Phase 0: routing MVP — detect review question path, classify review area, route to VM0007 sections (PR 642)
-
 Not active now:
-- Full multi-methodology section extraction (phase 1 starts after VM0007 routing is stable)
-- Evidence-backed verdicts and gap detection (phase 2+)
 - Review area rubrics (phase 3+)
 - Regression evaluation suite (phase 4+)
 - Readiness note export (phase 5+)
@@ -200,27 +195,14 @@ Status SSOT: `docs/roadmaps/review-grade-evidence-intelligence/phase-status.json
 Details: `docs/roadmaps/review-grade-evidence-intelligence/PLAN.md`
 
 Lane status: Active
-Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.
+Build Quick Check document-grounded section retrieval and evidence-backed review for uploaded PDDs. Phase 0 (routing MVP) and Phase 1 (uploaded PDD section extraction) are complete. Current focus is Phase 2: baseline evidence-backed review with verdicts and gap analysis.
 
-Current focus:
-- Maintain the export-conventions contract across new export surfaces
-- Cover Quick Check extraction edge case tests
-- Responsive UI QA for reconciliation and decision badges
-
-Not active now:
-- Refactoring extraction or export code — documentation and planning only in RC0-RC1
-- Changes to canonical methodology metadata or pack encoding
-- Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
-
-1) RC0 — Review-grade project export standard definition: Done
-2) RC1 — Deterministic evidence extraction foundation: Done
-3) RC2 — Evidence inventory reconciliation: Done
-4) RC3 — Reviewer decision records with provenance: Done
-5) RC4 — Premium PDF/ZIP export with full provenance: Done
-6) RC5 — Verification pack integration with evidence intelligence: Done
-7) RC6 — Evidence quality and coverage metrics: Done
-8) RC7 — Evidence snapshot and comparison: Done
-9) RC8 — Export standardization and cross-export consistency: Done
+1) RC0 — Quick Check routing MVP: Done
+2) RC1 — Uploaded PDD section extraction and heading matching: Done
+3) RC2 — Baseline evidence-backed review: Active
+4) RC3 — Review area rubrics: Planned
+5) RC4 — Regression evaluations: Unknown
+6) RC5 — Readiness note export: Planned
 
 ## safe-learning-intake-pipeline
 
