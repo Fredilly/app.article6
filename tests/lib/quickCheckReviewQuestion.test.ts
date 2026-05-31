@@ -62,9 +62,10 @@ const VM0007_PHASE_3_PDD_TEXT = [
   "",
   "1.11  Compliance with Laws, Statutes and Other Regulatory Frameworks",
   "The project complies with applicable laws and regulatory frameworks for the project area.",
+  "IBAP confirms legal authority and control over the project area under the applicable framework.",
   "",
   "1.12.1  Right of Use",
-  "The project proponent has legal right of use and authority to manage the project area.",
+  "IBAP has legal authority, operational control, and right of use to manage the project area.",
   "Land and resource use rights are held by the community association and documented in agreements.",
   "",
   "6  Stakeholder Comments",
@@ -113,6 +114,10 @@ describe("detectReviewPath", () => {
 
   it("routes 'Review the leakage assessment' to review_question_answering", () => {
     expect(detectReviewPath("Review the leakage assessment")).toBe("review_question_answering");
+  });
+
+  it("routes right-of-use questions with natural verbs like 'demonstrate' to review_question_answering", () => {
+    expect(detectReviewPath("Does this PDD demonstrate legal right of use for the project area?")).toBe("review_question_answering");
   });
 
   it("routes empty text to claim_to_requirement_match", () => {
@@ -734,9 +739,12 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     });
 
     expect(result.reviewArea).toBe("right_of_use");
+    expect(result.path).toBe("review_question_answering");
     expect(result.relevantSections).toEqual(expect.arrayContaining(["1.11", "1.12.1"]));
-    expect(result.sectionContent["1.11"]).toContain("complies with applicable laws");
-    expect(result.sectionContent["1.12.1"]).toContain("legal right of use and authority to manage");
+    expect(result.sectionContent["1.11"]).toContain("IBAP confirms legal authority and control");
+    expect(result.sectionContent["1.12.1"]).toContain("IBAP has legal authority, operational control, and right of use");
+    expect(result.reviewAreaReview).toBeDefined();
+    expect(result.reviewAreaReview?.verdict).not.toBe("missing");
     expect(result.baselineReview).toBeUndefined();
   });
 

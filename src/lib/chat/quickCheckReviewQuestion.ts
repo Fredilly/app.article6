@@ -88,7 +88,7 @@ const BROAD_QUESTION_PATTERNS: RegExp[] = [
   // (including optional articles like "a baseline...") so real user phrasing routes to
   // review_question_answering + reviewArea: baseline.
   // Accepts "this PDD" / "the PDD", "provide ... estimate", "Is there [a] baseline...", etc.
-  /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate)/i,
+  /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate)/i,
   /^is\s+the\s+baseline/i,
   /^is\s+additionality/i,
   // Support optional article ("a", "an", "the") after "is there" for real user phrasing
