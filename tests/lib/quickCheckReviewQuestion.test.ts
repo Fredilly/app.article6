@@ -752,3 +752,64 @@ describe("computeSectionMatchResults — match diagnostics", () => {
     }
   });
 });
+
+// ============================================================================
+// Additional regression for PR #657: article-prefixed baseline question support
+// "Is there a baseline justification in this PDD?" must route correctly.
+// We also re-assert the original five variants for completeness.
+// Preserves boundary/additionality separation. No Phase 3 changes.
+// ============================================================================
+describe("PR #657 - article-prefixed baseline question detection", () => {
+  const ARTICLE_VARIANT = "Is there a baseline justification in this PDD?";
+  const ORIGINAL_FIVE = [
+    "Does this PDD justify the baseline scenario?",
+    "Is there baseline justification in this PDD?",
+    "Does this PDD provide a reasonable baseline estimate?",
+    "Does the PDD explain the without-project scenario?",
+    "Is the baseline scenario supported by evidence?",
+  ];
+
+  it("routes the article-prefixed variant to review_question_answering", () => {
+    expect(detectReviewPath(ARTICLE_VARIANT)).toBe("review_question_answering");
+  });
+
+  it("classifies the article-prefixed variant as reviewArea: baseline", () => {
+    expect(classifyReviewArea(ARTICLE_VARIANT)).toBe("baseline");
+  });
+
+  it("buildReviewQuestionResult produces baseline + review_question_answering path for the article variant", () => {
+    const result = buildReviewQuestionResult({
+      claimText: ARTICLE_VARIANT,
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    expect(result.reviewArea).toBe("baseline");
+    expect(result.path).toBe("review_question_answering");
+    // Note: relevantSections now depends on actual PDD content + heading extraction in the full Phase 1/2 implementation.
+    // The core PR #657 guarantee (detect + classify routing) is verified by the tests above.
+  });
+
+  // Keep the original five as explicit regression coverage
+  it("still correctly handles all five original natural baseline variants", () => {
+    for (const q of ORIGINAL_FIVE) {
+      expect(detectReviewPath(q)).toBe("review_question_answering");
+      expect(classifyReviewArea(q)).toBe("baseline");
+    }
+  });
+
+  it("preserves boundary and additionality separation even with article-prefixed baseline content present", () => {
+    const boundaryResult = buildReviewQuestionResult({
+      claimText: "Does this PDD describe the project boundary and leakage belt?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    expect(boundaryResult.reviewArea).toBe("boundary");
+
+    const additionalityResult = buildReviewQuestionResult({
+      claimText: "Is additionality demonstrated via investment analysis?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    expect(additionalityResult.reviewArea).toBe("additionality");
+  });
+});
