@@ -128,12 +128,7 @@ Details: `docs/roadmaps/review-grade-quick-check/PLAN.md`
 Lane status: Active
 Turn Quick Check from a requirement matcher / section router into an evidence-backed verification-readiness review engine. Phased path from routing to readiness note export.
 
-Current focus:
-- Phase 0: routing MVP — detect review question path, classify review area, route to VM0007 sections (PR 642)
-
 Not active now:
-- Full multi-methodology section extraction (phase 1 starts after VM0007 routing is stable)
-- Evidence-backed verdicts and gap detection (phase 2+)
 - Review area rubrics (phase 3+)
 - Regression evaluation suite (phase 4+)
 - Readiness note export (phase 5+)
@@ -282,3 +277,4 @@ Not active now:
 - STAC auto-verification (support facts only, not auto-verify)
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
+

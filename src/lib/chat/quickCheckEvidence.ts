@@ -32,6 +32,7 @@ export type QuickCheckEvidenceAnalysis = {
   methodologyMentions: string[];
   extractionConfidence: number;
   warnings: string[];
+  rawPddText?: string;
 };
 
 export type QuickCheckClaimIntent =
@@ -903,6 +904,7 @@ export async function analyzeQuickCheckEvidence(
   const documentTypes = new Set<string>();
   const methodologyMentions = new Set<string>();
   const warningSet = new Set<string>();
+  const rawPddTextParts: string[] = [];
   const resolveAttachmentBytes = options?.resolveAttachmentBytes ?? getAttachmentBytes;
   const resolvePdfText = options?.resolvePdfText;
 
@@ -957,6 +959,7 @@ export async function analyzeQuickCheckEvidence(
       }
       if (!text) continue;
       parsedEvidenceLabels.add(source.sourceLabel);
+      rawPddTextParts.push(text);
       for (const mention of extractMethodologyMentions(text)) {
         methodologyMentions.add(mention);
       }
@@ -990,6 +993,7 @@ export async function analyzeQuickCheckEvidence(
     methodologyMentions: Array.from(methodologyMentions).sort((a, b) => a.localeCompare(b)),
     extractionConfidence,
     warnings,
+    rawPddText: rawPddTextParts.length > 0 ? rawPddTextParts.join("\n\n") : undefined,
   };
 }
 

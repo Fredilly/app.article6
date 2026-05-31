@@ -20,7 +20,37 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "baseline.pdf": "Monitoring report for the full reporting period.",
+  "baseline-strong-review.pdf": [
+    "Project boundary description for the REDD project.",
+    "The mapped project area polygon and AOI are referenced in the boundary map.",
+    "Project location Machinga District, Malawi.",
+    "2.4  Baseline Scenario",
+    "The baseline scenario is the most likely land-use scenario in the absence of the project activity.",
+    "Historical deforestation rates from satellite imagery show a 1.2% annual loss in the reference region.",
+  ].join("\n"),
+  "pd-redd-legal.pdf": [
+    "Project boundary description for the REDD project.",
+    "The mapped project area polygon and AOI are referenced in the boundary map.",
+    "Project location Machinga District, Malawi.",
+    "1.11  Compliance with Laws, Statutes and Other Regulatory Frameworks",
+    "The project complies with laws and regulations.",
+    "",
+    "1.12  Ownership and Other Programs",
+    "Ownership of the project area is documented.",
+    "",
+    "1.12.1  Right of Use",
+    "The proponent has the right of use over the project area.",
+  ].join("\n"),
   "plum-verra-demo-excerpt.pdf": "Project Description / PD. PLUM Project. Verra VCS / CCB. APD. ARR. VMD0001. VMD0006. VMD0009. VM0007. REDD+ Methodology Framework. Section 3.1 Application of Methodology. Section 3.3 Monitoring. Project boundary description for the PLUM Project. The mapped project area polygon and AOI are referenced in the boundary map. Project location described for the project area. Monitoring report for the full reporting period.",
+  "stakeholder-toc-only.pdf": [
+    "Table of Contents",
+    "6  Stakeholder Comments",
+    "",
+    "Project boundary description for the REDD project.",
+    "The mapped project area polygon and AOI are referenced in the boundary map.",
+    "1.9  Project Location",
+    "Project location Machinga District, Malawi.",
+  ].join("\n"),
   "ambiguous-methods.pdf": "Methodology references include VM0007, GS-VER1, and the monitoring report for the full reporting period.",
   "unknown-acm0010.pdf": "Evidence references ACM0010 and the monitoring report for the full reporting period.",
   "no-method-detected.pdf": "Monitoring report for the full reporting period without any explicit methodology code.",
@@ -958,6 +988,93 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await flushUi();
     expect(primaryCta().disabled).toBe(false);
+  });
+
+  it("shows legal/property-rights heading matches in the review-question UI", async () => {
+    seedSession({
+      claimText: "Does this PDD explain legal status and property rights?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+      filename: "pd-redd-legal.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(pd redd legal)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Compliance with Laws, Statutes and Other Regulatory Frameworks");
+    expect(text).toContain("Ownership and Other Programs");
+    expect(text).toContain("Right of Use");
+    expect(text).not.toContain("No matching document section found.");
+  });
+
+  it("renders the baseline evidence-backed verdict for a baseline review question", async () => {
+    // Uses inline synthetic strong baseline (see lib tests for extracted-PDD fixture proving complete baselineReview from real VM0007 text)
+    seedSession({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+      filename: "baseline-strong-review.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(baseline strong review)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Baseline review");
+    expect(text).toContain("supported");
+    expect(text).toContain("§2.4");
+    expect(text).toContain("Evidence summary");
+    expect(text).toContain("Gaps");
+    expect(text).toContain("Recommended follow-up documents");
+    expect(text).toContain("Conservative Quick Check signal only");
+  });
+
+  it("distinguishes TOC-only heading matches from recovered body headings", async () => {
+    seedSession({
+      claimText: "Does this PDD include stakeholder comments?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+      filename: "stakeholder-toc-only.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(stakeholder toc)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("No matching document section found.");
+    expect(text).toContain("§6 Stakeholder Comments");
+    expect(text).toContain("table of contents");
   });
 
   it("supports the cold-load user flow without using the demo path", async () => {
