@@ -20,6 +20,14 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "boundary.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "boundary-note.pdf": "Project boundary description for the Malawi grouped activity. The mapped project area polygon and AOI are referenced in the boundary map. Project location Machinga District, Malawi.",
   "baseline.pdf": "Monitoring report for the full reporting period.",
+  "baseline-strong-review.pdf": [
+    "Project boundary description for the REDD project.",
+    "The mapped project area polygon and AOI are referenced in the boundary map.",
+    "Project location Machinga District, Malawi.",
+    "2.4  Baseline Scenario",
+    "The baseline scenario is the most likely land-use scenario in the absence of the project activity.",
+    "Historical deforestation rates from satellite imagery show a 1.2% annual loss in the reference region.",
+  ].join("\n"),
   "pd-redd-legal.pdf": [
     "Project boundary description for the REDD project.",
     "The mapped project area polygon and AOI are referenced in the boundary map.",
@@ -1008,6 +1016,34 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).toContain("Ownership and Other Programs");
     expect(text).toContain("Right of Use");
     expect(text).not.toContain("No matching document section found.");
+  });
+
+  it("renders the baseline evidence-backed verdict for a baseline review question", async () => {
+    seedSession({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+      filename: "baseline-strong-review.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(baseline strong review)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Baseline review");
+    expect(text).toContain("Verdict: supported");
+    expect(text).toContain("§2.4");
+    expect(text).toContain("Conservative Quick Check signal only");
   });
 
   it("distinguishes TOC-only heading matches from recovered body headings", async () => {
