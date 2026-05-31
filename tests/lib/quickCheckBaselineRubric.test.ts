@@ -173,6 +173,87 @@ describe("baseline evidence-backed review", () => {
 });
 
 // ============================================================================
+// Real extracted PDD regression tests (Phase 2 follow-up)
+// These use actual extracted fixture text from a VM0007-style PDD to protect
+// the end-to-end routing + baselineReview production path (not just synthetic
+// inline strings).
+// ============================================================================
+
+import * as fs from "fs";
+import * as path from "path";
+
+const REDD_EXTRACTED_FIXTURE = path.join(
+  __dirname,
+  "../fixtures/quick-check/pd_redd_v1_130-extracted.txt"
+);
+const REDD_EXTRACTED_TEXT = fs.readFileSync(REDD_EXTRACTED_FIXTURE, "utf-8");
+
+describe("real extracted PDD regression — VM0007 baseline routing + baselineReview", () => {
+  it("baseline question on real extracted VM0007 PDD returns reviewArea: baseline and produces baselineReview", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REDD_EXTRACTED_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("baseline");
+    expect(result.baselineReview).toBeDefined();
+    expect(result.baselineReview?.review_area).toBe("baseline");
+  });
+
+  it("baseline result from real extracted PDD includes cited extracted sections", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REDD_EXTRACTED_TEXT,
+    });
+
+    expect(result.baselineReview).toBeDefined();
+    expect(Array.isArray(result.baselineReview?.cited_sections)).toBe(true);
+    expect(result.baselineReview!.cited_sections.length).toBeGreaterThan(0);
+  });
+
+  it("baseline result from real extracted PDD includes follow-up document recommendations", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REDD_EXTRACTED_TEXT,
+    });
+
+    expect(result.baselineReview).toBeDefined();
+    expect(Array.isArray(result.baselineReview?.recommended_follow_up_documents)).toBe(true);
+    expect(result.baselineReview!.recommended_follow_up_documents.length).toBeGreaterThan(0);
+  });
+
+  it("boundary question on real extracted VM0007 PDD returns reviewArea: boundary and does not produce baselineReview", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe the project boundary?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REDD_EXTRACTED_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("boundary");
+    expect(result.baselineReview).toBeUndefined();
+  });
+
+  it("additionality question on real extracted VM0007 PDD returns reviewArea: additionality and does not produce baselineReview", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Is additionality demonstrated in this PDD?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REDD_EXTRACTED_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("additionality");
+    expect(result.baselineReview).toBeUndefined();
+  });
+});
+
+// ============================================================================
 // Real-document-style baseline regression evals (Phase 2)
 // These use longer, messier PDD-style text with dates, page numbers, project
 // sizes, mixed sections, and realistic (imperfect) baseline wording.
