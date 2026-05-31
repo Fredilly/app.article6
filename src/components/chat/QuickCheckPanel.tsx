@@ -1393,6 +1393,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const currentMethodologyResolution = resolveQuickCheckMethodology({
         mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
         methods,
+        rawText: evidenceAnalysis.rawPddText,
       });
       if (!evidenceAnalysis.facts.length) {
         setFieldErrors({});

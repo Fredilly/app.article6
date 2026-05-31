@@ -2234,7 +2234,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+    expect(container.textContent).toContain("Primary detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2263,7 +2263,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+    expect(container.textContent).toContain("Primary detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2292,7 +2292,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
+    expect(container.textContent).toContain("Primary detected methodology: VM0007. Requirement matches are narrowed to VM0007.");
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2344,7 +2344,7 @@ describe("QuickCheckPanel claim-first flow", () => {
     });
 
     await flushUi();
-    expect(container.textContent).toContain("Detected ACM0010, but no matching method pack is available.");
+    expect(container.textContent).toContain("Primary detected methodology: ACM0010. No matching method pack is available.");
 
     await act(async () => {
       clickButton("Run quick check");
@@ -2352,7 +2352,7 @@ describe("QuickCheckPanel claim-first flow", () => {
 
     await flushUi();
     const text = container.textContent ?? "";
-    expect(text).toContain("Detected ACM0010, but no matching method pack is available.");
+    expect(text).toContain("Primary detected methodology: ACM0010. No matching method pack is available.");
     expect(text).not.toContain("Likely requirement matches");
     expect(text).not.toContain("Monitoring frequency");
   });
