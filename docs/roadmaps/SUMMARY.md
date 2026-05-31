@@ -129,7 +129,6 @@ Lane status: Active
 Turn Quick Check from a requirement matcher / section router into an evidence-backed verification-readiness review engine. Phased path from routing to readiness note export.
 
 Not active now:
-- Review area rubrics (phase 3+)
 - Regression evaluation suite (phase 4+)
 - Readiness note export (phase 5+)
 
