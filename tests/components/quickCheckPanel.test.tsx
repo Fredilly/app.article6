@@ -56,11 +56,6 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "no-method-detected.pdf": "Monitoring report for the full reporting period without any explicit methodology code.",
 };
 
-// Load real extracted VM0007 PDD fixture text (Phase 2 requirement: prove extracted-PDD fixture, not only synthetic inline strings)
-const REDD_EXTRACTED_FIXTURE_PATH = path.join(process.cwd(), "tests/fixtures/quick-check/pd_redd_v1_130-extracted.txt");
-const REDD_EXTRACTED_FIXTURE_TEXT = fs.readFileSync(REDD_EXTRACTED_FIXTURE_PATH, "utf-8");
-PDF_TEXT_BY_FILENAME["pd_redd_v1_130-extracted.pdf"] = REDD_EXTRACTED_FIXTURE_TEXT;
-
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
   createAndStoreEvidenceAttachment: (...args: unknown[]) => createAndStoreEvidenceAttachmentMock(...args),
