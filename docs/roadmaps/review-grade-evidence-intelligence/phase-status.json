@@ -1,202 +1,112 @@
 {
-  "RC0": "done",
-  "RC1": "done",
-  "RC2": "done",
-  "RC3": "done",
-  "RC4": "done",
-  "RC5": "done",
-  "RC6": "done",
-  "RC7": "done",
-  "RC8": "done",
   "phase_meta": {
     "status": "active",
-    "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
-    "current_focus": [
-      "Maintain the export-conventions contract across new export surfaces",
-      "Cover Quick Check extraction edge case tests",
-      "Responsive UI QA for reconciliation and decision badges"
-    ],
-    "not_active_now": [
-      "Refactoring extraction or export code — documentation and planning only in RC0-RC1",
-      "Changes to canonical methodology metadata or pack encoding",
-      "Unbounded AI classification, auto-verification, or final evidence sufficiency decisions"
-    ]
+    "summary": "Build Quick Check document-grounded section retrieval and evidence-backed review for uploaded PDDs. Phase 0 (routing MVP) and Phase 1 (uploaded PDD section extraction) are complete. Current focus is Phase 2: baseline evidence-backed review with verdicts and gap analysis.",
+    "current_focus": "Phase 2: baseline evidence-backed review",
+    "not_active_now": []
   },
   "phases": {
-    "phase_0_standard_definition": {
+    "phase_0_routing_mvp": {
       "status": "done",
-      "title": "Review-grade project export standard definition",
+      "title": "Quick Check routing MVP",
       "repo": "app.article6",
-      "description": "Define the app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. Create the standard document at docs/standards/review-grade-project-export-standard.md. Create the roadmap plan.",
+      "description": "Initial Quick Check routing that classifies user questions into review areas (additionality, baseline, boundary, leakage, monitoring, deviations, right of use) and routes to the review-question-answering path. Establishes the BROAD_QUESTION_PATTERNS and REVIEW_AREA_KEYWORDS foundation.",
       "acceptance": [
-        "docs/standards/review-grade-project-export-standard.md exists and defines the full pipeline from upload to premium export",
-        "Standard covers uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and PDF/ZIP export",
-        "Standard is honest about what is app-owned readiness-report logic vs canonical pack metadata",
-        "Standard is conservative enough to trust: no overclaiming of official registry verification or certification"
+        "User questions are classified into review areas by keyword matching",
+        "Broad questions (Does this PDD describe/explain/include...) route to review_question_answering path",
+        "Specific evidence claims route to claim_to_requirement_match path",
+        "Empty or unrecognized questions fall through gracefully"
       ],
-      "visible_ui_change": "None — documentation only",
-      "depends_on": []
+      "visible_ui_change": "Quick Check panel accepts user questions and routes to review-answering path",
+      "depends_on": [],
+      "prs": [642]
     },
-    "phase_1_deterministic_evidence_extraction": {
+    "phase_1_section_extraction": {
       "status": "done",
-      "title": "Deterministic evidence extraction foundation",
+      "title": "Uploaded PDD section extraction and heading matching",
       "repo": "app.article6",
-      "description": "Implement deterministic extraction of evidence fragments from uploaded documents (PDDs, workbooks, monitoring reports). Extract facts and surface candidate links to methodology rules. All extraction must be deterministic and auditable, producing stable provenance hashes.",
+      "description": "Extract structured section headings from uploaded PDD text using regex-based heading detection. Build a heading index and match user questions to relevant sections by title similarity. Handle TOC skipping, all-caps headings, duplicate heading numbers, split heading lines, and header/footer noise.",
       "acceptance": [
-        "Uploaded PDDs produce deterministic fragments with section/page provenance",
-        "Uploaded workbooks produce deterministic fragments with sheet/cell provenance",
-        "Extracted facts are stored with stable hashes for auditability",
-        "Candidate rule links are surfaced from extracted content",
-        "All extraction is deterministic: same input produces same output",
-        "Existing upload and evidence inventory flows are preserved"
+        "Section headings are extracted from raw PDD text using configurable regex patterns",
+        "Table of Contents entries are detected and skipped (dotted leaders, TOC block)",
+        "Header/footer noise (page numbers, version strings) is stripped before extraction",
+        "Duplicate section headings are resolved: body-content heading wins over TOC entry",
+        "All-caps headings (e.g. STAKEHOLDER COMMENTS) are recovered as valid section titles",
+        "Split headings (number on one line, title on next) are reconstructed",
+        "Question-to-heading filtering uses title-based scoring with stop-word and low-signal filtering",
+        "Unknown or unrelated topics return no match with noMatchExplanation",
+        "Cross-document anti-hardcoding tests verify section identity comes from document text, not hardcoded assumptions"
       ],
-      "visible_ui_change": "Evidence fragments and extracted facts appear in the evidence inventory alongside original uploads",
-      "depends_on": [
-        "phase_0_standard_definition"
-      ],
-      "prs": [
-        608
-      ]
+      "visible_ui_change": "Quick Check displays matched PDD sections with heading title and body content for review questions",
+      "depends_on": ["phase_0_routing_mvp"],
+      "prs": [646]
     },
-    "phase_2_evidence_inventory_reconciliation": {
-      "status": "done",
-      "title": "Evidence inventory reconciliation",
+    "phase_2_baseline_evidence_backed_review": {
+      "status": "active",
+      "title": "Baseline evidence-backed review",
       "repo": "app.article6",
-      "description": "Reconcile extracted evidence fragments and facts against the methodology coverage matrix. Surface unmatched evidence, missing coverage, and potential gaps. Enable reviewers to link evidence to rules with structured provenance. Handles missing packs and manifests gracefully with structured status and error message.",
+      "description": "Produce evidence-backed verdicts from uploaded PDD content: answer whether the PDD addresses each review area with a determination, evidence summary, gap analysis, and confidence score. Establish the pattern for rubric-based review-area assessment.",
       "acceptance": [
-        "Evidence fragments are cross-referenced against methodology rule sections",
-        "Unmatched evidence is surfaced for manual review",
-        "Coverage gaps are identified from missing evidence links",
-        "Reviewers can manually link evidence to rules with structured provenance",
-        "Reconciliation is deterministic: same inputs produce same coverage state",
-        "Missing methodology packs or manifests return clear status and error message"
+        "Quick Check produces structured verdicts per matched section: determination (compliant / non-compliant / insufficient), evidence summary, gap analysis, confidence score",
+        "Verdicts cite specific section numbers and body text from the uploaded PDD",
+        "Gaps are identified when required review-area disclosures are missing from the PDD",
+        "Confidence score reflects how much of the required content the PDD covers"
       ],
-      "visible_ui_change": "Evidence inventory shows reconciliation status per fragment: linked (green), unmatched (yellow), or gap (red). Failed reconciliation shows inline error message.",
-      "depends_on": [
-        "phase_0_standard_definition"
-      ],
-      "prs": [
-        609
-      ]
+      "visible_ui_change": "Quick Check shows verdicts with evidence citations and gap flags per review area",
+      "depends_on": ["phase_1_section_extraction"],
+      "prs": []
     },
-    "phase_3_reviewer_decision_records": {
-      "status": "done",
-      "title": "Reviewer decision records with provenance",
+    "phase_3_review_area_rubrics": {
+      "status": "planned",
+      "title": "Review area rubrics",
       "repo": "app.article6",
-      "description": "Build structured reviewer decision records attached to evidence-linked rules. Each decision carries status, rationale, evidence reference, and provenance. Enable the coverage matrix to reflect reviewer decisions alongside evidence reconciliation.",
+      "description": "Define rubric-based criteria per review area to assess completeness and quality of PDD disclosures. Each rubric specifies required disclosures, acceptable evidence types, and quality thresholds.",
       "acceptance": [
-        "Reviewer decisions are structured records with status, rationale, evidence reference, and provenance",
-        "Decisions are linked to specific evidence fragments, not just rule IDs",
-        "Coverage matrix reflects reviewer decisions alongside evidence reconciliation",
-        "Decision history is preserved and auditable",
-        "Existing review panel and decision flows are extended, not replaced"
+        "Each review area has a structured rubric with required disclosure items",
+        "Rubrics define what constitutes compliant, partial, or missing coverage",
+        "Rubrics are methodology-aware where applicable"
       ],
-      "visible_ui_change": "Coverage matrix shows reviewer decisions per rule with evidence links and provenance",
-      "depends_on": [
-        "phase_2_evidence_inventory_reconciliation"
-      ],
-      "prs": [
-        610
-      ]
+      "visible_ui_change": "Review area rubrics displayed alongside Quick Check results",
+      "depends_on": ["phase_2_baseline_evidence_backed_review"],
+      "prs": []
     },
-    "phase_4_premium_pdf_zips_export": {
-      "status": "done",
-      "title": "Premium PDF/ZIP export with full provenance",
+    "phase_4_regression_evals": {
+      "status": "partial",
+      "title": "Regression evaluations",
       "repo": "app.article6",
-      "description": "Build premium PDF and ZIP export pipelines that include evidence fragments, extracted facts, coverage matrix, reviewer decisions, and full provenance. The export must be beautiful enough to sell and structured enough to defend.",
+      "description": "Automated regression test suite for Quick Check section matching, cross-document genericity, negative-topic safety, and anti-hardcoding assertions. Suite proves section matches are derived from uploaded document text, not hardcoded project assumptions.",
       "acceptance": [
-        "PDF export includes evidence fragments and extracted facts with provenance",
-        "PDF export includes coverage matrix with reconciliation status",
-        "PDF export includes reviewer decisions with rationale and evidence links",
-        "ZIP export includes all source documents, evidence fragments, and structured metadata",
-        "Exports are deterministic: same project state produces same output",
-        "Exports are beautiful and professional-grade in layout and typography"
+        "Grep-based CI check confirms no project-specific strings (PLUM, PD_REDD, Guinea, Bissau, Cacheu, Cantanhez) in Quick Check runtime code",
+        "Cross-document genericity tests: same question returns different sections on differently-structured PDD fixtures",
+        "Negative-topic tests: unrelated questions (blue whale migration, cryptocurrency mining, Mars colony monitoring) return no confident match",
+        "Anti-hardcoding assertions: every returned section exists in the extracted heading index; removing a heading from the fixture kills the match"
       ],
-      "visible_ui_change": "Premium PDF and ZIP export options available from project detail and review panels",
-      "depends_on": [
-        "phase_3_reviewer_decision_records"
-      ],
-      "prs": [
-        612
-      ]
+      "visible_ui_change": "None — testing infrastructure",
+      "depends_on": ["phase_1_section_extraction"],
+      "prs": [646]
     },
-    "phase_5_verification_pack_integration": {
-      "status": "done",
-      "title": "Verification pack integration with evidence intelligence",
+    "phase_5_readiness_note_export": {
+      "status": "planned",
+      "title": "Readiness note export",
       "repo": "app.article6",
-      "description": "Integrate evidence intelligence outputs (fragments, facts, links, coverage, decisions) into the existing verification pack pipeline. The verification pack becomes a richer, better-evidenced artifact.",
+      "description": "Export Quick Check results and evidence-backed verdicts into readiness note format for reviewer consumption. Results include matched sections, evidence citations, gap analysis, and confidence scores.",
       "acceptance": [
-        "Verification pack includes evidence fragments and extracted facts with provenance",
-        "Verification pack includes coverage matrix with reconciliation status",
-        "Verification pack includes reviewer decisions with evidence links",
-        "Verification pack is deterministic: same project state produces same output",
-        "Existing verification pack consumers (audit trail, export) are preserved"
+        "Quick Check results are included in readiness note export output",
+        "Matched section content and evidence citations are rendered in the export",
+        "Gap analysis and confidence scores appear in the export"
       ],
-      "visible_ui_change": "Verification pack output includes evidence fragments and structured review data",
-      "depends_on": [
-        "phase_4_premium_pdf_zips_export"
-      ]
+      "visible_ui_change": "Readiness note includes Quick Check verdicts and evidence citations",
+      "depends_on": ["phase_2_baseline_evidence_backed_review"],
+      "prs": []
+    }
+  },
+  "pr_evidence": {
+    "642": {
+      "title": "Phase 0 — Quick Check routing MVP"
     },
-    "phase_6_evidence_quality_metrics": {
-      "status": "done",
-      "title": "Evidence quality and coverage metrics",
-      "repo": "app.article6",
-      "description": "Surface evidence quality and coverage metrics in the UI: what fraction of rules have linked evidence, how many fragments per rule, what is the reconciliation confidence level. Enable reviewers to assess evidence sufficiency at a glance.",
-      "acceptance": [
-        "Evidence quality metrics are computed and displayed in the evidence inventory",
-        "Coverage metrics show fraction of rules with linked evidence per standard",
-        "Reconciliation confidence level is surfaced per evidence fragment",
-        "Metrics are deterministic: same project state produces same metrics",
-        "Metrics are advisory only — reviewers make the final sufficiency call"
-      ],
-      "visible_ui_change": "Evidence quality badges and coverage progress bars visible in evidence inventory and project overview",
-      "depends_on": [
-        "phase_3_reviewer_decision_records"
-      ],
-      "prs": [
-        614
-      ]
-    },
-    "phase_7_evidence_snapshot_and_comparison": {
-      "status": "done",
-      "title": "Evidence snapshot and comparison",
-      "repo": "app.article6",
-      "description": "Enable reviewers to take evidence snapshots at a point in time and compare evidence state across project versions or milestones. Support before/after views for re-verification and delta review scenarios.",
-      "acceptance": [
-        "Evidence snapshots capture the full evidence state at a point in time",
-        "Snapshots include fragments, facts, links, coverage, and decisions",
-        "Comparison view shows added, removed, and changed evidence between snapshots",
-        "Snapshots are deterministic: same project state at same time produces same snapshot",
-        "Snapshots are exportable for offline review and record-keeping"
-      ],
-      "visible_ui_change": "Evidence snapshot comparison timeline and diff view in project overview",
-      "depends_on": [
-        "phase_5_verification_pack_integration"
-      ],
-      "prs": [
-        617
-      ]
-    },
-    "phase_8_export_standardization_and_consistency": {
-      "status": "done",
-      "title": "Export standardization and cross-export consistency",
-      "repo": "app.article6",
-      "description": "Ensure all export outputs (PDF, ZIP, verification pack, evidence snapshot) follow the same layout conventions, terminology, and section ordering. Cross-export consistency makes the product predictable and professional.",
-      "acceptance": [
-        "All export types follow the same layout conventions and terminology",
-        "Section ordering is consistent across PDF, ZIP, verification pack, and snapshot exports",
-        "Terminology is consistent: evidence fragment, extracted fact, candidate link, coverage status, reviewer decision",
-        "Exports are deterministic: same project state produces same output across all export types",
-        "Migration path is documented for existing export consumers"
-      ],
-      "visible_ui_change": "Consistent section ordering and terminology across all export formats",
-      "depends_on": [
-        "phase_5_verification_pack_integration"
-      ],
-      "prs": [
-        620,
-        622
-      ]
+    "646": {
+      "title": "Phase 1 — Uploaded PDD section extraction and heading matching",
+      "note": "completed Phase 1 MVP with uploaded PDD heading extraction, section body rendering, TOC skipping, all-caps heading recovery, duplicate heading handling, question-to-heading filtering, cross-document anti-hardcoding tests, and safe no-match behavior."
     }
   }
 }
