@@ -193,7 +193,7 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
@@ -206,7 +206,7 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
@@ -219,7 +219,7 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD justify the baseline scenario?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
@@ -232,7 +232,7 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD describe the project boundary?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
@@ -244,7 +244,7 @@ describe("real extracted PDD regression — VM0007 baseline routing + baselineRe
     const result = buildReviewQuestionResult({
       claimText: "Is additionality demonstrated in this PDD?",
       methodologyId: "VM0007",
-      methodologyVersion: "1.0",
+      methodologyVersion: "4.2", // matches "VM0007 Version 4.2" in the pd_redd_v1_130-extracted.txt fixture
       rawPddText: REDD_EXTRACTED_TEXT,
     });
 
