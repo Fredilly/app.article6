@@ -11,6 +11,7 @@ import {
   type DocumentHeading,
   type SectionCandidateDebug,
 } from "@/lib/chat/quickCheckSectionExtractor";
+import { evaluateBaselineReview, type BaselineReviewResult } from "@/lib/chat/quickCheckBaselineRubric";
 
 export type ReviewArea =
   | "additionality"
@@ -73,6 +74,7 @@ export type ReviewQuestionResult = {
   headingIndex: DocumentHeading[];
   /** Phase 1: headings filtered by the user's question text only (title-based, no body scoring) */
   matchedHeadings: DocumentHeading[];
+  baselineReview?: BaselineReviewResult;
   noMatchExplanation?: string;
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
@@ -315,6 +317,9 @@ export function buildReviewQuestionResult(input: {
     // Provide body for compat with existing consumers; primary matches never came from body text.
     sectionContent[h.sectionNumber] = h.bodyText ? `${h.title}\n${h.bodyText}` : h.title;
   }
+  const baselineReview = reviewArea === "baseline"
+    ? evaluateBaselineReview({ matchedHeadings })
+    : undefined;
 
   const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
     ? debugSectionExtraction(input.rawPddText)
@@ -336,6 +341,7 @@ export function buildReviewQuestionResult(input: {
     sectionContent,
     headingIndex,
     matchedHeadings,
+    baselineReview,
     noMatchExplanation,
     diagnostic,
     phase1Diagnostic,
