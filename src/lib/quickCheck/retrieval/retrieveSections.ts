@@ -35,6 +35,7 @@ import type {
 
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
   /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate)/i,
+  /^does\s+the\s+document\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate)/i,
   /^is\s+the\s+baseline/i,
   /^is\s+additionality/i,
   /^is\s+there\s+(?:(?:a|an|the)\s+)?(?:baseline|justification|evidence|support)/i,
@@ -54,7 +55,7 @@ const REVIEW_AREA_LABELS: Record<ReviewArea, string> = {
   general: "General review",
 };
 
-const CLAIM_PREFIX_RE = /^(?:does this PDD\s+)?(?:explain|describe|review|check|evaluate|assess|identify|discuss|justify|mention|outline|summarize|present|provide|include|support|demonstrate|define|show|disclose)\s+/i;
+const CLAIM_PREFIX_RE = /^(?:(?:does\s+(?:this\s+pdd|the\s+document)\s+)?(?:explain|describe|review|check|evaluate|assess|identify|discuss|justify|mention|outline|summarize|present|provide|include|support|demonstrate|define|show|disclose)|is\s+the)\s+/i;
 const LEADING_ARTICLE_RE = /^(?:the|a|an)\s+/i;
 
 const CLAIM_STOP_WORDS = new Set([
@@ -64,6 +65,7 @@ const CLAIM_STOP_WORDS = new Set([
   "must", "can", "also", "very", "just", "then", "than", "into", "over",
   "about", "after", "before", "under", "above", "below", "between", "through",
   "during", "without", "within", "along", "pdd",
+  "document", "clearly", "clear",
   "project", "area", "section", "plan", "analysis", "assessment", "report", "data", "using",
   "describe", "explain", "identify", "justify", "review", "check", "assess",
   "evaluate", "discuss", "mention", "outline", "summarize", "present", "provide",
@@ -90,9 +92,16 @@ function toDiagnosticHeading(heading: DocumentHeading): ReviewRoutingDiagnosticH
   };
 }
 
+function hasReferenceRegionBoundaryIntent(normalizedClaimText: string): boolean {
+  if (!/\breference\s+region\b/i.test(normalizedClaimText)) return false;
+
+  return /\bboundary\b|\bproject\s+boundary\b|\bleakage\s+belt\b|\bdefine\b|\bdescribe\b|\bexplain\b|\binclude\b/.test(normalizedClaimText);
+}
+
 export function detectReviewPath(claimText: string): QuickCheckPath {
   const normalized = claimText.trim();
   if (!normalized) return "claim_to_requirement_match";
+  if (hasReferenceRegionBoundaryIntent(normalized)) return "review_question_answering";
   return BROAD_QUESTION_PATTERNS.some((pattern) => pattern.test(normalized))
     ? "review_question_answering"
     : "claim_to_requirement_match";
@@ -101,6 +110,8 @@ export function detectReviewPath(claimText: string): QuickCheckPath {
 export function classifyReviewArea(claimText: string): ReviewArea {
   const normalized = claimText.trim().toLowerCase();
   const hasNonLeakageQualifier = /\bnon[-\s]+leakage\b/i.test(normalized);
+
+  if (hasReferenceRegionBoundaryIntent(normalized)) return "boundary";
 
   const hasBoundaryPair =
     /\bleakage\s+belt\b/i.test(normalized) &&
@@ -120,6 +131,7 @@ export function classifyReviewArea(claimText: string): ReviewArea {
 }
 
 export function extractClaimKeywords(claimText: string): { phrases: string[]; words: string[] } {
+  const hasBoundaryIntent = hasReferenceRegionBoundaryIntent(claimText.trim().toLowerCase());
   const cleaned = claimText
     .replace(CLAIM_PREFIX_RE, "")
     .replace(/\?/g, "")
@@ -139,6 +151,11 @@ export function extractClaimKeywords(claimText: string): { phrases: string[]; wo
     .split(/[\s,]+/)
     .map((word) => word.replace(/^[^a-z0-9-]+|[^a-z0-9-]+$/g, ""))
     .filter((word) => word.length >= 4 && !CLAIM_STOP_WORDS.has(word));
+
+  if (hasBoundaryIntent) {
+    phrases.push("project boundary");
+    words.push("boundary");
+  }
 
   return { phrases: [...new Set(phrases)], words: [...new Set(words)] };
 }
