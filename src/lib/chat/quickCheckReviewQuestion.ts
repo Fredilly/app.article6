@@ -1,8 +1,6 @@
 import {
   analyzeSectionCandidates,
-  buildPddHeadingIndex,
   debugSectionExtraction,
-  extractPddSections,
   findRejectedHeadingMatches,
   filterPddHeadingsByQuery,
   normalizeSectionKey,
@@ -13,6 +11,7 @@ import {
 } from "@/lib/chat/quickCheckSectionExtractor";
 import { evaluateBaselineReview, type BaselineReviewResult } from "@/lib/chat/quickCheckBaselineRubric";
 import { evaluateReviewRubric, type ReviewRubricResult } from "@/lib/chat/quickCheckReviewRubric";
+import { parseDocumentText } from "@/lib/documentParsing";
 
 export type ReviewArea =
   | "additionality"
@@ -498,8 +497,9 @@ export function findMatchedSectionNumbers(
   methodologyId = "",
 ): string[] {
   if (!claimText?.trim()) return [];
+  const parsedDocument = parseDocumentText({ rawText: rawPddText });
   return resolveReviewQuestionSections({
-    headingIndex: buildPddHeadingIndex(rawPddText),
+    headingIndex: parsedDocument.headingIndex,
     claimText,
     reviewArea,
     methodologyId,
@@ -516,7 +516,7 @@ export function computeSectionMatchResults(
   claimText: string,
   methodologyId = "",
 ): SectionMatchResult[] {
-  const headingIndex = buildPddHeadingIndex(rawPddText);
+  const headingIndex = parseDocumentText({ rawText: rawPddText }).headingIndex;
   const fallbackKeywords = reviewAreaKeywordsForInput({ reviewArea, methodologyId, rawPddText });
   const results: SectionMatchResult[] = [];
 
@@ -595,11 +595,12 @@ export function buildReviewQuestionResult(input: {
   evidenceDocumentType?: string;
 }): ReviewQuestionResult {
   const reviewArea = classifyReviewArea(input.claimText);
+  const parsedDocument = input.rawPddText ? parseDocumentText({ rawText: input.rawPddText }) : undefined;
 
   // Heading extraction remains the source of truth from the uploaded document.
   // Matching runs through exact, normalized, alias, and semantic fallback stages against
   // a cleaned heading layer while preserving the original extracted text for diagnostics.
-  const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
+  const headingIndex: DocumentHeading[] = parsedDocument?.headingIndex ?? [];
   const sectionResolution = resolveReviewQuestionSections({
     headingIndex,
     claimText: input.claimText || "",
@@ -633,7 +634,7 @@ export function buildReviewQuestionResult(input: {
   });
 
   const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
-    ? debugSectionExtraction(input.rawPddText)
+    ? parsedDocument?.diagnostics ?? debugSectionExtraction(input.rawPddText)
     : undefined;
 
   const claimKeywords = input.claimText ? extractClaimKeywords(input.claimText) : { phrases: [], words: [] };
@@ -679,7 +680,7 @@ function buildPhase1Diagnostic(
   sourceLabel?: string,
   documentType?: string,
 ): ReviewQuestionDiagnostic {
-  const allSections = extractPddSections(rawPddText);
+  const allSections = parseDocumentText({ rawText: rawPddText }).sectionsByNumber;
   const text = rawPddText.replace(/\s+/g, " ").trim();
 
   const matchResults = computeSectionMatchResults(rawPddText, reviewArea, claimText);

@@ -1,0 +1,47 @@
+{
+  "phase_1_parser_adapter_boundary": {
+    "status": "active",
+    "title": "Phase 1 — parser adapter boundary",
+    "summary": "Add src/lib/documentParsing/ and move the current Quick Check extractor behind an adapter boundary. Keep retrieval/evaluation behavior intact and do not start LiteParse yet."
+  },
+  "phase_2_article6_document_model": {
+    "status": "planned",
+    "title": "Phase 2 — canonical Article6 document model",
+    "summary": "Add src/lib/documentModel/ as the canonical document representation for normalized sections, hierarchy, provenance, and cleaned display text."
+  },
+  "phase_3_retrieval_evaluation_split": {
+    "status": "planned",
+    "title": "Phase 3 — section retrieval and evidence evaluation split",
+    "summary": "Separate candidate section retrieval from evidence sufficiency judgment so routing and verdict semantics can evolve independently."
+  },
+  "phase_4_declarative_review_policy": {
+    "status": "planned",
+    "title": "Phase 4 — declarative typed review policy",
+    "summary": "Move aliases, preferred sections, negative sections, fallback rules, boosts, penalties, and evidence signals into typed JSON validated by Zod."
+  },
+  "phase_5_eval_harness": {
+    "status": "planned",
+    "title": "Phase 5 — Quick Check eval harness",
+    "summary": "Add fixture-backed retrieval and verdict evals so pipeline changes are measured and gated before merge."
+  },
+  "phase_6_secondary_parser_adapter": {
+    "status": "planned",
+    "title": "Phase 6 — secondary parser adapter",
+    "summary": "Add LiteParse as a second parser adapter only after the adapter boundary and canonical document model are stable."
+  },
+  "phase_meta": {
+    "status": "active",
+    "summary": "Move Quick Check from tactical section-matching patches to a layered document pipeline with explicit parser, document-model, retrieval, evaluation, UI, and eval boundaries.",
+    "current_focus": "Phase 1 only: roadmap docs plus parser adapter boundary around the current extractor. LiteParse, document-model adoption, retrieval/evaluation split, declarative policy, and eval harness remain intentionally out of scope for this PR.",
+    "not_active_now": [
+      "LiteParse integration",
+      "Canonical document model migration",
+      "Retrieval/evaluation refactor",
+      "Declarative review policy config",
+      "Quick Check eval harness implementation",
+      "Additional Quick Check tactical alias patches"
+    ],
+    "last_updated_at": "2026-06-01T00:00:00Z"
+  },
+  "pr_evidence": {}
+}
