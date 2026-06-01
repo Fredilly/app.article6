@@ -85,8 +85,8 @@
       "expected": {
         "reviewArea": "monitoring",
         "matchStage": "exact_heading",
-        "relevantSections": ["3.3", "3.3.3"],
-        "matchedHeadingTitle": "Monitoring"
+        "relevantSections": ["3.3.3", "3.3"],
+        "matchedHeadingTitle": "Monitoring Plan"
       }
     },
     {
