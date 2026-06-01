@@ -30,15 +30,39 @@ describe("documentParsing current extractor adapter", () => {
     const parsed = parseDocumentText({ rawText: VM0007_TEXT });
 
     expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.source).toBe("current-extractor");
     expect(parsed.rawText).toBe(VM0007_TEXT);
+    expect(parsed.normalizedText).toBe(VM0007_TEXT);
+    expect(parsed.pages).toEqual([
+      {
+        pageNumber: 1,
+        rawText: VM0007_TEXT,
+        normalizedText: VM0007_TEXT,
+      },
+    ]);
+    expect(parsed.headings.map((heading) => heading.sectionNumber)).toEqual(["1.9", "2.4", "4.3"]);
+    expect(parsed.blocks.some((block) => block.type === "heading")).toBe(true);
+    expect(parsed.blocks.some((block) => block.type === "paragraph")).toBe(true);
     expect(parsed.sectionsByNumber).toEqual(extractPddSections(VM0007_TEXT));
     expect(parsed.headingIndex).toEqual(buildPddHeadingIndex(VM0007_TEXT));
-    expect(parsed.diagnostics).toEqual(debugSectionExtraction(VM0007_TEXT));
+    expect(parsed.diagnostics).toEqual({
+      metadata: debugSectionExtraction(VM0007_TEXT),
+    });
   });
 
   it("avoids noisy diagnostics for blank input while keeping a stable empty shape", () => {
     const parsed = parseDocumentText({ rawText: "   " });
 
+    expect(parsed.normalizedText).toBe("   ");
+    expect(parsed.pages).toEqual([
+      {
+        pageNumber: 1,
+        rawText: "   ",
+        normalizedText: "   ",
+      },
+    ]);
+    expect(parsed.blocks).toEqual([]);
+    expect(parsed.headings).toEqual([]);
     expect(parsed.sectionsByNumber).toEqual({});
     expect(parsed.headingIndex).toEqual([]);
     expect(parsed.diagnostics).toBeUndefined();

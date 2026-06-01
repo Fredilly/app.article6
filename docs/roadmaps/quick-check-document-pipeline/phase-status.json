@@ -1,4 +1,8 @@
 {
+  "roadmap": "quick-check-document-pipeline",
+  "repo": "Fredilly/app.article6",
+  "status": "active",
+  "current_phase": "phase_1_parser_adapter_boundary",
   "phase_1_parser_adapter_boundary": {
     "status": "active",
     "title": "Phase 1 — parser adapter boundary",

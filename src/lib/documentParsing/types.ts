@@ -8,12 +8,48 @@ export type ParseDocumentTextInput = {
   rawText: string;
 };
 
+export type ParsedPage = {
+  pageNumber: number;
+  rawText: string;
+  normalizedText: string;
+};
+
+export type ParsedBlock = {
+  id: string;
+  type: "heading" | "paragraph" | "unknown";
+  text: string;
+  normalizedText: string;
+  pageNumber?: number;
+  headingLevel?: number;
+  sectionNumber?: string;
+};
+
+export type ParsedHeading = {
+  id: string;
+  text: string;
+  normalizedText: string;
+  pageNumber?: number;
+  level?: number;
+  sectionNumber?: string;
+};
+
+export type ParserDiagnostics = {
+  warnings?: string[];
+  metadata?: Record<string, string>;
+};
+
 export type ParsedDocument = {
   adapterId: DocumentParserAdapterId;
+  source: string;
   rawText: string;
-  sectionsByNumber: Record<string, string>;
-  headingIndex: DocumentHeading[];
-  diagnostics?: Record<string, string>;
+  normalizedText: string;
+  pages: ParsedPage[];
+  blocks: ParsedBlock[];
+  headings: ParsedHeading[];
+  diagnostics?: ParserDiagnostics;
+  // Bridge fields for the current Quick Check migration only.
+  sectionsByNumber?: Record<string, string>;
+  headingIndex?: DocumentHeading[];
 };
 
 export interface DocumentParserAdapter {

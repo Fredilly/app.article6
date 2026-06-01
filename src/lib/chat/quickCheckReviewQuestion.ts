@@ -499,7 +499,7 @@ export function findMatchedSectionNumbers(
   if (!claimText?.trim()) return [];
   const parsedDocument = parseDocumentText({ rawText: rawPddText });
   return resolveReviewQuestionSections({
-    headingIndex: parsedDocument.headingIndex,
+    headingIndex: parsedDocument.headingIndex ?? [],
     claimText,
     reviewArea,
     methodologyId,
@@ -516,7 +516,7 @@ export function computeSectionMatchResults(
   claimText: string,
   methodologyId = "",
 ): SectionMatchResult[] {
-  const headingIndex = parseDocumentText({ rawText: rawPddText }).headingIndex;
+  const headingIndex = parseDocumentText({ rawText: rawPddText }).headingIndex ?? [];
   const fallbackKeywords = reviewAreaKeywordsForInput({ reviewArea, methodologyId, rawPddText });
   const results: SectionMatchResult[] = [];
 
@@ -634,7 +634,7 @@ export function buildReviewQuestionResult(input: {
   });
 
   const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
-    ? parsedDocument?.diagnostics ?? debugSectionExtraction(input.rawPddText)
+    ? parsedDocument?.diagnostics?.metadata ?? debugSectionExtraction(input.rawPddText)
     : undefined;
 
   const claimKeywords = input.claimText ? extractClaimKeywords(input.claimText) : { phrases: [], words: [] };
@@ -680,7 +680,7 @@ function buildPhase1Diagnostic(
   sourceLabel?: string,
   documentType?: string,
 ): ReviewQuestionDiagnostic {
-  const allSections = parseDocumentText({ rawText: rawPddText }).sectionsByNumber;
+  const allSections = parseDocumentText({ rawText: rawPddText }).sectionsByNumber ?? {};
   const text = rawPddText.replace(/\s+/g, " ").trim();
 
   const matchResults = computeSectionMatchResults(rawPddText, reviewArea, claimText);
