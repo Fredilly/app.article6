@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -160,6 +160,18 @@ Not active now:
 4) RC4 — Verra methodology support: Planned — Wire app to use Verra VM0007 rules once encoded upstream. Depends on article6-methodologies VF1-VF3.
 5) RC5 — End-to-end demo case: Planned — One complete VM0007 forestry verification with synthetic data, full rule coverage, and review-ready PDF export.
 
+## quick-check-document-pipeline
+
+Status SSOT: `docs/roadmaps/quick-check-document-pipeline/phase-status.json`
+
+Lane status: Active
+Move Quick Check from tactical section-matching patches to a layered document pipeline with explicit parser, document-model, retrieval, evaluation, UI, and eval boundaries.
+
+Not active now:
+- LiteParse integration
+- Additional Quick Check tactical alias patches
+
+
 ## requirement-coverage
 
 Status SSOT: `docs/roadmaps/requirement-coverage/phase-status.json`
@@ -198,10 +210,10 @@ Define and implement an app-side project export standard covering uploads, evide
 
 Current focus:
 - Maintain the export-conventions contract across new export surfaces
-- Cover Quick Check extraction edge case tests
 - Responsive UI QA for reconciliation and decision badges
 
 Not active now:
+- Quick Check extraction edge case tests (done)
 - Refactoring extraction or export code — documentation and planning only in RC0-RC1
 - Changes to canonical methodology metadata or pack encoding
 - Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
