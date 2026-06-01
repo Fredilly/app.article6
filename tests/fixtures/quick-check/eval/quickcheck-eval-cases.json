@@ -1,0 +1,130 @@
+{
+  "retrievalCases": [
+    {
+      "id": "baseline_supported_exact_heading",
+      "fixture": "baseline-supported.txt",
+      "input": {
+        "claimText": "Does this PDD describe baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "baseline",
+        "matchStage": "exact_heading",
+        "relevantSections": ["2.4"],
+        "matchedHeadingTitle": "Baseline Scenario"
+      }
+    },
+    {
+      "id": "stakeholder_comments_exact_heading",
+      "fixture": "stakeholder-comments.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "stakeholder",
+        "matchStage": "exact_heading",
+        "relevantSections": ["6"],
+        "matchedHeadingTitle": "Stakeholder Comments"
+      }
+    },
+    {
+      "id": "monitoring_plan_preferred_section",
+      "fixture": "monitoring-plan.txt",
+      "input": {
+        "claimText": "Check the monitoring plan",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "monitoring",
+        "matchStage": "exact_heading",
+        "relevantSections": ["4.3"],
+        "matchedHeadingTitle": "Monitoring Plan"
+      }
+    },
+    {
+      "id": "leakage_management_semantic_fallback",
+      "fixture": "leakage-semantic.txt",
+      "input": {
+        "claimText": "Does this PDD address leakage management?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "general",
+        "matchStage": "semantic_fallback",
+        "relevantSections": ["3.3"],
+        "matchedHeadingTitle": "Leakage"
+      }
+    },
+    {
+      "id": "stakeholder_toc_only_rejected",
+      "fixture": "toc-only-stakeholder.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "stakeholder",
+        "matchStage": "none",
+        "relevantSections": []
+      }
+    }
+  ],
+  "verdictCases": [
+    {
+      "id": "baseline_supported_verdict",
+      "fixture": "baseline-supported.txt",
+      "input": {
+        "claimText": "Does this PDD describe baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "strong_evidence_found",
+        "baselineVerdict": "supported"
+      }
+    },
+    {
+      "id": "stakeholder_supported_verdict",
+      "fixture": "stakeholder-comments.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "strong_evidence_found",
+        "reviewAreaVerdict": "supported"
+      }
+    },
+    {
+      "id": "leakage_semantic_partial_status",
+      "fixture": "leakage-semantic.txt",
+      "input": {
+        "claimText": "Does this PDD address leakage management?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "partial_evidence_found"
+      }
+    },
+    {
+      "id": "stakeholder_toc_only_extractor_uncertain",
+      "fixture": "toc-only-stakeholder.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "extractor_uncertain"
+      }
+    }
+  ]
+}
