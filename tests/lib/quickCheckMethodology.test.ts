@@ -1,5 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
-import { prioritizeMethodologyMentions, resolveQuickCheckMethodology } from "@/lib/chat/quickCheckMethodology";
+import fs from "fs";
+import path from "path";
+import { prioritizeMethodologyMentions, resolvePrimaryMethodology, resolveQuickCheckMethodology } from "@/lib/chat/quickCheckMethodology";
+import { extractMethodologyMentions } from "@/lib/chat/quickCheckEvidence";
 
 const methods = [
   { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
@@ -61,5 +64,89 @@ describe("quick check methodology resolver", () => {
     expect(
       prioritizeMethodologyMentions(["APD", "VCS", "VM0007", "VMD0001", "REDD+ Methodology Framework"]),
     ).toEqual(["VM0007", "REDD+ Methodology Framework", "VMD0001", "APD", "VCS"]);
+  });
+});
+
+const contextMethods = [
+  { code: "VM0004", latestVersion: "v1-0", versions: ["v1-0"] },
+  { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
+];
+
+describe("primary methodology resolver", () => {
+  it("ranks the applied methodology from heading context for VM0007", () => {
+    const rawText = [
+      "Title and Reference of Methodology",
+      "VM0007",
+      "Supporting references mention AM0001 and AM0003 in footnotes.",
+    ].join("\n");
+    const result = resolvePrimaryMethodology({
+      mentions: ["VM0007", "AM0001", "AM0003"],
+      methods: [...contextMethods],
+      rawText,
+    });
+    expect(result?.supported).toBe(true);
+    if (result?.supported) expect(result.matchedMethod.methodologyId).toBe("VM0007");
+  });
+
+  it("Kariba-style PDD resolves VM0009 as primary despite other methodology references", () => {
+    const rawText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/kariba-primary-method.txt"), "utf-8");
+    const mentions = extractMethodologyMentions(rawText);
+    const result = resolvePrimaryMethodology({
+      mentions,
+      methods: [{ code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] }],
+      rawText,
+    });
+    expect(result).toEqual(expect.objectContaining({
+      canonicalKey: "VM0009",
+      supported: false,
+    }));
+  });
+
+  it("Kasigau-style PDD resolves VM0009 as primary", () => {
+    const rawText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/kasigau-primary-method.txt"), "utf-8");
+    const mentions = extractMethodologyMentions(rawText);
+    const result = resolvePrimaryMethodology({
+      mentions,
+      methods: [{ code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] }],
+      rawText,
+    });
+    expect(result?.canonicalKey).toBe("VM0009");
+  });
+
+  it("Rimba Raya-style PDD resolves VM0004 as primary", () => {
+    const rawText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/rimba-raya-primary-method.txt"), "utf-8");
+    const mentions = extractMethodologyMentions(rawText);
+    const result = resolvePrimaryMethodology({
+      mentions,
+      methods: [{ code: "VM0004", latestVersion: "v1-0", versions: ["v1-0"] }],
+      rawText,
+    });
+    expect(result?.canonicalKey).toBe("VM0004");
+    expect(result?.supported).toBe(true);
+  });
+
+  it("existing PD_REDD fixture resolves VM0007 as primary", () => {
+    const rawText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/pd_redd_v1_130-extracted.txt"), "utf-8");
+    const mentions = extractMethodologyMentions(rawText);
+    const result = resolvePrimaryMethodology({
+      mentions,
+      methods: methods,
+      rawText,
+    });
+    expect(result?.canonicalKey).toBe("VM0007");
+    expect(result?.supported).toBe(true);
+  });
+
+  it("does not fall back to a supported secondary when the primary methodology is unsupported", () => {
+    const rawText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/kariba-primary-method.txt"), "utf-8");
+    const mentions = extractMethodologyMentions(rawText);
+    const result = resolveQuickCheckMethodology({
+      mentions,
+      methods: methods,
+      rawText,
+    });
+    expect(result.status).toBe("unsupported");
+    expect(result.primaryMethodology?.canonicalKey).toBe("VM0009");
+    expect(result.matchedMethods.map((method) => method.methodologyId)).not.toContain("VM0007");
   });
 });
