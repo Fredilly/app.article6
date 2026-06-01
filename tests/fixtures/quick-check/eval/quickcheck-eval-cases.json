@@ -46,7 +46,7 @@
       }
     },
     {
-      "id": "leakage_management_semantic_fallback",
+      "id": "leakage_management_alias_heading",
       "fixture": "leakage-semantic.txt",
       "input": {
         "claimText": "Does this PDD address leakage management?",
@@ -54,8 +54,8 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "reviewArea": "general",
-        "matchStage": "semantic_fallback",
+        "reviewArea": "leakage",
+        "matchStage": "alias_heading",
         "relevantSections": ["3.3"],
         "matchedHeadingTitle": "Leakage"
       }
@@ -177,7 +177,7 @@
       }
     },
     {
-      "id": "leakage_semantic_partial_status",
+      "id": "leakage_alias_heading_weak_status",
       "fixture": "leakage-semantic.txt",
       "input": {
         "claimText": "Does this PDD address leakage management?",
@@ -185,7 +185,7 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "partial_evidence_found"
+        "status": "section_found_evidence_weak"
       }
     },
     {

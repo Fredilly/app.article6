@@ -85,6 +85,11 @@ const PDD_WITH_PAGE_BREAKS = [
   "Carbon stocks are expected to decline without the project.",
 ].join("\n");
 
+const ENVIRA_TEXT = fs.readFileSync(
+  path.join(__dirname, "../fixtures/quick-check/envira-amazonia-vm0007-extracted.txt"),
+  "utf8",
+);
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -180,6 +185,10 @@ describe("classifyReviewArea — boundary", () => {
 });
 
 describe("classifyReviewArea — leakage", () => {
+  it("classifies 'leakage management'", () => {
+    expect(classifyReviewArea("Does this PDD address leakage management?")).toBe("leakage");
+  });
+
   it("classifies 'leakage risk'", () => {
     expect(classifyReviewArea("Does this PDD disclose leakage risk?")).toBe("leakage");
   });
@@ -630,6 +639,74 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.noMatchExplanation).toContain("table of contents");
   });
 
+  it("finds methodology deviations from the Envira Amazonia VM0007 fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD disclose methodology deviations?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections[0]).toBe("2.6");
+    expect(result.sectionContent["2.6"]).toContain("No methodology deviations");
+    expect(result.status).toBe("section_found_evidence_weak");
+    expect(result.matchStage).not.toBe("none");
+  });
+
+  it("finds stakeholder consultation evidence from stakeholder-comments and FPIC text in the Envira fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe stakeholder consultation and FPIC?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections).toContain("6");
+    expect(result.reviewAreaReview?.verdict).toBe("partial");
+    expect(result.status).toBe("partial_evidence_found");
+    expect(result.sectionContent["6"]).toContain("Free Prior and Informed Consent");
+  });
+
+  it("finds leakage from 3.3 Leakage / Leakage Management in the Envira fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD address leakage management?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections[0]).toBe("3.3");
+    expect(result.sectionContent["3.3"]).toContain("Leakage Management procedures");
+    expect(result.reviewArea).toBe("leakage");
+    expect(result.status).toBe("section_found_evidence_weak");
+    expect(result.matchStage).toBe("alias_heading");
+  });
+
+  it("prefers 4.3 Monitoring Plan over generic monitoring equipment blocks in the Envira fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Check the monitoring plan",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections[0]).toBe("4.3");
+    expect(result.sectionContent["4.3"]).toContain("sampling design");
+    expect(result.sectionContent["4.2"]).toBeUndefined();
+    expect(result.matchedHeadings[0]?.title).toBe("Monitoring Plan");
+  });
+
+  it("cleans common PDF extraction joins before exposing heading titles", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Check the monitoring plan",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.matchedHeadings[0]?.title).toBe("Monitoring Plan");
+    expect(result.matchedHeadings[0]?.originalTitle).toBe("MonitoringPlan");
+  });
   it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD explain the project area and project zone boundary?",
@@ -873,6 +950,82 @@ describe("computeSectionMatchResults — match diagnostics", () => {
   });
 });
 
+describe("Quick Check extraction edge-case coverage", () => {
+  it("broad review questions still orchestrate retrieval plus evaluation through the wrapper", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Check the monitoring plan",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.path).toBe("review_question_answering");
+    expect(result.relevantSections[0]).toBe("4.3");
+    expect(result.sectionContent["4.3"]).toContain("sampling design");
+    expect(result.status).toBe("section_found_evidence_weak");
+  });
+
+  it("returns section_found_evidence_weak when a broad question finds a section but evidence evaluation remains weak", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD disclose methodology deviations?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections[0]).toBe("2.6");
+    expect(result.status).toBe("section_found_evidence_weak");
+    expect(result.reviewAreaReview).toBeUndefined();
+  });
+
+  it("treats rejected heading matches as extractor uncertainty when only TOC headings are recovered", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD include stakeholder comments?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: [
+        "Table of Contents",
+        "6  Stakeholder Comments",
+        "",
+        "1.9  Project Location",
+        "The project location is described in the body text.",
+      ].join("\n"),
+    });
+
+    expect(result.relevantSections).toEqual([]);
+    expect(result.noMatchExplanation).toContain("table of contents");
+    expect(result.status).toBe("extractor_uncertain");
+  });
+
+  it("treats empty or poorly parsed heading indexes as extractor uncertainty", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe stakeholder engagement?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: "This scan has no recoverable numbered headings or usable section structure.",
+    });
+
+    expect(result.headingIndex).toEqual([]);
+    expect(result.relevantSections).toEqual([]);
+    expect(result.sectionContent).toEqual({});
+    expect(result.status).toBe("extractor_uncertain");
+  });
+
+  it("keeps alias-heading leakage matches document-grounded instead of escalating to strong evidence automatically", () => {
+    const retrieval = buildReviewQuestionSectionRetrieval({
+      claimText: "Does this PDD address leakage management?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+    const evaluation = evaluateRetrievedReviewQuestion(retrieval);
+
+    expect(retrieval.reviewArea).toBe("leakage");
+    expect(retrieval.matchStage).toBe("alias_heading");
+    expect(retrieval.relevantSections[0]).toBe("3.3");
+    expect(evaluation.status).toBe("section_found_evidence_weak");
+  });
+});
 // ============================================================================
 // Additional regression for PR #657: article-prefixed baseline question support
 // "Is there a baseline justification in this PDD?" must route correctly.
