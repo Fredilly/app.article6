@@ -73,6 +73,80 @@
         "matchStage": "none",
         "relevantSections": []
       }
+    },
+    {
+      "id": "wide_horizontal_text_monitoring_plan",
+      "fixture": "plum-wide-horizontal-monitoring.txt",
+      "input": {
+        "claimText": "Check the monitoring plan",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "monitoring",
+        "matchStage": "exact_heading",
+        "relevantSections": ["3.3", "3.3.3"],
+        "matchedHeadingTitle": "Monitoring"
+      }
+    },
+    {
+      "id": "wrapped_heading_baseline_section",
+      "fixture": "pd-redd-wrapped-baseline.txt",
+      "input": {
+        "claimText": "Does this PDD justify the baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "expected": {
+        "reviewArea": "baseline",
+        "matchStage": "exact_heading",
+        "relevantSections": ["2.4"],
+        "matchedHeadingTitle": "(Baseline Scenario)"
+      }
+    },
+    {
+      "id": "real_world_toc_false_positive_rejected",
+      "fixture": "plum-toc-only-stakeholder.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "stakeholder",
+        "matchStage": "none",
+        "relevantSections": []
+      }
+    },
+    {
+      "id": "repeated_stakeholder_title_prefers_body_heading",
+      "fixture": "plum-repeated-stakeholder-title.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "reviewArea": "stakeholder",
+        "matchStage": "exact_heading",
+        "relevantSections": ["6"],
+        "matchedHeadingTitle": "Stakeholder Comments"
+      }
+    },
+    {
+      "id": "section_body_split_across_pages_baseline",
+      "fixture": "pd-redd-baseline-page-split.txt",
+      "input": {
+        "claimText": "Does this PDD justify the baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "expected": {
+        "reviewArea": "baseline",
+        "matchStage": "exact_heading",
+        "relevantSections": ["2.4"],
+        "matchedHeadingTitle": "(Baseline Scenario)"
+      }
     }
   ],
   "verdictCases": [
@@ -124,6 +198,44 @@
       },
       "expected": {
         "status": "extractor_uncertain"
+      }
+    },
+    {
+      "id": "wrapped_heading_baseline_supported_verdict",
+      "fixture": "pd-redd-wrapped-baseline.txt",
+      "input": {
+        "claimText": "Does this PDD justify the baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "expected": {
+        "status": "partial_evidence_found",
+        "baselineVerdict": "partial"
+      }
+    },
+    {
+      "id": "real_world_toc_false_positive_extractor_uncertain",
+      "fixture": "plum-toc-only-stakeholder.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "extractor_uncertain"
+      }
+    },
+    {
+      "id": "page_split_baseline_supported_verdict",
+      "fixture": "pd-redd-baseline-page-split.txt",
+      "input": {
+        "claimText": "Does this PDD justify the baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "expected": {
+        "status": "strong_evidence_found",
+        "baselineVerdict": "supported"
       }
     }
   ]

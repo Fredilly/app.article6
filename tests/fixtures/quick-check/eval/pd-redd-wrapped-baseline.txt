@@ -1,0 +1,8 @@
+VCS Version 4.2
+VM0007 REDD+ Methodology Modules
+
+2.4
+(Baseline Scenario)
+The baseline scenario is the most likely land-use scenario in the absence
+of the project activity. Historical deforestation rates were estimated
+from satellite imagery analysis covering the period 2010-2020.
