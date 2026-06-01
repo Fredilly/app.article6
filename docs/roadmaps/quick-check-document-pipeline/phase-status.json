@@ -39,7 +39,6 @@
     "current_focus": "Phase 5 only: plan and implement a fixture-backed Quick Check eval harness for retrieval and verdict regression testing before more parser work. Phase 4 declarative review policy is complete, and LiteParse remains out of scope until the eval harness exists.",
     "not_active_now": [
       "LiteParse integration",
-      "Quick Check eval harness implementation",
       "Additional Quick Check tactical alias patches"
     ],
     "last_updated_at": "2026-06-01T08:15:00Z"
