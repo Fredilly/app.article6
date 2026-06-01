@@ -3,6 +3,7 @@ import type { DocumentParserAdapterId, ParsedBlock, ParsedDocument, ParsedHeadin
 export type Article6SourceRef = {
   source: string;
   parserAdapterId: DocumentParserAdapterId;
+  quality: "exact" | "synthetic" | "unknown";
   pageNumber?: number;
   blockId?: string;
   headingId?: string;
@@ -71,11 +72,14 @@ export type Article6DocumentModel = {
   sections: Article6DocumentSection[];
   extractionWarnings: Article6ExtractionWarning[];
   parserDiagnostics?: ParserDiagnostics;
-  parserOutput: ParsedDocument;
+  debug?: {
+    parserOutput: ParsedDocument;
+  };
 };
 
 export type BuildArticle6DocumentModelInput = {
   parsedDocument: ParsedDocument;
+  includeDebugPayload?: boolean;
 };
 
 export type ParsedArtifacts = {

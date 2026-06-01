@@ -52,6 +52,7 @@ function pageSourceRef(input: {
   return {
     source: input.source,
     parserAdapterId: input.parserAdapterId,
+    quality: "synthetic",
     pageNumber: input.pageNumber,
   };
 }
@@ -59,7 +60,7 @@ function pageSourceRef(input: {
 export function buildArticle6DocumentModel(
   input: BuildArticle6DocumentModelInput,
 ): Article6DocumentModel {
-  const { parsedDocument } = input;
+  const { parsedDocument, includeDebugPayload = false } = input;
   const parserAdapterId = parsedDocument.adapterId;
   const source = parsedDocument.source;
 
@@ -77,6 +78,7 @@ export function buildArticle6DocumentModel(
       sourceRefs: [{
         source,
         parserAdapterId,
+        quality: "synthetic",
         pageNumber: block.pageNumber,
         blockId: block.id,
         sectionId,
@@ -130,6 +132,7 @@ export function buildArticle6DocumentModel(
       const sourceRefs: Article6SourceRef[] = [{
         source,
         parserAdapterId,
+        quality: "synthetic",
         pageNumber: 1,
         headingId: `heading:${sectionNumber}`,
         sectionId,
@@ -184,6 +187,7 @@ export function buildArticle6DocumentModel(
         sourceRefs: [{
           source,
           parserAdapterId,
+          quality: "synthetic",
           pageNumber: heading.pageNumber,
           headingId: heading.id,
           sectionId,
@@ -235,6 +239,6 @@ export function buildArticle6DocumentModel(
     sections,
     extractionWarnings: warnings,
     parserDiagnostics: parsedDocument.diagnostics,
-    parserOutput: parsedDocument,
+    debug: includeDebugPayload ? { parserOutput: parsedDocument } : undefined,
   };
 }
