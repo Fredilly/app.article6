@@ -18,6 +18,7 @@ import {
   getReviewAreaKeywords,
   getSemanticSignals,
   getSemanticThreshold,
+  getTitlePenalties,
   shouldExpandAncestors,
 } from "@/lib/quickCheck/policy/reviewPolicy";
 import type {

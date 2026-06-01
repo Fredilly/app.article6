@@ -40,7 +40,9 @@ export const reviewPolicyConfigSchema = z.object({
 
 export type PreferredSectionBoost = z.infer<typeof preferredSectionBoostSchema>;
 export type TitlePenalty = z.infer<typeof titlePenaltySchema>;
+export type ReviewAreaPolicyInput = z.input<typeof reviewAreaPolicySchema>;
 export type ReviewAreaPolicy = z.infer<typeof reviewAreaPolicySchema>;
+export type ReviewPolicyConfigInput = z.input<typeof reviewPolicyConfigSchema>;
 export type ReviewPolicyConfig = z.infer<typeof reviewPolicyConfigSchema>;
 
 export type ReviewPolicyAreaKey = ReviewArea;

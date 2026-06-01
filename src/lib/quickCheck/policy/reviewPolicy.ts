@@ -1,4 +1,8 @@
-import { reviewPolicyConfigSchema, type ReviewAreaPolicy, type ReviewPolicyConfig } from "@/lib/quickCheck/policy/types";
+import {
+  reviewPolicyConfigSchema,
+  type ReviewAreaPolicy,
+  type ReviewPolicyConfigInput,
+} from "@/lib/quickCheck/policy/types";
 import type { ReviewArea, ReviewQuestionMatchStage } from "@/lib/quickCheck/retrieval/types";
 
 const REVIEW_POLICY_CONFIG_RAW = {
@@ -130,7 +134,7 @@ const REVIEW_POLICY_CONFIG_RAW = {
       evidenceSignals: [],
     },
   },
-} satisfies ReviewPolicyConfig;
+} satisfies ReviewPolicyConfigInput;
 
 export const REVIEW_POLICY_CONFIG = reviewPolicyConfigSchema.parse(REVIEW_POLICY_CONFIG_RAW);
 

@@ -19,7 +19,7 @@
     "summary": "Separate candidate section retrieval from evidence sufficiency judgment so routing and verdict semantics can evolve independently."
   },
   "phase_4_declarative_review_policy": {
-    "status": "planned",
+    "status": "active",
     "title": "Phase 4 — declarative typed review policy",
     "summary": "Move aliases, preferred sections, negative sections, fallback rules, boosts, penalties, and evidence signals into typed JSON validated by Zod."
   },
@@ -42,7 +42,7 @@
       "Quick Check eval harness implementation",
       "Additional Quick Check tactical alias patches"
     ],
-    "last_updated_at": "2026-06-01T00:00:00Z"
+    "last_updated_at": "2026-06-01T08:00:00Z"
   },
   "pr_evidence": {
     "phase_2_article6_document_model": [667],
