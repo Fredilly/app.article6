@@ -1,27 +1,25 @@
-import { evaluateBaselineReview } from "@/lib/chat/quickCheckBaselineRubric";
-import { evaluateReviewRubric } from "@/lib/chat/quickCheckReviewRubric";
 import {
   buildReviewQuestionSectionRetrieval,
-  deriveReviewQuestionStatus,
 } from "@/lib/quickCheck/retrieval/retrieveSections";
 import type {
-  ReviewQuestionEvaluationResult,
   ReviewQuestionResult,
-  ReviewQuestionRetrievalResult,
 } from "@/lib/quickCheck/retrieval/types";
+import {
+  evaluateRetrievedReviewQuestion,
+} from "@/lib/quickCheck/evaluation/evaluateEvidence";
 
 export type {
   BuildReviewQuestionSectionRetrievalInput,
   QuickCheckPath,
   ReviewArea,
   ReviewQuestionDiagnostic,
-  ReviewQuestionEvaluationResult,
   ReviewQuestionMatchStage,
   ReviewQuestionResult,
   ReviewQuestionRetrievalResult,
   ReviewQuestionStatus,
   SectionMatchResult,
 } from "@/lib/quickCheck/retrieval/types";
+export type { ReviewQuestionEvaluationResult } from "@/lib/quickCheck/evaluation/types";
 
 export {
   buildReviewQuestionSectionRetrieval,
@@ -33,6 +31,7 @@ export {
   resolveReviewSections,
   reviewAreaLabel,
 } from "@/lib/quickCheck/retrieval/retrieveSections";
+export { evaluateRetrievedReviewQuestion } from "@/lib/quickCheck/evaluation/evaluateEvidence";
 
 export function buildReviewQuestionResult(input: {
   claimText: string;
@@ -48,30 +47,5 @@ export function buildReviewQuestionResult(input: {
   return {
     ...retrieval,
     ...evaluation,
-  };
-}
-
-export function evaluateRetrievedReviewQuestion(
-  retrieval: Pick<ReviewQuestionRetrievalResult, "reviewArea" | "matchedHeadings" | "headingIndex" | "rejectedMatches" | "matchStage">,
-): ReviewQuestionEvaluationResult {
-  const baselineReview = retrieval.reviewArea === "baseline"
-    ? evaluateBaselineReview({ matchedHeadings: retrieval.matchedHeadings })
-    : undefined;
-  const reviewAreaReview =
-    retrieval.reviewArea === "baseline" || retrieval.reviewArea === "right_of_use" || retrieval.reviewArea === "stakeholder"
-      ? evaluateReviewRubric({ reviewArea: retrieval.reviewArea, matchedHeadings: retrieval.matchedHeadings })
-      : undefined;
-  const status = deriveReviewQuestionStatus({
-    matchedHeadings: retrieval.matchedHeadings,
-    headingIndex: retrieval.headingIndex,
-    rejectedMatches: retrieval.rejectedMatches,
-    matchStage: retrieval.matchStage,
-    reviewAreaReview,
-  });
-
-  return {
-    baselineReview,
-    reviewAreaReview,
-    status,
   };
 }
