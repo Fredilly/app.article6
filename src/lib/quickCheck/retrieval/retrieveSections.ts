@@ -26,6 +26,8 @@ import type {
   QuickCheckPath,
   ReviewArea,
   ReviewQuestionDiagnostic,
+  ReviewRoutingDiagnostic,
+  ReviewRoutingDiagnosticHeading,
   ReviewQuestionMatchStage,
   ReviewQuestionRetrievalResult,
   SectionMatchResult,
@@ -75,7 +77,18 @@ type ReviewQuestionSectionResolution = {
   matchedHeadings: DocumentHeading[];
   rejectedMatches: RejectedHeadingQueryMatch[];
   matchStage: ReviewQuestionMatchStage;
+  stageAttempts: Array<{
+    stage: ReviewQuestionMatchStage;
+    candidateHeadingsFound: ReviewRoutingDiagnosticHeading[];
+  }>;
 };
+
+function toDiagnosticHeading(heading: DocumentHeading): ReviewRoutingDiagnosticHeading {
+  return {
+    sectionNumber: heading.sectionNumber,
+    title: heading.title,
+  };
+}
 
 export function detectReviewPath(claimText: string): QuickCheckPath {
   const normalized = claimText.trim();
@@ -285,6 +298,7 @@ function resolveReviewQuestionSections(input: {
   const claimKeywords = extractClaimKeywords(input.claimText);
   const searchTerms = [...new Set([...reviewAreaKeywords, ...aliases, ...claimKeywords.phrases, ...claimKeywords.words])];
   const fallbackStages = getFallbackStages();
+  const stageAttempts: ReviewQuestionSectionResolution["stageAttempts"] = [];
 
   for (const stage of fallbackStages) {
     let matches: DocumentHeading[] = [];
@@ -301,11 +315,17 @@ function resolveReviewQuestionSections(input: {
       matches = uniqueHeadings(semanticFallbackMatches(input.headingIndex, input.reviewArea, searchTerms, claimKeywords));
     }
 
+    stageAttempts.push({
+      stage,
+      candidateHeadingsFound: matches.map(toDiagnosticHeading),
+    });
+
     if (matches.length > 0) {
       return {
         matchedHeadings: withMonitoringAncestors(matches, input.reviewArea, input.headingIndex),
         rejectedMatches: [],
         matchStage: stage,
+        stageAttempts,
       };
     }
   }
@@ -313,7 +333,41 @@ function resolveReviewQuestionSections(input: {
   const rejectedMatches = input.rawPddText
     ? findRejectedHeadingMatches(input.rawPddText, input.claimText || "", [...reviewAreaKeywords, ...aliases])
     : [];
-  return { matchedHeadings: [], rejectedMatches, matchStage: "none" };
+  return { matchedHeadings: [], rejectedMatches, matchStage: "none", stageAttempts };
+}
+
+function buildRoutingDiagnostic(input: BuildReviewQuestionSectionRetrievalInput & {
+  reviewArea: ReviewArea;
+  sectionResolution: ReviewQuestionSectionResolution;
+  noMatchExplanation?: string;
+}): ReviewRoutingDiagnostic {
+  const candidateMethodologyHeadingsFound = input.sectionResolution.stageAttempts
+    .flatMap((attempt) => attempt.candidateHeadingsFound)
+    .filter((heading, index, list) =>
+      list.findIndex((candidate) => candidate.sectionNumber === heading.sectionNumber && candidate.title === heading.title) === index,
+    );
+
+  const firstMatchedHeading = input.sectionResolution.matchedHeadings[0];
+
+  return {
+    inputReviewQuestion: input.claimText,
+    classifiedReviewArea: input.reviewArea,
+    selectedMethodology: {
+      methodologyId: input.methodologyId,
+      methodologyVersion: input.methodologyVersion,
+    },
+    candidateMethodologyHeadingsFound,
+    stageAttempts: input.sectionResolution.stageAttempts,
+    finalMatch: firstMatchedHeading
+      ? {
+          matchStage: input.sectionResolution.matchStage,
+          heading: toDiagnosticHeading(firstMatchedHeading),
+        }
+      : null,
+    noMatchReason: firstMatchedHeading
+      ? undefined
+      : input.noMatchExplanation ?? "No routing stage produced a usable methodology heading match.",
+  };
 }
 
 export function findMatchedSectionNumbers(
@@ -503,6 +557,15 @@ export function buildReviewQuestionSectionRetrieval(
   const phase1Diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
     ? buildPhase1Diagnostic(input.rawPddText, sectionContent, reviewArea, input.claimText, claimKeywords, input.evidenceSourceLabel, input.evidenceDocumentType)
     : undefined;
+  const routingDiagnostic =
+    (process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview")
+      ? buildRoutingDiagnostic({
+          ...input,
+          reviewArea,
+          sectionResolution,
+          noMatchExplanation,
+        })
+      : undefined;
 
   return {
     path: "review_question_answering",
@@ -519,5 +582,6 @@ export function buildReviewQuestionSectionRetrieval(
     noMatchExplanation,
     diagnostic,
     phase1Diagnostic,
+    routingDiagnostic,
   };
 }

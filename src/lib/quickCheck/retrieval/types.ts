@@ -62,6 +62,32 @@ export type ReviewQuestionDiagnostic = {
   threshold: number;
 };
 
+export type ReviewRoutingDiagnosticHeading = {
+  sectionNumber: string;
+  title: string;
+};
+
+export type ReviewRoutingDiagnosticStageAttempt = {
+  stage: ReviewQuestionMatchStage;
+  candidateHeadingsFound: ReviewRoutingDiagnosticHeading[];
+};
+
+export type ReviewRoutingDiagnostic = {
+  inputReviewQuestion: string;
+  classifiedReviewArea: ReviewArea;
+  selectedMethodology: {
+    methodologyId: string;
+    methodologyVersion: string;
+  };
+  candidateMethodologyHeadingsFound: ReviewRoutingDiagnosticHeading[];
+  stageAttempts: ReviewRoutingDiagnosticStageAttempt[];
+  finalMatch: {
+    matchStage: ReviewQuestionMatchStage;
+    heading: ReviewRoutingDiagnosticHeading;
+  } | null;
+  noMatchReason?: string;
+};
+
 export type ReviewQuestionResult = {
   path: QuickCheckPath;
   reviewArea: ReviewArea;
@@ -78,6 +104,7 @@ export type ReviewQuestionResult = {
   noMatchExplanation?: string;
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
+  routingDiagnostic?: ReviewRoutingDiagnostic;
 };
 
 export type ReviewQuestionRetrievalResult = Omit<ReviewQuestionResult, "baselineReview" | "reviewAreaReview"> & {
