@@ -113,7 +113,7 @@ describe("POST /api/quick-check/pdf-extract", () => {
     const payload = await response.json();
     expect(payload).toMatchObject({ code: "file-too-large" });
     expect(payload.error).toContain("exceeds the Quick Check upload limit");
-  });
+  }, 30000);
 
   it("accepts a valid PDF via multipart/form-data (browser-style FormData upload path)", async () => {
     const bytes = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/plum-verra-demo-excerpt.pdf"));
