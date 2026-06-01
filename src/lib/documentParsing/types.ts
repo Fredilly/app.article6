@@ -1,8 +1,13 @@
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 
+export const DOCUMENT_PARSER_ADAPTER_IDS = [
+  "current-extractor",
+  "liteparse",
+] as const;
+
 export const DEFAULT_DOCUMENT_PARSER_ADAPTER_ID = "current-extractor" as const;
 
-export type DocumentParserAdapterId = typeof DEFAULT_DOCUMENT_PARSER_ADAPTER_ID;
+export type DocumentParserAdapterId = typeof DOCUMENT_PARSER_ADAPTER_IDS[number];
 
 export type ParseDocumentTextInput = {
   rawText: string;

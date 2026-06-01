@@ -1,6 +1,8 @@
-import { describe, expect, it } from "@jest/globals";
+import { afterEach, describe, expect, it } from "@jest/globals";
 import { parseDocumentText } from "@/lib/documentParsing";
 import { buildArticle6DocumentModel } from "@/lib/documentModel";
+import { currentExtractorAdapter } from "@/lib/documentParsing/adapters/currentExtractor";
+import { setLiteParseImplementationForTests } from "@/lib/documentParsing/adapters/liteParse";
 
 const NESTED_PDD_TEXT = [
   "4.3  Monitoring Plan",
@@ -14,6 +16,11 @@ const NESTED_PDD_TEXT = [
 ].join("\n");
 
 describe("buildArticle6DocumentModel", () => {
+  afterEach(() => {
+    delete process.env.QUICK_CHECK_PARSER;
+    setLiteParseImplementationForTests(null);
+  });
+
   it("converts parser output into a canonical Article6 document model", () => {
     const parsedDocument = parseDocumentText({ rawText: NESTED_PDD_TEXT });
     const model = buildArticle6DocumentModel({ parsedDocument });
@@ -92,5 +99,27 @@ describe("buildArticle6DocumentModel", () => {
 
     expect(withoutDebug.debug).toBeUndefined();
     expect(withDebug.debug?.parserOutput).toEqual(parsedDocument);
+  });
+
+  it("keeps the canonical document model path intact when liteparse is selected", () => {
+    setLiteParseImplementationForTests({
+      parseText(input) {
+        const baseline = currentExtractorAdapter.parseText(input);
+        return {
+          ...baseline,
+          source: "liteparse",
+        };
+      },
+    });
+    process.env.QUICK_CHECK_PARSER = "liteparse";
+
+    const parsedDocument = parseDocumentText({ rawText: NESTED_PDD_TEXT });
+    const model = buildArticle6DocumentModel({ parsedDocument });
+
+    expect(parsedDocument.adapterId).toBe("liteparse");
+    expect(model.parserAdapterId).toBe("liteparse");
+    expect(model.sections.map((section) => section.sectionNumber)).toEqual(expect.arrayContaining(["4.3", "4.3.1", "6"]));
+    expect(model.blocks.some((block) => block.type === "heading")).toBe(true);
+    expect(model.pages).toHaveLength(1);
   });
 });

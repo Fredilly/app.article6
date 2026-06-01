@@ -168,7 +168,6 @@ Lane status: Active
 Move Quick Check from tactical section-matching patches to a layered document pipeline with explicit parser, document-model, retrieval, evaluation, UI, and eval boundaries.
 
 Not active now:
-- LiteParse integration
 - Additional Quick Check tactical alias patches
 
 

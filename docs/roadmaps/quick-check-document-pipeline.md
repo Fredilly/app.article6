@@ -126,7 +126,9 @@ Objective: add LiteParse as a second parser adapter after the boundary and docum
 Scope:
 
 - Implement LiteParse behind the same adapter contract.
+- Keep canonical document model output stable.
 - Keep retrieval/evaluation unchanged when switching adapters.
+- Do not add tactical alias patches while introducing the adapter.
 
 Exit criteria:
 
@@ -153,4 +155,4 @@ Exit criteria:
 
 ## Immediate next action
 
-Start Phase 2 by adding `src/lib/documentModel/` and the first `ParsedDocument -> Article6DocumentModel` conversion without refactoring retrieval, evaluation, or UI consumers yet.
+Continue Phase 6 by wiring LiteParse behind the existing parser adapter contract with env-based selection and safe fallback, while keeping canonical document model output stable, leaving retrieval/evaluation behavior unchanged, and avoiding new tactical alias patches.

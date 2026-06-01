@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { afterEach, describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 import {
@@ -16,6 +16,7 @@ import {
   type SectionMatchResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
 import { filterPddHeadingsByQuery } from "@/lib/chat/quickCheckSectionExtractor";
+import { setLiteParseImplementationForTests } from "@/lib/documentParsing/adapters/liteParse";
 
 const VM0007_BASELINE_PDD_TEXT = [
   "1.10  Leakage",
@@ -89,6 +90,11 @@ const ENVIRA_TEXT = fs.readFileSync(
   path.join(__dirname, "../fixtures/quick-check/envira-amazonia-vm0007-extracted.txt"),
   "utf8",
 );
+
+afterEach(() => {
+  delete process.env.QUICK_CHECK_PARSER;
+  setLiteParseImplementationForTests(null);
+});
 
 const BOUNDARY_RANKING_PDD = [
   "2.2  Project Location",
@@ -755,6 +761,26 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.relevantSections[0]).toBe("3.3");
     expect(result.matchedHeadings[0]?.title).toBe("Leakage");
     expect(result.sectionContent["3.3"]).toContain("activity shifting");
+  });
+
+  it("falls back to the current extractor without breaking Quick Check when liteparse fails", () => {
+    setLiteParseImplementationForTests({
+      parseText() {
+        throw new Error("liteparse unavailable in test");
+      },
+    });
+    process.env.QUICK_CHECK_PARSER = "liteparse";
+
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD define the leakage belt and reference region?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BOUNDARY_RANKING_PDD,
+    });
+
+    expect(result.relevantSections[0]).toBe("2.3");
+    expect(result.matchedHeadings[0]?.title).toBe("Project Boundary");
+    expect(result.headingIndex.length).toBeGreaterThan(0);
   });
 
   it("prefers 4.3 Monitoring Plan over generic monitoring equipment blocks in the Envira fixture", () => {
