@@ -541,6 +541,7 @@ function joinMethodologyLabels(values: string[]): string {
 }
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
+  const showReviewRoutingDiagnostic = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -2312,6 +2313,48 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <p className="mt-2 text-xs text-slate-500">
                       Open full review to inspect these sections against the full document and methodology.
                     </p>
+                  {reviewQuestionResult.routingDiagnostic && showReviewRoutingDiagnostic ? (
+                    <details className="mt-3 text-xs">
+                      <summary className="cursor-pointer font-medium text-slate-500 hover:text-slate-700">
+                        Review routing diagnostic
+                      </summary>
+                      <div className="mt-2 rounded-lg border border-slate-200 bg-white p-3 text-[11px] leading-relaxed text-slate-600">
+                        <div><span className="font-semibold text-slate-500">Question: </span>{reviewQuestionResult.routingDiagnostic.inputReviewQuestion}</div>
+                        <div><span className="font-semibold text-slate-500">Review area: </span>{reviewQuestionResult.routingDiagnostic.classifiedReviewArea}</div>
+                        <div>
+                          <span className="font-semibold text-slate-500">Selected methodology: </span>
+                          {reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyId || "none"}
+                          {reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyVersion
+                            ? ` ${reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyVersion}`
+                            : ""}
+                        </div>
+                        <div className="mt-2">
+                          <div className="font-semibold text-slate-500">Candidate methodology headings found</div>
+                          {reviewQuestionResult.routingDiagnostic.candidateMethodologyHeadingsFound.length > 0 ? (
+                            <ul className="mt-1 list-disc pl-5">
+                              {reviewQuestionResult.routingDiagnostic.candidateMethodologyHeadingsFound.map((heading) => (
+                                <li key={`${heading.sectionNumber}:${heading.title}`} className="font-mono">
+                                  §{heading.sectionNumber} {heading.title}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <div className="mt-1">None</div>
+                          )}
+                        </div>
+                        <div className="mt-2">
+                          <div className="font-semibold text-slate-500">Final routing decision</div>
+                          {reviewQuestionResult.routingDiagnostic.finalMatch ? (
+                            <div className="mt-1 font-mono">
+                              {reviewQuestionResult.routingDiagnostic.finalMatch.matchStage}: §{reviewQuestionResult.routingDiagnostic.finalMatch.heading.sectionNumber} {reviewQuestionResult.routingDiagnostic.finalMatch.heading.title}
+                            </div>
+                          ) : (
+                            <div className="mt-1">{reviewQuestionResult.routingDiagnostic.noMatchReason ?? "No match selected."}</div>
+                          )}
+                        </div>
+                      </div>
+                    </details>
+                  ) : null}
                   {reviewQuestionResult.phase1Diagnostic && process.env.NODE_ENV !== "production" ? (
                     <details className="mt-3" open>
                       <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">

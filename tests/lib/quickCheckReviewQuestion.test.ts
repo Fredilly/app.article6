@@ -956,6 +956,32 @@ describe("computeSectionMatchResults — match diagnostics", () => {
       expect(result.phase1Diagnostic.claimKeywords.phrases.length).toBeGreaterThan(0);
     }
   });
+
+  it("populates routingDiagnostic with question, methodology, candidates, and final match in dev mode", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD contain the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: PDD,
+    });
+
+    expect(result.routingDiagnostic).toEqual(expect.objectContaining({
+      inputReviewQuestion: "Does this PDD contain the baseline scenario?",
+      classifiedReviewArea: "baseline",
+      selectedMethodology: {
+        methodologyId: "VM0007",
+        methodologyVersion: "1.0",
+      },
+      candidateMethodologyHeadingsFound: expect.arrayContaining([
+        expect.objectContaining({ title: "Baseline Scenario" }),
+      ]),
+      finalMatch: expect.objectContaining({
+        matchStage: expect.any(String),
+        heading: expect.objectContaining({ title: "Baseline Scenario" }),
+      }),
+      stageAttempts: expect.any(Array),
+    }));
+  });
 });
 
 describe("Quick Check extraction edge-case coverage", () => {
