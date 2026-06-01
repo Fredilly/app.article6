@@ -153,4 +153,4 @@ Exit criteria:
 
 ## Immediate next action
 
-Open the Phase 1 PR from latest `main` with roadmap docs plus the parser adapter boundary only.
+Start Phase 2 by adding `src/lib/documentModel/` and the first `ParsedDocument -> Article6DocumentModel` conversion without refactoring retrieval, evaluation, or UI consumers yet.
