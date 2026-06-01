@@ -90,6 +90,18 @@ const ENVIRA_TEXT = fs.readFileSync(
   "utf8",
 );
 
+const BOUNDARY_RANKING_PDD = [
+  "2.2  Project Location",
+  "The project location is described with regional context and coordinates.",
+  "",
+  "2.3  Project Boundary",
+  "The project boundary defines the project area, leakage belt, and reference region.",
+  "",
+  "3.3  Leakage",
+  "Leakage from activity shifting is assessed and mitigated in this section.",
+  "",
+].join("\n");
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -688,6 +700,32 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.reviewArea).toBe("leakage");
     expect(result.status).toBe("section_found_evidence_weak");
     expect(result.matchStage).toBe("alias_heading");
+  });
+
+  it("ranks Project Boundary above Project Location for leakage belt and reference region questions", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD define the leakage belt and reference region?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BOUNDARY_RANKING_PDD,
+    });
+
+    expect(result.relevantSections[0]).toBe("2.3");
+    expect(result.matchedHeadings[0]?.title).toBe("Project Boundary");
+    expect(result.sectionContent["2.3"]).toContain("reference region");
+  });
+
+  it("preserves leakage ranking for activity shifting questions", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD assess leakage from activity shifting?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BOUNDARY_RANKING_PDD,
+    });
+
+    expect(result.relevantSections[0]).toBe("3.3");
+    expect(result.matchedHeadings[0]?.title).toBe("Leakage");
+    expect(result.sectionContent["3.3"]).toContain("activity shifting");
   });
 
   it("prefers 4.3 Monitoring Plan over generic monitoring equipment blocks in the Envira fixture", () => {
