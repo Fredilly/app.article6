@@ -180,6 +180,10 @@ describe("classifyReviewArea — boundary", () => {
 });
 
 describe("classifyReviewArea — leakage", () => {
+  it("classifies 'leakage management'", () => {
+    expect(classifyReviewArea("Does this PDD address leakage management?")).toBe("leakage");
+  });
+
   it("classifies 'leakage risk'", () => {
     expect(classifyReviewArea("Does this PDD disclose leakage risk?")).toBe("leakage");
   });
@@ -689,8 +693,9 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
 
     expect(result.relevantSections[0]).toBe("3.3");
     expect(result.sectionContent["3.3"]).toContain("Leakage Management procedures");
-    expect(result.status).toBe("partial_evidence_found");
-    expect(result.matchStage).toBe("semantic_fallback");
+    expect(result.reviewArea).toBe("leakage");
+    expect(result.status).toBe("section_found_evidence_weak");
+    expect(result.matchStage).toBe("alias_heading");
   });
 
   it("prefers 4.3 Monitoring Plan over generic monitoring equipment blocks in the Envira fixture", () => {
@@ -1024,7 +1029,7 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.status).toBe("extractor_uncertain");
   });
 
-  it("keeps semantic fallback matches document-grounded instead of escalating to strong evidence automatically", () => {
+  it("keeps alias-heading leakage matches document-grounded instead of escalating to strong evidence automatically", () => {
     const retrieval = buildReviewQuestionSectionRetrieval({
       claimText: "Does this PDD address leakage management?",
       methodologyId: "VM0007",
@@ -1033,9 +1038,10 @@ describe("Quick Check extraction edge-case coverage", () => {
     });
     const evaluation = evaluateRetrievedReviewQuestion(retrieval);
 
-    expect(retrieval.matchStage).toBe("semantic_fallback");
+    expect(retrieval.reviewArea).toBe("leakage");
+    expect(retrieval.matchStage).toBe("alias_heading");
     expect(retrieval.relevantSections[0]).toBe("3.3");
-    expect(evaluation.status).toBe("partial_evidence_found");
+    expect(evaluation.status).toBe("section_found_evidence_weak");
   });
 });
 
