@@ -46,7 +46,7 @@ Detect broad review questions, classify review area, route to VM0007 PDD section
 
 ---
 
-## Phase 1 — Section extraction (planned)
+## Phase 1 — Section extraction (done)
 
 Extract and render actual PDD section content inline in the review-question result.
 
@@ -70,7 +70,7 @@ Extract and render actual PDD section content inline in the review-question resu
 
 ---
 
-## Phase 2 — Baseline evidence-backed review (planned)
+## Phase 2 — Baseline evidence-backed review (done)
 
 For baseline review questions, produce evidence-backed verdicts with gap explanations.
 

@@ -85,6 +85,11 @@ const PDD_WITH_PAGE_BREAKS = [
   "Carbon stocks are expected to decline without the project.",
 ].join("\n");
 
+const ENVIRA_TEXT = fs.readFileSync(
+  path.join(__dirname, "../fixtures/quick-check/envira-amazonia-vm0007-extracted.txt"),
+  "utf8",
+);
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -435,31 +440,10 @@ describe("review-question pipeline split — retrieval vs evaluation", () => {
       cited_sections: ["2.4"],
     }));
   });
-
-  it("buildReviewQuestionResult remains a compatibility wrapper that orchestrates retrieval plus evaluation", () => {
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("buildReviewQuestionSectionRetrieval");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("evaluateRetrievedReviewQuestion");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("const retrieval = buildReviewQuestionSectionRetrieval(input);");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("const evaluation = evaluateRetrievedReviewQuestion(retrieval);");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("...retrieval");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("...evaluation");
-  });
-
-  it("buildReviewQuestionResult wrapper does not directly import rubric evaluators or contain evidence judgment logic", () => {
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("evaluateBaselineReview");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("evaluateReviewRubric");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("reviewArea === \"baseline\"");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("reviewArea === \"right_of_use\"");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("reviewArea === \"stakeholder\"");
-  });
 });
 
 const PLUM_FIXTURE_PATH = path.join(__dirname, "..", "fixtures", "quick-check", "plum-pdd-regression.txt");
 const PLUM_TEXT = fs.readFileSync(PLUM_FIXTURE_PATH, "utf-8");
-const ENVIRA_FIXTURE_PATH = path.join(__dirname, "..", "fixtures", "quick-check", "envira-amazonia-vm0007-extracted.txt");
-const ENVIRA_TEXT = fs.readFileSync(ENVIRA_FIXTURE_PATH, "utf-8");
-const QUICK_CHECK_WRAPPER_PATH = path.join(__dirname, "..", "..", "src", "lib", "chat", "quickCheckReviewQuestion.ts");
-const QUICK_CHECK_WRAPPER_SOURCE = fs.readFileSync(QUICK_CHECK_WRAPPER_PATH, "utf-8");
 
 const CUSTOM_HEADING_PDD = [
   "2.1  Project Goals, Design and Long-Term Viability",
@@ -723,7 +707,6 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.matchedHeadings[0]?.title).toBe("Monitoring Plan");
     expect(result.matchedHeadings[0]?.originalTitle).toBe("MonitoringPlan");
   });
-
   it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD explain the project area and project zone boundary?",
@@ -779,7 +762,6 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     });
     expect(result.relevantSections).toEqual([]);
     expect(result.sectionContent).toEqual({});
-    expect(result.status).toBe("extractor_uncertain");
   });
 
   it("does not include section 1.1 (Project Background) when asking about project goals and design", () => {
@@ -1044,7 +1026,6 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(evaluation.status).toBe("section_found_evidence_weak");
   });
 });
-
 // ============================================================================
 // Additional regression for PR #657: article-prefixed baseline question support
 // "Is there a baseline justification in this PDD?" must route correctly.

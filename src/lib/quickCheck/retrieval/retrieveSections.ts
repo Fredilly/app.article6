@@ -161,9 +161,7 @@ function withMonitoringAncestors(headings: DocumentHeading[], reviewArea: Review
       if (parent) expanded.push(parent);
     }
   }
-  return uniqueHeadings(expanded).sort(
-    (left, right) => left.sectionNumber.localeCompare(right.sectionNumber, undefined, { numeric: true }),
-  );
+  return uniqueHeadings(expanded);
 }
 
 function exactHeadingMatches(headings: DocumentHeading[], claimText: string): DocumentHeading[] {

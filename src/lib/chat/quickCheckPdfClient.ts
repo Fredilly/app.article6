@@ -1,4 +1,5 @@
 import { extractMethodologyMentions, extractPdfText, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
+import { formatQuickCheckPdfLimitLabel, type QuickCheckPdfRouteErrorCode } from "@/lib/chat/quickCheckPdfUpload";
 
 function uniqueMentions(...groups: Array<string[] | undefined>): string[] {
   return Array.from(new Set(groups.flatMap((group) => group ?? []).map((item) => item.trim()).filter(Boolean)));
@@ -9,17 +10,34 @@ export async function resolveQuickCheckPdfText(input: {
   filename: string;
 }): Promise<QuickCheckResolvedPdfText> {
   try {
+    // Use FormData for the upload. This keeps the request "simple" (no preflight)
+    // and is the robust way to send binary files from the browser.
+    const form = new FormData();
+    form.append("file", new Blob([new Uint8Array(input.bytes)], { type: "application/pdf" }), input.filename || "document.pdf");
+    form.append("filename", input.filename || "document.pdf");
+
     const response = await fetch("/api/quick-check/pdf-extract", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/pdf",
-        "x-article6-filename": encodeURIComponent(input.filename),
-      },
-      body: input.bytes,
+      body: form,
     });
 
     if (!response.ok) {
-      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      const payload = (await response.json().catch(() => ({}))) as { error?: string; code?: QuickCheckPdfRouteErrorCode };
+      if (payload.code === "file-too-large" || payload.code === "invalid-file" || payload.code === "missing-file") {
+        return {
+          text: "",
+          engine: "heuristic",
+          methodologyMentions: [],
+          warning:
+            payload.error ??
+            (payload.code === "file-too-large"
+              ? `PDF exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`
+              : "Quick Check could not process this upload as a valid PDF."),
+          diagnosticCode: payload.code === "missing-file" ? "invalid-file" : payload.code,
+        };
+      }
+      // Non-explicit error status (e.g. platform 413, 5xx) — surface as request failure
+      // so the UI can show a clear diagnostic instead of silent weak fallback.
       throw new Error(payload.error ?? `HTTP ${response.status}`);
     }
 
@@ -30,7 +48,7 @@ export async function resolveQuickCheckPdfText(input: {
         parser?: "pdf-parse" | "heuristic";
         fallbackReason?: string;
         diagnostics?: {
-          failureKind?: "file-too-large" | "parser-failed" | "no-selectable-text";
+          failureKind?: "file-too-large" | "parser-failed" | "no-selectable-text" | "invalid-file";
         };
       };
     };
@@ -62,15 +80,19 @@ export async function resolveQuickCheckPdfText(input: {
       warning,
       diagnosticCode: failureKind,
     };
-  } catch {
+  } catch (err) {
     const localHeuristicText = extractPdfText(input.bytes);
     const localHeuristicMentions = extractMethodologyMentions(localHeuristicText);
+    const message = err instanceof Error ? err.message : String(err);
+    const isRequestFailure = /HTTP|failed|network|fetch|abort|timeout/i.test(message);
     return {
       text: localHeuristicText,
       engine: "heuristic",
       methodologyMentions: localHeuristicMentions,
-      warning: "PDF parser fallback: client request failed, using heuristic extraction.",
-      diagnosticCode: "parser-failed",
+      warning: isRequestFailure
+        ? "Quick Check PDF extraction request failed (service or network issue). Using local fallback (weaker results)."
+        : "PDF extraction request failed, using local fallback extraction.",
+      diagnosticCode: isRequestFailure ? "upload-request-failed" : "parser-failed",
     };
   }
 }
