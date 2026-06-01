@@ -169,7 +169,6 @@ Move Quick Check from tactical section-matching patches to a layered document pi
 
 Not active now:
 - LiteParse integration
-- Quick Check eval harness implementation
 - Additional Quick Check tactical alias patches
 
 
