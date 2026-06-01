@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -159,6 +159,22 @@ Not active now:
 3) RC3 — Verification pack PDF: Planned — Review-ready PDF with branded cover, coverage matrix, evidence inventory, gap summary, and draft verification opinion.
 4) RC4 — Verra methodology support: Planned — Wire app to use Verra VM0007 rules once encoded upstream. Depends on article6-methodologies VF1-VF3.
 5) RC5 — End-to-end demo case: Planned — One complete VM0007 forestry verification with synthetic data, full rule coverage, and review-ready PDF export.
+
+## quick-check-document-pipeline
+
+Status SSOT: `docs/roadmaps/quick-check-document-pipeline/phase-status.json`
+
+Lane status: Active
+Move Quick Check from tactical section-matching patches to a layered document pipeline with explicit parser, document-model, retrieval, evaluation, UI, and eval boundaries.
+
+Not active now:
+- LiteParse integration
+- Canonical document model migration
+- Retrieval/evaluation refactor
+- Declarative review policy config
+- Quick Check eval harness implementation
+- Additional Quick Check tactical alias patches
+
 
 ## requirement-coverage
 
