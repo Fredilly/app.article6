@@ -14,15 +14,12 @@ The commercial value is evidence-backed readiness: a baseline review answers "Is
 
 ## Current focus
 
-- Phase 0 (routing MVP) is active with PR 642: detect broad review questions, classify review area, route to VM0007 sections.
-- Narrow first implementation to VM0007 baseline review question only.
+- Phase 2 (baseline evidence-backed review) is complete.
+- Phase 3 (review area rubrics) is active: extend evidence-backed review beyond baseline, starting with narrow routing + section matching on right_of_use and stakeholder questions.
 
 ## Not active now
 
-- Multi-methodology section routing (phase 1 starts after VM0007 routing is stable)
-- Evidence-backed verdicts and gap detection (phase 2+)
-- Review area rubrics (phase 3+)
-- Automated regression eval suite (phase 4+)
+- Regression evaluation suite (phase 4+)
 - Readiness note export (phase 5+)
 
 ## Phase 0 — Routing MVP
@@ -73,7 +70,7 @@ Objective: extract and render the actual content of routed PDD sections so the u
 - Missing sections display "Section not found" rather than empty space
 - Section content updates when the user uploads a different PDD
 
-## Phase 2 — Baseline evidence-backed review
+## Phase 2 — Baseline evidence-backed review (done)
 
 Objective: produce evidence-backed verdicts for baseline review questions — supported, partial, or missing — with gap explanations.
 
@@ -147,13 +144,13 @@ Objective: export the review result as a shareable readiness note.
 
 ## Sequencing
 
-1. Phase 0 — Routing MVP (active, PR 642)
-2. Phase 1 — Section extraction
-3. Phase 2 — Baseline evidence-backed review
-4. Phase 3 — Review area rubrics
+1. Phase 0 — Routing MVP (done, PR 642)
+2. Phase 1 — Section extraction (done)
+3. Phase 2 — Baseline evidence-backed review (done)
+4. Phase 3 — Review area rubrics (active)
 5. Phase 4 — Regression evaluation suite
 6. Phase 5 — Readiness note export
 
 ## Immediate next action
 
-Merge PR 642, then start Phase 1: extract and render section content from uploaded PDD pages.
+Continue Phase 3: generalize evidence-backed review beyond baseline with maintainable per-area rubrics.

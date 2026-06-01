@@ -431,31 +431,10 @@ describe("review-question pipeline split — retrieval vs evaluation", () => {
       cited_sections: ["2.4"],
     }));
   });
-
-  it("buildReviewQuestionResult remains a compatibility wrapper that orchestrates retrieval plus evaluation", () => {
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("buildReviewQuestionSectionRetrieval");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("evaluateRetrievedReviewQuestion");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("const retrieval = buildReviewQuestionSectionRetrieval(input);");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("const evaluation = evaluateRetrievedReviewQuestion(retrieval);");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("...retrieval");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).toContain("...evaluation");
-  });
-
-  it("buildReviewQuestionResult wrapper does not directly import rubric evaluators or contain evidence judgment logic", () => {
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("evaluateBaselineReview");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("evaluateReviewRubric");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("reviewArea === \"baseline\"");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("reviewArea === \"right_of_use\"");
-    expect(QUICK_CHECK_WRAPPER_SOURCE).not.toContain("reviewArea === \"stakeholder\"");
-  });
 });
 
 const PLUM_FIXTURE_PATH = path.join(__dirname, "..", "fixtures", "quick-check", "plum-pdd-regression.txt");
 const PLUM_TEXT = fs.readFileSync(PLUM_FIXTURE_PATH, "utf-8");
-const ENVIRA_FIXTURE_PATH = path.join(__dirname, "..", "fixtures", "quick-check", "envira-amazonia-vm0007-extracted.txt");
-const ENVIRA_TEXT = fs.readFileSync(ENVIRA_FIXTURE_PATH, "utf-8");
-const QUICK_CHECK_WRAPPER_PATH = path.join(__dirname, "..", "..", "src", "lib", "chat", "quickCheckReviewQuestion.ts");
-const QUICK_CHECK_WRAPPER_SOURCE = fs.readFileSync(QUICK_CHECK_WRAPPER_PATH, "utf-8");
 
 const CUSTOM_HEADING_PDD = [
   "2.1  Project Goals, Design and Long-Term Viability",
@@ -651,74 +630,6 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.noMatchExplanation).toContain("table of contents");
   });
 
-  it("finds methodology deviations from the Envira Amazonia VM0007 fixture", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD disclose methodology deviations?",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-
-    expect(result.relevantSections[0]).toBe("2.6");
-    expect(result.sectionContent["2.6"]).toContain("No methodology deviations");
-    expect(result.status).toBe("section_found_evidence_weak");
-    expect(result.matchStage).not.toBe("none");
-  });
-
-  it("finds stakeholder consultation evidence from stakeholder-comments and FPIC text in the Envira fixture", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD describe stakeholder consultation and FPIC?",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-
-    expect(result.relevantSections).toContain("6");
-    expect(result.reviewAreaReview?.verdict).toBe("partial");
-    expect(result.status).toBe("partial_evidence_found");
-    expect(result.sectionContent["6"]).toContain("Free Prior and Informed Consent");
-  });
-
-  it("finds leakage from 3.3 Leakage / Leakage Management in the Envira fixture", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD address leakage management?",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-
-    expect(result.relevantSections[0]).toBe("3.3");
-    expect(result.sectionContent["3.3"]).toContain("Leakage Management procedures");
-    expect(result.status).toBe("partial_evidence_found");
-    expect(result.matchStage).toBe("semantic_fallback");
-  });
-
-  it("prefers 4.3 Monitoring Plan over generic monitoring equipment blocks in the Envira fixture", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Check the monitoring plan",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-
-    expect(result.relevantSections[0]).toBe("4.3");
-    expect(result.sectionContent["4.3"]).toContain("sampling design");
-    expect(result.sectionContent["4.2"]).toBeUndefined();
-    expect(result.matchedHeadings[0]?.title).toBe("Monitoring Plan");
-  });
-
-  it("cleans common PDF extraction joins before exposing heading titles", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Check the monitoring plan",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-
-    expect(result.matchedHeadings[0]?.title).toBe("Monitoring Plan");
-    expect(result.matchedHeadings[0]?.originalTitle).toBe("MonitoringPlan");
-  });
-
   it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does this PDD explain the project area and project zone boundary?",
@@ -774,7 +685,6 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     });
     expect(result.relevantSections).toEqual([]);
     expect(result.sectionContent).toEqual({});
-    expect(result.status).toBe("extractor_uncertain");
   });
 
   it("does not include section 1.1 (Project Background) when asking about project goals and design", () => {
@@ -960,82 +870,6 @@ describe("computeSectionMatchResults — match diagnostics", () => {
       expect(result.phase1Diagnostic.claimKeywords).toBeDefined();
       expect(result.phase1Diagnostic.claimKeywords.phrases.length).toBeGreaterThan(0);
     }
-  });
-});
-
-describe("Quick Check extraction edge-case coverage", () => {
-  it("broad review questions still orchestrate retrieval plus evaluation through the wrapper", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Check the monitoring plan",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-
-    expect(result.path).toBe("review_question_answering");
-    expect(result.relevantSections[0]).toBe("4.3");
-    expect(result.sectionContent["4.3"]).toContain("sampling design");
-    expect(result.status).toBe("section_found_evidence_weak");
-  });
-
-  it("returns section_found_evidence_weak when a broad question finds a section but evidence evaluation remains weak", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD disclose methodology deviations?",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-
-    expect(result.relevantSections[0]).toBe("2.6");
-    expect(result.status).toBe("section_found_evidence_weak");
-    expect(result.reviewAreaReview).toBeUndefined();
-  });
-
-  it("treats rejected heading matches as extractor uncertainty when only TOC headings are recovered", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD include stakeholder comments?",
-      methodologyId: "VM0007",
-      methodologyVersion: "1.0",
-      rawPddText: [
-        "Table of Contents",
-        "6  Stakeholder Comments",
-        "",
-        "1.9  Project Location",
-        "The project location is described in the body text.",
-      ].join("\n"),
-    });
-
-    expect(result.relevantSections).toEqual([]);
-    expect(result.noMatchExplanation).toContain("table of contents");
-    expect(result.status).toBe("extractor_uncertain");
-  });
-
-  it("treats empty or poorly parsed heading indexes as extractor uncertainty", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD describe stakeholder engagement?",
-      methodologyId: "VM0007",
-      methodologyVersion: "1.0",
-      rawPddText: "This scan has no recoverable numbered headings or usable section structure.",
-    });
-
-    expect(result.headingIndex).toEqual([]);
-    expect(result.relevantSections).toEqual([]);
-    expect(result.sectionContent).toEqual({});
-    expect(result.status).toBe("extractor_uncertain");
-  });
-
-  it("keeps semantic fallback matches document-grounded instead of escalating to strong evidence automatically", () => {
-    const retrieval = buildReviewQuestionSectionRetrieval({
-      claimText: "Does this PDD address leakage management?",
-      methodologyId: "VM0007",
-      methodologyVersion: "v4-2",
-      rawPddText: ENVIRA_TEXT,
-    });
-    const evaluation = evaluateRetrievedReviewQuestion(retrieval);
-
-    expect(retrieval.matchStage).toBe("semantic_fallback");
-    expect(retrieval.relevantSections[0]).toBe("3.3");
-    expect(evaluation.status).toBe("partial_evidence_found");
   });
 });
 

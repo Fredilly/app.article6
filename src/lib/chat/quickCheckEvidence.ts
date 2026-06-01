@@ -60,6 +60,8 @@ export type QuickCheckResolvedPdfText = {
   warning?: string;
   diagnosticCode?:
     | "file-too-large"
+    | "invalid-file"
+    | "upload-request-failed"
     | "parser-failed"
     | "no-selectable-text"
     | "selected-methodology-mismatch"

@@ -3,12 +3,69 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
+import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { withMetrics } from "@/lib/metrics";
 
 async function handlePost(request: Request) {
-  const bytes = await request.arrayBuffer().catch(() => null);
+  const contentType = request.headers.get("content-type") ?? "";
+  let bytes: ArrayBuffer | null = null;
+  let declaredFilename = "uploaded.pdf";
+
+  // Robust upload handling: prefer multipart/form-data (avoids CORS preflight,
+  // works reliably from browser fetch for binary content). Fall back to raw
+  // body for direct clients or older callers.
+  if (contentType.includes("multipart/form-data")) {
+    try {
+      const form = await request.formData();
+      const fileField = form.get("file");
+      // Duck-type check (File/Blob may not be instanceof in all server contexts)
+      const hasArrayBuffer = fileField && typeof fileField === "object" && "arrayBuffer" in fileField;
+      if (hasArrayBuffer) {
+        const f = fileField as { arrayBuffer: () => Promise<ArrayBuffer>; name?: string; size?: number };
+        bytes = await f.arrayBuffer();
+        if (typeof f.name === "string" && f.name) declaredFilename = f.name;
+        const fn = form.get("filename");
+        if (typeof fn === "string" && fn) declaredFilename = fn;
+      }
+    } catch {
+      bytes = null;
+    }
+  }
+
+  if (!bytes) {
+    // Raw body fallback path (kept for compatibility and tests)
+    bytes = await request.arrayBuffer().catch(() => null);
+    declaredFilename = request.headers.get("x-article6-filename") || declaredFilename;
+  }
+
   if (!bytes || bytes.byteLength === 0) {
-    return NextResponse.json({ error: "Missing PDF bytes." }, { status: 400 });
+    return NextResponse.json({ error: "Missing PDF bytes.", code: "missing-file" }, { status: 400 });
+  }
+
+  // Content-type validation: only enforce on raw path or when clearly wrong.
+  // For multipart uploads (the normal browser path) we rely primarily on magic bytes.
+  const isRawPath = !contentType.includes("multipart");
+  if (isRawPath && !/application\/pdf|octet-stream/i.test(contentType)) {
+    return NextResponse.json(
+      { error: `Uploaded file "${declaredFilename}" must be a PDF.`, code: "invalid-file" },
+      { status: 415 },
+    );
+  }
+
+  if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) {
+    return NextResponse.json(
+      {
+        error: `PDF "${declaredFilename}" exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`,
+        code: "file-too-large",
+      },
+      { status: 413 },
+    );
+  }
+  if (!isLikelyPdfBytes(bytes)) {
+    return NextResponse.json(
+      { error: `Uploaded file "${declaredFilename}" is not a valid PDF.`, code: "invalid-file" },
+      { status: 400 },
+    );
   }
 
   let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
