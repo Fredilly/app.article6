@@ -93,7 +93,9 @@ export type ReviewQuestionResult = {
   phase1Diagnostic?: ReviewQuestionDiagnostic;
 };
 
-export type ReviewQuestionRetrievalResult = Omit<ReviewQuestionResult, "baselineReview" | "reviewAreaReview">;
+export type ReviewQuestionRetrievalResult = Omit<ReviewQuestionResult, "baselineReview" | "reviewAreaReview"> & {
+  rejectedMatches: RejectedHeadingQueryMatch[];
+};
 
 export type ReviewQuestionEvaluationResult = Pick<ReviewQuestionResult, "baselineReview" | "reviewAreaReview" | "status">;
 
@@ -669,6 +671,7 @@ export function buildReviewQuestionSectionRetrieval(input: {
     sectionContent,
     headingIndex,
     matchedHeadings,
+    rejectedMatches,
     noMatchExplanation,
     diagnostic,
     phase1Diagnostic,
@@ -676,9 +679,7 @@ export function buildReviewQuestionSectionRetrieval(input: {
 }
 
 export function evaluateRetrievedReviewQuestion(
-  retrieval: Pick<ReviewQuestionRetrievalResult, "reviewArea" | "matchedHeadings" | "headingIndex" | "relevantSections" | "matchStage"> & {
-    noMatchExplanation?: string;
-  },
+  retrieval: Pick<ReviewQuestionRetrievalResult, "reviewArea" | "matchedHeadings" | "headingIndex" | "rejectedMatches" | "matchStage">,
 ): ReviewQuestionEvaluationResult {
   const baselineReview = retrieval.reviewArea === "baseline"
     ? evaluateBaselineReview({ matchedHeadings: retrieval.matchedHeadings })
@@ -690,7 +691,7 @@ export function evaluateRetrievedReviewQuestion(
   const status = deriveReviewQuestionStatus({
     matchedHeadings: retrieval.matchedHeadings,
     headingIndex: retrieval.headingIndex,
-    rejectedMatches: retrieval.noMatchExplanation ? [{ sectionNumber: "", title: "", reasons: [retrieval.noMatchExplanation] }] : [],
+    rejectedMatches: retrieval.rejectedMatches,
     matchStage: retrieval.matchStage,
     reviewAreaReview,
   });
