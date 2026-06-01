@@ -1,6 +1,6 @@
 import { evaluateBaselineReview } from "@/lib/chat/quickCheckBaselineRubric";
 import { evaluateReviewRubric } from "@/lib/chat/quickCheckReviewRubric";
-import { deriveReviewQuestionStatus } from "@/lib/quickCheck/retrieval/retrieveSections";
+import { deriveReviewQuestionStatus } from "@/lib/quickCheck/evaluation/status";
 import type {
   EvaluateRetrievedReviewQuestionInput,
   ReviewQuestionEvaluationResult,
