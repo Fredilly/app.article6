@@ -84,8 +84,6 @@ export type ReviewQuestionRetrievalResult = Omit<ReviewQuestionResult, "baseline
   rejectedMatches: RejectedHeadingQueryMatch[];
 };
 
-export type ReviewQuestionEvaluationResult = Pick<ReviewQuestionResult, "baselineReview" | "reviewAreaReview" | "status">;
-
 export type BuildReviewQuestionSectionRetrievalInput = {
   claimText: string;
   methodologyId: string;
