@@ -2,14 +2,14 @@
   "roadmap": "quick-check-document-pipeline",
   "repo": "Fredilly/app.article6",
   "status": "active",
-  "current_phase": "phase_1_parser_adapter_boundary",
+  "current_phase": "phase_2_article6_document_model",
   "phase_1_parser_adapter_boundary": {
-    "status": "active",
+    "status": "done",
     "title": "Phase 1 — parser adapter boundary",
     "summary": "Add src/lib/documentParsing/ and move the current Quick Check extractor behind an adapter boundary. Keep retrieval/evaluation behavior intact and do not start LiteParse yet."
   },
   "phase_2_article6_document_model": {
-    "status": "planned",
+    "status": "active",
     "title": "Phase 2 — canonical Article6 document model",
     "summary": "Add src/lib/documentModel/ as the canonical document representation for normalized sections, hierarchy, provenance, and cleaned display text."
   },
@@ -36,10 +36,9 @@
   "phase_meta": {
     "status": "active",
     "summary": "Move Quick Check from tactical section-matching patches to a layered document pipeline with explicit parser, document-model, retrieval, evaluation, UI, and eval boundaries.",
-    "current_focus": "Phase 1 only: roadmap docs plus parser adapter boundary around the current extractor. LiteParse, document-model adoption, retrieval/evaluation split, declarative policy, and eval harness remain intentionally out of scope for this PR.",
+    "current_focus": "Phase 2 only: add the canonical Article6 document model and ParsedDocument-to-model conversion. LiteParse, retrieval/evaluation refactor, review policy work, and UI changes remain intentionally out of scope for this step.",
     "not_active_now": [
       "LiteParse integration",
-      "Canonical document model migration",
       "Retrieval/evaluation refactor",
       "Declarative review policy config",
       "Quick Check eval harness implementation",
