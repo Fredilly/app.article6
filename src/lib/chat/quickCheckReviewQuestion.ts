@@ -93,6 +93,10 @@ export type ReviewQuestionResult = {
   phase1Diagnostic?: ReviewQuestionDiagnostic;
 };
 
+export type ReviewQuestionRetrievalResult = Omit<ReviewQuestionResult, "baselineReview" | "reviewAreaReview">;
+
+export type ReviewQuestionEvaluationResult = Pick<ReviewQuestionResult, "baselineReview" | "reviewAreaReview" | "status">;
+
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
   // Phase 2 hardening (updated in PR #657): support natural baseline question variants
   // (including optional articles like "a baseline...") so real user phrasing routes to
@@ -594,6 +598,23 @@ export function buildReviewQuestionResult(input: {
   evidenceSourceLabel?: string;
   evidenceDocumentType?: string;
 }): ReviewQuestionResult {
+  const retrieval = buildReviewQuestionSectionRetrieval(input);
+  const evaluation = evaluateRetrievedReviewQuestion(retrieval);
+
+  return {
+    ...retrieval,
+    ...evaluation,
+  };
+}
+
+export function buildReviewQuestionSectionRetrieval(input: {
+  claimText: string;
+  methodologyId: string;
+  methodologyVersion: string;
+  rawPddText?: string;
+  evidenceSourceLabel?: string;
+  evidenceDocumentType?: string;
+}): ReviewQuestionRetrievalResult {
   const reviewArea = classifyReviewArea(input.claimText);
   const parsedDocument = input.rawPddText ? parseDocumentText({ rawText: input.rawPddText }) : undefined;
 
@@ -615,22 +636,15 @@ export function buildReviewQuestionResult(input: {
   const relevantSections = matchedHeadings.map((h) => h.sectionNumber);
   const sectionContent: Record<string, string> = {};
   for (const h of matchedHeadings) {
-    // Preserve recovered section text for downstream rubric evaluation and UI rendering.
+    // Preserve recovered section text for downstream evaluation and UI rendering.
     sectionContent[h.sectionNumber] = h.bodyText ? `${h.title}\n${h.bodyText}` : h.title;
   }
-  const baselineReview = reviewArea === "baseline"
-    ? evaluateBaselineReview({ matchedHeadings })
-    : undefined;
-  const reviewAreaReview =
-    reviewArea === "baseline" || reviewArea === "right_of_use" || reviewArea === "stakeholder"
-      ? evaluateReviewRubric({ reviewArea, matchedHeadings })
-      : undefined;
   const status = deriveReviewQuestionStatus({
     matchedHeadings,
     headingIndex,
     rejectedMatches,
     matchStage: sectionResolution.matchStage,
-    reviewAreaReview,
+    reviewAreaReview: undefined,
   });
 
   const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
@@ -655,11 +669,36 @@ export function buildReviewQuestionResult(input: {
     sectionContent,
     headingIndex,
     matchedHeadings,
-    baselineReview,
-    reviewAreaReview,
     noMatchExplanation,
     diagnostic,
     phase1Diagnostic,
+  };
+}
+
+export function evaluateRetrievedReviewQuestion(
+  retrieval: Pick<ReviewQuestionRetrievalResult, "reviewArea" | "matchedHeadings" | "headingIndex" | "relevantSections" | "matchStage"> & {
+    noMatchExplanation?: string;
+  },
+): ReviewQuestionEvaluationResult {
+  const baselineReview = retrieval.reviewArea === "baseline"
+    ? evaluateBaselineReview({ matchedHeadings: retrieval.matchedHeadings })
+    : undefined;
+  const reviewAreaReview =
+    retrieval.reviewArea === "baseline" || retrieval.reviewArea === "right_of_use" || retrieval.reviewArea === "stakeholder"
+      ? evaluateReviewRubric({ reviewArea: retrieval.reviewArea, matchedHeadings: retrieval.matchedHeadings })
+      : undefined;
+  const status = deriveReviewQuestionStatus({
+    matchedHeadings: retrieval.matchedHeadings,
+    headingIndex: retrieval.headingIndex,
+    rejectedMatches: retrieval.noMatchExplanation ? [{ sectionNumber: "", title: "", reasons: [retrieval.noMatchExplanation] }] : [],
+    matchStage: retrieval.matchStage,
+    reviewAreaReview,
+  });
+
+  return {
+    baselineReview,
+    reviewAreaReview,
+    status,
   };
 }
 
