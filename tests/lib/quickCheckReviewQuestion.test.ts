@@ -3,9 +3,11 @@ import fs from "fs";
 import path from "path";
 import {
   buildReviewQuestionResult,
+  buildReviewQuestionSectionRetrieval,
   classifyReviewArea,
   computeSectionMatchResults,
   detectReviewPath,
+  evaluateRetrievedReviewQuestion,
   extractClaimKeywords,
   findMatchedSectionNumbers,
   resolveReviewSections,
@@ -390,6 +392,44 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
     });
     expect(leakResult.sectionContent["1.10"]).toBeDefined();
     expect(leakResult.sectionContent["1.10"]).toContain("Monitoring of the leakage belt");
+  });
+});
+
+describe("review-question pipeline split — retrieval vs evaluation", () => {
+  it("retrieval returns relevant sections and matched headings without running rubric fields", () => {
+    const retrieval = buildReviewQuestionSectionRetrieval({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REALISTIC_PDD_TEXT,
+    });
+
+    expect(retrieval.reviewArea).toBe("baseline");
+    expect(retrieval.relevantSections).toEqual(["2.4"]);
+    expect(retrieval.sectionContent["2.4"]).toContain("overgrazing");
+    expect(retrieval.matchedHeadings.map((heading) => heading.sectionNumber)).toEqual(["2.4"]);
+    expect("baselineReview" in retrieval).toBe(false);
+    expect("reviewAreaReview" in retrieval).toBe(false);
+  });
+
+  it("evaluation consumes retrieval output and preserves the existing baseline verdict path", () => {
+    const retrieval = buildReviewQuestionSectionRetrieval({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: REALISTIC_PDD_TEXT,
+    });
+
+    const evaluation = evaluateRetrievedReviewQuestion(retrieval);
+
+    expect(evaluation.baselineReview).toEqual(expect.objectContaining({
+      review_area: "baseline",
+      cited_sections: ["2.4"],
+    }));
+    expect(evaluation.reviewAreaReview).toEqual(expect.objectContaining({
+      review_area: "baseline",
+      cited_sections: ["2.4"],
+    }));
   });
 });
 
