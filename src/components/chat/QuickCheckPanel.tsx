@@ -117,6 +117,9 @@ type RecoveryState =
 type ExtractionDiagnostic =
   | {
       code:
+        | "file-too-large"
+        | "invalid-file"
+        | "upload-request-failed"
         | "parser-failed"
         | "no-selectable-text"
         | "selected-methodology-mismatch"
@@ -751,8 +754,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [extractionPreview, extractionState.analysis],
   );
   const methodologyResolution = useMemo<QuickCheckMethodologyResolution>(
-    () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods }),
-    [detectedMethodologyMentions, methods],
+    () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods, rawText: extractionState.analysis?.rawPddText }),
+    [detectedMethodologyMentions, extractionState.analysis?.rawPddText, methods],
   );
   const resolvedWorkspaceMethod = useMemo(
     () => (methodologyResolution.status === "single" ? methodologyResolution.matchedMethods[0] ?? null : null),
@@ -793,6 +796,27 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
     }
     if (!extractionPreview) return null;
+    if (extractionPreview.warnings.some((warning) => /quick check upload limit|file too large|exceeds the quick check upload limit/i.test(warning))) {
+      return {
+        code: "file-too-large",
+        label: "File too large",
+        message: "This PDF is too large for Quick Check extraction. Upload a smaller PDF before running Quick Check.",
+      };
+    }
+    if (extractionPreview.warnings.some((warning) => /must be a pdf|not a valid pdf|could not process this upload as a valid pdf|missing pdf bytes/i.test(warning))) {
+      return {
+        code: "invalid-file",
+        label: "Invalid PDF upload",
+        message: "Quick Check could not process the uploaded file as a valid PDF. Try a different PDF and upload again.",
+      };
+    }
+    if (extractionPreview.warnings.some((warning) => /request failed|service or network|extraction request failed/i.test(warning))) {
+      return {
+        code: "upload-request-failed",
+        label: "Upload processing issue",
+        message: "Quick Check could not complete server-side PDF extraction due to a request, service, or network problem. Using a local fallback (weaker results). Check your connection and try again.",
+      };
+    }
     if (extractionPreview.warnings.some((warning) => /no selectable text|no extractable text/i.test(warning))) {
       return {
         code: "no-selectable-text",
@@ -804,11 +828,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       return {
         code: "parser-failed",
         label: "Parser failed",
-        message: "The primary PDF parser could not read this file cleanly, so Quick Check fell back to a weaker extraction path.",
+        message: "Quick Check could not fully parse this PDF upload and had to fall back to a weaker extraction path.",
       };
     }
     if (methodologyResolution.status === "unsupported" && methodologyResolution.unsupportedCanonicalKeys.length) {
-      const detected = joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys);
+      const detected = methodologyResolution.primaryMethodology?.canonicalKey
+        ? methodologyResolution.primaryMethodology.canonicalKey
+        : joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys);
       return {
         code: "methodology-pack-unavailable",
         label: "Method pack unavailable",
@@ -1837,7 +1863,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <>
                         {!draft.methodologyId.trim() && methodologyResolution.status === "single" ? (
                           <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-                            Detected methodology: {methodologyResolution.matchedMethods[0].methodologyId}. Requirement matches are narrowed to {methodologyResolution.matchedMethods[0].methodologyId}.
+                            Primary detected methodology: {methodologyResolution.primaryMethodology?.supported ? methodologyResolution.primaryMethodology.matchedMethod.methodologyId : methodologyResolution.matchedMethods[0].methodologyId}. Requirement matches are narrowed to {methodologyResolution.primaryMethodology?.supported ? methodologyResolution.primaryMethodology.matchedMethod.methodologyId : methodologyResolution.matchedMethods[0].methodologyId}.
+                            {methodologyResolution.primaryMethodology?.secondaryCanonicalKeys.length ? ` Secondary referenced methods: ${joinMethodologyLabels(methodologyResolution.primaryMethodology.secondaryCanonicalKeys)}.` : ""}
                           </div>
                         ) : null}
                         {!draft.methodologyId.trim() && methodologyResolution.status === "multiple" ? (
@@ -1847,7 +1874,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         ) : null}
                         {!draft.methodologyId.trim() && methodologyResolution.status === "unsupported" ? (
                           <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                            Detected {joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys)}, but no matching method pack is available.
+                            Primary detected methodology: {methodologyResolution.primaryMethodology?.canonicalKey ?? joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys)}. No matching method pack is available.
+                            {methodologyResolution.primaryMethodology?.secondaryCanonicalKeys.length ? ` Secondary referenced methods: ${joinMethodologyLabels(methodologyResolution.primaryMethodology.secondaryCanonicalKeys)}.` : ""}
                           </div>
                         ) : null}
                         {!draft.methodologyId.trim() && methodologyResolution.status === "none" && (extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 ? (

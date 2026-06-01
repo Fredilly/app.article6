@@ -48,7 +48,8 @@ describe("quick check pdf client", () => {
     expect(result.engine).toBe("heuristic");
     expect(result.text).toContain("Monitoring report");
     expect(result.methodologyMentions).toEqual([]);
-    expect(result.warning).toContain("client request failed");
+    expect(result.warning).toContain("request failed");
+    expect(result.diagnosticCode).toBe("upload-request-failed");
   });
 
   it("surfaces no-selectable-text as a distinct diagnostic", async () => {
