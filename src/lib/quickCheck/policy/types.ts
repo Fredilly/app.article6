@@ -1,6 +1,18 @@
 import { z } from "zod";
 import type { ReviewArea, ReviewQuestionMatchStage } from "@/lib/quickCheck/retrieval/types";
 
+export const REVIEW_AREA_KEYS = [
+  "additionality",
+  "baseline",
+  "boundary",
+  "deviations",
+  "leakage",
+  "monitoring",
+  "right_of_use",
+  "stakeholder",
+  "general",
+] as const satisfies readonly ReviewArea[];
+
 export const reviewQuestionMatchStageSchema = z.enum([
   "exact_heading",
   "normalized_heading",
@@ -33,9 +45,25 @@ export const reviewAreaPolicySchema = z.object({
   enableAncestorExpansion: z.boolean().default(false),
 });
 
+export const reviewAreaSchema = z.enum(REVIEW_AREA_KEYS);
+
+const reviewAreasShape = {
+  additionality: reviewAreaPolicySchema,
+  baseline: reviewAreaPolicySchema,
+  boundary: reviewAreaPolicySchema,
+  deviations: reviewAreaPolicySchema,
+  leakage: reviewAreaPolicySchema,
+  monitoring: reviewAreaPolicySchema,
+  right_of_use: reviewAreaPolicySchema,
+  stakeholder: reviewAreaPolicySchema,
+  general: reviewAreaPolicySchema,
+} satisfies Record<ReviewArea, typeof reviewAreaPolicySchema>;
+
+export const reviewAreasSchema = z.object(reviewAreasShape).strict();
+
 export const reviewPolicyConfigSchema = z.object({
   fallbackStages: z.array(reviewQuestionMatchStageSchema).min(4),
-  reviewAreas: z.record(reviewAreaPolicySchema),
+  reviewAreas: reviewAreasSchema,
 });
 
 export type PreferredSectionBoost = z.infer<typeof preferredSectionBoostSchema>;

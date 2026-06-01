@@ -10,25 +10,13 @@ import {
   shouldExpandAncestors,
   REVIEW_POLICY_CONFIG,
 } from "@/lib/quickCheck/policy/reviewPolicy";
-import type { ReviewArea } from "@/lib/quickCheck/retrieval/types";
-
-const REVIEW_AREAS: ReviewArea[] = [
-  "additionality",
-  "baseline",
-  "boundary",
-  "deviations",
-  "leakage",
-  "monitoring",
-  "right_of_use",
-  "stakeholder",
-  "general",
-];
+import { REVIEW_AREA_KEYS, reviewPolicyConfigSchema } from "@/lib/quickCheck/policy/types";
 
 describe("quickCheck review policy", () => {
   it("defines a policy entry for every review area", () => {
-    expect(Object.keys(REVIEW_POLICY_CONFIG.reviewAreas).sort()).toEqual([...REVIEW_AREAS].sort());
+    expect(Object.keys(REVIEW_POLICY_CONFIG.reviewAreas).sort()).toEqual([...REVIEW_AREA_KEYS].sort());
 
-    for (const reviewArea of REVIEW_AREAS) {
+    for (const reviewArea of REVIEW_AREA_KEYS) {
       expect(getReviewAreaPolicy(reviewArea)).toBeDefined();
     }
   });
@@ -96,5 +84,27 @@ describe("quickCheck review policy", () => {
       "community meetings",
       "project awareness",
     ]);
+  });
+
+  it("rejects configs with missing review-area keys", () => {
+    const invalidConfig = structuredClone(REVIEW_POLICY_CONFIG);
+    delete invalidConfig.reviewAreas.general;
+
+    const result = reviewPolicyConfigSchema.safeParse(invalidConfig);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects configs with unexpected extra review-area keys", () => {
+    const invalidConfig = structuredClone(REVIEW_POLICY_CONFIG) as typeof REVIEW_POLICY_CONFIG & {
+      reviewAreas: typeof REVIEW_POLICY_CONFIG.reviewAreas & {
+        unexpected_area?: typeof REVIEW_POLICY_CONFIG.reviewAreas.general;
+      };
+    };
+    invalidConfig.reviewAreas.unexpected_area = invalidConfig.reviewAreas.general;
+
+    const result = reviewPolicyConfigSchema.safeParse(invalidConfig);
+
+    expect(result.success).toBe(false);
   });
 });
