@@ -1,0 +1,23 @@
+VM0007 Version 4.2
+Project Description Document
+Envira Amazonia REDD+ Project
+
+2.6  Methodology Deviations
+No methodology deviations from VM0007 were applied in the project scenario.
+Any temporary departures from default data collection were documented in annexes.
+
+3.3  Leakage
+Activity shifting leakage is addressed through community agreements and surveillance.
+Leakage Management procedures are described for nearby forest users and buffer communities.
+
+4.2  Data and Parameters
+Monitoring equipment includes GPS devices, diameter tapes, and handheld tablets for field teams.
+
+4.3  MonitoringPlan
+The monitoring plan defines the sampling design, plot remeasurement schedule, QA/QC checks, and reporting workflow.
+Monitoring procedures describe how plot data, leakage observations, and safeguards evidence are reviewed annually.
+
+6  Stakeholder Comments
+Project awareness activities were conducted through community meetings and workshops.
+FPIC and Free Prior and Informed Consent steps were completed with indigenous representatives.
+The grievance procedure, stakeholder comments, and follow-up responses were summarized in this section.

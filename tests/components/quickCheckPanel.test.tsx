@@ -9,6 +9,7 @@ import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 
 const pushMock = jest.fn();
 const createAndStoreEvidenceAttachmentMock = jest.fn();
+const ENVIRA_VM0007_TEXT = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/envira-amazonia-vm0007-extracted.txt"), "utf-8");
 const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "fresh-monitoring-report.pdf": "Monitoring report for the full reporting period. Gold Standard TPDD TEC Version 4.0. AR-ACM0003 methodology reference.",
   "monitoring-report.pdf": "Monitoring report for the full reporting period.",
@@ -50,6 +51,11 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
     "The mapped project area polygon and AOI are referenced in the boundary map.",
     "1.9  Project Location",
     "Project location Machinga District, Malawi.",
+  ].join("\n"),
+  "envira-amazonia-vm0007.pdf": ENVIRA_VM0007_TEXT,
+  "long-overflow-monitoring.pdf": [
+    "4.3  MonitoringPlan",
+    "The monitoring plan includes SUPERLONGUNBROKENTOKENFORQUICKCHECKOVERFLOWASSERTION1234567890SUPERLONGUNBROKENTOKENFORQUICKCHECKOVERFLOWASSERTION1234567890SUPERLONGUNBROKENTOKENFORQUICKCHECKOVERFLOWASSERTION1234567890.",
   ].join("\n"),
   "ambiguous-methods.pdf": "Methodology references include VM0007, GS-VER1, and the monitoring report for the full reporting period.",
   "unknown-acm0010.pdf": "Evidence references ACM0010 and the monitoring report for the full reporting period.",
@@ -1075,6 +1081,46 @@ describe("QuickCheckPanel claim-first flow", () => {
     expect(text).toContain("No matching document section found.");
     expect(text).toContain("§6 Stakeholder Comments");
     expect(text).toContain("table of contents");
+  });
+
+  it("keeps long extracted review-question strings from expanding the Quick Check card horizontally", async () => {
+    seedSession({
+      claimText: "Check the monitoring plan",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      filename: "long-overflow-monitoring.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(long overflow monitoring)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const reviewCard = container.querySelector('[data-testid="quick-check-review-result"]');
+    expect(reviewCard).toBeTruthy();
+    expect(reviewCard?.className).toContain("min-w-0");
+    expect(reviewCard?.className).toContain("max-w-full");
+    expect(reviewCard?.className).toContain("overflow-hidden");
+
+    const monitoringHeading = Array.from(container.querySelectorAll("button")).find((node) =>
+      node.textContent?.includes("Monitoring Plan"),
+    );
+    expect(monitoringHeading).toBeTruthy();
+    expect(monitoringHeading?.className).toContain("min-w-0");
+    expect(monitoringHeading?.className).toContain("max-w-full");
+    expect(monitoringHeading?.className).toContain("overflow-hidden");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Section found, evidence weak");
+    expect(text).toContain("Monitoring Plan");
   });
 
   it("supports the cold-load user flow without using the demo path", async () => {

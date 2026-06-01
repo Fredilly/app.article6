@@ -395,6 +395,8 @@ describe("buildReviewQuestionResult — section content extraction (Phase 1)", (
 
 const PLUM_FIXTURE_PATH = path.join(__dirname, "..", "fixtures", "quick-check", "plum-pdd-regression.txt");
 const PLUM_TEXT = fs.readFileSync(PLUM_FIXTURE_PATH, "utf-8");
+const ENVIRA_FIXTURE_PATH = path.join(__dirname, "..", "fixtures", "quick-check", "envira-amazonia-vm0007-extracted.txt");
+const ENVIRA_TEXT = fs.readFileSync(ENVIRA_FIXTURE_PATH, "utf-8");
 
 const CUSTOM_HEADING_PDD = [
   "2.1  Project Goals, Design and Long-Term Viability",
@@ -588,6 +590,73 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.relevantSections).toEqual([]);
     expect(result.noMatchExplanation).toContain("§6 Stakeholder Comments");
     expect(result.noMatchExplanation).toContain("table of contents");
+  });
+
+  it("finds methodology deviations from the Envira Amazonia VM0007 fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD disclose methodology deviations?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections[0]).toBe("2.6");
+    expect(result.sectionContent["2.6"]).toContain("No methodology deviations");
+    expect(result.status).toBe("section_found_evidence_weak");
+    expect(result.matchStage).not.toBe("none");
+  });
+
+  it("finds stakeholder consultation evidence from stakeholder-comments and FPIC text in the Envira fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe stakeholder consultation and FPIC?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections).toContain("6");
+    expect(result.reviewAreaReview?.verdict).toBe("partial");
+    expect(result.status).toBe("partial_evidence_found");
+    expect(result.sectionContent["6"]).toContain("Free Prior and Informed Consent");
+  });
+
+  it("finds leakage from 3.3 Leakage / Leakage Management in the Envira fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD address leakage management?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections[0]).toBe("3.3");
+    expect(result.sectionContent["3.3"]).toContain("Leakage Management procedures");
+    expect(result.status).toBe("partial_evidence_found");
+  });
+
+  it("prefers 4.3 Monitoring Plan over generic monitoring equipment blocks in the Envira fixture", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Check the monitoring plan",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.relevantSections[0]).toBe("4.3");
+    expect(result.sectionContent["4.3"]).toContain("sampling design");
+    expect(result.sectionContent["4.2"]).toBeUndefined();
+    expect(result.matchedHeadings[0]?.title).toBe("Monitoring Plan");
+  });
+
+  it("cleans common PDF extraction joins before exposing heading titles", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Check the monitoring plan",
+      methodologyId: "VM0007",
+      methodologyVersion: "v4-2",
+      rawPddText: ENVIRA_TEXT,
+    });
+
+    expect(result.matchedHeadings[0]?.title).toBe("Monitoring Plan");
+    expect(result.matchedHeadings[0]?.originalTitle).toBe("MonitoringPlan");
   });
 
   it("does not match random sections like biodiversity, financial analysis, or Remote Sensing", () => {

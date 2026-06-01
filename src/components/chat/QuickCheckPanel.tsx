@@ -537,6 +537,36 @@ function joinMethodologyLabels(values: string[]): string {
   return values.join(", ");
 }
 
+function reviewQuestionStatusLabel(status: ReviewQuestionResult["status"]): string {
+  switch (status) {
+    case "strong_evidence_found":
+      return "Strong evidence found";
+    case "partial_evidence_found":
+      return "Partial evidence found";
+    case "section_found_evidence_weak":
+      return "Section found, evidence weak";
+    case "extractor_uncertain":
+      return "Extractor uncertain";
+    case "no_document_grounded_evidence":
+      return "No document-grounded evidence";
+  }
+}
+
+function reviewQuestionStatusClass(status: ReviewQuestionResult["status"]): string {
+  switch (status) {
+    case "strong_evidence_found":
+      return "border-emerald-200 bg-emerald-100 text-emerald-800";
+    case "partial_evidence_found":
+      return "border-amber-200 bg-amber-100 text-amber-800";
+    case "section_found_evidence_weak":
+      return "border-sky-200 bg-sky-100 text-sky-800";
+    case "extractor_uncertain":
+      return "border-amber-200 bg-amber-50 text-amber-900";
+    case "no_document_grounded_evidence":
+      return "border-rose-200 bg-rose-100 text-rose-800";
+  }
+}
+
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
@@ -2145,11 +2175,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           ) : null}
 
           {reviewQuestionResult ? (
-            <div className="rounded-[1.6rem] border border-sky-200 bg-sky-50/80 p-5">
-              <div className="flex items-start gap-3">
-                <div className="min-w-0 flex-1">
+            <div
+              data-testid="quick-check-review-result"
+              className="min-w-0 max-w-full overflow-hidden rounded-[1.6rem] border border-sky-200 bg-sky-50/80 p-5"
+            >
+              <div className="flex min-w-0 max-w-full items-start gap-3 overflow-hidden">
+                <div className="min-w-0 max-w-full flex-1 overflow-hidden">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-800">Review question</div>
-                  <div className="mt-2 text-sm text-slate-600">{draft.claimText}</div>
+                  <div className="mt-2 min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-sm text-slate-600 [overflow-wrap:anywhere]">
+                    {draft.claimText}
+                  </div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Review area (classified)</div>
@@ -2162,10 +2197,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                     ) : null}
                   </div>
+                  <div className="mt-4 flex min-w-0 max-w-full flex-wrap items-center gap-2 overflow-hidden">
+                    <span className={`inline-flex max-w-full rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reviewQuestionStatusClass(reviewQuestionResult.status)}`}>
+                      {reviewQuestionStatusLabel(reviewQuestionResult.status)}
+                    </span>
+                    <span className="inline-flex max-w-full rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                      Match stage: {reviewQuestionResult.matchStage.replace(/_/g, " ")}
+                    </span>
+                  </div>
                   {reviewQuestionResult.reviewAreaReview ? (
-                    <div className="mt-4 rounded-xl border border-emerald-200 bg-white/80 p-4">
-                      <div className="flex items-center gap-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                    <div className="mt-4 min-w-0 max-w-full overflow-hidden rounded-xl border border-emerald-200 bg-white/80 p-4">
+                      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 overflow-hidden">
+                        <div className="min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 [overflow-wrap:anywhere]">
                           {reviewQuestionResult.reviewArea === "baseline"
                             ? "Baseline review"
                             : `${reviewAreaLabel(reviewQuestionResult.reviewArea)} review`}
@@ -2187,13 +2230,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Evidence summary</div>
-                        <div className="mt-1 text-sm leading-relaxed text-slate-700">
+                        <div className="mt-1 min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-sm leading-relaxed text-slate-700 [overflow-wrap:anywhere]">
                           {reviewQuestionResult.reviewAreaReview.evidence_summary}
                         </div>
                       </div>
                       <div className="mt-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Cited sections</div>
-                        <div className="mt-1 text-sm text-slate-700 font-mono">
+                        <div className="mt-1 min-w-0 max-w-full overflow-hidden whitespace-normal break-words font-mono text-sm text-slate-700 [overflow-wrap:anywhere]">
                           {reviewQuestionResult.reviewAreaReview.cited_sections.length > 0
                             ? reviewQuestionResult.reviewAreaReview.cited_sections.map((section) => `§${section}`).join(", ")
                             : "None"}
@@ -2204,11 +2247,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         {reviewQuestionResult.reviewAreaReview.gaps.length > 0 ? (
                           <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">
                             {reviewQuestionResult.reviewAreaReview.gaps.map((gap) => (
-                              <li key={gap}>{gap}</li>
+                              <li key={gap} className="whitespace-normal break-words [overflow-wrap:anywhere]">{gap}</li>
                             ))}
                           </ul>
                         ) : (
-                          <div className="mt-1 text-sm text-emerald-700">
+                          <div className="mt-1 min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-sm text-emerald-700 [overflow-wrap:anywhere]">
                             None identified — the extracted PDD content meets the current Quick Check rubric for this review area.
                           </div>
                         )}
@@ -2217,7 +2260,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Recommended follow-up documents</div>
                         <ul className="mt-1 list-disc pl-5 text-sm leading-relaxed text-slate-700">
                           {reviewQuestionResult.reviewAreaReview.recommended_follow_up_documents.map((item) => (
-                            <li key={item}>{item}</li>
+                            <li key={item} className="whitespace-normal break-words [overflow-wrap:anywhere]">{item}</li>
                           ))}
                         </ul>
                       </div>
@@ -2226,9 +2269,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </p>
                     </div>
                   ) : null}
-                  <div className="mt-4">
+                  <div className="mt-4 min-w-0 max-w-full overflow-hidden">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — title matching)</div>
-                    <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Quick Check matches section titles using your question, with limited methodology-aware fallback for certain review areas.</p>
+                    <p className="mt-1 min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-xs text-slate-500 [overflow-wrap:anywhere]">
+                      Headings extracted from the uploaded PDD. Quick Check now checks exact titles, normalized titles, review-area aliases, and a conservative semantic fallback before returning no document-grounded evidence.
+                    </p>
                     {reviewQuestionResult.matchedHeadings.length > 0 ? (
                       <div className="mt-3 space-y-2">
                         {reviewQuestionResult.matchedHeadings.map((h) => {
@@ -2238,14 +2283,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               key={h.sectionNumber}
                               type="button"
                               onClick={() => handleHeadingClick(h)}
-                              className={`w-full rounded-xl border px-4 py-3 text-left transition ${isSelected ? "border-sky-400 bg-sky-100" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}
+                              className={`min-w-0 max-w-full overflow-hidden w-full rounded-xl border px-4 py-3 text-left transition ${isSelected ? "border-sky-400 bg-sky-100" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}
                             >
-                              <div className="flex items-baseline gap-2">
+                              <div className="flex min-w-0 max-w-full items-baseline gap-2 overflow-hidden">
                                 <span className="font-mono text-xs font-semibold text-sky-700">§{h.sectionNumber}</span>
-                                <span className="text-sm font-medium text-slate-900">{h.title}</span>
+                                <span className="min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-sm font-medium text-slate-900 [overflow-wrap:anywhere]">{h.title}</span>
                               </div>
                               {h.bodyPreview ? (
-                                <div className="mt-1.5 text-xs leading-relaxed text-slate-600 line-clamp-2">{h.bodyPreview}</div>
+                                <div className="mt-1.5 min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-xs leading-relaxed text-slate-600 line-clamp-2 [overflow-wrap:anywhere]">{h.bodyPreview}</div>
                               ) : null}
                               <div className="mt-1 text-[10px] text-slate-400">Click to select / copy reference</div>
                             </button>
@@ -2258,7 +2303,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           No matching document section found.
                         </div>
                         {reviewQuestionResult.noMatchExplanation ? (
-                          <div className="text-xs leading-relaxed text-amber-800">
+                          <div className="min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-xs leading-relaxed text-amber-800 [overflow-wrap:anywhere]">
                             {reviewQuestionResult.noMatchExplanation}
                           </div>
                         ) : null}
@@ -2266,9 +2311,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     )}
 
                     {selectedHeading ? (
-                      <div className="mt-3 rounded-xl border border-sky-300 bg-white p-4">
-                        <div className="text-xs font-semibold text-sky-700">Selected: §{selectedHeading.sectionNumber} {selectedHeading.title}</div>
-                        <div className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-slate-700 border border-slate-100 bg-slate-50 p-2 rounded">
+                      <div className="mt-3 min-w-0 max-w-full overflow-hidden rounded-xl border border-sky-300 bg-white p-4">
+                        <div className="min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-xs font-semibold text-sky-700 [overflow-wrap:anywhere]">Selected: §{selectedHeading.sectionNumber} {selectedHeading.title}</div>
+                        <div className="mt-2 max-h-40 min-w-0 max-w-full overflow-auto whitespace-pre-wrap break-words border border-slate-100 bg-slate-50 p-2 text-sm leading-relaxed text-slate-700 rounded [overflow-wrap:anywhere]">
                           {selectedHeading.bodyText || selectedHeading.bodyPreview}
                         </div>
                         <div className="mt-2 text-[10px] text-slate-500">Reference copied to clipboard. Use in full review for evidence citation.</div>
@@ -2280,7 +2325,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         <summary className="cursor-pointer text-slate-500">Show all {reviewQuestionResult.headingIndex.length} headings from document</summary>
                         <div className="mt-2 grid gap-1">
                           {reviewQuestionResult.headingIndex.slice(0, 12).map((h) => (
-                            <button key={h.sectionNumber} type="button" onClick={() => handleHeadingClick(h)} className="text-left text-[11px] text-slate-600 hover:text-sky-700 font-mono">§{h.sectionNumber} {h.title}</button>
+                            <button key={h.sectionNumber} type="button" onClick={() => handleHeadingClick(h)} className="min-w-0 max-w-full overflow-hidden whitespace-normal break-words text-left text-[11px] text-slate-600 hover:text-sky-700 font-mono [overflow-wrap:anywhere]">§{h.sectionNumber} {h.title}</button>
                           ))}
                         </div>
                       </details>

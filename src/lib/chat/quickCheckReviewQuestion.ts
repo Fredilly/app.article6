@@ -27,6 +27,15 @@ export type ReviewArea =
 
 export type QuickCheckPath = "claim_to_requirement_match" | "review_question_answering";
 
+export type ReviewQuestionStatus =
+  | "strong_evidence_found"
+  | "partial_evidence_found"
+  | "section_found_evidence_weak"
+  | "no_document_grounded_evidence"
+  | "extractor_uncertain";
+
+export type ReviewQuestionMatchStage = "exact_heading" | "normalized_heading" | "alias_heading" | "semantic_fallback" | "none";
+
 export type SectionMatchResult = {
   section: string;
   headingTitle: string;
@@ -68,6 +77,8 @@ export type ReviewQuestionDiagnostic = {
 export type ReviewQuestionResult = {
   path: QuickCheckPath;
   reviewArea: ReviewArea;
+  status: ReviewQuestionStatus;
+  matchStage: ReviewQuestionMatchStage;
   methodologyId: string;
   methodologyVersion: string;
   relevantSections: string[];
@@ -141,6 +152,40 @@ const REVIEW_AREA_LABELS: Record<ReviewArea, string> = {
   general: "General review",
 };
 
+const REVIEW_AREA_ALIASES: Record<ReviewArea, string[]> = {
+  additionality: [],
+  baseline: [],
+  boundary: [],
+  deviations: [
+    "methodology deviations",
+    "2.6 methodology deviations",
+    "deviation from methodology",
+  ],
+  leakage: [
+    "leakage",
+    "leakage management",
+    "3.3 leakage",
+    "activity shifting leakage",
+  ],
+  monitoring: [
+    "monitoring plan",
+    "4.3 monitoring plan",
+    "monitoring procedures",
+    "monitoring approach",
+  ],
+  right_of_use: [],
+  stakeholder: [
+    "stakeholder comments",
+    "stakeholder consultation",
+    "project awareness",
+    "fpic",
+    "free prior and informed consent",
+    "grievance procedure",
+    "community meetings",
+  ],
+  general: [],
+};
+
 const VM0007_STYLE_IDS = new Set(["VM0007", "PD_REDD_V1_130"]);
 
 function isVm0007StylePdd(methodologyId: string, rawPddText?: string): boolean {
@@ -205,7 +250,7 @@ export function classifyReviewArea(claimText: string): ReviewArea {
   if (/deviations|departure|variance|deviation/i.test(normalized)) return "deviations";
   if (/leakage\s+risk|activity\s+shifting|LK-ASU|displacement/i.test(normalized)) return "leakage";
   if (/monitoring|sampling|plot|measur/i.test(normalized)) return "monitoring";
-  if (/stakeholder|consultation|participation|local communities|community engagement|community consultation/i.test(normalized)) return "stakeholder";
+  if (/stakeholder|consultation|participation|local communities|community engagement|community consultation|fpic|free prior and informed consent|grievance procedure|community meetings|project awareness/i.test(normalized)) return "stakeholder";
   return "general";
 }
 
@@ -228,6 +273,12 @@ const CLAIM_STOP_WORDS = new Set([
 
 const MAX_PRIMARY_SECTIONS = 3;
 const HEADING_MATCH_MIN_COVERAGE = 0.6;
+
+type ReviewQuestionSectionResolution = {
+  matchedHeadings: DocumentHeading[];
+  rejectedMatches: RejectedHeadingQueryMatch[];
+  matchStage: ReviewQuestionMatchStage;
+};
 
 export function extractClaimKeywords(claimText: string): { phrases: string[]; words: string[] } {
   const cleaned = claimText
@@ -257,6 +308,189 @@ function isReasonableSectionId(num: string): boolean {
   return /^\d+(?:\.\d+)*$/.test(num);
 }
 
+function normalizeReviewText(text: string): string {
+  return text.toLowerCase().replace(/[^\w\s.-]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function reviewAreaAliasKeywords(area: ReviewArea): string[] {
+  return REVIEW_AREA_ALIASES[area] ?? [];
+}
+
+function uniqueHeadings(headings: DocumentHeading[]): DocumentHeading[] {
+  const seen = new Set<string>();
+  return headings.filter((heading) => {
+    const key = `${heading.sectionNumber}::${heading.title}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function withMonitoringAncestors(headings: DocumentHeading[], reviewArea: ReviewArea, headingIndex: DocumentHeading[]): DocumentHeading[] {
+  if (reviewArea !== "monitoring" || headings.length === 0) return headings;
+  const expanded = [...headings];
+  for (const heading of headings) {
+    const parts = heading.sectionNumber.split(".");
+    if (parts.length < 2) continue;
+    for (let depth = parts.length - 1; depth >= 1; depth -= 1) {
+      const parentSection = parts.slice(0, depth).join(".");
+      const parent = headingIndex.find((candidate) =>
+        candidate.sectionNumber === parentSection && candidate.normalizedTitle.includes("monitoring"),
+      );
+      if (parent) expanded.push(parent);
+    }
+  }
+  return uniqueHeadings(expanded).sort(
+    (left, right) => left.sectionNumber.localeCompare(right.sectionNumber, undefined, { numeric: true }),
+  );
+}
+
+function exactHeadingMatches(headings: DocumentHeading[], claimText: string): DocumentHeading[] {
+  const normalizedClaim = normalizeReviewText(
+    claimText
+      .replace(CLAIM_PREFIX_RE, "")
+      .replace(/\?/g, "")
+      .replace(LEADING_ARTICLE_RE, "")
+      .trim(),
+  );
+  if (!normalizedClaim) return [];
+  return headings.filter((heading) => heading.normalizedTitle === normalizedClaim);
+}
+
+function aliasHeadingMatches(headings: DocumentHeading[], aliases: string[]): DocumentHeading[] {
+  const normalizedAliases = aliases.map(normalizeReviewText).filter(Boolean);
+  if (normalizedAliases.length === 0) return [];
+  return headings.filter((heading) =>
+    normalizedAliases.some((alias) => heading.normalizedTitle === alias || heading.normalizedTitle.includes(alias)),
+  );
+}
+
+function scoreSemanticHeading(
+  heading: DocumentHeading,
+  reviewArea: ReviewArea,
+  searchTerms: string[],
+  claimKeywords: { phrases: string[]; words: string[] },
+): number {
+  const titleText = heading.normalizedTitle;
+  const bodyText = heading.normalizedBodyText;
+  let score = 0;
+
+  for (const term of searchTerms) {
+    const normalizedTerm = normalizeReviewText(term);
+    if (!normalizedTerm) continue;
+    if (titleText.includes(normalizedTerm)) {
+      score += normalizedTerm.includes(" ") ? 8 : 4;
+      continue;
+    }
+    if (bodyText.includes(normalizedTerm)) {
+      score += normalizedTerm.includes(" ") ? 4 : 2;
+    }
+  }
+
+  for (const phrase of claimKeywords.phrases) {
+    const normalizedPhrase = normalizeReviewText(phrase);
+    if (!normalizedPhrase) continue;
+    if (titleText.includes(normalizedPhrase)) score += 5;
+    else if (bodyText.includes(normalizedPhrase)) score += 2;
+  }
+
+  for (const word of claimKeywords.words) {
+    const normalizedWord = normalizeReviewText(word);
+    if (!normalizedWord) continue;
+    if (titleText.includes(normalizedWord)) score += 2;
+    else if (bodyText.includes(normalizedWord)) score += 1;
+  }
+
+  if (reviewArea === "monitoring") {
+    if (heading.sectionNumber === "4.3" && titleText.includes("monitoring plan")) score += 16;
+    if (titleText.includes("monitoring equipment") && !titleText.includes("monitoring plan")) score -= 10;
+  }
+
+  if (reviewArea === "stakeholder" && /(fpic|free prior and informed consent|grievance procedure|community meetings|project awareness)/.test(`${titleText} ${bodyText}`)) {
+    score += 6;
+  }
+
+  return score;
+}
+
+function semanticFallbackMatches(
+  headings: DocumentHeading[],
+  reviewArea: ReviewArea,
+  searchTerms: string[],
+  claimKeywords: { phrases: string[]; words: string[] },
+): DocumentHeading[] {
+  return headings
+    .map((heading) => ({
+      heading,
+      score: scoreSemanticHeading(heading, reviewArea, searchTerms, claimKeywords),
+    }))
+    .filter((entry) => entry.score >= 6)
+    .sort((left, right) => right.score - left.score || left.heading.sectionNumber.localeCompare(right.heading.sectionNumber, undefined, { numeric: true }))
+    .map((entry) => entry.heading);
+}
+
+function resolveReviewQuestionSections(input: {
+  headingIndex: DocumentHeading[];
+  claimText: string;
+  reviewArea: ReviewArea;
+  methodologyId: string;
+  rawPddText?: string;
+}): ReviewQuestionSectionResolution {
+  const aliases = reviewAreaAliasKeywords(input.reviewArea);
+  const reviewAreaKeywords = reviewAreaKeywordsForInput({
+    reviewArea: input.reviewArea,
+    methodologyId: input.methodologyId,
+    rawPddText: input.rawPddText,
+  });
+  const claimKeywords = extractClaimKeywords(input.claimText);
+  const searchTerms = [...new Set([...reviewAreaKeywords, ...aliases, ...claimKeywords.phrases, ...claimKeywords.words])];
+
+  const exactMatches = uniqueHeadings(exactHeadingMatches(input.headingIndex, input.claimText));
+  if (exactMatches.length > 0) {
+    return { matchedHeadings: withMonitoringAncestors(exactMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "exact_heading" };
+  }
+
+  const normalizedMatches = uniqueHeadings(filterPddHeadingsByQuery(input.headingIndex, input.claimText, []));
+  if (normalizedMatches.length > 0) {
+    return { matchedHeadings: withMonitoringAncestors(normalizedMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "normalized_heading" };
+  }
+
+  const aliasMatches = uniqueHeadings([
+    ...aliasHeadingMatches(input.headingIndex, aliases),
+    ...filterPddHeadingsByQuery(input.headingIndex, input.claimText, [...reviewAreaKeywords, ...aliases]),
+  ]);
+  if (aliasMatches.length > 0) {
+    return { matchedHeadings: withMonitoringAncestors(aliasMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "alias_heading" };
+  }
+
+  const semanticMatches = uniqueHeadings(semanticFallbackMatches(input.headingIndex, input.reviewArea, searchTerms, claimKeywords));
+  if (semanticMatches.length > 0) {
+    return { matchedHeadings: withMonitoringAncestors(semanticMatches, input.reviewArea, input.headingIndex), rejectedMatches: [], matchStage: "semantic_fallback" };
+  }
+
+  const rejectedMatches = input.rawPddText
+    ? findRejectedHeadingMatches(input.rawPddText, input.claimText || "", [...reviewAreaKeywords, ...aliases])
+    : [];
+  return { matchedHeadings: [], rejectedMatches, matchStage: "none" };
+}
+
+function deriveReviewQuestionStatus(input: {
+  matchedHeadings: DocumentHeading[];
+  headingIndex: DocumentHeading[];
+  rejectedMatches: RejectedHeadingQueryMatch[];
+  matchStage: ReviewQuestionMatchStage;
+  reviewAreaReview?: ReviewRubricResult;
+}): ReviewQuestionStatus {
+  if (input.reviewAreaReview?.verdict === "supported") return "strong_evidence_found";
+  if (input.reviewAreaReview?.verdict === "partial") return "partial_evidence_found";
+  if (input.reviewAreaReview?.verdict === "missing" && input.matchedHeadings.length > 0) return "section_found_evidence_weak";
+  if (input.matchedHeadings.length > 0) {
+    return input.matchStage === "semantic_fallback" ? "partial_evidence_found" : "section_found_evidence_weak";
+  }
+  if (input.rejectedMatches.length > 0 || input.headingIndex.length === 0) return "extractor_uncertain";
+  return "no_document_grounded_evidence";
+}
+
 export function findMatchedSectionNumbers(
   rawPddText: string,
   reviewArea: ReviewArea,
@@ -264,11 +498,13 @@ export function findMatchedSectionNumbers(
   methodologyId = "",
 ): string[] {
   if (!claimText?.trim()) return [];
-  return filterPddHeadingsByQuery(
-    buildPddHeadingIndex(rawPddText),
+  return resolveReviewQuestionSections({
+    headingIndex: buildPddHeadingIndex(rawPddText),
     claimText,
-    reviewAreaKeywordsForInput({ reviewArea, methodologyId, rawPddText }),
-  )
+    reviewArea,
+    methodologyId,
+    rawPddText,
+  }).matchedHeadings
     .filter((heading) => isReasonableSectionId(heading.sectionNumber))
     .slice(0, MAX_PRIMARY_SECTIONS)
     .map((heading) => heading.sectionNumber);
@@ -359,20 +595,20 @@ export function buildReviewQuestionResult(input: {
   evidenceDocumentType?: string;
 }): ReviewQuestionResult {
   const reviewArea = classifyReviewArea(input.claimText);
-  const reviewAreaKeywords = reviewAreaKeywordsForInput({
+
+  // Heading extraction remains the source of truth from the uploaded document.
+  // Matching runs through exact, normalized, alias, and semantic fallback stages against
+  // a cleaned heading layer while preserving the original extracted text for diagnostics.
+  const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
+  const sectionResolution = resolveReviewQuestionSections({
+    headingIndex,
+    claimText: input.claimText || "",
     reviewArea,
     methodologyId: input.methodologyId,
     rawPddText: input.rawPddText,
   });
-
-  // Heading extraction remains the source of truth from the uploaded document.
-  // Question text primarily matches section titles, with limited review-area and methodology-aware fallback keywords for supported areas.
-  const headingIndex: DocumentHeading[] = input.rawPddText ? buildPddHeadingIndex(input.rawPddText) : [];
-  const matchedHeadings = filterPddHeadingsByQuery(headingIndex, input.claimText || "", reviewAreaKeywords);
-  const rejectedMatches =
-    matchedHeadings.length === 0 && input.rawPddText
-      ? findRejectedHeadingMatches(input.rawPddText, input.claimText || "", reviewAreaKeywords)
-      : [];
+  const matchedHeadings = sectionResolution.matchedHeadings;
+  const rejectedMatches = sectionResolution.rejectedMatches;
   const noMatchExplanation = matchedHeadings.length === 0 ? buildNoMatchExplanation(rejectedMatches) : undefined;
 
   const relevantSections = matchedHeadings.map((h) => h.sectionNumber);
@@ -388,6 +624,13 @@ export function buildReviewQuestionResult(input: {
     reviewArea === "baseline" || reviewArea === "right_of_use" || reviewArea === "stakeholder"
       ? evaluateReviewRubric({ reviewArea, matchedHeadings })
       : undefined;
+  const status = deriveReviewQuestionStatus({
+    matchedHeadings,
+    headingIndex,
+    rejectedMatches,
+    matchStage: sectionResolution.matchStage,
+    reviewAreaReview,
+  });
 
   const diagnostic = process.env.NODE_ENV !== "production" && input.rawPddText
     ? debugSectionExtraction(input.rawPddText)
@@ -403,6 +646,8 @@ export function buildReviewQuestionResult(input: {
   return {
     path: "review_question_answering",
     reviewArea,
+    status,
+    matchStage: sectionResolution.matchStage,
     methodologyId: input.methodologyId,
     methodologyVersion: input.methodologyVersion,
     relevantSections,
