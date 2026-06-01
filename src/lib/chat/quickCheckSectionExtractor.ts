@@ -704,6 +704,25 @@ function buildHeadingQueryTokens(query: string): string[] {
     .filter((token) => !HEADING_QUERY_LOW_SIGNAL_TOKENS.has(token));
 }
 
+function scoreBoundaryHeadingSpecificity(query: string, heading: DocumentHeading): number {
+  const normalizedQuery = stripHeadingQueryBoilerplate(query);
+  if (!normalizedQuery) return 0;
+
+  const asksForDirectBoundaryTerms =
+    /\bproject boundary\b|\bboundary\b|\bleakage belt\b|\breference region\b/.test(normalizedQuery);
+  if (!asksForDirectBoundaryTerms) return 0;
+
+  const title = heading.normalizedTitle;
+  let score = 0;
+
+  if (/\bproject boundary\b|\bboundary\b/.test(title)) score += 55;
+  if (/\breference region\b/.test(title)) score += 40;
+  if (/\bleakage belt\b/.test(title)) score += 30;
+  if (/\blocation\b/.test(title) && !/\bboundary\b/.test(title)) score -= 35;
+
+  return score;
+}
+
 function sharedPrefixLength(a: string, b: string): number {
   const max = Math.min(a.length, b.length);
   let idx = 0;
@@ -809,6 +828,7 @@ export function scoreHeadingAgainstQuery(
   score += contiguousBigrams * 35;
   score += Math.round(coverage * 100);
   score += fallbackKeywordMatches.reduce((total, keyword) => total + (keyword.includes(" ") ? 28 : 18), 0);
+  score += scoreBoundaryHeadingSpecificity(query, heading);
   if (queryTokens.length === 1 && exactTokenMatches.length > 0) score += 120;
   else if (queryTokens.length === 1 && softTokenMatches.length > 0) score += 80;
 
