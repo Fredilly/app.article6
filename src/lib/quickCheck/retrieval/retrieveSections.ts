@@ -8,8 +8,8 @@ import {
   type RejectedHeadingQueryMatch,
   type DocumentHeading,
 } from "@/lib/chat/quickCheckSectionExtractor";
-import type { ReviewRubricResult } from "@/lib/chat/quickCheckReviewRubric";
 import { parseDocumentText } from "@/lib/documentParsing";
+import { deriveReviewQuestionStatus } from "@/lib/quickCheck/evaluation/status";
 import type {
   BuildReviewQuestionSectionRetrievalInput,
   QuickCheckPath,
@@ -17,7 +17,6 @@ import type {
   ReviewQuestionDiagnostic,
   ReviewQuestionMatchStage,
   ReviewQuestionRetrievalResult,
-  ReviewQuestionStatus,
   SectionMatchResult,
 } from "@/lib/quickCheck/retrieval/types";
 
@@ -392,23 +391,6 @@ function resolveReviewQuestionSections(input: {
     ? findRejectedHeadingMatches(input.rawPddText, input.claimText || "", [...reviewAreaKeywords, ...aliases])
     : [];
   return { matchedHeadings: [], rejectedMatches, matchStage: "none" };
-}
-
-export function deriveReviewQuestionStatus(input: {
-  matchedHeadings: DocumentHeading[];
-  headingIndex: DocumentHeading[];
-  rejectedMatches: RejectedHeadingQueryMatch[];
-  matchStage: ReviewQuestionMatchStage;
-  reviewAreaReview?: ReviewRubricResult;
-}): ReviewQuestionStatus {
-  if (input.reviewAreaReview?.verdict === "supported") return "strong_evidence_found";
-  if (input.reviewAreaReview?.verdict === "partial") return "partial_evidence_found";
-  if (input.reviewAreaReview?.verdict === "missing" && input.matchedHeadings.length > 0) return "section_found_evidence_weak";
-  if (input.matchedHeadings.length > 0) {
-    return input.matchStage === "semantic_fallback" ? "partial_evidence_found" : "section_found_evidence_weak";
-  }
-  if (input.rejectedMatches.length > 0 || input.headingIndex.length === 0) return "extractor_uncertain";
-  return "no_document_grounded_evidence";
 }
 
 export function findMatchedSectionNumbers(
