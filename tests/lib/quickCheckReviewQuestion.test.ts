@@ -102,6 +102,13 @@ const BOUNDARY_RANKING_PDD = [
   "",
 ].join("\n");
 
+const REFERENCE_REGION_BOUNDARY_VARIANTS = [
+  "Does this PDD define the leakage belt and reference region?",
+  "Does the document explain the reference region boundary clearly?",
+  "Is the reference region described in the project boundary section?",
+  "Does the project boundary include the reference region and leakage belt?",
+] as const;
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -137,6 +144,10 @@ describe("detectReviewPath", () => {
 
   it("routes right-of-use questions with natural verbs like 'demonstrate' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD demonstrate legal right of use for the project area?")).toBe("review_question_answering");
+  });
+
+  it.each(REFERENCE_REGION_BOUNDARY_VARIANTS)("routes reference-region boundary variant to review_question_answering: %s", (question) => {
+    expect(detectReviewPath(question)).toBe("review_question_answering");
   });
 
   it("routes empty text to claim_to_requirement_match", () => {
@@ -197,6 +208,10 @@ describe("classifyReviewArea — boundary", () => {
 
   it("classifies 'geographic boundary'", () => {
     expect(classifyReviewArea("Does this PDD define the geographic boundary?")).toBe("boundary");
+  });
+
+  it.each(REFERENCE_REGION_BOUNDARY_VARIANTS)("classifies reference-region boundary variant as boundary: %s", (question) => {
+    expect(classifyReviewArea(question)).toBe("boundary");
   });
 });
 
@@ -713,6 +728,20 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.relevantSections[0]).toBe("2.3");
     expect(result.matchedHeadings[0]?.title).toBe("Project Boundary");
     expect(result.sectionContent["2.3"]).toContain("reference region");
+  });
+
+  it.each(REFERENCE_REGION_BOUNDARY_VARIANTS)("prefers Project Boundary for reference-region boundary variant: %s", (question) => {
+    const result = buildReviewQuestionResult({
+      claimText: question,
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: BOUNDARY_RANKING_PDD,
+    });
+
+    expect(result.path).toBe("review_question_answering");
+    expect(result.reviewArea).toBe("boundary");
+    expect(result.relevantSections[0]).toBe("2.3");
+    expect(result.matchedHeadings[0]?.title).toBe("Project Boundary");
   });
 
   it("preserves leakage ranking for activity shifting questions", () => {
