@@ -13,10 +13,10 @@
     "summary": "Define and implement an app-side project export standard covering uploads, evidence inventory, fragments, extracted facts, candidate links, coverage matrix, reviewer decisions, provenance, and premium PDF/ZIP exports. The export must be beautiful enough to sell, structured enough to defend, and conservative enough to trust.",
     "current_focus": [
       "Maintain the export-conventions contract across new export surfaces",
-      "Cover Quick Check extraction edge case tests",
       "Responsive UI QA for reconciliation and decision badges"
     ],
     "not_active_now": [
+      "Quick Check extraction edge case tests (done)",
       "Refactoring extraction or export code — documentation and planning only in RC0-RC1",
       "Changes to canonical methodology metadata or pack encoding",
       "Unbounded AI classification, auto-verification, or final evidence sufficiency decisions"

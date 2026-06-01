@@ -213,10 +213,10 @@ Define and implement an app-side project export standard covering uploads, evide
 
 Current focus:
 - Maintain the export-conventions contract across new export surfaces
-- Cover Quick Check extraction edge case tests
 - Responsive UI QA for reconciliation and decision badges
 
 Not active now:
+- Quick Check extraction edge case tests (done)
 - Refactoring extraction or export code — documentation and planning only in RC0-RC1
 - Changes to canonical methodology metadata or pack encoding
 - Unbounded AI classification, auto-verification, or final evidence sufficiency decisions
