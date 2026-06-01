@@ -171,6 +171,10 @@ describe("classifyReviewArea — boundary", () => {
     expect(classifyReviewArea("Does this PDD define the project area, leakage belt, and reference region?")).toBe("boundary");
   });
 
+  it("keeps boundary precedence when 'leakage belt' and 'reference region' appear together", () => {
+    expect(classifyReviewArea("Does this PDD define the leakage belt and reference region?")).toBe("boundary");
+  });
+
   it("classifies 'reference region'", () => {
     expect(classifyReviewArea("Does this PDD define the reference region?")).toBe("boundary");
   });
@@ -207,6 +211,10 @@ describe("classifyReviewArea — leakage", () => {
 
   it("classifies standalone 'leakage belt' as boundary when not paired with project area or reference region", () => {
     expect(classifyReviewArea("Please review the leakage belt analysis.")).toBe("boundary");
+  });
+
+  it("does not treat non-leakage accounting issues as leakage questions", () => {
+    expect(classifyReviewArea("Does this PDD describe a non-leakage accounting issue?")).toBe("general");
   });
 });
 

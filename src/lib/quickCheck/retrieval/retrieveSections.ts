@@ -87,6 +87,7 @@ export function detectReviewPath(claimText: string): QuickCheckPath {
 
 export function classifyReviewArea(claimText: string): ReviewArea {
   const normalized = claimText.trim().toLowerCase();
+  const hasNonLeakageQualifier = /\bnon[-\s]+leakage\b/i.test(normalized);
 
   const hasBoundaryPair =
     /\bleakage\s+belt\b/i.test(normalized) &&
@@ -99,7 +100,7 @@ export function classifyReviewArea(claimText: string): ReviewArea {
   if (/legal authority|legal right of use|property rights|ownership|use rights|right of use|land tenure|land and resource use rights|resource use rights|carbon right|entitlement|compliance with laws|statutes|regulatory frameworks|legal status/i.test(normalized)) return "right_of_use";
   if (/leakage\s+belt\b|reference\s+region\b|RRD\b|boundary|geographic\s+boundary|project\s+area|area\s+of|spatial|geographic|polygon/i.test(normalized)) return "boundary";
   if (/deviations|departure|variance|deviation/i.test(normalized)) return "deviations";
-  if (/\bleakage\b|activity\s+shifting|LK-ASU|displacement/i.test(normalized)) return "leakage";
+  if (!hasNonLeakageQualifier && (/\bleakage\b|activity\s+shifting|LK-ASU|displacement/i.test(normalized))) return "leakage";
   if (/monitoring|sampling|plot|measur/i.test(normalized)) return "monitoring";
   if (/stakeholder|consultation|participation|local communities|community engagement|community consultation|fpic|free prior and informed consent|grievance procedure|community meetings|project awareness/i.test(normalized)) return "stakeholder";
   return "general";
