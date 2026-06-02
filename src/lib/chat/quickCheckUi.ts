@@ -151,9 +151,9 @@ function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
 function buildSignalSummary(signals: ExtractionPreviewViewModel["signals"]): string | undefined {
   if (!signals.length) return undefined;
   const labels = signals.map((signal) => signal.label);
-  if (labels.length === 1) return `Detected signal: ${labels[0]}.`;
-  if (labels.length === 2) return `Detected signals include ${labels[0]} and ${labels[1]}.`;
-  return `Detected signals include ${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}.`;
+  if (labels.length === 1) return `We found a strong signal for ${labels[0].toLowerCase()}.`;
+  if (labels.length === 2) return `We found strong signals for ${labels[0].toLowerCase()} and ${labels[1].toLowerCase()}.`;
+  return `We found strong signals this document includes ${labels.slice(0, -1).join(", ").toLowerCase()}, and ${labels[labels.length - 1].toLowerCase()}.`;
 }
 
 export function buildExtractionPreviewViewModel(input: {
@@ -193,7 +193,7 @@ export function buildExtractionPreviewViewModel(input: {
   const warning =
     input.methodologyResolution?.status === "single" && methodologyConfidence !== "low"
       ? undefined
-      : "Methodology was not confidently detected. Matches below may need review.";
+      : "Methodology was not confidently detected.";
 
   return {
     fileName: input.fileName?.trim() || undefined,
@@ -207,7 +207,7 @@ export function buildExtractionPreviewViewModel(input: {
     warning,
     signalSummary:
       buildSignalSummary(signals) ??
-      (input.analysis.parsedEvidenceLabels.length > 0 ? "We read the file, but did not extract grounded review signals yet." : undefined),
+      (input.analysis.parsedEvidenceLabels.length > 0 ? "We could read the file, but did not extract grounded review signals yet." : undefined),
     signals,
   };
 }
