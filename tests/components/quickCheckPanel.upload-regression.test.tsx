@@ -199,7 +199,8 @@ describe("QuickCheckPanel upload regression", () => {
 
     await flushUi();
 
-    expect(container.textContent).toContain("Weak extraction");
+    expect(container.textContent).toContain("Document Q&A");
+    expect(container.textContent).toContain("raw text: unavailable");
 
     await uploadEvidence(
       new File(
@@ -214,6 +215,7 @@ describe("QuickCheckPanel upload regression", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("fresh-monitoring-report.pdf");
     expect(text).toContain("Extraction preview");
-    expect(text).not.toContain("Weak extraction");
+    expect(text).not.toContain("Document Q&A");
+    expect(text).not.toContain("raw text: unavailable");
   });
 });

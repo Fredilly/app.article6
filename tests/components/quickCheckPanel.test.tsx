@@ -982,7 +982,7 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     });
 
     const chip = Array.from(container.querySelectorAll("button")).find((node) =>
-      node.textContent?.includes("The monitoring report covers the full reporting period."),
+      node.textContent?.includes("Does the monitoring report cover the full reporting period?"),
     );
     expect(chip).toBeTruthy();
 
@@ -990,7 +990,7 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
       chip?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    expect(claimInput().value).toBe("The monitoring report covers the full reporting period.");
+    expect(claimInput().value).toBe("Does the monitoring report cover the full reporting period?");
   });
 
   it("keeps the CTA disabled until a document is present", async () => {
@@ -1199,7 +1199,7 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     expect(primaryCta().disabled).toBe(true);
 
     await act(async () => {
-      clickButton("The monitoring report covers the full reporting period.");
+      clickButton("Does the monitoring report cover the full reporting period?");
     });
     expect(primaryCta().disabled).toBe(true);
 
@@ -1233,7 +1233,7 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     const inventorySelect = savedEvidenceSelect();
 
     await act(async () => {
-      clickButton("The monitoring report covers the full reporting period.");
+      clickButton("Does the monitoring report cover the full reporting period?");
       inventorySelect.value = "ev-1";
       inventorySelect.dispatchEvent(new Event("change", { bubbles: true }));
     });
@@ -1245,7 +1245,7 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
       clickButton("Run quick check");
     });
 
-    expect(container.textContent).toContain("The monitoring report covers the full reporting period.");
+    expect(container.textContent).toContain("Does the monitoring report cover the full reporting period?");
     expect(container.textContent).toContain("Likely requirement matches");
     expect(container.textContent).toContain("AR-ACM0003 · v02-0");
     expect(container.textContent).toContain("R-1-0001");
@@ -1594,7 +1594,7 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     });
 
     await act(async () => {
-      clickButton("The boundary description matches the mapped project area.");
+      clickButton("Does the boundary description match the mapped project area?");
       openOptions();
     });
 

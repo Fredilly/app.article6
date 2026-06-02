@@ -39,6 +39,8 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => {
 
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
 
+const REVIEW_FIELD_CLAIM_STYLE_TEXT = "The boundary description matches the mapped project area.";
+
 describe("QuickCheckPanel review-question fallback", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
@@ -136,7 +138,12 @@ describe("QuickCheckPanel review-question fallback", () => {
     global.fetch = jest.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
       if (url.includes("/api/methods/inventory")) {
-        return new Response(JSON.stringify({ methods: [{ code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] }] }), { status: 200 });
+        return new Response(JSON.stringify({
+          methods: [
+            { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
+            { code: "ACM0010", latestVersion: "v01-0", versions: ["v01-0"] },
+          ],
+        }), { status: 200 });
       }
       if (url.includes("/api/quick-check/semantic-evidence")) {
         return new Response(JSON.stringify({
@@ -213,6 +220,35 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).toContain("recovery suppressed: yes");
     expect(text).not.toContain("No valid analysis path");
     expect(text).not.toContain("No valid analysis path in VM0007");
+  });
+
+  it("routes claim-style text entered in the Review question field to Document Q&A instead of methodology fallback", async () => {
+    seedSession({
+      claimText: REVIEW_FIELD_CLAIM_STYLE_TEXT,
+      filename: "document-qa-messy.pdf",
+      methodologyId: "ACM0010",
+      methodologyVersion: "v01-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Document Q&A");
+    expect(text).toContain("route: document_question");
+    expect(text).toContain("raw text: available");
+    expect(text).toContain("recovery suppressed: yes");
+    expect(text).not.toContain("No valid analysis path");
+    expect(text).not.toContain("No valid analysis path in ACM0010");
   });
 
   it("keeps Document Q&A primary for a negative document question when raw text exists but no relevant evidence matches", async () => {
