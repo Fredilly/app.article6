@@ -1,4 +1,5 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
+import type { QuickCheckMethodologyResolution } from "@/lib/chat/quickCheckMethodology";
 import { prioritizeMethodologyMentions } from "@/lib/chat/quickCheckMethodology";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
@@ -35,6 +36,22 @@ export type QuickCheckUiNextAction = {
   kind: QuickCheckUiNextActionKind;
   label: string;
   description: string;
+};
+
+export type ExtractionPreviewConfidence = "high" | "medium" | "low" | "unknown";
+
+export type ExtractionPreviewViewModel = {
+  fileName?: string;
+  detectedDocumentType?: string;
+  detectedMethodology?: string;
+  methodologyConfidence?: ExtractionPreviewConfidence;
+  warning?: string;
+  signalSummary?: string;
+  signals: Array<{
+    label: string;
+    summary?: string;
+    confidence?: ExtractionPreviewConfidence;
+  }>;
 };
 
 export type QuickCheckUiResult = {
@@ -77,6 +94,122 @@ function previewPriority(fact: QuickCheckEvidenceFact): number {
   if (fact.category === "monitoring-records") return 8;
   if (fact.category === "plot-count") return 9;
   return 10;
+}
+
+function confidenceBucket(value: number | null | undefined): ExtractionPreviewConfidence {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return "unknown";
+  if (value >= 0.7) return "high";
+  if (value >= 0.45) return "medium";
+  return "low";
+}
+
+function documentTypeLabel(input: { fileName?: string | null; rawText?: string | null; fallback?: string | null }): string {
+  const fallback = input.fallback?.trim() ?? "";
+  if (fallback === "Workbook" || fallback === "Image") return fallback;
+
+  const haystack = `${input.fileName ?? ""}\n${input.rawText ?? ""}`.toLowerCase();
+  if (/\bvalidation report\b/.test(haystack)) return "Validation Report";
+  if (/\bmonitoring report\b/.test(haystack)) return "Monitoring Report";
+  if (/\bproject design document\b|\bpdd\b/.test(haystack)) return "Project Design Document";
+
+  if (fallback && fallback !== "PDD / PDF" && fallback !== "Document" && fallback !== "Unknown document") {
+    return fallback;
+  }
+
+  return "Unknown document type";
+}
+
+function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
+  switch (category) {
+    case "boundary":
+      return "Project boundary";
+    case "coordinates":
+      return "Coordinates";
+    case "mapped-area":
+      return "Mapped project area";
+    case "project-location":
+      return "Project location";
+    case "monitoring-plan":
+      return "Monitoring plan";
+    case "workbook-reference":
+      return "Workbook reference";
+    case "monitoring-evidence":
+      return "Validation evidence";
+    case "plot-count":
+      return "Plot count";
+    case "reporting-period":
+      return "Reporting period";
+    case "monitoring-records":
+      return "Monitoring records";
+    case "qa-summary":
+      return "Stakeholder consultation";
+    default:
+      return "Document signal";
+  }
+}
+
+function buildSignalSummary(signals: ExtractionPreviewViewModel["signals"]): string | undefined {
+  if (!signals.length) return undefined;
+  const labels = signals.map((signal) => signal.label);
+  if (labels.length === 1) return `Detected signal: ${labels[0]}.`;
+  if (labels.length === 2) return `Detected signals include ${labels[0]} and ${labels[1]}.`;
+  return `Detected signals include ${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}.`;
+}
+
+export function buildExtractionPreviewViewModel(input: {
+  analysis: QuickCheckEvidenceAnalysis;
+  fileName?: string | null;
+  methodologyResolution?: QuickCheckMethodologyResolution | null;
+}): ExtractionPreviewViewModel {
+  const signals = dedupe(
+    [...input.analysis.facts]
+      .sort(
+        (left, right) =>
+          previewPriority(left) - previewPriority(right) ||
+          Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
+          left.summary.localeCompare(right.summary),
+      )
+      .map((fact) => JSON.stringify({
+        label: signalLabel(fact.category),
+        summary: formatFactPreview(fact, { useDetail: true }),
+        confidence: confidenceBucket(input.analysis.extractionConfidence),
+      })),
+  )
+    .slice(0, 4)
+    .map((entry) => JSON.parse(entry) as ExtractionPreviewViewModel["signals"][number]);
+
+  let detectedMethodology = "Not confidently detected";
+  let methodologyConfidence: ExtractionPreviewConfidence =
+    input.analysis.methodologyMentions.length > 0 ? confidenceBucket(input.analysis.extractionConfidence) : "unknown";
+
+  if (input.methodologyResolution?.status === "single") {
+    const matched = input.methodologyResolution.matchedMethods[0];
+    detectedMethodology = `${matched.methodologyId} · ${matched.methodologyVersion}`;
+    methodologyConfidence = confidenceBucket(input.analysis.extractionConfidence) === "low" ? "medium" : confidenceBucket(input.analysis.extractionConfidence);
+  } else if (input.methodologyResolution?.status === "multiple" || input.methodologyResolution?.status === "unsupported") {
+    methodologyConfidence = "low";
+  }
+
+  const warning =
+    input.methodologyResolution?.status === "single" && methodologyConfidence !== "low"
+      ? undefined
+      : "Methodology was not confidently detected. Matches below may need review.";
+
+  return {
+    fileName: input.fileName?.trim() || undefined,
+    detectedDocumentType: documentTypeLabel({
+      fileName: input.fileName,
+      rawText: input.analysis.rawPddText,
+      fallback: input.analysis.documentTypes[0],
+    }),
+    detectedMethodology,
+    methodologyConfidence,
+    warning,
+    signalSummary:
+      buildSignalSummary(signals) ??
+      (input.analysis.parsedEvidenceLabels.length > 0 ? "We read the file, but did not extract grounded review signals yet." : undefined),
+    signals,
+  };
 }
 
 function normalizeSignals(extraction: QuickCheckExtractionSnapshot): QuickCheckExtractionSignals {

@@ -43,7 +43,12 @@ import {
   resolveQuickCheckCandidates,
   type QuickCheckResolvedCandidate,
 } from "@/lib/chat/quickCheckResolver";
-import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
+import {
+  buildExtractionPreviewViewModel,
+  buildQuickCheckExtractionSnapshot,
+  deriveQuickCheckExtractionState,
+  normalizeQuickCheckUiResult,
+} from "@/lib/chat/quickCheckUi";
 import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
@@ -513,6 +518,27 @@ function extractionStateBadgeClass(value: "grounded" | "partial" | "weak"): stri
   return "border-rose-200 bg-rose-50 text-rose-800";
 }
 
+function confidenceLabel(value: "high" | "medium" | "low" | "unknown" | undefined): string {
+  if (value === "high") return "High";
+  if (value === "medium") return "Medium";
+  if (value === "low") return "Low";
+  return "Unknown";
+}
+
+function confidenceBarWidth(value: "high" | "medium" | "low" | "unknown" | undefined): string {
+  if (value === "high") return "100%";
+  if (value === "medium") return "68%";
+  if (value === "low") return "36%";
+  return "18%";
+}
+
+function confidenceBarTone(value: "high" | "medium" | "low" | "unknown" | undefined): string {
+  if (value === "high") return "bg-emerald-500";
+  if (value === "medium") return "bg-sky-500";
+  if (value === "low") return "bg-amber-500";
+  return "bg-slate-300";
+}
+
 function sourceModeLabel(sourceMode: QuickCheckSourceMode | null | undefined): string {
   if (sourceMode === "uploaded_file") return "Uploaded file";
   if (sourceMode === "saved_evidence") return "Saved evidence";
@@ -862,7 +888,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     return null;
   }, [extractionPreview, methodologyMismatch, methodologyResolution]);
   const showAdvancedOptions = showAdvanced || showSavedEvidence || showMethodology;
-  const extractionHighlights = extractionPreview?.extractedFacts.slice(0, 3) ?? [];
+  const extractionPreviewView = useMemo(
+    () =>
+      extractionState.analysis
+        ? buildExtractionPreviewViewModel({
+            analysis: extractionState.analysis,
+            fileName: selectedEvidenceLabel,
+            methodologyResolution,
+          })
+        : null,
+    [extractionState.analysis, methodologyResolution, selectedEvidenceLabel],
+  );
   const normalizedResult = useMemo(
     () =>
       renderedResult
@@ -1881,76 +1917,90 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <X className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="mt-3 rounded-[1.2rem] border border-slate-200 bg-white px-4 py-4">
+                  <div className="mt-3 rounded-[1.5rem] border border-slate-200 bg-white px-5 py-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <div className="text-sm font-medium text-slate-900">Extraction preview</div>
-                        <div className="mt-1 text-sm text-slate-600">Signal from this file.</div>
-                      </div>
+                      <div className="text-sm font-semibold text-slate-900">Extraction preview</div>
                       <div className="flex items-center gap-2">
-                        {extractionPreviewState ? (
-                          <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
-                            {extractionPreviewState.label}
+                        {extractionPreviewView ? (
+                          <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                            Grounded
                           </span>
                         ) : null}
                         {extractionState.loading ? <Loader2 className="h-4 w-4 animate-spin text-slate-400" /> : null}
                       </div>
                     </div>
 
-                    {extractionState.error ? (
-                      <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                        Extraction preview is unavailable right now. {extractionState.error}
+                    {extractionState.loading && !extractionPreviewView ? (
+                      <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                        Reading document...
                       </div>
-                    ) : extractionPreview ? (
+                    ) : extractionState.error || (extractionDiagnostic && ["file-too-large", "invalid-file", "upload-request-failed", "no-selectable-text", "parser-failed"].includes(extractionDiagnostic.code)) ? (
+                      <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                        {extractionDiagnostic?.message ?? `Extraction preview is unavailable right now. ${extractionState.error ?? ""}`.trim()} Try uploading a cleaner PDF or retrying the upload.
+                      </div>
+                    ) : extractionPreview && extractionPreviewView ? (
                       <>
-                        {!draft.methodologyId.trim() && methodologyResolution.status === "single" ? (
-                          <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-                            Primary detected methodology: {methodologyResolution.primaryMethodology?.supported ? methodologyResolution.primaryMethodology.matchedMethod.methodologyId : methodologyResolution.matchedMethods[0].methodologyId}. Requirement matches are narrowed to {methodologyResolution.primaryMethodology?.supported ? methodologyResolution.primaryMethodology.matchedMethod.methodologyId : methodologyResolution.matchedMethods[0].methodologyId}.
-                            {methodologyResolution.primaryMethodology?.secondaryCanonicalKeys.length ? ` Secondary referenced methods: ${joinMethodologyLabels(methodologyResolution.primaryMethodology.secondaryCanonicalKeys)}.` : ""}
+                        {extractionPreviewView.warning ? (
+                          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
+                            {extractionPreviewView.warning}
                           </div>
                         ) : null}
-                        {!draft.methodologyId.trim() && methodologyResolution.status === "multiple" ? (
-                          <div className="mt-3 rounded-2xl border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900">
-                            Methodology needs confirmation. Requirement matches are limited to {joinMethodologyLabels(methodologyResolution.matchedMethods.map((method) => method.methodologyId))}.
-                          </div>
-                        ) : null}
-                        {!draft.methodologyId.trim() && methodologyResolution.status === "unsupported" ? (
-                          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                            Primary detected methodology: {methodologyResolution.primaryMethodology?.canonicalKey ?? joinMethodologyLabels(methodologyResolution.unsupportedCanonicalKeys)}. No matching method pack is available.
-                            {methodologyResolution.primaryMethodology?.secondaryCanonicalKeys.length ? ` Secondary referenced methods: ${joinMethodologyLabels(methodologyResolution.primaryMethodology.secondaryCanonicalKeys)}.` : ""}
-                          </div>
-                        ) : null}
-                        {!draft.methodologyId.trim() && methodologyResolution.status === "none" && (extractionPreview.signals?.parsedEvidenceCount ?? 0) > 0 ? (
-                          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                            No methodology detected. Requirement matches use broad matching and may be unrelated.
-                          </div>
-                        ) : null}
-                        <div className="mt-4 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">First signals</div>
-                            {extractionHighlights.length ? (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {extractionHighlights.map((fact) => (
-                                  <span key={fact} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                                    {fact}
-                                  </span>
-                                ))}
-                              </div>
+                        <div className="mt-4 grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+                          <div className="rounded-[1.25rem] bg-slate-50 px-4 py-4">
+                            <div className="text-xs font-medium text-slate-500">What the file appears to contain</div>
+                            {extractionPreviewView.signals.length ? (
+                              <>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {extractionPreviewView.signals.map((signal) => (
+                                    <span key={signal.label} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
+                                      {signal.label}
+                                    </span>
+                                  ))}
+                                </div>
+                                {extractionPreviewView.signalSummary ? (
+                                  <div className="mt-3 text-sm leading-6 text-slate-600">{extractionPreviewView.signalSummary}</div>
+                                ) : null}
+                              </>
                             ) : (
-                              <div className="mt-2 text-sm text-amber-900">
-                                Not enough usable signal yet.
+                              <div className="mt-3 text-sm text-slate-600">
+                                {extractionPreviewView.signalSummary ?? "We read the file, but did not extract grounded review signals yet."}
                               </div>
                             )}
                           </div>
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div className="grid gap-2 text-sm text-slate-700">
+                          <div className="rounded-[1.25rem] bg-slate-50 px-4 py-4">
+                            <div className="text-xs font-medium text-slate-500">File summary</div>
+                            <div className="mt-3 grid gap-3 text-sm text-slate-700">
                               <div>
-                                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Source</div>
-                                <div className="mt-1 font-medium text-slate-900">{sourceModeLabel(activeSourceMode)}</div>
+                                <div className="text-xs text-slate-500">File name</div>
+                                <div className="mt-1 break-words font-medium text-slate-900">
+                                  {extractionPreviewView.fileName || "Not detected"}
+                                </div>
                               </div>
                               <div>
-                                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document type</div>
-                                <div className="mt-1 font-medium text-slate-900">{extractionPreview.documentType}</div>
+                                <div className="text-xs text-slate-500">Detected document type</div>
+                                <div className="mt-1 font-medium text-slate-900">
+                                  {extractionPreviewView.detectedDocumentType || "Not detected"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-slate-500">Methodology detection</div>
+                                <div className="mt-1 font-medium text-slate-900">
+                                  {extractionPreviewView.detectedMethodology || "Not detected"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
+                                  <span>Confidence</span>
+                                  <span className="font-medium text-slate-700">
+                                    {confidenceLabel(extractionPreviewView.methodologyConfidence)}
+                                  </span>
+                                </div>
+                                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
+                                  <div
+                                    className={`h-full rounded-full ${confidenceBarTone(extractionPreviewView.methodologyConfidence)}`}
+                                    style={{ width: confidenceBarWidth(extractionPreviewView.methodologyConfidence) }}
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1959,29 +2009,29 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         <button
                           type="button"
                           onClick={() => setShowExtractionDetails((value) => !value)}
-                          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                          className="mt-4 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
                           aria-expanded={showExtractionDetails}
                         >
-                          {showExtractionDetails ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                          {showExtractionDetails ? "Hide extraction details" : "Show extraction details"}
+                          <span>View extraction details</span>
+                          {showExtractionDetails ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         </button>
 
                         {showExtractionDetails ? (
                           <div className="mt-4 grid gap-4 md:grid-cols-2">
                             <div>
-                              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction signal</div>
+                              <div className="text-xs font-medium text-slate-500">Extraction signal</div>
                               {extractionPreviewState ? (
                                 <>
-                                  <span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
+                                  <span className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
                                     {extractionPreviewState.label}
                                   </span>
-                                  <div className="mt-2 text-xs text-slate-500">{extractionPreviewState.description}</div>
+                                  <div className="mt-2 text-sm text-slate-600">{extractionPreviewState.description}</div>
                                 </>
                               ) : null}
                             </div>
                             <div>
-                              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Extraction diagnostic</div>
-                              <div className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
+                              <div className="text-xs font-medium text-slate-500">Extraction diagnostic</div>
+                              <div className="mt-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
                                 {extractionDiagnostic ? (
                                   <>
                                     <strong>{extractionDiagnostic.label}:</strong> {extractionDiagnostic.message}
@@ -1991,8 +2041,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 )}
                               </div>
                             </div>
+                            <div className="md:col-span-2">
+                              <div className="text-xs font-medium text-slate-500">Grounded signal details</div>
+                              <div className="mt-2 grid gap-2">
+                                {extractionPreviewView.signals.length ? (
+                                  extractionPreviewView.signals.map((signal) => (
+                                    <div key={`${signal.label}-${signal.summary}`} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                                      <div className="font-medium text-slate-900">{signal.label}</div>
+                                      {signal.summary ? <div className="mt-1 text-slate-600">{signal.summary}</div> : null}
+                                    </div>
+                                  ))
+                                ) : (
+                                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
+                                    No grounded signal details were extracted from the active source.
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                             <div>
-                              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Methodology mentions</div>
+                              <div className="text-xs font-medium text-slate-500">Methodology mentions</div>
                               <div className="mt-2 flex flex-wrap gap-2">
                                 {(extractionPreview.methodologyMentions.length ? extractionPreview.methodologyMentions : ["None detected"]).map((mention) => (
                                   <span key={mention} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
@@ -2002,7 +2069,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               </div>
                             </div>
                             <div className="md:col-span-2">
-                              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Warnings</div>
+                              <div className="text-xs font-medium text-slate-500">Warnings</div>
                               <div className="mt-2 grid gap-2">
                                 {(extractionPreview.warnings.length ? extractionPreview.warnings : ["No extraction warnings from the active source."]).map((warning) => (
                                   <div key={warning} className="text-sm text-slate-600">

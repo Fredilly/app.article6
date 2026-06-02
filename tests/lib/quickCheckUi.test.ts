@@ -1,5 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
-import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
+import {
+  buildExtractionPreviewViewModel,
+  buildQuickCheckExtractionSnapshot,
+  deriveQuickCheckExtractionState,
+  normalizeQuickCheckUiResult,
+} from "@/lib/chat/quickCheckUi";
 
 describe("quick check ui helpers", () => {
   it("builds a claim-relevant extraction snapshot", () => {
@@ -92,6 +97,111 @@ describe("quick check ui helpers", () => {
     });
 
     expect(snapshot.methodologyMentions).toEqual(["VM0007", "REDD+ Methodology Framework", "VMD0001", "VMD0006"]);
+  });
+
+  it("builds a grounded extraction preview view model from actual file output", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "fresh-monitoring-report.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "reporting-period",
+            category: "reporting-period",
+            summary: "The PDF states a monitoring or reporting period",
+            matchText: "reporting period stated",
+            sourceLabel: "fresh-monitoring-report.pdf",
+            detail: "Reporting period: 1 January 2025 to 31 December 2025.",
+          },
+          {
+            id: "monitoring",
+            category: "monitoring-evidence",
+            summary: "The project has documented monitoring evidence",
+            matchText: "monitoring evidence",
+            sourceLabel: "fresh-monitoring-report.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["fresh-monitoring-report.pdf"],
+        documentTypes: ["PDD / PDF"],
+        methodologyMentions: ["AR-ACM0003"],
+        extractionConfidence: 0.78,
+        warnings: [],
+        rawPddText: "Monitoring report for the full reporting period. AR-ACM0003 methodology reference.",
+      },
+      methodologyResolution: {
+        status: "single",
+        rawMentions: ["AR-ACM0003"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [
+          {
+            methodologyId: "AR-ACM0003",
+            methodologyVersion: "v02-0",
+            matchedSignals: ["AR-ACM0003"],
+            canonicalKeys: ["AR-ACM0003"],
+            priority: 5,
+          },
+        ],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: {
+          canonicalKey: "AR-ACM0003",
+          supported: true,
+          matchedMethod: {
+            methodologyId: "AR-ACM0003",
+            methodologyVersion: "v02-0",
+            matchedSignals: ["AR-ACM0003"],
+            canonicalKeys: ["AR-ACM0003"],
+            priority: 5,
+          },
+          secondaryCanonicalKeys: [],
+        },
+      },
+    });
+
+    expect(view.fileName).toBe("fresh-monitoring-report.pdf");
+    expect(view.detectedDocumentType).toBe("Monitoring Report");
+    expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
+    expect(view.methodologyConfidence).toBe("high");
+    expect(view.warning).toBeUndefined();
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period", "Validation evidence"]);
+    expect(view.signalSummary).toContain("Reporting period");
+  });
+
+  it("shows a warning and fallback labels when methodology is not confidently detected", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "review-upload.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "boundary",
+            category: "boundary",
+            summary: "The project boundary is described in the PDD",
+            matchText: "project boundary described",
+            sourceLabel: "review-upload.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["review-upload.pdf"],
+        documentTypes: ["PDD / PDF"],
+        methodologyMentions: [],
+        extractionConfidence: 0.34,
+        warnings: [],
+        rawPddText: "Boundary description and mapped project area are included in the uploaded file.",
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedMethodology).toBe("Not confidently detected");
+    expect(view.methodologyConfidence).toBe("unknown");
+    expect(view.warning).toBe("Methodology was not confidently detected. Matches below may need review.");
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Project boundary"]);
   });
 
   it("normalizes a preliminary match result", () => {

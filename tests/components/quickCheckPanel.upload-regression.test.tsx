@@ -16,9 +16,10 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
   resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => ({
     text:
       filename === "fresh-monitoring-report.pdf"
-        ? "Monitoring report for the full reporting period. AR-ACM0003 methodology reference."
+        ? "Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference."
         : "",
     engine: "pdf-parse" as const,
+    methodologyMentions: filename === "fresh-monitoring-report.pdf" ? ["AR-ACM0003"] : [],
   }),
 }));
 
@@ -99,7 +100,7 @@ describe("QuickCheckPanel upload regression", () => {
           JSON.stringify({
             text:
               filename === "fresh-monitoring-report.pdf"
-                ? "Monitoring report for the full reporting period. AR-ACM0003 methodology reference."
+                ? "Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference."
                 : "",
             engine: "pdf-parse",
             metadata: {
@@ -203,7 +204,7 @@ describe("QuickCheckPanel upload regression", () => {
 
     await uploadEvidence(
       new File(
-        ["%PDF-1.4\n(Monitoring report for the full reporting period. AR-ACM0003 methodology reference.)\n%%EOF"],
+        ["%PDF-1.4\n(Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference.)\n%%EOF"],
         "fresh-monitoring-report.pdf",
         { type: "application/pdf" },
       ),
@@ -215,5 +216,12 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toContain("fresh-monitoring-report.pdf");
     expect(text).toContain("Extraction preview");
     expect(text).not.toContain("Weak extraction");
+    expect(text).toContain("What the file appears to contain");
+    expect(text).toContain("File summary");
+    expect(text).toContain("View extraction details");
+    expect(text).toContain("Confidence");
+    expect(text).not.toContain("Source");
+    expect(text).not.toContain("Document Q&A");
+    expect(text).not.toContain("raw text: unavailable");
   });
 });
