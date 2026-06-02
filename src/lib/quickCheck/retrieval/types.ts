@@ -88,6 +88,22 @@ export type ReviewRoutingDiagnostic = {
   noMatchReason?: string;
 };
 
+export type SemanticEvidenceCandidate = {
+  blockId: string;
+  page: number | null;
+  heading: string | null;
+  quote: string;
+  reason: string;
+  confidence: number;
+};
+
+export type SemanticEvidenceStatus =
+  | "disabled"
+  | "no_input"
+  | "available"
+  | "invalid_response"
+  | "request_failed";
+
 export type ReviewQuestionResult = {
   path: QuickCheckPath;
   reviewArea: ReviewArea;
@@ -105,6 +121,9 @@ export type ReviewQuestionResult = {
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
   routingDiagnostic?: ReviewRoutingDiagnostic;
+  semanticEvidenceCandidates?: SemanticEvidenceCandidate[];
+  semanticEvidenceStatus?: SemanticEvidenceStatus;
+  semanticEvidenceWarning?: string;
 };
 
 export type ReviewQuestionRetrievalResult = Omit<ReviewQuestionResult, "baselineReview" | "reviewAreaReview"> & {

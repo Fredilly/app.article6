@@ -57,6 +57,7 @@ import {
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
+import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
 
 type MethodInventoryRecord = {
   code: string;
@@ -546,6 +547,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
+  const reviewQuestionRunRef = useRef(0);
 
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
@@ -1439,7 +1441,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
       if (detectReviewPath(effectiveClaimText) === "review_question_answering") {
         const firstSource = selectedEvidenceSources[0];
-        const questionResult = buildReviewQuestionResult({
+        const baseQuestionResult = buildReviewQuestionResult({
           claimText: effectiveClaimText,
           methodologyId: resolvedMethodologyId,
           methodologyVersion: resolvedMethodologyVersion,
@@ -1447,11 +1449,50 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           evidenceSourceLabel: firstSource?.sourceLabel,
           evidenceDocumentType: evidenceAnalysis.documentTypes[0],
         });
-        setReviewQuestionResult(questionResult);
+        const runId = reviewQuestionRunRef.current + 1;
+        reviewQuestionRunRef.current = runId;
+        setReviewQuestionResult({
+          ...baseQuestionResult,
+          semanticEvidenceStatus: evidenceAnalysis.rawPddText?.trim() ? "disabled" : "no_input",
+          semanticEvidenceWarning: evidenceAnalysis.rawPddText?.trim()
+            ? "Loading semantic evidence suggestions."
+            : "No parsed PDD text available for semantic evidence suggestions.",
+        });
         setSelectedHeading(null);
         setRecoveryState(null);
         setFieldErrors({});
         setSubmitting(false);
+        if (evidenceAnalysis.rawPddText?.trim()) {
+          void fetchSemanticEvidenceCandidates({
+            claimText: effectiveClaimText,
+            rawPddText: evidenceAnalysis.rawPddText,
+            methodologyId: resolvedMethodologyId,
+            methodologyVersion: resolvedMethodologyVersion,
+          })
+            .then((semanticEvidence) => {
+              if (reviewQuestionRunRef.current !== runId) return;
+              setReviewQuestionResult((current) => {
+                if (!current) return current;
+                return {
+                  ...current,
+                  semanticEvidenceCandidates: semanticEvidence.candidates,
+                  semanticEvidenceStatus: semanticEvidence.status,
+                  semanticEvidenceWarning: semanticEvidence.warning,
+                };
+              });
+            })
+            .catch((error) => {
+              if (reviewQuestionRunRef.current !== runId) return;
+              setReviewQuestionResult((current) => {
+                if (!current) return current;
+                return {
+                  ...current,
+                  semanticEvidenceStatus: "request_failed",
+                  semanticEvidenceWarning: error instanceof Error ? error.message : String(error),
+                };
+              });
+            });
+        }
         return;
       }
 
@@ -2250,6 +2291,44 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </p>
                     </div>
                   ) : null}
+                  <div className="mt-4 rounded-xl border border-violet-200 bg-white/80 p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-700">
+                        Semantic evidence suggestions
+                      </div>
+                      {reviewQuestionResult.semanticEvidenceStatus ? (
+                        <span className="inline-block rounded border border-violet-200 bg-violet-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-violet-700">
+                          {reviewQuestionResult.semanticEvidenceStatus}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500">
+                      LLM suggestions are advisory only. Deterministic Quick Check scoring still controls the result.
+                    </p>
+                    {reviewQuestionResult.semanticEvidenceWarning ? (
+                      <div className="mt-2 text-xs leading-relaxed text-slate-600">
+                        {reviewQuestionResult.semanticEvidenceWarning}
+                      </div>
+                    ) : null}
+                    {reviewQuestionResult.semanticEvidenceCandidates && reviewQuestionResult.semanticEvidenceCandidates.length > 0 ? (
+                      <div className="mt-3 space-y-2">
+                        {reviewQuestionResult.semanticEvidenceCandidates.map((candidate) => (
+                          <div key={`${candidate.blockId}:${candidate.quote}`} className="rounded-lg border border-violet-100 bg-violet-50/40 p-3">
+                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-violet-800">
+                              <span className="font-mono">{candidate.blockId}</span>
+                              <span>p. {candidate.page ?? "—"}</span>
+                              {candidate.heading ? <span>{candidate.heading}</span> : null}
+                              <span>{Math.round(candidate.confidence * 100)}% confidence</span>
+                            </div>
+                            <div className="mt-2 rounded border border-violet-100 bg-white px-3 py-2 text-sm leading-relaxed text-slate-700">
+                              “{candidate.quote}”
+                            </div>
+                            <div className="mt-2 text-xs leading-relaxed text-slate-600">{candidate.reason}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
                   <div className="mt-4">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — title matching)</div>
                     <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Quick Check matches section titles using your question, with limited methodology-aware fallback for certain review areas.</p>
