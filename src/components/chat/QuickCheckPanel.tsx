@@ -144,8 +144,8 @@ type MethodologyEvidenceSignals =
   | undefined;
 
 const CLAIM_SUGGESTIONS = [
-  "The monitoring report covers the full reporting period.",
-  "The boundary description matches the mapped project area.",
+  "Does the monitoring report cover the full reporting period?",
+  "Does the boundary description match the mapped project area?",
   "The baseline methodology is clearly justified by the evidence.",
 ];
 
@@ -1416,8 +1416,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setMatchCandidates([]);
     try {
       const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
+      const reviewFieldText = draft.claimText.trim();
       const claimIntents = classifyQuickCheckClaimIntents(effectiveClaimText);
-      const isReviewQuestion = detectReviewPath(effectiveClaimText) === "review_question_answering";
+      const isReviewQuestion = detectReviewPath(reviewFieldText, { inputContext: "review_question_field" }) === "review_question_answering";
       const currentMethodologyResolution = resolveQuickCheckMethodology({
         mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
         methods,
@@ -1436,7 +1437,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       if (isReviewQuestion) {
         const firstSource = selectedEvidenceSources[0];
         const questionResult = buildReviewQuestionResult({
-          claimText: effectiveClaimText,
+          claimText: reviewFieldText,
           methodologyId: resolvedMethodologyId,
           methodologyVersion: resolvedMethodologyVersion,
           rawPddText: evidenceAnalysis.rawPddText,
@@ -1454,7 +1455,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         });
         if (evidenceAnalysis.rawPddText?.trim()) {
           void fetchSemanticEvidenceCandidates({
-            claimText: effectiveClaimText,
+            claimText: reviewFieldText,
             rawPddText: evidenceAnalysis.rawPddText,
             methodologyId: resolvedMethodologyId,
             methodologyVersion: resolvedMethodologyVersion,

@@ -14,6 +14,7 @@ export type ReviewArea =
   | "general";
 
 export type QuickCheckPath = "claim_to_requirement_match" | "review_question_answering";
+export type QuickCheckInputContext = "claim_field" | "review_question_field";
 
 export type ReviewQuestionStatus =
   | "strong_evidence_found"

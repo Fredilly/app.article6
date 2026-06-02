@@ -182,6 +182,22 @@ describe("detectReviewPath", () => {
   it("routes a specific evidence claim to claim_to_requirement_match", () => {
     expect(detectReviewPath("The monitoring report covers the full reporting period.")).toBe("claim_to_requirement_match");
   });
+
+  it("uses field context so claim-style text in the claim field still uses claim matching", () => {
+    expect(detectReviewPath("The monitoring report covers the full reporting period.", { inputContext: "claim_field" })).toBe("claim_to_requirement_match");
+  });
+
+  it("uses field context so the same claim-style text in the review question field routes to document q&a", () => {
+    expect(detectReviewPath("The monitoring report covers the full reporting period.", { inputContext: "review_question_field" })).toBe("review_question_answering");
+  });
+
+  it("routes question-style text in the review question field to document q&a", () => {
+    expect(detectReviewPath("Does the monitoring report cover the full reporting period?", { inputContext: "review_question_field" })).toBe("review_question_answering");
+  });
+
+  it("keeps explicit methodology requirement-matching requests on the claim-matching path even in the review question field", () => {
+    expect(detectReviewPath("General evidence check against the selected methodology requirements.", { inputContext: "review_question_field" })).toBe("claim_to_requirement_match");
+  });
 });
 
 describe("classifyReviewArea — additionality", () => {

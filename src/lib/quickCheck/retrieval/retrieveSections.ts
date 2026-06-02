@@ -22,6 +22,7 @@ import {
   shouldExpandAncestors,
 } from "@/lib/quickCheck/policy/reviewPolicy";
 import type {
+  QuickCheckInputContext,
   BuildReviewQuestionSectionRetrievalInput,
   QuickCheckPath,
   ReviewArea,
@@ -101,9 +102,26 @@ function hasReferenceRegionBoundaryIntent(normalizedClaimText: string): boolean 
   return /\bboundary\b|\bproject\s+boundary\b|\bleakage\s+belt\b|\bdefine\b|\bdescribe\b|\bexplain\b|\binclude\b/.test(normalizedClaimText);
 }
 
-export function detectReviewPath(claimText: string): QuickCheckPath {
+function explicitlyRequestsRequirementMatching(normalizedClaimText: string): boolean {
+  return (
+    /\bmatch(?:ing)?\b.*\bmethodolog(?:y|ies)\b.*\brequirements?\b/i.test(normalizedClaimText) ||
+    /\bmethodolog(?:y|ies)\b.*\brequirements?\b/i.test(normalizedClaimText) ||
+    /\brequirements?\b.*\bmatch(?:ing)?\b/i.test(normalizedClaimText) ||
+    /\bgeneral evidence check\b/i.test(normalizedClaimText)
+  );
+}
+
+export function detectReviewPath(
+  claimText: string,
+  options?: { inputContext?: QuickCheckInputContext },
+): QuickCheckPath {
   const normalized = claimText.trim();
   if (!normalized) return "claim_to_requirement_match";
+  if (options?.inputContext === "review_question_field") {
+    return explicitlyRequestsRequirementMatching(normalized)
+      ? "claim_to_requirement_match"
+      : "review_question_answering";
+  }
   if (hasReferenceRegionBoundaryIntent(normalized)) return "review_question_answering";
   return BROAD_QUESTION_PATTERNS.some((pattern) => pattern.test(normalized))
     ? "review_question_answering"
