@@ -202,6 +202,8 @@ describe("QuickCheckPanel upload regression", () => {
 
     expect(container.textContent).toContain("Extraction preview");
     expect(container.textContent).toContain("Grounded");
+    expect(container.textContent).toContain("Document Q&A");
+    expect(container.textContent).toContain("raw text: unavailable");
 
     await uploadEvidence(
       new File(
