@@ -200,7 +200,8 @@ describe("QuickCheckPanel upload regression", () => {
 
     await flushUi();
 
-    expect(container.textContent).toContain("Weak extraction");
+    expect(container.textContent).toContain("Extraction preview");
+    expect(container.textContent).toContain("Grounded");
 
     await uploadEvidence(
       new File(
