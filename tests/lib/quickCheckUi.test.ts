@@ -163,7 +163,7 @@ describe("quick check ui helpers", () => {
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
     expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period", "Validation evidence"]);
-    expect(view.signalSummary).toContain("Reporting period");
+    expect(view.signalSummary).toContain("reporting period");
   });
 
   it("shows a warning and fallback labels when methodology is not confidently detected", () => {
@@ -200,7 +200,7 @@ describe("quick check ui helpers", () => {
     expect(view.detectedDocumentType).toBe("Unknown document type");
     expect(view.detectedMethodology).toBe("Not confidently detected");
     expect(view.methodologyConfidence).toBe("unknown");
-    expect(view.warning).toBe("Methodology was not confidently detected. Matches below may need review.");
+    expect(view.warning).toBe("Methodology was not confidently detected.");
     expect(view.signals.map((signal) => signal.label)).toEqual(["Project boundary"]);
   });
 
