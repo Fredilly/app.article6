@@ -1829,7 +1829,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-2xl px-4 md:px-0">
+      <div className="mx-auto w-full max-w-[46rem] px-4 md:px-0">
         <div className="flex flex-col items-center text-center">
           <div className="flex w-full items-start justify-center">
             <div className="w-full">
@@ -1896,10 +1896,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 </div>
               ) : (
                 <>
-                  <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4 shadow-[0_12px_40px_rgba(15,23,42,0.05)] md:px-5 md:py-5">
+                  <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-white px-4 py-3.5 shadow-[0_12px_40px_rgba(15,23,42,0.05)] md:px-5 md:py-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="text-[1.02rem] font-semibold text-slate-900">Extraction preview</div>
+                        <div className="text-base font-semibold text-slate-900">Extraction preview</div>
                         {extractionPreviewView ? (
                           <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
                             <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-600 text-white">
@@ -1933,16 +1933,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     ) : extractionPreview && extractionPreviewView ? (
                       <>
                         {extractionPreviewView.warning ? (
-                          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-900">
-                            {extractionPreviewView.warning}
-                          </div>
-                        ) : null}
+                        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2 text-sm text-amber-900">
+                          {extractionPreviewView.warning}
+                        </div>
+                      ) : null}
                         <div className="mt-3 grid gap-3 md:grid-cols-[1.08fr_0.92fr]">
-                          <div className="rounded-[1rem] border border-slate-200 bg-slate-50 px-3.5 py-3.5">
+                          <div className="rounded-[1rem] border border-slate-200 bg-slate-50 px-3.5 py-3">
                             <div className="text-[0.95rem] font-semibold text-slate-900">What the file appears to contain</div>
                             {extractionPreviewView.signals.length ? (
                               <>
-                                <div className="mt-4 flex flex-wrap gap-2">
+                                <div className="mt-3 flex flex-wrap gap-2">
                                   {extractionPreviewView.signals.map((signal) => (
                                     <span key={signal.label} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-medium text-slate-700">
                                       <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700">
@@ -1952,45 +1952,43 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                     </span>
                                   ))}
                                 </div>
-                                {extractionPreviewView.signalSummary ? (
-                                  <div className="mt-4 text-sm leading-7 text-slate-600">{extractionPreviewView.signalSummary}</div>
-                                ) : null}
+                                {extractionPreviewView.signalSummary ? <div className="mt-3 text-sm leading-6 text-slate-600">{extractionPreviewView.signalSummary}</div> : null}
                               </>
                             ) : (
-                              <div className="mt-4 text-sm leading-7 text-slate-600">
+                              <div className="mt-3 text-sm leading-6 text-slate-600">
                                 {extractionPreviewView.signalSummary ?? "We read the file, but did not extract grounded review signals yet."}
                               </div>
                             )}
                           </div>
-                          <div className="rounded-[1rem] border border-slate-200 bg-slate-50 px-3.5 py-3.5">
+                          <div className="rounded-[1rem] border border-slate-200 bg-slate-50 px-3.5 py-3">
                             <div className="text-[0.95rem] font-semibold text-slate-900">File summary</div>
-                            <div className="mt-4 grid gap-3 text-sm text-slate-700">
-                              <div className="grid grid-cols-[7.75rem_minmax(0,1fr)] items-start gap-3">
-                                <div className="text-sm text-slate-500">File name</div>
-                                <div className="break-words font-medium text-slate-900">
+                            <div className="mt-3 grid gap-2.5 text-sm text-slate-700">
+                              <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
+                                <div className="text-sm text-slate-500">File</div>
+                                <div className="truncate font-medium text-slate-900" title={extractionPreviewView.fileName || "Not detected"}>
                                   {extractionPreviewView.fileName || "Not detected"}
                                 </div>
                               </div>
-                              <div className="grid grid-cols-[7.75rem_minmax(0,1fr)] items-start gap-3">
+                              <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
                                 <div className="text-sm text-slate-500">Detected type</div>
-                                <div className="font-medium text-slate-900">
+                                <div className="truncate font-medium text-slate-900" title={extractionPreviewView.detectedDocumentType || "Not detected"}>
                                   {extractionPreviewView.detectedDocumentType || "Not detected"}
                                 </div>
                               </div>
-                              <div className="grid grid-cols-[7.75rem_minmax(0,1fr)] items-start gap-3">
+                              <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
                                 <div className="text-sm text-slate-500">Methodology</div>
-                                <div className="font-medium text-slate-900">
+                                <div className="truncate font-medium text-slate-900" title={extractionPreviewView.detectedMethodology || "Not detected"}>
                                   {extractionPreviewView.detectedMethodology || "Not detected"}
                                 </div>
                               </div>
                               <div>
-                                <div className="grid grid-cols-[7.75rem_minmax(0,1fr)] items-center gap-3">
-                                  <span className="text-sm text-slate-500">Methodology confidence</span>
+                                <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-3">
+                                  <span className="text-sm text-slate-500">Confidence</span>
                                   <span className="font-medium text-slate-700">
                                     {confidenceLabel(extractionPreviewView.methodologyConfidence)}
                                   </span>
                                 </div>
-                                <div className="ml-[7.75rem] mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200">
+                                <div className="ml-[6rem] mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200">
                                   <div
                                     className={`h-full rounded-full ${confidenceBarTone(extractionPreviewView.methodologyConfidence)}`}
                                     style={{ width: confidenceBarWidth(extractionPreviewView.methodologyConfidence) }}
@@ -2004,7 +2002,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         <button
                           type="button"
                           onClick={() => setShowExtractionDetails((value) => !value)}
-                          className="mt-3 flex w-full items-center justify-between rounded-xl px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                          className="mt-2.5 flex w-full items-center justify-between rounded-xl px-1.5 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                           aria-expanded={showExtractionDetails}
                         >
                           <span>View extraction details</span>

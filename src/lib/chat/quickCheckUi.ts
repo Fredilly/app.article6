@@ -148,6 +148,50 @@ function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
   }
 }
 
+function signalLabelFromFact(fact: QuickCheckEvidenceFact): string | null {
+  const haystack = `${fact.summary} ${fact.detail ?? ""}`.toLowerCase();
+
+  if (fact.category === "reporting-period" || /reporting period|monitoring period|coverage period|quarter|q[1-4]/.test(haystack)) {
+    return "Reporting period";
+  }
+  if (fact.category === "monitoring-plan" || /monitoring procedures|monitoring approach/.test(haystack)) {
+    return /procedures|approach/.test(haystack) ? "Monitoring procedures" : "Monitoring plan";
+  }
+  if (fact.category === "boundary" || /boundary description|project boundary/.test(haystack)) {
+    return "Project boundary";
+  }
+  if (fact.category === "mapped-area" || /mapped project area|mapped area|area of interest|aoi|boundary map|polygon/.test(haystack)) {
+    return "Mapped project area";
+  }
+  if (fact.category === "project-location" || /project location|district|province|municipality|site location/.test(haystack)) {
+    return "Project location";
+  }
+  if (fact.category === "coordinates" || /coordinates|latitude|longitude|decimal degrees/.test(haystack)) {
+    return "Coordinates";
+  }
+  if (fact.category === "workbook-reference" || /workbook|spreadsheet|excel/.test(haystack)) {
+    return "Workbook reference";
+  }
+  if (fact.category === "qa-summary" || /stakeholder|community meeting|grievance|consultation/.test(haystack)) {
+    return /stakeholder|community meeting|consultation|grievance/.test(haystack) ? "Stakeholder consultation" : "QA summary";
+  }
+  if (fact.category === "monitoring-records" || /monitoring records|sampling log|activity data/.test(haystack)) {
+    return "Monitoring records";
+  }
+  if (fact.category === "plot-count" || /plot/.test(haystack)) {
+    return "Plot count";
+  }
+  if (fact.category === "monitoring-evidence") {
+    if (/monitoring report/.test(haystack)) return "Monitoring report";
+    if (/validation/.test(haystack)) return "Validation evidence";
+    if (/monitoring data|monitoring records/.test(haystack)) return "Monitoring evidence";
+    return null;
+  }
+
+  const fallback = signalLabel(fact.category);
+  return fallback === "Document signal" ? null : fallback;
+}
+
 function buildSignalSummary(signals: ExtractionPreviewViewModel["signals"]): string | undefined {
   if (!signals.length) return undefined;
   const labels = signals.map((signal) => signal.label);
@@ -161,22 +205,26 @@ export function buildExtractionPreviewViewModel(input: {
   fileName?: string | null;
   methodologyResolution?: QuickCheckMethodologyResolution | null;
 }): ExtractionPreviewViewModel {
-  const signals = dedupe(
-    [...input.analysis.facts]
-      .sort(
-        (left, right) =>
-          previewPriority(left) - previewPriority(right) ||
-          Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
-          left.summary.localeCompare(right.summary),
-      )
-      .map((fact) => JSON.stringify({
-        label: signalLabel(fact.category),
+  const seenSignalLabels = new Set<string>();
+  const signals = [...input.analysis.facts]
+    .sort(
+      (left, right) =>
+        previewPriority(left) - previewPriority(right) ||
+        Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
+        left.summary.localeCompare(right.summary),
+    )
+    .map((fact) => {
+      const label = signalLabelFromFact(fact);
+      if (!label || seenSignalLabels.has(label)) return null;
+      seenSignalLabels.add(label);
+      return {
+        label,
         summary: formatFactPreview(fact, { useDetail: true }),
         confidence: confidenceBucket(input.analysis.extractionConfidence),
-      })),
-  )
-    .slice(0, 4)
-    .map((entry) => JSON.parse(entry) as ExtractionPreviewViewModel["signals"][number]);
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 4) as ExtractionPreviewViewModel["signals"];
 
   let detectedMethodology = "Not confidently detected";
   let methodologyConfidence: ExtractionPreviewConfidence =
@@ -193,7 +241,7 @@ export function buildExtractionPreviewViewModel(input: {
   const warning =
     input.methodologyResolution?.status === "single" && methodologyConfidence !== "low"
       ? undefined
-      : "Methodology was not confidently detected.";
+      : "Methodology was not confidently detected. Matches below may need review.";
 
   return {
     fileName: input.fileName?.trim() || undefined,

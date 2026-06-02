@@ -162,7 +162,7 @@ describe("quick check ui helpers", () => {
     expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
-    expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period", "Validation evidence"]);
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period"]);
     expect(view.signalSummary).toContain("reporting period");
   });
 
@@ -200,7 +200,49 @@ describe("quick check ui helpers", () => {
     expect(view.detectedDocumentType).toBe("Unknown document type");
     expect(view.detectedMethodology).toBe("Not confidently detected");
     expect(view.methodologyConfidence).toBe("unknown");
-    expect(view.warning).toBe("Methodology was not confidently detected.");
+    expect(view.warning).toBe("Methodology was not confidently detected. Matches below may need review.");
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Project boundary"]);
+  });
+
+  it("only renders chips supported by the uploaded file facts", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "boundary-note.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "boundary",
+            category: "boundary",
+            summary: "The project boundary is described in the PDD",
+            matchText: "project boundary described",
+            sourceLabel: "boundary-note.pdf",
+            detail: "Boundary description: project boundary follows the watershed edge.",
+          },
+          {
+            id: "monitoring-evidence",
+            category: "monitoring-evidence",
+            summary: "The project has documented monitoring evidence",
+            matchText: "documented monitoring evidence",
+            sourceLabel: "boundary-note.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["boundary-note.pdf"],
+        documentTypes: ["PDD / PDF"],
+        methodologyMentions: [],
+        extractionConfidence: 0.52,
+        warnings: [],
+        rawPddText: "Boundary description: project boundary follows the watershed edge.",
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
     expect(view.signals.map((signal) => signal.label)).toEqual(["Project boundary"]);
   });
 
