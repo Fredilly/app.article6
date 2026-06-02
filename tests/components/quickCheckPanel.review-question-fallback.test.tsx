@@ -164,7 +164,7 @@ describe("QuickCheckPanel review-question fallback", () => {
 
   it("shows document evidence for a leakage review question even when semantic suggestions are disabled", async () => {
     seedSession({
-      claimText: "Does this PDD assess leakage risk?",
+      claimText: "Does the document address leakage?",
       filename: "flat-leakage.pdf",
     });
     await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["flat-leakage.pdf"]})\n%%EOF`);
@@ -183,6 +183,8 @@ describe("QuickCheckPanel review-question fallback", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("No methodology rule matched, but the uploaded document contains relevant evidence");
     expect(text).toContain("The project assesses leakage risk from activity shifting each year");
+    expect(text).toContain("routing: yes");
+    expect(text).toContain("methodology matched: no");
     expect(text).not.toContain("No valid analysis path");
   });
 
@@ -208,6 +210,30 @@ describe("QuickCheckPanel review-question fallback", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("No methodology rule matched, but the uploaded document contains relevant evidence");
     expect(text).toContain("The monitoring plan describes annual plot measurements and QA procedures");
+    expect(text).not.toContain("No valid analysis path");
+  });
+
+  it("still renders the Document Q&A card when no raw document text is available", async () => {
+    seedSession({
+      claimText: "Does the document address leakage?",
+      filename: "missing-text.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("unclear");
+    expect(text).toContain("parsed document text was unavailable");
     expect(text).not.toContain("No valid analysis path");
   });
 });

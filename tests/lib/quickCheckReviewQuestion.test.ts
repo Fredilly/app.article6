@@ -157,6 +157,9 @@ describe("detectReviewPath", () => {
   it("routes 'Review the leakage assessment' to review_question_answering", () => {
     expect(detectReviewPath("Review the leakage assessment")).toBe("review_question_answering");
   });
+  it("routes 'Does the document address leakage?' to review_question_answering", () => {
+    expect(detectReviewPath("Does the document address leakage?")).toBe("review_question_answering");
+  });
 
   it("routes right-of-use questions with natural verbs like 'demonstrate' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD demonstrate legal right of use for the project area?")).toBe("review_question_answering");
@@ -1165,7 +1168,7 @@ describe("Quick Check extraction edge-case coverage", () => {
 
   it("returns document-grounded leakage evidence even when no methodology rule is matched", () => {
     const result = buildReviewQuestionResult({
-      claimText: "Does this PDD assess leakage risk?",
+      claimText: "Does the document address leakage?",
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
       rawPddText: FLAT_LEAKAGE_TEXT,
@@ -1176,6 +1179,12 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.documentAnswer.methodologyRuleMatched).toBe(false);
     expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
     expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
+    expect(result.documentAnswer.diagnostic).toEqual(expect.objectContaining({
+      reviewQuestionRoutingFired: true,
+      rawPddTextAvailable: true,
+      documentEvidenceCount: expect.any(Number),
+      methodologyRuleMatched: false,
+    }));
   });
 
   it("returns document-grounded monitoring evidence even when no rule ID is matched", () => {
@@ -1191,6 +1200,25 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.documentAnswer.methodologyRuleMatched).toBe(false);
     expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
     expect(result.documentAnswer.methodologyExplanation).toContain("No methodology rule was confidently matched");
+  });
+
+  it("still returns a document-first fallback card shape when raw text is unavailable", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does the document address leakage?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: undefined,
+    });
+
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.evidence).toEqual([]);
+    expect(result.documentAnswer.explanation).toContain("parsed document text was unavailable");
+    expect(result.documentAnswer.diagnostic).toEqual({
+      reviewQuestionRoutingFired: true,
+      rawPddTextAvailable: false,
+      documentEvidenceCount: 0,
+      methodologyRuleMatched: false,
+    });
   });
 
   it("preserves deterministic baseline review behavior while adding document fallback data", () => {

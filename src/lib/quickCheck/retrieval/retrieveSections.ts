@@ -34,8 +34,8 @@ import type {
 } from "@/lib/quickCheck/retrieval/types";
 
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
-  /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate)/i,
-  /^does\s+the\s+document\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate)/i,
+  /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate|address)/i,
+  /^does\s+the\s+document\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate|address)/i,
   /^is\s+the\s+baseline/i,
   /^is\s+additionality/i,
   /^is\s+there\s+(?:(?:a|an|the)\s+)?(?:baseline|justification|evidence|support)/i,
@@ -55,7 +55,7 @@ const REVIEW_AREA_LABELS: Record<ReviewArea, string> = {
   general: "General review",
 };
 
-const CLAIM_PREFIX_RE = /^(?:(?:does\s+(?:this\s+pdd|the\s+document)\s+)?(?:explain|describe|review|check|evaluate|assess|identify|discuss|justify|mention|outline|summarize|present|provide|include|support|demonstrate|define|show|disclose)|is\s+the)\s+/i;
+const CLAIM_PREFIX_RE = /^(?:(?:does\s+(?:this\s+pdd|the\s+document)\s+)?(?:explain|describe|review|check|evaluate|assess|identify|discuss|justify|mention|outline|summarize|present|provide|include|support|demonstrate|define|show|disclose|address)|is\s+the)\s+/i;
 const LEADING_ARTICLE_RE = /^(?:the|a|an)\s+/i;
 
 const CLAIM_STOP_WORDS = new Set([
@@ -69,7 +69,7 @@ const CLAIM_STOP_WORDS = new Set([
   "project", "area", "section", "plan", "analysis", "assessment", "report", "data", "using",
   "describe", "explain", "identify", "justify", "review", "check", "assess",
   "evaluate", "discuss", "mention", "outline", "summarize", "present", "provide",
-  "include", "support", "demonstrate", "define", "show", "disclose",
+  "include", "support", "demonstrate", "define", "show", "disclose", "address",
 ]);
 
 const MAX_PRIMARY_SECTIONS = 3;

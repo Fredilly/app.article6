@@ -105,6 +105,12 @@ export type DocumentQuestionAnswer = {
   methodologyExplanation: string;
   explanation: string;
   evidence: DocumentAnswerEvidence[];
+  diagnostic: {
+    reviewQuestionRoutingFired: boolean;
+    rawPddTextAvailable: boolean;
+    documentEvidenceCount: number;
+    methodologyRuleMatched: boolean;
+  };
 };
 
 export type SemanticEvidenceCandidate = {

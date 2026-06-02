@@ -170,15 +170,29 @@ export function buildDocumentQuestionAnswer(input: {
     result: input.retrieval,
   });
 
+  const methodologyRuleMatched = Boolean(input.evaluation.reviewAreaReview);
+  const rawPddTextAvailable = Boolean(input.rawPddText?.trim());
   return {
     status,
-    methodologyRuleMatched: Boolean(input.evaluation.reviewAreaReview),
-    methodologyExplanation: input.evaluation.reviewAreaReview
+    methodologyRuleMatched,
+    methodologyExplanation: methodologyRuleMatched
       ? "Quick Check found a methodology-aware review path and evaluated the matched document sections."
-      : "No methodology rule was confidently matched, but the uploaded document contains relevant evidence.",
+      : evidence.length > 0
+        ? "No methodology rule was confidently matched, but the uploaded document contains relevant evidence."
+        : rawPddTextAvailable
+          ? "No methodology rule was confidently matched, and Quick Check could not recover relevant document evidence from the uploaded text."
+          : "No methodology rule was confidently matched, and parsed document text was unavailable for document-first review.",
     explanation: evidence.length > 0
       ? "Quick Check found document-grounded evidence relevant to the question."
-      : "Quick Check could not recover useful document-grounded evidence for this question from the uploaded file.",
+      : rawPddTextAvailable
+        ? "Quick Check could not recover useful document-grounded evidence for this question from the uploaded file."
+        : "Quick Check could not run the document-first evidence search because parsed document text was unavailable.",
     evidence,
+    diagnostic: {
+      reviewQuestionRoutingFired: true,
+      rawPddTextAvailable,
+      documentEvidenceCount: evidence.length,
+      methodologyRuleMatched,
+    },
   };
 }

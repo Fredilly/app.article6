@@ -1422,7 +1422,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
         methods,
       });
-      if (!evidenceAnalysis.facts.length && !(isReviewQuestion && evidenceAnalysis.rawPddText?.trim())) {
+      if (!evidenceAnalysis.facts.length && !isReviewQuestion) {
         setFieldErrors({});
         setRecoveryState(buildWeakExtractionRecoveryState());
         return;
@@ -1443,56 +1443,49 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           evidenceSourceLabel: firstSource?.sourceLabel,
           evidenceDocumentType: evidenceAnalysis.documentTypes[0],
         });
-        const hasUsefulDocumentEvidence = questionResult.documentAnswer.evidence.length > 0;
-        if (hasUsefulDocumentEvidence) {
-          const runId = reviewQuestionRunRef.current + 1;
-          reviewQuestionRunRef.current = runId;
-          setReviewQuestionResult({
-            ...questionResult,
-            semanticEvidenceStatus: evidenceAnalysis.rawPddText?.trim() ? "loading" : "disabled",
-            semanticEvidenceWarning: evidenceAnalysis.rawPddText?.trim()
-              ? "Loading advisory semantic evidence suggestions."
-              : "No parsed PDD text was available for advisory semantic evidence suggestions.",
-          });
-          if (evidenceAnalysis.rawPddText?.trim()) {
-            void fetchSemanticEvidenceCandidates({
-              claimText: effectiveClaimText,
-              rawPddText: evidenceAnalysis.rawPddText,
-              methodologyId: resolvedMethodologyId,
-              methodologyVersion: resolvedMethodologyVersion,
+        const runId = reviewQuestionRunRef.current + 1;
+        reviewQuestionRunRef.current = runId;
+        setReviewQuestionResult({
+          ...questionResult,
+          semanticEvidenceStatus: evidenceAnalysis.rawPddText?.trim() ? "loading" : "disabled",
+          semanticEvidenceWarning: evidenceAnalysis.rawPddText?.trim()
+            ? "Loading advisory semantic evidence suggestions."
+            : "No parsed PDD text was available for advisory semantic evidence suggestions.",
+        });
+        if (evidenceAnalysis.rawPddText?.trim()) {
+          void fetchSemanticEvidenceCandidates({
+            claimText: effectiveClaimText,
+            rawPddText: evidenceAnalysis.rawPddText,
+            methodologyId: resolvedMethodologyId,
+            methodologyVersion: resolvedMethodologyVersion,
+          })
+            .then((semanticEvidence) => {
+              if (reviewQuestionRunRef.current !== runId) return;
+              setReviewQuestionResult((current) => current
+                ? {
+                    ...current,
+                    semanticEvidenceCandidates: semanticEvidence.candidates,
+                    semanticEvidenceStatus: semanticEvidence.status,
+                    semanticEvidenceWarning: semanticEvidence.warning,
+                  }
+                : current);
             })
-              .then((semanticEvidence) => {
-                if (reviewQuestionRunRef.current !== runId) return;
-                setReviewQuestionResult((current) => current
-                  ? {
-                      ...current,
-                      semanticEvidenceCandidates: semanticEvidence.candidates,
-                      semanticEvidenceStatus: semanticEvidence.status,
-                      semanticEvidenceWarning: semanticEvidence.warning,
-                    }
-                  : current);
-              })
-              .catch((error) => {
-                if (reviewQuestionRunRef.current !== runId) return;
-                setReviewQuestionResult((current) => current
-                  ? {
-                      ...current,
-                      semanticEvidenceStatus: "request_failed",
-                      semanticEvidenceWarning: error instanceof Error ? error.message : String(error),
-                    }
-                  : current);
-              });
-          }
-        } else {
-          setReviewQuestionResult(null);
+            .catch((error) => {
+              if (reviewQuestionRunRef.current !== runId) return;
+              setReviewQuestionResult((current) => current
+                ? {
+                    ...current,
+                    semanticEvidenceStatus: "request_failed",
+                    semanticEvidenceWarning: error instanceof Error ? error.message : String(error),
+                  }
+                : current);
+            });
         }
         setSelectedHeading(null);
         setFieldErrors({});
         setSubmitting(false);
-        if (hasUsefulDocumentEvidence) {
-          setRecoveryState(null);
-          return;
-        }
+        setRecoveryState(null);
+        return;
       }
 
       if (!draft.methodologyId.trim() && currentMethodologyResolution.status === "unsupported") {
@@ -2252,6 +2245,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <div className="mt-2 text-xs leading-relaxed text-slate-600">
                       {reviewQuestionResult.documentAnswer.methodologyExplanation}
                     </div>
+                    {(process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") ? (
+                      <div className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                        routing: {reviewQuestionResult.documentAnswer.diagnostic.reviewQuestionRoutingFired ? "yes" : "no"} • raw text: {reviewQuestionResult.documentAnswer.diagnostic.rawPddTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentAnswer.diagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentAnswer.diagnostic.methodologyRuleMatched ? "yes" : "no"}
+                      </div>
+                    ) : null}
                     {reviewQuestionResult.documentAnswer.evidence.length > 0 ? (
                       <div className="mt-3 space-y-2">
                         {reviewQuestionResult.documentAnswer.evidence.map((item, index) => (
