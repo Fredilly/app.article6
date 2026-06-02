@@ -1,0 +1,3745 @@
+{
+  "kind": "dead-code",
+  "schema_version": 7,
+  "version": "2.86.0",
+  "elapsed_ms": 754,
+  "total_issues": 157,
+  "entry_points": {
+    "total": 234,
+    "sources": {
+      "manual_entry": 50,
+      "package.json": 2,
+      "plugin": 182
+    }
+  },
+  "summary": {
+    "total_issues": 157,
+    "unused_files": 21,
+    "unused_exports": 70,
+    "unused_types": 51,
+    "private_type_leaks": 0,
+    "unused_dependencies": 2,
+    "unused_enum_members": 0,
+    "unused_class_members": 0,
+    "unresolved_imports": 0,
+    "unlisted_dependencies": 2,
+    "duplicate_exports": 9,
+    "type_only_dependencies": 0,
+    "test_only_dependencies": 2,
+    "circular_dependencies": 0,
+    "re_export_cycles": 0,
+    "boundary_violations": 0,
+    "stale_suppressions": 0,
+    "unused_catalog_entries": 0,
+    "empty_catalog_groups": 0,
+    "unresolved_catalog_references": 0,
+    "unused_dependency_overrides": 0,
+    "misconfigured_dependency_overrides": 0
+  },
+  "unused_files": [
+    {
+      "path": "src/app/manifest/_state/useManifestFilters.ts",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/FinderShell.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/ManifestHealthBadge.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/MethodologiesPackProvenance.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/RuleCard.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/actions/ShareLinkButton.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/assistant/AssistantPanel.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/chat/Composer.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/chat/MessageList.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/manifest/HashCopyButton.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/manifest/ManifestApp.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/manifest/MethodologyGroup.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/manifest/VersionDiffModal.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/snapshot/index.ts",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/verify/RunStatusCard.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/components/verify/VerifierMinutesPanel.tsx",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/exports/buildAuditPack.ts",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/extraction/index.ts",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/manifest/data.ts",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/types.ts",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/trace/evidenceLinks.ts",
+      "actions": [
+        {
+          "type": "delete-file",
+          "auto_fixable": false,
+          "description": "Delete this file",
+          "note": "File deletion may remove runtime functionality not visible to static analysis"
+        },
+        {
+          "type": "suppress-file",
+          "auto_fixable": false,
+          "description": "Suppress with a file-level comment at the top of the file",
+          "comment": "// fallow-ignore-file unused-file"
+        }
+      ]
+    }
+  ],
+  "unused_exports": [
+    {
+      "path": "src/app/manifest/_state/useManifestFilters.ts",
+      "export_name": "default",
+      "is_type_only": false,
+      "line": 71,
+      "col": 0,
+      "span_start": 1908,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/components/RuleCard.tsx",
+      "export_name": "default",
+      "is_type_only": false,
+      "line": 107,
+      "col": 0,
+      "span_start": 3359,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/components/chat/SidePane.tsx",
+      "export_name": "default",
+      "is_type_only": false,
+      "line": 110,
+      "col": 0,
+      "span_start": 3696,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/components/manifest/HashCopyButton.tsx",
+      "export_name": "default",
+      "is_type_only": false,
+      "line": 11,
+      "col": 0,
+      "span_start": 202,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/components/manifest/MethodologyGroup.tsx",
+      "export_name": "default",
+      "is_type_only": false,
+      "line": 11,
+      "col": 0,
+      "span_start": 161,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/components/manifest/VersionDiffModal.tsx",
+      "export_name": "default",
+      "is_type_only": false,
+      "line": 106,
+      "col": 0,
+      "span_start": 2614,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/baseline/baselineStore.ts",
+      "export_name": "getBaseline",
+      "is_type_only": false,
+      "line": 49,
+      "col": 16,
+      "span_start": 1429,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/client.ts",
+      "export_name": "sendChat",
+      "is_type_only": false,
+      "line": 5,
+      "col": 22,
+      "span_start": 182,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheck.ts",
+      "export_name": "createQuickCheckDraft",
+      "is_type_only": false,
+      "line": 130,
+      "col": 16,
+      "span_start": 3358,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheck.ts",
+      "export_name": "buildQuickCheckWorkspaceUrl",
+      "is_type_only": false,
+      "line": 408,
+      "col": 16,
+      "span_start": 15728,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckPdfExtractor.ts",
+      "export_name": "PdfHelperError",
+      "is_type_only": false,
+      "line": 75,
+      "col": 13,
+      "span_start": 1952,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckSectionExtractor.ts",
+      "export_name": "headingMatchesQuery",
+      "is_type_only": false,
+      "line": 895,
+      "col": 16,
+      "span_start": 29339,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/schema.ts",
+      "export_name": "ChatMessageSchema",
+      "is_type_only": false,
+      "line": 3,
+      "col": 13,
+      "span_start": 39,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/composers/metadata.ts",
+      "export_name": "getComposerForMethod",
+      "is_type_only": false,
+      "line": 180,
+      "col": 16,
+      "span_start": 6032,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/decisions/engine.ts",
+      "export_name": "checkDecisionWarnings",
+      "is_type_only": false,
+      "line": 148,
+      "col": 22,
+      "span_start": 4590,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/export/verificationPackIntegration.ts",
+      "export_name": "buildEvidenceIntelligenceJson",
+      "is_type_only": false,
+      "line": 45,
+      "col": 16,
+      "span_start": 1382,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/inventory.ts",
+      "export_name": "enrichInventoryWithReconciliation",
+      "is_type_only": false,
+      "line": 505,
+      "col": 16,
+      "span_start": 20228,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/reviewGrade.ts",
+      "export_name": "loadMethodMeta",
+      "is_type_only": false,
+      "line": 131,
+      "col": 16,
+      "span_start": 3630,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/workbook.ts",
+      "export_name": "workbookGroupTypeLabel",
+      "is_type_only": false,
+      "line": 444,
+      "col": 16,
+      "span_start": 14579,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/export/conventions.ts",
+      "export_name": "EXPORT_TIMESTAMP_FALLBACK",
+      "is_type_only": false,
+      "line": 4,
+      "col": 13,
+      "span_start": 132,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/export/conventions.ts",
+      "export_name": "CANONICAL_EXPORT_TERMINOLOGY",
+      "is_type_only": false,
+      "line": 6,
+      "col": 13,
+      "span_start": 202,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/export/conventions.ts",
+      "export_name": "exportSchemaVersion",
+      "is_type_only": false,
+      "line": 129,
+      "col": 16,
+      "span_start": 3584,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/export/conventions.ts",
+      "export_name": "exportSectionOrder",
+      "is_type_only": false,
+      "line": 133,
+      "col": 16,
+      "span_start": 3710,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/intake/storage.ts",
+      "export_name": "saveIntakeRegistry",
+      "is_type_only": false,
+      "line": 40,
+      "col": 16,
+      "span_start": 1076,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/manifest/cards.ts",
+      "export_name": "manifestKey",
+      "is_type_only": false,
+      "line": 35,
+      "col": 16,
+      "span_start": 877,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/manifest/cards.ts",
+      "export_name": "extractRemoteKey",
+      "is_type_only": false,
+      "line": 63,
+      "col": 16,
+      "span_start": 1784,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/methodologyBoundary.ts",
+      "export_name": "CANON_SCHEMA_PATHS",
+      "is_type_only": false,
+      "line": 1,
+      "col": 13,
+      "span_start": 13,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/methodologyBoundary.ts",
+      "export_name": "VENDORED_METHODOLOGY_PATH_PREFIXES",
+      "is_type_only": false,
+      "line": 8,
+      "col": 13,
+      "span_start": 258,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/projects/exportPdf.ts",
+      "export_name": "getProjectCoverage",
+      "is_type_only": false,
+      "line": 52,
+      "col": 16,
+      "span_start": 2142,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/projects/learningCase.ts",
+      "export_name": "manualReviewLearningCaseDedupKey",
+      "is_type_only": false,
+      "line": 31,
+      "col": 16,
+      "span_start": 1200,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/projects/reportFindings.ts",
+      "export_name": "manualFindingCodeFromType",
+      "is_type_only": false,
+      "line": 65,
+      "col": 16,
+      "span_start": 2235,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/projects/reviewHandoff.ts",
+      "export_name": "clearPendingProjectReviewHandoff",
+      "is_type_only": false,
+      "line": 220,
+      "col": 16,
+      "span_start": 8196,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/projects/reviewHandoff.ts",
+      "export_name": "getImportedReviewForRule",
+      "is_type_only": false,
+      "line": 309,
+      "col": 16,
+      "span_start": 11216,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/projects/verificationReport.ts",
+      "export_name": "sectionTitle",
+      "is_type_only": false,
+      "line": 43,
+      "col": 16,
+      "span_start": 1240,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proof/bundle.ts",
+      "export_name": "buildEvidenceSnapshot",
+      "is_type_only": false,
+      "line": 74,
+      "col": 16,
+      "span_start": 2107,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/aoi.ts",
+      "export_name": "AOI_FEATURE_ROLE_OPTIONS",
+      "is_type_only": false,
+      "line": 7,
+      "col": 13,
+      "span_start": 182,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/aoi.ts",
+      "export_name": "setAoiPrimaryFeature",
+      "is_type_only": false,
+      "line": 445,
+      "col": 16,
+      "span_start": 15272,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/attachments.ts",
+      "export_name": "MAX_EVIDENCE_ATTACHMENT_BYTES",
+      "is_type_only": false,
+      "line": 9,
+      "col": 13,
+      "span_start": 320,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/attachments.ts",
+      "export_name": "ALLOWED_EVIDENCE_ATTACHMENT_MIME_TYPES",
+      "is_type_only": false,
+      "line": 10,
+      "col": 13,
+      "span_start": 383,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/evidenceSnapshot.ts",
+      "export_name": "ReviewSummarySchema",
+      "is_type_only": false,
+      "line": 8,
+      "col": 13,
+      "span_start": 375,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/pins.ts",
+      "export_name": "isSectionLikeId",
+      "is_type_only": false,
+      "line": 22,
+      "col": 16,
+      "span_start": 547,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/pins.ts",
+      "export_name": "evidencePinFingerprint",
+      "is_type_only": false,
+      "line": 62,
+      "col": 22,
+      "span_start": 1790,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "reviewQuestionMatchStageSchema",
+      "is_type_only": false,
+      "line": 16,
+      "col": 13,
+      "span_start": 352,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "preferredSectionBoostSchema",
+      "is_type_only": false,
+      "line": 24,
+      "col": 13,
+      "span_start": 507,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "titlePenaltySchema",
+      "is_type_only": false,
+      "line": 30,
+      "col": 13,
+      "span_start": 665,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "reviewAreaPolicySchema",
+      "is_type_only": false,
+      "line": 36,
+      "col": 13,
+      "span_start": 845,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "reviewAreaSchema",
+      "is_type_only": false,
+      "line": 48,
+      "col": 13,
+      "span_start": 1382,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "reviewAreasSchema",
+      "is_type_only": false,
+      "line": 62,
+      "col": 13,
+      "span_start": 1870,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/readiness/clientReadinessExport.tsx",
+      "export_name": "buildClientReadinessAppendixArtifact",
+      "is_type_only": false,
+      "line": 363,
+      "col": 16,
+      "span_start": 16131,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/readiness/reportHtmlTheme.ts",
+      "export_name": "renderKeyValueGrid",
+      "is_type_only": false,
+      "line": 28,
+      "col": 16,
+      "span_start": 988,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/reviewWorkspaces/storage.ts",
+      "export_name": "listReviewWorkspaces",
+      "is_type_only": false,
+      "line": 63,
+      "col": 16,
+      "span_start": 2158,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/reviewWorkspaces/storage.ts",
+      "export_name": "createReviewWorkspace",
+      "is_type_only": false,
+      "line": 90,
+      "col": 16,
+      "span_start": 2997,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/reviewWorkspaces/storage.ts",
+      "export_name": "updateReviewWorkspace",
+      "is_type_only": false,
+      "line": 153,
+      "col": 16,
+      "span_start": 4850,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/reviewWorkspaces/storage.ts",
+      "export_name": "buildReviewWorkspaceName",
+      "is_type_only": false,
+      "line": 172,
+      "col": 16,
+      "span_start": 5491,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/export.ts",
+      "export_name": "snapshotExportJson",
+      "is_type_only": false,
+      "line": 28,
+      "col": 16,
+      "span_start": 927,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "deleteAllSnapshots",
+      "is_type_only": false,
+      "line": 15,
+      "col": 67,
+      "span_start": 459,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "getSnapshot",
+      "is_type_only": false,
+      "line": 15,
+      "col": 24,
+      "span_start": 416,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "snapshotExportJson",
+      "is_type_only": false,
+      "line": 16,
+      "col": 30,
+      "span_start": 526,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "canonicalJsonStringify",
+      "is_type_only": false,
+      "line": 18,
+      "col": 9,
+      "span_start": 645,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "sha256Hex",
+      "is_type_only": false,
+      "line": 18,
+      "col": 33,
+      "span_start": 669,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/store.ts",
+      "export_name": "getSnapshot",
+      "is_type_only": false,
+      "line": 28,
+      "col": 16,
+      "span_start": 828,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/store.ts",
+      "export_name": "deleteAllSnapshots",
+      "is_type_only": false,
+      "line": 48,
+      "col": 16,
+      "span_start": 1488,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/auditTrail.ts",
+      "export_name": "getAuditTrail",
+      "is_type_only": false,
+      "line": 36,
+      "col": 16,
+      "span_start": 958,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/reviewStore.ts",
+      "export_name": "deleteReview",
+      "is_type_only": false,
+      "line": 170,
+      "col": 16,
+      "span_start": 5704,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/reviewValidation.ts",
+      "export_name": "isValid",
+      "is_type_only": false,
+      "line": 35,
+      "col": 16,
+      "span_start": 839,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/reviewValidation.ts",
+      "export_name": "requiresRationale",
+      "is_type_only": false,
+      "line": 39,
+      "col": 16,
+      "span_start": 952,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/reviewValidation.ts",
+      "export_name": "statusColor",
+      "is_type_only": false,
+      "line": 56,
+      "col": 16,
+      "span_start": 1343,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/runState.ts",
+      "export_name": "loadLinkedRuleIds",
+      "is_type_only": false,
+      "line": 487,
+      "col": 16,
+      "span_start": 16880,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/runState.ts",
+      "export_name": "setLinkedRuleIdsInStorage",
+      "is_type_only": false,
+      "line": 530,
+      "col": 16,
+      "span_start": 18293,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/verify/runState.ts",
+      "export_name": "clearLinkedRuleIdsFromStorage",
+      "is_type_only": false,
+      "line": 737,
+      "col": 16,
+      "span_start": 26701,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the unused export from the public API"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-export"
+        }
+      ]
+    }
+  ],
+  "unused_types": [
+    {
+      "path": "src/app/m/_components/RequirementCoverageWorkspace.tsx",
+      "export_name": "RequirementCoverageFilter",
+      "is_type_only": true,
+      "line": 16,
+      "col": 12,
+      "span_start": 607,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/app/m/_lib/methodRules.ts",
+      "export_name": "RuleFull",
+      "is_type_only": true,
+      "line": 39,
+      "col": 12,
+      "span_start": 879,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/app/m/_lib/methodSections.ts",
+      "export_name": "SectionFull",
+      "is_type_only": true,
+      "line": 16,
+      "col": 12,
+      "span_start": 415,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/exports/verificationPackContract.ts",
+      "export_name": "TraceSectionLink",
+      "is_type_only": true,
+      "line": 1760,
+      "col": 90,
+      "span_start": 68563,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "BuildReviewQuestionSectionRetrievalInput",
+      "is_type_only": true,
+      "line": 14,
+      "col": 2,
+      "span_start": 472,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "QuickCheckPath",
+      "is_type_only": true,
+      "line": 15,
+      "col": 2,
+      "span_start": 516,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "ReviewQuestionDiagnostic",
+      "is_type_only": true,
+      "line": 17,
+      "col": 2,
+      "span_start": 548,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "ReviewQuestionMatchStage",
+      "is_type_only": true,
+      "line": 18,
+      "col": 2,
+      "span_start": 576,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "ReviewQuestionRetrievalResult",
+      "is_type_only": true,
+      "line": 20,
+      "col": 2,
+      "span_start": 628,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "ReviewQuestionStatus",
+      "is_type_only": true,
+      "line": 21,
+      "col": 2,
+      "span_start": 661,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "SectionMatchResult",
+      "is_type_only": true,
+      "line": 22,
+      "col": 2,
+      "span_start": 685,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/chat/quickCheckReviewQuestion.ts",
+      "export_name": "ReviewQuestionEvaluationResult",
+      "is_type_only": true,
+      "line": 24,
+      "col": 14,
+      "span_start": 762,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/documentModel/types.ts",
+      "export_name": "ParsedArtifacts",
+      "is_type_only": true,
+      "line": 85,
+      "col": 12,
+      "span_start": 2017,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/decisions/index.ts",
+      "export_name": "ReviewerDecision",
+      "is_type_only": true,
+      "line": 3,
+      "col": 2,
+      "span_start": 93,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/decisions/index.ts",
+      "export_name": "DecisionRun",
+      "is_type_only": true,
+      "line": 5,
+      "col": 2,
+      "span_start": 130,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/decisions/index.ts",
+      "export_name": "DecisionStatus",
+      "is_type_only": true,
+      "line": 6,
+      "col": 2,
+      "span_start": 145,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/decisions/index.ts",
+      "export_name": "DecisionWarning",
+      "is_type_only": true,
+      "line": 7,
+      "col": 2,
+      "span_start": 163,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/export/index.ts",
+      "export_name": "ManifestEntry",
+      "is_type_only": true,
+      "line": 5,
+      "col": 74,
+      "span_start": 366,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/export/index.ts",
+      "export_name": "PremiumExportMeta",
+      "is_type_only": true,
+      "line": 5,
+      "col": 55,
+      "span_start": 347,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/export/index.ts",
+      "export_name": "PremiumExportOutput",
+      "is_type_only": true,
+      "line": 5,
+      "col": 34,
+      "span_start": 326,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/export/pdfExporter.ts",
+      "export_name": "PdfPage",
+      "is_type_only": true,
+      "line": 118,
+      "col": 12,
+      "span_start": 3900,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/export/types.ts",
+      "export_name": "PremiumExportOutput",
+      "is_type_only": true,
+      "line": 31,
+      "col": 12,
+      "span_start": 990,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/export/types.ts",
+      "export_name": "PremiumExportMeta",
+      "is_type_only": true,
+      "line": 36,
+      "col": 12,
+      "span_start": 1060,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/extraction/types.ts",
+      "export_name": "ExtractionConfig",
+      "is_type_only": true,
+      "line": 91,
+      "col": 12,
+      "span_start": 1842,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/metrics/index.ts",
+      "export_name": "FragmentQuality",
+      "is_type_only": true,
+      "line": 3,
+      "col": 2,
+      "span_start": 60,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/metrics/index.ts",
+      "export_name": "SectionCoverage",
+      "is_type_only": true,
+      "line": 6,
+      "col": 2,
+      "span_start": 128,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/metrics/index.ts",
+      "export_name": "EvidenceQualityMetrics",
+      "is_type_only": true,
+      "line": 7,
+      "col": 2,
+      "span_start": 147,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/metrics/index.ts",
+      "export_name": "MetricsInput",
+      "is_type_only": true,
+      "line": 8,
+      "col": 2,
+      "span_start": 173,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/metrics/types.ts",
+      "export_name": "MetricsInput",
+      "is_type_only": true,
+      "line": 42,
+      "col": 12,
+      "span_start": 1119,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/reconciliation/index.ts",
+      "export_name": "ReconciliationRun",
+      "is_type_only": true,
+      "line": 4,
+      "col": 2,
+      "span_start": 89,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/reconciliation/index.ts",
+      "export_name": "ReconciliationItem",
+      "is_type_only": true,
+      "line": 5,
+      "col": 2,
+      "span_start": 110,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/reconciliation/index.ts",
+      "export_name": "ReconciliationItemStatus",
+      "is_type_only": true,
+      "line": 6,
+      "col": 2,
+      "span_start": 132,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/reconciliation/index.ts",
+      "export_name": "ReconciliationStatus",
+      "is_type_only": true,
+      "line": 7,
+      "col": 2,
+      "span_start": 160,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/evidence/reconciliation/index.ts",
+      "export_name": "CoverageGap",
+      "is_type_only": true,
+      "line": 8,
+      "col": 2,
+      "span_start": 184,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/mode.ts",
+      "export_name": "VerifyView",
+      "is_type_only": true,
+      "line": 12,
+      "col": 12,
+      "span_start": 393,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/projects/types.ts",
+      "export_name": "ReviewedLearningCase",
+      "is_type_only": true,
+      "line": 62,
+      "col": 12,
+      "span_start": 2092,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/types.ts",
+      "export_name": "VerificationSnapshot",
+      "is_type_only": true,
+      "line": 181,
+      "col": 12,
+      "span_start": 4245,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/proofMap/types.ts",
+      "export_name": "ProofMapState",
+      "is_type_only": true,
+      "line": 185,
+      "col": 12,
+      "span_start": 4326,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "PreferredSectionBoost",
+      "is_type_only": true,
+      "line": 69,
+      "col": 12,
+      "span_start": 2096,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "TitlePenalty",
+      "is_type_only": true,
+      "line": 70,
+      "col": 12,
+      "span_start": 2177,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "ReviewAreaPolicyInput",
+      "is_type_only": true,
+      "line": 71,
+      "col": 12,
+      "span_start": 2240,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "ReviewPolicyConfig",
+      "is_type_only": true,
+      "line": 74,
+      "col": 12,
+      "span_start": 2467,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "ReviewPolicyAreaKey",
+      "is_type_only": true,
+      "line": 76,
+      "col": 12,
+      "span_start": 2543,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/quickCheck/policy/types.ts",
+      "export_name": "ReviewPolicyStage",
+      "is_type_only": true,
+      "line": 77,
+      "col": 12,
+      "span_start": 2589,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "EvidenceSnapshotState",
+      "is_type_only": true,
+      "line": 3,
+      "col": 2,
+      "span_start": 36,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "SnapshotComparableSectionMap",
+      "is_type_only": true,
+      "line": 5,
+      "col": 2,
+      "span_start": 85,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "SnapshotDiffKind",
+      "is_type_only": true,
+      "line": 7,
+      "col": 2,
+      "span_start": 137,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "SnapshotDiffSectionSummary",
+      "is_type_only": true,
+      "line": 9,
+      "col": 2,
+      "span_start": 183,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "SnapshotProjectMeta",
+      "is_type_only": true,
+      "line": 10,
+      "col": 2,
+      "span_start": 213,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/index.ts",
+      "export_name": "SnapshotExport",
+      "is_type_only": true,
+      "line": 17,
+      "col": 14,
+      "span_start": 602,
+      "is_re_export": true,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration",
+          "note": "This finding originates from a re-export; verify it is not part of your public API before removing"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/snapshot/types_v2.ts",
+      "export_name": "SnapshotComparableSectionMap",
+      "is_type_only": true,
+      "line": 120,
+      "col": 12,
+      "span_start": 2955,
+      "is_re_export": false,
+      "actions": [
+        {
+          "type": "remove-export",
+          "auto_fixable": true,
+          "description": "Remove the `export` (or `export type`) keyword from the type declaration"
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line unused-type"
+        }
+      ]
+    }
+  ],
+  "private_type_leaks": [],
+  "unused_dependencies": [],
+  "unused_dev_dependencies": [
+    {
+      "package_name": "eslint-config-next",
+      "location": "devDependencies",
+      "path": "package.json",
+      "line": 91,
+      "actions": [
+        {
+          "type": "remove-dependency",
+          "auto_fixable": true,
+          "description": "Remove from devDependencies in package.json"
+        },
+        {
+          "type": "add-to-config",
+          "auto_fixable": false,
+          "description": "Add \"eslint-config-next\" to ignoreDependencies in fallow config",
+          "config_key": "ignoreDependencies",
+          "value": "eslint-config-next",
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreDependencies/items"
+        }
+      ]
+    },
+    {
+      "package_name": "jest-environment-node",
+      "location": "devDependencies",
+      "path": "package.json",
+      "line": 97,
+      "actions": [
+        {
+          "type": "remove-dependency",
+          "auto_fixable": true,
+          "description": "Remove from devDependencies in package.json"
+        },
+        {
+          "type": "add-to-config",
+          "auto_fixable": false,
+          "description": "Add \"jest-environment-node\" to ignoreDependencies in fallow config",
+          "config_key": "ignoreDependencies",
+          "value": "jest-environment-node",
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreDependencies/items"
+        }
+      ]
+    }
+  ],
+  "unused_optional_dependencies": [],
+  "unused_enum_members": [],
+  "unused_class_members": [],
+  "unresolved_imports": [],
+  "unlisted_dependencies": [
+    {
+      "package_name": "@napi-rs/canvas",
+      "imported_from": [
+        {
+          "path": "src/lib/chat/quickCheckPdfExtractor.ts",
+          "line": 137,
+          "col": 31
+        }
+      ],
+      "actions": [
+        {
+          "type": "install-dependency",
+          "auto_fixable": false,
+          "description": "Add this package to dependencies in package.json",
+          "note": "Verify this package should be a direct dependency before adding"
+        },
+        {
+          "type": "add-to-config",
+          "auto_fixable": false,
+          "description": "Add \"@napi-rs/canvas\" to ignoreDependencies in fallow config",
+          "config_key": "ignoreDependencies",
+          "value": "@napi-rs/canvas",
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreDependencies/items"
+        }
+      ]
+    },
+    {
+      "package_name": "tsconfig-paths",
+      "imported_from": [
+        {
+          "path": "scripts/build-audit-pack.mjs",
+          "line": 18,
+          "col": 0
+        },
+        {
+          "path": "scripts/ci-verify-run-summary.mjs",
+          "line": 10,
+          "col": 0
+        },
+        {
+          "path": "scripts/test-evidence-map-smoke.cjs",
+          "line": 6,
+          "col": 0
+        },
+        {
+          "path": "scripts/verify-export-snapshot.mjs",
+          "line": 10,
+          "col": 0
+        }
+      ],
+      "actions": [
+        {
+          "type": "install-dependency",
+          "auto_fixable": false,
+          "description": "Add this package to dependencies in package.json",
+          "note": "Verify this package should be a direct dependency before adding"
+        },
+        {
+          "type": "add-to-config",
+          "auto_fixable": false,
+          "description": "Add \"tsconfig-paths\" to ignoreDependencies in fallow config",
+          "config_key": "ignoreDependencies",
+          "value": "tsconfig-paths",
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreDependencies/items"
+        }
+      ]
+    }
+  ],
+  "duplicate_exports": [
+    {
+      "export_name": "EvidenceAttachment",
+      "locations": [
+        {
+          "path": "src/lib/proofMap/types.ts",
+          "line": 122,
+          "col": 12
+        },
+        {
+          "path": "src/lib/verify/reviewStore.ts",
+          "line": 3,
+          "col": 12
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/proofMap/types.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/verify/reviewStore.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "ReconciliationItemStatus",
+      "locations": [
+        {
+          "path": "src/lib/evidence/inventory.ts",
+          "line": 23,
+          "col": 12
+        },
+        {
+          "path": "src/lib/evidence/reconciliation/types.ts",
+          "line": 1,
+          "col": 12
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/evidence/inventory.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/evidence/reconciliation/types.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "RuleReview",
+      "locations": [
+        {
+          "path": "src/lib/projects/types.ts",
+          "line": 69,
+          "col": 12
+        },
+        {
+          "path": "src/lib/verify/reviewStore.ts",
+          "line": 11,
+          "col": 12
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/projects/types.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/verify/reviewStore.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "buildEvidenceSnapshot",
+      "locations": [
+        {
+          "path": "src/lib/proof/bundle.ts",
+          "line": 74,
+          "col": 16
+        },
+        {
+          "path": "src/lib/proofMap/evidenceSnapshot.ts",
+          "line": 350,
+          "col": 22
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/proof/bundle.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/proofMap/evidenceSnapshot.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "canonicalJsonStringify",
+      "locations": [
+        {
+          "path": "src/lib/auditTrail/canonicalJson.ts",
+          "line": 14,
+          "col": 16
+        },
+        {
+          "path": "src/lib/export/canonicalJson.ts",
+          "line": 14,
+          "col": 16
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/auditTrail/canonicalJson.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/export/canonicalJson.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "composeGoldStandardVerificationReport",
+      "locations": [
+        {
+          "path": "src/lib/composers/composeGoldStandardVerificationReport.ts",
+          "line": 86,
+          "col": 16
+        },
+        {
+          "path": "src/lib/projects/verificationReport.ts",
+          "line": 432,
+          "col": 16
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/composers/composeGoldStandardVerificationReport.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/projects/verificationReport.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "composeVerraVerificationReport",
+      "locations": [
+        {
+          "path": "src/lib/composers/composeVerraVerificationReport.ts",
+          "line": 90,
+          "col": 16
+        },
+        {
+          "path": "src/lib/projects/verificationReport.ts",
+          "line": 428,
+          "col": 16
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/composers/composeVerraVerificationReport.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/projects/verificationReport.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "getProjectCoverage",
+      "locations": [
+        {
+          "path": "src/lib/projects/exportPdf.ts",
+          "line": 52,
+          "col": 16
+        },
+        {
+          "path": "src/lib/projects/storage.ts",
+          "line": 181,
+          "col": 16
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/projects/exportPdf.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/projects/storage.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    },
+    {
+      "export_name": "sha256Hex",
+      "locations": [
+        {
+          "path": "src/lib/auditTrail/hash.ts",
+          "line": 7,
+          "col": 22
+        },
+        {
+          "path": "src/lib/proof/bundle.ts",
+          "line": 152,
+          "col": 22
+        },
+        {
+          "path": "src/lib/proof/fingerprints.ts",
+          "line": 20,
+          "col": 22
+        }
+      ],
+      "actions": [
+        {
+          "type": "add-to-config",
+          "auto_fixable": true,
+          "description": "Add an ignoreExports rule so these files are excluded from duplicate-export grouping (use when this duplication is an intentional namespace-barrel API).",
+          "config_key": "ignoreExports",
+          "value": [
+            {
+              "file": "src/lib/auditTrail/hash.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/proof/bundle.ts",
+              "exports": [
+                "*"
+              ]
+            },
+            {
+              "file": "src/lib/proof/fingerprints.ts",
+              "exports": [
+                "*"
+              ]
+            }
+          ],
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreExports"
+        },
+        {
+          "type": "remove-duplicate",
+          "auto_fixable": false,
+          "description": "Keep one canonical export location and remove the others",
+          "note": "If every location is the sole `index.*` of its directory, this is likely an intentional namespace-barrel API. Prefer adding these files to `ignoreExports` over removing exports."
+        },
+        {
+          "type": "suppress-line",
+          "auto_fixable": false,
+          "description": "Suppress with an inline comment above the line",
+          "comment": "// fallow-ignore-next-line duplicate-export",
+          "scope": "per-location"
+        }
+      ]
+    }
+  ],
+  "type_only_dependencies": [],
+  "test_only_dependencies": [
+    {
+      "package_name": "fake-indexeddb",
+      "path": "package.json",
+      "line": 68,
+      "actions": [
+        {
+          "type": "move-to-dev",
+          "auto_fixable": false,
+          "description": "Move to devDependencies (only test files import this)",
+          "note": "Only test files import this package so it does not need to be a production dependency"
+        },
+        {
+          "type": "add-to-config",
+          "auto_fixable": false,
+          "description": "Add \"fake-indexeddb\" to ignoreDependencies in fallow config",
+          "config_key": "ignoreDependencies",
+          "value": "fake-indexeddb",
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreDependencies/items"
+        }
+      ]
+    },
+    {
+      "package_name": "react-dom",
+      "path": "package.json",
+      "line": 77,
+      "actions": [
+        {
+          "type": "move-to-dev",
+          "auto_fixable": false,
+          "description": "Move to devDependencies (only test files import this)",
+          "note": "Only test files import this package so it does not need to be a production dependency"
+        },
+        {
+          "type": "add-to-config",
+          "auto_fixable": false,
+          "description": "Add \"react-dom\" to ignoreDependencies in fallow config",
+          "config_key": "ignoreDependencies",
+          "value": "react-dom",
+          "value_schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json#/properties/ignoreDependencies/items"
+        }
+      ]
+    }
+  ],
+  "circular_dependencies": [],
+  "re_export_cycles": [],
+  "boundary_violations": [],
+  "stale_suppressions": [],
+  "unused_catalog_entries": [],
+  "empty_catalog_groups": [],
+  "unresolved_catalog_references": [],
+  "unused_dependency_overrides": [],
+  "misconfigured_dependency_overrides": []
+}
