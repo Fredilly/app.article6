@@ -9,6 +9,7 @@ import type {
   DocumentAnswerEvidence,
   DocumentQuestionAnswer,
   ReviewArea,
+  ReviewQuestionDocumentDiagnostic,
   ReviewQuestionRetrievalResult,
 } from "@/lib/quickCheck/retrieval/types";
 import type { ReviewQuestionEvaluationResult } from "@/lib/quickCheck/evaluation/types";
@@ -194,5 +195,14 @@ export function buildDocumentQuestionAnswer(input: {
       documentEvidenceCount: evidence.length,
       methodologyRuleMatched,
     },
+  };
+}
+
+export function buildReviewQuestionDocumentDiagnostic(documentAnswer: DocumentQuestionAnswer): ReviewQuestionDocumentDiagnostic {
+  return {
+    reviewQuestionRoutingFired: documentAnswer.diagnostic.reviewQuestionRoutingFired,
+    rawPddTextAvailable: documentAnswer.diagnostic.rawPddTextAvailable,
+    documentEvidenceCount: documentAnswer.diagnostic.documentEvidenceCount,
+    methodologyRuleMatched: documentAnswer.diagnostic.methodologyRuleMatched,
   };
 }

@@ -113,6 +113,13 @@ export type DocumentQuestionAnswer = {
   };
 };
 
+export type ReviewQuestionDocumentDiagnostic = {
+  reviewQuestionRoutingFired: boolean;
+  rawPddTextAvailable: boolean;
+  documentEvidenceCount: number;
+  methodologyRuleMatched: boolean;
+};
+
 export type SemanticEvidenceCandidate = {
   blockId: string;
   page: number | null;
@@ -148,6 +155,7 @@ export type ReviewQuestionResult = {
   phase1Diagnostic?: ReviewQuestionDiagnostic;
   routingDiagnostic?: ReviewRoutingDiagnostic;
   documentAnswer: DocumentQuestionAnswer;
+  documentDiagnostic: ReviewQuestionDocumentDiagnostic;
   semanticEvidenceCandidates?: SemanticEvidenceCandidate[];
   semanticEvidenceStatus?: SemanticEvidenceStatus;
   semanticEvidenceWarning?: string;
@@ -155,7 +163,7 @@ export type ReviewQuestionResult = {
 
 export type ReviewQuestionRetrievalResult = Omit<
   ReviewQuestionResult,
-  "baselineReview" | "reviewAreaReview" | "documentAnswer" | "semanticEvidenceCandidates" | "semanticEvidenceStatus" | "semanticEvidenceWarning"
+  "baselineReview" | "reviewAreaReview" | "documentAnswer" | "documentDiagnostic" | "semanticEvidenceCandidates" | "semanticEvidenceStatus" | "semanticEvidenceWarning"
 > & {
   rejectedMatches: RejectedHeadingQueryMatch[];
 };

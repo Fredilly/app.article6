@@ -36,6 +36,7 @@ import type {
 const BROAD_QUESTION_PATTERNS: RegExp[] = [
   /^does\s+(?:this|the)\s+pdd\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate|address)/i,
   /^does\s+the\s+document\s+(?:justify|explain|disclose|support|define|describe|identify|include|contain|provide|estimate|demonstrate|assess|evaluate|confirm|prove|evidence|substantiate|address)/i,
+  /^are\s+.+\b(?:documented|described|addressed|supported|included|identified|disclosed)\b/i,
   /^is\s+the\s+baseline/i,
   /^is\s+additionality/i,
   /^is\s+there\s+(?:(?:a|an|the)\s+)?(?:baseline|justification|evidence|support)/i,

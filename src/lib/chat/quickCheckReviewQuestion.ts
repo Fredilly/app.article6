@@ -8,7 +8,7 @@ import {
   evaluateRetrievedReviewQuestion,
 } from "@/lib/quickCheck/evaluation/evaluateEvidence";
 import { parseDocumentText } from "@/lib/documentParsing";
-import { buildDocumentQuestionAnswer } from "@/lib/quickCheck/documentQa";
+import { buildDocumentQuestionAnswer, buildReviewQuestionDocumentDiagnostic } from "@/lib/quickCheck/documentQa";
 
 export type {
   BuildReviewQuestionSectionRetrievalInput,
@@ -58,5 +58,6 @@ export function buildReviewQuestionResult(input: {
     ...retrieval,
     ...evaluation,
     documentAnswer,
+    documentDiagnostic: buildReviewQuestionDocumentDiagnostic(documentAnswer),
   };
 }

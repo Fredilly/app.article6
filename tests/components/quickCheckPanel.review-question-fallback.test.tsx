@@ -48,7 +48,7 @@ describe("QuickCheckPanel review-question fallback", () => {
     await putAttachmentBytes(attachmentId, asArrayBuffer(new TextEncoder().encode(text)));
   }
 
-  function seedSession(input: { claimText: string; filename: string; attachmentId?: string }) {
+  function seedSession(input: { claimText: string; filename: string; attachmentId?: string; methodologyId?: string; methodologyVersion?: string }) {
     const attachmentId = input.attachmentId ?? "att-upload-1";
     window.localStorage.setItem(
       "a6:quick-check:claim-first:v1",
@@ -56,8 +56,8 @@ describe("QuickCheckPanel review-question fallback", () => {
         draft: {
           id: "draft-review-fallback",
           claimText: input.claimText,
-          methodologyId: "",
-          methodologyVersion: "",
+          methodologyId: input.methodologyId ?? "",
+          methodologyVersion: input.methodologyVersion ?? "",
           evidenceIds: ["upload-1"],
           status: "draft",
           createdAt: "2026-04-04T00:00:00Z",
@@ -211,6 +211,32 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).toContain("No methodology rule matched, but the uploaded document contains relevant evidence");
     expect(text).toContain("The monitoring plan describes annual plot measurements and QA procedures");
     expect(text).not.toContain("No valid analysis path");
+  });
+
+  it("shows the document-first leakage card even when VM0007 is selected and no methodology rule matches", async () => {
+    seedSession({
+      claimText: "Are leakage mitigation measures documented?",
+      filename: "flat-leakage.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["flat-leakage.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("No methodology rule matched, but the uploaded document contains relevant evidence");
+    expect(text).toContain("The project assesses leakage risk from activity shifting each year");
+    expect(text).not.toContain("No valid analysis path in VM0007");
   });
 
   it("still renders the Document Q&A card when no raw document text is available", async () => {

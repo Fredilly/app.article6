@@ -160,6 +160,9 @@ describe("detectReviewPath", () => {
   it("routes 'Does the document address leakage?' to review_question_answering", () => {
     expect(detectReviewPath("Does the document address leakage?")).toBe("review_question_answering");
   });
+  it("routes 'Are leakage mitigation measures documented?' to review_question_answering", () => {
+    expect(detectReviewPath("Are leakage mitigation measures documented?")).toBe("review_question_answering");
+  });
 
   it("routes right-of-use questions with natural verbs like 'demonstrate' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD demonstrate legal right of use for the project area?")).toBe("review_question_answering");
@@ -1179,12 +1182,31 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.documentAnswer.methodologyRuleMatched).toBe(false);
     expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
     expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
+    expect(result.documentDiagnostic).toEqual(expect.objectContaining({
+      reviewQuestionRoutingFired: true,
+      rawPddTextAvailable: true,
+      documentEvidenceCount: expect.any(Number),
+      methodologyRuleMatched: false,
+    }));
     expect(result.documentAnswer.diagnostic).toEqual(expect.objectContaining({
       reviewQuestionRoutingFired: true,
       rawPddTextAvailable: true,
       documentEvidenceCount: expect.any(Number),
       methodologyRuleMatched: false,
     }));
+  });
+
+  it("returns document-grounded leakage evidence for mitigation-documentation phrasing", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Are leakage mitigation measures documented?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: FLAT_LEAKAGE_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("leakage");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentDiagnostic.methodologyRuleMatched).toBe(false);
   });
 
   it("returns document-grounded monitoring evidence even when no rule ID is matched", () => {
@@ -1213,6 +1235,12 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.documentAnswer.status).toBe("unclear");
     expect(result.documentAnswer.evidence).toEqual([]);
     expect(result.documentAnswer.explanation).toContain("parsed document text was unavailable");
+    expect(result.documentDiagnostic).toEqual({
+      reviewQuestionRoutingFired: true,
+      rawPddTextAvailable: false,
+      documentEvidenceCount: 0,
+      methodologyRuleMatched: false,
+    });
     expect(result.documentAnswer.diagnostic).toEqual({
       reviewQuestionRoutingFired: true,
       rawPddTextAvailable: false,
