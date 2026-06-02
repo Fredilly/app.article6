@@ -5,6 +5,9 @@ function uniqueMentions(...groups: Array<string[] | undefined>): string[] {
   return Array.from(new Set(groups.flatMap((group) => group ?? []).map((item) => item.trim()).filter(Boolean)));
 }
 
+const RECOVERED_TEXT_WARNING =
+  "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
+
 export async function resolveQuickCheckPdfText(input: {
   bytes: ArrayBuffer;
   filename: string;
@@ -61,9 +64,7 @@ export async function resolveQuickCheckPdfText(input: {
       engine === "heuristic"
         ? failureKind === "no-selectable-text"
           ? "No selectable text found in this PDF."
-          : payload.metadata?.fallbackReason
-            ? `PDF parser fallback: ${payload.metadata.fallbackReason}`
-            : "PDF parser fallback: heuristic extraction was used."
+          : RECOVERED_TEXT_WARNING
         : undefined;
     const serverText = payload.text ?? "";
     const serverMentions = extractMethodologyMentions(serverText);
@@ -77,7 +78,7 @@ export async function resolveQuickCheckPdfText(input: {
       text,
       engine: shouldRecoverTextLocally ? "heuristic" : engine,
       methodologyMentions: uniqueMentions(serverMentions, localHeuristicMentions),
-      warning,
+      warning: shouldRecoverTextLocally && text.trim() ? RECOVERED_TEXT_WARNING : warning,
       diagnosticCode: failureKind,
     };
   } catch (err) {
@@ -89,9 +90,11 @@ export async function resolveQuickCheckPdfText(input: {
       text: localHeuristicText,
       engine: "heuristic",
       methodologyMentions: localHeuristicMentions,
-      warning: isRequestFailure
-        ? "Quick Check PDF extraction request failed (service or network issue). Using local fallback (weaker results)."
-        : "PDF extraction request failed, using local fallback extraction.",
+      warning: localHeuristicText.trim()
+        ? RECOVERED_TEXT_WARNING
+        : isRequestFailure
+          ? "Quick Check PDF extraction request failed (service or network issue)."
+          : "PDF extraction request failed.",
       diagnosticCode: isRequestFailure ? "upload-request-failed" : "parser-failed",
     };
   }

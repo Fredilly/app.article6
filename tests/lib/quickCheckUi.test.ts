@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { describe, expect, it } from "@jest/globals";
 import {
   buildExtractionPreviewViewModel,
@@ -121,7 +123,7 @@ describe("quick check ui helpers", () => {
           },
         ],
         parsedEvidenceLabels: ["fresh-monitoring-report.pdf"],
-        documentTypes: ["PDD / PDF"],
+        documentTypes: ["Document"],
         methodologyMentions: ["AR-ACM0003"],
         extractionConfidence: 0.78,
         warnings: [],
@@ -163,7 +165,7 @@ describe("quick check ui helpers", () => {
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
     expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period"]);
-    expect(view.signalSummary).toContain("reporting period");
+    expect(view.signalSummary).toBe("Recovered text points to reporting period.");
   });
 
   it("shows a warning and fallback labels when methodology is not confidently detected", () => {
@@ -244,6 +246,105 @@ describe("quick check ui helpers", () => {
     });
 
     expect(view.signals.map((signal) => signal.label)).toEqual(["Project boundary"]);
+  });
+
+  it("detects project document type and methodology from recovered fallback text", () => {
+    const rawPddText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/rimba-raya-fallback.txt"), "utf8");
+    const view = buildExtractionPreviewViewModel({
+      fileName: "Rimba_Raya_Project_Document.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "project-document",
+            category: "project-document",
+            summary: "The file identifies itself as a project document",
+            matchText: "project document identified",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+          {
+            id: "baseline-scenario",
+            category: "baseline-scenario",
+            summary: "The file describes the baseline scenario",
+            matchText: "baseline scenario described",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+          {
+            id: "stakeholder-consultation",
+            category: "stakeholder-consultation",
+            summary: "The file records stakeholder consultation",
+            matchText: "stakeholder consultation documented",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+          {
+            id: "leakage",
+            category: "leakage",
+            summary: "The file discusses leakage",
+            matchText: "leakage discussed",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["Rimba_Raya_Project_Document.pdf"],
+        documentTypes: ["Document"],
+        methodologyMentions: ["VM0004"],
+        extractionConfidence: 0.68,
+        warnings: [
+          "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+        ],
+        rawPddText,
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: ["VM0004"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.detectedDocumentType).toBe("Project Document");
+    expect(view.detectedMethodology).toBe("VM0004 · v1-0");
+    expect(view.warning).toBe(
+      "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+    );
+    expect(view.signals.map((signal) => signal.label)).toEqual([
+      "Project document",
+      "Baseline scenario",
+      "Stakeholder consultation",
+      "Leakage",
+    ]);
+  });
+
+  it("shows the weak recovered-text summary when no strong signals are found", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "weak-unknown.pdf",
+      analysis: {
+        facts: [],
+        parsedEvidenceLabels: ["weak-unknown.pdf"],
+        documentTypes: ["Document"],
+        methodologyMentions: [],
+        extractionConfidence: 0.22,
+        warnings: [],
+        rawPddText: fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/weak-unknown-fallback.txt"), "utf8"),
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.signals).toEqual([]);
+    expect(view.signalSummary).toBe(
+      "No strong document signals found yet. Open extraction details to inspect parsed text.",
+    );
+    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedMethodology).toBe("Not confidently detected");
   });
 
   it("normalizes a preliminary match result", () => {

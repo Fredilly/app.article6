@@ -83,17 +83,27 @@ function formatFactPreview(fact: QuickCheckEvidenceFact, options?: { useDetail?:
 }
 
 function previewPriority(fact: QuickCheckEvidenceFact): number {
-  if (fact.category === "reporting-period") return 0;
-  if (fact.category === "project-location") return 1;
-  if (fact.category === "mapped-area") return 2;
-  if (fact.category === "monitoring-evidence") return 3;
-  if (fact.category === "monitoring-plan") return 4;
-  if (fact.category === "boundary") return 5;
-  if (fact.category === "coordinates") return 6;
-  if (fact.category === "workbook-reference") return 7;
-  if (fact.category === "monitoring-records") return 8;
-  if (fact.category === "plot-count") return 9;
-  return 10;
+  if (fact.category === "project-document") return 0;
+  if (fact.category === "reporting-period") return 1;
+  if (fact.category === "monitoring-plan") return 2;
+  if (fact.category === "boundary") return 3;
+  if (fact.category === "mapped-area") return 4;
+  if (fact.category === "project-location") return 5;
+  if (fact.category === "baseline-scenario") return 6;
+  if (fact.category === "additionality") return 7;
+  if (fact.category === "stakeholder-consultation") return 8;
+  if (fact.category === "validation-evidence") return 9;
+  if (fact.category === "leakage") return 10;
+  if (fact.category === "risk-assessment") return 11;
+  if (fact.category === "redd") return 12;
+  if (fact.category === "carbon-pools") return 13;
+  if (fact.category === "ghg-reductions") return 14;
+  if (fact.category === "coordinates") return 15;
+  if (fact.category === "workbook-reference") return 16;
+  if (fact.category === "monitoring-evidence") return 17;
+  if (fact.category === "monitoring-records") return 18;
+  if (fact.category === "plot-count") return 19;
+  return 20;
 }
 
 function confidenceBucket(value: number | null | undefined): ExtractionPreviewConfidence {
@@ -108,9 +118,11 @@ function documentTypeLabel(input: { fileName?: string | null; rawText?: string |
   if (fallback === "Workbook" || fallback === "Image") return fallback;
 
   const haystack = `${input.fileName ?? ""}\n${input.rawText ?? ""}`.toLowerCase();
-  if (/\bvalidation report\b/.test(haystack)) return "Validation Report";
-  if (/\bmonitoring report\b/.test(haystack)) return "Monitoring Report";
   if (/\bproject design document\b|\bpdd\b/.test(haystack)) return "Project Design Document";
+  if (/\bproject document\b/.test(haystack)) return "Project Document";
+  if (/\bvalidation report\b/.test(haystack)) return "Validation Report";
+  if (/\bverification report\b/.test(haystack)) return "Verification Report";
+  if (/\bmonitoring report\b/.test(haystack)) return "Monitoring Report";
 
   if (fallback && fallback !== "PDD / PDF" && fallback !== "Document" && fallback !== "Unknown document") {
     return fallback;
@@ -121,6 +133,8 @@ function documentTypeLabel(input: { fileName?: string | null; rawText?: string |
 
 function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
   switch (category) {
+    case "project-document":
+      return "Project document";
     case "boundary":
       return "Project boundary";
     case "coordinates":
@@ -131,6 +145,24 @@ function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
       return "Project location";
     case "monitoring-plan":
       return "Monitoring plan";
+    case "baseline-scenario":
+      return "Baseline scenario";
+    case "additionality":
+      return "Additionality";
+    case "stakeholder-consultation":
+      return "Stakeholder consultation";
+    case "validation-evidence":
+      return "Validation evidence";
+    case "leakage":
+      return "Leakage";
+    case "risk-assessment":
+      return "Risk assessment";
+    case "redd":
+      return "REDD";
+    case "carbon-pools":
+      return "Carbon pools";
+    case "ghg-reductions":
+      return "GHG reductions";
     case "workbook-reference":
       return "Workbook reference";
     case "monitoring-evidence":
@@ -151,6 +183,9 @@ function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
 function signalLabelFromFact(fact: QuickCheckEvidenceFact): string | null {
   const haystack = `${fact.summary} ${fact.detail ?? ""}`.toLowerCase();
 
+  if (fact.category === "project-document" || /project document|project design document/.test(haystack)) {
+    return "Project document";
+  }
   if (fact.category === "reporting-period" || /reporting period|monitoring period|coverage period|quarter|q[1-4]/.test(haystack)) {
     return "Reporting period";
   }
@@ -175,6 +210,33 @@ function signalLabelFromFact(fact: QuickCheckEvidenceFact): string | null {
   if (fact.category === "qa-summary" || /stakeholder|community meeting|grievance|consultation/.test(haystack)) {
     return /stakeholder|community meeting|consultation|grievance/.test(haystack) ? "Stakeholder consultation" : "QA summary";
   }
+  if (fact.category === "stakeholder-consultation") {
+    return "Stakeholder consultation";
+  }
+  if (fact.category === "baseline-scenario" || /baseline scenario|baseline conditions|without-project scenario|reference scenario/.test(haystack)) {
+    return "Baseline scenario";
+  }
+  if (fact.category === "additionality" || /additionality/.test(haystack)) {
+    return "Additionality";
+  }
+  if (fact.category === "validation-evidence" || /validation report|validated by|validation body|validation statement/.test(haystack)) {
+    return "Validation evidence";
+  }
+  if (fact.category === "leakage" || /leakage/.test(haystack)) {
+    return "Leakage";
+  }
+  if (fact.category === "risk-assessment" || /risk assessment|risk analysis|reversal risk|buffer pool risk/.test(haystack)) {
+    return "Risk assessment";
+  }
+  if (fact.category === "redd" || /\bredd\b|reduced emissions from deforestation and forest degradation/.test(haystack)) {
+    return "REDD";
+  }
+  if (fact.category === "carbon-pools" || /carbon pools|above-ground biomass|below-ground biomass|dead wood|litter|soil organic carbon/.test(haystack)) {
+    return "Carbon pools";
+  }
+  if (fact.category === "ghg-reductions" || /ghg reductions|greenhouse gas reductions|emission reductions|net anthropogenic removals/.test(haystack)) {
+    return "GHG reductions";
+  }
   if (fact.category === "monitoring-records" || /monitoring records|sampling log|activity data/.test(haystack)) {
     return "Monitoring records";
   }
@@ -195,9 +257,34 @@ function signalLabelFromFact(fact: QuickCheckEvidenceFact): string | null {
 function buildSignalSummary(signals: ExtractionPreviewViewModel["signals"]): string | undefined {
   if (!signals.length) return undefined;
   const labels = signals.map((signal) => signal.label);
-  if (labels.length === 1) return `We found a strong signal for ${labels[0].toLowerCase()}.`;
-  if (labels.length === 2) return `We found strong signals for ${labels[0].toLowerCase()} and ${labels[1].toLowerCase()}.`;
-  return `We found strong signals this document includes ${labels.slice(0, -1).join(", ").toLowerCase()}, and ${labels[labels.length - 1].toLowerCase()}.`;
+  if (labels.length === 1) return `Recovered text points to ${labels[0].toLowerCase()}.`;
+  if (labels.length === 2) return `Recovered text points to ${labels[0].toLowerCase()} and ${labels[1].toLowerCase()}.`;
+  return `Recovered text points to ${labels.slice(0, -1).join(", ").toLowerCase()}, and ${labels[labels.length - 1].toLowerCase()}.`;
+}
+
+function normalizeDetectedVersion(rawVersion: string): string {
+  const compact = rawVersion.trim().replace(/\s+/g, "");
+  const normalized = compact.replace(/^version/i, "v").replace(/\./g, "-");
+  return normalized.toLowerCase().startsWith("v") ? normalized.toLowerCase() : `v${normalized.toLowerCase()}`;
+}
+
+function detectMethodologyFromRecoveredText(rawText: string | undefined, mentions: string[]): { label: string; confidence: ExtractionPreviewConfidence } | null {
+  const prioritized = prioritizeMethodologyMentions(mentions);
+  const methodCode = prioritized.find((mention) => /^(VM\d{4}|ACM\d{4}|AM\d{4}|AR-[A-Z]{2,}\d{4}|AMS-[A-Z0-9.]+|VMR\d{3,4}|GS-VER\d+)$/i.test(mention));
+  if (!methodCode) return null;
+
+  const normalizedCode = methodCode.toUpperCase();
+  const text = rawText ?? "";
+  const escapedCode = normalizedCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace("-", "[-\\s]?");
+  const versionMatch =
+    text.match(new RegExp(`${escapedCode}[\\s\\S]{0,120}?(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})`, "i")) ??
+    text.match(new RegExp(`(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})[\\s\\S]{0,120}?${escapedCode}`, "i"));
+
+  const version = versionMatch?.[1] ? normalizeDetectedVersion(versionMatch[1]) : null;
+  return {
+    label: version ? `${normalizedCode} · ${version}` : normalizedCode,
+    confidence: version ? "medium" : "low",
+  };
 }
 
 export function buildExtractionPreviewViewModel(input: {
@@ -226,9 +313,11 @@ export function buildExtractionPreviewViewModel(input: {
     .filter(Boolean)
     .slice(0, 4) as ExtractionPreviewViewModel["signals"];
 
-  let detectedMethodology = "Not confidently detected";
+  const recoveredMethodology = detectMethodologyFromRecoveredText(input.analysis.rawPddText, input.analysis.methodologyMentions);
+  let detectedMethodology = recoveredMethodology?.label ?? "Not confidently detected";
   let methodologyConfidence: ExtractionPreviewConfidence =
-    input.analysis.methodologyMentions.length > 0 ? confidenceBucket(input.analysis.extractionConfidence) : "unknown";
+    recoveredMethodology?.confidence ??
+    (input.analysis.methodologyMentions.length > 0 ? confidenceBucket(input.analysis.extractionConfidence) : "unknown");
 
   if (input.methodologyResolution?.status === "single") {
     const matched = input.methodologyResolution.matchedMethods[0];
@@ -238,10 +327,13 @@ export function buildExtractionPreviewViewModel(input: {
     methodologyConfidence = "low";
   }
 
+  const fallbackWarning = input.analysis.warnings.find((warning) => /recovered document signals locally/i.test(warning));
   const warning =
-    input.methodologyResolution?.status === "single" && methodologyConfidence !== "low"
+    fallbackWarning ??
+    (detectedMethodology !== "Not confidently detected" ||
+      (input.methodologyResolution?.status === "single" && methodologyConfidence !== "low")
       ? undefined
-      : "Methodology was not confidently detected. Matches below may need review.";
+      : "Methodology was not confidently detected. Matches below may need review.");
 
   return {
     fileName: input.fileName?.trim() || undefined,
@@ -255,7 +347,9 @@ export function buildExtractionPreviewViewModel(input: {
     warning,
     signalSummary:
       buildSignalSummary(signals) ??
-      (input.analysis.parsedEvidenceLabels.length > 0 ? "We could read the file, but did not extract grounded review signals yet." : undefined),
+      (input.analysis.parsedEvidenceLabels.length > 0
+        ? "No strong document signals found yet. Open extraction details to inspect parsed text."
+        : undefined),
     signals,
   };
 }

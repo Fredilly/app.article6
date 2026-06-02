@@ -1,11 +1,19 @@
 /** @jest-environment jsdom */
 
+import fs from "fs";
+import path from "path";
 import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { putAttachmentBytes } from "@/lib/proofMap/attachments";
 
 const createAndStoreEvidenceAttachmentMock = jest.fn();
+const RIMBA_RAYA_FALLBACK_TEXT = fs.readFileSync(
+  path.join(process.cwd(), "tests/fixtures/quick-check/rimba-raya-fallback.txt"),
+  "utf8",
+);
+const RECOVERED_WARNING =
+  "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
@@ -17,9 +25,21 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
     text:
       filename === "fresh-monitoring-report.pdf"
         ? "Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference."
+        : filename === "rimba-raya.pdf"
+          ? RIMBA_RAYA_FALLBACK_TEXT
         : "",
-    engine: "pdf-parse" as const,
-    methodologyMentions: filename === "fresh-monitoring-report.pdf" ? ["AR-ACM0003"] : [],
+    engine: filename === "rimba-raya.pdf" ? "heuristic" as const : "pdf-parse" as const,
+    methodologyMentions:
+      filename === "fresh-monitoring-report.pdf"
+        ? ["AR-ACM0003"]
+        : filename === "rimba-raya.pdf"
+          ? ["VM0004"]
+          : [],
+    warning:
+      filename === "rimba-raya.pdf"
+        ? "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches."
+        : undefined,
+    diagnosticCode: filename === "rimba-raya.pdf" ? "parser-failed" as const : undefined,
   }),
 }));
 
@@ -93,18 +113,31 @@ describe("QuickCheckPanel upload regression", () => {
         );
       }
       if (url.includes("/api/quick-check/pdf-extract")) {
-        const headers = new Headers(init?.headers);
-        const encodedFilename = headers.get("x-article6-filename") ?? "";
-        const filename = decodeURIComponent(encodedFilename);
+        const form =
+          init?.body && typeof init.body === "object" && "get" in init.body
+            ? (init.body as FormData)
+            : null;
+        const fileField = form?.get("file");
+        const filenameField = form?.get("filename");
+        const filename =
+          typeof filenameField === "string" && filenameField
+            ? filenameField
+            : fileField && typeof fileField === "object" && "name" in fileField
+              ? String((fileField as File).name)
+              : "";
         return new Response(
           JSON.stringify({
             text:
               filename === "fresh-monitoring-report.pdf"
                 ? "Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference."
+                : filename === "rimba-raya.pdf"
+                  ? RIMBA_RAYA_FALLBACK_TEXT
                 : "",
-            engine: "pdf-parse",
+            engine: filename === "rimba-raya.pdf" ? "heuristic" : "pdf-parse",
             metadata: {
-              parser: "pdf-parse",
+              parser: filename === "rimba-raya.pdf" ? "heuristic" : "pdf-parse",
+              fallbackReason: filename === "rimba-raya.pdf" ? "server extractor failed" : undefined,
+              diagnostics: filename === "rimba-raya.pdf" ? { failureKind: "parser-failed" } : undefined,
             },
           }),
           { status: 200 },
@@ -226,5 +259,32 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).not.toContain("Source");
     expect(text).not.toContain("Document Q&A");
     expect(text).not.toContain("raw text: unavailable");
+  });
+
+  it("renders a grounded fallback preview instead of only the failure banner when local recovery succeeds", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await uploadEvidence(
+      new File(
+        ["%PDF-1.4\n(Rimba Raya Biodiversity Reserve Project)\n%%EOF"],
+        "rimba-raya.pdf",
+        { type: "application/pdf" },
+      ),
+    );
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Extraction preview");
+    expect(text).toContain(RECOVERED_WARNING);
+    expect(text).toContain("Project Document");
+    expect(text).toContain("VM0004 · v1-0");
+    expect(text).toContain("Project document");
+    expect(text).toContain("Project boundary");
+    expect(text).not.toContain("Extraction preview is unavailable right now");
   });
 });

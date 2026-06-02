@@ -1926,10 +1926,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                         Reading document...
                       </div>
-                    ) : extractionState.error || (extractionDiagnostic && ["file-too-large", "invalid-file", "upload-request-failed", "no-selectable-text", "parser-failed"].includes(extractionDiagnostic.code)) ? (
-                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                        {extractionDiagnostic?.message ?? `Extraction preview is unavailable right now. ${extractionState.error ?? ""}`.trim()} Try uploading a cleaner PDF or retrying the upload.
-                      </div>
                     ) : extractionPreview && extractionPreviewView ? (
                       <>
                         {extractionPreviewView.warning ? (
@@ -1965,19 +1961,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             <div className="mt-3 grid gap-2.5 text-sm text-slate-700">
                               <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
                                 <div className="text-sm text-slate-500">File</div>
-                                <div className="truncate font-medium text-slate-900" title={extractionPreviewView.fileName || "Not detected"}>
+                                <div className="min-w-0 break-words font-medium leading-5 text-slate-900" title={extractionPreviewView.fileName || "Not detected"}>
                                   {extractionPreviewView.fileName || "Not detected"}
                                 </div>
                               </div>
                               <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
                                 <div className="text-sm text-slate-500">Detected type</div>
-                                <div className="truncate font-medium text-slate-900" title={extractionPreviewView.detectedDocumentType || "Not detected"}>
+                                <div className="min-w-0 break-words font-medium leading-5 text-slate-900" title={extractionPreviewView.detectedDocumentType || "Not detected"}>
                                   {extractionPreviewView.detectedDocumentType || "Not detected"}
                                 </div>
                               </div>
                               <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
                                 <div className="text-sm text-slate-500">Methodology</div>
-                                <div className="truncate font-medium text-slate-900" title={extractionPreviewView.detectedMethodology || "Not detected"}>
+                                <div className="min-w-0 break-words font-medium leading-5 text-slate-900" title={extractionPreviewView.detectedMethodology || "Not detected"}>
                                   {extractionPreviewView.detectedMethodology || "Not detected"}
                                 </div>
                               </div>
@@ -2074,6 +2070,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           </div>
                         ) : null}
                       </>
+                    ) : extractionState.error || (extractionDiagnostic && ["file-too-large", "invalid-file", "upload-request-failed", "no-selectable-text", "parser-failed"].includes(extractionDiagnostic.code)) ? (
+                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                        {extractionDiagnostic?.message ?? `Extraction preview is unavailable right now. ${extractionState.error ?? ""}`.trim()} Try uploading a cleaner PDF or retrying the upload.
+                      </div>
                     ) : null}
                   </div>
                 </>
