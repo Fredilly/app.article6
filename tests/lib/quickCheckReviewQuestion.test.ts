@@ -17,6 +17,11 @@ import {
 } from "@/lib/chat/quickCheckReviewQuestion";
 import { filterPddHeadingsByQuery } from "@/lib/chat/quickCheckSectionExtractor";
 import { setLiteParseImplementationForTests } from "@/lib/documentParsing/adapters/liteParse";
+import {
+  DOCUMENT_QA_MESSY_PDF_TEXT,
+  DOCUMENT_QA_NEGATIVE_QUESTION,
+  DOCUMENT_QA_REVIEW_QUESTIONS,
+} from "../fixtures/quickCheckDocumentQaFixture";
 
 const VM0007_BASELINE_PDD_TEXT = [
   "1.10  Leakage",
@@ -115,6 +120,11 @@ const REFERENCE_REGION_BOUNDARY_VARIANTS = [
   "Does the project boundary include the reference region and leakage belt?",
 ] as const;
 
+const FLAT_LEAKAGE_TEXT = [
+  "The project assesses leakage risk from activity shifting each year.",
+  "Leakage mitigation measures are documented for the project area.",
+].join("\n");
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -146,6 +156,15 @@ describe("detectReviewPath", () => {
 
   it("routes 'Review the leakage assessment' to review_question_answering", () => {
     expect(detectReviewPath("Review the leakage assessment")).toBe("review_question_answering");
+  });
+  it("routes 'Does the document address leakage?' to review_question_answering", () => {
+    expect(detectReviewPath("Does the document address leakage?")).toBe("review_question_answering");
+  });
+  it("routes 'Are leakage mitigation measures documented?' to review_question_answering", () => {
+    expect(detectReviewPath("Are leakage mitigation measures documented?")).toBe("review_question_answering");
+  });
+  it.each(DOCUMENT_QA_REVIEW_QUESTIONS)("routes document question variant to review_question_answering: %s", (question) => {
+    expect(detectReviewPath(question)).toBe("review_question_answering");
   });
 
   it("routes right-of-use questions with natural verbs like 'demonstrate' to review_question_answering", () => {
@@ -1151,6 +1170,119 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(retrieval.matchStage).toBe("alias_heading");
     expect(retrieval.relevantSections[0]).toBe("3.3");
     expect(evaluation.status).toBe("section_found_evidence_weak");
+  });
+
+  it("returns document-grounded leakage evidence even when no methodology rule is matched", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does the document address leakage?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: FLAT_LEAKAGE_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("leakage");
+    expect(result.reviewAreaReview).toBeUndefined();
+    expect(result.documentAnswer.methodologyRuleMatched).toBe(false);
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
+    expect(result.documentDiagnostic).toEqual(expect.objectContaining({
+      inputRoute: "document_question",
+      reviewQuestionRoutingFired: true,
+      rawTextAvailable: true,
+      documentEvidenceCount: expect.any(Number),
+      methodologyRuleMatched: false,
+      methodologyRecoverySuppressedByDocumentQa: true,
+    }));
+    expect(result.documentAnswer.diagnostic).toEqual(expect.objectContaining({
+      reviewQuestionRoutingFired: true,
+      rawPddTextAvailable: true,
+      documentEvidenceCount: expect.any(Number),
+      methodologyRuleMatched: false,
+    }));
+  });
+
+  it("still returns a document-first fallback card shape when raw text is unavailable", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does the document address leakage?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: undefined,
+    });
+
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.evidence).toEqual([]);
+    expect(result.documentAnswer.explanation).toContain("parsed document text was unavailable");
+    expect(result.documentDiagnostic).toEqual({
+      inputRoute: "document_question",
+      reviewQuestionRoutingFired: true,
+      rawTextAvailable: false,
+      documentEvidenceCount: 0,
+      methodologyRuleMatched: false,
+      methodologyRecoverySuppressedByDocumentQa: true,
+    });
+    expect(result.documentAnswer.diagnostic).toEqual({
+      reviewQuestionRoutingFired: true,
+      rawPddTextAvailable: false,
+      documentEvidenceCount: 0,
+      methodologyRuleMatched: false,
+    });
+  });
+
+  it.each(DOCUMENT_QA_REVIEW_QUESTIONS)("builds a document-first result for document question variant: %s", (claimText) => {
+    const result = buildReviewQuestionResult({
+      claimText,
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: DOCUMENT_QA_MESSY_PDF_TEXT,
+    });
+
+    expect(result.documentAnswer).toBeDefined();
+    expect(result.documentDiagnostic).toEqual(expect.objectContaining({
+      inputRoute: "document_question",
+      reviewQuestionRoutingFired: true,
+      rawTextAvailable: true,
+      documentEvidenceCount: expect.any(Number),
+      methodologyRecoverySuppressedByDocumentQa: true,
+    }));
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
+    expect(result.documentAnswer.status).toMatch(/likely_yes|unclear|likely_no/);
+    expect(result.reviewAreaReview?.verdict ?? result.baselineReview?.verdict).not.toBe("missing");
+  });
+
+  it("keeps document q&a primary when raw text exists but no relevant evidence matches", () => {
+    const result = buildReviewQuestionResult({
+      claimText: DOCUMENT_QA_NEGATIVE_QUESTION,
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: DOCUMENT_QA_MESSY_PDF_TEXT,
+    });
+
+    expect(result.documentDiagnostic).toEqual(expect.objectContaining({
+      inputRoute: "document_question",
+      reviewQuestionRoutingFired: true,
+      rawTextAvailable: true,
+      methodologyRecoverySuppressedByDocumentQa: true,
+    }));
+    expect(result.documentAnswer).toBeDefined();
+    expect(result.documentAnswer.evidence).toEqual([]);
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.explanation).toContain("could not recover useful document-grounded evidence");
+    expect(result.documentAnswer.methodologyExplanation).toContain("could not recover relevant document evidence");
+    expect(result.reviewAreaReview).toBeUndefined();
+  });
+
+  it("preserves deterministic baseline review behavior while adding document fallback data", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: VM0007_BASELINE_PDD_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("baseline");
+    expect(result.reviewAreaReview?.verdict).toBe("partial");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
   });
 });
 // ============================================================================
