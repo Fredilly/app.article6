@@ -200,9 +200,11 @@ export function buildDocumentQuestionAnswer(input: {
 
 export function buildReviewQuestionDocumentDiagnostic(documentAnswer: DocumentQuestionAnswer): ReviewQuestionDocumentDiagnostic {
   return {
+    inputRoute: "document_question",
     reviewQuestionRoutingFired: documentAnswer.diagnostic.reviewQuestionRoutingFired,
-    rawPddTextAvailable: documentAnswer.diagnostic.rawPddTextAvailable,
+    rawTextAvailable: documentAnswer.diagnostic.rawPddTextAvailable,
     documentEvidenceCount: documentAnswer.diagnostic.documentEvidenceCount,
     methodologyRuleMatched: documentAnswer.diagnostic.methodologyRuleMatched,
+    methodologyRecoverySuppressedByDocumentQa: true,
   };
 }

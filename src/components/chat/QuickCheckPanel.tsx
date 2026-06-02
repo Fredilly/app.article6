@@ -2247,7 +2247,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     </div>
                     {(process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") ? (
                       <div className="mt-2 text-[11px] leading-relaxed text-slate-500">
-                        routing: {reviewQuestionResult.documentAnswer.diagnostic.reviewQuestionRoutingFired ? "yes" : "no"} • raw text: {reviewQuestionResult.documentAnswer.diagnostic.rawPddTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentAnswer.diagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentAnswer.diagnostic.methodologyRuleMatched ? "yes" : "no"}
+                        route: {reviewQuestionResult.documentDiagnostic.inputRoute} • raw text: {reviewQuestionResult.documentDiagnostic.rawTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentDiagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentDiagnostic.methodologyRuleMatched ? "yes" : "no"} • recovery suppressed: {reviewQuestionResult.documentDiagnostic.methodologyRecoverySuppressedByDocumentQa ? "yes" : "no"}
                       </div>
                     ) : null}
                     {reviewQuestionResult.documentAnswer.evidence.length > 0 ? (

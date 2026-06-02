@@ -10,7 +10,27 @@ const createAndStoreEvidenceAttachmentMock = jest.fn();
 const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "flat-leakage.pdf": "The project assesses leakage risk from activity shifting each year. Leakage mitigation measures are documented for the project area.",
   "flat-monitoring.pdf": "The monitoring plan describes annual plot measurements and QA procedures. Monitoring records are reviewed each reporting period.",
+  "document-qa-suite.pdf": [
+    "The project assesses leakage risk from activity shifting each year and documents leakage mitigation measures.",
+    "Stakeholder consultation took place through community meetings and participation records.",
+    "Monitoring procedures describe annual plot measurements and QA/QC review steps.",
+    "Project boundaries are clearly defined in the boundary description and maps.",
+    "Additionality is supported through barrier analysis and investment constraints.",
+    "Permanence risks are discussed through buffer and reversal management measures.",
+    "Baseline conditions are described using historical land-use and reference region evidence.",
+  ].join(" "),
 };
+
+const DOCUMENT_QUESTION_VARIANTS = [
+  "Does the document address leakage?",
+  "Are leakage mitigation measures documented?",
+  "Does the project describe stakeholder consultation?",
+  "Does the project describe monitoring procedures?",
+  "Are project boundaries clearly defined?",
+  "Does the document address additionality?",
+  "Does the document discuss permanence?",
+  "Are baseline conditions described?",
+] as const;
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
@@ -183,7 +203,7 @@ describe("QuickCheckPanel review-question fallback", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("No methodology rule matched, but the uploaded document contains relevant evidence");
     expect(text).toContain("The project assesses leakage risk from activity shifting each year");
-    expect(text).toContain("routing: yes");
+    expect(text).toContain("route: document_question");
     expect(text).toContain("methodology matched: no");
     expect(text).not.toContain("No valid analysis path");
   });
@@ -261,5 +281,33 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).toContain("unclear");
     expect(text).toContain("parsed document text was unavailable");
     expect(text).not.toContain("No valid analysis path");
+  });
+
+  it.each(DOCUMENT_QUESTION_VARIANTS)("renders the Document Q&A card for document question variant: %s", async (claimText) => {
+    seedSession({
+      claimText,
+      filename: "document-qa-suite.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-suite.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Document Q&A");
+    expect(text).toContain("route: document_question");
+    expect(text).toContain("raw text: available");
+    expect(text).toContain("recovery suppressed: yes");
+    expect(text).not.toContain("No valid analysis path in VM0007");
   });
 });

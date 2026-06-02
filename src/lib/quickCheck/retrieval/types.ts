@@ -114,10 +114,12 @@ export type DocumentQuestionAnswer = {
 };
 
 export type ReviewQuestionDocumentDiagnostic = {
+  inputRoute: "document_question";
   reviewQuestionRoutingFired: boolean;
-  rawPddTextAvailable: boolean;
+  rawTextAvailable: boolean;
   documentEvidenceCount: number;
   methodologyRuleMatched: boolean;
+  methodologyRecoverySuppressedByDocumentQa: boolean;
 };
 
 export type SemanticEvidenceCandidate = {

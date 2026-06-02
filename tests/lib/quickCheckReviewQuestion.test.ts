@@ -125,6 +125,27 @@ const FLAT_MONITORING_TEXT = [
   "Monitoring records are reviewed each reporting period.",
 ].join("\n");
 
+const DOCUMENT_QUESTION_VARIANTS = [
+  "Does the document address leakage?",
+  "Are leakage mitigation measures documented?",
+  "Does the project describe stakeholder consultation?",
+  "Does the project describe monitoring procedures?",
+  "Are project boundaries clearly defined?",
+  "Does the document address additionality?",
+  "Does the document discuss permanence?",
+  "Are baseline conditions described?",
+] as const;
+
+const DOCUMENT_QUESTION_TEXT = [
+  "The project assesses leakage risk from activity shifting each year and documents leakage mitigation measures.",
+  "Stakeholder consultation took place through community meetings and participation records.",
+  "Monitoring procedures describe annual plot measurements and QA/QC review steps.",
+  "Project boundaries are clearly defined in the boundary description and maps.",
+  "Additionality is supported through barrier analysis and investment constraints.",
+  "Permanence risks are discussed through buffer and reversal management measures.",
+  "Baseline conditions are described using historical land-use and reference region evidence.",
+].join("\n");
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -162,6 +183,9 @@ describe("detectReviewPath", () => {
   });
   it("routes 'Are leakage mitigation measures documented?' to review_question_answering", () => {
     expect(detectReviewPath("Are leakage mitigation measures documented?")).toBe("review_question_answering");
+  });
+  it.each(DOCUMENT_QUESTION_VARIANTS)("routes document question variant to review_question_answering: %s", (question) => {
+    expect(detectReviewPath(question)).toBe("review_question_answering");
   });
 
   it("routes right-of-use questions with natural verbs like 'demonstrate' to review_question_answering", () => {
@@ -1183,10 +1207,12 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
     expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
     expect(result.documentDiagnostic).toEqual(expect.objectContaining({
+      inputRoute: "document_question",
       reviewQuestionRoutingFired: true,
-      rawPddTextAvailable: true,
+      rawTextAvailable: true,
       documentEvidenceCount: expect.any(Number),
       methodologyRuleMatched: false,
+      methodologyRecoverySuppressedByDocumentQa: true,
     }));
     expect(result.documentAnswer.diagnostic).toEqual(expect.objectContaining({
       reviewQuestionRoutingFired: true,
@@ -1236,10 +1262,12 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.documentAnswer.evidence).toEqual([]);
     expect(result.documentAnswer.explanation).toContain("parsed document text was unavailable");
     expect(result.documentDiagnostic).toEqual({
+      inputRoute: "document_question",
       reviewQuestionRoutingFired: true,
-      rawPddTextAvailable: false,
+      rawTextAvailable: false,
       documentEvidenceCount: 0,
       methodologyRuleMatched: false,
+      methodologyRecoverySuppressedByDocumentQa: true,
     });
     expect(result.documentAnswer.diagnostic).toEqual({
       reviewQuestionRoutingFired: true,
@@ -1247,6 +1275,23 @@ describe("Quick Check extraction edge-case coverage", () => {
       documentEvidenceCount: 0,
       methodologyRuleMatched: false,
     });
+  });
+
+  it.each(DOCUMENT_QUESTION_VARIANTS)("builds a document-first result for document question variant: %s", (claimText) => {
+    const result = buildReviewQuestionResult({
+      claimText,
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: DOCUMENT_QUESTION_TEXT,
+    });
+
+    expect(result.documentAnswer).toBeDefined();
+    expect(result.documentDiagnostic).toEqual(expect.objectContaining({
+      inputRoute: "document_question",
+      rawTextAvailable: true,
+      methodologyRecoverySuppressedByDocumentQa: true,
+    }));
+    expect(result.documentAnswer.status).toMatch(/likely_yes|unclear|likely_no/);
   });
 
   it("preserves deterministic baseline review behavior while adding document fallback data", () => {
