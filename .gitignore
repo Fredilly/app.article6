@@ -40,6 +40,9 @@ yarn-error.log*
 # local build-time artifact sync
 .cache/
 public/methodologies/
+
+# Fallow codebase analysis (local reports, cache, snapshots)
+.fallow/
 public/_provenance/
 public/exports/audit-pack.zip
 
