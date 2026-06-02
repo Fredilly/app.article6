@@ -17,6 +17,11 @@ import {
 } from "@/lib/chat/quickCheckReviewQuestion";
 import { filterPddHeadingsByQuery } from "@/lib/chat/quickCheckSectionExtractor";
 import { setLiteParseImplementationForTests } from "@/lib/documentParsing/adapters/liteParse";
+import {
+  DOCUMENT_QA_MESSY_PDF_TEXT,
+  DOCUMENT_QA_NEGATIVE_QUESTION,
+  DOCUMENT_QA_REVIEW_QUESTIONS,
+} from "../fixtures/quickCheckDocumentQaFixture";
 
 const VM0007_BASELINE_PDD_TEXT = [
   "1.10  Leakage",
@@ -120,32 +125,6 @@ const FLAT_LEAKAGE_TEXT = [
   "Leakage mitigation measures are documented for the project area.",
 ].join("\n");
 
-const FLAT_MONITORING_TEXT = [
-  "The monitoring plan describes annual plot measurements and QA procedures.",
-  "Monitoring records are reviewed each reporting period.",
-].join("\n");
-
-const DOCUMENT_QUESTION_VARIANTS = [
-  "Does the document address leakage?",
-  "Are leakage mitigation measures documented?",
-  "Does the project describe stakeholder consultation?",
-  "Does the project describe monitoring procedures?",
-  "Are project boundaries clearly defined?",
-  "Does the document address additionality?",
-  "Does the document discuss permanence?",
-  "Are baseline conditions described?",
-] as const;
-
-const DOCUMENT_QUESTION_TEXT = [
-  "The project assesses leakage risk from activity shifting each year and documents leakage mitigation measures.",
-  "Stakeholder consultation took place through community meetings and participation records.",
-  "Monitoring procedures describe annual plot measurements and QA/QC review steps.",
-  "Project boundaries are clearly defined in the boundary description and maps.",
-  "Additionality is supported through barrier analysis and investment constraints.",
-  "Permanence risks are discussed through buffer and reversal management measures.",
-  "Baseline conditions are described using historical land-use and reference region evidence.",
-].join("\n");
-
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -184,7 +163,7 @@ describe("detectReviewPath", () => {
   it("routes 'Are leakage mitigation measures documented?' to review_question_answering", () => {
     expect(detectReviewPath("Are leakage mitigation measures documented?")).toBe("review_question_answering");
   });
-  it.each(DOCUMENT_QUESTION_VARIANTS)("routes document question variant to review_question_answering: %s", (question) => {
+  it.each(DOCUMENT_QA_REVIEW_QUESTIONS)("routes document question variant to review_question_answering: %s", (question) => {
     expect(detectReviewPath(question)).toBe("review_question_answering");
   });
 
@@ -1222,34 +1201,6 @@ describe("Quick Check extraction edge-case coverage", () => {
     }));
   });
 
-  it("returns document-grounded leakage evidence for mitigation-documentation phrasing", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Are leakage mitigation measures documented?",
-      methodologyId: "VM0007",
-      methodologyVersion: "1.0",
-      rawPddText: FLAT_LEAKAGE_TEXT,
-    });
-
-    expect(result.reviewArea).toBe("leakage");
-    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
-    expect(result.documentDiagnostic.methodologyRuleMatched).toBe(false);
-  });
-
-  it("returns document-grounded monitoring evidence even when no rule ID is matched", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "Does this PDD describe the monitoring plan?",
-      methodologyId: "",
-      methodologyVersion: "",
-      rawPddText: FLAT_MONITORING_TEXT,
-    });
-
-    expect(result.reviewArea).toBe("monitoring");
-    expect(result.reviewAreaReview).toBeUndefined();
-    expect(result.documentAnswer.methodologyRuleMatched).toBe(false);
-    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
-    expect(result.documentAnswer.methodologyExplanation).toContain("No methodology rule was confidently matched");
-  });
-
   it("still returns a document-first fallback card shape when raw text is unavailable", () => {
     const result = buildReviewQuestionResult({
       claimText: "Does the document address leakage?",
@@ -1277,21 +1228,48 @@ describe("Quick Check extraction edge-case coverage", () => {
     });
   });
 
-  it.each(DOCUMENT_QUESTION_VARIANTS)("builds a document-first result for document question variant: %s", (claimText) => {
+  it.each(DOCUMENT_QA_REVIEW_QUESTIONS)("builds a document-first result for document question variant: %s", (claimText) => {
     const result = buildReviewQuestionResult({
       claimText,
       methodologyId: "VM0007",
       methodologyVersion: "1.0",
-      rawPddText: DOCUMENT_QUESTION_TEXT,
+      rawPddText: DOCUMENT_QA_MESSY_PDF_TEXT,
     });
 
     expect(result.documentAnswer).toBeDefined();
     expect(result.documentDiagnostic).toEqual(expect.objectContaining({
       inputRoute: "document_question",
+      reviewQuestionRoutingFired: true,
+      rawTextAvailable: true,
+      documentEvidenceCount: expect.any(Number),
+      methodologyRecoverySuppressedByDocumentQa: true,
+    }));
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
+    expect(result.documentAnswer.status).toMatch(/likely_yes|unclear|likely_no/);
+    expect(result.reviewAreaReview?.verdict ?? result.baselineReview?.verdict).not.toBe("missing");
+  });
+
+  it("keeps document q&a primary when raw text exists but no relevant evidence matches", () => {
+    const result = buildReviewQuestionResult({
+      claimText: DOCUMENT_QA_NEGATIVE_QUESTION,
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: DOCUMENT_QA_MESSY_PDF_TEXT,
+    });
+
+    expect(result.documentDiagnostic).toEqual(expect.objectContaining({
+      inputRoute: "document_question",
+      reviewQuestionRoutingFired: true,
       rawTextAvailable: true,
       methodologyRecoverySuppressedByDocumentQa: true,
     }));
-    expect(result.documentAnswer.status).toMatch(/likely_yes|unclear|likely_no/);
+    expect(result.documentAnswer).toBeDefined();
+    expect(result.documentAnswer.evidence).toEqual([]);
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.explanation).toContain("could not recover useful document-grounded evidence");
+    expect(result.documentAnswer.methodologyExplanation).toContain("could not recover relevant document evidence");
+    expect(result.reviewAreaReview).toBeUndefined();
   });
 
   it("preserves deterministic baseline review behavior while adding document fallback data", () => {

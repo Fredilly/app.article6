@@ -2348,7 +2348,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <div className="mt-4 rounded-xl border border-amber-200 bg-white/80 p-4">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">Methodology lane</div>
                       <div className="mt-2 text-sm leading-relaxed text-slate-700">
-                        No methodology rule matched, but the uploaded document contains relevant evidence.
+                        {reviewQuestionResult.documentAnswer.methodologyExplanation}
                       </div>
                     </div>
                   )}
