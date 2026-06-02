@@ -94,6 +94,14 @@ if (!directive && prNumber && repoName) {
 }
 console.log("[roadmap-directive] fetchedBodyLength=", fetchedBodyLength);
 
+if (directive) {
+  const s = (directive.slug || "").trim().toLowerCase();
+  if (!s || ["n/a", "na", "none"].includes(s)) {
+    console.log("[roadmap-directive] Roadmap-Update slug marked N/A; skipping (non-roadmap PR)");
+    process.exit(0);
+  }
+}
+
 if (!directive) {
   fail("Missing '### Roadmap-Update' block in PR body (roadmap-tracked PR).");
 }

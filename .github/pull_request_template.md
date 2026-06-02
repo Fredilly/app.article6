@@ -8,7 +8,9 @@
   <!-- - PR12: done -->
   <!-- - PR13: in_progress -->
 
-Allowed statuses: planned | next | in_progress | done | blocked
+For PRs that do not advance any roadmap item (e.g. chores, dev tooling, refactors with no SSOT impact), leave `slug: N/A`. The roadmap gates will skip.
+
+Allowed statuses: planned | next | in_progress | done | blocked | merged | etc.
 
 <!--
 ### Roadmap-Override
