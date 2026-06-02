@@ -2,7 +2,7 @@
   "roadmap": "quick-check-document-pipeline",
   "repo": "Fredilly/app.article6",
   "status": "active",
-  "current_phase": "phase_5_eval_harness",
+  "current_phase": "phase_6_secondary_parser_adapter",
   "phase_1_parser_adapter_boundary": {
     "status": "done",
     "title": "Phase 1 — parser adapter boundary",
@@ -24,28 +24,28 @@
     "summary": "Move aliases, preferred sections, negative sections, fallback rules, boosts, penalties, and evidence signals into typed JSON validated by Zod."
   },
   "phase_5_eval_harness": {
-    "status": "active",
+    "status": "done",
     "title": "Phase 5 — Quick Check eval harness",
     "summary": "Add fixture-backed retrieval and verdict evals so pipeline changes are measured and gated before merge."
   },
   "phase_6_secondary_parser_adapter": {
-    "status": "planned",
+    "status": "active",
     "title": "Phase 6 — secondary parser adapter",
     "summary": "Add LiteParse as a second parser adapter only after the adapter boundary and canonical document model are stable."
   },
   "phase_meta": {
     "status": "active",
     "summary": "Move Quick Check from tactical section-matching patches to a layered document pipeline with explicit parser, document-model, retrieval, evaluation, UI, and eval boundaries.",
-    "current_focus": "Phase 5 only: plan and implement a fixture-backed Quick Check eval harness for retrieval and verdict regression testing before more parser work. Phase 4 declarative review policy is complete, and LiteParse remains out of scope until the eval harness exists.",
+    "current_focus": "Phase 6 implementation is active: add LiteParse as a secondary parser adapter behind the existing parser boundary with env-based selection and safe fallback, while keeping canonical document model output stable and leaving retrieval/evaluation semantics unchanged.",
     "not_active_now": [
-      "LiteParse integration",
       "Additional Quick Check tactical alias patches"
     ],
-    "last_updated_at": "2026-06-01T08:15:00Z"
+    "last_updated_at": "2026-06-01T23:16:06Z"
   },
   "pr_evidence": {
     "phase_2_article6_document_model": [667],
     "phase_3_retrieval_evaluation_split": [669, 670, 671],
-    "phase_4_declarative_review_policy": [676, 677]
+    "phase_4_declarative_review_policy": [676, 677],
+    "phase_5_eval_harness": [679, 680]
   }
 }

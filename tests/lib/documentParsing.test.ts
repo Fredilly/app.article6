@@ -1,14 +1,19 @@
-import { describe, expect, it } from "@jest/globals";
+import { afterEach, describe, expect, it } from "@jest/globals";
 import {
   buildPddHeadingIndex,
   debugSectionExtraction,
   extractPddSections,
 } from "@/lib/chat/quickCheckSectionExtractor";
 import {
+  DOCUMENT_PARSER_ADAPTER_IDS,
   DEFAULT_DOCUMENT_PARSER_ADAPTER_ID,
   getDocumentParserAdapter,
+  listDocumentParserAdapters,
   parseDocumentText,
+  resolveConfiguredDocumentParserAdapterId,
 } from "@/lib/documentParsing";
+import { currentExtractorAdapter } from "@/lib/documentParsing/adapters/currentExtractor";
+import { setLiteParseImplementationForTests } from "@/lib/documentParsing/adapters/liteParse";
 
 const VM0007_TEXT = [
   "1.9  Project Boundary",
@@ -22,6 +27,19 @@ const VM0007_TEXT = [
 ].join("\n");
 
 describe("documentParsing current extractor adapter", () => {
+  afterEach(() => {
+    delete process.env.QUICK_CHECK_PARSER;
+    setLiteParseImplementationForTests(null);
+  });
+
+  it("registers both parser adapters while keeping current-extractor as the default", () => {
+    expect(DOCUMENT_PARSER_ADAPTER_IDS).toEqual(["current-extractor", "liteparse"]);
+    expect(listDocumentParserAdapters().map((adapter) => adapter.id)).toEqual(["current-extractor", "liteparse"]);
+    expect(resolveConfiguredDocumentParserAdapterId(undefined)).toBe("current-extractor");
+    expect(resolveConfiguredDocumentParserAdapterId("invalid-parser")).toBe("current-extractor");
+    expect(getDocumentParserAdapter().id).toBe(DEFAULT_DOCUMENT_PARSER_ADAPTER_ID);
+  });
+
   it("exposes the current extractor as the default parser adapter", () => {
     expect(getDocumentParserAdapter().id).toBe(DEFAULT_DOCUMENT_PARSER_ADAPTER_ID);
   });
@@ -66,5 +84,53 @@ describe("documentParsing current extractor adapter", () => {
     expect(parsed.sectionsByNumber).toEqual({});
     expect(parsed.headingIndex).toEqual([]);
     expect(parsed.diagnostics).toBeUndefined();
+  });
+
+  it("selects liteparse from QUICK_CHECK_PARSER without changing the parsed-document contract", () => {
+    setLiteParseImplementationForTests({
+      parseText(input) {
+        const baseline = currentExtractorAdapter.parseText(input);
+        return {
+          ...baseline,
+          normalizedText: `${baseline.normalizedText}\n`,
+          source: "liteparse",
+        };
+      },
+    });
+    process.env.QUICK_CHECK_PARSER = "liteparse";
+
+    const parsed = parseDocumentText({ rawText: VM0007_TEXT });
+
+    expect(getDocumentParserAdapter().id).toBe("liteparse");
+    expect(parsed.adapterId).toBe("liteparse");
+    expect(parsed.source).toBe("liteparse");
+    expect(parsed.headings.map((heading) => heading.sectionNumber)).toEqual(["1.9", "2.4", "4.3"]);
+    expect(parsed.sectionsByNumber).toEqual(extractPddSections(VM0007_TEXT));
+    expect(parsed.headingIndex).toEqual(buildPddHeadingIndex(VM0007_TEXT));
+  });
+
+  it("falls back to current-extractor when liteparse is unavailable", () => {
+    process.env.QUICK_CHECK_PARSER = "liteparse";
+
+    const parsed = parseDocumentText({ rawText: VM0007_TEXT });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.source).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings).toContain("LiteParse unavailable; fell back to current extractor.");
+  });
+
+  it("falls back to current-extractor when liteparse throws at runtime", () => {
+    setLiteParseImplementationForTests({
+      parseText() {
+        throw new Error("simulated liteparse failure");
+      },
+    });
+    process.env.QUICK_CHECK_PARSER = "liteparse";
+
+    const parsed = parseDocumentText({ rawText: VM0007_TEXT });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.sectionsByNumber).toEqual(extractPddSections(VM0007_TEXT));
+    expect(parsed.diagnostics?.warnings?.some((warning) => warning.includes("simulated liteparse failure"))).toBe(true);
   });
 });
