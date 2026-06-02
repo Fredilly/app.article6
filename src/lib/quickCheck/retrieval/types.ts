@@ -88,6 +88,42 @@ export type ReviewRoutingDiagnostic = {
   noMatchReason?: string;
 };
 
+export type DocumentAnswerStatus = "likely_yes" | "likely_no" | "unclear";
+
+export type DocumentAnswerEvidence = {
+  snippet: string;
+  page?: number;
+  heading?: string;
+  sectionNumber?: string;
+  blockId?: string;
+  source: "heading" | "block" | "semantic";
+};
+
+export type DocumentQuestionAnswer = {
+  status: DocumentAnswerStatus;
+  methodologyRuleMatched: boolean;
+  methodologyExplanation: string;
+  explanation: string;
+  evidence: DocumentAnswerEvidence[];
+};
+
+export type SemanticEvidenceCandidate = {
+  blockId: string;
+  page: number | null;
+  quote: string;
+  reason: string;
+  confidence: number;
+  heading?: string | null;
+};
+
+export type SemanticEvidenceStatus =
+  | "idle"
+  | "loading"
+  | "disabled"
+  | "available"
+  | "invalid_response"
+  | "request_failed";
+
 export type ReviewQuestionResult = {
   path: QuickCheckPath;
   reviewArea: ReviewArea;
@@ -105,9 +141,16 @@ export type ReviewQuestionResult = {
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
   routingDiagnostic?: ReviewRoutingDiagnostic;
+  documentAnswer: DocumentQuestionAnswer;
+  semanticEvidenceCandidates?: SemanticEvidenceCandidate[];
+  semanticEvidenceStatus?: SemanticEvidenceStatus;
+  semanticEvidenceWarning?: string;
 };
 
-export type ReviewQuestionRetrievalResult = Omit<ReviewQuestionResult, "baselineReview" | "reviewAreaReview"> & {
+export type ReviewQuestionRetrievalResult = Omit<
+  ReviewQuestionResult,
+  "baselineReview" | "reviewAreaReview" | "documentAnswer" | "semanticEvidenceCandidates" | "semanticEvidenceStatus" | "semanticEvidenceWarning"
+> & {
   rejectedMatches: RejectedHeadingQueryMatch[];
 };
 

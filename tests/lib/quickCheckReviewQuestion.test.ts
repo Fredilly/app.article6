@@ -115,6 +115,16 @@ const REFERENCE_REGION_BOUNDARY_VARIANTS = [
   "Does the project boundary include the reference region and leakage belt?",
 ] as const;
 
+const FLAT_LEAKAGE_TEXT = [
+  "The project assesses leakage risk from activity shifting each year.",
+  "Leakage mitigation measures are documented for the project area.",
+].join("\n");
+
+const FLAT_MONITORING_TEXT = [
+  "The monitoring plan describes annual plot measurements and QA procedures.",
+  "Monitoring records are reviewed each reporting period.",
+].join("\n");
+
 describe("detectReviewPath", () => {
   it("routes 'Does this PDD support additionality under VT0001?' to review_question_answering", () => {
     expect(detectReviewPath("Does this PDD support additionality under VT0001?")).toBe("review_question_answering");
@@ -1151,6 +1161,49 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(retrieval.matchStage).toBe("alias_heading");
     expect(retrieval.relevantSections[0]).toBe("3.3");
     expect(evaluation.status).toBe("section_found_evidence_weak");
+  });
+
+  it("returns document-grounded leakage evidence even when no methodology rule is matched", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD assess leakage risk?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: FLAT_LEAKAGE_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("leakage");
+    expect(result.reviewAreaReview).toBeUndefined();
+    expect(result.documentAnswer.methodologyRuleMatched).toBe(false);
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
+  });
+
+  it("returns document-grounded monitoring evidence even when no rule ID is matched", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD describe the monitoring plan?",
+      methodologyId: "",
+      methodologyVersion: "",
+      rawPddText: FLAT_MONITORING_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("monitoring");
+    expect(result.reviewAreaReview).toBeUndefined();
+    expect(result.documentAnswer.methodologyRuleMatched).toBe(false);
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.methodologyExplanation).toContain("No methodology rule was confidently matched");
+  });
+
+  it("preserves deterministic baseline review behavior while adding document fallback data", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "Does this PDD justify the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.0",
+      rawPddText: VM0007_BASELINE_PDD_TEXT,
+    });
+
+    expect(result.reviewArea).toBe("baseline");
+    expect(result.reviewAreaReview?.verdict).toBe("partial");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
   });
 });
 // ============================================================================

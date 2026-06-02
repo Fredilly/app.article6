@@ -7,6 +7,8 @@ import type {
 import {
   evaluateRetrievedReviewQuestion,
 } from "@/lib/quickCheck/evaluation/evaluateEvidence";
+import { parseDocumentText } from "@/lib/documentParsing";
+import { buildDocumentQuestionAnswer } from "@/lib/quickCheck/documentQa";
 
 export type {
   BuildReviewQuestionSectionRetrievalInput,
@@ -43,9 +45,18 @@ export function buildReviewQuestionResult(input: {
 }): ReviewQuestionResult {
   const retrieval = buildReviewQuestionSectionRetrieval(input);
   const evaluation = evaluateRetrievedReviewQuestion(retrieval);
+  const parsedDocument = input.rawPddText ? parseDocumentText({ rawText: input.rawPddText }) : undefined;
+  const documentAnswer = buildDocumentQuestionAnswer({
+    retrieval,
+    evaluation,
+    parsedDocument,
+    claimText: input.claimText,
+    rawPddText: input.rawPddText,
+  });
 
   return {
     ...retrieval,
     ...evaluation,
+    documentAnswer,
   };
 }
