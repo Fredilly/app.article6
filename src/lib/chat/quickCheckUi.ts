@@ -4,7 +4,7 @@ import { prioritizeMethodologyMentions } from "@/lib/chat/quickCheckMethodology"
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
-export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
+export type QuickCheckUiExtractionStateValue = "grounded" | "recovered" | "needs-review" | "weak" | "partial";
 export type QuickCheckUiSupportStrengthValue = "strong_evidence_match" | "needs_review";
 export type QuickCheckUiNextActionKind = "open_methods" | "upload_better_file";
 
@@ -432,6 +432,9 @@ export function buildQuickCheckExtractionSnapshot(input: {
 }): QuickCheckExtractionSnapshot {
   const extractedFacts = pickRelevantFacts(input.claimText, input.analysis);
   const warnings = dedupe(input.analysis.warnings);
+  const recoveredLocally = input.analysis.warnings.some((w) =>
+    /local heuristic|using local fallback|parser fallback|heuristic extraction|recovered text after server/i.test(w)
+  );
   return {
     documentType: input.analysis.documentTypes[0] ?? "Unknown document",
     extractedFacts,
@@ -444,13 +447,35 @@ export function buildQuickCheckExtractionSnapshot(input: {
       methodologyMentionCount: input.analysis.methodologyMentions.length,
       warningCount: warnings.length,
     },
+    extractionConfidence: input.analysis.extractionConfidence,
+    recoveredLocally,
   };
 }
 
 export function deriveQuickCheckExtractionState(extraction: QuickCheckExtractionSnapshot): QuickCheckUiExtractionState {
   const signals = normalizeSignals(extraction);
+  const confidence = extraction.extractionConfidence ?? 0;
+  const hasExtractedSignals = (signals.parsedEvidenceCount ?? 0) > 0 && (signals.relevantFactCount ?? 0) > 0;
+  const recovered = !!extraction.recoveredLocally ||
+    extraction.warnings.some((w) => /local fallback|heuristic|parser fallback|recovered text after server extraction failed/i.test(w));
 
-  if (!signals.parsedEvidenceCount || !signals.relevantFactCount) {
+  if (recovered) {
+    // when fallback recovered, show Recovered if decent signals/conf, else Needs review
+    if (hasExtractedSignals && confidence >= 0.5) {
+      return {
+        value: "recovered",
+        label: "Recovered",
+        description: "Local heuristic recovered text after server extraction failed (weaker confidence).",
+      };
+    }
+    return {
+      value: "needs-review",
+      label: "Needs review",
+      description: "Local heuristic fallback recovered text; review manually.",
+    };
+  }
+
+  if (!hasExtractedSignals) {
     return {
       value: "weak",
       label: "Weak",
@@ -466,6 +491,15 @@ export function deriveQuickCheckExtractionState(extraction: QuickCheckExtraction
     };
   }
 
+  if (confidence < 0.5) {
+    return {
+      value: "weak",
+      label: "Weak",
+      description: "Parsed text exists but no strong review signals are found.",
+    };
+  }
+
+  // Grounded ONLY when signals exist AND confidence medium/high
   return {
     value: "grounded",
     label: "Grounded",
@@ -521,6 +555,8 @@ export function normalizeQuickCheckUiResult(input: {
         methodologyMentionCount: 0,
         warningCount: 1,
       },
+      extractionConfidence: 0,
+      recoveredLocally: false,
     };
   const extractionState = deriveQuickCheckExtractionState(extraction);
   const claim = input.claim.trim();
