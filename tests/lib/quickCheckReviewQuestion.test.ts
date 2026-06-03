@@ -1306,7 +1306,7 @@ describe("Quick Check extraction edge-case coverage", () => {
       claimText: "The monitoring report covers the full reporting period.",
       methodologyId: "ACM0010",
       methodologyVersion: "v01-0",
-      rawPddText: "The document contains parsed text about monitoring and boundaries for the project.",
+      rawPddText: "The document contains parsed text about monitoring and boundaries for the project. The monitoring report covers the full reporting period.",
     });
 
     // By field context (review question) + parsed doc text present, must use document qa path
