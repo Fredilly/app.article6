@@ -2354,6 +2354,125 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     expect(text.includes("Document Q&A") || text.includes("document-grounded") || text.includes("review paused")).toBe(true);
   });
 
+  it("matching selected/detected methodology does not show mismatch pause", async () => {
+    seedSession({
+      claimText: "Does the document address leakage?",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(VM0007 reference.)\n%%EOF");
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
+    // may show other content but not the mismatch pause
+  });
+
+  it("mismatch pause clears after reupload", async () => {
+    // first mismatched
+    seedSession({
+      claimText: "Does the document address leakage?",
+      methodologyId: "AR-ACM0003",
+      methodologyVersion: "v02-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(VM0007 reference.)\n%%EOF");
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    expect((container.textContent ?? "")).toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
+
+    // reupload a matching one (same doc content but will reset state)
+    await uploadEvidence(
+      new File(
+        ["%PDF-1.4\n(VM0007 reference.)\n%%EOF"],
+        "matching-vm0007.pdf",
+        { type: "application/pdf" },
+      ),
+    );
+    await flushUi();
+    // after reupload + implicit re-analyze, mismatch should be cleared (new doc)
+    // run again
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
+  });
+
+  it("stale mismatch state does not survive session migration", async () => {
+    // seed v1 storage (triggers migration) that includes a mismatch confirmation
+    const staleMismatch = {
+      detectedMethodology: "VM0007",
+      selectedMethodology: "AR-ACM0003",
+      detectedVersion: "v1-0",
+      selectedVersion: "v02-0",
+    };
+    window.localStorage.setItem(
+      "a6:quick-check:claim-first:v1",
+      JSON.stringify({
+        draft: {
+          id: "draft-mig",
+          claimText: "test claim",
+          methodologyId: "AR-ACM0003",
+          methodologyVersion: "v02-0",
+          evidenceIds: ["ev-mig"],
+          status: "draft",
+          createdAt: "2026-04-04T00:00:00Z",
+          updatedAt: "2026-04-04T00:00:00Z",
+        },
+        result: null,
+        stagedUploads: [{
+          evidenceId: "ev-mig",
+          filename: "mig.pdf",
+          mime: "application/pdf",
+          createdAt: "2026-04-04T00:00:00Z",
+          attachment: { id: "att-mig", pin_id: "ev-mig", filename: "mig.pdf", mime: "application/pdf", size: 10, sha256: "sha-mig", created_at: "2026-04-04T00:00:00Z" },
+        }],
+        methodologyMismatchConfirmation: staleMismatch,
+      })
+    );
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    const text = container.textContent ?? "";
+    // migration should have cleared the stale mismatch
+    expect(text).not.toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
+    // no detected/selected mismatch display
+    expect(text).not.toContain("Detected: VM0007");
+  });
+
+  it("Document Q&A may continue during mismatch only if parsed text is valid", async () => {
+    seedSession({
+      claimText: "Does the document address leakage?",
+      methodologyId: "AR-ACM0003",
+      methodologyVersion: "v02-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    // no usable text -> should not continue qa, use recovery
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n%%EOF");
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("Document parse state incomplete");
+    expect(text).not.toContain("Document Q&A"); // or qa result details
+    // now with valid text, qa can continue even in mismatch
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(VM0007 reference.)\n%%EOF");
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    const text2 = container.textContent ?? "";
+    // qa path taken
+    expect(text2.includes("document-grounded") || text2.includes("review paused") || text2.includes("Document Q&A")).toBe(true);
+  });
+
   it("narrows a PLUM boundary claim to VM0007 candidates only", async () => {
     seedSession({
       claimText: "The boundary description matches the mapped project area.",

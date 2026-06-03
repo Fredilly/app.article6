@@ -80,6 +80,18 @@ export type QuickCheckStagedUpload = {
   attachment: EvidenceAttachment;
 };
 
+export type MethodologyMismatchConfirmation = {
+  detectedMethodology: string;
+  selectedMethodology: string;
+  detectedVersion?: string;
+  selectedVersion?: string;
+  // debug-safe normalized values for comparison
+  normalizedSelectedId?: string;
+  normalizedSelectedVersion?: string;
+  normalizedDetectedId?: string;
+  normalizedDetectedVersion?: string;
+};
+
 export type DocumentParseStatus = "uploaded" | "parsing" | "parsed" | "parse_failed" | "stale";
 
 export type DocumentParseState = {
@@ -89,6 +101,9 @@ export type DocumentParseState = {
   errorMessage?: string;
   updatedAt: string;
   version: number;
+  // separate fetch failure (e.g. pdf-extract request failed) from PDF parse/text status
+  fetchFailed?: boolean;
+  fetchErrorMessage?: string;
 };
 
 export type QuickCheckSession = {
@@ -96,6 +111,7 @@ export type QuickCheckSession = {
   result: QuickCheckResult | null;
   stagedUploads: QuickCheckStagedUpload[];
   documentParseStates?: Record<string, DocumentParseState>;
+  methodologyMismatchConfirmation?: MethodologyMismatchConfirmation | null;
 };
 
 type QuickCheckRule = {
@@ -156,6 +172,7 @@ function createDefaultDocumentParseState(documentId: string): DocumentParseState
     hasParsedText: false,
     updatedAt: ts,
     version: 1,
+    fetchFailed: false,
   };
 }
 
@@ -181,6 +198,8 @@ function normalizeDocumentParseStates(raw: unknown): Record<string, DocumentPars
       errorMessage: typeof r.errorMessage === "string" ? r.errorMessage : undefined,
       updatedAt: typeof r.updatedAt === "string" ? r.updatedAt : nowIso(),
       version: typeof r.version === "number" ? r.version : 1,
+      fetchFailed: Boolean(r.fetchFailed),
+      fetchErrorMessage: typeof r.fetchErrorMessage === "string" ? r.fetchErrorMessage : undefined,
     };
   }
   return out;
@@ -204,6 +223,38 @@ export function updateQuickCheckSessionForDocumentParse(
       ...(session.documentParseStates ?? {}),
       [documentId]: nextState,
     },
+  };
+}
+
+export function normalizeMethodologyForCompare(raw: string | undefined | null): string {
+  return (raw ?? "").trim().toUpperCase().replace(/[-_\s.]+/g, "");
+}
+
+function normalizeMethodologyMismatchConfirmation(raw: unknown): MethodologyMismatchConfirmation | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.detectedMethodology !== "string" || !r.detectedMethodology.trim() || typeof r.selectedMethodology !== "string" || !r.selectedMethodology.trim()) {
+    return null;
+  }
+  return {
+    detectedMethodology: String(r.detectedMethodology),
+    selectedMethodology: String(r.selectedMethodology),
+    detectedVersion: typeof r.detectedVersion === "string" ? r.detectedVersion : undefined,
+    selectedVersion: typeof r.selectedVersion === "string" ? r.selectedVersion : undefined,
+    normalizedSelectedId: typeof r.normalizedSelectedId === "string" ? r.normalizedSelectedId : undefined,
+    normalizedSelectedVersion: typeof r.normalizedSelectedVersion === "string" ? r.normalizedSelectedVersion : undefined,
+    normalizedDetectedId: typeof r.normalizedDetectedId === "string" ? r.normalizedDetectedId : undefined,
+    normalizedDetectedVersion: typeof r.normalizedDetectedVersion === "string" ? r.normalizedDetectedVersion : undefined,
+  };
+}
+
+export function updateQuickCheckSessionForMethodologyMismatch(
+  session: QuickCheckSession,
+  confirmation: MethodologyMismatchConfirmation | null,
+): QuickCheckSession {
+  return {
+    ...session,
+    methodologyMismatchConfirmation: confirmation,
   };
 }
 
@@ -352,7 +403,7 @@ export function loadQuickCheckSession(
   seed?: Partial<Pick<QuickCheckDraft, "methodologyId" | "methodologyVersion" | "claimText">>,
 ): QuickCheckSession {
   const storage = getStorage();
-  const fallback: QuickCheckSession = { draft: createQuickCheckDraft(seed), result: null, stagedUploads: [], documentParseStates: {} };
+  const fallback: QuickCheckSession = { draft: createQuickCheckDraft(seed), result: null, stagedUploads: [], documentParseStates: {}, methodologyMismatchConfirmation: null };
   if (!storage) return fallback;
   let raw = storage.getItem(QUICK_CHECK_STORAGE_KEY);
   let loadedFromV1 = false;
@@ -369,6 +420,7 @@ export function loadQuickCheckSession(
     const normalizedStagedUploads = normalizeStagedUploads(parsed?.stagedUploads);
     const normalizedDocumentParseStates = normalizeDocumentParseStates(parsed?.documentParseStates);
     let documentParseStates = normalizedDocumentParseStates;
+    let methodologyMismatchConfirmation = normalizeMethodologyMismatchConfirmation(parsed?.methodologyMismatchConfirmation);
     if (loadedFromV1 || Object.keys(normalizedDocumentParseStates).length === 0) {
       documentParseStates = {};
       for (const upload of normalizedStagedUploads) {
@@ -381,8 +433,10 @@ export function loadQuickCheckSession(
             "Document state may be stale (migrated from previous Quick Check session or app update). Reprocess or re-upload the document to establish parse status.",
           updatedAt: nowIso(),
           version: 1,
+          fetchFailed: false,
         };
       }
+      methodologyMismatchConfirmation = null;
     }
     const inferredSourceMode =
       normalizeSourceMode((draft as Record<string, unknown>).sourceMode) ??
@@ -396,6 +450,9 @@ export function loadQuickCheckSession(
       (s) => s.status === "parse_failed" || s.status === "stale",
     );
     const effectiveResult = hasBadParseState && normalizedStagedUploads.length > 0 ? null : normalizedResult;
+    if (hasBadParseState && normalizedStagedUploads.length > 0) {
+      methodologyMismatchConfirmation = null;
+    }
     return {
       draft: {
         id: typeof draft.id === "string" ? draft.id : fallback.draft.id,
@@ -419,6 +476,7 @@ export function loadQuickCheckSession(
       result: effectiveResult,
       stagedUploads: normalizedStagedUploads,
       documentParseStates,
+      methodologyMismatchConfirmation,
     };
   } catch {
     return fallback;

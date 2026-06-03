@@ -31,11 +31,14 @@ import {
   getDocumentIdForStaged,
   loadQuickCheckInventory,
   loadQuickCheckSession,
+  normalizeMethodologyForCompare,
   saveQuickCheckSession,
   updateQuickCheckSessionForDocumentParse,
+  updateQuickCheckSessionForMethodologyMismatch,
   validateQuickCheckDraft,
   type DocumentParseState,
   type DocumentParseStatus,
+  type MethodologyMismatchConfirmation,
   type QuickCheckDraft,
   type QuickCheckExtractionSnapshot,
   type QuickCheckResult,
@@ -98,6 +101,7 @@ type QuickCheckSessionState = {
   result: QuickCheckResult | null;
   stagedUploads: QuickCheckStagedUpload[];
   documentParseStates?: Record<string, DocumentParseState>;
+  methodologyMismatchConfirmation?: MethodologyMismatchConfirmation | null;
 };
 
 type ExtractionState = {
@@ -127,12 +131,6 @@ type RecoveryState =
     }
   | null;
 
-type MethodologyMismatchConfirmation = {
-  detectedMethodology: string;
-  selectedMethodology: string;
-  detectedVersion?: string;
-  selectedVersion?: string;
-};
 
 type ExtractionDiagnostic =
   | {
@@ -604,7 +602,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
-  const [methodologyMismatchConfirmation, setMethodologyMismatchConfirmation] = useState<MethodologyMismatchConfirmation | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
@@ -617,6 +614,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       methodologyVersion: initialVersion?.trim() || undefined,
     }),
   );
+  const [methodologyMismatchConfirmation, setMethodologyMismatchConfirmationState] = useState<MethodologyMismatchConfirmation | null>(null);
 
   const draft = session.draft;
   const result = session.result;
@@ -660,6 +658,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     saveQuickCheckSession(nextSession);
     setSession(nextSession);
   }, []);
+
+  // Sync mismatch from persisted session (for reload / migration)
+  useEffect(() => {
+    if (session.methodologyMismatchConfirmation && !methodologyMismatchConfirmation) {
+      setMethodologyMismatchConfirmationState(session.methodologyMismatchConfirmation);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Wrapped setter also persists to session so stale mismatch does not survive reload/migration
+  const setMethodologyMismatchConfirmation = useCallback((next: MethodologyMismatchConfirmation | null) => {
+    setMethodologyMismatchConfirmationState(next);
+    updateSession((current) => updateQuickCheckSessionForMethodologyMismatch(current as unknown as QuickCheckSession, next) as unknown as QuickCheckSessionState);
+  }, [updateSession]);
 
   const updateDraft = useCallback(
     (
@@ -797,7 +808,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const documentStatusLabel: string = !documentParseState
     ? (selectedUploadEvidence.length ? "Uploaded" : "")
     : documentParseState.status === "parsed"
-    ? "Parsed successfully"
+    ? (documentParseState.fetchFailed ? "Parsed (local; server fetch failed)" : "Parsed successfully")
     : documentParseState.status === "parsing"
     ? "Parsing"
     : documentParseState.status === "parse_failed"
@@ -1016,7 +1027,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const hasText = Boolean(analysis?.rawPddText?.trim());
     let status: DocumentParseStatus = "parsed";
     let err: string | undefined;
-    if (diag && ["file-too-large", "invalid-file", "upload-request-failed", "no-selectable-text", "parser-failed"].includes(diag.code)) {
+    let fetchFailed = false;
+    let fetchErr: string | undefined;
+    if (diag && diag.code === "upload-request-failed") {
+      // separate fetch failure from parse status; may still have local text
+      fetchFailed = true;
+      fetchErr = diag.message;
+      status = hasText ? "parsed" : "parse_failed";
+      err = hasText ? undefined : diag.message;
+    } else if (diag && ["file-too-large", "invalid-file", "no-selectable-text", "parser-failed"].includes(diag.code)) {
       status = "parse_failed";
       err = diag.message;
     } else if (analysis && analysis.warnings.some((w) => /stale|bytes not found|unavailable/i.test(w))) {
@@ -1033,12 +1052,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         status,
         hasParsedText: status === "parsed" && hasText,
         errorMessage: err,
+        fetchFailed: fetchFailed || undefined,
+        fetchErrorMessage: fetchErr,
       }) as unknown as QuickCheckSessionState,
     );
   }
 
   async function reprocessDocument(docId: string) {
     if (!docId) return;
+    setMethodologyMismatchConfirmation(null);
+    bypassMismatchRef.current = false;
     updateSession((current) =>
       updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, docId, {
         status: "parsing",
@@ -1091,6 +1114,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         if (cancelled) return;
         if (currentDocumentId) {
           syncParseStatus(currentDocumentId, analysis, extractionDiagnostic);
+          // clear stale mismatch on successful document parse (new/reprocessed doc)
+          if (analysis && analysis.rawPddText?.trim()) {
+            setMethodologyMismatchConfirmation(null);
+          }
         }
         setExtractionState({ loading: false, analysis, error: null });
       })
@@ -1618,8 +1645,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
 
       // Mismatch confirmation flow for selected different from detected
+      // Use debug-safe normalization for ids and versions
+      const normSelId = normalizeMethodologyForCompare(effectiveMethodologyIdForRun);
+      const normDetId = normalizeMethodologyForCompare(detectedMethodologyId);
+      const normSelVer = normalizeMethodologyForCompare(effectiveMethodologyVersionForRun);
+      const normDetVer = normalizeMethodologyForCompare(detectedMethodologyVersion);
       const isMethodMismatch = !!effectiveMethodologyIdForRun && !!detectedMethodologyId &&
-        effectiveMethodologyIdForRun.toUpperCase() !== detectedMethodologyId.toUpperCase();
+        (normSelId !== normDetId || normSelVer !== normDetVer);
       const shouldBypass = bypassMismatchRef.current;
       bypassMismatchRef.current = false;
       if (isMethodMismatch && !shouldBypass) {
@@ -1628,6 +1660,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           selectedMethodology: effectiveMethodologyIdForRun,
           detectedVersion: detectedMethodologyVersion,
           selectedVersion: effectiveMethodologyVersionForRun,
+          normalizedSelectedId: normSelId,
+          normalizedSelectedVersion: normSelVer,
+          normalizedDetectedId: normDetId,
+          normalizedDetectedVersion: normDetVer,
         });
         // Document Q&A continues (document-grounded) only when parsed text status is known/good.
         // Do not synthesize UNCLEAR from missing/stale parse state (req: no fake uncertainty).
@@ -2231,6 +2267,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     {documentParseState?.errorMessage && (
                       <div className="mt-1 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-800">
                         {documentParseState.errorMessage}
+                      </div>
+                    )}
+                    {documentParseState?.fetchFailed && (
+                      <div className="mt-1 text-[10px] text-amber-700">
+                        PDF extract fetch failed (local recovery used). Downstream methodology/evidence fetches may be affected.
                       </div>
                     )}
 
@@ -2951,6 +2992,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 <div>Detected: <strong>{methodologyMismatchConfirmation.detectedMethodology}</strong>{methodologyMismatchConfirmation.detectedVersion ? ` · ${methodologyMismatchConfirmation.detectedVersion}` : ""}</div>
                 <div>Selected: <strong>{methodologyMismatchConfirmation.selectedMethodology}</strong>{methodologyMismatchConfirmation.selectedVersion ? ` · ${methodologyMismatchConfirmation.selectedVersion}` : ""}</div>
               </div>
+              {(process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") && (
+                <div className="mt-1 text-[10px] text-amber-600">
+                  norm sel id: {methodologyMismatchConfirmation.normalizedSelectedId || "—"} ver: {methodologyMismatchConfirmation.normalizedSelectedVersion || "—"} | det id: {methodologyMismatchConfirmation.normalizedDetectedId || "—"} ver: {methodologyMismatchConfirmation.normalizedDetectedVersion || "—"}
+                </div>
+              )}
               <div className="mt-4 flex flex-wrap gap-2">
                 <button
                   type="button"
