@@ -1741,6 +1741,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const resolvedMethodologyVersion = draft.methodologyVersion.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
 
+      const isKnownMethodology = resolvedMethodologyId
+        ? methods.some((m) => normalizeMethodologyForCompare(m.code) === normalizeMethodologyForCompare(resolvedMethodologyId))
+        : false;
+      if (resolvedMethodologyId && !isKnownMethodology) {
+        setMethodologyDetectionWarning(
+          `Selected methodology ${resolvedMethodologyId} has no rule definitions available in Quick Check. Using neutral fallback for methodology-rule review.`
+        );
+      }
+
       if (isReviewQuestion) {
         const hasUsableParsedText = Boolean(evidenceAnalysis.rawPddText?.trim()) &&
           (!documentParseState || (documentParseState.status === "parsed" && documentParseState.hasParsedText));
@@ -1775,6 +1784,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             ? "Loading advisory semantic evidence suggestions."
             : "No parsed PDD text was available for advisory semantic evidence suggestions.",
         });
+        if (!isKnownMethodology && resolvedMethodologyId) {
+          setReviewQuestionResult((current) => current ? {
+            ...current,
+            documentAnswer: {
+              ...current.documentAnswer,
+              methodologyExplanation: "Selected methodology has no available rule definitions; no rule mapping attempted.",
+              methodologyCandidates: undefined,
+            },
+          } : current);
+        }
         if (evidenceAnalysis.rawPddText?.trim()) {
           void fetchSemanticEvidenceCandidates({
             claimText: reviewFieldText,
@@ -1804,6 +1823,37 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 : current);
             });
         }
+
+        // Asynchronously load rules for selected (or resolved) methodology and enrich the review question result
+        // with methodology rule candidates so the lane uses selected id+version + all signals (not just text classify).
+        if (resolvedMethodologyId && resolvedMethodologyVersion && isKnownMethodology) {
+          void fetchRules(resolvedMethodologyId, resolvedMethodologyVersion)
+            .then((rules) => {
+              if (reviewQuestionRunRef.current !== runId) return;
+              const enriched = buildReviewQuestionResult({
+                claimText: reviewFieldText,
+                methodologyId: resolvedMethodologyId,
+                methodologyVersion: resolvedMethodologyVersion,
+                rawPddText: evidenceAnalysis.rawPddText,
+                evidenceSourceLabel: firstSource?.sourceLabel,
+                evidenceDocumentType: evidenceAnalysis.documentTypes[0],
+                methodologyRules: rules,
+              });
+              setReviewQuestionResult((current) => {
+                if (!current || reviewQuestionRunRef.current !== runId) return current;
+                return {
+                  ...enriched,
+                  semanticEvidenceCandidates: current.semanticEvidenceCandidates,
+                  semanticEvidenceStatus: current.semanticEvidenceStatus,
+                  semanticEvidenceWarning: current.semanticEvidenceWarning,
+                };
+              });
+            })
+            .catch(() => {
+              // leave as-is (no candidates => "No matching rule was found..." for known methods with no hit)
+            });
+        }
+
         setSelectedHeading(null);
         setFieldErrors({});
         setSubmitting(false);
@@ -2799,6 +2849,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       <div className="mt-2 text-sm leading-relaxed text-slate-700">
                         {reviewQuestionResult.documentAnswer.methodologyExplanation}
                       </div>
+                      {reviewQuestionResult.documentAnswer.methodologyCandidates && reviewQuestionResult.documentAnswer.methodologyCandidates.length > 0 ? (
+                        <div className="mt-2 border-t border-amber-100 pt-2">
+                          <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-600">Candidate methodology rules</div>
+                          <ul className="mt-1 space-y-1 text-xs text-slate-700">
+                            {reviewQuestionResult.documentAnswer.methodologyCandidates.map((c) => {
+                              const label = c.mapping === "confident" ? "confident" : c.mapping === "weak" ? "weak mapping" : "needs review";
+                              return (
+                                <li key={c.requirementId} className="font-mono">
+                                  {c.requirementLabel} <span className="text-amber-600">({label})</span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                          <p className="mt-1 text-[10px] text-amber-600">Review manually — not a high-confidence automatic match.</p>
+                        </div>
+                      ) : null}
                     </div>
                   )}
                   <div className="mt-4">

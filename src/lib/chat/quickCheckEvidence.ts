@@ -3,6 +3,12 @@ import { unzlibSync } from "fflate";
 import { getAttachmentBytes } from "@/lib/proofMap/attachments";
 import type { EvidenceAttachment, PddFragment, WorkbookEvidenceAsset, WorkbookRecordGroup } from "@/lib/proofMap/types";
 
+import type { ReviewArea } from "@/lib/quickCheck/retrieval/types";
+import {
+  getReviewAreaAliases,
+  getReviewAreaKeywords,
+} from "@/lib/quickCheck/policy/reviewPolicy";
+
 export type QuickCheckEvidenceFactCategory =
   | "project-document"
   | "boundary"
@@ -88,7 +94,7 @@ type ResolvePdfText = (input: {
   bytes: ArrayBuffer;
 }) => Promise<QuickCheckResolvedPdfText | null>;
 
-type QuickCheckRuleLike = {
+export type QuickCheckRuleLike = {
   id: string;
   title: string;
   snippet: string;
@@ -104,6 +110,10 @@ export type QuickCheckLocalRuleCandidate = {
   requirementId: string;
   requirementLabel: string;
   score: number;
+};
+
+export type ReviewQuestionRuleCandidate = QuickCheckLocalRuleCandidate & {
+  mapping: "confident" | "weak" | "needs-review";
 };
 
 const STOPWORDS = new Set([
@@ -1243,6 +1253,100 @@ function scoreRuleAgainstClaimIntents(rule: QuickCheckRuleLike, claimIntents: Qu
   }
 
   return score;
+}
+
+function scoreRuleForReviewQuestion(
+  rule: QuickCheckRuleLike,
+  reviewArea: ReviewArea,
+  claimText: string,
+  sectionHints: string[],
+): number {
+  const haystack = asLower(
+    [
+      rule.id,
+      rule.title,
+      rule.snippet,
+      rule.summary,
+      rule.logic,
+      rule.notes,
+      ...(rule.when ?? []),
+      ...(rule.expectedEvidence ?? []),
+      ...(rule.tags ?? []),
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+  let score = 0;
+
+  // area keywords + aliases (uses methodologyId="" for base + extras)
+  try {
+    const kws = getReviewAreaKeywords({ reviewArea, methodologyId: "", rawPddText: undefined });
+    const als = getReviewAreaAliases(reviewArea);
+    const areaTerms = [...new Set([...kws, ...als].map((k) => k.toLowerCase().trim()).filter(Boolean))];
+    for (const term of areaTerms) {
+      if (!term) continue;
+      if (haystack.includes(term)) score += term.length >= 6 ? 0.9 : 0.55;
+    }
+  } catch {
+    if (haystack.includes(reviewArea.replace(/_/g, " "))) score += 0.6;
+  }
+
+  const claimKws = tokenize(claimText);
+  for (const kw of claimKws) {
+    if (haystack.includes(kw)) score += kw.length >= 7 ? 0.45 : 0.25;
+  }
+
+  for (const hint of sectionHints) {
+    const h = hint.toLowerCase().trim();
+    if (!h) continue;
+    if (haystack.includes(h)) score += 0.8;
+    // boost direct section/rule id matches
+    const ext = rule as QuickCheckRuleLike & { sectionId?: string; citations?: Array<{ sectionId?: string }> };
+    if (ext.sectionId && String(ext.sectionId).toLowerCase().includes(h)) score += 1.2;
+    if (rule.id.toLowerCase().includes(h)) score += 1.0;
+  }
+
+  // small boost for common review area mentions in rule tags or when
+  if (reviewArea === "monitoring" && (haystack.includes("monitor") || haystack.includes("4.3"))) score += 0.6;
+  if (reviewArea === "boundary" && (haystack.includes("boundary") || haystack.includes("project area"))) score += 0.5;
+  if (reviewArea === "leakage" && haystack.includes("leakage")) score += 0.5;
+  if (reviewArea === "baseline" && (haystack.includes("baseline") || haystack.includes("without-project"))) score += 0.5;
+  if (reviewArea === "additionality" && haystack.includes("additionality")) score += 0.5;
+
+  return score;
+}
+
+export function buildReviewQuestionRuleCandidates(input: {
+  claimText: string;
+  reviewArea: ReviewArea;
+  rules: QuickCheckRuleLike[];
+  matchedHeadings?: Array<{ sectionNumber?: string; title?: string }>;
+  relevantSections?: string[];
+  minimumScore?: number;
+}): ReviewQuestionRuleCandidate[] {
+  if (!input.rules || input.rules.length === 0) return [];
+  const sectionHints = [
+    ...(input.relevantSections ?? []),
+    ...(input.matchedHeadings ?? []).map((h) => h.sectionNumber ?? ""),
+    ...(input.matchedHeadings ?? []).map((h) => h.title ?? ""),
+  ].filter(Boolean);
+
+  const minScore = input.minimumScore ?? 0.7;
+  return input.rules
+    .map((rule) => {
+      const score = scoreRuleForReviewQuestion(rule, input.reviewArea, input.claimText, sectionHints);
+      const mapping: ReviewQuestionRuleCandidate["mapping"] =
+        score >= 2.8 ? "confident" : score >= 1.1 ? "weak" : "needs-review";
+      return {
+        requirementId: rule.id,
+        requirementLabel: `${rule.id} · ${rule.title}`,
+        score,
+        mapping,
+      };
+    })
+    .filter((c) => c.score >= minScore)
+    .sort((a, b) => b.score - a.score || a.requirementLabel.localeCompare(b.requirementLabel))
+    .slice(0, 3);
 }
 
 export function buildLocalRuleCandidates(input: {

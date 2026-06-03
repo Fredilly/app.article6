@@ -16,6 +16,18 @@ const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "document-qa-messy.pdf": DOCUMENT_QA_MESSY_PDF_TEXT,
 };
 
+const NO_METHOD_MONITORING_TEXT = ([
+  "Project Design Document",
+  "1.0 Executive Summary",
+  "This project restores degraded land.",
+  "4.3 Monitoring Approach",
+  "Monitoring procedures describe annual plot measurements, QA/QC review, calibration logs, and data management checks.",
+  "3 Project Description",
+  "Project boundaries are clearly defined in the boundary description.",
+  "2.4 Baseline Scenario",
+  "Baseline conditions are described using historical land use.",
+]).join("\n");
+
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
   createAndStoreEvidenceAttachment: (...args: unknown[]) => createAndStoreEvidenceAttachmentMock(...args),
@@ -27,7 +39,10 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => {
   };
   return {
     resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => {
-      const text = PDF_TEXT_BY_FILENAME[filename] ?? "";
+      let text = PDF_TEXT_BY_FILENAME[filename] ?? "";
+      if (!text && /no-method|unknown-meth|foo/i.test(filename)) {
+        text = NO_METHOD_MONITORING_TEXT;
+      }
       return {
         text,
         engine: "pdf-parse" as const,
@@ -155,6 +170,25 @@ describe("QuickCheckPanel review-question fallback", () => {
       if (url.includes("/api/query?text=")) {
         return new Response(JSON.stringify({ engineTag: "test", metrics: [], results: [] }), { status: 200 });
       }
+      if (url.includes("/api/methods/") && url.includes("/rules")) {
+        const u = url.toLowerCase();
+        if (u.includes("acm")) {
+          return new Response(JSON.stringify({
+            rules: [
+              { id: "ACM-MON-01", title: "ACM0010 monitoring requirements", snippet: "monitoring of emissions and parameters" },
+            ],
+          }), { status: 200 });
+        }
+        if (u.includes("vm0007") || u.includes("v1-0")) {
+          return new Response(JSON.stringify({
+            rules: [
+              { id: "M-4.3", title: "Monitoring plan and procedures", snippet: "annual plot measurements, QA/QC, data management for monitoring approach" },
+              { id: "M-5.0", title: "Other VM monitoring", snippet: "sampling" },
+            ],
+          }), { status: 200 });
+        }
+        return new Response(JSON.stringify({ rules: [] }), { status: 200 });
+      }
       throw new Error(`Unhandled fetch ${url}`);
     }) as typeof fetch;
   });
@@ -281,5 +315,138 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).toContain("recovery suppressed: yes");
     expect(text).not.toContain("No valid analysis path");
     expect(text).not.toContain("No valid analysis path in VM0007");
+  });
+
+  it("selected methodology + monitoring question + monitoring headings => methodology lane returns monitoring candidate, not generic fallback", async () => {
+    seedSession({
+      claimText: "Does the project describe monitoring procedures?",
+      filename: "document-qa-messy.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Document Q&A");
+    expect(text).toContain("route: document_question");
+    // Must not use the old always-generic fallback
+    expect(text).not.toContain("No specific methodology rule was confidently applied for this review area.");
+    // With selected + monitoring signals + rules provided, should surface candidate and non-generic state
+    expect(text).toMatch(/Possible methodology rules found, review manually|M-4\.3|weak mapping|needs review/);
+    expect(text).toContain("Methodology lane");
+    // Candidate from rules should appear (enriched)
+    expect(text).toContain("M-4.3");
+  });
+
+  it("VM0007 selected produces its own monitoring rule candidates (different selected yields different set)", async () => {
+    seedSession({
+      claimText: "Does the project describe monitoring procedures?",
+      filename: "document-qa-messy.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUntilText("M-4.3");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("M-4.3");
+    expect(text).not.toContain("ACM-MON-01");
+  });
+
+  it("ACM0010 selected produces its own monitoring rule candidates (demonstrates selected changes the candidate rule set)", async () => {
+    // Use no-method text (no "VM0007" mention) so detection is not confident-VM; selected ACM will be used without triggering mismatch pause.
+    seedSession({
+      claimText: "Does the project describe monitoring procedures?",
+      filename: "no-method-monitoring.pdf",
+      methodologyId: "ACM0010",
+      methodologyVersion: "v01-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${NO_METHOD_MONITORING_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUntilText("Document Q&A");
+    await flushUntilText("Possible methodology rules found");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("ACM-MON-01");
+    expect(text).not.toContain("M-4.3");
+  });
+
+  it("unknown selected methodology => neutral warning, not fake rule mapping", async () => {
+    seedSession({
+      claimText: "Does the project describe monitoring procedures?",
+      filename: "no-method-monitoring.pdf",
+      methodologyId: "FOO-999",
+      methodologyVersion: "x1",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${NO_METHOD_MONITORING_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    // Neutral warning for unknown, not a fake mapping or generic rule claim
+    expect(text).toMatch(/no available rule definitions|no rule definitions available|neutral fallback/i);
+    // Should not pretend a rule was mapped or use old generic
+    expect(text).not.toContain("No specific methodology rule was confidently applied");
+    expect(text).not.toContain("M-4.3");
+    expect(text).not.toContain("ACM-MON-01");
+  });
+
+  it("document evidence found but no rule candidate => explicit “no matching rule found,” not mismatch/pause language", async () => {
+    // Use VM but a question whose area has no matching rule in the mocked rules for this test
+    // (the provided rules are monitoring focused; use a general/unknown area question that still finds doc evidence)
+    seedSession({
+      claimText: "Does the document address an unrelated exotic topic with no rule?",
+      filename: "document-qa-messy.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("No matching rule was found in the selected methodology.");
+    // Must not leak mismatch/pause language from old flows
+    expect(text).not.toContain("Methodology review paused");
+    expect(text).not.toContain("does not match the uploaded document");
+    expect(text).not.toContain("No specific methodology rule was confidently applied for this review area.");
   });
 });

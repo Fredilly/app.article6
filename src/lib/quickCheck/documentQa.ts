@@ -13,6 +13,10 @@ import type {
   ReviewQuestionRetrievalResult,
 } from "@/lib/quickCheck/retrieval/types";
 import type { ReviewQuestionEvaluationResult } from "@/lib/quickCheck/evaluation/types";
+import {
+  buildReviewQuestionRuleCandidates,
+  type QuickCheckRuleLike,
+} from "@/lib/chat/quickCheckEvidence";
 
 const MAX_EVIDENCE_ITEMS = 3;
 const MAX_SNIPPET_CHARS = 280;
@@ -149,6 +153,7 @@ export function buildDocumentQuestionAnswer(input: {
   parsedDocument?: ParsedDocument;
   claimText: string;
   rawPddText?: string;
+  methodologyRules?: QuickCheckRuleLike[];
 }): DocumentQuestionAnswer {
   const headingEvidence = buildHeadingEvidence(input.retrieval);
   const model = input.parsedDocument ? buildArticle6DocumentModel({ parsedDocument: input.parsedDocument }) : null;
@@ -171,24 +176,45 @@ export function buildDocumentQuestionAnswer(input: {
     result: input.retrieval,
   });
 
-  const methodologyRuleMatched = Boolean(input.evaluation.reviewAreaReview);
+  const candidates = input.methodologyRules && input.retrieval.methodologyId
+    ? buildReviewQuestionRuleCandidates({
+        claimText: input.claimText,
+        reviewArea: input.retrieval.reviewArea,
+        rules: input.methodologyRules,
+        matchedHeadings: input.retrieval.matchedHeadings,
+        relevantSections: input.retrieval.relevantSections,
+        minimumScore: 0.7,
+      })
+    : [];
+
+  const hasConfidentMethodologyRule = candidates.some((c) => c.mapping === "confident");
+  const methodologyRuleMatched = Boolean(input.evaluation.reviewAreaReview) || hasConfidentMethodologyRule;
+
   const rawPddTextAvailable = Boolean(input.rawPddText?.trim());
+  const hasSelectedMethodology = Boolean(input.retrieval.methodologyId?.trim());
+
+  let methodologyExplanation: string;
+  if (!hasSelectedMethodology) {
+    methodologyExplanation = "Select a methodology to run methodology-rule review.";
+  } else if (candidates.length === 0) {
+    methodologyExplanation = "No matching rule was found in the selected methodology.";
+  } else if (!hasConfidentMethodologyRule) {
+    methodologyExplanation = "Possible methodology rules found, review manually.";
+  } else {
+    methodologyExplanation = "Quick Check found a methodology-aware review path and evaluated the matched document sections.";
+  }
+
   return {
     status,
     methodologyRuleMatched,
-    methodologyExplanation: methodologyRuleMatched
-      ? "Quick Check found a methodology-aware review path and evaluated the matched document sections."
-      : evidence.length > 0
-        ? "No specific methodology rule was confidently applied for this review area."
-        : rawPddTextAvailable
-          ? "No specific methodology rule was confidently applied for this review area."
-          : "No specific methodology rule was confidently applied for this review area.",
+    methodologyExplanation,
     explanation: evidence.length > 0
       ? "Quick Check found document-grounded evidence relevant to the question."
       : rawPddTextAvailable
         ? "Quick Check could not recover useful document-grounded evidence for this question from the uploaded file."
         : "Quick Check could not run the document-first evidence search because parsed document text was unavailable.",
     evidence,
+    methodologyCandidates: candidates.length > 0 ? candidates : undefined,
     diagnostic: {
       reviewQuestionRoutingFired: true,
       rawPddTextAvailable,

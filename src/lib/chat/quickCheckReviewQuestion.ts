@@ -42,6 +42,7 @@ export function buildReviewQuestionResult(input: {
   rawPddText?: string;
   evidenceSourceLabel?: string;
   evidenceDocumentType?: string;
+  methodologyRules?: import("@/lib/chat/quickCheckEvidence").QuickCheckRuleLike[];
 }): ReviewQuestionResult {
   const retrieval = buildReviewQuestionSectionRetrieval(input);
   const evaluation = evaluateRetrievedReviewQuestion(retrieval);
@@ -52,12 +53,14 @@ export function buildReviewQuestionResult(input: {
     parsedDocument,
     claimText: input.claimText,
     rawPddText: input.rawPddText,
+    methodologyRules: input.methodologyRules,
   });
 
   return {
     ...retrieval,
     ...evaluation,
     documentAnswer,
+    methodologyCandidates: documentAnswer.methodologyCandidates,
     documentDiagnostic: buildReviewQuestionDocumentDiagnostic(documentAnswer),
   };
 }

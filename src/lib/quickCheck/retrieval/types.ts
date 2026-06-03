@@ -1,6 +1,7 @@
 import type { DocumentHeading, RejectedHeadingQueryMatch, SectionCandidateDebug } from "@/lib/chat/quickCheckSectionExtractor";
 import type { BaselineReviewResult } from "@/lib/chat/quickCheckBaselineRubric";
 import type { ReviewRubricResult } from "@/lib/chat/quickCheckReviewRubric";
+import type { ReviewQuestionRuleCandidate } from "@/lib/chat/quickCheckEvidence";
 
 export type ReviewArea =
   | "additionality"
@@ -106,6 +107,7 @@ export type DocumentQuestionAnswer = {
   methodologyExplanation: string;
   explanation: string;
   evidence: DocumentAnswerEvidence[];
+  methodologyCandidates?: ReviewQuestionRuleCandidate[];
   diagnostic: {
     reviewQuestionRoutingFired: boolean;
     rawPddTextAvailable: boolean;
@@ -153,6 +155,7 @@ export type ReviewQuestionResult = {
   matchedHeadings: DocumentHeading[];
   baselineReview?: BaselineReviewResult;
   reviewAreaReview?: ReviewRubricResult;
+  methodologyCandidates?: ReviewQuestionRuleCandidate[];
   noMatchExplanation?: string;
   diagnostic?: Record<string, string>;
   phase1Diagnostic?: ReviewQuestionDiagnostic;
@@ -166,7 +169,7 @@ export type ReviewQuestionResult = {
 
 export type ReviewQuestionRetrievalResult = Omit<
   ReviewQuestionResult,
-  "baselineReview" | "reviewAreaReview" | "documentAnswer" | "documentDiagnostic" | "semanticEvidenceCandidates" | "semanticEvidenceStatus" | "semanticEvidenceWarning"
+  "baselineReview" | "reviewAreaReview" | "methodologyCandidates" | "documentAnswer" | "documentDiagnostic" | "semanticEvidenceCandidates" | "semanticEvidenceStatus" | "semanticEvidenceWarning"
 > & {
   rejectedMatches: RejectedHeadingQueryMatch[];
 };
