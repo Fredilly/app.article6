@@ -92,6 +92,8 @@ export type MethodologyMismatchConfirmation = {
   normalizedDetectedVersion?: string;
 };
 
+export type MethodologyDetectionWarning = string | null;
+
 export type DocumentParseStatus = "uploaded" | "parsing" | "parsed" | "parse_failed" | "stale";
 
 export type DocumentParseState = {
@@ -112,6 +114,7 @@ export type QuickCheckSession = {
   stagedUploads: QuickCheckStagedUpload[];
   documentParseStates?: Record<string, DocumentParseState>;
   methodologyMismatchConfirmation?: MethodologyMismatchConfirmation | null;
+  methodologyDetectionWarning?: MethodologyDetectionWarning;
 };
 
 type QuickCheckRule = {
@@ -255,6 +258,21 @@ export function updateQuickCheckSessionForMethodologyMismatch(
   return {
     ...session,
     methodologyMismatchConfirmation: confirmation,
+  };
+}
+
+function normalizeMethodologyDetectionWarning(raw: unknown): MethodologyDetectionWarning {
+  if (typeof raw === "string" && raw.trim()) return raw.trim();
+  return null;
+}
+
+export function updateQuickCheckSessionForMethodologyDetectionWarning(
+  session: QuickCheckSession,
+  warning: MethodologyDetectionWarning,
+): QuickCheckSession {
+  return {
+    ...session,
+    methodologyDetectionWarning: warning,
   };
 }
 
@@ -403,7 +421,7 @@ export function loadQuickCheckSession(
   seed?: Partial<Pick<QuickCheckDraft, "methodologyId" | "methodologyVersion" | "claimText">>,
 ): QuickCheckSession {
   const storage = getStorage();
-  const fallback: QuickCheckSession = { draft: createQuickCheckDraft(seed), result: null, stagedUploads: [], documentParseStates: {}, methodologyMismatchConfirmation: null };
+  const fallback: QuickCheckSession = { draft: createQuickCheckDraft(seed), result: null, stagedUploads: [], documentParseStates: {}, methodologyMismatchConfirmation: null, methodologyDetectionWarning: null };
   if (!storage) return fallback;
   let raw = storage.getItem(QUICK_CHECK_STORAGE_KEY);
   let loadedFromV1 = false;
@@ -421,6 +439,7 @@ export function loadQuickCheckSession(
     const normalizedDocumentParseStates = normalizeDocumentParseStates(parsed?.documentParseStates);
     let documentParseStates = normalizedDocumentParseStates;
     let methodologyMismatchConfirmation = normalizeMethodologyMismatchConfirmation(parsed?.methodologyMismatchConfirmation);
+    let methodologyDetectionWarning = normalizeMethodologyDetectionWarning(parsed?.methodologyDetectionWarning);
     if (loadedFromV1 || Object.keys(normalizedDocumentParseStates).length === 0) {
       documentParseStates = {};
       for (const upload of normalizedStagedUploads) {
@@ -437,6 +456,7 @@ export function loadQuickCheckSession(
         };
       }
       methodologyMismatchConfirmation = null;
+      methodologyDetectionWarning = null;
     }
     const inferredSourceMode =
       normalizeSourceMode((draft as Record<string, unknown>).sourceMode) ??
@@ -452,6 +472,7 @@ export function loadQuickCheckSession(
     const effectiveResult = hasBadParseState && normalizedStagedUploads.length > 0 ? null : normalizedResult;
     if (hasBadParseState && normalizedStagedUploads.length > 0) {
       methodologyMismatchConfirmation = null;
+      methodologyDetectionWarning = null;
     }
     return {
       draft: {
@@ -477,6 +498,7 @@ export function loadQuickCheckSession(
       stagedUploads: normalizedStagedUploads,
       documentParseStates,
       methodologyMismatchConfirmation,
+      methodologyDetectionWarning,
     };
   } catch {
     return fallback;

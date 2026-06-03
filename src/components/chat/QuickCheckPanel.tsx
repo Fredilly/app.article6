@@ -34,10 +34,12 @@ import {
   normalizeMethodologyForCompare,
   saveQuickCheckSession,
   updateQuickCheckSessionForDocumentParse,
+  updateQuickCheckSessionForMethodologyDetectionWarning,
   updateQuickCheckSessionForMethodologyMismatch,
   validateQuickCheckDraft,
   type DocumentParseState,
   type DocumentParseStatus,
+  type MethodologyDetectionWarning,
   type MethodologyMismatchConfirmation,
   type QuickCheckDraft,
   type QuickCheckExtractionSnapshot,
@@ -102,6 +104,7 @@ type QuickCheckSessionState = {
   stagedUploads: QuickCheckStagedUpload[];
   documentParseStates?: Record<string, DocumentParseState>;
   methodologyMismatchConfirmation?: MethodologyMismatchConfirmation | null;
+  methodologyDetectionWarning?: MethodologyDetectionWarning;
 };
 
 type ExtractionState = {
@@ -608,13 +611,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     analysis: null,
     error: null,
   });
-  const [session, setSession] = useState<QuickCheckSessionState>(() =>
-    loadQuickCheckSession({
-      methodologyId: initialMethod?.trim() || undefined,
-      methodologyVersion: initialVersion?.trim() || undefined,
-    }),
+  const initialLoaded = loadQuickCheckSession({
+    methodologyId: initialMethod?.trim() || undefined,
+    methodologyVersion: initialVersion?.trim() || undefined,
+  });
+  const [session, setSession] = useState<QuickCheckSessionState>(() => initialLoaded);
+  const [methodologyMismatchConfirmation, setMethodologyMismatchConfirmationState] = useState<MethodologyMismatchConfirmation | null>(
+    () => initialLoaded.methodologyMismatchConfirmation ?? null
   );
-  const [methodologyMismatchConfirmation, setMethodologyMismatchConfirmationState] = useState<MethodologyMismatchConfirmation | null>(null);
+  const [methodologyDetectionWarning, setMethodologyDetectionWarningState] = useState<MethodologyDetectionWarning>(
+    () => initialLoaded.methodologyDetectionWarning ?? null
+  );
 
   const draft = session.draft;
   const result = session.result;
@@ -659,17 +666,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setSession(nextSession);
   }, []);
 
-  // Sync mismatch from persisted session (for reload / migration)
-  useEffect(() => {
-    if (session.methodologyMismatchConfirmation && !methodologyMismatchConfirmation) {
-      setMethodologyMismatchConfirmationState(session.methodologyMismatchConfirmation);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Note: initial states are seeded from loaded session above; setters keep them in sync with session
 
   // Wrapped setter also persists to session so stale mismatch does not survive reload/migration
   const setMethodologyMismatchConfirmation = useCallback((next: MethodologyMismatchConfirmation | null) => {
     setMethodologyMismatchConfirmationState(next);
     updateSession((current) => updateQuickCheckSessionForMethodologyMismatch(current as unknown as QuickCheckSession, next) as unknown as QuickCheckSessionState);
+  }, [updateSession]);
+
+  // Wrapped for detection warning
+  const setMethodologyDetectionWarning = useCallback((next: MethodologyDetectionWarning) => {
+    setMethodologyDetectionWarningState(next);
+    updateSession((current) => updateQuickCheckSessionForMethodologyDetectionWarning(current as unknown as QuickCheckSession, next) as unknown as QuickCheckSessionState);
   }, [updateSession]);
 
   const updateDraft = useCallback(
@@ -1061,6 +1069,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   async function reprocessDocument(docId: string) {
     if (!docId) return;
     setMethodologyMismatchConfirmation(null);
+    setMethodologyDetectionWarning(null);
     bypassMismatchRef.current = false;
     updateSession((current) =>
       updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, docId, {
@@ -1114,9 +1123,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         if (cancelled) return;
         if (currentDocumentId) {
           syncParseStatus(currentDocumentId, analysis, extractionDiagnostic);
-          // clear stale mismatch on successful document parse (new/reprocessed doc)
+          // clear stale mismatch/warning on successful document parse (new/reprocessed doc)
           if (analysis && analysis.rawPddText?.trim()) {
             setMethodologyMismatchConfirmation(null);
+            setMethodologyDetectionWarning(null);
           }
         }
         setExtractionState({ loading: false, analysis, error: null });
@@ -1185,6 +1195,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setPendingInventoryId("");
     setShowAdvanced(false);
     setMethodologyMismatchConfirmation(null);
+    setMethodologyDetectionWarning(null);
     bypassMismatchRef.current = false;
     setShowSavedEvidence(false);
     setShowMethodology(false);
@@ -1611,6 +1622,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setFieldErrors({});
     setRecoveryState(null);
     setMethodologyMismatchConfirmation(null);
+    setMethodologyDetectionWarning(null);
     bypassMismatchRef.current = false;
     setMatchCandidates([]);
     try {
@@ -1644,14 +1656,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         }));
       }
 
+      const detectionStatus = currentMethodologyResolution.status;
+      const methodologyDetectionConfidence: "high" | "medium" | "low" | "unknown" =
+        detectionStatus === "single"
+          ? (confLevel === "low" ? "medium" : confLevel)
+          : (detectionStatus === "multiple" || detectionStatus === "unsupported" ? "low" : "unknown");
+      const hasConfidentDetection = methodologyDetectionConfidence === "medium" || methodologyDetectionConfidence === "high";
+
       // Mismatch confirmation flow for selected different from detected
-      // Use debug-safe normalization for ids and versions
+      // Only when selected exists AND different detected with sufficient confidence.
+      // Do not trigger on empty/unknown/unsupported/low-conf detection.
       const normSelId = normalizeMethodologyForCompare(effectiveMethodologyIdForRun);
       const normDetId = normalizeMethodologyForCompare(detectedMethodologyId);
       const normSelVer = normalizeMethodologyForCompare(effectiveMethodologyVersionForRun);
       const normDetVer = normalizeMethodologyForCompare(detectedMethodologyVersion);
-      const isMethodMismatch = !!effectiveMethodologyIdForRun && !!detectedMethodologyId &&
-        (normSelId !== normDetId || normSelVer !== normDetVer);
+      const hasSelected = !!effectiveMethodologyIdForRun;
+      const hasDetected = !!detectedMethodologyId;
+      const normsDiffer = (normSelId !== normDetId || normSelVer !== normDetVer);
+      const hasConfidentDifferentDetection = hasSelected && hasDetected && normsDiffer && hasConfidentDetection;
+      const isMethodMismatch = hasConfidentDifferentDetection;
       const shouldBypass = bypassMismatchRef.current;
       bypassMismatchRef.current = false;
       if (isMethodMismatch && !shouldBypass) {
@@ -1697,6 +1720,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setSubmitting(false);
         setRecoveryState((prev) => prev);
         return;
+      }
+
+      if (hasSelected && !hasConfidentDetection &&
+          (detectionStatus === "none" || detectionStatus === "unsupported" ||
+           methodologyDetectionConfidence === "low" || methodologyDetectionConfidence === "unknown" || !hasDetected)) {
+        setMethodologyDetectionWarning(
+          "Quick Check could not confidently detect the uploaded document methodology. Continuing with selected methodology."
+        );
       }
 
       if (!evidenceAnalysis.facts.length && !isReviewQuestion) {
@@ -2122,6 +2153,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   function handleContinueWithSelectedMethodology() {
     setMethodologyMismatchConfirmation(null);
+    setMethodologyDetectionWarning(null);
     bypassMismatchRef.current = true;
     // re-run will bypass mismatch check and populate lane for selected
     void runQuickCheck();
@@ -2129,6 +2161,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   function handleDocumentQaOnly() {
     setMethodologyMismatchConfirmation(null);
+    setMethodologyDetectionWarning(null);
     bypassMismatchRef.current = false;
     setMatchCandidates([]);
     // reviewQuestionResult if set will be shown; if not, the qa part may be in rendered or open full will handle
@@ -3019,6 +3052,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 >
                   Document Q&A only
                 </button>
+              </div>
+            </div>
+          ) : null}
+
+          {methodologyDetectionWarning && !methodologyMismatchConfirmation ? (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4" role="status">
+              <div className="text-sm text-slate-700">
+                {methodologyDetectionWarning}
               </div>
             </div>
           ) : null}
