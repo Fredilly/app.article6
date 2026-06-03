@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "entry": [
+    "scripts/**/*.{mjs,cjs,js,ts,tsx}",
+    "src/index.{ts,tsx,js,jsx}",
+    "src/main.{ts,tsx,js,jsx}"
+  ],
+  "ignorePatterns": [
+    "**/*.generated.*",
+    ".next/**",
+    "out/**",
+    "test-results/**",
+    "coverage/**",
+    "artifacts/**",
+    "public/methodologies/**",
+    "public/_provenance/**"
+  ],
+  "duplicates": {
+    "minOccurrences": 3,
+    "ignore": [
+      "scripts/audit-pack/**"
+    ]
+  },
+  "rules": {
+    "unused-files": "warn",
+    "unused-exports": "warn",
+    "unused-types": "warn",
+    "unused-dependencies": "warn",
+    "unlisted-dependencies": "warn"
+  },
+  "health": {
+    "maxCyclomatic": 25,
+    "maxCognitive": 20
+  }
+}

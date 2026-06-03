@@ -55,7 +55,9 @@
     "roadmap:gen": "node scripts/roadmap/gen-roadmap.mjs",
     "roadmap:update": "node scripts/roadmap/roadmap-update.mjs",
     "test:derived:determinism": "node scripts/test-derived-determinism.mjs",
-    "test:audit-pack:trail-smoke": "node scripts/test-audit-pack-trail-smoke.mjs"
+    "test:audit-pack:trail-smoke": "node scripts/test-audit-pack-trail-smoke.mjs",
+    "analyze:fallow": "fallow dead-code --format compact --summary || true; fallow dupes --format compact --summary || true; fallow health --format compact --summary --top 10 || true",
+    "analyze:fallow:json": "mkdir -p artifacts/fallow && fallow dead-code --format json --quiet --summary > artifacts/fallow/dead-code.json 2>/dev/null || true; fallow dupes --format json --quiet --summary > artifacts/fallow/dupes.json 2>/dev/null || true; fallow health --format json --quiet --summary --top 20 > artifacts/fallow/health.json 2>/dev/null || true; echo 'Fallow JSON reports written to artifacts/fallow/{dead-code,dupes,health}.json'"
   },
   "engines": {
     "node": ">=20 <21",
@@ -87,6 +89,7 @@
     "ajv": "^8.17.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.10",
+    "fallow": "^2.86.0",
     "globby": "^16.1.0",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
