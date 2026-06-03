@@ -2742,6 +2742,14 @@ describe("QuickCheckPanel methodology mismatch logic (regression)", () => {
     });
   }
 
+  async function flushUntilText(text: string, attempts = 10) {
+    for (let index = 0; index < attempts; index += 1) {
+      if ((container.textContent ?? "").includes(text)) return;
+      await flushUi();
+    }
+    throw new Error(`Timed out waiting for text: ${text}`);
+  }
+
   it("selected method + no detected method => no mismatch pause", async () => {
     seedSession({
       claimText: "Does the document address leakage?",
@@ -2780,13 +2788,20 @@ describe("QuickCheckPanel methodology mismatch logic (regression)", () => {
   it("selected method + different high-confidence detected method => mismatch pause", async () => {
     // mock inventory
     const orig = (global as any).fetch;
-    (global as any).fetch = jest.fn(async (input: any) => {
+    (global as any).fetch = jest.fn(async (input: any, init?: any) => {
       const url = String(input);
       if (url.includes("/api/methods/inventory")) {
         return new Response(JSON.stringify({ methods: [
           { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
           { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
         ] }), { status: 200 });
+      }
+      if (url.includes("/api/quick-check/pdf-extract")) {
+        // return the seeded text so analysis gets the AR mention
+        return new Response(JSON.stringify({
+          text: "Reporting period 1 April 2024 - 31 March 2025. Project area Makueni County and Kitui County. The monitoring report covers the full reporting period. AR-ACM0003 methodology reference.",
+          engine: "pdf-parse",
+        }), { status: 200 });
       }
       return orig ? orig(input) : Promise.reject(new Error("unmocked"));
     });
@@ -2804,11 +2819,10 @@ describe("QuickCheckPanel methodology mismatch logic (regression)", () => {
     await flushUi();
     await act(async () => { clickButton("Run quick check"); });
     await flushUi();
-    await flushUi();
-    await flushUi();
+    await flushUntilText("Methodology review paused because the selected methodology does not match the uploaded document.");
     const text = container.textContent ?? "";
     expect(text).toContain("AR-ACM0003");
-    expect(text).not.toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
+    expect(text).toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
 
     (global as any).fetch = orig;
   });
