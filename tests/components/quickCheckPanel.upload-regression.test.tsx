@@ -234,9 +234,10 @@ describe("QuickCheckPanel upload regression", () => {
     await flushUi();
 
     expect(container.textContent).toContain("Extraction preview");
-    expect(container.textContent).toContain("Grounded");
-    expect(container.textContent).toContain("Document Q&A");
-    expect(container.textContent).toContain("raw text: unavailable");
+    // Bad/empty text now surfaces explicit parse status (not fake review Q&A verdict).
+    expect(container.textContent).toContain("Parse failed");
+    expect(container.textContent).toContain("Reprocess document");
+    expect(container.textContent).toContain("Parsed document text was unavailable after extraction");
 
     await uploadEvidence(
       new File(

@@ -25,7 +25,7 @@ export async function resolveQuickCheckPdfText(input: {
     });
 
     if (!response.ok) {
-      const payload = (await response.json().catch(() => ({}))) as { error?: string; code?: QuickCheckPdfRouteErrorCode };
+      const payload = (await response.json().catch(() => ({}))) as { error?: string; code?: QuickCheckPdfRouteErrorCode; documentId?: string };
       if (payload.code === "file-too-large" || payload.code === "invalid-file" || payload.code === "missing-file") {
         return {
           text: "",
@@ -37,6 +37,7 @@ export async function resolveQuickCheckPdfText(input: {
               ? `PDF exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`
               : "Quick Check could not process this upload as a valid PDF."),
           diagnosticCode: payload.code === "missing-file" ? "invalid-file" : payload.code,
+          documentId: payload.documentId,
         };
       }
       // Non-explicit error status (e.g. platform 413, 5xx) — surface as request failure
@@ -54,6 +55,10 @@ export async function resolveQuickCheckPdfText(input: {
           failureKind?: "file-too-large" | "parser-failed" | "no-selectable-text" | "invalid-file";
         };
       };
+      documentId?: string;
+      parseStatus?: "parsed" | "parse_failed";
+      hasParsedText?: boolean;
+      parseError?: string;
     };
     const engine =
       payload.engine === "heuristic" || payload.metadata?.parser === "heuristic"
@@ -80,6 +85,10 @@ export async function resolveQuickCheckPdfText(input: {
       methodologyMentions: uniqueMentions(serverMentions, localHeuristicMentions),
       warning: shouldRecoverTextLocally && text.trim() ? RECOVERED_TEXT_WARNING : warning,
       diagnosticCode: failureKind,
+      documentId: payload.documentId,
+      parseStatus: payload.parseStatus,
+      hasParsedText: payload.hasParsedText,
+      parseError: payload.parseError,
     };
   } catch (err) {
     const localHeuristicText = extractPdfText(input.bytes);
@@ -96,6 +105,7 @@ export async function resolveQuickCheckPdfText(input: {
           ? "Quick Check PDF extraction request failed (service or network issue)."
           : "PDF extraction request failed.",
       diagnosticCode: isRequestFailure ? "upload-request-failed" : "parser-failed",
+      // No server documentId on network failure path; caller may derive from attachment sha
     };
   }
 }

@@ -76,6 +76,10 @@ export type QuickCheckResolvedPdfText = {
     | "no-selectable-text"
     | "selected-methodology-mismatch"
     | "methodology-not-detected";
+  documentId?: string;
+  parseStatus?: "parsed" | "parse_failed";
+  hasParsedText?: boolean;
+  parseError?: string;
 };
 type ResolvePdfText = (input: {
   attachmentId: string;
@@ -1061,7 +1065,10 @@ export async function analyzeQuickCheckEvidence(
     for (const attachment of source.attachments) {
       if (attachment.mime !== "application/pdf") continue;
       const bytes = await resolveAttachmentBytes(attachment.id).catch(() => null);
-      if (!bytes) continue;
+      if (!bytes) {
+        warningSet.add(`Attachment bytes not found locally for ${source.sourceLabel || attachment.id} — document state may be stale.`);
+        continue;
+      }
       let text = "";
       if (resolvePdfText) {
         try {

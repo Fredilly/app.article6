@@ -180,16 +180,17 @@ describe("QuickCheckPanel review-question fallback", () => {
     });
 
     await flushUi();
-    await act(async () => {
-      clickButton("Run quick check");
-    });
 
-    await flushUntilText("Document Q&A");
+    // Analyze runs on mount for the seeded (empty-text) upload and sets parse_failed via sync.
+    // UI now surfaces explicit document parse status instead of allowing run to fake a review verdict.
+    await flushUntilText("Parse failed");
 
     const text = container.textContent ?? "";
-    expect(text).toContain("unclear");
-    expect(text).toContain("parsed document text was unavailable");
-    expect(text).not.toContain("No valid analysis path");
+    expect(text).toContain("Parse failed");
+    expect(text).toContain("Reprocess document");
+    // Guard ensures we do not emit LIKELY/UNCLEAR when parsed text status is not known/good.
+    expect(text).not.toContain("unclear");
+    // The old unavailable string may appear in diagnostics but not as a review outcome.
   });
 
   it.each(DOCUMENT_QA_REVIEW_QUESTIONS)("renders the Document Q&A card for document question variant: %s", async (claimText) => {

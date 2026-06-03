@@ -80,10 +80,22 @@ export type QuickCheckStagedUpload = {
   attachment: EvidenceAttachment;
 };
 
-type QuickCheckSession = {
+export type DocumentParseStatus = "uploaded" | "parsing" | "parsed" | "parse_failed" | "stale";
+
+export type DocumentParseState = {
+  documentId: string;
+  status: DocumentParseStatus;
+  hasParsedText: boolean;
+  errorMessage?: string;
+  updatedAt: string;
+  version: number;
+};
+
+export type QuickCheckSession = {
   draft: QuickCheckDraft;
   result: QuickCheckResult | null;
   stagedUploads: QuickCheckStagedUpload[];
+  documentParseStates?: Record<string, DocumentParseState>;
 };
 
 type QuickCheckRule = {
@@ -113,7 +125,8 @@ type QuickCheckRule = {
   }>;
 };
 
-const QUICK_CHECK_STORAGE_KEY = "a6:quick-check:claim-first:v1";
+const QUICK_CHECK_STORAGE_KEY = "a6:quick-check:claim-first:v2";
+const QUICK_CHECK_STORAGE_KEY_V1 = "a6:quick-check:claim-first:v1";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -127,6 +140,71 @@ function newId(prefix: string): string {
 function getStorage(): Storage | null {
   if (typeof window === "undefined") return null;
   return window.localStorage;
+}
+
+export function getDocumentIdForStaged(upload: QuickCheckStagedUpload): string {
+  const sha = (upload.attachment as Record<string, unknown> | undefined)?.sha256;
+  if (typeof sha === "string" && sha.length > 8) return `sha256:${sha}`;
+  return `local:${upload.evidenceId}`;
+}
+
+function createDefaultDocumentParseState(documentId: string): DocumentParseState {
+  const ts = nowIso();
+  return {
+    documentId,
+    status: "uploaded",
+    hasParsedText: false,
+    updatedAt: ts,
+    version: 1,
+  };
+}
+
+function normalizeDocumentParseStates(raw: unknown): Record<string, DocumentParseState> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, DocumentParseState> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (!v || typeof v !== "object") continue;
+    const r = v as Record<string, unknown>;
+    const candidateStatus = r.status as DocumentParseStatus;
+    const status: DocumentParseStatus =
+      candidateStatus === "uploaded" ||
+      candidateStatus === "parsing" ||
+      candidateStatus === "parsed" ||
+      candidateStatus === "parse_failed" ||
+      candidateStatus === "stale"
+        ? candidateStatus
+        : "stale";
+    out[k] = {
+      documentId: typeof r.documentId === "string" ? r.documentId : k,
+      status,
+      hasParsedText: Boolean(r.hasParsedText),
+      errorMessage: typeof r.errorMessage === "string" ? r.errorMessage : undefined,
+      updatedAt: typeof r.updatedAt === "string" ? r.updatedAt : nowIso(),
+      version: typeof r.version === "number" ? r.version : 1,
+    };
+  }
+  return out;
+}
+
+export function updateQuickCheckSessionForDocumentParse(
+  session: QuickCheckSession,
+  documentId: string,
+  patch: Partial<Omit<DocumentParseState, "documentId">>,
+): QuickCheckSession {
+  const prev = session.documentParseStates?.[documentId] ?? createDefaultDocumentParseState(documentId);
+  const nextState: DocumentParseState = {
+    ...prev,
+    ...patch,
+    documentId,
+    updatedAt: nowIso(),
+  };
+  return {
+    ...session,
+    documentParseStates: {
+      ...(session.documentParseStates ?? {}),
+      [documentId]: nextState,
+    },
+  };
 }
 
 export function createQuickCheckDraft(
@@ -274,9 +352,14 @@ export function loadQuickCheckSession(
   seed?: Partial<Pick<QuickCheckDraft, "methodologyId" | "methodologyVersion" | "claimText">>,
 ): QuickCheckSession {
   const storage = getStorage();
-  const fallback = { draft: createQuickCheckDraft(seed), result: null, stagedUploads: [] };
+  const fallback: QuickCheckSession = { draft: createQuickCheckDraft(seed), result: null, stagedUploads: [], documentParseStates: {} };
   if (!storage) return fallback;
-  const raw = storage.getItem(QUICK_CHECK_STORAGE_KEY);
+  let raw = storage.getItem(QUICK_CHECK_STORAGE_KEY);
+  let loadedFromV1 = false;
+  if (!raw) {
+    raw = storage.getItem(QUICK_CHECK_STORAGE_KEY_V1);
+    loadedFromV1 = !!raw;
+  }
   if (!raw) return fallback;
   try {
     const parsed = JSON.parse(raw) as Partial<QuickCheckSession> | null;
@@ -284,6 +367,23 @@ export function loadQuickCheckSession(
     if (!draft || typeof draft !== "object") return fallback;
     const normalizedResult = normalizeResult(parsed?.result);
     const normalizedStagedUploads = normalizeStagedUploads(parsed?.stagedUploads);
+    const normalizedDocumentParseStates = normalizeDocumentParseStates(parsed?.documentParseStates);
+    let documentParseStates = normalizedDocumentParseStates;
+    if (loadedFromV1 || Object.keys(normalizedDocumentParseStates).length === 0) {
+      documentParseStates = {};
+      for (const upload of normalizedStagedUploads) {
+        const did = getDocumentIdForStaged(upload);
+        documentParseStates[did] = {
+          documentId: did,
+          status: "stale",
+          hasParsedText: false,
+          errorMessage:
+            "Document state may be stale (migrated from previous Quick Check session or app update). Reprocess or re-upload the document to establish parse status.",
+          updatedAt: nowIso(),
+          version: 1,
+        };
+      }
+    }
     const inferredSourceMode =
       normalizeSourceMode((draft as Record<string, unknown>).sourceMode) ??
       normalizeSourceMode((draft as Record<string, unknown>).inputSource) ??
@@ -292,6 +392,10 @@ export function loadQuickCheckSession(
       typeof (draft as Record<string, unknown>).evidenceFileName === "string"
         ? (draft as Record<string, unknown>).evidenceFileName as string
         : normalizedStagedUploads[0]?.filename;
+    const hasBadParseState = Object.values(documentParseStates).some(
+      (s) => s.status === "parse_failed" || s.status === "stale",
+    );
+    const effectiveResult = hasBadParseState && normalizedStagedUploads.length > 0 ? null : normalizedResult;
     return {
       draft: {
         id: typeof draft.id === "string" ? draft.id : fallback.draft.id,
@@ -312,8 +416,9 @@ export function loadQuickCheckSession(
         createdAt: typeof draft.createdAt === "string" ? draft.createdAt : fallback.draft.createdAt,
         updatedAt: typeof draft.updatedAt === "string" ? draft.updatedAt : fallback.draft.updatedAt,
       },
-      result: normalizedResult,
+      result: effectiveResult,
       stagedUploads: normalizedStagedUploads,
+      documentParseStates,
     };
   } catch {
     return fallback;

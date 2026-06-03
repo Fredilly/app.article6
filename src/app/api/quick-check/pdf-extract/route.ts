@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
+import { sha256ArrayBuffer } from "@/lib/proof/hash";
 import { withMetrics } from "@/lib/metrics";
 
 async function handlePost(request: Request) {
@@ -42,12 +43,15 @@ async function handlePost(request: Request) {
     return NextResponse.json({ error: "Missing PDF bytes.", code: "missing-file" }, { status: 400 });
   }
 
+  const contentSha256 = await sha256ArrayBuffer(bytes);
+  const documentId = `sha256:${contentSha256}`;
+
   // Content-type validation: only enforce on raw path or when clearly wrong.
   // For multipart uploads (the normal browser path) we rely primarily on magic bytes.
   const isRawPath = !contentType.includes("multipart");
   if (isRawPath && !/application\/pdf|octet-stream/i.test(contentType)) {
     return NextResponse.json(
-      { error: `Uploaded file "${declaredFilename}" must be a PDF.`, code: "invalid-file" },
+      { error: `Uploaded file "${declaredFilename}" must be a PDF.`, code: "invalid-file", documentId },
       { status: 415 },
     );
   }
@@ -57,13 +61,14 @@ async function handlePost(request: Request) {
       {
         error: `PDF "${declaredFilename}" exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`,
         code: "file-too-large",
+        documentId,
       },
       { status: 413 },
     );
   }
   if (!isLikelyPdfBytes(bytes)) {
     return NextResponse.json(
-      { error: `Uploaded file "${declaredFilename}" is not a valid PDF.`, code: "invalid-file" },
+      { error: `Uploaded file "${declaredFilename}" is not a valid PDF.`, code: "invalid-file", documentId },
       { status: 400 },
     );
   }
@@ -81,6 +86,10 @@ async function handlePost(request: Request) {
         text: extraction.text,
         engine: extraction.engine,
         metadata: extraction.metadata,
+        documentId,
+        parseStatus: "parsed",
+        hasParsedText: true,
+        parseError: undefined,
       });
     }
   } catch (error) {
@@ -92,6 +101,7 @@ async function handlePost(request: Request) {
   }
 
   const fallbackText = extractPdfText(bytes);
+  const hasText = fallbackText.trim().length > 0;
   return NextResponse.json({
     text: fallbackText,
     engine: "heuristic",
@@ -99,17 +109,21 @@ async function handlePost(request: Request) {
       parser: "heuristic",
       fallbackReason,
       diagnostics: diagnostics ?? {
-        failureKind: fallbackText.trim().length > 0 ? "parser-failed" : "no-selectable-text",
+        failureKind: hasText ? "parser-failed" : "no-selectable-text",
         parserPath: "unknown",
         pageExtractionAttempted: true,
         pageExtractionError: fallbackReason,
         textFallbackAttempted: true,
         extractedTextLength: fallbackText.trim().length,
-        pageCount: fallbackText.trim().length > 0 ? 1 : 0,
-        likelyScannedOrImageOnly: fallbackText.trim().length === 0,
-        partialTextRecovered: fallbackText.trim().length > 0,
+        pageCount: hasText ? 1 : 0,
+        likelyScannedOrImageOnly: !hasText,
+        partialTextRecovered: hasText,
       },
     },
+    documentId,
+    parseStatus: hasText ? "parsed" : "parse_failed",
+    hasParsedText: hasText,
+    parseError: hasText ? undefined : (diagnostics?.failureKind === "no-selectable-text" ? "No selectable text found in this PDF." : "PDF text extraction failed or produced no content."),
   });
 }
 

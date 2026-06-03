@@ -28,13 +28,18 @@ import { resolveQuickCheckMethodology, type QuickCheckMethodologyResolution } fr
 import {
   buildQuickCheckResult,
   ensureQuickCheckWorkspaceHandoff,
+  getDocumentIdForStaged,
   loadQuickCheckInventory,
   loadQuickCheckSession,
   saveQuickCheckSession,
+  updateQuickCheckSessionForDocumentParse,
   validateQuickCheckDraft,
+  type DocumentParseState,
+  type DocumentParseStatus,
   type QuickCheckDraft,
   type QuickCheckExtractionSnapshot,
   type QuickCheckResult,
+  type QuickCheckSession,
   type QuickCheckSourceMode,
   type QuickCheckStagedUpload,
 } from "@/lib/chat/quickCheck";
@@ -92,6 +97,7 @@ type QuickCheckSessionState = {
   draft: QuickCheckDraft;
   result: QuickCheckResult | null;
   stagedUploads: QuickCheckStagedUpload[];
+  documentParseStates?: Record<string, DocumentParseState>;
 };
 
 type ExtractionState = {
@@ -772,7 +778,35 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     draft.sourceMode ??
     (selectedUpload ? "uploaded_file" : selectedInventoryItem ? "saved_evidence" : null);
   const effectiveClaimText = resolveEffectiveClaimText(draft.claimText);
-  const canRunQuickCheck = selectedEvidenceCount === 1 && !submitting;
+  const currentDocumentId = useMemo(() => {
+    const upload = selectedUploadEvidence[0];
+    return upload ? getDocumentIdForStaged(upload) : null;
+  }, [selectedUploadEvidence]);
+  const documentParseState = useMemo(() => {
+    if (!currentDocumentId || !session.documentParseStates) return null;
+    return session.documentParseStates[currentDocumentId] ?? null;
+  }, [currentDocumentId, session.documentParseStates]);
+
+  // Defense: if current doc parse state is bad, do not reuse any persisted result as valid review input.
+  useEffect(() => {
+    if (currentDocumentId && documentParseState && (documentParseState.status === "parse_failed" || documentParseState.status === "stale") && session.result) {
+      updateSession((current) => ({ ...current, result: null, draft: { ...current.draft, result: null, status: "draft", updatedAt: nowIso() } }));
+    }
+  }, [currentDocumentId, documentParseState?.status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const documentStatusLabel: string = !documentParseState
+    ? (selectedUploadEvidence.length ? "Uploaded" : "")
+    : documentParseState.status === "parsed"
+    ? "Parsed successfully"
+    : documentParseState.status === "parsing"
+    ? "Parsing"
+    : documentParseState.status === "parse_failed"
+    ? "Parse failed"
+    : documentParseState.status === "stale"
+    ? "State may be stale"
+    : "Uploaded";
+  const documentReadyForCheck = !selectedUploadEvidence.length || (documentParseState?.status === "parsed" && documentParseState.hasParsedText);
+  const canRunQuickCheck = selectedEvidenceCount === 1 && !submitting && documentReadyForCheck;
   const activeResultKey =
     result && draft.methodologyId.trim() && draft.methodologyVersion.trim() && draft.matchedRequirementId?.trim()
       ? `${draft.methodologyId.trim()}@@${draft.methodologyVersion.trim()}@@${draft.matchedRequirementId.trim()}`
@@ -973,6 +1007,63 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     [],
   );
 
+  function syncParseStatus(
+    docId: string | null,
+    analysis: QuickCheckEvidenceAnalysis | null,
+    diag: ExtractionDiagnostic | null,
+  ) {
+    if (!docId) return;
+    const hasText = Boolean(analysis?.rawPddText?.trim());
+    let status: DocumentParseStatus = "parsed";
+    let err: string | undefined;
+    if (diag && ["file-too-large", "invalid-file", "upload-request-failed", "no-selectable-text", "parser-failed"].includes(diag.code)) {
+      status = "parse_failed";
+      err = diag.message;
+    } else if (analysis && analysis.warnings.some((w) => /stale|bytes not found|unavailable/i.test(w))) {
+      status = "stale";
+      err = analysis.warnings.find((w) => /stale/i.test(w)) || "Document state may be stale. Refresh or reprocess document.";
+    } else if (!hasText) {
+      status = "parse_failed";
+      err = "Parsed document text was unavailable after extraction.";
+    } else {
+      status = "parsed";
+    }
+    updateSession((current) =>
+      updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, docId, {
+        status,
+        hasParsedText: status === "parsed" && hasText,
+        errorMessage: err,
+      }) as unknown as QuickCheckSessionState,
+    );
+  }
+
+  async function reprocessDocument(docId: string) {
+    if (!docId) return;
+    updateSession((current) =>
+      updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, docId, {
+        status: "parsing",
+        hasParsedText: false,
+        errorMessage: undefined,
+      }) as unknown as QuickCheckSessionState,
+    );
+    setExtractionState((prev) => ({ loading: true, analysis: prev.analysis, error: null }));
+    try {
+      const analysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
+      syncParseStatus(docId, analysis, extractionDiagnostic);
+      setExtractionState({ loading: false, analysis, error: null });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      updateSession((current) =>
+        updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, docId, {
+          status: "parse_failed",
+          hasParsedText: false,
+          errorMessage: msg,
+        }) as unknown as QuickCheckSessionState,
+      );
+      setExtractionState({ loading: false, analysis: null, error: msg });
+    }
+  }
+
   useEffect(() => {
     if (!selectedEvidenceSources.length) {
       setExtractionState({ loading: false, analysis: null, error: null });
@@ -980,6 +1071,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
 
     let cancelled = false;
+    if (currentDocumentId) {
+      updateSession((current) =>
+        updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, currentDocumentId, {
+          status: "parsing",
+          hasParsedText: false,
+          errorMessage: undefined,
+        }) as unknown as QuickCheckSessionState,
+      );
+    }
     setExtractionState({
       loading: true,
       analysis: null,
@@ -989,21 +1089,34 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
         if (cancelled) return;
+        if (currentDocumentId) {
+          syncParseStatus(currentDocumentId, analysis, extractionDiagnostic);
+        }
         setExtractionState({ loading: false, analysis, error: null });
       })
       .catch((error) => {
         if (cancelled) return;
+        const msg = error instanceof Error ? error.message : String(error);
+        if (currentDocumentId) {
+          updateSession((current) =>
+            updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, currentDocumentId, {
+              status: "parse_failed",
+              hasParsedText: false,
+              errorMessage: msg,
+            }) as unknown as QuickCheckSessionState,
+          );
+        }
         setExtractionState({
           loading: false,
           analysis: null,
-          error: error instanceof Error ? error.message : String(error),
+          error: msg,
         });
       });
 
     return () => {
       cancelled = true;
     };
-  }, [resolvePdfText, selectedEvidenceSources]);
+  }, [resolvePdfText, selectedEvidenceSources, currentDocumentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (showSavedEvidence || showMethodology) {
@@ -1309,12 +1422,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         resultId: nextResult.id,
         updatedAt: nowIso(),
       };
-      const nextSession = {
+      const nextSession: QuickCheckSessionState = {
+        ...activeSession,
         draft: checkedDraft,
         result: nextResult,
         stagedUploads: [] as QuickCheckStagedUpload[],
       };
-      saveQuickCheckSession(nextSession);
+      saveQuickCheckSession(nextSession as unknown as QuickCheckSession);
       setSession(nextSession);
       setValidatedResultKey(candidate.key);
       setMatchCandidates([]);
@@ -1370,6 +1484,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           },
         ],
       }));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setFieldErrors({
+        general: `Failed to store document locally: ${msg}. This may be due to browser storage limits, quota, or a temporary internal error (e.g. during high memory pressure). Clear site data/cache or try a smaller file.`,
+      });
     } finally {
       setSubmitting(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -1510,8 +1629,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           detectedVersion: detectedMethodologyVersion,
           selectedVersion: effectiveMethodologyVersionForRun,
         });
-        // Document Q&A continues (document-grounded)
-        if (evidenceAnalysis.rawPddText?.trim()) {
+        // Document Q&A continues (document-grounded) only when parsed text status is known/good.
+        // Do not synthesize UNCLEAR from missing/stale parse state (req: no fake uncertainty).
+        const hasUsableParsedText = Boolean(evidenceAnalysis.rawPddText?.trim()) &&
+          (!documentParseState || (documentParseState.status === "parsed" && documentParseState.hasParsedText));
+        if (hasUsableParsedText) {
           const qaResult = buildReviewQuestionResult({
             claimText: effectiveClaimText || draft.claimText,
             methodologyId: detectedMethodologyId,
@@ -1528,10 +1650,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               : "No parsed PDD text was available for advisory semantic evidence suggestions.",
           });
           // note: semantic fetch would be async but omitted for mismatch for simplicity; doc qa core is set
+        } else if (selectedUploadEvidence.length) {
+          setRecoveryState({
+            kind: "weak-extraction",
+            title: "Document parse state incomplete",
+            description: "Document state may be stale. Refresh or reprocess document before Quick Check.",
+          });
         }
         setFieldErrors({});
         setSubmitting(false);
-        setRecoveryState(null);
+        setRecoveryState((prev) => prev);
         return;
       }
 
@@ -1547,6 +1675,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
 
       if (isReviewQuestion) {
+        const hasUsableParsedText = Boolean(evidenceAnalysis.rawPddText?.trim()) &&
+          (!documentParseState || (documentParseState.status === "parsed" && documentParseState.hasParsedText));
+        if (!hasUsableParsedText && selectedUploadEvidence.length) {
+          // Do not call builder / produce LIKELY/UNCLEAR when parse status not known (stale/failed).
+          // Prevents treating parse failure as methodology uncertainty.
+          setReviewQuestionResult(null);
+          setRecoveryState({
+            kind: "weak-extraction",
+            title: "Document parse state incomplete",
+            description: "Document state may be stale. Refresh or reprocess document before Quick Check.",
+          });
+          setFieldErrors({});
+          setSubmitting(false);
+          return;
+        }
         const firstSource = selectedEvidenceSources[0];
         const questionResult = buildReviewQuestionResult({
           claimText: reviewFieldText,
@@ -1837,6 +1980,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const demo = await prepareQuickCheckDemo();
       const readyMethods = await ensureMethodsReady(QUICK_CHECK_DEMO.methodologyId, QUICK_CHECK_DEMO.methodologyVersion);
       const nextSession: QuickCheckSessionState = {
+        ...session,
         draft: demo.draft,
         result: null,
         stagedUploads: [demo.stagedUpload],
@@ -1849,6 +1993,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         },
       ], { resolvePdfText });
       replaceSession(nextSession);
+      // Ensure demo has explicit parsed state (synthetic text is usable)
+      const demoDocId = `sha256:${QUICK_CHECK_DEMO.sha256}`;
+      updateSession((current) =>
+        updateQuickCheckSessionForDocumentParse(current as unknown as QuickCheckSession, demoDocId, {
+          status: "parsed",
+          hasParsedText: true,
+          errorMessage: undefined,
+        }) as unknown as QuickCheckSessionState,
+      );
       const resolvedDemoCandidate = await resolveQuickCheckCandidate({
         candidate: buildQuickCheckDemoCandidate(),
         methods: readyMethods,
@@ -1890,8 +2043,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       methodologyId: workspaceMethodologyId,
       methodologyVersion: workspaceMethodologyVersion,
     });
-    const nextSession = { draft: handoff.draft, result, stagedUploads };
-    saveQuickCheckSession(nextSession);
+    const nextSession: QuickCheckSessionState = { ...session, draft: handoff.draft, result, stagedUploads };
+    saveQuickCheckSession(nextSession as unknown as QuickCheckSession);
     setSession(nextSession);
     if (onContinueToWorkspace) {
       onContinueToWorkspace(handoff.url);
@@ -2042,6 +2195,44 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         </button>
                       </div>
                     </div>
+
+                    {selectedUploadEvidence.length > 0 && (
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-slate-600">Document parse:</span>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                              documentParseState?.status === "parsed"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                : documentParseState?.status === "parsing"
+                                ? "border-slate-200 bg-slate-50 text-slate-600"
+                                : documentParseState?.status === "parse_failed" || documentParseState?.status === "stale"
+                                ? "border-amber-200 bg-amber-50 text-amber-700"
+                                : "border-slate-200 bg-slate-50 text-slate-600"
+                            }`}
+                          >
+                            {documentParseState?.status === "parsed" ? <Check className="h-3 w-3" /> : null}
+                            {documentStatusLabel || "Uploaded"}
+                            {documentParseState?.status === "parsing" ? <Loader2 className="ml-1 h-3 w-3 animate-spin" /> : null}
+                          </span>
+                        </div>
+                        {(documentParseState?.status === "parse_failed" || documentParseState?.status === "stale" || documentParseState?.status === "uploaded") && (
+                          <button
+                            type="button"
+                            onClick={() => void reprocessDocument(currentDocumentId!)}
+                            disabled={extractionState.loading || submitting}
+                            className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                          >
+                            Reprocess document
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {documentParseState?.errorMessage && (
+                      <div className="mt-1 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-800">
+                        {documentParseState.errorMessage}
+                      </div>
+                    )}
 
                     {extractionState.loading && !extractionPreviewView ? (
                       <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
