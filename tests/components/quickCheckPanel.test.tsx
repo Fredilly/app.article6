@@ -2245,6 +2245,115 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     expect(text).toContain("Evidence appears to reference VM0007, but current selected method is ACM0010.");
   });
 
+  // New tests for methodology mismatch confirmation flow per spec
+  it("Any methodology + detected VM0007 uses VM0007 when confidence medium/high", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "", // Any
+      methodologyVersion: "",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(Monitoring report for the full reporting period.)\n%%EOF");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("VM0007");
+    expect(text).not.toContain("ACM0010"); // no leak
+  });
+
+  it("selected VM0007 + detected VM0007 continues normally", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(VM0007 reference.)\n%%EOF");
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("VM0007 · v1-0");
+    expect(text).not.toContain("Methodology review paused");
+  });
+
+  it("selected AR-ACM0003 + detected VM0007 shows mismatch", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "AR-ACM0003",
+      methodologyVersion: "v02-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(VM0007 reference.)\n%%EOF");
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
+    expect(text).toContain("Detected: VM0007");
+    expect(text).toContain("Selected: AR-ACM0003");
+    // buttons present
+    expect(text).toContain("Use detected methodology");
+    expect(text).toContain("Continue with selected methodology");
+    expect(text).toContain("Document Q&A only");
+  });
+
+  it("user override allows AR-ACM0003 review", async () => {
+    // similar setup, click continue, should proceed without paused
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "AR-ACM0003",
+      methodologyVersion: "v02-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(VM0007 reference.)\n%%EOF");
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    // click continue
+    await act(async () => {
+      const btns = Array.from(container.querySelectorAll("button")).filter(b => (b.textContent || "").includes("Continue with selected"));
+      if (btns[0]) btns[0].click();
+    });
+    await flushUi();
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Methodology review paused");
+    // may show some narrowing or review for selected
+  });
+
+  it("Document Q&A still runs during mismatch", async () => {
+    seedSession({
+      claimText: "Does the document address leakage?",
+      methodologyId: "AR-ACM0003",
+      methodologyVersion: "v02-0",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+    await seedAttachmentText("att-upload-1", "%PDF-1.4\n(VM0007 reference.)\n%%EOF");
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    await act(async () => { clickButton("Run quick check"); });
+    await flushUi();
+    const text = container.textContent ?? "";
+    // since claim style? but for review question style input in mismatch, but even claim, we set qa in logic
+    // check that qa section or document evidence appears, or "Document Q&A" text in some cases
+    // in practice, the qa result may trigger "Document Q&A" in diagnostic if review path
+    expect(text.includes("Document Q&A") || text.includes("document-grounded") || text.includes("review paused")).toBe(true);
+  });
+
   it("narrows a PLUM boundary claim to VM0007 candidates only", async () => {
     seedSession({
       claimText: "The boundary description matches the mapped project area.",

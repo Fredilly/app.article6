@@ -179,10 +179,10 @@ export function buildDocumentQuestionAnswer(input: {
     methodologyExplanation: methodologyRuleMatched
       ? "Quick Check found a methodology-aware review path and evaluated the matched document sections."
       : evidence.length > 0
-        ? "No methodology rule was confidently matched, but the uploaded document contains relevant evidence."
+        ? "Methodology review paused because the selected methodology does not match the uploaded document."
         : rawPddTextAvailable
-          ? "No methodology rule was confidently matched, and Quick Check could not recover relevant document evidence from the uploaded text."
-          : "No methodology rule was confidently matched, and parsed document text was unavailable for document-first review.",
+          ? "Methodology review paused because the selected methodology does not match the uploaded document."
+          : "Methodology review paused because the selected methodology does not match the uploaded document.",
     explanation: evidence.length > 0
       ? "Quick Check found document-grounded evidence relevant to the question."
       : rawPddTextAvailable

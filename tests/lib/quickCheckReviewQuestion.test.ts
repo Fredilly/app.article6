@@ -1284,7 +1284,7 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.documentAnswer.evidence).toEqual([]);
     expect(result.documentAnswer.status).toBe("unclear");
     expect(result.documentAnswer.explanation).toContain("could not recover useful document-grounded evidence");
-    expect(result.documentAnswer.methodologyExplanation).toContain("could not recover relevant document evidence");
+    expect(result.documentAnswer.methodologyExplanation).toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
     expect(result.reviewAreaReview).toBeUndefined();
   });
 

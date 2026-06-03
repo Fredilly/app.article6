@@ -121,6 +121,13 @@ type RecoveryState =
     }
   | null;
 
+type MethodologyMismatchConfirmation = {
+  detectedMethodology: string;
+  selectedMethodology: string;
+  detectedVersion?: string;
+  selectedVersion?: string;
+};
+
 type ExtractionDiagnostic =
   | {
       code:
@@ -519,6 +526,13 @@ function extractionStateBadgeClass(value: string): string {
   return "border-rose-200 bg-rose-50 text-rose-800";
 }
 
+function getConfidenceLevel(value: number | null | undefined): "high" | "medium" | "low" | "unknown" {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return "unknown";
+  if (value >= 0.7) return "high";
+  if (value >= 0.45) return "medium";
+  return "low";
+}
+
 function confidenceLabel(value: "high" | "medium" | "low" | "unknown" | undefined): string {
   if (value === "high") return "High";
   if (value === "medium") return "Medium";
@@ -568,6 +582,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
   const reviewQuestionRunRef = useRef(0);
+  const bypassMismatchRef = useRef(false);
 
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
@@ -583,6 +598,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
+  const [methodologyMismatchConfirmation, setMethodologyMismatchConfirmation] = useState<MethodologyMismatchConfirmation | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
     loading: false,
@@ -1009,6 +1025,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   function clearDecisionState() {
     setFieldErrors({});
     setRecoveryState(null);
+    setMethodologyMismatchConfirmation(null);
+    bypassMismatchRef.current = false;
     setMatchCandidates([]);
     setValidatedResultKey(null);
     setReviewQuestionResult(null);
@@ -1026,6 +1044,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     clearDecisionState();
     setPendingInventoryId("");
     setShowAdvanced(false);
+    setMethodologyMismatchConfirmation(null);
+    bypassMismatchRef.current = false;
     setShowSavedEvidence(false);
     setShowMethodology(false);
     setShowExtractionDetails(false);
@@ -1299,6 +1319,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       setValidatedResultKey(candidate.key);
       setMatchCandidates([]);
       setRecoveryState(null);
+      setMethodologyMismatchConfirmation(null);
+      bypassMismatchRef.current = false;
     } catch (error) {
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -1442,6 +1464,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setSubmitting(true);
     setFieldErrors({});
     setRecoveryState(null);
+    setMethodologyMismatchConfirmation(null);
+    bypassMismatchRef.current = false;
     setMatchCandidates([]);
     try {
       const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
@@ -1452,6 +1476,65 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
         methods,
       });
+
+      // Any methodology: auto-use detected if medium/high confidence
+      let effectiveMethodologyIdForRun = draft.methodologyId.trim();
+      let effectiveMethodologyVersionForRun = draft.methodologyVersion.trim();
+      const primaryDetected = currentMethodologyResolution.status === "single"
+        ? currentMethodologyResolution.matchedMethods[0]
+        : currentMethodologyResolution.primaryMethodology?.supported
+          ? currentMethodologyResolution.primaryMethodology.matchedMethod
+          : null;
+      const detectedMethodologyId = primaryDetected?.methodologyId || currentMethodologyResolution.matchedMethods[0]?.methodologyId || "";
+      const detectedMethodologyVersion = primaryDetected?.methodologyVersion || currentMethodologyResolution.matchedMethods[0]?.methodologyVersion || "";
+      const confLevel = evidenceAnalysis ? getConfidenceLevel(evidenceAnalysis.extractionConfidence) : "unknown";
+      if (!effectiveMethodologyIdForRun && detectedMethodologyId && (confLevel === "medium" || confLevel === "high")) {
+        effectiveMethodologyIdForRun = detectedMethodologyId;
+        effectiveMethodologyVersionForRun = detectedMethodologyVersion;
+        updateDraft((currentDraft) => ({
+          ...currentDraft,
+          methodologyId: detectedMethodologyId,
+          methodologyVersion: detectedMethodologyVersion,
+        }));
+      }
+
+      // Mismatch confirmation flow for selected different from detected
+      const isMethodMismatch = !!effectiveMethodologyIdForRun && !!detectedMethodologyId &&
+        effectiveMethodologyIdForRun.toUpperCase() !== detectedMethodologyId.toUpperCase();
+      const shouldBypass = bypassMismatchRef.current;
+      bypassMismatchRef.current = false;
+      if (isMethodMismatch && !shouldBypass) {
+        setMethodologyMismatchConfirmation({
+          detectedMethodology: detectedMethodologyId,
+          selectedMethodology: effectiveMethodologyIdForRun,
+          detectedVersion: detectedMethodologyVersion,
+          selectedVersion: effectiveMethodologyVersionForRun,
+        });
+        // Document Q&A continues (document-grounded)
+        if (evidenceAnalysis.rawPddText?.trim()) {
+          const qaResult = buildReviewQuestionResult({
+            claimText: effectiveClaimText || draft.claimText,
+            methodologyId: detectedMethodologyId,
+            methodologyVersion: detectedMethodologyVersion,
+            rawPddText: evidenceAnalysis.rawPddText,
+            evidenceSourceLabel: selectedEvidenceSources[0]?.sourceLabel,
+            evidenceDocumentType: evidenceAnalysis.documentTypes[0],
+          });
+          setReviewQuestionResult({
+            ...qaResult,
+            semanticEvidenceStatus: evidenceAnalysis.rawPddText?.trim() ? "loading" : "disabled",
+            semanticEvidenceWarning: evidenceAnalysis.rawPddText?.trim()
+              ? "Loading advisory semantic evidence suggestions."
+              : "No parsed PDD text was available for advisory semantic evidence suggestions.",
+          });
+          // note: semantic fetch would be async but omitted for mismatch for simplicity; doc qa core is set
+        }
+        setFieldErrors({});
+        setSubmitting(false);
+        setRecoveryState(null);
+        return;
+      }
+
       if (!evidenceAnalysis.facts.length && !isReviewQuestion) {
         setFieldErrors({});
         setRecoveryState(buildWeakExtractionRecoveryState());
@@ -1515,6 +1598,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setFieldErrors({});
         setSubmitting(false);
         setRecoveryState(null);
+        setMethodologyMismatchConfirmation(null);
+        bypassMismatchRef.current = false;
         return;
       }
 
@@ -1827,6 +1912,40 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     claimRef.current?.focus();
   }
 
+  function handleUseDetectedMethodology() {
+    if (!methodologyMismatchConfirmation) return;
+    updateDraft((currentDraft) => ({
+      ...currentDraft,
+      methodologyId: methodologyMismatchConfirmation.detectedMethodology,
+      methodologyVersion: methodologyMismatchConfirmation.detectedVersion || currentDraft.methodologyVersion,
+      matchedRequirementId: undefined,
+      matchedRequirementLabel: undefined,
+      status: "draft",
+      result: null,
+      resultId: undefined,
+    }));
+    setMethodologyMismatchConfirmation(null);
+    bypassMismatchRef.current = false;
+    setMatchCandidates([]);
+    // re-run with detected
+    void runQuickCheck();
+  }
+
+  function handleContinueWithSelectedMethodology() {
+    setMethodologyMismatchConfirmation(null);
+    bypassMismatchRef.current = true;
+    // re-run will bypass mismatch check and populate lane for selected
+    void runQuickCheck();
+  }
+
+  function handleDocumentQaOnly() {
+    setMethodologyMismatchConfirmation(null);
+    bypassMismatchRef.current = false;
+    setMatchCandidates([]);
+    // reviewQuestionResult if set will be shown; if not, the qa part may be in rendered or open full will handle
+    // if no qa result, user can still use full review which shows doc qa
+  }
+
   return (
     <div className="w-full">
       <div className="mx-auto w-full max-w-[46rem] px-4 md:px-0">
@@ -2115,6 +2234,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   });
                   setPendingInventoryId("");
                   clearDecisionState();
+                  setMethodologyMismatchConfirmation(null);
+                  bypassMismatchRef.current = false;
                 }}
                 className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white"
               >
@@ -2630,6 +2751,41 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
+          {methodologyMismatchConfirmation ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4" role="alert">
+              <div className="text-sm font-semibold text-slate-900">
+                Methodology review paused because the selected methodology does not match the uploaded document.
+              </div>
+              <div className="mt-2 grid gap-1 text-sm text-slate-700">
+                <div>Detected: <strong>{methodologyMismatchConfirmation.detectedMethodology}</strong>{methodologyMismatchConfirmation.detectedVersion ? ` · ${methodologyMismatchConfirmation.detectedVersion}` : ""}</div>
+                <div>Selected: <strong>{methodologyMismatchConfirmation.selectedMethodology}</strong>{methodologyMismatchConfirmation.selectedVersion ? ` · ${methodologyMismatchConfirmation.selectedVersion}` : ""}</div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleUseDetectedMethodology}
+                  className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Use detected methodology
+                </button>
+                <button
+                  type="button"
+                  onClick={handleContinueWithSelectedMethodology}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                >
+                  Continue with selected methodology
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDocumentQaOnly}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                >
+                  Document Q&A only
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           {fieldErrors.general ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900" role="status" aria-live="polite">
               <div className="flex items-start gap-2.5">
@@ -2639,7 +2795,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
           ) : null}
 
-          {matchCandidates.length ? (
+          {!methodologyMismatchConfirmation && matchCandidates.length ? (
             <div className="rounded-2xl border border-sky-200 bg-sky-50/80 p-4">
               <div className="flex items-start gap-3">
                 <SearchCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" />
