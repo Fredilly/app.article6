@@ -1,5 +1,12 @@
+import fs from "fs";
+import path from "path";
 import { describe, expect, it } from "@jest/globals";
-import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState, normalizeQuickCheckUiResult } from "@/lib/chat/quickCheckUi";
+import {
+  buildExtractionPreviewViewModel,
+  buildQuickCheckExtractionSnapshot,
+  deriveQuickCheckExtractionState,
+  normalizeQuickCheckUiResult,
+} from "@/lib/chat/quickCheckUi";
 
 describe("quick check ui helpers", () => {
   it("builds a claim-relevant extraction snapshot", () => {
@@ -94,6 +101,252 @@ describe("quick check ui helpers", () => {
     expect(snapshot.methodologyMentions).toEqual(["VM0007", "REDD+ Methodology Framework", "VMD0001", "VMD0006"]);
   });
 
+  it("builds a grounded extraction preview view model from actual file output", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "fresh-monitoring-report.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "reporting-period",
+            category: "reporting-period",
+            summary: "The PDF states a monitoring or reporting period",
+            matchText: "reporting period stated",
+            sourceLabel: "fresh-monitoring-report.pdf",
+            detail: "Reporting period: 1 January 2025 to 31 December 2025.",
+          },
+          {
+            id: "monitoring",
+            category: "monitoring-evidence",
+            summary: "The project has documented monitoring evidence",
+            matchText: "monitoring evidence",
+            sourceLabel: "fresh-monitoring-report.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["fresh-monitoring-report.pdf"],
+        documentTypes: ["Document"],
+        methodologyMentions: ["AR-ACM0003"],
+        extractionConfidence: 0.78,
+        warnings: [],
+        rawPddText: "Monitoring report for the full reporting period. AR-ACM0003 methodology reference.",
+      },
+      methodologyResolution: {
+        status: "single",
+        rawMentions: ["AR-ACM0003"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [
+          {
+            methodologyId: "AR-ACM0003",
+            methodologyVersion: "v02-0",
+            matchedSignals: ["AR-ACM0003"],
+            canonicalKeys: ["AR-ACM0003"],
+            priority: 5,
+          },
+        ],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: {
+          canonicalKey: "AR-ACM0003",
+          supported: true,
+          matchedMethod: {
+            methodologyId: "AR-ACM0003",
+            methodologyVersion: "v02-0",
+            matchedSignals: ["AR-ACM0003"],
+            canonicalKeys: ["AR-ACM0003"],
+            priority: 5,
+          },
+          secondaryCanonicalKeys: [],
+        },
+      },
+    });
+
+    expect(view.fileName).toBe("fresh-monitoring-report.pdf");
+    expect(view.detectedDocumentType).toBe("Monitoring Report");
+    expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
+    expect(view.methodologyConfidence).toBe("high");
+    expect(view.warning).toBeUndefined();
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period"]);
+    expect(view.signalSummary).toBe("Recovered text points to reporting period.");
+  });
+
+  it("shows a warning and fallback labels when methodology is not confidently detected", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "review-upload.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "boundary",
+            category: "boundary",
+            summary: "The project boundary is described in the PDD",
+            matchText: "project boundary described",
+            sourceLabel: "review-upload.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["review-upload.pdf"],
+        documentTypes: ["PDD / PDF"],
+        methodologyMentions: [],
+        extractionConfidence: 0.34,
+        warnings: [],
+        rawPddText: "Boundary description and mapped project area are included in the uploaded file.",
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedMethodology).toBe("Not confidently detected");
+    expect(view.methodologyConfidence).toBe("unknown");
+    expect(view.warning).toBe("Methodology was not confidently detected. Matches below may need review.");
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Project boundary"]);
+  });
+
+  it("only renders chips supported by the uploaded file facts", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "boundary-note.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "boundary",
+            category: "boundary",
+            summary: "The project boundary is described in the PDD",
+            matchText: "project boundary described",
+            sourceLabel: "boundary-note.pdf",
+            detail: "Boundary description: project boundary follows the watershed edge.",
+          },
+          {
+            id: "monitoring-evidence",
+            category: "monitoring-evidence",
+            summary: "The project has documented monitoring evidence",
+            matchText: "documented monitoring evidence",
+            sourceLabel: "boundary-note.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["boundary-note.pdf"],
+        documentTypes: ["PDD / PDF"],
+        methodologyMentions: [],
+        extractionConfidence: 0.52,
+        warnings: [],
+        rawPddText: "Boundary description: project boundary follows the watershed edge.",
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Project boundary"]);
+  });
+
+  it("detects project document type and methodology from recovered fallback text", () => {
+    const rawPddText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/rimba-raya-fallback.txt"), "utf8");
+    const view = buildExtractionPreviewViewModel({
+      fileName: "Rimba_Raya_Project_Document.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "project-document",
+            category: "project-document",
+            summary: "The file identifies itself as a project document",
+            matchText: "project document identified",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+          {
+            id: "baseline-scenario",
+            category: "baseline-scenario",
+            summary: "The file describes the baseline scenario",
+            matchText: "baseline scenario described",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+          {
+            id: "stakeholder-consultation",
+            category: "stakeholder-consultation",
+            summary: "The file records stakeholder consultation",
+            matchText: "stakeholder consultation documented",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+          {
+            id: "leakage",
+            category: "leakage",
+            summary: "The file discusses leakage",
+            matchText: "leakage discussed",
+            sourceLabel: "Rimba_Raya_Project_Document.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["Rimba_Raya_Project_Document.pdf"],
+        documentTypes: ["Document"],
+        methodologyMentions: ["VM0004"],
+        extractionConfidence: 0.68,
+        warnings: [
+          "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+        ],
+        rawPddText,
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: ["VM0004"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.detectedDocumentType).toBe("Project Document");
+    expect(view.detectedMethodology).toBe("VM0004 · v1-0");
+    expect(view.warning).toBe(
+      "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+    );
+    expect(view.signals.map((signal) => signal.label)).toEqual([
+      "Project document",
+      "Baseline scenario",
+      "Stakeholder consultation",
+      "Leakage",
+    ]);
+  });
+
+  it("shows the weak recovered-text summary when no strong signals are found", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "weak-unknown.pdf",
+      analysis: {
+        facts: [],
+        parsedEvidenceLabels: ["weak-unknown.pdf"],
+        documentTypes: ["Document"],
+        methodologyMentions: [],
+        extractionConfidence: 0.22,
+        warnings: [],
+        rawPddText: fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/weak-unknown-fallback.txt"), "utf8"),
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.signals).toEqual([]);
+    expect(view.signalSummary).toBe(
+      "No strong document signals found yet. Open extraction details to inspect parsed text.",
+    );
+    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedMethodology).toBe("Not confidently detected");
+  });
+
   it("normalizes a preliminary match result", () => {
     const view = normalizeQuickCheckUiResult({
       claim: "The monitoring report covers the full reporting period.",
@@ -111,6 +364,8 @@ describe("quick check ui helpers", () => {
           methodologyMentionCount: 1,
           warningCount: 0,
         },
+        extractionConfidence: 0.82,
+        recoveredLocally: false,
       },
       methodologyCode: "AR-ACM0003",
       methodologyVersion: "v02-0",
@@ -284,6 +539,8 @@ describe("quick check ui helpers", () => {
           methodologyMentionCount: 1,
           warningCount: 0,
         },
+        extractionConfidence: 0.82,
+        recoveredLocally: false,
       },
       methodologyCode: "AR-ACM0003",
       methodologyVersion: "v02-0",

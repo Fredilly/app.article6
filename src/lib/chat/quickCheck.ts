@@ -32,6 +32,8 @@ export type QuickCheckExtractionSnapshot = {
   methodologyMentions: string[];
   warnings: string[];
   signals: QuickCheckExtractionSignals;
+  extractionConfidence?: number;
+  recoveredLocally?: boolean;
 };
 
 export type QuickCheckDraft = {

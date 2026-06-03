@@ -445,6 +445,187 @@ describe("quick check evidence analysis", () => {
     );
     expect(analysis.warnings).not.toContain(expect.stringContaining("fallback parser"));
   });
+
+  it("builds grounded facts from recovered fallback text for a project document", async () => {
+    const recoveredText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/rimba-raya-fallback.txt"), "utf8");
+
+    const analysis = await analyzeQuickCheckEvidence(
+      [
+        {
+          evidenceId: "ev-rimba-raya",
+          sourceLabel: "PROJ_DESC_674_15MAY2011.pdf",
+          attachments: [
+            {
+              id: "att-rimba-raya",
+              pin_id: "ev-rimba-raya",
+              filename: "PROJ_DESC_674_15MAY2011.pdf",
+              mime: "application/pdf",
+              size: recoveredText.length,
+              sha256: "sha-rimba-raya",
+              created_at: "2026-06-03T00:00:00Z",
+            },
+          ],
+        },
+      ],
+      {
+        resolveAttachmentBytes: async () => new TextEncoder().encode("%PDF-rimba").buffer,
+        resolvePdfText: async () => ({
+          text: recoveredText,
+          engine: "heuristic",
+          methodologyMentions: ["VM0004"],
+          warning:
+            "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+          diagnosticCode: "parser-failed",
+        }),
+      },
+    );
+
+    expect(analysis.parsedEvidenceLabels).toEqual(["PROJ_DESC_674_15MAY2011.pdf"]);
+    expect(analysis.methodologyMentions).toEqual(expect.arrayContaining(["VM0004"]));
+    expect(analysis.warnings).toContain(
+      "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+    );
+    expect(analysis.rawPddText).toContain("Rimba Raya Biodiversity Reserve Project");
+    expect(analysis.facts.map((fact) => fact.category)).toEqual(
+      expect.arrayContaining([
+        "project-document",
+        "project-location",
+        "mapped-area",
+        "boundary",
+        "baseline-scenario",
+        "additionality",
+        "stakeholder-consultation",
+        "leakage",
+        "risk-assessment",
+        "monitoring-plan",
+        "carbon-pools",
+        "ghg-reductions",
+        "validation-evidence",
+      ]),
+    );
+  });
+
+  it("builds monitoring facts from recovered fallback text for a monitoring report", async () => {
+    const recoveredText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/monitoring-report-fallback.txt"), "utf8");
+
+    const analysis = await analyzeQuickCheckEvidence(
+      [
+        {
+          evidenceId: "ev-monitoring-fallback",
+          sourceLabel: "delta-monitoring-report.pdf",
+          attachments: [
+            {
+              id: "att-monitoring-fallback",
+              pin_id: "ev-monitoring-fallback",
+              filename: "delta-monitoring-report.pdf",
+              mime: "application/pdf",
+              size: recoveredText.length,
+              sha256: "sha-monitoring-fallback",
+              created_at: "2026-06-03T00:00:00Z",
+            },
+          ],
+        },
+      ],
+      {
+        resolveAttachmentBytes: async () => new TextEncoder().encode("%PDF-monitoring").buffer,
+        resolvePdfText: async () => ({
+          text: recoveredText,
+          engine: "heuristic",
+          methodologyMentions: ["ACM0010"],
+          warning:
+            "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+          diagnosticCode: "upload-request-failed",
+        }),
+      },
+    );
+
+    expect(analysis.facts.map((fact) => fact.category)).toEqual(
+      expect.arrayContaining([
+        "reporting-period",
+        "monitoring-plan",
+        "project-location",
+        "mapped-area",
+        "ghg-reductions",
+        "monitoring-evidence",
+      ]),
+    );
+    expect(analysis.methodologyMentions).toEqual(expect.arrayContaining(["ACM0010"]));
+  });
+
+  it("keeps weak recovered text usable without inventing strong signals", async () => {
+    const recoveredText = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/weak-unknown-fallback.txt"), "utf8");
+
+    const analysis = await analyzeQuickCheckEvidence(
+      [
+        {
+          evidenceId: "ev-weak-recovered",
+          sourceLabel: "weak-unknown.pdf",
+          attachments: [
+            {
+              id: "att-weak-recovered",
+              pin_id: "ev-weak-recovered",
+              filename: "weak-unknown.pdf",
+              mime: "application/pdf",
+              size: recoveredText.length,
+              sha256: "sha-weak-recovered",
+              created_at: "2026-06-03T00:00:00Z",
+            },
+          ],
+        },
+      ],
+      {
+        resolveAttachmentBytes: async () => new TextEncoder().encode("%PDF-weak").buffer,
+        resolvePdfText: async () => ({
+          text: recoveredText,
+          engine: "heuristic",
+          warning:
+            "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+          diagnosticCode: "parser-failed",
+        }),
+      },
+    );
+
+    expect(analysis.parsedEvidenceLabels).toEqual(["weak-unknown.pdf"]);
+    expect(analysis.rawPddText).toContain("administrative notes");
+    expect(analysis.facts).toEqual([]);
+    expect(analysis.warnings).toContain("We parsed the file, but couldn't extract enough requirement-relevant facts yet.");
+  });
+
+  it("keeps the hard extraction failure only when no text can be recovered", async () => {
+    const analysis = await analyzeQuickCheckEvidence(
+      [
+        {
+          evidenceId: "ev-full-failure",
+          sourceLabel: "unreadable.pdf",
+          attachments: [
+            {
+              id: "att-full-failure",
+              pin_id: "ev-full-failure",
+              filename: "unreadable.pdf",
+              mime: "application/pdf",
+              size: 8,
+              sha256: "sha-full-failure",
+              created_at: "2026-06-03T00:00:00Z",
+            },
+          ],
+        },
+      ],
+      {
+        resolveAttachmentBytes: async () => new TextEncoder().encode("%PDF").buffer,
+        resolvePdfText: async () => ({
+          text: "",
+          engine: "heuristic",
+          diagnosticCode: "no-selectable-text",
+          warning: "No selectable text found in this PDF.",
+        }),
+      },
+    );
+
+    expect(analysis.parsedEvidenceLabels).toEqual([]);
+    expect(analysis.rawPddText).toBeUndefined();
+    expect(analysis.warnings).toContain("We couldn't extract usable text from this file yet.");
+    expect(analysis.warnings).toContain("No selectable text found in this PDF.");
+  });
 });
 
 describe("extractMethodologyMentions — standard detection hardening", () => {
