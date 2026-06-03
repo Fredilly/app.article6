@@ -1900,12 +1900,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div className="text-base font-semibold text-slate-900">Extraction preview</div>
-                        {extractionPreviewView ? (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                            <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-600 text-white">
-                              <Check className="h-2.5 w-2.5" />
-                            </span>
-                            Grounded
+                        {extractionPreviewState ? (
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${extractionStateBadgeClass(extractionPreviewState.value)}`}>
+                            {extractionPreviewState.value === "grounded" ? (
+                              <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-600 text-white">
+                                <Check className="h-2.5 w-2.5" />
+                              </span>
+                            ) : null}
+                            {extractionPreviewState.label}
                           </span>
                         ) : null}
                       </div>
