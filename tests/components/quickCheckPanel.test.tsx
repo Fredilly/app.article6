@@ -2643,6 +2643,21 @@ describe("QuickCheckPanel methodology mismatch logic (regression)", () => {
     document.body.appendChild(container);
     root = createRoot(container);
     window.localStorage.clear();
+    // minimal mock for methods so resolution can return single for supported codes like AR-ACM0003, VM0007
+    (global as any)._origFetchForMismatch = (global as any).fetch;
+    (global as any).fetch = jest.fn(async (input: any) => {
+      const url = String(input);
+      if (url.includes("/api/methods/inventory")) {
+        return new Response(JSON.stringify({
+          methods: [
+            { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
+            { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
+          ],
+        }), { status: 200 });
+      }
+      const orig = (global as any)._origFetchForMismatch;
+      return orig ? orig(input) : Promise.reject(new Error("unmocked"));
+    });
   });
 
   afterEach(async () => {
@@ -2652,6 +2667,11 @@ describe("QuickCheckPanel methodology mismatch logic (regression)", () => {
     container.remove();
     jest.clearAllMocks();
     window.localStorage.clear();
+    // restore fetch if overridden in before
+    if ((global as any)._origFetchForMismatch) {
+      (global as any).fetch = (global as any)._origFetchForMismatch;
+      delete (global as any)._origFetchForMismatch;
+    }
   });
 
   async function seedAttachmentText(attachmentId: string, text: string) {
@@ -2758,6 +2778,19 @@ describe("QuickCheckPanel methodology mismatch logic (regression)", () => {
   });
 
   it("selected method + different high-confidence detected method => mismatch pause", async () => {
+    // mock inventory
+    const orig = (global as any).fetch;
+    (global as any).fetch = jest.fn(async (input: any) => {
+      const url = String(input);
+      if (url.includes("/api/methods/inventory")) {
+        return new Response(JSON.stringify({ methods: [
+          { code: "AR-ACM0003", latestVersion: "v02-0", versions: ["v02-0"] },
+          { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
+        ] }), { status: 200 });
+      }
+      return orig ? orig(input) : Promise.reject(new Error("unmocked"));
+    });
+
     seedSession({
       claimText: "Does the document address leakage?",
       methodologyId: "VM0007",
@@ -2774,9 +2807,10 @@ describe("QuickCheckPanel methodology mismatch logic (regression)", () => {
     await flushUi();
     await flushUi();
     const text = container.textContent ?? "";
-    // detection of different happened (AR shown), but since low conf in test env, no review paused banner (per fix)
     expect(text).toContain("AR-ACM0003");
     expect(text).not.toContain("Methodology review paused because the selected methodology does not match the uploaded document.");
+
+    (global as any).fetch = orig;
   });
 
   it("selected method + same detected method => no mismatch pause", async () => {
