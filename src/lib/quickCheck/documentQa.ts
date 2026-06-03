@@ -310,3 +310,30 @@ export function buildReviewQuestionDocumentDiagnostic(documentAnswer: DocumentQu
     methodologyRecoverySuppressedByDocumentQa: true,
   };
 }
+
+/**
+ * Calibrated mapping from internal Document Q&A answer state to UI rendering props.
+ * This centralizes the "calibration" so that changes to states (from golden evals)
+ * drive consistent badge + explanation rendering without inline conditionals or
+ * screenshot-driven tweaks.
+ */
+export type DocumentQaUiConfig = {
+  badgeClasses: string;
+  statusLabel: string;
+  explanation: string;
+};
+
+export function getDocumentQaUiConfig(answer: DocumentQuestionAnswer): DocumentQaUiConfig {
+  const status = answer.status;
+  let badgeClasses = "bg-amber-100 text-amber-800 border-amber-200";
+  if (status === "likely_yes") {
+    badgeClasses = "bg-emerald-100 text-emerald-800 border-emerald-200";
+  } else if (status === "likely_no") {
+    badgeClasses = "bg-rose-100 text-rose-800 border-rose-200";
+  }
+  return {
+    badgeClasses,
+    statusLabel: status,
+    explanation: answer.explanation,
+  };
+}

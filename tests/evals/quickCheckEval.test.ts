@@ -5,6 +5,7 @@ import {
   buildReviewQuestionResult,
   buildReviewQuestionSectionRetrieval,
 } from "@/lib/chat/quickCheckReviewQuestion";
+import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type {
   BuildReviewQuestionSectionRetrievalInput,
   ReviewArea,
@@ -35,9 +36,22 @@ type VerdictEvalCase = {
   };
 };
 
+type DocumentAnswerEvalCase = {
+  id: string;
+  fixture: string;
+  input: BuildReviewQuestionSectionRetrievalInput;
+  expected: {
+    status: "likely_yes" | "likely_no" | "unclear";
+    explanationContains: string;
+    evidenceCountMin?: number;
+    methodologyRuleMatched?: boolean;
+  };
+};
+
 type EvalFixtureManifest = {
   retrievalCases: RetrievalEvalCase[];
   verdictCases: VerdictEvalCase[];
+  documentAnswerCases: DocumentAnswerEvalCase[];
 };
 
 const EVAL_FIXTURE_DIR = path.join(__dirname, "../fixtures/quick-check/eval");
@@ -88,4 +102,57 @@ describe("Quick Check eval harness — verdicts", () => {
       }
     });
   }
+});
+
+describe("Quick Check eval harness — golden Document Q&A answer states", () => {
+  for (const testCase of EVAL_MANIFEST.documentAnswerCases) {
+    it(testCase.id, () => {
+      const result = buildReviewQuestionResult({
+        ...testCase.input,
+        rawPddText: readFixtureText(testCase.fixture),
+      });
+
+      const da = result.documentAnswer;
+
+      expect(da.status).toBe(testCase.expected.status);
+      expect(da.explanation).toContain(testCase.expected.explanationContains);
+
+      if (typeof testCase.expected.evidenceCountMin === "number") {
+        expect(da.evidence.length).toBeGreaterThanOrEqual(testCase.expected.evidenceCountMin);
+      }
+
+      if (typeof testCase.expected.methodologyRuleMatched === "boolean") {
+        expect(da.methodologyRuleMatched).toBe(testCase.expected.methodologyRuleMatched);
+      }
+    });
+  }
+});
+
+describe("Quick Check — calibrated UI config from internal Document Q&A states", () => {
+  it("likely_yes produces emerald badge", () => {
+    const answer = {
+      status: "likely_yes" as const,
+      explanation: "Quick Check found document-grounded evidence relevant to the question.",
+      methodologyRuleMatched: false,
+      evidence: [],
+      diagnostic: { reviewQuestionRoutingFired: true, rawPddTextAvailable: true, documentEvidenceCount: 2, methodologyRuleMatched: false },
+    } as any;
+    const cfg = getDocumentQaUiConfig(answer);
+    expect(cfg.badgeClasses).toContain("emerald");
+    expect(cfg.statusLabel).toBe("likely_yes");
+    expect(cfg.explanation).toContain("document-grounded");
+  });
+
+  it("unclear from mismatch produces amber and the not-directly explanation", () => {
+    const answer = {
+      status: "unclear" as const,
+      explanation: "The retrieved document evidence does not directly address the question.",
+      methodologyRuleMatched: false,
+      evidence: [{ snippet: "foo" }],
+      diagnostic: { reviewQuestionRoutingFired: true, rawPddTextAvailable: true, documentEvidenceCount: 1, methodologyRuleMatched: false },
+    } as any;
+    const cfg = getDocumentQaUiConfig(answer);
+    expect(cfg.badgeClasses).toContain("amber");
+    expect(cfg.explanation).toContain("does not directly address");
+  });
 });
