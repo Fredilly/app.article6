@@ -4,11 +4,21 @@ import { getAttachmentBytes } from "@/lib/proofMap/attachments";
 import type { EvidenceAttachment, PddFragment, WorkbookEvidenceAsset, WorkbookRecordGroup } from "@/lib/proofMap/types";
 
 export type QuickCheckEvidenceFactCategory =
+  | "project-document"
   | "boundary"
   | "coordinates"
   | "mapped-area"
   | "project-location"
   | "monitoring-plan"
+  | "baseline-scenario"
+  | "additionality"
+  | "stakeholder-consultation"
+  | "validation-evidence"
+  | "leakage"
+  | "risk-assessment"
+  | "redd"
+  | "carbon-pools"
+  | "ghg-reductions"
   | "workbook-reference"
   | "monitoring-evidence"
   | "plot-count"
@@ -626,6 +636,9 @@ export function extractMethodologyMentions(text: string): string[] {
   for (const match of text.matchAll(/\b(VM)\s+(\d{4})\b/g)) {
     mentions.add(`${match[1]}${match[2]}`);
   }
+  for (const match of text.matchAll(/\b(AR-AMS\d{4}|AR-ACM\d{4})\b/gi)) {
+    mentions.add((match[1] ?? "").toUpperCase());
+  }
 
   // Requested Verra detection terms and related abbreviations.
   for (const match of text.matchAll(/\b(REDD\+\s+Methodology\s+Framework|REDD\+\s+MF)\b/gi)) {
@@ -703,6 +716,7 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
   const haystack = asLower(text);
   const next = new Map<string, QuickCheckEvidenceFact>();
 
+  const projectDocumentPattern = /\b(project document|project design document|project description|project design)\b/i;
   const boundaryPattern = /(project boundary|boundary description|grouped activity boundary|boundary covers|eligibility boundary)/i;
   const coordinatesPattern =
     /(latitude|longitude|coordinates?|lat[./ ]*long|geographic coordinates?|decimal degrees?|\b-?\d{1,3}\.\d{2,}\s*,\s*-?\d{1,3}\.\d{2,}\b)/i;
@@ -710,11 +724,30 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
   const locationPattern = /(project location|located in|district|province|municipality|coordinates of the project location|site location)/i;
   const monitoringPlanPattern = /(monitoring plan|monitoring procedures|monitoring approach|plan for monitoring)/i;
   const reportingPeriodPattern = /(reporting period|monitoring period|period covered|coverage period|\b20\d{2}\s*[-/]?\s*q[1-4]\b|\bq[1-4]\s*20\d{2}\b)/i;
+  const baselineScenarioPattern = /(baseline scenario|baseline conditions?|without[- ]project scenario|reference scenario)/i;
+  const additionalityPattern = /\badditionality\b/i;
+  const stakeholderConsultationPattern = /(stakeholder consultation|stakeholder comments?|local stakeholder|public consultation|community consultation|grievance redress)/i;
+  const validationEvidencePattern = /(validation report|validated by|validation body|validation statement|validation opinion)/i;
+  const leakagePattern = /\bleakage\b/i;
+  const riskAssessmentPattern = /(risk assessment|risk analysis|reversal risk|buffer pool risk|non[- ]permanence risk)/i;
+  const reddPattern = /\bREDD\+?\b|\breduced emissions from deforestation and forest degradation\b/i;
+  const carbonPoolsPattern = /(carbon pools?|above[- ]ground biomass|below[- ]ground biomass|dead wood|litter|soil organic carbon)/i;
+  const ghgReductionsPattern = /(ghg reductions?|greenhouse gas reductions?|emission reductions?|net anthropogenic removals?)/i;
   const workbookPattern = /(workbook|spreadsheet|excel)/i;
   const monitoringEvidencePattern = /(monitoring plan|monitoring report|monitoring records|monitoring data|monitoring procedures)/i;
   const projectAreaDetail = extractLabeledDetail(text, /(project area|project location)\s*[:\-]?\s*/i);
   const reportingPeriodDetail = extractReportingPeriodDetail(text);
   const monitoringClaimDetail = extractLabeledDetail(text, /(claim support|primary claim)\s*[:\-]?\s*/i);
+
+  if (projectDocumentPattern.test(haystack)) {
+    addFact(next, {
+      category: "project-document",
+      summary: "The file identifies itself as a project document",
+      matchText: "project document identified",
+      sourceLabel,
+      detail: extractLabeledDetail(text, /(project document|project design document)\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, projectDocumentPattern),
+    });
+  }
 
   if (boundaryPattern.test(haystack)) {
     addFact(next, {
@@ -773,6 +806,96 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
       matchText: "reporting period stated",
       sourceLabel,
       detail: reportingPeriodDetail ?? extractMatchSnippet(text, reportingPeriodPattern),
+    });
+  }
+
+  if (baselineScenarioPattern.test(haystack)) {
+    addFact(next, {
+      category: "baseline-scenario",
+      summary: "The file describes the baseline scenario",
+      matchText: "baseline scenario described",
+      sourceLabel,
+      detail: extractLabeledDetail(text, /(baseline scenario|baseline conditions|without[- ]project scenario)\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, baselineScenarioPattern),
+    });
+  }
+
+  if (additionalityPattern.test(haystack)) {
+    addFact(next, {
+      category: "additionality",
+      summary: "The file discusses additionality",
+      matchText: "additionality discussed",
+      sourceLabel,
+      detail: extractLabeledDetail(text, /additionality\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, additionalityPattern),
+    });
+  }
+
+  if (stakeholderConsultationPattern.test(haystack)) {
+    addFact(next, {
+      category: "stakeholder-consultation",
+      summary: "The file records stakeholder consultation",
+      matchText: "stakeholder consultation documented",
+      sourceLabel,
+      detail: extractLabeledDetail(text, /(stakeholder consultation|stakeholder comments|public consultation|community consultation)\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, stakeholderConsultationPattern),
+    });
+  }
+
+  if (validationEvidencePattern.test(haystack)) {
+    addFact(next, {
+      category: "validation-evidence",
+      summary: "The file includes validation evidence",
+      matchText: "validation evidence included",
+      sourceLabel,
+      detail: extractMatchSnippet(text, validationEvidencePattern),
+    });
+  }
+
+  if (leakagePattern.test(haystack)) {
+    addFact(next, {
+      category: "leakage",
+      summary: "The file discusses leakage",
+      matchText: "leakage discussed",
+      sourceLabel,
+      detail: extractLabeledDetail(text, /leakage\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, leakagePattern),
+    });
+  }
+
+  if (riskAssessmentPattern.test(haystack)) {
+    addFact(next, {
+      category: "risk-assessment",
+      summary: "The file includes a risk assessment",
+      matchText: "risk assessment included",
+      sourceLabel,
+      detail: extractLabeledDetail(text, /(risk assessment|risk analysis|reversal risk|buffer pool risk)\s*[:\-]?\s*/i) ?? extractMatchSnippet(text, riskAssessmentPattern),
+    });
+  }
+
+  if (reddPattern.test(haystack)) {
+    addFact(next, {
+      category: "redd",
+      summary: "The file references REDD",
+      matchText: "redd referenced",
+      sourceLabel,
+      detail: extractMatchSnippet(text, reddPattern),
+    });
+  }
+
+  if (carbonPoolsPattern.test(haystack)) {
+    addFact(next, {
+      category: "carbon-pools",
+      summary: "The file describes carbon pools",
+      matchText: "carbon pools described",
+      sourceLabel,
+      detail: extractMatchSnippet(text, carbonPoolsPattern),
+    });
+  }
+
+  if (ghgReductionsPattern.test(haystack)) {
+    addFact(next, {
+      category: "ghg-reductions",
+      summary: "The file references GHG reductions",
+      matchText: "ghg reductions referenced",
+      sourceLabel,
+      detail: extractMatchSnippet(text, ghgReductionsPattern),
     });
   }
 

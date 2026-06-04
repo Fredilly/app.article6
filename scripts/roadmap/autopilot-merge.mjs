@@ -69,6 +69,18 @@ if (!hasDirective) {
   process.exit(0);
 }
 
+const directive = parseRoadmapDirective(body);
+if (directive) {
+  const s = (directive.slug || "").trim().toLowerCase();
+  if (!s || ["n/a", "na", "none"].includes(s)) {
+    console.log("roadmap: skip (N/A slug in Roadmap-Update; non-roadmap PR)");
+    const payload = { status: "skipped", reason: "N/A slug" };
+    writeOutput(outputPath, payload);
+    console.log(JSON.stringify(payload));
+    process.exit(0);
+  }
+}
+
 const prKey = inferPrKey({
   title: pr.title ?? "",
   body,
@@ -77,7 +89,6 @@ const prKey = inferPrKey({
 const phaseSlug = getPhaseSlug(labels);
 const prLabel = labels.find((label) => label.startsWith("pr:PR")) ?? null;
 const labeledPrKey = prLabel ? normalizePrId(prLabel.replace("pr:", "")) : null;
-const directive = parseRoadmapDirective(body);
 
 if (!prKey && !directive) {
   const payload = { status: "skipped", reason: "no pr key or directive" };

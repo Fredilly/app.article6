@@ -1,0 +1,25 @@
+Rimba Raya Biodiversity Reserve Project
+Project Document
+Version 3.4
+
+Title and reference of methodology applied
+VM0004 Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, Version 1.0
+
+Table of Contents
+1. Project Location
+2. Project Boundary
+3. Baseline Scenario
+4. Additionality
+5. Stakeholder Comments
+6. Leakage Management
+7. Risk Assessment
+8. Monitoring Plan
+
+The project location is in Central Kalimantan, Indonesia, within the mapped project area and project boundary described in Section 2.
+The baseline scenario explains the expected conversion of peat swamp forest without the project.
+Additionality is demonstrated through investment barriers and regulatory surplus.
+Stakeholder comments were recorded during community consultation meetings.
+Leakage management addresses market effects and activity shifting.
+The risk assessment covers fire risk, reversal risk, and mitigation controls.
+The monitoring plan defines the reporting period, carbon pools, and GHG reductions to be tracked.
+Validation evidence includes a validation statement from the validation body.

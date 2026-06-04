@@ -1,9 +1,10 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
+import type { QuickCheckMethodologyResolution } from "@/lib/chat/quickCheckMethodology";
 import { prioritizeMethodologyMentions } from "@/lib/chat/quickCheckMethodology";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
-export type QuickCheckUiExtractionStateValue = "grounded" | "partial" | "weak";
+export type QuickCheckUiExtractionStateValue = "grounded" | "recovered" | "needs-review" | "weak" | "partial";
 export type QuickCheckUiSupportStrengthValue = "strong_evidence_match" | "needs_review";
 export type QuickCheckUiNextActionKind = "open_methods" | "upload_better_file";
 
@@ -37,6 +38,22 @@ export type QuickCheckUiNextAction = {
   description: string;
 };
 
+export type ExtractionPreviewConfidence = "high" | "medium" | "low" | "unknown";
+
+export type ExtractionPreviewViewModel = {
+  fileName?: string;
+  detectedDocumentType?: string;
+  detectedMethodology?: string;
+  methodologyConfidence?: ExtractionPreviewConfidence;
+  warning?: string;
+  signalSummary?: string;
+  signals: Array<{
+    label: string;
+    summary?: string;
+    confidence?: ExtractionPreviewConfidence;
+  }>;
+};
+
 export type QuickCheckUiResult = {
   status: QuickCheckUiStatus;
   title: string;
@@ -66,17 +83,275 @@ function formatFactPreview(fact: QuickCheckEvidenceFact, options?: { useDetail?:
 }
 
 function previewPriority(fact: QuickCheckEvidenceFact): number {
-  if (fact.category === "reporting-period") return 0;
-  if (fact.category === "project-location") return 1;
-  if (fact.category === "mapped-area") return 2;
-  if (fact.category === "monitoring-evidence") return 3;
-  if (fact.category === "monitoring-plan") return 4;
-  if (fact.category === "boundary") return 5;
-  if (fact.category === "coordinates") return 6;
-  if (fact.category === "workbook-reference") return 7;
-  if (fact.category === "monitoring-records") return 8;
-  if (fact.category === "plot-count") return 9;
-  return 10;
+  if (fact.category === "project-document") return 0;
+  if (fact.category === "reporting-period") return 1;
+  if (fact.category === "monitoring-plan") return 2;
+  if (fact.category === "boundary") return 3;
+  if (fact.category === "mapped-area") return 4;
+  if (fact.category === "project-location") return 5;
+  if (fact.category === "baseline-scenario") return 6;
+  if (fact.category === "additionality") return 7;
+  if (fact.category === "stakeholder-consultation") return 8;
+  if (fact.category === "validation-evidence") return 9;
+  if (fact.category === "leakage") return 10;
+  if (fact.category === "risk-assessment") return 11;
+  if (fact.category === "redd") return 12;
+  if (fact.category === "carbon-pools") return 13;
+  if (fact.category === "ghg-reductions") return 14;
+  if (fact.category === "coordinates") return 15;
+  if (fact.category === "workbook-reference") return 16;
+  if (fact.category === "monitoring-evidence") return 17;
+  if (fact.category === "monitoring-records") return 18;
+  if (fact.category === "plot-count") return 19;
+  return 20;
+}
+
+function confidenceBucket(value: number | null | undefined): ExtractionPreviewConfidence {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return "unknown";
+  if (value >= 0.7) return "high";
+  if (value >= 0.45) return "medium";
+  return "low";
+}
+
+function documentTypeLabel(input: { fileName?: string | null; rawText?: string | null; fallback?: string | null }): string {
+  const fallback = input.fallback?.trim() ?? "";
+  if (fallback === "Workbook" || fallback === "Image") return fallback;
+
+  const haystack = `${input.fileName ?? ""}\n${input.rawText ?? ""}`.toLowerCase();
+  if (/\bproject design document\b|\bpdd\b/.test(haystack)) return "Project Design Document";
+  if (/\bproject document\b/.test(haystack)) return "Project Document";
+  if (/\bvalidation report\b/.test(haystack)) return "Validation Report";
+  if (/\bverification report\b/.test(haystack)) return "Verification Report";
+  if (/\bmonitoring report\b/.test(haystack)) return "Monitoring Report";
+
+  if (fallback && fallback !== "PDD / PDF" && fallback !== "Document" && fallback !== "Unknown document") {
+    return fallback;
+  }
+
+  return "Unknown document type";
+}
+
+function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
+  switch (category) {
+    case "project-document":
+      return "Project document";
+    case "boundary":
+      return "Project boundary";
+    case "coordinates":
+      return "Coordinates";
+    case "mapped-area":
+      return "Mapped project area";
+    case "project-location":
+      return "Project location";
+    case "monitoring-plan":
+      return "Monitoring plan";
+    case "baseline-scenario":
+      return "Baseline scenario";
+    case "additionality":
+      return "Additionality";
+    case "stakeholder-consultation":
+      return "Stakeholder consultation";
+    case "validation-evidence":
+      return "Validation evidence";
+    case "leakage":
+      return "Leakage";
+    case "risk-assessment":
+      return "Risk assessment";
+    case "redd":
+      return "REDD";
+    case "carbon-pools":
+      return "Carbon pools";
+    case "ghg-reductions":
+      return "GHG reductions";
+    case "workbook-reference":
+      return "Workbook reference";
+    case "monitoring-evidence":
+      return "Validation evidence";
+    case "plot-count":
+      return "Plot count";
+    case "reporting-period":
+      return "Reporting period";
+    case "monitoring-records":
+      return "Monitoring records";
+    case "qa-summary":
+      return "Stakeholder consultation";
+    default:
+      return "Document signal";
+  }
+}
+
+function signalLabelFromFact(fact: QuickCheckEvidenceFact): string | null {
+  const haystack = `${fact.summary} ${fact.detail ?? ""}`.toLowerCase();
+
+  if (fact.category === "project-document" || /project document|project design document/.test(haystack)) {
+    return "Project document";
+  }
+  if (fact.category === "reporting-period" || /reporting period|monitoring period|coverage period|quarter|q[1-4]/.test(haystack)) {
+    return "Reporting period";
+  }
+  if (fact.category === "monitoring-plan" || /monitoring procedures|monitoring approach/.test(haystack)) {
+    return /procedures|approach/.test(haystack) ? "Monitoring procedures" : "Monitoring plan";
+  }
+  if (fact.category === "boundary" || /boundary description|project boundary/.test(haystack)) {
+    return "Project boundary";
+  }
+  if (fact.category === "mapped-area" || /mapped project area|mapped area|area of interest|aoi|boundary map|polygon/.test(haystack)) {
+    return "Mapped project area";
+  }
+  if (fact.category === "project-location" || /project location|district|province|municipality|site location/.test(haystack)) {
+    return "Project location";
+  }
+  if (fact.category === "coordinates" || /coordinates|latitude|longitude|decimal degrees/.test(haystack)) {
+    return "Coordinates";
+  }
+  if (fact.category === "workbook-reference" || /workbook|spreadsheet|excel/.test(haystack)) {
+    return "Workbook reference";
+  }
+  if (fact.category === "qa-summary" || /stakeholder|community meeting|grievance|consultation/.test(haystack)) {
+    return /stakeholder|community meeting|consultation|grievance/.test(haystack) ? "Stakeholder consultation" : "QA summary";
+  }
+  if (fact.category === "stakeholder-consultation") {
+    return "Stakeholder consultation";
+  }
+  if (fact.category === "baseline-scenario" || /baseline scenario|baseline conditions|without-project scenario|reference scenario/.test(haystack)) {
+    return "Baseline scenario";
+  }
+  if (fact.category === "additionality" || /additionality/.test(haystack)) {
+    return "Additionality";
+  }
+  if (fact.category === "validation-evidence" || /validation report|validated by|validation body|validation statement/.test(haystack)) {
+    return "Validation evidence";
+  }
+  if (fact.category === "leakage" || /leakage/.test(haystack)) {
+    return "Leakage";
+  }
+  if (fact.category === "risk-assessment" || /risk assessment|risk analysis|reversal risk|buffer pool risk/.test(haystack)) {
+    return "Risk assessment";
+  }
+  if (fact.category === "redd" || /\bredd\b|reduced emissions from deforestation and forest degradation/.test(haystack)) {
+    return "REDD";
+  }
+  if (fact.category === "carbon-pools" || /carbon pools|above-ground biomass|below-ground biomass|dead wood|litter|soil organic carbon/.test(haystack)) {
+    return "Carbon pools";
+  }
+  if (fact.category === "ghg-reductions" || /ghg reductions|greenhouse gas reductions|emission reductions|net anthropogenic removals/.test(haystack)) {
+    return "GHG reductions";
+  }
+  if (fact.category === "monitoring-records" || /monitoring records|sampling log|activity data/.test(haystack)) {
+    return "Monitoring records";
+  }
+  if (fact.category === "plot-count" || /plot/.test(haystack)) {
+    return "Plot count";
+  }
+  if (fact.category === "monitoring-evidence") {
+    if (/monitoring report/.test(haystack)) return "Monitoring report";
+    if (/validation/.test(haystack)) return "Validation evidence";
+    if (/monitoring data|monitoring records/.test(haystack)) return "Monitoring evidence";
+    return null;
+  }
+
+  const fallback = signalLabel(fact.category);
+  return fallback === "Document signal" ? null : fallback;
+}
+
+function buildSignalSummary(signals: ExtractionPreviewViewModel["signals"]): string | undefined {
+  if (!signals.length) return undefined;
+  const labels = signals.map((signal) => signal.label);
+  if (labels.length === 1) return `Recovered text points to ${labels[0].toLowerCase()}.`;
+  if (labels.length === 2) return `Recovered text points to ${labels[0].toLowerCase()} and ${labels[1].toLowerCase()}.`;
+  return `Recovered text points to ${labels.slice(0, -1).join(", ").toLowerCase()}, and ${labels[labels.length - 1].toLowerCase()}.`;
+}
+
+function normalizeDetectedVersion(rawVersion: string): string {
+  const compact = rawVersion.trim().replace(/\s+/g, "");
+  const normalized = compact.replace(/^version/i, "v").replace(/\./g, "-");
+  return normalized.toLowerCase().startsWith("v") ? normalized.toLowerCase() : `v${normalized.toLowerCase()}`;
+}
+
+function detectMethodologyFromRecoveredText(rawText: string | undefined, mentions: string[]): { label: string; confidence: ExtractionPreviewConfidence } | null {
+  const prioritized = prioritizeMethodologyMentions(mentions);
+  const methodCode = prioritized.find((mention) => /^(VM\d{4}|ACM\d{4}|AM\d{4}|AR-[A-Z]{2,}\d{4}|AMS-[A-Z0-9.]+|VMR\d{3,4}|GS-VER\d+)$/i.test(mention));
+  if (!methodCode) return null;
+
+  const normalizedCode = methodCode.toUpperCase();
+  const text = rawText ?? "";
+  const escapedCode = normalizedCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace("-", "[-\\s]?");
+  const versionMatch =
+    text.match(new RegExp(`${escapedCode}[\\s\\S]{0,120}?(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})`, "i")) ??
+    text.match(new RegExp(`(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})[\\s\\S]{0,120}?${escapedCode}`, "i"));
+
+  const version = versionMatch?.[1] ? normalizeDetectedVersion(versionMatch[1]) : null;
+  return {
+    label: version ? `${normalizedCode} · ${version}` : normalizedCode,
+    confidence: version ? "medium" : "low",
+  };
+}
+
+export function buildExtractionPreviewViewModel(input: {
+  analysis: QuickCheckEvidenceAnalysis;
+  fileName?: string | null;
+  methodologyResolution?: QuickCheckMethodologyResolution | null;
+}): ExtractionPreviewViewModel {
+  const seenSignalLabels = new Set<string>();
+  const signals = [...input.analysis.facts]
+    .sort(
+      (left, right) =>
+        previewPriority(left) - previewPriority(right) ||
+        Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
+        left.summary.localeCompare(right.summary),
+    )
+    .map((fact) => {
+      const label = signalLabelFromFact(fact);
+      if (!label || seenSignalLabels.has(label)) return null;
+      seenSignalLabels.add(label);
+      return {
+        label,
+        summary: formatFactPreview(fact, { useDetail: true }),
+        confidence: confidenceBucket(input.analysis.extractionConfidence),
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 4) as ExtractionPreviewViewModel["signals"];
+
+  const recoveredMethodology = detectMethodologyFromRecoveredText(input.analysis.rawPddText, input.analysis.methodologyMentions);
+  let detectedMethodology = recoveredMethodology?.label ?? "Not confidently detected";
+  let methodologyConfidence: ExtractionPreviewConfidence =
+    recoveredMethodology?.confidence ??
+    (input.analysis.methodologyMentions.length > 0 ? confidenceBucket(input.analysis.extractionConfidence) : "unknown");
+
+  if (input.methodologyResolution?.status === "single") {
+    const matched = input.methodologyResolution.matchedMethods[0];
+    detectedMethodology = `${matched.methodologyId} · ${matched.methodologyVersion}`;
+    methodologyConfidence = confidenceBucket(input.analysis.extractionConfidence) === "low" ? "medium" : confidenceBucket(input.analysis.extractionConfidence);
+  } else if (input.methodologyResolution?.status === "multiple" || input.methodologyResolution?.status === "unsupported") {
+    methodologyConfidence = "low";
+  }
+
+  const fallbackWarning = input.analysis.warnings.find((warning) => /recovered document signals locally/i.test(warning));
+  const warning =
+    fallbackWarning ??
+    (detectedMethodology !== "Not confidently detected" ||
+      (input.methodologyResolution?.status === "single" && methodologyConfidence !== "low")
+      ? undefined
+      : "Methodology was not confidently detected. Matches below may need review.");
+
+  return {
+    fileName: input.fileName?.trim() || undefined,
+    detectedDocumentType: documentTypeLabel({
+      fileName: input.fileName,
+      rawText: input.analysis.rawPddText,
+      fallback: input.analysis.documentTypes[0],
+    }),
+    detectedMethodology,
+    methodologyConfidence,
+    warning,
+    signalSummary:
+      buildSignalSummary(signals) ??
+      (input.analysis.parsedEvidenceLabels.length > 0
+        ? "No strong document signals found yet. Open extraction details to inspect parsed text."
+        : undefined),
+    signals,
+  };
 }
 
 function normalizeSignals(extraction: QuickCheckExtractionSnapshot): QuickCheckExtractionSignals {
@@ -157,6 +432,9 @@ export function buildQuickCheckExtractionSnapshot(input: {
 }): QuickCheckExtractionSnapshot {
   const extractedFacts = pickRelevantFacts(input.claimText, input.analysis);
   const warnings = dedupe(input.analysis.warnings);
+  const recoveredLocally = input.analysis.warnings.some((w) =>
+    /local heuristic|using local fallback|parser fallback|heuristic extraction|recovered text after server/i.test(w)
+  );
   return {
     documentType: input.analysis.documentTypes[0] ?? "Unknown document",
     extractedFacts,
@@ -169,13 +447,35 @@ export function buildQuickCheckExtractionSnapshot(input: {
       methodologyMentionCount: input.analysis.methodologyMentions.length,
       warningCount: warnings.length,
     },
+    extractionConfidence: input.analysis.extractionConfidence,
+    recoveredLocally,
   };
 }
 
 export function deriveQuickCheckExtractionState(extraction: QuickCheckExtractionSnapshot): QuickCheckUiExtractionState {
   const signals = normalizeSignals(extraction);
+  const confidence = extraction.extractionConfidence ?? 0;
+  const hasExtractedSignals = (signals.parsedEvidenceCount ?? 0) > 0 && (signals.relevantFactCount ?? 0) > 0;
+  const recovered = !!extraction.recoveredLocally ||
+    extraction.warnings.some((w) => /local fallback|heuristic|parser fallback|recovered text after server extraction failed/i.test(w));
 
-  if (!signals.parsedEvidenceCount || !signals.relevantFactCount) {
+  if (recovered) {
+    // when fallback recovered, show Recovered if decent signals/conf, else Needs review
+    if (hasExtractedSignals && confidence >= 0.5) {
+      return {
+        value: "recovered",
+        label: "Recovered",
+        description: "Local heuristic recovered text after server extraction failed (weaker confidence).",
+      };
+    }
+    return {
+      value: "needs-review",
+      label: "Needs review",
+      description: "Local heuristic fallback recovered text; review manually.",
+    };
+  }
+
+  if (!hasExtractedSignals) {
     return {
       value: "weak",
       label: "Weak",
@@ -191,6 +491,15 @@ export function deriveQuickCheckExtractionState(extraction: QuickCheckExtraction
     };
   }
 
+  if (confidence < 0.5) {
+    return {
+      value: "weak",
+      label: "Weak",
+      description: "Parsed text exists but no strong review signals are found.",
+    };
+  }
+
+  // Grounded ONLY when signals exist AND confidence medium/high
   return {
     value: "grounded",
     label: "Grounded",
@@ -246,6 +555,8 @@ export function normalizeQuickCheckUiResult(input: {
         methodologyMentionCount: 0,
         warningCount: 1,
       },
+      extractionConfidence: 0,
+      recoveredLocally: false,
     };
   const extractionState = deriveQuickCheckExtractionState(extraction);
   const claim = input.claim.trim();

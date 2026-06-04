@@ -3,6 +3,9 @@
 import { afterEach, describe, expect, it, jest } from "@jest/globals";
 import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
 
+const RECOVERED_WARNING =
+  "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
+
 describe("quick check pdf client", () => {
   afterEach(() => {
     jest.restoreAllMocks();
@@ -31,7 +34,7 @@ describe("quick check pdf client", () => {
       text: "Recovered fallback text",
       engine: "heuristic",
       methodologyMentions: [],
-      warning: "PDF parser fallback: broken pdf",
+      warning: RECOVERED_WARNING,
     });
   });
 
@@ -48,7 +51,7 @@ describe("quick check pdf client", () => {
     expect(result.engine).toBe("heuristic");
     expect(result.text).toContain("Monitoring report");
     expect(result.methodologyMentions).toEqual([]);
-    expect(result.warning).toContain("request failed");
+    expect(result.warning).toBe(RECOVERED_WARNING);
     expect(result.diagnosticCode).toBe("upload-request-failed");
   });
 
@@ -105,6 +108,7 @@ describe("quick check pdf client", () => {
     expect(result.methodologyMentions).toEqual(
       expect.arrayContaining(["VM0007", "REDD+ Methodology Framework"]),
     );
+    expect(result.warning).toBe(RECOVERED_WARNING);
   });
 
 });

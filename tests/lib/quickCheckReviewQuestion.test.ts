@@ -1300,6 +1300,25 @@ describe("Quick Check extraction edge-case coverage", () => {
     expect(result.reviewAreaReview?.verdict).toBe("partial");
     expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
   });
+
+  it("ACM0010 methodology fallback does not become the primary result when Review question input has parsed document text", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "The monitoring report covers the full reporting period.",
+      methodologyId: "ACM0010",
+      methodologyVersion: "v01-0",
+      rawPddText: "The document contains parsed text about monitoring and boundaries for the project.",
+    });
+
+    // By field context (review question) + parsed doc text present, must use document qa path
+    // and suppress methodology recovery/fallback to ACM0010 claim matching.
+    expect(result.documentDiagnostic?.inputRoute).toBe("document_question");
+    expect(result.documentDiagnostic?.methodologyRecoverySuppressedByDocumentQa).toBe(true);
+    expect(result.documentDiagnostic?.rawTextAvailable).toBe(true);
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    // Should not surface ACM0010-specific no-valid-path fallback as primary
+    // (the document qa takes precedence even for ACM0010 methodology).
+    expect(result.documentAnswer.explanation).toContain("document-grounded");
+  });
 });
 // ============================================================================
 // Additional regression for PR #657: article-prefixed baseline question support
