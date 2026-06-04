@@ -2313,18 +2313,53 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         route: {reviewQuestionResult.documentDiagnostic.inputRoute} • raw text: {reviewQuestionResult.documentDiagnostic.rawTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentDiagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentDiagnostic.methodologyRuleMatched ? "yes" : "no"} • recovery suppressed: {reviewQuestionResult.documentDiagnostic.methodologyRecoverySuppressedByDocumentQa ? "yes" : "no"}
                       </div>
                     ) : null}
-                    {reviewQuestionResult.documentAnswer.evidence.length > 0 ? (
-                      <div className="mt-3 space-y-2">
-                        {reviewQuestionResult.documentAnswer.evidence.map((item, index) => (
-                          <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
-                            <div className="text-[11px] text-sky-800">
-                              {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
+                    {(() => {
+                      const da = reviewQuestionResult.documentAnswer;
+                      if (da.evidence.length === 0) return null;
+
+                      // When status is unclear because the retrieved evidence does not directly
+                      // address the question, hide the weak evidence from the main card and show
+                      // a clear message instead. The raw matches are still available in a collapsed
+                      // details section for debugging.
+                      if (da.status === "unclear" && da.explanation.includes("does not directly address")) {
+                        return (
+                          <>
+                            <div className="mt-3 text-sm leading-relaxed text-slate-600 italic">
+                              No directly relevant evidence was found for this question.
                             </div>
-                            <div className="mt-1 text-sm leading-relaxed text-slate-700">{item.snippet}</div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
+                            <details className="mt-2 group">
+                              <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 select-none">
+                                <span className="group-open:hidden">Show</span>
+                                <span className="hidden group-open:inline">Hide</span> weak evidence ({da.evidence.length} snippet{da.evidence.length === 1 ? "" : "s"})
+                              </summary>
+                              <div className="mt-2 space-y-2">
+                                {da.evidence.map((item, index) => (
+                                  <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
+                                    <div className="text-[11px] text-sky-800">
+                                      {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
+                                    </div>
+                                    <div className="mt-1 text-sm leading-relaxed text-slate-700">{item.snippet}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          </>
+                        );
+                      }
+
+                      return (
+                        <div className="mt-3 space-y-2">
+                          {da.evidence.map((item, index) => (
+                            <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
+                              <div className="text-[11px] text-sky-800">
+                                {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
+                              </div>
+                              <div className="mt-1 text-sm leading-relaxed text-slate-700">{item.snippet}</div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     {reviewQuestionResult.semanticEvidenceCandidates && reviewQuestionResult.semanticEvidenceCandidates.length > 0 ? (
                       <div className="mt-3 space-y-2">
                         {reviewQuestionResult.semanticEvidenceCandidates.map((candidate) => (

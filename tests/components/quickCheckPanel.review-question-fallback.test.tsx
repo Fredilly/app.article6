@@ -381,4 +381,58 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).not.toContain("likely_yes");
     expect(text).toContain("The retrieved document evidence does not directly address the question.");
   });
+
+  it("satellite launch telemetry question is UNCLEAR with no evidence found", async () => {
+    seedSession({
+      claimText: DOCUMENT_QA_NEGATIVE_QUESTION,
+      filename: "document-qa-messy.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Document Q&A");
+    expect(text).toContain("unclear");
+    // Terms like "satellite", "launch", "telemetry" not in document → no evidence found
+    expect(text).toContain("could not recover useful document-grounded evidence");
+    // The no-directly-relevant message is for when weak evidence exists but doesn't match
+    expect(text).not.toContain("No directly relevant evidence was found for this question.");
+  });
+
+  it("airport runway expansion impacts question is UNCLEAR with no evidence found", async () => {
+    seedSession({
+      claimText: "Does the document describe airport runway expansion impacts?",
+      filename: "document-qa-messy.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUntilText("Document Q&A");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("unclear");
+    expect(text).toContain("could not recover useful document-grounded evidence");
+    expect(text).not.toContain("No directly relevant evidence was found for this question.");
+    expect(text).not.toContain("likely_yes");
+  });
 });
