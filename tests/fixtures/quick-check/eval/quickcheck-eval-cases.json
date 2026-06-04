@@ -238,5 +238,92 @@
         "baselineVerdict": "supported"
       }
     }
+  ],
+  "documentAnswerCases": [
+    {
+      "id": "baseline_qa_likely_yes_with_relevant_evidence",
+      "fixture": "baseline-supported.txt",
+      "input": {
+        "claimText": "Does this PDD describe baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "Quick Check found document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1,
+        "methodologyRuleMatched": true
+      }
+    },
+    {
+      "id": "monitoring_qa_likely_yes",
+      "fixture": "monitoring-plan.txt",
+      "input": {
+        "claimText": "Check the monitoring plan",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "stakeholder_qa_likely_yes",
+      "fixture": "stakeholder-comments.txt",
+      "input": {
+        "claimText": "Does this PDD include stakeholder comments?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "leakage_qa_likely_yes",
+      "fixture": "leakage-semantic.txt",
+      "input": {
+        "claimText": "Does this PDD address leakage management?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "unrelated_question_no_matching_evidence_unclear",
+      "fixture": "baseline-supported.txt",
+      "input": {
+        "claimText": "Does the document describe satellite launch telemetry?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "The retrieved document evidence does not directly address the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "specific_entity_mismatch_has_broad_ev_but_not_direct_unclear",
+      "fixture": "stakeholder-comments.txt",
+      "input": {
+        "claimText": "Does the document explain community complaints about school transport?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "The retrieved document evidence does not directly address the question.",
+        "evidenceCountMin": 1
+      }
+    }
   ]
 }

@@ -62,6 +62,7 @@ import {
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
+import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
 
@@ -2292,18 +2293,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   <div className="mt-4 rounded-xl border border-sky-200 bg-white/80 p-4">
                     <div className="flex items-center gap-2">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700">Document Q&amp;A</div>
-                      <span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] border ${
-                        reviewQuestionResult.documentAnswer.status === "likely_yes"
-                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                          : reviewQuestionResult.documentAnswer.status === "likely_no"
-                            ? "bg-rose-100 text-rose-800 border-rose-200"
-                            : "bg-amber-100 text-amber-800 border-amber-200"
-                      }`}>
-                        {reviewQuestionResult.documentAnswer.status}
-                      </span>
+                      {(() => {
+                        const qaUi = getDocumentQaUiConfig(reviewQuestionResult.documentAnswer);
+                        return (
+                          <span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] border ${qaUi.badgeClasses}`}>
+                            {qaUi.statusLabel}
+                          </span>
+                        );
+                      })()}
                     </div>
                     <div className="mt-2 text-sm leading-relaxed text-slate-700">
-                      {reviewQuestionResult.documentAnswer.explanation}
+                      {getDocumentQaUiConfig(reviewQuestionResult.documentAnswer).explanation}
                     </div>
                     <div className="mt-2 text-xs leading-relaxed text-slate-600">
                       {reviewQuestionResult.documentAnswer.methodologyExplanation}

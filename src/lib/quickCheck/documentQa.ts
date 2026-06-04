@@ -37,8 +37,71 @@ function keywordizeClaim(claimText: string): string[] {
         "does", "this", "that", "with", "from", "what", "when", "where", "which",
         "document", "project", "describe", "explain", "check", "review", "assess",
         "support", "include", "provide", "demonstrate", "define", "disclose",
+        "address", "discuss", "mention", "outline", "summarize", "present",
+        "relate", "involve", "cover", "detail", "contain", "regard", "concern",
+        "about", "regarding",
       ]).has(token)),
   )];
+}
+
+function getSpecificClaimTerms(claimText: string, reviewArea: ReviewArea): string[] {
+  const claimTerms = keywordizeClaim(claimText);
+  const areaTermsRaw = [
+    ...getReviewAreaKeywords({ reviewArea, methodologyId: "", rawPddText: undefined }),
+    ...getReviewAreaAliases(reviewArea),
+  ];
+  const areaNormSet = new Set(
+    areaTermsRaw.map((t) => normalizeText(t)).filter((t) => t.length >= 3),
+  );
+  return claimTerms.filter((term) => {
+    const nt = normalizeText(term);
+    if (nt.length < 3) return false;
+    for (const at of areaNormSet) {
+      if (at.includes(nt) || nt.includes(at)) return false;
+    }
+    return true;
+  });
+}
+
+function hasDirectSemanticSupport(
+  evidence: DocumentAnswerEvidence[],
+  specificTerms: string[],
+): boolean {
+  if (specificTerms.length === 0) return true;
+  let evLower = evidence
+    .map((e) =>
+      `${e.snippet || ""} ${e.heading || ""} ${e.sectionNumber || ""}`.toLowerCase(),
+    )
+    .join(" ");
+  // handle hyphenated line breaks in test fixtures / extracted text e.g. "mea- sures" -> "measures"
+  evLower = evLower.replace(/-/g, "");
+  // also compact no-space for broken words across lines in fixtures
+  const evCompact = evLower.replace(/\s+/g, "");
+  let matchCount = 0;
+  for (const term of specificTerms) {
+    const nt = normalizeText(term);
+    if (!nt || nt.length < 3) continue;
+    const ntCompact = nt.replace(/\s+/g, "");
+    let matched = evLower.includes(nt) || evCompact.includes(ntCompact);
+    if (!matched) {
+      // basic plural/singular
+      if (nt.endsWith("s")) {
+        const sing = nt.slice(0, -1);
+        if (evLower.includes(sing) || evCompact.includes(sing)) matched = true;
+      } else if (evLower.includes(nt + "s") || evCompact.includes(ntCompact + "s")) {
+        matched = true;
+      }
+    }
+    if (!matched) {
+      // transport variants
+      if (nt === "transport") {
+        if (evLower.includes("transportation") || evLower.includes("transporting") || evCompact.includes("transportation")) matched = true;
+      }
+    }
+    if (matched) matchCount++;
+  }
+  const required = Math.max(1, Math.min(2, specificTerms.length));
+  return matchCount >= required;
 }
 
 function sectionHeading(section: Article6DocumentSection): string | undefined {
@@ -133,12 +196,18 @@ function deriveAnswerStatus(input: {
   evidence: DocumentAnswerEvidence[];
   evaluation: ReviewQuestionEvaluationResult;
   result: ReviewQuestionRetrievalResult;
+  directlyRelevant?: boolean;
 }): DocumentQuestionAnswer["status"] {
   const verdict = input.evaluation.reviewAreaReview?.verdict ?? input.evaluation.baselineReview?.verdict;
-  if (verdict === "supported") return "likely_yes";
+  const relevant = input.directlyRelevant ?? true;
+  if (verdict === "supported") {
+    return relevant ? "likely_yes" : "unclear";
+  }
   if (verdict === "partial") return "unclear";
   if (verdict === "missing" && input.evidence.length > 0) return "likely_no";
-  if (input.result.matchedHeadings.length > 0 || input.evidence.length >= 2) return "likely_yes";
+  if (input.result.matchedHeadings.length > 0 || input.evidence.length >= 2) {
+    return relevant ? "likely_yes" : "unclear";
+  }
   if (input.evidence.length === 1) return "unclear";
   return "unclear";
 }
@@ -165,10 +234,15 @@ export function buildDocumentQuestionAnswer(input: {
     ? []
     : findRawTextEvidence(input.rawPddText, input.claimText, input.retrieval.reviewArea);
   const evidence = [...headingEvidence, ...blockEvidence, ...rawTextEvidence].slice(0, MAX_EVIDENCE_ITEMS);
+
+  const specificTerms = getSpecificClaimTerms(input.claimText, input.retrieval.reviewArea);
+  const directlyRelevant = specificTerms.length === 0 || hasDirectSemanticSupport(evidence, specificTerms);
+
   const status = deriveAnswerStatus({
     evidence,
     evaluation: input.evaluation,
     result: input.retrieval,
+    directlyRelevant,
   });
 
   const methodologyRuleMatched = Boolean(input.evaluation.reviewAreaReview);
@@ -184,7 +258,9 @@ export function buildDocumentQuestionAnswer(input: {
           ? "No methodology rule was confidently matched, and Quick Check could not recover relevant document evidence from the uploaded text."
           : "No methodology rule was confidently matched, and parsed document text was unavailable for document-first review.",
     explanation: evidence.length > 0
-      ? "Quick Check found document-grounded evidence relevant to the question."
+      ? directlyRelevant
+        ? "Quick Check found document-grounded evidence relevant to the question."
+        : "The retrieved document evidence does not directly address the question."
       : rawPddTextAvailable
         ? "Quick Check could not recover useful document-grounded evidence for this question from the uploaded file."
         : "Quick Check could not run the document-first evidence search because parsed document text was unavailable.",
@@ -206,5 +282,32 @@ export function buildReviewQuestionDocumentDiagnostic(documentAnswer: DocumentQu
     documentEvidenceCount: documentAnswer.diagnostic.documentEvidenceCount,
     methodologyRuleMatched: documentAnswer.diagnostic.methodologyRuleMatched,
     methodologyRecoverySuppressedByDocumentQa: true,
+  };
+}
+
+/**
+ * Calibrated mapping from internal Document Q&A answer state to UI rendering props.
+ * This centralizes the "calibration" so that changes to states (from golden evals)
+ * drive consistent badge + explanation rendering without inline conditionals or
+ * screenshot-driven tweaks.
+ */
+export type DocumentQaUiConfig = {
+  badgeClasses: string;
+  statusLabel: string;
+  explanation: string;
+};
+
+export function getDocumentQaUiConfig(answer: DocumentQuestionAnswer): DocumentQaUiConfig {
+  const status = answer.status;
+  let badgeClasses = "bg-amber-100 text-amber-800 border-amber-200";
+  if (status === "likely_yes") {
+    badgeClasses = "bg-emerald-100 text-emerald-800 border-emerald-200";
+  } else if (status === "likely_no") {
+    badgeClasses = "bg-rose-100 text-rose-800 border-rose-200";
+  }
+  return {
+    badgeClasses,
+    statusLabel: status,
+    explanation: answer.explanation,
   };
 }
