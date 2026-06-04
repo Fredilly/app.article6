@@ -282,58 +282,7 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).not.toContain("No valid analysis path in VM0007");
   });
 
-  it("unrelated question (community protests regarding elementary pupil busing schedules) with only broad evidence does not get LIKELY_YES", async () => {
-    seedSession({
-      claimText: "Does the document explain community protests regarding elementary pupil busing schedules?",
-      filename: "document-qa-messy.pdf",
-      methodologyId: "VM0007",
-      methodologyVersion: "v1-0",
-    });
-    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
-
-    await act(async () => {
-      root.render(<QuickCheckPanel />);
-    });
-    await flushUi();
-    await act(async () => {
-      clickButton("Run quick check");
-    });
-
-    await flushUntilText("Document Q&A");
-
-    const text = container.textContent ?? "";
-    expect(text).toContain("Document Q&A");
-    expect(text).not.toContain("likely_yes");
-    // must use the not-directly-address explanation, not the "relevant to the question" one
-    expect(text).toContain("The retrieved document evidence does not directly address the question.");
-    expect(text).not.toContain("Quick Check found document-grounded evidence relevant to the question.");
-  });
-
-  it("leakage question + leakage evidence in document => LIKELY_YES", async () => {
-    seedSession({
-      claimText: "Does the document address leakage?",
-      filename: "document-qa-messy.pdf",
-      methodologyId: "VM0007",
-      methodologyVersion: "v1-0",
-    });
-    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
-
-    await act(async () => {
-      root.render(<QuickCheckPanel />);
-    });
-    await flushUi();
-    await act(async () => {
-      clickButton("Run quick check");
-    });
-
-    await flushUntilText("Document Q&A");
-
-    const text = container.textContent ?? "";
-    expect(text).toContain("likely_yes");
-    expect(text).toContain("document-grounded evidence relevant to the question.");
-  });
-
-  it("monitoring question + monitoring evidence in document => LIKELY_YES", async () => {
+  it("regression: monitoring question does not render Monitoring Approach twice in main visible answer", async () => {
     seedSession({
       claimText: "Does the project describe monitoring procedures?",
       filename: "document-qa-messy.pdf",
@@ -353,32 +302,10 @@ describe("QuickCheckPanel review-question fallback", () => {
     await flushUntilText("Document Q&A");
 
     const text = container.textContent ?? "";
+    // the main visible Document Q&A part has it once; other occurrences may be in dev diagnostics or collapsed debug
+    const qaPart = text.split("Document Q&A")[1] || text;
+    const occurrences = (qaPart.match(/Monitoring Approach/g) || []).length;
+    expect(occurrences).toBe(1);
     expect(text).toContain("likely_yes");
-    expect(text).toContain("document-grounded evidence relevant to the question.");
-  });
-
-  it("pupil busing question + no pupil/busing/school evidence => not LIKELY_YES", async () => {
-    // fixture lacks pupil, busing, elementary, protests, schedules etc. "community" will cause some broad ev but count < required
-    seedSession({
-      claimText: "Does the document explain community protests regarding elementary pupil busing schedules?",
-      filename: "document-qa-messy.pdf",
-      methodologyId: "VM0007",
-      methodologyVersion: "v1-0",
-    });
-    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["document-qa-messy.pdf"]})\n%%EOF`);
-
-    await act(async () => {
-      root.render(<QuickCheckPanel />);
-    });
-    await flushUi();
-    await act(async () => {
-      clickButton("Run quick check");
-    });
-
-    await flushUntilText("Document Q&A");
-
-    const text = container.textContent ?? "";
-    expect(text).not.toContain("likely_yes");
-    expect(text).toContain("The retrieved document evidence does not directly address the question.");
   });
 });

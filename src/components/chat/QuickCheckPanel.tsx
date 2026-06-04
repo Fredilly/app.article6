@@ -56,7 +56,6 @@ import {
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
-import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
 
@@ -2231,17 +2230,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   <div className="mt-4 rounded-xl border border-sky-200 bg-white/80 p-4">
                     <div className="flex items-center gap-2">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700">Document Q&amp;A</div>
-                      {(() => {
-                        const qaUi = getDocumentQaUiConfig(reviewQuestionResult.documentAnswer);
-                        return (
-                          <span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] border ${qaUi.badgeClasses}`}>
-                            {qaUi.statusLabel}
-                          </span>
-                        );
-                      })()}
+                      <span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] border ${
+                        reviewQuestionResult.documentAnswer.status === "likely_yes"
+                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                          : reviewQuestionResult.documentAnswer.status === "likely_no"
+                            ? "bg-rose-100 text-rose-800 border-rose-200"
+                            : "bg-amber-100 text-amber-800 border-amber-200"
+                      }`}>
+                        {reviewQuestionResult.documentAnswer.status}
+                      </span>
                     </div>
                     <div className="mt-2 text-sm leading-relaxed text-slate-700">
-                      {getDocumentQaUiConfig(reviewQuestionResult.documentAnswer).explanation}
+                      {reviewQuestionResult.documentAnswer.explanation}
                     </div>
                     <div className="mt-2 text-xs leading-relaxed text-slate-600">
                       {reviewQuestionResult.documentAnswer.methodologyExplanation}
@@ -2356,41 +2356,51 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   <div className="mt-4">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — title matching)</div>
                     <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Quick Check matches section titles using your question, with limited methodology-aware fallback for certain review areas.</p>
-                    {reviewQuestionResult.matchedHeadings.length > 0 ? (
-                      <div className="mt-3 space-y-2">
-                        {reviewQuestionResult.matchedHeadings.map((h) => {
-                          const isSelected = selectedHeading?.sectionNumber === h.sectionNumber;
-                          return (
-                            <button
-                              key={h.sectionNumber}
-                              type="button"
-                              onClick={() => handleHeadingClick(h)}
-                              className={`w-full rounded-xl border px-4 py-3 text-left transition ${isSelected ? "border-sky-400 bg-sky-100" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}
-                            >
-                              <div className="flex items-baseline gap-2">
-                                <span className="font-mono text-xs font-semibold text-sky-700">§{h.sectionNumber}</span>
-                                <span className="text-sm font-medium text-slate-900">{h.title}</span>
-                              </div>
-                              {h.bodyPreview ? (
-                                <div className="mt-1.5 text-xs leading-relaxed text-slate-600 line-clamp-2">{h.bodyPreview}</div>
-                              ) : null}
-                              <div className="mt-1 text-[10px] text-slate-400">Click to select / copy reference</div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="mt-2 space-y-1">
-                        <div className="text-sm text-amber-700">
-                          No matching document section found.
+                    {(() => {
+                      const hasEvidenceHere = reviewQuestionResult.documentAnswer.evidence.length > 0;
+                      if (hasEvidenceHere) {
+                        return (
+                          <details className="mt-2">
+                            <summary className="cursor-pointer text-xs text-slate-500">Document heading index matches (debug, collapsed; primary in evidence above)</summary>
+                          </details>
+                        );
+                      }
+                      return reviewQuestionResult.matchedHeadings.length > 0 ? (
+                        <div className="mt-3 space-y-2">
+                          {reviewQuestionResult.matchedHeadings.map((h) => {
+                            const isSelected = selectedHeading?.sectionNumber === h.sectionNumber;
+                            return (
+                              <button
+                                key={h.sectionNumber}
+                                type="button"
+                                onClick={() => handleHeadingClick(h)}
+                                className={`w-full rounded-xl border px-4 py-3 text-left transition ${isSelected ? "border-sky-400 bg-sky-100" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}
+                              >
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-mono text-xs font-semibold text-sky-700">§{h.sectionNumber}</span>
+                                  <span className="text-sm font-medium text-slate-900">{h.title}</span>
+                                </div>
+                                {h.bodyPreview ? (
+                                  <div className="mt-1.5 text-xs leading-relaxed text-slate-600 line-clamp-2">{h.bodyPreview}</div>
+                                ) : null}
+                                <div className="mt-1 text-[10px] text-slate-400">Click to select / copy reference</div>
+                              </button>
+                            );
+                          })}
                         </div>
-                        {reviewQuestionResult.noMatchExplanation ? (
-                          <div className="text-xs leading-relaxed text-amber-800">
-                            {reviewQuestionResult.noMatchExplanation}
+                      ) : (
+                        <div className="mt-2 space-y-1">
+                          <div className="text-sm text-amber-700">
+                            No matching document section found.
                           </div>
-                        ) : null}
-                      </div>
-                    )}
+                          {reviewQuestionResult.noMatchExplanation ? (
+                            <div className="text-xs leading-relaxed text-amber-800">
+                              {reviewQuestionResult.noMatchExplanation}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })()}
 
                     {selectedHeading ? (
                       <div className="mt-3 rounded-xl border border-sky-300 bg-white p-4">
