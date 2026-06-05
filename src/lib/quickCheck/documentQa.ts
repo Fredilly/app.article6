@@ -56,7 +56,7 @@ function isHighBurdenQuestion(claimText: string): boolean {
 }
 
 function hasJustificationEvidence(evidence: DocumentAnswerEvidence[]): boolean {
-  const text = evidence.map((e) => `${e.snippet || ""} ${e.heading || ""}`).join(" ");
+  const text = evidence.map((e) => e.snippet || "").join(" ");
   return JUSTIFICATION_PATTERNS.some((pattern) => pattern.test(text));
 }
 

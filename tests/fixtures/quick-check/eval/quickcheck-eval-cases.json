@@ -380,6 +380,20 @@
         "explanationContains": "document-grounded evidence relevant to the question.",
         "evidenceCountMin": 1
       }
+    },
+    {
+      "id": "leakage_prove_heading_looks_like_justification_but_snippet_asserts_only",
+      "fixture": "leakage-prove-heading-only.txt",
+      "input": {
+        "claimText": "Does the leakage section prove that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "high-burden wording",
+        "evidenceCountMin": 1
+      }
     }
   ]
 }
