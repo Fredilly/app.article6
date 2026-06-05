@@ -64,6 +64,9 @@ describe("quickCheck review policy", () => {
         titleIncludes: "monitoring plan",
         score: 16,
       },
+      { sectionNumber: "D.1", titleIncludes: "monitoring", score: 18 },
+      { sectionNumber: "D.2", titleIncludes: "monitoring", score: 18 },
+      { sectionNumber: "D.3", titleIncludes: "monitoring", score: 18 },
     ]);
     expect(getTitlePenalties("monitoring")).toEqual([
       {

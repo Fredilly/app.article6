@@ -578,6 +578,7 @@ export type HeadingQueryMatch = {
   exactTokenMatches: string[];
   softTokenMatches: string[];
   fallbackKeywordMatches: string[];
+  negativeTermMatches: string[];
   coverage: number;
   strong: boolean;
 };
@@ -774,6 +775,7 @@ export function scoreHeadingAgainstQuery(
   heading: DocumentHeading,
   query: string,
   fallbackKeywords: string[] = [],
+  negativeTerms: string[] = [],
 ): HeadingQueryMatch {
   const strippedQuery = stripHeadingQueryBoilerplate(query);
   const queryTokens = buildHeadingQueryTokens(query);
@@ -788,6 +790,7 @@ export function scoreHeadingAgainstQuery(
       exactTokenMatches: [],
       softTokenMatches: [],
       fallbackKeywordMatches: [],
+      negativeTermMatches: [],
       coverage: 0,
       strong: false,
     };
@@ -815,6 +818,10 @@ export function scoreHeadingAgainstQuery(
     const normalizedKeyword = normalizeHeadingTitle(keyword);
     return normalizedKeyword.length > 0 && heading.normalizedTitle.includes(normalizedKeyword);
   });
+  const negativeTermMatches = negativeTerms.filter((term) => {
+    const normalizedTerm = normalizeHeadingTitle(term);
+    return normalizedTerm.length > 0 && heading.normalizedTitle.includes(normalizedTerm);
+  });
   const weightedMatches = exactTokenMatches.length + softTokenMatches.length * 0.7;
   const coverage = queryTokens.length > 0 ? weightedMatches / queryTokens.length : 0;
 
@@ -828,6 +835,7 @@ export function scoreHeadingAgainstQuery(
   score += contiguousBigrams * 35;
   score += Math.round(coverage * 100);
   score += fallbackKeywordMatches.reduce((total, keyword) => total + (keyword.includes(" ") ? 28 : 18), 0);
+  score -= negativeTermMatches.reduce((total) => total + 50, 0);
   score += scoreBoundaryHeadingSpecificity(query, heading);
   if (queryTokens.length === 1 && exactTokenMatches.length > 0) score += 120;
   else if (queryTokens.length === 1 && softTokenMatches.length > 0) score += 80;
@@ -852,6 +860,7 @@ export function scoreHeadingAgainstQuery(
     exactTokenMatches,
     softTokenMatches,
     fallbackKeywordMatches,
+    negativeTermMatches,
     coverage,
     strong,
   };
@@ -900,11 +909,12 @@ export function filterPddHeadingsByQuery(
   headings: DocumentHeading[],
   query: string,
   fallbackKeywords: string[] = [],
+  negativeTerms: string[] = [],
 ): DocumentHeading[] {
   const q = query.trim();
   if (!q) return [];
   return headings
-    .map((heading) => scoreHeadingAgainstQuery(heading, q, fallbackKeywords))
+    .map((heading) => scoreHeadingAgainstQuery(heading, q, fallbackKeywords, negativeTerms))
     .filter((match) => match.strong)
     .sort((a, b) => b.score - a.score || a.heading.sectionNumber.localeCompare(b.heading.sectionNumber, undefined, { numeric: true }))
     .map((match) => match.heading);
