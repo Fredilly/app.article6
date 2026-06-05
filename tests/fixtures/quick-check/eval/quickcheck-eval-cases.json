@@ -394,6 +394,160 @@
         "explanationContains": "high-burden wording",
         "evidenceCountMin": 1
       }
+    },
+    {
+      "id": "ocr_noisy_prove_market_zero",
+      "fixture": "ocr-noisy-leakage.txt",
+      "input": {
+        "claimText": "Does the leakage section prove that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "high-burden wording",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "ocr_noisy_say_market_zero",
+      "fixture": "ocr-noisy-leakage.txt",
+      "input": {
+        "claimText": "Does the leakage section say that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "broken_heading_justify_baseline_scenario",
+      "fixture": "broken-heading-baseline.txt",
+      "input": {
+        "claimText": "Does the PDD justify the baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "justification",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "broken_heading_describe_baseline",
+      "fixture": "broken-heading-baseline.txt",
+      "input": {
+        "claimText": "Does this PDD describe baseline scenario?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "repeated_headers_prove_market_zero",
+      "fixture": "repeated-headers-leakage.txt",
+      "input": {
+        "claimText": "Does the leakage section prove that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "justification",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "repeated_headers_say_market_zero",
+      "fixture": "repeated-headers-leakage.txt",
+      "input": {
+        "claimText": "Does the leakage section say that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "assertion_additionality_sufficient_evidence",
+      "fixture": "assertion-only-additionality.txt",
+      "input": {
+        "claimText": "Does the document provide sufficient evidence for additionality?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "does not directly address",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "assertion_additionality_describe",
+      "fixture": "assertion-only-additionality.txt",
+      "input": {
+        "claimText": "Does this PDD describe additionality?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "justification_leakage_validate_market_zero",
+      "fixture": "justification-leakage.txt",
+      "input": {
+        "claimText": "Does the leakage section validate that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "justification",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "irrelevant_methodology_prove_market_zero",
+      "fixture": "irrelevant-methodology-leakage.txt",
+      "input": {
+        "claimText": "Does the leakage section prove that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "does not directly address",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "irrelevant_methodology_describe_leakage",
+      "fixture": "irrelevant-methodology-leakage.txt",
+      "input": {
+        "claimText": "Does this PDD describe leakage?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
     }
   ]
 }

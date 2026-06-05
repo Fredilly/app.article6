@@ -1,0 +1,3 @@
+3.3  Leakage
+Leakage due to market effects is considered zero, based on the displacement analysis in Appendix G.
+The assessment calculated net market leakage at 0 tCO2 using the methodology equation.

@@ -1,0 +1,3 @@
+3.3  Leakage
+The methodology VM0007 provides the equation for baseline emission reduction calculations.
+The assessment method is described in the module.

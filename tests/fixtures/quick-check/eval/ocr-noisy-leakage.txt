@@ -1,0 +1,3 @@
+3.3  Leakage
+Leakage from rnarket effects is treated as zero.
+Market 1eakage for this project activity is zero.
