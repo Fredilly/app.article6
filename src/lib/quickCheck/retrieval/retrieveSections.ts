@@ -343,7 +343,7 @@ function resolveReviewQuestionSections(input: {
     if (stage === "exact_heading") {
       matches = uniqueHeadings(exactHeadingMatches(input.headingIndex, input.claimText));
     } else if (stage === "normalized_heading") {
-      matches = uniqueHeadings(filterPddHeadingsByQuery(input.headingIndex, input.claimText, []));
+      matches = uniqueHeadings(filterPddHeadingsByQuery(input.headingIndex, input.claimText, reviewAreaKeywords));
     } else if (stage === "alias_heading") {
       matches = uniqueHeadings([
         ...aliasHeadingMatches(input.headingIndex, aliases),

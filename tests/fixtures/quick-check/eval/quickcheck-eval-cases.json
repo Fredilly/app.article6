@@ -55,7 +55,7 @@
       },
       "expected": {
         "reviewArea": "leakage",
-        "matchStage": "alias_heading",
+        "matchStage": "normalized_heading",
         "relevantSections": ["3.3"],
         "matchedHeadingTitle": "Leakage"
       }

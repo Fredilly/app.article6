@@ -755,7 +755,7 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
     expect(result.sectionContent["3.3"]).toContain("Leakage Management procedures");
     expect(result.reviewArea).toBe("leakage");
     expect(result.status).toBe("section_found_evidence_weak");
-    expect(result.matchStage).toBe("alias_heading");
+    expect(result.matchStage).toBe("normalized_heading");
   });
 
   it("ranks Project Boundary above Project Location for leakage belt and reference region questions", () => {
@@ -1183,7 +1183,7 @@ describe("Quick Check extraction edge-case coverage", () => {
     const evaluation = evaluateRetrievedReviewQuestion(retrieval);
 
     expect(retrieval.reviewArea).toBe("leakage");
-    expect(retrieval.matchStage).toBe("alias_heading");
+    expect(retrieval.matchStage).toBe("normalized_heading");
     expect(retrieval.relevantSections[0]).toBe("3.3");
     expect(evaluation.status).toBe("section_found_evidence_weak");
   });

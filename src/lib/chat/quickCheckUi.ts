@@ -1,6 +1,7 @@
 import { classifyQuickCheckClaimIntents, type QuickCheckEvidenceAnalysis, type QuickCheckEvidenceFact } from "@/lib/chat/quickCheckEvidence";
 import type { QuickCheckMethodologyResolution } from "@/lib/chat/quickCheckMethodology";
 import { prioritizeMethodologyMentions } from "@/lib/chat/quickCheckMethodology";
+import { classifyMethodologyRoles } from "@/lib/chat/methodologyRoleClassifier";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
@@ -40,11 +41,21 @@ export type QuickCheckUiNextAction = {
 
 export type ExtractionPreviewConfidence = "high" | "medium" | "low" | "unknown";
 
+export type ClassificationDisplayItem = {
+  id: string;
+  version: string | null;
+  role: string;
+  confidence: string;
+};
+
 export type ExtractionPreviewViewModel = {
   fileName?: string;
   detectedDocumentType?: string;
   detectedMethodology?: string;
   methodologyConfidence?: ExtractionPreviewConfidence;
+  primaryMethodology?: ClassificationDisplayItem;
+  monitoringMethodology?: ClassificationDisplayItem;
+  referencedMethods?: ClassificationDisplayItem[];
   warning?: string;
   signalSummary?: string;
   signals: Array<{
@@ -291,6 +302,7 @@ export function buildExtractionPreviewViewModel(input: {
   analysis: QuickCheckEvidenceAnalysis;
   fileName?: string | null;
   methodologyResolution?: QuickCheckMethodologyResolution | null;
+  extractionSnapshot?: QuickCheckExtractionSnapshot | null;
 }): ExtractionPreviewViewModel {
   const seenSignalLabels = new Set<string>();
   const signals = [...input.analysis.facts]
@@ -335,6 +347,32 @@ export function buildExtractionPreviewViewModel(input: {
       ? undefined
       : "Methodology was not confidently detected. Matches below may need review.");
 
+  const classification = input.extractionSnapshot?.methodologyClassification;
+  const primaryMethodology = classification?.primaryMethodology
+    ? {
+        id: classification.primaryMethodology.id,
+        version: classification.primaryMethodology.version,
+        role: classification.primaryMethodology.role,
+        confidence: classification.primaryMethodology.confidence,
+      }
+    : undefined;
+  const monitoringMethodology = classification?.monitoringMethodology
+    ? {
+        id: classification.monitoringMethodology.id,
+        version: classification.monitoringMethodology.version,
+        role: classification.monitoringMethodology.role,
+        confidence: classification.monitoringMethodology.confidence,
+      }
+    : undefined;
+  const referencedMethods = classification?.referencedMethods?.length
+    ? classification.referencedMethods.map((m) => ({
+        id: m.id,
+        version: m.version,
+        role: m.role,
+        confidence: m.confidence,
+      }))
+    : undefined;
+
   return {
     fileName: input.fileName?.trim() || undefined,
     detectedDocumentType: documentTypeLabel({
@@ -344,6 +382,9 @@ export function buildExtractionPreviewViewModel(input: {
     }),
     detectedMethodology,
     methodologyConfidence,
+    primaryMethodology,
+    monitoringMethodology,
+    referencedMethods,
     warning,
     signalSummary:
       buildSignalSummary(signals) ??
@@ -435,10 +476,14 @@ export function buildQuickCheckExtractionSnapshot(input: {
   const recoveredLocally = input.analysis.warnings.some((w) =>
     /local heuristic|using local fallback|parser fallback|heuristic extraction|recovered text after server/i.test(w)
   );
+  const methodologyClassification = input.analysis.rawPddText
+    ? classifyMethodologyRoles(input.analysis.rawPddText)
+    : undefined;
   return {
     documentType: input.analysis.documentTypes[0] ?? "Unknown document",
     extractedFacts,
     methodologyMentions: prioritizeMethodologyMentions(input.analysis.methodologyMentions).slice(0, 4),
+    methodologyClassification,
     warnings,
     signals: {
       parsedEvidenceCount: input.analysis.parsedEvidenceLabels.length,
