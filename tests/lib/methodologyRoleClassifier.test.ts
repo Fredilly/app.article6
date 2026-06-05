@@ -17,6 +17,19 @@ function referenced(result: ReturnType<typeof classifyMethodologyRoles>): Method
 
 describe("methodologyRoleClassifier", () => {
   describe("primary methodology detection", () => {
+    it("classifies VM0007 under section-numbered 'B.1 Title and reference of approved baseline methodology applied'", () => {
+      const text = [
+        "B.1 Title and reference of approved baseline methodology applied",
+        "VM0007 Version 1.0",
+      ].join("\n");
+
+      const result = classifyMethodologyRoles(text);
+      expect(primary(result)?.id).toBe("VM0007");
+      expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
+      expect(primary(result)?.confidence).toBe("high");
+      expect(primary(result)?.version).toBe("1.0");
+    });
+
     it("classifies VM0007 under 'Title and Reference of Methodology' as primary", () => {
       const text = [
         "Title and Reference of Methodology",
@@ -116,6 +129,18 @@ describe("methodologyRoleClassifier", () => {
       expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
     });
 
+    it("classifies under section-numbered 'D.1 Name and reference of approved monitoring methodology applied'", () => {
+      const text = [
+        "D.1 Name and reference of approved monitoring methodology applied",
+        "ACM0002",
+      ].join("\n");
+
+      const result = classifyMethodologyRoles(text);
+      expect(monitoring(result)?.id).toBe("ACM0002");
+      expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
+      expect(monitoring(result)?.confidence).toBe("high");
+    });
+
     it("distinguishes monitoring from primary when both are present", () => {
       const text = [
         "Applied methodology",
@@ -192,6 +217,37 @@ describe("methodologyRoleClassifier", () => {
       const result = classifyMethodologyRoles(text);
       const acm = referenced(result).find((e) => e.id === "ACM0002");
       expect(acm?.role).toBe("REFERENCED_CALCULATION_METHOD");
+    });
+  });
+
+  describe("section-numbered CDM-style PDD headings", () => {
+    it("classifies primary and monitoring from section-numbered headings in one document", () => {
+      const text = [
+        "B.1 Title and reference of approved baseline methodology applied",
+        "VM0007 Version 1.0",
+        "",
+        "D.1 Name and reference of approved monitoring methodology applied",
+        "ACM0002 Version 02.0",
+      ].join("\n");
+
+      const result = classifyMethodologyRoles(text);
+      expect(primary(result)?.id).toBe("VM0007");
+      expect(primary(result)?.version).toBe("1.0");
+      expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
+      expect(monitoring(result)?.id).toBe("ACM0002");
+      expect(monitoring(result)?.version).toBe("02.0");
+      expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
+    });
+
+    it("classifies GS methodology under section-numbered heading", () => {
+      const text = [
+        "B.1 Title and reference of approved baseline methodology applied",
+        "GS-VER1 Version 2.0",
+      ].join("\n");
+
+      const result = classifyMethodologyRoles(text);
+      expect(primary(result)?.id).toBe("GS-VER1");
+      expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
     });
   });
 

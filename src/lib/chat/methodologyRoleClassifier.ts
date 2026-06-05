@@ -24,21 +24,22 @@ export type MethodologyClassification = {
 };
 
 const DECLARATION_HEADING_PATTERNS = [
-  /^title and reference of methodology$/i,
-  /^title and reference of the vcs methodology applied$/i,
-  /^title and reference of approved baseline methodology/i,
-  /^methodology applied/i,
-  /^applied methodology/i,
-  /^the methodology used/i,
-  /^vcs methodology/i,
-  /^project category applicable/i,
+  /title and reference of (?:approved baseline )?methodology applied/i,
+  /title and reference of the vcs methodology applied/i,
+  /title and reference of approved baseline methodology/i,
+  /title and reference of methodology/i,
+  /methodology applied/i,
+  /applied methodology/i,
+  /the methodology used/i,
+  /vcs methodology/i,
+  /project category applicable/i,
 ];
 
 const MONITORING_HEADING_PATTERNS = [
-  /^name and reference of approved monitoring methodology applied/i,
-  /^monitoring methodology/i,
-  /^monitoring plan/i,
-  /^monitoring applied/i,
+  /name and reference of approved monitoring methodology applied/i,
+  /monitoring methodology/i,
+  /monitoring plan/i,
+  /monitoring applied/i,
 ];
 
 const FOOTNOTE_LINE_RE = /^footnote\s+\d+/im;
@@ -99,14 +100,14 @@ function findMethodologyMatches(text: string): RawMatch[] {
       pattern.lastIndex = 0;
       let m: RegExpExecArray | null;
       while ((m = pattern.exec(line)) !== null) {
-        const raw = (m[1] ?? m[0]).replace(/\s+/g, "").toUpperCase();
-        if (/^AMS-/.test(raw)) {
-          const suffix = raw.slice(4);
+        const fullMatch = m[0].replace(/\s+/g, "").toUpperCase();
+        if (/^GS/.test(fullMatch)) {
+          matches.push({ code: fullMatch, lineIndex: i });
+        } else if (fullMatch.startsWith("AMS")) {
+          const suffix = fullMatch.replace(/^AMS-?/i, "");
           if (suffix) matches.push({ code: `AMS-${suffix}`, lineIndex: i });
-        } else if (/^GS-/.test(raw)) {
-          const ver = (m[1] ?? "").toUpperCase().replace(/\s+/g, "");
-          matches.push({ code: `GS-${ver}`, lineIndex: i });
         } else {
+          const raw = (m[1] ?? m[0]).replace(/\s+/g, "").toUpperCase();
           matches.push({ code: raw, lineIndex: i });
         }
       }
@@ -162,16 +163,18 @@ function detectMethodologyRole(
   const prevLine = lines[lineIndex - 1] ?? "";
   const nextLine = lines[lineIndex + 1] ?? "";
 
+  const matchesMonitor = (line: string) => MONITORING_HEADING_PATTERNS.some((p) => p.test(line));
+  const matchesDeclNotMonitor = (line: string) =>
+    DECLARATION_HEADING_PATTERNS.some((p) => p.test(line)) && !matchesMonitor(line);
+
   const nearDeclHeading =
-    DECLARATION_HEADING_PATTERNS.some((p) => p.test(prevLine)) ||
-    DECLARATION_HEADING_PATTERNS.some((p) => p.test(nextLine)) ||
-    getLineWindow(lines, lineIndex, 0).some((l) =>
-      DECLARATION_HEADING_PATTERNS.some((p) => p.test(l.trim())),
-    );
+    matchesDeclNotMonitor(prevLine) ||
+    matchesDeclNotMonitor(nextLine) ||
+    getLineWindow(lines, lineIndex, 0).some((l) => matchesDeclNotMonitor(l.trim()));
 
   const nearMonitorHeading =
-    MONITORING_HEADING_PATTERNS.some((p) => p.test(prevLine)) ||
-    MONITORING_HEADING_PATTERNS.some((p) => p.test(nextLine));
+    matchesMonitor(prevLine) ||
+    matchesMonitor(nextLine);
 
   const hasPrimarySection = sectionTitles.some((t) => DECLARATION_HEADING_PATTERNS.some((p) => p.test(t)));
   const hasMonitoringSection = sectionTitles.some((t) => MONITORING_HEADING_PATTERNS.some((p) => p.test(t)));
