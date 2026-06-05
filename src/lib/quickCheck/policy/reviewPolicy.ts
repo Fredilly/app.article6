@@ -14,13 +14,42 @@ const REVIEW_POLICY_CONFIG_RAW = {
   ],
   reviewAreas: {
     additionality: {
-      baseKeywords: ["additionality"],
+      baseKeywords: [
+        "additionality",
+        "investment analysis",
+        "barrier analysis",
+        "common practice",
+        "prior consideration",
+        "CDM consideration",
+      ],
       aliases: [],
+      negativeSectionTerms: [
+        "grid emission factor",
+        "parameter",
+        "default value",
+        "data and parameters",
+        "emission reductions",
+      ],
       evidenceSignals: [],
     },
     baseline: {
-      baseKeywords: ["baseline", "without-project", "without project", "land use scenario"],
+      baseKeywords: [
+        "baseline",
+        "baseline scenario",
+        "without-project",
+        "without project",
+        "land use scenario",
+        "identification of baseline",
+        "alternatives analysis",
+      ],
       aliases: [],
+      negativeSectionTerms: [
+        "grid emission factor",
+        "parameter",
+        "default value",
+        "data and parameters",
+        "emission reductions",
+      ],
       evidenceSignals: [],
     },
     boundary: {
@@ -38,7 +67,13 @@ const REVIEW_POLICY_CONFIG_RAW = {
       evidenceSignals: [],
     },
     leakage: {
-      baseKeywords: ["leakage", "leakage belt"],
+      baseKeywords: [
+        "leakage",
+        "leakage belt",
+        "leakage emissions",
+        "project leakage",
+        "activity shifting leakage",
+      ],
       aliases: [
         "leakage",
         "leakage management",
@@ -46,6 +81,13 @@ const REVIEW_POLICY_CONFIG_RAW = {
         "activity shifting leakage",
       ],
       evidenceSignals: [],
+      negativeSectionTerms: [
+        "grid emission factor",
+        "parameter",
+        "default value",
+        "data and parameters",
+        "emission reductions",
+      ],
     },
     monitoring: {
       baseKeywords: ["monitoring", "monitoring plan", "data and parameters"],
