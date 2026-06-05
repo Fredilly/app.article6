@@ -2308,76 +2308,101 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <div className="mt-2 text-xs leading-relaxed text-slate-600">
                       {reviewQuestionResult.documentAnswer.methodologyExplanation}
                     </div>
-                    {(process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") ? (
-                      <div className="mt-2 text-[11px] leading-relaxed text-slate-500">
-                        route: {reviewQuestionResult.documentDiagnostic.inputRoute} • raw text: {reviewQuestionResult.documentDiagnostic.rawTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentDiagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentDiagnostic.methodologyRuleMatched ? "yes" : "no"} • recovery suppressed: {reviewQuestionResult.documentDiagnostic.methodologyRecoverySuppressedByDocumentQa ? "yes" : "no"}
-                      </div>
-                    ) : null}
                     {(() => {
                       const da = reviewQuestionResult.documentAnswer;
-                      if (da.evidence.length === 0) return null;
+                      const isUnclearWeak = da.status === "unclear" && da.explanation.includes("does not directly address");
 
-                      // When status is unclear because the retrieved evidence does not directly
-                      // address the question, hide the weak evidence from the main card and show
-                      // a clear message instead. The raw matches are still available in a collapsed
-                      // details section for debugging.
-                      if (da.status === "unclear" && da.explanation.includes("does not directly address")) {
+                      if (isUnclearWeak) {
                         return (
                           <>
                             <div className="mt-3 text-sm leading-relaxed text-slate-600 italic">
                               No directly relevant evidence was found for this question.
                             </div>
-                            <details className="mt-2 group">
-                              <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 select-none">
-                                <span className="group-open:hidden">Show</span>
-                                <span className="hidden group-open:inline">Hide</span> weak evidence ({da.evidence.length} snippet{da.evidence.length === 1 ? "" : "s"})
-                              </summary>
-                              <div className="mt-2 space-y-2">
-                                {da.evidence.map((item, index) => (
-                                  <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
-                                    <div className="text-[11px] text-sky-800">
-                                      {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
-                                    </div>
-                                    <div className="mt-1 text-sm leading-relaxed text-slate-700">{item.snippet}</div>
+                            <details className="mt-2">
+                              <summary className="text-xs font-medium text-slate-400 cursor-pointer hover:text-slate-600 select-none">Technical details</summary>
+                              <div className="mt-2 space-y-3">
+                                {(process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") ? (
+                                  <div className="text-[11px] leading-relaxed text-slate-500">
+                                    route: {reviewQuestionResult.documentDiagnostic.inputRoute} • raw text: {reviewQuestionResult.documentDiagnostic.rawTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentDiagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentDiagnostic.methodologyRuleMatched ? "yes" : "no"} • recovery suppressed: {reviewQuestionResult.documentDiagnostic.methodologyRecoverySuppressedByDocumentQa ? "yes" : "no"}
                                   </div>
-                                ))}
+                                ) : null}
+                                {da.evidence.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {da.evidence.map((item, index) => (
+                                      <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
+                                        <div className="text-[11px] text-sky-800">
+                                          {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
+                                        </div>
+                                        <div className="mt-1 text-sm leading-relaxed text-slate-700">{item.snippet}</div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : null}
+                                {reviewQuestionResult.semanticEvidenceCandidates && reviewQuestionResult.semanticEvidenceCandidates.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {reviewQuestionResult.semanticEvidenceCandidates.map((candidate) => (
+                                      <div key={`${candidate.blockId}:${candidate.quote}`} className="rounded-lg border border-violet-100 bg-violet-50/40 p-3">
+                                        <div className="text-[11px] text-violet-800">
+                                          {[candidate.heading, candidate.page ? `p. ${candidate.page}` : null, candidate.blockId].filter(Boolean).join(" • ")}
+                                        </div>
+                                        <div className="mt-1 text-sm leading-relaxed text-slate-700">{candidate.quote}</div>
+                                        <div className="mt-1 text-xs leading-relaxed text-slate-600">{candidate.reason}</div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : null}
+                                {reviewQuestionResult.semanticEvidenceWarning ? (
+                                  <div className="text-xs leading-relaxed text-slate-500">
+                                    {reviewQuestionResult.semanticEvidenceWarning}
+                                  </div>
+                                ) : null}
                               </div>
                             </details>
                           </>
                         );
                       }
 
+                      // Non-unclear: show route diagnostic, evidence inline, semantic evidence inline
                       return (
-                        <div className="mt-3 space-y-2">
-                          {da.evidence.map((item, index) => (
-                            <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
-                              <div className="text-[11px] text-sky-800">
-                                {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
-                              </div>
-                              <div className="mt-1 text-sm leading-relaxed text-slate-700">{item.snippet}</div>
+                        <>
+                          {(process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") ? (
+                            <div className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                              route: {reviewQuestionResult.documentDiagnostic.inputRoute} • raw text: {reviewQuestionResult.documentDiagnostic.rawTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentDiagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentDiagnostic.methodologyRuleMatched ? "yes" : "no"} • recovery suppressed: {reviewQuestionResult.documentDiagnostic.methodologyRecoverySuppressedByDocumentQa ? "yes" : "no"}
                             </div>
-                          ))}
-                        </div>
+                          ) : null}
+                          {da.evidence.length > 0 ? (
+                            <div className="mt-3 space-y-2">
+                              {da.evidence.map((item, index) => (
+                                <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
+                                  <div className="text-[11px] text-sky-800">
+                                    {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
+                                  </div>
+                                  <div className="mt-1 text-sm leading-relaxed text-slate-700">{item.snippet}</div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                          {reviewQuestionResult.semanticEvidenceCandidates && reviewQuestionResult.semanticEvidenceCandidates.length > 0 ? (
+                            <div className="mt-3 space-y-2">
+                              {reviewQuestionResult.semanticEvidenceCandidates.map((candidate) => (
+                                <div key={`${candidate.blockId}:${candidate.quote}`} className="rounded-lg border border-violet-100 bg-violet-50/40 p-3">
+                                  <div className="text-[11px] text-violet-800">
+                                    {[candidate.heading, candidate.page ? `p. ${candidate.page}` : null, candidate.blockId].filter(Boolean).join(" • ")}
+                                  </div>
+                                  <div className="mt-1 text-sm leading-relaxed text-slate-700">{candidate.quote}</div>
+                                  <div className="mt-1 text-xs leading-relaxed text-slate-600">{candidate.reason}</div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                          {reviewQuestionResult.semanticEvidenceWarning ? (
+                            <div className="mt-3 text-xs leading-relaxed text-slate-500">
+                              {reviewQuestionResult.semanticEvidenceWarning}
+                            </div>
+                          ) : null}
+                        </>
                       );
                     })()}
-                    {reviewQuestionResult.semanticEvidenceCandidates && reviewQuestionResult.semanticEvidenceCandidates.length > 0 ? (
-                      <div className="mt-3 space-y-2">
-                        {reviewQuestionResult.semanticEvidenceCandidates.map((candidate) => (
-                          <div key={`${candidate.blockId}:${candidate.quote}`} className="rounded-lg border border-violet-100 bg-violet-50/40 p-3">
-                            <div className="text-[11px] text-violet-800">
-                              {[candidate.heading, candidate.page ? `p. ${candidate.page}` : null, candidate.blockId].filter(Boolean).join(" • ")}
-                            </div>
-                            <div className="mt-1 text-sm leading-relaxed text-slate-700">{candidate.quote}</div>
-                            <div className="mt-1 text-xs leading-relaxed text-slate-600">{candidate.reason}</div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-                    {reviewQuestionResult.semanticEvidenceWarning ? (
-                      <div className="mt-3 text-xs leading-relaxed text-slate-500">
-                        {reviewQuestionResult.semanticEvidenceWarning}
-                      </div>
-                    ) : null}
                   </div>
                   {reviewQuestionResult.reviewAreaReview ? (
                     <div className="mt-4 rounded-xl border border-emerald-200 bg-white/80 p-4">
@@ -2450,163 +2475,183 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </div>
                     </div>
                   )}
-                  <div className="mt-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — title matching)</div>
-                    <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Quick Check matches section titles using your question, with limited methodology-aware fallback for certain review areas.</p>
-                    {reviewQuestionResult.matchedHeadings.length > 0 ? (
-                      <div className="mt-3 space-y-2">
-                        {reviewQuestionResult.matchedHeadings.map((h) => {
-                          const isSelected = selectedHeading?.sectionNumber === h.sectionNumber;
-                          return (
-                            <button
-                              key={h.sectionNumber}
-                              type="button"
-                              onClick={() => handleHeadingClick(h)}
-                              className={`w-full rounded-xl border px-4 py-3 text-left transition ${isSelected ? "border-sky-400 bg-sky-100" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}
-                            >
-                              <div className="flex items-baseline gap-2">
-                                <span className="font-mono text-xs font-semibold text-sky-700">§{h.sectionNumber}</span>
-                                <span className="text-sm font-medium text-slate-900">{h.title}</span>
+                  {(() => {
+                    const da = reviewQuestionResult.documentAnswer;
+                    const isUnclearWeak = da.status === "unclear" && da.explanation.includes("does not directly address");
+
+                    const headingIndexContent = (
+                      <>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — title matching)</div>
+                        <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Quick Check matches section titles using your question, with limited methodology-aware fallback for certain review areas.</p>
+                        {reviewQuestionResult.matchedHeadings.length > 0 ? (
+                          <div className="mt-3 space-y-2">
+                            {reviewQuestionResult.matchedHeadings.map((h) => {
+                              const isSelected = selectedHeading?.sectionNumber === h.sectionNumber;
+                              return (
+                                <button
+                                  key={h.sectionNumber}
+                                  type="button"
+                                  onClick={() => handleHeadingClick(h)}
+                                  className={`w-full rounded-xl border px-4 py-3 text-left transition ${isSelected ? "border-sky-400 bg-sky-100" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}
+                                >
+                                  <div className="flex items-baseline gap-2">
+                                    <span className="font-mono text-xs font-semibold text-sky-700">§{h.sectionNumber}</span>
+                                    <span className="text-sm font-medium text-slate-900">{h.title}</span>
+                                  </div>
+                                  {h.bodyPreview ? (
+                                    <div className="mt-1.5 text-xs leading-relaxed text-slate-600 line-clamp-2">{h.bodyPreview}</div>
+                                  ) : null}
+                                  <div className="mt-1 text-[10px] text-slate-400">Click to select / copy reference</div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="mt-2 space-y-1">
+                            <div className="text-sm text-amber-700">
+                              No matching document section found.
+                            </div>
+                            {reviewQuestionResult.noMatchExplanation ? (
+                              <div className="text-xs leading-relaxed text-amber-800">
+                                {reviewQuestionResult.noMatchExplanation}
                               </div>
-                              {h.bodyPreview ? (
-                                <div className="mt-1.5 text-xs leading-relaxed text-slate-600 line-clamp-2">{h.bodyPreview}</div>
-                              ) : null}
-                              <div className="mt-1 text-[10px] text-slate-400">Click to select / copy reference</div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="mt-2 space-y-1">
-                        <div className="text-sm text-amber-700">
-                          No matching document section found.
-                        </div>
-                        {reviewQuestionResult.noMatchExplanation ? (
-                          <div className="text-xs leading-relaxed text-amber-800">
-                            {reviewQuestionResult.noMatchExplanation}
+                            ) : null}
+                          </div>
+                        )}
+
+                        {selectedHeading ? (
+                          <div className="mt-3 rounded-xl border border-sky-300 bg-white p-4">
+                            <div className="text-xs font-semibold text-sky-700">Selected: §{selectedHeading.sectionNumber} {selectedHeading.title}</div>
+                            <div className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-slate-700 border border-slate-100 bg-slate-50 p-2 rounded">
+                              {selectedHeading.bodyText || selectedHeading.bodyPreview}
+                            </div>
+                            <div className="mt-2 text-[10px] text-slate-500">Reference copied to clipboard. Use in full review for evidence citation.</div>
                           </div>
                         ) : null}
-                      </div>
-                    )}
 
-                    {selectedHeading ? (
-                      <div className="mt-3 rounded-xl border border-sky-300 bg-white p-4">
-                        <div className="text-xs font-semibold text-sky-700">Selected: §{selectedHeading.sectionNumber} {selectedHeading.title}</div>
-                        <div className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-slate-700 border border-slate-100 bg-slate-50 p-2 rounded">
-                          {selectedHeading.bodyText || selectedHeading.bodyPreview}
-                        </div>
-                        <div className="mt-2 text-[10px] text-slate-500">Reference copied to clipboard. Use in full review for evidence citation.</div>
-                      </div>
-                    ) : null}
-
-                    {reviewQuestionResult.matchedHeadings.length === 0 && reviewQuestionResult.headingIndex.length > 0 ? (
-                      <details className="mt-2 text-xs">
-                        <summary className="cursor-pointer text-slate-500">Show all {reviewQuestionResult.headingIndex.length} headings from document</summary>
-                        <div className="mt-2 grid gap-1">
-                          {reviewQuestionResult.headingIndex.slice(0, 12).map((h) => (
-                            <button key={h.sectionNumber} type="button" onClick={() => handleHeadingClick(h)} className="text-left text-[11px] text-slate-600 hover:text-sky-700 font-mono">§{h.sectionNumber} {h.title}</button>
-                          ))}
-                        </div>
-                      </details>
-                    ) : null}
-
-                    <p className="mt-2 text-xs text-slate-500">
-                      Open full review to inspect these sections against the full document and methodology.
-                    </p>
-                  {reviewQuestionResult.routingDiagnostic && showReviewRoutingDiagnostic ? (
-                    <details className="mt-3 text-xs">
-                      <summary className="cursor-pointer font-medium text-slate-500 hover:text-slate-700">
-                        Review routing diagnostic
-                      </summary>
-                      <div className="mt-2 rounded-lg border border-slate-200 bg-white p-3 text-[11px] leading-relaxed text-slate-600">
-                        <div><span className="font-semibold text-slate-500">Question: </span>{reviewQuestionResult.routingDiagnostic.inputReviewQuestion}</div>
-                        <div><span className="font-semibold text-slate-500">Review area: </span>{reviewQuestionResult.routingDiagnostic.classifiedReviewArea}</div>
-                        <div>
-                          <span className="font-semibold text-slate-500">Selected methodology: </span>
-                          {reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyId || "none"}
-                          {reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyVersion
-                            ? ` ${reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyVersion}`
-                            : ""}
-                        </div>
-                        <div className="mt-2">
-                          <div className="font-semibold text-slate-500">Candidate methodology headings found</div>
-                          {reviewQuestionResult.routingDiagnostic.candidateMethodologyHeadingsFound.length > 0 ? (
-                            <ul className="mt-1 list-disc pl-5">
-                              {reviewQuestionResult.routingDiagnostic.candidateMethodologyHeadingsFound.map((heading) => (
-                                <li key={`${heading.sectionNumber}:${heading.title}`} className="font-mono">
-                                  §{heading.sectionNumber} {heading.title}
-                                </li>
+                        {reviewQuestionResult.matchedHeadings.length === 0 && reviewQuestionResult.headingIndex.length > 0 ? (
+                          <details className="mt-2 text-xs">
+                            <summary className="cursor-pointer text-slate-500">Show all {reviewQuestionResult.headingIndex.length} headings from document</summary>
+                            <div className="mt-2 grid gap-1">
+                              {reviewQuestionResult.headingIndex.slice(0, 12).map((h) => (
+                                <button key={h.sectionNumber} type="button" onClick={() => handleHeadingClick(h)} className="text-left text-[11px] text-slate-600 hover:text-sky-700 font-mono">§{h.sectionNumber} {h.title}</button>
                               ))}
-                            </ul>
-                          ) : (
-                            <div className="mt-1">None</div>
-                          )}
-                        </div>
-                        <div className="mt-2">
-                          <div className="font-semibold text-slate-500">Final routing decision</div>
-                          {reviewQuestionResult.routingDiagnostic.finalMatch ? (
-                            <div className="mt-1 font-mono">
-                              {reviewQuestionResult.routingDiagnostic.finalMatch.matchStage}: §{reviewQuestionResult.routingDiagnostic.finalMatch.heading.sectionNumber} {reviewQuestionResult.routingDiagnostic.finalMatch.heading.title}
                             </div>
-                          ) : (
-                            <div className="mt-1">{reviewQuestionResult.routingDiagnostic.noMatchReason ?? "No match selected."}</div>
-                          )}
-                        </div>
-                      </div>
-                    </details>
-                  ) : null}
-                  {reviewQuestionResult.phase1Diagnostic && process.env.NODE_ENV !== "production" ? (
-                    <details className="mt-3" open>
-                      <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">
-                        Extraction diagnostic
-                      </summary>
-                      {reviewQuestionResult.phase1Diagnostic.sectionCandidates ? (
-                        <div className="mt-2 space-y-2">
-                          {Object.entries(reviewQuestionResult.phase1Diagnostic.sectionCandidates).map(([num, info]) => (
-                            <details key={num} className="rounded-lg border border-slate-200 bg-white text-[10px]">
-                              <summary className="cursor-pointer px-3 py-2 font-medium text-slate-700 hover:bg-slate-50">
-                                Section {num} — {info.selectedCandidate.includes("all") ? "⚠" : "✓"} {info.selectedCandidate.slice(0, 80)}
-                              </summary>
-                              <div className="border-t border-slate-100 px-3 py-2 text-slate-600">
-                                <div className="mb-1">
-                                  <span className="font-semibold text-slate-500">Reason: </span>
-                                  {info.selectedReason}
-                                </div>
-                                {info.allCandidateLines.length > 0 && (
-                                  <div className="mb-1">
-                                    <span className="font-semibold text-slate-500">Candidates ({info.allCandidateLines.length}):</span>
-                                    <ul className="ml-2 list-disc list-inside">
-                                      {info.allCandidateLines.map((line, idx) => (
-                                        <li key={idx} className="truncate font-mono">{line}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                                {info.rejectedCandidates.length > 0 && (
-                                  <div className="mb-1">
-                                    <span className="font-semibold text-slate-500">Rejected:</span>
-                                    <ul className="ml-2 list-disc list-inside">
-                                      {info.rejectedCandidates.map((reason, idx) => (
-                                        <li key={idx} className="truncate font-mono text-rose-600">{reason}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                                <div>
-                                  <span className="font-semibold text-slate-500">Body preview: </span>
-                                  <span className="font-mono">{info.sectionBodyPreview}</span>
-                                </div>
+                          </details>
+                        ) : null}
+
+                        <p className="mt-2 text-xs text-slate-500">
+                          Open full review to inspect these sections against the full document and methodology.
+                        </p>
+                        {reviewQuestionResult.routingDiagnostic && showReviewRoutingDiagnostic ? (
+                          <details className="mt-3 text-xs">
+                            <summary className="cursor-pointer font-medium text-slate-500 hover:text-slate-700">
+                              Review routing diagnostic
+                            </summary>
+                            <div className="mt-2 rounded-lg border border-slate-200 bg-white p-3 text-[11px] leading-relaxed text-slate-600">
+                              <div><span className="font-semibold text-slate-500">Question: </span>{reviewQuestionResult.routingDiagnostic.inputReviewQuestion}</div>
+                              <div><span className="font-semibold text-slate-500">Review area: </span>{reviewQuestionResult.routingDiagnostic.classifiedReviewArea}</div>
+                              <div>
+                                <span className="font-semibold text-slate-500">Selected methodology: </span>
+                                {reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyId || "none"}
+                                {reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyVersion
+                                  ? ` ${reviewQuestionResult.routingDiagnostic.selectedMethodology.methodologyVersion}`
+                                  : ""}
                               </div>
-                            </details>
-                          ))}
-                        </div>
-                      ) : null}
-                      <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-[10px] leading-relaxed text-slate-600">
-                        {JSON.stringify(reviewQuestionResult.phase1Diagnostic, null, 2)}
-                      </pre>
-                    </details>
-                  ) : null}
-                  </div>
+                              <div className="mt-2">
+                                <div className="font-semibold text-slate-500">Candidate methodology headings found</div>
+                                {reviewQuestionResult.routingDiagnostic.candidateMethodologyHeadingsFound.length > 0 ? (
+                                  <ul className="mt-1 list-disc pl-5">
+                                    {reviewQuestionResult.routingDiagnostic.candidateMethodologyHeadingsFound.map((heading) => (
+                                      <li key={`${heading.sectionNumber}:${heading.title}`} className="font-mono">
+                                        §{heading.sectionNumber} {heading.title}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <div className="mt-1">None</div>
+                                )}
+                              </div>
+                              <div className="mt-2">
+                                <div className="font-semibold text-slate-500">Final routing decision</div>
+                                {reviewQuestionResult.routingDiagnostic.finalMatch ? (
+                                  <div className="mt-1 font-mono">
+                                    {reviewQuestionResult.routingDiagnostic.finalMatch.matchStage}: §{reviewQuestionResult.routingDiagnostic.finalMatch.heading.sectionNumber} {reviewQuestionResult.routingDiagnostic.finalMatch.heading.title}
+                                  </div>
+                                ) : (
+                                  <div className="mt-1">{reviewQuestionResult.routingDiagnostic.noMatchReason ?? "No match selected."}</div>
+                                )}
+                              </div>
+                            </div>
+                          </details>
+                        ) : null}
+                        {reviewQuestionResult.phase1Diagnostic && process.env.NODE_ENV !== "production" ? (
+                          <details className="mt-3" open>
+                            <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700">
+                              Extraction diagnostic
+                            </summary>
+                            {reviewQuestionResult.phase1Diagnostic.sectionCandidates ? (
+                              <div className="mt-2 space-y-2">
+                                {Object.entries(reviewQuestionResult.phase1Diagnostic.sectionCandidates).map(([num, info]) => (
+                                  <details key={num} className="rounded-lg border border-slate-200 bg-white text-[10px]">
+                                    <summary className="cursor-pointer px-3 py-2 font-medium text-slate-700 hover:bg-slate-50">
+                                      Section {num} — {info.selectedCandidate.includes("all") ? "⚠" : "✓"} {info.selectedCandidate.slice(0, 80)}
+                                    </summary>
+                                    <div className="border-t border-slate-100 px-3 py-2 text-slate-600">
+                                      <div className="mb-1">
+                                        <span className="font-semibold text-slate-500">Reason: </span>
+                                        {info.selectedReason}
+                                      </div>
+                                      {info.allCandidateLines.length > 0 && (
+                                        <div className="mb-1">
+                                          <span className="font-semibold text-slate-500">Candidates ({info.allCandidateLines.length}):</span>
+                                          <ul className="ml-2 list-disc list-inside">
+                                            {info.allCandidateLines.map((line, idx) => (
+                                              <li key={idx} className="truncate font-mono">{line}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      {info.rejectedCandidates.length > 0 && (
+                                        <div className="mb-1">
+                                          <span className="font-semibold text-slate-500">Rejected:</span>
+                                          <ul className="ml-2 list-disc list-inside">
+                                            {info.rejectedCandidates.map((reason, idx) => (
+                                              <li key={idx} className="truncate font-mono text-rose-600">{reason}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      <div>
+                                        <span className="font-semibold text-slate-500">Body preview: </span>
+                                        <span className="font-mono">{info.sectionBodyPreview}</span>
+                                      </div>
+                                    </div>
+                                  </details>
+                                ))}
+                              </div>
+                            ) : null}
+                            <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-[10px] leading-relaxed text-slate-600">
+                              {JSON.stringify(reviewQuestionResult.phase1Diagnostic, null, 2)}
+                            </pre>
+                          </details>
+                        ) : null}
+                      </>
+                    );
+
+                    if (isUnclearWeak) {
+                      return (
+                        <details className="mt-4">
+                          <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700 select-none">Technical details</summary>
+                          <div className="mt-3 space-y-3">
+                            {headingIndexContent}
+                          </div>
+                        </details>
+                      );
+                    }
+
+                    return <div className="mt-4">{headingIndexContent}</div>;
+                  })()}
                   <div className="mt-5 flex flex-wrap gap-2">
                     <button
                       type="button"
