@@ -2362,14 +2362,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                         );
                       }
 
-                      // Non-unclear: show route diagnostic, evidence inline, semantic evidence inline
+                      // Non-unclear: show evidence inline, technical details collapsed
+                      const routeDiagVisible = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+                      const hasSemanticCandidates = reviewQuestionResult.semanticEvidenceCandidates && reviewQuestionResult.semanticEvidenceCandidates.length > 0;
+                      const hasTechnicalContent = routeDiagVisible || hasSemanticCandidates || reviewQuestionResult.semanticEvidenceWarning;
+
                       return (
                         <>
-                          {(process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") ? (
-                            <div className="mt-2 text-[11px] leading-relaxed text-slate-500">
-                              route: {reviewQuestionResult.documentDiagnostic.inputRoute} • raw text: {reviewQuestionResult.documentDiagnostic.rawTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentDiagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentDiagnostic.methodologyRuleMatched ? "yes" : "no"} • recovery suppressed: {reviewQuestionResult.documentDiagnostic.methodologyRecoverySuppressedByDocumentQa ? "yes" : "no"}
-                            </div>
-                          ) : null}
                           {da.evidence.length > 0 ? (
                             <div className="mt-3 space-y-2">
                               {da.evidence.map((item, index) => (
@@ -2382,23 +2381,35 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               ))}
                             </div>
                           ) : null}
-                          {reviewQuestionResult.semanticEvidenceCandidates && reviewQuestionResult.semanticEvidenceCandidates.length > 0 ? (
-                            <div className="mt-3 space-y-2">
-                              {reviewQuestionResult.semanticEvidenceCandidates.map((candidate) => (
-                                <div key={`${candidate.blockId}:${candidate.quote}`} className="rounded-lg border border-violet-100 bg-violet-50/40 p-3">
-                                  <div className="text-[11px] text-violet-800">
-                                    {[candidate.heading, candidate.page ? `p. ${candidate.page}` : null, candidate.blockId].filter(Boolean).join(" • ")}
+                          {hasTechnicalContent ? (
+                            <details className="mt-2">
+                              <summary className="text-xs font-medium text-slate-400 cursor-pointer hover:text-slate-600 select-none">Technical details</summary>
+                              <div className="mt-2 space-y-3">
+                                {routeDiagVisible ? (
+                                  <div className="text-[11px] leading-relaxed text-slate-500">
+                                    route: {reviewQuestionResult.documentDiagnostic.inputRoute} • raw text: {reviewQuestionResult.documentDiagnostic.rawTextAvailable ? "available" : "unavailable"} • evidence: {reviewQuestionResult.documentDiagnostic.documentEvidenceCount} • methodology matched: {reviewQuestionResult.documentDiagnostic.methodologyRuleMatched ? "yes" : "no"} • recovery suppressed: {reviewQuestionResult.documentDiagnostic.methodologyRecoverySuppressedByDocumentQa ? "yes" : "no"}
                                   </div>
-                                  <div className="mt-1 text-sm leading-relaxed text-slate-700">{candidate.quote}</div>
-                                  <div className="mt-1 text-xs leading-relaxed text-slate-600">{candidate.reason}</div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : null}
-                          {reviewQuestionResult.semanticEvidenceWarning ? (
-                            <div className="mt-3 text-xs leading-relaxed text-slate-500">
-                              {reviewQuestionResult.semanticEvidenceWarning}
-                            </div>
+                                ) : null}
+                                {hasSemanticCandidates ? (
+                                  <div className="space-y-2">
+                                    {reviewQuestionResult.semanticEvidenceCandidates!.map((candidate) => (
+                                      <div key={`${candidate.blockId}:${candidate.quote}`} className="rounded-lg border border-violet-100 bg-violet-50/40 p-3">
+                                        <div className="text-[11px] text-violet-800">
+                                          {[candidate.heading, candidate.page ? `p. ${candidate.page}` : null, candidate.blockId].filter(Boolean).join(" • ")}
+                                        </div>
+                                        <div className="mt-1 text-sm leading-relaxed text-slate-700">{candidate.quote}</div>
+                                        <div className="mt-1 text-xs leading-relaxed text-slate-600">{candidate.reason}</div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : null}
+                                {reviewQuestionResult.semanticEvidenceWarning ? (
+                                  <div className="text-xs leading-relaxed text-slate-500">
+                                    {reviewQuestionResult.semanticEvidenceWarning}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </details>
                           ) : null}
                         </>
                       );
@@ -2477,15 +2488,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   )}
                   {(() => {
                     const da = reviewQuestionResult.documentAnswer;
-                    const isUnclearWeak = da.status === "unclear" && da.explanation.includes("does not directly address");
+                    const evidenceSectionNumbers = new Set(da.evidence.map((e) => e.sectionNumber).filter(Boolean));
+                    const filteredHeadings = reviewQuestionResult.matchedHeadings.filter((h) => !evidenceSectionNumbers.has(h.sectionNumber));
 
                     const headingIndexContent = (
                       <>
                         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Document heading index (Phase 1 — title matching)</div>
                         <p className="mt-1 text-xs text-slate-500">Headings extracted from uploaded PDD. Quick Check matches section titles using your question, with limited methodology-aware fallback for certain review areas.</p>
-                        {reviewQuestionResult.matchedHeadings.length > 0 ? (
+                        {filteredHeadings.length > 0 ? (
                           <div className="mt-3 space-y-2">
-                            {reviewQuestionResult.matchedHeadings.map((h) => {
+                            {filteredHeadings.map((h) => {
                               const isSelected = selectedHeading?.sectionNumber === h.sectionNumber;
                               return (
                                 <button
@@ -2529,7 +2541,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           </div>
                         ) : null}
 
-                        {reviewQuestionResult.matchedHeadings.length === 0 && reviewQuestionResult.headingIndex.length > 0 ? (
+                        {filteredHeadings.length === 0 && reviewQuestionResult.headingIndex.length > 0 ? (
                           <details className="mt-2 text-xs">
                             <summary className="cursor-pointer text-slate-500">Show all {reviewQuestionResult.headingIndex.length} headings from document</summary>
                             <div className="mt-2 grid gap-1">
@@ -2639,18 +2651,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       </>
                     );
 
-                    if (isUnclearWeak) {
-                      return (
-                        <details className="mt-4">
-                          <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700 select-none">Technical details</summary>
-                          <div className="mt-3 space-y-3">
-                            {headingIndexContent}
-                          </div>
-                        </details>
-                      );
-                    }
-
-                    return <div className="mt-4">{headingIndexContent}</div>;
+                    return (
+                      <details className="mt-4">
+                        <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700 select-none">Technical details</summary>
+                        <div className="mt-3 space-y-3">
+                          {headingIndexContent}
+                        </div>
+                      </details>
+                    );
                   })()}
                   <div className="mt-5 flex flex-wrap gap-2">
                     <button
