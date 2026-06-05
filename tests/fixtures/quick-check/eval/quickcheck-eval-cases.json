@@ -324,6 +324,76 @@
         "explanationContains": "The retrieved document evidence does not directly address the question.",
         "evidenceCountMin": 1
       }
+    },
+    {
+      "id": "leakage_prove_market_zero_weak",
+      "fixture": "leakage-prove-weak.txt",
+      "input": {
+        "claimText": "Does the leakage section prove that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "high-burden wording",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "leakage_prove_market_zero_strong",
+      "fixture": "leakage-prove-strong.txt",
+      "input": {
+        "claimText": "Does the leakage section prove that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "justification",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "describe_leakage_likely_yes",
+      "fixture": "leakage-semantic.txt",
+      "input": {
+        "claimText": "Does this PDD describe leakage?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "say_market_leakage_zero_likely_yes",
+      "fixture": "leakage-prove-weak.txt",
+      "input": {
+        "claimText": "Does the leakage section say that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence relevant to the question.",
+        "evidenceCountMin": 1
+      }
+    },
+    {
+      "id": "leakage_prove_heading_looks_like_justification_but_snippet_asserts_only",
+      "fixture": "leakage-prove-heading-only.txt",
+      "input": {
+        "claimText": "Does the leakage section prove that market leakage is zero?",
+        "methodologyId": "VM0007",
+        "methodologyVersion": "1.0"
+      },
+      "expected": {
+        "status": "unclear",
+        "explanationContains": "high-burden wording",
+        "evidenceCountMin": 1
+      }
     }
   ]
 }
