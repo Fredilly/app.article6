@@ -1,0 +1,3 @@
+3.3  Leakage
+Leakage from market effects is treated as zero.
+Market leakage for this project activity is zero.

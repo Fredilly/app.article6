@@ -17,6 +17,49 @@ import type { ReviewQuestionEvaluationResult } from "@/lib/quickCheck/evaluation
 const MAX_EVIDENCE_ITEMS = 3;
 const MAX_SNIPPET_CHARS = 280;
 
+const HIGH_BURDEN_TERMS = [
+  "prove", "proved", "proven", "proves", "proving",
+  "confirm", "confirmed", "confirms", "confirming", "confirmation",
+  "justify", "justified", "justifies", "justifying", "justification",
+  "validate", "validated", "validates", "validating", "validation",
+  "sufficient evidence",
+  "enough evidence",
+];
+
+const JUSTIFICATION_PATTERNS = [
+  /\bbecause\b/i,
+  /\btherefore\b/i,
+  /\bbased on\b/i,
+  /\bcalculated\b/i,
+  /\bestimated\b/i,
+  /\bderived\b/i,
+  /\bdue to\b/i,
+  /\bdemonstrat\w+\b/i,
+  /\bjustif\w+\b/i,
+  /\brationale\b/i,
+  /\banalysis\b/i,
+  /\bassessment\b/i,
+  /\bassum\w+\b/i,
+  /\b\d+(?:\.\d+)?%/,
+  /\bmodule\b/i,
+  /\bequation\b/i,
+  /\bformula\b/i,
+  /\bmethodolog\w+\b/i,
+];
+
+function isHighBurdenQuestion(claimText: string): boolean {
+  const lower = claimText.toLowerCase();
+  return HIGH_BURDEN_TERMS.some((term) => {
+    if (term.includes(" ")) return lower.includes(term);
+    return new RegExp(`\\b${term}\\b`).test(lower);
+  });
+}
+
+function hasJustificationEvidence(evidence: DocumentAnswerEvidence[]): boolean {
+  const text = evidence.map((e) => `${e.snippet || ""} ${e.heading || ""}`).join(" ");
+  return JUSTIFICATION_PATTERNS.some((pattern) => pattern.test(text));
+}
+
 function normalizeText(value: string): string {
   return value.toLowerCase().replace(/[^\w\s.-]/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -39,7 +82,10 @@ function keywordizeClaim(claimText: string): string[] {
         "support", "include", "provide", "demonstrate", "define", "disclose",
         "address", "discuss", "mention", "outline", "summarize", "present",
         "relate", "involve", "cover", "detail", "contain", "regard", "concern",
-        "about", "regarding",
+        "about", "regarding", "prove", "proved", "proven", "proving",
+        "confirm", "confirmed", "confirms", "confirming",
+        "justify", "justified", "justifies", "justifying",
+        "validate", "validated", "validates", "validating",
       ]).has(token)),
   )];
 }
@@ -197,15 +243,19 @@ function deriveAnswerStatus(input: {
   evaluation: ReviewQuestionEvaluationResult;
   result: ReviewQuestionRetrievalResult;
   directlyRelevant?: boolean;
+  highBurden?: boolean;
+  justificationEvidence?: boolean;
 }): DocumentQuestionAnswer["status"] {
   const verdict = input.evaluation.reviewAreaReview?.verdict ?? input.evaluation.baselineReview?.verdict;
   const relevant = input.directlyRelevant ?? true;
   if (verdict === "supported") {
+    if (input.highBurden && !input.justificationEvidence) return "unclear";
     return relevant ? "likely_yes" : "unclear";
   }
   if (verdict === "partial") return "unclear";
   if (verdict === "missing" && input.evidence.length > 0) return "likely_no";
   if (input.result.matchedHeadings.length > 0 || input.evidence.length >= 2) {
+    if (input.highBurden && !input.justificationEvidence) return "unclear";
     return relevant ? "likely_yes" : "unclear";
   }
   if (input.evidence.length === 1) return "unclear";
@@ -238,15 +288,27 @@ export function buildDocumentQuestionAnswer(input: {
   const specificTerms = getSpecificClaimTerms(input.claimText, input.retrieval.reviewArea);
   const directlyRelevant = specificTerms.length === 0 || hasDirectSemanticSupport(evidence, specificTerms);
 
+  const highBurden = isHighBurdenQuestion(input.claimText);
+  const justificationEvidence = highBurden && hasJustificationEvidence(evidence);
+
   const status = deriveAnswerStatus({
     evidence,
     evaluation: input.evaluation,
     result: input.retrieval,
     directlyRelevant,
+    highBurden,
+    justificationEvidence,
   });
 
   const methodologyRuleMatched = Boolean(input.evaluation.reviewAreaReview);
   const rawPddTextAvailable = Boolean(input.rawPddText?.trim());
+
+  const highBurdenExplanation = evidence.length > 0 && directlyRelevant && highBurden
+    ? justificationEvidence
+      ? "Quick Check found document-grounded evidence with supporting justification relevant to the question."
+      : "The question uses high-burden wording and the retrieved evidence does not include supporting justification."
+    : null;
+
   return {
     status,
     methodologyRuleMatched,
@@ -257,13 +319,14 @@ export function buildDocumentQuestionAnswer(input: {
         : rawPddTextAvailable
           ? "No methodology rule was confidently matched, and Quick Check could not recover relevant document evidence from the uploaded text."
           : "No methodology rule was confidently matched, and parsed document text was unavailable for document-first review.",
-    explanation: evidence.length > 0
-      ? directlyRelevant
-        ? "Quick Check found document-grounded evidence relevant to the question."
-        : "The retrieved document evidence does not directly address the question."
-      : rawPddTextAvailable
-        ? "Quick Check could not recover useful document-grounded evidence for this question from the uploaded file."
-        : "Quick Check could not run the document-first evidence search because parsed document text was unavailable.",
+    explanation: highBurdenExplanation
+      ?? (evidence.length > 0
+        ? directlyRelevant
+          ? "Quick Check found document-grounded evidence relevant to the question."
+          : "The retrieved document evidence does not directly address the question."
+        : rawPddTextAvailable
+          ? "Quick Check could not recover useful document-grounded evidence for this question from the uploaded file."
+          : "Quick Check could not run the document-first evidence search because parsed document text was unavailable."),
     evidence,
     diagnostic: {
       reviewQuestionRoutingFired: true,
