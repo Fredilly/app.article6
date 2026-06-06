@@ -1,0 +1,187 @@
+{
+  "fixtures": [
+    {
+      "id": "real-cdm",
+      "fixturePath": "tests/fixtures/quick-check/bsp-nepal-activity3-cdm-excerpt.txt",
+      "kind": "text",
+      "expectedDocumentFamily": "CDM_PDD",
+      "expectedPromotedFacts": {
+        "projectTitle": "Biogas Support Program - Nepal Activity-3",
+        "hostCountry": "Nepal",
+        "projectCountry": "Nepal",
+        "methodologyPrimary": "AMS-I.E. Switch from non-renewable biomass for thermal applications by the user",
+        "creditingPeriod": "13 Dec 2011 - 12 Dec 2018",
+        "baselineSections": ["Baseline scenario"],
+        "monitoringSections": ["Monitoring methodology and plan"],
+        "leakageSections": ["Leakage"],
+        "additionalitySections": ["Demonstration of additionality"]
+      },
+      "expectedNullFacts": [
+        "reportingPeriod",
+        "monitoringPeriod"
+      ],
+      "expectedWarnings": {
+        "contractExcludes": [
+          "Conflicting values detected"
+        ]
+      },
+      "provenanceRequired": true,
+      "notes": "Compact CDM excerpt with deterministic title, host country, methodology, crediting period, and section evidence."
+    },
+    {
+      "id": "more-real-plum",
+      "fixturePath": "tests/fixtures/quick-check/plum-pdd-extracted.txt",
+      "kind": "text",
+      "expectedDocumentFamily": "VERRA_PD",
+      "expectedPromotedFacts": {
+        "methodologyPrimary": "VM0007",
+        "monitoringSections": ["Monitoring"]
+      },
+      "expectedNullFacts": [
+        "projectTitle",
+        "hostCountry",
+        "projectCountry",
+        "projectProponent",
+        "creditingPeriod",
+        "reportingPeriod",
+        "monitoringPeriod",
+        "baselineSections",
+        "leakageSections",
+        "additionalitySections"
+      ],
+      "expectedWarnings": {
+        "contractIncludes": [
+          "Project country was not deterministically derivable.",
+          "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+        ],
+        "fieldIncludes": {
+          "projectTitle": [
+            "Conflicting values detected: PLUM Project | Section 3.3"
+          ]
+        }
+      },
+      "provenanceRequired": true,
+      "notes": "Noisy Verra/VCS extract should stay conservative on title while still promoting methodology and monitoring provenance."
+    },
+    {
+      "id": "more-real-envira",
+      "fixturePath": "tests/fixtures/quick-check/envira-amazonia-vm0007-extracted.txt",
+      "kind": "text",
+      "expectedDocumentFamily": "REDD_AFOLU",
+      "expectedPromotedFacts": {
+        "projectTitle": "Envira Amazonia REDD+ Project",
+        "methodologyPrimary": "VM0007 Version 4.2",
+        "monitoringSections": ["Monitoring Plan"],
+        "leakageSections": ["Leakage"]
+      },
+      "expectedNullFacts": [
+        "hostCountry",
+        "projectCountry",
+        "projectProponent",
+        "creditingPeriod",
+        "reportingPeriod",
+        "monitoringPeriod",
+        "baselineSections",
+        "additionalitySections"
+      ],
+      "expectedWarnings": {
+        "contractIncludes": [
+          "Project country was not deterministically derivable.",
+          "Methodology inferred from a top-of-document code reference because no explicit methodology label was found.",
+          "No baseline sections were found.",
+          "No additionality sections were found."
+        ]
+      },
+      "provenanceRequired": true,
+      "notes": "Second REDD/AFOLU real document with stable title/methodology and explicit missing-section warnings."
+    },
+    {
+      "id": "more-real-ccb1530",
+      "fixturePath": "tests/fixtures/projects/ccb1530-appendix1-pages.json",
+      "kind": "json-pages",
+      "expectedDocumentFamily": "REDD_AFOLU",
+      "expectedPromotedFacts": {},
+      "expectedNullFacts": [
+        "projectTitle",
+        "hostCountry",
+        "projectCountry",
+        "projectProponent",
+        "methodologyPrimary",
+        "creditingPeriod",
+        "reportingPeriod",
+        "monitoringPeriod",
+        "baselineSections",
+        "monitoringSections",
+        "leakageSections",
+        "additionalitySections"
+      ],
+      "expectedWarnings": {
+        "contractIncludes": [
+          "No deterministic evidence found.",
+          "Project country was not deterministically derivable."
+        ],
+        "fieldIncludes": {
+          "projectTitle": [
+            "Conflicting values detected: or removals | Net GHG"
+          ]
+        }
+      },
+      "expectedFieldMetadata": {
+        "projectTitle": {
+          "evidenceSpanIdsMin": 2,
+          "pageNumbers": [1]
+        }
+      },
+      "expectedQuality": {
+        "pageCountMin": 2,
+        "headersFootersDetected": true,
+        "tableHeavyWarning": true,
+        "warningsInclude": [
+          "Repeated headers or footers detected across pages.",
+          "Document appears table-heavy; extraction may need table-aware handling."
+        ]
+      },
+      "provenanceRequired": true,
+      "notes": "Table-heavy appendix should remain conservative while preserving conflict provenance and intake quality warnings."
+    },
+    {
+      "id": "more-real-weak",
+      "fixturePath": "tests/fixtures/quick-check/weak-unknown-fallback.txt",
+      "kind": "text",
+      "expectedDocumentFamily": "UNKNOWN",
+      "expectedPromotedFacts": {},
+      "expectedNullFacts": [
+        "projectTitle",
+        "hostCountry",
+        "projectCountry",
+        "projectProponent",
+        "methodologyPrimary",
+        "creditingPeriod",
+        "reportingPeriod",
+        "monitoringPeriod",
+        "baselineSections",
+        "monitoringSections",
+        "leakageSections",
+        "additionalitySections"
+      ],
+      "expectedWarnings": {
+        "contractIncludes": [
+          "Project country was not deterministically derivable.",
+          "Document family did not map to a deterministic project standard.",
+          "No monitoring sections were found."
+        ],
+        "fieldIncludes": {
+          "projectTitle": [
+            "Conflicting values detected: Document upload | This file contains administrative notes and an appendix list. | No formal review sections are identified in the recovered text."
+          ]
+        }
+      },
+      "expectedQuality": {
+        "pageCount": 1,
+        "textDensityMax": 0.2
+      },
+      "provenanceRequired": true,
+      "notes": "Weak generic upload should stay UNKNOWN and keep all core facts unclear."
+    }
+  ]
+}
