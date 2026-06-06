@@ -27,6 +27,9 @@ describe("buildArticle6DocumentModel", () => {
 
     expect(model.parserAdapterId).toBe("current-extractor");
     expect(model.source).toBe("current-extractor");
+    expect(model.documentFamily.family).toBe("UNKNOWN");
+    expect(model.documentFamily.confidence).toBeGreaterThan(0);
+    expect(model.qualityReport.pageCount).toBe(1);
     expect(model.rawText).toBe(NESTED_PDD_TEXT);
     expect(model.cleanText).toContain("4.3 Monitoring Plan");
     expect(model.matchingText).toContain("monitoring plan");
@@ -84,6 +87,14 @@ describe("buildArticle6DocumentModel", () => {
         qualityReport: {
           parserName: "test-parser",
           warnings: ["heuristic fallback used"],
+          sourceContentMode: "unknown",
+          pageCount: 1,
+          textDensity: 0.04,
+          ocrConfidence: undefined,
+          tableHeavyWarning: false,
+          layoutHeavyWarning: false,
+          headersFootersDetected: false,
+          weakExtractionWarning: true,
           hasStructuredHeadings: false,
           hasPageBoundaries: false,
           hasBoundingBoxes: false,
@@ -167,5 +178,6 @@ describe("buildArticle6DocumentModel", () => {
     }));
     expect(model.blocks.some((block) => block.pageNumber === 2)).toBe(true);
     expect(model.blocks.some((block) => block.sourceRefs.some((ref) => ref.pageNumber === 2))).toBe(true);
+    expect(model.qualityReport.pageCount).toBe(2);
   });
 });

@@ -3,6 +3,7 @@ import {
   debugSectionExtraction,
   extractPddSections,
 } from "@/lib/chat/quickCheckSectionExtractor";
+import { buildDocumentQualityReport } from "@/lib/documentClassification";
 import type {
   ParseDocumentTextInput,
   ParsedDocument,
@@ -162,14 +163,13 @@ export const currentExtractorAdapter: ParserAdapter = {
       ...page,
       elements: elements.filter((element) => element.pageNumber === page.pageNumber),
     }));
-    const warnings = rawText.trim() ? [] : [];
     const diagnostics = rawText.trim()
       ? {
           metadata: debugSectionExtraction(rawText),
         }
       : undefined;
 
-    return {
+    const parsedDocumentBase: ParsedDocument = {
       adapterId: "current-extractor",
       source: parserName,
       rawText,
@@ -180,8 +180,16 @@ export const currentExtractorAdapter: ParserAdapter = {
       parserName,
       qualityReport: {
         parserName,
-        warnings,
+        warnings: rawText.trim() ? [] : ["Parsed document text is empty."],
         metadata: diagnostics?.metadata,
+        sourceContentMode: "unknown",
+        pageCount: pages.length || 1,
+        textDensity: 0,
+        ocrConfidence: undefined,
+        tableHeavyWarning: false,
+        layoutHeavyWarning: false,
+        headersFootersDetected: false,
+        weakExtractionWarning: false,
         hasStructuredHeadings: headings.length > 0,
         hasPageBoundaries: pages.length > 1,
         hasBoundingBoxes: false,
@@ -192,6 +200,11 @@ export const currentExtractorAdapter: ParserAdapter = {
       diagnostics,
       sectionsByNumber,
       headingIndex,
+    };
+
+    return {
+      ...parsedDocumentBase,
+      qualityReport: buildDocumentQualityReport(parsedDocumentBase),
     };
   },
 };

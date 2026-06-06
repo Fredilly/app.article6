@@ -243,15 +243,18 @@ function buildSpanId(docId: string, page: number | null, charStart: number, bloc
   return [safeDocId, `p${page ?? 0}`, blockType, `${charStart}`].join(":");
 }
 
-function mapDocumentStructureBlockType(type: DocumentStructure["blocks"][number]["type"]): EvidenceBlockType {
+function mapDocumentStructureBlockType(
+  type: DocumentStructure["blocks"][number]["type"],
+): EvidenceBlockType | null {
   switch (type) {
     case "heading":
       return "section_heading";
     case "paragraph":
       return "paragraph";
     case "unknown":
+      return null;
     default:
-      return "paragraph";
+      return null;
   }
 }
 
@@ -294,8 +297,11 @@ export function compileEvidenceDocumentFromStructure(input: {
 }): EvidenceDocument {
   const rawText = normalizeNewlines(input.documentStructure.rawText ?? "");
   let cursor = 0;
-  const spans: EvidenceSpan[] = input.documentStructure.blocks.map((block) => {
+  const spans: EvidenceSpan[] = input.documentStructure.blocks.flatMap((block) => {
     const blockType = mapDocumentStructureBlockType(block.type);
+    if (!blockType) {
+      return [];
+    }
     const charStart = findCharStart(rawText, block.rawText, cursor);
     const charEnd = charStart + block.rawText.length;
     cursor = charEnd;
@@ -304,7 +310,7 @@ export function compileEvidenceDocumentFromStructure(input: {
       ? input.documentStructure.sections.find((candidate) => candidate.id === block.sectionId)
       : undefined;
 
-    return {
+    return [{
       spanId: buildSpanId(input.docId, block.pageNumber ?? null, charStart, blockType),
       docId: input.docId,
       page: block.pageNumber ?? null,
@@ -316,7 +322,7 @@ export function compileEvidenceDocumentFromStructure(input: {
       charStart,
       charEnd,
       confidence: block.confidence,
-    };
+    }];
   });
 
   return {

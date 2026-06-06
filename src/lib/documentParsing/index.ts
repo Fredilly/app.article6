@@ -44,4 +44,5 @@ export function parseDocumentText(
   return getDocumentParserAdapter(adapterId).parseText(input);
 }
 
+export * from "@/lib/documentClassification";
 export * from "@/lib/documentParsing/types";
