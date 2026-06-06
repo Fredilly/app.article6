@@ -49,12 +49,20 @@ function detectTableHeavyWarning(parsedDocument: ParsedDocument): boolean {
   const tableElements = parsedDocument.elements.filter((element) => element.elementType === "table").length;
   if (tableElements >= 3) return true;
 
-  const tableLikeLines = parsedDocument.rawText
+  const lines = parsedDocument.rawText
     .split("\n")
     .map((line) => line.trim())
-    .filter((line) => /\|/.test(line) || /\S(?:\s{2,}|\t)\S/.test(line));
+    .filter(Boolean);
+  const tableLikeLines = lines.filter((line) => /\|/.test(line) || /\S(?:\s{2,}|\t)\S/.test(line));
+  const numericMatrixLines = lines.filter((line) => (
+    /^(?:\d{4}|total)\b.*(?:-\s+\d[\d.,]*){2,}/i.test(line)
+    || (line.match(/\b\d[\d.,]*\b/g)?.length ?? 0) >= 4
+  ));
 
-  return tableLikeLines.length >= Math.max(4, parsedDocument.pages.length * 2);
+  return (
+    tableLikeLines.length >= Math.max(4, parsedDocument.pages.length * 2)
+    || numericMatrixLines.length >= Math.max(3, Math.ceil(parsedDocument.pages.length / 3))
+  );
 }
 
 function detectWeakExtractionWarning(parsedDocument: ParsedDocument, qualityReport: DocumentQualityReport): boolean {

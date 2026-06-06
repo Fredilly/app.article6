@@ -8,6 +8,7 @@ import type {
   ParseDocumentTextInput,
   ParsedDocument,
   ParsedElement,
+  ParsedElementType,
   ParsedPage,
   ParserAdapter,
 } from "@/lib/documentParsing/types";
@@ -85,6 +86,116 @@ function findSequentialOffset(haystack: string, needle: string, fromIndex: numbe
   return fromIndex;
 }
 
+const TITLE_LABEL_RE = /^(?:project description(?: document| \/ pd)?|project document|table of contents|contents)$/i;
+const STANDALONE_METHOD_LABEL_RE =
+  /^(?:title and reference of methodology applied|methodology applied|applied methodology|approved methodology|applied baseline methodology)$/i;
+const PAGE_MARKER_RE = /^page\s+\d+(?:\s+of\s+\d+)?$/i;
+const SECTION_HEADING_LINE_RE = /^\s*(?:(?:[A-Z]\.)?\d+(?:\.\d+)*|annex\s+[A-Z0-9]+|appendix\s+[A-Z0-9]+)\s*[.:)]?\s+\S/i;
+const FIELD_LIKE_LINE_RE = /^[A-Z][A-Za-z0-9/ (),.+-]{1,80}:\s+\S/;
+
+function introLineElementType(line: string): ParsedElementType {
+  const trimmed = line.trim();
+  if (!trimmed) return "unknown";
+  if (TITLE_LABEL_RE.test(trimmed)) return "paragraph";
+  if (PAGE_MARKER_RE.test(trimmed)) return "paragraph";
+  if (FIELD_LIKE_LINE_RE.test(trimmed)) return "paragraph";
+  if (/^(?:verra|vcs|ccb|gold standard|clean development mechanism)\b/i.test(trimmed)) return "paragraph";
+  if (/^v(?:ersion)?\s*\d/i.test(trimmed) || /^vm\d{4}\b/i.test(trimmed)) return "paragraph";
+  if (/^\d+(?:\s+of\s+\d+)?$/.test(trimmed) || /^--\s*\d+\s+of\s+\d+\s*--$/.test(trimmed)) return "paragraph";
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  if (trimmed.length <= 140 && wordCount >= 2 && !STANDALONE_METHOD_LABEL_RE.test(trimmed)) return "heading";
+  return "paragraph";
+}
+
+type IntroLine = {
+  text: string;
+  charStart: number;
+  charEnd: number;
+};
+
+function collectIntroLines(rawText: string, headingIndex: ReturnType<typeof buildPddHeadingIndex>): IntroLine[] {
+  if (!rawText.trim()) return [];
+  let introEnd = rawText.length;
+  if (headingIndex.length > 0) {
+    const headingOffsets = headingIndex
+      .map((heading) => rawText.indexOf(heading.title))
+      .filter((offset) => offset >= 0);
+    if (headingOffsets.length > 0) {
+      introEnd = Math.min(...headingOffsets);
+    }
+  }
+  let scanCursor = 0;
+  for (const line of rawText.split("\n")) {
+    if (SECTION_HEADING_LINE_RE.test(line.trim())) {
+      introEnd = Math.min(introEnd, scanCursor);
+      break;
+    }
+    scanCursor += line.length + 1;
+  }
+  const introText = rawText.slice(0, introEnd);
+  if (!introText.trim()) return [];
+
+  const lines: IntroLine[] = [];
+  let cursor = 0;
+  for (const line of introText.split("\n")) {
+    const charStart = cursor;
+    const charEnd = charStart + line.length;
+    cursor = charEnd + 1;
+    if (!line.trim()) continue;
+    lines.push({ text: line.trim(), charStart, charEnd });
+  }
+  return lines;
+}
+
+function buildIntroElements(input: {
+  rawText: string;
+  normalizedText: string;
+  parserName: string;
+  pageBoundaries: PageBoundary[];
+  headingIndex: ReturnType<typeof buildPddHeadingIndex>;
+}): ParsedElement[] {
+  const introLines = collectIntroLines(input.rawText, input.headingIndex);
+  const elements: ParsedElement[] = [];
+
+  for (let index = 0; index < introLines.length; index += 1) {
+    const line = introLines[index]!;
+    const nextLine = introLines[index + 1];
+    const pageNumber = pageNumberForOffset(line.charStart, input.pageBoundaries);
+
+    if (STANDALONE_METHOD_LABEL_RE.test(line.text) && nextLine) {
+      const combinedText = `${line.text}: ${nextLine.text}`;
+      elements.push({
+        id: `element:intro:${index}`,
+        pageNumber,
+        text: combinedText,
+        normalizedText: normalizeParserText(combinedText).replace(/\s+/g, " ").trim(),
+        charStart: line.charStart,
+        charEnd: nextLine.charEnd,
+        elementType: "paragraph",
+        sourceParser: input.parserName,
+        confidence: 0.85,
+      });
+      index += 1;
+      continue;
+    }
+
+    const elementType = introLineElementType(line.text);
+    elements.push({
+      id: `element:intro:${index}`,
+      pageNumber,
+      text: line.text,
+      normalizedText: normalizeParserText(line.text).replace(/\s+/g, " ").trim(),
+      charStart: line.charStart,
+      charEnd: line.charEnd,
+      elementType,
+      sourceParser: input.parserName,
+      confidence: elementType === "heading" ? 0.92 : 0.8,
+    });
+  }
+
+  return elements;
+}
+
 export const currentExtractorAdapter: ParserAdapter = {
   id: "current-extractor",
   parseText(input: ParseDocumentTextInput): ParsedDocument {
@@ -101,7 +212,23 @@ export const currentExtractorAdapter: ParserAdapter = {
       level: headingLevel(heading.sectionNumber),
       sectionNumber: heading.sectionNumber,
     }));
-    const blocks = headingIndex.flatMap((heading) => {
+    const introElements = buildIntroElements({
+      rawText,
+      normalizedText,
+      parserName,
+      pageBoundaries,
+      headingIndex,
+    });
+    const introBlocks = introElements.map((element) => ({
+      id: element.id,
+      type: element.elementType === "heading" ? "heading" as const : "paragraph" as const,
+      text: element.text,
+      normalizedText: element.normalizedText,
+      pageNumber: element.pageNumber,
+    }));
+    const blocks = [
+      ...introBlocks,
+      ...headingIndex.flatMap((heading) => {
       const headingBlock = {
         id: `block:heading:${heading.sectionNumber}`,
         type: "heading" as const,
@@ -120,9 +247,10 @@ export const currentExtractorAdapter: ParserAdapter = {
           }]
         : [];
       return [headingBlock, ...bodyBlocks];
-    });
+    }),
+    ];
     let searchCursor = 0;
-    const elements: ParsedElement[] = headingIndex.flatMap((heading) => {
+    const sectionElements: ParsedElement[] = headingIndex.flatMap((heading) => {
       const sectionPath = buildSectionPath(heading.sectionNumber);
       const headingOffset = findSequentialOffset(normalizedText, heading.title, searchCursor);
       const headingPageNumber = pageNumberForOffset(headingOffset, pageBoundaries);
@@ -163,6 +291,7 @@ export const currentExtractorAdapter: ParserAdapter = {
         : [];
       return [headingElement, ...bodyElements];
     });
+    const elements: ParsedElement[] = [...introElements, ...sectionElements];
     const pages = splitRawTextIntoPages(rawText).map((page) => ({
       ...page,
       elements: elements.filter((element) => element.pageNumber === page.pageNumber),

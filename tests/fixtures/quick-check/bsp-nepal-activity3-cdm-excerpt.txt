@@ -1,0 +1,22 @@
+Biogas Support Program - Nepal Activity-3
+Clean Development Mechanism Project Design Document
+CDM-PDD-FORM
+
+Host country: Nepal
+Applied baseline methodology: AMS-I.E. Switch from non-renewable biomass for thermal applications by the user
+Crediting period: 13 Dec 2011 - 12 Dec 2018
+
+A.1 General description of project activity
+The Biogas Support Program - Nepal Activity-3 installs household biogas digesters in rural Nepal to replace non-renewable biomass used for cooking.
+
+B.4 Baseline scenario
+Without the project activity, rural households would continue to use non-renewable biomass and traditional stoves.
+
+B.5 Demonstration of additionality
+The project is additional because upfront household investment barriers and dissemination constraints prevent the baseline transition without carbon finance.
+
+B.6 Leakage
+Leakage emissions are expected to be negligible because the project replaces non-renewable biomass at household level.
+
+D.1 Monitoring methodology and plan
+Monitoring includes digester operation checks, household surveys, and sampling of fuel consumption records.
