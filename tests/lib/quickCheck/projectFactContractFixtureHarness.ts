@@ -75,13 +75,14 @@ type FixtureRunResult = {
   contract: ProjectFactContract;
   qualityWarnings: string[];
   qualityReport: ReturnType<typeof buildDocumentStructure>["qualityReport"];
+  structure: ReturnType<typeof buildDocumentStructure>;
 };
 
-function loadFixtureText(relativePath: string): string {
+export function loadFixtureText(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-function loadFixtureInput(entry: ProjectFactFixtureManifestEntry): string {
+export function loadFixtureInput(entry: ProjectFactFixtureManifestEntry): string {
   if (entry.kind === "json-pages") {
     const parsed = JSON.parse(loadFixtureText(entry.fixturePath)) as { pages: Array<{ text?: string }> };
     return parsed.pages.map((page) => page.text ?? "").join("\f");
@@ -89,7 +90,7 @@ function loadFixtureInput(entry: ProjectFactFixtureManifestEntry): string {
   return loadFixtureText(entry.fixturePath);
 }
 
-function runFixture(entry: ProjectFactFixtureManifestEntry): FixtureRunResult {
+export function runProjectFactFixturePipeline(entry: ProjectFactFixtureManifestEntry): FixtureRunResult {
   const rawText = loadFixtureInput(entry);
   const parsed = parseDocumentText(
     { rawText, sourceName: entry.fixturePath },
@@ -104,6 +105,7 @@ function runFixture(entry: ProjectFactFixtureManifestEntry): FixtureRunResult {
     contract,
     qualityWarnings: structure.qualityReport.warnings,
     qualityReport: structure.qualityReport,
+    structure,
   };
 }
 
@@ -219,7 +221,7 @@ export function loadProjectFactFixtureManifest(): ProjectFactFixtureManifest {
 }
 
 export function runProjectFactFixtureExpectation(entry: ProjectFactFixtureManifestEntry): void {
-  const { evidence, contract, qualityWarnings, qualityReport } = runFixture(entry);
+  const { evidence, contract, qualityWarnings, qualityReport } = runProjectFactFixturePipeline(entry);
 
   expect(contract.documentFamily).toBe(entry.expectedDocumentFamily);
 
