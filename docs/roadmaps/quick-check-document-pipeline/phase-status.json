@@ -1,7 +1,5 @@
 {
-  "roadmap": "quick-check-document-pipeline",
-  "repo": "Fredilly/app.article6",
-  "status": "active",
+  "RC5": "done",
   "current_phase": "phase_6_secondary_parser_adapter",
   "phase_1_parser_adapter_boundary": {
     "status": "done",
@@ -43,9 +41,24 @@
     "last_updated_at": "2026-06-01T23:16:06Z"
   },
   "pr_evidence": {
-    "phase_2_article6_document_model": [667],
-    "phase_3_retrieval_evaluation_split": [669, 670, 671],
-    "phase_4_declarative_review_policy": [676, 677],
-    "phase_5_eval_harness": [679, 680]
-  }
+    "phase_2_article6_document_model": [
+      667
+    ],
+    "phase_3_retrieval_evaluation_split": [
+      669,
+      670,
+      671
+    ],
+    "phase_4_declarative_review_policy": [
+      676,
+      677
+    ],
+    "phase_5_eval_harness": [
+      679,
+      680
+    ]
+  },
+  "repo": "Fredilly/app.article6",
+  "roadmap": "quick-check-document-pipeline",
+  "status": "active"
 }
