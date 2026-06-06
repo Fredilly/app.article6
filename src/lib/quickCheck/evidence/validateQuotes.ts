@@ -17,7 +17,7 @@ function filterCandidateSpans(document: EvidenceDocument, quote: QuoteValidation
     if (quote.page != null && span.page !== quote.page) return false;
     if (quote.sectionId && span.sectionId !== quote.sectionId) return false;
     if (quote.heading && span.heading !== quote.heading) return false;
-    return span.blockType !== "toc" && span.blockType !== "footer";
+    return span.reliability !== "excluded" && span.blockType !== "toc" && span.blockType !== "footer";
   });
 }
 

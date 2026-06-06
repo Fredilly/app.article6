@@ -54,7 +54,7 @@ describe("buildArticle6DocumentModel", () => {
     expect(monitoringPlan?.blockIds.length).toBeGreaterThan(0);
     expect(monitoringPlan?.confidence).toBeGreaterThan(0.9);
     expect(model.pages[0]?.sourceRefs[0]?.quality).toBe("synthetic");
-    expect(model.blocks[0]?.sourceRefs[0]?.quality).toBe("synthetic");
+    expect(model.blocks[0]?.sourceRefs[0]?.quality).toBe("exact");
     expect(model.blocks[0]?.sourceRefs[0]?.pageNumber).toBe(1);
   });
 

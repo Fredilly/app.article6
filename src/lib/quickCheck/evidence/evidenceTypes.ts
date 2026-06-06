@@ -1,4 +1,11 @@
+import type {
+  DocumentFamily,
+  DocumentParserAdapterId,
+  ParsedBoundingBox,
+} from "@/lib/documentParsing";
+
 export type EvidenceBlockType =
+  | "header"
   | "title"
   | "section_heading"
   | "paragraph"
@@ -9,23 +16,65 @@ export type EvidenceBlockType =
   | "toc"
   | "footer";
 
+export type EvidenceSpanReliability = "primary" | "limited" | "excluded";
+
+export type EvidenceLayoutMetadata = {
+  boundingBox?: ParsedBoundingBox;
+  repeatedHeaderFooter?: boolean;
+  limitedProvenance?: boolean;
+};
+
+export type EvidenceTableCellMetadata = {
+  rowIndex: number;
+  columnIndex: number;
+  text: string;
+  normalizedText: string;
+  pageNumber?: number;
+  boundingBox?: ParsedBoundingBox;
+  sourceTableId?: string;
+  sourceBlockId?: string;
+  parserSource?: string;
+};
+
+export type EvidenceTableMetadata = {
+  tableId?: string;
+  caption?: string;
+  rowCount?: number;
+  columnCount?: number;
+  headerRowCount?: number;
+  cells?: EvidenceTableCellMetadata[];
+  limitedProvenance?: boolean;
+};
+
 export type EvidenceSpan = {
   spanId: string;
   docId: string;
   page: number | null;
   sectionId?: string;
   heading?: string;
+  headingPath: string[];
+  sectionPath: string[];
   blockType: EvidenceBlockType;
   text: string;
   normalizedText: string;
-  charStart: number;
-  charEnd: number;
+  charStart: number | null;
+  charEnd: number | null;
+  sourceBlockId?: string;
+  parserSource?: string;
+  parserAdapterId?: DocumentParserAdapterId;
+  documentFamily?: DocumentFamily;
+  layout?: EvidenceLayoutMetadata;
+  table?: EvidenceTableMetadata;
+  reliability: EvidenceSpanReliability;
   confidence: number;
 };
 
 export type EvidenceDocument = {
   docId: string;
   rawText: string;
+  parserSource?: string;
+  parserAdapterId?: DocumentParserAdapterId;
+  documentFamily?: DocumentFamily;
   spans: EvidenceSpan[];
 };
 

@@ -2,10 +2,13 @@ import type {
   DocumentFamilyClassification,
   DocumentQualityReport,
   DocumentParserAdapterId,
+  ParsedBoundingBox,
   ParsedBlock,
+  ParsedElementType,
   ParsedDocument,
   ParsedHeading,
   ParsedPage,
+  ParsedTable,
   ParserDiagnostics,
 } from "@/lib/documentParsing";
 
@@ -39,13 +42,20 @@ export type Article6DocumentPage = {
 
 export type Article6DocumentBlock = {
   id: string;
-  type: ParsedBlock["type"];
+  type: ParsedBlock["type"] | ParsedElementType;
   rawText: string;
   cleanText: string;
   matchingText: string;
+  parserElementId?: string;
+  parserSource?: string;
   pageNumber?: number;
+  charStart?: number;
+  charEnd?: number;
   sectionId?: string;
+  sectionPath?: string[];
   headingLevel?: number;
+  boundingBox?: ParsedBoundingBox;
+  table?: ParsedTable;
   sourceRefs: Article6SourceRef[];
   confidence: number;
 };
