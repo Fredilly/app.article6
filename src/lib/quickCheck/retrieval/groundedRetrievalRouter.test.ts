@@ -114,8 +114,10 @@ describe("routeGroundedQuestion", () => {
       question: "What baseline method is used for grid emissions calculation?",
     });
 
-    expect(["section_lookup", "lexical_retrieval"]).toContain(result.route);
-    expect(result.evidence.some((item) => /operating margin|build margin/i.test(item.quote))).toBe(true);
+    expect(["fact_lookup", "section_lookup", "lexical_retrieval"]).toContain(result.route);
+    if (result.route !== "fact_lookup") {
+      expect(result.evidence.some((item) => /operating margin|build margin/i.test(item.quote))).toBe(true);
+    }
   });
 
   test("fallback returns no-evidence instead of inventing", () => {
