@@ -77,16 +77,16 @@ function isLikelyTocLine(line: string): boolean {
   return /^(?:section\s+)?(?:[A-Z]\.)?\d+(?:\.\d+)*\s+.+\s+\d+\s*$/.test(trimmed);
 }
 
-function detectBlockType(line: string, page: number, isFirstContentLine: boolean): EvidenceBlockType {
+function detectBlockType(line: string, isFirstContentLine: boolean): EvidenceBlockType {
   const trimmed = line.trim();
   if (FOOTER_RE.test(trimmed)) return "footer";
   if (isLikelyTocLine(trimmed)) return "toc";
   if (ANNEX_HEADING_RE.test(trimmed)) return "annex";
-  if (SECTION_HEADING_RE.test(trimmed)) return isFirstContentLine ? "title" : "section_heading";
-  if (isFirstContentLine && trimmed.length <= 180) return "title";
+  if (SECTION_HEADING_RE.test(trimmed)) return "section_heading";
   if (FIELD_RE.test(trimmed)) return "field";
   if (FORMULA_RE.test(trimmed)) return "formula";
   if (/\|/.test(trimmed) || /\S(?:\s{2,}|\t)\S/.test(trimmed)) return "table";
+  if (isFirstContentLine && trimmed.length <= 180) return "title";
   return "paragraph";
 }
 
@@ -181,7 +181,7 @@ function buildCandidateBlocks(input: CompileEvidenceDocumentInput): CandidateBlo
         continue;
       }
 
-      const blockType = detectBlockType(trimmed, page.page, !hasSeenPrimaryContent);
+      const blockType = detectBlockType(trimmed, !hasSeenPrimaryContent);
       const isStandalone = blockType !== "paragraph";
 
       if (isStandalone) {

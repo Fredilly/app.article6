@@ -41,6 +41,33 @@ describe("compileEvidenceDocument", () => {
     expect(compiled.spans.some((span) => span.blockType === "section_heading" && span.sectionId === "1")).toBe(true);
     expect(compiled.spans.some((span) => span.blockType === "field" && span.heading === "Project Details")).toBe(true);
   });
+
+  test("keeps a leading numbered section heading out of the title slot", () => {
+    const compiled = compileEvidenceDocument({
+      docId: "doc-2",
+      rawText: [
+        "1 Project Details",
+        "Host country: Indonesia",
+      ].join("\n"),
+    });
+
+    expect(compiled.spans[0]).toEqual(
+      expect.objectContaining({
+        blockType: "section_heading",
+        sectionId: "1",
+        heading: "Project Details",
+        text: "1 Project Details",
+      }),
+    );
+    expect(compiled.spans.some((span) => span.blockType === "title")).toBe(false);
+    expect(compiled.spans[1]).toEqual(
+      expect.objectContaining({
+        blockType: "field",
+        heading: "Project Details",
+        text: "Host country: Indonesia",
+      }),
+    );
+  });
 });
 
 describe("extractDocumentFacts", () => {
