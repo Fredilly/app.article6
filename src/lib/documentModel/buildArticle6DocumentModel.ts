@@ -1,3 +1,4 @@
+import { buildDocumentQualityReport, classifyDocumentFamily } from "@/lib/documentClassification";
 import type {
   Article6DocumentBlock,
   Article6DocumentModel,
@@ -39,6 +40,13 @@ function sectionIdFromNumber(sectionNumber?: string): string | undefined {
   return sectionNumber ? `section:${sectionNumber}` : undefined;
 }
 
+function sectionIdPathFromNumbers(sectionPath?: string[]): string[] | undefined {
+  if (!sectionPath?.length) return undefined;
+  return sectionPath
+    .map((sectionNumber) => sectionIdFromNumber(sectionNumber))
+    .filter((sectionId): sectionId is string => Boolean(sectionId));
+}
+
 function parentSectionNumber(sectionNumber?: string): string | undefined {
   if (!sectionNumber || !sectionNumber.includes(".")) return undefined;
   return sectionNumber.split(".").slice(0, -1).join(".");
@@ -63,28 +71,78 @@ export function buildArticle6DocumentModel(
   const { parsedDocument, includeDebugPayload = false } = input;
   const parserAdapterId = parsedDocument.adapterId;
   const source = parsedDocument.source;
+  const parsedElements = parsedDocument.elements ?? [];
+  const qualityReport = buildDocumentQualityReport(parsedDocument);
+  const documentFamily = classifyDocumentFamily({
+    ...parsedDocument,
+    qualityReport,
+  });
 
-  const blocks: Article6DocumentBlock[] = parsedDocument.blocks.map((block) => {
+  const blockSource: Array<{
+    id: string;
+    type: Article6DocumentBlock["type"];
+    text: string;
+    normalizedText: string;
+    parserElementId?: string;
+    parserSource?: string;
+    pageNumber?: number;
+    charStart?: number;
+    charEnd?: number;
+    headingLevel?: number;
+    sectionNumber?: string;
+    sectionPath?: string[];
+    boundingBox?: Article6DocumentBlock["boundingBox"];
+    table?: Article6DocumentBlock["table"];
+    confidence?: number;
+  }> = parsedElements.length > 0
+    ? parsedElements.map((element) => ({
+        id: element.id,
+        type: element.elementType,
+        text: element.text,
+        normalizedText: element.normalizedText,
+        parserElementId: element.id,
+        parserSource: element.sourceParser,
+        pageNumber: element.pageNumber,
+        charStart: element.charStart,
+        charEnd: element.charEnd,
+        headingLevel: element.headingLevel,
+        sectionNumber: element.sectionNumber,
+        sectionPath: element.sectionPath,
+        boundingBox: element.boundingBox,
+        table: element.table,
+        confidence: element.confidence,
+      }))
+    : parsedDocument.blocks;
+
+  const blocks: Article6DocumentBlock[] = blockSource.map((block) => {
     const sectionId = sectionIdFromNumber(block.sectionNumber);
+    const sectionPath = sectionIdPathFromNumbers(block.sectionPath);
     return {
       id: block.id,
       type: block.type,
       rawText: block.text,
       cleanText: cleanText(block.text),
       matchingText: coerceMatchingText(block.normalizedText, block.text),
+      parserElementId: block.parserElementId,
+      parserSource: block.parserSource ?? parsedDocument.parserName,
       pageNumber: block.pageNumber,
+      charStart: block.charStart,
+      charEnd: block.charEnd,
       sectionId,
+      sectionPath,
       headingLevel: block.headingLevel,
+      boundingBox: block.boundingBox,
+      table: block.table,
       sourceRefs: [{
         source,
         parserAdapterId,
-        quality: "synthetic",
+        quality: block.parserElementId ? "exact" : "synthetic",
         pageNumber: block.pageNumber,
         blockId: block.id,
         sectionId,
         sectionNumber: block.sectionNumber,
       }],
-      confidence: block.type === "heading" ? 0.95 : 0.8,
+      confidence: block.confidence ?? (block.type === "heading" ? 0.95 : 0.8),
     };
   });
 
@@ -234,6 +292,8 @@ export function buildArticle6DocumentModel(
     rawText: parsedDocument.rawText,
     cleanText: cleanText(parsedDocument.rawText),
     matchingText: coerceMatchingText(parsedDocument.normalizedText, parsedDocument.rawText),
+    documentFamily,
+    qualityReport,
     pages,
     blocks,
     sections,
@@ -241,4 +301,10 @@ export function buildArticle6DocumentModel(
     parserDiagnostics: parsedDocument.diagnostics,
     debug: includeDebugPayload ? { parserOutput: parsedDocument } : undefined,
   };
+}
+
+export function buildDocumentStructure(
+  input: BuildArticle6DocumentModelInput,
+): Article6DocumentModel {
+  return buildArticle6DocumentModel(input);
 }

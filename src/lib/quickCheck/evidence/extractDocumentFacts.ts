@@ -132,7 +132,11 @@ function toFact(kind: DocumentFactKind, match: SpanMatch | null): DocumentFact |
 }
 
 export function extractDocumentFacts(document: EvidenceDocument): DocumentFact[] {
-  const spans = document.spans.filter((span) => span.blockType !== "toc" && span.blockType !== "footer");
+  const spans = document.spans.filter((span) => (
+    span.reliability !== "excluded"
+    && span.blockType !== "toc"
+    && span.blockType !== "footer"
+  ));
   const facts: Array<DocumentFact | null> = [
     toFact("project_title", findTitleFact(spans)),
     toFact("host_country", findLabeledValue(spans, ["Host country", "Country"], { preferBlockTypes: ["field", "table", "paragraph"] })),

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "@jest/globals";
 import { parseDocumentText } from "@/lib/documentParsing";
-import { buildArticle6DocumentModel } from "@/lib/documentModel";
+import { buildArticle6DocumentModel, buildDocumentStructure } from "@/lib/documentModel";
 import { currentExtractorAdapter } from "@/lib/documentParsing/adapters/currentExtractor";
 import { setLiteParseImplementationForTests } from "@/lib/documentParsing/adapters/liteParse";
 
@@ -23,16 +23,20 @@ describe("buildArticle6DocumentModel", () => {
 
   it("converts parser output into a canonical Article6 document model", () => {
     const parsedDocument = parseDocumentText({ rawText: NESTED_PDD_TEXT });
-    const model = buildArticle6DocumentModel({ parsedDocument });
+    const model = buildDocumentStructure({ parsedDocument });
 
     expect(model.parserAdapterId).toBe("current-extractor");
     expect(model.source).toBe("current-extractor");
+    expect(model.documentFamily.family).toBe("UNKNOWN");
+    expect(model.documentFamily.confidence).toBeGreaterThan(0);
+    expect(model.qualityReport.pageCount).toBe(1);
     expect(model.rawText).toBe(NESTED_PDD_TEXT);
     expect(model.cleanText).toContain("4.3 Monitoring Plan");
     expect(model.matchingText).toContain("monitoring plan");
     expect(model.pages).toHaveLength(1);
     expect(model.blocks.some((block) => block.type === "heading")).toBe(true);
     expect(model.blocks.some((block) => block.type === "paragraph")).toBe(true);
+    expect(model.blocks[0]?.pageNumber).toBe(1);
     expect(model.debug).toBeUndefined();
 
     const monitoringPlan = model.sections.find((section) => section.sectionNumber === "4.3");
@@ -50,7 +54,8 @@ describe("buildArticle6DocumentModel", () => {
     expect(monitoringPlan?.blockIds.length).toBeGreaterThan(0);
     expect(monitoringPlan?.confidence).toBeGreaterThan(0.9);
     expect(model.pages[0]?.sourceRefs[0]?.quality).toBe("synthetic");
-    expect(model.blocks[0]?.sourceRefs[0]?.quality).toBe("synthetic");
+    expect(model.blocks[0]?.sourceRefs[0]?.quality).toBe("exact");
+    expect(model.blocks[0]?.sourceRefs[0]?.pageNumber).toBe(1);
   });
 
   it("preserves raw parser text separately from clean and matching text", () => {
@@ -74,7 +79,27 @@ describe("buildArticle6DocumentModel", () => {
           pageNumber: 1,
           rawText: "Loose body text without recoverable headings.",
           normalizedText: "Loose body text without recoverable headings.",
+          elements: [],
         }],
+        elements: [],
+        tables: [],
+        parserName: "test-parser",
+        qualityReport: {
+          parserName: "test-parser",
+          warnings: ["heuristic fallback used"],
+          sourceContentMode: "unknown",
+          pageCount: 1,
+          textDensity: 0.04,
+          ocrConfidence: undefined,
+          tableHeavyWarning: false,
+          layoutHeavyWarning: false,
+          headersFootersDetected: false,
+          weakExtractionWarning: true,
+          hasStructuredHeadings: false,
+          hasPageBoundaries: false,
+          hasBoundingBoxes: false,
+          hasTables: false,
+        },
         blocks: [],
         headings: [],
         diagnostics: {
@@ -121,5 +146,38 @@ describe("buildArticle6DocumentModel", () => {
     expect(model.sections.map((section) => section.sectionNumber)).toEqual(expect.arrayContaining(["4.3", "4.3.1", "6"]));
     expect(model.blocks.some((block) => block.type === "heading")).toBe(true);
     expect(model.pages).toHaveLength(1);
+  });
+
+  it("normalizes parsed page provenance into document structure pages", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "1 Project Details",
+        "Host country: Indonesia",
+        "\f",
+        "2 Baseline Scenario",
+        "Baseline scenario: forest conversion.",
+      ].join("\n"),
+    });
+
+    const model = buildDocumentStructure({ parsedDocument });
+
+    expect(model.pages).toHaveLength(2);
+    expect(model.pages[0]).toEqual(expect.objectContaining({
+      pageNumber: 1,
+    }));
+    expect(model.pages[1]).toEqual(expect.objectContaining({
+      pageNumber: 2,
+    }));
+    expect(model.pages[0]?.sourceRefs[0]).toEqual(expect.objectContaining({
+      parserAdapterId: "current-extractor",
+      pageNumber: 1,
+    }));
+    expect(model.pages[1]?.sourceRefs[0]).toEqual(expect.objectContaining({
+      parserAdapterId: "current-extractor",
+      pageNumber: 2,
+    }));
+    expect(model.blocks.some((block) => block.pageNumber === 2)).toBe(true);
+    expect(model.blocks.some((block) => block.sourceRefs.some((ref) => ref.pageNumber === 2))).toBe(true);
+    expect(model.qualityReport.pageCount).toBe(2);
   });
 });

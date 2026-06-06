@@ -1,5 +1,10 @@
 import { describe, expect, test } from "@jest/globals";
-import { compileEvidenceDocument } from "@/lib/quickCheck/evidence/compileEvidenceDocument";
+import { buildDocumentStructure } from "@/lib/documentModel";
+import { parseDocumentText } from "@/lib/documentParsing";
+import {
+  compileEvidenceDocument,
+  compileEvidenceDocumentFromStructure,
+} from "@/lib/quickCheck/evidence/compileEvidenceDocument";
 import { extractDocumentFacts } from "@/lib/quickCheck/evidence/extractDocumentFacts";
 import { validateQuotes } from "@/lib/quickCheck/evidence/validateQuotes";
 
@@ -38,8 +43,74 @@ describe("compileEvidenceDocument", () => {
     expect(compiled.spans.some((span) => span.blockType === "title")).toBe(true);
     expect(compiled.spans.some((span) => span.blockType === "toc")).toBe(true);
     expect(compiled.spans.some((span) => span.blockType === "footer")).toBe(true);
-    expect(compiled.spans.some((span) => span.blockType === "section_heading" && span.sectionId === "1")).toBe(true);
+    expect(compiled.spans.some((span) => span.blockType === "section_heading" && span.sectionId === "section:1")).toBe(true);
     expect(compiled.spans.some((span) => span.blockType === "field" && span.heading === "Project Details")).toBe(true);
+  });
+
+  test("adapts DocumentStructure into the evidence compiler with provenance intact", () => {
+    const parsedDocument = parseDocumentText({ rawText: SAMPLE_TEXT });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "doc-structure-1",
+      documentStructure,
+    });
+
+    expect(compiled.rawText).toBe(SAMPLE_TEXT);
+    expect(compiled.spans.some((span) => span.page === 1)).toBe(true);
+    expect(compiled.spans.some((span) => span.blockType === "section_heading")).toBe(true);
+    expect(compiled.spans.some((span) => span.sectionId === "section:1")).toBe(true);
+    expect(compiled.spans.some((span) => span.heading === "Project Details")).toBe(true);
+  });
+
+  test("preserves page provenance when evidence spans are compiled from multi-page structure", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "1 Project Details",
+        "Host country: Indonesia",
+        "\f",
+        "2 Baseline Scenario",
+        "Baseline scenario: forest conversion.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "doc-structure-2",
+      documentStructure,
+    });
+
+    expect(compiled.spans.some((span) => span.page === 2)).toBe(true);
+    expect(compiled.spans.some((span) => span.page === 2 && span.heading === "Baseline Scenario")).toBe(true);
+  });
+
+  test("does not silently coerce unknown document-structure blocks into paragraph evidence spans", () => {
+    const parsedDocument = parseDocumentText({ rawText: SAMPLE_TEXT });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "doc-structure-unknown",
+      documentStructure: {
+        ...documentStructure,
+        blocks: [
+          ...documentStructure.blocks,
+          {
+            id: "block:unknown:1",
+            type: "unknown",
+            rawText: "Unclassified layout artifact",
+            cleanText: "Unclassified layout artifact",
+            matchingText: "unclassified layout artifact",
+            pageNumber: 1,
+            sectionId: undefined,
+            headingLevel: undefined,
+            sourceRefs: [],
+            confidence: 0.2,
+          },
+        ],
+      },
+    });
+
+    expect(compiled.spans.some((span) => span.text === "Unclassified layout artifact")).toBe(false);
   });
 
   test("keeps a leading numbered section heading out of the title slot", () => {
@@ -54,7 +125,7 @@ describe("compileEvidenceDocument", () => {
     expect(compiled.spans[0]).toEqual(
       expect.objectContaining({
         blockType: "section_heading",
-        sectionId: "1",
+        sectionId: "section:1",
         heading: "Project Details",
         text: "1 Project Details",
       }),
