@@ -71,6 +71,13 @@ describe("documentParsing current extractor adapter", () => {
     expect(parsed.tables).toEqual([]);
     expect(parsed.qualityReport).toEqual(expect.objectContaining({
       parserName: "current-extractor",
+      pageCount: 1,
+      textDensity: expect.any(Number),
+      sourceContentMode: "unknown",
+      weakExtractionWarning: false,
+      tableHeavyWarning: false,
+      layoutHeavyWarning: false,
+      headersFootersDetected: false,
       hasStructuredHeadings: true,
       hasPageBoundaries: false,
       hasBoundingBoxes: false,
@@ -107,6 +114,9 @@ describe("documentParsing current extractor adapter", () => {
     expect(parsed.diagnostics).toBeUndefined();
     expect(parsed.qualityReport).toEqual(expect.objectContaining({
       parserName: "current-extractor",
+      pageCount: 1,
+      sourceContentMode: "unknown",
+      weakExtractionWarning: true,
       hasStructuredHeadings: false,
     }));
   });
@@ -128,6 +138,7 @@ describe("documentParsing current extractor adapter", () => {
     expect(parsed.pages[1]?.elements.some((element) => element.pageNumber === 2)).toBe(true);
     expect(parsed.elements.some((element) => element.pageNumber === 2)).toBe(true);
     expect(parsed.qualityReport.hasPageBoundaries).toBe(true);
+    expect(parsed.qualityReport.pageCount).toBe(2);
   });
 
   it("selects liteparse from QUICK_CHECK_PARSER without changing the parsed-document contract", () => {

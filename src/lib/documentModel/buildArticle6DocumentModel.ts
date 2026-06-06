@@ -1,3 +1,4 @@
+import { buildDocumentQualityReport, classifyDocumentFamily } from "@/lib/documentClassification";
 import type {
   Article6DocumentBlock,
   Article6DocumentModel,
@@ -64,6 +65,11 @@ export function buildArticle6DocumentModel(
   const parserAdapterId = parsedDocument.adapterId;
   const source = parsedDocument.source;
   const parsedElements = parsedDocument.elements ?? [];
+  const qualityReport = buildDocumentQualityReport(parsedDocument);
+  const documentFamily = classifyDocumentFamily({
+    ...parsedDocument,
+    qualityReport,
+  });
 
   const blockSource: Array<{
     id: string;
@@ -261,6 +267,8 @@ export function buildArticle6DocumentModel(
     rawText: parsedDocument.rawText,
     cleanText: cleanText(parsedDocument.rawText),
     matchingText: coerceMatchingText(parsedDocument.normalizedText, parsedDocument.rawText),
+    documentFamily,
+    qualityReport,
     pages,
     blocks,
     sections,

@@ -84,6 +84,35 @@ describe("compileEvidenceDocument", () => {
     expect(compiled.spans.some((span) => span.page === 2 && span.heading === "Baseline Scenario")).toBe(true);
   });
 
+  test("does not silently coerce unknown document-structure blocks into paragraph evidence spans", () => {
+    const parsedDocument = parseDocumentText({ rawText: SAMPLE_TEXT });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "doc-structure-unknown",
+      documentStructure: {
+        ...documentStructure,
+        blocks: [
+          ...documentStructure.blocks,
+          {
+            id: "block:unknown:1",
+            type: "unknown",
+            rawText: "Unclassified layout artifact",
+            cleanText: "Unclassified layout artifact",
+            matchingText: "unclassified layout artifact",
+            pageNumber: 1,
+            sectionId: undefined,
+            headingLevel: undefined,
+            sourceRefs: [],
+            confidence: 0.2,
+          },
+        ],
+      },
+    });
+
+    expect(compiled.spans.some((span) => span.text === "Unclassified layout artifact")).toBe(false);
+  });
+
   test("keeps a leading numbered section heading out of the title slot", () => {
     const compiled = compileEvidenceDocument({
       docId: "doc-2",

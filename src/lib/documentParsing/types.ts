@@ -1,4 +1,10 @@
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
+import type {
+  DocumentFamily,
+  DocumentFamilyClassification,
+  DocumentFamilyClassifier,
+  DocumentTemplateSignal,
+} from "@/lib/documentClassification/documentFamilyTypes";
 
 export const DOCUMENT_PARSER_ADAPTER_IDS = [
   "current-extractor",
@@ -29,6 +35,8 @@ export type ParsedCell = {
   boundingBox?: ParsedBoundingBox;
   confidence?: number;
 };
+
+export type { DocumentFamily, DocumentTemplateSignal, DocumentFamilyClassification };
 
 export type ParsedTable = {
   id: string;
@@ -102,6 +110,14 @@ export type DocumentQualityReport = {
   parserName: string;
   warnings: string[];
   metadata?: Record<string, string>;
+  sourceContentMode: "native_pdf" | "scanned" | "unknown";
+  pageCount: number;
+  textDensity: number;
+  ocrConfidence?: number;
+  tableHeavyWarning: boolean;
+  layoutHeavyWarning: boolean;
+  headersFootersDetected: boolean;
+  weakExtractionWarning: boolean;
   hasStructuredHeadings: boolean;
   hasPageBoundaries: boolean;
   hasBoundingBoxes: boolean;
@@ -132,3 +148,5 @@ export interface ParserAdapter {
 }
 
 export type DocumentParserAdapter = ParserAdapter;
+
+export type { DocumentFamilyClassifier };

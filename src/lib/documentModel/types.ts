@@ -1,4 +1,6 @@
 import type {
+  DocumentFamilyClassification,
+  DocumentQualityReport,
   DocumentParserAdapterId,
   ParsedBlock,
   ParsedDocument,
@@ -74,6 +76,8 @@ export type Article6DocumentModel = {
   rawText: string;
   cleanText: string;
   matchingText: string;
+  documentFamily: DocumentFamilyClassification;
+  qualityReport: DocumentQualityReport;
   pages: Article6DocumentPage[];
   blocks: Article6DocumentBlock[];
   sections: Article6DocumentSection[];
