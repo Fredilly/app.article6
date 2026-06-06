@@ -435,13 +435,13 @@ function buildEvidenceTableCells(input: {
 
 function inferStructureBlockType(
   block: DocumentStructure["blocks"][number],
-  index: number,
+  options: { treatAsTitle: boolean },
 ): EvidenceBlockType | null {
   if (!block.rawText.trim()) return null;
 
   switch (block.type) {
     case "heading":
-      return index === 0 && !block.sectionId ? "title" : "section_heading";
+      return options.treatAsTitle ? "title" : "section_heading";
     case "paragraph":
       if (FIELD_RE.test(block.rawText.trim())) return "field";
       if (FORMULA_RE.test(block.rawText.trim())) return "formula";
@@ -533,10 +533,18 @@ export function compileEvidenceDocumentFromStructure(input: {
   const rawText = normalizeNewlines(input.documentStructure.rawText ?? "");
   const headingPathBySectionId = buildSectionHeadingLookup(input.documentStructure);
   let cursor = 0;
+  let hasSeenSectionedHeading = false;
 
   const spans: EvidenceSpan[] = input.documentStructure.blocks.flatMap((block, index) => {
-    const blockType = inferStructureBlockType(block, index);
+    const treatAsTitle =
+      block.type === "heading"
+      && !block.sectionId
+      && !hasSeenSectionedHeading;
+    const blockType = inferStructureBlockType(block, { treatAsTitle });
     if (!blockType) return [];
+    if (block.type === "heading" && block.sectionId) {
+      hasSeenSectionedHeading = true;
+    }
 
     const charStart = block.charStart ?? findCharStart(rawText, block.rawText, cursor);
     const charEnd = block.charEnd ?? (charStart == null ? null : charStart + block.rawText.length);

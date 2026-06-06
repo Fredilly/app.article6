@@ -5,6 +5,7 @@ import type {
   ProjectFactContract,
   ProjectFactContractDocumentType,
   ProjectFactField,
+  ProjectFactValue,
 } from "@/lib/quickCheck/projectFacts/types";
 
 type Candidate = {
@@ -195,6 +196,29 @@ function findLabeledCandidates(
     });
 }
 
+function findMethodologyCodeFallbackCandidates(document: EvidenceDocument): Candidate[] {
+  if (!document.documentFamily || document.documentFamily === "UNKNOWN") {
+    return [];
+  }
+  return document.spans
+    .filter((span) => span.reliability !== "excluded")
+    .filter((span) => span.sectionPath.length === 0)
+    .flatMap((span) => {
+      const match = span.text.match(METHODOLOGY_CODE_RE);
+      if (!match?.[0]) return [];
+      return [{
+        value: span.text.trim(),
+        normalizedValue: normalizeValue(span.text),
+        confidence: span.sectionPath.length === 0 ? "medium" as const : "low" as const,
+        span,
+        extractionRule: "methodology:code-fallback",
+        warnings: [
+          materializeWarning("Methodology inferred from a top-of-document code reference because no explicit methodology label was found."),
+        ],
+      }];
+    });
+}
+
 function factFromCandidates<T extends string | string[] | null>(
   family: DocumentFamily,
   extractionRule: string,
@@ -271,6 +295,20 @@ function looksLikeMethodology(value: string): boolean {
     || /\bapproved baseline and monitoring methodology\b/i.test(value);
 }
 
+function looksLikeGenericSectionHeading(value: string): boolean {
+  const normalized = normalizeValue(value);
+  return [
+    "project background",
+    "project boundary",
+    "baseline scenario",
+    "additionality",
+    "leakage",
+    "monitoring",
+    "monitoring plan",
+    "stakeholder comments",
+  ].includes(normalized);
+}
+
 function findProjectTitle(document: EvidenceDocument): ProjectFactField<string | null> {
   const family = document.documentFamily ?? "UNKNOWN";
   const titleSpans = document.spans.filter((span) => span.blockType === "title" && span.reliability !== "excluded");
@@ -286,9 +324,29 @@ function findProjectTitle(document: EvidenceDocument): ProjectFactField<string |
     }));
 
   if (candidates.length === 0) {
+    const labeledDocumentCandidates = document.spans
+      .filter((span) => span.reliability !== "excluded")
+      .filter((span) => span.sectionPath.length === 0)
+      .filter((span) => span.blockType === "field" || span.blockType === "paragraph")
+      .filter((span) => /^(?:project description document|project design document)\s*:\s*\S/i.test(span.text.trim()))
+      .map((span) => ({
+        value: span.text.trim(),
+        normalizedValue: normalizeValue(span.text),
+        confidence: rankConfidence(span, { preferStructured: span.blockType === "field" }),
+        span,
+        extractionRule: "title:labeled-document",
+        warnings: [],
+      }));
+    if (labeledDocumentCandidates.length > 0) {
+      return factFromCandidates<string | null>(family, "title", labeledDocumentCandidates);
+    }
+  }
+
+  if (candidates.length === 0) {
     const headingCandidates = document.spans
       .filter((span) => span.blockType === "section_heading" && span.reliability === "primary")
       .filter((span) => !looksLikeMethodology(span.text))
+      .filter((span) => !looksLikeGenericSectionHeading(span.heading ?? span.text))
       .slice(0, 1)
       .map((span) => ({
         value: span.heading ?? span.text.trim(),
@@ -298,10 +356,10 @@ function findProjectTitle(document: EvidenceDocument): ProjectFactField<string |
         extractionRule: "title:first-heading-fallback",
         warnings: [materializeWarning("Title inferred from first heading because no dedicated title span was available.")],
       }));
-    return factFromCandidates(family, "title", headingCandidates);
+    return factFromCandidates<string | null>(family, "title", headingCandidates);
   }
 
-  return factFromCandidates(family, "title", candidates);
+  return factFromCandidates<string | null>(family, "title", candidates);
 }
 
 function deriveCountryFromLocation(field: ProjectFactField<string | null>, family: DocumentFamily): ProjectFactField<string | null> {
@@ -451,7 +509,7 @@ function inferProjectType(document: EvidenceDocument): ProjectFactField<string |
   };
 }
 
-function mergeWarnings(fields: ProjectFactField[]): string[] {
+function mergeWarnings(fields: ProjectFactField<ProjectFactValue>[]): string[] {
   return dedupe(fields.flatMap((field) => field.warnings).filter(Boolean));
 }
 
@@ -465,7 +523,16 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
     : deriveCountryFromLocation(projectLocation, family);
   const projectStandard = standardFact(document);
   const projectProponent = findField(document, FIELD_RULES.find((rule) => rule.field === "projectProponent") as FieldRule);
-  const methodologyPrimary = findField(document, FIELD_RULES.find((rule) => rule.field === "methodologyPrimary") as FieldRule);
+  const methodologyPrimaryRule = FIELD_RULES.find((rule) => rule.field === "methodologyPrimary") as FieldRule;
+  const methodologyPrimary = factFromCandidates<string | null>(
+    family,
+    "methodologyPrimary",
+    [
+      ...findLabeledCandidates(document, methodologyPrimaryRule),
+      ...findMethodologyCodeFallbackCandidates(document),
+    ],
+    { allowMedium: true },
+  );
   const baselineMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "baselineMethodology") as FieldRule);
   const monitoringMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "monitoringMethodology") as FieldRule);
   const creditingPeriod = findField(document, FIELD_RULES.find((rule) => rule.field === "creditingPeriod") as FieldRule);
@@ -485,7 +552,12 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
     reportingPeriod.warnings = dedupe([...reportingPeriod.warnings, materializeWarning("Reporting period matched crediting period exactly; keeping fields separate but flagged for review.")]);
   }
 
-  const baselineSections = sectionsFact(document, "baseline", ["baseline scenario", "baseline"]);
+  const baselineSections = sectionsFact(document, "baseline", [
+    "baseline scenario",
+    "baseline",
+    "without-project land use scenario",
+    "without project land use scenario",
+  ]);
   const monitoringSections = sectionsFact(document, "monitoring", ["monitoring plan", "monitoring"]);
   const leakageSections = sectionsFact(document, "leakage", ["leakage"]);
   const additionalitySections = sectionsFact(document, "additionality", ["additionality", "project is additional"]);
