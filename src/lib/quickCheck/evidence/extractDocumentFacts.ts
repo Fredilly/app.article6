@@ -285,6 +285,17 @@ function findHostCountryFact(spans: EvidenceSpan[]): SpanMatch | null {
     if (country) return { span: location.span, value: country, confidence: "medium" };
   }
 
+  for (const span of spans) {
+    if (!/project location|located in/i.test(span.text)) continue;
+    const country = extractCountryFromText(span.text);
+    if (!country) continue;
+    return {
+      span,
+      value: country,
+      confidence: span.blockType === "paragraph" ? "medium" : "high",
+    };
+  }
+
   const address = findLabeledValue(spans, ["Project proponent address", "Project participant address", "Project participants address"], {
     allowMultiline: true,
   });

@@ -9,3 +9,15 @@ The project activity is a run-of-river hydro facility connected to the national 
 
 1.2 Project location
 The project is located in Kasese District, Uganda.
+
+2.1 Baseline scenario
+The baseline scenario is continued reliance on the regional fossil-fuel-dominated electricity grid.
+
+2.2 Additionality
+The project is additional because the hydro plant is not financially viable without carbon revenue.
+
+3.1 Leakage
+Leakage is not expected because the project does not displace existing activities outside the site boundary.
+
+4.1 Monitoring plan
+Monitoring will track grid electricity generation, meter readings, and plant availability monthly.

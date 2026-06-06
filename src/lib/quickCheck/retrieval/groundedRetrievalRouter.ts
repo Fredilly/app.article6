@@ -1,10 +1,11 @@
 import { normalizeSectionKey } from "@/lib/chat/quickCheckSectionExtractor";
-import { extractDocumentFacts } from "@/lib/quickCheck/evidence/extractDocumentFacts";
+import { buildProjectFactContract } from "@/lib/quickCheck/evidence/buildProjectFactContract";
 import type {
-  DocumentFact,
-  DocumentFactKind,
+  CanonicalProjectFactKey,
   EvidenceDocument,
   EvidenceSpan,
+  ProjectFactContract,
+  ProjectFactValue,
   QuoteValidationResult,
 } from "@/lib/quickCheck/evidence/evidenceTypes";
 import { validateQuotes } from "@/lib/quickCheck/evidence/validateQuotes";
@@ -33,7 +34,7 @@ export type GroundedRetrievalResult = {
   answerText: string | null;
   evidence: GroundedRetrievalEvidence[];
   quoteValidation: QuoteValidationResult[];
-  factKind?: DocumentFactKind;
+  factKey?: CanonicalProjectFactKey;
   reason?: string;
 };
 
@@ -47,7 +48,7 @@ type QuestionIntent = "monitoring" | "additionality" | "leakage" | "baseline" | 
 
 type QuestionAnalysis = {
   normalizedQuestion: string;
-  factKind: DocumentFactKind | null;
+  factKey: CanonicalProjectFactKey | null;
   intent: QuestionIntent;
   keywords: string[];
   calculationSpecific: boolean;
@@ -58,16 +59,17 @@ type ScoredSpan = {
   score: number;
 };
 
-const FACT_PATTERNS: Array<{ kind: DocumentFactKind; pattern: RegExp }> = [
-  { kind: "project_title", pattern: /\b(project\s+title|title\s+of\s+the\s+project)\b/i },
-  { kind: "host_country", pattern: /\b(host\s+country|host\s+party|country)\b/i },
-  { kind: "project_location", pattern: /\b(project\s+location|where\s+is\s+the\s+project|location)\b/i },
-  { kind: "crediting_period", pattern: /\bcrediting\s+period\b/i },
-  { kind: "reporting_period", pattern: /\breporting\s+period\b/i },
-  { kind: "monitoring_period", pattern: /\bmonitoring\s+period\b/i },
-  { kind: "baseline_methodology", pattern: /\b(baseline\s+methodology|applied\s+methodology|baseline\s+method)\b/i },
-  { kind: "monitoring_methodology", pattern: /\bmonitoring\s+methodology\b/i },
-  { kind: "leakage_statement", pattern: /\bleakage\s+statement\b/i },
+const FACT_PATTERNS: Array<{ key: CanonicalProjectFactKey; pattern: RegExp }> = [
+  { key: "projectTitle", pattern: /\b(project\s+title|title\s+of\s+the\s+project)\b/i },
+  { key: "hostCountry", pattern: /\b(host\s+country|host\s+party)\b/i },
+  { key: "projectCountry", pattern: /\b(project\s+country|country)\b/i },
+  { key: "documentType", pattern: /\bdocument\s+type\b/i },
+  { key: "projectStandard", pattern: /\b(project\s+standard|standard)\b/i },
+  { key: "methodologyPrimary", pattern: /\b(methodology\s+used|what\s+methodology|applied\s+methodology|primary\s+methodology)\b/i },
+  { key: "creditingPeriod", pattern: /\bcrediting\s+period\b/i },
+  { key: "projectProponent", pattern: /\b(project\s+proponent|project\s+participant|project\s+developer)\b/i },
+  { key: "projectStartDate", pattern: /\b(project\s+start\s+date|start\s+date)\b/i },
+  { key: "projectType", pattern: /\bproject\s+type\b/i },
 ];
 
 const STOP_WORDS = new Set([
@@ -137,7 +139,7 @@ function uniqueKeywords(question: string): string[] {
 
 function analyzeQuestion(question: string): QuestionAnalysis {
   const normalizedQuestion = normalizeText(question);
-  const factKind = FACT_PATTERNS.find((entry) => entry.pattern.test(question))?.kind ?? null;
+  const factKey = FACT_PATTERNS.find((entry) => entry.pattern.test(question))?.key ?? null;
 
   let intent: QuestionIntent = "general";
   if (/\bmonitoring\b/i.test(question)) intent = "monitoring";
@@ -147,7 +149,7 @@ function analyzeQuestion(question: string): QuestionAnalysis {
 
   return {
     normalizedQuestion,
-    factKind,
+    factKey,
     intent,
     keywords: uniqueKeywords(question),
     calculationSpecific: CALCULATION_SPECIFIC_RE.test(question),
@@ -156,10 +158,6 @@ function analyzeQuestion(question: string): QuestionAnalysis {
 
 function usableSpans(document: EvidenceDocument): EvidenceSpan[] {
   return document.spans.filter((span) => span.blockType !== "toc" && span.blockType !== "footer");
-}
-
-function factByKind(document: EvidenceDocument, kind: DocumentFactKind): DocumentFact | null {
-  return extractDocumentFacts(document).find((fact) => fact.kind === kind) ?? null;
 }
 
 function buildEvidenceFromSpans(spans: ScoredSpan[]): GroundedRetrievalEvidence[] {
@@ -218,16 +216,30 @@ function answerTextFromEvidence(evidence: GroundedRetrievalEvidence[]): string |
   return quotes.length ? quotes.join(" ") : null;
 }
 
-function factLookup(document: EvidenceDocument, analysis: QuestionAnalysis): GroundedRetrievalResult | null {
-  if (!analysis.factKind) return null;
-  const fact = factByKind(document, analysis.factKind);
+function buildFactEvidence(document: EvidenceDocument, fact: ProjectFactValue<string>): GroundedRetrievalEvidence[] {
+  return usableSpans(document)
+    .filter((span) => fact.evidenceSpanIds.includes(span.spanId))
+    .map((span) => ({
+      spanId: span.spanId,
+      page: span.page,
+      sectionId: span.sectionId,
+      heading: span.heading,
+      blockType: span.blockType,
+      quote: span.text,
+      score: 100,
+    }));
+}
+
+function factValueFromContract(contract: ProjectFactContract, key: CanonicalProjectFactKey): ProjectFactValue<string> | null {
+  return contract[key] as ProjectFactValue<string> | null;
+}
+
+function factLookup(document: EvidenceDocument, contract: ProjectFactContract, analysis: QuestionAnalysis): GroundedRetrievalResult | null {
+  if (!analysis.factKey) return null;
+  const fact = factValueFromContract(contract, analysis.factKey);
   if (!fact) return null;
 
-  const spans = usableSpans(document)
-    .filter((span) => fact.evidenceSpanIds.includes(span.spanId))
-    .map((span) => ({ span, score: 100 }));
-
-  const evidence = buildEvidenceFromSpans(spans);
+  const evidence = buildFactEvidence(document, fact);
   const validated = validateEvidence(document, evidence);
   if (validated.evidence.length === 0) {
     return {
@@ -236,8 +248,20 @@ function factLookup(document: EvidenceDocument, analysis: QuestionAnalysis): Gro
       answerText: null,
       evidence: [],
       quoteValidation: validated.quoteValidation,
-      factKind: analysis.factKind,
+      factKey: analysis.factKey,
       reason: "Fact was extracted but quote validation could not support it.",
+    };
+  }
+
+  if (fact.confidence === "low") {
+    return {
+      route: "fact_lookup",
+      status: "unclear",
+      answerText: null,
+      evidence: validated.evidence,
+      quoteValidation: validated.quoteValidation,
+      factKey: analysis.factKey,
+      reason: "Fact was found with low confidence, so Quick Check will not answer it directly.",
     };
   }
 
@@ -247,11 +271,30 @@ function factLookup(document: EvidenceDocument, analysis: QuestionAnalysis): Gro
     answerText: fact.value,
     evidence: validated.evidence,
     quoteValidation: validated.quoteValidation,
-    factKind: analysis.factKind,
+    factKey: analysis.factKey,
   };
 }
 
-function preferredSectionPrefixes(analysis: QuestionAnalysis): string[] {
+function preferredSectionPrefixes(contract: ProjectFactContract, analysis: QuestionAnalysis): string[] {
+  const fromContract = (() => {
+    switch (analysis.intent) {
+      case "monitoring":
+        return contract.monitoringSections;
+      case "additionality":
+        return contract.additionalitySections;
+      case "leakage":
+        return contract.leakageSections;
+      case "baseline":
+        return contract.baselineSections;
+      default:
+        return [];
+    }
+  })()
+    .map((entry) => normalizeSectionKey(entry.sectionId ?? ""))
+    .filter(Boolean);
+
+  if (fromContract.length > 0) return fromContract;
+
   switch (analysis.intent) {
     case "monitoring":
       return ["D.1", "D.2"];
@@ -321,8 +364,8 @@ function lexicalScore(span: EvidenceSpan, analysis: QuestionAnalysis): number {
   return score;
 }
 
-function sectionLookup(document: EvidenceDocument, analysis: QuestionAnalysis): GroundedRetrievalResult | null {
-  const prefixes = preferredSectionPrefixes(analysis).map(normalizeSectionKey);
+function sectionLookup(document: EvidenceDocument, contract: ProjectFactContract, analysis: QuestionAnalysis): GroundedRetrievalResult | null {
+  const prefixes = preferredSectionPrefixes(contract, analysis).map(normalizeSectionKey);
   const spans = usableSpans(document).filter((span) => span.blockType !== "title");
   const candidates = spans
     .filter((span) => {
@@ -372,6 +415,7 @@ function lexicalRetrieval(document: EvidenceDocument, analysis: QuestionAnalysis
   ).slice(0, 3);
 
   if (candidates.length === 0) return null;
+  if (analysis.intent === "general" && (candidates[0]?.score ?? 0) < 8) return null;
 
   const builtEvidence = buildEvidenceFromSpans(candidates);
   const validated = validateEvidence(document, builtEvidence, requiredQuote);
@@ -399,8 +443,9 @@ function lexicalRetrieval(document: EvidenceDocument, analysis: QuestionAnalysis
 
 export function routeGroundedQuestion(input: GroundedRetrievalInput): GroundedRetrievalResult {
   const analysis = analyzeQuestion(input.question);
+  const contract = buildProjectFactContract(input.document);
 
-  const factResult = factLookup(input.document, analysis);
+  const factResult = factLookup(input.document, contract, analysis);
   if (factResult) {
     if (!input.requiredQuote?.trim()) return factResult;
     const validated = validateEvidence(input.document, factResult.evidence, input.requiredQuote);
@@ -417,12 +462,12 @@ export function routeGroundedQuestion(input: GroundedRetrievalInput): GroundedRe
       answerText: null,
       evidence: [],
       quoteValidation: validated.quoteValidation,
-      factKind: factResult.factKind,
+      factKey: factResult.factKey,
       reason: "The requested quote is not supported by the fact evidence.",
     };
   }
 
-  const sectionResult = sectionLookup(input.document, analysis);
+  const sectionResult = sectionLookup(input.document, contract, analysis);
   if (sectionResult) {
     if (!input.requiredQuote?.trim()) return sectionResult;
     const validated = validateEvidence(input.document, sectionResult.evidence, input.requiredQuote);

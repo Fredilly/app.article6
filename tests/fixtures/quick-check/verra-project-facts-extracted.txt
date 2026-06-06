@@ -8,3 +8,15 @@ VM0007 REDD+ Methodology Framework Version 1.6
 
 1.1 Project Description
 The project protects intact tropical forest and adjacent community use areas.
+
+2.4 Baseline scenario
+The baseline scenario is continued forest conversion driven by agricultural expansion.
+
+2.5 Additionality
+The project is additional because the conservation program depends on carbon finance to overcome investment barriers.
+
+3.3 Monitoring
+Monitoring procedures describe plot remeasurement, patrol records, and annual review of safeguards evidence.
+
+3.4 Leakage
+Leakage is managed through community livelihood support and surveillance in nearby forest-use areas.

@@ -52,6 +52,50 @@ export type DocumentFact = {
   confidence: "high" | "medium" | "low";
 };
 
+export type ProjectFactConfidence = "high" | "medium" | "low";
+
+export type CanonicalProjectFactKey =
+  | "projectTitle"
+  | "hostCountry"
+  | "projectCountry"
+  | "projectStandard"
+  | "documentType"
+  | "methodologyPrimary"
+  | "projectType"
+  | "projectStartDate"
+  | "creditingPeriod"
+  | "projectProponent";
+
+export type ProjectFactValue<T = string> = {
+  value: T;
+  confidence: ProjectFactConfidence;
+  evidenceSpanIds: string[];
+  page: number | null;
+  sectionId?: string;
+  heading?: string;
+  extractionRule: string;
+};
+
+export type ProjectSectionFact = ProjectFactValue<string>;
+
+export type ProjectFactContract = {
+  projectTitle: ProjectFactValue<string> | null;
+  hostCountry: ProjectFactValue<string> | null;
+  projectCountry: ProjectFactValue<string> | null;
+  projectStandard: ProjectFactValue<string> | null;
+  documentType: ProjectFactValue<string> | null;
+  methodologyPrimary: ProjectFactValue<string> | null;
+  methodologyModules: Array<ProjectFactValue<string>>;
+  projectType: ProjectFactValue<string> | null;
+  projectStartDate: ProjectFactValue<string> | null;
+  creditingPeriod: ProjectFactValue<string> | null;
+  projectProponent: ProjectFactValue<string> | null;
+  baselineSections: Array<ProjectSectionFact>;
+  monitoringSections: Array<ProjectSectionFact>;
+  leakageSections: Array<ProjectSectionFact>;
+  additionalitySections: Array<ProjectSectionFact>;
+};
+
 export type CompileEvidenceDocumentInput = {
   docId: string;
   rawText: string;
