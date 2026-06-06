@@ -1,0 +1,4 @@
+2.4
+Baseline Scenario
+The baseline scenario is the most likely land-use scenario in the absence of the project activity.
+Historical deforestation rates from satellite imagery show a 1.2% annual loss in the reference region.

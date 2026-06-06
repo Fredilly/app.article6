@@ -1,0 +1,8 @@
+Page 1 of 3
+Project Description Document
+VM0007 Version 1.0
+3.3  Leakage
+Page 2 of 3
+Leakage due to market effects is considered zero, based on the displacement analysis.
+The assessment calculated net market leakage at 0 tCO2.
+Page 3 of 3
