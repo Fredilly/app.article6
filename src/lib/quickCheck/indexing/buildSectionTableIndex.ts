@@ -295,6 +295,7 @@ export function buildSectionTableIndex(input: {
 }): SectionTableIndex {
   const sectionTree = buildSectionTree(input);
   return {
+    documentFamily: input.documentStructure.documentFamily.family,
     sectionTree,
     tableIndex: buildTableIndex({ evidenceDocument: input.evidenceDocument }),
     sectionTopicMap: buildSectionTopicMap({

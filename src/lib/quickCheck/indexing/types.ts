@@ -1,4 +1,4 @@
-import type { ParsedBoundingBox } from "@/lib/documentParsing";
+import type { DocumentFamily, ParsedBoundingBox } from "@/lib/documentParsing";
 
 export const SECTION_TOPICS = [
   "baseline",
@@ -97,6 +97,7 @@ export type SectionTopicReference = {
 export type SectionTopicMap = Record<SectionTopic, SectionTopicReference[]>;
 
 export type SectionTableIndex = {
+  documentFamily?: DocumentFamily;
   sectionTree: SectionTree;
   tableIndex: TableIndex;
   sectionTopicMap: SectionTopicMap;
