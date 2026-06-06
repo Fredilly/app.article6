@@ -176,7 +176,7 @@ function detectMethodologyRole(
     matchesMonitor(prevLine) ||
     matchesMonitor(nextLine);
 
-  const hasPrimarySection = sectionTitles.some((t) => DECLARATION_HEADING_PATTERNS.some((p) => p.test(t)));
+  const hasPrimarySection = sectionTitles.some((t) => matchesDeclNotMonitor(t));
   const hasMonitoringSection = sectionTitles.some((t) => MONITORING_HEADING_PATTERNS.some((p) => p.test(t)));
 
   const inFootnote = isInFootnote(lines, lineIndex);
@@ -232,13 +232,17 @@ function detectMethodologyRole(
 
 function extractSectionTitles(lines: string[], lineIndex: number): string[] {
   const titles: string[] = [];
+  let foundHeading = false;
   for (let i = lineIndex; i >= 0; i--) {
     const line = lines[i] ?? "";
-    const m = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/.exec(line);
+    const m = /^(?:\s*(?:Section\s+)?((?:[A-Z]\.)?\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/.exec(line);
     if (m?.[2]?.trim()) {
       titles.push(m[2].trim());
+      foundHeading = true;
       if (!m[1]?.includes(".")) break;
+      continue;
     }
+    if (foundHeading && line.trim()) break;
   }
   return titles;
 }

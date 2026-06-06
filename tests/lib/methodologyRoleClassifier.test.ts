@@ -141,6 +141,20 @@ describe("methodologyRoleClassifier", () => {
       expect(monitoring(result)?.confidence).toBe("high");
     });
 
+    it("classifies wrapped CDM monitoring methodology without inventing a primary methodology", () => {
+      const text = [
+        "D.1 Name and reference of approved monitoring methodology applied",
+        "",
+        "ACM0002 Version 02.0",
+      ].join("\n");
+
+      const result = classifyMethodologyRoles(text);
+      expect(primary(result)).toBeNull();
+      expect(monitoring(result)?.id).toBe("ACM0002");
+      expect(monitoring(result)?.version).toBe("02.0");
+      expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
+    });
+
     it("distinguishes monitoring from primary when both are present", () => {
       const text = [
         "Applied methodology",
