@@ -38,7 +38,7 @@ function findLabeledValue(
   options?: { allowMultiline?: boolean; preferBlockTypes?: EvidenceSpan["blockType"][] },
 ): SpanMatch | null {
   const labelPattern = labels.map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
-  const pattern = new RegExp(`(?:${labelPattern})\\s*[:\\-]\\s*(.+)$`, "i");
+  const pattern = new RegExp(`^\\s*(?:${labelPattern})\\s*[:\\-]\\s*(.+)$`, "i");
   const candidates: SpanMatch[] = [];
 
   for (const span of spans) {

@@ -94,6 +94,20 @@ describe("extractDocumentFacts", () => {
 
     expect(facts.every((fact) => fact.evidenceSpanIds.length > 0)).toBe(true);
   });
+
+  test("does not extract labeled facts from mid-sentence prose mentions", () => {
+    const compiled = compileEvidenceDocument({
+      docId: "doc-3",
+      rawText: [
+        "Project narrative",
+        "",
+        "The host country: Indonesia is referenced in the narrative but not declared as a labeled field.",
+      ].join("\n"),
+    });
+
+    const facts = extractDocumentFacts(compiled);
+    expect(facts.some((fact) => fact.kind === "host_country")).toBe(false);
+  });
 });
 
 describe("validateQuotes", () => {
