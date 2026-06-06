@@ -1,0 +1,61 @@
+{
+  "repoCommit": "4d9a42e3f75a60a65056e72158eb83f2157e6e8b",
+  "generatedAt": "2026-06-06T03:18:11.362Z",
+  "method": {
+    "code": "AR-ACM0003",
+    "version": "v02-0"
+  },
+  "aoi": {
+    "hash": "aoi-demo-hash",
+    "bbox": [
+      -122.52,
+      37.7,
+      -122.35,
+      37.83
+    ],
+    "areaKm2": 42.7,
+    "declaredAreaKm2": null
+  },
+  "stac": {
+    "query": {
+      "source": "https://earth-search.aws.element84.com/v1",
+      "collection": "sentinel-2-l2a",
+      "datetime": {
+        "start": "2024-01-01T00:00:00Z",
+        "end": "2024-01-31T23:59:59Z"
+      },
+      "limit": 10,
+      "filters": {
+        "cloud_cover_lt": 20
+      }
+    },
+    "itemIds": [
+      "S2A_001",
+      "S2A_002",
+      "S2A_003",
+      "S2A_004",
+      "S2A_005",
+      "S2A_006",
+      "S2A_007",
+      "S2A_008",
+      "S2A_009",
+      "S2A_010"
+    ]
+  },
+  "linkage": {
+    "selectedRuleId": null,
+    "linkedRuleIds": [
+      "R-1-0001",
+      "R-1-0002"
+    ]
+  },
+  "kpis": {
+    "itemsCount": 10,
+    "linkedRulesCount": 2,
+    "coverage": {
+      "numerator": 2,
+      "denominator": 8
+    },
+    "snapshotExportedAt": null
+  }
+}

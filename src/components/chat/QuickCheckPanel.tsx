@@ -541,6 +541,17 @@ function confidenceBarTone(value: "high" | "medium" | "low" | "unknown" | undefi
   return "bg-slate-300";
 }
 
+function roleShortLabel(role: string): string {
+  switch (role) {
+    case "PRIMARY_PROJECT_METHODOLOGY": return "primary";
+    case "MONITORING_METHODOLOGY": return "monitoring";
+    case "REFERENCED_CALCULATION_METHOD": return "calculation";
+    case "TOOL_OR_DEPENDENCY": return "tool";
+    case "BACKGROUND_MENTION": return "background";
+    default: return "";
+  }
+}
+
 function buildWeakExtractionRecoveryState(): RecoveryState {
   return {
     kind: "weak-extraction",
@@ -889,9 +900,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             analysis: extractionState.analysis,
             fileName: selectedEvidenceLabel,
             methodologyResolution,
+            extractionSnapshot: extractionPreview,
           })
         : null,
-    [extractionState.analysis, methodologyResolution, selectedEvidenceLabel],
+    [extractionState.analysis, methodologyResolution, selectedEvidenceLabel, extractionPreview],
   );
   const normalizedResult = useMemo(
     () =>
@@ -1975,11 +1987,36 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 </div>
                               </div>
                               <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
-                                <div className="text-sm text-slate-500">Methodology</div>
-                                <div className="min-w-0 break-words font-medium leading-5 text-slate-900" title={extractionPreviewView.detectedMethodology || "Not detected"}>
-                                  {extractionPreviewView.detectedMethodology || "Not detected"}
+                                <div className="text-sm text-slate-500">Primary</div>
+                                <div className="min-w-0 break-words font-medium leading-5 text-slate-900">
+                                  {extractionPreviewView.primaryMethodology
+                                    ? `${extractionPreviewView.primaryMethodology.id}${extractionPreviewView.primaryMethodology.version ? ` \u00b7 ${extractionPreviewView.primaryMethodology.version}` : ""}`
+                                    : extractionPreviewView.detectedMethodology && extractionPreviewView.detectedMethodology !== "Not confidently detected"
+                                      ? extractionPreviewView.detectedMethodology
+                                      : "Not detected"}
                                 </div>
                               </div>
+                              {extractionPreviewView.monitoringMethodology ? (
+                                <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
+                                  <div className="text-sm text-slate-500">Monitoring</div>
+                                  <div className="min-w-0 break-words font-medium leading-5 text-slate-900">
+                                    {extractionPreviewView.monitoringMethodology.id}{extractionPreviewView.monitoringMethodology.version ? ` \u00b7 ${extractionPreviewView.monitoringMethodology.version}` : ""}
+                                  </div>
+                                </div>
+                              ) : null}
+                              {extractionPreviewView.referencedMethods && extractionPreviewView.referencedMethods.length > 0 ? (
+                                <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
+                                  <div className="text-sm text-slate-500">Referenced</div>
+                                  <div className="flex min-w-0 flex-wrap gap-1.5">
+                                    {extractionPreviewView.referencedMethods.map((m) => (
+                                      <span key={m.id} className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                                        {m.id}{m.version ? ` \u00b7 ${m.version}` : ""}
+                                        <span className="ml-1 text-[10px] text-slate-400">{roleShortLabel(m.role)}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : null}
                               <div>
                                 <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-3">
                                   <span className="text-sm text-slate-500">Confidence</span>
@@ -2051,13 +2088,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               </div>
                             </div>
                             <div>
-                              <div className="text-xs font-medium text-slate-500">Methodology mentions</div>
+                              <div className="text-xs font-medium text-slate-500">Methodology references</div>
                               <div className="mt-2 flex flex-wrap gap-2">
-                                {(extractionPreview.methodologyMentions.length ? extractionPreview.methodologyMentions : ["None detected"]).map((mention) => (
-                                  <span key={mention} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                                    {mention}
-                                  </span>
-                                ))}
+                                {extractionPreviewView.referencedMethods && extractionPreviewView.referencedMethods.length > 0
+                                  ? extractionPreviewView.referencedMethods.map((m) => (
+                                      <span key={`${m.id}-${m.role}`} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                        {m.id}{m.version ? ` · ${m.version}` : ""}
+                                        <span className="ml-1 text-[10px] text-slate-400">{roleShortLabel(m.role)}</span>
+                                      </span>
+                                    ))
+                                  : extractionPreview.methodologyMentions.length > 0
+                                    ? extractionPreview.methodologyMentions.map((mention) => (
+                                        <span key={mention} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                          {mention}
+                                        </span>
+                                      ))
+                                    : <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">None detected</span>}
                               </div>
                             </div>
                             <div className="md:col-span-2">

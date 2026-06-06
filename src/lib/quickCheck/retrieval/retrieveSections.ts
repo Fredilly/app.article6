@@ -182,7 +182,7 @@ export function extractClaimKeywords(claimText: string): { phrases: string[]; wo
 }
 
 function isReasonableSectionId(num: string): boolean {
-  return /^\d+(?:\.\d+)*$/.test(num);
+  return /^(?:\d+(?:\.\d+)*|[A-Z]\.\d+(?:\.\d+)*)$/.test(num);
 }
 
 function normalizeReviewText(text: string): string {
@@ -297,6 +297,8 @@ function scoreSemanticHeading(
   }
 
   if (negativeSectionTerms.some((term) => titleText.includes(normalizeReviewText(term)))) {
+    score -= 8;
+  } else if (negativeSectionTerms.some((term) => bodyText.includes(normalizeReviewText(term)))) {
     score -= 4;
   }
 
@@ -320,6 +322,36 @@ function semanticFallbackMatches(
     .map((entry) => entry.heading);
 }
 
+function rerankByReviewPreferences(
+  headings: DocumentHeading[],
+  reviewArea: ReviewArea,
+): DocumentHeading[] {
+  if (headings.length <= 1) return headings;
+  const negativeTerms = getNegativeSectionTerms(reviewArea);
+  const preferredBoosts = getPreferredSectionBoosts(reviewArea);
+  const scored = headings.map((heading) => {
+    let boost = 0;
+    for (const bp of preferredBoosts) {
+      if (
+        heading.sectionNumber === bp.sectionNumber &&
+        heading.normalizedTitle.includes(normalizeReviewText(bp.titleIncludes))
+      ) {
+        boost += bp.score;
+      }
+    }
+    const titleNegatives = negativeTerms.filter((t) =>
+      heading.normalizedTitle.includes(normalizeReviewText(t)),
+    ).length;
+    const bodyNegatives = negativeTerms.filter((t) =>
+      heading.normalizedBodyText.includes(normalizeReviewText(t)),
+    ).length;
+    const penalty = (titleNegatives + bodyNegatives * 0.5) * 60;
+    return { heading, score: boost - penalty };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((s) => s.heading);
+}
+
 function resolveReviewQuestionSections(input: {
   headingIndex: DocumentHeading[];
   claimText: string;
@@ -333,6 +365,7 @@ function resolveReviewQuestionSections(input: {
     methodologyId: input.methodologyId,
     rawPddText: input.rawPddText,
   });
+  const negativeSectionTerms = getNegativeSectionTerms(input.reviewArea);
   const claimKeywords = extractClaimKeywords(input.claimText);
   const searchTerms = [...new Set([...reviewAreaKeywords, ...aliases, ...claimKeywords.phrases, ...claimKeywords.words])];
   const fallbackStages = getFallbackStages();
@@ -343,14 +376,18 @@ function resolveReviewQuestionSections(input: {
     if (stage === "exact_heading") {
       matches = uniqueHeadings(exactHeadingMatches(input.headingIndex, input.claimText));
     } else if (stage === "normalized_heading") {
-      matches = uniqueHeadings(filterPddHeadingsByQuery(input.headingIndex, input.claimText, []));
+      matches = uniqueHeadings(filterPddHeadingsByQuery(input.headingIndex, input.claimText, reviewAreaKeywords, negativeSectionTerms));
     } else if (stage === "alias_heading") {
       matches = uniqueHeadings([
         ...aliasHeadingMatches(input.headingIndex, aliases),
-        ...filterPddHeadingsByQuery(input.headingIndex, input.claimText, [...reviewAreaKeywords, ...aliases]),
+        ...filterPddHeadingsByQuery(input.headingIndex, input.claimText, [...reviewAreaKeywords, ...aliases], negativeSectionTerms),
       ]);
     } else if (stage === "semantic_fallback") {
       matches = uniqueHeadings(semanticFallbackMatches(input.headingIndex, input.reviewArea, searchTerms, claimKeywords));
+    }
+
+    if (matches.length > 0) {
+      matches = rerankByReviewPreferences(matches, input.reviewArea);
     }
 
     stageAttempts.push({

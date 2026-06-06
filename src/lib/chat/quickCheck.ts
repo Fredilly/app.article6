@@ -14,6 +14,7 @@ import {
   persistVerifierRunBundle,
   readVerifierRunBundle,
 } from "@/lib/verify/runState";
+import type { MethodologyClassification } from "@/lib/chat/methodologyRoleClassifier";
 
 export type QuickCheckDraftStatus = "draft" | "checked";
 export type QuickCheckSourceMode = "uploaded_file" | "saved_evidence" | "demo_evidence";
@@ -30,6 +31,7 @@ export type QuickCheckExtractionSnapshot = {
   documentType: string;
   extractedFacts: string[];
   methodologyMentions: string[];
+  methodologyClassification?: MethodologyClassification;
   warnings: string[];
   signals: QuickCheckExtractionSignals;
   extractionConfidence?: number;
