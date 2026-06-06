@@ -24,12 +24,25 @@ export type EvidenceLayoutMetadata = {
   limitedProvenance?: boolean;
 };
 
+export type EvidenceTableCellMetadata = {
+  rowIndex: number;
+  columnIndex: number;
+  text: string;
+  normalizedText: string;
+  pageNumber?: number;
+  boundingBox?: ParsedBoundingBox;
+  sourceTableId?: string;
+  sourceBlockId?: string;
+  parserSource?: string;
+};
+
 export type EvidenceTableMetadata = {
   tableId?: string;
   caption?: string;
   rowCount?: number;
   columnCount?: number;
   headerRowCount?: number;
+  cells?: EvidenceTableCellMetadata[];
   limitedProvenance?: boolean;
 };
 

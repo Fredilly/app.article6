@@ -223,7 +223,7 @@ describe("Evidence Compiler v2", () => {
     ))).toBe(true);
   });
 
-  test("preserves table metadata when available and marks table spans as limited provenance", () => {
+  test("preserves table metadata and cell-level provenance when available", () => {
     const rawText = "Host country | Indonesia";
     const documentStructure = makeStructure({
       rawText,
@@ -282,12 +282,35 @@ describe("Evidence Compiler v2", () => {
         rowCount: 1,
         columnCount: 2,
         headerRowCount: 1,
+        cells: [
+          expect.objectContaining({
+            rowIndex: 0,
+            columnIndex: 0,
+            text: "Host country",
+            normalizedText: "host country",
+            pageNumber: 1,
+            sourceTableId: "table-1",
+            sourceBlockId: "table-1",
+            parserSource: "test-parser",
+          }),
+          expect.objectContaining({
+            rowIndex: 0,
+            columnIndex: 1,
+            text: "Indonesia",
+            normalizedText: "indonesia",
+            pageNumber: 1,
+            sourceTableId: "table-1",
+            sourceBlockId: "table-1",
+            parserSource: "test-parser",
+          }),
+        ],
         limitedProvenance: false,
       }),
       layout: expect.objectContaining({
         boundingBox: expect.any(Object),
       }),
     }));
+    expect(compiled.spans[0]?.table?.cells?.[0]?.boundingBox).toBeUndefined();
   });
 
   test("excludes repeated headers and footers from quote validation", () => {

@@ -6,6 +6,7 @@ import type {
   EvidenceDocument,
   EvidenceSpan,
   EvidenceSpanReliability,
+  EvidenceTableCellMetadata,
   EvidenceTableMetadata,
 } from "@/lib/quickCheck/evidence/evidenceTypes";
 
@@ -414,6 +415,24 @@ function buildEvidenceSpan(input: {
   };
 }
 
+function buildEvidenceTableCells(input: {
+  table: NonNullable<DocumentStructure["blocks"][number]["table"]>;
+  blockId: string;
+  parserSource?: string;
+}): EvidenceTableCellMetadata[] {
+  return input.table.cells.map((cell) => ({
+    rowIndex: cell.rowIndex,
+    columnIndex: cell.columnIndex,
+    text: cell.text,
+    normalizedText: normalizeEvidenceText(cell.text),
+    pageNumber: input.table.pageNumber,
+    boundingBox: cell.boundingBox,
+    sourceTableId: input.table.id,
+    sourceBlockId: input.blockId,
+    parserSource: input.parserSource,
+  }));
+}
+
 function inferStructureBlockType(
   block: DocumentStructure["blocks"][number],
   index: number,
@@ -538,6 +557,11 @@ export function compileEvidenceDocumentFromStructure(input: {
           rowCount: block.table?.rowCount,
           columnCount: block.table?.columnCount,
           headerRowCount: block.table?.headerRowCount,
+          cells: block.table ? buildEvidenceTableCells({
+            table: block.table,
+            blockId: block.id,
+            parserSource: block.parserSource ?? input.documentStructure.source,
+          }) : undefined,
           limitedProvenance: !hasNativeTableMetadata,
         }
       : undefined;
