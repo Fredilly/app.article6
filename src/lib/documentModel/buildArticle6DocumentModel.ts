@@ -63,8 +63,35 @@ export function buildArticle6DocumentModel(
   const { parsedDocument, includeDebugPayload = false } = input;
   const parserAdapterId = parsedDocument.adapterId;
   const source = parsedDocument.source;
+  const parsedElements = parsedDocument.elements ?? [];
 
-  const blocks: Article6DocumentBlock[] = parsedDocument.blocks.map((block) => {
+  const blockSource: Array<{
+    id: string;
+    type: "heading" | "paragraph" | "unknown";
+    text: string;
+    normalizedText: string;
+    pageNumber?: number;
+    headingLevel?: number;
+    sectionNumber?: string;
+    confidence?: number;
+  }> = parsedElements.length > 0
+    ? parsedElements.map((element) => ({
+        id: element.id,
+        type: element.elementType === "heading"
+          ? "heading" as const
+          : element.elementType === "paragraph"
+            ? "paragraph" as const
+            : "unknown" as const,
+        text: element.text,
+        normalizedText: element.normalizedText,
+        pageNumber: element.pageNumber,
+        headingLevel: element.headingLevel,
+        sectionNumber: element.sectionNumber,
+        confidence: element.confidence,
+      }))
+    : parsedDocument.blocks;
+
+  const blocks: Article6DocumentBlock[] = blockSource.map((block) => {
     const sectionId = sectionIdFromNumber(block.sectionNumber);
     return {
       id: block.id,
@@ -84,7 +111,7 @@ export function buildArticle6DocumentModel(
         sectionId,
         sectionNumber: block.sectionNumber,
       }],
-      confidence: block.type === "heading" ? 0.95 : 0.8,
+      confidence: block.confidence ?? (block.type === "heading" ? 0.95 : 0.8),
     };
   });
 
@@ -241,4 +268,10 @@ export function buildArticle6DocumentModel(
     parserDiagnostics: parsedDocument.diagnostics,
     debug: includeDebugPayload ? { parserOutput: parsedDocument } : undefined,
   };
+}
+
+export function buildDocumentStructure(
+  input: BuildArticle6DocumentModelInput,
+): Article6DocumentModel {
+  return buildArticle6DocumentModel(input);
 }

@@ -1,4 +1,11 @@
-import type { DocumentParserAdapterId, ParsedBlock, ParsedDocument, ParsedHeading, ParsedPage, ParserDiagnostics } from "@/lib/documentParsing";
+import type {
+  DocumentParserAdapterId,
+  ParsedBlock,
+  ParsedDocument,
+  ParsedHeading,
+  ParsedPage,
+  ParserDiagnostics,
+} from "@/lib/documentParsing";
 
 export type Article6SourceRef = {
   source: string;
@@ -76,6 +83,8 @@ export type Article6DocumentModel = {
     parserOutput: ParsedDocument;
   };
 };
+
+export type DocumentStructure = Article6DocumentModel;
 
 export type BuildArticle6DocumentModelInput = {
   parsedDocument: ParsedDocument;

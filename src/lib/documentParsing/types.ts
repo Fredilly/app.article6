@@ -13,10 +13,65 @@ export type ParseDocumentTextInput = {
   rawText: string;
 };
 
+export type ParsedBoundingBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type ParsedCell = {
+  rowIndex: number;
+  columnIndex: number;
+  text: string;
+  rowSpan?: number;
+  colSpan?: number;
+  boundingBox?: ParsedBoundingBox;
+  confidence?: number;
+};
+
+export type ParsedTable = {
+  id: string;
+  pageNumber: number;
+  caption?: string;
+  columnCount?: number;
+  rowCount?: number;
+  headerRowCount?: number;
+  boundingBox?: ParsedBoundingBox;
+  cells: ParsedCell[];
+  confidence?: number;
+};
+
+export type ParsedElementType =
+  | "heading"
+  | "paragraph"
+  | "table"
+  | "list_item"
+  | "footer"
+  | "header"
+  | "unknown";
+
+export type ParsedElement = {
+  id: string;
+  pageNumber: number;
+  text: string;
+  normalizedText: string;
+  elementType: ParsedElementType;
+  headingLevel?: number;
+  sectionNumber?: string;
+  sectionPath?: string[];
+  boundingBox?: ParsedBoundingBox;
+  tableId?: string;
+  table?: ParsedTable;
+  sourceParser: string;
+  confidence?: number;
+};
+
 export type ParsedPage = {
   pageNumber: number;
   rawText: string;
   normalizedText: string;
+  elements: ParsedElement[];
 };
 
 export type ParsedBlock = {
@@ -43,12 +98,26 @@ export type ParserDiagnostics = {
   metadata?: Record<string, string>;
 };
 
+export type DocumentQualityReport = {
+  parserName: string;
+  warnings: string[];
+  metadata?: Record<string, string>;
+  hasStructuredHeadings: boolean;
+  hasPageBoundaries: boolean;
+  hasBoundingBoxes: boolean;
+  hasTables: boolean;
+};
+
 export type ParsedDocument = {
   adapterId: DocumentParserAdapterId;
   source: string;
   rawText: string;
   normalizedText: string;
   pages: ParsedPage[];
+  elements: ParsedElement[];
+  tables: ParsedTable[];
+  parserName: string;
+  qualityReport: DocumentQualityReport;
   blocks: ParsedBlock[];
   headings: ParsedHeading[];
   diagnostics?: ParserDiagnostics;
@@ -57,7 +126,9 @@ export type ParsedDocument = {
   headingIndex?: DocumentHeading[];
 };
 
-export interface DocumentParserAdapter {
+export interface ParserAdapter {
   readonly id: DocumentParserAdapterId;
   parseText(input: ParseDocumentTextInput): ParsedDocument;
 }
+
+export type DocumentParserAdapter = ParserAdapter;
