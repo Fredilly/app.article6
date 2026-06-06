@@ -83,7 +83,7 @@ describe("validateQuotes", () => {
     ]);
 
     expect(exact).toEqual(expect.objectContaining({ valid: true, matchType: "exact", confidence: "high" }));
-    expect(normalized).toEqual(expect.objectContaining({ valid: true }));
+    expect(normalized).toEqual(expect.objectContaining({ valid: true, matchType: "normalized", confidence: "medium" }));
     expect(missing).toEqual(expect.objectContaining({ valid: false, matchType: "missing" }));
   });
 });

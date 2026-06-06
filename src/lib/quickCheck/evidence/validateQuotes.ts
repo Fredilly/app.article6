@@ -34,9 +34,7 @@ function tokenOverlapScore(left: string, right: string): number {
 }
 
 function findExactMatch(candidates: EvidenceSpan[], normalizedQuote: string): EvidenceSpan[] {
-  return candidates.filter(
-    (span) => span.text.includes(normalizedQuote) || span.normalizedText.includes(normalizedQuote),
-  );
+  return candidates.filter((span) => span.normalizedText.includes(normalizedQuote));
 }
 
 function normalizeRawQuote(quote: string): string {
@@ -61,27 +59,14 @@ export function validateQuotes(
     }
 
     const candidates = filterCandidateSpans(document, quote);
-    const exactMatches = candidates.filter(
-      (span) => span.text.includes(rawQuote) || span.normalizedText.includes(normalizedQuote),
-    );
+    const exactMatches = candidates.filter((span) => span.text.includes(rawQuote));
     if (exactMatches.length) {
       return {
         quote: quote.quote,
         valid: true,
         matchedSpanIds: dedupe(exactMatches.map((span) => span.spanId)),
-        matchType: rawQuote === normalizedQuote ? "normalized" : "exact",
+        matchType: "exact",
         confidence: "high",
-      };
-    }
-
-    const fuzzyMatches = candidates.filter((span) => tokenOverlapScore(span.normalizedText, normalizedQuote) >= 0.8);
-    if (fuzzyMatches.length) {
-      return {
-        quote: quote.quote,
-        valid: true,
-        matchedSpanIds: dedupe(fuzzyMatches.map((span) => span.spanId)),
-        matchType: "fuzzy",
-        confidence: "medium",
       };
     }
 
@@ -92,6 +77,17 @@ export function validateQuotes(
         valid: true,
         matchedSpanIds: dedupe(normalizedMatches.map((span) => span.spanId)),
         matchType: "normalized",
+        confidence: "medium",
+      };
+    }
+
+    const fuzzyMatches = candidates.filter((span) => tokenOverlapScore(span.normalizedText, normalizedQuote) >= 0.8);
+    if (fuzzyMatches.length) {
+      return {
+        quote: quote.quote,
+        valid: true,
+        matchedSpanIds: dedupe(fuzzyMatches.map((span) => span.spanId)),
+        matchType: "fuzzy",
         confidence: "medium",
       };
     }
