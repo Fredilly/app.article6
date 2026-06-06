@@ -1,3 +1,5 @@
+import type { ParsedDocument } from "@/lib/documentParsing/types";
+
 export type DocumentFamily =
   | "CDM_PDD"
   | "VCS_PD"
@@ -30,5 +32,5 @@ export type DocumentFamilyClassification = {
 };
 
 export interface DocumentFamilyClassifier {
-  classify: (parsedDocument: any) => DocumentFamilyClassification;
+  classify: (parsedDocument: ParsedDocument) => DocumentFamilyClassification;
 }
