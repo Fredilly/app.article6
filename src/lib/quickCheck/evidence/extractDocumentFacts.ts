@@ -29,6 +29,14 @@ function cleanValue(value: string): string {
     .trim();
 }
 
+function sentenceFromSpan(span: EvidenceSpan, pattern: RegExp): string | null {
+  const match = pattern.exec(span.text);
+  if (!match || typeof match.index !== "number") return null;
+  const tail = span.text.slice(match.index).trim();
+  const sentence = tail.match(/^[^.!?\n]+[.!?]?/)?.[0] ?? tail;
+  return cleanValue(sentence);
+}
+
 function findLabeledValue(
   spans: EvidenceSpan[],
   labels: string[],
@@ -65,10 +73,20 @@ function findTitleFact(spans: EvidenceSpan[]): SpanMatch | null {
 }
 
 function findPeriodFact(spans: EvidenceSpan[], labels: string[]): SpanMatch | null {
-  return findLabeledValue(spans, labels, {
+  const labeled = findLabeledValue(spans, labels, {
     allowMultiline: true,
     pattern: PERIOD_PATTERN,
   });
+  if (labeled) return labeled;
+
+  for (const span of spans) {
+    if (!labels.some((label) => normalizeEvidenceText(span.text).includes(label))) continue;
+    const match = span.text.match(PERIOD_PATTERN);
+    if (match?.[1]) {
+      return { span, value: cleanValue(match[1]), confidence: "medium" };
+    }
+  }
+  return null;
 }
 
 function findMethodologyFact(
@@ -82,7 +100,7 @@ function findMethodologyFact(
   if (labeled) return labeled;
 
   for (const span of spans) {
-    if (!options.headingPattern?.test(span.heading ?? "")) continue;
+    if (options.headingPattern && !options.headingPattern.test(span.heading ?? "")) continue;
     if (span.blockType === "section_heading") continue;
     const match = span.text.match(METHODOLOGY_CODE_PATTERN);
     if (match?.[0]) {
@@ -90,6 +108,26 @@ function findMethodologyFact(
         span,
         value: cleanValue(match[0]),
         confidence: options.confidence ?? (span.blockType === "paragraph" ? "medium" : "high"),
+      };
+    }
+  }
+  return null;
+}
+
+function findLeakageValue(spans: EvidenceSpan[]): SpanMatch | null {
+  const labeled = findLabeledValue(spans, ["Leakage", "Leakage value", "Leakage emissions"], {
+    allowMultiline: true,
+  });
+  if (labeled) return labeled;
+
+  for (const span of spans) {
+    if (!/\bleakage\b/i.test(span.text)) continue;
+    const match = span.text.match(/\bleakage\b[^.\n:]*[:\-]?\s*([^.\n]+)/i);
+    if (match?.[1]) {
+      return {
+        span,
+        value: cleanValue(match[1]),
+        confidence: span.blockType === "paragraph" ? "low" : "medium",
       };
     }
   }
@@ -119,6 +157,29 @@ function findLeakageStatement(spans: EvidenceSpan[]): SpanMatch | null {
   return null;
 }
 
+function findNarrativeFact(spans: EvidenceSpan[], labels: string[], kind: "baseline" | "additionality"): SpanMatch | null {
+  const labelPattern = labels.map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const sentencePattern = new RegExp(`(?:${labelPattern})`, "i");
+
+  const orderedSpans = [
+    ...spans.filter((span) => span.blockType !== "section_heading"),
+    ...spans.filter((span) => span.blockType === "section_heading"),
+  ];
+
+  for (const span of orderedSpans) {
+    if (!sentencePattern.test(span.text)) continue;
+    const value = sentenceFromSpan(span, sentencePattern);
+    if (!value) continue;
+    return {
+      span,
+      value,
+      confidence: span.blockType === "section_heading" ? "low" : kind === "baseline" ? "medium" : "high",
+    };
+  }
+
+  return null;
+}
+
 function toFact(kind: DocumentFactKind, match: SpanMatch | null): DocumentFact | null {
   if (!match) return null;
   return {
@@ -139,6 +200,7 @@ export function extractDocumentFacts(document: EvidenceDocument): DocumentFact[]
     toFact("baseline_methodology", findMethodologyFact(spans, {
       labels: ["Baseline methodology", "Applied methodology", "Approved methodology", "Methodology"],
     })),
+    toFact("methodology", findLabeledValue(spans, ["Methodology", "Applied methodology", "Approved methodology"], { allowMultiline: true })),
     toFact("monitoring_methodology", findMethodologyFact(spans, {
       labels: ["Monitoring methodology", "Monitoring approach", "Monitoring method"],
       headingPattern: /name and reference of approved monitoring methodology applied|monitoring methodology|monitoring applied/i,
@@ -146,7 +208,10 @@ export function extractDocumentFacts(document: EvidenceDocument): DocumentFact[]
     toFact("crediting_period", findPeriodFact(spans, ["crediting period"])),
     toFact("reporting_period", findPeriodFact(spans, ["reporting period"])),
     toFact("monitoring_period", findPeriodFact(spans, ["monitoring period"])),
+    toFact("leakage_value", findLeakageValue(spans)),
     toFact("leakage_statement", findLeakageStatement(spans)),
+    toFact("baseline_scenario", findNarrativeFact(spans, ["Baseline scenario", "Baseline scenario is", "Baseline"], "baseline")),
+    toFact("additionality_claim", findNarrativeFact(spans, ["Additionality", "Project is additional", "Additional"], "additionality")),
   ];
 
   return facts.filter((fact): fact is DocumentFact => Boolean(fact));

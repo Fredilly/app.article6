@@ -182,10 +182,27 @@ describe("extractDocumentFacts", () => {
     ).toEqual(expect.objectContaining({ value: "Leakage is not expected because activities remain within the existing management boundary" }));
   });
 
-  test("every extracted fact has at least one valid evidenceSpanId", () => {
-    const compiled = compileEvidenceDocument({ docId: "doc-all", rawText: SAMPLE_TEXT });
+  test("extracts deterministic facts with span provenance", () => {
+    const compiled = compileEvidenceDocument({
+      docId: "doc-1",
+      rawText: SAMPLE_TEXT,
+    });
+
     const facts = extractDocumentFacts(compiled);
-    expect(facts.length).toBeGreaterThan(0);
+
+    expect(facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "project_title", value: "Katingan Peatland Restoration and Conservation Project" }),
+        expect.objectContaining({ kind: "host_country", value: "Indonesia", confidence: "high" }),
+        expect.objectContaining({ kind: "methodology", value: "VM0007 REDD+ Methodology Framework (v1.6)" }),
+        expect.objectContaining({ kind: "crediting_period", value: "01 January 2021 to 31 December 2030" }),
+        expect.objectContaining({
+          kind: "baseline_scenario",
+          value: expect.stringContaining("Baseline scenario: Conversion of peat swamp forest to plantations"),
+        }),
+      ]),
+    );
+
     expect(facts.every((fact) => fact.evidenceSpanIds.length > 0)).toBe(true);
   });
 
