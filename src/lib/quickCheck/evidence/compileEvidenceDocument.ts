@@ -535,7 +535,7 @@ export function compileEvidenceDocumentFromStructure(input: {
   let cursor = 0;
   let hasSeenSectionedHeading = false;
 
-  const spans: EvidenceSpan[] = input.documentStructure.blocks.flatMap((block, index) => {
+  const spans: EvidenceSpan[] = input.documentStructure.blocks.flatMap((block) => {
     const treatAsTitle =
       block.type === "heading"
       && !block.sectionId
