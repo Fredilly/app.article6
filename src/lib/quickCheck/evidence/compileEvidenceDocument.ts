@@ -1,4 +1,5 @@
 import { normalizeSectionKey } from "@/lib/chat/quickCheckSectionExtractor";
+import type { DocumentStructure } from "@/lib/documentModel";
 import type {
   CompileEvidenceDocumentInput,
   EvidenceBlockType,
@@ -242,6 +243,28 @@ function buildSpanId(docId: string, page: number | null, charStart: number, bloc
   return [safeDocId, `p${page ?? 0}`, blockType, `${charStart}`].join(":");
 }
 
+function mapDocumentStructureBlockType(type: DocumentStructure["blocks"][number]["type"]): EvidenceBlockType {
+  switch (type) {
+    case "heading":
+      return "section_heading";
+    case "paragraph":
+      return "paragraph";
+    case "unknown":
+    default:
+      return "paragraph";
+  }
+}
+
+function findCharStart(rawText: string, blockText: string, fallbackCursor: number): number {
+  const trimmed = blockText.trim();
+  if (!trimmed) return fallbackCursor;
+  const exactIndex = rawText.indexOf(blockText, fallbackCursor);
+  if (exactIndex >= 0) return exactIndex;
+  const trimmedIndex = rawText.indexOf(trimmed, fallbackCursor);
+  if (trimmedIndex >= 0) return trimmedIndex;
+  return fallbackCursor;
+}
+
 export function compileEvidenceDocument(input: CompileEvidenceDocumentInput): EvidenceDocument {
   const rawText = normalizeNewlines(input.rawText ?? "");
   const spans: EvidenceSpan[] = buildCandidateBlocks({ ...input, rawText }).map((block) => ({
@@ -257,6 +280,44 @@ export function compileEvidenceDocument(input: CompileEvidenceDocumentInput): Ev
     charEnd: block.charEnd,
     confidence: block.confidence,
   }));
+
+  return {
+    docId: input.docId,
+    rawText,
+    spans,
+  };
+}
+
+export function compileEvidenceDocumentFromStructure(input: {
+  docId: string;
+  documentStructure: DocumentStructure;
+}): EvidenceDocument {
+  const rawText = normalizeNewlines(input.documentStructure.rawText ?? "");
+  let cursor = 0;
+  const spans: EvidenceSpan[] = input.documentStructure.blocks.map((block) => {
+    const blockType = mapDocumentStructureBlockType(block.type);
+    const charStart = findCharStart(rawText, block.rawText, cursor);
+    const charEnd = charStart + block.rawText.length;
+    cursor = charEnd;
+
+    const section = block.sectionId
+      ? input.documentStructure.sections.find((candidate) => candidate.id === block.sectionId)
+      : undefined;
+
+    return {
+      spanId: buildSpanId(input.docId, block.pageNumber ?? null, charStart, blockType),
+      docId: input.docId,
+      page: block.pageNumber ?? null,
+      sectionId: block.sectionId,
+      heading: section?.titleRaw,
+      blockType,
+      text: block.rawText,
+      normalizedText: normalizeEvidenceText(block.rawText),
+      charStart,
+      charEnd,
+      confidence: block.confidence,
+    };
+  });
 
   return {
     docId: input.docId,

@@ -49,6 +49,7 @@ describe("documentParsing current extractor adapter", () => {
 
     expect(parsed.adapterId).toBe("current-extractor");
     expect(parsed.source).toBe("current-extractor");
+    expect(parsed.parserName).toBe("current-extractor");
     expect(parsed.rawText).toBe(VM0007_TEXT);
     expect(parsed.normalizedText).toBe(VM0007_TEXT);
     expect(parsed.pages).toEqual([
@@ -56,8 +57,25 @@ describe("documentParsing current extractor adapter", () => {
         pageNumber: 1,
         rawText: VM0007_TEXT,
         normalizedText: VM0007_TEXT,
+        elements: parsed.elements,
       },
     ]);
+    expect(parsed.elements[0]).toEqual(expect.objectContaining({
+      pageNumber: 1,
+      elementType: "heading",
+      sectionNumber: "1.9",
+      sectionPath: ["1", "1.9"],
+      sourceParser: "current-extractor",
+    }));
+    expect(parsed.elements.some((element) => element.elementType === "paragraph")).toBe(true);
+    expect(parsed.tables).toEqual([]);
+    expect(parsed.qualityReport).toEqual(expect.objectContaining({
+      parserName: "current-extractor",
+      hasStructuredHeadings: true,
+      hasPageBoundaries: false,
+      hasBoundingBoxes: false,
+      hasTables: false,
+    }));
     expect(parsed.headings.map((heading) => heading.sectionNumber)).toEqual(["1.9", "2.4", "4.3"]);
     expect(parsed.blocks.some((block) => block.type === "heading")).toBe(true);
     expect(parsed.blocks.some((block) => block.type === "paragraph")).toBe(true);
@@ -77,13 +95,39 @@ describe("documentParsing current extractor adapter", () => {
         pageNumber: 1,
         rawText: "   ",
         normalizedText: "   ",
+        elements: [],
       },
     ]);
+    expect(parsed.elements).toEqual([]);
+    expect(parsed.tables).toEqual([]);
     expect(parsed.blocks).toEqual([]);
     expect(parsed.headings).toEqual([]);
     expect(parsed.sectionsByNumber).toEqual({});
     expect(parsed.headingIndex).toEqual([]);
     expect(parsed.diagnostics).toBeUndefined();
+    expect(parsed.qualityReport).toEqual(expect.objectContaining({
+      parserName: "current-extractor",
+      hasStructuredHeadings: false,
+    }));
+  });
+
+  it("preserves page metadata when raw text already contains page breaks", () => {
+    const parsed = parseDocumentText({
+      rawText: [
+        "1 Project Details",
+        "Host country: Indonesia",
+        "\f",
+        "2 Baseline Scenario",
+        "Baseline scenario: forest conversion.",
+      ].join("\n"),
+    });
+
+    expect(parsed.pages).toHaveLength(2);
+    expect(parsed.pages.map((page) => page.pageNumber)).toEqual([1, 2]);
+    expect(parsed.pages[1]?.elements.length).toBeGreaterThan(0);
+    expect(parsed.pages[1]?.elements.some((element) => element.pageNumber === 2)).toBe(true);
+    expect(parsed.elements.some((element) => element.pageNumber === 2)).toBe(true);
+    expect(parsed.qualityReport.hasPageBoundaries).toBe(true);
   });
 
   it("selects liteparse from QUICK_CHECK_PARSER without changing the parsed-document contract", () => {
