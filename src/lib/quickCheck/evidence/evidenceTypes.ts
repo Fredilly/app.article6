@@ -34,12 +34,12 @@ export type DocumentFactKind =
   | "host_country"
   | "project_location"
   | "project_participants"
-  | "methodology"
+  | "baseline_methodology"
   | "monitoring_methodology"
   | "crediting_period"
   | "reporting_period"
   | "monitoring_period"
-  | "leakage_value"
+  | "leakage_statement"
   | "baseline_scenario"
   | "additionality_claim";
 
