@@ -101,3 +101,44 @@ export type SectionTableIndex = {
   tableIndex: TableIndex;
   sectionTopicMap: SectionTopicMap;
 };
+
+export type IndexValidationIssueCode =
+  | "orphan_parent_id"
+  | "duplicate_node_id"
+  | "missing_heading"
+  | "missing_evidence_span_ids"
+  | "missing_page_provenance"
+  | "duplicate_table_id"
+  | "missing_cell_coordinates"
+  | "missing_cell_span_reference"
+  | "missing_cell_provenance"
+  | "missing_table_provenance";
+
+export type IndexValidationIssue = {
+  code: IndexValidationIssueCode;
+  message: string;
+  affectedId?: string;
+  affectedPath?: string[];
+};
+
+export type IndexValidationResult = {
+  valid: boolean;
+  errors: IndexValidationIssue[];
+  warnings: IndexValidationIssue[];
+};
+
+export type TopicSelectionNoEvidenceReason =
+  | "unsupported_topic"
+  | "no_topic_references"
+  | "weak_match"
+  | "ambiguous_match";
+
+export type TopicSelectionResult =
+  | {
+      status: "matched";
+      reference: SectionTopicReference;
+    }
+  | {
+      status: "no_evidence";
+      reason: TopicSelectionNoEvidenceReason;
+    };

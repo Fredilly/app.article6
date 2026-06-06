@@ -8,6 +8,9 @@ import {
   buildSectionTopicMap,
   buildSectionTree,
   buildTableIndex,
+  findBestTopicMatch,
+  validateSectionTree,
+  validateTableIndex,
 } from "@/lib/quickCheck/indexing";
 import {
   loadProjectFactFixtureManifest,
@@ -52,6 +55,15 @@ function makeStructure(overrides: Partial<DocumentStructure>): DocumentStructure
     parserDiagnostics: overrides.parserDiagnostics,
     debug: overrides.debug,
   };
+}
+
+function findFixture(fixtureId: string) {
+  const manifest = loadProjectFactFixtureManifest();
+  const fixture = manifest.fixtures.find((entry) => entry.id === fixtureId);
+  if (!fixture) {
+    throw new Error(`Expected fixture "${fixtureId}" to exist in the project fact manifest.`);
+  }
+  return fixture;
 }
 
 describe("Section and table index", () => {
@@ -253,12 +265,7 @@ describe("Section and table index", () => {
   });
 
   test("reuses the real-fixture pipeline and maps core topics without a new parser path", () => {
-    const manifest = loadProjectFactFixtureManifest();
-    const cdmFixture = manifest.fixtures.find((entry) => entry.id === "real-cdm");
-    if (!cdmFixture) {
-      throw new Error("Expected real-cdm fixture to exist in the project fact manifest.");
-    }
-
+    const cdmFixture = findFixture("real-cdm");
     const { structure, evidence } = runProjectFactFixturePipeline(cdmFixture);
     const index = buildSectionTableIndex({ documentStructure: structure, evidenceDocument: evidence });
 
@@ -277,5 +284,198 @@ describe("Section and table index", () => {
       heading: "Demonstration of additionality",
     }));
     expect(index.sectionTree.roots.length).toBeGreaterThan(0);
+  });
+
+  test("validateSectionTree flags orphan parent ids and missing provenance", () => {
+    const validation = validateSectionTree({
+      roots: [],
+      orderedNodeIds: ["section:orphan"],
+      nodesById: {
+        "section:orphan": {
+          id: "section:orphan",
+          parentId: "section:missing",
+          sectionId: "section:orphan",
+          heading: "Orphan Section",
+          headingPath: ["Orphan Section"],
+          sectionPath: ["section:orphan"],
+          evidenceSpanIds: ["span:1"],
+          sourceBlockIds: [],
+          pageNumbers: [],
+          confidence: 0.75,
+          children: [],
+        },
+      },
+    });
+
+    expect(validation.valid).toBe(false);
+    expect(validation.errors).toContainEqual(expect.objectContaining({
+      code: "orphan_parent_id",
+      affectedId: "section:orphan",
+    }));
+    expect(validation.warnings).toContainEqual(expect.objectContaining({
+      code: "missing_page_provenance",
+      affectedId: "section:orphan",
+    }));
+  });
+
+  test("validateTableIndex flags duplicate table ids and missing cell provenance", () => {
+    const validation = validateTableIndex({
+      tables: [
+        {
+          evidenceSpanId: "span:table:1",
+          tableId: "dup-table",
+          sectionPath: ["section:1"],
+          headingPath: ["Project Details"],
+          pageNumbers: [],
+          confidence: 0.9,
+          limitedProvenance: false,
+          cells: [{
+            evidenceSpanId: "span:table:missing",
+            rowIndex: 0,
+            columnIndex: 0,
+            text: "Host country",
+            normalizedText: "host country",
+            sectionPath: ["section:1"],
+            headingPath: ["Project Details"],
+            confidence: 0.9,
+            limitedProvenance: false,
+          }],
+        },
+        {
+          evidenceSpanId: "span:table:2",
+          tableId: "dup-table",
+          sectionPath: ["section:1"],
+          headingPath: ["Project Details"],
+          pageNumbers: [1],
+          confidence: 0.8,
+          limitedProvenance: true,
+          cells: [],
+        },
+      ],
+      cells: [],
+      byEvidenceSpanId: {
+        "span:table:1": {
+          evidenceSpanId: "span:table:1",
+          tableId: "dup-table",
+          sectionPath: ["section:1"],
+          headingPath: ["Project Details"],
+          pageNumbers: [],
+          confidence: 0.9,
+          limitedProvenance: false,
+          cells: [],
+        },
+        "span:table:2": {
+          evidenceSpanId: "span:table:2",
+          tableId: "dup-table",
+          sectionPath: ["section:1"],
+          headingPath: ["Project Details"],
+          pageNumbers: [1],
+          confidence: 0.8,
+          limitedProvenance: true,
+          cells: [],
+        },
+      },
+      byTableId: {},
+    });
+
+    expect(validation.valid).toBe(false);
+    expect(validation.errors).toContainEqual(expect.objectContaining({
+      code: "duplicate_table_id",
+      affectedId: "dup-table",
+    }));
+    expect(validation.errors).toContainEqual(expect.objectContaining({
+      code: "missing_cell_span_reference",
+      affectedId: "dup-table",
+    }));
+    expect(validation.warnings).toContainEqual(expect.objectContaining({
+      code: "missing_table_provenance",
+      affectedId: "dup-table",
+    }));
+    expect(validation.warnings).toContainEqual(expect.objectContaining({
+      code: "missing_cell_provenance",
+      affectedId: "dup-table",
+    }));
+  });
+
+  test("findBestTopicMatch returns no_evidence for unsupported topics", () => {
+    const parsed = parseDocumentText({
+      rawText: [
+        "2 Baseline Scenario",
+        "Without the project, baseline emissions remain high.",
+      ].join("\n"),
+    });
+    const structure = buildDocumentStructure({ parsedDocument: parsed });
+    const evidence = compileEvidenceDocumentFromStructure({ docId: "unsupported-topic", documentStructure: structure });
+    const index = buildSectionTableIndex({ documentStructure: structure, evidenceDocument: evidence });
+
+    expect(findBestTopicMatch("finance", index.sectionTopicMap)).toEqual({
+      status: "no_evidence",
+      reason: "unsupported_topic",
+    });
+  });
+
+  test("findBestTopicMatch does not promote ambiguous weak matches", () => {
+    const result = findBestTopicMatch("baseline", {
+      baseline: [
+        {
+          topic: "baseline",
+          heading: "Project Description",
+          headingPath: ["Project Description"],
+          sectionPath: ["section:1"],
+          evidenceSpanIds: ["span:1"],
+          pageNumbers: [1],
+          confidence: 0.78,
+          reasons: ["baseline"],
+        },
+        {
+          topic: "baseline",
+          heading: "Context",
+          headingPath: ["Context"],
+          sectionPath: ["section:2"],
+          evidenceSpanIds: ["span:2"],
+          pageNumbers: [2],
+          confidence: 0.76,
+          reasons: ["without the project"],
+        },
+      ],
+      monitoring: [],
+      leakage: [],
+      additionality: [],
+      methodology: [],
+      project_location: [],
+      project_participants: [],
+      crediting_period: [],
+      safeguards: [],
+      sdg: [],
+    });
+
+    expect(result).toEqual({
+      status: "no_evidence",
+      reason: "weak_match",
+    });
+  });
+
+  test("weak unknown-family fixture stays unassigned for topic selection", () => {
+    const fixture = findFixture("more-real-weak");
+    const { structure, evidence } = runProjectFactFixturePipeline(fixture);
+    const index = buildSectionTableIndex({ documentStructure: structure, evidenceDocument: evidence });
+
+    expect(structure.documentFamily.family).toBe("UNKNOWN");
+    expect(findBestTopicMatch("monitoring", index.sectionTopicMap).status).toBe("no_evidence");
+    expect(validateSectionTree(index.sectionTree).errors).toEqual([]);
+  });
+
+  test("table-heavy fixture remains valid while preserving limited-provenance tables", () => {
+    const fixture = findFixture("more-real-ccb1530");
+    const { structure, evidence } = runProjectFactFixturePipeline(fixture);
+    const index = buildSectionTableIndex({ documentStructure: structure, evidenceDocument: evidence });
+    const validation = validateTableIndex(index.tableIndex);
+
+    expect(structure.qualityReport.tableHeavyWarning).toBe(true);
+    expect(validation.errors).toEqual([]);
+    if (index.tableIndex.tables.length > 0) {
+      expect(index.tableIndex.tables.some((table) => table.limitedProvenance || table.pageNumbers.length > 0)).toBe(true);
+    }
+    expect(findBestTopicMatch("baseline", index.sectionTopicMap).status).toBe("no_evidence");
   });
 });
