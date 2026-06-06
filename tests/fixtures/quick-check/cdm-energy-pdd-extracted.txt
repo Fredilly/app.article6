@@ -1,0 +1,11 @@
+CDM Project Design Document Form
+Title of the project activity: Nyota Small Hydro Project
+Host Party: Uganda
+Project participants: Nyota Hydro Ltd.
+Applied methodology: ACM0002 Version 20.0
+
+1.1 General description of project activity
+The project activity is a run-of-river hydro facility connected to the national grid.
+
+1.2 Project location
+The project is located in Kasese District, Uganda.

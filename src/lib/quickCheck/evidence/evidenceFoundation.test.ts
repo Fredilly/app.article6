@@ -1,4 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
+import fs from "fs";
+import path from "path";
 import { compileEvidenceDocument } from "@/lib/quickCheck/evidence/compileEvidenceDocument";
 import { extractDocumentFacts } from "@/lib/quickCheck/evidence/extractDocumentFacts";
 import { validateQuotes } from "@/lib/quickCheck/evidence/validateQuotes";
@@ -71,6 +73,9 @@ describe("compileEvidenceDocument", () => {
 });
 
 describe("extractDocumentFacts", () => {
+  const fixture = (name: string) =>
+    fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check", name), "utf8");
+
   function factByKind(text: string, kind: string) {
     const compiled = compileEvidenceDocument({ docId: `doc-${kind}`, rawText: text });
     return extractDocumentFacts(compiled).find((fact) => fact.kind === kind);
@@ -218,6 +223,76 @@ describe("extractDocumentFacts", () => {
 
     const facts = extractDocumentFacts(compiled);
     expect(facts.some((fact) => fact.kind === "host_country")).toBe(false);
+  });
+
+  test("extracts CDM energy project facts from cover labels without confusing methodology and title", () => {
+    const compiled = compileEvidenceDocument({
+      docId: "cdm-energy",
+      rawText: fixture("cdm-energy-pdd-extracted.txt"),
+    });
+    const facts = extractDocumentFacts(compiled);
+
+    expect(facts.find((fact) => fact.kind === "project_title")).toEqual(
+      expect.objectContaining({ value: "Nyota Small Hydro Project" }),
+    );
+    expect(facts.find((fact) => fact.kind === "host_country")).toEqual(
+      expect.objectContaining({ value: "Uganda" }),
+    );
+    expect(facts.find((fact) => fact.kind === "methodology")).toEqual(
+      expect.objectContaining({ value: "ACM0002 Version 20.0" }),
+    );
+    expect(facts.find((fact) => fact.kind === "project_title")?.value).not.toContain("ACM0002");
+  });
+
+  test("extracts VCS or Verra title, country, and methodology from early document fields", () => {
+    const compiled = compileEvidenceDocument({
+      docId: "verra-project-facts",
+      rawText: fixture("verra-project-facts-extracted.txt"),
+    });
+    const facts = extractDocumentFacts(compiled);
+
+    expect(facts.find((fact) => fact.kind === "project_title")).toEqual(
+      expect.objectContaining({ value: "Madre de Dios Forest Conservation Project" }),
+    );
+    expect(facts.find((fact) => fact.kind === "host_country")).toEqual(
+      expect.objectContaining({ value: "Peru" }),
+    );
+    expect(facts.find((fact) => fact.kind === "project_location")).toEqual(
+      expect.objectContaining({ value: "Madre de Dios, Republic of Peru" }),
+    );
+    expect(facts.find((fact) => fact.kind === "methodology")).toEqual(
+      expect.objectContaining({ value: "VM0007 REDD+ Methodology Framework Version 1.6" }),
+    );
+  });
+
+  test("uses PD_REDD as a REDD regression without treating methodology text as the project title", () => {
+    const compiled = compileEvidenceDocument({
+      docId: "pd-redd-regression",
+      rawText: fixture("pd_redd_v1_130-extracted.txt"),
+    });
+    const facts = extractDocumentFacts(compiled);
+
+    expect(facts.find((fact) => fact.kind === "project_title")).toBeUndefined();
+    expect(facts.find((fact) => fact.kind === "host_country")).toBeUndefined();
+    expect(facts.some((fact) => fact.value === "PD_REDD_v1_130")).toBe(false);
+  });
+
+  test("extracts AFOLU or REDD methodology separately from title in a Verra project document", () => {
+    const compiled = compileEvidenceDocument({
+      docId: "rimba-raya-fallback",
+      rawText: fixture("rimba-raya-fallback.txt"),
+    });
+    const facts = extractDocumentFacts(compiled);
+
+    expect(facts.find((fact) => fact.kind === "project_title")).toEqual(
+      expect.objectContaining({ value: "Rimba Raya Biodiversity Reserve Project" }),
+    );
+    expect(facts.find((fact) => fact.kind === "methodology")).toEqual(
+      expect.objectContaining({
+        value: "VM0004 Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, Version 1.0",
+      }),
+    );
+    expect(facts.find((fact) => fact.kind === "project_title")?.value).not.toContain("Methodology");
   });
 });
 
