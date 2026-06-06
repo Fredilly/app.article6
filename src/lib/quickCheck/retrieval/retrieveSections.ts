@@ -182,7 +182,7 @@ export function extractClaimKeywords(claimText: string): { phrases: string[]; wo
 }
 
 function isReasonableSectionId(num: string): boolean {
-  return /^\d+(?:\.\d+)*$/.test(num);
+  return /^(?:\d+(?:\.\d+)*|[A-Z]\.\d+(?:\.\d+)*)$/.test(num);
 }
 
 function normalizeReviewText(text: string): string {

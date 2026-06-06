@@ -22,7 +22,10 @@ const REVIEW_POLICY_CONFIG_RAW = {
         "prior consideration",
         "CDM consideration",
       ],
-      aliases: [],
+      aliases: [
+        "B.3 additionality",
+        "additionality",
+      ],
       negativeSectionTerms: [
         "grid emission factor",
         "parameter",
@@ -52,7 +55,10 @@ const REVIEW_POLICY_CONFIG_RAW = {
         "identification of baseline",
         "alternatives analysis",
       ],
-      aliases: [],
+      aliases: [
+        "B.2 baseline scenario",
+        "baseline scenario",
+      ],
       negativeSectionTerms: [
         "grid emission factor",
         "parameter",
@@ -103,6 +109,7 @@ const REVIEW_POLICY_CONFIG_RAW = {
         "leakage",
         "leakage management",
         "3.3 leakage",
+        "E.2 leakage",
         "activity shifting leakage",
       ],
       evidenceSignals: ["leakage emissions", "estimated leakage", "treatment of leakage"],
@@ -133,6 +140,8 @@ const REVIEW_POLICY_CONFIG_RAW = {
       aliases: [
         "monitoring plan",
         "4.3 monitoring plan",
+        "D.1 monitoring methodology",
+        "monitoring methodology",
         "monitoring procedures",
         "monitoring approach",
       ],

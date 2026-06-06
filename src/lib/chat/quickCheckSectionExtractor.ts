@@ -1,12 +1,20 @@
 export const SECTION_EXCERPT_MAX_CHARS = 3000;
 const SECTION_KEY_NORMALIZE_RE = /[^\d.]/g;
 
+const CDM_KEY_RE = /^([A-Z]\.\d+(?:\.\d+)*)$/;
+
 const SECTION_HEADING_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/gm;
 const SECTION_HEADING_DOT_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\.\s+(.+))\s*$/gm;
 const SECTION_HEADING_PAREN_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s+\((.+)\))\s*$/gm;
 
+const SECTION_HEADING_CDM_RE = /^(?:\s*(?:Section\s+)?([A-Z]\.\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/gm;
+const SECTION_HEADING_CDM_DOT_RE = /^(?:\s*(?:Section\s+)?([A-Z]\.\d+(?:\.\d+)*)\.\s+(.+))\s*$/gm;
+const SECTION_HEADING_CDM_PAREN_RE = /^(?:\s*(?:Section\s+)?([A-Z]\.\d+(?:\.\d+)*)\s+\((.+)\))\s*$/gm;
+
 export function normalizeSectionKey(key: string): string {
-  return key.replace(SECTION_KEY_NORMALIZE_RE, "").replace(/\.+$/, "").trim();
+  const cleaned = key.trim();
+  if (CDM_KEY_RE.test(cleaned)) return cleaned;
+  return cleaned.replace(SECTION_KEY_NORMALIZE_RE, "").replace(/\.+$/, "").trim();
 }
 
 function stripHeaderFooterNoise(text: string): string {
@@ -127,7 +135,7 @@ function findTocBlockBounds(text: string): { start: number; end: number } | null
       tocEndLine = i;
       break;
     }
-    if (!/^\d+(?:\.\d+)*\s+[A-Z]/.test(trimmed)) {
+    if (!/^(?:\d+(?:\.\d+)*|[A-Z]\.\d+)\s+[A-Z]/.test(trimmed)) {
       tocEndLine = i;
       break;
     }
@@ -144,7 +152,7 @@ function isInsideTocBlock(pos: number, tocBlock: { start: number; end: number } 
 }
 
 function extractHeadingNumberFromLine(line: string): string | null {
-  const match = line.match(/^\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+\S/);
+  const match = line.match(/^\s*(?:Section\s+)?((?:[A-Z]\.)?\d+(?:\.\d+)*)\s*[.:]?\s+\S/);
   return match?.[1] ?? null;
 }
 
@@ -173,13 +181,16 @@ const DEFAULT_HEADING_PATTERNS = [
   SECTION_HEADING_RE,
   SECTION_HEADING_DOT_RE,
   SECTION_HEADING_PAREN_RE,
+  SECTION_HEADING_CDM_RE,
+  SECTION_HEADING_CDM_DOT_RE,
+  SECTION_HEADING_CDM_PAREN_RE,
 ];
 
 
 
 function findHeadingsInContinuousText(text: string): HeadingMatch[] {
   const headings: HeadingMatch[] = [];
-  const re = /\b(\d+(?:\.\d+)*)\s{1,4}/g;
+  const re = /\b((?:[A-Z]\.)?\d+(?:\.\d+)*)\s{1,4}/g;
   const seen = new Set<string>();
 
   let match: RegExpExecArray | null;
@@ -218,7 +229,7 @@ function findAllRawCandidates(cleaned: string): HeadingMatch[] {
   const raw = tryHeadingPatterns(cleaned, DEFAULT_HEADING_PATTERNS);
   all.push(...raw);
   if (all.length === 0) {
-    const inlineRe = /\b(\d+(?:\.\d+)*)\s{2,}([A-Z][A-Za-z\s-]{2,60})(?=\n|$)/g;
+    const inlineRe = /\b((?:[A-Z]\.)?\d+(?:\.\d+)*)\s{2,}([A-Z][A-Za-z\s-]{2,60})(?=\n|$)/g;
     let match: RegExpExecArray | null;
     while ((match = inlineRe.exec(cleaned)) !== null) {
       const num = match[1]!;
@@ -235,7 +246,7 @@ function findAllRawCandidates(cleaned: string): HeadingMatch[] {
       return pos;
     };
     for (let i = 0; i < lines.length - 1; i++) {
-      const numMatch = lines[i]!.match(/^\s*(\d+(?:\.\d+)*)\s*$/);
+      const numMatch = lines[i]!.match(/^\s*((?:[A-Z]\.)?\d+(?:\.\d+)*)\s*$/);
       if (!numMatch) continue;
       const num = numMatch[1]!;
       const title = lines[i + 1]!.trim();
@@ -376,8 +387,8 @@ function findHeadingLikeFragments(text: string, maxResults = 50): string[] {
   const seen = new Set<string>();
 
   const patterns: RegExp[] = [
-    /\b(\d+(?:\.\d+)*)\s{2,}([A-Z][A-Za-z\s-]{3,60})(?=[\s,.])/g,
-    /\b(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]\s+([A-Z][A-Za-z\s-]{3,60})/g,
+    /\b((?:[A-Z]\.)?\d+(?:\.\d+)*)\s{2,}([A-Z][A-Za-z\s-]{3,60})(?=[\s,.])/g,
+    /\b(?:Section\s+)?((?:[A-Z]\.)?\d+(?:\.\d+)*)\s*[.:]\s+([A-Z][A-Za-z\s-]{3,60})/g,
     /\b([A-Z][A-Z\s-]{5,60})\b/g,
   ];
 
@@ -400,7 +411,7 @@ function findNumericFragments(text: string, maxResults = 50): string[] {
   const seen = new Set<string>();
   const normalized = text.replace(/\s+/g, " ");
 
-  for (const match of normalized.matchAll(/\b(\d+(?:\.\d+)*)\s{0,3}([A-Z][A-Za-z\s-]{2,60})?/g)) {
+  for (const match of normalized.matchAll(/\b((?:[A-Z]\.)?\d+(?:\.\d+)*)\s{0,3}([A-Z][A-Za-z\s-]{2,60})?/g)) {
     const num = match[1]!;
     const title = match[2]?.trim() ?? "";
     const fragment = title ? `${num} ${title.slice(0, 60)}` : num;
@@ -418,7 +429,7 @@ function rawLinesAround(rawText: string, sectionNum: string, windowSize = 3): st
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i]!.trim();
     const headingMatch = trimmed.match(
-      /^(?:Section\s+)?\d+(?:\.\d+)*\s*[.:]?\s+\S/,
+      /^(?:Section\s+)?(?:[A-Z]\.)?\d+(?:\.\d+)*\s*[.:]?\s+\S/,
     );
     if (!headingMatch && !trimmed.startsWith(sectionNum)) continue;
     const numOnLine = trimmed.match(/\b\d+(?:\.\d+)*\b/)?.[0];
@@ -505,7 +516,7 @@ export function analyzeSectionCandidates(rawText: string, sectionNum: string): S
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i]!.trim();
     const headingMatch = trimmed.match(
-      /^(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+?)(?:\s*\.{4,}\s*\d+\s*)?$/,
+      /^(?:Section\s+)?((?:[A-Z]\.)?\d+(?:\.\d+)*)\s*[.:]?\s+(.+?)(?:\s*\.{4,}\s*\d+\s*)?$/,
     );
     if (!headingMatch) continue;
     if (headingMatch[1] !== sectionNum) continue;
