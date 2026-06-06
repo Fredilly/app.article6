@@ -165,5 +165,7 @@ describe("buildArticle6DocumentModel", () => {
       parserAdapterId: "current-extractor",
       pageNumber: 2,
     }));
+    expect(model.blocks.some((block) => block.pageNumber === 2)).toBe(true);
+    expect(model.blocks.some((block) => block.sourceRefs.some((ref) => ref.pageNumber === 2))).toBe(true);
   });
 });

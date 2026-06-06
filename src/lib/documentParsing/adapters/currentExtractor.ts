@@ -40,12 +40,57 @@ function splitRawTextIntoPages(rawText: string): ParsedPage[] {
   }));
 }
 
+type PageBoundary = {
+  pageNumber: number;
+  charStart: number;
+  charEnd: number;
+};
+
+function buildPageBoundaries(rawText: string): PageBoundary[] {
+  const normalized = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const pageTexts = normalized.split("\f");
+  const boundaries: PageBoundary[] = [];
+  let cursor = 0;
+
+  for (let index = 0; index < pageTexts.length; index += 1) {
+    const pageText = pageTexts[index] ?? "";
+    const charStart = cursor;
+    const charEnd = charStart + pageText.length;
+    boundaries.push({
+      pageNumber: pageTexts.length > 1 ? index + 1 : 1,
+      charStart,
+      charEnd,
+    });
+    cursor = charEnd + (index < pageTexts.length - 1 ? 1 : 0);
+  }
+
+  return boundaries;
+}
+
+function pageNumberForOffset(offset: number, boundaries: PageBoundary[]): number {
+  const boundary = boundaries.find((candidate) => offset >= candidate.charStart && offset <= candidate.charEnd);
+  return boundary?.pageNumber ?? boundaries[boundaries.length - 1]?.pageNumber ?? 1;
+}
+
+function findSequentialOffset(haystack: string, needle: string, fromIndex: number): number {
+  if (!needle.trim()) return fromIndex;
+  const exactIndex = haystack.indexOf(needle, fromIndex);
+  if (exactIndex >= 0) return exactIndex;
+
+  const trimmedNeedle = needle.trim();
+  const trimmedIndex = haystack.indexOf(trimmedNeedle, fromIndex);
+  if (trimmedIndex >= 0) return trimmedIndex;
+
+  return fromIndex;
+}
+
 export const currentExtractorAdapter: ParserAdapter = {
   id: "current-extractor",
   parseText(input: ParseDocumentTextInput): ParsedDocument {
     const rawText = input.rawText ?? "";
     const normalizedText = normalizeParserText(rawText);
     const parserName = "current-extractor";
+    const pageBoundaries = buildPageBoundaries(rawText);
     const sectionsByNumber = extractPddSections(rawText);
     const headingIndex = buildPddHeadingIndex(rawText);
     const headings = headingIndex.map((heading) => ({
@@ -75,11 +120,15 @@ export const currentExtractorAdapter: ParserAdapter = {
         : [];
       return [headingBlock, ...bodyBlocks];
     });
+    let searchCursor = 0;
     const elements: ParsedElement[] = headingIndex.flatMap((heading) => {
       const sectionPath = buildSectionPath(heading.sectionNumber);
+      const headingOffset = findSequentialOffset(normalizedText, heading.title, searchCursor);
+      const headingPageNumber = pageNumberForOffset(headingOffset, pageBoundaries);
+      searchCursor = headingOffset + heading.title.length;
       const headingElement: ParsedElement = {
         id: `element:heading:${heading.sectionNumber}`,
-        pageNumber: 1,
+        pageNumber: headingPageNumber,
         text: heading.title,
         normalizedText: heading.normalizedTitle,
         elementType: "heading",
@@ -90,17 +139,22 @@ export const currentExtractorAdapter: ParserAdapter = {
         confidence: 0.95,
       };
       const bodyElements = heading.bodyText
-        ? [{
-            id: `element:paragraph:${heading.sectionNumber}`,
-            pageNumber: 1,
-            text: heading.bodyText,
-            normalizedText: normalizeParserText(heading.bodyText).replace(/\s+/g, " ").trim(),
-            elementType: "paragraph" as const,
-            sectionNumber: heading.sectionNumber,
-            sectionPath,
-            sourceParser: parserName,
-            confidence: 0.8,
-          }]
+        ? (() => {
+            const bodyOffset = findSequentialOffset(normalizedText, heading.bodyText, searchCursor);
+            const bodyPageNumber = pageNumberForOffset(bodyOffset, pageBoundaries);
+            searchCursor = bodyOffset + heading.bodyText.length;
+            return [{
+              id: `element:paragraph:${heading.sectionNumber}`,
+              pageNumber: bodyPageNumber,
+              text: heading.bodyText,
+              normalizedText: normalizeParserText(heading.bodyText).replace(/\s+/g, " ").trim(),
+              elementType: "paragraph" as const,
+              sectionNumber: heading.sectionNumber,
+              sectionPath,
+              sourceParser: parserName,
+              confidence: 0.8,
+            }];
+          })()
         : [];
       return [headingElement, ...bodyElements];
     });

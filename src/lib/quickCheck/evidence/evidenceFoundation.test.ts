@@ -63,6 +63,27 @@ describe("compileEvidenceDocument", () => {
     expect(compiled.spans.some((span) => span.heading === "Project Details")).toBe(true);
   });
 
+  test("preserves page provenance when evidence spans are compiled from multi-page structure", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "1 Project Details",
+        "Host country: Indonesia",
+        "\f",
+        "2 Baseline Scenario",
+        "Baseline scenario: forest conversion.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "doc-structure-2",
+      documentStructure,
+    });
+
+    expect(compiled.spans.some((span) => span.page === 2)).toBe(true);
+    expect(compiled.spans.some((span) => span.page === 2 && span.heading === "Baseline Scenario")).toBe(true);
+  });
+
   test("keeps a leading numbered section heading out of the title slot", () => {
     const compiled = compileEvidenceDocument({
       docId: "doc-2",

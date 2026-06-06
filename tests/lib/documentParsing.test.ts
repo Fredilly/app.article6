@@ -124,6 +124,9 @@ describe("documentParsing current extractor adapter", () => {
 
     expect(parsed.pages).toHaveLength(2);
     expect(parsed.pages.map((page) => page.pageNumber)).toEqual([1, 2]);
+    expect(parsed.pages[1]?.elements.length).toBeGreaterThan(0);
+    expect(parsed.pages[1]?.elements.some((element) => element.pageNumber === 2)).toBe(true);
+    expect(parsed.elements.some((element) => element.pageNumber === 2)).toBe(true);
     expect(parsed.qualityReport.hasPageBoundaries).toBe(true);
   });
 
