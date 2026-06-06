@@ -64,6 +64,8 @@ export type ParsedElement = {
   pageNumber: number;
   text: string;
   normalizedText: string;
+  charStart?: number;
+  charEnd?: number;
   elementType: ParsedElementType;
   headingLevel?: number;
   sectionNumber?: string;

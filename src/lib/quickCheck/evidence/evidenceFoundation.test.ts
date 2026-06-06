@@ -43,7 +43,7 @@ describe("compileEvidenceDocument", () => {
     expect(compiled.spans.some((span) => span.blockType === "title")).toBe(true);
     expect(compiled.spans.some((span) => span.blockType === "toc")).toBe(true);
     expect(compiled.spans.some((span) => span.blockType === "footer")).toBe(true);
-    expect(compiled.spans.some((span) => span.blockType === "section_heading" && span.sectionId === "1")).toBe(true);
+    expect(compiled.spans.some((span) => span.blockType === "section_heading" && span.sectionId === "section:1")).toBe(true);
     expect(compiled.spans.some((span) => span.blockType === "field" && span.heading === "Project Details")).toBe(true);
   });
 
@@ -125,7 +125,7 @@ describe("compileEvidenceDocument", () => {
     expect(compiled.spans[0]).toEqual(
       expect.objectContaining({
         blockType: "section_heading",
-        sectionId: "1",
+        sectionId: "section:1",
         heading: "Project Details",
         text: "1 Project Details",
       }),
