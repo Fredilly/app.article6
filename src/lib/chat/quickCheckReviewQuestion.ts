@@ -44,6 +44,9 @@ export {
 } from "@/lib/quickCheck/retrieval/retrieveSections";
 export { evaluateRetrievedReviewQuestion } from "@/lib/quickCheck/evaluation/evaluateEvidence";
 
+let structuredQueryContextCache: { rawPddText: string; context: StructuredQueryContext } | null = null;
+let structuredQueryContextBuildCountForTests = 0;
+
 function buildStructuredQueryContext(rawPddText: string) {
   const parsedDocument = parseDocumentText({ rawText: rawPddText });
   const documentStructure = buildDocumentStructure({ parsedDocument });
@@ -65,25 +68,43 @@ function buildStructuredQueryContext(rawPddText: string) {
   };
 }
 
-function isQuestionStyled(text: string): boolean {
-  const trimmed = text.trim();
-  return trimmed.endsWith("?") || /^(?:does|do|did|is|are|was|were|what|which|who|where|when|why|how|can|could|should|would|will)\b/i.test(trimmed);
+export type StructuredQueryContext = ReturnType<typeof buildStructuredQueryContext>;
+
+export function getStructuredQueryContext(rawPddText: string): StructuredQueryContext {
+  const normalizedRawPddText = rawPddText.trim();
+  if (structuredQueryContextCache?.rawPddText === normalizedRawPddText) {
+    return structuredQueryContextCache.context;
+  }
+
+  const context = buildStructuredQueryContext(normalizedRawPddText);
+  structuredQueryContextCache = {
+    rawPddText: normalizedRawPddText,
+    context,
+  };
+  structuredQueryContextBuildCountForTests += 1;
+  return context;
 }
 
-function isLabelStyleIntentQuery(text: string): boolean {
-  return text.trim().split(/\s+/).filter(Boolean).length <= 5;
+export function __resetStructuredQueryContextCacheForTests() {
+  structuredQueryContextCache = null;
+  structuredQueryContextBuildCountForTests = 0;
+}
+
+export function __getStructuredQueryContextBuildCountForTests() {
+  return structuredQueryContextBuildCountForTests;
 }
 
 export function detectRuntimeReviewPath(input: {
   claimText: string;
   rawPddText?: string;
   inputContext?: QuickCheckInputContext;
+  structuredQueryContext?: StructuredQueryContext;
 }): "claim_to_requirement_match" | "review_question_answering" {
   const basePath = detectReviewPath(input.claimText, { inputContext: input.inputContext });
   if (basePath === "review_question_answering") return basePath;
   if (input.inputContext !== "review_question_field" || !input.rawPddText?.trim()) return basePath;
 
-  const context = buildStructuredQueryContext(input.rawPddText);
+  const context = input.structuredQueryContext ?? getStructuredQueryContext(input.rawPddText);
   const queryIntent = analyzeQueryIntent({
     query: input.claimText,
     sectionTableIndex: context.sectionTableIndex,
@@ -222,9 +243,11 @@ export function buildReviewQuestionResult(input: {
   rawPddText?: string;
   evidenceSourceLabel?: string;
   evidenceDocumentType?: string;
+  structuredQueryContext?: StructuredQueryContext;
 }): ReviewQuestionResult {
   const baseRetrieval = buildReviewQuestionSectionRetrieval(input);
-  const structuredContext = input.rawPddText?.trim() ? buildStructuredQueryContext(input.rawPddText) : undefined;
+  const structuredContext = input.structuredQueryContext
+    ?? (input.rawPddText?.trim() ? getStructuredQueryContext(input.rawPddText) : undefined);
   const queryIntentAnalysis = structuredContext
     ? analyzeQueryIntent({
         query: input.claimText,
@@ -241,13 +264,12 @@ export function buildReviewQuestionResult(input: {
         )
         || (
           queryIntentAnalysis.intent === "unsupported_or_out_of_scope"
-          && !isQuestionStyled(input.claimText)
-          && isLabelStyleIntentQuery(input.claimText)
+          && queryIntentAnalysis.confidence > 0.7
         )
         || (
           queryIntentAnalysis.intent === "ambiguous"
-          && !isQuestionStyled(input.claimText)
-          && isLabelStyleIntentQuery(input.claimText)
+          && !input.claimText.trim().endsWith("?")
+          && input.claimText.trim().split(/\s+/).filter(Boolean).length <= 5
           && (
             baseRetrieval.matchedHeadings.length === 0
             || queryIntentAnalysis.positiveTerms.length > 0
