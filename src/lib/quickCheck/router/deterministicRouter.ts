@@ -15,6 +15,7 @@ type RouterCandidate = {
   confidence: number;
   evidenceSpanIds: string[];
   quoteInputs: QuoteValidationInput[];
+  answerQuoteCount: number;
   pages: number[];
   sectionPaths: string[];
   warnings: string[];
@@ -125,6 +126,10 @@ function formatSectionPath(path: string[]): string {
   return path.join(" > ");
 }
 
+function formatHeadingPath(path: string[]): string {
+  return path.join(" > ");
+}
+
 function getSpanLookup(document: EvidenceDocument): Map<string, EvidenceSpan> {
   return new Map(document.spans.map((span) => [span.spanId, span]));
 }
@@ -153,7 +158,8 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
   const validQuotes = validations
     .map((validation, index) => ({ validation, quoteInput: candidate.quoteInputs[index] }))
     .filter((entry): entry is { validation: NonNullable<typeof validations[number]>; quoteInput: QuoteValidationInput } => entry.validation.valid);
-  if (validQuotes.length === 0) {
+  const requiredValidatedQuotes = Math.max(1, Math.min(candidate.answerQuoteCount, candidate.quoteInputs.length));
+  if (validQuotes.length < requiredValidatedQuotes) {
     return buildFallback({
       answerText: "Quick Check found a possible evidence path but could not validate the supporting quotes against source spans.",
       status: "unclear",
@@ -162,13 +168,9 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
     });
   }
 
-  const matchedSpanIds = dedupe([
-    ...candidate.evidenceSpanIds,
-    ...validQuotes.flatMap(({ validation }) => validation.matchedSpanIds),
-  ]);
+  const matchedSpanIds = dedupe(validQuotes.flatMap(({ validation }) => validation.matchedSpanIds));
   const spanLookup = getSpanLookup(document);
   const pages = dedupe([
-    ...candidate.pages,
     ...matchedSpanIds
       .map((spanId) => spanLookup.get(spanId)?.page)
       .filter((page): page is number => typeof page === "number"),
@@ -180,6 +182,27 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
       .filter((path) => path.length > 0)
       .map((path) => formatSectionPath(path)),
   ]);
+  const headingPaths = dedupe(matchedSpanIds
+    .map((spanId) => spanLookup.get(spanId)?.headingPath ?? [])
+    .filter((path) => path.length > 0)
+    .map((path) => formatHeadingPath(path)));
+  const structuralPaths = sectionPaths.length > 0
+    ? sectionPaths
+    : headingPaths.length > 0
+      ? headingPaths
+      : pages.length > 0
+        ? ["Document root"]
+        : [];
+  const quotes = dedupe(validQuotes.map(({ quoteInput }) => quoteInput.quote));
+
+  if (matchedSpanIds.length === 0 || quotes.length === 0 || pages.length === 0 || structuralPaths.length === 0) {
+    return buildFallback({
+      answerText: "Quick Check found a possible evidence path but could not preserve the grounded provenance required for a deterministic answer.",
+      status: "unclear",
+      confidence: candidate.confidence,
+      warnings: [...candidate.warnings, "missing_grounded_provenance"],
+    });
+  }
 
   return {
     answerText: candidate.answerText,
@@ -187,9 +210,9 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
     route: candidate.route,
     confidence: clampConfidence(candidate.confidence),
     evidenceSpanIds: matchedSpanIds,
-    quotes: dedupe(validQuotes.map(({ quoteInput }) => quoteInput.quote)),
+    quotes,
     pages,
-    sectionPaths,
+    sectionPaths: structuralPaths,
     warnings: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD
       ? candidate.warnings
       : [...candidate.warnings, "low_confidence"],
@@ -200,6 +223,7 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
   if (!input.evidenceDocument || !input.projectFactContract || !input.queryIntentAnalysis) return null;
   if (!["fact_lookup", "methodology_lookup"].includes(input.queryIntentAnalysis.intent)) return null;
 
+  const spanLookup = getSpanLookup(input.evidenceDocument);
   const resolvedFacts = input.queryIntentAnalysis.targetFacts
     .map((factId) => ({
       factId,
@@ -214,18 +238,31 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
       const field = entry.field;
       if (!field || !entry.value) return false;
       return field.evidenceSpanIds.length > 0;
-    });
+    })
+    .map((entry) => {
+      const supportingSpans = entry.field.evidenceSpanIds
+        .map((spanId) => spanLookup.get(spanId))
+        .filter((span): span is EvidenceSpan => Boolean(span))
+        .filter((span) => normalize(span.text).includes(normalize(entry.value)));
+      return {
+        ...entry,
+        supportingSpans,
+      };
+    })
+    .filter((entry): entry is {
+      factId: ProjectFactId;
+      field: ProjectFactField;
+      value: string;
+      supportingSpans: EvidenceSpan[];
+    } => entry.supportingSpans.length > 0);
 
   if (resolvedFacts.length === 0) return null;
 
-  const spanLookup = getSpanLookup(input.evidenceDocument);
   const answerText = resolvedFacts
     .map(({ factId, value }) => `${FACT_LABELS[factId]}: ${value}.`)
     .join(" ");
   const quoteInputs = resolvedFacts
-    .flatMap(({ field }) => field.evidenceSpanIds
-      .map((spanId) => spanLookup.get(spanId))
-      .filter((span): span is EvidenceSpan => Boolean(span))
+    .flatMap(({ supportingSpans }) => supportingSpans
       .slice(0, 1)
       .map((span) => ({
         quote: span.text,
@@ -242,9 +279,10 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
       input.queryIntentAnalysis.confidence,
       ...resolvedFacts.map(({ field }) => normalizeConfidence(field.confidence)),
     )),
-    evidenceSpanIds: dedupe(resolvedFacts.flatMap(({ field }) => field.evidenceSpanIds)),
+    evidenceSpanIds: dedupe(resolvedFacts.flatMap(({ supportingSpans }) => supportingSpans.map((span) => span.spanId))),
     quoteInputs,
-    pages: dedupe(resolvedFacts.flatMap(({ field }) => field.pageNumbers)).sort((left, right) => left - right),
+    answerQuoteCount: quoteInputs.length,
+    pages: dedupe(resolvedFacts.flatMap(({ supportingSpans }) => supportingSpans.map((span) => span.page).filter((page): page is number => typeof page === "number"))).sort((left, right) => left - right),
     sectionPaths: dedupe(resolvedFacts.map(({ field }) => formatSectionPath(field.sectionPath)).filter(Boolean)),
     warnings: dedupe(resolvedFacts.flatMap(({ field }) => field.warnings)),
   };
@@ -289,6 +327,7 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
       sectionId: span.sectionId,
       heading: span.heading,
     })),
+    answerQuoteCount: 1,
     pages: dedupe(sectionSpans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
     sectionPaths: dedupe([formatSectionPath(selectedNode.sectionPath)]),
     warnings: [],
@@ -349,6 +388,7 @@ function buildTableCandidate(input: DeterministicRouterInput): RouterCandidate |
       sectionId: cell.sectionId,
       heading: cell.heading,
     })),
+    answerQuoteCount: selectedCells.length,
     pages: selectedTable.pageNumbers,
     sectionPaths: [formatSectionPath(selectedTable.sectionPath)],
     warnings: [],
@@ -383,6 +423,13 @@ function lexicalScore(span: EvidenceSpan, terms: string[]): number {
 function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate | null {
   if (!input.evidenceDocument) return null;
   if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope" || input.queryIntentAnalysis?.intent === "ambiguous") {
+    return null;
+  }
+  if (
+    input.queryIntentAnalysis?.intent === "table_lookup"
+    || input.queryIntentAnalysis?.intent === "fact_lookup"
+    || input.queryIntentAnalysis?.intent === "methodology_lookup"
+  ) {
     return null;
   }
   if (input.queryIntentAnalysis && input.queryIntentAnalysis.confidence < LEXICAL_MIN_CONFIDENCE) {
@@ -423,6 +470,7 @@ function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate
       sectionId: span.sectionId,
       heading: span.heading,
     })),
+    answerQuoteCount: 1,
     pages: dedupe(spans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
     sectionPaths: dedupe(spans.map((span) => formatSectionPath(span.sectionPath)).filter(Boolean)),
     warnings: [],

@@ -116,7 +116,6 @@ const ROUTER_EVAL_CASES: RouterEvalCase[] = [
       route: "project_fact_contract",
       confidenceMin: 0.7,
       evidenceRequired: true,
-      sectionPathsRequired: false,
     },
   },
   {
@@ -132,7 +131,6 @@ const ROUTER_EVAL_CASES: RouterEvalCase[] = [
       route: "project_fact_contract",
       confidenceMin: 0.7,
       evidenceRequired: true,
-      sectionPathsRequired: false,
     },
   },
   {
@@ -148,7 +146,6 @@ const ROUTER_EVAL_CASES: RouterEvalCase[] = [
       route: "project_fact_contract",
       confidenceMin: 0.7,
       evidenceRequired: true,
-      sectionPathsRequired: false,
     },
   },
   {
