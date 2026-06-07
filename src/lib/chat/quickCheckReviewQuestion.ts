@@ -7,7 +7,9 @@ import { compileEvidenceDocumentFromStructure } from "@/lib/quickCheck/evidence/
 import { buildSectionTableIndex } from "@/lib/quickCheck/indexing";
 import { buildProjectFactContract } from "@/lib/quickCheck/projectFacts";
 import { analyzeQueryIntent } from "@/lib/quickCheck/queryIntent";
+import { buildDeterministicRouterResult } from "@/lib/quickCheck/router/deterministicRouter";
 import type {
+  DeterministicRouterResult,
   QuickCheckInputContext,
   ReviewQuestionResult,
   ReviewQuestionRetrievalResult,
@@ -22,6 +24,7 @@ import type { QueryIntentAnalysis } from "@/lib/quickCheck/queryIntent";
 
 export type {
   QuickCheckPath,
+  DeterministicRouterResult,
   ReviewArea,
   ReviewQuestionDiagnostic,
   ReviewQuestionMatchStage,
@@ -262,6 +265,14 @@ export function buildReviewQuestionResult(input: {
     structuredContext,
   });
   const evaluation = evaluateRetrievedReviewQuestion(retrieval);
+  const routerResult: DeterministicRouterResult = buildDeterministicRouterResult({
+    claimText: input.claimText,
+    reviewArea: retrieval.reviewArea,
+    queryIntentAnalysis,
+    evidenceDocument: structuredContext?.evidenceDocument,
+    projectFactContract: structuredContext?.projectFactContract,
+    sectionTableIndex: structuredContext?.sectionTableIndex,
+  });
   const parsedDocument = structuredContext?.parsedDocument ?? (input.rawPddText ? parseDocumentText({ rawText: input.rawPddText }) : undefined);
   const documentAnswer = buildDocumentQuestionAnswer({
     retrieval,
@@ -278,6 +289,7 @@ export function buildReviewQuestionResult(input: {
   return {
     ...retrieval,
     ...evaluation,
+    routerResult,
     queryIntentAnalysis,
     documentAnswer,
     documentDiagnostic: buildReviewQuestionDocumentDiagnostic(documentAnswer),
