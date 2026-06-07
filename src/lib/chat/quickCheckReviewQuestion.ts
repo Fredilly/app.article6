@@ -44,9 +44,6 @@ export {
 } from "@/lib/quickCheck/retrieval/retrieveSections";
 export { evaluateRetrievedReviewQuestion } from "@/lib/quickCheck/evaluation/evaluateEvidence";
 
-let structuredQueryContextCache: { rawPddText: string; context: StructuredQueryContext } | null = null;
-let structuredQueryContextBuildCountForTests = 0;
-
 function buildStructuredQueryContext(rawPddText: string) {
   const parsedDocument = parseDocumentText({ rawText: rawPddText });
   const documentStructure = buildDocumentStructure({ parsedDocument });
@@ -71,27 +68,7 @@ function buildStructuredQueryContext(rawPddText: string) {
 export type StructuredQueryContext = ReturnType<typeof buildStructuredQueryContext>;
 
 export function getStructuredQueryContext(rawPddText: string): StructuredQueryContext {
-  const normalizedRawPddText = rawPddText.trim();
-  if (structuredQueryContextCache?.rawPddText === normalizedRawPddText) {
-    return structuredQueryContextCache.context;
-  }
-
-  const context = buildStructuredQueryContext(normalizedRawPddText);
-  structuredQueryContextCache = {
-    rawPddText: normalizedRawPddText,
-    context,
-  };
-  structuredQueryContextBuildCountForTests += 1;
-  return context;
-}
-
-export function __resetStructuredQueryContextCacheForTests() {
-  structuredQueryContextCache = null;
-  structuredQueryContextBuildCountForTests = 0;
-}
-
-export function __getStructuredQueryContextBuildCountForTests() {
-  return structuredQueryContextBuildCountForTests;
+  return buildStructuredQueryContext(rawPddText.trim());
 }
 
 export function detectRuntimeReviewPath(input: {
