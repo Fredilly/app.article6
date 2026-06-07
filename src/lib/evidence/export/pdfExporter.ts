@@ -550,7 +550,7 @@ function addLimitations(state: PdfPage): void {
 
 function addProvenance(state: PdfPage, input: PremiumExportInput): void {
   sec(state, 'PROVENANCE CHAIN');
-  const now = input.exportTime ?? new Date().toISOString();
+  const now = exportTimestamp(input);
   const { project, inventory, fragments, facts, candidateLinks, reconciliationRun, decisionRun } = input;
 
   const provenanceItems: Array<[string, string]> = [
