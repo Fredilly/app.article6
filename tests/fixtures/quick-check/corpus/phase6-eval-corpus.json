@@ -1,0 +1,185 @@
+{
+  "manifestVersion": 1,
+  "corpusId": "phase6-foundation",
+  "fixtures": [
+    {
+      "id": "real-cdm-nepal",
+      "fixturePath": "tests/fixtures/quick-check/bsp-nepal-activity3-cdm-excerpt.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "AMS-I.E.",
+        "methodologyVersion": "1.0"
+      },
+      "gold": {
+        "documentFamily": "CDM_PDD",
+        "projectTitle": "Biogas Support Program - Nepal Activity-3",
+        "hostCountry": "Nepal",
+        "projectCountry": "Nepal",
+        "methodology": "AMS-I.E. Switch from non-renewable biomass for thermal applications by the user",
+        "creditingPeriod": "13 Dec 2011 - 12 Dec 2018",
+        "reportingPeriod": null,
+        "baselineSection": "Baseline scenario",
+        "monitoringSection": "Monitoring methodology and plan",
+        "leakageSection": "Leakage",
+        "additionalitySection": "Demonstration of additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Biogas Support Program - Nepal Activity-3"]
+            }
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Host country: Nepal"]
+            }
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Applied baseline methodology: AMS-I.E."]
+            }
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Without the project activity, rural households would continue to use non-renewable biomass"],
+              "sectionHints": ["Baseline scenario"]
+            }
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring includes digester operation checks"],
+              "sectionHints": ["Monitoring methodology and plan"]
+            }
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Leakage emissions are expected to be negligible"],
+              "sectionHints": ["Leakage"]
+            }
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The project is additional because upfront household investment barriers"],
+              "sectionHints": ["Demonstration of additionality"]
+            }
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          }
+        }
+      },
+      "notes": "Compact CDM excerpt with deterministic fact fields and named baseline/monitoring/leakage/additionality sections."
+    },
+    {
+      "id": "real-envira-amazonia",
+      "fixturePath": "tests/fixtures/quick-check/envira-amazonia-vm0007-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "REDD_AFOLU",
+        "projectTitle": "Envira Amazonia REDD+ Project",
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": "VM0007 Version 4.2",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": "Monitoring Plan",
+        "leakageSection": "Leakage",
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Envira Amazonia REDD+ Project"]
+            }
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007 Version 4.2"]
+            }
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The monitoring plan defines the sampling design"],
+              "sectionHints": ["Monitoring Plan"]
+            }
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Activity shifting leakage is addressed through community agreements"],
+              "sectionHints": ["Leakage"]
+            }
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          }
+        }
+      },
+      "notes": "Real REDD/AFOLU fixture with title, methodology, leakage, and monitoring but no deterministic baseline/additionality fact promotion."
+    }
+  ]
+}
