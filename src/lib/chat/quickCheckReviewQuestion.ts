@@ -223,6 +223,7 @@ export function buildReviewQuestionResult(input: {
   evidenceSourceLabel?: string;
   evidenceDocumentType?: string;
 }): ReviewQuestionResult {
+  const baseRetrieval = buildReviewQuestionSectionRetrieval(input);
   const structuredContext = input.rawPddText?.trim() ? buildStructuredQueryContext(input.rawPddText) : undefined;
   const queryIntentAnalysis = structuredContext
     ? analyzeQueryIntent({
@@ -239,15 +240,25 @@ export function buildReviewQuestionResult(input: {
           && hasIntentBackedEvidence({ queryIntentAnalysis, structuredContext })
         )
         || (
-          (queryIntentAnalysis.intent === "unsupported_or_out_of_scope" || queryIntentAnalysis.intent === "ambiguous")
+          queryIntentAnalysis.intent === "unsupported_or_out_of_scope"
           && !isQuestionStyled(input.claimText)
           && isLabelStyleIntentQuery(input.claimText)
+        )
+        || (
+          queryIntentAnalysis.intent === "ambiguous"
+          && !isQuestionStyled(input.claimText)
+          && isLabelStyleIntentQuery(input.claimText)
+          && (
+            baseRetrieval.matchedHeadings.length === 0
+            || queryIntentAnalysis.positiveTerms.length > 0
+            || queryIntentAnalysis.negativeTerms.length > 0
+          )
         )
       )
     : false;
   const appliedQueryIntentAnalysis = shouldApplyIntentRouting ? queryIntentAnalysis : undefined;
   const retrieval = applyIntentToRetrieval({
-    retrieval: buildReviewQuestionSectionRetrieval(input),
+    retrieval: baseRetrieval,
     queryIntentAnalysis: appliedQueryIntentAnalysis,
     structuredContext,
   });
