@@ -92,6 +92,27 @@ export type ReviewRoutingDiagnostic = {
 
 export type DocumentAnswerStatus = "likely_yes" | "likely_no" | "unclear";
 
+export type DeterministicRouterStatus = "answered" | "unclear" | "no_evidence";
+
+export type DeterministicRouterRoute =
+  | "project_fact_contract"
+  | "section_index"
+  | "table_index"
+  | "lexical_retrieval"
+  | "fallback";
+
+export type DeterministicRouterResult = {
+  answerText: string;
+  status: DeterministicRouterStatus;
+  route: DeterministicRouterRoute;
+  confidence: number;
+  evidenceSpanIds: string[];
+  quotes: string[];
+  pages: number[];
+  sectionPaths: string[];
+  warnings: string[];
+};
+
 export type DocumentAnswerEvidence = {
   snippet: string;
   page?: number;
@@ -146,6 +167,7 @@ export type ReviewQuestionResult = {
   reviewArea: ReviewArea;
   status: ReviewQuestionStatus;
   matchStage: ReviewQuestionMatchStage;
+  routerResult: DeterministicRouterResult;
   queryIntentAnalysis?: QueryIntentAnalysis;
   methodologyId: string;
   methodologyVersion: string;
@@ -168,7 +190,14 @@ export type ReviewQuestionResult = {
 
 export type ReviewQuestionRetrievalResult = Omit<
   ReviewQuestionResult,
-  "baselineReview" | "reviewAreaReview" | "documentAnswer" | "documentDiagnostic" | "semanticEvidenceCandidates" | "semanticEvidenceStatus" | "semanticEvidenceWarning"
+  | "baselineReview"
+  | "reviewAreaReview"
+  | "documentAnswer"
+  | "documentDiagnostic"
+  | "semanticEvidenceCandidates"
+  | "semanticEvidenceStatus"
+  | "semanticEvidenceWarning"
+  | "routerResult"
 > & {
   rejectedMatches: RejectedHeadingQueryMatch[];
 };
