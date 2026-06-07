@@ -2,8 +2,6 @@ import { afterEach, describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 import {
-  __getStructuredQueryContextBuildCountForTests,
-  __resetStructuredQueryContextCacheForTests,
   buildReviewQuestionResult,
   buildReviewQuestionSectionRetrieval,
   classifyReviewArea,
@@ -130,7 +128,6 @@ const FACT_AND_METHOD_PDD_TEXT = [
 afterEach(() => {
   delete process.env.QUICK_CHECK_PARSER;
   setLiteParseImplementationForTests(null);
-  __resetStructuredQueryContextCacheForTests();
 });
 
 const BOUNDARY_RANKING_PDD = [
@@ -1436,7 +1433,7 @@ describe("Phase 4 router integration groundwork", () => {
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("fact_lookup");
-    expect(__getStructuredQueryContextBuildCountForTests()).toBe(1);
+    expect(result.documentAnswer.methodologyExplanation).toContain("extracted project facts");
   });
 
   it("routes claim-style fact questions through runtime document q&a when parsed text is available", () => {
