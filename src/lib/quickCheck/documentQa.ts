@@ -1,10 +1,14 @@
 import { buildArticle6DocumentModel } from "@/lib/documentModel";
 import type { Article6DocumentModel, Article6DocumentSection } from "@/lib/documentModel";
 import type { ParsedDocument } from "@/lib/documentParsing";
+import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
+import type { SectionTableIndex } from "@/lib/quickCheck/indexing";
 import {
   getReviewAreaAliases,
   getReviewAreaKeywords,
 } from "@/lib/quickCheck/policy/reviewPolicy";
+import type { ProjectFactContract } from "@/lib/quickCheck/projectFacts/types";
+import type { QueryIntentAnalysis } from "@/lib/quickCheck/queryIntent";
 import type {
   DocumentAnswerEvidence,
   DocumentQuestionAnswer,
@@ -238,6 +242,64 @@ function findRawTextEvidence(rawPddText: string | undefined, claimText: string, 
   return snippets;
 }
 
+function buildFactIntentEvidence(input: {
+  evidenceDocument?: EvidenceDocument;
+  projectFactContract?: ProjectFactContract;
+  queryIntentAnalysis?: QueryIntentAnalysis;
+}): DocumentAnswerEvidence[] {
+  if (!input.evidenceDocument || !input.projectFactContract || !input.queryIntentAnalysis) return [];
+  const snippets: DocumentAnswerEvidence[] = [];
+  for (const factId of input.queryIntentAnalysis.targetFacts) {
+    const field = input.projectFactContract[factId];
+    for (const spanId of field.evidenceSpanIds) {
+      const span = input.evidenceDocument.spans.find((candidate) => candidate.spanId === spanId);
+      if (!span) continue;
+      snippets.push({
+        snippet: trimSnippet(span.text),
+        page: span.page ?? undefined,
+        heading: span.heading,
+        sectionNumber: span.sectionId?.replace(/^section:/, ""),
+        blockId: span.sourceBlockId,
+        source: "block",
+      });
+    }
+  }
+  return snippets.slice(0, MAX_EVIDENCE_ITEMS);
+}
+
+function buildTableIntentEvidence(input: {
+  sectionTableIndex?: SectionTableIndex;
+  queryIntentAnalysis?: QueryIntentAnalysis;
+}): DocumentAnswerEvidence[] {
+  if (!input.sectionTableIndex || !input.queryIntentAnalysis) return [];
+  const snippets: DocumentAnswerEvidence[] = [];
+  for (const tableKey of input.queryIntentAnalysis.targetTables) {
+    const table = input.sectionTableIndex.tableIndex.byTableId[tableKey]
+      ?? input.sectionTableIndex.tableIndex.byEvidenceSpanId[tableKey];
+    if (!table) continue;
+    const tableCells = input.queryIntentAnalysis.targetCells.length > 0
+      ? input.queryIntentAnalysis.targetCells
+      : table.cells.slice(0, 3).map((cell) => ({
+          sourceTableId: cell.sourceTableId,
+          sourceBlockId: cell.sourceBlockId,
+          rowIndex: cell.rowIndex,
+          columnIndex: cell.columnIndex,
+          text: cell.text,
+        }));
+    for (const cell of tableCells) {
+      snippets.push({
+        snippet: trimSnippet(`${table.heading ?? "Table"} row ${cell.rowIndex + 1} column ${cell.columnIndex + 1}: ${cell.text}`),
+        page: table.pageNumbers[0],
+        heading: table.heading,
+        sectionNumber: table.sectionId?.replace(/^section:/, ""),
+        blockId: cell.sourceBlockId,
+        source: "block",
+      });
+    }
+  }
+  return snippets.slice(0, MAX_EVIDENCE_ITEMS);
+}
+
 function deriveAnswerStatus(input: {
   evidence: DocumentAnswerEvidence[];
   evaluation: ReviewQuestionEvaluationResult;
@@ -268,10 +330,58 @@ export function buildDocumentQuestionAnswer(input: {
   parsedDocument?: ParsedDocument;
   claimText: string;
   rawPddText?: string;
+  queryIntentAnalysis?: QueryIntentAnalysis;
+  evidenceDocument?: EvidenceDocument;
+  projectFactContract?: ProjectFactContract;
+  sectionTableIndex?: SectionTableIndex;
 }): DocumentQuestionAnswer {
+  if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope") {
+    return {
+      status: "unclear",
+      methodologyRuleMatched: false,
+      methodologyExplanation: "Quick Check classified this request as outside document-grounded review scope.",
+      explanation: "Quick Check classified this question as unsupported or out of scope for evidence-grounded document review.",
+      evidence: [],
+      diagnostic: {
+        reviewQuestionRoutingFired: true,
+        rawPddTextAvailable: Boolean(input.rawPddText?.trim()),
+        documentEvidenceCount: 0,
+        methodologyRuleMatched: false,
+      },
+    };
+  }
+
+  if (input.queryIntentAnalysis?.intent === "ambiguous") {
+    return {
+      status: "unclear",
+      methodologyRuleMatched: false,
+      methodologyExplanation: "Quick Check found multiple plausible intent targets and did not force a retrieval path.",
+      explanation: "Quick Check classified this question as ambiguous and did not promote a single evidence path.",
+      evidence: [],
+      diagnostic: {
+        reviewQuestionRoutingFired: true,
+        rawPddTextAvailable: Boolean(input.rawPddText?.trim()),
+        documentEvidenceCount: 0,
+        methodologyRuleMatched: false,
+      },
+    };
+  }
+
   const headingEvidence = buildHeadingEvidence(input.retrieval);
+  const intentEvidence = input.queryIntentAnalysis?.intent === "fact_lookup" || input.queryIntentAnalysis?.intent === "methodology_lookup"
+    ? buildFactIntentEvidence({
+        evidenceDocument: input.evidenceDocument,
+        projectFactContract: input.projectFactContract,
+        queryIntentAnalysis: input.queryIntentAnalysis,
+      })
+    : input.queryIntentAnalysis?.intent === "table_lookup"
+      ? buildTableIntentEvidence({
+          sectionTableIndex: input.sectionTableIndex,
+          queryIntentAnalysis: input.queryIntentAnalysis,
+        })
+      : [];
   const model = input.parsedDocument ? buildArticle6DocumentModel({ parsedDocument: input.parsedDocument }) : null;
-  const blockEvidence = headingEvidence.length > 0 || !model
+  const blockEvidence = headingEvidence.length > 0 || intentEvidence.length > 0 || !model
     ? []
     : buildBlockEvidence({
         model,
@@ -280,10 +390,10 @@ export function buildDocumentQuestionAnswer(input: {
         rawPddText: input.rawPddText,
         claimText: input.claimText,
       });
-  const rawTextEvidence = headingEvidence.length > 0 || blockEvidence.length > 0
+  const rawTextEvidence = headingEvidence.length > 0 || intentEvidence.length > 0 || blockEvidence.length > 0
     ? []
     : findRawTextEvidence(input.rawPddText, input.claimText, input.retrieval.reviewArea);
-  const evidence = [...headingEvidence, ...blockEvidence, ...rawTextEvidence].slice(0, MAX_EVIDENCE_ITEMS);
+  const evidence = [...intentEvidence, ...headingEvidence, ...blockEvidence, ...rawTextEvidence].slice(0, MAX_EVIDENCE_ITEMS);
 
   const specificTerms = getSpecificClaimTerms(input.claimText, input.retrieval.reviewArea);
   const directlyRelevant = specificTerms.length === 0 || hasDirectSemanticSupport(evidence, specificTerms);
@@ -314,6 +424,12 @@ export function buildDocumentQuestionAnswer(input: {
     methodologyRuleMatched,
     methodologyExplanation: methodologyRuleMatched
       ? "Quick Check found a methodology-aware review path and evaluated the matched document sections."
+      : input.queryIntentAnalysis?.intent === "methodology_lookup"
+        ? "Quick Check used the deterministic query intent analyzer to route this question to methodology evidence."
+        : input.queryIntentAnalysis?.intent === "fact_lookup"
+          ? "Quick Check used the deterministic query intent analyzer to route this question to extracted project facts."
+          : input.queryIntentAnalysis?.intent === "table_lookup"
+            ? "Quick Check used the deterministic query intent analyzer to route this question to table evidence."
       : evidence.length > 0
         ? "No methodology rule was confidently matched, but the uploaded document contains relevant evidence."
         : rawPddTextAvailable

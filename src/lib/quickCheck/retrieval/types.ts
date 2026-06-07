@@ -1,6 +1,7 @@
 import type { DocumentHeading, RejectedHeadingQueryMatch, SectionCandidateDebug } from "@/lib/chat/quickCheckSectionExtractor";
 import type { BaselineReviewResult } from "@/lib/chat/quickCheckBaselineRubric";
 import type { ReviewRubricResult } from "@/lib/chat/quickCheckReviewRubric";
+import type { QueryIntentAnalysis } from "@/lib/quickCheck/queryIntent";
 
 export type ReviewArea =
   | "additionality"
@@ -145,6 +146,7 @@ export type ReviewQuestionResult = {
   reviewArea: ReviewArea;
   status: ReviewQuestionStatus;
   matchStage: ReviewQuestionMatchStage;
+  queryIntentAnalysis?: QueryIntentAnalysis;
   methodologyId: string;
   methodologyVersion: string;
   relevantSections: string[];
