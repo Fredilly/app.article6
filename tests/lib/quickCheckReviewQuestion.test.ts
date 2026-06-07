@@ -7,6 +7,7 @@ import {
   classifyReviewArea,
   computeSectionMatchResults,
   detectReviewPath,
+  detectRuntimeReviewPath,
   evaluateRetrievedReviewQuestion,
   extractClaimKeywords,
   findMatchedSectionNumbers,
@@ -95,6 +96,22 @@ const ENVIRA_TEXT = fs.readFileSync(
   path.join(__dirname, "../fixtures/quick-check/envira-amazonia-vm0007-extracted.txt"),
   "utf8",
 );
+
+const FACT_AND_METHOD_PDD_TEXT = [
+  "Project Title: Coastal Mangrove Restoration Project",
+  "Host Country: Kenya",
+  "Project Proponent: Blue Carbon Initiative",
+  "Methodology Applied: VM0007 REDD+ Methodology Framework",
+  "",
+  "2.2 Project Location",
+  "The project is located in Lamu County, Kenya.",
+  "",
+  "2.4 Baseline Scenario",
+  "Without the project activity, mangrove clearing would continue and emissions would increase.",
+  "",
+  "3.1 Monitoring Plan",
+  "The monitoring plan measures forest cover change and biomass annually.",
+].join("\n");
 
 afterEach(() => {
   delete process.env.QUICK_CHECK_PARSER;
@@ -1381,5 +1398,104 @@ describe("PR #657 - article-prefixed baseline question detection", () => {
       methodologyVersion: "4.2",
     });
     expect(additionalityResult.reviewArea).toBe("additionality");
+  });
+});
+
+describe("Phase 4 router integration groundwork", () => {
+  it("routes claim-style fact questions through runtime document q&a when parsed text is available", () => {
+    expect(detectRuntimeReviewPath({
+      claimText: "What is the project title?",
+      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+      inputContext: "review_question_field",
+    })).toBe("review_question_answering");
+  });
+
+  it("preserves the legacy review-question path when parsed text is unavailable", () => {
+    expect(detectRuntimeReviewPath({
+      claimText: "project title",
+      inputContext: "review_question_field",
+    })).toBe("review_question_answering");
+  });
+
+  it("routes fact lookups to extracted project fact evidence", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "project title",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(result.queryIntentAnalysis?.targetFacts).toContain("projectTitle");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.methodologyExplanation).toContain("extracted project facts");
+  });
+
+  it("routes section-topic lookups to section-backed evidence", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "baseline scenario",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("section_topic");
+    expect(result.relevantSections.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+  });
+
+  it("routes methodology lookups to methodology evidence", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "applied methodology",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("methodology_lookup");
+    expect(result.queryIntentAnalysis?.targetFacts).toEqual(expect.arrayContaining(["methodologyPrimary", "methodologyModules"]));
+    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.methodologyExplanation).toContain("methodology evidence");
+  });
+
+  it("keeps explicit table questions safe when no indexed table evidence exists in the raw-text path", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "table baseline emissions",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("unsupported_or_out_of_scope");
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.evidence).toEqual([]);
+  });
+
+  it("returns unsupported questions as unclear without forcing lexical recovery", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "stock price",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("unsupported_or_out_of_scope");
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.explanation).toContain("unsupported or out of scope");
+    expect(result.documentAnswer.evidence).toEqual([]);
+  });
+
+  it("returns ambiguous questions as unclear without promoting a single path", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "baseline methodology",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("ambiguous");
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.explanation).toContain("ambiguous");
+    expect(result.documentAnswer.evidence).toEqual([]);
   });
 });
