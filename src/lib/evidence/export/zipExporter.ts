@@ -27,7 +27,7 @@ function stableDate(input: PremiumExportInput): Date {
 
 function buildExportJson(input: PremiumExportInput): string {
   const { project, coverage, inventory, sources, fragments, facts, candidateLinks, reconciliationRun, decisionRun } = input;
-  const now = input.exportTime ?? new Date().toISOString();
+  const now = exportTimestamp(input);
   const pipelineVersion = input.pipelineVersion ?? '1.0.0';
 
   const data = {

@@ -59,6 +59,7 @@ import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
 import {
   buildReviewQuestionResult,
   detectRuntimeReviewPath,
+  getStructuredQueryContext,
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
@@ -1460,10 +1461,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
       const reviewFieldText = draft.claimText.trim();
       const claimIntents = classifyQuickCheckClaimIntents(effectiveClaimText);
+      const structuredQueryContext = evidenceAnalysis.rawPddText?.trim()
+        ? getStructuredQueryContext(evidenceAnalysis.rawPddText)
+        : undefined;
       const isReviewQuestion = detectRuntimeReviewPath({
         claimText: reviewFieldText,
         rawPddText: evidenceAnalysis.rawPddText,
         inputContext: "review_question_field",
+        structuredQueryContext,
       }) === "review_question_answering";
       const currentMethodologyResolution = resolveQuickCheckMethodology({
         mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
@@ -1489,6 +1494,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           rawPddText: evidenceAnalysis.rawPddText,
           evidenceSourceLabel: firstSource?.sourceLabel,
           evidenceDocumentType: evidenceAnalysis.documentTypes[0],
+          structuredQueryContext,
         });
         const runId = reviewQuestionRunRef.current + 1;
         reviewQuestionRunRef.current = runId;

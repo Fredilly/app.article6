@@ -11,6 +11,7 @@ import {
   evaluateRetrievedReviewQuestion,
   extractClaimKeywords,
   findMatchedSectionNumbers,
+  getStructuredQueryContext,
   resolveReviewSections,
   reviewAreaLabel,
   type ReviewArea,
@@ -96,6 +97,17 @@ const ENVIRA_TEXT = fs.readFileSync(
   path.join(__dirname, "../fixtures/quick-check/envira-amazonia-vm0007-extracted.txt"),
   "utf8",
 );
+
+const REAL_CDM_TEXT = fs.readFileSync(
+  path.join(__dirname, "../fixtures/quick-check/bsp-nepal-activity3-cdm-excerpt.txt"),
+  "utf8",
+);
+
+const REAL_TABLE_HEAVY_APPENDIX_TEXT = (
+  JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../fixtures/projects/ccb1530-appendix1-pages.json"), "utf8"),
+  ) as { pages: Array<{ text?: string }> }
+).pages.map((page) => page.text ?? "").join("\f");
 
 const FACT_AND_METHOD_PDD_TEXT = [
   "Project Title: Coastal Mangrove Restoration Project",
@@ -1402,6 +1414,28 @@ describe("PR #657 - article-prefixed baseline question detection", () => {
 });
 
 describe("Phase 4 router integration groundwork", () => {
+  it("reuses the structured query context across runtime path detection and result building in the same flow", () => {
+    const structuredQueryContext = getStructuredQueryContext(REAL_CDM_TEXT);
+
+    expect(detectRuntimeReviewPath({
+      claimText: "What is the project title and host country?",
+      rawPddText: REAL_CDM_TEXT,
+      inputContext: "review_question_field",
+      structuredQueryContext,
+    })).toBe("review_question_answering");
+
+    const result = buildReviewQuestionResult({
+      claimText: "What is the project title and host country?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+      structuredQueryContext,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(result.documentAnswer.methodologyExplanation).toContain("extracted project facts");
+  });
+
   it("routes claim-style fact questions through runtime document q&a when parsed text is available", () => {
     expect(detectRuntimeReviewPath({
       claimText: "What is the project title?",
@@ -1417,66 +1451,56 @@ describe("Phase 4 router integration groundwork", () => {
     })).toBe("review_question_answering");
   });
 
-  it("routes fact lookups to extracted project fact evidence", () => {
+  it("routes real-document project title and host country lookups to fact-backed evidence", () => {
     const result = buildReviewQuestionResult({
-      claimText: "project title",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2",
-      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+      claimText: "What is the project title and host country?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("fact_lookup");
-    expect(result.queryIntentAnalysis?.targetFacts).toContain("projectTitle");
-    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.queryIntentAnalysis?.targetFacts).toEqual(expect.arrayContaining(["projectTitle", "hostCountry"]));
+    expect(result.documentAnswer.status).toBe("likely_yes");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThanOrEqual(2);
+    expect(result.documentAnswer.evidence[0]?.heading || result.documentAnswer.evidence[0]?.page || result.documentAnswer.evidence[0]?.blockId).toBeTruthy();
     expect(result.documentAnswer.methodologyExplanation).toContain("extracted project facts");
   });
 
-  it("routes section-topic lookups to section-backed evidence", () => {
+  it("routes real-document baseline section-topic lookups to the baseline section", () => {
     const result = buildReviewQuestionResult({
-      claimText: "baseline scenario",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2",
-      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+      claimText: "Explain the baseline scenario.",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("section_topic");
-    expect(result.relevantSections.length).toBeGreaterThan(0);
+    expect(result.relevantSections).toContain("B.4");
     expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
   });
 
-  it("routes methodology lookups to methodology evidence", () => {
+  it("routes real-document methodology lookups to provenance-backed methodology evidence", () => {
     const result = buildReviewQuestionResult({
-      claimText: "applied methodology",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2",
-      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+      claimText: "What methodology is used for this project?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("methodology_lookup");
     expect(result.queryIntentAnalysis?.targetFacts).toEqual(expect.arrayContaining(["methodologyPrimary", "methodologyModules"]));
     expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
+    expect(result.documentAnswer.evidence[0]?.heading || result.documentAnswer.evidence[0]?.page || result.documentAnswer.evidence[0]?.blockId).toBeTruthy();
     expect(result.documentAnswer.methodologyExplanation).toContain("methodology evidence");
   });
 
-  it("keeps explicit table questions safe when no indexed table evidence exists in the raw-text path", () => {
+  it("keeps real table-heavy queries safe when no deterministic table provenance is available", () => {
     const result = buildReviewQuestionResult({
-      claimText: "table baseline emissions",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2",
-      rawPddText: FACT_AND_METHOD_PDD_TEXT,
-    });
-
-    expect(result.queryIntentAnalysis?.intent).toBe("unsupported_or_out_of_scope");
-    expect(result.documentAnswer.status).toBe("unclear");
-    expect(result.documentAnswer.evidence).toEqual([]);
-  });
-
-  it("returns unsupported questions as unclear without forcing lexical recovery", () => {
-    const result = buildReviewQuestionResult({
-      claimText: "stock price",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2",
-      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+      claimText: "What does the table say about net ghg removals?",
+      methodologyId: "AR-ACM0003",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_TABLE_HEAVY_APPENDIX_TEXT,
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("unsupported_or_out_of_scope");
@@ -1485,12 +1509,26 @@ describe("Phase 4 router integration groundwork", () => {
     expect(result.documentAnswer.evidence).toEqual([]);
   });
 
-  it("returns ambiguous questions as unclear without promoting a single path", () => {
+  it("returns real-document unsupported questions as unclear without forcing lexical recovery", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What is the stock price of the project developer?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+
+    expect(result.queryIntentAnalysis?.intent).toBe("unsupported_or_out_of_scope");
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.explanation).toContain("unsupported or out of scope");
+    expect(result.documentAnswer.evidence).toEqual([]);
+  });
+
+  it("returns real-document ambiguous questions as unclear without promoting a single path", () => {
     const result = buildReviewQuestionResult({
       claimText: "baseline methodology",
-      methodologyId: "VM0007",
-      methodologyVersion: "4.2",
-      rawPddText: FACT_AND_METHOD_PDD_TEXT,
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("ambiguous");
