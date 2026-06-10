@@ -19,6 +19,7 @@ type RouterCandidate = {
   pages: number[];
   sectionPaths: string[];
   warnings: string[];
+  isStructuredInput: boolean;
 };
 
 type DeterministicRouterInput = {
@@ -237,9 +238,16 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
     } => {
       const field = entry.field;
       if (!field || !entry.value) return false;
-      return field.evidenceSpanIds.length > 0;
+      return field.evidenceSpanIds.length > 0 || field.extractionRule === "structured-input";
     })
     .map((entry) => {
+      if (entry.field.extractionRule === "structured-input") {
+        return {
+          ...entry,
+          supportingSpans: [] as EvidenceSpan[],
+          isStructuredInput: true as const,
+        };
+      }
       const supportingSpans = entry.field.evidenceSpanIds
         .map((spanId) => spanLookup.get(spanId))
         .filter((span): span is EvidenceSpan => Boolean(span))
@@ -247,6 +255,7 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
       return {
         ...entry,
         supportingSpans,
+        isStructuredInput: false as const,
       };
     })
     .filter((entry): entry is {
@@ -254,14 +263,19 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
       field: ProjectFactField;
       value: string;
       supportingSpans: EvidenceSpan[];
-    } => entry.supportingSpans.length > 0);
+      isStructuredInput: boolean;
+    } => entry.isStructuredInput || entry.supportingSpans.length > 0);
 
   if (resolvedFacts.length === 0) return null;
 
   const answerText = resolvedFacts
-    .map(({ factId, value }) => `${FACT_LABELS[factId]}: ${value}.`)
+    .map(({ factId, value, isStructuredInput }) =>
+      isStructuredInput
+        ? `${FACT_LABELS[factId]}: ${value} (from structured input).`
+        : `${FACT_LABELS[factId]}: ${value}.`)
     .join(" ");
-  const quoteInputs = resolvedFacts
+  const documentFacts = resolvedFacts.filter((f) => !f.isStructuredInput);
+  const quoteInputs = documentFacts
     .flatMap(({ supportingSpans }) => supportingSpans
       .slice(0, 1)
       .map((span) => ({
@@ -279,12 +293,13 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
       input.queryIntentAnalysis.confidence,
       ...resolvedFacts.map(({ field }) => normalizeConfidence(field.confidence)),
     )),
-    evidenceSpanIds: dedupe(resolvedFacts.flatMap(({ supportingSpans }) => supportingSpans.map((span) => span.spanId))),
+    evidenceSpanIds: dedupe(documentFacts.flatMap(({ supportingSpans }) => supportingSpans.map((span) => span.spanId))),
     quoteInputs,
     answerQuoteCount: quoteInputs.length,
-    pages: dedupe(resolvedFacts.flatMap(({ supportingSpans }) => supportingSpans.map((span) => span.page).filter((page): page is number => typeof page === "number"))).sort((left, right) => left - right),
+    pages: dedupe(documentFacts.flatMap(({ supportingSpans }) => supportingSpans.map((span) => span.page).filter((page): page is number => typeof page === "number"))).sort((left, right) => left - right),
     sectionPaths: dedupe(resolvedFacts.map(({ field }) => formatSectionPath(field.sectionPath)).filter(Boolean)),
     warnings: dedupe(resolvedFacts.flatMap(({ field }) => field.warnings)),
+    isStructuredInput: documentFacts.length === 0 && resolvedFacts.length > 0,
   };
 }
 
@@ -331,6 +346,7 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
     pages: dedupe(sectionSpans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
     sectionPaths: dedupe([formatSectionPath(selectedNode.sectionPath)]),
     warnings: [],
+    isStructuredInput: false,
   };
 }
 
@@ -392,6 +408,7 @@ function buildTableCandidate(input: DeterministicRouterInput): RouterCandidate |
     pages: selectedTable.pageNumbers,
     sectionPaths: [formatSectionPath(selectedTable.sectionPath)],
     warnings: [],
+    isStructuredInput: false,
   };
 }
 
@@ -474,6 +491,7 @@ function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate
     pages: dedupe(spans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
     sectionPaths: dedupe(spans.map((span) => formatSectionPath(span.sectionPath)).filter(Boolean)),
     warnings: [],
+    isStructuredInput: false,
   };
 }
 
@@ -520,6 +538,22 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
       confidence: input.queryIntentAnalysis?.confidence ?? 0,
       warnings: lowConfidence ? ["low_confidence"] : ["no_validated_route"],
     });
+  }
+
+  if (candidate.isStructuredInput) {
+    return {
+      answerText: candidate.answerText,
+      status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
+      route: candidate.route,
+      confidence: clampConfidence(candidate.confidence),
+      evidenceSpanIds: candidate.evidenceSpanIds,
+      quotes: [],
+      pages: candidate.pages,
+      sectionPaths: candidate.sectionPaths,
+      warnings: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD
+        ? [...candidate.warnings, "structured_input_provenance"]
+        : [...candidate.warnings, "low_confidence", "structured_input_provenance"],
+    };
   }
 
   return finalizeCandidate(input.evidenceDocument, candidate);

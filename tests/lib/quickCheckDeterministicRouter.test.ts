@@ -424,4 +424,43 @@ describe("deterministic router contract", () => {
     expect(result.status).toBe("no_evidence");
     expect(result.warnings).toContain("no_validated_route");
   });
+
+  it("answers methodology from structured input when document has no methodology text", () => {
+    const DOC_WITHOUT_METHODOLOGY = [
+      "Project Title: Community Reforestation Project",
+      "Host Country: Tanzania",
+      "",
+      "2.4 Baseline Scenario",
+      "The baseline scenario is continued grazing pressure.",
+    ].join("\n");
+
+    const result = buildResult("What methodology is used?", DOC_WITHOUT_METHODOLOGY);
+
+    expect(result.routerResult.route).toBe("project_fact_contract");
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.routerResult.answerText).toContain("Primary methodology: VM0007");
+    expect(result.routerResult.answerText).toContain("4.2");
+    expect(result.routerResult.answerText).toContain("from structured input");
+    expect(result.routerResult.warnings).toContain("structured_input_provenance");
+    expect(result.routerResult.quotes).toEqual([]);
+  });
+
+  it("prefers document-extracted methodology over structured input when both are available", () => {
+    const DOC_WITH_METHODOLOGY = [
+      "Project Title: Community Reforestation Project",
+      "Methodology: AMS-III.AV Low greenhouse gas emitting safe drinking water production systems",
+      "",
+      "2.4 Baseline Scenario",
+      "The baseline scenario is continued grazing pressure.",
+    ].join("\n");
+
+    const result = buildResult("What methodology is used?", DOC_WITH_METHODOLOGY);
+
+    expect(result.routerResult.route).toBe("project_fact_contract");
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.routerResult.answerText).toContain("AMS-III.AV");
+    expect(result.routerResult.answerText).not.toContain("from structured input");
+    expect(result.routerResult.answerText).not.toContain("VM0007");
+    expect(result.routerResult.quotes.length).toBeGreaterThan(0);
+  });
 });
