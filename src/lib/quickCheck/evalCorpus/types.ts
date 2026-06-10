@@ -63,12 +63,29 @@ export type EvalCorpusManifest = {
   manifestVersion: 1;
   corpusId: string;
   fixtures: EvalCorpusFixtureManifestEntry[];
+  thresholds?: EvalCorpusThresholds;
 };
 
 export type EvalMetric = {
   passed: number;
   total: number;
   rate: number;
+};
+
+export type EvalCorpusThresholds = {
+  firstPassSuccessRate: number;
+  provenanceCorrectness: number;
+  unsupportedRejectionRate: number;
+  hallucinatedAnswerRate: number;
+  regressionCount: number;
+};
+
+export const DEFAULT_STRICT_THRESHOLDS: EvalCorpusThresholds = {
+  firstPassSuccessRate: 0.85,
+  provenanceCorrectness: 0.85,
+  unsupportedRejectionRate: 1.0,
+  hallucinatedAnswerRate: 0.0,
+  regressionCount: 0,
 };
 
 export type EvalCorpusFailure = {

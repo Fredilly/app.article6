@@ -10,9 +10,11 @@ import type {
   EvalCorpusQuestionExpectation,
   EvalCorpusQuestionResult,
   EvalCorpusReport,
+  EvalCorpusThresholds,
   EvalMetric,
   StandardPhase6QuestionId,
 } from "@/lib/quickCheck/evalCorpus/types";
+import { DEFAULT_STRICT_THRESHOLDS } from "@/lib/quickCheck/evalCorpus/types";
 import type { ProjectFactContract } from "@/lib/quickCheck/projectFacts/types";
 
 function normalize(value: string): string {
@@ -337,4 +339,45 @@ export function formatQuickCheckEvalCorpusReport(report: EvalCorpusReport): stri
   }
 
   return lines.join("\n");
+}
+
+export function checkEvalCorpusThresholds(
+  report: EvalCorpusReport,
+  thresholds: EvalCorpusThresholds = DEFAULT_STRICT_THRESHOLDS,
+): { passed: boolean; violations: string[] } {
+  const violations: string[] = [];
+
+  const { metrics } = report;
+
+  if (metrics.firstPassSuccessRate.rate < thresholds.firstPassSuccessRate) {
+    violations.push(
+      `firstPassSuccessRate ${(metrics.firstPassSuccessRate.rate * 100).toFixed(1)}% below threshold ${(thresholds.firstPassSuccessRate * 100).toFixed(1)}%`,
+    );
+  }
+
+  if (metrics.provenanceCorrectness.total > 0 && metrics.provenanceCorrectness.rate < thresholds.provenanceCorrectness) {
+    violations.push(
+      `provenanceCorrectness ${(metrics.provenanceCorrectness.rate * 100).toFixed(1)}% below threshold ${(thresholds.provenanceCorrectness * 100).toFixed(1)}%`,
+    );
+  }
+
+  if (metrics.unsupportedRejectionRate.total > 0 && metrics.unsupportedRejectionRate.rate < thresholds.unsupportedRejectionRate) {
+    violations.push(
+      `unsupportedRejectionRate ${(metrics.unsupportedRejectionRate.rate * 100).toFixed(1)}% below threshold ${(thresholds.unsupportedRejectionRate * 100).toFixed(1)}%`,
+    );
+  }
+
+  if (metrics.hallucinatedAnswerRate.rate > thresholds.hallucinatedAnswerRate) {
+    violations.push(
+      `hallucinatedAnswerRate ${(metrics.hallucinatedAnswerRate.rate * 100).toFixed(1)}% exceeds threshold ${(thresholds.hallucinatedAnswerRate * 100).toFixed(1)}%`,
+    );
+  }
+
+  if (metrics.regressionCount > thresholds.regressionCount) {
+    violations.push(
+      `regressionCount ${metrics.regressionCount} exceeds threshold ${thresholds.regressionCount}`,
+    );
+  }
+
+  return { passed: violations.length === 0, violations };
 }

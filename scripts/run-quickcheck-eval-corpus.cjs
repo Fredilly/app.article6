@@ -10,7 +10,9 @@ const path = require("path");
 const {
   runQuickCheckEvalCorpus,
   formatQuickCheckEvalCorpusReport,
+  checkEvalCorpusThresholds,
 } = require("../src/lib/quickCheck/evalCorpus");
+const { DEFAULT_STRICT_THRESHOLDS } = require("../src/lib/quickCheck/evalCorpus/types");
 
 const strict = process.argv.includes("--strict");
 const manifestFlagIndex = process.argv.indexOf("--manifest");
@@ -25,6 +27,17 @@ const report = runQuickCheckEvalCorpus({
 
 console.log(formatQuickCheckEvalCorpusReport(report));
 
-if (strict && report.metrics.regressionCount > 0) {
-  process.exit(1);
+if (strict) {
+  const thresholds = DEFAULT_STRICT_THRESHOLDS;
+  const { passed, violations } = checkEvalCorpusThresholds(report, thresholds);
+
+  if (!passed) {
+    console.error("\nStrict eval corpus threshold violations:");
+    for (const violation of violations) {
+      console.error(`  - ${violation}`);
+    }
+    process.exit(1);
+  }
+
+  console.log("\nAll strict eval corpus thresholds passed.");
 }
