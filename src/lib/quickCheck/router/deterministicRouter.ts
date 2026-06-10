@@ -515,6 +515,55 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
   }
 
   if (input.queryIntentAnalysis?.intent === "ambiguous") {
+    // When the intent analyzer returns ambiguous but there are positive
+    // topic terms, try to resolve by building a lexical candidate.
+    // Also include review area keywords and aliases since documents may
+    // use different terminology (e.g. \"without-project\" for baseline).
+    const positiveTerms = input.queryIntentAnalysis.positiveTerms ?? [];
+    const reviewAreaTerms = input.reviewArea.replace(/_/g, " ").split(" ");
+    // Also split multi-word phrases into individual words for broader matching
+    // (e.g. \"baseline scenario\" → [\"baseline\", \"scenario\"]).
+    // Filter out generic terms that appear in too many contexts.
+    const allWords = dedupe([...positiveTerms, ...reviewAreaTerms])
+      .flatMap((t) => [t, ...t.split(/\s+/)])
+      .map((t) => t.toLowerCase().trim())
+      .filter((t) => t.length >= 3 && !GENERIC_TERMS.has(t));
+
+    if (allWords.length > 0 && input.evidenceDocument) {
+      const scoredSpans = input.evidenceDocument.spans
+        .filter((span) => span.reliability !== "excluded")
+        .filter((span) => span.blockType !== "footer" && span.blockType !== "header" && span.blockType !== "toc")
+        .map((span) => ({ span, score: lexicalScore(span, allWords) }))
+        .filter((entry) => entry.score > 0)
+        .sort((left, right) => right.score - left.score || right.span.confidence - left.span.confidence)
+        .slice(0, MAX_QUOTES);
+
+      if (scoredSpans.length > 0) {
+        const topScore = scoredSpans[0]?.score ?? 0;
+        const lexicalConfidence = clampConfidence(Math.min(0.9, 0.48 + topScore * 0.14));
+        if (lexicalConfidence >= ANSWER_CONFIDENCE_THRESHOLD) {
+          const spans = scoredSpans.map((entry) => entry.span);
+          const candidate: RouterCandidate = {
+            answerText: `The document states: ${spans[0]?.text ?? ""}`,
+            route: "lexical_retrieval",
+            confidence: lexicalConfidence,
+            evidenceSpanIds: spans.map((span) => span.spanId),
+            quoteInputs: spans.map((span) => ({
+              quote: span.text,
+              page: span.page,
+              sectionId: span.sectionId,
+              heading: span.heading,
+            })),
+            answerQuoteCount: 1,
+            pages: dedupe(spans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
+            sectionPaths: dedupe(spans.map((span) => formatSectionPath(span.sectionPath)).filter(Boolean)),
+            warnings: [],
+            isStructuredInput: false,
+          };
+          return finalizeCandidate(input.evidenceDocument!, candidate);
+        }
+      }
+    }
     return buildFallback({
       answerText: "Quick Check found multiple plausible evidence paths and did not choose one deterministically.",
       status: "unclear",

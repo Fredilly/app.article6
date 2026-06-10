@@ -6,6 +6,14 @@ import {
   buildReviewQuestionSectionRetrieval,
 } from "@/lib/chat/quickCheckReviewQuestion";
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
+import {
+  runQuickCheckEvalCorpus,
+  checkEvalCorpusThresholds,
+  formatQuickCheckEvalCorpusReport,
+} from "@/lib/quickCheck/evalCorpus/runner";
+import { loadEvalCorpusManifest } from "@/lib/quickCheck/evalCorpus/manifest";
+import { DEFAULT_VISIBLE_ANSWER_THRESHOLDS } from "@/lib/quickCheck/evalCorpus/types";
+import type { EvalCorpusReport, EvalMetric } from "@/lib/quickCheck/evalCorpus/types";
 import type {
   BuildReviewQuestionSectionRetrievalInput,
   ReviewArea,
@@ -430,4 +438,285 @@ describe("Quick Check eval harness — deterministic router contract on real doc
       expect(Array.isArray(router.warnings)).toBe(true);
     });
   }
+});
+
+describe("Phase 6 visible-answer eval — manifest has visible answer expectations for all questions", () => {
+  const manifest = loadEvalCorpusManifest(
+    path.join(__dirname, "../fixtures/quick-check/corpus/phase6-eval-corpus.json"),
+  );
+
+  for (const fixture of manifest.fixtures) {
+    it(`${fixture.id}: all question expectations include visibleAnswerStatus`, () => {
+      for (const [questionId, expectation] of Object.entries(fixture.gold.questionExpectations)) {
+        expect(expectation.visibleAnswerStatus).toBeDefined();
+        const validStatuses = ["likely_yes", "likely_no", "unclear"];
+        expect(validStatuses).toContain(expectation.visibleAnswerStatus);
+      }
+    });
+  }
+});
+
+describe("Phase 6 visible-answer eval — real document visible answer status matches expectation", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  it("project_title: visible answer is likely_yes with document-grounded evidence", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What is the project title?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+    const da = result.documentAnswer;
+    const router = result.routerResult;
+
+    expect(router.status).toBe("answered");
+    expect(da.status).toBe("likely_yes");
+    expect(da.evidence.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("marine_biodiversity_offsets: visible answer correctly rejects unsupported question", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What does the document say about marine biodiversity offsets?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+    const da = result.documentAnswer;
+    const router = result.routerResult;
+
+    expect(router.status).toBe("no_evidence");
+    expect(da.status).toBe("unclear");
+    expect(da.status).not.toBe("likely_yes");
+  });
+
+  it("unsupported question is never promoted to likely_yes", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What does the document say about marine biodiversity offsets?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+    expect(result.documentAnswer.status).not.toBe("likely_yes");
+  });
+});
+
+describe("Phase 6 visible-answer eval — checkEvalCorpusThresholds gates on visible answer metrics", () => {
+  function metric(passed: number, total: number): EvalMetric {
+    return { passed, total, rate: total > 0 ? passed / total : 0 };
+  }
+
+  it("passes when all router and visible-answer thresholds are met", () => {
+    const report: EvalCorpusReport = {
+      corpusId: "test",
+      fixtureCount: 1,
+      fixtureResults: [],
+      failures: [],
+      metrics: {
+        factExtractionAccuracy: metric(10, 10),
+        provenanceCorrectness: metric(0, 0),
+        sectionRetrievalPrecision: metric(0, 0),
+        sectionRetrievalRecall: metric(0, 0),
+        unsupportedRejectionRate: metric(0, 0),
+        noEvidenceFalseNegativeRate: metric(0, 0),
+        hallucinatedAnswerRate: metric(0, 0),
+        firstPassSuccessRate: metric(1, 1),
+        visibleAnswerGoldMatch: metric(9, 10),
+        visibleAnswerAgreementRate: metric(10, 10),
+        regressionCount: 0,
+      },
+    };
+    const result = checkEvalCorpusThresholds(report);
+    expect(result.passed).toBe(true);
+  });
+
+  it("fails when visible answer gold match drops below 85% threshold", () => {
+    const report: EvalCorpusReport = {
+      corpusId: "test",
+      fixtureCount: 1,
+      fixtureResults: [],
+      failures: [],
+      metrics: {
+        factExtractionAccuracy: metric(10, 10),
+        provenanceCorrectness: metric(0, 0),
+        sectionRetrievalPrecision: metric(0, 0),
+        sectionRetrievalRecall: metric(0, 0),
+        unsupportedRejectionRate: metric(0, 0),
+        noEvidenceFalseNegativeRate: metric(0, 0),
+        hallucinatedAnswerRate: metric(0, 0),
+        firstPassSuccessRate: metric(1, 1),
+        visibleAnswerGoldMatch: metric(7, 10),
+        visibleAnswerAgreementRate: metric(10, 10),
+        regressionCount: 0,
+      },
+    };
+    const result = checkEvalCorpusThresholds(report);
+    expect(result.passed).toBe(false);
+    expect(result.violations.some((v) => v.includes("visibleAnswerGoldMatch"))).toBe(true);
+  });
+
+  it("fails when visible answer / Technical agreement drops below 100% threshold", () => {
+    const report: EvalCorpusReport = {
+      corpusId: "test",
+      fixtureCount: 1,
+      fixtureResults: [],
+      failures: [],
+      metrics: {
+        factExtractionAccuracy: metric(10, 10),
+        provenanceCorrectness: metric(0, 0),
+        sectionRetrievalPrecision: metric(0, 0),
+        sectionRetrievalRecall: metric(0, 0),
+        unsupportedRejectionRate: metric(0, 0),
+        noEvidenceFalseNegativeRate: metric(0, 0),
+        hallucinatedAnswerRate: metric(0, 0),
+        firstPassSuccessRate: metric(1, 1),
+        visibleAnswerGoldMatch: metric(10, 10),
+        visibleAnswerAgreementRate: metric(9, 10),
+        regressionCount: 0,
+      },
+    };
+    const result = checkEvalCorpusThresholds(report);
+    expect(result.passed).toBe(false);
+    expect(result.violations.some((v) => v.includes("visibleAnswerAgreementRate"))).toBe(true);
+  });
+});
+
+describe("Phase 6 visible-answer eval — disagreement gate catches specific failure modes", () => {
+  it("router answered + visible likely_yes passes the visible agreement gate", () => {
+    const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+    const result = buildReviewQuestionResult({
+      claimText: "What is the project title?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+    const router = result.routerResult;
+    const da = result.documentAnswer;
+
+    // Router finds evidence AND visible answer promotes it — agreement
+    expect(router.status).toBe("answered");
+    expect(da.status).toBe("likely_yes");
+
+    // No false negative — agreement is OK
+    const visibleFalseNegative = router.status === "answered" && (da.status === "unclear" || da.status === "likely_no");
+    expect(visibleFalseNegative).toBe(false);
+  });
+
+  it("router no_evidence + visible likely_yes fails the visible agreement gate", () => {
+    // blue-nile-redd baseline_scenario: router returns no_evidence but Document Q&A
+    // sometimes over-promotes to likely_yes when table-heavy content bleeds signal
+    const BLUE_NILE_TEXT = readRootFixtureText("quick-check/blue-nile-redd-extracted.txt");
+    const result = buildReviewQuestionResult({
+      claimText: "What does the document say about marine biodiversity offsets?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: BLUE_NILE_TEXT,
+    });
+    const router = result.routerResult;
+    const da = result.documentAnswer;
+
+    // Router correctly rejects unsupported
+    expect(router.status).toBe("no_evidence");
+    // Visible must not promote to likely_yes
+    expect(da.status).not.toBe("likely_yes");
+  });
+
+  it("supported visible answers require evidence (likely_yes must have evidence items)", () => {
+    const report = runQuickCheckEvalCorpus();
+    for (const fixtureResult of report.fixtureResults) {
+      for (const questionResult of fixtureResult.questionResults) {
+        if (questionResult.actualVisibleStatus === "likely_yes") {
+          // Can't assert evidence count from questionResult alone, but the visibleAgreementOk
+          // flag already ensures no false positives (likely_yes with no_evidence router)
+          expect(typeof questionResult.visibleStatusMatch).toBe("boolean");
+          expect(typeof questionResult.visibleAgreementOk).toBe("boolean");
+        }
+      }
+    }
+  });
+
+  it("real corpus reports visible-answer failures with [visible] prefix", () => {
+    const report = runQuickCheckEvalCorpus();
+    // Verify visible failures are tracked
+    let visibleFailureCount = 0;
+    for (const fixtureResult of report.fixtureResults) {
+      for (const questionResult of fixtureResult.questionResults) {
+        visibleFailureCount += questionResult.visibleFailures.length;
+      }
+    }
+    expect(visibleFailureCount).toBeGreaterThan(0);
+  });
+});
+
+describe("Phase 6 visible-answer eval — fact-backed visible answers promoted correctly", () => {
+  it("project_title: router answered + visible likely_yes with evidence", () => {
+    const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+    const result = buildReviewQuestionResult({
+      claimText: "What is the project title?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.documentAnswer.status).toBe("likely_yes");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("host_country: router answered + visible likely_yes with evidence", () => {
+    const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+    const result = buildReviewQuestionResult({
+      claimText: "What is the host country?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.documentAnswer.status).toBe("likely_yes");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("methodology: router answered + visible likely_yes with evidence", () => {
+    const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+    const result = buildReviewQuestionResult({
+      claimText: "What methodology is used?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.documentAnswer.status).toBe("likely_yes");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("Phase 6 visible-answer eval — eval corpus runner returns visible answer metrics", () => {
+  it("report includes visibleAnswerGoldMatch and visibleAnswerAgreementRate", () => {
+    const report = runQuickCheckEvalCorpus();
+    expect(report.metrics.visibleAnswerGoldMatch).toBeDefined();
+    expect(report.metrics.visibleAnswerAgreementRate).toBeDefined();
+    expect(typeof report.metrics.visibleAnswerGoldMatch.rate).toBe("number");
+    expect(typeof report.metrics.visibleAnswerAgreementRate.rate).toBe("number");
+  });
+
+  it("question results include actualVisibleStatus, visibleFailures, and agreement flags", () => {
+    const report = runQuickCheckEvalCorpus();
+    expect(report.fixtureResults.length).toBeGreaterThan(0);
+    for (const fixtureResult of report.fixtureResults) {
+      for (const questionResult of fixtureResult.questionResults) {
+        expect(questionResult.actualVisibleStatus).toBeDefined();
+        const validDocStatuses = ["likely_yes", "likely_no", "unclear"];
+        expect(validDocStatuses).toContain(questionResult.actualVisibleStatus);
+        expect(typeof questionResult.visibleStatusMatch).toBe("boolean");
+        expect(typeof questionResult.visibleAgreementOk).toBe("boolean");
+        expect(Array.isArray(questionResult.failures)).toBe(true);
+        expect(Array.isArray(questionResult.visibleFailures)).toBe(true);
+      }
+    }
+  });
+
+  it("formatted report includes visible answer metrics", () => {
+    const report = runQuickCheckEvalCorpus();
+    const formatted = formatQuickCheckEvalCorpusReport(report);
+    expect(formatted).toContain("Visible answer gold match");
+    expect(formatted).toContain("Visible answer / Technical agreement");
+  });
 });

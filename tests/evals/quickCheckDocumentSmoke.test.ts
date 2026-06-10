@@ -90,9 +90,9 @@ describe("Quick Check raw document text smoke test", () => {
       emptyEvidence: true,
     },
     monitoring: {
-      status: "unclear",
-      route: "fallback",
-      emptyEvidence: true,
+      status: "answered",
+      route: "lexical_retrieval",
+      emptyEvidence: false,
     },
     marine_biodiversity_offsets: {
       status: "no_evidence",

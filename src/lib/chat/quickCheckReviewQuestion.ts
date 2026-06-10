@@ -318,10 +318,11 @@ export function buildReviewQuestionResult(input: {
     parsedDocument,
     claimText: input.claimText,
     rawPddText: input.rawPddText,
-    queryIntentAnalysis: appliedQueryIntentAnalysis,
+    queryIntentAnalysis: queryIntentAnalysis,
     evidenceDocument: structuredContext?.evidenceDocument,
     projectFactContract: enrichedProjectFactContract ?? structuredContext?.projectFactContract,
     sectionTableIndex: structuredContext?.sectionTableIndex,
+    routerStatus: routerResult.status,
   });
 
   return {

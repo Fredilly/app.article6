@@ -37,7 +37,7 @@ const SECTION_TOPIC_RULES: Array<{
   aliases: string[];
   negatives?: string[];
 }> = [
-  { topic: "baseline", aliases: ["baseline", "without project", "baseline scenario"], negatives: ["additionality", "monitoring", "leakage"] },
+  { topic: "baseline", aliases: ["baseline", "without project", "without-project", "baseline scenario"], negatives: ["additionality", "monitoring", "leakage"] },
   { topic: "monitoring", aliases: ["monitoring", "monitoring plan", "monitoring methodology"], negatives: ["baseline", "additionality"] },
   { topic: "leakage", aliases: ["leakage", "activity shifting"], negatives: ["additionality", "baseline"] },
   { topic: "additionality", aliases: ["additionality", "additional"], negatives: ["baseline", "monitoring"] },
@@ -357,6 +357,7 @@ export function analyzeQueryIntent(input: QueryIntentAnalyzerInput): QueryIntent
       return makeAnalysis({
         intent: "ambiguous",
         confidence: 0.4,
+        positiveTerms: topicMatches.flatMap((match) => match.aliases),
         calculationSpecific,
         documentFamily: index.documentFamily,
       });

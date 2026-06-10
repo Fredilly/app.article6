@@ -14,7 +14,7 @@ import type {
   EvalMetric,
   StandardPhase6QuestionId,
 } from "@/lib/quickCheck/evalCorpus/types";
-import { DEFAULT_STRICT_THRESHOLDS } from "@/lib/quickCheck/evalCorpus/types";
+import { DEFAULT_STRICT_THRESHOLDS, DEFAULT_VISIBLE_ANSWER_THRESHOLDS } from "@/lib/quickCheck/evalCorpus/types";
 import type { ProjectFactContract } from "@/lib/quickCheck/projectFacts/types";
 
 function normalize(value: string): string {
@@ -91,6 +91,10 @@ function evaluateQuestion(input: {
   noEvidenceFalseNegativeTotal: number;
   hallucinatedAnswered: number;
   answeredTotal: number;
+  visibleAnswerPassed: number;
+  visibleAnswerTotal: number;
+  visibleAgreementPassed: number;
+  visibleAgreementTotal: number;
 } {
   const reviewResult = buildReviewQuestionResult({
     claimText: STANDARD_PHASE6_QUESTIONS[input.questionId],
@@ -98,14 +102,15 @@ function evaluateQuestion(input: {
     methodologyVersion: input.fixture.methodologyContext.methodologyVersion,
     rawPddText: input.rawPddText,
   });
-  const failures: string[] = [];
+  const routerFailures: string[] = [];
+  const visibleFailures: string[] = [];
   const expectation = input.expectation;
 
   if (reviewResult.routerResult.status !== expectation.expectedStatus) {
-    failures.push(`status expected ${expectation.expectedStatus} but got ${reviewResult.routerResult.status}`);
+    routerFailures.push(`status expected ${expectation.expectedStatus} but got ${reviewResult.routerResult.status}`);
   }
   if (expectation.expectedRoute && reviewResult.routerResult.route !== expectation.expectedRoute) {
-    failures.push(`route expected ${expectation.expectedRoute} but got ${reviewResult.routerResult.route}`);
+    routerFailures.push(`route expected ${expectation.expectedRoute} but got ${reviewResult.routerResult.route}`);
   }
   if (expectation.expectedEvidenceEmpty) {
     if (
@@ -113,7 +118,7 @@ function evaluateQuestion(input: {
       || reviewResult.routerResult.quotes.length !== 0
       || reviewResult.routerResult.pages.length !== 0
     ) {
-      failures.push("expected empty evidence for unsupported/no-evidence case");
+      routerFailures.push("expected empty evidence for unsupported/no-evidence case");
     }
   }
 
@@ -128,7 +133,7 @@ function evaluateQuestion(input: {
     provenanceTotal += 1;
     const pagesMatch = expectation.goldEvidence.pages.every((page) => reviewResult.routerResult.pages.includes(page));
     if (pagesMatch) provenancePassed += 1;
-    else failures.push(`expected evidence pages ${expectation.goldEvidence.pages.join(", ")} not found`);
+    else routerFailures.push(`expected evidence pages ${expectation.goldEvidence.pages.join(", ")} not found`);
   }
 
   if (expectation.goldEvidence?.spanAnchors?.length) {
@@ -136,7 +141,7 @@ function evaluateQuestion(input: {
     const quotes = reviewResult.routerResult.quotes.join("\n");
     const anchorMatch = expectation.goldEvidence.spanAnchors.every((anchor) => includesNormalized(quotes, anchor));
     if (anchorMatch) provenancePassed += 1;
-    else failures.push("expected quote anchors were not all present");
+    else routerFailures.push("expected quote anchors were not all present");
   }
 
   const expectedSectionHints = expectation.goldEvidence?.sectionHints ?? [];
@@ -149,7 +154,7 @@ function evaluateQuestion(input: {
       sectionRecallPassed += 1;
       if (signals.length > 0) sectionPrecisionPassed += 1;
     } else {
-      failures.push(`expected section hint not recovered: ${expectedSectionHints.join(" | ")}`);
+      routerFailures.push(`expected section hint not recovered: ${expectedSectionHints.join(" | ")}`);
     }
   }
 
@@ -166,13 +171,89 @@ function evaluateQuestion(input: {
     || reviewResult.routerResult.pages.length === 0
   ) ? 1 : 0;
 
+  // Visible-answer evaluation — tracked in separate failure list so new
+  // visible-answer checks do not corrupt existing router-only metrics
+  // (firstPassSuccessRate, regressionCount).
+  let visibleAnswerPassed = 0;
+  let visibleAnswerTotal = 0;
+  let visibleAgreementPassed = 0;
+  let visibleAgreementTotal = 0;
+  let visibleStatusMatch = false;
+  let visibleAgreementOk = false;
+
+  const da = reviewResult.documentAnswer;
+  const router = reviewResult.routerResult;
+  const visibleExpectation = expectation.visibleAnswerStatus;
+  const visibleExpectationText = expectation.visibleAnswerTextContains;
+  const visibleExpectationEvidenceMin = expectation.visibleAnswerEvidenceMin;
+  const visibleExpectationEvidencePage = expectation.visibleAnswerEvidencePage;
+  const hasVisibleAssertions = Boolean(visibleExpectation || visibleExpectationText
+    || typeof visibleExpectationEvidenceMin === "number" || typeof visibleExpectationEvidencePage === "number");
+
+  if (hasVisibleAssertions) {
+    if (visibleExpectation) {
+      visibleAnswerTotal += 1;
+      if (da.status === visibleExpectation) {
+        visibleAnswerPassed += 1;
+        visibleStatusMatch = true;
+      } else {
+        visibleFailures.push(`visibleAnswerStatus expected ${visibleExpectation} but got ${da.status}`);
+      }
+    }
+
+    if (visibleExpectationText) {
+      if (!includesNormalized(da.explanation, visibleExpectationText)) {
+        visibleFailures.push(`visibleAnswerText expected to contain "${visibleExpectationText}", got "${da.explanation.slice(0, 120)}"`);
+      }
+    }
+
+    if (typeof visibleExpectationEvidenceMin === "number") {
+      if (da.evidence.length < visibleExpectationEvidenceMin) {
+        visibleFailures.push(`visibleAnswerEvidence expected at least ${visibleExpectationEvidenceMin} items, got ${da.evidence.length}`);
+      }
+    }
+
+    if (typeof visibleExpectationEvidencePage === "number") {
+      const hasPage = da.evidence.some((e) => e.page === visibleExpectationEvidencePage);
+      if (!hasPage) {
+        const pages = da.evidence.map((e) => e.page).filter(Boolean);
+        visibleFailures.push(`visibleAnswerEvidence page ${visibleExpectationEvidencePage} not found (available pages: ${pages.join(", ") || "none"})`);
+      }
+    }
+  }
+
+  // Agreement between visible answer and Technical details (router)
+  visibleAgreementTotal += 1;
+  const routerHasEvidence = router.status === "answered";
+  const visibleSaysLikelyYes = da.status === "likely_yes";
+  const routerNoEvidence = router.status === "no_evidence";
+
+  const visibleFalseNegative = routerHasEvidence && (da.status === "unclear" || da.status === "likely_no");
+  const visibleFalsePositive = (routerNoEvidence || router.status === "unclear") && visibleSaysLikelyYes;
+  const visibleOverride = routerHasEvidence && da.status === "likely_no";
+
+  if (visibleFalseNegative) {
+    visibleFailures.push(`visible answer (${da.status}) hides evidence that router Technical details found (${router.status})`);
+  } else if (visibleFalsePositive) {
+    visibleFailures.push(`visible answer (likely_yes) overrides router Technical details (${router.status}) — no evidence or only weak signal`);
+  } else if (visibleOverride) {
+    visibleFailures.push(`visible answer (likely_no) contradicts router Technical details (${router.status})`);
+  } else {
+    visibleAgreementPassed += 1;
+    visibleAgreementOk = true;
+  }
+
   return {
     result: {
       questionId: input.questionId,
-      passed: failures.length === 0,
+      passed: routerFailures.length === 0,
       actualStatus: reviewResult.routerResult.status,
       actualRoute: reviewResult.routerResult.route,
-      failures,
+      actualVisibleStatus: da.status,
+      visibleStatusMatch,
+      visibleAgreementOk,
+      failures: routerFailures,
+      visibleFailures,
     },
     provenancePassed,
     provenanceTotal,
@@ -186,6 +267,10 @@ function evaluateQuestion(input: {
     noEvidenceFalseNegativeTotal,
     hallucinatedAnswered: answeredWithoutProvenance,
     answeredTotal,
+    visibleAnswerPassed,
+    visibleAnswerTotal,
+    visibleAgreementPassed,
+    visibleAgreementTotal,
   };
 }
 
@@ -214,6 +299,10 @@ export function runQuickCheckEvalCorpus(options?: {
   let hallucinatedAnswered = 0;
   let answeredTotal = 0;
   let fixturesPassed = 0;
+  let visibleAnswerPassed = 0;
+  let visibleAnswerTotal = 0;
+  let visibleAgreementPassed = 0;
+  let visibleAgreementTotal = 0;
 
   for (const fixture of manifest.fixtures) {
     const rawPddText = readEvalCorpusFixture(repoRoot, fixture.fixturePath, fixture.kind);
@@ -255,6 +344,10 @@ export function runQuickCheckEvalCorpus(options?: {
       noEvidenceFalseNegativeTotal += evaluated.noEvidenceFalseNegativeTotal;
       hallucinatedAnswered += evaluated.hallucinatedAnswered;
       answeredTotal += evaluated.answeredTotal;
+      visibleAnswerPassed += evaluated.visibleAnswerPassed;
+      visibleAnswerTotal += evaluated.visibleAnswerTotal;
+      visibleAgreementPassed += evaluated.visibleAgreementPassed;
+      visibleAgreementTotal += evaluated.visibleAgreementTotal;
 
       for (const failure of evaluated.result.failures) {
         failures.push({
@@ -262,6 +355,14 @@ export function runQuickCheckEvalCorpus(options?: {
           category: "question",
           questionId,
           message: failure,
+        });
+      }
+      for (const visibleFailure of evaluated.result.visibleFailures) {
+        failures.push({
+          fixtureId: fixture.id,
+          category: "visible_answer",
+          questionId,
+          message: visibleFailure,
         });
       }
     }
@@ -290,7 +391,9 @@ export function runQuickCheckEvalCorpus(options?: {
       noEvidenceFalseNegativeRate: makeMetric(noEvidenceFalseNegativeFailures, noEvidenceFalseNegativeTotal),
       hallucinatedAnswerRate: makeMetric(hallucinatedAnswered, answeredTotal),
       firstPassSuccessRate: makeMetric(fixturesPassed, manifest.fixtures.length),
-      regressionCount: failures.length,
+      visibleAnswerGoldMatch: makeMetric(visibleAnswerPassed, visibleAnswerTotal),
+      visibleAnswerAgreementRate: makeMetric(visibleAgreementPassed, visibleAgreementTotal),
+      regressionCount: failures.filter((f) => f.category !== "visible_answer").length,
     },
   };
 }
@@ -313,6 +416,8 @@ export function formatQuickCheckEvalCorpusReport(report: EvalCorpusReport): stri
     `- No-evidence false negative rate: ${pct(report.metrics.noEvidenceFalseNegativeRate)}`,
     `- Hallucinated answer rate: ${pct(report.metrics.hallucinatedAnswerRate)}`,
     `- First-pass success rate: ${pct(report.metrics.firstPassSuccessRate)}`,
+    `- Visible answer gold match: ${pct(report.metrics.visibleAnswerGoldMatch)}`,
+    `- Visible answer / Technical agreement: ${pct(report.metrics.visibleAnswerAgreementRate)}`,
     `- Regression count: ${report.metrics.regressionCount}`,
     "",
     "Fixtures",
@@ -327,6 +432,14 @@ export function formatQuickCheckEvalCorpusReport(report: EvalCorpusReport): stri
     if (failedQuestions.length > 0) {
       for (const failedQuestion of failedQuestions) {
         lines.push(`  ${failedQuestion.questionId}: ${failedQuestion.failures.join("; ")}`);
+      }
+    }
+    const questionsWithVisibleFailures = fixture.questionResults.filter((q) => q.visibleFailures.length > 0);
+    if (questionsWithVisibleFailures.length > 0) {
+      for (const q of questionsWithVisibleFailures) {
+        for (const vf of q.visibleFailures) {
+          lines.push(`  ${q.questionId} [visible]: ${vf}`);
+        }
       }
     }
   }
@@ -376,6 +489,18 @@ export function checkEvalCorpusThresholds(
   if (metrics.regressionCount > thresholds.regressionCount) {
     violations.push(
       `regressionCount ${metrics.regressionCount} exceeds threshold ${thresholds.regressionCount}`,
+    );
+  }
+
+  if (metrics.visibleAnswerGoldMatch.total > 0 && metrics.visibleAnswerGoldMatch.rate < DEFAULT_VISIBLE_ANSWER_THRESHOLDS.visibleAnswerGoldMatch) {
+    violations.push(
+      `visibleAnswerGoldMatch ${(metrics.visibleAnswerGoldMatch.rate * 100).toFixed(1)}% below threshold ${(DEFAULT_VISIBLE_ANSWER_THRESHOLDS.visibleAnswerGoldMatch * 100).toFixed(1)}%`,
+    );
+  }
+
+  if (metrics.visibleAnswerAgreementRate.total > 0 && metrics.visibleAnswerAgreementRate.rate < DEFAULT_VISIBLE_ANSWER_THRESHOLDS.visibleAnswerAgreementRate) {
+    violations.push(
+      `visibleAnswerAgreementRate ${(metrics.visibleAnswerAgreementRate.rate * 100).toFixed(1)}% below threshold ${(DEFAULT_VISIBLE_ANSWER_THRESHOLDS.visibleAnswerAgreementRate * 100).toFixed(1)}%`,
     );
   }
 

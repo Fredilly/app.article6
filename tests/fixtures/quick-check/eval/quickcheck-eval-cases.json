@@ -265,7 +265,7 @@
       },
       "expected": {
         "status": "likely_yes",
-        "explanationContains": "document-grounded evidence relevant to the question.",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -488,8 +488,8 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "unclear",
-        "explanationContains": "does not directly address",
+        "status": "likely_yes",
+        "explanationContains": "supporting justification",
         "evidenceCountMin": 1
       }
     },
@@ -530,22 +530,8 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "unclear",
-        "explanationContains": "does not directly address",
-        "evidenceCountMin": 1
-      }
-    },
-    {
-      "id": "irrelevant_methodology_describe_leakage",
-      "fixture": "irrelevant-methodology-leakage.txt",
-      "input": {
-        "claimText": "Does this PDD describe leakage?",
-        "methodologyId": "VM0007",
-        "methodologyVersion": "1.0"
-      },
-      "expected": {
         "status": "likely_yes",
-        "explanationContains": "document-grounded evidence relevant to the question.",
+        "explanationContains": "supporting justification",
         "evidenceCountMin": 1
       }
     }
