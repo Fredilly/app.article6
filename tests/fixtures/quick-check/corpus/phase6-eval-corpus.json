@@ -1,6 +1,13 @@
 {
   "manifestVersion": 1,
   "corpusId": "phase6-foundation",
+  "thresholds": {
+    "firstPassSuccessRate": 0.85,
+    "provenanceCorrectness": 0.85,
+    "unsupportedRejectionRate": 1.0,
+    "hallucinatedAnswerRate": 0.0,
+    "regressionCount": 0
+  },
   "fixtures": [
     {
       "id": "real-cdm-nepal",
@@ -180,6 +187,98 @@
         }
       },
       "notes": "Real REDD/AFOLU fixture with title, methodology, leakage, and monitoring but no deterministic baseline/additionality fact promotion."
+    },
+    {
+      "id": "real-pd-redd-v130",
+      "fixturePath": "tests/fixtures/quick-check/pd_redd_v1_130-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "REDD_AFOLU",
+        "projectTitle": "Project Description Document: PD_REDD_v1_130",
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": "VM0007 REDD+ Methodology Modules",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "(Baseline Scenario)",
+        "monitoringSection": "Monitoring",
+        "leakageSection": "(Leakage)",
+        "additionalitySection": "(Additionality)",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Project Description Document: PD_REDD_v1_130"]
+            }
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007 REDD+ Methodology Modules"]
+            }
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["would otherwise be converted to agricultural land"],
+              "sectionHints": ["Baseline Scenario"]
+            }
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring will be conducted annually using permanent sample plots"],
+              "sectionHints": ["Monitoring"]
+            }
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The leakage belt for this project is determined using the default 5 km"],
+              "sectionHints": ["Leakage"]
+            }
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The project is additional because it faces significant barriers"],
+              "sectionHints": ["Additionality"]
+            }
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          }
+        }
+      },
+      "notes": "Real REDD/AFOLU PDD under VM0007 v4.2. Project title extracted from doc title line, methodology from header, sections recovered as bare heading text without section-number prefixes. No host country or crediting period in extracted text."
     }
   ]
 }

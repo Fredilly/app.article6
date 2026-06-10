@@ -33,6 +33,9 @@ jobs:
       - name: CI
         run: npm run ci
 
+      - name: Strict eval corpus gate
+        run: npm run quickcheck:eval:corpus -- --strict
+
       - name: Build verify run summary
         run: node scripts/ci-verify-run-summary.mjs
 

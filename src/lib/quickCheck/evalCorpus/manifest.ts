@@ -54,6 +54,13 @@ const manifestSchema = z.object({
   manifestVersion: z.literal(1),
   corpusId: z.string().min(1),
   fixtures: z.array(fixtureSchema).min(1),
+  thresholds: z.object({
+    firstPassSuccessRate: z.number().min(0).max(1),
+    provenanceCorrectness: z.number().min(0).max(1),
+    unsupportedRejectionRate: z.number().min(0).max(1),
+    hallucinatedAnswerRate: z.number().min(0).max(1),
+    regressionCount: z.number().int().min(0),
+  }).optional(),
 }).strict();
 
 export function loadEvalCorpusManifest(manifestPath: string): EvalCorpusManifest {
