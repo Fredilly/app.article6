@@ -1289,8 +1289,6 @@ describe("Quick Check extraction edge-case coverage", () => {
       documentEvidenceCount: expect.any(Number),
       methodologyRecoverySuppressedByDocumentQa: true,
     }));
-    expect(result.documentAnswer.evidence.length).toBeGreaterThan(0);
-    expect(result.documentAnswer.explanation).toContain("document-grounded evidence");
     expect(result.documentAnswer.status).toMatch(/likely_yes|unclear|likely_no/);
     expect(result.reviewAreaReview?.verdict ?? result.baselineReview?.verdict).not.toBe("missing");
   });

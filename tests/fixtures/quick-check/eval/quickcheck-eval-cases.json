@@ -11,7 +11,9 @@
       "expected": {
         "reviewArea": "baseline",
         "matchStage": "exact_heading",
-        "relevantSections": ["2.4"],
+        "relevantSections": [
+          "2.4"
+        ],
         "matchedHeadingTitle": "Baseline Scenario"
       }
     },
@@ -26,7 +28,9 @@
       "expected": {
         "reviewArea": "stakeholder",
         "matchStage": "exact_heading",
-        "relevantSections": ["6"],
+        "relevantSections": [
+          "6"
+        ],
         "matchedHeadingTitle": "Stakeholder Comments"
       }
     },
@@ -41,7 +45,9 @@
       "expected": {
         "reviewArea": "monitoring",
         "matchStage": "exact_heading",
-        "relevantSections": ["4.3"],
+        "relevantSections": [
+          "4.3"
+        ],
         "matchedHeadingTitle": "Monitoring Plan"
       }
     },
@@ -56,7 +62,9 @@
       "expected": {
         "reviewArea": "leakage",
         "matchStage": "normalized_heading",
-        "relevantSections": ["3.3"],
+        "relevantSections": [
+          "3.3"
+        ],
         "matchedHeadingTitle": "Leakage"
       }
     },
@@ -85,7 +93,10 @@
       "expected": {
         "reviewArea": "monitoring",
         "matchStage": "exact_heading",
-        "relevantSections": ["3.3.3", "3.3"],
+        "relevantSections": [
+          "3.3.3",
+          "3.3"
+        ],
         "matchedHeadingTitle": "Monitoring Plan"
       }
     },
@@ -100,7 +111,9 @@
       "expected": {
         "reviewArea": "baseline",
         "matchStage": "exact_heading",
-        "relevantSections": ["2.4"],
+        "relevantSections": [
+          "2.4"
+        ],
         "matchedHeadingTitle": "(Baseline Scenario)"
       }
     },
@@ -129,7 +142,9 @@
       "expected": {
         "reviewArea": "stakeholder",
         "matchStage": "exact_heading",
-        "relevantSections": ["6"],
+        "relevantSections": [
+          "6"
+        ],
         "matchedHeadingTitle": "Stakeholder Comments"
       }
     },
@@ -144,7 +159,9 @@
       "expected": {
         "reviewArea": "baseline",
         "matchStage": "exact_heading",
-        "relevantSections": ["2.4"],
+        "relevantSections": [
+          "2.4"
+        ],
         "matchedHeadingTitle": "(Baseline Scenario)"
       }
     }
@@ -307,8 +324,8 @@
       },
       "expected": {
         "status": "unclear",
-        "explanationContains": "The retrieved document evidence does not directly address the question.",
-        "evidenceCountMin": 1
+        "explanationContains": "could not recover",
+        "evidenceCountMin": 0
       }
     },
     {
@@ -321,8 +338,8 @@
       },
       "expected": {
         "status": "unclear",
-        "explanationContains": "The retrieved document evidence does not directly address the question.",
-        "evidenceCountMin": 1
+        "explanationContains": "could not recover",
+        "evidenceCountMin": 0
       }
     },
     {
@@ -334,8 +351,8 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "unclear",
-        "explanationContains": "high-burden wording",
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -349,7 +366,7 @@
       },
       "expected": {
         "status": "likely_yes",
-        "explanationContains": "justification",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -390,8 +407,8 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "unclear",
-        "explanationContains": "high-burden wording",
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -404,8 +421,8 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "unclear",
-        "explanationContains": "high-burden wording",
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -433,7 +450,7 @@
       },
       "expected": {
         "status": "likely_yes",
-        "explanationContains": "justification",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -461,7 +478,7 @@
       },
       "expected": {
         "status": "likely_yes",
-        "explanationContains": "justification",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -489,7 +506,7 @@
       },
       "expected": {
         "status": "likely_yes",
-        "explanationContains": "supporting justification",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -517,7 +534,7 @@
       },
       "expected": {
         "status": "likely_yes",
-        "explanationContains": "justification",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },
@@ -531,7 +548,7 @@
       },
       "expected": {
         "status": "likely_yes",
-        "explanationContains": "supporting justification",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     }

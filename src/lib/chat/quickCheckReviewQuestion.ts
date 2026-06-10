@@ -311,18 +311,12 @@ export function buildReviewQuestionResult(input: {
     projectFactContract: enrichedProjectFactContract ?? structuredContext?.projectFactContract,
     sectionTableIndex: structuredContext?.sectionTableIndex,
   });
-  const parsedDocument = structuredContext?.parsedDocument ?? (input.rawPddText ? parseDocumentText({ rawText: input.rawPddText }) : undefined);
   const documentAnswer = buildDocumentQuestionAnswer({
-    retrieval,
     evaluation,
-    parsedDocument,
     claimText: input.claimText,
     rawPddText: input.rawPddText,
     queryIntentAnalysis: queryIntentAnalysis,
-    evidenceDocument: structuredContext?.evidenceDocument,
-    projectFactContract: enrichedProjectFactContract ?? structuredContext?.projectFactContract,
-    sectionTableIndex: structuredContext?.sectionTableIndex,
-    routerStatus: routerResult.status,
+    routerResult: routerResult,
   });
 
   return {

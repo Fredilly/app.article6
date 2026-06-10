@@ -634,16 +634,15 @@ describe("Phase 6 visible-answer eval — disagreement gate catches specific fai
     }
   });
 
-  it("real corpus reports visible-answer failures with [visible] prefix", () => {
+  it("real corpus has zero visible/Technical disagreements (single source of truth)", () => {
     const report = runQuickCheckEvalCorpus();
-    // Verify visible failures are tracked
     let visibleFailureCount = 0;
     for (const fixtureResult of report.fixtureResults) {
       for (const questionResult of fixtureResult.questionResults) {
         visibleFailureCount += questionResult.visibleFailures.length;
       }
     }
-    expect(visibleFailureCount).toBeGreaterThan(0);
+    expect(visibleFailureCount).toBe(0);
   });
 });
 
