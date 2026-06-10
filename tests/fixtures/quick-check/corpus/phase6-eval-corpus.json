@@ -279,6 +279,341 @@
         }
       },
       "notes": "Real REDD/AFOLU PDD under VM0007 v4.2. Project title extracted from doc title line, methodology from header, sections recovered as bare heading text without section-number prefixes. No host country or crediting period in extracted text."
+    },
+    {
+      "id": "real-gs-luf",
+      "fixturePath": "tests/fixtures/quick-check/gs-luf-pdd-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "GS-00XX",
+        "methodologyVersion": "1.0"
+      },
+      "gold": {
+        "documentFamily": "GOLD_STANDARD_PDD",
+        "projectTitle": "Kikonda Community Reforestation Project",
+        "hostCountry": "Mozambique",
+        "projectCountry": "Mozambique",
+        "methodology": "GS-00XX Version 1.0",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Baseline Scenario",
+        "monitoringSection": "Monitoring",
+        "leakageSection": "Leakage",
+        "additionalitySection": "Additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Kikonda Community Reforestation Project"]
+            }
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Host Country: Mozambique"]
+            }
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Applied methodology: GS-00XX Version 1.0"]
+            }
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The baseline scenario is continuation of current land-use practices"],
+              "sectionHints": ["Baseline Scenario"]
+            }
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring will be conducted annually using a network"],
+              "sectionHints": ["Monitoring"]
+            }
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Activity-shifting leakage is assessed in accordance"],
+              "sectionHints": ["Leakage"]
+            }
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The project is additional because it faces significant"],
+              "sectionHints": ["Additionality"]
+            }
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          }
+        }
+      },
+      "notes": "Real Gold Standard LUF PDD under GS-00XX v1.0. Host country and project country both extracted from labelled field. All core sections answered with evidence from body text. Only Gold Standard fixture in the corpus."
+    },
+    {
+      "id": "real-plum-pdd",
+      "fixturePath": "tests/fixtures/quick-check/plum-pdd-regression.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VERRA_PD",
+        "projectTitle": "PLUM Project",
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": "VM0007",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Without-project Land Use Scenario and Additionality",
+        "monitoringSection": "Monitoring",
+        "leakageSection": null,
+        "additionalitySection": "Without-project Land Use Scenario and Additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["PLUM Project"]
+            }
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007"]
+            }
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The without-project land use scenario assumes continued degradation of grassland"],
+              "sectionHints": ["Without-project Land Use Scenario and Additionality"]
+            }
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          }
+        }
+      },
+      "notes": "VERRA_PD with combined baseline+additionality section. Tests unclear routing for baseline/monitoring/leakage when text evidence is present but lacks methodology-aligned signal. Additionality answered via section_index."
+    },
+    {
+      "id": "real-plum-weak-ocr",
+      "fixturePath": "tests/fixtures/quick-check/plum-pdd-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VERRA_PD",
+        "projectTitle": null,
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": "VM0007",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": "Monitoring",
+        "leakageSection": null,
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007"]
+            }
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["REDD+ Methodology Framework"],
+              "sectionHints": ["Monitoring"]
+            }
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          }
+        }
+      },
+      "notes": "Weak-OCR / bare-header extract. Only methodology and monitoring survive extraction. Tests graceful degradation when most document content is lost to OCR failure."
+    },
+    {
+      "id": "real-blue-nile-redd",
+      "fixturePath": "tests/fixtures/quick-check/blue-nile-redd-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VERRA_PD",
+        "projectTitle": "Project Description Document: Blue Nile Watershed REDD+ Project",
+        "hostCountry": "Ethiopia",
+        "projectCountry": "Ethiopia",
+        "methodology": "VM0007 Version 4.2",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "(Baseline Scenario)",
+        "monitoringSection": "Monitoring",
+        "leakageSection": "(Leakage)",
+        "additionalitySection": "(Additionality)",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Project Description Document: Blue Nile Watershed REDD+ Project"]
+            }
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Host Country: Ethiopia"]
+            }
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007 Version 4.2"]
+            }
+          },
+          "baseline_scenario": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "monitoring": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "leakage": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["The project is additional because it faces significant barriers"],
+              "sectionHints": ["Additionality"]
+            }
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true
+          }
+        }
+      },
+      "notes": "Table-heavy Verra REDD+ PDD with carbon pool, monitoring parameter, and leakage tables. Host country extracted from intro-area labelled field. Baseline, monitoring, and leakage sections are detected by the fact extractor but question routing returns no_evidence because pipe-delimited table content fragments text and breaks evidence validation — known extractor weakness (see follow-up: tables inside sections suppress evidence signal even when valid prose precedes them)."
     }
   ]
 }
