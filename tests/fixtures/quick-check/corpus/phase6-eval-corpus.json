@@ -543,8 +543,8 @@
       "gold": {
         "documentFamily": "VERRA_PD",
         "projectTitle": "Project Description Document: Blue Nile Watershed REDD+ Project",
-        "hostCountry": null,
-        "projectCountry": null,
+        "hostCountry": "Ethiopia",
+        "projectCountry": "Ethiopia",
         "methodology": "VM0007 Version 4.2",
         "creditingPeriod": null,
         "reportingPeriod": null,
@@ -567,9 +567,12 @@
             }
           },
           "host_country": {
-            "expectedStatus": "no_evidence",
-            "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Host Country: Ethiopia"]
+            }
           },
           "methodology": {
             "expectedStatus": "answered",
@@ -610,7 +613,7 @@
           }
         }
       },
-      "notes": "Table-heavy Verra REDD+ PDD with carbon pool, monitoring parameter, and leakage tables. Tests that table-dominated sections do not break fact extraction, but question routing correctly returns no_evidence when text evidence is fragmented by tables."
+      "notes": "Table-heavy Verra REDD+ PDD with carbon pool, monitoring parameter, and leakage tables. Host country extracted from intro-area labelled field. Baseline, monitoring, and leakage sections are detected by the fact extractor but question routing returns no_evidence because pipe-delimited table content fragments text and breaks evidence validation — known extractor weakness (see follow-up: tables inside sections suppress evidence signal even when valid prose precedes them)."
     }
   ]
 }

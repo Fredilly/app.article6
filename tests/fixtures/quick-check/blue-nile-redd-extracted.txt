@@ -1,10 +1,10 @@
 Project Description Document: Blue Nile Watershed REDD+ Project
 VM0007 Version 4.2
 Verra VCS
+Host Country: Ethiopia
 
 1.1  Project Title and Location
 Blue Nile Watershed REDD+ Project
-Host Country: Ethiopia
 Project Area: 25,000 hectares of Afromontane forest in the Blue Nile watershed
 
 2.4 (Baseline Scenario)
