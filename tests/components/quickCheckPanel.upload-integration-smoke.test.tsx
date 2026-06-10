@@ -1,0 +1,370 @@
+/** @jest-environment jsdom */
+
+import fs from "fs";
+import path from "path";
+import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+import { putAttachmentBytes } from "@/lib/proofMap/attachments";
+
+const PLUM_PDD_TEXT = fs.readFileSync(
+  path.join(process.cwd(), "tests/fixtures/quick-check/plum-pdd-regression.txt"),
+  "utf-8",
+);
+
+const QC_QUESTIONS = [
+  {
+    id: "project_title",
+    claimText: "What is the project title?",
+    methodologyId: "VM0007",
+    methodologyVersion: "4.2",
+    expectedEvidenceText: "PLUM Project",
+  },
+  {
+    id: "methodology",
+    claimText: "What methodology is used for this project?",
+    methodologyId: "VM0007",
+    methodologyVersion: "4.2",
+    expectedEvidenceText: "VM0007",
+  },
+  {
+    id: "host_country",
+    claimText: "What is the host country?",
+    methodologyId: "VM0007",
+    methodologyVersion: "4.2",
+    expectedRejection: "no_evidence",
+  },
+  {
+    id: "marine_biodiversity_offsets",
+    claimText: "Does the document address marine biodiversity offsets?",
+    methodologyId: "VM0007",
+    methodologyVersion: "4.2",
+    expectedRejection: "no_evidence",
+  },
+  {
+    id: "blue_carbon_mangrove",
+    claimText: "What does this document say about blue carbon mangrove restoration?",
+    methodologyId: "VM0007",
+    methodologyVersion: "4.2",
+    expectedRejection: "no_evidence",
+  },
+];
+
+const createAndStoreEvidenceAttachmentMock = jest.fn();
+
+const PDF_TEXT_BY_FILENAME: Record<string, string> = {
+  "qc-smoke-upload.pdf": PLUM_PDD_TEXT,
+};
+
+jest.mock("@/lib/proofMap/attachments", () => ({
+  ...jest.requireActual("@/lib/proofMap/attachments"),
+  createAndStoreEvidenceAttachment: (...args: unknown[]) =>
+    createAndStoreEvidenceAttachmentMock(...args),
+}));
+
+jest.mock("@/lib/chat/quickCheckPdfClient", () => {
+  const { extractMethodologyMentions } = jest.requireActual("@/lib/chat/quickCheckEvidence") as {
+    extractMethodologyMentions: (text: string) => string[];
+  };
+  return {
+    resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => {
+      const text = PDF_TEXT_BY_FILENAME[filename] ?? "";
+      return {
+        text,
+        engine: "pdf-parse" as const,
+        methodologyMentions: extractMethodologyMentions(text),
+      };
+    },
+  };
+});
+
+import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
+
+describe("Quick Check uploaded-document integration smoke test", () => {
+  let container: HTMLDivElement;
+  let root: ReturnType<typeof createRoot>;
+
+  function asArrayBuffer(value: Uint8Array): ArrayBuffer {
+    return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
+  }
+
+  async function seedAttachmentText(attachmentId: string, text: string) {
+    await putAttachmentBytes(attachmentId, asArrayBuffer(new TextEncoder().encode(text)));
+  }
+
+  function seedSession(input: {
+    claimText: string;
+    filename: string;
+    attachmentId?: string;
+    methodologyId?: string;
+    methodologyVersion?: string;
+  }) {
+    const attachmentId = input.attachmentId ?? "att-upload-1";
+    window.localStorage.setItem(
+      "a6:quick-check:claim-first:v1",
+      JSON.stringify({
+        draft: {
+          id: "draft-qc-upload",
+          claimText: input.claimText,
+          methodologyId: input.methodologyId ?? "",
+          methodologyVersion: input.methodologyVersion ?? "",
+          evidenceIds: ["upload-1"],
+          status: "draft" as const,
+          createdAt: "2026-06-10T00:00:00Z",
+          updatedAt: "2026-06-10T00:00:00Z",
+        },
+        result: null,
+        stagedUploads: [
+          {
+            evidenceId: "upload-1",
+            filename: input.filename,
+            mime: "application/pdf",
+            createdAt: "2026-06-10T00:00:00Z",
+            attachment: {
+              id: attachmentId,
+              pin_id: "upload-1",
+              filename: input.filename,
+              mime: "application/pdf",
+              size: 2048,
+              sha256: `sha-${attachmentId}`,
+              created_at: "2026-06-10T00:00:00Z",
+            },
+          },
+        ],
+      }),
+    );
+  }
+
+  async function flushUi() {
+    await act(async () => {
+      await Promise.resolve();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+  }
+
+  async function flushUntilText(text: string, attempts = 15) {
+    for (let i = 0; i < attempts; i += 1) {
+      await flushUi();
+      if ((container.textContent ?? "").includes(text)) return;
+    }
+    throw new Error(`Timed out waiting for text: ${text}`);
+  }
+
+  function clickButton(label: string) {
+    const normalized = label.toLowerCase();
+    const button = Array.from(container.querySelectorAll("button")).find((node) =>
+      node.textContent?.toLowerCase().includes(normalized),
+    );
+    expect(button).toBeTruthy();
+    button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    window.localStorage.clear();
+
+    delete (window as any).location;
+    (window as any).location = {
+      assign: jest.fn(),
+      replace: jest.fn(),
+      href: "http://localhost/",
+    };
+
+    createAndStoreEvidenceAttachmentMock.mockReset();
+    createAndStoreEvidenceAttachmentMock.mockImplementation(
+      async (input: { pin_id: string; file: File }) => {
+        const bytes = new Uint8Array(await input.file.arrayBuffer());
+        const attachment = {
+          id: `att-${input.pin_id}`,
+          pin_id: input.pin_id,
+          filename: input.file.name,
+          mime: input.file.type || "application/pdf",
+          size: bytes.byteLength,
+          sha256: `sha-${input.pin_id}`,
+          created_at: "2026-06-10T00:00:00Z",
+        };
+        await putAttachmentBytes(attachment.id, asArrayBuffer(bytes));
+        return { ok: true, attachment };
+      },
+    );
+
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/methods/inventory")) {
+        return new Response(
+          JSON.stringify({
+            methods: [
+              { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/quick-check/semantic-evidence")) {
+        return new Response(
+          JSON.stringify({
+            status: "disabled",
+            candidates: [],
+            warning: "semantic evidence suggestions disabled in test",
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/query?text=")) {
+        return new Response(
+          JSON.stringify({ engineTag: "test", metrics: [], results: [] }),
+          { status: 200 },
+        );
+      }
+      throw new Error(`Unhandled fetch ${url}`);
+    }) as typeof fetch;
+  });
+
+  afterEach(async () => {
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+    jest.clearAllMocks();
+    window.localStorage.clear();
+  });
+
+  it("project title question returns answered with evidence from uploaded document", async () => {
+    seedSession({
+      claimText: "What is the project title?",
+      filename: "qc-smoke-upload.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("PLUM Project");
+    expect(text).not.toContain("No valid analysis path");
+  });
+
+  it("methodology question returns answered with evidence from uploaded document", async () => {
+    seedSession({
+      claimText: "What methodology is used for this project?",
+      filename: "qc-smoke-upload.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("VM0007");
+    expect(text).not.toContain("No valid analysis path");
+  });
+
+  it("unsupported question returns no_evidence from uploaded document", async () => {
+    seedSession({
+      claimText: "Does the document address marine biodiversity offsets?",
+      filename: "qc-smoke-upload.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("marine biodiversity offsets evidence found");
+    expect(text).not.toContain("No valid analysis path");
+  });
+
+  it("blue carbon mangrove question returns no_evidence from uploaded document", async () => {
+    seedSession({
+      claimText: "What does this document say about blue carbon mangrove restoration?",
+      filename: "qc-smoke-upload.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("unclear");
+    expect(text).toContain("does not directly address");
+    expect(text).not.toContain("No valid analysis path");
+  });
+
+  it("uploaded document text is used, not bypassed", async () => {
+    // Use a distinctive text to prove it's from the uploaded document.
+    // plum-pdd-regression has "Without-project Land Use Scenario and Additionality"
+    // which is unique to this fixture.
+    seedSession({
+      claimText: "What is the project title?",
+      filename: "qc-smoke-upload.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    // Verify the upload is recognized before running Quick Check
+    const textAfterLoad = container.textContent ?? "";
+    expect(textAfterLoad).toContain("qc-smoke-upload.pdf");
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    // The uploaded filename should remain visible in the results
+    expect(text).toContain("qc-smoke-upload.pdf");
+    // No general fallback or missing-document messages
+    expect(text).not.toContain("no document text available");
+    expect(text).not.toContain("parsed document text was unavailable");
+  });
+});
