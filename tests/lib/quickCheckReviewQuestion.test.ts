@@ -1536,4 +1536,48 @@ describe("Phase 4 router integration groundwork", () => {
     expect(result.documentAnswer.explanation).toContain("ambiguous");
     expect(result.documentAnswer.evidence).toEqual([]);
   });
+
+  it("answers methodology from structured input when document has no methodology and routes via project_fact_contract", () => {
+    const DOC_WITHOUT_METHODOLOGY = [
+      "Project Title: Community Reforestation Project",
+      "Host Country: Tanzania",
+      "",
+      "2.4 Baseline Scenario",
+      "The baseline scenario is continued grazing pressure without the project.",
+    ].join("\n");
+
+    const result = buildReviewQuestionResult({
+      claimText: "What methodology is used?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: DOC_WITHOUT_METHODOLOGY,
+    });
+
+    expect(result.routerResult.route).toBe("project_fact_contract");
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.routerResult.answerText).toContain("Primary methodology: VM0007");
+    expect(result.routerResult.answerText).toContain("4.2");
+    expect(result.routerResult.answerText).toContain("from structured input");
+    expect(result.routerResult.warnings).toContain("structured_input_provenance");
+  });
+
+  it("returns no_evidence for methodology question when document has no methodology and no structured input is provided", () => {
+    const DOC_WITHOUT_METHODOLOGY = [
+      "Project Title: Community Reforestation Project",
+      "Host Country: Tanzania",
+      "",
+      "2.4 Baseline Scenario",
+      "The baseline scenario is continued grazing pressure without the project.",
+    ].join("\n");
+
+    const result = buildReviewQuestionResult({
+      claimText: "What methodology is used?",
+      methodologyId: "",
+      methodologyVersion: "",
+      rawPddText: DOC_WITHOUT_METHODOLOGY,
+    });
+
+    expect(result.routerResult.status).not.toBe("answered");
+    expect(result.routerResult.answerText).not.toContain("from structured input");
+  });
 });

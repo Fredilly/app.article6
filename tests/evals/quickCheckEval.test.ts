@@ -101,6 +101,7 @@ function readRootFixtureText(fixturePath: string): string {
 const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
 const REAL_ENVIRA_TEXT = readRootFixtureText("quick-check/envira-amazonia-vm0007-extracted.txt");
 const REAL_TABLE_HEAVY_APPENDIX_TEXT = readRootFixtureText("projects/ccb1530-appendix1-pages.json");
+const WEAK_UNKNOWN_FALLBACK_TEXT = readRootFixtureText("quick-check/weak-unknown-fallback.txt");
 
 const ROUTER_EVAL_CASES: RouterEvalCase[] = [
   {
@@ -229,6 +230,54 @@ const ROUTER_EVAL_CASES: RouterEvalCase[] = [
       evidenceRequired: false,
       emptyEvidenceExpected: true,
       warningsInclude: ["ambiguous_intent"],
+    },
+  },
+  {
+    id: "real_document_envira_project_title_router_contract",
+    rawPddText: REAL_ENVIRA_TEXT,
+    input: {
+      claimText: "What is the project title?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    },
+    expected: {
+      status: "answered",
+      route: "project_fact_contract",
+      confidenceMin: 0.7,
+      evidenceRequired: true,
+    },
+  },
+  {
+    id: "real_document_envira_host_country_no_evidence",
+    rawPddText: REAL_ENVIRA_TEXT,
+    input: {
+      claimText: "What is the host country?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    },
+    expected: {
+      status: "no_evidence",
+      route: "fallback",
+      confidenceMin: 0,
+      evidenceRequired: false,
+      emptyEvidenceExpected: true,
+    },
+  },
+  {
+    id: "structured_input_methodology_fallback_warns_provenance",
+    rawPddText: WEAK_UNKNOWN_FALLBACK_TEXT,
+    input: {
+      claimText: "What methodology is used?",
+      methodologyId: "AMS-III.AV.",
+      methodologyVersion: "4.0",
+    },
+    expected: {
+      status: "answered",
+      route: "project_fact_contract",
+      confidenceMin: 0.7,
+      evidenceRequired: false,
+      emptyEvidenceExpected: true,
+      warningsInclude: ["structured_input_provenance"],
     },
   },
 ];

@@ -190,6 +190,36 @@ function applyIntentToRetrieval(input: {
   };
 }
 
+function enrichProjectFactContractWithStructuredInput(
+  contract: ReturnType<typeof buildStructuredQueryContext>["projectFactContract"],
+  methodologyId: string,
+  methodologyVersion: string,
+): typeof contract {
+  if (!methodologyId.trim()) return contract;
+  const existing = contract.methodologyPrimary;
+  if (existing.value && existing.evidenceSpanIds.length > 0) return contract;
+
+  const methodologyLabel = methodologyVersion.trim()
+    ? `${methodologyId.trim()} \u00b7 ${methodologyVersion.trim()}`
+    : methodologyId.trim();
+
+  return {
+    ...contract,
+    methodologyPrimary: {
+      value: methodologyLabel,
+      confidence: "high",
+      evidenceSpanIds: [],
+      pageNumbers: [],
+      sectionPath: [],
+      heading: undefined,
+      extractionRule: "structured-input",
+      sourceParser: undefined,
+      family: contract.documentFamily,
+      warnings: [],
+    },
+  };
+}
+
 function hasIntentBackedEvidence(input: {
   queryIntentAnalysis?: QueryIntentAnalysis;
   structuredContext?: ReturnType<typeof buildStructuredQueryContext>;
@@ -265,12 +295,20 @@ export function buildReviewQuestionResult(input: {
     structuredContext,
   });
   const evaluation = evaluateRetrievedReviewQuestion(retrieval);
+  const enrichedProjectFactContract = structuredContext
+    ? enrichProjectFactContractWithStructuredInput(
+        structuredContext.projectFactContract,
+        input.methodologyId,
+        input.methodologyVersion,
+      )
+    : undefined;
+
   const routerResult: DeterministicRouterResult = buildDeterministicRouterResult({
     claimText: input.claimText,
     reviewArea: retrieval.reviewArea,
     queryIntentAnalysis,
     evidenceDocument: structuredContext?.evidenceDocument,
-    projectFactContract: structuredContext?.projectFactContract,
+    projectFactContract: enrichedProjectFactContract ?? structuredContext?.projectFactContract,
     sectionTableIndex: structuredContext?.sectionTableIndex,
   });
   const parsedDocument = structuredContext?.parsedDocument ?? (input.rawPddText ? parseDocumentText({ rawText: input.rawPddText }) : undefined);
@@ -282,7 +320,7 @@ export function buildReviewQuestionResult(input: {
     rawPddText: input.rawPddText,
     queryIntentAnalysis: appliedQueryIntentAnalysis,
     evidenceDocument: structuredContext?.evidenceDocument,
-    projectFactContract: structuredContext?.projectFactContract,
+    projectFactContract: enrichedProjectFactContract ?? structuredContext?.projectFactContract,
     sectionTableIndex: structuredContext?.sectionTableIndex,
   });
 

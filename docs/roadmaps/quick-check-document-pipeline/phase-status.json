@@ -46,6 +46,10 @@
     "phase_2_article6_document_model": [667],
     "phase_3_retrieval_evaluation_split": [669, 670, 671],
     "phase_4_declarative_review_policy": [676, 677],
-    "phase_5_eval_harness": [679, 680]
+    "phase_5_eval_harness": [679, 680],
+    "phase_6_eval_corpus_foundation": [745]
+  },
+  "notes": {
+    "phase_6_eval_corpus_foundation": "PR #745 lays the Phase 6 eval corpus foundation with a manifest-backed runner and standard question set. This is foundation-only: strict CI enforcement and broader fixture coverage are not yet in place. Phase 6 remains active, not complete."
   }
 }

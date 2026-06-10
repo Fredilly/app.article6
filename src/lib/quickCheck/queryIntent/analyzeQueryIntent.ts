@@ -209,6 +209,35 @@ export function analyzeQueryIntent(input: QueryIntentAnalyzerInput): QueryIntent
   ].sort((a, b) => b.score - a.score);
 
   if (
+    wantsMethodology
+    && !wantsTable
+    && !topicMatches.some((match) => match.topic === "baseline" && match.score > 0)
+    && factMatches.some((match) => match.factId === "methodologyPrimary" && match.score > 0)
+  ) {
+    const methodologyFacts: ProjectFactId[] = ["methodologyPrimary", "methodologyModules", "baselineMethodology", "monitoringMethodology"];
+    const methodologySections = topicMatches.flatMap((match) => {
+      if (match.topic !== "methodology" || match.bestMatch.status !== "matched") return [];
+      return match.bestMatch.reference.sectionId ? [match.bestMatch.reference.sectionId] : [];
+    });
+
+    return makeAnalysis({
+      intent: "methodology_lookup",
+      targetFacts: methodologyFacts,
+      targetSections: unique(methodologySections),
+      positiveTerms: unique([
+        ...FACT_RULES.filter((rule) => methodologyFacts.includes(rule.factId)).flatMap((rule) => rule.aliases),
+        "methodology",
+      ]),
+      confidence: withFamilyConfidenceCap(
+        methodologySections.length > 0 ? 0.94 : 0.86,
+        index.documentFamily,
+      ),
+      calculationSpecific,
+      documentFamily: index.documentFamily,
+    });
+  }
+
+  if (
     !factQuestionFrame
     && topScores[0].score > 0
     && topScores[1].score > 0
