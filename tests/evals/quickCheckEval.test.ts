@@ -688,6 +688,96 @@ describe("Phase 6 visible-answer eval — fact-backed visible answers promoted c
   });
 });
 
+describe("Phase 6 — country and location fact routing", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+  const ENVIRA_TEXT = readRootFixtureText("quick-check/envira-amazonia-vm0007-extracted.txt");
+
+  it("routes 'What is the host country?' to fact_lookup with hostCountry target", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(r.queryIntentAnalysis?.targetFacts).toContain("hostCountry");
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.quotes.join(" ")).toContain("Nepal");
+  });
+
+  it("routes 'What country is this project hosted in?' to fact_lookup with country evidence", () => {
+    const r = buildReviewQuestionResult({ claimText: "What country is this project hosted in?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.quotes.join(" ")).toContain("Nepal");
+  });
+
+  it("routes 'What country is the project in?' to fact_lookup with country evidence", () => {
+    const r = buildReviewQuestionResult({ claimText: "What country is the project in?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.quotes.join(" ")).toContain("Nepal");
+  });
+
+  it("routes 'Where is this project located?' to fact_lookup with country fallback", () => {
+    const r = buildReviewQuestionResult({ claimText: "Where is this project located?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.quotes.join(" ")).toContain("Nepal");
+  });
+
+  it("returns no_evidence for country question when fixture has no country info", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: ENVIRA_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+
+  it("visible answer and router agree for country fact questions", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    const visibleAgrees = (r.routerResult.status === "answered" && r.documentAnswer.status === "likely_yes")
+      || (r.routerResult.status !== "answered" && r.documentAnswer.status !== "likely_yes");
+    expect(visibleAgrees).toBe(true);
+  });
+});
+
+describe("Phase 6 — Verra-family country and location fact routing", () => {
+  const BLUE_NILE_TEXT = readRootFixtureText("quick-check/blue-nile-redd-extracted.txt");
+  const GS_LUF_TEXT = readRootFixtureText("quick-check/gs-luf-pdd-extracted.txt");
+  const ENVIRA_TEXT = readRootFixtureText("quick-check/envira-amazonia-vm0007-extracted.txt");
+
+  it("blue-nile-redd: 'What is the host country?' returns Ethiopia", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.quotes.join(" ")).toContain("Ethiopia");
+  });
+
+  it("blue-nile-redd: 'What country is this project hosted in?' returns Ethiopia", () => {
+    const r = buildReviewQuestionResult({ claimText: "What country is this project hosted in?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.quotes.join(" ")).toContain("Ethiopia");
+  });
+
+  it("gs-luf: 'What is the host country?' returns Mozambique", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "GS-00XX", methodologyVersion: "1.0", rawPddText: GS_LUF_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.quotes.join(" ")).toContain("Mozambique");
+  });
+
+  it("envira-amazonia: 'What is the host country?' returns no_evidence (no country in fixture)", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: ENVIRA_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+
+  it("envira-amazonia: 'What country is the project in?' returns no_evidence", () => {
+    const r = buildReviewQuestionResult({ claimText: "What country is the project in?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: ENVIRA_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+});
+
 describe("Phase 6 visible-answer eval — eval corpus runner returns visible answer metrics", () => {
   it("report includes visibleAnswerGoldMatch and visibleAnswerAgreementRate", () => {
     const report = runQuickCheckEvalCorpus();

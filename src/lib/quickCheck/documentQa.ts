@@ -428,7 +428,12 @@ export function buildDocumentQuestionAnswer(input: {
 
   // Router caps visible answer: do not promote to likely_yes when the
   // router definitively found no valid evidence path (no_evidence).
-  if (status === "likely_yes" && input.routerStatus === "no_evidence") {
+  // Exempt fact_lookup and methodology_lookup intents — these are basic
+  // document facts from the ProjectFactContract, not methodology compliance
+  // questions. Clean extracted facts do not require methodology-rule validation.
+  const isFactIntent = input.queryIntentAnalysis?.intent === "fact_lookup"
+    || input.queryIntentAnalysis?.intent === "methodology_lookup";
+  if (status === "likely_yes" && input.routerStatus === "no_evidence" && !isFactIntent) {
     status = "unclear";
   }
 
@@ -442,7 +447,7 @@ export function buildDocumentQuestionAnswer(input: {
     : null;
 
   const routerCapped = status === "unclear" && evidence.length > 0 && directlyRelevant
-    && input.routerStatus === "no_evidence";
+    && input.routerStatus === "no_evidence" && !isFactIntent;
 
   return {
     status,

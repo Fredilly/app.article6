@@ -12,9 +12,9 @@ const FACT_RULES: Array<{
   negatives?: string[];
 }> = [
   { factId: "projectTitle", aliases: ["project title", "title of the project", "name of the project"], negatives: ["methodology"] },
-  { factId: "hostCountry", aliases: ["host country", "country host"] },
-  { factId: "projectCountry", aliases: ["project country", "country of the project"] },
-  { factId: "projectLocation", aliases: ["project location", "where is the project located", "project area"] },
+  { factId: "hostCountry", aliases: ["host country", "country host", "project hosted in", "country is this project", "country is the project"] },
+  { factId: "projectCountry", aliases: ["project country", "country of the project", "country is the project"] },
+  { factId: "projectLocation", aliases: ["project location", "where is the project located", "where is this project", "project area"] },
   { factId: "projectStandard", aliases: ["project standard", "standard", "registry standard"] },
   { factId: "projectType", aliases: ["project type", "type of project"] },
   { factId: "projectProponent", aliases: ["project proponent", "project developer", "participants", "project participants"] },
@@ -42,7 +42,7 @@ const SECTION_TOPIC_RULES: Array<{
   { topic: "leakage", aliases: ["leakage", "activity shifting"], negatives: ["additionality", "baseline"] },
   { topic: "additionality", aliases: ["additionality", "additional"], negatives: ["baseline", "monitoring"] },
   { topic: "methodology", aliases: ["methodology", "methodological", "applied methodology"] },
-  { topic: "project_location", aliases: ["project location", "location", "host country", "project area"] },
+  { topic: "project_location", aliases: ["project location", "location", "host country", "project area", "where is this project", "where is the project located"] },
   { topic: "project_participants", aliases: ["project participant", "project participants", "project proponent", "developer"] },
   { topic: "crediting_period", aliases: ["crediting period"] },
   { topic: "safeguards", aliases: ["safeguards", "grievance", "stakeholder", "fpic"] },
@@ -313,9 +313,16 @@ export function analyzeQueryIntent(input: QueryIntentAnalyzerInput): QueryIntent
   }
 
   if (factMatches.length > 0 && (factQuestionFrame || topFactScore >= topTopicScore)) {
+    const primaryFacts = factMatches.filter((match) => match.score >= topFactScore - 1).map((match) => match.factId);
+    // Location queries: fall back to hostCountry / projectCountry when
+    // the specific projectLocation fact has no extracted evidence.
+    const locationFallbackFacts: ProjectFactId[] = [];
+    if (primaryFacts.some((f) => f === "projectLocation")) {
+      locationFallbackFacts.push("hostCountry", "projectCountry");
+    }
     return makeAnalysis({
       intent: "fact_lookup",
-      targetFacts: factMatches.filter((match) => match.score >= topFactScore - 1).map((match) => match.factId),
+      targetFacts: unique([...primaryFacts, ...locationFallbackFacts]),
       positiveTerms: factMatches.flatMap((match) => match.aliases),
       negativeTerms: factMatches.flatMap((match) => match.negatives),
       confidence: withFamilyConfidenceCap(

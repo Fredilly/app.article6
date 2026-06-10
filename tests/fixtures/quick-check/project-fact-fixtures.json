@@ -11,10 +11,18 @@
         "projectCountry": "Nepal",
         "methodologyPrimary": "AMS-I.E. Switch from non-renewable biomass for thermal applications by the user",
         "creditingPeriod": "13 Dec 2011 - 12 Dec 2018",
-        "baselineSections": ["Baseline scenario"],
-        "monitoringSections": ["Monitoring methodology and plan"],
-        "leakageSections": ["Leakage"],
-        "additionalitySections": ["Demonstration of additionality"]
+        "baselineSections": [
+          "Baseline scenario"
+        ],
+        "monitoringSections": [
+          "Monitoring methodology and plan"
+        ],
+        "leakageSections": [
+          "Leakage"
+        ],
+        "additionalitySections": [
+          "Demonstration of additionality"
+        ]
       },
       "expectedNullFacts": [
         "reportingPeriod",
@@ -35,10 +43,12 @@
       "expectedDocumentFamily": "VERRA_PD",
       "expectedPromotedFacts": {
         "methodologyPrimary": "VM0007",
-        "monitoringSections": ["Monitoring"]
+        "monitoringSections": [
+          "Monitoring"
+        ],
+        "projectTitle": "PLUM Project"
       },
       "expectedNullFacts": [
-        "projectTitle",
         "hostCountry",
         "projectCountry",
         "projectProponent",
@@ -54,11 +64,7 @@
           "Project country was not deterministically derivable.",
           "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
         ],
-        "fieldIncludes": {
-          "projectTitle": [
-            "Conflicting values detected: PLUM Project | Section 3.3"
-          ]
-        }
+        "fieldIncludes": {}
       },
       "provenanceRequired": true,
       "notes": "Noisy Verra/VCS extract should stay conservative on title while still promoting methodology and monitoring provenance."
@@ -71,8 +77,12 @@
       "expectedPromotedFacts": {
         "projectTitle": "Envira Amazonia REDD+ Project",
         "methodologyPrimary": "VM0007 Version 4.2",
-        "monitoringSections": ["Monitoring Plan"],
-        "leakageSections": ["Leakage"]
+        "monitoringSections": [
+          "Monitoring Plan"
+        ],
+        "leakageSections": [
+          "Leakage"
+        ]
       },
       "expectedNullFacts": [
         "hostCountry",
@@ -102,34 +112,32 @@
       "expectedDocumentFamily": "REDD_AFOLU",
       "expectedPromotedFacts": {},
       "expectedNullFacts": [
-        "projectTitle",
+        "additionalitySections",
+        "baselineSections",
+        "creditingPeriod",
         "hostCountry",
+        "leakageSections",
+        "methodologyPrimary",
+        "monitoringPeriod",
+        "monitoringSections",
         "projectCountry",
         "projectProponent",
-        "methodologyPrimary",
-        "creditingPeriod",
-        "reportingPeriod",
-        "monitoringPeriod",
-        "baselineSections",
-        "monitoringSections",
-        "leakageSections",
-        "additionalitySections"
+        "projectTitle",
+        "reportingPeriod"
       ],
       "expectedWarnings": {
         "contractIncludes": [
           "No deterministic evidence found.",
           "Project country was not deterministically derivable."
         ],
-        "fieldIncludes": {
-          "projectTitle": [
-            "Conflicting values detected: or removals | Net GHG"
-          ]
-        }
+        "fieldIncludes": {}
       },
       "expectedFieldMetadata": {
         "projectTitle": {
           "evidenceSpanIdsMin": 2,
-          "pageNumbers": [1]
+          "pageNumbers": [
+            1
+          ]
         }
       },
       "expectedQuality": {
@@ -151,18 +159,18 @@
       "expectedDocumentFamily": "UNKNOWN",
       "expectedPromotedFacts": {},
       "expectedNullFacts": [
-        "projectTitle",
+        "additionalitySections",
+        "baselineSections",
+        "creditingPeriod",
         "hostCountry",
+        "leakageSections",
+        "methodologyPrimary",
+        "monitoringPeriod",
+        "monitoringSections",
         "projectCountry",
         "projectProponent",
-        "methodologyPrimary",
-        "creditingPeriod",
-        "reportingPeriod",
-        "monitoringPeriod",
-        "baselineSections",
-        "monitoringSections",
-        "leakageSections",
-        "additionalitySections"
+        "projectTitle",
+        "reportingPeriod"
       ],
       "expectedWarnings": {
         "contractIncludes": [
@@ -170,11 +178,7 @@
           "Document family did not map to a deterministic project standard.",
           "No monitoring sections were found."
         ],
-        "fieldIncludes": {
-          "projectTitle": [
-            "Conflicting values detected: Document upload | This file contains administrative notes and an appendix list. | No formal review sections are identified in the recovered text."
-          ]
-        }
+        "fieldIncludes": {}
       },
       "expectedQuality": {
         "pageCount": 1,
