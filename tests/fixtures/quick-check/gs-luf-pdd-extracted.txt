@@ -1,0 +1,42 @@
+Gold Standard for the Global Goals
+Gold Standard Project Design Document
+Kikonda Community Reforestation Project
+Applied methodology: GS-00XX Version 1.0
+
+Host Country: Mozambique
+Project Location: Manica Province, central Mozambique
+Project Area: 8,500 hectares
+
+1. Project Description
+The project involves reforestation of degraded miombo woodlands in Manica Province.
+The project area consists of 8,500 hectares of previously forested land that has
+been degraded through slash-and-burn agriculture and charcoal production. Native
+species including Brachystegia spiciformis and Julbernardia globiflora will be planted.
+
+2. Baseline Scenario
+The baseline scenario is continuation of current land-use practices including shifting
+cultivation and uncontrolled charcoal production. Historical deforestation rates in
+the region are estimated at 2.1% per year based on satellite imagery from 2010-2022.
+Without the project, forest degradation would continue and carbon stocks would decline.
+
+3. Additionality
+The project is additional because it faces significant financial and technical barriers.
+The investment analysis demonstrates that carbon revenue from Gold Standard VERs is
+essential for project viability. Without carbon finance, the upfront costs of nursery
+establishment, seedling production, and community engagement cannot be covered. A common
+practice analysis confirms that similar large-scale reforestation activities are not
+widespread in the region due to these barriers.
+
+4. Leakage
+Activity-shifting leakage is assessed in accordance with GS-00XX requirements. The
+leakage belt extends 10 km from the project boundary. Displacement of agricultural
+activities is expected to be minimal due to the low population density in surrounding
+areas. Market leakage from reduced charcoal production is assessed as negligible given
+the small scale of the project relative to regional charcoal markets.
+
+5. Monitoring
+Monitoring will be conducted annually using a network of permanent sample plots. A
+total of 120 plots are established using a stratified random sampling design. Parameters
+monitored include tree diameter at breast height (DBH), tree height, species composition,
+and regeneration. Quality assurance and quality control procedures follow GS-00XX
+specifications for measurement, data management, and reporting.
