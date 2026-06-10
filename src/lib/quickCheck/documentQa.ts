@@ -344,6 +344,38 @@ export function buildDocumentQuestionAnswer(input: {
   projectFactContract?: ProjectFactContract;
   sectionTableIndex?: SectionTableIndex;
 }): DocumentQuestionAnswer {
+  if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope" && input.queryIntentAnalysis.confidence > 0.7) {
+    return {
+      status: "unclear",
+      methodologyRuleMatched: false,
+      methodologyExplanation: "Quick Check classified this request as outside document-grounded review scope.",
+      explanation: "Quick Check classified this question as unsupported or out of scope for evidence-grounded document review.",
+      evidence: [],
+      diagnostic: {
+        reviewQuestionRoutingFired: true,
+        rawPddTextAvailable: Boolean(input.rawPddText?.trim()),
+        documentEvidenceCount: 0,
+        methodologyRuleMatched: false,
+      },
+    };
+  }
+
+  if (input.queryIntentAnalysis?.intent === "ambiguous" && input.queryIntentAnalysis.confidence > 0.45) {
+    return {
+      status: "unclear",
+      methodologyRuleMatched: false,
+      methodologyExplanation: "Quick Check found multiple plausible intent targets and did not force a retrieval path.",
+      explanation: "Quick Check classified this question as ambiguous and did not promote a single evidence path.",
+      evidence: [],
+      diagnostic: {
+        reviewQuestionRoutingFired: true,
+        rawPddTextAvailable: Boolean(input.rawPddText?.trim()),
+        documentEvidenceCount: 0,
+        methodologyRuleMatched: false,
+      },
+    };
+  }
+
   const headingEvidence = buildHeadingEvidence(input.retrieval);
   const intentEvidence = input.queryIntentAnalysis?.intent === "fact_lookup" || input.queryIntentAnalysis?.intent === "methodology_lookup"
     ? buildFactIntentEvidence({
