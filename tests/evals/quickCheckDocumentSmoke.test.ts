@@ -1,3 +1,21 @@
+/**
+ * Quick Check raw-document text QA pipeline smoke test.
+ *
+ * This is NOT a live upload / browser integration test. It does NOT exercise:
+ *   - PDF upload
+ *   - PDF extraction (pdf-parse / heuristic)
+ *   - Browser UI (QuickCheckPanel, React rendering)
+ *   - Uploaded-document session state (localStorage, attachments)
+ *   - Technical details fetch (methodology rules retrieval over HTTP)
+ *
+ * It directly calls buildReviewQuestionResult() with a static text fixture
+ * to validate that the core QA routing pipeline produces correct answer or
+ * rejection signals for a small set of canonical Quick Check questions.
+ *
+ * Purpose: fast (<5s) sanity check that the raw-text router, fact extractor,
+ * and section indexer work end-to-end before heavier eval corpus or
+ * component-level tests run.
+ */
 import { describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
@@ -9,7 +27,7 @@ const SMOKE_DOC_TEXT = fs.readFileSync(
   "utf-8",
 );
 
-describe("Quick Check uploaded-document smoke test", () => {
+describe("Quick Check raw document text smoke test", () => {
   const questions = [
     {
       id: "project_title",
@@ -38,6 +56,12 @@ describe("Quick Check uploaded-document smoke test", () => {
     {
       id: "marine_biodiversity_offsets",
       claimText: "Does the document address marine biodiversity offsets?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    },
+    {
+      id: "blue_carbon_mangrove",
+      claimText: "What does this document say about blue carbon mangrove restoration?",
       methodologyId: "VM0007",
       methodologyVersion: "4.2",
     },
@@ -71,6 +95,12 @@ describe("Quick Check uploaded-document smoke test", () => {
       emptyEvidence: true,
     },
     marine_biodiversity_offsets: {
+      status: "no_evidence",
+      route: "fallback",
+      emptyEvidence: true,
+      warningsInclude: ["unsupported_or_out_of_scope"],
+    },
+    blue_carbon_mangrove: {
       status: "no_evidence",
       route: "fallback",
       emptyEvidence: true,
@@ -121,7 +151,7 @@ describe("Quick Check uploaded-document smoke test", () => {
     });
   }
 
-  it("all five questions produce valid router results", () => {
+  it("all six questions produce valid router results", () => {
     const statuses = new Set(
       questions.map((q) => {
         const result = buildReviewQuestionResult({
@@ -138,7 +168,6 @@ describe("Quick Check uploaded-document smoke test", () => {
     expect(statuses.has("answered")).toBe(true);
     expect(statuses.has("no_evidence")).toBe(true);
 
-    // No results should error — buildReviewQuestionResult always produces a routerResult
     for (const q of questions) {
       const result = buildReviewQuestionResult({
         claimText: q.claimText,
