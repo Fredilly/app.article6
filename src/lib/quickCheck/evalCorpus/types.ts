@@ -1,4 +1,4 @@
-import type { DeterministicRouterRoute, DeterministicRouterStatus } from "@/lib/quickCheck/retrieval/types";
+import type { DeterministicRouterRoute, DeterministicRouterStatus, DocumentAnswerStatus } from "@/lib/quickCheck/retrieval/types";
 import type { DocumentFamily } from "@/lib/documentParsing";
 
 export const STANDARD_PHASE6_QUESTION_IDS = [
@@ -32,6 +32,10 @@ export type EvalCorpusQuestionExpectation = {
   expectedRoute?: DeterministicRouterRoute;
   expectedEvidenceEmpty?: boolean;
   goldEvidence?: EvalCorpusGoldEvidence;
+  visibleAnswerStatus?: DocumentAnswerStatus;
+  visibleAnswerTextContains?: string;
+  visibleAnswerEvidenceMin?: number;
+  visibleAnswerEvidencePage?: number;
 };
 
 export type EvalCorpusFixtureGold = {
@@ -88,6 +92,11 @@ export const DEFAULT_STRICT_THRESHOLDS: EvalCorpusThresholds = {
   regressionCount: 0,
 };
 
+export const DEFAULT_VISIBLE_ANSWER_THRESHOLDS = {
+  visibleAnswerGoldMatch: 0.85,
+  visibleAnswerAgreementRate: 1.0,
+};
+
 export type EvalCorpusFailure = {
   fixtureId: string;
   category: string;
@@ -100,7 +109,11 @@ export type EvalCorpusQuestionResult = {
   passed: boolean;
   actualStatus: DeterministicRouterStatus;
   actualRoute: DeterministicRouterRoute;
+  actualVisibleStatus: DocumentAnswerStatus;
+  visibleStatusMatch: boolean;
+  visibleAgreementOk: boolean;
   failures: string[];
+  visibleFailures: string[];
 };
 
 export type EvalCorpusFixtureResult = {
@@ -124,6 +137,8 @@ export type EvalCorpusReport = {
     noEvidenceFalseNegativeRate: EvalMetric;
     hallucinatedAnswerRate: EvalMetric;
     firstPassSuccessRate: EvalMetric;
+    visibleAnswerGoldMatch: EvalMetric;
+    visibleAnswerAgreementRate: EvalMetric;
     regressionCount: number;
   };
 };

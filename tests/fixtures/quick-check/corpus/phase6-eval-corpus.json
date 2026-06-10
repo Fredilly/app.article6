@@ -4,8 +4,8 @@
   "thresholds": {
     "firstPassSuccessRate": 0.85,
     "provenanceCorrectness": 0.85,
-    "unsupportedRejectionRate": 1.0,
-    "hallucinatedAnswerRate": 0.0,
+    "unsupportedRejectionRate": 1,
+    "hallucinatedAnswerRate": 0,
     "regressionCount": 0
   },
   "fixtures": [
@@ -39,66 +39,124 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Biogas Support Program - Nepal Activity-3"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Biogas Support Program - Nepal Activity-3"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "host_country": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Host country: Nepal"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Host country: Nepal"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "methodology": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Applied baseline methodology: AMS-I.E."]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Applied baseline methodology: AMS-I.E."
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Without the project activity, rural households would continue to use non-renewable biomass"],
-              "sectionHints": ["Baseline scenario"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Without the project activity, rural households would continue to use non-renewable biomass"
+              ],
+              "sectionHints": [
+                "Baseline scenario"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "monitoring": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Monitoring includes digester operation checks"],
-              "sectionHints": ["Monitoring methodology and plan"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Monitoring includes digester operation checks"
+              ],
+              "sectionHints": [
+                "Monitoring methodology and plan"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "leakage": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Leakage emissions are expected to be negligible"],
-              "sectionHints": ["Leakage"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Leakage emissions are expected to be negligible"
+              ],
+              "sectionHints": [
+                "Leakage"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "additionality": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The project is additional because upfront household investment barriers"],
-              "sectionHints": ["Demonstration of additionality"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The project is additional because upfront household investment barriers"
+              ],
+              "sectionHints": [
+                "Demonstration of additionality"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "marine_biodiversity_offsets": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           }
         }
       },
@@ -134,55 +192,91 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Envira Amazonia REDD+ Project"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Envira Amazonia REDD+ Project"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "host_country": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "methodology": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["VM0007 Version 4.2"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "VM0007 Version 4.2"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "monitoring": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The monitoring plan defines the sampling design"],
-              "sectionHints": ["Monitoring Plan"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The monitoring plan defines the sampling design"
+              ],
+              "sectionHints": [
+                "Monitoring Plan"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "leakage": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Activity shifting leakage is addressed through community agreements"],
-              "sectionHints": ["Leakage"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Activity shifting leakage is addressed through community agreements"
+              ],
+              "sectionHints": [
+                "Leakage"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "additionality": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "marine_biodiversity_offsets": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           }
         }
       },
@@ -218,63 +312,115 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Project Description Document: PD_REDD_v1_130"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Project Description Document: PD_REDD_v1_130"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "host_country": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "methodology": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["VM0007 REDD+ Methodology Modules"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "VM0007 REDD+ Methodology Modules"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["would otherwise be converted to agricultural land"],
-              "sectionHints": ["Baseline Scenario"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "would otherwise be converted to agricultural land"
+              ],
+              "sectionHints": [
+                "Baseline Scenario"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "monitoring": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Monitoring will be conducted annually using permanent sample plots"],
-              "sectionHints": ["Monitoring"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Monitoring will be conducted annually using permanent sample plots"
+              ],
+              "sectionHints": [
+                "Monitoring"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "leakage": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The leakage belt for this project is determined using the default 5 km"],
-              "sectionHints": ["Leakage"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The leakage belt for this project is determined using the default 5 km"
+              ],
+              "sectionHints": [
+                "Leakage"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "additionality": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The project is additional because it faces significant barriers"],
-              "sectionHints": ["Additionality"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The project is additional because it faces significant barriers"
+              ],
+              "sectionHints": [
+                "Additionality"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "marine_biodiversity_offsets": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           }
         }
       },
@@ -310,66 +456,124 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Kikonda Community Reforestation Project"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Kikonda Community Reforestation Project"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "host_country": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Host Country: Mozambique"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Host Country: Mozambique"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "methodology": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Applied methodology: GS-00XX Version 1.0"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Applied methodology: GS-00XX Version 1.0"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The baseline scenario is continuation of current land-use practices"],
-              "sectionHints": ["Baseline Scenario"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The baseline scenario is continuation of current land-use practices"
+              ],
+              "sectionHints": [
+                "Baseline Scenario"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "monitoring": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Monitoring will be conducted annually using a network"],
-              "sectionHints": ["Monitoring"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Monitoring will be conducted annually using a network"
+              ],
+              "sectionHints": [
+                "Monitoring"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "leakage": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Activity-shifting leakage is assessed in accordance"],
-              "sectionHints": ["Leakage"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Activity-shifting leakage is assessed in accordance"
+              ],
+              "sectionHints": [
+                "Leakage"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "additionality": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The project is additional because it faces significant"],
-              "sectionHints": ["Additionality"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The project is additional because it faces significant"
+              ],
+              "sectionHints": [
+                "Additionality"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "marine_biodiversity_offsets": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           }
         }
       },
@@ -405,51 +609,79 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["PLUM Project"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "PLUM Project"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "host_country": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "methodology": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["VM0007"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "VM0007"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "monitoring": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "leakage": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "additionality": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The without-project land use scenario assumes continued degradation of grassland"],
-              "sectionHints": ["Without-project Land Use Scenario and Additionality"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The without-project land use scenario assumes continued degradation of grassland"
+              ],
+              "sectionHints": [
+                "Without-project Land Use Scenario and Additionality"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "marine_biodiversity_offsets": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           }
         }
       },
@@ -484,49 +716,71 @@
           "project_title": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "host_country": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "methodology": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["VM0007"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "VM0007"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "monitoring": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["REDD+ Methodology Framework"],
-              "sectionHints": ["Monitoring"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "REDD+ Methodology Framework"
+              ],
+              "sectionHints": [
+                "Monitoring"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "leakage": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "additionality": {
             "expectedStatus": "unclear",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "marine_biodiversity_offsets": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           }
         }
       },
@@ -562,54 +816,88 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Project Description Document: Blue Nile Watershed REDD+ Project"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Project Description Document: Blue Nile Watershed REDD+ Project"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "host_country": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["Host Country: Ethiopia"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Host Country: Ethiopia"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "methodology": {
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["VM0007 Version 4.2"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "VM0007 Version 4.2"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "monitoring": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "leakage": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "additionality": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["The project is additional because it faces significant barriers"],
-              "sectionHints": ["Additionality"]
-            }
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "The project is additional because it faces significant barriers"
+              ],
+              "sectionHints": [
+                "Additionality"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "marine_biodiversity_offsets": {
             "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           }
         }
       },
