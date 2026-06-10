@@ -264,8 +264,8 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "unclear",
-        "explanationContains": "methodology router could not validate",
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence",
         "evidenceCountMin": 1
       }
     },

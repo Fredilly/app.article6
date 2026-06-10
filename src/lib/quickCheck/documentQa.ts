@@ -427,8 +427,8 @@ export function buildDocumentQuestionAnswer(input: {
   });
 
   // Router caps visible answer: do not promote to likely_yes when the
-  // router could not validate evidence (no_evidence / unclear).
-  if (status === "likely_yes" && input.routerStatus && input.routerStatus !== "answered") {
+  // router definitively found no valid evidence path (no_evidence).
+  if (status === "likely_yes" && input.routerStatus === "no_evidence") {
     status = "unclear";
   }
 
@@ -441,7 +441,8 @@ export function buildDocumentQuestionAnswer(input: {
       : "The question uses high-burden wording and the retrieved evidence does not include supporting justification."
     : null;
 
-  const routerCapped = status === "unclear" && evidence.length > 0 && directlyRelevant && input.routerStatus && input.routerStatus !== "answered";
+  const routerCapped = status === "unclear" && evidence.length > 0 && directlyRelevant
+    && input.routerStatus === "no_evidence";
 
   return {
     status,
