@@ -12,6 +12,7 @@ const {
   formatQuickCheckEvalCorpusReport,
   checkEvalCorpusThresholds,
 } = require("../src/lib/quickCheck/evalCorpus");
+const { loadEvalCorpusManifest } = require("../src/lib/quickCheck/evalCorpus/manifest");
 const { DEFAULT_STRICT_THRESHOLDS } = require("../src/lib/quickCheck/evalCorpus/types");
 
 const strict = process.argv.includes("--strict");
@@ -28,7 +29,8 @@ const report = runQuickCheckEvalCorpus({
 console.log(formatQuickCheckEvalCorpusReport(report));
 
 if (strict) {
-  const thresholds = DEFAULT_STRICT_THRESHOLDS;
+  const manifest = loadEvalCorpusManifest(manifestPath);
+  const thresholds = manifest.thresholds ?? DEFAULT_STRICT_THRESHOLDS;
   const { passed, violations } = checkEvalCorpusThresholds(report, thresholds);
 
   if (!passed) {

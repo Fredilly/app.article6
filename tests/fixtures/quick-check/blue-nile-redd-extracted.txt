@@ -1,0 +1,49 @@
+Project Description Document: Blue Nile Watershed REDD+ Project
+VM0007 Version 4.2
+Verra VCS
+
+1.1  Project Title and Location
+Blue Nile Watershed REDD+ Project
+Host Country: Ethiopia
+Project Area: 25,000 hectares of Afromontane forest in the Blue Nile watershed
+
+2.4 (Baseline Scenario)
+The baseline scenario is continuation of deforestation driven by agricultural
+expansion and fuelwood collection. Historical deforestation rate is 1.8% per year.
+
+Carbon Pool | Pre-project (tCO2e/ha) | Baseline (tCO2e/ha) | Project (tCO2e/ha) | Net Change (tCO2e/ha)
+Above-ground biomass | 180.5 | 85.3 | 195.2 | +109.9
+Below-ground biomass | 45.1 | 21.3 | 48.8 | +27.5
+Dead wood | 12.3 | 5.8 | 13.5 | +7.7
+Litter | 8.7 | 4.2 | 9.4 | +5.2
+Soil organic carbon | 92.0 | 65.0 | 96.5 | +31.5
+Total | 338.6 | 181.6 | 363.4 | +181.8
+
+2.5 (Additionality)
+The project is additional because it faces significant barriers to implementation.
+A barrier analysis demonstrates that the upfront costs of community forest management
+and alternative livelihood programs cannot be covered without carbon revenue.
+
+3.3  Monitoring
+Monitoring will be conducted biennially using permanent sample plots.
+
+Parameter | Method | Frequency | QA/QC Procedure
+Forest cover change | Satellite imagery + ground truthing | Biannual | Independent verification of 10% of plots
+Tree DBH | Caliper measurement | Annual | Cross-validation by second field team
+Tree height | Clinometer | Annual | Calibration check before each survey
+Species composition | Field identification key | Annual | Herbarium voucher verification
+Dead wood | Line intersect sampling | Biennial | Double sampling on 5% of transects
+Soil carbon | Core sampling + lab analysis | Every 5 years | Duplicate lab analysis
+
+1.10 (Leakage)
+The leakage belt extends 5 km from the project boundary. Activity-shifting leakage
+is assessed at 8,500 tCO2e over the crediting period.
+
+Leakage Type | Estimated Emissions (tCO2e) | Mitigation Measure
+Activity shifting | 6,200 | Alternative livelihood programs in leakage belt
+Market leakage | 2,300 | Monitoring of regional timber prices
+Ecological leakage | 0 | No displacement of ecosystem types expected
+
+3.4  Stakeholder Comments
+Local communities were consulted during the project design phase. All comments were
+addressed in the final project design document. FPIC documentation is on file.
