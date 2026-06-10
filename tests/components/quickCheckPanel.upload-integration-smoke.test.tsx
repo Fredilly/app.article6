@@ -12,44 +12,6 @@ const PLUM_PDD_TEXT = fs.readFileSync(
   "utf-8",
 );
 
-const QC_QUESTIONS = [
-  {
-    id: "project_title",
-    claimText: "What is the project title?",
-    methodologyId: "VM0007",
-    methodologyVersion: "4.2",
-    expectedEvidenceText: "PLUM Project",
-  },
-  {
-    id: "methodology",
-    claimText: "What methodology is used for this project?",
-    methodologyId: "VM0007",
-    methodologyVersion: "4.2",
-    expectedEvidenceText: "VM0007",
-  },
-  {
-    id: "host_country",
-    claimText: "What is the host country?",
-    methodologyId: "VM0007",
-    methodologyVersion: "4.2",
-    expectedRejection: "no_evidence",
-  },
-  {
-    id: "marine_biodiversity_offsets",
-    claimText: "Does the document address marine biodiversity offsets?",
-    methodologyId: "VM0007",
-    methodologyVersion: "4.2",
-    expectedRejection: "no_evidence",
-  },
-  {
-    id: "blue_carbon_mangrove",
-    claimText: "What does this document say about blue carbon mangrove restoration?",
-    methodologyId: "VM0007",
-    methodologyVersion: "4.2",
-    expectedRejection: "no_evidence",
-  },
-];
-
 const createAndStoreEvidenceAttachmentMock = jest.fn();
 
 const PDF_TEXT_BY_FILENAME: Record<string, string> = {
@@ -80,7 +42,7 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => {
 
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
 
-describe("Quick Check uploaded-document integration smoke test", () => {
+describe("QuickCheckPanel upload/session boundary smoke test — proves the panel can consume seeded upload/session state; does not test real PDF extraction or parser reliability", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
 
@@ -140,14 +102,6 @@ describe("Quick Check uploaded-document integration smoke test", () => {
       await Promise.resolve();
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
-  }
-
-  async function flushUntilText(text: string, attempts = 15) {
-    for (let i = 0; i < attempts; i += 1) {
-      await flushUi();
-      if ((container.textContent ?? "").includes(text)) return;
-    }
-    throw new Error(`Timed out waiting for text: ${text}`);
   }
 
   function clickButton(label: string) {
@@ -231,7 +185,7 @@ describe("Quick Check uploaded-document integration smoke test", () => {
     window.localStorage.clear();
   });
 
-  it("project title question returns answered with evidence from uploaded document", async () => {
+  it("resolves project-title question from seeded upload/session state", async () => {
     seedSession({
       claimText: "What is the project title?",
       filename: "qc-smoke-upload.pdf",
@@ -256,7 +210,7 @@ describe("Quick Check uploaded-document integration smoke test", () => {
     expect(text).not.toContain("No valid analysis path");
   });
 
-  it("methodology question returns answered with evidence from uploaded document", async () => {
+  it("resolves methodology question from seeded upload/session state", async () => {
     seedSession({
       claimText: "What methodology is used for this project?",
       filename: "qc-smoke-upload.pdf",
@@ -281,7 +235,7 @@ describe("Quick Check uploaded-document integration smoke test", () => {
     expect(text).not.toContain("No valid analysis path");
   });
 
-  it("unsupported question returns no_evidence from uploaded document", async () => {
+  it("shows rejection state for unsupported question from seeded upload/session state", async () => {
     seedSession({
       claimText: "Does the document address marine biodiversity offsets?",
       filename: "qc-smoke-upload.pdf",
@@ -302,11 +256,12 @@ describe("Quick Check uploaded-document integration smoke test", () => {
     await flushUi();
 
     const text = container.textContent ?? "";
-    expect(text).not.toContain("marine biodiversity offsets evidence found");
+    expect(text).toContain("unclear");
+    expect(text).toContain("could not recover useful document-grounded evidence");
     expect(text).not.toContain("No valid analysis path");
   });
 
-  it("blue carbon mangrove question returns no_evidence from uploaded document", async () => {
+  it("shows rejection state for blue-carbon-mangrove question from seeded upload/session state", async () => {
     seedSession({
       claimText: "What does this document say about blue carbon mangrove restoration?",
       filename: "qc-smoke-upload.pdf",
@@ -332,7 +287,7 @@ describe("Quick Check uploaded-document integration smoke test", () => {
     expect(text).not.toContain("No valid analysis path");
   });
 
-  it("uploaded document text is used, not bypassed", async () => {
+  it("proves uploaded document text is used (not bypassed) via seeded upload/session state", async () => {
     // Use a distinctive text to prove it's from the uploaded document.
     // plum-pdd-regression has "Without-project Land Use Scenario and Additionality"
     // which is unique to this fixture.
