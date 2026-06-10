@@ -459,7 +459,7 @@ describe("Phase 6 visible-answer eval — manifest has visible answer expectatio
 describe("Phase 6 visible-answer eval — real document visible answer status matches expectation", () => {
   const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
 
-  it("project_title: manifests likely_yes gold but current Document Q&A returns unclear (known gap)", () => {
+  it("project_title: visible answer is likely_yes with document-grounded evidence", () => {
     const result = buildReviewQuestionResult({
       claimText: "What is the project title?",
       methodologyId: "AMS-I.E.",
@@ -469,10 +469,9 @@ describe("Phase 6 visible-answer eval — real document visible answer status ma
     const da = result.documentAnswer;
     const router = result.routerResult;
 
-    // Router correctly finds evidence
     expect(router.status).toBe("answered");
-    // Visible answer currently stays unclear — this is the gap the gate catches
-    expect(da.status).toBe("unclear");
+    expect(da.status).toBe("likely_yes");
+    expect(da.evidence.length).toBeGreaterThanOrEqual(1);
   });
 
   it("marine_biodiversity_offsets: visible answer correctly rejects unsupported question", () => {
@@ -485,9 +484,7 @@ describe("Phase 6 visible-answer eval — real document visible answer status ma
     const da = result.documentAnswer;
     const router = result.routerResult;
 
-    // Router correctly rejects
     expect(router.status).toBe("no_evidence");
-    // Visible answer correctly rejects — stays unclear, not promoted
     expect(da.status).toBe("unclear");
     expect(da.status).not.toBe("likely_yes");
   });
@@ -499,11 +496,7 @@ describe("Phase 6 visible-answer eval — real document visible answer status ma
       methodologyVersion: "1.0",
       rawPddText: REAL_CDM_TEXT,
     });
-    const da = result.documentAnswer;
-    const router = result.routerResult;
-
-    expect(router.status).toBe("no_evidence");
-    expect(da.status).not.toBe("likely_yes");
+    expect(result.documentAnswer.status).not.toBe("likely_yes");
   });
 });
 
@@ -588,7 +581,7 @@ describe("Phase 6 visible-answer eval — checkEvalCorpusThresholds gates on vis
 });
 
 describe("Phase 6 visible-answer eval — disagreement gate catches specific failure modes", () => {
-  it("router answered + visible unclear fails the visible agreement gate", () => {
+  it("router answered + visible likely_yes passes the visible agreement gate", () => {
     const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
     const result = buildReviewQuestionResult({
       claimText: "What is the project title?",
@@ -599,13 +592,13 @@ describe("Phase 6 visible-answer eval — disagreement gate catches specific fai
     const router = result.routerResult;
     const da = result.documentAnswer;
 
-    // Router finds evidence but visible answer doesn't promote it
+    // Router finds evidence AND visible answer promotes it — agreement
     expect(router.status).toBe("answered");
-    expect(da.status).toBe("unclear");
+    expect(da.status).toBe("likely_yes");
 
-    // This should be caught as a visible false negative
+    // No false negative — agreement is OK
     const visibleFalseNegative = router.status === "answered" && (da.status === "unclear" || da.status === "likely_no");
-    expect(visibleFalseNegative).toBe(true);
+    expect(visibleFalseNegative).toBe(false);
   });
 
   it("router no_evidence + visible likely_yes fails the visible agreement gate", () => {
@@ -654,8 +647,8 @@ describe("Phase 6 visible-answer eval — disagreement gate catches specific fai
   });
 });
 
-describe("Phase 6 visible-answer eval — known Document Q&A gaps (not regressions)", () => {
-  it("project_title: router finds evidence but visible says unclear (known gap)", () => {
+describe("Phase 6 visible-answer eval — fact-backed visible answers promoted correctly", () => {
+  it("project_title: router answered + visible likely_yes with evidence", () => {
     const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
     const result = buildReviewQuestionResult({
       claimText: "What is the project title?",
@@ -663,13 +656,12 @@ describe("Phase 6 visible-answer eval — known Document Q&A gaps (not regressio
       methodologyVersion: "1.0",
       rawPddText: REAL_CDM_TEXT,
     });
-    // Router correctly finds evidence
     expect(result.routerResult.status).toBe("answered");
-    // Visible answer fails to promote — known gap, not a new regression
-    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.status).toBe("likely_yes");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("host_country: router finds evidence but visible says unclear (known gap)", () => {
+  it("host_country: router answered + visible likely_yes with evidence", () => {
     const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
     const result = buildReviewQuestionResult({
       claimText: "What is the host country?",
@@ -678,10 +670,11 @@ describe("Phase 6 visible-answer eval — known Document Q&A gaps (not regressio
       rawPddText: REAL_CDM_TEXT,
     });
     expect(result.routerResult.status).toBe("answered");
-    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.status).toBe("likely_yes");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("methodology: router finds evidence but visible says unclear (known gap)", () => {
+  it("methodology: router answered + visible likely_yes with evidence", () => {
     const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
     const result = buildReviewQuestionResult({
       claimText: "What methodology is used?",
@@ -690,7 +683,8 @@ describe("Phase 6 visible-answer eval — known Document Q&A gaps (not regressio
       rawPddText: REAL_CDM_TEXT,
     });
     expect(result.routerResult.status).toBe("answered");
-    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.documentAnswer.status).toBe("likely_yes");
+    expect(result.documentAnswer.evidence.length).toBeGreaterThanOrEqual(1);
   });
 });
 

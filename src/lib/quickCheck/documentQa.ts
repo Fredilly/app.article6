@@ -307,20 +307,29 @@ function deriveAnswerStatus(input: {
   directlyRelevant?: boolean;
   highBurden?: boolean;
   justificationEvidence?: boolean;
+  intentBacked?: boolean;
 }): DocumentQuestionAnswer["status"] {
   const verdict = input.evaluation.reviewAreaReview?.verdict ?? input.evaluation.baselineReview?.verdict;
   const relevant = input.directlyRelevant ?? true;
+
   if (verdict === "supported") {
     if (input.highBurden && !input.justificationEvidence) return "unclear";
     return relevant ? "likely_yes" : "unclear";
   }
   if (verdict === "partial") return "unclear";
   if (verdict === "missing" && input.evidence.length > 0) return "likely_no";
-  if (input.result.matchedHeadings.length > 0 || input.evidence.length >= 2) {
+
+  // Intent-backed evidence (fact_lookup, methodology_lookup) is precise:
+  // a single directly-relevant item is enough to promote to likely_yes.
+  // Heading/block evidence needs at least 2 items, or matched headings.
+  const sufficientEvidence = input.intentBacked
+    ? input.evidence.length >= 1 && relevant
+    : input.result.matchedHeadings.length > 0 || input.evidence.length >= 2;
+
+  if (sufficientEvidence) {
     if (input.highBurden && !input.justificationEvidence) return "unclear";
     return relevant ? "likely_yes" : "unclear";
   }
-  if (input.evidence.length === 1) return "unclear";
   return "unclear";
 }
 
@@ -335,38 +344,6 @@ export function buildDocumentQuestionAnswer(input: {
   projectFactContract?: ProjectFactContract;
   sectionTableIndex?: SectionTableIndex;
 }): DocumentQuestionAnswer {
-  if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope") {
-    return {
-      status: "unclear",
-      methodologyRuleMatched: false,
-      methodologyExplanation: "Quick Check classified this request as outside document-grounded review scope.",
-      explanation: "Quick Check classified this question as unsupported or out of scope for evidence-grounded document review.",
-      evidence: [],
-      diagnostic: {
-        reviewQuestionRoutingFired: true,
-        rawPddTextAvailable: Boolean(input.rawPddText?.trim()),
-        documentEvidenceCount: 0,
-        methodologyRuleMatched: false,
-      },
-    };
-  }
-
-  if (input.queryIntentAnalysis?.intent === "ambiguous") {
-    return {
-      status: "unclear",
-      methodologyRuleMatched: false,
-      methodologyExplanation: "Quick Check found multiple plausible intent targets and did not force a retrieval path.",
-      explanation: "Quick Check classified this question as ambiguous and did not promote a single evidence path.",
-      evidence: [],
-      diagnostic: {
-        reviewQuestionRoutingFired: true,
-        rawPddTextAvailable: Boolean(input.rawPddText?.trim()),
-        documentEvidenceCount: 0,
-        methodologyRuleMatched: false,
-      },
-    };
-  }
-
   const headingEvidence = buildHeadingEvidence(input.retrieval);
   const intentEvidence = input.queryIntentAnalysis?.intent === "fact_lookup" || input.queryIntentAnalysis?.intent === "methodology_lookup"
     ? buildFactIntentEvidence({
@@ -396,7 +373,8 @@ export function buildDocumentQuestionAnswer(input: {
   const evidence = [...intentEvidence, ...headingEvidence, ...blockEvidence, ...rawTextEvidence].slice(0, MAX_EVIDENCE_ITEMS);
 
   const specificTerms = getSpecificClaimTerms(input.claimText, input.retrieval.reviewArea);
-  const directlyRelevant = specificTerms.length === 0 || hasDirectSemanticSupport(evidence, specificTerms);
+  const intentBackedEvidence = intentEvidence.length > 0;
+  const directlyRelevant = intentBackedEvidence || specificTerms.length === 0 || hasDirectSemanticSupport(evidence, specificTerms);
 
   const highBurden = isHighBurdenQuestion(input.claimText);
   const justificationEvidence = highBurden && hasJustificationEvidence(evidence);
@@ -408,6 +386,7 @@ export function buildDocumentQuestionAnswer(input: {
     directlyRelevant,
     highBurden,
     justificationEvidence,
+    intentBacked: intentEvidence.length > 0,
   });
 
   const methodologyRuleMatched = Boolean(input.evaluation.reviewAreaReview);
