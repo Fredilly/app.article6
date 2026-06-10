@@ -322,6 +322,7 @@ export function buildReviewQuestionResult(input: {
     evidenceDocument: structuredContext?.evidenceDocument,
     projectFactContract: enrichedProjectFactContract ?? structuredContext?.projectFactContract,
     sectionTableIndex: structuredContext?.sectionTableIndex,
+    routerStatus: routerResult.status,
   });
 
   return {

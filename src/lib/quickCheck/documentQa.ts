@@ -316,7 +316,10 @@ function deriveAnswerStatus(input: {
     if (input.highBurden && !input.justificationEvidence) return "unclear";
     return relevant ? "likely_yes" : "unclear";
   }
-  if (verdict === "partial") return "unclear";
+  if (verdict === "partial") {
+    if (input.evidence.length === 0) return "unclear";
+    return relevant ? "likely_yes" : "unclear";
+  }
   if (verdict === "missing" && input.evidence.length > 0) return "likely_no";
 
   // Intent-backed evidence (fact_lookup, methodology_lookup) is precise:
@@ -343,6 +346,7 @@ export function buildDocumentQuestionAnswer(input: {
   evidenceDocument?: EvidenceDocument;
   projectFactContract?: ProjectFactContract;
   sectionTableIndex?: SectionTableIndex;
+  routerStatus?: string;
 }): DocumentQuestionAnswer {
   if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope" && input.queryIntentAnalysis.confidence > 0.7) {
     return {
@@ -406,12 +410,13 @@ export function buildDocumentQuestionAnswer(input: {
 
   const specificTerms = getSpecificClaimTerms(input.claimText, input.retrieval.reviewArea);
   const intentBackedEvidence = intentEvidence.length > 0;
-  const directlyRelevant = intentBackedEvidence || specificTerms.length === 0 || hasDirectSemanticSupport(evidence, specificTerms);
+  const headingMatchedEvidence = headingEvidence.length > 0;
+  const directlyRelevant = intentBackedEvidence || headingMatchedEvidence || specificTerms.length === 0 || hasDirectSemanticSupport(evidence, specificTerms);
 
   const highBurden = isHighBurdenQuestion(input.claimText);
   const justificationEvidence = highBurden && hasJustificationEvidence(evidence);
 
-  const status = deriveAnswerStatus({
+  let status = deriveAnswerStatus({
     evidence,
     evaluation: input.evaluation,
     result: input.retrieval,
@@ -421,6 +426,12 @@ export function buildDocumentQuestionAnswer(input: {
     intentBacked: intentEvidence.length > 0,
   });
 
+  // Router caps visible answer: do not promote to likely_yes when the
+  // router could not validate evidence (no_evidence / unclear).
+  if (status === "likely_yes" && input.routerStatus && input.routerStatus !== "answered") {
+    status = "unclear";
+  }
+
   const methodologyRuleMatched = Boolean(input.evaluation.reviewAreaReview);
   const rawPddTextAvailable = Boolean(input.rawPddText?.trim());
 
@@ -429,6 +440,8 @@ export function buildDocumentQuestionAnswer(input: {
       ? "Quick Check found document-grounded evidence with supporting justification relevant to the question."
       : "The question uses high-burden wording and the retrieved evidence does not include supporting justification."
     : null;
+
+  const routerCapped = status === "unclear" && evidence.length > 0 && directlyRelevant && input.routerStatus && input.routerStatus !== "answered";
 
   return {
     status,
@@ -446,7 +459,9 @@ export function buildDocumentQuestionAnswer(input: {
         : rawPddTextAvailable
           ? "No methodology rule was confidently matched, and Quick Check could not recover relevant document evidence from the uploaded text."
           : "No methodology rule was confidently matched, and parsed document text was unavailable for document-first review.",
-    explanation: highBurdenExplanation
+    explanation: routerCapped
+      ? "Quick Check found document-grounded evidence relevant to the question, but the methodology router could not validate it as supported."
+      : highBurdenExplanation
       ?? (evidence.length > 0
         ? directlyRelevant
           ? "Quick Check found document-grounded evidence relevant to the question."
