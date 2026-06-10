@@ -30,18 +30,24 @@ const METHODOLOGY_CODE_RE = /\b(?:V?M|ACM|AM|AMS|AR-AM|AR-ACM|VMR|CDM-SSC|GS)\d{
 const FIELD_RULES: FieldRule[] = [
   {
     field: "hostCountry",
-    labels: ["Host country", "Host country(ies)", "Country"],
+    labels: ["Host country", "Host country(ies)", "Country", "Host Party"],
     preferBlockTypes: ["field", "table", "paragraph"],
     familySpecificLabels: {
-      VCS_PD: ["Country/Area", "Country"],
-      VERRA_PD: ["Country/Area", "Country"],
+      VCS_PD: ["Country/Area", "Country", "Host Party(ies)", "Host Country", "Geographic location"],
+      VERRA_PD: ["Country/Area", "Country", "Host Party(ies)", "Host Country", "Geographic location"],
+      REDD_AFOLU: ["Country/Area", "Country", "Host Party", "Geographic location"],
     },
   },
   {
     field: "projectLocation",
-    labels: ["Project location", "Project site", "Location"],
+    labels: ["Project location", "Project site", "Location", "Geographic location", "Geographic reference"],
     preferBlockTypes: ["field", "table", "paragraph"],
     multiline: true,
+    familySpecificLabels: {
+      VCS_PD: ["Project location", "Geographic reference of the project activity", "Geographic location"],
+      VERRA_PD: ["Project location", "Geographic reference of the project activity", "Geographic location"],
+      REDD_AFOLU: ["Project location", "Geographic reference", "Geographic location"],
+    },
   },
   {
     field: "projectProponent",
@@ -171,29 +177,48 @@ function findLabeledCandidates(
     ...rule.labels,
     ...(rule.familySpecificLabels?.[document.documentFamily ?? "UNKNOWN"] ?? []),
   ]);
-  const pattern = new RegExp(
+  // Strict: label at start of line (matches classic field-name: value patterns)
+  const strictPattern = new RegExp(
     `^\\s*(?:${labels.map(escapeRegExp).join("|")})\\s*[:\\-]\\s*(.+)$`,
     "i",
   );
+  // Relaxed: label anywhere in the span, preceded by word boundary
+  // (catches labels after section numbers like \"1.2 Geographic location: ...\")
+  const relaxedPattern = document.documentFamily
+    ? new RegExp(
+        `\\b(?:${labels.map(escapeRegExp).join("|")})\\s*[:\\-]\\s*(.+)$`,
+        "im",
+      )
+    : null;
 
-  return document.spans
-    .filter((span) => span.reliability !== "excluded")
-    .filter((span) => !rule.preferBlockTypes || rule.preferBlockTypes.includes(span.blockType))
-    .flatMap((span) => {
+  const results: Candidate[] = [];
+  const seenValues = new Set<string>();
+
+  for (const span of document.spans.filter((s) => s.reliability !== "excluded")) {
+    if (rule.preferBlockTypes && !rule.preferBlockTypes.includes(span.blockType)) continue;
+
+    // Try strict first, then relaxed
+    for (const pattern of [strictPattern, relaxedPattern].filter(Boolean) as RegExp[]) {
       const match = span.text.match(pattern);
-      if (!match?.[1]) return [];
+      if (!match?.[1]) continue;
       const rawValue = rule.multiline ? match[1] : match[1].split(/\s{2,}|\n/)[0];
       const value = rawValue.trim().replace(/[.;:,]$/, "").trim();
-      if (!value) return [];
-      return [{
+      if (!value) continue;
+      const dedupeKey = normalizeValue(value);
+      if (seenValues.has(dedupeKey)) continue;
+      seenValues.add(dedupeKey);
+      results.push({
         value,
-        normalizedValue: normalizeValue(value),
+        normalizedValue: dedupeKey,
         confidence: rankConfidence(span, { preferStructured: true }),
         span,
         extractionRule: `label:${rule.field}`,
         warnings: [],
-      }];
-    });
+      });
+      break; // first match per span
+    }
+  }
+  return results;
 }
 
 function findMethodologyCodeFallbackCandidates(document: EvidenceDocument): Candidate[] {
@@ -314,6 +339,7 @@ function findProjectTitle(document: EvidenceDocument): ProjectFactField<string |
   const titleSpans = document.spans.filter((span) => span.blockType === "title" && span.reliability !== "excluded");
   const candidates: Candidate[] = titleSpans
     .filter((span) => !looksLikeMethodology(span.text))
+    .filter((span) => !/^section\s+\d/i.test(span.text.trim()))
     .map((span) => ({
       value: span.text.trim(),
       normalizedValue: normalizeValue(span.text),

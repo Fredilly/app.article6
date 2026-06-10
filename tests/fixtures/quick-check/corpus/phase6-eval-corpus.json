@@ -713,7 +713,7 @@
       },
       "gold": {
         "documentFamily": "VERRA_PD",
-        "projectTitle": null,
+        "projectTitle": "PLUM Project",
         "hostCountry": null,
         "projectCountry": null,
         "methodology": "VM0007",
@@ -730,10 +730,18 @@
         },
         "questionExpectations": {
           "project_title": {
-            "expectedStatus": "no_evidence",
-            "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true,
-            "visibleAnswerStatus": "unclear"
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "PLUM Project"
+              ]
+            }
           },
           "host_country": {
             "expectedStatus": "no_evidence",
