@@ -114,6 +114,8 @@ export type EvalCorpusQuestionResult = {
   visibleAgreementOk: boolean;
   failures: string[];
   visibleFailures: string[];
+  actualWarnings: string[];
+  actualEvidenceSpanCount: number;
 };
 
 export type EvalCorpusFixtureResult = {

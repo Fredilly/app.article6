@@ -254,6 +254,8 @@ function evaluateQuestion(input: {
       visibleAgreementOk,
       failures: routerFailures,
       visibleFailures,
+      actualWarnings: reviewResult.routerResult.warnings,
+      actualEvidenceSpanCount: reviewResult.routerResult.evidenceSpanIds.length,
     },
     provenancePassed,
     provenanceTotal,

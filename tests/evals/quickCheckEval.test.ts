@@ -996,32 +996,27 @@ describe("Phase 5 — table routing regression", () => {
 });
 
 describe("Phase 6 — eval corpus provenance and quote validation hardening", () => {
-  it("no quote_validation_failed across entire corpus", () => {
+  it("no quote_validation_failed in router warnings across entire corpus", () => {
     const report = runQuickCheckEvalCorpus();
     for (const fixture of report.fixtureResults) {
       for (const qr of fixture.questionResults) {
-        // Quote validation failures would appear in the failures array
-        const qvFailures = qr.failures.filter((f) => f.includes("quote_validation"));
-        expect(qvFailures).toEqual([]);
+        expect(qr.actualWarnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
       }
     }
   });
 
-  it("every answered question has evidenceSpanIds", () => {
+  it("every answered question has non-empty evidenceSpanIds", () => {
     const report = runQuickCheckEvalCorpus();
     let answeredCount = 0;
-    let missingSpanCount = 0;
     for (const fixture of report.fixtureResults) {
       for (const qr of fixture.questionResults) {
         if (qr.actualStatus === "answered") {
           answeredCount++;
-          const missingEvidenceSpans = qr.failures.filter((f) => f.includes("expected empty evidence"));
-          if (missingEvidenceSpans.length > 0) missingSpanCount++;
+          expect(qr.actualEvidenceSpanCount).toBeGreaterThan(0);
         }
       }
     }
     expect(answeredCount).toBeGreaterThan(0);
-    expect(missingSpanCount).toBe(0);
   });
 
   it("no hallucinated answers (answered without provenance)", () => {
@@ -1029,26 +1024,31 @@ describe("Phase 6 — eval corpus provenance and quote validation hardening", ()
     expect(report.metrics.hallucinatedAnswerRate.rate).toBe(0);
   });
 
-  it("weak-ocr fixture still correctly answers methodology and monitoring", () => {
+  it("weak-ocr fixture correctly answers methodology and monitoring with evidenceSpanIds", () => {
     const WEAK_OCR = readRootFixtureText("quick-check/plum-pdd-extracted.txt");
     const meth = buildReviewQuestionResult({ claimText: "What methodology is used?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: WEAK_OCR });
     expect(meth.routerResult.status).toBe("answered");
     expect(meth.routerResult.quotes).toContain("VM0007");
     expect(meth.routerResult.pages).toEqual([1]);
+    expect(meth.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
 
     const mon = buildReviewQuestionResult({ claimText: "What does the document say about monitoring?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: WEAK_OCR });
     expect(mon.routerResult.status).toBe("answered");
     expect(mon.routerResult.quotes.length).toBeGreaterThan(0);
     expect(mon.routerResult.pages.length).toBeGreaterThan(0);
+    expect(mon.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(mon.routerResult.warnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
   });
 
-  it("table-heavy doc correctly refuses section questions without fabricating", () => {
+  it("table-heavy doc correctly refuses section questions with no_evidence, empty quotes, empty evidenceSpanIds", () => {
     const BLUE_NILE = readRootFixtureText("quick-check/blue-nile-redd-extracted.txt");
     for (const q of ["What is the baseline scenario?", "What does the document say about monitoring?", "What does the document say about leakage?"]) {
       const r = buildReviewQuestionResult({ claimText: q, methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
       expect(r.routerResult.status).toBe("no_evidence");
       expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
       expect(r.documentAnswer.status).not.toBe("likely_yes");
+      expect(r.routerResult.warnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
     }
   });
 });
