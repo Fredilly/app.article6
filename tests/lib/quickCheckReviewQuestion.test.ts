@@ -1529,9 +1529,8 @@ describe("Phase 4 router integration groundwork", () => {
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("ambiguous");
-    // Index-based lexical retrieval may resolve ambiguous intents
-    // when confident evidence exists.  The router still owns the final status.
-    expect(["answered", "unclear"]).toContain(result.routerResult.status);
+    expect(result.documentAnswer.status).toBe("unclear");
+    expect(result.routerResult.status).toBe("unclear");
   });
 
   it("answers methodology from structured input when document has no methodology and routes via project_fact_contract", () => {

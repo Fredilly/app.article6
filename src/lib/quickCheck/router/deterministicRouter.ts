@@ -512,54 +512,6 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
   }
 
   if (input.queryIntentAnalysis?.intent === "ambiguous") {
-    // Try to resolve ambiguity by querying EvidenceSpanIndex with
-    // the claim text.  If the index returns confident candidates,
-    // promote them through the lexical retrieval route.
-    const index = buildEvidenceSpanIndex({
-      evidenceDocument: input.evidenceDocument,
-      projectFactContract: input.projectFactContract,
-      sectionTableIndex: input.sectionTableIndex,
-    });
-
-    const candidates = index.query({
-      claimText: input.claimText,
-      reviewArea: input.reviewArea,
-      methodologyId: "",
-      methodologyVersion: "",
-      maxCandidates: MAX_QUOTES,
-    });
-
-    if (candidates.length > 0) {
-      const best = candidates[0];
-      if (best.score >= ANSWER_CONFIDENCE_THRESHOLD) {
-        const spans = candidates.map((c) => ({
-          evidenceSpanId: c.evidenceSpanId,
-          text: c.text,
-          page: c.pageNumbers[0],
-          sectionId: c.sectionId ?? "",
-          heading: c.heading,
-          sectionPath: c.sectionPath,
-        }));
-        const candidate: RouterCandidate = {
-          answerText: `The document states: ${spans[0]?.text ?? ""}`,
-          route: "lexical_retrieval",
-          confidence: clampConfidence(best.score),
-          evidenceSpanIds: candidates.map((c) => c.evidenceSpanId),
-          quoteInputs: spans.map((s) => ({
-            quote: s.text,
-            page: s.page,
-            sectionId: s.sectionId,
-            heading: s.heading,
-          })),
-          answerQuoteCount: 1,
-          pages: dedupe(spans.map((s) => s.page).filter((p): p is number => typeof p === "number")),
-          sectionPaths: dedupe(spans.map((s) => formatSectionPath(s.sectionPath)).filter(Boolean)),
-          warnings: [],
-          isStructuredInput: false,
-        };
-        return finalizeCandidate(input.evidenceDocument!, candidate);
-      }
-    }
     return buildFallback({
       answerText: "Quick Check found multiple plausible evidence paths and did not choose one deterministically.",
       status: "unclear",

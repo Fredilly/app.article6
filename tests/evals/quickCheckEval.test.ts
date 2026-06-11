@@ -234,11 +234,12 @@ const ROUTER_EVAL_CASES: RouterEvalCase[] = [
       methodologyVersion: "1.0",
     },
     expected: {
-      allowedStatuses: ["answered", "unclear"],
+      status: "unclear",
+      route: "fallback",
       confidenceMin: 0,
       evidenceRequired: false,
-      emptyEvidenceExpected: false,
-      warningsInclude: [],
+      emptyEvidenceExpected: true,
+      warningsInclude: ["ambiguous_intent"],
     },
   },
   {
