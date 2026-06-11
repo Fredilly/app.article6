@@ -994,3 +994,61 @@ describe("Phase 5 — table routing regression", () => {
     expect(r.routerResult.warnings).not.toContain("quote_validation_failed");
   });
 });
+
+describe("Phase 6 — eval corpus provenance and quote validation hardening", () => {
+  it("no quote_validation_failed across entire corpus", () => {
+    const report = runQuickCheckEvalCorpus();
+    for (const fixture of report.fixtureResults) {
+      for (const qr of fixture.questionResults) {
+        // Quote validation failures would appear in the failures array
+        const qvFailures = qr.failures.filter((f) => f.includes("quote_validation"));
+        expect(qvFailures).toEqual([]);
+      }
+    }
+  });
+
+  it("every answered question has evidenceSpanIds", () => {
+    const report = runQuickCheckEvalCorpus();
+    let answeredCount = 0;
+    let missingSpanCount = 0;
+    for (const fixture of report.fixtureResults) {
+      for (const qr of fixture.questionResults) {
+        if (qr.actualStatus === "answered") {
+          answeredCount++;
+          const missingEvidenceSpans = qr.failures.filter((f) => f.includes("expected empty evidence"));
+          if (missingEvidenceSpans.length > 0) missingSpanCount++;
+        }
+      }
+    }
+    expect(answeredCount).toBeGreaterThan(0);
+    expect(missingSpanCount).toBe(0);
+  });
+
+  it("no hallucinated answers (answered without provenance)", () => {
+    const report = runQuickCheckEvalCorpus();
+    expect(report.metrics.hallucinatedAnswerRate.rate).toBe(0);
+  });
+
+  it("weak-ocr fixture still correctly answers methodology and monitoring", () => {
+    const WEAK_OCR = readRootFixtureText("quick-check/plum-pdd-extracted.txt");
+    const meth = buildReviewQuestionResult({ claimText: "What methodology is used?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: WEAK_OCR });
+    expect(meth.routerResult.status).toBe("answered");
+    expect(meth.routerResult.quotes).toContain("VM0007");
+    expect(meth.routerResult.pages).toEqual([1]);
+
+    const mon = buildReviewQuestionResult({ claimText: "What does the document say about monitoring?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: WEAK_OCR });
+    expect(mon.routerResult.status).toBe("answered");
+    expect(mon.routerResult.quotes.length).toBeGreaterThan(0);
+    expect(mon.routerResult.pages.length).toBeGreaterThan(0);
+  });
+
+  it("table-heavy doc correctly refuses section questions without fabricating", () => {
+    const BLUE_NILE = readRootFixtureText("quick-check/blue-nile-redd-extracted.txt");
+    for (const q of ["What is the baseline scenario?", "What does the document say about monitoring?", "What does the document say about leakage?"]) {
+      const r = buildReviewQuestionResult({ claimText: q, methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    }
+  });
+});
