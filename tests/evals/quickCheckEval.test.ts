@@ -1240,3 +1240,71 @@ describe("Basic fact question routing regression", () => {
     expect(r.queryIntentAnalysis?.targetFacts).toContain("projectProponent");
   });
 });
+
+describe("Fact question answering — regression fixture", () => {
+  const FACT_TEXT = readRootFixtureText("quick-check/fact-questions-regression.txt");
+
+  it("project title: answered with evidenceSpanIds and correct quote", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project title?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("Community Reforestation");
+  });
+
+  it("host country: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("Tanzania");
+  });
+
+  it("project activity: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project activity?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("ARR");
+  });
+
+  it("project participant: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "Who is the project participant?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("Tanzania Forest Service");
+  });
+
+  it("crediting period: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the crediting period?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("2025");
+  });
+
+  it("reporting period: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the reporting period?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("2025");
+  });
+
+  it("monitoring period: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the monitoring period?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("2025");
+  });
+
+  it("project ID: returns no_evidence, not project title", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project ID?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("projectType with evidenceSpanIds answered; without evidence not answered", () => {
+    // The fixture has projectType with spanIds → answered
+    const r = buildReviewQuestionResult({ claimText: "What is the project activity?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.status).toBe("answered");
+  });
+});
