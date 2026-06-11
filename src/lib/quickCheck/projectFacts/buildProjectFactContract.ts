@@ -80,21 +80,33 @@ const FIELD_RULES: FieldRule[] = [
   },
   {
     field: "creditingPeriod",
-    labels: ["Crediting period"],
+    labels: ["Crediting period", "Project crediting period", "Crediting period of the project activity"],
     preferBlockTypes: ["field", "paragraph"],
     multiline: true,
+    familySpecificLabels: {
+      VCS_PD: ["Project crediting period", "Crediting period", "Project lifetime"],
+      VERRA_PD: ["Project crediting period", "Crediting period", "Project lifetime"],
+    },
   },
   {
     field: "reportingPeriod",
-    labels: ["Reporting period"],
+    labels: ["Reporting period", "Monitoring period of the project activity"],
     preferBlockTypes: ["field", "paragraph"],
     multiline: true,
+    familySpecificLabels: {
+      VCS_PD: ["Monitoring period", "Project crediting period"],
+      VERRA_PD: ["Monitoring period", "Project crediting period"],
+    },
   },
   {
     field: "monitoringPeriod",
-    labels: ["Monitoring period"],
+    labels: ["Monitoring period", "Monitoring period of the project activity"],
     preferBlockTypes: ["field", "paragraph"],
     multiline: true,
+    familySpecificLabels: {
+      VCS_PD: ["Monitoring period", "Frequency of monitoring"],
+      VERRA_PD: ["Monitoring period", "Frequency of monitoring"],
+    },
   },
   {
     field: "projectStartDate",
