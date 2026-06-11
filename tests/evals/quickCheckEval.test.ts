@@ -987,8 +987,9 @@ describe("Phase 5 — table routing regression", () => {
 
   it("monitoring question in table-heavy doc does not fabricate from table text", () => {
     const r = buildReviewQuestionResult({ claimText: "What does the document say about monitoring?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
-    // Known: blue-nile gets table_lookup from pipe-delimited content.
-    // Verify no fabricated answer.
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+    expect(r.routerResult.evidenceSpanIds).toEqual([]);
     expect(r.documentAnswer.status).not.toBe("likely_yes");
     expect(r.routerResult.warnings).not.toContain("quote_validation_failed");
   });
