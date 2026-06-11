@@ -1,5 +1,6 @@
 import type { EvidenceDocument, EvidenceSpan, QuoteValidationInput } from "@/lib/quickCheck/evidence/evidenceTypes";
 import { validateQuotes } from "@/lib/quickCheck/evidence/validateQuotes";
+import { buildEvidenceSpanIndex } from "@/lib/quickCheck/evidence/buildEvidenceSpanIndex";
 import type { SectionNode, SectionTableIndex, TableCellReference, IndexedTable } from "@/lib/quickCheck/indexing";
 import type { ProjectFactContract, ProjectFactField, ProjectFactConfidence, ProjectFactValue } from "@/lib/quickCheck/projectFacts/types";
 import type { QueryIntentAnalysis, ProjectFactId } from "@/lib/quickCheck/queryIntent";
@@ -303,48 +304,59 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
   };
 }
 
-function selectContentSpans(document: EvidenceDocument, sectionId?: string): EvidenceSpan[] {
-  return document.spans.filter((span) => (
-    span.sectionId === sectionId
-    && span.reliability !== "excluded"
-    && span.blockType !== "section_heading"
-    && span.blockType !== "toc"
-    && span.blockType !== "footer"
-    && span.blockType !== "header"
-  ));
-}
-
 function sectionDisplay(node: SectionNode): string {
   return [node.sectionNumber, node.heading].filter(Boolean).join(" ");
 }
 
 function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate | null {
   if (!input.evidenceDocument || !input.sectionTableIndex || !input.queryIntentAnalysis) return null;
+  if (!input.projectFactContract) return null;
   if (input.queryIntentAnalysis.intent !== "section_topic") return null;
 
-  const nodes = input.queryIntentAnalysis.targetSections
-    .map((sectionId) => input.sectionTableIndex?.sectionTree.nodesById[sectionId])
-    .filter((node): node is SectionNode => Boolean(node));
-  if (nodes.length === 0) return null;
+  const targetSections = input.queryIntentAnalysis.targetSections;
+  if (!targetSections || targetSections.length === 0) return null;
 
-  const selectedNode = nodes[0];
-  const sectionSpans = selectContentSpans(input.evidenceDocument, selectedNode.sectionId).slice(0, MAX_QUOTES);
-  if (sectionSpans.length === 0) return null;
+  const index = buildEvidenceSpanIndex({
+    evidenceDocument: input.evidenceDocument,
+    projectFactContract: input.projectFactContract,
+    sectionTableIndex: input.sectionTableIndex,
+  });
+
+  const candidates = index.query({
+    claimText: input.claimText,
+    reviewArea: input.reviewArea,
+    methodologyId: "",
+    methodologyVersion: "",
+    intent: "section_topic",
+    targetSections,
+    maxCandidates: MAX_QUOTES,
+  });
+
+  if (candidates.length === 0) return null;
+
+  const best = candidates[0];
+  const node = input.sectionTableIndex.sectionTree.nodesById[targetSections[0]];
 
   return {
-    answerText: `${sectionDisplay(selectedNode)}: ${sectionSpans[0]?.text ?? selectedNode.heading}`,
+    answerText: node ? `${sectionDisplay(node)}: ${best.text}` : best.text,
     route: "section_index",
-    confidence: clampConfidence(Math.min(input.queryIntentAnalysis.confidence, selectedNode.confidence)),
-    evidenceSpanIds: dedupe(sectionSpans.map((span) => span.spanId)),
-    quoteInputs: sectionSpans.map((span) => ({
-      quote: span.text,
-      page: span.page,
-      sectionId: span.sectionId,
-      heading: span.heading,
+    confidence: clampConfidence(Math.min(
+      input.queryIntentAnalysis.confidence,
+      node?.confidence ?? best.score,
+    )),
+    evidenceSpanIds: candidates.map((c) => c.evidenceSpanId),
+    quoteInputs: candidates.map((c) => ({
+      quote: c.text,
+      page: c.pageNumbers[0],
+      sectionId: c.sectionId ?? node?.sectionId ?? targetSections[0],
+      heading: c.heading ?? node?.heading,
     })),
     answerQuoteCount: 1,
-    pages: dedupe(sectionSpans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
-    sectionPaths: dedupe([formatSectionPath(selectedNode.sectionPath)]),
+    pages: dedupe(candidates.flatMap((c) => c.pageNumbers)),
+    sectionPaths: dedupe([
+      ...candidates.flatMap((c) => c.sectionPath),
+      node ? formatSectionPath(node.sectionPath) : "",
+    ].filter(Boolean)),
     warnings: [],
     isStructuredInput: false,
   };

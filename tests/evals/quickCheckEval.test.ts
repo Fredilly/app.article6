@@ -4,8 +4,10 @@ import path from "path";
 import {
   buildReviewQuestionResult,
   buildReviewQuestionSectionRetrieval,
+  getStructuredQueryContext,
 } from "@/lib/chat/quickCheckReviewQuestion";
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
+import { buildEvidenceSpanIndex } from "@/lib/quickCheck/evidence/buildEvidenceSpanIndex";
 import {
   runQuickCheckEvalCorpus,
   checkEvalCorpusThresholds,
@@ -774,6 +776,98 @@ describe("Phase 6 — Verra-family country and location fact routing", () => {
     const r = buildReviewQuestionResult({ claimText: "What country is the project in?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: ENVIRA_TEXT });
     expect(r.routerResult.status).toBe("no_evidence");
     expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+});
+
+describe("EvidenceSpanIndex — section routing provenance", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  it("section_index route carries actual evidence span provenance, not just parent section ID", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What does the document say about monitoring?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+
+    expect(result.routerResult.route).toBe("section_index");
+    expect(result.routerResult.status).toBe("answered");
+
+    // Evidence must have span IDs
+    expect(result.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+
+    // Pages must come from actual spans, not be empty
+    expect(result.routerResult.pages.length).toBeGreaterThan(0);
+
+    // Section paths must be present
+    expect(result.routerResult.sectionPaths.length).toBeGreaterThan(0);
+
+    // Quote validation must pass (no quote_validation_failed warning)
+    expect(result.routerResult.warnings).not.toContain("quote_validation_failed");
+  });
+
+  it("descendant section candidate validates correctly with its own provenance", () => {
+    // Baseline scenario (B.4) has content spans. Target the parent section
+    // and verify that the returned evidence carries the actual span's
+    // provenance, not just the parent's section ID.
+    const result = buildReviewQuestionResult({
+      claimText: "What is the baseline scenario?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+
+    expect(result.routerResult.route).toBe("section_index");
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.routerResult.quotes.length).toBeGreaterThan(0);
+
+    // No quote validation failures
+    expect(result.routerResult.warnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
+  });
+
+  it("candidate sectionId is passed into quote validation, not inferred from sectionPath", () => {
+    // Build the EvidenceSpanIndex directly and verify sectionId is set on candidates
+    const ctx = getStructuredQueryContext(REAL_CDM_TEXT);
+    const index = buildEvidenceSpanIndex({
+      evidenceDocument: ctx.evidenceDocument,
+      projectFactContract: ctx.projectFactContract,
+      sectionTableIndex: ctx.sectionTableIndex,
+    });
+
+    const candidates = index.query({
+      claimText: "What is the baseline scenario?",
+      reviewArea: "baseline",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      intent: "section_topic",
+      targetSections: ["section:B.4"],
+      maxCandidates: 2,
+    });
+
+    expect(candidates.length).toBeGreaterThan(0);
+    for (const c of candidates) {
+      // sectionId must be explicitly carried, not reconstructed
+      expect(c.sectionId).toBeDefined();
+      expect(typeof c.sectionId).toBe("string");
+      expect(c.sectionId!.length).toBeGreaterThan(0);
+    }
+
+    // Verify the full pipeline produces validated quotes with correct provenance
+    const result = buildReviewQuestionResult({
+      claimText: "What is the baseline scenario?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.routerResult.route).toBe("section_index");
+
+    // Evidence span IDs exist and map to actual document spans
+    for (const spanId of result.routerResult.evidenceSpanIds) {
+      const span = ctx.evidenceDocument.spans.find((s) => s.spanId === spanId);
+      expect(span).toBeDefined();
+    }
   });
 });
 

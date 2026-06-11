@@ -22,6 +22,9 @@ export type EvidenceSpanCandidate = {
   /** Ordered section path from root to this span's section. */
   sectionPath: string[];
 
+  /** The section ID of the span (matches EvidenceSpan.sectionId). */
+  sectionId?: string;
+
   /** The heading / title of the section containing this span, if any. */
   heading?: string;
 
