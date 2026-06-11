@@ -30,10 +30,10 @@ Agents must read that file before starting any pending goal.
 - [x] Goal 2 — PR #753: Remove dead duplicate fallback/status logic from Document Q&A.
 - [x] Goal 3 — PR #754: Define the EvidenceSpanIndex typed contract.
 - [x] Goal 4 — PR #755: Build the in-memory EvidenceSpanIndex implementation.
+- [x] Goal 5 — PR #759: Route section questions through EvidenceSpanIndex.
 
 ## Pending goals
 
-- [ ] Goal 5: Route section questions through EvidenceSpanIndex.
 - [ ] Goal 6: Route table questions through EvidenceSpanIndex.
 - [ ] Goal 7: Replace remaining lexical/raw search with index-backed retrieval.
 - [ ] Goal 8: Add regression tests for no fake answers.
