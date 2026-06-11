@@ -283,7 +283,7 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
 
     const text = container.textContent ?? "";
     expect(text).toContain("unclear");
-    expect(text).toContain("does not directly address");
+    expect(text).toContain("could not recover");
     expect(text).not.toContain("No valid analysis path");
   });
 

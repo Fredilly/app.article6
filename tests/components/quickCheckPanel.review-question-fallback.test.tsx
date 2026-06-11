@@ -305,7 +305,7 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).toContain("Document Q&A");
     expect(text).not.toContain("likely_yes");
     // must use the not-directly-address explanation, not the "relevant to the question" one
-    expect(text).toContain("The retrieved document evidence does not directly address the question.");
+    expect(text).toContain("could not recover useful document-grounded evidence");
     expect(text).not.toContain("Quick Check found document-grounded evidence relevant to the question.");
   });
 
@@ -379,7 +379,7 @@ describe("QuickCheckPanel review-question fallback", () => {
 
     const text = container.textContent ?? "";
     expect(text).not.toContain("likely_yes");
-    expect(text).toContain("The retrieved document evidence does not directly address the question.");
+    expect(text).toContain("could not recover useful document-grounded evidence");
   });
 
   it("satellite launch telemetry question is UNCLEAR with no evidence found", async () => {
