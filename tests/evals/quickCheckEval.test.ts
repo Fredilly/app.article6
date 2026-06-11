@@ -949,3 +949,47 @@ describe("Phase 5 — unsupported question refusal regression", () => {
     expect(r.routerResult.quotes).toEqual([]);
   });
 });
+
+describe("Phase 5 — table routing regression", () => {
+  const BLUE_NILE = readRootFixtureText("quick-check/blue-nile-redd-extracted.txt");
+
+  it("table-lookup question returns no_evidence when table provenance is missing", () => {
+    // blue-nile-redd has pipe-delimited tables that break evidence validation.
+    // The router should not fabricate answers from fragmented table text.
+    const r = buildReviewQuestionResult({ claimText: "What does the table say about net ghg removals?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+    expect(r.routerResult.evidenceSpanIds).toEqual([]);
+  });
+
+  it("unsupported table-like question returns no_evidence with zero quotes", () => {
+    const r = buildReviewQuestionResult({ claimText: "What does the table say about satellite launch telemetry?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+    expect(r.routerResult.warnings).not.toContain("quote_validation_failed");
+  });
+
+  it("baseline scenario in table-heavy doc does not fabricate from table fragments", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the baseline scenario?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
+    // Known: blue-nile gets table_lookup intent from pipe-delimited content.
+    // The router must not promote fragmented table text as an answered section.
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("carbon pools question returns no_evidence in table-heavy doc", () => {
+    const r = buildReviewQuestionResult({ claimText: "What does the document say about carbon pools?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("monitoring question in table-heavy doc does not fabricate from table text", () => {
+    const r = buildReviewQuestionResult({ claimText: "What does the document say about monitoring?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
+    // Known: blue-nile gets table_lookup from pipe-delimited content.
+    // Verify no fabricated answer.
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.warnings).not.toContain("quote_validation_failed");
+  });
+});
