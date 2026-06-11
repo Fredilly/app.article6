@@ -333,7 +333,7 @@ describe("QuickCheckPanel review-question fallback", () => {
     expect(text).toContain("document-grounded evidence relevant to the question.");
   });
 
-  it("monitoring question + monitoring evidence in document => LIKELY_YES", async () => {
+  it("monitoring question + ambiguous intent => UNCLEAR (not LIKELY_YES)", async () => {
     seedSession({
       claimText: "Does the project describe monitoring procedures?",
       filename: "document-qa-messy.pdf",
@@ -353,8 +353,9 @@ describe("QuickCheckPanel review-question fallback", () => {
     await flushUntilText("Document Q&A");
 
     const text = container.textContent ?? "";
-    expect(text).toContain("likely_yes");
-    expect(text).toContain("document-grounded evidence relevant to the question.");
+    expect(text).toContain("unclear");
+    expect(text).not.toContain("likely_yes");
+    expect(text).not.toContain("No valid analysis path");
   });
 
   it("pupil busing question + no pupil/busing/school evidence => not LIKELY_YES", async () => {
