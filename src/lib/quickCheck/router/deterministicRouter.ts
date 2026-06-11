@@ -427,6 +427,10 @@ function buildTableCandidate(input: DeterministicRouterInput): RouterCandidate |
 
   if (selectedCells.length === 0 && candidates.length === 0) return null;
 
+  // When the query asked for specific target cells but none matched,
+  // do not fall back to whole-table candidates.
+  if (input.queryIntentAnalysis.targetCells.length > 0 && selectedCells.length === 0) return null;
+
   return {
     answerText: selectedTable
       ? `${selectedTable.heading ?? "Table evidence"}: ${describeTableCells(selectedCells)}`
