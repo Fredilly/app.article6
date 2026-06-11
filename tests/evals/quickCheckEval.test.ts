@@ -1088,6 +1088,22 @@ describe("Goal 8 — no fake answers regression", () => {
       expect(r.routerResult.evidenceSpanIds).toEqual([]);
     });
 
+    it("tax credits: no_evidence, zero quotes, zero evidenceSpanIds", () => {
+      const r = buildReviewQuestionResult({ claimText: "What does the document say about tax credits?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    });
+
+    it("political risk insurance: no_evidence, zero quotes, zero evidenceSpanIds", () => {
+      const r = buildReviewQuestionResult({ claimText: "What does the document say about political risk insurance?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    });
+
     it("unsupported question warning includes unsupported_or_out_of_scope", () => {
       const r = buildReviewQuestionResult({ claimText: "What does the document say about marine biodiversity offsets?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
       expect(r.routerResult.warnings).toContain("unsupported_or_out_of_scope");
