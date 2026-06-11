@@ -1161,3 +1161,58 @@ describe("Goal 8 — no fake answers regression", () => {
     });
   });
 });
+
+describe("Goal 9 — visible/router agreement gate", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  it("answered router status always produces likely_yes visible status", () => {
+    const report = runQuickCheckEvalCorpus();
+    for (const fixture of report.fixtureResults) {
+      for (const qr of fixture.questionResults) {
+        if (qr.actualStatus === "answered") {
+          expect(qr.actualVisibleStatus).toBe("likely_yes");
+          expect(qr.visibleAgreementOk).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("no_evidence router status always produces unclear visible status", () => {
+    const report = runQuickCheckEvalCorpus();
+    for (const fixture of report.fixtureResults) {
+      for (const qr of fixture.questionResults) {
+        if (qr.actualStatus === "no_evidence") {
+          expect(qr.actualVisibleStatus).toBe("unclear");
+        }
+      }
+    }
+  });
+
+  it("visible answer never promotes no_evidence to likely_yes", () => {
+    const r = buildReviewQuestionResult({ claimText: "What does the document say about marine biodiversity offsets?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+
+  it("visible answer never downgrades answered to unclear or likely_no", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project title?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+  });
+
+  it("visible answer agreement rate is 100% across the full corpus", () => {
+    const report = runQuickCheckEvalCorpus();
+    expect(report.metrics.visibleAnswerAgreementRate.rate).toBe(1.0);
+  });
+
+  it("visible answer has zero disagreements with router (visibleFailureCount == 0)", () => {
+    const report = runQuickCheckEvalCorpus();
+    let count = 0;
+    for (const f of report.fixtureResults) {
+      for (const q of f.questionResults) {
+        count += q.visibleFailures.length;
+      }
+    }
+    expect(count).toBe(0);
+  });
+});
