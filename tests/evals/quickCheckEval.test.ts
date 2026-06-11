@@ -903,3 +903,49 @@ describe("Phase 6 visible-answer eval — eval corpus runner returns visible ans
     expect(formatted).toContain("Visible answer / Technical agreement");
   });
 });
+
+describe("Phase 5 — unsupported question refusal regression", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  it("marine biodiversity offsets: no_evidence, no quotes, no fabricated answer", () => {
+    const r = buildReviewQuestionResult({ claimText: "What does the document say about marine biodiversity offsets?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+    expect(r.routerResult.evidenceSpanIds).toEqual([]);
+    expect(r.routerResult.warnings).not.toContain("quote_validation_failed");
+  });
+
+  it("satellite launch telemetry: no_evidence, no quotes", () => {
+    const r = buildReviewQuestionResult({ claimText: "Does the document describe satellite launch telemetry?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("stock price of developer: no_evidence, no quotes", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the stock price of the project developer?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("tax credits: no_evidence, no quotes", () => {
+    const r = buildReviewQuestionResult({ claimText: "What does the document say about tax credits?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("political risk insurance: no_evidence, no quotes", () => {
+    const r = buildReviewQuestionResult({ claimText: "What does the document say about political risk insurance?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("blue carbon: no_evidence, no quotes across Verra fixture", () => {
+    const BLUE_NILE = readRootFixtureText("quick-check/blue-nile-redd-extracted.txt");
+    const r = buildReviewQuestionResult({ claimText: "What does the document say about blue carbon?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: BLUE_NILE });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+});
