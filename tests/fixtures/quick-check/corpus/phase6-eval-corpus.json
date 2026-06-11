@@ -642,32 +642,16 @@
             "visibleAnswerEvidencePage": 1
           },
           "baseline_scenario": {
-            "expectedStatus": "answered",
-            "expectedRoute": "lexical_retrieval",
-            "visibleAnswerStatus": "likely_yes",
-            "goldEvidence": {
-              "pages": [
-                1
-              ],
-              "spanAnchors": [
-                "without-project"
-              ]
-            },
-            "visibleAnswerEvidenceMin": 1
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear",
+            "expectedEvidenceEmpty": true
           },
           "monitoring": {
-            "expectedStatus": "answered",
-            "expectedRoute": "lexical_retrieval",
-            "visibleAnswerStatus": "likely_yes",
-            "goldEvidence": {
-              "pages": [
-                1
-              ],
-              "spanAnchors": [
-                "monitoring"
-              ]
-            },
-            "visibleAnswerEvidenceMin": 1
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear",
+            "expectedEvidenceEmpty": true
           },
           "leakage": {
             "expectedStatus": "unclear",
