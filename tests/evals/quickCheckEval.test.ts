@@ -1068,3 +1068,96 @@ describe("Phase 6 — eval corpus provenance and quote validation hardening", ()
     expect(result.routerResult.route).not.toBe("table_index");
   });
 });
+
+describe("Goal 8 — no fake answers regression", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  describe("unsupported question refusal", () => {
+    it("marine biodiversity offsets: no_evidence, zero quotes, zero evidence span ids", () => {
+      const r = buildReviewQuestionResult({ claimText: "What does the document say about marine biodiversity offsets?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    });
+
+    it("stock price of developer: no_evidence, zero quotes", () => {
+      const r = buildReviewQuestionResult({ claimText: "What is the stock price of the project developer?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+    });
+
+    it("tax credits: no_evidence, zero quotes, zero evidenceSpanIds", () => {
+      const r = buildReviewQuestionResult({ claimText: "What does the document say about tax credits?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    });
+
+    it("political risk insurance: no_evidence, zero quotes, zero evidenceSpanIds", () => {
+      const r = buildReviewQuestionResult({ claimText: "What does the document say about political risk insurance?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    });
+
+    it("unsupported question warning includes unsupported_or_out_of_scope", () => {
+      const r = buildReviewQuestionResult({ claimText: "What does the document say about marine biodiversity offsets?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.warnings).toContain("unsupported_or_out_of_scope");
+    });
+  });
+
+  describe("ambiguous question refusal", () => {
+    it("baseline methodology: unclear, fallback, ambiguous_intent warning", () => {
+      const r = buildReviewQuestionResult({ claimText: "baseline methodology", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+      expect(r.routerResult.status).toBe("unclear");
+      expect(r.routerResult.route).toBe("fallback");
+      expect(r.routerResult.warnings).toContain("ambiguous_intent");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+    });
+
+    it("ambiguous questions are not promoted to likely_yes", () => {
+      const r = buildReviewQuestionResult({ claimText: "The monitoring report covers the full reporting period.", methodologyId: "ACM0010", methodologyVersion: "v01-0", rawPddText: "The document contains parsed text about monitoring and boundaries for the project." });
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    });
+  });
+
+  describe("answered questions require evidence", () => {
+    it("every answered question in corpus has non-empty evidenceSpanIds", () => {
+      const report = runQuickCheckEvalCorpus();
+      for (const fixture of report.fixtureResults) {
+        for (const qr of fixture.questionResults) {
+          if (qr.actualStatus === "answered") {
+            expect(qr.actualEvidenceSpanCount).toBeGreaterThan(0);
+          }
+        }
+      }
+    });
+
+    it("answered questions never have quote_validation_failed", () => {
+      const report = runQuickCheckEvalCorpus();
+      for (const fixture of report.fixtureResults) {
+        for (const qr of fixture.questionResults) {
+          if (qr.actualStatus === "answered") {
+            expect(qr.actualWarnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
+          }
+        }
+      }
+    });
+
+    it("no_evidence questions have zero evidenceSpanIds", () => {
+      const report = runQuickCheckEvalCorpus();
+      for (const fixture of report.fixtureResults) {
+        for (const qr of fixture.questionResults) {
+          if (qr.actualStatus === "no_evidence") {
+            expect(qr.actualEvidenceSpanCount).toBe(0);
+          }
+        }
+      }
+    });
+  });
+});
