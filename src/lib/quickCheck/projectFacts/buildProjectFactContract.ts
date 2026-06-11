@@ -239,10 +239,12 @@ function findMethodologyCodeFallbackCandidates(document: EvidenceDocument): Cand
     .flatMap((span) => {
       const match = span.text.match(METHODOLOGY_CODE_RE);
       if (!match?.[0]) return [];
+      // Only take the matched code portion, not the entire span text
+      const codeValue = match[0].trim();
       return [{
-        value: span.text.trim(),
-        normalizedValue: normalizeValue(span.text),
-        confidence: span.sectionPath.length === 0 ? "medium" as const : "low" as const,
+        value: codeValue,
+        normalizedValue: normalizeValue(codeValue),
+        confidence: "medium" as const,
         span,
         extractionRule: "methodology:code-fallback",
         warnings: [
@@ -558,13 +560,16 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const projectStandard = standardFact(document);
   const projectProponent = findField(document, FIELD_RULES.find((rule) => rule.field === "projectProponent") as FieldRule);
   const methodologyPrimaryRule = FIELD_RULES.find((rule) => rule.field === "methodologyPrimary") as FieldRule;
+  const labeledMethodologyCandidates = findLabeledCandidates(document, methodologyPrimaryRule);
   const methodologyPrimary = factFromCandidates<string | null>(
     family,
     "methodologyPrimary",
-    [
-      ...findLabeledCandidates(document, methodologyPrimaryRule),
-      ...findMethodologyCodeFallbackCandidates(document),
-    ],
+    labeledMethodologyCandidates.length > 0
+      ? labeledMethodologyCandidates
+      : [
+          ...labeledMethodologyCandidates,
+          ...findMethodologyCodeFallbackCandidates(document),
+        ],
     { allowMedium: true },
   );
   const baselineMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "baselineMethodology") as FieldRule);
