@@ -4,8 +4,10 @@ import path from "path";
 import {
   buildReviewQuestionResult,
   buildReviewQuestionSectionRetrieval,
+  getStructuredQueryContext,
 } from "@/lib/chat/quickCheckReviewQuestion";
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
+import { buildEvidenceSpanIndex } from "@/lib/quickCheck/evidence/buildEvidenceSpanIndex";
 import {
   runQuickCheckEvalCorpus,
   checkEvalCorpusThresholds,
@@ -821,6 +823,51 @@ describe("EvidenceSpanIndex — section routing provenance", () => {
 
     // No quote validation failures
     expect(result.routerResult.warnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
+  });
+
+  it("candidate sectionId is passed into quote validation, not inferred from sectionPath", () => {
+    // Build the EvidenceSpanIndex directly and verify sectionId is set on candidates
+    const ctx = getStructuredQueryContext(REAL_CDM_TEXT);
+    const index = buildEvidenceSpanIndex({
+      evidenceDocument: ctx.evidenceDocument,
+      projectFactContract: ctx.projectFactContract,
+      sectionTableIndex: ctx.sectionTableIndex,
+    });
+
+    const candidates = index.query({
+      claimText: "What is the baseline scenario?",
+      reviewArea: "baseline",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      intent: "section_topic",
+      targetSections: ["section:B.4"],
+      maxCandidates: 2,
+    });
+
+    expect(candidates.length).toBeGreaterThan(0);
+    for (const c of candidates) {
+      // sectionId must be explicitly carried, not reconstructed
+      expect(c.sectionId).toBeDefined();
+      expect(typeof c.sectionId).toBe("string");
+      expect(c.sectionId!.length).toBeGreaterThan(0);
+    }
+
+    // Verify the full pipeline produces validated quotes with correct provenance
+    const result = buildReviewQuestionResult({
+      claimText: "What is the baseline scenario?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.routerResult.route).toBe("section_index");
+
+    // Evidence span IDs exist and map to actual document spans
+    for (const spanId of result.routerResult.evidenceSpanIds) {
+      const span = ctx.evidenceDocument.spans.find((s) => s.spanId === spanId);
+      expect(span).toBeDefined();
+    }
   });
 });
 

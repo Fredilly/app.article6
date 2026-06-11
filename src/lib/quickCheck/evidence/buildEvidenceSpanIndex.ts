@@ -61,6 +61,7 @@ function toCandidate(
     text: span.text,
     pageNumbers: span.page != null ? [span.page] : [],
     sectionPath: span.sectionPath,
+    sectionId: span.sectionId,
     heading: span.heading,
     blockType: span.blockType,
     topicTags,
