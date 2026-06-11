@@ -34,37 +34,8 @@ type DeterministicRouterInput = {
 
 const ANSWER_CONFIDENCE_THRESHOLD = 0.7;
 const LEXICAL_MIN_CONFIDENCE = 0.74;
-const MAX_QUOTES = 2;
 
-const GENERIC_TERMS = new Set([
-  "about",
-  "baseline",
-  "calculate",
-  "calculation",
-  "column",
-  "describe",
-  "document",
-  "does",
-  "evidence",
-  "explain",
-  "for",
-  "from",
-  "how",
-  "is",
-  "methodology",
-  "page",
-  "project",
-  "question",
-  "row",
-  "say",
-  "section",
-  "table",
-  "tell",
-  "the",
-  "this",
-  "what",
-  "which",
-]);
+const MAX_QUOTES = 2;
 
 const FACT_LABELS: Record<ProjectFactId, string> = {
   projectTitle: "Project title",
@@ -469,33 +440,8 @@ function buildTableCandidate(input: DeterministicRouterInput): RouterCandidate |
   };
 }
 
-function extractLexicalTerms(claimText: string, queryIntentAnalysis?: QueryIntentAnalysis): string[] {
-  const claimTerms = normalize(claimText)
-    .split(" ")
-    .map((term) => term.trim())
-    .filter((term) => term.length >= 4)
-    .filter((term) => !GENERIC_TERMS.has(term));
-  return dedupe([
-    ...claimTerms,
-    ...(queryIntentAnalysis?.positiveTerms ?? []),
-  ]).filter((term) => term.length >= 4);
-}
-
-function lexicalScore(span: EvidenceSpan, terms: string[]): number {
-  const searchText = `${span.heading ?? ""} ${span.text}`.toLowerCase();
-  let score = 0;
-  for (const term of terms) {
-    const normalizedTerm = normalize(term);
-    if (!normalizedTerm) continue;
-    if (searchText.includes(normalizedTerm)) {
-      score += span.heading?.toLowerCase().includes(normalizedTerm) ? 2 : 1;
-    }
-  }
-  return score;
-}
-
 function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate | null {
-  if (!input.evidenceDocument) return null;
+  if (!input.evidenceDocument || !input.sectionTableIndex || !input.projectFactContract) return null;
   if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope" || input.queryIntentAnalysis?.intent === "ambiguous") {
     return null;
   }
@@ -506,47 +452,41 @@ function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate
   ) {
     return null;
   }
-  if (input.queryIntentAnalysis && input.queryIntentAnalysis.confidence < LEXICAL_MIN_CONFIDENCE) {
-    return null;
-  }
 
-  const terms = extractLexicalTerms(input.claimText, input.queryIntentAnalysis);
-  if (terms.length === 0) return null;
+  const index = buildEvidenceSpanIndex({
+    evidenceDocument: input.evidenceDocument,
+    projectFactContract: input.projectFactContract,
+    sectionTableIndex: input.sectionTableIndex,
+  });
 
-  const scoredSpans = input.evidenceDocument.spans
-    .filter((span) => span.reliability !== "excluded")
-    .filter((span) => span.blockType !== "footer" && span.blockType !== "header" && span.blockType !== "toc")
-    .filter((span) => span.blockType !== "table" || input.queryIntentAnalysis?.calculationSpecific)
-    .map((span) => ({ span, score: lexicalScore(span, terms) }))
-    .filter((entry) => entry.score > 0)
-    .sort((left, right) => right.score - left.score || right.span.confidence - left.span.confidence)
-    .slice(0, MAX_QUOTES);
+  const candidates = index.query({
+    claimText: input.claimText,
+    reviewArea: input.reviewArea,
+    methodologyId: "",
+    methodologyVersion: "",
+    maxCandidates: MAX_QUOTES,
+  });
 
-  if (scoredSpans.length === 0) return null;
+  if (candidates.length === 0) return null;
 
-  const topScore = scoredSpans[0]?.score ?? 0;
-  const lexicalConfidence = clampConfidence(Math.min(
-    0.9,
-    0.48 + (topScore * 0.14),
-    input.queryIntentAnalysis?.confidence ?? 0.86,
-  ));
+  const best = candidates[0];
+  const lexicalConfidence = clampConfidence(Math.max(best.score, input.queryIntentAnalysis?.confidence ?? 0));
   if (lexicalConfidence < LEXICAL_MIN_CONFIDENCE) return null;
 
-  const spans = scoredSpans.map((entry) => entry.span);
   return {
-    answerText: `The document states: ${spans[0]?.text ?? ""}`,
+    answerText: `The document states: ${best.text}`,
     route: "lexical_retrieval",
     confidence: lexicalConfidence,
-    evidenceSpanIds: spans.map((span) => span.spanId),
-    quoteInputs: spans.map((span) => ({
-      quote: span.text,
-      page: span.page,
-      sectionId: span.sectionId,
-      heading: span.heading,
+    evidenceSpanIds: candidates.map((c) => c.evidenceSpanId),
+    quoteInputs: candidates.map((c) => ({
+      quote: c.text,
+      page: c.pageNumbers[0],
+      sectionId: c.sectionId,
+      heading: c.heading,
     })),
     answerQuoteCount: 1,
-    pages: dedupe(spans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
-    sectionPaths: dedupe(spans.map((span) => formatSectionPath(span.sectionPath)).filter(Boolean)),
+    pages: dedupe(candidates.flatMap((c) => c.pageNumbers)),
+    sectionPaths: dedupe(candidates.flatMap((c) => c.sectionPath).filter(Boolean)),
     warnings: [],
     isStructuredInput: false,
   };
@@ -572,53 +512,52 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
   }
 
   if (input.queryIntentAnalysis?.intent === "ambiguous") {
-    // When the intent analyzer returns ambiguous but there are positive
-    // topic terms, try to resolve by building a lexical candidate.
-    // Also include review area keywords and aliases since documents may
-    // use different terminology (e.g. \"without-project\" for baseline).
-    const positiveTerms = input.queryIntentAnalysis.positiveTerms ?? [];
-    const reviewAreaTerms = input.reviewArea.replace(/_/g, " ").split(" ");
-    // Also split multi-word phrases into individual words for broader matching
-    // (e.g. \"baseline scenario\" → [\"baseline\", \"scenario\"]).
-    // Filter out generic terms that appear in too many contexts.
-    const allWords = dedupe([...positiveTerms, ...reviewAreaTerms])
-      .flatMap((t) => [t, ...t.split(/\s+/)])
-      .map((t) => t.toLowerCase().trim())
-      .filter((t) => t.length >= 3 && !GENERIC_TERMS.has(t));
+    // Try to resolve ambiguity by querying EvidenceSpanIndex with
+    // the claim text.  If the index returns confident candidates,
+    // promote them through the lexical retrieval route.
+    const index = buildEvidenceSpanIndex({
+      evidenceDocument: input.evidenceDocument,
+      projectFactContract: input.projectFactContract,
+      sectionTableIndex: input.sectionTableIndex,
+    });
 
-    if (allWords.length > 0 && input.evidenceDocument) {
-      const scoredSpans = input.evidenceDocument.spans
-        .filter((span) => span.reliability !== "excluded")
-        .filter((span) => span.blockType !== "footer" && span.blockType !== "header" && span.blockType !== "toc")
-        .map((span) => ({ span, score: lexicalScore(span, allWords) }))
-        .filter((entry) => entry.score > 0)
-        .sort((left, right) => right.score - left.score || right.span.confidence - left.span.confidence)
-        .slice(0, MAX_QUOTES);
+    const candidates = index.query({
+      claimText: input.claimText,
+      reviewArea: input.reviewArea,
+      methodologyId: "",
+      methodologyVersion: "",
+      maxCandidates: MAX_QUOTES,
+    });
 
-      if (scoredSpans.length > 0) {
-        const topScore = scoredSpans[0]?.score ?? 0;
-        const lexicalConfidence = clampConfidence(Math.min(0.9, 0.48 + topScore * 0.14));
-        if (lexicalConfidence >= ANSWER_CONFIDENCE_THRESHOLD) {
-          const spans = scoredSpans.map((entry) => entry.span);
-          const candidate: RouterCandidate = {
-            answerText: `The document states: ${spans[0]?.text ?? ""}`,
-            route: "lexical_retrieval",
-            confidence: lexicalConfidence,
-            evidenceSpanIds: spans.map((span) => span.spanId),
-            quoteInputs: spans.map((span) => ({
-              quote: span.text,
-              page: span.page,
-              sectionId: span.sectionId,
-              heading: span.heading,
-            })),
-            answerQuoteCount: 1,
-            pages: dedupe(spans.map((span) => span.page).filter((page): page is number => typeof page === "number")),
-            sectionPaths: dedupe(spans.map((span) => formatSectionPath(span.sectionPath)).filter(Boolean)),
-            warnings: [],
-            isStructuredInput: false,
-          };
-          return finalizeCandidate(input.evidenceDocument!, candidate);
-        }
+    if (candidates.length > 0) {
+      const best = candidates[0];
+      if (best.score >= 0.51) {
+        const spans = candidates.map((c) => ({
+          evidenceSpanId: c.evidenceSpanId,
+          text: c.text,
+          page: c.pageNumbers[0],
+          sectionId: c.sectionId ?? "",
+          heading: c.heading,
+          sectionPath: c.sectionPath,
+        }));
+        const candidate: RouterCandidate = {
+          answerText: `The document states: ${spans[0]?.text ?? ""}`,
+          route: "lexical_retrieval",
+          confidence: clampConfidence(best.score),
+          evidenceSpanIds: candidates.map((c) => c.evidenceSpanId),
+          quoteInputs: spans.map((s) => ({
+            quote: s.text,
+            page: s.page,
+            sectionId: s.sectionId,
+            heading: s.heading,
+          })),
+          answerQuoteCount: 1,
+          pages: dedupe(spans.map((s) => s.page).filter((p): p is number => typeof p === "number")),
+          sectionPaths: dedupe(spans.map((s) => formatSectionPath(s.sectionPath)).filter(Boolean)),
+          warnings: [],
+          isStructuredInput: false,
+        };
+        return finalizeCandidate(input.evidenceDocument!, candidate);
       }
     }
     return buildFallback({
