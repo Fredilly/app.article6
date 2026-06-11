@@ -777,6 +777,53 @@ describe("Phase 6 — Verra-family country and location fact routing", () => {
   });
 });
 
+describe("EvidenceSpanIndex — section routing provenance", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  it("section_index route carries actual evidence span provenance, not just parent section ID", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What does the document say about monitoring?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+
+    expect(result.routerResult.route).toBe("section_index");
+    expect(result.routerResult.status).toBe("answered");
+
+    // Evidence must have span IDs
+    expect(result.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+
+    // Pages must come from actual spans, not be empty
+    expect(result.routerResult.pages.length).toBeGreaterThan(0);
+
+    // Section paths must be present
+    expect(result.routerResult.sectionPaths.length).toBeGreaterThan(0);
+
+    // Quote validation must pass (no quote_validation_failed warning)
+    expect(result.routerResult.warnings).not.toContain("quote_validation_failed");
+  });
+
+  it("descendant section candidate validates correctly with its own provenance", () => {
+    // Baseline scenario (B.4) has content spans. Target the parent section
+    // and verify that the returned evidence carries the actual span's
+    // provenance, not just the parent's section ID.
+    const result = buildReviewQuestionResult({
+      claimText: "What is the baseline scenario?",
+      methodologyId: "AMS-I.E.",
+      methodologyVersion: "1.0",
+      rawPddText: REAL_CDM_TEXT,
+    });
+
+    expect(result.routerResult.route).toBe("section_index");
+    expect(result.routerResult.status).toBe("answered");
+    expect(result.routerResult.quotes.length).toBeGreaterThan(0);
+
+    // No quote validation failures
+    expect(result.routerResult.warnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
+  });
+});
+
 describe("Phase 6 visible-answer eval — eval corpus runner returns visible answer metrics", () => {
   it("report includes visibleAnswerGoldMatch and visibleAnswerAgreementRate", () => {
     const report = runQuickCheckEvalCorpus();

@@ -348,12 +348,15 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
     quoteInputs: candidates.map((c) => ({
       quote: c.text,
       page: c.pageNumbers[0],
-      sectionId: targetSections[0],
+      sectionId: c.sectionPath.length > 0 ? c.sectionPath[c.sectionPath.length - 1] : (node?.sectionId ?? targetSections[0]),
       heading: c.heading ?? node?.heading,
     })),
     answerQuoteCount: 1,
     pages: dedupe(candidates.flatMap((c) => c.pageNumbers)),
-    sectionPaths: node ? dedupe([formatSectionPath(node.sectionPath)]) : [],
+    sectionPaths: dedupe([
+      ...candidates.flatMap((c) => c.sectionPath),
+      node ? formatSectionPath(node.sectionPath) : "",
+    ].filter(Boolean)),
     warnings: [],
     isStructuredInput: false,
   };
