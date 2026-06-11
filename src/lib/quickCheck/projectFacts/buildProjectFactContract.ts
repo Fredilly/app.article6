@@ -239,11 +239,9 @@ function findMethodologyCodeFallbackCandidates(document: EvidenceDocument): Cand
     .flatMap((span) => {
       const match = span.text.match(METHODOLOGY_CODE_RE);
       if (!match?.[0]) return [];
-      // Only take the matched code portion, not the entire span text
-      const codeValue = match[0].trim();
       return [{
-        value: codeValue,
-        normalizedValue: normalizeValue(codeValue),
+        value: span.text.trim(),
+        normalizedValue: normalizeValue(span.text),
         confidence: "medium" as const,
         span,
         extractionRule: "methodology:code-fallback",
