@@ -1308,3 +1308,38 @@ describe("Fact question answering — regression fixture", () => {
     expect(r.routerResult.status).toBe("answered");
   });
 });
+
+describe("Truncated fixture does not fabricate answers", () => {
+  const PD_REDD_TEXT = readRootFixtureText("quick-check/pd_redd_v1_130-extracted.txt");
+
+  it("host country returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("crediting period returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the crediting period?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.evidenceSpanIds).toEqual([]);
+  });
+
+  it("reporting period returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the reporting period?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.evidenceSpanIds).toEqual([]);
+  });
+
+  it("project participant returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "Who is the project participant?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("project title IS extracted from truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project title?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+  });
+});
