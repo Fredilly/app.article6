@@ -645,6 +645,7 @@ describe("Phase 6 visible-answer eval — disagreement gate catches specific fai
       }
     }
     expect(visibleFailureCount).toBe(0);
+    expect(report.metrics.visibleAnswerAgreementRate.rate).toBe(1.0);
   });
 });
 
