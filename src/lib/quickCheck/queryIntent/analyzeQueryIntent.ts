@@ -16,7 +16,7 @@ const FACT_RULES: Array<{
   { factId: "projectCountry", aliases: ["project country", "country of the project", "country is the project"] },
   { factId: "projectLocation", aliases: ["project location", "where is the project located", "where is this project", "project area"] },
   { factId: "projectStandard", aliases: ["project standard", "standard", "registry standard"] },
-  { factId: "projectType", aliases: ["project type", "type of project", "project activity", "activity described"] },
+  { factId: "projectType", aliases: ["project type", "type of project", "project activity", "activity described", "activity is described"] },
   { factId: "projectProponent", aliases: ["project proponent", "project developer", "participants", "project participants", "project participant", "who owns this project", "who is responsible", "responsible for implementation", "owns this project", "project owner"] },
   { factId: "methodologyPrimary", aliases: ["methodology", "primary methodology", "method used", "which methodology", "what methodology"] },
   { factId: "creditingPeriod", aliases: ["crediting period"] },
