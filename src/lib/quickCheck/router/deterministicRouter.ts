@@ -378,12 +378,34 @@ function describeTableCells(cells: TableCellReference[]): string {
 
 function buildTableCandidate(input: DeterministicRouterInput): RouterCandidate | null {
   if (!input.sectionTableIndex || !input.queryIntentAnalysis) return null;
+  if (!input.evidenceDocument || !input.projectFactContract) return null;
   if (input.queryIntentAnalysis.intent !== "table_lookup") return null;
   if (input.reviewArea === "baseline" && !input.queryIntentAnalysis.calculationSpecific) {
     return null;
   }
 
-  const tables = input.queryIntentAnalysis.targetTables
+  const targetTables = input.queryIntentAnalysis.targetTables;
+  if (!targetTables || targetTables.length === 0) return null;
+
+  // Find table evidence spans via EvidenceSpanIndex
+  const index = buildEvidenceSpanIndex({
+    evidenceDocument: input.evidenceDocument,
+    projectFactContract: input.projectFactContract,
+    sectionTableIndex: input.sectionTableIndex,
+  });
+
+  const candidates = index.query({
+    claimText: input.claimText,
+    reviewArea: input.reviewArea,
+    methodologyId: "",
+    methodologyVersion: "",
+    intent: "table_lookup",
+    targetTables,
+    maxCandidates: MAX_QUOTES,
+  });
+
+  // Also look up IndexedTable for cell-level provenance
+  const tables = targetTables
     .map((tableKey) => (
       input.sectionTableIndex?.tableIndex.byTableId[tableKey]
       ?? input.sectionTableIndex?.tableIndex.byEvidenceSpanId[tableKey]
@@ -391,34 +413,53 @@ function buildTableCandidate(input: DeterministicRouterInput): RouterCandidate |
     .filter((table): table is IndexedTable => Boolean(table))
     .filter(hasDeterministicTableProvenance);
 
-  if (tables.length === 0) return null;
+  if (tables.length === 0 && candidates.length === 0) return null;
 
   const selectedTable = tables[0];
   const selectedCells = (input.queryIntentAnalysis.targetCells.length > 0
-    ? selectedTable.cells.filter((cell) => input.queryIntentAnalysis?.targetCells.some((target) => (
+    ? selectedTable?.cells.filter((cell) => input.queryIntentAnalysis?.targetCells.some((target) => (
       target.rowIndex === cell.rowIndex
       && target.columnIndex === cell.columnIndex
       && target.sourceTableId === cell.sourceTableId
     )))
-    : selectedTable.cells
-  ).slice(0, MAX_QUOTES);
+    : selectedTable?.cells
+  )?.slice(0, MAX_QUOTES) ?? [];
 
-  if (selectedCells.length === 0) return null;
+  if (selectedCells.length === 0 && candidates.length === 0) return null;
 
   return {
-    answerText: `${selectedTable.heading ?? "Table evidence"}: ${describeTableCells(selectedCells)}`,
+    answerText: selectedTable
+      ? `${selectedTable.heading ?? "Table evidence"}: ${describeTableCells(selectedCells)}`
+      : candidates[0]?.text ?? "Table evidence",
     route: "table_index",
-    confidence: clampConfidence(Math.min(input.queryIntentAnalysis.confidence, selectedTable.confidence)),
-    evidenceSpanIds: [selectedTable.evidenceSpanId],
-    quoteInputs: selectedCells.map((cell) => ({
-      quote: cell.text,
-      page: cell.pageNumber,
-      sectionId: cell.sectionId,
-      heading: cell.heading,
-    })),
-    answerQuoteCount: selectedCells.length,
-    pages: selectedTable.pageNumbers,
-    sectionPaths: [formatSectionPath(selectedTable.sectionPath)],
+    confidence: clampConfidence(Math.min(
+      input.queryIntentAnalysis.confidence,
+      selectedTable?.confidence ?? candidates[0]?.score ?? 0,
+    )),
+    evidenceSpanIds: dedupe([
+      ...(selectedTable ? [selectedTable.evidenceSpanId] : []),
+      ...candidates.map((c) => c.evidenceSpanId),
+    ]),
+    quoteInputs: selectedCells.length > 0
+      ? selectedCells.map((cell) => ({
+          quote: cell.text,
+          page: cell.pageNumber,
+          sectionId: cell.sectionId,
+          heading: cell.heading,
+        }))
+      : candidates.map((c) => ({
+          quote: c.text,
+          page: c.pageNumbers[0],
+          sectionId: c.sectionId,
+          heading: c.heading,
+        })),
+    answerQuoteCount: selectedCells.length || candidates.length,
+    pages: selectedTable
+      ? selectedTable.pageNumbers
+      : dedupe(candidates.flatMap((c) => c.pageNumbers)),
+    sectionPaths: selectedTable
+      ? [formatSectionPath(selectedTable.sectionPath)]
+      : dedupe(candidates.flatMap((c) => c.sectionPath).filter(Boolean)),
     warnings: [],
     isStructuredInput: false,
   };
