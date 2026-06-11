@@ -1,5 +1,13 @@
 # Quick Check EvidenceSpanIndex Goals
 
+## Goal details
+
+Detailed instructions for pending goals live in:
+
+`docs/quickcheck/evidence-span-index-goal-details.md`
+
+Agents must read that file before starting any pending goal.
+
 ## Operating rules
 
 - Work through one goal at a time.
