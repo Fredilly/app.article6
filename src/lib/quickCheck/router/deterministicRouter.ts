@@ -531,7 +531,7 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
 
     if (candidates.length > 0) {
       const best = candidates[0];
-      if (best.score >= 0.51) {
+      if (best.score >= ANSWER_CONFIDENCE_THRESHOLD) {
         const spans = candidates.map((c) => ({
           evidenceSpanId: c.evidenceSpanId,
           text: c.text,

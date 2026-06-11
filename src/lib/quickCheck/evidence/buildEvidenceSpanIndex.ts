@@ -152,7 +152,7 @@ function lexicalCandidates(
     .filter((e) => e.score > 0)
     .sort((a, b) => b.score - a.score || b.span.confidence - a.span.confidence);
 
-  const results = scored.map((e) => toCandidate(e.span, Math.min(0.7, 0.3 + e.score * 0.12), "lexical"));
+  const results = scored.map((e) => toCandidate(e.span, Math.min(0.9, 0.48 + e.score * 0.14), "lexical"));
   return results.slice(0, DEFAULT_MAX_CANDIDATES);
 }
 

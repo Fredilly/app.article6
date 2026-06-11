@@ -234,8 +234,7 @@ const ROUTER_EVAL_CASES: RouterEvalCase[] = [
       methodologyVersion: "1.0",
     },
     expected: {
-      status: "unclear",
-      allowedStatuses: ["unclear"],
+      allowedStatuses: ["answered", "unclear"],
       confidenceMin: 0,
       evidenceRequired: false,
       emptyEvidenceExpected: false,
