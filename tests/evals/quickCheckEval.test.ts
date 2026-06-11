@@ -1051,4 +1051,19 @@ describe("Phase 6 — eval corpus provenance and quote validation hardening", ()
       expect(r.routerResult.warnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
     }
   });
+
+  it("stale/mismatched targetCells do not fall back to whole-table candidates", () => {
+    const BLUE_NILE = readRootFixtureText("quick-check/blue-nile-redd-extracted.txt");
+    const result = buildReviewQuestionResult({
+      claimText: "What does the table say about net ghg removals?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: BLUE_NILE,
+    });
+    // Even if EvidenceSpanIndex returns table candidates, if the
+    // query had specific targetCells that don't match, the router
+    // must not return a table_index answered result.
+    expect(result.routerResult.status).toBe("no_evidence");
+    expect(result.routerResult.route).not.toBe("table_index");
+  });
 });
