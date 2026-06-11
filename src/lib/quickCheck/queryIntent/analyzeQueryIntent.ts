@@ -11,7 +11,7 @@ const FACT_RULES: Array<{
   aliases: string[];
   negatives?: string[];
 }> = [
-  { factId: "projectTitle", aliases: ["project title", "title of the project", "name of the project", "project id", "project name"], negatives: ["methodology"] },
+  { factId: "projectTitle", aliases: ["project title", "title of the project", "name of the project", "project name"], negatives: ["methodology"] },
   { factId: "hostCountry", aliases: ["host country", "country host", "project hosted in", "country is this project", "country is the project"] },
   { factId: "projectCountry", aliases: ["project country", "country of the project", "country is the project"] },
   { factId: "projectLocation", aliases: ["project location", "where is the project located", "where is this project", "project area"] },
@@ -23,7 +23,6 @@ const FACT_RULES: Array<{
   { factId: "reportingPeriod", aliases: ["reporting period"] },
   { factId: "monitoringPeriod", aliases: ["monitoring period"] },
   { factId: "projectStartDate", aliases: ["project start date", "start date", "when did the project start", "project began", "project commenced"] },
-  { factId: "creditingPeriod", aliases: ["crediting period"] },
   { factId: "baselineSections", aliases: ["baseline section", "baseline sections"] },
   { factId: "monitoringSections", aliases: ["monitoring section", "monitoring sections"] },
   { factId: "leakageSections", aliases: ["leakage section", "leakage sections"] },

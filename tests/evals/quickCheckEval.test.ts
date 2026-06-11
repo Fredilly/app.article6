@@ -1216,3 +1216,27 @@ describe("Goal 9 — visible/router agreement gate", () => {
     expect(count).toBe(0);
   });
 });
+
+describe("Basic fact question routing regression", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  it("'What is the project ID?' does not return the project title", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project ID?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    // Project ID is not a fact field in the contract.  Must return no_evidence
+    // or unclear — never answered with the project title.
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+
+  it("'What crediting period is stated?' returns correct crediting period", () => {
+    const r = buildReviewQuestionResult({ claimText: "What crediting period is stated?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.quotes.join(" ")).toContain("Crediting period");
+  });
+
+  it("'Who is the project participant?' routes to projectProponent fact", () => {
+    const r = buildReviewQuestionResult({ claimText: "Who is the project participant?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(r.queryIntentAnalysis?.targetFacts).toContain("projectProponent");
+  });
+});
