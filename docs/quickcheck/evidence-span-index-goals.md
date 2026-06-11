@@ -31,13 +31,13 @@ Agents must read that file before starting any pending goal.
 - [x] Goal 3 — PR #754: Define the EvidenceSpanIndex typed contract.
 - [x] Goal 4 — PR #755: Build the in-memory EvidenceSpanIndex implementation.
 - [x] Goal 5 — PR #759: Route section questions through EvidenceSpanIndex.
+- [x] Goal 6 — PR #764: Route table questions through EvidenceSpanIndex.
 - [x] Goal 7 — PR #765: Replace remaining lexical/raw search with index-backed retrieval.
 - [x] Goal 8 — PR #766: Add regression tests for no fake answers.
 - [x] Goal 9 — PR #767: Add visible/technical agreement gate.
 
 ## Pending goals
 
-- [ ] Goal 6: Route table questions through EvidenceSpanIndex.
 - [ ] Goal 10: Decide whether to use external search tooling.
 
 ## Validation rule
