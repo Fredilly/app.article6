@@ -66,7 +66,7 @@ const FIELD_RULES: FieldRule[] = [
   },
   {
     field: "projectProponent",
-    labels: ["Project proponent", "Project participants", "Participants"],
+    labels: ["Project proponent", "Project proponent(s)", "Project participants", "Participants", "Project developer"],
     preferBlockTypes: ["field", "table", "paragraph"],
     multiline: true,
   },
@@ -200,16 +200,27 @@ function findLabeledCandidates(
     ...rule.labels,
     ...(rule.familySpecificLabels?.[document.documentFamily ?? "UNKNOWN"] ?? []),
   ]);
-  // Strict: label at start of line (matches classic field-name: value patterns)
-  const strictPattern = new RegExp(
-    `^\\s*(?:${labels.map(escapeRegExp).join("|")})\\s*[:\\-]\\s*(.+)$`,
+  // Normalize parenthetical suffixes: "Project Proponent(s)" → "Project Proponent"
+  const normalizedLabels = labels.map((l) => l.replace(/\s*\(s\)\s*$|\s*\(ies\)\s*$|\s*\(S\)\s*$/, "").trim());
+  const allLabels = dedupe([...labels, ...normalizedLabels]);
+  const labelGroup = allLabels.map(escapeRegExp).join("|");
+
+  // Strict: label at start of line with colon or hyphen
+  const colonPattern = new RegExp(
+    `^\\s*(?:${labelGroup})\\s*[:\\-]\\s*(.+)$`,
     "i",
   );
-  // Relaxed: label anywhere in the span, preceded by word boundary
-  // (catches labels after section numbers like \"1.2 Geographic location: ...\")
-  const relaxedPattern = document.documentFamily
+  // Space-separated: label at start of line followed by whitespace (no colon)
+  // Only applied when colon pattern fails, to avoid false matches on
+  // lines like "Project Title Community Reforestation"
+  const spacePattern = new RegExp(
+    `^\\s*(?:${labelGroup})\\s+(.+)$`,
+    "i",
+  );
+  // Relaxed: label anywhere in the span (catches labels after section numbers)
+  const relaxedColonPattern = document.documentFamily
     ? new RegExp(
-        `\\b(?:${labels.map(escapeRegExp).join("|")})\\s*[:\\-]\\s*(.+)$`,
+        `\\b(?:${labelGroup})\\s*[:\\-]\\s*(.+)$`,
         "im",
       )
     : null;
@@ -220,8 +231,8 @@ function findLabeledCandidates(
   for (const span of document.spans.filter((s) => s.reliability !== "excluded")) {
     if (rule.preferBlockTypes && !rule.preferBlockTypes.includes(span.blockType)) continue;
 
-    // Try strict first, then relaxed
-    for (const pattern of [strictPattern, relaxedPattern].filter(Boolean) as RegExp[]) {
+    // Try colon patterns first (strict, then relaxed)
+    for (const pattern of [colonPattern, relaxedColonPattern].filter(Boolean) as RegExp[]) {
       const match = span.text.match(pattern);
       if (!match?.[1]) continue;
       const rawValue = rule.multiline ? match[1] : match[1].split(/\s{2,}|\n/)[0];
@@ -238,7 +249,29 @@ function findLabeledCandidates(
         extractionRule: `label:${rule.field}`,
         warnings: [],
       });
-      break; // first match per span
+      break;
+    }
+
+    // Space-separated fallback: only for field/table blocks where the
+    // label is at the start and followed by a value on the same line.
+    const spaceMatch = span.text.match(spacePattern);
+    if (spaceMatch?.[1]) {
+      const rawValue = rule.multiline ? spaceMatch[1] : spaceMatch[1].split(/\s{2,}|\n/)[0];
+      const value = rawValue.trim().replace(/[.;:,]$/, "").trim();
+      if (value && value.split(/\s+/).length <= 8) {
+        const dedupeKey = normalizeValue(value);
+        if (!seenValues.has(dedupeKey)) {
+          seenValues.add(dedupeKey);
+          results.push({
+            value,
+            normalizedValue: dedupeKey,
+            confidence: "medium",
+            span,
+            extractionRule: `label:${rule.field}`,
+            warnings: [],
+          });
+        }
+      }
     }
   }
   return results;
