@@ -139,6 +139,7 @@ export function extractDocumentFacts(document: EvidenceDocument): DocumentFact[]
   ));
   const facts: Array<DocumentFact | null> = [
     toFact("project_title", findTitleFact(spans)),
+    toFact("project_id", findLabeledValue(spans, ["Project ID", "Project identifier", "Project code", "Registry project ID", "Registry ID"], { preferBlockTypes: ["field", "table", "paragraph"] })),
     toFact("host_country", findLabeledValue(spans, ["Host country", "Country"], { preferBlockTypes: ["field", "table", "paragraph"] })),
     toFact("project_location", findLabeledValue(spans, ["Project location", "Location", "Project site"], { allowMultiline: true })),
     toFact("project_participants", findLabeledValue(spans, ["Project participants", "Participants", "Project proponent"], { allowMultiline: true })),

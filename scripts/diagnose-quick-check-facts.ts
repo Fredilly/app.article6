@@ -28,7 +28,7 @@ function main() {
 
   console.log("\n=== PROJECT FACT CONTRACT ===");
   const factFields: Array<keyof Omit<ProjectFactContract, "documentFamily" | "documentType" | "warnings">> = [
-    "projectTitle", "hostCountry", "projectCountry", "projectLocation",
+    "projectTitle", "projectId", "hostCountry", "projectCountry", "projectLocation",
     "projectStandard", "projectType", "projectProponent",
     "methodologyPrimary", "creditingPeriod", "reportingPeriod", "monitoringPeriod",
     "projectStartDate", "baselineSections", "monitoringSections",

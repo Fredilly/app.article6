@@ -12,6 +12,7 @@ const FACT_RULES: Array<{
   negatives?: string[];
 }> = [
   { factId: "projectTitle", aliases: ["project title", "title of the project", "name of the project", "project name"], negatives: ["methodology"] },
+  { factId: "projectId", aliases: ["project id", "project identifier", "project code", "registry project id", "registry id", "vcs id", "verra project id", "cdm project id", "gs project id"], negatives: ["methodology"] },
   { factId: "hostCountry", aliases: ["host country", "country host", "project hosted in", "country is this project", "country is the project"] },
   { factId: "projectCountry", aliases: ["project country", "country of the project", "country is the project"] },
   { factId: "projectLocation", aliases: ["project location", "where is the project located", "where is this project", "project area"] },

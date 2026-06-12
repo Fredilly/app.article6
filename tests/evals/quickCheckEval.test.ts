@@ -1294,11 +1294,14 @@ describe("Fact question answering — regression fixture", () => {
     expect(r.routerResult.quotes.join(" ")).toContain("2025");
   });
 
-  it("project ID: returns no_evidence, not project title", () => {
+  it("project ID: answered with evidenceSpanIds and correct quote", () => {
     const r = buildReviewQuestionResult({ claimText: "What is the project ID?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
-    expect(r.routerResult.status).toBe("no_evidence");
-    expect(r.documentAnswer.status).not.toBe("likely_yes");
-    expect(r.routerResult.quotes).toEqual([]);
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.answerText).toContain("Project ID: A6-CR-001");
+    expect(r.routerResult.quotes.join(" ")).toContain("Project ID: A6-CR-001");
+    expect(r.documentAnswer.evidence.map((item) => item.snippet).join(" ")).toContain("Project ID: A6-CR-001");
   });
 
   it("projectType with evidenceSpanIds answered; without evidence not answered", () => {

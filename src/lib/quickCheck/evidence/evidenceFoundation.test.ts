@@ -15,6 +15,7 @@ const SAMPLE_TEXT = [
   "1 Project Details ........ 2",
   "",
   "1 Project Details",
+  "Project ID: VCS-1234",
   "Host country: Indonesia",
   "Project location: Central Kalimantan, Indonesia",
   "Project participants: PT Rimba Makmur Utama; Permian Global",
@@ -153,6 +154,7 @@ describe("extractDocumentFacts", () => {
     expect(facts).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "project_title", value: "Katingan Peatland Restoration and Conservation Project" }),
+        expect.objectContaining({ kind: "project_id", value: "VCS-1234", confidence: "high" }),
         expect.objectContaining({ kind: "host_country", value: "Indonesia", confidence: "high" }),
         expect.objectContaining({ kind: "methodology", value: "VM0007 REDD+ Methodology Framework (v1.6)" }),
         expect.objectContaining({ kind: "crediting_period", value: "01 January 2021 to 31 December 2030" }),

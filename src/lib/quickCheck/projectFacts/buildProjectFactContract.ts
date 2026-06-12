@@ -29,6 +29,21 @@ const COUNTRY_RE = /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3})\b/;
 const METHODOLOGY_CODE_RE = /\b(?:V?M|ACM|AM|AMS|AR-AM|AR-ACM|VMR|CDM-SSC|GS)\d{3,5}[A-Z-]*\b/i;
 const FIELD_RULES: FieldRule[] = [
   {
+    field: "projectId",
+    labels: [
+      "Project ID",
+      "Project identifier",
+      "Project code",
+      "Registry project ID",
+      "Registry ID",
+      "VCS ID",
+      "Verra project ID",
+      "CDM project ID",
+      "GS project ID",
+    ],
+    preferBlockTypes: ["field", "table", "paragraph"],
+  },
+  {
     field: "hostCountry",
     labels: ["Host country", "Host country(ies)", "Country", "Host Party"],
     preferBlockTypes: ["field", "table", "paragraph"],
@@ -550,6 +565,7 @@ function mergeWarnings(fields: ProjectFactField<ProjectFactValue>[]): string[] {
 export function buildProjectFactContract(document: EvidenceDocument): ProjectFactContract {
   const family = document.documentFamily ?? "UNKNOWN";
   const title = findProjectTitle(document);
+  const projectId = findField(document, FIELD_RULES.find((rule) => rule.field === "projectId") as FieldRule);
   const hostCountry = findField(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule);
   const projectLocation = findField(document, FIELD_RULES.find((rule) => rule.field === "projectLocation") as FieldRule);
   const projectCountry = hostCountry.value
@@ -601,6 +617,7 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
 
   const fields = [
     title,
+    projectId,
     hostCountry,
     projectCountry,
     projectLocation,
@@ -625,6 +642,7 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
     documentFamily: family,
     documentType: chooseDocumentType(family),
     projectTitle: title,
+    projectId,
     hostCountry,
     projectCountry,
     projectLocation,
