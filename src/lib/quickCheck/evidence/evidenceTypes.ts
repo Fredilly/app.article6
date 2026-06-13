@@ -80,6 +80,7 @@ export type EvidenceDocument = {
 
 export type DocumentFactKind =
   | "project_title"
+  | "project_id"
   | "host_country"
   | "project_location"
   | "project_participants"

@@ -1216,3 +1216,133 @@ describe("Goal 9 — visible/router agreement gate", () => {
     expect(count).toBe(0);
   });
 });
+
+describe("Basic fact question routing regression", () => {
+  const REAL_CDM_TEXT = readRootFixtureText("quick-check/bsp-nepal-activity3-cdm-excerpt.txt");
+
+  it("'What is the project ID?' does not return the project title", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project ID?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    // Project ID is not a fact field in the contract.  Must return no_evidence
+    // or unclear — never answered with the project title.
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+
+  it("'What crediting period is stated?' returns correct crediting period", () => {
+    const r = buildReviewQuestionResult({ claimText: "What crediting period is stated?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.quotes.join(" ")).toContain("Crediting period");
+  });
+
+  it("'Who is the project participant?' routes to projectProponent fact", () => {
+    const r = buildReviewQuestionResult({ claimText: "Who is the project participant?", methodologyId: "AMS-I.E.", methodologyVersion: "1.0", rawPddText: REAL_CDM_TEXT });
+    expect(r.queryIntentAnalysis?.intent).toBe("fact_lookup");
+    expect(r.queryIntentAnalysis?.targetFacts).toContain("projectProponent");
+  });
+});
+
+describe("Fact question answering — regression fixture", () => {
+  const FACT_TEXT = readRootFixtureText("quick-check/fact-questions-regression.txt");
+
+  it("project title: answered with evidenceSpanIds and correct quote", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project title?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("Community Reforestation");
+  });
+
+  it("host country: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("Tanzania");
+  });
+
+  it("project activity: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project activity?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("ARR");
+  });
+
+  it("project participant: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "Who is the project participant?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("Tanzania Forest Service");
+  });
+
+  it("crediting period: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the crediting period?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("2025");
+  });
+
+  it("reporting period: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the reporting period?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("2025");
+  });
+
+  it("monitoring period: answered with evidenceSpanIds", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the monitoring period?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.quotes.join(" ")).toContain("2025");
+  });
+
+  it("project ID: answered with evidenceSpanIds and correct quote", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project ID?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.documentAnswer.status).toBe("likely_yes");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.answerText).toContain("Project ID: A6-CR-001");
+    expect(r.routerResult.quotes.join(" ")).toContain("Project ID: A6-CR-001");
+    expect(r.documentAnswer.evidence.map((item) => item.snippet).join(" ")).toContain("Project ID: A6-CR-001");
+  });
+
+  it("projectType with evidenceSpanIds answered; without evidence not answered", () => {
+    // The fixture has projectType with spanIds → answered
+    const r = buildReviewQuestionResult({ claimText: "What is the project activity?", methodologyId: "AR-ACM0003", methodologyVersion: "2.0", rawPddText: FACT_TEXT });
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+    expect(r.routerResult.status).toBe("answered");
+  });
+});
+
+describe("Truncated fixture does not fabricate answers", () => {
+  const PD_REDD_TEXT = readRootFixtureText("quick-check/pd_redd_v1_130-extracted.txt");
+
+  it("host country returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the host country?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("crediting period returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the crediting period?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.evidenceSpanIds).toEqual([]);
+  });
+
+  it("reporting period returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the reporting period?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.evidenceSpanIds).toEqual([]);
+  });
+
+  it("project participant returns no_evidence when not in truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "Who is the project participant?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+  });
+
+  it("project title IS extracted from truncated fixture", () => {
+    const r = buildReviewQuestionResult({ claimText: "What is the project title?", methodologyId: "VM0007", methodologyVersion: "4.2", rawPddText: PD_REDD_TEXT });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+  });
+});

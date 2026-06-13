@@ -11,14 +11,18 @@ const FACT_RULES: Array<{
   aliases: string[];
   negatives?: string[];
 }> = [
-  { factId: "projectTitle", aliases: ["project title", "title of the project", "name of the project"], negatives: ["methodology"] },
+  { factId: "projectTitle", aliases: ["project title", "title of the project", "name of the project", "project name"], negatives: ["methodology"] },
+  { factId: "projectId", aliases: ["project id", "project identifier", "project code", "registry project id", "registry id", "vcs id", "verra project id", "cdm project id", "gs project id"], negatives: ["methodology"] },
   { factId: "hostCountry", aliases: ["host country", "country host", "project hosted in", "country is this project", "country is the project"] },
   { factId: "projectCountry", aliases: ["project country", "country of the project", "country is the project"] },
   { factId: "projectLocation", aliases: ["project location", "where is the project located", "where is this project", "project area"] },
   { factId: "projectStandard", aliases: ["project standard", "standard", "registry standard"] },
-  { factId: "projectType", aliases: ["project type", "type of project"] },
-  { factId: "projectProponent", aliases: ["project proponent", "project developer", "participants", "project participants", "who owns this project", "who is responsible", "responsible for implementation", "owns this project", "project owner"] },
+  { factId: "projectType", aliases: ["project type", "type of project", "project activity", "activity described", "activity is described"] },
+  { factId: "projectProponent", aliases: ["project proponent", "project developer", "participants", "project participants", "project participant", "who owns this project", "who is responsible", "responsible for implementation", "owns this project", "project owner"] },
   { factId: "methodologyPrimary", aliases: ["methodology", "primary methodology", "method used", "which methodology", "what methodology"] },
+  { factId: "creditingPeriod", aliases: ["crediting period"] },
+  { factId: "reportingPeriod", aliases: ["reporting period"] },
+  { factId: "monitoringPeriod", aliases: ["monitoring period"] },
   { factId: "projectStartDate", aliases: ["project start date", "start date", "when did the project start", "project began", "project commenced"] },
   { factId: "baselineSections", aliases: ["baseline section", "baseline sections"] },
   { factId: "monitoringSections", aliases: ["monitoring section", "monitoring sections"] },
@@ -38,7 +42,6 @@ const SECTION_TOPIC_RULES: Array<{
   { topic: "methodology", aliases: ["methodology", "methodological", "applied methodology"] },
   { topic: "project_location", aliases: ["project location", "location", "host country", "project area", "where is this project", "where is the project located"] },
   { topic: "project_participants", aliases: ["project participant", "project participants", "project proponent", "developer"] },
-  { topic: "crediting_period", aliases: ["crediting period"] },
   { topic: "safeguards", aliases: ["safeguards", "grievance", "stakeholder", "fpic"] },
   { topic: "sdg", aliases: ["sdg", "sustainable development", "co-benefits"] },
 ];

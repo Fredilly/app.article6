@@ -137,6 +137,7 @@ function applyIntentToRetrieval(input: {
   if (input.queryIntentAnalysis.intent === "fact_lookup" || input.queryIntentAnalysis.intent === "methodology_lookup") {
     for (const factId of input.queryIntentAnalysis.targetFacts) {
       const field = projectFactContract[factId];
+      if (!field) continue;
       for (const spanId of field.evidenceSpanIds) {
         const span = evidenceDocument.spans.find((candidate) => candidate.spanId === spanId);
         if (span?.sectionId) relevantSectionIds.add(span.sectionId);
@@ -233,6 +234,7 @@ function hasIntentBackedEvidence(input: {
   if (input.queryIntentAnalysis.intent === "fact_lookup" || input.queryIntentAnalysis.intent === "methodology_lookup") {
     return input.queryIntentAnalysis.targetFacts.some((factId) => {
       const field = projectFactContract[factId];
+      if (!field) return false;
       return field.evidenceSpanIds.some((spanId) => evidenceDocument.spans.some((span) => span.spanId === spanId));
     });
   }

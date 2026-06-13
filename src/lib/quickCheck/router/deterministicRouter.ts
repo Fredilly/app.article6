@@ -39,6 +39,7 @@ const MAX_QUOTES = 2;
 
 const FACT_LABELS: Record<ProjectFactId, string> = {
   projectTitle: "Project title",
+  projectId: "Project ID",
   hostCountry: "Host country",
   projectCountry: "Project country",
   projectLocation: "Project location",

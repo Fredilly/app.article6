@@ -2364,6 +2364,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     <div className="mt-2 text-xs leading-relaxed text-slate-600">
                       {reviewQuestionResult.documentAnswer.methodologyExplanation}
                     </div>
+                    {reviewQuestionResult.routerResult.status === "answered" ? (
+                      <div className="mt-3 rounded-lg border border-emerald-100 bg-emerald-50/40 p-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">Answer</div>
+                        <div className="mt-1 text-sm leading-relaxed text-slate-800">{reviewQuestionResult.routerResult.answerText}</div>
+                      </div>
+                    ) : null}
                     {(() => {
                       const da = reviewQuestionResult.documentAnswer;
                       const isUnclearWeak = da.status === "unclear" && da.explanation.includes("does not directly address");
@@ -2386,6 +2392,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                   <div className="space-y-2">
                                     {da.evidence.map((item, index) => (
                                       <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
+                                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-700">Source text (verbatim)</div>
                                         <div className="text-[11px] text-sky-800">
                                           {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
                                         </div>
@@ -2429,6 +2436,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             <div className="mt-3 space-y-2">
                               {da.evidence.map((item, index) => (
                                 <div key={`${item.source}:${item.sectionNumber ?? item.blockId ?? index}`} className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
+                                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-700">Source text (verbatim)</div>
                                   <div className="text-[11px] text-sky-800">
                                     {[item.sectionNumber ? `§${item.sectionNumber}` : null, item.heading, item.page ? `p. ${item.page}` : null, item.blockId].filter(Boolean).join(" • ")}
                                   </div>

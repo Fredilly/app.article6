@@ -26,6 +26,7 @@ export type ProjectFactContract = {
   documentFamily: DocumentFamily;
   documentType: ProjectFactContractDocumentType;
   projectTitle: ProjectFactField<string | null>;
+  projectId: ProjectFactField<string | null>;
   hostCountry: ProjectFactField<string | null>;
   projectCountry: ProjectFactField<string | null>;
   projectLocation: ProjectFactField<string | null>;
