@@ -181,3 +181,140 @@ describe("Quick Check raw document text smoke test", () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// Vichada validation report (VALID_REP_1530_31MAY2016) regression
+// ---------------------------------------------------------------------------
+const VICHADA_DOC_TEXT = fs.readFileSync(
+  path.join(FIXTURE_DIR, "vichada-validation-report-extracted.txt"),
+  "utf-8",
+);
+
+const VICHADA_METHODOLOGY = { id: "AR-ACM0003", version: "2.0" };
+
+describe("Quick Check — Vichada validation report regression", () => {
+  describe("fact questions return answered with provenance", () => {
+    it("project location: answered, evidenceSpanIds, quote, page, section provenance", () => {
+      const r = buildReviewQuestionResult({
+        claimText: "What is the project location?",
+        methodologyId: VICHADA_METHODOLOGY.id,
+        methodologyVersion: VICHADA_METHODOLOGY.version,
+        rawPddText: VICHADA_DOC_TEXT,
+      });
+      expect(r.routerResult.status).toBe("answered");
+      expect(r.routerResult.route).toBe("project_fact_contract");
+      expect(r.routerResult.quotes.length).toBeGreaterThan(0);
+      expect(r.routerResult.pages.length).toBeGreaterThan(0);
+      expect(r.routerResult.sectionPaths.length).toBeGreaterThan(0);
+      expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+      expect(r.routerResult.warnings).toEqual([]);
+      // Document Q&A derives from RouterResult
+      expect(r.documentAnswer.status).toBe("likely_yes");
+      expect(r.documentAnswer.evidence.length).toBeGreaterThan(0);
+    });
+
+    it("methodology: answered, evidenceSpanIds, quote, page, section provenance", () => {
+      const r = buildReviewQuestionResult({
+        claimText: "What methodology is used?",
+        methodologyId: VICHADA_METHODOLOGY.id,
+        methodologyVersion: VICHADA_METHODOLOGY.version,
+        rawPddText: VICHADA_DOC_TEXT,
+      });
+      expect(r.routerResult.status).toBe("answered");
+      expect(r.routerResult.route).toBe("project_fact_contract");
+      expect(r.routerResult.quotes.length).toBeGreaterThan(0);
+      expect(r.routerResult.pages.length).toBeGreaterThan(0);
+      expect(r.routerResult.sectionPaths.length).toBeGreaterThan(0);
+      expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+      expect(r.routerResult.warnings).toEqual([]);
+      expect(r.documentAnswer.status).toBe("likely_yes");
+      expect(r.documentAnswer.evidence.length).toBeGreaterThan(0);
+    });
+
+    it("crediting period: answered, evidenceSpanIds, quote, page, section provenance", () => {
+      const r = buildReviewQuestionResult({
+        claimText: "What is the crediting period?",
+        methodologyId: VICHADA_METHODOLOGY.id,
+        methodologyVersion: VICHADA_METHODOLOGY.version,
+        rawPddText: VICHADA_DOC_TEXT,
+      });
+      expect(r.routerResult.status).toBe("answered");
+      expect(r.routerResult.route).toBe("project_fact_contract");
+      expect(r.routerResult.quotes.length).toBeGreaterThan(0);
+      expect(r.routerResult.pages.length).toBeGreaterThan(0);
+      expect(r.routerResult.sectionPaths.length).toBeGreaterThan(0);
+      expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+      expect(r.routerResult.warnings).toEqual([]);
+      expect(r.documentAnswer.status).toBe("likely_yes");
+      expect(r.documentAnswer.evidence.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("section-topic questions", () => {
+    it("stakeholder consultation: answered or unclear-with-evidence, not no_evidence", () => {
+      const r = buildReviewQuestionResult({
+        claimText: "What does the document say about stakeholder consultation?",
+        methodologyId: VICHADA_METHODOLOGY.id,
+        methodologyVersion: VICHADA_METHODOLOGY.version,
+        rawPddText: VICHADA_DOC_TEXT,
+      });
+      expect(r.routerResult.status).not.toBe("no_evidence");
+      expect(["answered", "unclear"]).toContain(r.routerResult.status);
+      expect(r.routerResult.quotes.length).toBeGreaterThan(0);
+      expect(r.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+      expect(r.documentAnswer.status).not.toBe("likely_no");
+    });
+  });
+
+  describe("unsupported question refusal", () => {
+    it("marine biodiversity offsets: no_evidence, zero quotes, zero evidenceSpanIds", () => {
+      const r = buildReviewQuestionResult({
+        claimText: "What does the document say about marine biodiversity offsets?",
+        methodologyId: VICHADA_METHODOLOGY.id,
+        methodologyVersion: VICHADA_METHODOLOGY.version,
+        rawPddText: VICHADA_DOC_TEXT,
+      });
+      expect(r.routerResult.status).toBe("no_evidence");
+      expect(r.routerResult.quotes).toEqual([]);
+      expect(r.routerResult.evidenceSpanIds).toEqual([]);
+      expect(r.documentAnswer.status).not.toBe("likely_yes");
+    });
+  });
+
+  describe("Document Q&A / router agreement contract", () => {
+    it("visible status derives from RouterResult — no independent decision", () => {
+      const questions = [
+        "What is the project location?",
+        "What methodology is used?",
+        "What is the crediting period?",
+        "What does the document say about stakeholder consultation?",
+        "What does the document say about marine biodiversity offsets?",
+      ];
+      for (const q of questions) {
+        const r = buildReviewQuestionResult({
+          claimText: q,
+          methodologyId: VICHADA_METHODOLOGY.id,
+          methodologyVersion: VICHADA_METHODOLOGY.version,
+          rawPddText: VICHADA_DOC_TEXT,
+        });
+        const router = r.routerResult;
+        const da = r.documentAnswer;
+
+        // answered → likely_yes
+        if (router.status === "answered") {
+          expect(da.status).toBe("likely_yes");
+        }
+        // no_evidence → unclear
+        if (router.status === "no_evidence") {
+          expect(da.status).toBe("unclear");
+        }
+        // unclear → unclear
+        if (router.status === "unclear") {
+          expect(da.status).toBe("unclear");
+        }
+        // never likely_no (dead code — should never be produced)
+        expect(da.status).not.toBe("likely_no");
+      }
+    });
+  });
+});

@@ -3,13 +3,13 @@ const SECTION_KEY_NORMALIZE_RE = /[^\d.]/g;
 
 const CDM_KEY_RE = /^([A-Z]\.\d+(?:\.\d+)*)$/;
 
-const SECTION_HEADING_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/gm;
-const SECTION_HEADING_DOT_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\.\s+(.+))\s*$/gm;
-const SECTION_HEADING_PAREN_RE = /^(?:\s*(?:Section\s+)?(\d+(?:\.\d+)*)\s+\((.+)\))\s*$/gm;
+const SECTION_HEADING_RE = /^(?:[ \t]*(?:Section[ \t]+)?(\d+(?:\.\d+)*)[ \t]*[.:]?[ \t]+(.+))[ \t]*$/gm;
+const SECTION_HEADING_DOT_RE = /^(?:[ \t]*(?:Section[ \t]+)?(\d+(?:\.\d+)*)\.[ \t]+(.+))[ \t]*$/gm;
+const SECTION_HEADING_PAREN_RE = /^(?:[ \t]*(?:Section[ \t]+)?(\d+(?:\.\d+)*)[ \t]+\((.+)\))[ \t]*$/gm;
 
-const SECTION_HEADING_CDM_RE = /^(?:\s*(?:Section\s+)?([A-Z]\.\d+(?:\.\d+)*)\s*[.:]?\s+(.+))\s*$/gm;
-const SECTION_HEADING_CDM_DOT_RE = /^(?:\s*(?:Section\s+)?([A-Z]\.\d+(?:\.\d+)*)\.\s+(.+))\s*$/gm;
-const SECTION_HEADING_CDM_PAREN_RE = /^(?:\s*(?:Section\s+)?([A-Z]\.\d+(?:\.\d+)*)\s+\((.+)\))\s*$/gm;
+const SECTION_HEADING_CDM_RE = /^(?:[ \t]*(?:Section[ \t]+)?([A-Z]\.\d+(?:\.\d+)*)[ \t]*[.:]?[ \t]+(.+))[ \t]*$/gm;
+const SECTION_HEADING_CDM_DOT_RE = /^(?:[ \t]*(?:Section[ \t]+)?([A-Z]\.\d+(?:\.\d+)*)\.[ \t]+(.+))[ \t]*$/gm;
+const SECTION_HEADING_CDM_PAREN_RE = /^(?:[ \t]*(?:Section[ \t]+)?([A-Z]\.\d+(?:\.\d+)*)[ \t]+\((.+)\))[ \t]*$/gm;
 
 export function normalizeSectionKey(key: string): string {
   const cleaned = key.trim();
@@ -954,7 +954,7 @@ export function findRejectedHeadingMatches(
     if (isTocTitle(candidate.title)) reasons.push("line-level TOC markers");
     if (tocBlock && isInsideTocBlock(candidate.start, tocBlock)) reasons.push("inside TOC block");
     if (!hasBodyTextAfter(cleaned, candidate.end, candidate.num)) reasons.push("no body text after heading");
-    if (reasons.length === 0) continue;
+    if (reasons.length === 0) { continue; }
 
     const title = stripTocSuffix(candidate.title);
     const normalizedTitle = normalizeHeadingTitle(title);

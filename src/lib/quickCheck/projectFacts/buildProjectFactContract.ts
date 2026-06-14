@@ -274,6 +274,39 @@ function findLabeledCandidates(
       }
     }
   }
+
+  // Heading-label fallback: when no colon/space-pattern candidates were found,
+  // look for paragraph/field spans whose heading matches a field label.
+  // This handles documents where the label is in the section heading and the
+  // value is the body text (common in validation reports).
+  //
+  // Guard: only accept body text that looks like a real value — at least one
+  // comma or at least two interior capitalised words (proper nouns / locations).
+  // This prevents generic preamble sentences from being mistaken for a value.
+  if (results.length === 0) {
+    const headingMatch = document.spans
+      .filter((s) => s.reliability !== "excluded")
+      .filter((s) => (rule.preferBlockTypes ?? ["field", "paragraph"]).includes(s.blockType))
+      .filter((s) => Boolean(s.heading) && allLabels.some((label) => s.heading!.toLowerCase() === label.toLowerCase()))
+      .sort((a, b) => (a.page ?? Number.MAX_SAFE_INTEGER) - (b.page ?? Number.MAX_SAFE_INTEGER))[0];
+    if (headingMatch) {
+      const rawValue = headingMatch.text.trim().replace(/[.;:,]$/, "").trim();
+      const commaCount = (rawValue.match(/,/g) ?? []).length;
+      const words = rawValue.split(/\s+/).filter(Boolean);
+      const interiorProperNouns = words.slice(1).filter((w) => /^[A-Z][a-z]/.test(w)).length;
+      if (rawValue && (commaCount >= 1 || interiorProperNouns >= 2)) {
+        results.push({
+          value: rawValue,
+          normalizedValue: normalizeValue(rawValue),
+          confidence: "medium",
+          span: headingMatch,
+          extractionRule: `label:${rule.field}`,
+          warnings: [],
+        });
+      }
+    }
+  }
+
   return results;
 }
 

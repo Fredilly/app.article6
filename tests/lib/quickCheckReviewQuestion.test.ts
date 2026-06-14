@@ -1501,8 +1501,8 @@ describe("Phase 4 router integration groundwork", () => {
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("unsupported_or_out_of_scope");
+    expect(result.routerResult.status).toBe("no_evidence");
     expect(result.documentAnswer.status).toBe("unclear");
-    expect(result.documentAnswer.explanation).toContain("unsupported or out of scope");
     expect(result.documentAnswer.evidence).toEqual([]);
   });
 
@@ -1515,8 +1515,8 @@ describe("Phase 4 router integration groundwork", () => {
     });
 
     expect(result.queryIntentAnalysis?.intent).toBe("unsupported_or_out_of_scope");
+    expect(result.routerResult.status).toBe("no_evidence");
     expect(result.documentAnswer.status).toBe("unclear");
-    expect(result.documentAnswer.explanation).toContain("unsupported or out of scope");
     expect(result.documentAnswer.evidence).toEqual([]);
   });
 
