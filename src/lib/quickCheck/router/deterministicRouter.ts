@@ -306,11 +306,17 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
 
   if (candidates.length === 0) return null;
 
+  // Prefer body-text spans (paragraph, field, formula) for the visible
+  // answer over heading-only spans.  Heading text ("STAKEHOLDER COMMENTS")
+  // is kept in sectionPaths / quote validation but the answer to the user
+  // should show substantive body content.
+  const bodyBlockTypes = new Set(["paragraph", "field", "formula"]);
+  const bestBody = candidates.find((c) => bodyBlockTypes.has(c.blockType)) ?? candidates[0];
   const best = candidates[0];
   const node = input.sectionTableIndex.sectionTree.nodesById[targetSections[0]];
 
   return {
-    answerText: node ? `${sectionDisplay(node)}: ${best.text}` : best.text,
+    answerText: node ? `${sectionDisplay(node)}: ${bestBody.text}` : bestBody.text,
     route: "section_index",
     confidence: clampConfidence(Math.min(
       input.queryIntentAnalysis.confidence,

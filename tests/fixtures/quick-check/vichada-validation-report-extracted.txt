@@ -1,0 +1,1833 @@
+VALIDATION REPORT: VCS Version 3
+v3.3
+1
+VALIDATION REPORT
+GROUPED PROJECT FOR COMMERCIAL FOREST PLANTATIONS
+INITIATIVES IN THE DEPARTMENT OF VICHADA
+Colombian Institute for Technical Standards and Certification – ICONTEC
+Project Title Grouped project for commercial forest plantations initiatives in the department of
+Vichada
+Version Version 1.1 – 31/05/2016
+Report ID VCSVA-15-003
+Report Title Validation Report “Grouped project for commercial forest plantations initiatives in
+the department of Vichada”
+Client Fundación Natura
+Pages 31
+Date of Issue 31-May-2016
+Prepared By Colombian Institute for Technical Standards and Certification – ICONTEC
+Contact Julio Alejandro Giraldo B.
+Phone: (571) 607 88 88 Ext.: 1381
+E-Mail: jgiraldo@icontec.org
+Address: Carrera 37 # 52 – 95 Bogotá – Colombia
+www.icontec.org
+Approved By Monica Vivas
+Work Carried
+Out By
+Angela Duque – Lead Auditor/Sectorial Specialist
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+2
+Summary:
+The Grouped Project for Commercial Forest Plantations Initiatives in the Department of Vichada aims
+to promote investments new commercial forest plantations in Puerto Carreño Municipality. The land
+within the project boundary is degraded grassland for all cases of the grouped instances, as they all
+occur in the same baseline conditions. For the first instance, it is expected to reforest around 12,172 ha
+with commercial plantations, using the species Acacia mangium, Eucalyptus tereticornis, Eucalyptus
+pellita, Hevea brasiliensis, Pinus caribaea, Gmelina arborea and other 18 native species. However, the
+potential total area is 25,000 ha.
+ICONTEC was contracted by Fundación Natura Colombia to conduct the project validation. The validation
+process was intended to assess the conformance of the project with the VCS rules and the
+methodology applied to the project. The validation audit was performed through a combination of
+document review, interviews with relevant personnel and on-site inspections. The project complies with
+all of the validation criteria, and the assessment team has no restrictions or uncertainties with respect
+to the compliance of the project with the validation criteria.
+The Project Description contains complete information about the project activities, project start date,
+project crediting period, project scale, project location, project boundary, baseline scenario,
+additionality and monitoring. The Project Description was designed to conform to the VCS Standard
+v.3.5, specifically as an ARR project under the AFOLU project types (AFOLU Requirements VCS v.3).
+The project applied the approved CDM Afforestation and Reforestation methodology: AR-ACM0003
+A/R Large-scale Consolidated Methodology “Afforestation and Reforestation of lands except wetlands”
+- Version 2.0.
+The purpose and scope of validation involve documental review, on-site visit, interviews and
+consultation of secondary information sources, findings statements, feedback with the project owner
+and elaboration of the final report. In order to carry out the validation, Verified Carbon Standard
+Program Guide v3.5, dated 8 October 2013 were taken into account and following the guidance
+provided in the VCS Validation and Verification Manual (8 October 2013, v3.1).
+During the validation, the ICONTEC team identified 30 findings (18 Clarification Requests and 12
+Corrective Action Request) that were addressed satisfactorily by the project proponent during the
+validation process to ensure that the Project Description fulfills the VCS program requirements. No
+CARs that could lead to a material discrepancy between the project and the project description were
+identified.
+Documentation review, interviews and on-site visit allowed ICONTEC to collect enough evidences to
+completely assess the validation criteria and determinate that the project is implemented according to
+the Project Description (Version 2.1, May 16, 2016). Removals were correctly calculated, based on the
+applied methodology.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+3
+Table of Contents
+1 INTRODUCTION ..................................................................................................................... 4
+1.1 OBJECTIVE ......................................................................................................................................... 4
+1.2 SCOPE AND CRITERIA ......................................................................................................................... 4
+1.3 LEVEL OF ASSURANCE ........................................................................................................................ 4
+1.4 SUMMARY DESCRIPTION OF THE PROJECT ........................................................................................... 5
+2 VALIDATION PROCESS ........................................................................................................ 5
+2.1 METHOD AND CRITERIA ...................................................................................................................... 5
+2.2 DOCUMENT REVIEW ........................................................................................................................... 8
+2.3 INTERVIEWS ....................................................................................................................................... 9
+2.4 SITE INSPECTIONS .............................................................................................................................. 9
+2.5 RESOLUTION OF FINDINGS ................................................................................................................ 12
+2.6 FORWARD ACTION REQUESTS .......................................................................................................... 12
+3 VALIDATION FINDINGS ...................................................................................................... 12
+3.1 PROJECT DETAILS ............................................................................................................................ 12
+3.1.1 Project scope, type, technologies and measures implemented, and eligibility of the project12
+3.1.2 Project proponent .................................................................................................................. 13
+3.1.3 Project start date ................................................................................................................... 13
+3.1.4 Project crediting period .......................................................................................................... 13
+3.1.5 Project scale and estimated GHG emission reductions or removals .................................... 13
+3.1.6 Project location ...................................................................................................................... 14
+3.1.7 Conditions prior to project initiation ....................................................................................... 14
+3.1.8 Project compliance with applicable laws, statutes and other regulatory frameworks ........... 14
+3.1.9 Ownership and other programs ............................................................................................. 15
+3.1.10 Additional information relevant to the project, including: ....................................................... 15
+Eligibility criteria for grouped projects ............................................................................................................... 15
+Leakage management for AFOLU projects ...................................................................................................... 15
+3.2 APPLICATION OF METHODOLOGY ....................................................................................................... 15
+3.2.1 Title and Reference ............................................................................................................... 15
+3.2.2 Applicability ............................................................................................................................ 16
+3.2.3 Project Boundary ................................................................................................................... 16
+3.2.4 Baseline Scenario ................................................................................................................. 16
+3.2.5 Additionality ........................................................................................................................... 17
+3.2.6 Quantification of GHG Emission Reductions and Removals ................................................ 17
+Quantification of baseline emissions ................................................................................................................ 17
+Quantification of project emissions ................................................................................................................... 18
+Quantification of leakage .................................................................................................................................. 18
+3.2.7 Methodology Deviations ........................................................................................................ 18
+3.2.8 Monitoring Plan...................................................................................................................... 18
+3.3 NON-PERMANENCE RISK ANALYSIS ................................................................................................... 19
+3.4 ENVIRONMENTAL IMPACT .................................................................................................................. 19
+3.5 COMMENTS BY STAKEHOLDERS ........................................................................................................ 20
+4 VALIDATION CONCLUSION ............................................................................................... 20
+5 APPENDIX A: VALIDATION PROTOCOL ........................................................................... 21
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+4
+1 INTRODUCTION
+1.1 Objective
+According to VCS rules (VCS Standard v.3.5) the validation involves the assessment of the
+project description, regarding the project conformance to VCS rules and the applied methodology,
+including the procedure for the demonstration of additionality specified in the methodology.
+Additionally, to confirm that methods and procedures set out in the project description will
+generate verifiable GHG data and information when implemented.
+In this sense, the purpose of the validation audit activity was conduct an independent assessment
+of the project to determine whether the project complies with the validation criteria, as set out in
+the guidance documents listed in Section 1.2 of this report.
+1.2 Scope and Criteria
+The validation scope includes the independent and objective revision to determine that the project
+design meets the following criteria: VCS program (relevance, completeness, consistency,
+accuracy, transparency, and conservativeness), as well as the requirements described in the
+selected methodology (AR-ACM0003 “Afforestation and Reforestation of lands except wetlands” -
+Version 02.0.).
+In accordance with Section 4.3.4 of ISO 14064-3:2006, the scope was defined as follows:
+• The project and its baseline scenarios;
+• The physical infrastructure, activities, technologies and processes of the project;
+• The GHG sources, sinks and/or reservoirs applicable to the project;
+In accordance with Section 5.3.1 of the VCS Standard, the criterion for validation was the VCS
+Version 3, including the following documents:
+• VCS Program Guide
+• VCS Standard
+• VCS AFOLU Requirements
+• VCS AFOLU Non-Permanence Risk Tool
+ICONTEC, based on its ethics code and internal procedures for carrying out validation,
+verification and certification audits of VCS project activities (which, in turn, are based on the
+Voluntary Carbon Standard) focused on the identification of significant risks for credits
+generation, and verification of the mitigation.
+1.3 Level of Assurance
+Besides the above mentioned, during the verification ICONTEC ensured to fulfill the requirements
+additional to ISO 14064-3:2006 and ISO 14065:2007, set in VCS standard 2015, which are as
+follows:
+ The level of assurance is reasonable for validation;
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+5
+ The criteria is VCS 2013 or other GHG Program as approved under the VCS Program;
+ The objective is in conformance with the VCS 2013 requirements and VCS program
+methodologies as applicable to the specific project; and
+ The project is classified like a Project (Less than or equal to 300,000 tons of CO2e per year).
+In consequence, the materiality with respect to the aggregate of errors, omissions and
+misrepresentations relative to the total reported GHG removals, is five per cent.
+1.4 Summary Description of the Project
+Project Proponent(s): Fundación Natura Colombia
+Title of project activity: Grouped Project for Commercial Forest Plantations
+Initiatives in the Department of Vichada
+Baseline and monitoring
+methodology:
+AR-ACM0003 “Afforestation and reforestation of lands
+except wetlands” – Version 2.0.
+Sectoral scope(s): 14. Land-use, land-use change and forestry
+Location of the project activity: The grouped project is located in Puerto Carreño
+Municipality (Vichada, Colombia). The project area for
+the first instance corresponds to the planted areas
+inside the properties of La Pedregoza, El Toro,
+Canapro, El Diamante and Horizonte Verde, located at
+the veredas Caño Negro, Aceitico, La Esperanza and
+Campo Alegre, in the municipality of Puerto Carreño.
+Project crediting period: The total length of the grouped project-crediting period
+is 30 years.
+Crediting period start date: The start date of the crediting period is June 15, 2011.
+Crediting period end date: The end date is June 14, 2041.
+2 VALIDATION PROCESS
+2.1 Method and Criteria
+The validation consisted of the following four phases: i) a desk review and investigation on
+secondary sources of information, ii) on-site assessment iii) the resolution of findings and iv)
+issuance of the final validation report with the conclusion, as follows:
+06/03/2016
+to
+12/03/2016
+Desk Review
+Developing the Planning of the validation activities.
+14/03/2016
+Opening Meeting
+ Introduction of auditor
+ Audit objective
+ Schedule discussion/remarks
+ Preparation of sample plot visits
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+6
+ Questions
+Project Description, Sectoral scope and project type
+Project location and project boundary (GIS and Project sites)
+Methodology applicability
+Assessment of the baseline scenario – selected alternatives.
+Project additionality – Tools and assessment results.
+Ex-ante Quantification of Emission Reductions – estimation of the net
+anthropogenic removals by sinks (methodology equations) evidence for input
+data and parameter to the VER calculations, leakage (Uncertainty and
+conservativeness)
+Monitoring Plan
+Description and explanations about environmental / social impacts and
+stakeholder’s consultation.
+Non-Permanence Risk Tool and the Non-Permanence Risk Report.
+The application of tool and the number of credits that the project proponent
+deposits into the reserve of non-tradable credits, the AFOLU pooled buffer
+account.
+Field visit
+Project location and project boundary - Confirmation of Project sites and
+project boundaries
+Management activities and baseline scenario
+Stratification on field
+Planting Plan and monitoring plan implementation
+18/03/2016 Partial Closing meeting with PP.
+16/05/2016
+Project owners submits relevant documentation to addressing (Corrective
+Actions Requests
+(CARs)/Clarification Requests (CLs) in one submission to DOE/AIE
+21/05/2016
+to
+22/05/2016
+Review by the VCS Validation team of documentation submitted by the Client
+in order to close all CARs/ CLAs / FARs
+23/05/2016 Writing of the draft report after closure of all CARs/ CLs
+25/05/2016
+to Internal Technical Review
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+7
+28/06/2016
+31/05/2016
+to
+01/06/2016
+Adjustments to the final validation report and relative documents to
+submission, according to the findings spotted by the technical reviewer team
+02/05/2016 Project Submission to Project Participant of Final Validation Report
+The criteria allow the validation/verification guidance provided by VCS Standard and the rules
+related to AR-CDM methodology applied. In consequence, the following documents were used to
+assess this project:
+• VCS Standard, 25 March 2015, Version 3.5,
+• VCS Guidance Validation and Verification Manual, 8 October 2013, v3.1
+• VCS Project Description: VCS Version 3.2
+• VCS Agriculture, Forestry and Other Land Use (AFOLU) Requirements, 8 October 2013,
+v3.4
+• VCS Guidance. AFOLU Guidance: Additional guidance for VCS Afforestation,
+Reforestation and Revegetation projects using CDM Afforestation/Reforestation Methodologies, 8
+March 2011
+• VCS Non-Permanence Risk Report Template, v3.1 (4 October 2012)
+• VCS Monitoring Report Template, Version 3
+• AR-ACM0003. A/R Large-scale Consolidated Methodology, Afforestation and
+reforestation of lands except wetlands, Version 02.0 (4 October 2013)
+• A/R Methodological tool “Combined tool to identify the baseline scenario and
+demonstrate additionality in A/R CDM project activities” (Version 01)
+• A/R Methodological tool. Estimation of carbon stocks and change in carbon stocks of
+trees and shrubs in A/R CDM project activities (Version 04.1)
+• A/R Methodological Tool. Estimation of non-CO2 GHG emissions resulting from burning
+of biomass attributable to an A/R CDM project activity” (Version 04.0.0)
+• A/R Methodological Tool. Estimation of carbon stocks and change in carbon stocks in
+dead wood and litter in A/R CDM project activities (Version 3.0)
+• A/R Methodological Tool. Estimation of the increase in GHG emissions attributable to
+displacement of pre-project agricultural activities in A/R CDM project activity (Version 02.0)
+• A/R Methodological Tool. Calculation of the number of sample plots for measurements
+within A/R CDM project activities (Version 02.1.0)
+• A/R Methodological Tool. Demonstrating appropriateness of allometric equations for
+estimation of aboveground tree biomass in A/R CDM project activities (Version 01.0.0)
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+8
+• A/R Methodological Tool. Demonstrating appropriateness of volume equations for
+estimation of aboveground tree biomass in A/R CDM project activities” (Version 01.0.1)
+Documentation review, interviews and on-site visit allowed ICONTEC to collect enough evidences
+to completely assess the validation criteria and determinate that the PD (Version 2.0, May 11,
+2016) is in conformance with the rules and VCS criteria. Removals were correctly calculated,
+based on the applied methodology. ICONTEC can confirm that the GHG removals are calculated
+without material misstatements. The validation protocol resulting from the assessment of the
+project is enclosed in Appendix A of this report.
+The validation team consists of the personnel described in Table 1.
+Table 1: Validation Team
+Role/Qualification Last
+Name
+First
+Name Country
+Type of involvement
+Desk
+review
+Site
+visit/Interviews Reporting
+Lead Auditor /
+Sectoral Expert Duque Angela Colombia X X X
+The Validation Team is qualified in accordance with ICONTEC qualification scheme for VCS
+validation and verification.
+2.2 Document Review
+The documentary review was performed in March 06-12, 2016, based on the information
+provided by the Project Proponent before the on-site visit. This documentation was compared
+with: Voluntary Carbon Standard 2015 and Voluntary Carbon Standard AFOLU Guidance 2013.
+This information crosschecking allowed identifying several findings that were declared in
+Appendix A - Validation Protocol. In addition, the following documents, among others were
+checked:
+The Project Description VCS - v. 01, 18/02/2016 (PD_ARVichada_160218_V01) and v.2.1,
+16/05/2016 (PD_ARVichada_ 160516_V02.1).
+The applicable approved methodology AR-ACM0003 “Afforestation and Reforestation of lands
+except wetlands” (version 02.0) and related Tools.
+Project Area (SIG, supporting maps and shapes) and Eligibility Analysis (Consolidado de
+areas_160516, Núcleos elegibilidad, Bosque no bosque 2001-2011)
+Agreement and Commitment landowners (Commitment letters, CL_Canapro, CL_El Diamante,
+CL_El Toro, CL_Horizonte Verde, CL_La Pedregoza, and signed “Otrosi” 01/02)
+The estimated GHG removals (CANAPRO_160505, ElDiamante_160505, ElToro_160505,
+HorizonteVerde_160505, LaPedregoza_160505, PlantingPlan_160505 and Summary)
+VCS Non-Permanence Risk (Folders Non permanence risk: Canapro, El Diamate, El Toro, HV,
+La Pedregoza)
+Forestry Management Plans (Folders titled PMFS El Diamante, Horizonte Verde, Canapro, LA
+Pedregoza and El Toro)
+Land Tenure and related information with each property included in the grouped project (Proof of
+Title)
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+9
+Sources of Equations & default values (Torres y Del Valle, 2007; Vega y González, 2003; IPCC
+GPG-LULUCF, 2003 among others)
+Stakeholder consultation (Stakeholder Consultation Report GFV, Assistance registry, received
+comments and photographic evidence)
+The whole documentation was reviewed and a validation audit plan was completely carried out
+during the validation activities.
+2.3 Interviews
+Between 14/03/2016 to 18/03/2016 a site visit to the project was undertaken. Interviews were
+conducted with Beatriz Zapata (Forestry Project Developer Carbono & Bosques) and Andrea
+Vera (Forestry Project Developer, South Pole Group - SPG).
+Interviews were carried out to assess understanding of program requirements and to determine if
+the Project Description is in accordance with the applied methodology. In consequence, on the
+interviews with the project developer (Research Center Carbono & Bosques and South Pole
+Group) and the Project Participants, ICONTEC audited in particular the procedures to
+determinate project boundary and baseline scenarios, carbon calculation, land eligibility as well
+as proof of land tenure/ownership, including leakage. In addition, the relevant issues related with
+the Monitoring Plan. During the on-site visit the following people were interviewed (Table 2).
+Table 2: Interviews
+Project Participant Name Position
+Canapro Nubia Flórez Administrative Coordinator
+Canapro Adiela Henao Secretary
+Canapro Eduardo Ulloa Administrator
+Canapro Jhon Jairo Jiménez Supervisor
+Canapro Jorge Corcho Coordinator
+La Pedregoza Dexter Dombro Project Manager Amazonia El Vita
+La Pedregoza Cristian Espinel Forest Nursery Technical
+El Diamante Héctor Urrea In charge of the farm
+Horizonte Verde Diego Solano Administrator
+Horizonte Verde Jhoana Bermúdez Supervisor
+Horizonte Verde Juan Carlos Gaviria Genetic Improvement Technical
+Horizonte Verde Elkin Salazar Management Assistant
+El Toro Edilberto Castillo In charge of the farm
+The Desk Review and the On-site visit resulted in the validation protocol included in Appendix A.
+The use of this protocol ensures a complete validation process and allows obtaining the
+information needed to confirm the consistence of the PD whit the program requirements.
+2.4 Site Inspections
+The objectives of the on-site inspections performed were to:
+ Ensure that the geographic area of the project, as reported in the PD and the accompanying
+Shape file, is in conformance with the program and methodology requirements;
+ Perform a risk-based review of the project area to ensure that the project is in conformance
+the eligibility requirements of the VCS rules and the applicability conditions of the
+methodology; and
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+10
+ Perform a risk-based review of the project area to ensure that the project conforms to all
+other requirements of the VCS rules and the applied methodology.
+ In fulfillment of the above objectives, the audit team performed an on-site inspection of the
+project area on March 14-18, 2016.
+ During field reconnaissance, GPS waypoints were collected at boundaries and other
+significant features including locations where photos were taken.
+The eligible areas in the first instance include a total of 12,172 hectares with planted areas
+distributed in 42 sites on the eight strata. The shape file and maps of all eligible areas was
+available.
+The project area and the site inspections were completed to confirm the project boundaries, verify
+baseline and check species, age and density of plantings. Site inspections were also conducted
+to evaluate the consistency of the designed stratification. The project site and plot location were
+confirmed with GPS.
+The project boundary was visited, regarding the baseline conditions and the project stratification.
+ICONTEC defined a sample size for the sites visited. Those sites were selected randomly, by
+strata, in the list of plots and identified in field by using a GPS with and accuracy of <10m.
+According to that, a total of 14 sites were checked, including representative samples for the
+identified strata. The sites visited during the validation are provided in Table 3.
+Table 3: Sites visited
+Species/Planting year Strata POINT_X POINT_Y
+Acacia 2013 3 -68.1495270 5.8196520
+Acacia 2013 3 -68.1482040 5.8275920
+Acacia 2013 3 -68.1514460 5.8306150
+Acacia 2013 3 -68.1568920 5.8293080
+Acacia 2013 3 -68.1560840 5.8257800
+Acacia 2013 3 -68.1645840 5.8214170
+Acacia 2013 3 -68.1550100 5.8219290
+Acacia 2011 1 -68.1537460 5.8141980
+E pellita 2011 4 -68.3952520 5.6412140
+E tereticornis 2013 6 -68.3799680 5.5702460
+E tereticornis 2012 5 -68.3819600 5.5733120
+Acacia 2011 1 -68.3815290 5.5740500
+Acacia 2011 1 -68.3827960 5.5798430
+E tereticornis 2013 6 -68.3872120 5.5744200
+E tereticornis 2013 6 -68.3927130 5.5756850
+Acacia 2011 1 -68.3929920 5.5709780
+Acacia 2011 1 -68.3925230 5.5706210
+E tereticornis 2013 6 -68.3898120 5.5755950
+E tereticornis 2012 5 -68.3836030 5.5473160
+E tereticornis 2012 5 -68.3693420 5.5618520
+E tereticornis 2012 5 -68.3620810 5.5609040
+E tereticornis 2012 5 -68.3573270 5.5601910
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+11
+Species/Planting year Strata POINT_X POINT_Y
+E tereticornis 2012 5 -68.3570230 5.5538280
+Acacia 2011 1 -68.3580570 5.5450680
+Acacia 2011 1 -68.3597610 5.5410380
+Acacia 2011 1 -68.3623760 5.5468420
+E tereticornis 2013 6 -68.3497450 5.5642360
+E tereticornis 2013 6 -68.3488410 5.5619880
+Acacia 2011 1 -68.3421030 5.5414490
+Acacia 2011 1 -68.3394810 5.5394290
+Acacia 2011 1 -68.3392640 5.5379640
+Acacia 2011 1 -68.3453370 5.5337940
+E tereticornis 2012 5 -68.3347350 5.5495190
+E tereticornis 2012 5 -68.3371780 5.5618250
+E tereticornis 2012 5 -68.3376130 5.5660980
+Acacia 2011 1 -68.3952560 5.6414000
+Acacia 2011 1 -68.3959810 5.6502800
+Acacia 2011 1 -68.3995110 5.6493560
+Acacia 2012 2 -68.3946000 5.6536760
+Acacia 2011 1 -68.3967500 5.6589930
+Acacia 2011 1 -68.3988850 5.6644100
+Acacia 2011 1 -68.3988860 5.6644070
+Acacia 2011 1 -68.3922770 5.6670310
+Acacia 2011 1 -68.3859550 5.6698640
+Acacia 2011 1 -68.3930310 5.6622090
+E pellita 2015 7 -68.3598510 5.6776320
+E pellita 2015 7 -68.3563010 5.6766190
+E pellita 2015 7 -68.3509570 5.6770460
+E pellita 2015 7 -68.3452680 5.6753310
+E pellita 2015 7 -68.3504100 5.6768660
+E tereticornis 2013 6 -68.3429580 5.6699830
+E tereticornis 2013 6 -68.3425500 5.6640270
+E tereticornis 2013 6 -68.3435470 5.6536910
+E tereticornis 2013 6 -68.3411050 5.6481130
+Acacia 2013 3 -68.2796260 6.1303460
+Acacia 2013 3 -68.2776150 6.1334050
+Acacia 2013 3 -68.2759260 6.1403530
+Acacia 2013 3 -68.2760590 6.1425170
+Acacia 2012 2 -68.2764220 6.1444300
+Acacia 2012 2 -68.2772120 6.1469980
+Acacia 2012 2 -68.2794130 6.1446430
+Acacia 2013 3 -68.2813200 6.1407710
+Acacia 2013 3 -68.2784300 6.1352850
+Acacia 2012 2 -67.7834820 5.9221620
+Acacia 2012 2 -67.7795410 5.9295550
+Acacia 2012 2 -67.7956420 5.8897960
+Acacia 2011 1 -67.7290240 6.0608430
+Nativas 2014 8 -67.7358390 6.0508300
+E pellita 2012 5 -67.7420850 6.0602610
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+12
+2.5 Resolution of Findings
+Findings established during the validation can be seen as a non-fulfillment of validation criteria, or
+an identified risk to the fulfillment of the project objectives. The findings could take the form of a
+Corrective Action Request (CAR), Forward action Request (FAR) or a Clarification Request (CL).
+A Corrective Action Request (CAR) shall be raised if one of the following situations occurs:
+(a) Non-compliance with the monitoring plan or methodology are found in monitoring and
+reporting and has not been sufficiently documented by the project participants, or if the
+evidence provided to prove conformity is insufficient;
+(b) Modifications to the implementation, operation and monitoring of the registered project
+activity has not been sufficiently documented by the project participants;
+(c) Mistakes have been made in applying assumptions, data or calculations of emission
+reductions which will impact the quantity of emission reductions;
+(d) Issues identified in a FAR during validation to be verified during verification have not been
+resolved by the project participants.
+A Clarification Request (CL) shall be raised if information is insufficient or not clear enough to
+determine whether the applicable VCS requirements have been met.
+A Forward Action Request (FAR) is issued for actions if the monitoring and reporting require
+attention and/or adjustment for the next verification period.
+This report includes all CARs and CLs raised in this validation. The findings of the validation are
+stated in the following sections. The validation criteria (requirements), the means of validation and
+the results from verifying the identified criteria are documented in more detail in the validation
+protocol in Appendix A.
+As a result of this assessment there were found twelve (12) CARs, Eighteen (18) CLs and zero (0)
+FARs. CAR and CLs were closed based upon adequate responses from the project proponent
+which meet the applicable requirements; findings were reassessed before their formal acceptance
+and closure. All finding, included the issues raised, the responses provided by the project
+proponent and the final conclusions are contained in the Appendix A. All required changes are
+observable on PD Version 02.1 (16/05/2016).
+2.6 Forward Action Requests
+There are not Forward Action Requests.
+3 VALIDATION FINDINGS
+3.1 Project Details
+3.1.1 Project scope, type, technologies and measures implemented, and eligibility of the project
+The project is an AFOLU A/R, under sectoral scope 14 (AFOLU). As described in Section 4.2 of
+the VCS AFOLU Requirements, the project falls under the category of Afforestation,
+Reforestation and Revegetation.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+13
+The Grouped Project aims to promote investments new commercial forest plantations in Puerto
+Carreño Municipality. The project is based on changing the use of land from extensive cattle
+ranching (of low productivity and which use prescribed burns to encourage the regrowth of
+degraded grassland) to sustainable forest production systems, based on good forestry practices,
+which will increase the forest cover in the project region and promote remnant natural forest
+restoration, thus generating a landscape of biological and productive corridors that produce
+financial, social and environmental services for the region. These impacts include the mitigation
+of climate change, regulation of water flows, expansion of habitat and conservation of the flora
+and fauna in the zone and the Orinoco region.
+3.1.2 Project proponent
+The project proponent is Fundación Natura.
+Fundación Natura is a non-profit and non-governmental organization (NGO) whose mission is to
+promote the conservation of biodiversity and the sustainable use of natural resources. Through
+the Agreement No. 02 of 2015, Fundación Natura established an alliance with the landowners
+and project owners, in order to co-finance and collaborate with the development of the project
+design for carbon markets and eventually with other related activities.
+3.1.3 Project start date
+The project start date, according to the PD (section 1.5), is June 15, 2011.
+The Annual Planting Report (2011), signals the date which started the reforestation activities in
+the nucleus La Pedregoza. The starting date was confirmed by ICONTEC according the
+requirements of VVM. The starting date is clearly defined and the evidence is sufficient to prove
+it. Accordingly, ICONTEC verified that the start date of the project activity is 15/06/2011, which
+corresponds to the date of the first registry of planting activities (32.6 hectares with 10 native
+species). Besides, the shape file and maps, including planted areas was reviewed. In this sense,
+the VVB completed a site inspection to confirm the planted sites and the date of plantation of
+each of those in the respective reports and formats used by the PP.
+The VVB also checked in person such information and discuss about it with the project owner. All
+files were checked and evaluated properly according to the standard requirements.
+3.1.4 Project crediting period
+The total length of the grouped project-crediting period is 30 years. The start date of the crediting
+period is June 15, 2011; the end date is June 14, 2041. There is no difference between the
+project start date and the project crediting period start date.
+3.1.5 Project scale and estimated GHG emission reductions or removals
+The project is considered a “project” according to the requirements of Section 3.9.1 of the VCS
+Standard.
+The project is estimated to result in GHG emission reductions and removals equivalent to
+39,506.38 tCO2e per year, over the project crediting period, for the first instance.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+14
+3.1.6 Project location
+The project area for the first instance corresponds to the planted areas inside the properties of La
+Pedregoza, El Toro, Canapro, El Diamante and Horizonte Verde, located at the veredas Caño
+Negro, Aceitico, La Esperanza and Campo Alegre, in the municipality of Puerto Carreño. The
+Project description includes the geodetic coordinates of the central point, within the farms (Table
+4).
+Table 4: Project location – First Instance
+Nucleus Farm Coordinate X Coordinate Y
+Canapro Bita 1,040,338.61 1,172,503.33
+Caño Negro 1,033,726.78 1,145,425.19
+El Toro
+La Esperanza 1,004,503.46 1,150,573.95
+Las Maravillas 1,003,557.44 1,154,285.04
+El Toro 978,189.56 1,171,384.59
+La
+Pedregoza
+La Pedregoza (conformed by the
+properties La Pedregoza, El Sol and
+El Encierro)
+1,038,893.26 1,163,248.50
+El Diamante El Diamante 992,586.52 1,134,837.61
+Horizonte
+Verde
+El Sinaí 970,745.19 1,105,251.76
+El Reflejo 968,276.26 1,106,465.08
+La Fenicia 965,269.87 1,107,016.73
+San José 972,230.04 1,114,629.04
+El Silencio 977,677.24 1,116,001.90
+Pozo Azul 974,690.02 1,115,035.41
+La Estaca 969,996.24 1,115,742.06
+El Triunfo 983,664.04 1,114,753.83
+La Payara 987,784.69 1,149,968.49
+La concordia 986,765.04 1,115,441.17
+Los Eucaliptos 965,479.28 1,116,924.84
+El Pretesto 985,038.06 1,123,535.53
+La Diversión 984,102.26 1,120,523.56
+The project proponent provided KML files depicting the property boundaries, in conformance with
+the VCS Standard. Comparison of GPS waypoints taken during the on-site visit with the
+boundaries represented by the Shape files found no discrepancies.
+3.1.7 Conditions prior to project initiation
+The PD includes the description of the present environmental conditions of the area planned to
+the proposed A/R project activity, including a concise description of ecological and climate
+information (Temperature, precipitation, relative humidity, soils, geomorphology, hydrography,
+land use and biodiversity conditions), in conformance with the VCS Standard.
+3.1.8 Project compliance with applicable laws, statutes and other regulatory frameworks
+According PD, project complies with the national statutes and other regulatory frameworks.
+Domestic law does not require any special licenses or permits to plant a forest. The company
+complies with the Act 1377 of 2010 that regulates the activity for commercial reforestation and
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+15
+Regulatory Decree No. 2803 of 2010, by which is regulated the Ac 1377 of 2010 about
+registration of forest crops and agroforestry systems for commercial purposes, protective-
+productive plantations and the mobilization of primary processing products, among others.
+In addition, the project proponent presents adequately the information related with the other local
+regulation for the grouped project.
+3.1.9 Ownership and other programs
+ICONTEC confirmed that the Grouped project for commercial forest plantations initiatives in the
+department of Vichada is clear with respect to the form of participation of individuals or entities
+interested in the project, at the level of demonstrating the legal land tenure, the ownership rights
+of the resources and services obtained.
+Through the Agreement No. 02 of 2015, Fundación Natura established an alliance with the
+landowners and project owners, in order to co-finance and collaborate with the development of
+the project design for carbon markets and eventually with other related activities. The owners and
+legal representatives of the first instance agreed that Fundación Natura could act as project
+proponent, as they move towards the establishment of a formal figure that represents them.
+The project has not been registered under any other GHG program and is not seeking a second
+registration in the future. The current VCS project is completely independent from any other
+carbon project scheme being developed in Colombia such as REDD projects. The project is not
+seeking participation into any other GHG program.
+3.1.10 Additional information relevant to the project, including:
+Eligibility criteria for grouped projects
+In section 1.13 of the PD (Additional Information Relevant to the Project), PP provides a list of the
+eligibility criteria that project instances need to meet for the inclusion of any new eligible areas as
+instances willing to participate within the proposed grouped project, regarding the areas under
+control of the PP and the conditions about eligibility, baseline scenario and additionality
+conditions for the specified project activity and geographic area.
+ICONTEC confirms that definition of eligibility criteria complies with paragraph 3.4.9 of the VCS
+Standard version 3.5 (25 March, 2015).
+Leakage management for AFOLU projects
+The project is not required to manage leakage. See discussion under section 3.2.6 of this report.
+In summary, ICONTEC considers that the description, documentation and information related to
+the project description is accurate, complete and provides an understanding of the nature of the
+project.
+3.2 Application of Methodology
+3.2.1 Title and Reference
+The methodology applied to the project (hereafter termed “the methodology”) is a CDM A/R
+approved methodology AR-ACM0003: A/R Large-scale Consolidated Methodology Afforestation
+and reforestation of lands except wetlands – Version 2.0. The methodology can be found at
+https://cdm.unfccc.int/methodologies/DB/C9QS5G3CS8FW04MYYXDFOQDPXWM4OE.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+16
+Tools referenced, and adequately applied by the project, are the following:
+- “Combined tool to identify the baseline scenario and demonstrate additionality in A/R CDM
+project activities”;
+- “Estimation of carbon stocks and change in carbon stocks of trees and shrubs in A/R CDM
+project activities”;
+- “Estimation of carbon stocks and change in carbon stocks in dead wood and litter in A/R CDM
+project activities”;
+- “Tool for estimation of change in soil organic carbon stocks due to the implementation of A/R
+CDM project activities”;
+- “Estimation of non-CO2 greenhouse gas (GHG) emissions resulting from burning of biomass
+attributable to an A/R CDM project activity”;
+- “Estimation of the increase in GHG emissions attributable to displacement of pre-project
+agricultural activities in A/R CDM project activity”.
+3.2.2 Applicability
+The applicability conditions for the methodology are:
+a) The A/R CDM project activity is implemented on degraded lands, which are expected to
+remain degraded or to continue to degrade in the absence of the project, hence the land
+cannot be expected to revert to a non-degraded state without human intervention;
+b) If at least a party of the project activity is implemented on organic soils, drainage of these
+soils is not allowed and not more than 10% of their area may be disturbed as result of soil
+preparation for planting;
+c) The land does not fall into wetland I category.
+The Project Proponent addresses each of these applicability conditions, correctly and including
+the consistency between the requirements and the project activity, in section 2.2 of the Project
+Description Version 02.1, 16.05.2016.
+By all-inclusive review and cross-checking, ICONTEC corroborated that the selected
+methodology applies to the project activity and was correctly applied with respect to the following:
+project boundary, baseline identification, formulae to determine emission reductions, additionality
+and monitoring methodology.
+3.2.3 Project Boundary
+The relevant GHG sources, sinks and reservoirs for the project and baseline scenarios are
+presenting in Table 16 on PD. GHG pools for the project include above-ground biomass, below-
+ground biomass, dead wood, litter and soil organic carbon. Emission of non-CO2 GHGs resulting
+from the loss of aboveground tree biomass due to fire (in the event that occur) is considered and
+calculated using the above ground biomass in trees of relevant strata.
+By reviewed information and the field visit, ICONTEC could conclude that the project boundary
+and selected sources, sinks and reservoirs are adequately justified for the project.
+3.2.4 Baseline Scenario
+The baseline scenario has been justified applying the A/R CDM Methodological tool “Combined
+tool to identify the baseline scenario and demonstrate additionality in A/R CDM project activities”.
+The land within the project boundary is defined as degraded grassland for all cases of the
+grouped instances.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+17
+The project proponent follows the procedures outlined in the mentioned tool. The credible
+alternative land use scenarios that would have occurred on the land within the project boundary
+correspond to:
+• Continuation of the pre-project land use: Degraded pasture
+• Project activity on the land within the project boundary performed without being
+registered as the VCS AFOLU project
+Based on those alternative land uses identified, the project proponent identifies barriers to project
+implementation related to investment, technological and infrastructure (routes of transportation)
+and social aspects.
+In this sense, applying the decision tree presented in the “Combined tool to identify the baseline
+scenario and demonstrate additionality in A/R CDM project V.1.0 in the outcome of sub-step 3b is
+concluded that: Degraded pasture by extensive livestock and burning grassland is the land use
+alternative that does not face any of the identified barriers. Forest plantations with or without
+native species, without carbon revenues face all the identified barriers. Therefore, degraded
+pasture by extensive livestock and burning grassland is the baseline scenario.
+The audit team examined the documentation that provide evidence and justify the exactitude of
+the information and descriptions in PD.
+In accordance with the requirements of the baseline and additionality tool, a common practice
+analysis has been. Pertinent section on PD includes a discussion about. ICONTEC confirmed
+that the project initiative is different of the common practices in the region project.
+In concurs with observations made during the site visit and information provided by project
+proponent, in addition with the review of documentation related to the forestry sector and the
+dynamic of the land use in the project area, considering the evidence and application of the CDM
+tool, as required by the methodology, the audit team finds that the historical uses and the
+economic determinants of land use would most probably result in a continuation of degraded
+pasture are the most plausible baseline scenario and that the project activity is additional.
+3.2.5 Additionality
+See the discussion under section 3.2.4. Note that under the VCS Standard section 3.14,
+additionality is to be demonstrated and assessed in accordance with the requirements set out in
+the methodology.
+3.2.6 Quantification of GHG Emission Reductions and Removals
+Quantification of baseline emissions
+Baseline carbon stock changes are assumed to be zero. The PP applied the methodology (AR-
+TOOL14, Estimation of carbon stocks and change in carbon stocks of trees and shrubs in A/R
+CDM project activities Version 04.1, section 5), considering that the carbon stock in trees in the
+baseline can be accounted as zero, regarding the conditions of the tool indicated. The
+compliance of those conditions is guaranteed and the information reviewed determines that the
+indicators related with conditions under which carbon stock and change in carbon stock may be
+estimated as zero in the AR methodological tool has been considered and changes in carbon
+stocks in trees and shrubs in the baseline have been accounted as zero.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+18
+ICONTEC verified the information available and the process implemented by PP during the
+documentary review and confirmed this information by observations on the first instance during
+the site visit.
+Quantification of project emissions
+The procedures and equations identified in the PD for calculating net GHG emissions follow the
+procedures and equations laid out in the methodology, including reference to specified CDM tools
+for individual pools.
+Quantification of leakage
+According the applied methodology, the emissions due to the displacement of agricultural
+activities should be account by leakages. As described in section 3.3 of PD, the project activity
+attributable to displacement is grazing. However, at the time of the project’s implementation, the
+properties were not being used for cattle or it was not significant (it was between 0.02 and 0.09
+animals / hectare, while the carrying capacity for cattle in this region is between 0.1 and 0.2
+animals / hectare). The few animals in the project boundary were moved to other existing grazing
+lands inside the farms. Accordingly, leakage emission attributable to the displacement of grazing
+activities is considered insignificant and hence accounted as zero.
+The audit team concludes that the Project Proponent’s assertion that leakage can be considered
+insignificant is justified and conforms to the VCS requirements.
+In regard to procedures in the correspondent requirement of VCS Standard, ICONTEC confirms
+the following statements:
+a) All relevant assumptions and data are listed in the project description, including their
+references and sources.
+b) All data and parameter values used in the project description are considered reasonable in
+the context of the project.
+c) All estimates of the baseline emissions can be replicated using the data and parameter
+values provided in the project description.
+According the information and evidence presented, the grazing activity is the only agricultural pre-
+project activity. Based on this analysis, leakage emissions for this project are considered
+negligible, and have been accounted as Zero. ICONTEC has been confirmed through visual
+inspection that grazing activities displacements are adequately referred in the PD. Also, the
+information collected during the interviews with the landowners confirmed the presented
+information. Finally, the audit team concludes that the methodology and any referenced tools
+have been applied correctly to calculate baseline emissions, project emissions, leakage and net
+GHG emission reductions and removals.
+3.2.7 Methodology Deviations
+The PD identifies no methodology deviations and none were found by the audit team.
+3.2.8 Monitoring Plan
+ICONTEC verified that a Monitoring Plan was included in the PD. The monitoring plan is intended
+to facilitate monitoring, recording, reporting, and verification activities necessary for assessment
+of the project performance and determination of the achieved emissions reductions in compliance
+with the approved methodology AR-ACM0003. This MP monitors the carbon stock changes in the
+A/R project activity.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+19
+The assessment team has checked all the parameters presented in the monitoring plan against
+the requirements of the methodology. In this sense, the Monitoring Plan contains all necessary
+parameters, with adequate descriptions as to: Source of data, measurements procedures,
+monitoring frequency and QA/QC procedures to be applied.
+The Monitoring Plan is further described all the issues of the MP are included. The following
+components are addressed in the monitoring plan (MP) for quantifying the carbon sequestered
+under the proposed A/R Project: Data storage, information data management system, monitoring
+periods and frequency, monitoring and operational procedures, measurement and estimation of
+carbon content changes, stratification, plot size, quality assurance and quality control (QA/QC).
+Also, includes the operational and management structure to monitor actual GHG removals by
+sinks and any leakage generated by the proposed A/R project activity.
+The MP complies with the requirement of AR-ACM0003, Version 02.0 (Section 6). The audit team
+checked the parameters, source of data, measurements procedures, monitoring frequency and
+QA/QC procedures. The requirements for the monitoring of carbon stock changes were correctly
+applied. The boundary and the forest management were defined following the methodology and
+specifically for the project conditions. The selected monitoring frequency of the parameters is
+consistent with the requirements of methodology.
+Based on these descriptions and on documental verifications, the DOE deems that the technical
+and organizational design proposed in the Monitoring Plan is adequate to ensure that removals
+resulting from the project can be reported ex post and verified. The monitoring plan presented
+complies with the requirement of the methodology AR-ACM0003, Version 02.0.
+3.3 Non-Permanence Risk Analysis
+The project proponent has been determined the risk factors through a qualitative analysis,
+following the guidance of the VCS AFOLU Non Permanence Risk Tool and providing enough
+evidence and documentation. ICONTEC evaluated the risk assessment undertaken by the project
+proponent and assessed all data, rationales, assumptions, justifications and documentation
+provided by the project proponent to support the non-permanence risk rating.
+The result of the AFOLU non-permanence risk was 20%, in accordance with the supporting
+documents (VCS Non-Permanence Risk report for project sites: CANAPRO, El Diamante, El
+Toro, Horizonte Verde and La Pedregoza). Therefore, this percentage of the net GHG emission
+reductions or removals (178,308), have to be deposit into the AFOLU pooled buffer account.
+ICONTEC considers that the data provided to support the result is adequate and the risk score is
+appropriate.
+3.4 Environmental Impact
+As described on PD, the project proponent has been developed an environmental impact
+assessments with respect to the project. The project is developed as a system of well-managed
+commercial plantations, which seeks to minimize the impact of plantations on natural ecosystems
+and promote the maintenance of the different ecosystem services in the high plains, using criteria
+of environmental sustainability.
+The description about environmental impact is in way to the characteristics of project and project
+area. Additionally, the reforestation project does not need an impact assessment in Colombia.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+20
+3.5 Comments by Stakeholders
+The project proponent explains correctly the stakeholder’s participation and present adequately
+the summary of the mechanisms for on-going communication and comments received (see
+Section 6 on PD).
+4 VALIDATION CONCLUSION
+ICONTEC performed the validation process of the project: “Grouped project for commercial
+forest plantations initiatives in the department of Vichada”. The validation was performed on
+the basis of the VCS Agriculture, Forestry and Other Land Use (AFOLU) Requirements, 8
+October 2013, v3.4 and VCS Standard, 25 March 2015, Version 3.5.
+The review of the Project Description and the subsequent follow up interviews has provided
+ICONTEC with sufficient evidence to determine the fulfillment of the stated criteria. The project
+correctly applies the following CDM methodology: AR-ACM0003 - “Afforestation and
+Reforestation of lands except wetlands” - Version 02.0.
+The grouped project is based on changing the use of land from extensive cattle ranching to
+sustainable forest production systems, based on good forestry practices, which will increase the
+forest cover in the project region and promote remnant natural forest restoration, thus generating
+a landscape of biological and productive corridors that produce financial, social and
+environmental services for the region. The objective of the first instance is to establish forest
+plantations with commercial species. The most used species for the project are the Acacia
+mangium, E. tereticornis which occupy more than 80% of the area intervened by the project.
+The project activity started in June 15, 2011. The total emission reductions from the project are
+estimated to be on the average of 39,506.38 tCO2e per year over the project crediting period. The
+Estimated net GHG emission reductions or removals (tCO2e) are 1,185,191.26. The emission
+reduction forecast has been checked and it is deemed likely that the stated amount is achieved
+because the underlying assumptions do not change.
+In summary, it is ICONTEC’s opinion that the project “Grouped project for commercial forest
+plantations initiatives in the department of Vichada”, as described in the Project Description
+(version 02.1), meets all relevant AFOLU VCS requirements. ICONTEC thus requests the
+registration of the project as a VCS project activity.
+Bogotá, 02/06/2016
+Mónica Vivas
+Director of conformity assessment
+ICONTEC
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+21
+5 APPENDIX A: VALIDATION PROTOCOL
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+Clarification Request CL1
+In the summary description of the project,
+the PP signals that the project include
+“restoring natural forest cover and
+creating a landscape of biological and
+productive corridors”; however, in the
+project activities there are not description
+about those aspects.
+Project Description
+Template v3.2
+11 – 05- 2016
+In the summary description of
+the project, the sentence…
+“restoring natural forest cover
+and creating a landscape of
+biological and productive
+corridors”… was modified in
+order to explain that natural
+forest cover restoration is not a
+project activity, but an expected
+impact of the project.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL2
+On section 1.4 (Other entities involved in
+the project) there are some missing
+information.
+Project Description
+Template v.3.2
+Section 1
+Project Details
+11 – 05- 2016
+On section 1.4, the missing
+information related to project
+owners, was added.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL3
+The project start date is not presented,
+specifying the day, month and year.
+AFOLU Requirements
+VCS v.3.4
+Section 3.2
+Project Description
+Template v.3.2
+Section 1.5
+Project Start Date
+11 – 05- 2016
+As indicated in the section 1.5 of
+the PDD, the project star date is
+June 15th, 2011 corresponding
+to the reforestation activity in La
+Pedregoza.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL4
+The reference about the species planted
+is not consistent. There is not included
+Simarouba amara in the Table 1.
+Moreover, there is not presented the
+description of the some species in the
+section.
+Project Description
+Template v.3.2
+Section 1.8
+Description of the
+Project Activity
+11 – 05- 2016
+The list of used tree species was
+revised, corrected and
+supplemented. Besides,
+description of the species was
+added.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+22
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+Clarification Request CL5
+The reference to the Table 2 is missing in
+the text.
+Project Description
+Template v.3.2
+Section 1.8
+Description of the
+Project
+11 – 05- 2016
+The reference to the Table 2
+was added in the text.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL6
+On section related to silvicultural
+activities, there are some texts incorrect,
+e.g. in the Table 4 is included Gmelina
+arborea, and the section related to project
+activities does not consider this species.
+Project Description
+Template v.3.2
+Section 1.8
+Description of the
+Project
+11 – 05- 2016
+In 2011 and 2012, 2.35 ha of
+Gmelina arborea were planted in
+La Pedregoza. This specie was
+included in the section 1.8.1. and
+Table 1.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL7
+Is not clear if the current land use
+presented in the section 1.10.1
+(Description of the grouped project
+location) corresponds to the project area.
+Besides, the last idea included in the list
+of activities, does not an activity, it is a
+consequence.
+Project Description
+Template v.3.2
+Section 1.10
+Conditions prior to
+project location
+11 – 05- 2016
+The current land use presented
+in the section 1.10.1,
+corresponds to the area in which
+the group project is expected to
+extend the project area. This
+clarification was incorporated in
+the PD.
+Adjustments to the paragraphs
+corresponding to current land
+use were also made.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL8
+On section 1.10.2, the description about
+La Pedregoza is not consistent with the
+documentation. The farm is conformed by
+three properties. On the other hand, the
+data related to farm area is incorrect:
+“..an area of 2.652 ha, which include
+7.187 ha eligible for project activities”.
+AFOLU Requirements
+VCS v.3.4
+Section 4.3
+Project Boundary
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+11 – 05- 2016
+On section 1.10.2, the
+description about La Pedregoza
+was corrected. Overall, La
+Pedregoza nuclei comprises
+three properties (La Pedregoza,
+El Encierro and El Sol) for a total
+area of 2,684 hectare, which
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+23
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+include 1,826 ha eligible for
+project activities.
+Clarification Request CL9
+The description about the land use in the
+farm El Diamante is not clear. The text
+indicates that “the lands of the farm are
+dedicated to the development of
+reforestation activities”; however, in the
+table there are other land uses.
+AFOLU Requirements
+VCS v.3.4
+Section 3.4
+Project Description
+Template v.3.2
+Section 1.10
+Conditions prior to
+project location
+11 – 05- 2016
+Modified. New information taken
+from the Management Forest
+Plan.
+Land use of El Diamante is
+Gallery Forest, flooded forest
+and Savanna.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL10
+The section 1.11 is not adequate. The PP
+enlists the regulatory frameworks, the
+national legislation, departmental
+legislation and municipal legislation.
+Nevertheless, is missing the
+demonstration of the compliance of the
+project with all and any relevant local,
+regional and national lows, statutes and
+regulatory frameworks.
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+Project Description
+Template v.3.2
+Section 1.11
+Compliance with laws,
+statues and other
+regulatory frameworks
+11 – 05- 2016
+The information regarding the
+compliance with any relevant
+local, regional and national laws,
+statutes and regulatory
+frameworks, was added in the
+section 1.11.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL11
+The right of use described on section
+1.12.1 is not appropriate. The PP
+explains the right of use related to the
+land in the project. On this section should
+be explained, and evidenced, the right of
+AFOLU Requirements
+VCS v.3.4
+Section 3.4
+Project Description
+Template v.3.2
+11 – 05- 2016
+The five nucleus will form an
+official entity that manage the
+carbon credits.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+24
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+use with respect to the GHG removals. Section 1.9
+Project Location
+Closed
+Clarification Request CL12
+The sentence: “Greater than one has
+continuous areas. Forest” (Section 1.13)
+is not clear. It is confusing.
+Project Description
+Template v.3.2
+Section 1.13
+Eligibility Criteria
+VCS Standard v.3.5(0)
+Section 3.4.1
+Grouped Projects
+11 – 05- 2016
+This sentence was corrected.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL13
+There is not an adequate explanation
+about the organic soils in the project
+boundary. In the Table 15, the PP have
+been included a text about the soils in the
+Colombian high plains, and references
+the PMES El Diamante, but the areas in
+the project are conformed by multiple
+properties.
+Project Description
+Template v.3.2
+Section 2.2
+Applicability of
+Methodology
+VCS Standard v.3.5(0)
+Section 4.3
+Applicability Conditions
+AR-ACM0003 ver02.0
+Section 2.2
+11 – 05- 2016
+The explanation about the soils
+in the project boundary was
+corrected in order to clarify that
+the project activities do not take
+place on organic soils. This
+explanation was also extended
+to include all the project
+properties.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL14
+About the applicability conditions of the
+ARAM-tool-15-v2.0 (Estimation of the
+increase in GHG emissions attributable to
+displacement of pre-project agricultural
+activities in A/R CDM project activity); the
+applicability condition included in the
+Table 16 is not appropriate. In this sense,
+the text in the column “Compliance” is not
+consistent with the condition described.
+Moreover, PP inscribes that “the
+implementation of project do not cause
+displacement of agricultural activities”;
+Besides in onsite visit was observed
+grazing activities in the project boundary.
+Project Description
+Template v.3.2
+Section 2.2
+Applicability of
+Methodology
+VCS Standard v.3.5(0)
+Section 4.3
+Applicability Conditions
+AR Tool 15 v 02.0
+11 – 05- 2016
+The text related to the
+compliance with the ARAM-tool-
+15-v2.0 was corrected according
+to the project conditions.
+The information about grazing
+activities inside the project farms
+was included in a new table on
+section 3.3.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+25
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+Therefore, it should be applied the Tool,
+and provide the correct evidence about
+the grazing activities.
+Clarification Request CL15
+On monitoring section (4.1. Data and
+parameters available at validation), about
+the factor Root-Shoot-Radio, the PP
+explain that parameters for the project
+sites and the region were not available at
+the time of validation , the project
+participant use for all tree species, the
+equation suggested by the ARAM Tool
+14; However, in page 75 the text is: “For
+all cases (except H. brasiliensis)….”.
+VCS Standard v.3.5(0)
+Section 4.8
+Monitoring
+AFOLU Requirements
+v3.4
+Section 4.0
+Monitoring
+Project Description
+Template v.3.2
+Section 4.1
+11 – 05- 2016
+On section 4.1., it was explained
+that the equation suggested by
+the ARAM Tool 14 was used to
+calculate the Root-Shoot-Ratio
+for all cases except H.
+brasiliensis.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL16
+Some data and parameters presented in
+section 4.2 should be contained also in
+section 4.1, available at validation.
+VCS Standard v.3.5(0)
+Section 4.8
+Monitoring
+AFOLU Requirements
+v3.4
+Section 4.0
+Monitoring
+Project Description
+Template v.3.2
+Section 4.1
+11 – 05- 2016
+The parameters A, Ai, VTREE, j,p,i,t
+and F(D,H) used to calculate ex
+ante project emissions, was
+included in the section 4.1
+(parameters available at
+validation).
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Clarification Request CL17
+On section 5.1 (Environmental Impact
+Assessment), the PP states: “The forest
+cover generated by the plantations,
+increase the connectivity of natural
+ecosystems, which favors the protection
+of gallery forests, wetlands and
+morichales. Additionally, the recovery of
+ecological niches for endemic, vulnerable
+or threatened species is favored”.
+Project Description
+Template v.3.2
+Section 5
+11 – 05- 2016
+Additional information added
+based on scientific papers.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+26
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+Moreover, “the project is also considered
+an activity of landscape restoration that
+incorporates objectives of conservation of
+biodiversity”. Those are theoretical
+sentences. It is necessary to explain and
+justify the relation to the project activities
+with that.
+Clarification Request CL18
+The PP does not include the complete
+references to sources of information in
+the some parts of PD (document or study
+used, author, date and if applicable the
+web site where it is available). Also, there
+are some mistakes in the sources
+identified.
+VCS Standard v.3.5(0)
+AR-ACM0003 ver02.0
+Project Description
+Template v.3.2
+11 – 05- 2016
+Complete references added.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR1
+The specie Anacardium occidentale not
+presents compliance with the forest
+definition; this specie should not be
+included in the carbon calculation.
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+11 – 05- 2016
+This specie was excluded from
+the ex-ante emission
+calculations.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR2
+The project location is presented in the
+Table 12. The farms contained in this
+table are not coherent with the properties
+included in the documentation; e.g. the
+farm La Pedregoza consists of three
+properties.
+AFOLU Requirements
+VCS v.3.4
+Section 4.3
+Project Boundary
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+11 – 05- 2016
+La Pedregoza consists of three
+properties: La Pedregoza, El Sol
+and El Encierro (these were the
+previous names before being
+purchased by Amazonia El Vita).
+However, the cartographic
+information is entirely merged
+into a single polygon, with a total
+area of 2,684 ha. The geodetic
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+27
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+Project Description
+Template v.3.2
+Section 1.9
+Project Location
+coordinates presented in the
+section 1.9, correspond to the
+entire polygon.
+This clarification was also
+included in the PD.
+Corrective Action Request CAR3
+According section 1.10, “the conditions
+existing prior to the project initiation is
+livestock under conventional conditions of
+low productivity”. In the same way, on
+page 37 is explained: “The predominant
+land use correspond mostly to extensive
+livestock activities”. However, in section
+3.3 (Leakage), the PP signals that “the
+properties were not being used for cattle
+or it was not significant”.
+Additionally, in the common practice
+analysis, the first scenario described is
+cattle farming. This is not clear for the
+conditions existing prior the project
+initiation, baseline scenario and the
+aspects related to additionality.
+VCS Standard v.3.5(0)
+Section 3.1
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project
+activities”(Version 01)
+11 – 05- 2016
+The baseline scenario of the
+project activity corresponds to
+the degraded pasture lands,
+mostly by extensive cattle
+ranching and regular
+antropogenic burning of grasses.
+Additionality section modified.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR4
+The description presented about the farm
+El Toro is not consistent with the
+information included about the properties.
+The text signals: “is conformed by the
+farms La Esperanza, Las Maravillas, El
+Toro1 and El Toro Sur”, but the
+documentation submitted includes 2
+properties.
+AFOLU Requirements
+VCS v.3.4
+Section 4.3
+Project Boundary
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+11 – 05- 2016
+El Toro consists of three
+properties: El Toro, Las
+Maravillas and La Esperanza.
+The documents related to the
+three properties were updated
+and added into the folder: Proof
+of Title.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+28
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+Corrective Action Request CAR5
+On section 2.1, the PP indicates that the
+project “aims to reforest degraded lands,
+which are expected to remain degraded
+or to continue degraded in the absence of
+the project”. And, in Table 24
+(Parameters used for the estimation of
+the soil organic carbon), the management
+factor used corresponds to lands are
+identified as degraded lands. However,
+there is not enough evidence, in the
+document, that the lands in the project
+are degraded lands.
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+11 – 05- 2016
+The evidence that the lands in
+the project are degraded lands
+was added in the sections 2.4
+(Baseline scenario) and 2.5
+(Additionality).
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR6
+The analysis about the credible
+alternative land use scenarios to the
+proposed project activity does not include
+the reference related to another carbon
+project in the Vichada department.
+VCS Standard v.3.5(0)
+Section 3.14
+Additionality
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+11 – 05- 2016
+This reference was added in the
+PD
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR7
+The barrier analysis is not enough. Some
+discussions are not clear, and the
+VCS Standard v.3.5(0)
+Section 3.14
+Additionality
+11 – 05- 2016
+Due to forest plantations are
+22-05-2016
+The project proponent response
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+29
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+presented evidence is not sufficient. The
+PP have been include an explanation
+about the incentives and taxes that
+support the commercial reforestation; the
+idea is not consistent with the investment
+barrier (“About 90% of commercial
+reforestations are supported by incentives
+and tax benefits given by the
+government”).
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+supported by the CIF, this
+incentive is limited by the annual
+budget availability.
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR8
+The PP should to improve the
+assessment about common practice
+analysis, including explanation and
+justification regarding the description
+presented.
+VCS Standard v.3.5(0)
+Section 3.14
+Additionality
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+11 – 05- 2016
+Common practice analysis
+modified.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR9
+It is not clear the statement, on page 114
+(PDD): “Leave some potential planting
+area as natural ecosystem, including
+savannahs”. We can assume that the
+areas on the project boundary are a
+natural ecosystem (savannas). In this
+sense, according VCS Standard,
+activities that convert native ecosystems
+to generate GHG credits are not eligible
+AFOLU Requirements,
+v3.4
+Section 3.1.6
+11 – 05- 2016
+The cover vegetation in the
+project boundary are degraded
+savannahs, which have been
+historically intervened for cattle
+ranching purposes. The
+dominant food and main source
+of dietary energy for livestock
+are pastures with high level of
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+30
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+under the VCS Program. lignification, therefore
+widespread slash-and-burn
+techniques and prescribed burns
+are used to encourage the
+regrowth of these pastures.
+These practices have generated
+fundamental changes in this
+ecosystem, including
+degradation and loss of
+biodiversity. It means that these
+are not natural but disturbed
+ecosystems that have been most
+significantly altered by
+anthropogenic pressure.
+Some changes were made in the
+PD in order to clarify this issue.
+Corrective Action Request CAR10
+The AFOLU Non-Permanence Risk Tool
+was adequately applied; however a
+complete source and justification of the
+information that confirms the assumptions
+and calculus is not presented in the
+pertinent report.
+Additionally, there are some aspects that
+were not appropriately considered in the
+analysis for the parameter M, in the tool
+(0.25). The presence of fires in the project
+area is high. In consequence, is
+necessary an adjustment, related to
+project in the Natural Risk Management,
+and the inclusion of the pertinent
+evidence.
+VCS Standard v.3.5(0)
+Section 3.2.2
+AFOLU Requirements
+VCS v.3.4
+Section 2.1/Section 3.7
+11 – 05- 2016
+The AFOLU Non-Permanence
+Risk Report was modified and
+supporting information is now
+complete.
+Besides, the presence of fires in
+the project area is considered
+high in the tool:
+Likelihood: Less than every 10
+years (the highest)
+Significance: Minor (5% to less
+than 25% loss carbon stocks).
+According to the information
+provided for the project owners,
+during the worst events 20% of
+the areas had been affected by
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+
+VALIDATION REPORT: VCS Version 3
+v3.3
+31
+Clarifications and corrective action
+requests Reference Summary of project proponent
+response Validation Team conclusion
+the fires, and the impact has
+been greater on younger
+plantations (i.e. on stands with
+lower carbon stocks).
+Finally, the score applied for M is
+0.5 (instead of 0.5).
+Corrective Action Request CAR11
+There are some planted areas before
+2011 (identified as the project start date),
+included in the project boundary. Those
+areas should be excluded; a cause of the
+compliance of the forest definition.
+VCS Standard v.3.5(0)
+Section 3.14
+Additionality
+AR-ACM0003 ver02.0
+Section 3
+A/R Methodological tool
+“Combined tool to
+identify the baseline
+scenario and
+demonstrate
+additionality in A/R
+CDM project activities”
+(Version 01)
+11 – 05- 2016
+These areas were excluded from
+the project boundary, and the
+information was updated in the
+PD and project boundary
+documentation.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed
+Corrective Action Request CAR12
+There is a property included in another
+carbon project, currently without
+registration. However, according VCS
+Standard, “where projects are eligible to
+participate under one or more programs
+to create another form of GHG-related
+environmental credit, but are not currently
+doing so, a list of such programs shall be
+provided to the validation/verification
+body”.
+VCS Standard, v3.5(0)
+Section 3.11.5
+11 – 05- 2016
+Currently the nucleus La
+Pedregoza is involved in another
+carbon project, using a local
+standard. The name of this
+program was added in the PD.
+22-05-2016
+The project proponent response
+adequately addresses the
+finding.
+Closed

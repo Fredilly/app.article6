@@ -1,0 +1,983 @@
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 1
+PLUM PROJECT
+Document Prepared By PT Pagatan Usaha Makmur
+Project Title PLUM Peat and Mangrove Conservation and Restoration Project (PLUM
+Project)
+Version 1.0
+Date of Issue 23-February-2024
+Project Location Indonesia, Central Kalimantan
+Project Proponent(s)
+PT Pagatan Usaha Makmur
+Contact: Mr. Handoko Limaho
+Email: info@plumproject.id
+Telephone: +62-21-39502295
+Prepared By PT Pagatan Usaha Makmur
+Validation Body
+Earthood Services Private Limited
+Contact: Mr. Kaviraj Sinh
+Email: info@earthood.in
+Telephone: +91-124-4204599
+Project Lifetime 01 August 2022 – 31 July 2082; 60-year lifetime
+GHG Accounting
+Period 01 August 2022 – 31 July 2082; 60-year total period
+History of CCB
+Status Combined validation with VCS
+Gold Level Criteria
+Gold Level for Climate Change Adaptation Benefits (GL1), Exceptional
+Benefits for Community (GL2) and Biodiversity (GL3)
+GL1: The project will implement activities that increase the resilience of
+local communities and biodiversity to climate change, including activities
+for livelihood diversification and habitat conservation and restoration.
+GL2: A total of 13 villages adjacent to the project area are included as the
+target beneficiaries of this project, including six villages classified as
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 3
+Table of Contents
+1 Summary of Project Benefits .......................................................................................................... 11
+1.1 Unique Project Benefits .............................................................................................................. 11
+1.2 Standardized Benefit Metrics ...................................................................................................... 12
+2 General .............................................................................................................................................. 16
+2.1 Project Goals, Design and Long-Term Viability .......................................................................... 16
+2.2 Without-project Land Use Scenario and Additionality................................................................. 54
+2.3 Stakeholder Engagement ........................................................................................................... 57
+2.4 Management Capacity ................................................................................................................ 67
+2.5 Legal Status and Property Rights ............................................................................................... 74
+3 Climate ............................................................................................................................................... 81
+3.1 Application of Methodology......................................................................................................... 81
+3.2 Quantification of GHG Emission Reductions and Removals .................................................... 104
+3.3 Monitoring ................................................................................................................................. 174
+3.4 Optional Criterion: Climate Change Adaptation Benefits .......................................................... 185
+4 Community ...................................................................................................................................... 202
+4.1 Without-Project Community Scenario ....................................................................................... 202
+4.2 Net Positive Community Impacts .............................................................................................. 214
+4.3 Other Stakeholder Impacts ....................................................................................................... 222
+4.4 Community Impact Monitoring .................................................................................................. 223
+4.5 Optional Criterion: Exceptional Community Benefits ................................................................ 223
+5 Biodiversity ..................................................................................................................................... 228
+5.1 Without-Project Biodiversity Scenario....................................................................................... 228
+5.2 Net Positive Biodiversity Impacts.............................................................................................. 245
+5.3 Offsite Biodiversity Impacts ...................................................................................................... 248
+5.4 Biodiversity Impact Monitoring .................................................................................................. 248
+5.5 Optional Criterion: Exceptional Biodiversity Benefits ................................................................ 250
+6 Appendices ..................................................................................................................................... 254
+Appendix 1: Remote Sensing Approach and Land Cover Classification Reports ................................ 254
+Appendix 2: Biomass Report ................................................................................................................ 254
+Appendix 3: Proxy Deforestation Report .............................................................................................. 254
+Appendix 4: NPV Calculation ............................................................................................................... 254
+Appendix 5: FPIC Consultation Report................................................................................................. 254
+Appendix 6: SOC Tidal Wetland Calculation ........................................................................................ 254
+Appendix 7: AFOLU Non-permanence Risk Report ............................................................................. 254
+Appendix 8: Baseline Emissions Calculation........................................................................................ 254
+Appendix 9: Project Emissions Calculation .......................................................................................... 254
+Appendix 10: Net VCU Calculation....................................................................................................... 254
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 11
+1 SUMMARY OF PROJECT BENEFITS
+The PLUM Peat and Mangrove Conservation and Restoration Project (PLUM Project) is a conservation
+and restoration project of peat and mangrove forests located in Central Kalimantan Province, Indonesia.
+The project is implemented on a forest concession with Forest Utilization Business License held by PT
+Pagatan Usaha Makmur (PT PUM) for 60 years, covering a total area of 23,665 hectares. Prior to PT PUM
+receiving its principal PBPH license in 20221, the project area was planned to be developed as an oil palm
+plantation along with two other companies adjacent to the area.
+The project is expected to have a range of climate, community and biodiversity benefits by preserving and
+restoring the integrity of the Peat Swamp and Mangrove Forest landscape and the rich biodiversity in the
+area while improving the well-being of local communities. In terms of climate benefits, it is estimated the
+PLUM Project will result in net emissions reductions and removals of 69,999,940 tCO2e over 60 years of
+crediting period. This will be achieved through activities covered by the VM0007 REDD+ Methodology
+Framework including (1) Avoiding Planned Deforestation (APD), (2) Afforestation, Reforestation and
+Revegetation (ARR), (3) Restoration of Wetlands Ecosystems (RWE) on Peatland and Tidal Wetlands, and
+(4) Avoiding Planned Wetland Degradation (APWD) on Peatland and Tidal Wetlands. Additionally, the
+project will deliver Climate Change Adaptation Benefits by increasing the resilience of local communities
+and biodiversity to climate change.
+The project meets the CCB criteria for Exceptional Community Benefits. There are 13 villages within the
+project zone and over 50% of villagers are below the national poverty line of IDR 2,120,371/month per
+household. Furthermore, six of the 13 villages in the project zone are underdeveloped villages. These six
+villages are the main target of the project’s community development programs. The project activities will
+target the most vulnerable communities within the project zone, improve access to health services and
+provide fair and just employment opportunities. The project activities will provide a positive impact on
+communities’ livelihoods and well-being.
+The project also meets the CCB criteria for Exceptional Biodiversity Benefits. PT PUM’s ecosystems are
+home to 31 globally threatened species with three Critically Endangered (CR) species (i.e., Bornean
+orangutan), eight Endangered (EN) species (i.e., Proboscis monkey, Bornean white-bearded gibbon), and
+20 Vulnerable (VU) species. Furthermore, the project area is home to restricted range species that can only
+be seen on Kalimantan Island including four endemic mammals and one endemic bird. The project activities
+will contribute to the conservation of these species and their habitat, and restore the degraded peatland
+and mangroves to improve the habitat quality and reduce the threats to biodiversity.
+1.1 Unique Project Benefits
+Outcome or Impact Estimated by the End of Project Lifetime Section
+Reference
+1) A total of 21,010 ha peatland will be conserved and restored through peat rewetting
+(e.g., canal blocking) and fire prevention and management activities. This effort will allow
+degraded areas to recover and hence provide suitable habitats for key species. In
+addition, negative health impacts from fire smoke and haze to local communities will be
+reduced.
+2.1.11,
+3.2.2
+1 Principal license granted to PT PUM by the Ministry of Investment since 1 August 2022 (Decision of the Head of
+Investment Coordination No.01082211116206001), followed by the definitive license on November 27th, 2023.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 16
+2 GENERAL
+2.1 Project Goals, Design and Long-Term Viability
+2.1.1 Summary Description of the Project (G1.2)
+The PLUM Peat and Mangrove Conservation and Restoration Project (PLUM Project) is a conservation
+and restoration project of peat and mangrove forests located in Central Kalimantan Province, Indonesia.
+The project is implemented on a 23,665-hectare forest concession with Forest Utilization Business License,
+held by PT Pagatan Usaha Makmur (PT PUM) for 60 years. The project will implement activities to conserve
+and restore the peat and mangrove forests in the project area while delivering positive impact on the
+community and biodiversity. Among others, the project will implement forest patrols, fire prevention, and
+biodiversity monitoring activities to prevent forest loss and protect biodiversity. Peat ecosystems will be
+restored by blocking canals and rewetting the area to avoid further peat drainage. Approximately 15,088
+ha of degraded land will be restored through reforestation and Assisted Natural Regeneration (ANR).
+The eastern part of the project is a peatland forest area located in Katingan Regency, Katingan Kuala Sub-
+district, adjacent to the Sebangau National Park. The western part of the concession is located in East
+Kotawaringin Regency, Pulau Hanaut Sub-district, and mostly consists of mangrove forests (Map 2-1).
+Based on the conducted biodiversity assessment, the concession provides important habitat for 31
+threatened species, including the Bornean orangutan, the Proboscis monkey, and the Bornean white-
+bearded gibbon. The area is also important for at least 17 migratory bird species from three families.
+The project will provide tangible benefits to local communities living in the surrounding area by working to
+improve local livelihoods, health, education, and well-being. For example, the project will assist local coffee
+farmers and honey producers to improve harvesting, processing, and market access. The project will
+support the establishment of women’s groups in the target villages to promote economic opportunities for
+women; and implement interventions that improve health and sanitation in the 13 target villages.
+Prior to PT PUM receiving its principal PBPH license in 2022, the project area was planned to be developed
+as an oil palm plantation along with two other companies adjacent to the area. All three companies were
+owned by a company group named PT Agro Inti Semesta (PT AIS). Additionally, in 2022, an approval to
+convert forest land into oil palm plantation was given to another oil palm company located along the western
+boundary of PT PUM. Without the PLUM Project, it is highly likely that PT PUM’s area would have been
+developed into an oil palm plantation by PT AIS.
+The project will generate GHG emission reductions or removals by implementing activities covered by the
+VM0007 REDD+ Methodology Framework including (1) Avoiding Planned Deforestation (APD), (2)
+Afforestation, Reforestation and Revegetation (ARR), (3) Restoration of Wetlands Ecosystems (RWE) on
+Peatland and Tidal Wetlands, and (4) Avoiding Planned Wetland Degradation (APWD) on Peatland and
+Tidal Wetlands. It is estimated that the project will generate a total net Verified Carbon Unit (VCU) volume
+of 69,999,940 tCO2e over 60 years of crediting period or 1,166,666 tCO2e per annum (Table 3-44).
+The project’s goal is to conserve the remaining forest, restore ecosystem function, protect biodiversity, and
+improve the well-being of communities to become resilient to climate change. In conclusion, it is expected
+that the PLUM Project will contribute to preserving the integrity of the Peat Swamp and Mangrove Forest
+landscape and biodiversity in the area while improving the well-being of local communities.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 30
+ha of rice areas that were excluded from the project area in consultation with local stakeholders27. This
+project area (23,153.75 ha) is where the project activities aim to generate net climate benefits. The project
+zone is defined as the project area plus the surrounding area where the project activities directly affect land
+and associated resources, including activities related to the provision of livelihood improvement and
+community development. This project zone covers 75,280.54 ha of land (Map 2-7). The project zone
+boundary was determined based on village administrative boundaries (13 villages) and exclusion of
+conservation/protection areas (e.g., national park, protection forest, other ecosystem restoration
+concession).
+Map 2-7. Project area (red polygon) and project zone (purple polygon) of the PLUM Project
+27 The final license document refers to 23,665 ha. However, conservatively the area of 23,631.51 ha is used which
+refers to the approved coordinates for the principal license. The project area is 23,153.75 ha excluding 467.68 ha of
+SIMURP rice area and approximately 10 ha of rice area in the western part of the project.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 35
+Stakeholder Description Role in the Project
+Katingan Hulu Unit
+XVII
+forest areas or is dominated by production forest
+areas.
+Bogor Agricultural
+University (IPB)
+State-owned agricultural university based in
+Bogor, Indonesia
+Support – as academic
+institution
+Palangkaraya
+University
+State-owned university located in Palangkaraya,
+Central Kalimantan
+Support – as academic
+institution
+Borneo Nature
+Foundation
+Not-for-profit wildlife and biodiversity
+conservation and research organization that
+protects and safeguards tropical rainforests and
+the environment in Borneo.
+Support – as non-profit
+conservation organization
+Dompet Dhuafa Health focused NGO Support – as non-profit
+organization
+PT Best Agro Oil palm company Business
+PT Katingan Mujur
+Sejahtera
+Oil palm company Business
+PT Katingan Sawit
+Bersama
+Oil palm company Business
+PT Persada Era
+Agro Kencana
+Oil palm company Business
+PT Pulang Pisau
+Antang Perkasa
+Oil palm company Business
+PT Trubus Bumi
+Sejahtera
+Oil palm company Business
+2.1.10 Sectoral Scope and Project Type
+This project belongs to Sectoral Scope 14 for ‘Agriculture, Forestry, and Other Land-Use (AFOLU)’. The
+project comprises REDD (APD) and ARR activities on peatland and tidal wetland as defined in VM0007
+(Version 1.6). PLUM Project activities covered by the VM0007 include (1) Avoiding Planned Deforestation
+(APD), (2) Afforestation, Reforestation and Revegetation (ARR), (3) Restoration of Wetlands Ecosystems
+(RWE) on Peatland and Tidal Wetlands, and (4) Avoiding Planned Wetland Degradation (APWD) on
+Peatland and Tidal Wetlands.
+The project is not a grouped project.
+2.1.11 Project Activities and Theory of Change (G1.8)
+The project aims to reduce emissions from planned deforestation and forest degradation while providing
+tangible climate, community, and biodiversity benefits. The area is directly threatened by the potential
+conversion to commercial oil palm plantation, which was successfully halted by the project. A portion of the
+project area is in a degraded condition due to historical logging, peatland drainage, and forest fires. Low
+community welfare surrounding the project area due to various causes, such as limited livelihood
+opportunities and low land productivity, have also indirectly threatened the integrity of the area through
+community agriculture expansion and illegal logging.
+In the baseline scenario, the existence of commercial oil palm plantation in the area may provide some
+livelihood opportunities for the communities. However, it will not address the other issues currently faced
+by the communities, such as the limited access to health care services and education, limited livelihood
+opportunities and marketing of agricultural products, climate change, land degradation, and low water
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 81
+3 CLIMATE
+3.1 Application of Methodology
+3.1.1 Title and Reference of Methodology
+The methodology title and reference are the approved VCS Methodology VM0007 REDD+ Methodology
+Framework (REDD+ MF), v.1.6, 8 September 2020.
+The tools applied by the project are: 1) the VT0001 Tool for the Demonstration and Assessment of
+Additionality in AFOLU Project Activities, v.3.0, 1 February 2012 (T-ADD); 2) the Agriculture, Forestry, and
+Other Land Use (AFOLU) Non-Permanence Risk Tool (NPRT), v.4.2, 12 October 2023 (T-BAR); 3) Tool
+for testing significance of GHG emissions in A/R CDM project activities (T-SIG) v.0.1.
+3.1.2 Applicability of Methodology
+The project applies the latest version of VCS Methodology VM0007 (Version 1.6 dated 08 September 2020)
+also called ‘REDD+ MF’ together with applicable pre-framed modules and tools. The modules were selected
+based on the PLUM Project activities covered by the VM0007 including (1) Avoiding Planned Deforestation
+(APD), (2) Afforestation, Reforestation and Revegetation (ARR), (3) Restoration of Wetlands Ecosystems
+(RWE) on Peatland and Tidal Wetlands, and (4) Avoiding Planned Wetland Degradation (APWD) on
+Peatland and Tidal Wetlands. All applicability conditions of the VM0007 (REDD+ MF) and its associated
+modules/tools are met by the project.
+Table 3-1. Analysis of applicability conditions for the VM0007 methodology.
+No Module Applicability Condition Comment
+1 REDD+ MF
+Version 1.6,
+Section 4.2,
+All Project
+Activities
+All land areas registered under the
+CDM or under any other GHG
+program (both voluntary and
+compliance oriented) must be
+transparently reported and excluded
+from the project area. The exclusion
+of land in the project area from any
+other GHG program must be
+monitored over time and reported in
+the monitoring reports.
+Condition met, no part of the project
+area is under any CDM or any other
+GHG program (either voluntary or
+compliance
+oriented).
+2 REDD+ MF
+Version 1.6,
+Section 4.3.1,
+All REDD
+Activity Types
+Land in the project area has qualified
+as forest (following the definition used
+by VCS) for at least the 10 years prior
+to the project start date.
+Condition met. Land use records
+indicate that all land subject to REDD
+project activities in the project area is
+covered by tropical forest on peatland
+and has qualified as such under the
+applicable definition for at least 10
+years.
+3 REDD+ MF
+Version 1.6,
+Section 4.3.1,
+All REDD
+Activity Types
+If land within the project area is
+peatland or tidal wetlands and
+emissions from the SOC pool is
+deemed significant, the relevant WRC
+modules (see Table 3) must be
+applied alongside other relevant
+modules.
+Condition met. All relevant WRC
+modules have been applied to
+estimate emissions from peat
+soils.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 82
+No Module Applicability Condition Comment
+4 REDD+ MF
+Version 1.6,
+Section 4.3.1,
+All REDD
+Activity Types
+Baseline deforestation and forest
+degradation in the project area fall
+within one or more of the following
+categories: Unplanned deforestation
+(VCS category AUDD), Planned
+Deforestation/ degradation (VCS
+category APD), Degradation through
+extraction of wood for fuel (fuelwood
+and charcoal production) (VCS
+category AUDD)
+Condition met. Baseline deforestation
+falls in the category of APD. The
+project area does not include any
+significant unplanned deforestation or
+forest degradation and is not modelled
+in either the baseline of the project
+scenario.
+5 REDD+ MF
+Version 1.6,
+Section 4.3.1,
+All REDD
+Activity Types
+Leakage avoidance activities must not
+include: Agricultural lands that are
+flooded to increase production (e.g.,
+rice paddy) Intensifying livestock
+production through use of feed lots 10
+and/or manure lagoons.
+Condition met. The project does not
+promote either establishment of
+agriculture on flooded land or
+intensification of livestock production.
+6 REDD+ MF
+Version 1.6,
+Section 4.3.3,
+Avoiding
+Planned
+Deforestation/
+Degradation
+Avoiding planned
+deforestation/degradation activities
+are applicable under the following
+condition: Where conversion of forest
+lands to a deforested condition must
+be legally permitted.
+Condition met. See baseline scenario
+7 REDD+ MF
+Version 1.6,
+Section 4.4,
+ARR
+The project area is non-forest land or
+land with degraded forest.
+Condition met. See baseline scenario
+8 REDD+ MF
+Version,
+Section 4.4,
+ARR
+In strata with drained organic soil,
+ARR activities must be combined with
+rewetting.
+Condition met. The project scenario
+includes rewetting activities.
+9 REDD+ MF
+Version 1.6,
+Section 4.4,
+ARR
+ARR activities are not eligible if the
+project scenario involves the
+application of nitrogen fertilizers.
+Condition met. The project does not
+involve the application of any
+fertilizers.
+10 REDD+ MF
+Version 1.6,
+Section 4.4,
+ARR
+Where project activities on wetlands
+are excluded by the applicability
+conditions of applied modules or
+tools, these can be disregarded for
+the purpose of their use within this
+methodology, as quantification
+procedures for the peat soil are
+provided in modules BL-PEAT and M-
+PEAT.
+Condition met. The project applies
+modules BL-PEAT and M-PEAT
+alongside all modules related to ARR.
+11 REDD+ MF
+Version 1.6,
+Section 4.5.1,
+All WRC
+Activity Types
+WRC activities are not eligible under
+the
+following conditions:
+> Project activities lower the water
+table, unless the project converts
+open water to tidal wetlands, or
+improves the hydrological connection
+to impounded waters.
+> Changes in hydrology do not result
+in the accumulation or maintenance of
+Condition met. The project activities do
+not lower the water table, hydrological
+connection of the peatland does not
+lead to increase of emissions outside
+of the project area and do not include
+burning of organic soil, and does not
+include the use of fertilizers.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 83
+No Module Applicability Condition Comment
+SOC stock, noting that a) this pertains
+to projects that intend to sequester
+carbon through sedimentation and/or
+vegetation development and b) this
+does not pertain to projects that
+increase salinity to reduce CH4
+emissions.
+> Projects that aim to decrease CH4
+emissions through increased salinity
+must account for any changes in SOC
+stocks.
+> Hydrological connectivity of the
+project area with adjacent areas leads
+to a significant increase in GHG
+emissions outside the project area.
+> Project activities include the burning
+of organic soil. Nitrogen fertilizer(s),
+such as chemical fertilizer or manure,
+are applied in the project area during
+the project crediting period.
+12 REDD+ MF
+Version 1.6,
+Section 4.5.2,
+RWE Project
+Activities
+General
+For RWE project activities, prior to the
+project start date, the project area
+must meet the following conditions:
+The area is free of any land use that
+could be displaced outside the project
+area, as demonstrated by at least one
+of the following, where relevant:
+• The project area has been
+abandoned for two or more years
+prior to the project start date; or
+• Use of the project area for
+commercial purposes (i.e., trade) is
+not profitable as a result of salinity
+intrusion, market forces, or other
+factors. In addition, timber harvesting
+in the baseline scenario within the
+project area does not occur; or
+• Degradation of additional wetlands
+for new agricultural/aquacultural sites
+within the country will not occur or is
+prohibited by enforced law.
+OR
+b) The area is under a land use that
+could be displaced outside the project
+area, although in such case, baseline
+emissions from this land use must not
+be accounted for, and where
+degradation of additional wetlands for
+new agricultural/aquacultural sites
+within the country will not occur or is
+prohibited by enforced law.
+OR
+Condition met. The project will
+continue at a similar or greater level of
+service or production during the project
+crediting period as the concession is
+under a Forest Utilization Business
+License (PBPH). The license is valid
+until the end of the project crediting
+period. In line with the granted license,
+the project will develop a long-term
+and annual management plan
+(RKU/RKT) which will include
+restoration of wetland ecosystem in the
+project area.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 174
+3.3 Monitoring
+3.3.1 Data and Parameters Available at Validation
+Data / Parameter ∆CBSL,planned
+Data unit t CO2e
+Description Net greenhouse gas emissions in the baseline from planned
+deforestation
+Equation 3, 14
+Source of data Module BL-PL
+Value applied N/A
+Justification of choice of
+data or description of
+measurement methods
+and procedures applied
+See Module BL-PL, among others the module is applicable for
+estimating the baseline emissions on forest lands (usually privately
+or government owned) that are legally authorized and documented
+to be converted to non-forest land.
+Purpose of data Calculation of baseline emissions
+Comments N/A
+Data / Parameter ∆CBSL-ARR
+Data unit t CO2e
+Description Net GHG removals in the ARR baseline scenario up to year t*
+Equation 5
+Source of data Module BL-ARR
+Value applied N/A
+Justification of choice of
+data or description of
+measurement methods
+and procedures applied
+See Module BL-ARR, among others the project scenarios
+involving the harvesting of trees are excluded from this module.
+Purpose of data Calculation of baseline emissions
+Comments N/A
+Data / Parameter GHGBSL-PEAT
+Data unit t CO2e
+Description Net GHG emissions in the WRC baseline scenario up to year t*
+Equation 6, 7
+Source of data Module BL-PEAT
+Value applied N/A
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 175
+Justification of choice of
+data or description of
+measurement methods
+and procedures applied
+See Module BL-PEAT, among others this module applies to the
+baseline scenario of WRC project activities on peatlands that are
+expected to be or remain (partly) drained in the absence of the
+project activity.
+Purpose of data Calculation of baseline emissions
+Comments N/A
+Data / Parameter GHGBSL-TW
+Data unit t CO2e
+Description Net GHG emissions in the WRC baseline scenario up to year t*
+Equation 6, 7
+Source of data Module BL-TW
+Value applied N/A
+Justification of choice of
+data or description of
+measurement methods
+and procedures applied
+See Module BL-TW, among others this module applies to the
+baseline scenario of WRC project activities on tidal wetlands that
+are expected to be or remain (partly) drained in the absence of the
+project activity.
+Purpose of data Calculation of baseline emissions
+Comments N/A
+3.3.2 Data and Parameters Monitored
+Data/Parameter ∆CWPS-REDD
+Data Unit t CO2e
+Description Net GHG emissions in the REDD project scenario up to year t*
+Equation 2
+Source of data Module M-REDD
+Description of
+measurement methods
+and procedures to be
+applied
+Applicable to monitoring ex-post emissions and removals of GHGs
+due to avoiding planned deforestation and forest degradation, and
+carbon stock enhancement that has been induced as a result of
+REDD project implementation within the project area and leakage
+belt and as a result of natural disturbances
+Frequency of
+monitoring/recording
+See Module M-REDD (Every 10 years (when the project baseline
+must be revisited) or every five years where conditions trigger
+more frequent baseline renewal)
+Value applied N/A
+Monitoring equipment Tool T-SIG
+QA/QC procedures to be
+applied See Module M-REDD
+Purpose of Data Calculation of project emissions
+Calculation method See Module M-REDD
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 176
+Comments N/A
+Data/Parameter ∆CWPS-ARR
+Data Unit t CO2e
+Description Net GHG emissions in the ARR project scenario up to year t*
+Equation 5
+Source of data Module M-ARR
+Description of
+measurement methods
+and procedures to be
+applied
+See Module M-ARR
+Frequency of
+monitoring/recording
+See Module M-ARR
+Value applied N/A
+Monitoring equipment See Module M-ARR
+QA/QC procedures to be
+applied
+See Module M-ARR
+Purpose of Data Calculation of project emissions
+Calculation method See Module M-ARR
+Comments N/A
+Data/Parameter GHGWPS-PEAT
+Data Unit t CO2e
+Description Net GHG emissions in the WRC project scenario up to year t*
+Equation 6
+Source of data Module M-PEAT
+Description of
+measurement methods
+and procedures to be
+applied
+See Module M-PEAT
+Frequency of
+monitoring/recording
+See Module M-PEAT
+Value applied N/A
+Monitoring equipment See Module M-PEAT
+QA/QC procedures to be
+applied
+See Module M-PEAT
+Purpose of Data Calculation of project emissions
+Calculation method See Module M-PEAT
+Comments N/A
+Data/Parameter GHGWPS-TW
+Data Unit t CO2e
+Description Net GHG emissions in the WRC project scenario up to year t*
+Equation 6
+Source of data Module M-TW
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 177
+Description of
+measurement methods
+and procedures to be
+applied
+See Module M-TW
+Frequency of
+monitoring/recording
+See Module M-TW
+Value applied N/A
+Monitoring equipment See Module M-TW
+QA/QC procedures to be
+applied
+See Module M-TW
+Purpose of Data Calculation of project emissions
+Calculation method See Module M-TW
+Comments N/A
+Data/Parameter Frequency of patrol activities
+Data Unit Number of activities per year
+Description Record of the number of patrol activities carried out in the project
+area and leakage belt during the monitoring period.
+Equation N/A
+Source of data Patrol reports
+Description of
+measurement methods
+and procedures to be
+applied
+To be established
+Frequency of
+monitoring/recording
+To be established
+Value applied N/A
+Monitoring equipment N/A
+QA/QC procedures to be
+applied
+N/A
+Calculation method N/A
+Comments N/A
+Data/Parameter Monitoring of forest cover by high-resolution satellite imagery
+Data Unit Number of activities per year
+Description Presentation of monitoring reports on land cover and land cover
+changes through high resolution satellite images.
+Equation N/A
+Source of data Forest cover monitoring reports
+Description of
+measurement methods
+and procedures to be
+applied
+High-resolution satellite data obtained through reliable and valid
+data sources, will be analyzed in order to examine the forest
+coverage monitoring data in the project area and leakage belt. To
+identify changes in land use in the monitored area, the data from
+the examined periods will be automatically categorized and
+visually interpreted.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 178
+Frequency of
+monitoring/recording
+To be established
+Value applied N/A
+Monitoring equipment Geographical Information System (GIS) and Remote Sensing
+(RS) including the variety of tools, will be selected to support
+monitoring processes
+QA/QC procedures to be
+applied
+Precision target of >90% confidence interval at +/-10% of mean.
+>90% [Overall Classification Accuracy = ‘Number of Pixels
+Classified Correctly’ divided by ‘Total Number of Classified
+Pixels’].
+Resolution (satellite imagery): <= 30 meter (m). Selection of
+Remote sensing instruments are, amongst others: Landsat,
+Resourcesat-1, Sentinel-1, Sentinel-2, JERS-1, ALOS/PALSAR,
+SPOT, Rapid Eye, PlanetLab.
+Cloud cover <10% during 12-month period.
+Calculation method N/A
+Comments N/A
+3.3.3 Monitoring Plan
+Climate impacts will be monitored in accordance with Appendix 13: Monitoring Plan, which includes land
+cover change monitoring, fire monitoring (e.g., hotspots, burnt areas), peat water table and subsidence
+monitoring following the requirements under VCS VM0007 methodology. The project will use both remote
+sensing approach and field data measurement for monitoring climate impacts. The monitoring plan outlines
+the indicators to be monitored, monitoring frequency, and data collection method.
+3.3.3.1 Remote Sensing
+Remote sensing approach will be used to monitor land cover change and burnt areas (if any fire incidences
+occur within the project area) and will be conducted annually. Satellite imageries with resolution of ≤ 30
+meters (e.g., PlanetLab, Sentinel-1, Sentinel-2, ALOS/PALSAR, etc.) with cloud cover <10% will be used.
+Land cover change analysis will follow the procedures set out in Appendix 1: Remote Sensing Approach
+and Land Cover Classification Reports. Any deforested areas within the project area and project zone will
+be groundtruthed by the field team by directly visiting the location and/or using drones if the location is
+inaccessible. Overall classification accuracy is targeted at >90%.
+Leakage monitoring in this project is undertaken to address the risk that deforestation activities are
+displaced elsewhere. By focusing on a specific identified actor, namely PT AIS, the project applies a
+targeted approach that draws on historical information and present circumstances and practices to
+demonstrate low potential for project-induced leakage.
+Additionally, a robust and diversified monitoring strategy is implemented by the project as a commitment to
+transparency and environmental integrity, as follows:
+• Remote Sensing: Satellite imagery tracking land cover changes across the project area and project
+zone to provide a general view of possible changes in land use patterns indicative of leakage.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 179
+• GLAD Alerts: The incorporation of the Global Land Analysis & Discovery system to provide near-
+real-time deforestation alert data, a tool that helps in rapid identification of unexpected changes to
+forest cover and enables prompt investigation and response.
+• Ground Truthing: Regular field visits shall be undertaken to verify remote sensing and alert data to
+ensure accuracy for detection and attribution of leakage to actual activities or developments.
+These sources of information are gathered and analyzed each time a new verification event occurs, with a
+special focus on the production, changes in the water table, and new oil palm developments. This integrated
+approach not only meets the specifications of the VMD0009 LK-ASP module but also serves to further build
+the project’s capacity in monitoring any potential leakage and responding appropriately, hence delivering
+on its commitment to reducing deforestation and the related climate impact.
+The project’s approach to monitoring tidal wetlands adopts a comprehensive strategy to effectively curb
+GHG emissions. By combining direct measurements of GHG flux through both chamber methods with water
+quality evaluations for nutrients and dissolved carbon, this method offers a robust analysis of environmental
+health. The use of remote sensing technology, such as satellite imagery and drone surveys, provides
+detailed insights into the dynamics of the wetland, including changes in vegetation and shoreline changes.
+Ground evaluations further contribute by assessing the vegetation and soil’s carbon storage potential.
+Monitoring the hydrological aspects, such as water table levels and the impact of tides, is fundamental for
+understanding how water movements influence emission trends. This integrated system ensures that the
+project can enhance the wetland’s capacity for carbon capture while keeping GHG releases to a minimum.
+3.3.3.2 Field Data Measurement
+3.3.3.2.1 AGB C Stock
+To monitor the C stock within the project area, the project will establish 20 permanent vegetation/biomass
+plots in the same locations that were used for the baseline assessment. The plots will be monitored annually
+for tree growth (DBH). To estimate the C stock from DBH, we will use the same allometric equations that
+were used when determining the baseline AGB C stock74.
+For ARR activities, the project will establish new plots that will represent the areas of ARR (including ANR)
+activities for both mangrove and peat ARR. DBH will be the main parameter measured in the field and
+species specific allometric equations will be used to estimate the C stock (in accordance with the species
+that will be planted). Field measurement will be conducted annually. In addition, the project will create a
+logbook that records the number of seedlings planted by species, survival rate, DBH, and height for active
+planting activities.
+74 PT PUM’s Biomass Carbon Stock Assessment Report.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 180
+Map 3-10. Planned location of permanent vegetation plots
+3.3.3.2.2 Fire Hotspots and Burnt Areas
+The project will develop a Fire Danger Rating System (FDRS) to serve as an early warning system of fire
+risk in the project area. Automatic Weather Stations (AWS) will be installed on the ground to collect climate
+data that correlate with fire risk (e.g., temperature, precipitation, soil moisture, and peat water level) and
+these data will be supplied into the FDRS to calculate the Peat Fire Vulnerability Index (PFVI). The FDRS
+will then provide a 7-day forecast of fire risk in the project area. The FDRS will categorize the fire risk based
+on PFVI’s value as Safe / Alert / Dangerous / Extreme.
+In the field, the project will monitor fire hotspots through daily monitoring from fire watch tower and fire
+prevention patrols during the dry season when the FDRS rates the fire risk as Alert / Dangerous / Extreme.
+In addition, the project also monitors fire hotspots from NASA’s Fire Information for Resource Management
+System (FIRMS). FIRMS provides near real-time active fire data within three hours of satellite observation
+from the MODIS and VIIRS instruments. The fire patrol team will verify fire hotspots on the ground by
+directly visiting the location and/or using drone if the location is inaccessible.
+Burnt areas within the project area will be mapped and calculated using remote sensing approach with
+high-resolution satellite imagery within one month of fire incidences with detailed procedure listed in the
+Standard Operational Procedure document for Prevention and Management of Forest and Land Fire
+(please refer to Appendix 12: List of SOPs). Areas with repeated burning will be analyzed using historical
+burning records. GHG emissions from biomass and peat burning will be calculated annually following the
+E-BPB module.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 181
+3.3.3.2.3 Peat Water Table and Subsidence
+The project plans to install 352 dipwells and 13 subsidence poles along the planned canal blocks in the
+project area to monitor peat water level and peat subsidence. However, the numbers of monitoring stations
+may be adjusted depending on field conditions. Peat water level will be measured automatically (daily) or
+manually (weekly), while peat subsidence will be monitored manually every three months.
+The project implements a detailed approach to monitor peat water levels and subsidence, crucial for
+evaluating its impact on peatland conservation and carbon sequestration. Through both automatic (daily)
+and manual (weekly) measurements of water levels, as well as quarterly manual checks of peat subsidence,
+it captures essential data on hydrology and land stability. This is followed by data analysis on peat water
+levels and subsidence to provide further understanding of this influential factor on greenhouse gas (GHG)
+emissions. Water-level fluctuations in peat, in fact, determine the rate of decomposition. Generally, low
+water levels imply more decomposition, hence higher emissions of GHGs. Equally, peat subsidence data
+provide information on the long-term stability in the peat and also the storage of carbon in peatland.
+Summed with other data points, the project can then very accurately infer GHG emissions from peat
+decomposition in tropical peatlands.
+3.3.3.2.4 GHG Emissions
+The project is exploring future installation of greenhouse gas (GHG) monitoring equipment aimed at
+providing long-term data on atmospheric GHG flux in peatlands, including carbon dioxide (CO2), methane
+(CH4), among others. Atmospheric monitoring of GHG flux enhances the understanding on the
+sequestration of carbon from the atmosphere by vegetation and its subsequent integration into the soils.
+The project may leverage atmospheric-based monitoring, potentially employing GHG flux towers, in
+collaboration with Hyphen Global AG to further these objectives.75
+75 Hyphen Global AG is a Switzerland-based climate tech company pioneering science driven digital MRV by way of
+precision emissions validation through real-time atmospheric greenhouse gas (GHG) monitoring. Atmospheric-based
+methodologies for monitoring these processes receive international endorsement from authoritative bodies such as the
+Intergovernmental Panel on Climate Change (IPCC), the United Nations Framework Convention on Climate Change
+(UNFCCC), and the World Meteorological Organization (WMO). These endorsements underscore the peer-reviewed
+accuracy of measured sequestration data obtained through atmospheric monitoring.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 182
+Map 3-11. Planned location of canal blocks, dip-wells and subsidence poles
+Table 3-45 Monitoring Indicators
+No Monitoring Indicator Remote Sensing Field Data Monitoring Frequency
+1 Land Cover Change ● ● Annually
+2 Shoreline Change ● ● Annually
+3 AGB C Stock ● Annually
+4 Fire Hotspots and Burnt
+Areas
+● ● Daily during the dry season,
+burnt areas analysis within one
+month of incidence
+5 Peat Water Table ● Daily (automatic)/ weekly
+(manual)
+6 Peat Subsidence ● Every three months
+3.3.3.3 Data Management
+The procedures for data management, internal auditing and QA/QC are described in Figure 3-7 below.
+Please also refer to Section 2.3.8 and Figure 2-4 on the project’s adaptive management.
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 183
+Figure 3-7. Data management process
+The project will also adopt the Spatial Monitoring and Reporting Tool (SMART) Patrol System76 to digitize
+the process of field data collection (including data for Community and Biodiversity) and therefore minimizing
+the risk of human error in manual data entry. The SMART Patrol Mobile application will be installed on
+tablets or smartphones that will be used by the field staff for data collection. The SMART Patrol Desktop
+application will serve as the main database of all field data.
+To avoid non-conformances with the monitoring plan, the project has developed and will develop SOPs at
+each level (e.g., field data collection, data management, data analysis, etc.). A list of available SOPs and
+planned SOPs that will be developed is available in Appendix 12: List of SOPs. A copy of SOPs can be
+provided to the validator upon request. All project staff will be trained to follow procedures in accordance
+with the SOPs and will continuously be supervised. The project will also implement multiple QA/QC at
+various levels. All of the data collected, entered, uploaded, and analyzed are subject to review and approval
+by the Coordinator or Manager or Expert or Director (depending on the level) to ensure that the SOPs are
+correctly followed (Figure 3-7). In addition, the project also adopts adaptive management principle (please
+refer to Section 2.3.8) and will regularly evaluate the implementation of monitoring procedures and make
+improvements when required.
+The following table provides the list of monitoring team members, responsibilities, and competencies.
+76 https://smartconservationtools.org/
+
+CCB & VCS PROJECT DESCRIPTION:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.3 184
+Table 3-46. Monitoring team members
+No Name / Position Responsibilities Competencies
+1 TBD / Technical Director Oversee and provide technical
+advice on all processes, final
+QA/QC of technical analysis and
+emissions calculation
+Please refer to Section 2.1.4
+2 TBD / GIS-Remote
+Sensing Manager
+Supervise SOPs development,
+remote sensing and GIS analyses
+QA/QC
+Please refer to Section 2.1.4
+3 Imanuddin Utoro / RSO
+Manager
+Supervise SOPs development,
+field data analysis QA/QC
+Please refer to Section 2.4.3
+4 TBD / Carbon Expert Develop carbon models, calculate
+emissions from monitoring data
+analyses results
+Please refer to Section 2.1.4
+5 Vanny Milenia / GIS-
+Remote Sensing Analyst
+Development of SOPs, spatial
+field data QA/QC, perform remote
+sensing and GIS analyses
+Please refer to Section 2.4.3
+6 Larissa D Salaki / Senior
+RSO Officer
+Development of SOPs, field data
+QA/QC, field data analysis,
+progress tracking
+Please refer to Section 2.4.3
+7 Andreina Triyantari / RSO
+Officer
+Development of SOPs, field data
+QA/QC, field data analysis,
+progress tracking
+Please refer to Section 2.4.3
+8 Siti Nadia / RSO Officer Development of SOPs, field data
+QA/QC, field data analysis,
+progress tracking
+Please refer to Section 2.4.3
+9 Soni Budiawan / Site
+Manager
+Field data QA/QC Please refer to Section 2.4.3
+10 Pandji A. Fauzan /
+Biodiversity & Forest
+Protection Coordinator
+Assist and supervise field staff on
+field data collection and entry,
+field data QA/QC, field data
+upload
+Please refer to Section 2.4.3
+11 Field Staff Field data collection, field data
+entry
+Various, please refer to
+Section 2.4.1
+RSO = Restoration and Sustainability
+3.3.4 Dissemination of Monitoring Plan and Results (CL4.2)
+There are three types of stakeholders involved in the project, namely government, local communities, and
+business entities. For all stakeholders, the summary of project documents, including monitoring plan and
+results, will be shared and given access to through regular coordination, printed documents at the project
+offices and village information boards, and online resources through Verra and the project website
+(www.plumproject.id).
+Specifically for communities, the project documents will be shared through village meetings and village
+information boards. Regular communication will occur during the project lifetime, as the project will closely
+involve the community in the project activities and monitoring. Formally, at least two village meetings will
+be conducted annually to disseminate project activities updates and reports.

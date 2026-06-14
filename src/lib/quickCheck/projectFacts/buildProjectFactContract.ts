@@ -56,7 +56,7 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "projectLocation",
     labels: ["Project location", "Project site", "Location", "Geographic location", "Geographic reference"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Project location", "Geographic reference of the project activity", "Geographic location"],
@@ -67,13 +67,13 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "projectProponent",
     labels: ["Project proponent", "Project proponent(s)", "Project participants", "Participants", "Project developer"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
   },
   {
     field: "methodologyPrimary",
     labels: ["Methodology", "Applied methodology", "Approved methodology"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Title and reference of methodology applied", "Methodology applied"],
@@ -84,19 +84,19 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "baselineMethodology",
     labels: ["Baseline methodology", "Applied baseline methodology"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
   },
   {
     field: "monitoringMethodology",
     labels: ["Monitoring methodology", "Monitoring approach"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
   },
   {
     field: "creditingPeriod",
-    labels: ["Crediting period", "Project crediting period", "Crediting period of the project activity"],
-    preferBlockTypes: ["field", "paragraph"],
+    labels: ["Crediting period", "Project crediting period", "Crediting period of the project activity", "Project Lifetime", "GHG Accounting Period", "Accounting Period"],
+    preferBlockTypes: ["field", "paragraph", "title"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Project crediting period", "Crediting period", "Project lifetime"],
@@ -257,8 +257,23 @@ function findLabeledCandidates(
     const spaceMatch = span.text.match(spacePattern);
     if (spaceMatch?.[1]) {
       const rawValue = rule.multiline ? spaceMatch[1] : spaceMatch[1].split(/\s{2,}|\n/)[0];
-      const value = rawValue.trim().replace(/[.;:,]$/, "").trim();
-      if (value && value.split(/\s+/).length <= 8) {
+      // Trim trailing punctuation and drop annotations after ";" or "("
+      let value = rawValue.trim().replace(/[.;:,]$/, "").trim();
+      if (value) {
+        const semicolonIndex = value.indexOf(";");
+        const parenIndex = value.indexOf("(");
+        const cutIndex = Math.min(
+          semicolonIndex > 0 ? semicolonIndex : Infinity,
+          parenIndex > 0 ? parenIndex : Infinity,
+        );
+        if (cutIndex !== Infinity) {
+          value = value.slice(0, cutIndex).trim();
+        }
+      }
+      // Cover-table entries for multiline fields can be longer (date ranges
+      // etc).  Monoline fields keep the stricter 8-word guard.
+      const maxWords = rule.multiline ? 20 : 8;
+      if (value && value.split(/\s+/).length <= maxWords) {
         const dedupeKey = normalizeValue(value);
         if (!seenValues.has(dedupeKey)) {
           seenValues.add(dedupeKey);
@@ -274,6 +289,39 @@ function findLabeledCandidates(
       }
     }
   }
+
+  // Heading-label fallback: when no colon/space-pattern candidates were found,
+  // look for paragraph/field spans whose heading matches a field label.
+  // This handles documents where the label is in the section heading and the
+  // value is the body text (common in validation reports).
+  //
+  // Guard: only accept body text that looks like a real value — at least one
+  // comma or at least two interior capitalised words (proper nouns / locations).
+  // This prevents generic preamble sentences from being mistaken for a value.
+  if (results.length === 0) {
+    const headingMatch = document.spans
+      .filter((s) => s.reliability !== "excluded")
+      .filter((s) => (rule.preferBlockTypes ?? ["field", "paragraph"]).includes(s.blockType))
+      .filter((s) => Boolean(s.heading) && allLabels.some((label) => s.heading!.toLowerCase() === label.toLowerCase()))
+      .sort((a, b) => (a.page ?? Number.MAX_SAFE_INTEGER) - (b.page ?? Number.MAX_SAFE_INTEGER))[0];
+    if (headingMatch) {
+      const rawValue = headingMatch.text.trim().replace(/[.;:,]$/, "").trim();
+      const commaCount = (rawValue.match(/,/g) ?? []).length;
+      const words = rawValue.split(/\s+/).filter(Boolean);
+      const interiorProperNouns = words.slice(1).filter((w) => /^[A-Z][a-z]/.test(w)).length;
+      if (rawValue && (commaCount >= 1 || interiorProperNouns >= 2)) {
+        results.push({
+          value: rawValue,
+          normalizedValue: normalizeValue(rawValue),
+          confidence: "medium",
+          span: headingMatch,
+          extractionRule: `label:${rule.field}`,
+          warnings: [],
+        });
+      }
+    }
+  }
+
   return results;
 }
 
