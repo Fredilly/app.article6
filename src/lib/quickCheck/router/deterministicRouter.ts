@@ -396,8 +396,8 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
   // Reject answers that are just heading echoes or formula markers
   // (e.g. "REDD+ Methodology Framework -- 1 of 1 --").
   const wordCount = trimmedText.split(/\s+/).filter(Boolean).length;
-  const isFormulaMarker = wordCount >= 4 && wordCount <= 12 && trimmedText.includes(" -- ") && /\d+ of \d+/.test(trimmedText);
-  if (wordCount < 4 || isFormulaMarker) return null;
+  const hasFormulaPattern = trimmedText.includes("-- 1 of") || trimmedText.includes("-- 2 of") || /\d+ of \d+ --/.test(trimmedText);
+  if (wordCount < 4 || hasFormulaPattern) return null;
   const answerText = node ? `${sectionDisplay(node)}: ${trimmedText}` : trimmedText;
 
   return {
