@@ -648,10 +648,22 @@
             "expectedEvidenceEmpty": true
           },
           "monitoring": {
-            "expectedStatus": "no_evidence",
-            "expectedRoute": "fallback",
-            "expectedEvidenceEmpty": true,
-            "visibleAnswerStatus": "unclear"
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Monitoring will be conducted annually"
+              ],
+              "sectionHints": [
+                "Monitoring"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "leakage": {
             "expectedStatus": "unclear",
