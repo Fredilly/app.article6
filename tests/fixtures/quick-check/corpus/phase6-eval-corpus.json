@@ -648,10 +648,10 @@
             "expectedEvidenceEmpty": true
           },
           "monitoring": {
-            "expectedStatus": "unclear",
+            "expectedStatus": "no_evidence",
             "expectedRoute": "fallback",
-            "visibleAnswerStatus": "unclear",
-            "expectedEvidenceEmpty": true
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "leakage": {
             "expectedStatus": "unclear",
@@ -755,22 +755,10 @@
             "visibleAnswerStatus": "unclear"
           },
           "monitoring": {
-            "expectedStatus": "answered",
-            "expectedRoute": "section_index",
-            "goldEvidence": {
-              "pages": [
-                1
-              ],
-              "spanAnchors": [
-                "REDD+ Methodology Framework"
-              ],
-              "sectionHints": [
-                "Monitoring"
-              ]
-            },
-            "visibleAnswerStatus": "likely_yes",
-            "visibleAnswerEvidenceMin": 1,
-            "visibleAnswerEvidencePage": 1
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "leakage": {
             "expectedStatus": "unclear",

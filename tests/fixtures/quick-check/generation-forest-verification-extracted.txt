@@ -1,0 +1,3832 @@
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 1
+VERIFICATION REPORT GENERATION
+FOREST GROUP PROJECT
+Document Prepared by Colombian Institute for Technical Standards and Certification –
+ICONTEC
+Project Title Generation Forest Group Project
+Version V2. 27-09-2021
+Report ID VER- MI-VCS-CCB-003
+Report Title Verification report “Generation Forest Group Project”
+Client Futuro Forestal (FF)
+Pages 60
+Date of Issue 03-11-2021
+Prepared By Colombian Institute for Technical Standards and certification - ICONTEC
+Contact Martha Ivon Corredor Rodríguez
+Carrera 37 Nº 52 - 95 Bogotá, Colombia
+PBX: (57)(1) 607 8888 Ext 1380 or 1381 or 8040 FAX: (57)(1) 222 0569 / 222 1435
+mcorredor@icontec.org www.icontec.org
+Approved By Juan Camilo Serna- technical reviewer
+Work Carried
+Out By
+Claudia Polindara – Lead auditor and technical expert
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 2
+Summary
+The Generation Forest Group Project is a VCS/CCB AFOLU (Agriculture, Forestry and Other Land Use)
+grouped project implemented in the Republic of Panama, and it falls under the ARR (Afforestation,
+Reforestation, and Revegetation) category.
+The project aim is to reforest 1,100 hectares of degraded land which was formerly used mainly for cattle
+ranching and pasture during its project lifetime. The project is designed to continually increase its project
+zone, project area, and the number of project instances within the expansion area during the project
+lifetime. The project promotes sustainable forest management and innovative silvicultural practices,
+using mainly native hardwood species for its reforestation sites as well as enrichment planting and
+assisted natural regeneration when appropriate. The Monitoring Report contains information about the
+project benefits (Climate, Community, and Biodiversity benefits), project implementation, legal status,
+and property rights. Furthermore, the results about the community and biodiversity impacts.
+In accordance with the VCS and CCB rulers, the purpose and scope of verification comprehend
+documental review, remote visit, interviews, and consultation of secondary information sources, findings
+statements, feedback with the project proponent, and elaboration of the final report. The visit was remote
+considering that the project validation is recent, this was validated by ICONTEC, which made the
+inspection on-site and was carried out from 10/06/2021 to 14/06/2021. ICONTEC to collect enough
+evidence to fully evaluate the verification criteria and determine that the project is implemented in
+accordance with the Project Description (V3. August 10, 2021) and the Monitoring Report (V2. September
+27, 2021) is in accordance with the Monitoring Plan.
+The first VCS – CCB verification period is 15 August 2016 – 05 June 2021.
+In addition, according to Section 4.3.13 of the CCB Program Rules, v3.1, states that VVBs may conduct
+a verification audit without a site visit where bother of the following criteria are met:
+- The posting of the current project description and/or monitoring report for public comment is
+within three years of the first day of the public comment period for the audit during which the same
+validation/verification body last conducted a CCB site visit; and
+- The validation/verification body decides that current information provided by the project
+proponent combined with information from the last CCB site visit conducted by the same
+validation/verification body provides sufficient evidence for issuance of an opinion about whether the
+project meets the rules and requirements of the CCB Program.
+In consequence and taking account that the validation was recently, and de information is enough for the
+first verification, ICONTEC decided realized the audit remotely. For this purpose, the respective risk
+analysis was carried out.
+During the verification, the ICONTEC team identified 8 findings (1 Clarification Request, 4 Corrective
+Action Requests and 3 Future Action Request) that were addressed satisfactorily by the project
+proponent during the verification process to ensure that the Monitoring Report fulfils the VCS and CCB
+program requirements.
+The project complies with all of the verification criteria, and the assessment team has no restrictions or
+uncertainties with respect to the compliance of the project with the verification criteria.
+ICONTEC verified the emission reductions of 57,019 tCO2e in the verification period: 15 August 2016 –
+05 June 2021. The project does not have gold level.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 3
+TABLE OF CONTENTS
+1 Introduction .......................................................................................................................... 4
+1.1 Objective ....................................................................................................................................... 4
+1.2 Scope and Criteria ........................................................................................................................ 4
+1.3 Level of Assurance ........................................................................................................................ 4
+1.4 Summary Description of the Project.............................................................................................. 4
+2 Verification Process ............................................................................................................ 5
+2.1 Audit Team Composition (Rules 4.3.1) ......................................................................................... 5
+2.2 Method and Criteria ....................................................................................................................... 5
+2.3 Document Review ......................................................................................................................... 6
+2.4 Interviews ...................................................................................................................................... 7
+2.5 Site Inspections ............................................................................................................................. 8
+2.6 Resolution of Findings ................................................................................................................... 9
+2.7 Eligibility for Validation Activities ................................................................................................. 10
+3 Validation Findings ............................................................................................................ 10
+3.1 Participation under Other GHG Programs .................................................................................. 10
+3.2 Methodology Deviations .............................................................................................................. 10
+3.3 Project Description Deviations (Rules 3.5.7 – 3.5.10) ................................................................ 10
+3.4 Minor Changes to Project Description (Rules 3.5.6) ................................................................... 10
+3.5 Grouped Project (G1.13 – G1.15, G4.1) ..................................................................................... 10
+4 Verification Findings ......................................................................................................... 10
+4.1 Public Comments (Rules 4.6) ..................................................................................................... 10
+4.2 Summary of Project Benefits....................................................................................................... 10
+4.3 General........................................................................................................................................ 11
+4.4 Climate ........................................................................................................................................ 16
+4.5 Community .................................................................................................................................. 26
+4.6 Biodiversity .................................................................................................................................. 29
+4.7 Additional Project Implementation Information ........................................................................... 33
+4.8 Additional Project Impact Information ......................................................................................... 33
+5 Verification Conclusion ..................................................................................................... 33
+Appendix 1: FINDINGS ............................................................................................................. 34
+Appendix 2: Result of parcel sampling ................................................................................... 40
+Appendix 3: PUBLIC DOCUMENT VERRA .............................................................................. 57
+Appendix 4: AUDIT PLAN AND RISK ANALYSIS FOR AUDIT REMOTE .............................. 58
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 4
+1 INTRODUCTION
+1.1 Objective
+Following the VCS and CCB rulers, the objective of verification is assessing the methods and
+procedures, including monitoring procedures, that the project proponent has implemented per the
+validated project description. This includes ensuring conformance with the monitoring plan, verify the
+GHG emission reductions and removals reported in the monitoring report are materially accurate. In
+addition, verify complies with the CCB rules. The monitoring period reporting is 15 August 2016 – 05
+June 2021.
+1.2 Scope and Criteria
+The scope of work covered in the verification is describe below:
+- VCS standard V4.1
+- VCS Validation and Verification manual V3.2
+- VCS Program guide V4.0
+- VCS Methodology Requirements, v4.0
+- CCB Standard V3.1
+- CCB program rules V3.1.
+- VCS AFOLU Non-Permanence Risk Tool version 4.0
+- Guidance for ARR Calculating Long-Term Average Carbon Stock
+- Methodology AR-ACM0003. Afforestation and reforestation of lands except for wetlands. Version
+2.0 and Tools.
+- To evaluate whether the monitoring plan is in conformance with the applied methodology front e
+VCS
+- To confirm that the information presented are completed, consistent, transparent and free of
+omission or material error
+- Background investigation and follow up interviews
+- Issuance of draft verification report with CARs, CLs and FAR
+- Final Verification Report.
+1.3 Level of Assurance
+In accordance with VCS Standard 4.1, the level of assurance of this report, insofar as it describes
+work performed, is reasonable.
+1.4 Summary Description of the Project
+The Generation Forest Group Project is a VCS/CCB AFOLU (Agriculture, Forestry and Other Land
+Use) grouped project implemented in the Republic of Panama, and it falls under the ARR
+(Afforestation, Reforestation, and Revegetation) category.
+The project aim is to reforest 1,100 hectares of degraded land which was formerly used mainly for
+cattle ranching and pasture during its project lifetime.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 5
+The first forest management unit is Darién, the area is distributed in the greater part in the province
+of Darién, District of Chepigana, and another part is located in the province of Panama, District of
+Chepo. It comprises a current project area of 952 ha of which 710 are eligible for the project, within
+these areas we find the life zone of humid tropical forest and very humid premontane forest with
+slightly undulating topography, rainfall between 1801 and 2100 mm, temperatures per year of 26.4
+and 26.5 ° C. The second forest management unit is Colón, located in the province of Colón, District
+of Colón, on the road to Sierra Llorona, with a project area of 935 ha where 429 ha are eligible for
+the project, where the very premontane forest predominates. Humid, with annual rainfall between
+3001 and 3300 mm and average temperature between 24.6 and 25 ° C.
+The project is designed to continually increase its project zone, project area, and the number of
+project instances within the expansion area during the project lifetime. The project promotes
+sustainable forest management and innovative silvicultural practices, using mainly native hardwood
+species for its reforestation sites as well as enrichment planting and assisted natural regeneration
+when appropriate.
+The Monitoring Report contains information about the project benefits (Climate, Community, and
+Biodiversity benefits), project implementation, legal status, and property rights. Furthermore, the
+results about the community and biodiversity impacts.
+2 VERIFICATION PROCESS
+2.1 Audit Team Composition (Rules 4.3.1)
+Table 1 indicates the team audit is expertise in the following areas:
+Table 1 Audit Team
+Name Role Developed Phase Summary of Relevant
+Qualifications
+Claudia Polindara Lead Auditor and
+technical expert
+Document review. Site inspections.
+Interviews. Issuance of findings.
+Final Report
+Relevant forestry and land use
+experience in the project region:
+Relevant ecological and
+biodiversity expertise	Juan Camilo Serna Technical Review Review and evaluation of the Draft
+Report and Final Report
+The auditor team is qualified in accordance with ICONTEC qualification scheme for VCS/CCB
+validation and verification.
+2.2 Method and Criteria
+Verification was performed using ICONTEC procedures in line with the requirements specified in the
+VCS Standard V4.1, VCS Methodology requirements V4.0 and CCB Standard V3.1, the applied
+methodology “AR- ACM0003 Afforestation and Reforestation of lands except wetlands. Version 2.0.
+Sectorial scope(s): 14” and its associated tools as well as applying standard auditing techniques.
+During the audit process made the follows activities: document review, interviews with relevant
+personnel, and remote visit, considering that the project validation is recent, and this was validated
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 6
+by ICONTEC, which made the inspection on-site which made the inspection on-site and was carried
+out from 10/06/2021 to 14/06/2021.
+In addition, according to Section 4.3.13 of the CCB Program Rules, v3.1, states that VVBs may
+conduct a verification audit without a site visit where bother of the following criteria are met:
+- The posting of the current project description and/or monitoring report for public
+comment is within three years of the first day of the public comment period for the audit
+during which the same validation/verification body last conducted a CCB site visit; and
+- The validation/verification body decides that current information provided by the project
+proponent combined with information from the last CCB site visit conducted by the
+same validation/verification body provides sufficient evidence for issuance of an
+opinion about whether the project meets the rules and requirements of the CCB
+Program.
+In consequence and taking account that the validation was recently, and de information is enough
+for the first verification, ICONTEC decided realized the audit remotely. For this purpose, the
+respective risk analysis was carried out. (View Appendix 4).
+2.3 Document Review
+The Monitoring Report (CCB_VCS_Monitoring_Report_Generation_Forest_Group_v2_270921) was
+reviewed for conformance to the verification criteria. The Project Description (“01. PD Generation
+Forest Group. V3. August 10, 2021”) was also referenced in conducting this review. The following
+additional documentation is set out below:
+Table 2 Document Review
+Number Document Name
+/1/ CCB VCS Monitoring Report Generation Forest Group. V1. June 7, 2021. V2.
+September 27, 2021. V3. April 8, 2022
+/2/ Procedimiento Monitoreo Carbono.09.21 - (Forest Inventory Procedure for Carbon
+Monitoring)
+/3/ Total VCUs Project
+/4/ VCUs Native
+/5/ VCUs Teak
+/6/ Annex – Stratification
+/7/ Annex - Database Natives Colon
+/8/ Annex – List of species in PMP
+/9/ Annex – Wood Densities
+/10/ Videos: Natural Resources Management, Waste Management.
+/11/ VCS-Non-Permanence-Risk-Report-FF. Internal, External, Natural Risks. V1. May 16,
+2021
+/12/ 01. PD Generation Forest Group. V5. February 14, 2022
+/13/ Legal Status and Property Rights. V1. July 9, 2021
+/14/ Land tenure legislation. V.1. July 8, 2021
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 7
+Number Document Name
+/15/ GIS and Maps. V1. June 7, 2021
+/16/ Climate CO2. CO2 Estimates References. V1. May 14, 2021
+/17/ Climate CO2. CO2 Model Carbon. V1. May 16, 2021
+/18/ Climate CO2. CO2 Monitoring. V1. May 13, 2021
+/19/ Community. Social Impact Assessments
+/20/ Biodiversity. Monitoring. V1. May 13, 2021
+/21/ Biodiversity. Endangered Species. V1. May 13, 2021
+/22/ Biodiversity. Use of exotic sp. V1. May 13, 2021
+/23/ Response Verra Start Date. February 25, 2021
+/24/ Annex. Request to the Environment Ministry of Panama
+/25/
+Annex. Seeds:
+- Purchase of seeds and provenance - Compra semillas y
+procedencia.pdf
+- Importing Seeds Procedure - PROCEDIMIENTO PARA
+IMPORTACION DE SEMILLAS.docx
+/26/ Procedimiento para resolver quejas y demandas de actores interesados
+/27/ Código de conducta de futuro forestal
+/28/ Reglamento interno de trabajo
+2.4 Interviews
+The interviews applied to project staff, extern consultors, and the indigen community directly involved
+in monitoring.
+Table 3 Interviews
+Actor Entity/Organisation Role Date(s)
+interviewed
+Juan González Futuro Forestal Operations Manager, Supervision
+Monitoring Team 10/09/2021
+Jonathan Domínguez Futuro Forestal Project manager in Darién
+(cooperative, Kapok) 10/09/2021
+Iliana Armien Futuro Forestal Forestry Director, Co-founder
+Futuro Forestal 10/09/2021
+Danilo Cedeno Futuro Forestal General Manager 10/09/2021
+Viverka Conte Futuro Forestal Accounting manager 10/09/2021
+Jennifer Hernández Futuro Forestal Project Manager in Darién,
+Supervision Monitoring Team 10/09/2021
+Octavio Cunampio Community Emberá
+Monitoring team, responsible for
+height measurements with
+hypsometer
+10/09/2021
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 8
+Actor Entity/Organisation Role Date(s)
+interviewed
+Ángel Flores EcoWoods External audit of plantations 10/09/2021
+Iraida Cuellar Futuro Forestal Administration 10/09/2021
+Susanne Guamba Futuro Forestal Science and Carbon Manager 10/09/2021
+Militza Cunampio Community Emberá Monitoring Team. (Ex-employee) 10/09/2021
+Marlon Medrano Futuro Forestal Project manager in Colón 10/09/2021
+Albert Aji Community Emberá Monitoring team (Ex-employee) 10/09/2021
+Elio Barrigón Community Emberá
+Monitoring Team
+Ejua Wadra Foundation (young
+environmentalists) . (Ex-
+employee)
+10/09/2021
+Harold Viquez Ambere Consultant Monitoring, Carbon
+Calculations 10/09/2021
+Keegan Eisenstadt Clear Sky Climate
+Solution
+Consultant Monitoring, Carbon
+Calculations 10/09/2021
+In addition, given the recent nature of the validation interviews (10/06/2021 to 14/06/2021), this data
+was utilized to supplement the process of conducting interviews with other stakeholders who are not
+involved in the project but may benefit directly or indirectly, as well as governmental entities:
+Table 4 Interviews other stakeholders (Validation Report)
+Actor Entity/Organisation/Role
+Father Paul Kasuboski Neighbor, entrepreneur
+Robinson Trujillo Neighbor
+Jefferson Hall Smithsonian Tropical Research Institute, biodiversity
+plot in Colon
+Julius Rye Agrochemical supplier, Chiriqui.
+Emilio Quintana Min Environment Forestry Management
+Ignacio Pimentel Neighbor, entrepreneur
+Lucy Cano Neighbor, former owner
+Doña Reyna Merchant, Shop in Palmas Bellas, Bonus food workers
+2.5 Site Inspections
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 9
+As mentioned in section 2.2., the audit was conducted in a remote manner, and to undertake it,
+ICONTEC, has generated an instruction manual for the development of remote audits (I-PS-011
+Remote Field Audit Instruction), which is in line with the measures and protocols accepted in
+Colombia and was supported to present the Verification Plan to the VERRA Secretariat for this audit.
+Additionally, the audit team used the information from this year’s on-site project validation visit (June
+2021). The visit was carried out in Darien, considering that in this unit, the three strata of the project
+are found, and as a result, 15 plots of total of 269 were visited. This on-site review was carried out
+from 10/06/2021 to 14/06/2021, the grouped project was visited, in addition to the monitored plots,
+the validation of the 1100 hectares of Generation Forests, with mainly native tree species, but also
+Teak, of which 710ha correspond to Management Unit Darien and 429 ha correspond to
+Management Unit Colon.
+The objectives of the on-remote inspections performed were to:
+- Select samples of data and information to meet a reasonable level of assurance and to meet the
+materiality requirements of the project, as required by the VCS Standard.
+- Perform review of the project activities to ensure that the project conformed to the requirements of
+the verification
+- Assess the extent to which any monitoring was conducted in accordance with the requirements of
+the validated monitoring plans.
+2.6 Resolution of Findings
+As part of the processes for the verification, ICONTEC detected findings (4 CAR, 01 CL, 03 FAR)
+were presented to the person in charge of the project and were resolved through communications or
+meetings between the two parties. Appendix 1 of this verification report describes the findings found,
+the responses provided by the person responsible or head of the GHG mitigation initiative.
+The project adequately corrected all non-conformities, delivering and modifying the missing
+information, adjusting the document, reviewing, and proposing corrective actions, with which the
+findings found were closed.
+The identification of the findings was determined after the documentary review delivered by the
+project, these non-conformities respond to the requirements of the Climate, Community, and
+Biodiversity Standard and VCS Version 4.1 and present a support in the attached folders, as well as
+verifiable sources and approved.
+2.6.1 Forward Action Requests
+During this audit, the audit team identified 3 FARs. FAR 1 corresponds to the land tenure of some
+farms, while FAR 2 is generated for verification activities supplementing the development of the
+Biodiversity Monitoring Plan. FAR 3 is related to the project's dissemination to the community that
+doesn't have internet access.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 10
+The Forward Action Request must be referred to and solved in the next verification of the project.
+2.7 Eligibility for Validation Activities
+This section is not applicable.
+3 VALIDATION FINDINGS
+This section is not applicable. During this verification, the project doesn’t present gap validation, or
+validation of methodology deviations, or project description deviations, neither present the inclusion
+of new project activity instances into grouped projects.
+3.1 Participation under Other GHG Programs
+This section does not apply, as indicated in section 3.
+3.2 Methodology Deviations
+This section does not apply, as indicated in section 3.
+3.3 Project Description Deviations (Rules 3.5.7 – 3.5.10)
+This section does not apply, as indicated in section 3.
+3.4 Minor Changes to Project Description (Rules 3.5.6)
+This section does not apply, as indicated in section 3.
+3.5 Grouped Project (G1.13 – G1.15, G4.1)
+This section does not apply, as indicated in section 3.
+4 VERIFICATION FINDINGS
+4.1 Public Comments (Rules 4.6)
+The project was open for public comment from 02/08/2021 to 01/09/2021. No comments were
+submitted during the public comment period.
+4.2 Summary of Project Benefits
+Section 1 of the monitoring report provides complete information about the project’s benefits and as
+well affords in other sections of the monitoring report explains these benefits in more detail. Data are
+sufficiently supported with evidence, which was verified during the remote audit as well as the desk
+review conducted. The project benefits are credible based on the supporting documents provided by
+the project proponents and evidence during the interviews applied.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 11
+The Standardized Benefit Metrics of the Generation Forest Group Project are summarized in table
+in Section 1 of the Monitoring Report and the assessment is provided as below:
+Table 5 Standardized Benefit Metrics
+Category Metric Achievements during
+Monitoring Period
+Achievements during
+the Project Lifetime
+GHG
+emission
+reductions &
+removals
+Net estimated emission removals in
+the project area, measured against
+the without-project scenario
+57,019 tCO2e 57,019 tCO2e
+Net estimated emission reductions in
+the project area, measured against
+the without-project scenario
+Not applicable Not applicable
+Forest cover
+For REDD projects: Number of
+hectares of reduced forest loss in the
+project area measured against the
+without-project scenario
+Not applicable Not applicable
+For ARR projects: Number of
+hectares of forest cover increased in
+the project area measured against
+the without-project scenario
+MU Darien: 414ha MU Darien: 414ha
+MU Colon: 259ha MU Colon: 259ha
+Total: 673ha Total: 673ha
+Improved
+land
+management
+Number of hectares of existing
+production forest land in which IFM
+practices have occurred as a result
+of the project’s activities, measured
+against the without-project scenario
+Not applicable Not applicable
+Number of hectares of non-forest
+land in which improved land
+management has occurred as a
+result of the project’s activities,
+measured against the without-
+project scenario
+Not applicable Not applicable
+Training
+Total number of community
+members who have improved skills
+and/or knowledge resulting from the
+training provided as part of project
+activities
+30 workshops were
+conducted with workers,
+and in fire control
+training neighbors were
+included. All new
+workers received initial
+training and induction.
+30 workshops were
+conducted with workers,
+and in fire control
+training neighbors were
+included. All new
+workers received initial
+training and induction.
+36 indigenous young
+people trained in
+reforestation and forest
+management
+36 indigenous young
+people trained in
+reforestation and forest
+management
+4.3 General
+4.3.1 Implementation Status (G1.9)
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 12
+ICONTEC inspected the monitoring plans contained in Project Description (01. PD Generation Forest
+Group. V3. August 10, 2021) and compared them with the latest version of the proponent’s
+implementation report. The audit team confirmed that the implementation of project activities was in
+conformity with the monitoring plans. The proponent project presents the achievements during the
+Monitoring Period:
+Table 6 Achievements during Monitoring Period
+Outcome or Impact Achievements during the Monitoring
+Period
+Achievements during the Project
+Lifetime
+1) 1,100 hectares of
+reforested area in Panama,
+in regions where soils have
+been degraded due to earlier
+land use
+673ha reforested within the 2
+Management Units (Darien and Colon)
+in Panama.
+673ha reforested within the 2
+Management Units (Darien and
+Colon) in Panama.
+2) Establishment of
+Generation Forests, i.e.,
+creating permanent multi-
+aged, multi-species, native
+tropical forests
+Generation Forests were established
+on an area of 321ha using native
+species.
+Generation Forests were
+established on an area of 321ha
+using native species.
+3) Increase sustainable
+forest management
+practices in the region
+Sustainable forest management
+practices are implemented by the
+project, and trainings for workers on
+sustainable practices were conducted
+on a regular basis. 36 young
+indigenous people were trained in
+reforestation and forest management.
+Sustainable forest management
+practices are implemented by
+the project, and trainings for
+workers on sustainable
+practices were conducted on a
+regular basis. 36 young
+indigenous people were trained
+in reforestation and forest
+management.
+4) Creation of new habitats
+for biodiversity, restoration of
+landscapes, and increase in
+wildlife by recruitment of
+plant and animal species
+673ha were reforested, restoring
+formerly pastureland into forests.
+Baseline inventory on flora and fauna
+in 2015 was established, and camara
+traps used for wildlife monitoring.
+673ha were reforested,
+restoring formerly pastureland
+into forests. Baseline inventory
+on flora and fauna in 2015 was
+established, and camara traps
+used for wildlife monitoring.
+Through the interviews, the remote visit, and the documentary review it was possible to confirm that
+the achievements reported in the monitoring report are in accordance with what was reported, in
+addition, this information was validated with what was proposed in the Project Description.
+In addition, the audit teams confirm following:
+• Material discrepancies: The project proponent doesn´t present material discrepancies
+between the actual monitoring system, neither present description nor methodology
+deviations. Just as, the project demonstrated that within the monitoring period (2016 to
+2021), the increase in forest cover and sequestration of carbon in living biomass has
+contributed to the reduction of GHG emissions by acting as sinks and sequestering 57,019
+tCO2e.
+• The audit team confirms that the project's GHG emission removals generated by the project
+have not become included in an emissions trading program or any other mechanism that
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 13
+includes GHG and adds that there is a low probability that the project, recently validated by
+VERRA, is incorporated in another mechanism that includes GHG allowance trading.
+• The audit team only has information about the current process of the verification and has not
+received any information from another environmental crediting program since validation or
+previous verification.
+• The audit team isn't informed about whether the project has participated in any other GHG
+programs since validation or previous verification, and there isn't a probability that the project is
+currently in another process. Furthermore, the project proponent submitted a request to the
+Ministry of Environment of Panama for the establishment of the Carbon Absorption Register and
+was informed that the project is registered in Verra /24/.
+• The project aims to recover degraded lands that are expected to remain degraded or
+continue to degrade in the absence of the project. This is obtained through GHG emission
+removals, which generate environmental and social co-benefits such as the conservation of
+biodiversity. In section 2.1.10 of the Monitoring Report, the project proponents argue that the
+project contributes to the following sustainable development goals in SDG: 1,5, 6, 8, and 12. The
+audit team believes that the project complies and contributes to long-term development.
+The audit process confirmed that the project has economic viability with social and ecological
+benefits, providing commercially high-value tropical hardwoods, ecosystem services, and permanent
+restoration of forest landscapes. Furthermore, ICONTEC identified that the project managed to
+engage neighbors and communities in the region, especially the indigenous communities, such as
+the Emberá community in Piriatí, Darien. Also, the project has shown evidence that it has increased
+forest cover through the creation of permanent generation forests and has enrichment planting in
+existing intervened secondary forest.
+In accordance with the above, ICONTEC can confirm that the project has been implemented as
+described in the validated Project Description.
+4.3.2 Risks to the Community and Biodiversity Benefits (G1.10)
+The project proponent demonstrated that there are no risks to the community and presented the
+benefits to biodiversity. This data was analyzed using VCS-Non-Permanence-Risk-Report-FF.
+Internal, External, and Natural Risks/11/, which identified well-being benefits and non-risks. The
+procedure was carried out by the methodology. Furthermore, interviews with the Forestry Director
+(Iliana Armien) and the Science and Carbon Manager (Susanne Guamba) confirmed this.
+4.3.3 Community and Biodiversity Benefit Permanence (G1.11)
+Through the interviews (Science and Carbon Manager, Forestry Director and Operations Manager,
+Supervision Monitoring Team), ICONTEC confirmed that the project seeks permanence the climate,
+community, and biodiversity benefits, with the following approaches: Permanent employment through
+reforestation activities and sustainable forestry activities, the establishment of permanent bio-
+corridors for the fauna of the region, assisted natural regeneration and enrichment planting, and
+protected forest areas, which include the protection of watersheds, riparian areas, and watersheds.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 14
+Through Monitoring Report /1/ and annex /10/, /19/, /20/, /21/, the project proponent demonstrates
+that the project defined the necessary measures to protect the Community and Biodiversity Benefit
+Permanence.
+4.3.4 Stakeholder Access to Information (G3.1- G3.3)
+The project documentation is available on the public project website of VERRA, and the project
+proponents sent the summary project description to the stakeholders by email (NGOs, Municipality,
+MinAmbiente, and Indigenous Foundation).
+The documentation has enough and is appropriate for access to communities and other
+stakeholders.
+4.3.5 Stakeholder Consultation (G3.4 – G3.5)
+The project proponent has consulted stakeholders on project implementation, the community groups
+identified are authorities, consultants, extern auditor, and the neighbors of the project instances
+(Community Emberá), this information was presented in the Monitoring Report /1/.
+The above information was verified through interviews with members of the Embera community,
+including Militza Cunampio, Albert Aji, Elio Barrigón, and another neighbor (Father Paul Kasuboski).
+The audit team confirmed that various stakeholders were consulted.
+Similarly, ICONTEC confirmed in interviews with the Ministry of Environment and Forestry that the
+project has been presented to environmental authorities. However, the project's proponent stated
+that some people who do not have access to the internet were informed through mobile and other
+options. As a result, the audit team created the FAR3 for the subsequent verification.
+4.3.6 Stakeholder Participation in Decision-making and Implementation (G3.6)
+The Communication in Futuro Forestal is managed by the central administration of the company, the
+policy includes channels for internal communication with workers and external communication with
+other stakeholders. Through interviews and review documentary was proved effective
+communication.
+4.3.7 Anti-discrimination (G3.7)
+The project proponent demonstrated that the participation of the community and all stakeholders in
+the project has been inclusive, according to individual and gender-independent capacities, cultural
+identity, and religion. This information was corroborated in interviews performed with the project
+workers, in addition, the enterprise has documents that allow avoiding the discrimination: /26, /27,
+/28/.
+4.3.8 Stakeholder Feedback and Grievance Redress Procedure (G3.8)
+The project proponent proved that no grievance was received in the monitoring period.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 15
+4.3.9 Worker Relations (G3.9 – G3.12)
+During the verification evaluated the relationship between the project and direct and indirect workers.
+The interviews evidenced that the workers have expectations about the growth of the company
+(Futuro Forestal), and the indirect workers want back to the company and consider that they gained
+great knowledge in the activities carried out.
+4.3.10 Management Capacity (G4.2 – G4.3)
+The project proponent has interdisciplinary staff, who are qualified according to the established
+functions. The management team includes professionals with experience in the establishment and
+management of reforestation activities with natives and teak, who have been trained to develop
+project activities in the Project Area.
+In terms of Financial Health, the project has investors are based on the management agreement,
+projected work plan, and annual budgets. For all project instances, more than 80% of the funding
+needed for implementation is secured before the breakeven point.
+Furthermore, in remote visit, the audit team interviewed personnel that participle directly at the
+project, also, interviewed temporal workers who belong to community Embera. The interviews
+evidenced the organizational structure and the approach of engaging (indigenous) communities for
+community development requires continuous training and capacity building of the field staff, which is
+also documented by the FSC, and B-Corp certifications held by Futuro Forestal.
+In summary, the project has the appropriate management capacity.
+4.3.11 Commercially Sensitive Information (Rules 3.5.13 – 3.5.14)
+No commercially sensitive information has been excluded from the public version of the monitoring
+report.
+4.3.12 Rights Protection and Free, Prior and Informed Consent (G5.1-G5.5)
+The project instances are private, and the project has a procedure for securing the selection of legal
+lands. ICONTEC reviewed the legal documents of land tenure and identified that Futuro Forestal is
+the legal representative of the entities that own the project activity instances. Through written
+agreements Futuro Forestal is entitled to manage the project and the instances, which includes the
+design of the project, the creation, registration and brokerage of carbon credits on behalf of the
+owner. However, the owners of the farms Gatún I, Bartoly I y II y Lauhan I y II, are currently in the
+process with the ANATI for the titulation of property of these farms, at this time they have possessory
+rights. (FAR 1).
+The audit team verified that the project does not encroach on private, community, or government
+property. The audit process evidenced that the project has protected the rights of Indigenous
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 16
+Peoples, communities, and other stakeholders in accordance with the third edition of the Climate,
+Community & Biodiversity Standards, and the validated project description.
+4.3.13 Legal Status (G5.6)
+The project proponent provided legal documents that demonstrated compliance with national and
+local laws and regulations relevant to project activities. Additionally, the Forestry Director (Iliana
+Armién) explains the procedure for selecting the legal lands in new instances.
+4.4 Climate
+4.4.1 Accuracy of GHG Emission Reduction and Removal Calculations
+The GHG emission reductions and removals have been quantified correctly in accordance with the
+Project Description. The data and parameters used to calculate the GHG emission reductions and
+removals, follows:
+Data / Parameter A
+Data unit ha
+Description Project Area (eligible planted area)
+Source of data Survey databases of each polygon that is part of the Project.
+Description of measurement
+methods and procedures to be
+applied
+Field measurement: the area was delineated on the ground
+using a GPS device.
+Frequency of monitoring/recording
+At the beginning of site preparation, in the final establishment
+of the Reforestation Area and each time a verification is
+conducted.
+Value monitored Darien: 414,8 ha
+Colon: 258,6 ha
+Monitoring equipment GPS equipment (precision 1- 5 m) and Remote Sensing
+data.
+QA/QC procedures to be applied The delineated area is verified using a GPS device.
+Purpose of data Calculation of Project GHG emission reductions or removals.
+Calculation method Measurement
+Steps taken by audit team Verification: control points, validation tracks, and geographic
+information
+Data / Parameter Ai
+Data unit ha
+Description Area of stratum i
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 17
+Source of data
+Monitoring of stratum and stand boundaries is done employing
+Geographical Information Systems (GIS) allowing the
+integration of data from different sources (including GPS
+coordinates and Remote Sensing data).
+Description of measurement
+methods and procedures to be
+applied
+Field measurement: the area was delineated on the ground
+using GPS device.
+Frequency of monitoring/recording Each time a verification is conducted.
+Value monitored
+STRATA Management Unit Area, in ha
+Stratum 1 Teak Darien 316.8
+Stratum 2 Natives Darien 85.8
+Colon 224.9
+Stratum 3 Enrichment Darien 12.2
+Colon 33.6
+TOTAL 673.3
+Monitoring equipment GPS equipment (precision 1- 5 m) and Remote Sensing
+data.
+QA/QC procedures to be applied The delineated area is verified using a GPS device
+Purpose of data Calculation of Project emissions.
+Calculation method Measurement.
+Comments
+The stratification for ex-post estimations is based on the actual
+implementation of the project planting/management plan. New
+instances might be added in future verifications. It may even
+be necessary to evaluate the possibility of re-stratification of
+the project boundary, according to the development of the
+stand models, as it would enable the merging of several strata
+in order to optimize the costs and improve the outcomes of
+annual forest inventories.
+Steps taken by audit team Verification: control points, validation tracks, and geographic
+information.
+Data / Parameter n
+Data unit Dimensionless
+Description Number of plots established in each stratum
+Source of data Sampling error estimations.
+Description of measurement
+methods and procedures to be
+applied
+This value was estimated based on a pre-sampling
+development in the Project Area prior to designing the
+monitoring program, and then adjusted during groundwork.
+2% of the reforested area was used to establish the number
+of monitoring plots.
+Frequency of monitoring/recording Each time a verification is conducted.
+Value monitored STRATA Management
+Unit
+Number
+of plots
+Numbe
+r of
+subplo
+ts
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 18
+Stratum
+1 Teak Darien 166 32
+Stratum
+2 Natives Darien 18 18
+Colon 74 74
+Stratum
+3 Enrichment Darien 5 5
+Colon 6 6
+Total 269 135
+Monitoring equipment
+QA/QC procedures to be applied
+Quality control/quality assurance (QA/QC) procedures
+described within the monitoring system of the Project were
+applied.
+Purpose of data
+Estimate the number of plots needed for complying with a
+90% confidence interval, at infinite degrees of freedom. The
+acceptable margin of error is less than 10% of biomass
+stock. Uncertainty of the estimated mean of all monitored
+parameters is to be less than 10%.
+Calculation method MR_Section 3.1.3 for the calculation method.
+Steps taken by audit team Verification: parcel sampling, review of calculation
+Data / Parameter Ap.i
+Data unit m²
+Description Area of sample plot in stratum i.
+Source of data Field measurement.
+Description of measurement
+methods and procedures to be
+applied
+Methods according to Monitoring Procedures Manual of the
+Project were applied.
+Frequency of monitoring/recording Each time a verification is conducted.
+Value monitored 500 m2
+Monitoring equipment Tape measure and GPS.
+QA/QC procedures to be applied
+To verify that plots were installed, and the measurements
+were taken correctly; field measurements were checked by
+the supervisor to compare with the original measurement
+data and to correct any errors in techniques.
+Purpose of data Calculation of Project emissions.
+Calculation method
+Comments Sample plot location was registered with a GPS and marked
+on the Project map.
+Steps taken by audit team
+Verification: control points, validation tracks, geographic
+information. Forestry inventory procedure for carbon
+monitoring (Finding CAR1)
+Data / Parameter Asubp.i
+Data unit m²
+Description Area of sample subplot in stratum i.
+Source of data Field measurement.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 19
+Description of measurement
+methods and procedures to be
+applied
+Methods according to Monitoring Procedures Manual of the
+Project were applied.
+Frequency of monitoring/recording Each time a verification is conducted.
+Value monitored Teak: 3m radius circle (28.27 m²)
+Natives: 2x2m square (4m²)
+Monitoring equipment Tape measure and GPS.
+QA/QC procedures to be applied
+To verify that plots were installed, and the measurements
+were taken correctly; field measurements were checked by
+the supervisor to compare with the original measurement
+data and to correct any errors in techniques.
+Purpose of data Calculation of Project emissions.
+Calculation method
+Steps taken by audit team Verification: control points, Forestry inventory procedure for
+carbon monitoring (Finding CAR1)
+Data / Parameter Sample Plot Location
+Data unit Coordinates (Lat/Long)
+Description Localization of each sampling plots.
+Source of data GIS database and maps, and field sampling.
+Description of measurement
+methods and procedures to be
+applied
+Measured with GPS.
+Frequency of monitoring/recording Each time a verification is conducted.
+Value monitored Latitude and longitude of every plot
+Monitoring equipment GPS.
+QA/QC procedures to be applied Methods according to Monitoring Procedures Manual of the
+Project will be applied.
+Purpose of data Calculation of Project emissions
+Calculation method
+Comments Sample plot location was registered with a GPS and marked
+on the Project map within the GIS project database.
+Steps taken by audit team Verification: control points, Forestry inventory procedure for
+carbon monitoring (Finding CAR1), geographic information
+Data / Parameter DBH
+Data unit cm
+Description Diameter at Breast Height of the trees.
+Source of data Field measurements in sample plots.
+Measured at 1.3 m above-ground.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 20
+Description of measurement
+methods and procedures to be
+applied
+All the trees with DBH ≥ 10 cm in the PMP were measured
+and all trees with total height > 1.50 cm in the sub-plots were
+measured.
+Frequency of monitoring/recording Each time a verification is conducted.
+Value monitored The forest inventory database is presented in the supporting
+information.
+Monitoring equipment Measuring tape.
+QA/QC procedures to be applied
+Staff involved in the field measurement work were fully
+trained in field data collection. Field measurements were
+checked by the supervisor to correct any errors in
+techniques.
+Purpose of data Calculation of Project emissions
+Calculation method
+Comments MR_Section 3.1.3 provides the detailed procedures to be
+applied.
+Steps taken by audit team
+Verification: control points, Forestry inventory procedure for
+carbon monitoring (Finding CAR1), geographic information,
+parcel sampling, review of calculation
+Data / Parameter Hc
+Data unit m
+Description Commercial height of trees.
+Source of data Field measurements in sample plots and nested sub-plots.
+Description of measurement
+methods and procedures to be
+applied
+Measure all the trees’ commercial height in the permanent
+sample plots that result in the Project activity.
+Frequency of monitoring/recording Each time a verification is conducted.
+Value monitored The forest inventory database is presented in the supporting
+information.
+Monitoring equipment Hypsometer used in this monitoring period.
+QA/QC procedures to be applied
+Staff involved in the field measurement work were fully
+trained in field data collection. Field measurements were
+checked by the supervisor to correct any errors in
+techniques.
+Purpose of data Calculation of Project emissions.
+Calculation method MR_See section 3.1.3 Monitoring Plan
+Comments
+In the future new technology might be used to measure tree
+height, such as LIDAR, drone video images, digital DEM
+extrapolation, or others.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 21
+Steps taken by audit team
+Verification: control points, Forestry inventory procedure for
+carbon monitoring (Finding CAR1), geographic information,
+parcel sampling, review of calculation
+The GHG emission reductions and removals have been quantified correctly in accordance with the
+project description and applied methodology proposed in the Project Description.
+4.4.2 Quality of Evidence to Determine GHG Emission Reductions and Removals
+In process Audit verified the procedure for the collection of data, this verification made through the
+interviews (Consultant Monitoring, Carbon Calculations, monitoring team), and the Forestry inventory
+procedure for carbon monitoring /2/. Additionally, validation audit visit on-site information was used
+(See Appendix 2).
+The forest inventory and monitoring system established 269 PMP (the plots including plots with DAP
+< 10cm) The following table presents the area of the strata per year of planting (2007-2020).
+Table 7 Stratum Monitoring Plan (With plots <10cmDAP)
+Management
+Unit
+Year of
+planting Area (ha) No PPM
+STRATUM 1 - TEAK
+Darién
+2007 17,75 9
+2008 35,1 18
+2010 12,14 6
+2011 48,03 25
+2012 51,44 27
+2013 71,78 40
+2014 25,43 15
+2015 13,8 7
+2016 12,44 10
+2017 9,46 6
+2018 1,07 3
+TOTAL 298,44 166
+STRATUM 2 - NATIVES
+Darién
+2007 18,5 8
+2008 8 4
+2015 2,3 2
+2016 6,9 3
+2018 3,3 1
+Sub-Total 39 18
+Colón
+2011 5,9 4
+2014 25,4 13
+2017 16,2 7
+2019 97 34
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 22
+Management
+Unit
+Year of
+planting Area (ha) No PPM
+2020 35,9 16
+Sub-Total 180,4 74
+TOTAL 219,4 92
+STRATUM 3 - ENRICHMENT
+Darién 2011 12,2 5
+Sub-Total 12,2 5
+Colón 2019 13,97 6
+Sub-Total 13,97 6
+TOTAL 26,17 11
+TOTAL 544,01 269
+For the carbon calculations, only 258 plots were considered and included for the carbon calculation,
+which is shown in the Table 8. Therefore, it is necessary to clarify that the project decided it as a
+conservative measure, and currently doesn’t´ benefit from the remaining 11 plots because those
+monitoring plots have not reached a DBH > 10cm yet.
+Table 8 Stratum for Carbon Calculation (With plots >10cmDAP)
+Management
+Unit
+Year of
+planting Area (ha) No PPM
+STRATUM 1 - TEAK
+Daríen
+2007 17,75 9
+2008 35,1 18
+2010 12,14 6
+2011 48,03 25
+2012 51,44 27
+2013 71,78 40
+2014 25,43 15
+2015 13,8 7
+2016 12,44 10
+2017 9,46 6
+2018 1,07 3
+TOTAL 298,44 166
+STRATUM 2 - NATIVES
+Daríen
+2007 18,5 8
+2008 8 4
+2016 6,9 3
+Sub-Total 33,4 15
+Colón
+2011 5,9 4
+2014 25,4 13
+2017 16,2 7
+2019 97 35
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 23
+Management
+Unit
+Year of
+planting Area (ha) No PPM
+2020 35,9 13
+Sub-Total 180,4 72
+TOTAL 213,8 87
+STRATUM 3 - ENRICHMENT
+Daríen 2011 12,2 5
+TOTAL 12,2 5
+TOTAL OF 3 STRATA
+Total Strata (3) 524,44 258
+The establishing PMP for teak corresponds to circular plots of 500m2, and the native stratum
+corresponds to rectangular plots of 500m2.
+Equation to estimate the biomass of trees of Tectona grandis on the function of basal area per tree
+(Fonseca, 2021).
+C total (kg) = exp (-2.79561 + 2.54144*ln (DBH))
+Where,
+C total (kg) = Carbon, total in tree, aboveground and belowground biomass
+exp = exponent
+Ln = Natural logarithm
+DBH = Diameter at breast height
+As to Baseline net GHG reductions and removals by sinks, the project’s baseline emissions or
+removals at the start date are zero, as explained in the project description. However, the project
+started its reforestation activities in some project instance sites prior to the 2016 project start date.
+The project, therefore, counts the emissions reductions in the reforestation prior to the project start
+date as baseline carbon reductions. This information was clarified by VERRA (Appendix 3).
+In the case of Stratum 1 – Teak – historic monitoring data on tree growth from 2015 were used as a
+baseline. In the case of Stratum 2 and 3 for Native tree species, the existing monitoring data were
+too thin, for which estimates using the carbon model of the Generation Forest (as set out in the PDD),
+was used.
+According with the review document, interviews and the Monitoring Report, the information is enough
+of quantity, and appropriateness of quality describe, for the determination the GHG reductions and
+removals.
+Based on the information detailed in MR and the estimations tools and files, ICONTEC could confirm
+that the sources used are quoted correctly and interpreted adequately. All assumptions, sources and
+data are indicated and, all relevant information about the project, was confirmed and checked
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 24
+completely. In consequence, we can conclude that the methodology was applied following all the
+requirements, equations, and methodological procedures.
+Finally, the methodology and referenced tools have been applied correctly to calculate baseline
+emissions, project emissions, leakage and net GHG emission reductions. ICONTEC confirms that
+the GHG removals have been quantified correctly, in accordance with the Project Description version
+2, the Monitoring Report v.2 and the applied methodology.
+4.4.3 Non-Permanence Risk Analysis
+Proponent project was conducted following the guidance of the VCS AFOLU Non-Permanence Risk
+Tool” Version 4.0. The result of the non-permanence risk for the grouped project was 5.75%, in
+accordance with the supporting documents. According to VCU standard, a minimum of 10% of the
+risk buffer will be defined. The information is described in section 3.2.4, and the assumption is that
+the methodology result´s is reasonable.
+Below, it is explained the assessment of the non-permanence risk rating determined by the project
+participant and issues raised to them in this regard:
+Table 9 Assessment of non-permanence risk rating
+Risk Factor Risk
+rating Mitigation description Corrective
+Actions/Clarifications
+Internal
+Risk
+Project Management -2
+The management has significant experience in
+AFOLU project design and implementation with
+NatSource in Nicaragua and CO2OL-USA. In
+addition, the team of project developers
+contains the carbon expert and consulting
+company ClearSky Climate Solutions with vast
+experience related to carbon markets and
+AFOLU projects.
+In the Report of Risk of
+Non-permanence and
+the annexes, it can be
+verified that the
+mitigation of the risk and
+the evaluation of the
+same one is correct.
+Project cash flow
+breakeven point is greater
+than 10 years from the
+current risk assessment
+3
+Project cash flow breakeven point is greater
+than 10 years from the current risk assessment,
+typically between 17 and 25 years
+NPV from project activities
+is expected to be at least
+50% more profitable than
+the most -4
+The baseline activities are cattle farming.
+Simple cost analysis showed that the project
+activity compared to the baseline scenario is
+expected to be at least 50 % more profitable.
+profitable alternative land
+use activity expected to be at least 50 % more profitable.
+Without legal agreement
+or requirement to continue
+the management practice
+4
+The project instances have a lifetime of at least
+100 years as stated in our documents and cash
+flow / financial projections (24 (100/5) = 4).
+The project instances are FSC certified
+since 2019 and Futuro Forestal is B Corp
+certified since 2016.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 25
+Risk Factor Risk
+rating Mitigation description Corrective
+Actions/Clarifications
+External
+Risk
+Ownership and resource
+access/use rights are held
+by same entity(s)
+0 Ownership and resource access/use rights are
+held by same entity(s).
+In the Report of Risk of
+Non-permanence and
+the annexes, it can be
+verified that the
+mitigation of the risk and
+the evaluation of the
+same one is correct.
+The project generates net
+positive impacts on the
+social and economic well-
+being of the local
+communities who derive
+livelihoods from the project
+area
+-5
+The project generates net positive impacts on
+the social and economic well- being of the local
+communities who derive livelihoods from the
+project area, by providing employment,
+facilitating the access to the social security
+benefits, including health care and also by
+executing trainings related to the forest
+management of the planting area, as well as by
+improving public paths and roads
+Governance score of -0.32
+to less than 0.19 2
+Panama: 0.14
+Calculation can be found in the supporting
+documents. Governance score estimated for
+Panama between the years 2015-2019.
+Country is implementing
+REDD+ Readiness or
+other activities
+2
+Panama is a UN-REDD+ partner country and
+has completed the REDD+ readiness phase in
+2019. As a result of this process, the country
+currently has a National REDD + Strategy, a
+National Forest Monitoring System, a Forest
+Emission Reference Levels as a baseline, and
+an Environmental and Social Safeguards
+Information System with which to guarantee the
+rights of indigenous peoples and of all users of
+forests.
+Natural
+Risk
+Fires, forest pests, and
+disease outbreaks can
+negatively impact climate
+and biodiversity. This is
+because these conditions
+will affect the established
+forest within the Project
+Areas.
+4.75
+The project plants biodiverse species, selecting
+resistant native species that are well adapted to
+site conditions. Pest and disease monitoring is
+permanently established and regularly
+conducted throughout the project instances.
+In the Report of Risk of
+Non-permanence and
+the annexes, it can be
+verified that the
+mitigation of the risk and
+the evaluation of the
+same one is correct.
+As result, the project presents the overall risk rating:
+Table 10 Overall Risk Rating
+Risk Category Rating
+Internal Risk 1
+External Risk 0
+Natural Risk 4,75
+Overall Risk Rating (a+b+c) 5,75
+The methodology and results are appropriateness and according with the VCU standard-
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 26
+4.4.4 Dissemination of Monitoring Plan and Results (CL4.2)
+The project proponent explain that the Monitoring Plan was published on the platforms of VERRA,
+and it was submitted to the public consultation on the VERRA platform; no comments received to
+date. In addition, the Monitoring Report was regarding and shared with stakeholders via Email
+(NGOs, Municipality, MinAmbiente, and Indigenous Foundation).
+4.4.5 Optional Gold Level: Climate Change Adaptation Measures (GL1.3)
+Not applicable.
+4.4.6 Optional Gold Level: Climate Change Adaptation Benefits (GL1.4)
+Not applicable.
+4.5 Community
+4.5.1 Community Impacts (CM2.1)
+The project proponent identified three topics of community group:
+- Workers
+- Communities, and
+- Indigenous Communities, Piriatí and Arimae (Darien)
+The Change in Well-being corresponds to new employment opportunities for local workers with social
+benefits. A measurable increase in employment and employee earnings. The impact is positive. It
+increases the living conditions and well-being of employees. Without the Project, this change is not
+foreseeable, Improvement in quality of life through improved infrastructure, and Improvements in
+income, access to health, personal training, environmental sensitivity.
+Interviews performed with ex-workers, current project workers, and neighbors (table 2 and table 3)
+verified the positive community impacts, likewise, section 3.4.1 of the Monitoring Report/1/ identified
+adequately the impacts and Change in Well-being in the community, and there and are properly
+separated by community groups.
+4.5.2 Negative Community Impact Mitigation (CM2.2)
+The project proponent don´t identified negative community impacts and argued that the local labor
+cannot be found, it may be necessary to hire workers from more distant communities. The culture of
+temporary mobility of employees can be a factor in family fragmentation. As a mitigation measure, in
+some cases, the project creates infrastructure conditions and access to health and education for
+employees' family members that allow them to stay with their families.
+The information was corroborated through interviews and review documental.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 27
+4.5.3 Net Positive Community Well-being (CM2.3)
+The project proponent argued that the project generates positive changes in the community, offering
+them long-term employment opportunities, and support for the community, and informs that between
+2018 to 2021, the number of permanent employees has increased from 18 to 28. Currently, the
+program counts on 28 permanent staff (including Vivero), and a total of 68 employees, including
+seasonal workers, of which 8 are women (12%). This information was described in Section 3.4.3 of
+the Monitoring Report/1/and was corroborated through the interview performed with the Forestry
+Director and Co-founder of Futuro Forestal, Iliana Armien.
+In addition, the project presented other activities concerning access road, the rescue of the forest
+culture, through reforestation and training, as a tool for the recovery of the traditional and ancestral
+culture of an Emberá community in Piriatí, and technical education for activities forestry, this
+information was verified through interviews to neighbors (Father Paul Kasuboski).
+4.5.4 Protection of High Conservation Values (CM2.4)
+The project proponent informs in section 3.4.4 of the Monitoring Report that there are no high
+conservation values related to the community.
+4.5.5 Other Stakeholder Impacts (CM3.2-CM3.3)
+Negative impacts have not been identified in this monitoring report.
+4.5.6 Community Monitoring Plan (CM4.1, CM4.2, GL2.2, GL2.3, GL2.5)
+In Section 4.3.1. of the Monitoring Report, is described the results and indicators referred to
+Community Monitoring Plan, and details each of the indicators.
+Table 11 Results and Indicators Monitoring Topic Social
+Assumption Indicator Monitoring Source of
+verification
+Create formal
+employment
+By 2025, at least 25 permanent
+jobs created; at least 15% of
+the jobs are held by women.
+May 2021: 28 permanent jobs
+created, 5 are women (18%).
+Average of 60 workers
+including seasonal workers
+(2018-2021).
+Social
+Security.Monitoring
+Report Section 3.4.1;
+3.4.3; 3.6.1.
+Interview Forestry
+Director, Co-founder
+Futuro Forestal.
+Labor conditions
+By the year 2026, at least 80%
+of workers are satisfied with
+their working conditions. Improved housing conditions,
+investments into house,
+safety, and worker conditions.
+Job Satisfaction
+Surveys. Interview
+with the ex-
+employees and
+current employees.
+By 2026, at least 80% of
+workers are satisfied with their
+jobs.
+Due to COVID-19
+restrictions, no job
+satisfaction survey
+could be
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 28
+Assumption Indicator Monitoring Source of
+verification
+implemented.
+Interview with the ex-
+employees and
+current employees.
+Increase in
+knowledge,
+skills, and
+capacity of
+employees
+By 2026, 100% of the workers
+received some technical
+training in forest management
+skills, procedures, or
+approaches.
+Over 30 training sessions
+were implemented between
+2019-2021. Most permanent
+and seasonal staff received
+technical training.
+Training reports.
+Interview with the ex-
+employees and
+current
+employees;/19/
+By 2026, 100% of workers are
+trained in health and
+occupational safety.
+100% of workers trained in
+health and occupational
+safety.
+Training reports.
+Interview with the ex-
+employees and
+current employees.
+Improve the
+living conditions
+of the community
+Access roads are maintained
+and repaired, where feasible.
+Improved infrastructure in
+many access and public roads
+(2020: Darien: Garden Eden,
+Quebrada Bonita,2021:
+Darien: Brainforest, Clarita;
+2020: Colon, Santa Rita)
+Activity reports of
+project instances.
+Interview with the ex-
+employees and
+current employees.
+Improve the
+living conditions
+of the community
+By 2026, at least 20 members
+of nearby communities or
+indigenous communities
+received training as part of
+project activities.
+In 2019, 36 young people
+from the Emberá community
+in Piriati received training in
+reforestation and forest
+management. 8 received
+training in monitoring and
+forest inventory (2020,2021).
+Project activity
+report.
+Interview with the ex-
+employees and
+current employees.
+Increase
+community
+livelihood
+opportunities
+By the year 2026, at least 70%
+of tree seedlings, of locally
+available species, are
+purchased from tree nurseries
+within the region.
+Project design finished
+creating a local tree nursery
+within Darien Management
+Unit.
+Project purchase
+orders and database.
+Interview with the ex-
+employees and
+current employees.
+The information was corroborated through interviews and review documental.
+4.5.7 Community Monitoring Plan Dissemination (CM4.3)
+The project proponent explain that the Monitoring Plan was published on the platforms of VERRA,
+and it was submitted to the public consultation on the VERRA platform; no comments received to
+date. In addition, the Monitoring Report was regarding and shared with stakeholders via Email
+(NGOs, Municipality, MiAmbiente, and Indigenous Foundation).
+4.5.8 Optional Gold Level: Short-term and Long-term Community Benefits (GL2.2)
+Not applicable.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 29
+4.5.9 Optional Gold Level: Smallholder/community member Risks (GL2.3)
+Not applicable.
+4.5.10 Optional Gold Level: Marginalized and/or Vulnerable Community Groups (GL2.4)
+Not applicable.
+4.5.11 Optional Gold Level: Net Impacts on Women (GL2.5)
+Not applicable.
+4.5.12 Optional Gold Level: Benefit Sharing Mechanisms (GL2.6)
+Not applicable.
+4.5.13 Optional Gold Level: Governance and Implementation Structures (GL2.8)
+Not applicable.
+4.5.14 Optional Gold Level: Smallholders/Community Members Capacity Development (GL2.9)
+Not applicable.
+4.6 Biodiversity
+4.6.1 Biodiversity Changes (B2.1)
+In section 4.1.1. of the Monitoring Report/1/, presented the changes identified related to the results
+of the established camara traps. The reports from the biodiversity partner SOMASPA show an
+increase in wildlife species, and presented information referred to reforestation activity with mixed
+native tree species. The information was corroborated with results camara traps/20/;/21/, and forestry
+inventory/6/;/7/. Follows presents the species related whit flora and fauna:
+- Increased flora species richness
+- Restored habitats and enhanced local biodiversity
+- Created conservation buffers and provided ecosystem protection
+The information was corroborated through interviews (Consultant Monitoring Carbon Calculations;
+Science and Carbon Manager) and review documental.
+4.6.2 Mitigation Actions (B2.3)
+The Monitoring Report informs that don´t identified negative impacts to the biodiversity were
+presented. However, the project implemented different mitigation measures, related to the forestry
+management of the reforestation, care of vegetation on slopes, maintained of biological corridors,
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 30
+connection natural forest areas, training of workers and sensitization of workers to biodiversity
+principles realized.
+The information described above was verified through interviews, and information on the validation
+site.
+4.6.3 Net Positive Biodiversity Impacts (B2.2)
+The activities implemented by the Grouped Reforestation Project seek to generate diverse benefits
+to biodiversity are described in section 4.1.3 of the Monitoring Report/1/. In follows table presents the
+summary impacts achieved during the monitoring period:
+Table 12 Results and Indicators Monitoring Topic Biodiversity
+Impact Effect Direct/
+Indirect
+Increase of forest cover and creation of permanent
+Generation Forest (673ha) Positive Direct
+Increase of biodiversity (flora) using more than 20
+native tree species in reforestation activity. Positive Direct
+Increase of biodiversity (fauna) counting 26 mammal
+species. Positive Indirect
+Carbon sequestration as the forest is acting as a
+carbon sink. Positive Indirect
+678ha of protected existent forest, providing
+ecosystem protection Positive Indirect
+The information was corroborated through interviews and review documental.
+4.6.4 High Conservation Values Protected (B2.4)
+The project proponent claims in section 4.1.4 of the Monitoring Report that the project does not have
+HCV attributes on the grouped project activity instances. The information was corroborated through
+the interview with the Forestry Director, Co-founder of Futuro Forestal, and Science and Carbon
+Manager. The enterprise has established guidelines for wildlife conservation and the protection of
+endangered species within the project area of /10/; /11/; and/12/.
+4.6.5 Invasive Species (B2.5)
+It was verified that the project does not introduce or manage invasive species. Instead, the project
+promotes the use of native species and sustainable use of local flora.
+4.6.6 Impacts of Non-native Species (B2.6)
+The project used one non-native species which is Teak (Tectona grandis), and the project proponents
+justified its use informs that Futuro Forestal has been carrying out reforestation projects for 25 years
+for small and large investors, because the teak have been mainly its high market value and
+adaptability to the climate that exists in Panama, but with high site requirements. In many areas of
+the country, this species has been planted in places where it is not suitable to produce wood or to
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 31
+provide environmental benefits, and the project proponents has been planting the specie in suitable
+areas, for this reason, only planting on suitable soils, and areas with slopes of less than 12 degrees.
+It was verified that the established Teak there are don’t in protection areas, through geographic
+information, documental information, and interviews.
+4.6.7 GMO Exclusion (B2.7)
+The proponent project informs that no GMOs were used in the project activities. The Project is
+certified under FSC and complies with FSC requirements regarding the use of chemicals. During the
+remote audit, interviews were conducted with the External auditor of plantations for certification FSC
+and verified the information indicated in section 5.1.8.
+4.6.8 Inputs Justification (B2.8)
+The Project is certified under FSC and complies with FSC requirements regarding the use of
+chemicals. During the remote audit, interviews were conducted with the External auditor of
+plantations for certification FSC and verified the information indicated in section 5.1.8. In FSC, the
+project proponent reports that he does not use genetically modified material. The following describes
+the procedure for the seeds:
+- Native seeds: most are searched in natural forests and taken directly to the own nursery. After
+germination, they are put either in tubes or in jiffys. When the seedlings are ready, they are
+planted in the reforestation area.
+- Native seeds are not available locally, or teak: certified seeds are purchased. The purchase
+process has a specific procedure. Additionally, the project proponent presents evidence of
+provenance, indicating that it comes from a natural forest and is of indigenous origin /25/.
+4.6.9 Negative Offsite Biodiversity Impacts (B3.1) and Mitigation Actions (B3.2)
+In section 4.2.1 of the Monitoring report the project doesn´t reported the negative impacts on
+biodiversity because there weren’t negative impacts outside of the project zone. Quite the opposite,
+with the actions done to protecting, there were improvements in biodiversity, species richness, forest
+conditions, and reduction of degraded lands, resulting in the increase of ecosystem services
+provision.
+Through the documentary review was corroborated the information, specifically /10/, /11/, /21/, /22/,
+/25/, and section 4.3 of the Monitoring Report.
+4.6.10 Net Offsite Biodiversity Benefits (B3.3)
+The project doesn´t reported negative impacts on biodiversity outside the Project Zone resulting from
+Project activity. Through the documentary review was corroborated the information, specifically /10/,
+/11/, /21/, /22/, /25/, and section 4.3 of the Monitoring Report.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 32
+4.6.11 Biodiversity Monitoring Plan (B4.1, B4.2, GL3.4)
+The project indicates that to determine the biodiversity monitoring sites, frequency, and intensity of
+sampling, the project proponent has close collaboration with SOMASPA, other fauna biodiversity
+partners, universities, NGOs, or other specialists in biodiversity monitoring (national and
+international). The project proponent adequately describes the management and procedures to
+comply with the Biodiversity Monitoring Plan.
+In terms of fauna, the project identified species captured by camara traps, following tables showed
+the results the 2018 and 2020:
+Table 13 Results Monitoring Fauna (2018; 2020)
+Species - Scientific Name 2018 2020
+Didelphis marsupialis x x
+Metachirus nudicaudatus x x
+Tamandua mexicana x x
+Dasypus novemcinctus x x
+Sciurus granatensis x x
+Hydrochoerus isthmius* x x
+Dasyprocta punctata x x
+Cuniculus paca x x
+Proechimys semispinosus x x
+Sylvi/agus gabbi x x
+Nasua narica x x
+Eira barbara x x
+Leopardus pardalis* x x
+Leopardus wiedii* x x
+Herpailurus yagouaroundi* x
+Puma concolor* x
+Pecari tajacu x
+Mazama temama* x
+Hop/omys gymnurus x
+Procyon cancrivorous x
+Cerdocyon thous x
+Galictis vittata x
+Panthera onca x
+Cabassous centralis x
+Myrmecophaga tridactyla x
+Cebus capucinus x
+N Species 18 26
+* High conservation concern
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 33
+In terms of flora, in this monitoring period, the project identified that the project activities reduce the
+threats of four 1 Critically Endangered flora species listed in IUCN: Dalbergia retusa, and 3 nationally
+endangered or vulnerable flora species which are Swietenia macrophylla, Cedrela Odorata,
+Guzmania musaica, and Zanthoxylum acuminatum. According to the project proponent, this
+information was taken off the permanent plots.
+The information was correctly justified, and ICONTEC concludes that the biodiversity monitoring plan
+was carried out in accordance with the validated project design, however, PP must complement the
+development of the Biodiversity Monitoring Plan provided in order to comply with the project
+description (5.3.1) (FAR2).
+4.6.12 Biodiversity Monitoring Plan Dissemination (B4.3)
+The project proponent explain that the Monitoring Plan was published on the platforms of VERRA,
+and it was submitted to the public consultation on the VERRA platform; no comments received to
+date. In addition, the Monitoring Report was regarding and shared with stakeholders via Email
+(NGOs, Municipality, MiAmbiente, and Indigenous Foundation).
+4.6.13 Optional Gold Level: Trigger Species Population Trends (GL3.3)
+Not applicable.
+4.6.14 Optional Gold Level: Effectiveness of Threat Reduction Actions (GL3.4)
+Not applicable.
+4.7 Additional Project Implementation Information
+The project doesn´t include additional Implementation Information.
+4.8 Additional Project Impact Information
+The project doesn´t include additional Implementation Information. .
+5 VERIFICATION CONCLUSION
+ICONTEC affirms that according to the information provided by the project proponent, it can conclude
+follows:
+- The project complies with the verification criteria for Standard CCB Version 3.1 and VCS
+Version 4.1.
+- The project has been implemented in accordance with the validated project description and
+show no deviation.
+- The project employed correctly the methodologies selected.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 34
+Furthermore, ICONTEC concludes that the climate change adaptive capacity and resilience,
+community and biodiversity benefits achieved by the project during the project implementation period
+are net positive and that the project has achieved, or is on track to achieve, its stated climate change
+adaptive capacity and resilience, community, and biodiversity objectives.
+According to above, the GHG emission reductions or removals in tCO2 equivalents achieved by the
+project during the monitoring period from 15 August 2016 to 05 June 2021, corresponds to 57,019
+tCO2e
+Verified GHG emission reductions and removals in the above verification period:
+Year of
+planting
+Baseline
+emissions
+or
+removals
+(tCO2e)
+Project
+emissions
+or
+removals
+(tCO2e)
+Leakage
+emissions
+(tCO2e)
+Net GHG
+emission
+reductions
+or
+removals
+(tCO2e)
+Year 2007 6,613 10,615 0 4,002
+Year 2008 6,964 12,909 0 5,944
+Year 2010 979 3,357 0 2,378
+Year 2011 3,867 15,341 0 11,475
+Year 2012 4,726 9,333 0 4,607
+Year 2013 3,371 13,11 0 9,738
+Year 2014 1,017 5,946 0 4,928
+Year 2015 0 2,332 0 2,332
+Year 2016 0 2,277 0 2,277
+Year 2017 0 2,861 0 2,861
+Year 2018 0 74 0 74
+Year 2019 0 4,306 0 4,306
+Year 2020 0 2,097 0 2,097
+Total 27,537 84,556 0 57,019
+The quantity of VCUs to be issued to the project minus the quantity of VCUs to be issued to the buffer
+pool is 51,317.
+APPENDIX 1: FINDINGS
+CAR No. 1 Reference VCS Standard V4.0 (19
+September 2019)
+3.14; 3.15
+Monitoring Report Generation
+Forest CCB-VCS Version 1-
+Date: 12-09-2021
+Description of CAR 1
+The strata described in Monitoring Report demonstrate heterogeneity, and the calculation information shows
+more strata (per year). Clarify the condition of the strata into the Monitoring Report with all strata defined for
+the calculation. This information better explain the process performed.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 35
+Project participant response Date: 24-09.2021
+The description of the stratification and detailed calculation information per strata was explained to the auditor,
+supported by several attachments, and the information added to the Monitoring report.
+Summary of project participant response:
+The Generation Forest Grouped Project instances are stratified into three strata that correspond to sites planted
+with Teak (Stratum 1 – Teak), Native species on grassland (Stratum 2 – Natives), and Native species in
+shrubland or stubble (Stratum 3 - Enrichment). For the monitoring system to provide disaggregated data on
+tree and stand development, two regions were defined: Colon and Darien (in alignment with the 2 management
+units of the project). In Darien, all three strata are represented (Teak, Natives, Enrichment). In Colon only 2
+strata are represented (Natives and Enrichment), as the forest sites are not suitable for teak. Furthermore, the
+strata were defined according to actual planting dates (year of planting), area’s location (management unit) and
+stand models (see table below). Within the management units, the permanent monitoring plots (PMP) were
+established in the different instances. Neither natural nor anthropogenic impacts (e.g. topography, local fires)
+nor other factors (e.g. soil type) significantly altered the pattern of biomass distribution in the project area.
+In total, 269 PMP and 135 subplots were established, including younger reforestation sites to gather relevant
+monitoring data on species and stand development. However, considering the fact that only trees with a DBH
+greater than 10cm are counted for the carbon calculations, only 258 plots and 124 subplots were considered
+and included for the carbon calculation, which are shown in the following table:
+Strata and PMP where DAP > 10cm, counting for this carbon monitoring period:
+STRATA Management
+Unit Area, in ha Number of
+plots
+Number of
+subplots
+Stratum 1 Teak Darien 298.44 166 32
+Stratum 2 Natives Darien 33.4 15 15
+Colon 213.8 72 72
+Stratum 3 Enrichment Darien 12.2 5 5
+TOTAL 524.44 258 124
+Conclusion Date: 27-09-2021
+The information is conclusive and explains what was requested.
+CAR Closed
+CAR No. 2 Reference VCS Standard V4.0 (19
+September 2019)
+2.2; 3.14; 3.15
+Monitoring Report Generation
+Forest CCB-VCS Version 1-
+Date: 12-09-2021
+Description of CAR 2
+The names of the species presented in the forest inventory must have the scientific name, additionally, the
+proponent project must explain why presents “unknown” species and how determined the parameters for these
+species.
+Project participant response Date: 24-09.2021
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 36
+The scientific names were added to the project database (see annex "Base de datos_Nativas_Colón_Darién").
+Regarding the case of having “unknown” species within the inventory:
+The project uses mainly 20 well-known native species for reforestation, and a single exotic species as shown
+in the table below (List of species used for reforestation activities). In addition to the planted species, the project
+assists the natural regeneration of native species, both valuable timber species, but also species that grow
+naturally in the understory, which are allowed and preserved for the creation of the generation forest. In 2021
+was the first time that the project inventoried all native species, including those of natural regeneration, as
+before, only planted species and protected species (either endemic or endangered) were monitored. Due to
+the great diversity and richness of species in the region, some species were difficult to identify correctly within
+the same permanent sampling plots. In this case, the project preferred the conservative approach of classifying
+these species as "unknown" rather than using a classification with some uncertainty. For the calculation of
+carbon using the methodology proposed by IPCC and for reforestation with native species whose DBH is
+greater than or equal to 10 cm (Volume-Biomass-Carbon-Carbon-Dioxide; with expansion factors for above
+and below ground biomass), the wood density of each species was used if and only if it was planted; for other
+species identified by common name and unknown, a conservative wood density of 0.5 kg/cm3 was used by
+default. This is in line with the orientation of IPCC (2006) that states that “Tier 1 users who do not have wood
+density measurements at the required substrate level can estimate wood density by the proportion of total forest
+biomass contributed by the 2 or 3 dominant species and using species-specific wood density values (Tables
+4.13 and 4.14) to calculate a weighted average wood density value." The value of 0.5 Kg/cm3 used is
+conservative since 405 density data were averaged according to the previous reference and the value is 0.62
+Kg/cm3 (see Annex “Wood densities”)
+Conclusion Date: 27-09-2021
+The information is conclusive and explains what was requested.
+CAR Closed
+CAR No. 3 Reference VCS Standard V4.0 (19
+September 2019)
+Monitoring Report Generation
+Forest CCB-VCS Version 1-
+Date: 12-09-2021
+Description of CAR 3
+The forestry inventory information presented is disaggregated, and it difficult verify the information. It is required
+to compile data information by category (Natives, Teak, Enrichment).
+Project participant response Date: 24-09.2021
+Data information were compiled in one Excel sheet by category (Teak, Natives, Enrichment) and presented.
+(See Annex “Annex - Carbon summary by stratum”). Furthermore, reference was made to the subfolders that
+present aggregated information per stratum within the carbon calculation documents.
+Conclusion Date: 27-09-2021
+The information provided is sufficient.
+CAR Closed
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 37
+CAR No. 4 Reference CCB Standard V3.1
+CM2
+Monitoring Report Generation
+Forest CCB-VCS Version 1
+Date: 12-09-2021
+Description of CAR 4
+Some related projects as community benefits may come from the company, but not directly from the project
+specifically, therefore only the benefits related to the project should be included.
+Project participant response Date: 24-09.2021
+The project implements its community activities together with its foundation “Fundación Bosque de
+Generaciones” (formerly known Community and Forest Foundation) which aims to create and protect tropical
+forests and their biodiversity and at the same time encourage and promote research and scientific development
+of innovative models of sustainable development. Furthermore it collaborates closely to the foundation Ejwã
+Wãdrã from the Emberá community in Piriatí. The grouped project together with both organizations works in
+synergy in the implementation of training and community reforestation projects.
+In the monitoring period, the project, in collaboration with the Foundation Fundacion Bosque de Generaciones
+and with co-funding of UNDP, has implemented a community project in the indigenous Emberá community
+Piriatí, working together with the Foundation Ejuã Wãdrã, of young people. They believe that the loss of their
+forest is the cause of the loss of their culture and feel that the way to recover it is to learn to reforest. The
+Emberá youth organization from Piriatí, Ejwã Wãdrã, motivated by the need to recover their traditional and
+ancestral culture, were selected by the United Nations Small Grants Program (SGP) to receive training in forest
+nursery and reforestation activities. The financial participation of the grouped project was 50% of the budget
+(corresponding to 20,000 USD), as those funds always require financing by the counterpart, which was the
+grouped project. Furthermore the project provided its infrastructure, workers, transportation, and use of the
+forest sites for the practical training part.
+This community project called “Rescue of the forest culture, through reforestation and training, as a tool for the
+recovery of the traditional and ancestral culture of an Emberá community in Piriatí” was implemented in 2018
+and 2019. The grouped projects main contribution was to train the youth in tree nursery, reforestation, and to
+assist in the establishment of their reforestation area. 36 people (16 women, 20 men) of the community were
+trained in topics of reforestation, tree nursery, and forest management. 10ha of community land was reforested
+with native tree species, using a total of 7,000 tree seedlings.
+Training topics were:
+Nursery training, planting establishment training.
+Plantation maintenance
+Identification of species of cultural interest
+The strategy was to train them, but also to offer on-site practical training within the forest sites of the grouped
+project, taking them to the different operations to learn through practice, reforestation with native species.
+Reforestation requires planning, organization, and execution. The Ejwã Wãdrã organization has the vision of
+becoming an organization that can provide reforestation services. In the context of climate change, reforestation
+is the most important mitigation alternative; these young people see economic possibilities in forestry activities.
+The grouped project through its project proponent Futuro Forestal shares with them all the experience of its
+technicians and its forests.
+As result, some of the trained people were hired by the project for forest inventory and monitoring. Currently,
+some of the members are hired, work and continue training and learning the use of technology for the project's
+geographic information system. Furthermore, the project is planning to establish a tree nursery together with
+the community and its partner Ejuã Wãdrã in the Darien region.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 38
+Conclusion Date: 27-09-2021
+The information is conclusive and explains what was requested.
+CAR Closed
+CL No. 1 Reference VCS Standard V4.0 (19
+September 2019)
+3.8; 2.4
+VCS-Non-Permanence-Risk-
+Report-FF
+Monitoring Report Generation
+Forest CCB-VCS Version 1
+Date: 12-09-2021
+Description of CL 1
+Clarify Calculation of Total VCUs: The project made a risk analysis over a period of 100 years, but the proponent
+calculated until for 50 years. Explain this information.
+Project participant response Date: 24-09.2021
+According to VCS Standard v4.0, the long-term average GHG benefit (LA) is determined by averaging
+the expected total GHG benefit for the length of the project. In our case it means an average benefit over the
+100 years lifetime of the project, for which the risk analysis and CO2 estimates were calculated.
+In section 3.2.20 and 3.2.21 of the VCS Standard v4.0, the long-term average GHG benefit is defined and
+specified for ARR activities including harvesting, which is our case. As stated in the Standard “A project may
+claim GHG credits during each verification event until the long-term average GHG benefit is reached. Once the
+total number of GHG credits issued has reached this average, the project can no longer issue further GHG
+credits.”
+As reported in the PD version 03 p.166, the period over which the long-term average GHG benefit is calculated
+is 100 years. The total GHG benefit calculated as the sum of stock changes along the crediting period (100
+years) is 2.726.629tCO2e. The table is shown in p.166-167 of the PD v3. Following the steps of calculating the
+long-term average GHG benefit for our project (according to VCS standard section 3.2.21 and to the “AFOLU
+Guidance: Example for Calculating the Long-Term Average Carbon Stock for ARR Projects with Harvesting”),
+the projects long-term average GHG benefit is 1.306.814 tCO2e (see document “VCU acumulado”). The long-
+term GHG benefit will be reached at year 49 of the lifetime of the project, for which VCUs could only be
+calculated for that period of time. As stated in the VCS standard, section 3.2.21 (6) the “long-term average
+GHG benefit shall be calculated at each verification event, meaning the long-term average GHG benefit may
+change over time based on monitored data”.
+Conclusion Date: 27-09-2021
+The information is conclusive and explains what was requested.
+CL Closed
+FAR No. 1 Reference VCS Standard V4.1 (22 April
+2021)
+3.6.11
+Monitoring Report Generation
+Forest CCB-VCS Version 2
+Date: 07-10-2021
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 39
+Description of FAR 1
+Currently, in the identification of the land tenure, the land possession of some farms is pending (Gatún I, Bartoly
+I y II y Lauhan I y II). For this reason, to de next verification, the project shall demonstrate the full possession
+from Futuro Forestal.
+Project participant response Date:
+N.A.
+Conclusion Date:
+FAR No. 2 Reference VCS Standard V4.1 (22 April
+2021)
+B4.1, B4.2, GL1.4,
+GL3.4Monitoring Report
+Generation Forest CCB-VCS
+Version 2
+Date: 03-04-2022
+Description of FAR 2
+The PP in conjunction with its biodiversity partners must supplement the development of the Biodiversity
+Monitoring Plan provided in order to comply with the project description (5.3.1), and it must be examined
+in the next verification.
+Project participant response Date:
+N.A.
+Conclusion Date:
+FAR No. 3 Reference CCB Standard V3
+CL4.2; CM4.3; B4.3
+Date: 03-04-2022
+Description of FAR 3
+The PP must ensure that project dissemination is effective for all stakeholders, particularly those in the
+community who have limited internet access and have difficulty accessing project information via the website.
+Project participant response Date:
+N.A.
+Conclusion Date:
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+40
+APPENDIX 2: RESULT OF PARCEL SAMPLING
+Natives
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+Brain
+forest x: 801249 y: 576653 1 Cocobolo 14,
+2 14,2 0 0,2 9,5 9 0,5 5,3 2013 4
+Brain
+forest x: 801249 y: 576653 2 Cocobolo 15,
+7 15,3 0,4 2,5 10,
+5 8,5 2 19 2013 4
+Brain
+forest x: 801249 y: 576653 3 Cocobolo 17,
+3 16,7 0,6 3,5 10,
+7 10 0,7 6,5 2013 4
+Brain
+forest x: 801249 y: 576653 4 Cocobolo 13,
+9 13,8 0,1 0,7 10 8,5 1,5 15 2013 4
+Brain
+forest x: 801249 y: 576653 5 Cocobolo 19,
+9 19,6 0,3 1,5 12,
+5 10,5 2 16 2013 4
+Brain
+forest x: 801249 y: 576653 6 Cocobolo 20 19,5 0,5 2,5 12 11 1 8,3 2013 4
+Brain
+forest x: 801249 y: 576653 7 Cocobolo 12,
+5 12,4 0,1 0,8 9,9 7 2,9 29,3 2013 4
+Brain
+forest x: 801249 y: 576653 8 Cocobolo 15,
+2 15,2 0 0 11,
+5 8,5 3 26,1 2013 4
+Brain
+forest x: 801249 y: 576653 9 Cocobolo 11,
+4 11,3 0,1 0,9 9,5 8,5 1 10,5 2013 4
+Brain
+forest x: 801249 y: 576653 10 Cocobolo 24,
+9 24,1 0,8 3,2 12 12 0 0 2013 4
+Brain
+forest x: 801249 y: 576653 11 Cocobolo 11,
+9 11,9 0 0 8,5 8,5 0 0 2013 4
+Brain
+forest x: 801249 y: 576653 12 Cocobolo 19,
+1 18,9 0,2 1 12 11 1 8,3 2013 4
+Brain
+forest x: 801249 y: 576653 13 Cocobolo 12,
+9 12,9 0 0 12 11,5 0,5 4,2 2013 4
+Brain
+forest x: 801249 y: 576653 14 Cocobolo 21 20,6 0,4 1,9 13 11,5 1,5 11,5 2013 4
+Brain
+forest x: 801249 y: 576653 15 Cocobolo 25,
+5 24,8 0,7 2,7 13,
+5 12,5 1 7,4 2013 4
+Brain
+forest x: 801249 y: 576653 16 Cocobolo 17,
+8 17,5 0,3 1,7 13 12,5 0,5 3,8 2013 4
+Brain
+forest x: 801249 y: 576653 17 Cocobolo 14,
+7 14,4 0,3 2 12 10,5 1,5 12,5 2013 4
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+41
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+Brain
+forest x: 801249 y: 576653 18 Cocobolo 15 14,7 0,3 2 10,
+7 10,5 0,2 1,9 2013 4
+Brain
+forest x: 801249 y: 576653 19 Cocobolo 12,
+2 12,2 0 0 12,
+5 10,5 2 16 2013 4
+Brain
+forest x: 801249 y: 576653 20 Cocobolo 15,
+9 15,6 0,3 1,9 11,
+9 10,5 1,4 11,8 2013 4
+Brain
+forest x: 801249 y: 576653 21 Cocobolo 12,
+9 12,9 0 0 9,5 9 0,5 5,3 2013 4
+Brain
+forest x: 801249 y: 576653 22 0 0 2013 4
+Brain
+forest x: 801249 y: 576653 23 Cocobolo 15,
+3 15 0,3 2 12 11 1 8,3 2013 4
+Brain
+forest x:801222 y:977733 1 Caoba 13,
+2 13,1 0,1 0,8 7,9 7,6 0,3 3,8 2008 2
+Brain
+forest x:801222 y:977733 2 Cedro
+espino
+31,
+5 31,4 0,1 0,3 13 13,6 -0,6 -4,6 2008 2
+Brain
+forest x:801222 y:977733 3 Cedro
+espino
+33,
+6 33,4 0,2 0,6 13,
+2 12,4 0,8 6,1 2008 2
+Brain
+forest x:801222 y:977733 4 Cedro
+espino
+29,
+6 29,5 0,1 0,3 15,
+5 12 3,5 22,6 2008 2
+Brain
+forest x:801222 y:977733 5 Cedro
+espino
+38,
+8 38,4 0,4 1 14 12 2 14,3 2008 2
+Brain
+forest x:801222 y:977733 6 Cedro
+espino 21 20,8 0,2 1 14,
+7 12,8 1,9 12,9 2008 2
+Brain
+forest x:801222 y:977733 7 Cedro
+espino
+33,
+5 33,6 -0,1 -0,3 14 12,2 1,8 12,9 2008 2
+Brain
+forest x:801222 y:977733 8 Cedro
+espino
+28,
+5 28,4 0,1 0,4 12 11 1 8,3 2008 2
+Brain
+forest x:801222 y:977733 9 Cedro
+espino
+26,
+3 25,9 0,4 1,5 12 11 1 8,3 2008 2
+Brain
+forest x:801222 y:977733 10 Cedro
+espino
+34,
+5 24,2 10,3 29,9 13 13 0 0 2008 2
+Brain
+forest x:801222 y:977733 11 Cedro
+espino
+33,
+7 33,2 0,5 1,5 13 12,8 0,2 1,5 2008 2
+Brain
+forest x:801222 y:977733 12 Cedro
+espino
+27,
+2 27,1 0,1 0,4 14 13 1 7,1 2008 2
+Brain
+forest x:801222 y:977733 13 Cedro
+espino
+21,
+4 21,4 0 0 5,9 4,8 1,1 18,6 2008 2
+Brain
+forest x:801222 y:977733 14 Caoba 16 15,8 0,2 1,3 17 11 6 35,3 2008 2
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+42
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+Brain
+forest x:801222 y:977733 15 Cedro
+espino
+23,
+3 23,2 0,1 0,4 12 12 0 0 2008 2
+Brain
+forest x:801222 y:977733 16 Caoba 16,
+9 16,8 0,1 0,6 15 11,5 3,5 23,3 2008 2
+Brain
+forest x:801222 y:977733 17 Cedro
+espino
+25,
+1 25 0,1 0,4 13 14 -1 -7,7 2008 2
+Brain
+forest x:801222 y:977733 18 Cedro
+espino
+27,
+9 27,7 0,2 0,7 12,
+3 13 -0,7 -5,7 2008 2
+Brain
+forest x:801222 y:977733 19 Cedro
+espino
+26,
+4 26,4 0 0 13 13 0 0 2008 2
+kapok x:805392 y:975752 1 Roble 10,
+8 10,4 0,4 3,7 10,
+3 9 1,3 12,6 2011 11
+kapok x:805392 y:975752 2 0 0 2011 11
+kapok x:805392 y:975752 3 Roble
+16,
+1 11,1 5 31,1 8,1 9,5 -1,4 -17,3 2011 11
+kapok x:805392 y:975752 4 0 0 2011 11
+kapok x:805392 y:975752 5 0 0 2011 11
+kapok x:805392 y:975752 6 0 0 2011 11
+kapok x:805392 y:975752 7 0 0 2011 11
+kapok x:805392 y:975752 8 Mora
+11,
+5 10,9 0,6 5,2 9 8 1 11,1 2011 11
+kapok x:805392 y:975752 9 Cedro
+amargo
+18,
+4 18,9 -0,5 -2,7 15,
+9 16,5 -0,6 -3,8 2011 11
+kapok x:805392 y:975752 10 0 0 2011 11
+kapok x:805392 y:975752 11 0 0 2011 11
+kapok x:805392 y:975752 12 0 0 2011 11
+kapok x:805392 y:975752 13 0 0 2011 11
+kapok x:805392 y:975752 14 0 0 2011 11
+kapok x:805392 y:975752 15 Laurel
+10,
+4 10,1 0,3 2,9 11,
+1 12 -0,9 -8,1 2011 11
+kapok x:805392 y:975752 16
+Cedro
+amargo
+15,
+6 15,6 0 0 12 13 -1 -8,3 2011 11
+kapok x:805392 y:975752 17 0 0 2011 11
+kapok x:805392 y:975752 18 0 0 2011 11
+kapok x:805392 y:975752 19 0 0 2011 11
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+43
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+kapok x:805392 y:975752 20 0 0 2011 11
+kapok x:805392 y:975752 21 Espave
+29,
+6 29,1 0,5 1,7 18 17,5 0,5 2,8 2011 11
+kapok x:805392 y:975752 22 Cedro
+amargo 17 16,9 0,1 0,6 15,
+3 15 0,3 2 2011 11
+kapok x:805392 y:975752 23 Espave 36 35,3 0,7 1,9 18,
+7 19 -0,3 -1,6 2011 11
+kapok x:805392 y:975752 24 0 0 2011 11
+kapok x:805392 y:975752 25 0 0 2011 11
+kapok x:805392 y:975752 26 Mora 18 17,9 0,1 0,6 11,
+5 11,5 0 0 2011 11
+kapok x:805392 y:975752 27 0 0 2011 11
+kapok x:805392 y:975752 28 Laurel
+18,
+5 18,5 0 0 14,
+5 13,5 1 6,9 2011 11
+kapok x:805392 y:975752 29 0 0 2011 11
+kapok x:805392 y:975752 30 Mora
+10,
+3 10,4 -0,1 -1 8,7 9 -0,3 -3,4 2011 11
+kapok x:805392 y:975752 31 Roble
+10,
+2 10,2 0 0 7 9 -2 -28,6 2011 11
+kapok x:805392 y:975752 32 0 0 2011 11
+kapok x:805392 y:975752 33 Almendro
+11,
+9 11,6 0,3 2,5 11 12 -1 -9,1 2011 11
+kapok x: 805509 y: 976569 1 Cedro
+espino 21 20,8 0,2 1 9 9 0 0 2007 5
+kapok x: 805509 y: 976569 2
+Cedro
+espino 20 20 0 0 11 11,5 -0,5 -4,5 2007 5
+kapok x: 805509 y: 976569 3
+Cedro
+espino
+20,
+1 19,9 0,2 1 8 9 -1 -12,5 2007 5
+kapok x: 805509 y: 976569 4 Guaba 13 13,7 -0,7 -5,4 7 7 0 0 2007 5
+kapok x: 805509 y: 976569 5
+Cedro
+espino
+25,
+7 25,2 0,5 1,9 11 12 -1 -9,1 2007 5
+kapok x: 805509 y: 976569 6 Cedro
+espino
+23,
+9 23,9 0 0 12 12 0 0 2007 5
+kapok x: 805509 y: 976569 7
+Cedro
+espino
+25,
+2 24,7 0,5 2 13,
+5 13,5 0 0 2007 5
+kapok x: 805509 y: 976569 8 Guaba
+10,
+3 10 0,3 2,9 8 7,5 0,5 6,3 2007 5
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+44
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+kapok x: 805509 y: 976569 9 Mora
+11,
+4 11,3 0,1 0,9 9 9 0 0 2007 5
+kapok x: 805509 y: 976569 10
+Cedro
+espino
+23,
+9 23,6 0,3 1,3 12 13 -1 -8,3 2007 5
+kapok x: 805509 y: 976569 11 Cedro
+espino
+36,
+3 36 0,3 0,8 14,
+7 15,5 -0,8 -5,4 2007 5
+kapok x: 805509 y: 976569 12
+Cedro
+espino
+27,
+7 27,5 0,2 0,7 14,
+7 15,5 -0,8 -5,4 2007 5
+kapok x: 805509 y: 976569 13 Guasimo
+12,
+3 12,2 0,1 0,8 9 11 -2 -22,2 2007 5
+kapok x: 805509 y: 976569 14 Guarumo
+15,
+7 15,6 0,1 0,6 12 11 1 8,3 2007 5
+kapok x: 805509 y: 976569 15 Guaba
+11,
+9 11,6 0,3 2,5 8,5 10 -1,5 -17,6 2007 5
+kapok x: 805509 y: 976569 16 Cedro
+espino
+28,
+8 28 0,8 2,8 13 15 -2 -15,4 2007 5
+kapok x: 805509 y: 976569 17
+Cedro
+espino
+28,
+6 28,6 0 0 6,7 15 -8,3 -123,9 2007 5
+kapok x: 805509 y: 976569 18
+Cedro
+espino
+23,
+3 22,6 0,7 3 14,
+5 14 0,5 3,4 2007 5
+kapok x: 805509 y: 976569 19
+Cedro
+espino
+27,
+2 26,8 0,4 1,5 15 15 0 0 2007 5
+kapok x: 805509 y: 976569 20 Guasimo
+11,
+1 11,1 0 0 8 9 -1 -12,5 2007 5
+kapok x: 805509 y: 976569 21 Guasimo
+11,
+7 11,7 0 0 7 9 -2 -28,6 2007 5
+kapok x: 805509 y: 976569 22 Guasimo
+19,
+3 19,3 0 0 13,
+5 13,5 0 0 2007 5
+kapok x: 805395 y: 976225 1 Cocobolo 18 18 0 0 13 13,5 -0,5 -3,8 2007 6
+kapok x 805395 y: 976225 2 Cocobolo 18 18 0 0 13 13 0 0 2007 6
+kapok x: 805395 y: 976225 3 Cocobolo
+13,
+3 13,2 0,1 0,8 11,
+9 12 -0,1 -0,8 2007 6
+kapok x: 805395 y: 976225 4 Roble
+23,
+6 23,5 0,1 0,4 11,
+9 11 0,9 7,6 2007 6
+kapok x: 805395 y: 976225 5 Cocobolo 17 17 0 0 12,
+3 12 0,3 2,4 2007 6
+kapok x: 805395 y: 976225 6 Cocobolo
+15,
+9 15,8 0,1 0,6 12,
+3 11,5 0,8 6,5 2007 6
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+45
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+kapok x: 805395 y: 976225 7 Cocobolo
+14,
+6 14,6 0 0 12,
+7 13 -0,3 -2,4 2007 6
+kapok x: 805395 y: 976225 8 Cocobolo
+19,
+8 19,6 0,2 1 13,
+3 13,5 -0,2 -1,5 2007 6
+kapok x: 805395 y: 976225 9 Cocobolo
+14,
+2 14,2 0 0 12,
+5 10,5 2 16 2007 6
+kapok x: 805395 y: 976225 10 Cocobolo
+26,
+8 26,6 0,2 0,7 13,
+3 13 0,3 2,3 2007 6
+kapok x: 805395 y: 976225 11 Cocobolo
+22,
+8 22,6 0,2 0,9 13,
+9 12 1,9 13,7 2007 6
+kapok x: 805395 y: 976225 12 Cocobolo
+17,
+7 17,6 0,1 0,6 14,
+9 14,5 0,4 2,7 2007 6
+kapok x: 805395 y: 976225 13 Cocobolo
+21,
+5 21,1 0,4 1,9 14,
+5 15 -0,5 -3,4 2007 6
+kapok x: 805395 y: 976225 14 Cocobolo
+14,
+6 14,7 -0,1 -0,7 12,
+5 13 -0,5 -4 2007 6
+kapok x: 805395 y: 976225 15 Cocobolo
+15,
+2 15,4 -0,2 -1,3 11,
+7 11 0,7 6 2007 6
+kapok x: 805395 y: 976225 16 Cocobolo
+20,
+5 20,2 0,3 1,5 12,
+7 13 -0,3 -2,4 2007 6
+kapok x: 805395 y: 976225 17 Cocobolo
+18,
+7 16,9 1,8 9,6 12 10 2 16,7 2007 6
+kapok x: 805395 y: 976225 18 Cocobolo 13 13 0 0 10,
+9 12 -1,1 -10,1 2007 6
+kapok x: 805395 y: 976225 19 Cocobolo
+16,
+3 16,3 0 0 12,
+9 13 -0,1 -0,8 2007 6
+kapok x: 805395 y: 976225 20 Cocobolo
+24,
+4 24,2 0,2 0,8 15 15 0 0 2007 6
+kapok x: 805395 y: 976225 21 Caoba
+11,
+5 11,4 0,1 0,9 9 9 0 0 2007 6
+kapok x: 805395 y: 976225 22 Cocobolo
+12,
+8 12,8 0 0 14,
+5 15 -0,5 -3,4 2007 6
+kapok x: 805395 y: 976225 23 Cocobolo
+17,
+2 17 0,2 1,2 14,
+5 14 0,5 3,4 2007 6
+kapok x: 805395 y: 976225 24 Caoba 11 11 0 0 7 7,5 -0,5 -7,1 2007 6
+kapok x: 805395 y: 976225 25 Cocobolo
+23,
+1 23 0,1 0,4 13,
+9 13 0,9 6,5 2007 6
+kapok x: 805395 y: 976225 26 Cocobolo
+26,
+9 26,5 0,4 1,5 13,
+9 13,5 0,4 2,9 2007 6
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+46
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+kapok x: 805395 y: 976225 27 Cocobolo
+15,
+7 13,6 2,1 13,4 12,
+9 11,5 1,4 10,9 2007 6
+kapok x: 805395 y: 976225 28 Cocobolo
+16,
+7 16,6 0,1 0,6 13 11 2 15,4 2007 6
+kapok x: 805395 y: 976225 29 Cocobolo
+16,
+5 16,4 0,1 0,6 12,
+3 13 -0,7 -5,7 2007 6
+kapok x: 805395 y: 976225 30 Cocobolo
+13,
+7 13,5 0,2 1,5 10,
+5 11,5 -1 -9,5 2007 6
+Red Lotus x: 808111 y: 979362 1 0 0 2011 8
+Red Lotus x: 808111 y: 979362 2 0 0 2011 8
+Red Lotus x: 808111 y: 979362 3 0 0 2011 8
+Red Lotus x:808111 y: 979362 4 Zapatero 10 -10 5 -5 2011 8
+Red Lotus x: 808111 y: 979362 5 Guasimo
+22,
+8 22,8 0 0 10 10 0 0 2011 8
+Red Lotus x: 808111 y: 979362 6 0 0 2011 8
+Red Lotus x: 808111 y: 979362 7 Guaba 10,6 -10,6 8 -8 2011 8
+Red Lotus x: 808111 y: 979362 8 Zapatero
+17,
+5 17,5 0 0 10,
+5 10,5 0 0 2011 8
+Red Lotus x: 808111 y: 979362 9 Naranjillo
+15,
+9 16 -0,1 -0,6 8,3 10 -1,7 -20,5 2011 8
+Red Lotus x: 808111 y: 979362 10 Guarumo
+14,
+5 17,2 -2,7 -18,6 10,
+1 10,1 0 0 2011 8
+Red Lotus x: 808111 y: 979362 11 Guasimo
+12,
+3 12,2 0,1 0,8 10 10,1 -0,1 -1 2011 8
+Red Lotus x: 808111 y: 979362 12 0 0 2011 8
+Red Lotus x: 808111 y: 979362 13 Jobo
+45,
+7 46,8 -1,1 -2,4 25 25 0 0 2011 8
+Red Lotus x: 808111 y: 979362 14 Jobo
+17,
+4 17,8 -0,4 -2,3 20 20,3 -0,3 -1,5 2011 8
+Red Lotus x: 808111 y: 979362 15 0 0 2011 8
+Red Lotus x: 808111 y: 979362 16 Guarumo
+11,
+7 11,8 -0,1 -0,9 15,
+2 15,4 -0,2 -1,3 2011 8
+Red Lotus x: 808111 y: 979362 17 Guarumo 12 12,2 -0,2 -1,7 15 15 0 0 2011 8
+Red Lotus x: 808111 y: 979362 18 Guarumo
+13,
+5 13,7 -0,2 -1,5 14,
+9 15,6 -0,7 -4,7 2011 8
+Red Lotus x: 808111 y: 979362 19 0 0 2011 8
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+47
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+Red Lotus x: 808111 y: 979362 20 Guasimo
+10,
+7 13,3 -2,6 -24,3 13 16 -3 -23,1 2011 8
+Red Lotus x: 808111 y: 979362 21 0 0 2011 8
+Red Lotus x: 808111 y: 979362 22 Guasimo
+14,
+2 14,1 0,1 0,7 10,
+7 10 0,7 6,5 2011 8
+Red Lotus x: 808111 y: 979362 23 0 0 2011 8
+Red Lotus x: 808111 y: 979362 24 0 0 2011 8
+Red Lotus x: 808111 y: 979362 25 0 0 2011 8
+Red Lotus x: 808111 y: 979362 26 Guasimo
+15,
+1 15,2 -0,1 -0,7 8,9 9 -0,1 -1,1 2011 8
+Red Lotus x: 808111 y: 979362 27 Zapatero
+11,
+1 11,2 -0,1 -0,9 10,
+1 10 0,1 1 2011 8
+Red Lotus x: 808111 y: 979362 28 0 0 2011 8
+Red Lotus x: 808111 y: 979362 29 Guarumo
+29,
+2 29,4 -0,2 -0,7 18,
+5 18 0,5 2,7 2011 8
+Red Lotus x: 808111 y: 979362 30 Guarumo
+25,
+1 25,2 -0,1 -0,4 18 18 0 0 2011 8
+Red Lotus x: 808111 y: 979362 31 Guarumo
+29,
+1 29,1 0 0 14,
+9 15 -0,1 -0,7 2011 8
+Red Lotus x: 808111 y: 979362 32 Guarumo 15 14,5 0,5 3,3 10 10 0 0 2011 8
+Red Lotus x: 808111 y: 979362 33 Guasimo
+11,
+1 11,1 0 0 10,
+2 10 0,2 2 2011 8
+Red Lotus x: 808111 y: 979362 34 Guasimo
+12,
+3 12,4 -0,1 -0,8 6,7 7,7 -1 -14,9 2011 8
+Red Lotus x: 808111 y: 979362 35 Guasimo 11 11,1 -0,1 -0,9 9,9 10 -0,1 -1 2011 8
+Red Lotus x: 808111 y: 979362 36 Zapatero
+17,
+3 12,3 5 28,9 10,
+1 10,2 -0,1 -1 2011 8
+Red Lotus x: 808111 y: 979362 37 0 0 2011 8
+Red Lotus x: 808111 y: 979362 38 0 0 2011 8
+Red Lotus x: 808111 y: 979362 39 0 0 2011 8
+Red Lotus x: 808111 y: 979362 40 Cocobolo
+11,
+2 11 0,2 1,8 5,2 5,4 -0,2 -3,8 2011 8
+Red Lotus x: 808111 y: 979362 41 0 0 2011 8
+Red Lotus x: 808111 y: 979362 42 0 0 2011 8
+Red Lotus x: 808111 y: 979362 43 Zapatero 10 10 0 0 7 7 0 0 2011 8
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+48
+Farm
+Coordinates of the National System of
+Panama
+#Arb
+ol Species
+Audi
+t
+DAP
+(cm)
+DAP
+Inventor
+y
+DAP
+Audit-
+error
+DAP
+Htot
+(m)
+Htot
+Inventario
+Htot Audit-
+Invent
+error
+Htot
+Year
+planted
+Plo
+t
+Audi
+t
+Red Lotus x: 808111 y: 979362 44 Laurel
+12,
+9 13,6 -0,7 -5,4 10,
+3 10 0,3 2,9 2011 8
+146,8 90,1
+0,9128 1,4872
+Teak
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+Brain
+forest x: 801249 y: 576653 1 Cocobol
+o 14,2 14,2 0 0,2 9,5 9 0,5 5,3 2013 4
+Brain
+forest x: 801249 y: 576653 2 Cocobol
+o 15,7 15,3 0,4 2,5 10,5 8,5 2 19 2013 4
+Brain
+forest x: 801249 y: 576653 3 Cocobol
+o 17,3 16,7 0,6 3,5 10,7 10 0,7 6,5 2013 4
+Brain
+forest x: 801249 y: 576653 4 Cocobol
+o 13,9 13,8 0,1 0,7 10 8,5 1,5 15 2013 4
+Brain
+forest x: 801249 y: 576653 5 Cocobol
+o 19,9 19,6 0,3 1,5 12,5 10,5 2 16 2013 4
+Brain
+forest x: 801249 y: 576653 6 Cocobol
+o 20 19,5 0,5 2,5 12 11 1 8,3 2013 4
+Brain
+forest x: 801249 y: 576653 7 Cocobol
+o 12,5 12,4 0,1 0,8 9,9 7 2,9 29,3 2013 4
+Brain
+forest x: 801249 y: 576653 8 Cocobol
+o 15,2 15,2 0 0 11,5 8,5 3 26,1 2013 4
+Brain
+forest x: 801249 y: 576653 9 Cocobol
+o 11,4 11,3 0,1 0,9 9,5 8,5 1 10,5 2013 4
+Brain
+forest x: 801249 y: 576653 10 Cocobol
+o 24,9 24,1 0,8 3,2 12 12 0 0 2013 4
+Brain
+forest x: 801249 y: 576653 11 Cocobol
+o 11,9 11,9 0 0 8,5 8,5 0 0 2013 4
+Brain
+forest x: 801249 y: 576653 12 Cocobol
+o 19,1 18,9 0,2 1 12 11 1 8,3 2013 4
+Brain
+forest x: 801249 y: 576653 13 Cocobol
+o 12,9 12,9 0 0 12 11,5 0,5 4,2 2013 4
+Brain
+forest x: 801249 y: 576653 14 Cocobol
+o 21 20,6 0,4 1,9 13 11,5 1,5 11,5 2013 4
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+49
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+Brain
+forest x: 801249 y: 576653 15 Cocobol
+o 25,5 24,8 0,7 2,7 13,5 12,5 1 7,4 2013 4
+Brain
+forest x: 801249 y: 576653 16 Cocobol
+o 17,8 17,5 0,3 1,7 13 12,5 0,5 3,8 2013 4
+Brain
+forest x: 801249 y: 576653 17 Cocobol
+o 14,7 14,4 0,3 2 12 10,5 1,5 12,5 2013 4
+Brain
+forest x: 801249 y: 576653 18 Cocobol
+o 15 14,7 0,3 2 10,7 10,5 0,2 1,9 2013 4
+Brain
+forest x: 801249 y: 576653 19 Cocobol
+o 12,2 12,2 0 0 12,5 10,5 2 16 2013 4
+Brain
+forest x: 801249 y: 576653 20 Cocobol
+o 15,9 15,6 0,3 1,9 11,9 10,5 1,4 11,8 2013 4
+Brain
+forest x: 801249 y: 576653 21 Cocobol
+o 12,9 12,9 0 0 9,5 9 0,5 5,3 2013 4
+Brain
+forest x: 801249 y: 576653 22 0 0 2013 4
+Brain
+forest x: 801249 y: 576653 23 Cocobol
+o 15,3 15 0,3 2 12 11 1 8,3 2013 4
+Brain
+forest x:801222 y:977733 1 Caoba 13,2 13,1 0,1 0,8 7,9 7,6 0,3 3,8 2008 2
+Brain
+forest x:801222 y:977733 2 Cedro
+espino 31,5 31,4 0,1 0,3 13 13,6 -0,6 -4,6 2008 2
+Brain
+forest x:801222 y:977733 3 Cedro
+espino 33,6 33,4 0,2 0,6 13,2 12,4 0,8 6,1 2008 2
+Brain
+forest x:801222 y:977733 4 Cedro
+espino 29,6 29,5 0,1 0,3 15,5 12 3,5 22,6 2008 2
+Brain
+forest x:801222 y:977733 5 Cedro
+espino 38,8 38,4 0,4 1 14 12 2 14,3 2008 2
+Brain
+forest x:801222 y:977733 6 Cedro
+espino 21 20,8 0,2 1 14,7 12,8 1,9 12,9 2008 2
+Brain
+forest x:801222 y:977733 7 Cedro
+espino 33,5 33,6 -0,1 -0,3 14 12,2 1,8 12,9 2008 2
+Brain
+forest x:801222 y:977733 8 Cedro
+espino 28,5 28,4 0,1 0,4 12 11 1 8,3 2008 2
+Brain
+forest x:801222 y:977733 9 Cedro
+espino 26,3 25,9 0,4 1,5 12 11 1 8,3 2008 2
+Brain
+forest x:801222 y:977733 10 Cedro
+espino 34,5 24,2 10,3 29,9 13 13 0 0 2008 2
+Brain
+forest x:801222 y:977733 11 Cedro
+espino 33,7 33,2 0,5 1,5 13 12,8 0,2 1,5 2008 2
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+50
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+Brain
+forest x:801222 y:977733 12 Cedro
+espino 27,2 27,1 0,1 0,4 14 13 1 7,1 2008 2
+Brain
+forest x:801222 y:977733 13 Cedro
+espino 21,4 21,4 0 0 5,9 4,8 1,1 18,6 2008 2
+Brain
+forest x:801222 y:977733 14 Caoba 16 15,8 0,2 1,3 17 11 6 35,3 2008 2
+Brain
+forest x:801222 y:977733 15 Cedro
+espino 23,3 23,2 0,1 0,4 12 12 0 0 2008 2
+Brain
+forest x:801222 y:977733 16 Caoba 16,9 16,8 0,1 0,6 15 11,5 3,5 23,3 2008 2
+Brain
+forest x:801222 y:977733 17 Cedro
+espino 25,1 25 0,1 0,4 13 14 -1 -7,7 2008 2
+Brain
+forest x:801222 y:977733 18 Cedro
+espino 27,9 27,7 0,2 0,7 12,3 13 -0,7 -5,7 2008 2
+Brain
+forest x:801222 y:977733 19 Cedro
+espino 26,4 26,4 0 0 13 13 0 0 2008 2
+kapok x:805392 y:975752 1 Roble 10,8 10,4 0,4 3,7 10,3 9 1,3 12,6 2011 11
+kapok x:805392 y:975752 2 0 0 2011 11
+kapok x:805392 y:975752 3 Roble 16,1 11,1 5 31,1 8,1 9,5 -1,4 -17,3 2011 11
+kapok x:805392 y:975752 4 0 0 2011 11
+kapok x:805392 y:975752 5 0 0 2011 11
+kapok x:805392 y:975752 6 0 0 2011 11
+kapok x:805392 y:975752 7 0 0 2011 11
+kapok x:805392 y:975752 8 Mora 11,5 10,9 0,6 5,2 9 8 1 11,1 2011 11
+kapok x:805392 y:975752 9 Cedro
+amargo 18,4 18,9 -0,5 -2,7 15,9 16,5 -0,6 -3,8 2011 11
+kapok x:805392 y:975752 10 0 0 2011 11
+kapok x:805392 y:975752 11 0 0 2011 11
+kapok x:805392 y:975752 12 0 0 2011 11
+kapok x:805392 y:975752 13 0 0 2011 11
+kapok x:805392 y:975752 14 0 0 2011 11
+kapok x:805392 y:975752 15 Laurel 10,4 10,1 0,3 2,9 11,1 12 -0,9 -8,1 2011 11
+kapok x:805392 y:975752 16
+Cedro
+amargo 15,6 15,6 0 0 12 13 -1 -8,3 2011 11
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+51
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+kapok x:805392 y:975752 17 0 0 2011 11
+kapok x:805392 y:975752 18 0 0 2011 11
+kapok x:805392 y:975752 19 0 0 2011 11
+kapok x:805392 y:975752 20 0 0 2011 11
+kapok x:805392 y:975752 21 Espave 29,6 29,1 0,5 1,7 18 17,5 0,5 2,8 2011 11
+kapok x:805392 y:975752 22 Cedro
+amargo 17 16,9 0,1 0,6 15,3 15 0,3 2 2011 11
+kapok x:805392 y:975752 23 Espave 36 35,3 0,7 1,9 18,7 19 -0,3 -1,6 2011 11
+kapok x:805392 y:975752 24 0 0 2011 11
+kapok x:805392 y:975752 25 0 0 2011 11
+kapok x:805392 y:975752 26 Mora 18 17,9 0,1 0,6 11,5 11,5 0 0 2011 11
+kapok x:805392 y:975752 27 0 0 2011 11
+kapok x:805392 y:975752 28 Laurel 18,5 18,5 0 0 14,5 13,5 1 6,9 2011 11
+kapok x:805392 y:975752 29 0 0 2011 11
+kapok x:805392 y:975752 30 Mora 10,3 10,4 -0,1 -1 8,7 9 -0,3 -3,4 2011 11
+kapok x:805392 y:975752 31 Roble 10,2 10,2 0 0 7 9 -2 -28,6 2011 11
+kapok x:805392 y:975752 32 0 0 2011 11
+kapok x:805392 y:975752 33 Almendr
+o 11,9 11,6 0,3 2,5 11 12 -1 -9,1 2011 11
+kapok x: 805509 y: 976569 1 Cedro
+espino 21 20,8 0,2 1 9 9 0 0 2007 5
+kapok x: 805509 y: 976569 2
+Cedro
+espino 20 20 0 0 11 11,5 -0,5 -4,5 2007 5
+kapok x: 805509 y: 976569 3
+Cedro
+espino 20,1 19,9 0,2 1 8 9 -1 -12,5 2007 5
+kapok x: 805509 y: 976569 4 Guaba 13 13,7 -0,7 -5,4 7 7 0 0 2007 5
+kapok x: 805509 y: 976569 5
+Cedro
+espino 25,7 25,2 0,5 1,9 11 12 -1 -9,1 2007 5
+kapok x: 805509 y: 976569 6 Cedro
+espino 23,9 23,9 0 0 12 12 0 0 2007 5
+kapok x: 805509 y: 976569 7
+Cedro
+espino 25,2 24,7 0,5 2 13,5 13,5 0 0 2007 5
+kapok x: 805509 y: 976569 8 Guaba 10,3 10 0,3 2,9 8 7,5 0,5 6,3 2007 5
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+52
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+kapok x: 805509 y: 976569 9 Mora 11,4 11,3 0,1 0,9 9 9 0 0 2007 5
+kapok x: 805509 y: 976569 10
+Cedro
+espino 23,9 23,6 0,3 1,3 12 13 -1 -8,3 2007 5
+kapok x: 805509 y: 976569 11 Cedro
+espino 36,3 36 0,3 0,8 14,7 15,5 -0,8 -5,4 2007 5
+kapok x: 805509 y: 976569 12
+Cedro
+espino 27,7 27,5 0,2 0,7 14,7 15,5 -0,8 -5,4 2007 5
+kapok x: 805509 y: 976569 13 Guasimo 12,3 12,2 0,1 0,8 9 11 -2 -22,2 2007 5
+kapok x: 805509 y: 976569 14 Guarumo 15,7 15,6 0,1 0,6 12 11 1 8,3 2007 5
+kapok x: 805509 y: 976569 15 Guaba 11,9 11,6 0,3 2,5 8,5 10 -1,5 -17,6 2007 5
+kapok x: 805509 y: 976569 16 Cedro
+espino 28,8 28 0,8 2,8 13 15 -2 -15,4 2007 5
+kapok x: 805509 y: 976569 17
+Cedro
+espino 28,6 28,6 0 0 6,7 15 -8,3 -123,9 2007 5
+kapok x: 805509 y: 976569 18
+Cedro
+espino 23,3 22,6 0,7 3 14,5 14 0,5 3,4 2007 5
+kapok x: 805509 y: 976569 19
+Cedro
+espino 27,2 26,8 0,4 1,5 15 15 0 0 2007 5
+kapok x: 805509 y: 976569 20 Guasimo 11,1 11,1 0 0 8 9 -1 -12,5 2007 5
+kapok x: 805509 y: 976569 21 Guasimo 11,7 11,7 0 0 7 9 -2 -28,6 2007 5
+kapok x: 805509 y: 976569 22 Guasimo 19,3 19,3 0 0 13,5 13,5 0 0 2007 5
+kapok x: 805395 y: 976225 1 Cocobol
+o 18 18 0 0 13 13,5 -0,5 -3,8 2007 6
+kapok x 805395 y: 976225 2
+Cocobol
+o 18 18 0 0 13 13 0 0 2007 6
+kapok x: 805395 y: 976225 3
+Cocobol
+o 13,3 13,2 0,1 0,8 11,9 12 -0,1 -0,8 2007 6
+kapok x: 805395 y: 976225 4 Roble 23,6 23,5 0,1 0,4 11,9 11 0,9 7,6 2007 6
+kapok x: 805395 y: 976225 5
+Cocobol
+o 17 17 0 0 12,3 12 0,3 2,4 2007 6
+kapok x: 805395 y: 976225 6 Cocobol
+o 15,9 15,8 0,1 0,6 12,3 11,5 0,8 6,5 2007 6
+kapok x: 805395 y: 976225 7
+Cocobol
+o 14,6 14,6 0 0 12,7 13 -0,3 -2,4 2007 6
+kapok x: 805395 y: 976225 8
+Cocobol
+o 19,8 19,6 0,2 1 13,3 13,5 -0,2 -1,5 2007 6
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+53
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+kapok x: 805395 y: 976225 9
+Cocobol
+o 14,2 14,2 0 0 12,5 10,5 2 16 2007 6
+kapok x: 805395 y: 976225 10
+Cocobol
+o 26,8 26,6 0,2 0,7 13,3 13 0,3 2,3 2007 6
+kapok x: 805395 y: 976225 11 Cocobol
+o 22,8 22,6 0,2 0,9 13,9 12 1,9 13,7 2007 6
+kapok x: 805395 y: 976225 12
+Cocobol
+o 17,7 17,6 0,1 0,6 14,9 14,5 0,4 2,7 2007 6
+kapok x: 805395 y: 976225 13
+Cocobol
+o 21,5 21,1 0,4 1,9 14,5 15 -0,5 -3,4 2007 6
+kapok x: 805395 y: 976225 14
+Cocobol
+o 14,6 14,7 -0,1 -0,7 12,5 13 -0,5 -4 2007 6
+kapok x: 805395 y: 976225 15
+Cocobol
+o 15,2 15,4 -0,2 -1,3 11,7 11 0,7 6 2007 6
+kapok x: 805395 y: 976225 16 Cocobol
+o 20,5 20,2 0,3 1,5 12,7 13 -0,3 -2,4 2007 6
+kapok x: 805395 y: 976225 17
+Cocobol
+o 18,7 16,9 1,8 9,6 12 10 2 16,7 2007 6
+kapok x: 805395 y: 976225 18
+Cocobol
+o 13 13 0 0 10,9 12 -1,1 -10,1 2007 6
+kapok x: 805395 y: 976225 19
+Cocobol
+o 16,3 16,3 0 0 12,9 13 -0,1 -0,8 2007 6
+kapok x: 805395 y: 976225 20
+Cocobol
+o 24,4 24,2 0,2 0,8 15 15 0 0 2007 6
+kapok x: 805395 y: 976225 21 Caoba 11,5 11,4 0,1 0,9 9 9 0 0 2007 6
+kapok x: 805395 y: 976225 22
+Cocobol
+o 12,8 12,8 0 0 14,5 15 -0,5 -3,4 2007 6
+kapok x: 805395 y: 976225 23
+Cocobol
+o 17,2 17 0,2 1,2 14,5 14 0,5 3,4 2007 6
+kapok x: 805395 y: 976225 24 Caoba 11 11 0 0 7 7,5 -0,5 -7,1 2007 6
+kapok x: 805395 y: 976225 25
+Cocobol
+o 23,1 23 0,1 0,4 13,9 13 0,9 6,5 2007 6
+kapok x: 805395 y: 976225 26 Cocobol
+o 26,9 26,5 0,4 1,5 13,9 13,5 0,4 2,9 2007 6
+kapok x: 805395 y: 976225 27
+Cocobol
+o 15,7 13,6 2,1 13,4 12,9 11,5 1,4 10,9 2007 6
+kapok x: 805395 y: 976225 28
+Cocobol
+o 16,7 16,6 0,1 0,6 13 11 2 15,4 2007 6
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+54
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+kapok x: 805395 y: 976225 29
+Cocobol
+o 16,5 16,4 0,1 0,6 12,3 13 -0,7 -5,7 2007 6
+kapok x: 805395 y: 976225 30
+Cocobol
+o 13,7 13,5 0,2 1,5 10,5 11,5 -1 -9,5 2007 6
+Red
+Lotus x: 808111 y: 979362 1 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 2 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 3 0 0 2011 8
+Red
+Lotus x:808111 y: 979362 4 Zapatero 10 -10 5 -5 2011 8
+Red
+Lotus x: 808111 y: 979362 5 Guasimo 22,8 22,8 0 0 10 10 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 6 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 7 Guaba 10,6 -10,6 8 -8 2011 8
+Red
+Lotus x: 808111 y: 979362 8 Zapatero 17,5 17,5 0 0 10,5 10,5 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 9 Naranjillo 15,9 16 -0,1 -0,6 8,3 10 -1,7 -20,5 2011 8
+Red
+Lotus x: 808111 y: 979362 10 Guarumo 14,5 17,2 -2,7 -18,6 10,1 10,1 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 11 Guasimo 12,3 12,2 0,1 0,8 10 10,1 -0,1 -1 2011 8
+Red
+Lotus x: 808111 y: 979362 12 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 13 Jobo 45,7 46,8 -1,1 -2,4 25 25 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 14 Jobo 17,4 17,8 -0,4 -2,3 20 20,3 -0,3 -1,5 2011 8
+Red
+Lotus x: 808111 y: 979362 15 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 16 Guarumo 11,7 11,8 -0,1 -0,9 15,2 15,4 -0,2 -1,3 2011 8
+Red
+Lotus x: 808111 y: 979362 17 Guarumo 12 12,2 -0,2 -1,7 15 15 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 18 Guarumo 13,5 13,7 -0,2 -1,5 14,9 15,6 -0,7 -4,7 2011 8
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+55
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+Red
+Lotus x: 808111 y: 979362 19 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 20 Guasimo 10,7 13,3 -2,6 -24,3 13 16 -3 -23,1 2011 8
+Red
+Lotus x: 808111 y: 979362 21 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 22 Guasimo 14,2 14,1 0,1 0,7 10,7 10 0,7 6,5 2011 8
+Red
+Lotus x: 808111 y: 979362 23 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 24 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 25 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 26 Guasimo 15,1 15,2 -0,1 -0,7 8,9 9 -0,1 -1,1 2011 8
+Red
+Lotus x: 808111 y: 979362 27 Zapatero 11,1 11,2 -0,1 -0,9 10,1 10 0,1 1 2011 8
+Red
+Lotus x: 808111 y: 979362 28 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 29 Guarumo 29,2 29,4 -0,2 -0,7 18,5 18 0,5 2,7 2011 8
+Red
+Lotus x: 808111 y: 979362 30 Guarumo 25,1 25,2 -0,1 -0,4 18 18 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 31 Guarumo 29,1 29,1 0 0 14,9 15 -0,1 -0,7 2011 8
+Red
+Lotus x: 808111 y: 979362 32 Guarumo 15 14,5 0,5 3,3 10 10 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 33 Guasimo 11,1 11,1 0 0 10,2 10 0,2 2 2011 8
+Red
+Lotus x: 808111 y: 979362 34 Guasimo 12,3 12,4 -0,1 -0,8 6,7 7,7 -1 -14,9 2011 8
+Red
+Lotus x: 808111 y: 979362 35 Guasimo 11 11,1 -0,1 -0,9 9,9 10 -0,1 -1 2011 8
+Red
+Lotus x: 808111 y: 979362 36 Zapatero 17,3 12,3 5 28,9 10,1 10,2 -0,1 -1 2011 8
+Red
+Lotus x: 808111 y: 979362 37 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 38 0 0 2011 8
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4
+56
+Finca
+Coordenadas Sistema
+Nacional Panamá
+#Ar
+bol Especie
+Audit
+oria
+DAP
+(cm)
+DAP
+Inventari
+o
+DAP Audit-
+Invent
+error
+DAP
+Htot
+(m) Htot
+Inventari
+o
+Htot Audit-
+Invent
+error
+Htot
+Año
+plantado
+Parc
+ela
+Audit
+oria
+Red
+Lotus x: 808111 y: 979362 39 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 40
+Cocobol
+o 11,2 11 0,2 1,8 5,2 5,4 -0,2 -3,8 2011 8
+Red
+Lotus x: 808111 y: 979362 41 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 42 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 43 Zapatero 10 10 0 0 7 7 0 0 2011 8
+Red
+Lotus x: 808111 y: 979362 44 Laurel 12,9 13,6 -0,7 -5,4 10,3 10 0,3 2,9 2011 8
+146,8 90,1
+0,9128
+1,487
+2
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 57
+APPENDIX 3: PUBLIC DOCUMENT VERRA
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 58
+APPENDIX 4: AUDIT PLAN AND RISK ANALYSIS FOR AUDIT REMOTE
+Título de la
+iniciativa del
+proyecto de
+mitigación de
+GEI
+GENERATION FOREST GROUP PROJECT.
+Nombre
+completo y
+cargo del
+responsable
+del proyecto
+Sussane Guamba
+Science Project and Carbon Coordinator
+Correo
+electrónico
+sg@futuroforestal.com Celular +504 62854012
+Dirección,
+incluyendo el
+País.
+Clayton, Calle Parker Drive, Casa 923ª Panama
+ciudad de Panamá
+Datos y cargo
+de la persona
+de contacto
+Sussane Guamba
+Science Project and Carbon Coordinator
+FUTURO FORESTAL S.A.
+Tipo de
+auditoria
+Validación Verificación X
+Totalmente remota X Parcialmente
+remota
+Con un cordial saludo, me dirijo a usted para remitir la propuesta del plan de la auditoria que se realizará
+al proyecto de mitigación de GEI presentado por su organización. Así mismo, para la reunión de apertura
+y reunión de cierre de la auditoria le agradezco invitar a las personas relevantes de las áreas que serán
+auditadas.
+Para el balance diario de información del equipo auditor le agradezco disponer de agenda y un espacio
+físico o remoto para realizar la reunión, así como también el acceso a la documentación básica de la
+iniciativa de mitigación de GEI.
+En cuanto a las condiciones de seguridad y salud ocupacional aplicables a su organización, por favor
+informarlas antes de realizar la visita en sitio para que el equipo auditor pueda solicitar a ICONTEC los
+elementos de protección personal que sean necesarios.
+La información que se conozca por la ejecución de esta auditoria será tratada confidencialmente, por
+parte del equipo auditor e Icontec. El idioma de la auditoria y su informe será en inglés respetando los
+estándares del VCS.
+Las condiciones de este servicio se encuentran indicadas en el R-PS-012 REGLAMENTO PARA
+SERVICIOS DE VALIDACIÓN Y VERIFICACIÓN.
+Criterio de la
+auditoria
+- VCS version 4.1 – CCB version 3.1.
+- Metodología AR- ACM0003 Afforestation and Reforestation of lands except
+wetlands. Version 2.0.
+Herramientas aplicadas:
+La verificación del proyecto de mitigación de GEI se realizará mediante auditoría con
+apoyo de medios tecnológicos totalmente remota.
+Objetivos de
+la auditoria
+Para verificación:
+Verificar el cumplimiento en la implementación de las actividades del proyecto de
+mitigación, incluyendo las asociadas a la metodología seleccionada para el proyecto,
+considerando lo siguiente:
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 59
+• La conformidad con los criterios de verificación aplicables, incluyendo los
+principios y requisitos de las normas o programas de GEI pertinentes dentro
+del alcance de la verificación.
+• La información y documentación de la planificación del proyecto de GEI,
+incluyendo procedimientos y criterios para el proyecto, la línea base, el control
+y el aseguramiento de la calidad, la gestión del riesgo y los documentos de
+esta verificación.
+• Las emisiones, remociones, reducciones de emisiones e incrementos de
+remociones que se informan en la línea base y el proyecto de GEI.
+• Cualquier cambio significativo en las emisiones, remociones, reducciones de
+emisiones y aumentos de remociones de GEI desde el último periodo de
+informe, o desde la validación del proyecto,
+• El cumplimiento de los principios y los controles reales del proyecto y del
+sistema de monitoreo, verificación y reporte necesarios para cumplir con sus
+procedimientos documentados y la legislación vigente de acuerdo con los
+criterios de auditoría.
+Alcance de la
+auditoria
+El Proyecto del Grupo de Generación Forestal trabaja actualmente en dos Unidades
+de Manejo Forestal (Darién y Colón), en el centro y este de Panamá. Actualmente, el
+área del proyecto (en gestión) es de 1887ha. De las cuales 1139 hectáreas son
+elegibles para las actividades del proyecto. Actualmente se ha reforestado una
+superficie de 673 hectáreas.
+La unidad del Darién el área se distribuye en la mayor parte en la provincia de Darién,
+Distrito de Chepigana, y otra parte se encuentra en la provincia de Panamá, Distrito
+de Chepo. Comprende una superficie actual del proyecto de 952 hectáreas, de las
+cuales 710 son elegibles para el proyecto.
+La segunda unidad de manejo forestal es Colón, ubicada en la provincia de Colón,
+Distrito de Colón, en la carretera a Sierra Llorona, con un área de proyecto de 935
+hectáreas donde 429 hectáreas son elegibles para el proyecto
+La Unidad de Gestión 1 comprende 5 instancias de actividades de proyecto, que son:
+• Instancia 1: Bosque de cerebros
+• Instancia 2: Jardín Edén: Comprende los sitios forestales Garden Eden,
+Garden Eden, Los Llanos.
+• Instancia 3: Kapok
+• Instancia 4: Red Lotus
+• Instancia 5: Waldmenschen, Darién: comprende el paraje forestal La
+Ponderosa, La Reina y Clarita.
+Los sitios forestales de Colón corresponden a 4 instancias:
+• Instancia 6: Waldmenschen, Colón. comprende los sitios forestales La
+Conexión, Gatún 1, Gatún 2
+• Instancia 7: Santa Rita
+• Instancia 8: Lauhan
+• Instancia 9: Bartholly
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 60
+• Fuentes y sumideros: Biomasa aérea, biomasa subterránea, carbono
+orgánico del suelo
+• Tipos de GEI, CO2
+• Periodos de tiempo definidos para ejecutar la actividad del proyecto: Duración
+de 100 años a partir del 16 de agosto de 2016.
+Nivel de
+Aseguramient
+o
+Acordado con el cliente: 95%
+Materialidad -
+Importancia
+Relativa
+Acordado con el cliente:
+5%
+Plan de
+Muestreo /
+Plan de
+recopilación
+de evidencia
+En cuanto a la información y documentación de la planificación del proyecto de
+mitigación de GEI, incluyendo procedimientos y criterios para el proyecto, la línea
+base, el control y el aseguramiento de la calidad, la gestión del riesgo y los
+documentos de esta verificación, se relacionan en la siguiente tabla:
+Parámetros Muestreo (%) Nivel de
+Aseguramiento
+(100%)
+Metodologías y
+herramientas utilizadas
+para el cálculo de las
+remociones
+100 100
+Fórmulas para el cálculo de
+las remociones
+100 100
+En cuanto al número de parcelas a verificar y su localización regional se relacionan
+en la siguiente tabla:
+N Parcela Estrato Tamaño
+Estrato Finca Coord. X Coord. Y
+1 4 Teca 2013 Mayor Brain Forest 800997,0649 976826,829
+2 12 Teca 2012 Menor Brain Forest 802194,617 975361,828
+3 7 Teca 2011 Mayor Brain Forest 800303,025 977067,37
+4 14 Teca 2018 Mayor Brain Forest 800903,573 976089,257
+5 13 Nativas Mayor Brain Forest 801206,7186 977707,265
+6 15 Nativas2008 Menor Brain Forest 801249,4193 976653,607
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 61
+Para realizar la auditoria remota se seleccionó la verificación en campo de la unidad
+Darien, para ver la mayoría de los arreglos forestales y estratos y porque en la unidad
+Darién a diferencia de la unidad Colón cuenta con mayor número de hectáreas
+implementadas, más arreglos y más estratos, y el acceso es menos complejo que
+Colón que está en el sistema montañoso y en época de lluvias se dificulta el paso. Se
+escogieron 15 parcelas de las 264 parcelas para dar respuesta al 5% de verificación
+de campo.
+Las evidencias de la auditoría se basarán en entrevistas, revisión documental,
+observación de actividades y condiciones, medición y resultados de la remedición de
+parcelas.
+7 6 Teca 2014 Menor Brain Forest 800325,6689 977558,59
+8 3 Teca 2015 Mayor Brain Forest 800705,3594 976345,775
+9 2 Teca 2017 Mayor Garden Eden 801331,7987 977817,178
+10 5 Teca 2016 Mayor Garden Eden 801357,2068 977401,59
+11 6 Nativas 2007 Mayor Kapok 805400,1601 976224,64
+12 11 Nativas Mixtas
+2011 Mayor Kapok 805392,0813 975752,037
+13 2 Nativas 2007 Mayor Kapok 805544,6742 976790,532
+14 5 Nativas 2007 Menor Kapok 805509,5014 976569,928
+15
+2
+Nativas Mixtas
+Rastrojos
+2011
+Mayor Red Lotus 808111,8997 979362,679
+Nombre del
+auditor líder
+Claudia Polindara Romero Correo
+electrónico
+cpolindara@icontec.net
+Auditor Claudia Polindara Romero Experto
+técnico
+Claudia Polindara Romero
+Reunión de
+apertura
+10/09/2021 Hora 14:00
+Reunión de
+cierre
+28/09/2021 Hora 09:00
+Fecha en la
+que se
+diligenció el
+plan de
+auditoria
+06/09/2021
+PLAN DE ACTIVIDADES EN SITIO
+FECHA HORA REQUISITO POR
+AUDITAR
+AUDITOR NOMBRE y CARGO
+DEL AUDITADO
+10-09-2021 08:00 -
+09:00 am
+MT. VCS y CCB
+Estándar
+Monitoring Report: 2, 3, 4
+CJPR Susanne Guamba -
+Gerente de ciencia y
+carbono
+10-09-2021 09:00 -
+10:00 am
+MT. VCS y CCB
+Estándar
+Monitoring Report: 2; 3; 4
+CJPR Jennifer Hernandez -
+Responsable de proyecto
+en Darién
+10-09-2021 10:00 -
+11:00 am
+MT. VCS y CCB
+Estándar
+Monitoring Report: 2.3; 4
+CJPR Octavio Cunampio - Equipo
+de monitoreo, comunidad
+Emberá
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 62
+10-09-2021 10:00 am-
+12:00 m
+MT. VCS y CCB
+Estándar
+Monitoring Report: 3.1;
+5;6
+CJPR Juan González - Gerente
+de Operaciones
+10-09-2021 14:00 –
+16:00 pm
+MT. VCS y CCB
+Estándar
+Monitoring Report: 2.3, 3,
+6
+CJPR Equipo de monitoreo,
+comunidad Emberá: Militza
+Cunampio, Elio Barrigón,
+Albert Aji
+10-09-2021 16:00 –
+17:00 pm
+MT. VCS y CCB
+Estándar
+CJPR Ángel Flores. Auditoría
+externa de plantaciones,
+EcoWoods
+27-09-2021 08:00 am -
+17:00 pm
+MT. VCS y CCB
+Estándar
+CJPR Susanne Guamba -
+Gerente de ciencia y
+carbono
+Observaciones:
+- Durante las entrevistas el equipo auditor revisará por muestreo, la documentación referenciada
+dentro de la descripción del proyecto y/o en el reporte de monitoreo.
+- Este plan de actividades es flexible y puede ser modificado de común acuerdo con el titular del
+proyecto.
+- Todo el personal del titular del proyecto relacionado con la iniciativa de mitigación de GEI debe estar
+disponible si es solicitado por el equipo de auditoria con el propósito de evaluar cualquier requisito
+- Durante cualquier fase de este proceso de evaluación (revisión documental, previa a la visita en
+sitio, visita en sitio, redacción del informe de auditoría o revisión técnica) se pueden declarar
+hallazgos, los cuales deben ser resueltos antes de enviar la documentación relevante (descripción
+del proyecto, reporte de monitoreo, hojas de cálculo, informes de auditoría, entre otros) al programa
+de GEI.
+- El cronograma de las actividades de Validación/ verificación se encuentran descritas en el
+documento F-GV-086 NOTIFICACION DE SERVICIOS VALIDACION Y VERIFICACION
+Para el desarrollo de la auditoria remota, tener en cuenta:
+El proponente de proyecto indicó que la información entregada al equipo auditor se presenta bajo las
+siguientes características:
+Ítem Formato Trazabilidad Medio de envío
+Videos Formatos originales de
+grabación video: mp4,
+mkv, avi, dvd, wmv, mov,
+entre otros.
+Preferiblemente
+comprimidos.
+Fecha, hora y tracks
+asociados en formato
+.gpx, kml o shape.
+Generar un
+documento
+especificando las
+características del
+video, la cámara
+usada, la codificación
+de cada video y su
+medio de archivo y
+envío.
+Mediante almacenamiento
+en la nube.
+Fotografías Formato: jpg, jpeg, gif,
+png, bmp, etc.
+Fecha, hora<z y tracks
+asociados en formato
+.gpx, kml o shape.
+Generar un
+documento
+especificando las
+características del
+video, la cámara
+usada, la codificación
+de cada video y su
+Mediante almacenamiento
+en la nube.
+
+CCB & VCS VERIFICATION REPORT:
+CCB Version 3, VCS Version 3
+CCB v3.0, VCS v3.4 63
+medio de archivo y
+envío.
+Tracks Formato original del GPS
+(.gpx) tal como queda
+guardado (fecha, hora).
+Documento
+descriptivo asociado
+a cada Track, medio
+de archivo y envío
+Mediante almacenamiento
+en la nube.
+Waypoint Formato original del GPS
+(.gpx) tal como queda
+guardado (fecha, hora).
+Documento
+descriptivo asociado
+a cada Waypoint,
+medio de archivo y
+envío.
+Mediante almacenamiento
+en la nube.
+El auditor líder durante la realización del plan de auditoría y junto con el cliente, evaluó los riesgos de
+realizar la auditoria remota, y los riesgos de control, inherentes y de detección identificados durante la
+revisión documental y planificación del servicio:
+No Riesgo Nivel de
+riesgo
+Tratamiento de los riesgos en el plan de
+Validación/Verificación
+1 Acceso limitado al
+área M
+Existe accesos a todas las fincas, en época de
+lluvia se utilizan autos 4*4 con doble tracción.
+Existe mayor dificultad en el acceso a Colón,
+por lo cual se desarrollará la remedición de
+parcelas en la Unidad del Darién, en donde
+existe una mayor representatividad de todos los
+estratos.
+2
+Interferencia o baja
+calidad en la
+comunicación
+M
+Se tienen videos realizados en la auditoría de
+validación. Se cuenta con la nube para subir la
+información.
+3
+Acceso del
+proponente del
+proyecto al área
+debido a restricciones
+de movilidad (COVID-
+19 u otra condición)
+M
+Se realizan entrevistas por distintos medios
+como: llamadas telefónicas, whatsapp,
+plataformas (Teams, Zoom).
+4
+Verificación de
+acciones para el
+manejo de la
+biodiversidad en la
+zona
+M
+El proyecto cuenta con certificación FSC y da
+cumplimiento de estas acciones. Se presentará
+un documento con los procedimientos y un
+video descriptivo de los mismos.
+5
+Pérdida de evidencia
+en la implementación
+de controles
+B
+La empresa cuenta con esquemas de
+monitoreo para la verificación de la
+implementación, cuenta también con formatos
+de evaluación de los individuos.
+6
+Identificación de
+errores en los
+cálculos de la
+metodología
+M
+La empresa cuenta con supervisión de las
+áreas, se realizan varios procesos de
+reverificación, y se realizan remediciones
+aleatorias o en parcelas que se identifiquen
+posibles errores.

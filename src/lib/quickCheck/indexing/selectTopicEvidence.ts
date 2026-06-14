@@ -41,7 +41,15 @@ export function findBestTopicMatch(
   if (best.confidence < minConfidence) {
     return { status: "no_evidence", reason: "weak_match" };
   }
-  if (second && (best.confidence - second.confidence) < ambiguityMargin) {
+  // Ambiguity: reject when top two are close AND both are below
+  // heading-level (0.95).  Multiple heading-level matches in the
+  // same topic are expected in well-structured documents (e.g.
+  // several stakeholder sections in a verification report).
+  if (
+    second
+    && (best.confidence < 0.95 || second.confidence < 0.95)
+    && (best.confidence - second.confidence) < ambiguityMargin
+  ) {
     return { status: "no_evidence", reason: "ambiguous_match" };
   }
 
