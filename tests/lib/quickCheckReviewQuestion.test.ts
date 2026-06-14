@@ -1551,9 +1551,8 @@ describe("Phase 4 router integration groundwork", () => {
 
     expect(result.routerResult.route).toBe("project_fact_contract");
     expect(result.routerResult.status).toBe("answered");
-    expect(result.routerResult.answerText).toContain("Primary methodology: VM0007");
+    expect(result.routerResult.answerText).toContain("VM0007");
     expect(result.routerResult.answerText).toContain("4.2");
-    expect(result.routerResult.answerText).toContain("from structured input");
     expect(result.routerResult.warnings).toContain("structured_input_provenance");
   });
 

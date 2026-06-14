@@ -9,6 +9,7 @@ import type {
   DeterministicRouterRoute,
   ReviewArea,
 } from "@/lib/quickCheck/retrieval/types";
+import { shapeRouterAnswerText } from "@/lib/quickCheck/answerShaping";
 
 type RouterCandidate = {
   answerText: string;
@@ -546,7 +547,7 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
 
   if (candidate.isStructuredInput) {
     return {
-      answerText: candidate.answerText,
+      answerText: shapeRouterAnswerText(candidate.answerText, candidate.route, input.queryIntentAnalysis),
       status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
       route: candidate.route,
       confidence: clampConfidence(candidate.confidence),
@@ -560,5 +561,9 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
     };
   }
 
-  return finalizeCandidate(input.evidenceDocument, candidate);
+  const finalized = finalizeCandidate(input.evidenceDocument, candidate);
+  return {
+    ...finalized,
+    answerText: shapeRouterAnswerText(finalized.answerText, finalized.route, input.queryIntentAnalysis),
+  };
 }

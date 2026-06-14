@@ -355,7 +355,7 @@ describe("deterministic router contract", () => {
     const result = buildResult("Explain the baseline scenario.", SECTION_PDD_TEXT);
 
     expect(result.routerResult.route).toBe("section_index");
-    expect(result.routerResult.answerText).toContain("Baseline Scenario");
+    expect(result.routerResult.answerText).toContain("continued grazing pressure");
     expectAnsweredProvenance(SECTION_PDD_TEXT, result);
   });
 
@@ -438,9 +438,8 @@ describe("deterministic router contract", () => {
 
     expect(result.routerResult.route).toBe("project_fact_contract");
     expect(result.routerResult.status).toBe("answered");
-    expect(result.routerResult.answerText).toContain("Primary methodology: VM0007");
+    expect(result.routerResult.answerText).toContain("VM0007");
     expect(result.routerResult.answerText).toContain("4.2");
-    expect(result.routerResult.answerText).toContain("from structured input");
     expect(result.routerResult.warnings).toContain("structured_input_provenance");
     expect(result.routerResult.quotes).toEqual([]);
   });
