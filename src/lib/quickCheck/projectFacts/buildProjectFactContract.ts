@@ -56,7 +56,7 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "projectLocation",
     labels: ["Project location", "Project site", "Location", "Geographic location", "Geographic reference"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Project location", "Geographic reference of the project activity", "Geographic location"],
@@ -67,13 +67,13 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "projectProponent",
     labels: ["Project proponent", "Project proponent(s)", "Project participants", "Participants", "Project developer"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
   },
   {
     field: "methodologyPrimary",
     labels: ["Methodology", "Applied methodology", "Approved methodology"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Title and reference of methodology applied", "Methodology applied"],
@@ -84,19 +84,19 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "baselineMethodology",
     labels: ["Baseline methodology", "Applied baseline methodology"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
   },
   {
     field: "monitoringMethodology",
     labels: ["Monitoring methodology", "Monitoring approach"],
-    preferBlockTypes: ["field", "table", "paragraph"],
+    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
   },
   {
     field: "creditingPeriod",
-    labels: ["Crediting period", "Project crediting period", "Crediting period of the project activity"],
-    preferBlockTypes: ["field", "paragraph"],
+    labels: ["Crediting period", "Project crediting period", "Crediting period of the project activity", "Project Lifetime", "GHG Accounting Period", "Accounting Period"],
+    preferBlockTypes: ["field", "paragraph", "title"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Project crediting period", "Crediting period", "Project lifetime"],
@@ -257,8 +257,23 @@ function findLabeledCandidates(
     const spaceMatch = span.text.match(spacePattern);
     if (spaceMatch?.[1]) {
       const rawValue = rule.multiline ? spaceMatch[1] : spaceMatch[1].split(/\s{2,}|\n/)[0];
-      const value = rawValue.trim().replace(/[.;:,]$/, "").trim();
-      if (value && value.split(/\s+/).length <= 8) {
+      // Trim trailing punctuation and drop annotations after ";" or "("
+      let value = rawValue.trim().replace(/[.;:,]$/, "").trim();
+      if (value) {
+        const semicolonIndex = value.indexOf(";");
+        const parenIndex = value.indexOf("(");
+        const cutIndex = Math.min(
+          semicolonIndex > 0 ? semicolonIndex : Infinity,
+          parenIndex > 0 ? parenIndex : Infinity,
+        );
+        if (cutIndex !== Infinity) {
+          value = value.slice(0, cutIndex).trim();
+        }
+      }
+      // Cover-table entries for multiline fields can be longer (date ranges
+      // etc).  Monoline fields keep the stricter 8-word guard.
+      const maxWords = rule.multiline ? 20 : 8;
+      if (value && value.split(/\s+/).length <= maxWords) {
         const dedupeKey = normalizeValue(value);
         if (!seenValues.has(dedupeKey)) {
           seenValues.add(dedupeKey);

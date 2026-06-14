@@ -318,3 +318,105 @@ describe("Quick Check — Vichada validation report regression", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// PLUM / a.pdf cover-table regression
+// ---------------------------------------------------------------------------
+const PLUM_A_DOC_TEXT = fs.readFileSync(
+  path.join(FIXTURE_DIR, "a-pdf-extracted.txt"),
+  "utf-8",
+);
+
+describe("Quick Check — a.pdf / PLUM cover-table regression", () => {
+  it("project location: Indonesia, Central Kalimantan", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What is the project location?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PLUM_A_DOC_TEXT,
+    });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.answerText).toContain("Indonesia");
+    expect(r.routerResult.answerText).toContain("Central Kalimantan");
+    expect(r.routerResult.quotes.length).toBeGreaterThan(0);
+    expect(r.routerResult.pages).toContain(1);
+    expect(r.documentAnswer.status).toBe("likely_yes");
+  });
+
+  it("crediting period: 01 August 2022 – 31 July 2082", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What is the crediting period?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PLUM_A_DOC_TEXT,
+    });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.answerText).toContain("01 August 2022");
+    expect(r.routerResult.answerText).toContain("31 July 2082");
+    expect(r.routerResult.pages).toContain(1);
+    expect(r.documentAnswer.status).toBe("likely_yes");
+  });
+
+  it("marine biodiversity offsets: no_evidence", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What does the document say about marine biodiversity offsets?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PLUM_A_DOC_TEXT,
+    });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PD_REDD_v1_130 regression
+// ---------------------------------------------------------------------------
+const PD_REDD_DOC_TEXT = fs.readFileSync(
+  path.join(FIXTURE_DIR, "pd-redd-v130-extracted.txt"),
+  "utf-8",
+);
+
+describe("Quick Check — PD_REDD_v1_130 regression", () => {
+  it("project location includes Cacheu and Cantanhez, not just the section heading", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What is the project location?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PD_REDD_DOC_TEXT,
+    });
+    expect(r.routerResult.status).toBe("answered");
+    expect(r.routerResult.answerText).toContain("Cacheu");
+    expect(r.routerResult.answerText).toContain("Cantanhez");
+    // Must not be just the section heading: "Project Location"
+    expect(r.routerResult.answerText).not.toMatch(/^Project location: Project Location/);
+    expect(r.documentAnswer.status).toBe("likely_yes");
+  });
+
+  it("stakeholder consultation includes substantive text, not just STAKEHOLDER COMMENTS", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What does the document say about stakeholder consultation?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PD_REDD_DOC_TEXT,
+    });
+    expect(r.routerResult.status).toBe("answered");
+    // Answer text should contain body content, not just the heading
+    expect(r.routerResult.answerText).toContain("participatory process");
+    expect(r.routerResult.answerText).not.toMatch(/^6 STAKEHOLDER COMMENTS: STAKEHOLDER COMMENTS/);
+    expect(r.documentAnswer.status).toBe("likely_yes");
+  });
+
+  it("marine biodiversity offsets: no_evidence", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What does the document say about marine biodiversity offsets?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PD_REDD_DOC_TEXT,
+    });
+    expect(r.routerResult.status).toBe("no_evidence");
+    expect(r.routerResult.quotes).toEqual([]);
+    expect(r.documentAnswer.status).not.toBe("likely_yes");
+  });
+});
