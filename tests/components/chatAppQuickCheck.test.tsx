@@ -54,7 +54,7 @@ describe("ChatApp claim-first landing", () => {
     expect(container.textContent).toContain("Upload document");
     expect(container.textContent).toContain("Try demo check");
     expect(container.textContent).toContain("Run Quick Check");
-    expect(container.textContent).toContain("Review question");
+    expect(container.textContent).toContain("Search this document");
     expect(container.querySelectorAll("textarea").length).toBe(1);
     expect(container.textContent).toContain("Options");
     expect(container.textContent).not.toContain("Select saved evidence");

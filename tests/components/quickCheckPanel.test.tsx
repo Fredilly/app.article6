@@ -957,7 +957,7 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     expect(pageText).toContain("Drop your document");
     expect(pageText).toContain("PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP");
     expect(pageText).toContain("Upload document");
-    expect(pageText).toContain("Review question");
+    expect(pageText).toContain("Search this document");
     expect(pageText).toContain("Try demo check");
     expect(pageText).toContain("Options");
     expect(pageText).not.toContain("Select saved evidence");
