@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-const path = require("path");
-const {
+import path from "path";
+import {
   runQuickCheckEvalCorpus,
   formatQuickCheckEvalCorpusReport,
   checkEvalCorpusThresholds,
-} = require("../src/lib/quickCheck/evalCorpus");
-const { loadEvalCorpusManifest } = require("../src/lib/quickCheck/evalCorpus/manifest");
-const { DEFAULT_STRICT_THRESHOLDS } = require("../src/lib/quickCheck/evalCorpus/types");
+} from "../src/lib/quickCheck/evalCorpus";
+import { loadEvalCorpusManifest } from "../src/lib/quickCheck/evalCorpus/manifest";
+import { DEFAULT_STRICT_THRESHOLDS } from "../src/lib/quickCheck/evalCorpus/types";
 
 const strict = process.argv.includes("--strict");
 const manifestFlagIndex = process.argv.indexOf("--manifest");

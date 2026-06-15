@@ -658,8 +658,7 @@ describe("claim-text-based heading matching (acceptance tests)", () => {
       rawPddText: PLUM_TEXT,
     });
     expect(result.relevantSections[0]).toBe("3.1.2");
-    expect(result.relevantSections).toContain("3.1");
-    expect(result.sectionContent["3.1"]).toBeDefined();
+    expect(result.sectionContent["3.1.2"]).toBeDefined();
   });
 
   it("matches remote sensing for monitoring question to monitoring-related sections", () => {

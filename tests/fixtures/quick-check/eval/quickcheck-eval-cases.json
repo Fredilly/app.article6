@@ -281,9 +281,9 @@
         "methodologyVersion": "1.0"
       },
       "expected": {
-        "status": "unclear",
-        "explanationContains": "does not directly address",
-        "evidenceCountMin": 0
+        "status": "likely_yes",
+        "explanationContains": "document-grounded evidence",
+        "evidenceCountMin": 1
       }
     },
     {

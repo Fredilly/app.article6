@@ -9,7 +9,6 @@ import type {
   DeterministicRouterRoute,
   ReviewArea,
 } from "@/lib/quickCheck/retrieval/types";
-import { shapeRouterAnswerText } from "@/lib/quickCheck/answerShaping";
 
 type RouterCandidate = {
   answerText: string;
@@ -199,11 +198,29 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
   if (!["fact_lookup", "methodology_lookup"].includes(input.queryIntentAnalysis.intent)) return null;
 
   const spanLookup = getSpanLookup(input.evidenceDocument);
-  const resolvedFacts = input.queryIntentAnalysis.targetFacts
+  const intent = input.queryIntentAnalysis.intent;
+  const targetFacts = input.queryIntentAnalysis.targetFacts;
+
+  // Determine which resolved facts to include in the answer.
+  // Methodology queries should only show methodology facts, not
+  // unrelated facts (location, crediting period etc.) that happen
+  // to share the same evidence span.
+  const relevantFactIds: ProjectFactId[] = [];
+  if (intent === "methodology_lookup") {
+    relevantFactIds.push("methodologyPrimary");
+  }
+  if (intent === "fact_lookup") {
+    relevantFactIds.push(...targetFacts);
+  }
+  // Ensure we have at least the target facts
+  if (relevantFactIds.length === 0) relevantFactIds.push(...targetFacts);
+
+  const resolvedFacts = relevantFactIds
+    .filter((factId) => input.projectFactContract?.[factId])
     .map((factId) => ({
       factId,
-      field: input.projectFactContract?.[factId],
-      value: formatFactValue(input.projectFactContract?.[factId]?.value ?? null),
+      field: input.projectFactContract![factId],
+      value: formatFactValue(input.projectFactContract![factId].value ?? null),
     }))
     .filter((entry): entry is {
       factId: ProjectFactId;
@@ -240,14 +257,57 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
       isStructuredInput: boolean;
     } => entry.isStructuredInput || entry.supportingSpans.length > 0);
 
+  // ── Related-fact fallback ──────────────────────────────────────────────
+  // When the exact fact is not found, try related facts and compose a
+  // partial/related answer with a caveat.
+  let answerCaveat: string | undefined;
+  if (resolvedFacts.length === 0 && intent === "fact_lookup") {
+    const fallbackMap: Record<string, ProjectFactId[]> = {
+      creditingPeriod: ["reportingPeriod", "monitoringPeriod"],
+      projectLocation: ["hostCountry", "projectCountry"],
+    };
+    for (const targetFact of targetFacts) {
+      const fallbacks = fallbackMap[targetFact] ?? [];
+      for (const fallbackId of fallbacks) {
+        const fallbackField = input.projectFactContract?.[fallbackId];
+        const fallbackValue = formatFactValue(fallbackField?.value ?? null);
+        if (fallbackField && fallbackValue && (fallbackField.evidenceSpanIds.length > 0 || fallbackField.extractionRule === "structured-input")) {
+          const fallbackSpans = fallbackField.evidenceSpanIds
+            .map((spanId) => spanLookup.get(spanId))
+            .filter((span): span is EvidenceSpan => Boolean(span))
+            .filter((span) => normalize(span.text).includes(normalize(fallbackValue)));
+          resolvedFacts.push({
+            factId: fallbackId,
+            field: fallbackField as ProjectFactField,
+            value: fallbackValue,
+            supportingSpans: fallbackSpans,
+            isStructuredInput: fallbackField.extractionRule === "structured-input",
+          });
+          const targetLabel = FACT_LABELS[targetFact] ?? targetFact;
+          const foundLabel = FACT_LABELS[fallbackId] ?? fallbackId;
+          answerCaveat = `No exact ${targetLabel.toLowerCase()} was found. The document states the ${foundLabel.toLowerCase()} is ${fallbackValue}.`;
+          break;
+        }
+      }
+      if (resolvedFacts.length > 0) break;
+    }
+  }
+
   if (resolvedFacts.length === 0) return null;
 
-  const answerText = resolvedFacts
-    .map(({ factId, value, isStructuredInput }) =>
-      isStructuredInput
-        ? `${FACT_LABELS[factId]}: ${value} (from structured input).`
-        : `${FACT_LABELS[factId]}: ${value}.`)
-    .join(" ");
+  // ── Compose answer text ────────────────────────────────────────────────
+  // Per-field, clean composition.  No unrelated facts folded in.
+  const answerParts = resolvedFacts.map(({ factId, value, isStructuredInput }) => {
+    const label = FACT_LABELS[factId] ?? factId;
+    // For structured input, just the name + version (no "from structured input")
+    if (isStructuredInput) return `${value}`;
+    return `${label}: ${value}`;
+  });
+  let answerText = answerParts.join(". ") + (answerParts.length > 1 ? "." : "");
+  if (answerCaveat) {
+    answerText = answerCaveat;
+  }
+
   const documentFacts = resolvedFacts.filter((f) => !f.isStructuredInput);
   const quoteInputs = documentFacts
     .flatMap(({ supportingSpans }) => supportingSpans
@@ -311,13 +371,37 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
   // answer over heading-only spans.  Heading text ("STAKEHOLDER COMMENTS")
   // is kept in sectionPaths / quote validation but the answer to the user
   // should show substantive body content.
+  //
+  // Compose from first 1-3 substantive sentences, stopping before
+  // meeting lists, table artifacts, and citation dumps.
   const bodyBlockTypes = new Set(["paragraph", "field", "formula"]);
   const bestBody = candidates.find((c) => bodyBlockTypes.has(c.blockType)) ?? candidates[0];
   const best = candidates[0];
   const node = input.sectionTableIndex.sectionTree.nodesById[targetSections[0]];
 
+  // ── Compose answer from body text ──────────────────────────────────────
+  const rawText = bestBody.text;
+  const sentences = rawText.split(/(?<=[.!?])\s+/);
+  const kept: string[] = [];
+  for (const s of sentences) {
+    if (s.length < 8) continue;
+    if (s.split(/\s+/).filter(Boolean).length < 3) continue;
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) break;
+    if (/^(?:List of|Table|Figure|Source:|PROJECT DESCRIPTION)/i.test(s.trim())) break;
+    if (s.startsWith("http") || s.startsWith("Available at:")) break;
+    kept.push(s);
+    if (kept.length >= 3) break;
+  }
+  const trimmedText = kept.join(" ").replace(/\s+/g, " ").trim() || rawText.slice(0, 300);
+  // Reject answers that are just heading echoes or formula markers
+  // (e.g. "REDD+ Methodology Framework -- 1 of 1 --").
+  const wordCount = trimmedText.split(/\s+/).filter(Boolean).length;
+  const hasFormulaPattern = trimmedText.includes("-- 1 of") || trimmedText.includes("-- 2 of") || /\d+ of \d+ --/.test(trimmedText);
+  if (wordCount < 4 || hasFormulaPattern) return null;
+  const answerText = node ? `${sectionDisplay(node)}: ${trimmedText}` : trimmedText;
+
   return {
-    answerText: node ? `${sectionDisplay(node)}: ${bestBody.text}` : bestBody.text,
+    answerText,
     route: "section_index",
     confidence: clampConfidence(Math.min(
       input.queryIntentAnalysis.confidence,
@@ -450,7 +534,7 @@ function buildTableCandidate(input: DeterministicRouterInput): RouterCandidate |
 
 function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate | null {
   if (!input.evidenceDocument || !input.sectionTableIndex || !input.projectFactContract) return null;
-  if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope" || input.queryIntentAnalysis?.intent === "ambiguous") {
+  if (input.queryIntentAnalysis?.intent === "unsupported_or_out_of_scope") {
     return null;
   }
   if (
@@ -477,12 +561,18 @@ function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate
 
   if (candidates.length === 0) return null;
 
-  const best = candidates[0];
-  const lexicalConfidence = clampConfidence(Math.max(best.score, input.queryIntentAnalysis?.confidence ?? 0));
+  // Prefer the first candidate with substantive body text
+  const bodyBlockTypes = new Set(["paragraph", "field", "formula"]);
+  const bestLexical = candidates.find((c) => bodyBlockTypes.has(c.blockType) && c.text.split(/\s+/).filter(Boolean).length >= 4 && !/^[A-Z][\w\s+.-]+ -- \d+ of \d+ --$/.test(c.text)) ?? candidates[0];
+  const lexicalText = bestLexical.text;
+  // Reject if the best we have is just a heading echo
+  if (lexicalText.split(/\s+/).filter(Boolean).length < 3) return null;
+
+  const lexicalConfidence = clampConfidence(Math.max(bestLexical.score, input.queryIntentAnalysis?.confidence ?? 0));
   if (lexicalConfidence < LEXICAL_MIN_CONFIDENCE) return null;
 
   return {
-    answerText: `The document states: ${best.text}`,
+    answerText: `The document states: ${lexicalText}`,
     route: "lexical_retrieval",
     confidence: lexicalConfidence,
     evidenceSpanIds: candidates.map((c) => c.evidenceSpanId),
@@ -520,6 +610,29 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
   }
 
   if (input.queryIntentAnalysis?.intent === "ambiguous") {
+    // Ambiguous intents may still have useful section or lexical
+    // evidence.  Try those paths before falling back.
+    const sectionCandidate = buildSectionCandidate(input);
+    if (sectionCandidate) {
+      if (sectionCandidate.isStructuredInput) {
+        return {
+          answerText: sectionCandidate.answerText,
+          status: sectionCandidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
+          route: sectionCandidate.route,
+          confidence: clampConfidence(sectionCandidate.confidence),
+          evidenceSpanIds: sectionCandidate.evidenceSpanIds,
+          quotes: [],
+          pages: sectionCandidate.pages,
+          sectionPaths: sectionCandidate.sectionPaths,
+          warnings: sectionCandidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD
+            ? [...sectionCandidate.warnings, "structured_input_provenance"]
+            : [...sectionCandidate.warnings, "low_confidence", "structured_input_provenance"],
+        };
+      }
+      return finalizeCandidate(input.evidenceDocument, sectionCandidate);
+    }
+    const lexicalCandidate = buildLexicalCandidate(input);
+    if (lexicalCandidate) return finalizeCandidate(input.evidenceDocument, lexicalCandidate);
     return buildFallback({
       answerText: "Quick Check found multiple plausible evidence paths and did not choose one deterministically.",
       status: "unclear",
@@ -547,7 +660,7 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
 
   if (candidate.isStructuredInput) {
     return {
-      answerText: shapeRouterAnswerText(candidate.answerText, candidate.route, input.queryIntentAnalysis),
+      answerText: candidate.answerText,
       status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
       route: candidate.route,
       confidence: clampConfidence(candidate.confidence),
@@ -561,9 +674,5 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
     };
   }
 
-  const finalized = finalizeCandidate(input.evidenceDocument, candidate);
-  return {
-    ...finalized,
-    answerText: shapeRouterAnswerText(finalized.answerText, finalized.route, input.queryIntentAnalysis),
-  };
+  return finalizeCandidate(input.evidenceDocument, candidate);
 }

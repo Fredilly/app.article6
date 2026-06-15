@@ -648,10 +648,22 @@
             "expectedEvidenceEmpty": true
           },
           "monitoring": {
-            "expectedStatus": "unclear",
-            "expectedRoute": "fallback",
-            "visibleAnswerStatus": "unclear",
-            "expectedEvidenceEmpty": true
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Monitoring will be conducted annually"
+              ],
+              "sectionHints": [
+                "Monitoring"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
           },
           "leakage": {
             "expectedStatus": "unclear",
@@ -755,22 +767,10 @@
             "visibleAnswerStatus": "unclear"
           },
           "monitoring": {
-            "expectedStatus": "answered",
-            "expectedRoute": "section_index",
-            "goldEvidence": {
-              "pages": [
-                1
-              ],
-              "spanAnchors": [
-                "REDD+ Methodology Framework"
-              ],
-              "sectionHints": [
-                "Monitoring"
-              ]
-            },
-            "visibleAnswerStatus": "likely_yes",
-            "visibleAnswerEvidenceMin": 1,
-            "visibleAnswerEvidencePage": 1
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "leakage": {
             "expectedStatus": "unclear",
