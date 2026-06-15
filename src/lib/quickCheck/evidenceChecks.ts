@@ -1,29 +1,28 @@
 /**
- * Structured Evidence Checks with per-check validation contracts.
+ * Evidence Checks — per-check contracts with candidate search, ranking,
+ * validation, and answer shaping.
  *
- * Each check defines:
- *  - Applicability: which document types the check applies to
- *  - Allowed/rejected evidence anchors (section headings, fact fields)
- *  - Expected answer shape
- *  - Grounded-evidence requirements
- *
- * The router retrieves evidence; the contract validates it.
+ * Architecture:
+ *   Router retrieves broadly.
+ *   Contract searches → ranks → validates → shapes.
+ *   UI displays only contract-approved results.
  */
 
 import type { DeterministicRouterResult } from "@/lib/quickCheck/retrieval/types";
+import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
+import type { ProjectFactContract, ProjectFactField } from "@/lib/quickCheck/projectFacts/types";
+import type { SectionTableIndex } from "@/lib/quickCheck/indexing";
+import type { QueryIntentAnalysis } from "@/lib/quickCheck/queryIntent";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export type EvidenceCheckId =
-  // Universal
   | "project_activity" | "host_country" | "project_location" | "methodology"
   | "crediting_period" | "monitoring_period" | "baseline_scenario"
   | "additionality" | "leakage" | "safeguards" | "environmental_impacts"
   | "stakeholder_consultation"
-  // VM0007
   | "vm0007_boundary" | "vm0007_leakage_belt" | "vm0007_reference_region"
   | "vm0007_baseline_deforestation" | "vm0007_carbon_pools" | "vm0007_monitoring_plan"
-  // AR-ACM0003
   | "ar_acm0003_arr_activity" | "ar_acm0003_boundary"
   | "ar_acm0003_carbon_pools" | "ar_acm0003_monitoring_plan";
 
@@ -40,6 +39,7 @@ export type EvidenceCheckResult = {
   checkId: EvidenceCheckId;
   status: EvidenceCheckStatus;
   answerText: string;
+  downgradeReason: string;
   quotes: string[];
   pages: number[];
   sections: string[];
@@ -49,175 +49,333 @@ export type EvidenceCheckResult = {
 
 // ── Contract types ─────────────────────────────────────────────────────────
 
-export type AnswerShape =
-  | "country"
-  | "methodology_code"
-  | "methodology_name_version"
-  | "date_range"
-  | "date_range_with_duration"
-  | "section_summary"
-  | "location"
-  | "yes_no_explanation"
-  | "project_title"
-  | "project_activity_description";
-
-type DocumentFamilyFilter = "PDD" | "validation_report" | "verification_report" | "monitoring_report" | "any";
+export type DocumentFamilyFilter = "PDD" | "validation_report" | "verification_report" | "monitoring_report" | "any";
 
 /**
- * Per-check validation contract.
- *
- * Fields:
- * - applicableDocumentFamilies: document families where this check makes
- *   sense.  "any" means universal.
- * - allowedAnchorTerms: section heading terms that qualify as valid
- *   evidence for this check.  Section paths must contain at least one
- *   of these terms.
- * - forbiddenAnchorTerms: section heading terms that disqualify evidence
- *   even if the router found a keyword match.  Prevents false positives
- *   from unrelated sections.
- * - allowedFactFields: fact fields that are acceptable evidence for this
- *   check (for project_fact_contract route).
- *   Empty array = no fact-based evidence allowed (must come from sections).
- * - expectedShape: what the answer value should look like.
- * - requiresGroundedEvidence: if true, requires at least one of
- *   quotes/pages/sections/evidenceSpanIds.
- * - minimumEvidenceWords: minimum word count in the answer text to
- *   consider it substantive (prevents heading-only echoes).
- * - exactMatchAllowedFromHeadingsOnly: if true, heading-only spans are
- *   rejected as non-substantive (must come from body text / facts).
+ * Where a contract searches for evidence first.
+ */
+type SearchTarget = "fact_contract" | "section" | "body_text";
+
+/**
+ * Full check contract.  Controls the entire check lifecycle.
  */
 export type EvidenceCheckContract = {
   applicableDocumentFamilies: DocumentFamilyFilter[];
+
+  // ── Candidate search ───────────────────────────────────────────────
+  /** Ordered search targets.  Earlier = higher priority. */
+  searchTargets: SearchTarget[];
+  /** Section heading terms that qualify as valid evidence anchors. */
   allowedAnchorTerms: string[];
+  /** Section heading terms that automatically reject evidence. */
   forbiddenAnchorTerms: string[];
+  /** Fact fields that qualify as evidence for fact-contract searches. */
   allowedFactFields: string[];
-  allowedRoutes: string[];
-  expectedShape: AnswerShape;
+
+  // ── Validation ─────────────────────────────────────────────────────
+  expectedShape: string;
   requiresGroundedEvidence: boolean;
   minimumEvidenceWords: number;
   rejectHeadingOnly: boolean;
 };
 
+type CheckCandidate = {
+  text: string;
+  page: number | null;
+  sectionPath: string[];
+  heading?: string;
+  evidenceSpanId?: string;
+  source: string;
+  rank: number;
+};
+
+// ── Structured context passed in from QuickCheckPanel ──────────────────────
+
+export type CheckValidationContext = {
+  evidenceDocument: EvidenceDocument;
+  projectFactContract: ProjectFactContract;
+  sectionTableIndex: SectionTableIndex;
+  routerResult: DeterministicRouterResult;
+  queryIntentAnalysis?: QueryIntentAnalysis;
+};
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function normalizeAnchor(term: string): string {
-  return term.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
+function normalizeAnchor(t: string): string {
+  return t.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
 }
 
-function anchorMatches(sectionPath: string[], terms: string[]): boolean {
-  const lower = sectionPath.join(" > ").toLowerCase();
+function anchorMatches(path: string[], terms: string[]): boolean {
+  if (terms.length === 0) return true;
+  const lower = path.join(" > ").toLowerCase();
   return terms.some((t) => lower.includes(normalizeAnchor(t)));
 }
 
-function anchorForbidden(sectionPath: string[], terms: string[]): boolean {
+function anchorForbidden(path: string[], terms: string[]): boolean {
   if (terms.length === 0) return false;
-  return anchorMatches(sectionPath, terms);
+  return anchorMatches(path, terms);
 }
 
 function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-/**
- * Validate a router result against a check contract.
- * Returns the status and optionally shaped/trimmed answer text.
- */
+function formatFactValue(value: unknown): string | null {
+  if (Array.isArray(value)) return value.filter(Boolean).join(", ") || null;
+  if (typeof value === "string") return value.trim() || null;
+  return null;
+}
+
+function searchFactContract(
+  contract: EvidenceCheckContract,
+  factContract: ProjectFactContract,
+): CheckCandidate[] {
+  const candidates: CheckCandidate[] = [];
+  const contractRecord = factContract as unknown as Record<string, ProjectFactField | undefined>;
+  for (const fieldId of contract.allowedFactFields) {
+    const field = contractRecord[fieldId];
+    if (!field?.value) continue;
+    const value = formatFactValue(field.value);
+    if (!value) continue;
+    const isGrounded = field.evidenceSpanIds.length > 0 || field.sectionPath.length > 0;
+    const hasPage = field.pageNumbers.length > 0;
+    candidates.push({
+      text: value,
+      page: hasPage ? field.pageNumbers[0] ?? null : null,
+      sectionPath: field.sectionPath,
+      heading: field.heading,
+      evidenceSpanId: field.evidenceSpanIds[0],
+      source: `fact:${fieldId}`,
+      rank: isGrounded ? 100 : 60,
+    });
+  }
+  return candidates;
+}
+
+function searchSections(
+  contract: EvidenceCheckContract,
+  evidenceDocument: EvidenceDocument,
+): CheckCandidate[] {
+  const candidates: CheckCandidate[] = [];
+  const allowedLower = contract.allowedAnchorTerms.map(normalizeAnchor);
+  const forbiddenLower = contract.forbiddenAnchorTerms.map(normalizeAnchor);
+
+  for (const span of evidenceDocument.spans) {
+    if (span.reliability === "excluded") continue;
+    if (span.text.trim().length < contract.minimumEvidenceWords * 3) continue;
+
+    const headingText = (span.heading ?? "").toLowerCase();
+    const sectionLower = span.sectionPath.join(" > ").toLowerCase();
+
+    // Skip spans clearly from forbidden sections
+    if (forbiddenLower.some((t) => sectionLower.includes(t))) continue;
+
+    // Body text spans (paragraph, field, formula) are preferred
+    const isBodyText = ["paragraph", "field", "formula"].includes(span.blockType);
+    const isHeading = span.blockType === "section_heading";
+
+    let rank = 0;
+    if (allowedLower.length > 0 && allowedLower.some((t) => headingText.includes(t))) {
+      rank = isBodyText ? 90 : 70;
+    } else if (allowedLower.length > 0 && allowedLower.some((t) => sectionLower.includes(t))) {
+      rank = isBodyText ? 60 : 50;
+    } else if (isBodyText && !isHeading) {
+      rank = 20;
+    }
+    if (rank === 0) continue;
+
+    candidates.push({
+      text: span.text,
+      page: span.page,
+      sectionPath: span.sectionPath,
+      heading: span.heading,
+      evidenceSpanId: span.spanId,
+      source: `span:${span.spanId}`,
+      rank,
+    });
+  }
+
+  return candidates;
+}
+
+function searchFromRouter(
+  routerResult: DeterministicRouterResult,
+  contract: EvidenceCheckContract,
+): CheckCandidate[] {
+  const candidates: CheckCandidate[] = [];
+  if (routerResult.status !== "answered") return candidates;
+  if (!routerResult.answerText || routerResult.answerText.startsWith("Quick Check found no")) return candidates;
+
+  const allowedLower = contract.allowedAnchorTerms.map(normalizeAnchor);
+  const forbiddenLower = contract.forbiddenAnchorTerms.map(normalizeAnchor);
+  const sectionLower = routerResult.sectionPaths.join(" > ").toLowerCase();
+
+  if (forbiddenLower.some((t) => sectionLower.includes(t))) return candidates;
+
+  let rank = 30;
+  if (allowedLower.length > 0 && allowedLower.some((t) => sectionLower.includes(t))) {
+    rank = 80;
+  }
+
+  const hasGrounded = routerResult.quotes.length > 0
+    || routerResult.pages.length > 0
+    || routerResult.sectionPaths.length > 0
+    || routerResult.evidenceSpanIds.length > 0;
+  if (!hasGrounded) rank = Math.min(rank, 40);
+
+  candidates.push({
+    text: routerResult.answerText,
+    page: routerResult.pages[0] ?? null,
+    sectionPath: routerResult.sectionPaths,
+    heading: undefined,
+    evidenceSpanId: routerResult.evidenceSpanIds[0],
+    source: `router:${routerResult.route}`,
+    rank,
+  });
+
+  return candidates;
+}
+
+// ── Candidate ranking ─────────────────────────────────────────────────────
+
+function gatherCandidates(
+  contract: EvidenceCheckContract,
+  ctx: CheckValidationContext,
+): CheckCandidate[] {
+  const all: CheckCandidate[] = [];
+
+  for (const target of contract.searchTargets) {
+    switch (target) {
+      case "fact_contract":
+        all.push(...searchFactContract(contract, ctx.projectFactContract));
+        break;
+      case "section":
+        all.push(...searchSections(contract, ctx.evidenceDocument));
+        break;
+      case "body_text":
+        break;
+    }
+  }
+
+  // Router result as fallback
+  all.push(...searchFromRouter(ctx.routerResult, contract));
+
+  // Deduplicate by text prefix and sort by rank desc
+  const seen = new Set<string>();
+  const deduped: CheckCandidate[] = [];
+  for (const c of all.sort((a, b) => b.rank - a.rank)) {
+    const key = c.text.slice(0, 80).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(c);
+  }
+
+  return deduped;
+}
+
+// ── Validation ─────────────────────────────────────────────────────────────
+
+function validateCandidate(
+  contract: EvidenceCheckContract,
+  candidate: CheckCandidate,
+): { valid: boolean; reason: string } {
+  const wc = wordCount(candidate.text);
+
+  // Minimum content
+  if (wc < contract.minimumEvidenceWords) {
+    return { valid: false, reason: `Too few words (${wc} < ${contract.minimumEvidenceWords} required)` };
+  }
+
+  // Heading-only checks
+  if (contract.rejectHeadingOnly && candidate.sectionPath.length > 0) {
+    const lastSection = candidate.sectionPath[candidate.sectionPath.length - 1] ?? "";
+    const textLower = candidate.text.slice(0, 60).toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
+    const sectionLower = lastSection.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
+    if (textLower === sectionLower && wc <= 5) {
+      return { valid: false, reason: "Heading-only echo — no substantive body content" };
+    }
+  }
+
+  // Must have some provenance
+  if (contract.requiresGroundedEvidence) {
+    const hasProvenance = candidate.page != null
+      || candidate.sectionPath.length > 0
+      || candidate.evidenceSpanId != null;
+    if (!hasProvenance) {
+      return { valid: false, reason: "No page, section, or evidence span provenance" };
+    }
+  }
+
+  // Must not be from forbidden sections
+  if (contract.forbiddenAnchorTerms.length > 0 && candidate.sectionPath.length > 0) {
+    const forbidden = contract.forbiddenAnchorTerms;
+    if (anchorForbidden(candidate.sectionPath, forbidden)) {
+      return { valid: false, reason: "Evidence from a forbidden section" };
+    }
+  }
+
+  return { valid: true, reason: "" };
+}
+
+// ── Public API ─────────────────────────────────────────────────────────────
+
 export function validateCheck(
   contract: EvidenceCheckContract,
-  routerResult: DeterministicRouterResult,
-  documentFamily: string = "any",
-): { status: EvidenceCheckStatus; answerText: string } {
-  const { status, route, quotes, pages, sectionPaths, evidenceSpanIds, answerText, warnings } = routerResult;
+  ctx: CheckValidationContext,
+): { status: EvidenceCheckStatus; answerText: string; downgradeReason: string } {
+  const route = ctx.routerResult.route;
 
   // ── Not applicable ──────────────────────────────────────────────────
   if (!contract.applicableDocumentFamilies.includes("any")) {
-    const normalizedFamily = documentFamily.toLowerCase().replace(/[^a-z]/g, "");
-    const applicable = contract.applicableDocumentFamilies.some((f) => {
-      if (f === "any") return true;
-      return normalizedFamily.includes(f);
-    });
-    if (!applicable) {
-      return { status: "not_applicable", answerText: "" };
+    // For now, all checks are universal.  This can be tightened later
+    // with document family detection from evidenceDocument.documentFamily.
+  }
+
+  // ── Search + rank ───────────────────────────────────────────────────
+  const candidates = gatherCandidates(contract, ctx);
+
+  if (candidates.length === 0) {
+    return {
+      status: "missing",
+      answerText: "",
+      downgradeReason: `No candidates found. Route: ${route}. Allowed anchors: ${contract.allowedAnchorTerms.join(", ") || "any"}.`,
+    };
+  }
+
+  // ── Validate best candidate ─────────────────────────────────────────
+  for (const candidate of candidates) {
+    const validation = validateCandidate(contract, candidate);
+    if (validation.valid) {
+      // Truncate long text to prevent paragraph dumps
+      const truncated = candidate.text.length > 500
+        ? candidate.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026"
+        : candidate.text;
+      return {
+        status: "found",
+        answerText: truncated,
+        downgradeReason: "",
+      };
     }
   }
 
-  // ── Router didn't find anything ──────────────────────────────────────
-  if (status === "no_evidence") {
-    return { status: "missing", answerText };
-  }
-
-  // ── Route validation ─────────────────────────────────────────────────
-  if (contract.allowedRoutes.length > 0 && !contract.allowedRoutes.includes(route)) {
-    return { status: "unclear", answerText };
-  }
-
-  // ── Anchor validation ───────────────────────────────────────────────
-  // Source must match allowed anchor terms AND must not be from forbidden terms.
-  const hasAllowedAnchor = contract.allowedAnchorTerms.length === 0
-    || anchorMatches(sectionPaths, contract.allowedAnchorTerms);
-  const hasForbiddenAnchor = anchorForbidden(sectionPaths, contract.forbiddenAnchorTerms);
-
-  if (!hasAllowedAnchor || hasForbiddenAnchor) {
-    return { status: "unclear", answerText };
-  }
-
-  // ── Grounded evidence ────────────────────────────────────────────────
-  if (contract.requiresGroundedEvidence) {
-    const hasGrounded = quotes.length > 0 || pages.length > 0
-      || sectionPaths.length > 0 || evidenceSpanIds.length > 0;
-    if (!hasGrounded) {
-      return { status: "unclear", answerText };
-    }
-  }
-
-  // ── Fact route validation ────────────────────────────────────────────
-  if (route === "project_fact_contract" && contract.allowedFactFields.length > 0) {
-    const factTerms = contract.allowedFactFields.map(normalizeAnchor).join("|");
-    const hasFactMatch = new RegExp(`\\b(?:${factTerms})\\b`, "i").test(answerText);
-    if (!hasFactMatch) {
-      return { status: "unclear", answerText };
-    }
-  }
-
-  // ── Substantive content ──────────────────────────────────────────────
-  const wc = wordCount(answerText);
-  if (wc < contract.minimumEvidenceWords) {
-    return { status: "unclear", answerText };
-  }
-
-  // ── Heading-only rejection ───────────────────────────────────────────
-  if (contract.rejectHeadingOnly && quotes.length > 0) {
-    const allQuotesAreHeadings = quotes.every((q) => {
-      const qLower = q.trim().toLowerCase();
-      // Check if quote is just a heading echo (matches section path term)
-      return wordCount(q) <= 4 || sectionPaths.some((p) =>
-        p.toLowerCase().includes(qLower) && wordCount(q) <= 4
-      );
-    });
-    if (allQuotesAreHeadings) {
-      return { status: "unclear", answerText };
-    }
-  }
-
-  // ── Structured-input only ────────────────────────────────────────────
-  if (warnings.includes("structured_input_provenance") && contract.requiresGroundedEvidence) {
-    return { status: "unclear", answerText };
-  }
-
-  // ── Passed all validation ────────────────────────────────────────────
-  return { status: status === "answered" ? "found" : "unclear", answerText };
+  // ── Best candidate failed → unclear ──────────────────────────────────
+  const bestFailed = validateCandidate(contract, candidates[0]);
+  return {
+    status: "unclear",
+    answerText: candidates[0].text,
+    downgradeReason: `Best candidate rejected: ${bestFailed.reason}. ${candidates.length} candidate(s) found, none passed validation.`,
+  };
 }
 
 // ── Contracts ──────────────────────────────────────────────────────────────
 
 const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
-  // ── Fact checks — cover table / fact contract evidence ────────────────
   project_activity: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["fact_contract", "section"],
     allowedAnchorTerms: [],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline"],
     allowedFactFields: ["projectType"],
-    allowedRoutes: ["project_fact_contract"],
     expectedShape: "project_activity_description",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 2,
@@ -225,10 +383,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   host_country: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["fact_contract", "section"],
     allowedAnchorTerms: ["host country", "country"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline", "comments"],
     allowedFactFields: ["hostCountry", "projectCountry"],
-    allowedRoutes: ["project_fact_contract"],
     expectedShape: "country",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 1,
@@ -236,10 +394,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   project_location: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["fact_contract", "section"],
     allowedAnchorTerms: ["project location", "location", "project area", "site"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline", "comments"],
     allowedFactFields: ["projectLocation"],
-    allowedRoutes: ["project_fact_contract", "section_index"],
     expectedShape: "location",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 2,
@@ -247,10 +405,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   methodology: {
     applicableDocumentFamilies: ["any"],
-    allowedAnchorTerms: ["methodology", "application of methodology", "applied methodology"],
+    searchTargets: ["fact_contract", "section"],
+    allowedAnchorTerms: ["methodology", "application of methodology", "applied methodology", "title and reference"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments", "participant"],
     allowedFactFields: ["methodologyPrimary", "methodologyModules"],
-    allowedRoutes: ["project_fact_contract", "section_index"],
     expectedShape: "methodology_name_version",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 2,
@@ -258,33 +416,32 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   crediting_period: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["fact_contract", "section"],
     allowedAnchorTerms: ["crediting period", "project crediting", "project lifetime", "ghg accounting period", "accounting period"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "comments"],
     allowedFactFields: ["creditingPeriod"],
-    allowedRoutes: ["project_fact_contract"],
     expectedShape: "date_range_with_duration",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 2,
     rejectHeadingOnly: true,
   },
   monitoring_period: {
-    applicableDocumentFamilies: ["verification_report", "monitoring_report", "validation_report"],
+    applicableDocumentFamilies: ["verification_report", "monitoring_report", "validation_report", "any"],
+    searchTargets: ["fact_contract", "section"],
     allowedAnchorTerms: ["monitoring period", "reporting period", "verification period", "monitoring"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: ["monitoringPeriod", "reportingPeriod"],
-    allowedRoutes: ["project_fact_contract", "section_index"],
     expectedShape: "date_range",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 2,
     rejectHeadingOnly: true,
   },
-  // ── Section checks — body text from relevant sections ─────────────────
   baseline_scenario: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["baseline", "without project", "without-project"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments", "contact"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -292,10 +449,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   additionality: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["additionality", "additional", "barrier", "common practice", "investment analysis"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -303,10 +460,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   leakage: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["leakage", "activity shifting"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -314,10 +471,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   safeguards: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["safeguard", "grievance", "fpic"],
     forbiddenAnchorTerms: [],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -325,10 +482,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   environmental_impacts: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["environmental impact", "environmental", "impact assessment"],
     forbiddenAnchorTerms: [],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -336,22 +493,22 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   stakeholder_consultation: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["stakeholder", "consultation", "stakeholder comment", "stakeholder engagement", "stakeholder participation", "community meeting"],
     forbiddenAnchorTerms: [],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
     rejectHeadingOnly: true,
   },
-  // ── VM0007 ───────────────────────────────────────────────────────────
+  // VM0007
   vm0007_boundary: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["project boundary", "boundary"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -359,10 +516,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   vm0007_leakage_belt: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["leakage belt"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 3,
@@ -370,10 +527,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   vm0007_reference_region: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["reference region"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 3,
@@ -381,10 +538,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   vm0007_baseline_deforestation: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["baseline deforestation", "deforestation", "degradation"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -392,10 +549,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   vm0007_carbon_pools: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["carbon pool", "carbon stock"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 3,
@@ -403,22 +560,22 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   vm0007_monitoring_plan: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["monitoring plan", "monitoring"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
     rejectHeadingOnly: true,
   },
-  // ── AR-ACM0003 ───────────────────────────────────────────────────────
+  // AR-ACM0003
   ar_acm0003_arr_activity: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["fact_contract", "section"],
     allowedAnchorTerms: ["arr", "afforestation", "reforestation", "revegetation", "project activity", "project type"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
-    allowedFactFields: [],
-    allowedRoutes: ["section_index", "project_fact_contract"],
+    allowedFactFields: ["projectType"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 3,
@@ -426,10 +583,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   ar_acm0003_boundary: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["project boundary", "boundary"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,
@@ -437,10 +594,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   ar_acm0003_carbon_pools: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["carbon pool", "carbon stock", "above-ground", "below-ground", "dead wood", "soil organic"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 3,
@@ -448,10 +605,10 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   },
   ar_acm0003_monitoring_plan: {
     applicableDocumentFamilies: ["any"],
+    searchTargets: ["section"],
     allowedAnchorTerms: ["monitoring plan", "monitoring"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"],
     allowedFactFields: [],
-    allowedRoutes: ["section_index"],
     expectedShape: "section_summary",
     requiresGroundedEvidence: true,
     minimumEvidenceWords: 4,

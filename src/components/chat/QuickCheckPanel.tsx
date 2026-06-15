@@ -70,6 +70,7 @@ import {
   getAllChecks,
   getContract,
   validateCheck,
+  type CheckValidationContext,
   type EvidenceCheckResult,
 } from "@/lib/quickCheck/evidenceChecks";
 
@@ -1808,15 +1809,25 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         structuredQueryContext,
       });
 
-      const validated = validateCheck(contract, questionResult.routerResult);
+      const ctx: CheckValidationContext = {
+        evidenceDocument: structuredQueryContext.evidenceDocument,
+        projectFactContract: structuredQueryContext.projectFactContract,
+        sectionTableIndex: structuredQueryContext.sectionTableIndex,
+        routerResult: questionResult.routerResult,
+        queryIntentAnalysis: questionResult.queryIntentAnalysis,
+      };
+
+      const validated = validateCheck(contract, ctx);
+      const isFound = validated.status === "found";
       results.push({
         checkId: check.id,
         status: validated.status,
         answerText: validated.answerText || questionResult.routerResult.answerText,
-        quotes: validated.status === "found" ? questionResult.routerResult.quotes : [],
-        pages: validated.status === "found" ? questionResult.routerResult.pages : [],
-        sections: validated.status === "found" ? questionResult.routerResult.sectionPaths : [],
-        evidenceSpanIds: validated.status === "found" ? questionResult.routerResult.evidenceSpanIds : [],
+        downgradeReason: validated.downgradeReason,
+        quotes: isFound ? questionResult.routerResult.quotes : [],
+        pages: isFound ? questionResult.routerResult.pages : [],
+        sections: isFound ? questionResult.routerResult.sectionPaths : [],
+        evidenceSpanIds: isFound ? questionResult.routerResult.evidenceSpanIds : [],
         warnings: questionResult.routerResult.warnings,
       });
     }
@@ -2270,8 +2281,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           ) : result.status === "not_applicable" ? (
                             <div className="text-xs text-slate-400">Not applicable for this document type.</div>
                           ) : (
-                            <div className="text-xs text-slate-500">{result.answerText}</div>
+                            <div className="text-xs text-slate-500">
+                              {result.answerText}
+                              {result.downgradeReason ? (
+                                <div className="mt-1 text-[10px] text-slate-400">{result.downgradeReason}</div>
+                              ) : null}
+                            </div>
                           )}
+                          {result.status !== "found" && result.status !== "not_applicable" && result.downgradeReason ? (
+                            <div className="mt-1 text-[10px] text-slate-400">{result.downgradeReason}</div>
+                          ) : null}
                         </div>
                       </details>
                     );
