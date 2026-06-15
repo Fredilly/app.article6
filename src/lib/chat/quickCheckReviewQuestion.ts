@@ -123,19 +123,20 @@ function applyIntentToRetrieval(input: {
   queryIntentAnalysis?: QueryIntentAnalysis;
   structuredContext?: ReturnType<typeof buildStructuredQueryContext>;
 }): ReviewQuestionRetrievalResult {
-  if (!input.queryIntentAnalysis || !input.structuredContext) {
+  const queryIntentAnalysis = input.queryIntentAnalysis;
+  if (!queryIntentAnalysis || !input.structuredContext) {
     return input.retrieval;
   }
 
   const { documentStructure, evidenceDocument, projectFactContract } = input.structuredContext;
   const relevantSectionIds = new Set<string>();
 
-  for (const sectionId of input.queryIntentAnalysis.targetSections) {
+  for (const sectionId of queryIntentAnalysis.targetSections) {
     if (sectionId) relevantSectionIds.add(sectionId);
   }
 
-  if (input.queryIntentAnalysis.intent === "fact_lookup" || input.queryIntentAnalysis.intent === "methodology_lookup") {
-    for (const factId of input.queryIntentAnalysis.targetFacts) {
+  if (queryIntentAnalysis.intent === "fact_lookup") {
+    for (const factId of queryIntentAnalysis.targetFacts) {
       const field = projectFactContract[factId];
       if (!field) continue;
       for (const spanId of field.evidenceSpanIds) {
@@ -145,8 +146,8 @@ function applyIntentToRetrieval(input: {
     }
   }
 
-  if (input.queryIntentAnalysis.intent === "table_lookup") {
-    for (const tableKey of input.queryIntentAnalysis.targetTables) {
+  if (queryIntentAnalysis.intent === "table_lookup") {
+    for (const tableKey of queryIntentAnalysis.targetTables) {
       const table = input.structuredContext.sectionTableIndex.tableIndex.byTableId[tableKey]
         ?? input.structuredContext.sectionTableIndex.tableIndex.byEvidenceSpanId[tableKey];
       if (table?.sectionId) relevantSectionIds.add(table.sectionId);
@@ -156,22 +157,28 @@ function applyIntentToRetrieval(input: {
   if (relevantSectionIds.size === 0) {
     return {
       ...input.retrieval,
-      queryIntentAnalysis: input.queryIntentAnalysis,
+      queryIntentAnalysis,
     };
   }
 
   const matchedHeadings = documentStructure.sections
     .filter((section) => relevantSectionIds.has(section.id) && Boolean(section.sectionNumber))
-    .map((section) => toSyntheticHeading({
-      sectionNumber: section.sectionNumber ?? section.id,
-      title: section.titleClean,
-      bodyText: section.bodyClean || section.displaySnippet || section.titleClean,
-    }));
+    .map((section) => ({
+      heading: toSyntheticHeading({
+        sectionNumber: section.sectionNumber ?? section.id,
+        title: section.titleClean,
+        bodyText: section.bodyClean || section.displaySnippet || section.titleClean,
+      }),
+      sectionId: section.id,
+      priority: queryIntentAnalysis.targetSections.includes(section.id) ? 0 : 1,
+    }))
+    .sort((left, right) => left.priority - right.priority)
+    .map((entry) => entry.heading);
 
   if (matchedHeadings.length === 0) {
     return {
       ...input.retrieval,
-      queryIntentAnalysis: input.queryIntentAnalysis,
+      queryIntentAnalysis,
     };
   }
 
@@ -183,8 +190,8 @@ function applyIntentToRetrieval(input: {
 
   return {
     ...input.retrieval,
-    queryIntentAnalysis: input.queryIntentAnalysis,
-    matchStage: input.queryIntentAnalysis.intent === "section_topic" ? "semantic_fallback" : input.retrieval.matchStage,
+    queryIntentAnalysis,
+    matchStage: queryIntentAnalysis.intent === "section_topic" ? "semantic_fallback" : input.retrieval.matchStage,
     relevantSections,
     sectionContent,
     matchedHeadings,

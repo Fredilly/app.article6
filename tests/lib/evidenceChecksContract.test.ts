@@ -1,16 +1,18 @@
 import { describe, expect, it } from "@jest/globals";
+
 import type { EvidenceDocument, EvidenceSpan } from "@/lib/quickCheck/evidence/evidenceTypes";
 import {
   getAllChecks,
   getContract,
   getMethodologyChecks,
+  getProjectIdentityChecks,
+  getUniversalChecks,
   validateCheck,
   type CheckValidationContext,
   type EvidenceCheckId,
 } from "@/lib/quickCheck/evidenceChecks";
 import type { SectionTableIndex } from "@/lib/quickCheck/indexing";
 import type { ProjectFactContract, ProjectFactField, ProjectFactValue } from "@/lib/quickCheck/projectFacts/types";
-import type { ProjectFactId } from "@/lib/quickCheck/queryIntent/types";
 import type { DeterministicRouterResult } from "@/lib/quickCheck/retrieval/types";
 
 function makeSpan(input: Partial<EvidenceSpan> & { spanId: string; text: string }): EvidenceSpan {
@@ -72,7 +74,7 @@ function groundedField<T extends ProjectFactValue>(
   };
 }
 
-function baseContract(overrides: Partial<Record<ProjectFactId, ProjectFactField>> = {}): ProjectFactContract {
+function baseContract(overrides: Partial<ProjectFactContract> = {}): ProjectFactContract {
   return {
     documentFamily: "VERRA_PD",
     documentType: "PROJECT_DESCRIPTION",
@@ -142,10 +144,8 @@ const noEvidenceRouterResult: DeterministicRouterResult = {
 
 function makeContext(input: {
   spans?: EvidenceSpan[];
-  fields?: Partial<Record<ProjectFactId, ProjectFactField>>;
+  contract?: Partial<ProjectFactContract>;
   rawText?: string;
-  routerResult?: DeterministicRouterResult;
-  methodologyId?: string;
 }): CheckValidationContext {
   const spans = input.spans ?? [];
   const evidenceDocument: EvidenceDocument = {
@@ -156,10 +156,9 @@ function makeContext(input: {
   };
   return {
     evidenceDocument,
-    projectFactContract: baseContract(input.fields),
+    projectFactContract: baseContract(input.contract),
     sectionTableIndex: emptySectionTableIndex,
-    routerResult: input.routerResult ?? noEvidenceRouterResult,
-    methodologyId: input.methodologyId,
+    routerResult: noEvidenceRouterResult,
   };
 }
 
@@ -167,274 +166,155 @@ function run(checkId: EvidenceCheckId, ctx: CheckValidationContext) {
   return validateCheck(getContract(checkId), ctx);
 }
 
-function allCheckIds(): EvidenceCheckId[] {
-  return Array.from(new Set([
-    ...getAllChecks("VM0007").map((check) => check.id),
-    ...getMethodologyChecks("AR-ACM0003").map((check) => check.id),
-  ]));
-}
-
 describe("Evidence Check contracts", () => {
-  it("defines a reusable contract, source policy, answer shape, and mismatch rules for every check", () => {
-    for (const checkId of allCheckIds()) {
-      const contract = getContract(checkId);
-      expect(contract).toBeDefined();
-      expect(contract.checkId).toBe(checkId);
-      expect(contract.allowedSourceTypes.length).toBeGreaterThan(0);
-      expect(contract.expectedShape).toBeTruthy();
-      expect(contract.mismatchRules.length).toBeGreaterThan(0);
-      expect(contract.requiresGroundedEvidence).toBe(true);
-    }
+  it("exposes only the six project identity rows in the intended order", () => {
+    expect(getProjectIdentityChecks().map((check) => check.id)).toEqual([
+      "project_title",
+      "host_country",
+      "project_location",
+      "methodology",
+      "crediting_period",
+      "project_activity",
+    ]);
   });
 
-  it("finds valid country evidence only from country-shaped grounded evidence", () => {
+  it("hides non-identity check groups", () => {
+    expect(getUniversalChecks()).toEqual([]);
+    expect(getMethodologyChecks("VM0007")).toEqual([]);
+    expect(getAllChecks("VM0007").map((check) => check.id)).toEqual([
+      "project_title",
+      "host_country",
+      "project_location",
+      "methodology",
+      "crediting_period",
+      "project_activity",
+    ]);
+  });
+
+  it("returns found only when trusted host-country evidence has quote, page, and span ids", () => {
     const span = makeSpan({
       spanId: "country-fact",
-      text: "Host country: Example Republic",
       blockType: "field",
+      heading: "Project details",
+      sectionPath: ["Project details"],
+      text: "Host country: Guinea-Bissau",
     });
+
     const result = run("host_country", makeContext({
       spans: [span],
-      fields: {
-        hostCountry: groundedField("Example Republic", span),
+      contract: {
+        hostCountry: groundedField("Guinea-Bissau", span),
       },
     }));
 
     expect(result.status).toBe("found");
-    expect(result.answerText).toBe("Example Republic");
-    expect(result.evidenceSpanIds).toEqual(["country-fact"]);
-    expect(result.pages).toEqual([1]);
+    expect(result.answerText).toBe("Guinea-Bissau");
     expect(result.quotes[0]).toContain("Host country");
+    expect(result.pages).toEqual([1]);
+    expect(result.sections).toEqual(["Project details"]);
+    expect(result.evidenceSpanIds).toEqual(["country-fact"]);
   });
 
-  it("rejects location subregions for host-country checks and returns Unclear when related evidence exists", () => {
-    const span = makeSpan({
-      spanId: "location-only",
-      text: "Project location: Northern Province, River District, Site A",
-      blockType: "field",
-    });
-    const result = run("host_country", makeContext({
-      spans: [span],
-      fields: {
-        projectLocation: groundedField("Northern Province, River District, Site A", span),
-      },
-    }));
-
-    expect(result.status).toBe("unclear");
-    expect(result.downgradeReason).toMatch(/projectLocation|location/i);
-  });
-
-  it("finds project-location evidence from a structured fact table", () => {
+  it("falls back to deterministic project-country evidence derived from location", () => {
     const span = makeSpan({
       spanId: "location-fact",
-      text: "Project location: Northern region, Site A coordinates 1.2, 3.4",
       blockType: "field",
+      heading: "Project details",
+      sectionPath: ["Project details"],
+      text: "Project location: Republic of Guinea-Bissau, Cacheu and Cantanhez",
     });
-    const result = run("project_location", makeContext({
+
+    const result = run("host_country", makeContext({
       spans: [span],
-      fields: {
-        projectLocation: groundedField("Northern region, Site A coordinates 1.2, 3.4", span),
+      contract: {
+        projectCountry: groundedField("Guinea-Bissau", span, "project-country:location-fallback"),
       },
     }));
 
     expect(result.status).toBe("found");
-    expect(result.evidenceSpanIds).toEqual(["location-fact"]);
+    expect(result.answerText).toBe("Guinea-Bissau");
+    expect(result.answerText).not.toContain("Portugal");
   });
 
-  it("finds a primary methodology but rejects module/tool text as a substitute", () => {
-    const primarySpan = makeSpan({
-      spanId: "primary-method",
-      text: "Applied methodology: VM0007 version 1.0",
-      blockType: "field",
-    });
-    const moduleSpan = makeSpan({
-      spanId: "module-only",
-      text: "Modules: Tool for testing monitoring parameters",
-      blockType: "field",
-    });
-
-    expect(run("methodology", makeContext({
-      spans: [primarySpan],
-      fields: {
-        methodologyPrimary: groundedField("VM0007 version 1.0", primarySpan),
-      },
-    })).status).toBe("found");
-
-    const moduleOnly = run("methodology", makeContext({
-      spans: [moduleSpan],
-      fields: {
-        methodologyModules: groundedField(["Tool for testing monitoring parameters"], moduleSpan),
-      },
-    }));
-    expect(moduleOnly.status).toBe("unclear");
-    expect(moduleOnly.downgradeReason).toMatch(/modules|tools|methodologyModules/i);
-  });
-
-  it("rejects selected or default structured input as Found evidence", () => {
+  it("rejects structured-input methodology without document evidence", () => {
     const result = run("methodology", makeContext({
-      fields: {
+      contract: {
         methodologyPrimary: {
-          ...emptyField("VM0007 version 1.0"),
+          ...emptyField("VM0007 · 4.2"),
           confidence: "high",
           extractionRule: "structured-input",
         },
       },
     }));
 
-    expect(result.status).toBe("unclear");
-    expect(result.downgradeReason).toMatch(/structured\/default input/i);
+    expect(result.status).toBe("missing");
+    expect(result.downgradeReason).toMatch(/no trusted evidence/i);
   });
 
-  it("validates date-range shape for crediting periods", () => {
+  it("rejects untrusted spans for visible checks", () => {
     const span = makeSpan({
-      spanId: "crediting-period",
-      text: "Crediting period: 1 January 2020 to 31 December 2030",
-      blockType: "field",
+      spanId: "figure-country",
+      blockType: "paragraph",
+      heading: "Figure 2",
+      sectionPath: ["Figure 2"],
+      text: "Source: Portugal map source for Republic of Guinea-Bissau boundaries",
     });
-    const result = run("crediting_period", makeContext({
+
+    const result = run("host_country", makeContext({
       spans: [span],
-      fields: {
-        creditingPeriod: groundedField("1 January 2020 to 31 December 2030", span),
+      contract: {
+        hostCountry: groundedField("Portugal", span),
       },
     }));
-
-    expect(result.status).toBe("found");
-    expect(result.evidenceSpanIds).toEqual(["crediting-period"]);
-  });
-
-  it("does not use crediting-period evidence to satisfy monitoring-period checks", () => {
-    const span = makeSpan({
-      spanId: "crediting-as-monitoring",
-      text: "Crediting period: 1 January 2020 to 31 December 2030",
-      blockType: "field",
-    });
-    const result = run("monitoring_period", makeContext({
-      rawText: "Verification report\nCrediting period: 1 January 2020 to 31 December 2030",
-      spans: [span],
-      fields: {
-        creditingPeriod: groundedField("1 January 2020 to 31 December 2030", span),
-      },
-    }));
-
-    expect(result.status).toBe("unclear");
-    expect(result.downgradeReason).toMatch(/crediting|creditingPeriod/i);
-  });
-
-  it("rejects generic project-summary text for baseline checks even when keywords overlap", () => {
-    const span = makeSpan({
-      spanId: "summary-baseline",
-      heading: "Project Summary",
-      sectionPath: ["Project Summary"],
-      text: "The project summary mentions baseline conditions while describing the general project activity and location.",
-      blockType: "paragraph",
-    });
-    const result = run("baseline_scenario", makeContext({ spans: [span] }));
-
-    expect(result.status).toBe("unclear");
-    expect(result.downgradeReason).toMatch(/project-description|source type|baseline/i);
-  });
-
-  it("rejects project-summary paragraphs as methodology proof", () => {
-    const span = makeSpan({
-      spanId: "summary-methodology",
-      heading: "Project Summary",
-      sectionPath: ["Project Summary"],
-      text: "The project summary methodology narrative says the activity follows VM0007 version 1.0 while describing the project context.",
-      blockType: "paragraph",
-    });
-    const result = run("methodology", makeContext({ spans: [span] }));
-
-    expect(result.status).toBe("unclear");
-    expect(result.downgradeReason).toMatch(/source type project_summary/i);
-  });
-
-  it("rejects generic body text for boundary checks", () => {
-    const span = makeSpan({
-      spanId: "generic-boundary",
-      text: "The project boundary is shown in the map and includes the project area and strata.",
-      sectionPath: [],
-      headingPath: [],
-      blockType: "paragraph",
-      page: 3,
-    });
-    const result = run("vm0007_boundary", makeContext({
-      spans: [span],
-      methodologyId: "VM0007",
-    }));
-
-    expect(result.status).toBe("unclear");
-    expect(result.downgradeReason).toMatch(/generic_body_text/i);
-  });
-
-  it("rejects heading-only and page-artifact candidates", () => {
-    const heading = makeSpan({
-      spanId: "leakage-heading",
-      heading: "Leakage",
-      sectionPath: ["Leakage"],
-      text: "Leakage",
-      blockType: "section_heading",
-    });
-    const artifact = makeSpan({
-      spanId: "leakage-header",
-      text: "Page 12 Leakage",
-      blockType: "header",
-      reliability: "excluded",
-      layout: { repeatedHeaderFooter: true },
-    });
-
-    const headingResult = run("leakage", makeContext({ spans: [heading] }));
-    const artifactResult = run("leakage", makeContext({ spans: [artifact] }));
-
-    expect(headingResult.status).toBe("unclear");
-    expect(headingResult.downgradeReason).toMatch(/heading-only/i);
-    expect(artifactResult.status).toBe("unclear");
-    expect(artifactResult.downgradeReason).toMatch(/artifact/i);
-  });
-
-  it("does not reuse another check's answer as Found", () => {
-    const span = makeSpan({
-      spanId: "host-country-only",
-      text: "Host country: Example Republic",
-      blockType: "field",
-    });
-    const result = run("project_location", makeContext({
-      spans: [span],
-      fields: {
-        hostCountry: groundedField("Example Republic", span),
-      },
-    }));
-
-    expect(result.status).toBe("unclear");
-    expect(result.downgradeReason).toMatch(/hostCountry|Country-only/i);
-  });
-
-  it("returns Missing when no suitable or related evidence exists", () => {
-    const result = run("leakage", makeContext({ spans: [] }));
 
     expect(result.status).toBe("missing");
-    expect(result.downgradeReason).toMatch(/No candidate evidence/i);
   });
 
-  it("returns Not Applicable for document-family mismatch", () => {
-    const result = run("monitoring_period", makeContext({
-      rawText: "Project description document\nThe document describes project design details.",
-      spans: [],
+  it("rejects project-activity evidence that looks like biomass or chart text", () => {
+    const span = makeSpan({
+      spanId: "activity-noise",
+      blockType: "paragraph",
+      heading: "Summary description of the project",
+      sectionPath: ["Summary description of the project"],
+      text: "Project activity: Rhizophora AGB equation with DBH and Chave chart values.",
+    });
+
+    const result = run("project_activity", makeContext({
+      spans: [span],
+      contract: {
+        projectType: groundedField("Rhizophora AGB equation with DBH and Chave chart values", span),
+      },
     }));
 
-    expect(result.status).toBe("not_applicable");
-    expect(result.downgradeReason).toMatch(/document family pdd/i);
+    expect(result.status).toBe("missing");
+    expect(result.downgradeReason).toMatch(/excluded biomass, equation, or chart text/i);
   });
 
-  it("uses reusable answer-shape validators across the required check families", () => {
-    expect(getContract("host_country").expectedShape).toBe("country");
-    expect(getContract("project_location").expectedShape).toBe("location");
-    expect(getContract("methodology").expectedShape).toBe("methodology_code_version");
-    expect(getContract("crediting_period").expectedShape).toBe("date_range");
-    expect(getContract("monitoring_period").expectedShape).toBe("date_range");
-    expect(getContract("baseline_scenario").expectedShape).toBe("narrative_explanation");
-    expect(getContract("leakage").expectedShape).toBe("narrative_explanation");
-    expect(getContract("safeguards").expectedShape).toBe("narrative_explanation");
-    expect(getContract("vm0007_boundary").expectedShape).toBe("boundary_reference_region_leakage_belt");
-    expect(getContract("vm0007_monitoring_plan").expectedShape).toBe("monitoring_plan_evidence");
+  it("returns not_applicable when the document family does not support the crediting-period row", () => {
+    const span = makeSpan({
+      spanId: "crediting",
+      blockType: "field",
+      heading: "Project details",
+      sectionPath: ["Project details"],
+      text: "Project crediting period: 1 January 2020 - 31 December 2030",
+      documentFamily: "UNKNOWN",
+    });
+
+    const result = validateCheck(getContract("crediting_period"), {
+      evidenceDocument: {
+        docId: "contract-test-doc",
+        rawText: span.text,
+        documentFamily: "UNKNOWN",
+        spans: [span],
+      },
+      projectFactContract: baseContract({
+        documentFamily: "UNKNOWN",
+        creditingPeriod: groundedField("1 January 2020 - 31 December 2030", span),
+      }),
+      sectionTableIndex: emptySectionTableIndex,
+      routerResult: noEvidenceRouterResult,
+    });
+
+    expect(result.status).toBe("not_applicable");
   });
 });

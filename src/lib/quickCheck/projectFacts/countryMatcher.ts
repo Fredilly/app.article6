@@ -21,6 +21,10 @@ const COUNTRY_ALIASES: Array<{ alias: string; canonical: string }> = [
   { alias: "democratic republic of congo", canonical: "Democratic Republic of the Congo" },
   { alias: "democratic republic of the congo", canonical: "Democratic Republic of the Congo" },
   { alias: "drc", canonical: "Democratic Republic of the Congo" },
+  { alias: "guinea bissau", canonical: "Guinea-Bissau" },
+  { alias: "guinea-bissau", canonical: "Guinea-Bissau" },
+  { alias: "republic of guinea bissau", canonical: "Guinea-Bissau" },
+  { alias: "republic of guinea-bissau", canonical: "Guinea-Bissau" },
   { alias: "ivory coast", canonical: "Cote d'Ivoire" },
   { alias: "lao pdr", canonical: "Laos" },
   { alias: "laos", canonical: "Laos" },
@@ -59,6 +63,16 @@ function normalizeCountryText(value: string): string {
     .toLowerCase()
     .replace(/&/g, " and ")
     .replace(/[()'".,/-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function stripLocationArtifacts(value: string): string {
+  return value
+    .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/\b(?:figure|table|appendix)\s+\d+[\s.:].*$/gim, " ")
+    .replace(/\bsource\s*:\s.*$/gim, " ")
+    .replace(/\([^)]*(?:source|available at|http|www\.|gadm|global administrative areas|portugal|references?)\b[^)]*\)/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -103,7 +117,13 @@ function embeddedCountryMatches(segment: string): CountryNameEntry[] {
 }
 
 export function extractCountryFromLocationText(value: string): string | null {
-  const segments = value
+  const sanitizedValue = stripLocationArtifacts(value);
+  if (/\brepublic of guinea[\s-]+bissau\b|\bguinea[\s-]+bissau\b/i.test(sanitizedValue)) return "Guinea-Bissau";
+  if (/\bviet[\s-]+nam\b/i.test(sanitizedValue)) return "Vietnam";
+  if (/\blao\s+pdr\b/i.test(sanitizedValue)) return "Laos";
+  if (/\bdrc\b|\bdemocratic republic of (?:the )?congo\b/i.test(sanitizedValue)) return "Democratic Republic of the Congo";
+  if (/\busa\b|\bunited states(?: of america)?\b/i.test(sanitizedValue)) return "United States";
+  const segments = sanitizedValue
     .split(/[;,]/)
     .map((segment) => segment.trim())
     .filter(Boolean)
@@ -120,6 +140,14 @@ export function extractCountryFromLocationText(value: string): string | null {
     if (embedded.length === 1) return embedded[0].canonical;
   }
 
-  const fullTextMatches = embeddedCountryMatches(value);
-  return fullTextMatches.length === 1 ? fullTextMatches[0].canonical : null;
+  const fullText = normalizeCountryText(sanitizedValue);
+  let earliest: { canonical: string; index: number; aliasLength: number } | null = null;
+  for (const entry of COUNTRY_NAME_ENTRIES) {
+    const index = fullText.indexOf(entry.alias);
+    if (index < 0) continue;
+    if (!earliest || index < earliest.index || (index === earliest.index && entry.alias.length > earliest.aliasLength)) {
+      earliest = { canonical: entry.canonical, index, aliasLength: entry.alias.length };
+    }
+  }
+  return earliest?.canonical ?? null;
 }

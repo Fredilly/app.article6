@@ -67,8 +67,8 @@ import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
 import {
-  getAllChecks,
   getContract,
+  getProjectIdentityChecks,
   validateCheck,
   type CheckValidationContext,
   type EvidenceCheckResult,
@@ -1785,50 +1785,43 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
     if (!evidenceAnalysis.rawPddText?.trim()) return;
 
-    const currentMethodologyResolution = resolveQuickCheckMethodology({
-      mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
-      methods,
-    });
-    const resolvedMethodologyId = draft.methodologyId.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
-    const resolvedMethodologyVersion = draft.methodologyVersion.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
     const structuredQueryContext = getStructuredQueryContext(evidenceAnalysis.rawPddText);
 
     setRunningEvidenceChecks(true);
     const results: EvidenceCheckResult[] = [];
-    const checks = getAllChecks(resolvedMethodologyId || undefined);
+    const checks = getProjectIdentityChecks();
 
     for (const check of checks) {
       const contract = getContract(check.id);
-      const questionResult = buildReviewQuestionResult({
-        claimText: check.question,
-        methodologyId: resolvedMethodologyId || "VM0007",
-        methodologyVersion: resolvedMethodologyVersion || "4.2",
-        rawPddText: evidenceAnalysis.rawPddText,
-        structuredQueryContext,
-      });
-
       const ctx: CheckValidationContext = {
         evidenceDocument: structuredQueryContext.evidenceDocument,
         projectFactContract: structuredQueryContext.projectFactContract,
         sectionTableIndex: structuredQueryContext.sectionTableIndex,
-        routerResult: questionResult.routerResult,
-        queryIntentAnalysis: questionResult.queryIntentAnalysis,
-        methodologyId: resolvedMethodologyId,
+        routerResult: {
+          answerText: "",
+          status: "no_evidence",
+          route: "fallback",
+          confidence: 0,
+          evidenceSpanIds: [],
+          quotes: [],
+          pages: [],
+          sectionPaths: [],
+          warnings: [],
+        },
+        methodologyId: draft.methodologyId.trim(),
       };
 
       const validated = validateCheck(contract, ctx);
       results.push({
         checkId: check.id,
         status: validated.status,
-        answerText: validated.answerText || questionResult.routerResult.answerText,
+        answerText: validated.answerText,
         downgradeReason: validated.downgradeReason,
         quotes: validated.quotes,
         pages: validated.pages,
         sections: validated.sections,
         evidenceSpanIds: validated.evidenceSpanIds,
-        warnings: [...questionResult.routerResult.warnings, ...validated.warnings],
+        warnings: validated.warnings,
       });
     }
 
@@ -2216,7 +2209,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-emerald-900">Evidence Checks</div>
                   <div className="mt-1 text-xs text-emerald-700">
-                    We check whether your document contains evidence for key verification topics.
+                    We check whether your document contains trusted project identity evidence.
                   </div>
                 </div>
                 <button
@@ -2238,27 +2231,23 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               ) : evidenceCheckResults.length > 0 ? (
                 <div className="mt-4 grid gap-1.5">
                   {evidenceCheckResults.map((result) => {
-                    const checkDef = getAllChecks(draft.methodologyId.trim() || "VM0007").find((c) => c.id === result.checkId);
+                    const checkDef = getProjectIdentityChecks().find((c) => c.id === result.checkId);
                     const label = checkDef?.label ?? result.checkId;
-                    const methodologyLabel = checkDef?.methodologySpecific;
                     return (
                       <details key={result.checkId} className="group rounded-xl border border-slate-100 bg-white/80">
                         <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
                           <span className={`inline-block h-2 w-2 rounded-full ${
                             result.status === "found" ? "bg-emerald-500"
                             : result.status === "missing" ? "bg-rose-400"
-                            : result.status === "not_applicable" ? "bg-slate-300"
-                            : "bg-amber-400"
+                            : "bg-slate-300"
                           }`} />
                           <span className={`font-medium ${result.status === "not_applicable" ? "text-slate-400" : "text-slate-800"}`}>{label}</span>
-                          {methodologyLabel ? <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">{methodologyLabel}</span> : null}
                           <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                             result.status === "found" ? "bg-emerald-100 text-emerald-700"
                             : result.status === "missing" ? "bg-rose-100 text-rose-700"
-                            : result.status === "not_applicable" ? "bg-slate-100 text-slate-500"
-                            : "bg-amber-100 text-amber-700"
+                            : "bg-slate-100 text-slate-500"
                           }`}>
-                            {result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : result.status === "not_applicable" ? "N/A" : "Unclear"}
+                            {result.status === "found" ? "FOUND" : result.status === "missing" ? "MISSING" : "NOT_APPLICABLE"}
                           </span>
                         </summary>
                         <div className="border-t border-slate-100 px-3 py-2 text-sm">
@@ -2277,17 +2266,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               </div>
                             </>
                           ) : result.status === "missing" ? (
-                            <div className="text-xs text-slate-500">No evidence found for this topic in the uploaded document.</div>
-                          ) : result.status === "not_applicable" ? (
-                            <div className="text-xs text-slate-400">Not applicable for this document type.</div>
-                          ) : (
                             <div className="text-xs text-slate-500">
                               {result.answerText}
-                              {result.downgradeReason ? (
-                                <div className="mt-1 text-[10px] text-slate-400">{result.downgradeReason}</div>
-                              ) : null}
+                              {result.downgradeReason ? <div className="mt-1 text-[10px] text-slate-400">{result.downgradeReason}</div> : null}
                             </div>
-                          )}
+                          ) : result.status === "not_applicable" ? (
+                            <div className="text-xs text-slate-400">
+                              {result.answerText}
+                              {result.downgradeReason ? <div className="mt-1 text-[10px] text-slate-400">{result.downgradeReason}</div> : null}
+                            </div>
+                          ) : null}
                           {result.status !== "found" && result.status !== "not_applicable" && result.downgradeReason ? (
                             <div className="mt-1 text-[10px] text-slate-400">{result.downgradeReason}</div>
                           ) : null}

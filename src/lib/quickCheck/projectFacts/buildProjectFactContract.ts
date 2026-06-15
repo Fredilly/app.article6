@@ -56,7 +56,7 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "projectLocation",
     labels: ["Project location", "Project site", "Location", "Geographic location", "Geographic reference"],
-    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
+    preferBlockTypes: ["field", "table", "paragraph", "title"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Project location", "Geographic reference of the project activity", "Geographic location"],
@@ -67,13 +67,13 @@ const FIELD_RULES: FieldRule[] = [
   {
     field: "projectProponent",
     labels: ["Project proponent", "Project proponent(s)", "Project participants", "Participants", "Project developer"],
-    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
+    preferBlockTypes: ["field", "table", "paragraph", "title"],
     multiline: true,
   },
   {
     field: "methodologyPrimary",
     labels: ["Methodology", "Applied methodology", "Approved methodology"],
-    preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
+    preferBlockTypes: ["field", "table", "paragraph", "title"],
     multiline: true,
     familySpecificLabels: {
       VCS_PD: ["Title and reference of methodology applied", "Methodology applied"],
@@ -138,6 +138,10 @@ function normalizeValue(value: string): string {
     .replace(/[^\w\s./()-]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function wordCount(value: string): number {
+  return value.split(/\s+/).filter(Boolean).length;
 }
 
 function dedupe<T>(values: T[]): T[] {
@@ -418,6 +422,32 @@ function factFromCandidates<T extends string | string[] | null>(
   };
 }
 
+function fieldFromBestCandidate<T extends string | string[] | null>(
+  family: DocumentFamily,
+  extractionRule: string,
+  candidates: Candidate[],
+): ProjectFactField<T> {
+  if (candidates.length === 0) {
+    return createEmptyField<T>(extractionRule, family, [materializeWarning("No deterministic evidence found.")]);
+  }
+  const best = [...candidates].sort((left, right) => {
+    const order: Record<ProjectFactConfidence, number> = { high: 3, medium: 2, low: 1 };
+    return order[right.confidence] - order[left.confidence] || right.value.length - left.value.length || right.span.confidence - left.span.confidence;
+  })[0]!;
+  return {
+    value: best.value as T,
+    confidence: best.confidence,
+    evidenceSpanIds: [best.span.spanId],
+    pageNumbers: best.span.page == null ? [] : [best.span.page],
+    sectionPath: best.span.sectionPath,
+    heading: best.span.heading,
+    extractionRule: best.extractionRule,
+    sourceParser: best.span.parserSource,
+    family,
+    warnings: dedupe(best.warnings),
+  };
+}
+
 function looksLikeMethodology(value: string): boolean {
   return METHODOLOGY_CODE_RE.test(value)
     || /\bmethodology\b/i.test(value)
@@ -438,14 +468,200 @@ function looksLikeGenericSectionHeading(value: string): boolean {
   ].includes(normalized);
 }
 
+function cleanInlineFactValue(value: string): string {
+  return value
+    .replace(/\s+/g, " ")
+    .replace(/\(\s*$/g, "")
+    .replace(/\b(?:version|date of issue|prepared by|contact|telephone|email)\b.*$/i, "")
+    .replace(/[.;:,]$/, "")
+    .trim();
+}
+
+function sanitizeNarrativeFactValue(value: string): string {
+  return value
+    .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/\b(?:figure|table|appendix)\s+\d+[\s.:].*$/gim, " ")
+    .replace(/\bsource\s*:\s.*$/gim, " ")
+    .replace(/\([^)]*(?:source|available at|http|www\.)[^)]*\)/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isTrustedIdentitySpan(span: EvidenceSpan): boolean {
+  const headingContext = `${span.heading ?? ""} ${span.headingPath.join(" ")} ${span.sectionPath.join(" ")}`;
+  const text = span.text.trim();
+  return span.reliability !== "excluded"
+    && span.layout?.repeatedHeaderFooter !== true
+    && span.blockType !== "header"
+    && span.blockType !== "footer"
+    && span.blockType !== "toc"
+    && !/\b(?:acknowledg(?:e)?ments?|references?|bibliograph(?:y|ies)|appendix|annex|deviation(?:s)? from methodology|methodology deviation)\b/i.test(headingContext)
+    && !/^\s*(?:source\s*:|figure\b|table\b|appendix\b|annex\b|equation\b|http\b|www\.)/i.test(text);
+}
+
+function isTrustedIdentityContext(span: EvidenceSpan): boolean {
+  const context = `${span.heading ?? ""} ${span.headingPath.join(" ")} ${span.sectionPath.join(" ")} ${span.text}`;
+  return /\b(?:project title|project description document|project design document|project summary|summary description of the project|project overview|project details|project location|project type|country\/area|host country|host party|title and reference of methodology(?: applied)?|application of methodology|methodology applied|project crediting period|ghg accounting period|project lifetime|sectoral scope and project type|description of the project activity|type of project activity)\b/i.test(context);
+}
+
+function findExplicitTitleCandidates(document: EvidenceDocument): Candidate[] {
+  return document.spans
+    .filter(isTrustedIdentitySpan)
+    .flatMap((span) => {
+      const match = span.text.match(/^\s*project title\b\s*[:\-]?\s*(.+)$/i);
+      if (!match?.[1]) return [];
+      const value = cleanInlineFactValue(match[1]);
+      if (!value || value.split(/\s+/).length < 2 || /^(?:and\s+location|location)\b/i.test(value)) return [];
+      return [{
+        value,
+        normalizedValue: normalizeValue(value),
+        confidence: rankConfidence(span, { preferStructured: true }),
+        span,
+        extractionRule: "label:projectTitle",
+        warnings: [],
+      }];
+    });
+}
+
+function methodologyValueFromText(text: string): string | null {
+  const normalized = sanitizeNarrativeFactValue(text);
+  const codeMatch = normalized.match(METHODOLOGY_CODE_RE)?.[0] ?? null;
+  if (!codeMatch) return null;
+
+  const toolsPrefixCut = normalized.split(/\b(?:The tools applied|The following Modules and Tools)\b/i)[0]?.trim() ?? normalized;
+  const toolsCut = toolsPrefixCut.length >= 16 ? toolsPrefixCut : normalized;
+  const explicit = toolsCut.match(/(?:approved\s+VCS\s+Methodology|VCS\s+Methodology|REDD\+?\s+Methodology\s+Framework|REDD\s+Methodology\s+Framework)[^.;]*/i)?.[0]?.trim();
+  if (explicit) {
+    return explicit.includes(codeMatch) ? explicit : `${codeMatch} ${explicit}`.trim();
+  }
+
+  const frameworkWithCode = normalized.match(/(?:REDD\+?\s+Methodology\s+Framework|REDD\s+Methodology\s+Framework|VCS\s+Methodology)[^.;]{0,100}?\((VM\d{4,5})\)[^.;]{0,40}/i)?.[0]?.trim();
+  if (frameworkWithCode) return frameworkWithCode;
+
+  const codeIndex = toolsCut.search(METHODOLOGY_CODE_RE);
+  const windowStart = Math.max(0, codeIndex - 30);
+  const windowEnd = Math.min(toolsCut.length, codeIndex + 120);
+  return toolsCut.slice(windowStart, windowEnd).trim();
+}
+
+function creditingPeriodValueFromText(text: string): string | null {
+  const normalized = sanitizeNarrativeFactValue(text);
+  const rangeMatch = normalized.match(/(?:Start Date:\s*)?(\d{1,2}[/-][A-Za-z]+[/-]\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4})\s*[–-]\s*(?:End Date:\s*)?(\d{1,2}[/-][A-Za-z]+[/-]\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4})/i);
+  if (rangeMatch?.[1] && rangeMatch[2]) return `${rangeMatch[1]} - ${rangeMatch[2]}`;
+  const labelMatch = normalized.match(/\b(?:project crediting period|crediting period|ghg accounting period)\b[^.]*?(\d{1,2}[/-][A-Za-z]+[/-]\d{4}[^.]{0,80}\d{1,2}[/-][A-Za-z]+[/-]\d{4})/i);
+  return labelMatch?.[1]?.trim() ?? null;
+}
+
+function findMethodologyFact(document: EvidenceDocument): ProjectFactField<string | null> {
+  const family = document.documentFamily ?? "UNKNOWN";
+  const methodologyPrimaryRule = FIELD_RULES.find((rule) => rule.field === "methodologyPrimary") as FieldRule;
+  const labeledCandidates = findLabeledCandidates(document, methodologyPrimaryRule)
+    .filter((candidate) => isTrustedIdentitySpan(candidate.span))
+    .filter((candidate) => wordCount(candidate.value) >= 2 && !/^title and reference of methodology$/i.test(candidate.value));
+  if (labeledCandidates.length > 0) {
+    return fieldFromBestCandidate<string | null>(family, "methodologyPrimary", labeledCandidates);
+  }
+
+  const candidates = document.spans
+    .filter((span) => isTrustedIdentitySpan(span) && isTrustedIdentityContext(span))
+    .filter((span) => /title and reference of methodology|application of methodology/i.test(span.heading ?? ""))
+    .flatMap((span) => {
+      const value = methodologyValueFromText(span.text);
+      if (!value) return [];
+      return [{
+        value,
+        normalizedValue: normalizeValue(value),
+        confidence: rankConfidence(span),
+        span,
+        extractionRule: "section:methodologyPrimary",
+        warnings: [],
+      }];
+    });
+
+  return fieldFromBestCandidate<string | null>(
+    family,
+    "methodologyPrimary",
+    candidates.length > 0 ? candidates : findMethodologyCodeFallbackCandidates(document),
+  );
+}
+
+function findProjectLocationFact(document: EvidenceDocument): ProjectFactField<string | null> {
+  const family = document.documentFamily ?? "UNKNOWN";
+  const explicitCandidates = findLabeledCandidates(document, FIELD_RULES.find((rule) => rule.field === "projectLocation") as FieldRule)
+    .filter((candidate) => isTrustedIdentitySpan(candidate.span));
+  const explicit = factFromCandidates<string | null>(family, "projectLocation", explicitCandidates, {
+    allowMedium: true,
+  });
+  if (explicit.value && wordCount(explicit.value) <= 30) return explicit;
+
+  const candidates = document.spans
+    .filter((span) => isTrustedIdentitySpan(span) && isTrustedIdentityContext(span))
+    .filter((span) => /project location/i.test(`${span.heading ?? ""} ${span.text}`))
+    .flatMap((span) => {
+      const sanitized = sanitizeNarrativeFactValue(span.text);
+      const sentences = sanitized.split(/(?<=[.!?])\s+/).slice(0, 3);
+      const value = cleanInlineFactValue(sentences.join(" "));
+      if (!value || wordCount(value) < 4) return [];
+      return [{
+        value,
+        normalizedValue: normalizeValue(value),
+        confidence: rankConfidence(span),
+        span,
+        extractionRule: "section:projectLocation",
+        warnings: [],
+      }];
+    });
+
+  return candidates.length > 0
+    ? fieldFromBestCandidate<string | null>(family, "projectLocation", candidates)
+    : explicit;
+}
+
+function findCreditingPeriodFact(document: EvidenceDocument): ProjectFactField<string | null> {
+  const family = document.documentFamily ?? "UNKNOWN";
+  const explicitCandidates = findLabeledCandidates(document, FIELD_RULES.find((rule) => rule.field === "creditingPeriod") as FieldRule)
+    .filter((candidate) => isTrustedIdentitySpan(candidate.span));
+  const explicit = factFromCandidates<string | null>(family, "creditingPeriod", explicitCandidates, {
+    allowMedium: true,
+  });
+  if (explicit.value) {
+    const cleaned = creditingPeriodValueFromText(explicit.value);
+    return cleaned ? { ...explicit, value: cleaned } : explicit;
+  }
+
+  const candidates = document.spans
+    .filter((span) => isTrustedIdentitySpan(span) && isTrustedIdentityContext(span))
+    .filter((span) => /project crediting period|crediting period|ghg accounting period|project lifetime/i.test(`${span.heading ?? ""} ${span.text}`))
+    .flatMap((span) => {
+      const value = creditingPeriodValueFromText(span.text);
+      if (!value) return [];
+      return [{
+        value,
+        normalizedValue: normalizeValue(value),
+        confidence: rankConfidence(span),
+        span,
+        extractionRule: "section:creditingPeriod",
+        warnings: [],
+      }];
+    });
+  return candidates.length > 0 ? fieldFromBestCandidate<string | null>(family, "creditingPeriod", candidates) : explicit;
+}
+
 function findProjectTitle(document: EvidenceDocument): ProjectFactField<string | null> {
   const family = document.documentFamily ?? "UNKNOWN";
+  const explicitTitleCandidates = findExplicitTitleCandidates(document);
+  if (explicitTitleCandidates.length > 0) {
+    return factFromCandidates<string | null>(family, "title", explicitTitleCandidates, { allowMedium: true });
+  }
+
   const titleSpans = document.spans.filter((span) => span.blockType === "title" && span.reliability !== "excluded");
-  const candidates: Candidate[] = titleSpans
+  const trustedTitleSpans = titleSpans.filter((span) => isTrustedIdentitySpan(span));
+  const candidates: Candidate[] = trustedTitleSpans
     .filter((span) => !looksLikeMethodology(span.text))
     .filter((span) => !/^section\s+\d/i.test(span.text.trim()))
+    .filter((span) => !/^(?:document prepared by|prepared by|validation body|project location|project lifetime|ghg accounting|history of ccb|gold level criteria)\b/i.test(span.text.trim()))
     .map((span) => ({
-      value: span.text.trim(),
+      value: cleanInlineFactValue(span.text),
       normalizedValue: normalizeValue(span.text),
       confidence: rankConfidence(span),
       span,
@@ -455,7 +671,7 @@ function findProjectTitle(document: EvidenceDocument): ProjectFactField<string |
 
   if (candidates.length === 0) {
     const labeledDocumentCandidates = document.spans
-      .filter((span) => span.reliability !== "excluded")
+      .filter((span) => isTrustedIdentitySpan(span) && isTrustedIdentityContext(span))
       .filter((span) => span.sectionPath.length === 0)
       .filter((span) => span.blockType === "field" || span.blockType === "paragraph")
       .filter((span) => /^(?:project description document|project design document)\s*:\s*\S/i.test(span.text.trim()))
@@ -474,7 +690,7 @@ function findProjectTitle(document: EvidenceDocument): ProjectFactField<string |
 
   if (candidates.length === 0) {
     const headingCandidates = document.spans
-      .filter((span) => span.blockType === "section_heading" && span.reliability === "primary")
+      .filter((span) => span.blockType === "section_heading" && span.reliability === "primary" && isTrustedIdentitySpan(span) && isTrustedIdentityContext(span))
       .filter((span) => !looksLikeMethodology(span.text))
       .filter((span) => !looksLikeGenericSectionHeading(span.heading ?? span.text))
       .slice(0, 1)
@@ -613,8 +829,35 @@ function findField(document: EvidenceDocument, field: FieldRule): ProjectFactFie
 
 function inferProjectType(document: EvidenceDocument): ProjectFactField<string | null> {
   const family = document.documentFamily ?? "UNKNOWN";
-  const explicit = findField(document, FIELD_RULES.find((rule) => rule.field === "projectType") as FieldRule);
+  const explicitCandidates = findLabeledCandidates(document, FIELD_RULES.find((rule) => rule.field === "projectType") as FieldRule)
+    .filter((candidate) => isTrustedIdentitySpan(candidate.span) && isTrustedIdentityContext(candidate.span))
+    .filter((candidate) => !/\b(?:rhizophora|chave|dbh|agb|bgb|equation|equations|chart|figure|table)\b/i.test(candidate.value));
+  const explicit = factFromCandidates<string | null>(family, "projectType", explicitCandidates, {
+    allowMedium: true,
+  });
   if (explicit.value) return explicit;
+
+  const sectionCandidates = document.spans
+    .filter((span) => isTrustedIdentitySpan(span) && isTrustedIdentityContext(span))
+    .filter((span) => /sectoral scope and project type|description of the project activity|summary description of the project/i.test(span.heading ?? ""))
+    .flatMap((span) => {
+      const text = sanitizeNarrativeFactValue(span.text);
+      const match = text.match(/\b(?:activities?\s+that\s+reduce\s+emissions\s+from\s+unplanned\s+deforestation\s*\(AUDD\)|reduced emissions from deforestation and degradation\s*\(REDD\)|REDD\s*\(AUDD\)|REDD\s*\(APD\)|REDD|avoided deforestation|peat and mangrove conservation and restoration|afforestation|reforestation|revegetation|wetlands ecosystems?|APD|ARR|RWE|APWD)\b[^.;]*/i);
+      if (!match?.[0]) return [];
+      if (/\b(?:rhizophora|chave|dbh|agb|bgb|equation|equations|chart|figure|table)\b/i.test(match[0])) return [];
+      return [{
+        value: match[0].trim(),
+        normalizedValue: normalizeValue(match[0]),
+        confidence: rankConfidence(span),
+        span,
+        extractionRule: "section:projectType",
+        warnings: [],
+      }];
+    });
+
+  if (sectionCandidates.length > 0) {
+    return fieldFromBestCandidate<string | null>(family, "projectType", sectionCandidates);
+  }
 
   const inferredValue =
     family === "REDD_AFOLU" ? "REDD/AFOLU"
@@ -645,29 +888,21 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const family = document.documentFamily ?? "UNKNOWN";
   const title = findProjectTitle(document);
   const projectId = findField(document, FIELD_RULES.find((rule) => rule.field === "projectId") as FieldRule);
-  const hostCountry = findField(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule);
-  const projectLocation = findField(document, FIELD_RULES.find((rule) => rule.field === "projectLocation") as FieldRule);
+  const hostCountryCandidates = findLabeledCandidates(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule)
+    .filter((candidate) => isTrustedIdentitySpan(candidate.span) && isTrustedIdentityContext(candidate.span));
+  const hostCountry = factFromCandidates<string | null>(family, "hostCountry", hostCountryCandidates, {
+    allowMedium: true,
+  });
+  const projectLocation = findProjectLocationFact(document);
   const projectCountry = hostCountry.value
     ? hostCountry
     : deriveCountryFromLocation(projectLocation, family);
   const projectStandard = standardFact(document);
   const projectProponent = findField(document, FIELD_RULES.find((rule) => rule.field === "projectProponent") as FieldRule);
-  const methodologyPrimaryRule = FIELD_RULES.find((rule) => rule.field === "methodologyPrimary") as FieldRule;
-  const labeledMethodologyCandidates = findLabeledCandidates(document, methodologyPrimaryRule);
-  const methodologyPrimary = factFromCandidates<string | null>(
-    family,
-    "methodologyPrimary",
-    labeledMethodologyCandidates.length > 0
-      ? labeledMethodologyCandidates
-      : [
-          ...labeledMethodologyCandidates,
-          ...findMethodologyCodeFallbackCandidates(document),
-        ],
-    { allowMedium: true },
-  );
+  const methodologyPrimary = findMethodologyFact(document);
   const baselineMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "baselineMethodology") as FieldRule);
   const monitoringMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "monitoringMethodology") as FieldRule);
-  const creditingPeriod = findField(document, FIELD_RULES.find((rule) => rule.field === "creditingPeriod") as FieldRule);
+  const creditingPeriod = findCreditingPeriodFact(document);
   const reportingPeriod = findField(document, FIELD_RULES.find((rule) => rule.field === "reportingPeriod") as FieldRule);
   const monitoringPeriod = findField(document, FIELD_RULES.find((rule) => rule.field === "monitoringPeriod") as FieldRule);
   const projectStartDate = findField(document, FIELD_RULES.find((rule) => rule.field === "projectStartDate") as FieldRule);

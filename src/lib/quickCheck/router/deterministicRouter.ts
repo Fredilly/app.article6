@@ -69,7 +69,7 @@ function clampConfidence(value: number): number {
 }
 
 function normalize(value: string): string {
-  return value.toLowerCase().replace(/[^\w\s.-]/g, " ").replace(/\s+/g, " ").trim();
+  return value.toLowerCase().replace(/[–—]/g, "-").replace(/[^\w\s.-]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function normalizeConfidence(confidence: ProjectFactConfidence): number {
