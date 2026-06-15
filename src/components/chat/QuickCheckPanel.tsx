@@ -68,7 +68,8 @@ import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
 import {
   getAllChecks,
-  statusFromRouter,
+  getContract,
+  validateCheck,
   type EvidenceCheckResult,
 } from "@/lib/quickCheck/evidenceChecks";
 
@@ -1787,9 +1788,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
       methods,
     });
-    // User-selected methodology takes priority.  If absent, use detected
-    // methodology only when a single method is unambiguously detected.
-    // Otherwise run only universal checks — no default to VM0007.
     const resolvedMethodologyId = draft.methodologyId.trim()
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
     const resolvedMethodologyVersion = draft.methodologyVersion.trim()
@@ -1801,6 +1799,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const checks = getAllChecks(resolvedMethodologyId || undefined);
 
     for (const check of checks) {
+      const contract = getContract(check.id);
       const questionResult = buildReviewQuestionResult({
         claimText: check.question,
         methodologyId: resolvedMethodologyId || "VM0007",
@@ -1808,27 +1807,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         rawPddText: evidenceAnalysis.rawPddText,
         structuredQueryContext,
       });
-      // Evaluate status: for the methodology check, require document-
-      // grounded evidence — structured input provenance alone is not
-      // sufficient to report Found.
-      let status = statusFromRouter(questionResult.routerResult.status);
-      if (check.id === "methodology" && status === "found") {
-        const hasGroundedEvidence = questionResult.routerResult.quotes.length > 0
-          || questionResult.routerResult.pages.length > 0
-          || questionResult.routerResult.sectionPaths.length > 0
-          || questionResult.routerResult.evidenceSpanIds.length > 0;
-        if (!hasGroundedEvidence) {
-          status = "unclear";
-        }
-      }
+
+      const validated = validateCheck(contract, questionResult.routerResult);
       results.push({
         checkId: check.id,
-        status,
-        answerText: questionResult.routerResult.answerText,
-        quotes: questionResult.routerResult.quotes,
-        pages: questionResult.routerResult.pages,
-        sections: questionResult.routerResult.sectionPaths,
-        evidenceSpanIds: questionResult.routerResult.evidenceSpanIds,
+        status: validated.status,
+        answerText: validated.answerText || questionResult.routerResult.answerText,
+        quotes: validated.status === "found" ? questionResult.routerResult.quotes : [],
+        pages: validated.status === "found" ? questionResult.routerResult.pages : [],
+        sections: validated.status === "found" ? questionResult.routerResult.sectionPaths : [],
+        evidenceSpanIds: validated.status === "found" ? questionResult.routerResult.evidenceSpanIds : [],
         warnings: questionResult.routerResult.warnings,
       });
     }
@@ -2245,11 +2233,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     return (
                       <details key={result.checkId} className="group rounded-xl border border-slate-100 bg-white/80">
                         <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
-                          <span className={`inline-block h-2 w-2 rounded-full ${result.status === "found" ? "bg-emerald-500" : result.status === "missing" ? "bg-rose-400" : "bg-amber-400"}`} />
-                          <span className="font-medium text-slate-800">{label}</span>
+                          <span className={`inline-block h-2 w-2 rounded-full ${
+                            result.status === "found" ? "bg-emerald-500"
+                            : result.status === "missing" ? "bg-rose-400"
+                            : result.status === "not_applicable" ? "bg-slate-300"
+                            : "bg-amber-400"
+                          }`} />
+                          <span className={`font-medium ${result.status === "not_applicable" ? "text-slate-400" : "text-slate-800"}`}>{label}</span>
                           {methodologyLabel ? <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">{methodologyLabel}</span> : null}
-                          <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${result.status === "found" ? "bg-emerald-100 text-emerald-700" : result.status === "missing" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"}`}>
-                            {result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : "Unclear"}
+                          <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
+                            result.status === "found" ? "bg-emerald-100 text-emerald-700"
+                            : result.status === "missing" ? "bg-rose-100 text-rose-700"
+                            : result.status === "not_applicable" ? "bg-slate-100 text-slate-500"
+                            : "bg-amber-100 text-amber-700"
+                          }`}>
+                            {result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : result.status === "not_applicable" ? "N/A" : "Unclear"}
                           </span>
                         </summary>
                         <div className="border-t border-slate-100 px-3 py-2 text-sm">
@@ -2269,6 +2267,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             </>
                           ) : result.status === "missing" ? (
                             <div className="text-xs text-slate-500">No evidence found for this topic in the uploaded document.</div>
+                          ) : result.status === "not_applicable" ? (
+                            <div className="text-xs text-slate-400">Not applicable for this document type.</div>
                           ) : (
                             <div className="text-xs text-slate-500">{result.answerText}</div>
                           )}
