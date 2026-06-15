@@ -1050,6 +1050,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setShowSavedEvidence(false);
     setShowMethodology(false);
     setShowExtractionDetails(false);
+    setEvidenceCheckResults([]);
+    setRunningEvidenceChecks(false);
   }
 
   function openFullReviewFromRecovery() {
@@ -1404,6 +1406,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   function selectExistingEvidence(evidenceId: string) {
     if (!evidenceId) return;
+    setEvidenceCheckResults([]);
+    setRunningEvidenceChecks(false);
     const selectedItem = inventoryItems.find((item) => item.evidence_id === evidenceId) ?? null;
     const selectedPin = selectedPins.find((item) => item.id === evidenceId) ?? null;
     const evidenceFileName = selectedPin?.attachments?.[0]?.filename ?? selectedItem?.display_name ?? evidenceId;
@@ -1783,27 +1787,43 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
       methods,
     });
+    // User-selected methodology takes priority.  If absent, use detected
+    // methodology only when a single method is unambiguously detected.
+    // Otherwise run only universal checks — no default to VM0007.
     const resolvedMethodologyId = draft.methodologyId.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "VM0007" : "VM0007");
+      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
     const resolvedMethodologyVersion = draft.methodologyVersion.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "4.2" : "4.2");
+      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
     const structuredQueryContext = getStructuredQueryContext(evidenceAnalysis.rawPddText);
 
     setRunningEvidenceChecks(true);
     const results: EvidenceCheckResult[] = [];
-    const checks = getAllChecks(resolvedMethodologyId);
+    const checks = getAllChecks(resolvedMethodologyId || undefined);
 
     for (const check of checks) {
       const questionResult = buildReviewQuestionResult({
         claimText: check.question,
-        methodologyId: resolvedMethodologyId,
-        methodologyVersion: resolvedMethodologyVersion,
+        methodologyId: resolvedMethodologyId || "VM0007",
+        methodologyVersion: resolvedMethodologyVersion || "4.2",
         rawPddText: evidenceAnalysis.rawPddText,
         structuredQueryContext,
       });
+      // Evaluate status: for the methodology check, require document-
+      // grounded evidence — structured input provenance alone is not
+      // sufficient to report Found.
+      let status = statusFromRouter(questionResult.routerResult.status);
+      if (check.id === "methodology" && status === "found") {
+        const hasGroundedEvidence = questionResult.routerResult.quotes.length > 0
+          || questionResult.routerResult.pages.length > 0
+          || questionResult.routerResult.sectionPaths.length > 0
+          || questionResult.routerResult.evidenceSpanIds.length > 0;
+        if (!hasGroundedEvidence) {
+          status = "unclear";
+        }
+      }
       results.push({
         checkId: check.id,
-        status: statusFromRouter(questionResult.routerResult.status),
+        status,
         answerText: questionResult.routerResult.answerText,
         quotes: questionResult.routerResult.quotes,
         pages: questionResult.routerResult.pages,
