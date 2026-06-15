@@ -66,6 +66,11 @@ import {
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
+import {
+  getAllChecks,
+  statusFromRouter,
+  type EvidenceCheckResult,
+} from "@/lib/quickCheck/evidenceChecks";
 
 type MethodInventoryRecord = {
   code: string;
@@ -595,6 +600,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [isDragActive, setIsDragActive] = useState(false);
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
+  const [evidenceCheckResults, setEvidenceCheckResults] = useState<EvidenceCheckResult[]>([]);
+  const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
@@ -1768,6 +1775,48 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
+  async function runEvidenceChecks() {
+    const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
+    if (!evidenceAnalysis.rawPddText?.trim()) return;
+
+    const currentMethodologyResolution = resolveQuickCheckMethodology({
+      mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
+      methods,
+    });
+    const resolvedMethodologyId = draft.methodologyId.trim()
+      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "VM0007" : "VM0007");
+    const resolvedMethodologyVersion = draft.methodologyVersion.trim()
+      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "4.2" : "4.2");
+    const structuredQueryContext = getStructuredQueryContext(evidenceAnalysis.rawPddText);
+
+    setRunningEvidenceChecks(true);
+    const results: EvidenceCheckResult[] = [];
+    const checks = getAllChecks(resolvedMethodologyId);
+
+    for (const check of checks) {
+      const questionResult = buildReviewQuestionResult({
+        claimText: check.question,
+        methodologyId: resolvedMethodologyId,
+        methodologyVersion: resolvedMethodologyVersion,
+        rawPddText: evidenceAnalysis.rawPddText,
+        structuredQueryContext,
+      });
+      results.push({
+        checkId: check.id,
+        status: statusFromRouter(questionResult.routerResult.status),
+        answerText: questionResult.routerResult.answerText,
+        quotes: questionResult.routerResult.quotes,
+        pages: questionResult.routerResult.pages,
+        sections: questionResult.routerResult.sectionPaths,
+        evidenceSpanIds: questionResult.routerResult.evidenceSpanIds,
+        warnings: questionResult.routerResult.warnings,
+      });
+    }
+
+    setEvidenceCheckResults(results);
+    setRunningEvidenceChecks(false);
+  }
+
   async function handleTryDemoCheck() {
     setSubmitting(true);
     resetQuickCheckUi();
@@ -2141,6 +2190,77 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
 
+          {/* ── Evidence Checks ─────────────────────────────────────────── */}
+          {selectedEvidenceSources.length > 0 && !submitting ? (
+            <div className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50/60 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-emerald-900">Evidence Checks</div>
+                  <div className="mt-1 text-xs text-emerald-700">
+                    We check whether your document contains evidence for key verification topics.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void runEvidenceChecks()}
+                  disabled={runningEvidenceChecks}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                >
+                  {runningEvidenceChecks ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <SearchCheck className="h-3.5 w-3.5" />}
+                  Run Checks
+                </button>
+              </div>
+
+              {runningEvidenceChecks ? (
+                <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Running checks&hellip;
+                </div>
+              ) : evidenceCheckResults.length > 0 ? (
+                <div className="mt-4 grid gap-1.5">
+                  {evidenceCheckResults.map((result) => {
+                    const checkDef = getAllChecks(draft.methodologyId.trim() || "VM0007").find((c) => c.id === result.checkId);
+                    const label = checkDef?.label ?? result.checkId;
+                    const methodologyLabel = checkDef?.methodologySpecific;
+                    return (
+                      <details key={result.checkId} className="group rounded-xl border border-slate-100 bg-white/80">
+                        <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
+                          <span className={`inline-block h-2 w-2 rounded-full ${result.status === "found" ? "bg-emerald-500" : result.status === "missing" ? "bg-rose-400" : "bg-amber-400"}`} />
+                          <span className="font-medium text-slate-800">{label}</span>
+                          {methodologyLabel ? <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">{methodologyLabel}</span> : null}
+                          <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${result.status === "found" ? "bg-emerald-100 text-emerald-700" : result.status === "missing" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"}`}>
+                            {result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : "Unclear"}
+                          </span>
+                        </summary>
+                        <div className="border-t border-slate-100 px-3 py-2 text-sm">
+                          {result.status === "found" ? (
+                            <>
+                              <div className="text-xs text-slate-700">{result.answerText}</div>
+                              {result.quotes.length > 0 ? (
+                                <div className="mt-2 rounded bg-slate-50 p-2 text-xs text-slate-600 italic">
+                                  &ldquo;{result.quotes[0]?.slice(0, 280)}{(result.quotes[0]?.length ?? 0) > 280 ? "\u2026" : ""}&rdquo;
+                                </div>
+                              ) : null}
+                              <div className="mt-1 flex flex-wrap gap-x-3 text-[10px] text-slate-400">
+                                {result.pages.length > 0 ? <span>p.{result.pages.join(", ")}</span> : null}
+                                {result.sections.length > 0 ? <span>{result.sections.join(" \u203a ")}</span> : null}
+                                {result.evidenceSpanIds.length > 0 ? <span>{result.evidenceSpanIds.length} span(s)</span> : null}
+                              </div>
+                            </>
+                          ) : result.status === "missing" ? (
+                            <div className="text-xs text-slate-500">No evidence found for this topic in the uploaded document.</div>
+                          ) : (
+                            <div className="text-xs text-slate-500">{result.answerText}</div>
+                          )}
+                        </div>
+                      </details>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className={`rounded-[1.6rem] border px-4 py-4 ${showMethodology ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
             <label className="grid gap-2 text-sm text-slate-700">
               <span className="font-medium text-slate-900">Methodology</span>
@@ -2190,9 +2310,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
           <div className="rounded-[1.6rem] border border-slate-200 bg-white px-4 py-4">
             <label className="grid gap-2 text-sm text-slate-700">
-              <span className="font-medium text-slate-900">Review question</span>
+              <span className="font-medium text-slate-900">Search this document</span>
               <span className="text-xs text-slate-500">
-                Optional. Leave blank for a general check.
+                <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">Experimental</span>{" "}
+                Evidence search only — not open-ended Q&A. Run Evidence Checks above for reliable results.
               </span>
               <textarea
                 value={draft.claimText}
