@@ -519,4 +519,45 @@ describe("ProjectFactContract v2", () => {
     expect(contract.projectLocation.value).toBe("Indonesia, Central Kalimantan");
     expect(contract.projectCountry.value).toBe("Indonesia");
   });
+
+  test("derives project country from trailing country value when location lists subregion before country", () => {
+    const rawText = "Project Location Central Kalimantan Province, Indonesia";
+
+    const contract = compileContract("location-country-trailing", makeStructure({
+      rawText,
+      cleanText: rawText,
+      matchingText: rawText.toLowerCase(),
+      documentFamily: {
+        family: "VERRA_PD",
+        confidence: 0.9,
+        evidence: ["Verra"],
+        signals: [],
+        warnings: [],
+      },
+      pages: [{
+        id: "page:1",
+        pageNumber: 1,
+        rawText,
+        cleanText: rawText,
+        matchingText: rawText.toLowerCase(),
+        blockIds: ["title-1"],
+        sourceRefs: [],
+      }],
+      blocks: [
+        {
+          id: "title-1",
+          type: "heading",
+          rawText: "Project Location Central Kalimantan Province, Indonesia",
+          cleanText: "Project Location Central Kalimantan Province, Indonesia",
+          matchingText: "project location central kalimantan province, indonesia",
+          pageNumber: 1,
+          sourceRefs: [],
+          confidence: 0.95,
+        },
+      ],
+    }));
+
+    expect(contract.projectLocation.value).toBe("Central Kalimantan Province, Indonesia");
+    expect(contract.projectCountry.value).toBe("Indonesia");
+  });
 });

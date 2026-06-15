@@ -1,5 +1,6 @@
 import type { DocumentFamily } from "@/lib/documentParsing";
 import type { EvidenceDocument, EvidenceSpan } from "@/lib/quickCheck/evidence/evidenceTypes";
+import { extractCountryFromLocationText } from "@/lib/quickCheck/projectFacts/countryMatcher";
 import type {
   ProjectFactConfidence,
   ProjectFactContract,
@@ -25,10 +26,7 @@ type FieldRule = {
   familySpecificLabels?: Partial<Record<DocumentFamily, string[]>>;
 };
 
-const COUNTRY_RE = /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3})\b/;
 const METHODOLOGY_CODE_RE = /\b(?:V?M|ACM|AM|AMS|AR-AM|AR-ACM|VMR|CDM-SSC|GS)\d{3,5}[A-Z-]*\b/i;
-const LOCATION_SUBREGION_RE = /\b(?:province|district|regency|county|municipality|municipal|subdistrict|region|territory|commune|prefecture|oblast|department|governorate|village|ward|city|corridor|zone|area|site)\b/i;
-const LOCATION_DIRECTIONAL_RE = /^(?:north(?:ern)?|south(?:ern)?|east(?:ern)?|west(?:ern)?|central)\b/i;
 const FIELD_RULES: FieldRule[] = [
   {
     field: "projectId",
@@ -498,38 +496,7 @@ function deriveCountryFromLocation(field: ProjectFactField<string | null>, famil
   if (!field.value) {
     return createEmptyField<string | null>("project-country:location-fallback", family, [materializeWarning("Project country was not deterministically derivable.")]);
   }
-
-  const segments = field.value
-    .split(/[;,]/)
-    .map((segment) => segment.trim())
-    .filter(Boolean)
-    .map((segment) => segment.replace(/^\s*(?:project location|location|geographic(?:al)? location|geographic(?:al)? reference)\s*[:\-]?\s*/i, "").trim())
-    .filter(Boolean);
-
-  const scored = segments
-    .map((segment, index) => {
-      const match = segment.match(COUNTRY_RE);
-      const value = match?.[1]?.trim() ?? segment;
-      const words = value.split(/\s+/).filter(Boolean);
-      if (words.length === 0 || words.length > 5 || /\d/.test(value)) {
-        return { value, score: Number.NEGATIVE_INFINITY };
-      }
-
-      let score = 0;
-      if (/^[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3}$/.test(value)) score += 4;
-      if (LOCATION_SUBREGION_RE.test(value)) score -= 5;
-      if (LOCATION_DIRECTIONAL_RE.test(value) && words.length <= 3) score -= 2;
-      if (index === 0) score += 1;
-      if (index === segments.length - 1) score += 1;
-      if (index === 0 && segments.length > 1 && LOCATION_SUBREGION_RE.test(segments[1] ?? "")) score += 3;
-      if (index === segments.length - 1 && LOCATION_SUBREGION_RE.test(segments[index - 1] ?? "")) score += 2;
-
-      return { value, score };
-    })
-    .filter((candidate) => Number.isFinite(candidate.score))
-    .sort((left, right) => right.score - left.score);
-
-  const selectedValue = scored[0]?.value?.trim();
+  const selectedValue = extractCountryFromLocationText(field.value);
   if (!selectedValue) {
     return createEmptyField<string | null>("project-country:location-fallback", family, [materializeWarning("Project location did not contain a clear country.")]);
   }
