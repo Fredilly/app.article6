@@ -478,4 +478,45 @@ describe("ProjectFactContract v2", () => {
     expect(contract.hostCountry.evidenceSpanIds).toHaveLength(2);
     expect(contract.warnings.some((warning) => warning.includes("Conflicting values detected"))).toBe(true);
   });
+
+  test("derives project country from leading country value when location lists country before subregion", () => {
+    const rawText = "Project Location Indonesia, Central Kalimantan";
+
+    const contract = compileContract("location-country-order", makeStructure({
+      rawText,
+      cleanText: rawText,
+      matchingText: rawText.toLowerCase(),
+      documentFamily: {
+        family: "VERRA_PD",
+        confidence: 0.9,
+        evidence: ["Verra"],
+        signals: [],
+        warnings: [],
+      },
+      pages: [{
+        id: "page:1",
+        pageNumber: 1,
+        rawText,
+        cleanText: rawText,
+        matchingText: rawText.toLowerCase(),
+        blockIds: ["title-1"],
+        sourceRefs: [],
+      }],
+      blocks: [
+        {
+          id: "title-1",
+          type: "heading",
+          rawText: "Project Location Indonesia, Central Kalimantan",
+          cleanText: "Project Location Indonesia, Central Kalimantan",
+          matchingText: "project location indonesia, central kalimantan",
+          pageNumber: 1,
+          sourceRefs: [],
+          confidence: 0.95,
+        },
+      ],
+    }));
+
+    expect(contract.projectLocation.value).toBe("Indonesia, Central Kalimantan");
+    expect(contract.projectCountry.value).toBe("Indonesia");
+  });
 });

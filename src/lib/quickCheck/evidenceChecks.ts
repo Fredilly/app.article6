@@ -538,6 +538,15 @@ function hasGrounding(candidate: CheckCandidate): boolean {
 }
 
 function isHeadingOnly(candidate: CheckCandidate): boolean {
+  const groundedQuote = candidate.quote.trim();
+  if (
+    candidate.evidenceSpanIds.length > 0
+    && groundedQuote
+    && normalizeText(groundedQuote) !== normalizeText(candidate.text)
+    && wordCount(groundedQuote) > wordCount(candidate.text)
+  ) {
+    return false;
+  }
   if (candidate.blockType === "section_heading" || candidate.blockType === "title") {
     const textWords = wordCount(candidate.text);
     if (textWords <= 8) return true;
@@ -666,6 +675,14 @@ function validateCountryShape(candidate: CheckCandidate): CandidateValidation {
 
 function validateLocationShape(candidate: CheckCandidate): CandidateValidation {
   const value = stripFactLabel(candidate.text);
+  const text = contextText({ text: candidate.text, heading: candidate.heading, sectionPath: candidate.sectionPath });
+  const properNounCount = (value.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\b/g) ?? []).length;
+  const hasLocationLabel = /\b(?:project location|geographic(?:al)? (?:location|reference)|location|project site)\b/i.test(text);
+  const hasLocativePhrase = /\b(?:located in|situated in|within|coordinates?|latitude|longitude)\b/i.test(text);
+  const hasStructuredPlaceValue = /,/.test(value) || /\b\d+(?:\.\d+)?\b/.test(value) || properNounCount >= 2;
+  const hasGeoTerms = /\b(?:site|region|district|province|regency|municipality|county|village|state|area|coordinates?|latitude|longitude|boundary|geographic)\b/i.test(text);
+  const looksLikeBeneficiaryStatement = /\b(?:total of|included as|beneficiar|adjacent to|communit|villages?\s+adjacent|stakeholder|livelihood)\b/i.test(text);
+
   if (
     (candidate.sourceFactField === "hostCountry" || candidate.sourceFactField === "projectCountry")
     && wordCount(value) <= 5
@@ -673,8 +690,14 @@ function validateLocationShape(candidate: CheckCandidate): CandidateValidation {
     return { valid: false, reason: "Country-only evidence cannot satisfy project-location shape" };
   }
   if (wordCount(value) < 2) return { valid: false, reason: "Location answer is too short" };
-  if (!/[,\d]/.test(value) && !/\b(?:location|located|site|area|region|district|province|municipality|coordinates?|latitude|longitude|boundary|geographic)/i.test(value)) {
+  if (!hasLocationLabel && !hasLocativePhrase && candidate.sourceFactField !== "projectLocation") {
+    return { valid: false, reason: "Location evidence lacks an explicit location label or locative context" };
+  }
+  if (!hasStructuredPlaceValue && !(hasGeoTerms && properNounCount >= 1)) {
     return { valid: false, reason: "Location answer lacks location-specific detail" };
+  }
+  if (looksLikeBeneficiaryStatement && !hasLocationLabel && !hasLocativePhrase && !/,/.test(value)) {
+    return { valid: false, reason: "Location evidence is a beneficiary/project-area statement, not a grounded location answer" };
   }
   return { valid: true, reason: "" };
 }
@@ -927,9 +950,9 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
     checkId: "project_location",
     applicableDocumentFamilies: ["any"],
     allowedSourceTypes: FACT_OR_PROJECT_SOURCE_TYPES,
-    allowedAnchorTerms: ["project location", "location", "project area", "site", "geographic reference", "geographic location"],
+    allowedAnchorTerms: ["project location", "location", "site", "geographic reference", "geographic location"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline", "comments"],
-    semanticTerms: ["project location", "location", "project area", "site", "geographic", "coordinates", "region", "district", "province"],
+    semanticTerms: ["project location", "location", "site", "geographic", "coordinates", "region", "district", "province"],
     allowedFactFields: ["projectLocation"],
     relatedFactFields: ["hostCountry", "projectCountry"],
     expectedShape: "location",
