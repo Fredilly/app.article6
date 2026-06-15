@@ -164,6 +164,20 @@ function searchSections(
     if (span.reliability === "excluded") continue;
     if (span.text.trim().length < contract.minimumEvidenceWords * 3) continue;
 
+    // ── Exclude root-level PDF artifacts ──────────────────────────────
+    // Spans with no heading, no section path, and no section ID are
+    // cover-page branding, page headers, or stray PDF artifacts.
+    const hasSectionContext = Boolean(span.heading)
+      || span.sectionPath.length > 0
+      || Boolean(span.sectionId);
+    if (!hasSectionContext) continue;
+
+    // ── Exclude noise patterns ────────────────────────────────────────
+    const trimmed = span.text.trim();
+    if (/^(?:CCB|VCS|VERRA)\s*(?:&|and)?\s*(?:VCS|CCB)?\s*(?:PROJECT|VERSION|v\d)/i.test(trimmed)) continue;
+    if (/^(?:CCB|VCS)\s+(?:Version|v)\s*\d/i.test(trimmed)) continue;
+    if (/^(?:Page\s+\d+|v\d+\.\d+|VALIDATION REPORT|VERIFICATION REPORT)/i.test(trimmed)) continue;
+
     const headingText = (span.heading ?? "").toLowerCase();
     const sectionLower = span.sectionPath.join(" > ").toLowerCase();
 
@@ -179,7 +193,11 @@ function searchSections(
       rank = isBodyText ? 90 : 70;
     } else if (allowedLower.length > 0 && allowedLower.some((t) => sectionLower.includes(t))) {
       rank = isBodyText ? 60 : 50;
-    } else if (isBodyText && !isHeading) {
+    } else if (allowedLower.length === 0 && isBodyText && !isHeading) {
+      // Only fall back to generic body text when NO specific anchors
+      // are required.  When anchors are defined, only matching spans
+      // qualify — prevents generic text from filling checks like
+      // baseline_scenario when the document has no baseline section.
       rank = 20;
     }
     if (rank === 0) continue;
@@ -314,6 +332,16 @@ function validateCandidate(
     }
   }
 
+  // ── Shape validation ────────────────────────────────────────────────
+  if (contract.expectedShape === "country") {
+    // Must look like a country name: 1-4 words, no colons, no standard refs
+    if (wc > 5) return { valid: false, reason: "Too many words for a country name" };
+    if (/:|;|\(|\)/.test(candidate.text)) return { valid: false, reason: "Contains punctuation (not a country name)" };
+    if (/\b(?:standard|methodology|version|requirements?|project)\b/i.test(candidate.text)) {
+      return { valid: false, reason: "Contains standard/methodology text, not a country name" };
+    }
+  }
+
   return { valid: true, reason: "" };
 }
 
@@ -373,12 +401,12 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   project_activity: {
     applicableDocumentFamilies: ["any"],
     searchTargets: ["fact_contract", "section"],
-    allowedAnchorTerms: [],
+    allowedAnchorTerms: ["project activity", "project description", "summary of project", "project type", "project goals", "project design"],
     forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline"],
     allowedFactFields: ["projectType"],
     expectedShape: "project_activity_description",
     requiresGroundedEvidence: true,
-    minimumEvidenceWords: 2,
+    minimumEvidenceWords: 4,
     rejectHeadingOnly: true,
   },
   host_country: {
