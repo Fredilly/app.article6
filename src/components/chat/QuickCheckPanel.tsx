@@ -1815,20 +1815,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         sectionTableIndex: structuredQueryContext.sectionTableIndex,
         routerResult: questionResult.routerResult,
         queryIntentAnalysis: questionResult.queryIntentAnalysis,
+        methodologyId: resolvedMethodologyId,
       };
 
       const validated = validateCheck(contract, ctx);
-      const isFound = validated.status === "found";
       results.push({
         checkId: check.id,
         status: validated.status,
         answerText: validated.answerText || questionResult.routerResult.answerText,
         downgradeReason: validated.downgradeReason,
-        quotes: isFound ? questionResult.routerResult.quotes : [],
-        pages: isFound ? questionResult.routerResult.pages : [],
-        sections: isFound ? questionResult.routerResult.sectionPaths : [],
-        evidenceSpanIds: isFound ? questionResult.routerResult.evidenceSpanIds : [],
-        warnings: questionResult.routerResult.warnings,
+        quotes: validated.quotes,
+        pages: validated.pages,
+        sections: validated.sections,
+        evidenceSpanIds: validated.evidenceSpanIds,
+        warnings: [...questionResult.routerResult.warnings, ...validated.warnings],
       });
     }
 
