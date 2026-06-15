@@ -235,5 +235,5 @@ const UNIVERSAL_CHECKS: EvidenceCheck[] = [
 
 export function getContract(checkId: EvidenceCheckId): EvidenceCheckContract { return CONTRACTS[checkId]; }
 export function getUniversalChecks(): EvidenceCheck[] { return UNIVERSAL_CHECKS; }
-export function getAllChecks(_methodologyId?: string): EvidenceCheck[] { return UNIVERSAL_CHECKS; }
+export function getAllChecks(_methodologyId?: string): EvidenceCheck[] { void _methodologyId; return UNIVERSAL_CHECKS; }
 export function statusFromRouter(routerStatus: "answered" | "unclear" | "no_evidence"): EvidenceCheckStatus { switch (routerStatus) { case "answered": return "found"; case "no_evidence": return "missing"; default: return "unclear"; } }
