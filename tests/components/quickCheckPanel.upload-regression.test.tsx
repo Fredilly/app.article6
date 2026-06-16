@@ -283,9 +283,9 @@ describe("QuickCheckPanel upload regression", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Extraction preview");
     expect(text).toContain(RECOVERED_WARNING);
+    expect(text).toContain("Recovered signals");
     expect(text).toContain("Project Description / PD");
     expect(text).toContain("VM0004 · 1.0");
-    expect(text).toContain("Project document");
     expect(text).toContain("Project boundary");
     expect(text).not.toContain("Extraction preview is unavailable right now");
   });

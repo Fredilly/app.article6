@@ -64,6 +64,7 @@ export type ExtractionPreviewViewModel = {
   monitoringMethodology?: ClassificationDisplayItem;
   referencedMethods?: ClassificationDisplayItem[];
   warning?: string;
+  signalsTitle?: string;
   signalSummary?: string;
   signals: Array<{
     label: string;
@@ -399,12 +400,84 @@ function signalLabelFromFact(fact: QuickCheckEvidenceFact): string | null {
   return fallback === "Document signal" ? null : fallback;
 }
 
-function buildSignalSummary(signals: ExtractionPreviewViewModel["signals"]): string | undefined {
-  if (!signals.length) return undefined;
-  const labels = signals.map((signal) => signal.label);
-  if (labels.length === 1) return `Recovered text points to ${labels[0].toLowerCase()}.`;
-  if (labels.length === 2) return `Recovered text points to ${labels[0].toLowerCase()} and ${labels[1].toLowerCase()}.`;
-  return `Recovered text points to ${labels.slice(0, -1).join(", ").toLowerCase()}, and ${labels[labels.length - 1].toLowerCase()}.`;
+function joinHumanList(values: string[]): string {
+  if (values.length === 0) return "";
+  if (values.length === 1) return values[0];
+  if (values.length === 2) return `${values[0]} and ${values[1]}`;
+  return `${values.slice(0, -1).join(", ")}, and ${values[values.length - 1]}`;
+}
+
+function buildSignalSummary(input: {
+  signals: ExtractionPreviewViewModel["signals"];
+  detectedDocumentType?: string;
+  recoveredLocally: boolean;
+}): string | undefined {
+  const effectiveDetectedType =
+    input.detectedDocumentType === "Carbon Document (unclassified)" || input.detectedDocumentType === "Non-Carbon Document"
+      ? undefined
+      : input.detectedDocumentType;
+  const supportingLabels = input.signals
+    .map((signal) => signal.label)
+    .filter((label) => label !== effectiveDetectedType);
+
+  if (effectiveDetectedType && supportingLabels.length > 0) {
+    return input.recoveredLocally
+      ? `Recovered signals suggest this is a ${effectiveDetectedType.toLowerCase()} and mention ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`
+      : `This file looks like a ${effectiveDetectedType.toLowerCase()} and mentions ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`;
+  }
+  if (effectiveDetectedType) {
+    return input.recoveredLocally
+      ? `Recovered signals suggest this is a ${effectiveDetectedType.toLowerCase()}.`
+      : `This file looks like a ${effectiveDetectedType.toLowerCase()}.`;
+  }
+  if (!supportingLabels.length) return undefined;
+  return input.recoveredLocally
+    ? `Recovered signals mention ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`
+    : `This file mentions ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`;
+}
+
+function shouldSurfaceSignalLabel(label: string, detectedDocumentType?: string): boolean {
+  if (!label) return false;
+  if (label === detectedDocumentType) return false;
+  return label !== "Project document" && label !== "Monitoring plan" && label !== "Validation evidence";
+}
+
+function buildPreviewSignals(input: {
+  analysis: QuickCheckEvidenceAnalysis;
+  detectedDocumentType?: string;
+  documentClassification: QuickCheckDocumentClassification;
+}): ExtractionPreviewViewModel["signals"] {
+  const signals: ExtractionPreviewViewModel["signals"] = [];
+  if (
+    input.detectedDocumentType &&
+    input.documentClassification.documentClass !== "unknown_carbon_document" &&
+    input.documentClassification.documentClass !== "non_carbon_document"
+  ) {
+    signals.push({
+      label: input.detectedDocumentType,
+      confidence: confidenceBucket(input.documentClassification.confidence),
+    });
+  }
+
+  const seenSignalLabels = new Set(signals.map((signal) => signal.label));
+  for (const fact of [...input.analysis.facts].sort(
+    (left, right) =>
+      previewPriority(left) - previewPriority(right) ||
+      Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
+      left.summary.localeCompare(right.summary),
+  )) {
+    const label = signalLabelFromFact(fact);
+    if (!label || seenSignalLabels.has(label) || !shouldSurfaceSignalLabel(label, input.detectedDocumentType)) continue;
+    seenSignalLabels.add(label);
+    signals.push({
+      label,
+      summary: formatFactPreview(fact, { useDetail: true }),
+      confidence: confidenceBucket(input.analysis.extractionConfidence),
+    });
+    if (signals.length >= 3) break;
+  }
+
+  return signals;
 }
 
 function normalizeDetectedVersion(rawVersion: string): string {
@@ -442,26 +515,17 @@ export function buildExtractionPreviewViewModel(input: {
     fileName: input.fileName,
     rawText: input.analysis.rawPddText,
   });
-  const seenSignalLabels = new Set<string>();
-  const signals = [...input.analysis.facts]
-    .sort(
-      (left, right) =>
-        previewPriority(left) - previewPriority(right) ||
-        Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
-        left.summary.localeCompare(right.summary),
-    )
-    .map((fact) => {
-      const label = signalLabelFromFact(fact);
-      if (!label || seenSignalLabels.has(label)) return null;
-      seenSignalLabels.add(label);
-      return {
-        label,
-        summary: formatFactPreview(fact, { useDetail: true }),
-        confidence: confidenceBucket(input.analysis.extractionConfidence),
-      };
-    })
-    .filter(Boolean)
-    .slice(0, 4) as ExtractionPreviewViewModel["signals"];
+  const detectedType = documentTypeLabel({
+    classification: documentClassification,
+    fallback: input.analysis.documentTypes[0],
+  });
+  const fallbackWarning = input.analysis.warnings.find((warning) => /recovered document signals locally/i.test(warning));
+  const recoveredLocally = Boolean(fallbackWarning);
+  const signals = buildPreviewSignals({
+    analysis: input.analysis,
+    detectedDocumentType: detectedType,
+    documentClassification,
+  });
 
   const recoveredMethodology = detectMethodologyFromRecoveredText(input.analysis.rawPddText, input.analysis.methodologyMentions);
   let detectedMethodology = recoveredMethodology?.label ?? "Not confidently detected";
@@ -477,7 +541,6 @@ export function buildExtractionPreviewViewModel(input: {
     methodologyConfidence = "low";
   }
 
-  const fallbackWarning = input.analysis.warnings.find((warning) => /recovered document signals locally/i.test(warning));
   const warning =
     fallbackWarning ??
     (detectedMethodology !== "Not confidently detected" ||
@@ -513,10 +576,7 @@ export function buildExtractionPreviewViewModel(input: {
 
   return {
     fileName: input.fileName?.trim() || undefined,
-    detectedDocumentType: documentTypeLabel({
-      classification: documentClassification,
-      fallback: input.analysis.documentTypes[0],
-    }),
+    detectedDocumentType: detectedType,
     detectedDocumentConfidence: formatConfidencePercent(documentClassification.confidence),
     detectedDocumentEvidence: compactDocumentEvidence(documentClassification.evidence),
     detectedMethodology,
@@ -525,8 +585,9 @@ export function buildExtractionPreviewViewModel(input: {
     monitoringMethodology,
     referencedMethods: compactReferencedMethods(referencedMethods),
     warning,
+    signalsTitle: recoveredLocally ? "Recovered signals" : "What the file appears to contain",
     signalSummary:
-      buildSignalSummary(signals) ??
+      buildSignalSummary({ signals, detectedDocumentType: detectedType, recoveredLocally }) ??
       (input.analysis.parsedEvidenceLabels.length > 0
         ? "No strong document signals found yet. Open extraction details to inspect parsed text."
         : undefined),

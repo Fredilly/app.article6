@@ -2043,7 +2043,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                       ) : null}
                         <div className="mt-3 grid gap-3 md:grid-cols-[1.08fr_0.92fr]">
                           <div className="rounded-[1rem] border border-slate-200 bg-slate-50 px-3.5 py-3">
-                            <div className="text-[0.95rem] font-semibold text-slate-900">What the file appears to contain</div>
+                            <div className="text-[0.95rem] font-semibold text-slate-900">{extractionPreviewView.signalsTitle ?? "What the file appears to contain"}</div>
                             {extractionPreviewView.signals.length ? (
                               <>
                                 <div className="mt-3 flex flex-wrap gap-2">

@@ -167,8 +167,9 @@ describe("quick check ui helpers", () => {
     expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
-    expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period"]);
-    expect(view.signalSummary).toBe("Recovered text points to reporting period.");
+    expect(view.signalsTitle).toBe("What the file appears to contain");
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Monitoring Report", "Reporting period"]);
+    expect(view.signalSummary).toBe("This file looks like a monitoring report and mentions reporting period.");
   });
 
   it("compacts document evidence and trims noisy referenced methods", () => {
@@ -263,6 +264,73 @@ describe("quick check ui helpers", () => {
     expect(view.referencedMethods).toEqual([
       { id: "ACM0010", version: "3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
     ]);
+  });
+
+  it("uses recovered-signals language and suppresses generic fallback chips", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "monitoring-upload.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "project-document",
+            category: "project-document",
+            summary: "The file appears to be a project document",
+            matchText: "project document",
+            sourceLabel: "monitoring-upload.pdf",
+          },
+          {
+            id: "reporting-period",
+            category: "reporting-period",
+            summary: "The PDF states a monitoring or reporting period",
+            matchText: "reporting period",
+            sourceLabel: "monitoring-upload.pdf",
+            detail: "Reporting period: 1 January 2017 to 31 December 2017.",
+          },
+          {
+            id: "monitoring-plan",
+            category: "monitoring-plan",
+            summary: "The project has a documented monitoring plan",
+            matchText: "monitoring plan",
+            sourceLabel: "monitoring-upload.pdf",
+          },
+          {
+            id: "mapped-area",
+            category: "mapped-area",
+            summary: "The file includes a mapped project area",
+            matchText: "mapped project area",
+            sourceLabel: "monitoring-upload.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["monitoring-upload.pdf"],
+        documentTypes: ["Document"],
+        documentClassification: {
+          documentClass: "monitoring_report",
+          confidence: 0.99,
+          evidence: ['page 1 title: "Monitoring Report"'],
+          secondaryCandidates: [],
+          warnings: [],
+        },
+        methodologyMentions: [],
+        extractionConfidence: 0.52,
+        warnings: [
+          "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+        ],
+        rawPddText: "Monitoring Report. Reporting period and mapped project area are mentioned.",
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.signalsTitle).toBe("Recovered signals");
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Monitoring Report", "Reporting period", "Mapped project area"]);
+    expect(view.signalSummary).toBe("Recovered signals suggest this is a monitoring report and mention reporting period and mapped project area.");
   });
 
   it("shows a warning and fallback labels when methodology is not confidently detected", () => {
@@ -405,11 +473,11 @@ describe("quick check ui helpers", () => {
     expect(view.warning).toBe(
       "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
     );
+    expect(view.signalsTitle).toBe("Recovered signals");
     expect(view.signals.map((signal) => signal.label)).toEqual([
-      "Project document",
+      "Project Description / PD",
       "Baseline scenario",
       "Stakeholder consultation",
-      "Leakage",
     ]);
   });
 
