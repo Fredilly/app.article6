@@ -131,6 +131,50 @@ function confidenceBucket(value: number | null | undefined): ExtractionPreviewCo
   return "low";
 }
 
+function compactDocumentEvidence(evidence: string[]): string[] {
+  const ranked = evidence
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => ({
+      item,
+      score:
+        (item.startsWith("page 1 title:") ? 100 : 0) +
+        (item.startsWith("repeated header:") ? 90 : 0) +
+        (item.startsWith("page 1 header:") ? 80 : 0) +
+        (item.startsWith("filename:") ? 70 : 0) +
+        (item.startsWith("media type:") ? 20 : 0) +
+        (item.startsWith("body:") ? 10 : 0),
+      normalized: item
+        .replace(/^page 1 title:\s*/i, "")
+        .replace(/^repeated header:\s*/i, "")
+        .replace(/^page 1 header:\s*/i, "")
+        .replace(/^filename:\s*/i, "")
+        .replace(/^media type:\s*/i, "")
+        .replace(/^body:\s*/i, "")
+        .trim()
+        .toLowerCase(),
+    }))
+    .sort((left, right) => right.score - left.score || left.item.localeCompare(right.item));
+
+  const seen = new Set<string>();
+  const compact: string[] = [];
+  for (const candidate of ranked) {
+    if (seen.has(candidate.normalized)) continue;
+    seen.add(candidate.normalized);
+    compact.push(candidate.item);
+    if (compact.length >= 3) break;
+  }
+  return compact;
+}
+
+function compactReferencedMethods(referencedMethods: ClassificationDisplayItem[] | undefined): ClassificationDisplayItem[] | undefined {
+  if (!referencedMethods?.length) return undefined;
+  const filtered = referencedMethods
+    .filter((method) => method.role !== "TOOL_OR_DEPENDENCY" && method.role !== "BACKGROUND_MENTION")
+    .slice(0, 2);
+  return filtered.length > 0 ? filtered : undefined;
+}
+
 function formatConfidencePercent(value: number | undefined): string | undefined {
   if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
   return `${Math.round(value * 100)}%`;
@@ -384,12 +428,12 @@ export function buildExtractionPreviewViewModel(input: {
       fallback: input.analysis.documentTypes[0],
     }),
     detectedDocumentConfidence: formatConfidencePercent(documentClassification.confidence),
-    detectedDocumentEvidence: documentClassification.evidence,
+    detectedDocumentEvidence: compactDocumentEvidence(documentClassification.evidence),
     detectedMethodology,
     methodologyConfidence,
     primaryMethodology,
     monitoringMethodology,
-    referencedMethods,
+    referencedMethods: compactReferencedMethods(referencedMethods),
     warning,
     signalSummary:
       buildSignalSummary(signals) ??

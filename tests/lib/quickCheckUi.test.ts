@@ -163,11 +163,109 @@ describe("quick check ui helpers", () => {
     expect(view.detectedDocumentType).toBe("Monitoring Report");
     expect(view.detectedDocumentConfidence).toBeTruthy();
     expect(view.detectedDocumentEvidence?.length).toBeGreaterThan(0);
+    expect(view.detectedDocumentEvidence?.length).toBeLessThanOrEqual(3);
     expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
     expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period"]);
     expect(view.signalSummary).toBe("Recovered text points to reporting period.");
+  });
+
+  it("compacts document evidence and trims noisy referenced methods", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "validation-report.pdf",
+      analysis: {
+        facts: [],
+        parsedEvidenceLabels: ["validation-report.pdf"],
+        documentTypes: ["Document"],
+        documentClassification: {
+          documentClass: "validation_report",
+          confidence: 0.99,
+          evidence: [
+            'page 1 title: "VALIDATION REPORT"',
+            'repeated header: "VALIDATION REPORT"',
+            'page 1 title: "VALIDATIONREPORT"',
+            'repeated header: "VALIDATIONREPORT"',
+            'page 1 header: "VALIDATION REPORT"',
+            'body: "validation opinion"',
+          ],
+          secondaryCandidates: [],
+          warnings: [],
+        },
+        methodologyMentions: ["VM0007", "VMD0001", "VMD0002", "VMD0010"],
+        extractionConfidence: 0.9,
+        warnings: [],
+        rawPddText: "VALIDATION REPORT",
+      },
+      extractionSnapshot: {
+        documentType: "Document",
+        extractedFacts: [],
+        methodologyMentions: ["VM0007"],
+        methodologyClassification: {
+          primaryMethodology: {
+            id: "VM0007",
+            version: "1.3",
+            role: "PRIMARY_PROJECT_METHODOLOGY",
+            confidence: "high",
+          },
+          monitoringMethodology: null,
+          referencedMethods: [
+            { id: "VMD0001", version: "1.3", role: "TOOL_OR_DEPENDENCY", confidence: "medium" },
+            { id: "VMD0002", version: "1.0", role: "TOOL_OR_DEPENDENCY", confidence: "medium" },
+            { id: "ACM0010", version: "3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
+            { id: "AM0015", version: "1.0", role: "REFERENCED_CALCULATION_METHOD", confidence: "medium" },
+          ],
+        },
+        warnings: [],
+        signals: {
+          parsedEvidenceCount: 1,
+          factCount: 0,
+          relevantFactCount: 0,
+          methodologyMentionCount: 1,
+          warningCount: 0,
+        },
+        extractionConfidence: 0.9,
+        recoveredLocally: false,
+      },
+      methodologyResolution: {
+        status: "single",
+        rawMentions: ["VM0007"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [
+          {
+            methodologyId: "VM0007",
+            methodologyVersion: "v1-3",
+            matchedSignals: ["VM0007"],
+            canonicalKeys: ["VM0007"],
+            priority: 5,
+          },
+        ],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: {
+          canonicalKey: "VM0007",
+          supported: true,
+          matchedMethod: {
+            methodologyId: "VM0007",
+            methodologyVersion: "v1-3",
+            matchedSignals: ["VM0007"],
+            canonicalKeys: ["VM0007"],
+            priority: 5,
+          },
+          secondaryCanonicalKeys: [],
+        },
+      },
+    });
+
+    expect(view.detectedDocumentEvidence).toEqual([
+      'page 1 title: "VALIDATION REPORT"',
+      'page 1 title: "VALIDATIONREPORT"',
+      'body: "validation opinion"',
+    ]);
+    expect(view.referencedMethods).toEqual([
+      { id: "ACM0010", version: "3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
+      { id: "AM0015", version: "1.0", role: "REFERENCED_CALCULATION_METHOD", confidence: "medium" },
+    ]);
   });
 
   it("shows a warning and fallback labels when methodology is not confidently detected", () => {

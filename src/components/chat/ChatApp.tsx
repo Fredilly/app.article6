@@ -12,7 +12,7 @@ export default function ChatApp() {
 
   return (
     <div className="min-h-screen bg-[#f9f9f9]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-10 md:px-8 md:py-16">
+      <div className="mx-auto flex w-full max-w-[82.8rem] flex-col gap-5 px-4 py-10 md:px-8 md:py-16">
         {selectedMethod || deeplinkWarnings.length ? (
           <div className="mx-auto w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
