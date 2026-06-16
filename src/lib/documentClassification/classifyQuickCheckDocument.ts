@@ -128,6 +128,7 @@ function applyPatterns(
     const match = rule.pattern.exec(haystack);
     rule.pattern.lastIndex = 0;
     if (!match) continue;
+    if (typeof match.index === "number" && isDefinitionContext(haystack, match.index, match[0])) continue;
     addEvidence(entries, documentClass, rule.weight, `${labelForSource(rule.source)}: "${normalizeWhitespace(match[0])}"`);
   }
 }
@@ -239,6 +240,29 @@ function isSectionContext(text: string, index: number): boolean {
     || /\btable\s*of\s*contents\b|\bcontents\b/i.test(prefix);
 }
 
+function isDefinitionContext(text: string, index: number, matchedText: string): boolean {
+  const start = Math.max(0, index - 40);
+  const end = Math.min(text.length, index + matchedText.length + 80);
+  const window = text.slice(start, end);
+  const lowerWindow = window.toLowerCase();
+  const matchedLower = matchedText.toLowerCase();
+  const localIndex = lowerWindow.indexOf(matchedLower);
+  if (localIndex < 0) return false;
+
+  const before = lowerWindow.slice(Math.max(0, localIndex - 6), localIndex);
+  const after = lowerWindow.slice(localIndex + matchedLower.length, localIndex + matchedLower.length + 36);
+
+  if (/\bmeans\b/.test(after)) return true;
+  if (before.includes('"') || before.includes("“") || before.includes("'")) {
+    if (/\bmeans\b/.test(after) || /\bdefinition\b/.test(after)) return true;
+  }
+  if (/\bmeans\b/.test(lowerWindow) && /["“']/.test(window)) return true;
+  if (/\bdefinitions?\b|\binterpretation\b|\bthis deed\b|\bwitnesses as follows\b/.test(lowerWindow) && /\bmeans\b/.test(lowerWindow)) {
+    return true;
+  }
+  return false;
+}
+
 function addDirectPhraseSignals(
   entries: Map<RuleClass, ScoreEntry>,
   rawText: string,
@@ -251,7 +275,8 @@ function addDirectPhraseSignals(
     definition.pattern.lastIndex = 0;
     if (leadingMatch && typeof leadingMatch.index === "number") {
       const inSectionContext = isSectionContext(leadingWindow, leadingMatch.index);
-      if (!inSectionContext || definition.allowSectionContext) {
+      const inDefinitionContext = isDefinitionContext(leadingWindow, leadingMatch.index, leadingMatch[0]);
+      if ((!inSectionContext || definition.allowSectionContext) && !inDefinitionContext) {
         const weight = leadingMatch.index <= 320 ? 2.7 : leadingMatch.index <= 900 ? 2.1 : 1.5;
         addEvidence(entries, definition.documentClass, weight, `page 1 title: "${normalizeWhitespace(leadingMatch[0])}"`);
       }
@@ -259,7 +284,11 @@ function addDirectPhraseSignals(
 
     const repeatedPattern = definition.repeatedPattern ?? definition.pattern;
     const repeatedMatches = Array.from(rawText.matchAll(new RegExp(repeatedPattern.source, repeatedPattern.flags.includes("g") ? repeatedPattern.flags : `${repeatedPattern.flags}g`)))
-      .filter((match) => typeof match.index === "number" && (!isSectionContext(rawText, match.index!) || definition.allowSectionContext));
+      .filter((match) =>
+        typeof match.index === "number"
+        && (!isSectionContext(rawText, match.index!) || definition.allowSectionContext)
+        && !isDefinitionContext(rawText, match.index!, match[0]),
+      );
     if (repeatedMatches.length >= 2) {
       addEvidence(
         entries,
@@ -312,11 +341,13 @@ function addCompactedTitleSignals(entries: Map<RuleClass, ScoreEntry>, rawText: 
       );
     }
     const occurrences = countOccurrences(compactFull, definition.token);
-    if (occurrences >= 2) {
+    const rawOccurrences = Array.from(rawText.matchAll(new RegExp(definition.token.split("").join("\\s*"), "gi")))
+      .filter((match) => typeof match.index === "number" && !isDefinitionContext(rawText, match.index!, match[0]));
+    if (occurrences >= 2 && rawOccurrences.length >= 2) {
       addEvidence(
         entries,
         definition.documentClass,
-        Math.min(2.6, 0.9 + occurrences * 0.45),
+        Math.min(2.6, 0.9 + rawOccurrences.length * 0.45),
         `repeated header: "${definition.token.toUpperCase()}"`,
       );
     }
