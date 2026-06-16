@@ -44,6 +44,13 @@ type WeightedPattern = {
   source: "filename" | "title_block" | "header" | "repeated_header" | "toc" | "table" | "body" | "mime";
 };
 
+type ClassPhraseDefinition = {
+  documentClass: RuleClass;
+  pattern: RegExp;
+  repeatedPattern?: RegExp;
+  allowSectionContext?: boolean;
+};
+
 const DOCUMENT_CLASS_ORDER: QuickCheckDocumentClass[] = [
   "validation_verification_report",
   "verification_report",
@@ -61,6 +68,7 @@ const DOCUMENT_CLASS_ORDER: QuickCheckDocumentClass[] = [
 const TOP_LINE_COUNT = 30;
 const TOP_TABLE_LIMIT = 3;
 const TOC_LINE_LIMIT = 60;
+const DIRECT_SIGNAL_WINDOW = 1600;
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
@@ -223,6 +231,96 @@ function buildTocLines(lines: string[]): string[] {
     /^(\d+(\.\d+)*|\b[a-z]\)|\bsection\b|\bappendix\b)/i.test(line)
     || /\.{2,}\s*\d+$/.test(line)
   );
+}
+
+function isSectionContext(text: string, index: number): boolean {
+  const prefix = text.slice(Math.max(0, index - 28), index);
+  return /\d+(?:\.\d+)*\s*$/.test(prefix)
+    || /\btable\s*of\s*contents\b|\bcontents\b/i.test(prefix);
+}
+
+function addDirectPhraseSignals(
+  entries: Map<RuleClass, ScoreEntry>,
+  rawText: string,
+  definitions: ClassPhraseDefinition[],
+): void {
+  const leadingWindow = rawText.slice(0, DIRECT_SIGNAL_WINDOW);
+
+  for (const definition of definitions) {
+    const leadingMatch = definition.pattern.exec(leadingWindow);
+    definition.pattern.lastIndex = 0;
+    if (leadingMatch && typeof leadingMatch.index === "number") {
+      const inSectionContext = isSectionContext(leadingWindow, leadingMatch.index);
+      if (!inSectionContext || definition.allowSectionContext) {
+        const weight = leadingMatch.index <= 320 ? 2.7 : leadingMatch.index <= 900 ? 2.1 : 1.5;
+        addEvidence(entries, definition.documentClass, weight, `page 1 title: "${normalizeWhitespace(leadingMatch[0])}"`);
+      }
+    }
+
+    const repeatedPattern = definition.repeatedPattern ?? definition.pattern;
+    const repeatedMatches = Array.from(rawText.matchAll(new RegExp(repeatedPattern.source, repeatedPattern.flags.includes("g") ? repeatedPattern.flags : `${repeatedPattern.flags}g`)))
+      .filter((match) => typeof match.index === "number" && (!isSectionContext(rawText, match.index!) || definition.allowSectionContext));
+    if (repeatedMatches.length >= 2) {
+      addEvidence(
+        entries,
+        definition.documentClass,
+        Math.min(2.4, 0.8 + repeatedMatches.length * 0.45),
+        `repeated header: "${normalizeWhitespace(repeatedMatches[0]?.[0] ?? "")}"`,
+      );
+    }
+  }
+}
+
+function countOccurrences(haystack: string, needle: string): number {
+  if (!needle) return 0;
+  let count = 0;
+  let index = 0;
+  while (index >= 0) {
+    index = haystack.indexOf(needle, index);
+    if (index < 0) break;
+    count += 1;
+    index += needle.length;
+  }
+  return count;
+}
+
+function addCompactedTitleSignals(entries: Map<RuleClass, ScoreEntry>, rawText: string): void {
+  const compactLeading = rawText.slice(0, DIRECT_SIGNAL_WINDOW).toLowerCase().replace(/\s+/g, "");
+  const compactFull = rawText.toLowerCase().replace(/\s+/g, "");
+  const compactDefinitions: Array<{ documentClass: RuleClass; token: string }> = [
+    { documentClass: "validation_verification_report", token: "validationandverificationreport" },
+    { documentClass: "validation_verification_report", token: "verificationandvalidationreport" },
+    { documentClass: "verification_report", token: "verificationreport" },
+    { documentClass: "validation_report", token: "validationreport" },
+    { documentClass: "monitoring_report", token: "monitoringreport" },
+    { documentClass: "project_description_pdd", token: "projectdescriptiondocument" },
+    { documentClass: "project_description_pdd", token: "projectdescription" },
+    { documentClass: "project_description_pdd", token: "projectdesigndocument" },
+    { documentClass: "methodology_document", token: "methodologydocument" },
+    { documentClass: "risk_report", token: "non-permanenceriskreport" },
+    { documentClass: "risk_report", token: "nonpermanenceriskreport" },
+  ];
+
+  for (const definition of compactDefinitions) {
+    const leadingIndex = compactLeading.indexOf(definition.token);
+    if (leadingIndex >= 0) {
+      addEvidence(
+        entries,
+        definition.documentClass,
+        leadingIndex <= 220 ? 2.8 : 2.0,
+        `page 1 title: "${definition.token.toUpperCase()}"`,
+      );
+    }
+    const occurrences = countOccurrences(compactFull, definition.token);
+    if (occurrences >= 2) {
+      addEvidence(
+        entries,
+        definition.documentClass,
+        Math.min(2.6, 0.9 + occurrences * 0.45),
+        `repeated header: "${definition.token.toUpperCase()}"`,
+      );
+    }
+  }
 }
 
 function clampConfidence(value: number): number {
@@ -409,6 +507,7 @@ const BODY_RULES: Array<{ documentClass: RuleClass; patterns: WeightedPattern[] 
   {
     documentClass: "monitoring_report",
     patterns: [
+      { pattern: /\bmonitoring period of this report\b|\breporting period of this report\b/i, weight: 1.2, source: "body" },
       { pattern: /\breporting period\b|\bmonitoring period\b/i, weight: 0.85, source: "body" },
       { pattern: /\bmonitored data\b|\bmonitoring records\b/i, weight: 0.7, source: "body" },
     ],
@@ -416,8 +515,9 @@ const BODY_RULES: Array<{ documentClass: RuleClass; patterns: WeightedPattern[] 
   {
     documentClass: "project_description_pdd",
     patterns: [
-      { pattern: /\bwithout[- ]project scenario\b|\badditionality\b|\bbaseline scenario\b/i, weight: 0.9, source: "body" },
-      { pattern: /\bapplication of methodology\b|\bproject boundary\b/i, weight: 0.7, source: "body" },
+      { pattern: /\bwithout[- ]project scenario\b|\bbaseline scenario\b/i, weight: 0.55, source: "body" },
+      { pattern: /\badditionality\b/i, weight: 0.35, source: "body" },
+      { pattern: /\bapplication of methodology\b|\bproject boundary\b/i, weight: 0.45, source: "body" },
     ],
   },
   {
@@ -443,6 +543,54 @@ const BODY_RULES: Array<{ documentClass: RuleClass; patterns: WeightedPattern[] 
     patterns: [
       { pattern: /\baccounts payable\b|\bpayment terms\b|\bmarketing plan\b|\bcandidate experience\b/i, weight: 1.0, source: "body" },
     ],
+  },
+];
+
+const CLASS_PHRASE_DEFINITIONS: ClassPhraseDefinition[] = [
+  {
+    documentClass: "validation_verification_report",
+    pattern: /\bvalidation\s*(?:and|&|\/)\s*verification\s*report\b/i,
+    repeatedPattern: /\bvalidation\s*(?:and|&|\/)\s*verification\s*report\b/gi,
+  },
+  {
+    documentClass: "validation_verification_report",
+    pattern: /\bverification\s*(?:and|&|\/)\s*validation\s*report\b/i,
+    repeatedPattern: /\bverification\s*(?:and|&|\/)\s*validation\s*report\b/gi,
+  },
+  {
+    documentClass: "verification_report",
+    pattern: /\bverification\s*report\b/i,
+    repeatedPattern: /\bverification\s*report\b/gi,
+  },
+  {
+    documentClass: "validation_report",
+    pattern: /\bvalidation\s*report\b/i,
+    repeatedPattern: /\bvalidation\s*report\b/gi,
+  },
+  {
+    documentClass: "monitoring_report",
+    pattern: /\bmonitoring\s*report\b/i,
+    repeatedPattern: /\bmonitoring\s*report\b/gi,
+  },
+  {
+    documentClass: "project_description_pdd",
+    pattern: /\bproject\s*description(?:\s*document)?\b/i,
+    repeatedPattern: /\bproject\s*description(?:\s*document)?\b/gi,
+  },
+  {
+    documentClass: "project_description_pdd",
+    pattern: /\bproject\s*design\s*document\b/i,
+    repeatedPattern: /\bproject\s*design\s*document\b/gi,
+  },
+  {
+    documentClass: "methodology_document",
+    pattern: /\bmethodology\s*(?:document|framework|tool|module)\b/i,
+    repeatedPattern: /\bmethodology\s*(?:document|framework|tool|module)\b/gi,
+  },
+  {
+    documentClass: "risk_report",
+    pattern: /\bnon[- ]?permanence\s*risk\s*report\b/i,
+    repeatedPattern: /\bnon[- ]?permanence\s*risk\s*report\b/gi,
   },
 ];
 
@@ -490,6 +638,9 @@ export function classifyQuickCheckDocument(input: QuickCheckDocumentClassifierIn
     addEvidence(scores, "project_description_pdd", 0.1, `media type: "${mime}"`);
   }
 
+  addDirectPhraseSignals(scores, rawText, CLASS_PHRASE_DEFINITIONS);
+  addCompactedTitleSignals(scores, rawText);
+
   for (const ruleSet of FILENAME_RULES) {
     applyPatterns(scores, ruleSet.documentClass, fileName, ruleSet.patterns);
   }
@@ -530,7 +681,6 @@ export function classifyQuickCheckDocument(input: QuickCheckDocumentClassifierIn
 
   const carbonSignalCount = (bodyText.match(/\bcarbon\b|\bghg\b|\bverra\b|\bvcs\b|\bccb\b|\bcdm\b|\bredd\b|\bmonitoring\b|\bvalidation\b|\bverification\b|\bmethodology\b|\bproject boundary\b|\bboundary description\b|\bproject area\b|\bmapped project area\b|\baoi\b|\bproject description\b|\bproject document\b/gi) ?? []).length;
   const nonCarbonSignalCount = (bodyText.match(/\binvoice\b|\bresume\b|\bproposal\b|\bmeeting minutes\b|\bmarketing\b|\bmaster services agreement\b|\bpurchase order\b/gi) ?? []).length;
-  if (carbonSignalCount >= 3) addEvidence(scores, "project_description_pdd", 0.35, `body: "${carbonSignalCount} carbon-domain keyword matches"`);
   if (nonCarbonSignalCount >= 2) addEvidence(scores, "non_carbon_document", 1.1, `body: "${nonCarbonSignalCount} non-carbon keyword matches"`);
 
   const ranked = Array.from(scores.entries())

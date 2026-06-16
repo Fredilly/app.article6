@@ -75,4 +75,25 @@ describe("quick check document classification", () => {
     expect(result.secondaryCandidates.every((candidate) => candidate.documentClass !== result.documentClass)).toBe(true);
     expect(result.secondaryCandidates.every((candidate) => Array.isArray(candidate.evidence))).toBe(true);
   });
+
+  it("prefers a repeated OCR-fused monitoring title over generic project-description section names", () => {
+    const rawText = [
+      "MONITORINGREPORT: CCBVersion 3 ,VCSVersion3 CCB v3. 0,VCSv3.4 1 GROUPEDPROJECTFOR COMMERCIAL FOREST PLANTATIONSINITIATIVES IN THE DEPARTMENTOFVICHADA",
+      "MonitoringP eriod ofthis Report 01 A ugust 2011 12 December 2 020",
+      "MONITORINGREPORT: CCBVersion 3 ,VCSVersion3 CCB v3. 0,VCSv3.4 3 Tabl e of C ontents",
+      "2.1 Project Description",
+      "3.1 MonitoringGHGEmiss ionReductionsandRemovals",
+      "6 ADDITIONALPROJECTIMPLEMENTATION INFORMATION",
+      "MONITORINGREPORT: CCBVersion 3 ,VCSVersion3",
+    ].join(" ");
+
+    const result = classifyQuickCheckDocument({
+      fileName: "CCB_MON_REP_ENG-1530_01AUG2011_12DEC2020.pdf",
+      mime: "application/pdf",
+      rawText,
+    });
+
+    expect(result.documentClass).toBe("monitoring_report");
+    expect(result.evidence.some((item) => /page 1 title: "MONITORINGREPORT"/i.test(item))).toBe(true);
+  });
 });
