@@ -2079,6 +2079,26 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                   {extractionPreviewView.detectedDocumentType || "Not detected"}
                                 </div>
                               </div>
+                              {extractionPreviewView.detectedDocumentConfidence ? (
+                                <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
+                                  <div className="text-sm text-slate-500">Confidence</div>
+                                  <div className="min-w-0 break-words font-medium leading-5 text-slate-900">
+                                    {extractionPreviewView.detectedDocumentConfidence}
+                                  </div>
+                                </div>
+                              ) : null}
+                              {extractionPreviewView.detectedDocumentEvidence && extractionPreviewView.detectedDocumentEvidence.length > 0 ? (
+                                <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
+                                  <div className="text-sm text-slate-500">Evidence</div>
+                                  <div className="min-w-0 space-y-1.5">
+                                    {extractionPreviewView.detectedDocumentEvidence.map((item) => (
+                                      <div key={item} className="break-words text-sm leading-5 text-slate-700">
+                                        {item}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : null}
                               <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
                                 <div className="text-sm text-slate-500">Primary</div>
                                 <div className="min-w-0 break-words font-medium leading-5 text-slate-900">

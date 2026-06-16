@@ -161,6 +161,8 @@ describe("quick check ui helpers", () => {
 
     expect(view.fileName).toBe("fresh-monitoring-report.pdf");
     expect(view.detectedDocumentType).toBe("Monitoring Report");
+    expect(view.detectedDocumentConfidence).toBeTruthy();
+    expect(view.detectedDocumentEvidence?.length).toBeGreaterThan(0);
     expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
@@ -199,7 +201,7 @@ describe("quick check ui helpers", () => {
       },
     });
 
-    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedDocumentType).toBe("Carbon Document (unclassified)");
     expect(view.detectedMethodology).toBe("Not confidently detected");
     expect(view.methodologyConfidence).toBe("unknown");
     expect(view.warning).toBe("Methodology was not confidently detected. Matches below may need review.");
@@ -303,7 +305,7 @@ describe("quick check ui helpers", () => {
       },
     });
 
-    expect(view.detectedDocumentType).toBe("Project Document");
+    expect(view.detectedDocumentType).toBe("Project Description / PD");
     expect(view.detectedMethodology).toBe("VM0004 · v1-0");
     expect(view.warning).toBe(
       "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
@@ -343,7 +345,7 @@ describe("quick check ui helpers", () => {
     expect(view.signalSummary).toBe(
       "No strong document signals found yet. Open extraction details to inspect parsed text.",
     );
-    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedDocumentType).toBe("Carbon Document (unclassified)");
     expect(view.detectedMethodology).toBe("Not confidently detected");
   });
 

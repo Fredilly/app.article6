@@ -3,6 +3,11 @@ import type { QuickCheckMethodologyResolution } from "@/lib/chat/quickCheckMetho
 import { prioritizeMethodologyMentions } from "@/lib/chat/quickCheckMethodology";
 import { classifyMethodologyRoles } from "@/lib/chat/methodologyRoleClassifier";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
+import {
+  classifyQuickCheckDocument,
+  quickCheckDocumentClassLabel,
+  type QuickCheckDocumentClassification,
+} from "@/lib/documentClassification";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "recovered" | "needs-review" | "weak" | "partial";
@@ -51,6 +56,8 @@ export type ClassificationDisplayItem = {
 export type ExtractionPreviewViewModel = {
   fileName?: string;
   detectedDocumentType?: string;
+  detectedDocumentConfidence?: string;
+  detectedDocumentEvidence?: string[];
   detectedMethodology?: string;
   methodologyConfidence?: ExtractionPreviewConfidence;
   primaryMethodology?: ClassificationDisplayItem;
@@ -124,22 +131,15 @@ function confidenceBucket(value: number | null | undefined): ExtractionPreviewCo
   return "low";
 }
 
-function documentTypeLabel(input: { fileName?: string | null; rawText?: string | null; fallback?: string | null }): string {
+function formatConfidencePercent(value: number | undefined): string | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
+  return `${Math.round(value * 100)}%`;
+}
+
+function documentTypeLabel(input: { classification: QuickCheckDocumentClassification; fallback?: string | null }): string {
   const fallback = input.fallback?.trim() ?? "";
   if (fallback === "Workbook" || fallback === "Image") return fallback;
-
-  const haystack = `${input.fileName ?? ""}\n${input.rawText ?? ""}`.toLowerCase();
-  if (/\bproject design document\b|\bpdd\b/.test(haystack)) return "Project Design Document";
-  if (/\bproject document\b/.test(haystack)) return "Project Document";
-  if (/\bvalidation report\b/.test(haystack)) return "Validation Report";
-  if (/\bverification report\b/.test(haystack)) return "Verification Report";
-  if (/\bmonitoring report\b/.test(haystack)) return "Monitoring Report";
-
-  if (fallback && fallback !== "PDD / PDF" && fallback !== "Document" && fallback !== "Unknown document") {
-    return fallback;
-  }
-
-  return "Unknown document type";
+  return quickCheckDocumentClassLabel(input.classification.documentClass);
 }
 
 function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
@@ -304,6 +304,10 @@ export function buildExtractionPreviewViewModel(input: {
   methodologyResolution?: QuickCheckMethodologyResolution | null;
   extractionSnapshot?: QuickCheckExtractionSnapshot | null;
 }): ExtractionPreviewViewModel {
+  const documentClassification = input.analysis.documentClassification ?? classifyQuickCheckDocument({
+    fileName: input.fileName,
+    rawText: input.analysis.rawPddText,
+  });
   const seenSignalLabels = new Set<string>();
   const signals = [...input.analysis.facts]
     .sort(
@@ -376,10 +380,11 @@ export function buildExtractionPreviewViewModel(input: {
   return {
     fileName: input.fileName?.trim() || undefined,
     detectedDocumentType: documentTypeLabel({
-      fileName: input.fileName,
-      rawText: input.analysis.rawPddText,
+      classification: documentClassification,
       fallback: input.analysis.documentTypes[0],
     }),
+    detectedDocumentConfidence: formatConfidencePercent(documentClassification.confidence),
+    detectedDocumentEvidence: documentClassification.evidence,
     detectedMethodology,
     methodologyConfidence,
     primaryMethodology,
