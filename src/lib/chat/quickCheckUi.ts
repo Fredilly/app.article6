@@ -131,47 +131,137 @@ function confidenceBucket(value: number | null | undefined): ExtractionPreviewCo
   return "low";
 }
 
-function compactDocumentEvidence(evidence: string[]): string[] {
-  const ranked = evidence
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .map((item) => ({
-      item,
-      score:
-        (item.startsWith("page 1 title:") ? 100 : 0) +
-        (item.startsWith("repeated header:") ? 90 : 0) +
-        (item.startsWith("page 1 header:") ? 80 : 0) +
-        (item.startsWith("filename:") ? 70 : 0) +
-        (item.startsWith("media type:") ? 20 : 0) +
-        (item.startsWith("body:") ? 10 : 0),
-      normalized: item
-        .replace(/^page 1 title:\s*/i, "")
-        .replace(/^repeated header:\s*/i, "")
-        .replace(/^page 1 header:\s*/i, "")
-        .replace(/^filename:\s*/i, "")
-        .replace(/^media type:\s*/i, "")
-        .replace(/^body:\s*/i, "")
-        .trim()
-        .toLowerCase(),
-    }))
-    .sort((left, right) => right.score - left.score || left.item.localeCompare(right.item));
+function normalizeClassifierEvidenceValue(value: string): string {
+  const compact = value.replace(/^"|"$/g, "").trim();
+  if (!compact) return "";
 
-  const seen = new Set<string>();
-  const compact: string[] = [];
-  for (const candidate of ranked) {
-    if (seen.has(candidate.normalized)) continue;
-    seen.add(candidate.normalized);
-    compact.push(candidate.item);
-    if (compact.length >= 3) break;
+  const normalized = compact
+    .replace(/[_-]+/g, " ")
+    .replace(/\bPROJECTDESCRIPTIONPDD\b/gi, "Project Description / PDD")
+    .replace(/\bPROJECTDESCRIPTION\b/gi, "Project Description")
+    .replace(/\bMONITORINGREPORT\b/gi, "Monitoring Report")
+    .replace(/\bVALIDATIONVERIFICATIONREPORT\b/gi, "Validation & Verification Report")
+    .replace(/\bVALIDATIONREPORT\b/gi, "Validation Report")
+    .replace(/\bVERIFICATIONREPORT\b/gi, "Verification Report")
+    .replace(/\bMETHODOLOGYDOCUMENT\b/gi, "Methodology Document")
+    .replace(/\bRISKREPORT\b/gi, "Risk Report")
+    .replace(/\bSUPPORTINGEVIDENCEFILE\b/gi, "Supporting Evidence File")
+    .replace(/\bREGISTRYORPUBLICRECORD\b/gi, "Registry / Public Record")
+    .replace(/\bNONCARBONDOCUMENT\b/gi, "Non-Carbon Document")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (/^[A-Z0-9 /&.:-]+$/.test(normalized)) {
+    return normalized
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+      .replace(/\bPdd\b/g, "PDD");
   }
-  return compact;
+
+  return normalized;
+}
+
+function evidenceValueKey(value: string): string {
+  return normalizeClassifierEvidenceValue(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+type ParsedClassifierEvidence = {
+  source: "page_1_title" | "repeated_header" | "page_1_header" | "filename" | "media_type" | "body" | "other";
+  value: string;
+};
+
+function parseClassifierEvidence(item: string): ParsedClassifierEvidence {
+  const trimmed = item.trim();
+  const mapping: Array<[ParsedClassifierEvidence["source"], RegExp]> = [
+    ["page_1_title", /^page 1 title:\s*/i],
+    ["repeated_header", /^repeated header:\s*/i],
+    ["page_1_header", /^page 1 header:\s*/i],
+    ["filename", /^filename:\s*/i],
+    ["media_type", /^media type:\s*/i],
+    ["body", /^body:\s*/i],
+  ];
+
+  for (const [source, pattern] of mapping) {
+    if (pattern.test(trimmed)) {
+      return {
+        source,
+        value: trimmed.replace(pattern, "").trim(),
+      };
+    }
+  }
+
+  return { source: "other", value: trimmed };
+}
+
+function compactDocumentEvidence(evidence: string[]): string[] {
+  const grouped = new Map<
+    string,
+    {
+      value: string;
+      sources: Set<ParsedClassifierEvidence["source"]>;
+    }
+  >();
+
+  for (const entry of evidence.map(parseClassifierEvidence)) {
+    const value = normalizeClassifierEvidenceValue(entry.value);
+    const key = evidenceValueKey(value);
+    if (!key) continue;
+    const existing = grouped.get(key) ?? { value, sources: new Set<ParsedClassifierEvidence["source"]>() };
+    existing.sources.add(entry.source);
+    grouped.set(key, existing);
+  }
+
+  const titleHeaderEvidence = [...grouped.values()]
+    .filter((entry) => entry.sources.has("page_1_title") || entry.sources.has("page_1_header") || entry.sources.has("repeated_header"))
+    .sort((left, right) => right.value.length - left.value.length || left.value.localeCompare(right.value));
+
+  const compact: string[] = [];
+  const titleHeader = titleHeaderEvidence[0];
+  if (titleHeader) {
+    const hasTitle = titleHeader.sources.has("page_1_title");
+    const hasHeader = titleHeader.sources.has("page_1_header") || titleHeader.sources.has("repeated_header");
+    if (hasTitle && hasHeader) {
+      compact.push(`Title and headers read “${titleHeader.value}”.`);
+    } else if (hasTitle) {
+      compact.push(`Title reads “${titleHeader.value}”.`);
+    } else {
+      compact.push(`Header reads “${titleHeader.value}”.`);
+    }
+  }
+
+  const filenameEvidence = [...grouped.values()].find((entry) => entry.sources.has("filename"));
+  if (!titleHeader && filenameEvidence) {
+    compact.push(`Filename includes “${filenameEvidence.value}”.`);
+  }
+
+  if (!titleHeader || compact.length === 0) {
+    const bodyEvidence = [...grouped.values()].find((entry) => entry.sources.has("body"));
+    if (bodyEvidence) {
+      compact.push(`Body mentions “${bodyEvidence.value}”.`);
+    }
+  }
+
+  const mediaTypeEvidence = [...grouped.values()].find((entry) => entry.sources.has("media_type"));
+  if (compact.length === 0 && mediaTypeEvidence) {
+    compact.push(`Detected media type: ${mediaTypeEvidence.value}.`);
+  }
+
+  return compact.slice(0, 2);
 }
 
 function compactReferencedMethods(referencedMethods: ClassificationDisplayItem[] | undefined): ClassificationDisplayItem[] | undefined {
   if (!referencedMethods?.length) return undefined;
   const filtered = referencedMethods
     .filter((method) => method.role !== "TOOL_OR_DEPENDENCY" && method.role !== "BACKGROUND_MENTION")
-    .slice(0, 2);
+    .filter((method, index, collection) => collection.findIndex((candidate) => candidate.id === method.id && candidate.version === method.version) === index)
+    .sort((left, right) => {
+      const confidenceRank = (value: string) => (value === "high" ? 0 : value === "medium" ? 1 : 2);
+      return confidenceRank(left.confidence) - confidenceRank(right.confidence) || left.id.localeCompare(right.id);
+    })
+    .slice(0, 1);
   return filtered.length > 0 ? filtered : undefined;
 }
 

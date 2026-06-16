@@ -555,15 +555,15 @@ function confidenceBarTone(value: "high" | "medium" | "low" | "unknown" | undefi
   return "bg-slate-300";
 }
 
-function roleShortLabel(role: string): string {
-  switch (role) {
-    case "PRIMARY_PROJECT_METHODOLOGY": return "primary";
-    case "MONITORING_METHODOLOGY": return "monitoring";
-    case "REFERENCED_CALCULATION_METHOD": return "calculation";
-    case "TOOL_OR_DEPENDENCY": return "tool";
-    case "BACKGROUND_MENTION": return "background";
-    default: return "";
-  }
+function formatMethodLabel(id: string, version?: string | null): string {
+  return `${id}${version ? ` · ${version}` : ""}`;
+}
+
+function renderMethodReferenceSummary(methods: Array<{ id: string; version: string | null }>): string {
+  if (!methods.length) return "None detected";
+  const [first, ...rest] = methods;
+  const summary = formatMethodLabel(first.id, first.version);
+  return rest.length > 0 ? `${summary} +${rest.length} more` : summary;
 }
 
 function buildWeakExtractionRecoveryState(): RecoveryState {
@@ -1935,7 +1935,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-[46rem] px-4 md:px-0">
+      <div className="mx-auto w-full max-w-[53rem] px-4 md:px-0">
         <div className="flex flex-col items-center text-center">
           <div className="flex w-full items-start justify-center">
             <div className="w-full">
@@ -2120,13 +2120,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               {extractionPreviewView.referencedMethods && extractionPreviewView.referencedMethods.length > 0 ? (
                                 <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
                                   <div className="text-sm text-slate-500">Referenced</div>
-                                  <div className="flex min-w-0 flex-wrap gap-1.5">
-                                    {extractionPreviewView.referencedMethods.map((m) => (
-                                      <span key={m.id} className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600">
-                                        {m.id}{m.version ? ` \u00b7 ${m.version}` : ""}
-                                        <span className="ml-1 text-[10px] text-slate-400">{roleShortLabel(m.role)}</span>
-                                      </span>
-                                    ))}
+                                  <div className="min-w-0 break-words font-medium leading-5 text-slate-900">
+                                    {renderMethodReferenceSummary(extractionPreviewView.referencedMethods)}
                                   </div>
                                 </div>
                               ) : null}
@@ -2205,9 +2200,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               <div className="mt-2 flex flex-wrap gap-2">
                                 {extractionPreviewView.referencedMethods && extractionPreviewView.referencedMethods.length > 0
                                   ? extractionPreviewView.referencedMethods.map((m) => (
-                                      <span key={`${m.id}-${m.role}`} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                                        {m.id}{m.version ? ` · ${m.version}` : ""}
-                                        <span className="ml-1 text-[10px] text-slate-400">{roleShortLabel(m.role)}</span>
+                                      <span key={`${m.id}-${m.version ?? ""}`} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                        {formatMethodLabel(m.id, m.version)}
                                       </span>
                                     ))
                                   : extractionPreview.methodologyMentions.length > 0

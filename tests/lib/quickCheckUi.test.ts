@@ -258,13 +258,10 @@ describe("quick check ui helpers", () => {
     });
 
     expect(view.detectedDocumentEvidence).toEqual([
-      'page 1 title: "VALIDATION REPORT"',
-      'page 1 title: "VALIDATIONREPORT"',
-      'body: "validation opinion"',
+      'Title and headers read “Validation Report”.',
     ]);
     expect(view.referencedMethods).toEqual([
       { id: "ACM0010", version: "3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
-      { id: "AM0015", version: "1.0", role: "REFERENCED_CALCULATION_METHOD", confidence: "medium" },
     ]);
   });
 
