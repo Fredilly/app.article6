@@ -257,7 +257,7 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toContain("View extraction details");
     expect(text).toContain("Monitoring Report");
     expect(text).toContain("Confidence");
-    expect(text).toContain("page 1 header");
+    expect(text).toContain("page 1 title");
     expect(text).not.toContain("Source");
     expect(text).not.toContain("Document Q&A");
     expect(text).not.toContain("raw text: unavailable");
