@@ -161,11 +161,176 @@ describe("quick check ui helpers", () => {
 
     expect(view.fileName).toBe("fresh-monitoring-report.pdf");
     expect(view.detectedDocumentType).toBe("Monitoring Report");
+    expect(view.detectedDocumentConfidence).toBeTruthy();
+    expect(view.detectedDocumentEvidence?.length).toBeGreaterThan(0);
+    expect(view.detectedDocumentEvidence?.length).toBeLessThanOrEqual(3);
     expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
-    expect(view.signals.map((signal) => signal.label)).toEqual(["Reporting period"]);
-    expect(view.signalSummary).toBe("Recovered text points to reporting period.");
+    expect(view.signalsTitle).toBe("What the file appears to contain");
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Monitoring Report", "Reporting period"]);
+    expect(view.signalSummary).toBe("This file looks like a monitoring report and mentions reporting period.");
+  });
+
+  it("compacts document evidence and trims noisy referenced methods", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "validation-report.pdf",
+      analysis: {
+        facts: [],
+        parsedEvidenceLabels: ["validation-report.pdf"],
+        documentTypes: ["Document"],
+        documentClassification: {
+          documentClass: "validation_report",
+          confidence: 0.99,
+          evidence: [
+            'page 1 title: "VALIDATION REPORT"',
+            'repeated header: "VALIDATION REPORT"',
+            'page 1 title: "VALIDATIONREPORT"',
+            'repeated header: "VALIDATIONREPORT"',
+            'page 1 header: "VALIDATION REPORT"',
+            'body: "validation opinion"',
+          ],
+          secondaryCandidates: [],
+          warnings: [],
+        },
+        methodologyMentions: ["VM0007", "VMD0001", "VMD0002", "VMD0010"],
+        extractionConfidence: 0.9,
+        warnings: [],
+        rawPddText: "VALIDATION REPORT",
+      },
+      extractionSnapshot: {
+        documentType: "Document",
+        extractedFacts: [],
+        methodologyMentions: ["VM0007"],
+        methodologyClassification: {
+          primaryMethodology: {
+            id: "VM0007",
+            version: "1.3",
+            role: "PRIMARY_PROJECT_METHODOLOGY",
+            confidence: "high",
+          },
+          monitoringMethodology: null,
+          referencedMethods: [
+            { id: "VMD0001", version: "1.3", role: "TOOL_OR_DEPENDENCY", confidence: "medium" },
+            { id: "VMD0002", version: "1.0", role: "TOOL_OR_DEPENDENCY", confidence: "medium" },
+            { id: "ACM0010", version: "3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
+            { id: "AM0015", version: "1.0", role: "REFERENCED_CALCULATION_METHOD", confidence: "medium" },
+          ],
+        },
+        warnings: [],
+        signals: {
+          parsedEvidenceCount: 1,
+          factCount: 0,
+          relevantFactCount: 0,
+          methodologyMentionCount: 1,
+          warningCount: 0,
+        },
+        extractionConfidence: 0.9,
+        recoveredLocally: false,
+      },
+      methodologyResolution: {
+        status: "single",
+        rawMentions: ["VM0007"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [
+          {
+            methodologyId: "VM0007",
+            methodologyVersion: "v1-3",
+            matchedSignals: ["VM0007"],
+            canonicalKeys: ["VM0007"],
+            priority: 5,
+          },
+        ],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: {
+          canonicalKey: "VM0007",
+          supported: true,
+          matchedMethod: {
+            methodologyId: "VM0007",
+            methodologyVersion: "v1-3",
+            matchedSignals: ["VM0007"],
+            canonicalKeys: ["VM0007"],
+            priority: 5,
+          },
+          secondaryCanonicalKeys: [],
+        },
+      },
+    });
+
+    expect(view.detectedDocumentEvidence).toEqual([
+      'Title and headers read “Validation Report”.',
+    ]);
+    expect(view.referencedMethods).toEqual([
+      { id: "ACM0010", version: "3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
+    ]);
+  });
+
+  it("uses recovered-signals language and suppresses generic fallback chips", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "monitoring-upload.pdf",
+      analysis: {
+        facts: [
+          {
+            id: "project-document",
+            category: "project-document",
+            summary: "The file appears to be a project document",
+            matchText: "project document",
+            sourceLabel: "monitoring-upload.pdf",
+          },
+          {
+            id: "reporting-period",
+            category: "reporting-period",
+            summary: "The PDF states a monitoring or reporting period",
+            matchText: "reporting period",
+            sourceLabel: "monitoring-upload.pdf",
+            detail: "Reporting period: 1 January 2017 to 31 December 2017.",
+          },
+          {
+            id: "monitoring-plan",
+            category: "monitoring-plan",
+            summary: "The project has a documented monitoring plan",
+            matchText: "monitoring plan",
+            sourceLabel: "monitoring-upload.pdf",
+          },
+          {
+            id: "mapped-area",
+            category: "mapped-area",
+            summary: "The file includes a mapped project area",
+            matchText: "mapped project area",
+            sourceLabel: "monitoring-upload.pdf",
+          },
+        ],
+        parsedEvidenceLabels: ["monitoring-upload.pdf"],
+        documentTypes: ["Document"],
+        documentClassification: {
+          documentClass: "monitoring_report",
+          confidence: 0.99,
+          evidence: ['page 1 title: "Monitoring Report"'],
+          secondaryCandidates: [],
+          warnings: [],
+        },
+        methodologyMentions: [],
+        extractionConfidence: 0.52,
+        warnings: [
+          "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
+        ],
+        rawPddText: "Monitoring Report. Reporting period and mapped project area are mentioned.",
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: [],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.signalsTitle).toBe("Recovered signals");
+    expect(view.signals.map((signal) => signal.label)).toEqual(["Monitoring Report", "Reporting period", "Mapped project area"]);
+    expect(view.signalSummary).toBe("Recovered signals suggest this is a monitoring report and mention reporting period and mapped project area.");
   });
 
   it("shows a warning and fallback labels when methodology is not confidently detected", () => {
@@ -199,7 +364,7 @@ describe("quick check ui helpers", () => {
       },
     });
 
-    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedDocumentType).toBe("Carbon Document (unclassified)");
     expect(view.detectedMethodology).toBe("Not confidently detected");
     expect(view.methodologyConfidence).toBe("unknown");
     expect(view.warning).toBe("Methodology was not confidently detected. Matches below may need review.");
@@ -303,16 +468,16 @@ describe("quick check ui helpers", () => {
       },
     });
 
-    expect(view.detectedDocumentType).toBe("Project Document");
+    expect(view.detectedDocumentType).toBe("Project Description / PD");
     expect(view.detectedMethodology).toBe("VM0004 · v1-0");
     expect(view.warning).toBe(
       "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
     );
+    expect(view.signalsTitle).toBe("Recovered signals");
     expect(view.signals.map((signal) => signal.label)).toEqual([
-      "Project document",
+      "Project Description / PD",
       "Baseline scenario",
       "Stakeholder consultation",
-      "Leakage",
     ]);
   });
 
@@ -343,7 +508,7 @@ describe("quick check ui helpers", () => {
     expect(view.signalSummary).toBe(
       "No strong document signals found yet. Open extraction details to inspect parsed text.",
     );
-    expect(view.detectedDocumentType).toBe("Unknown document type");
+    expect(view.detectedDocumentType).toBe("Carbon Document (unclassified)");
     expect(view.detectedMethodology).toBe("Not confidently detected");
   });
 

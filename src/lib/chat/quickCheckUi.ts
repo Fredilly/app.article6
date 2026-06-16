@@ -3,6 +3,11 @@ import type { QuickCheckMethodologyResolution } from "@/lib/chat/quickCheckMetho
 import { prioritizeMethodologyMentions } from "@/lib/chat/quickCheckMethodology";
 import { classifyMethodologyRoles } from "@/lib/chat/methodologyRoleClassifier";
 import type { QuickCheckExtractionSignals, QuickCheckExtractionSnapshot, QuickCheckResult, QuickCheckResultVerdict, QuickCheckSourceMode } from "@/lib/chat/quickCheck";
+import {
+  classifyQuickCheckDocument,
+  quickCheckDocumentClassLabel,
+  type QuickCheckDocumentClassification,
+} from "@/lib/documentClassification";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "recovered" | "needs-review" | "weak" | "partial";
@@ -51,12 +56,15 @@ export type ClassificationDisplayItem = {
 export type ExtractionPreviewViewModel = {
   fileName?: string;
   detectedDocumentType?: string;
+  detectedDocumentConfidence?: string;
+  detectedDocumentEvidence?: string[];
   detectedMethodology?: string;
   methodologyConfidence?: ExtractionPreviewConfidence;
   primaryMethodology?: ClassificationDisplayItem;
   monitoringMethodology?: ClassificationDisplayItem;
   referencedMethods?: ClassificationDisplayItem[];
   warning?: string;
+  signalsTitle?: string;
   signalSummary?: string;
   signals: Array<{
     label: string;
@@ -124,22 +132,149 @@ function confidenceBucket(value: number | null | undefined): ExtractionPreviewCo
   return "low";
 }
 
-function documentTypeLabel(input: { fileName?: string | null; rawText?: string | null; fallback?: string | null }): string {
-  const fallback = input.fallback?.trim() ?? "";
-  if (fallback === "Workbook" || fallback === "Image") return fallback;
+function normalizeClassifierEvidenceValue(value: string): string {
+  const compact = value.replace(/^"|"$/g, "").trim();
+  if (!compact) return "";
 
-  const haystack = `${input.fileName ?? ""}\n${input.rawText ?? ""}`.toLowerCase();
-  if (/\bproject design document\b|\bpdd\b/.test(haystack)) return "Project Design Document";
-  if (/\bproject document\b/.test(haystack)) return "Project Document";
-  if (/\bvalidation report\b/.test(haystack)) return "Validation Report";
-  if (/\bverification report\b/.test(haystack)) return "Verification Report";
-  if (/\bmonitoring report\b/.test(haystack)) return "Monitoring Report";
+  const normalized = compact
+    .replace(/[_-]+/g, " ")
+    .replace(/\bPROJECTDESCRIPTIONPDD\b/gi, "Project Description / PDD")
+    .replace(/\bPROJECTDESCRIPTION\b/gi, "Project Description")
+    .replace(/\bMONITORINGREPORT\b/gi, "Monitoring Report")
+    .replace(/\bVALIDATIONVERIFICATIONREPORT\b/gi, "Validation & Verification Report")
+    .replace(/\bVALIDATIONREPORT\b/gi, "Validation Report")
+    .replace(/\bVERIFICATIONREPORT\b/gi, "Verification Report")
+    .replace(/\bMETHODOLOGYDOCUMENT\b/gi, "Methodology Document")
+    .replace(/\bRISKREPORT\b/gi, "Risk Report")
+    .replace(/\bSUPPORTINGEVIDENCEFILE\b/gi, "Supporting Evidence File")
+    .replace(/\bREGISTRYORPUBLICRECORD\b/gi, "Registry / Public Record")
+    .replace(/\bNONCARBONDOCUMENT\b/gi, "Non-Carbon Document")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  if (fallback && fallback !== "PDD / PDF" && fallback !== "Document" && fallback !== "Unknown document") {
-    return fallback;
+  if (/^[A-Z0-9 /&.:-]+$/.test(normalized)) {
+    return normalized
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+      .replace(/\bPdd\b/g, "PDD");
   }
 
-  return "Unknown document type";
+  return normalized;
+}
+
+function evidenceValueKey(value: string): string {
+  return normalizeClassifierEvidenceValue(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+type ParsedClassifierEvidence = {
+  source: "page_1_title" | "repeated_header" | "page_1_header" | "filename" | "media_type" | "body" | "other";
+  value: string;
+};
+
+function parseClassifierEvidence(item: string): ParsedClassifierEvidence {
+  const trimmed = item.trim();
+  const mapping: Array<[ParsedClassifierEvidence["source"], RegExp]> = [
+    ["page_1_title", /^page 1 title:\s*/i],
+    ["repeated_header", /^repeated header:\s*/i],
+    ["page_1_header", /^page 1 header:\s*/i],
+    ["filename", /^filename:\s*/i],
+    ["media_type", /^media type:\s*/i],
+    ["body", /^body:\s*/i],
+  ];
+
+  for (const [source, pattern] of mapping) {
+    if (pattern.test(trimmed)) {
+      return {
+        source,
+        value: trimmed.replace(pattern, "").trim(),
+      };
+    }
+  }
+
+  return { source: "other", value: trimmed };
+}
+
+function compactDocumentEvidence(evidence: string[]): string[] {
+  const grouped = new Map<
+    string,
+    {
+      value: string;
+      sources: Set<ParsedClassifierEvidence["source"]>;
+    }
+  >();
+
+  for (const entry of evidence.map(parseClassifierEvidence)) {
+    const value = normalizeClassifierEvidenceValue(entry.value);
+    const key = evidenceValueKey(value);
+    if (!key) continue;
+    const existing = grouped.get(key) ?? { value, sources: new Set<ParsedClassifierEvidence["source"]>() };
+    existing.sources.add(entry.source);
+    grouped.set(key, existing);
+  }
+
+  const titleHeaderEvidence = [...grouped.values()]
+    .filter((entry) => entry.sources.has("page_1_title") || entry.sources.has("page_1_header") || entry.sources.has("repeated_header"))
+    .sort((left, right) => right.value.length - left.value.length || left.value.localeCompare(right.value));
+
+  const compact: string[] = [];
+  const titleHeader = titleHeaderEvidence[0];
+  if (titleHeader) {
+    const hasTitle = titleHeader.sources.has("page_1_title");
+    const hasHeader = titleHeader.sources.has("page_1_header") || titleHeader.sources.has("repeated_header");
+    if (hasTitle && hasHeader) {
+      compact.push(`Title and headers read “${titleHeader.value}”.`);
+    } else if (hasTitle) {
+      compact.push(`Title reads “${titleHeader.value}”.`);
+    } else {
+      compact.push(`Header reads “${titleHeader.value}”.`);
+    }
+  }
+
+  const filenameEvidence = [...grouped.values()].find((entry) => entry.sources.has("filename"));
+  if (!titleHeader && filenameEvidence) {
+    compact.push(`Filename includes “${filenameEvidence.value}”.`);
+  }
+
+  if (!titleHeader || compact.length === 0) {
+    const bodyEvidence = [...grouped.values()].find((entry) => entry.sources.has("body"));
+    if (bodyEvidence) {
+      compact.push(`Body mentions “${bodyEvidence.value}”.`);
+    }
+  }
+
+  const mediaTypeEvidence = [...grouped.values()].find((entry) => entry.sources.has("media_type"));
+  if (compact.length === 0 && mediaTypeEvidence) {
+    compact.push(`Detected media type: ${mediaTypeEvidence.value}.`);
+  }
+
+  return compact.slice(0, 2);
+}
+
+function compactReferencedMethods(referencedMethods: ClassificationDisplayItem[] | undefined): ClassificationDisplayItem[] | undefined {
+  if (!referencedMethods?.length) return undefined;
+  const filtered = referencedMethods
+    .filter((method) => method.role !== "TOOL_OR_DEPENDENCY" && method.role !== "BACKGROUND_MENTION")
+    .filter((method, index, collection) => collection.findIndex((candidate) => candidate.id === method.id && candidate.version === method.version) === index)
+    .sort((left, right) => {
+      const confidenceRank = (value: string) => (value === "high" ? 0 : value === "medium" ? 1 : 2);
+      return confidenceRank(left.confidence) - confidenceRank(right.confidence) || left.id.localeCompare(right.id);
+    })
+    .slice(0, 1);
+  return filtered.length > 0 ? filtered : undefined;
+}
+
+function formatConfidencePercent(value: number | undefined): string | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
+  return `${Math.round(value * 100)}%`;
+}
+
+function documentTypeLabel(input: { classification: QuickCheckDocumentClassification; fallback?: string | null }): string {
+  const fallback = input.fallback?.trim() ?? "";
+  if (fallback === "Workbook" || fallback === "Image") return fallback;
+  return quickCheckDocumentClassLabel(input.classification.documentClass);
 }
 
 function signalLabel(category: QuickCheckEvidenceFact["category"]): string {
@@ -265,12 +400,84 @@ function signalLabelFromFact(fact: QuickCheckEvidenceFact): string | null {
   return fallback === "Document signal" ? null : fallback;
 }
 
-function buildSignalSummary(signals: ExtractionPreviewViewModel["signals"]): string | undefined {
-  if (!signals.length) return undefined;
-  const labels = signals.map((signal) => signal.label);
-  if (labels.length === 1) return `Recovered text points to ${labels[0].toLowerCase()}.`;
-  if (labels.length === 2) return `Recovered text points to ${labels[0].toLowerCase()} and ${labels[1].toLowerCase()}.`;
-  return `Recovered text points to ${labels.slice(0, -1).join(", ").toLowerCase()}, and ${labels[labels.length - 1].toLowerCase()}.`;
+function joinHumanList(values: string[]): string {
+  if (values.length === 0) return "";
+  if (values.length === 1) return values[0];
+  if (values.length === 2) return `${values[0]} and ${values[1]}`;
+  return `${values.slice(0, -1).join(", ")}, and ${values[values.length - 1]}`;
+}
+
+function buildSignalSummary(input: {
+  signals: ExtractionPreviewViewModel["signals"];
+  detectedDocumentType?: string;
+  recoveredLocally: boolean;
+}): string | undefined {
+  const effectiveDetectedType =
+    input.detectedDocumentType === "Carbon Document (unclassified)" || input.detectedDocumentType === "Non-Carbon Document"
+      ? undefined
+      : input.detectedDocumentType;
+  const supportingLabels = input.signals
+    .map((signal) => signal.label)
+    .filter((label) => label !== effectiveDetectedType);
+
+  if (effectiveDetectedType && supportingLabels.length > 0) {
+    return input.recoveredLocally
+      ? `Recovered signals suggest this is a ${effectiveDetectedType.toLowerCase()} and mention ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`
+      : `This file looks like a ${effectiveDetectedType.toLowerCase()} and mentions ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`;
+  }
+  if (effectiveDetectedType) {
+    return input.recoveredLocally
+      ? `Recovered signals suggest this is a ${effectiveDetectedType.toLowerCase()}.`
+      : `This file looks like a ${effectiveDetectedType.toLowerCase()}.`;
+  }
+  if (!supportingLabels.length) return undefined;
+  return input.recoveredLocally
+    ? `Recovered signals mention ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`
+    : `This file mentions ${joinHumanList(supportingLabels.map((label) => label.toLowerCase()))}.`;
+}
+
+function shouldSurfaceSignalLabel(label: string, detectedDocumentType?: string): boolean {
+  if (!label) return false;
+  if (label === detectedDocumentType) return false;
+  return label !== "Project document" && label !== "Monitoring plan" && label !== "Validation evidence";
+}
+
+function buildPreviewSignals(input: {
+  analysis: QuickCheckEvidenceAnalysis;
+  detectedDocumentType?: string;
+  documentClassification: QuickCheckDocumentClassification;
+}): ExtractionPreviewViewModel["signals"] {
+  const signals: ExtractionPreviewViewModel["signals"] = [];
+  if (
+    input.detectedDocumentType &&
+    input.documentClassification.documentClass !== "unknown_carbon_document" &&
+    input.documentClassification.documentClass !== "non_carbon_document"
+  ) {
+    signals.push({
+      label: input.detectedDocumentType,
+      confidence: confidenceBucket(input.documentClassification.confidence),
+    });
+  }
+
+  const seenSignalLabels = new Set(signals.map((signal) => signal.label));
+  for (const fact of [...input.analysis.facts].sort(
+    (left, right) =>
+      previewPriority(left) - previewPriority(right) ||
+      Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
+      left.summary.localeCompare(right.summary),
+  )) {
+    const label = signalLabelFromFact(fact);
+    if (!label || seenSignalLabels.has(label) || !shouldSurfaceSignalLabel(label, input.detectedDocumentType)) continue;
+    seenSignalLabels.add(label);
+    signals.push({
+      label,
+      summary: formatFactPreview(fact, { useDetail: true }),
+      confidence: confidenceBucket(input.analysis.extractionConfidence),
+    });
+    if (signals.length >= 3) break;
+  }
+
+  return signals;
 }
 
 function normalizeDetectedVersion(rawVersion: string): string {
@@ -304,26 +511,21 @@ export function buildExtractionPreviewViewModel(input: {
   methodologyResolution?: QuickCheckMethodologyResolution | null;
   extractionSnapshot?: QuickCheckExtractionSnapshot | null;
 }): ExtractionPreviewViewModel {
-  const seenSignalLabels = new Set<string>();
-  const signals = [...input.analysis.facts]
-    .sort(
-      (left, right) =>
-        previewPriority(left) - previewPriority(right) ||
-        Number(Boolean(right.detail)) - Number(Boolean(left.detail)) ||
-        left.summary.localeCompare(right.summary),
-    )
-    .map((fact) => {
-      const label = signalLabelFromFact(fact);
-      if (!label || seenSignalLabels.has(label)) return null;
-      seenSignalLabels.add(label);
-      return {
-        label,
-        summary: formatFactPreview(fact, { useDetail: true }),
-        confidence: confidenceBucket(input.analysis.extractionConfidence),
-      };
-    })
-    .filter(Boolean)
-    .slice(0, 4) as ExtractionPreviewViewModel["signals"];
+  const documentClassification = input.analysis.documentClassification ?? classifyQuickCheckDocument({
+    fileName: input.fileName,
+    rawText: input.analysis.rawPddText,
+  });
+  const detectedType = documentTypeLabel({
+    classification: documentClassification,
+    fallback: input.analysis.documentTypes[0],
+  });
+  const fallbackWarning = input.analysis.warnings.find((warning) => /recovered document signals locally/i.test(warning));
+  const recoveredLocally = Boolean(fallbackWarning);
+  const signals = buildPreviewSignals({
+    analysis: input.analysis,
+    detectedDocumentType: detectedType,
+    documentClassification,
+  });
 
   const recoveredMethodology = detectMethodologyFromRecoveredText(input.analysis.rawPddText, input.analysis.methodologyMentions);
   let detectedMethodology = recoveredMethodology?.label ?? "Not confidently detected";
@@ -339,7 +541,6 @@ export function buildExtractionPreviewViewModel(input: {
     methodologyConfidence = "low";
   }
 
-  const fallbackWarning = input.analysis.warnings.find((warning) => /recovered document signals locally/i.test(warning));
   const warning =
     fallbackWarning ??
     (detectedMethodology !== "Not confidently detected" ||
@@ -375,19 +576,18 @@ export function buildExtractionPreviewViewModel(input: {
 
   return {
     fileName: input.fileName?.trim() || undefined,
-    detectedDocumentType: documentTypeLabel({
-      fileName: input.fileName,
-      rawText: input.analysis.rawPddText,
-      fallback: input.analysis.documentTypes[0],
-    }),
+    detectedDocumentType: detectedType,
+    detectedDocumentConfidence: formatConfidencePercent(documentClassification.confidence),
+    detectedDocumentEvidence: compactDocumentEvidence(documentClassification.evidence),
     detectedMethodology,
     methodologyConfidence,
     primaryMethodology,
     monitoringMethodology,
-    referencedMethods,
+    referencedMethods: compactReferencedMethods(referencedMethods),
     warning,
+    signalsTitle: recoveredLocally ? "Recovered signals" : "What the file appears to contain",
     signalSummary:
-      buildSignalSummary(signals) ??
+      buildSignalSummary({ signals, detectedDocumentType: detectedType, recoveredLocally }) ??
       (input.analysis.parsedEvidenceLabels.length > 0
         ? "No strong document signals found yet. Open extraction details to inspect parsed text."
         : undefined),

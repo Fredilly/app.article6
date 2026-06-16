@@ -255,7 +255,9 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toContain("What the file appears to contain");
     expect(text).toContain("File summary");
     expect(text).toContain("View extraction details");
+    expect(text).toContain("Monitoring Report");
     expect(text).toContain("Confidence");
+    expect(text).toContain("Title and headers read");
     expect(text).not.toContain("Source");
     expect(text).not.toContain("Document Q&A");
     expect(text).not.toContain("raw text: unavailable");
@@ -281,9 +283,9 @@ describe("QuickCheckPanel upload regression", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Extraction preview");
     expect(text).toContain(RECOVERED_WARNING);
-    expect(text).toContain("Project Document");
+    expect(text).toContain("Recovered signals");
+    expect(text).toContain("Project Description / PD");
     expect(text).toContain("VM0004 · 1.0");
-    expect(text).toContain("Project document");
     expect(text).toContain("Project boundary");
     expect(text).not.toContain("Extraction preview is unavailable right now");
   });

@@ -2,6 +2,10 @@ import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { unzlibSync } from "fflate";
 import { getAttachmentBytes } from "@/lib/proofMap/attachments";
 import type { EvidenceAttachment, PddFragment, WorkbookEvidenceAsset, WorkbookRecordGroup } from "@/lib/proofMap/types";
+import {
+  classifyQuickCheckDocument,
+  type QuickCheckDocumentClassification,
+} from "@/lib/documentClassification";
 
 export type QuickCheckEvidenceFactCategory =
   | "project-document"
@@ -39,6 +43,7 @@ export type QuickCheckEvidenceAnalysis = {
   facts: QuickCheckEvidenceFact[];
   parsedEvidenceLabels: string[];
   documentTypes: string[];
+  documentClassification?: QuickCheckDocumentClassification;
   methodologyMentions: string[];
   extractionConfidence: number;
   warnings: string[];
@@ -1030,10 +1035,13 @@ export async function analyzeQuickCheckEvidence(
   const methodologyMentions = new Set<string>();
   const warningSet = new Set<string>();
   const rawPddTextParts: string[] = [];
+  const sourceFileNames = new Set<string>();
+  const sourceMimes = new Set<string>();
   const resolveAttachmentBytes = options?.resolveAttachmentBytes ?? getAttachmentBytes;
   const resolvePdfText = options?.resolvePdfText;
 
   for (const source of sources) {
+    if (source.sourceLabel.trim()) sourceFileNames.add(source.sourceLabel.trim());
     documentTypes.add(classifyDocumentType(source));
     if (source.pddFragments?.length) {
       parsedEvidenceLabels.add(source.sourceLabel);
@@ -1059,6 +1067,8 @@ export async function analyzeQuickCheckEvidence(
     }
 
     for (const attachment of source.attachments) {
+      if (attachment.filename.trim()) sourceFileNames.add(attachment.filename.trim());
+      if (attachment.mime.trim()) sourceMimes.add(attachment.mime.trim());
       if (attachment.mime !== "application/pdf") continue;
       const bytes = await resolveAttachmentBytes(attachment.id).catch(() => null);
       if (!bytes) continue;
@@ -1110,11 +1120,17 @@ export async function analyzeQuickCheckEvidence(
       : !facts.size
       ? 0.28
       : Math.min(0.92, 0.42 + Math.min(facts.size, 4) * 0.11 + (methodologyMentions.size ? 0.06 : 0));
+  const documentClassification = classifyQuickCheckDocument({
+    fileName: Array.from(sourceFileNames)[0] ?? "",
+    mime: Array.from(sourceMimes)[0] ?? "",
+    rawText: rawPddTextParts.length > 0 ? rawPddTextParts.join("\n\n") : "",
+  });
 
   return {
     facts: Array.from(facts.values()),
     parsedEvidenceLabels: Array.from(parsedEvidenceLabels).sort((a, b) => a.localeCompare(b)),
     documentTypes: Array.from(documentTypes).sort((a, b) => a.localeCompare(b)),
+    documentClassification,
     methodologyMentions: Array.from(methodologyMentions).sort((a, b) => a.localeCompare(b)),
     extractionConfidence,
     warnings,
