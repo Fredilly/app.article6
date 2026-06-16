@@ -41,7 +41,7 @@ type ScoreEntry = {
 type WeightedPattern = {
   pattern: RegExp;
   weight: number;
-  source: "filename" | "header" | "repeated_header" | "toc" | "table" | "body" | "mime";
+  source: "filename" | "title_block" | "header" | "repeated_header" | "toc" | "table" | "body" | "mime";
 };
 
 const DOCUMENT_CLASS_ORDER: QuickCheckDocumentClass[] = [
@@ -79,6 +79,8 @@ function labelForSource(source: WeightedPattern["source"]): string {
   switch (source) {
     case "filename":
       return "filename";
+    case "title_block":
+      return "page 1 title";
     case "header":
       return "page 1 header";
     case "repeated_header":
@@ -134,6 +136,57 @@ function buildRepeatedHeaders(lines: string[]): string[] {
     .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
     .slice(0, 5)
     .map(([line]) => line);
+}
+
+function isPageNumberOrVersionLine(line: string): boolean {
+  return /^v?\d+(\.\d+)?$/i.test(line)
+    || /^page\s+\d+$/i.test(line)
+    || /^\d+$/.test(line)
+    || /^\d+\s+of\s+\d+$/i.test(line);
+}
+
+function isMetadataNoiseLine(line: string): boolean {
+  const lower = line.toLowerCase();
+  if (isPageNumberOrVersionLine(line)) return true;
+  if (line.length <= 2) return true;
+  return /\b(phone|fax|email|contact|address|website|www\.|prepared by|approved by|work carried out by|client|pages|date of issue|report id|version)\b/.test(lower);
+}
+
+function looksLikeTitleSignal(line: string): boolean {
+  const lower = line.toLowerCase();
+  if (/\b(project description|project design document|project document|validation report|verification report|monitoring report|methodology|risk report)\b/.test(lower)) {
+    return true;
+  }
+  const alphaChars = line.replace(/[^A-Za-z]/g, "");
+  if (alphaChars.length < 6) return false;
+  const uppercaseChars = line.replace(/[^A-Z]/g, "").length;
+  return uppercaseChars / alphaChars.length >= 0.72;
+}
+
+function buildTitleBlock(lines: string[], repeatedHeaders: string[]): string[] {
+  const repeated = new Set(repeatedHeaders.map((line) => line.toLowerCase()));
+  const titleLines: string[] = [];
+  let sawStrongTitle = false;
+
+  for (const line of lines.slice(0, 24)) {
+    const lower = line.toLowerCase();
+    if (repeated.has(lower)) continue;
+    if (isMetadataNoiseLine(line) && !sawStrongTitle) continue;
+    if (isMetadataNoiseLine(line) && titleLines.length >= 2) break;
+    if (!looksLikeTitleSignal(line) && !sawStrongTitle && titleLines.length === 0) continue;
+
+    if (looksLikeTitleSignal(line)) sawStrongTitle = true;
+    titleLines.push(line);
+
+    if (titleLines.length >= 5) break;
+  }
+
+  if (titleLines.length > 0) return titleLines;
+
+  return lines
+    .slice(0, 8)
+    .filter((line) => !repeated.has(line.toLowerCase()) && !isMetadataNoiseLine(line))
+    .slice(0, 3);
 }
 
 function isTableLikeLine(line: string): boolean {
@@ -420,8 +473,10 @@ export function classifyQuickCheckDocument(input: QuickCheckDocumentClassifierIn
   const rawText = input.rawText ?? "";
   const lines = compactLines(rawText);
   const headerLines = lines.slice(0, TOP_LINE_COUNT);
-  const headerText = headerLines.join("\n");
   const repeatedHeaders = buildRepeatedHeaders(lines);
+  const titleBlockLines = buildTitleBlock(headerLines, repeatedHeaders);
+  const titleBlockText = titleBlockLines.join("\n");
+  const headerText = headerLines.join("\n");
   const tocLines = buildTocLines(lines);
   const topTables = buildTopTables(lines);
   const bodyText = lines.join("\n");
@@ -437,6 +492,16 @@ export function classifyQuickCheckDocument(input: QuickCheckDocumentClassifierIn
 
   for (const ruleSet of FILENAME_RULES) {
     applyPatterns(scores, ruleSet.documentClass, fileName, ruleSet.patterns);
+  }
+  if (titleBlockText) {
+    for (const ruleSet of HEADER_RULES) {
+      const titlePatterns = ruleSet.patterns.map((rule) => ({
+        ...rule,
+        weight: rule.weight * 1.35,
+        source: "title_block" as const,
+      }));
+      applyPatterns(scores, ruleSet.documentClass, titleBlockText, titlePatterns);
+    }
   }
   for (const ruleSet of HEADER_RULES) {
     applyPatterns(scores, ruleSet.documentClass, headerText, ruleSet.patterns);
