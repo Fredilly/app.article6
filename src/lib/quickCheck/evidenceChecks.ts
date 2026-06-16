@@ -73,6 +73,50 @@ type CheckCandidate = {
   rank: number;
 };
 
+export function formatEvidenceCheckUiText(input: {
+  label: string;
+  status: EvidenceCheckStatus;
+  answerText: string;
+  downgradeReason: string;
+}): { answerText: string; downgradeReason: string } {
+  const topic = input.label.trim().toLowerCase();
+  const fallbackUnclear = `Quick Check found a possible mention of ${topic}, but it was not specific enough to confirm.`;
+
+  if (input.status === "missing") {
+    return {
+      answerText: `Quick Check did not find a clear ${topic} in the uploaded document.`,
+      downgradeReason: "",
+    };
+  }
+
+  if (input.status !== "unclear") {
+    return {
+      answerText: input.answerText,
+      downgradeReason: input.downgradeReason,
+    };
+  }
+
+  let downgradeReason = input.downgradeReason.trim();
+  if (/Too few words/i.test(downgradeReason)) {
+    downgradeReason = "The mention was too short to rely on.";
+  } else if (/Heading-only echo/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a heading, but not enough body text to confirm it.";
+  } else if (/No page, section, or evidence span provenance/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a possible mention, but it did not preserve enough source context to confirm it.";
+  } else if (/Evidence from a forbidden section/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a possible mention, but it came from a section that does not answer this topic directly.";
+  } else if (/Too many words for a country name|Contains punctuation|Contains standard\/methodology text/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a possible mention, but it did not read like a specific country value.";
+  } else if (/Best candidate rejected:/i.test(downgradeReason)) {
+    downgradeReason = fallbackUnclear;
+  }
+
+  return {
+    answerText: input.answerText?.trim() || fallbackUnclear,
+    downgradeReason,
+  };
+}
+
 function normalizeAnchor(t: string): string { return t.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim(); }
 function anchorMatches(path: string[], terms: string[]): boolean { const lower = path.join(" > ").toLowerCase(); return terms.some((t) => lower.includes(normalizeAnchor(t))); }
 function anchorForbidden(path: string[], terms: string[]): boolean { return terms.length > 0 && anchorMatches(path, terms); }
@@ -179,7 +223,7 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
 export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidationContext): { status: EvidenceCheckStatus; answerText: string; downgradeReason: string } {
   const candidates = gatherCandidates(contract, ctx);
   if (candidates.length === 0) {
-    return { status: "missing", answerText: "", downgradeReason: `No candidates found. Allowed anchors: ${contract.allowedAnchorTerms.join(", ") || "any"}.` };
+    return { status: "missing", answerText: "", downgradeReason: "" };
   }
   for (const candidate of candidates) {
     const validation = validateCandidate(contract, candidate);
@@ -189,7 +233,7 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
     }
   }
   const bestFailed = validateCandidate(contract, candidates[0]);
-  return { status: "unclear", answerText: candidates[0].text, downgradeReason: `Best candidate rejected: ${bestFailed.reason}. ${candidates.length} candidate(s) found.` };
+  return { status: "unclear", answerText: candidates[0].text, downgradeReason: bestFailed.reason };
 }
 
 // ── Contracts ──────────────────────────────────────────────────────────────
