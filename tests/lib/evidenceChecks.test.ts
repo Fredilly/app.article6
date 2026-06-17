@@ -37,6 +37,7 @@ function runCheck(input: {
     sectionTableIndex: structuredQueryContext.sectionTableIndex,
     routerResult: questionResult.routerResult,
     queryIntentAnalysis: questionResult.queryIntentAnalysis,
+    rawText: input.rawText,
   });
 
   return formatEvidenceCheckUiText({
@@ -252,5 +253,49 @@ describe("authoritative evidence check selectors", () => {
     });
 
     expect(result.answerText).toBe("Indonesia");
+  });
+
+  it("finds methodology from alternate methodology headings in PLUM", () => {
+    const result = runCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: PLUM_A_DOC_TEXT,
+    });
+
+    expect(result.answerText).toContain("VM0007");
+    expect(result.answerText).toContain("Methodology Framework");
+  });
+
+  it("finds baseline scenario from combined baseline/additionality content in PLUM", () => {
+    const result = runCheck({
+      checkId: "baseline_scenario",
+      claimText: "What is the baseline scenario?",
+      rawText: PLUM_A_DOC_TEXT,
+    });
+
+    expect(result.answerText.toLowerCase()).toContain("oil palm plantation");
+    expect(result.answerText).not.toMatch(/^Quick Check did not find/i);
+  });
+
+  it("finds additionality evidence from PLUM even when it is embedded in methodology content", () => {
+    const result = runCheck({
+      checkId: "additionality",
+      claimText: "What does the document say about additionality?",
+      rawText: PLUM_A_DOC_TEXT,
+    });
+
+    expect(result.answerText).toContain("VT0001");
+    expect(result.answerText).not.toMatch(/^Quick Check did not find/i);
+  });
+
+  it("finds stakeholder consultation evidence from stakeholder engagement or dissemination text in PLUM", () => {
+    const result = runCheck({
+      checkId: "stakeholder_consultation",
+      claimText: "What does the document say about stakeholder consultation?",
+      rawText: PLUM_A_DOC_TEXT,
+    });
+
+    expect(result.answerText.toLowerCase()).toMatch(/stakeholders|village meetings/);
+    expect(result.answerText).not.toMatch(/^Quick Check did not find/i);
   });
 });

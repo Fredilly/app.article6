@@ -768,10 +768,19 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
     "baseline",
     "without-project land use scenario",
     "without project land use scenario",
+    "without-project land use scenario and additionality",
+    "without project land use scenario and additionality",
+    "without-project scenario",
+    "without project scenario",
   ]);
   const monitoringSections = sectionsFact(document, "monitoring", ["monitoring plan", "monitoring"]);
-  const leakageSections = sectionsFact(document, "leakage", ["leakage"]);
-  const additionalitySections = sectionsFact(document, "additionality", ["additionality", "project is additional"]);
+  const leakageSections = sectionsFact(document, "leakage", ["leakage", "leakage monitoring"]);
+  const additionalitySections = sectionsFact(document, "additionality", [
+    "additionality",
+    "project is additional",
+    "without-project land use scenario and additionality",
+    "without project land use scenario and additionality",
+  ]);
 
   const fields = [
     title,

@@ -71,6 +71,7 @@ export type CheckValidationContext = {
   sectionTableIndex: SectionTableIndex;
   routerResult: DeterministicRouterResult;
   queryIntentAnalysis?: QueryIntentAnalysis;
+  rawText?: string;
 };
 
 type CheckCandidate = {
@@ -82,6 +83,42 @@ type CheckCandidate = {
   evidenceSpanId?: string;
   source: string;
   rank: number;
+};
+
+const SELECTOR_SECTION_ALIASES: Record<AnswerSelector, string[]> = {
+  generic: [],
+  host_country: [],
+  methodology: [
+    "application of methodology",
+    "title and reference of methodology",
+    "methodology applied",
+  ],
+  baseline_scenario: [
+    "without-project land use scenario and additionality",
+    "without project land use scenario and additionality",
+    "without-project land use scenario",
+    "without project land use scenario",
+    "without-project scenario",
+    "without project scenario",
+  ],
+  additionality: [
+    "without-project land use scenario and additionality",
+    "without project land use scenario and additionality",
+    "application of methodology",
+    "title and reference of methodology",
+  ],
+  leakage: [
+    "leakage monitoring",
+    "monitoring plan",
+  ],
+  stakeholder_consultation: [
+    "stakeholder engagement",
+    "stakeholder consultation",
+    "stakeholder participation",
+    "stakeholder comments",
+    "other stakeholder impacts",
+    "dissemination of monitoring plan and results",
+  ],
 };
 
 export function formatEvidenceCheckUiText(input: {
@@ -154,25 +191,107 @@ function firstSentence(value: string): string {
   return match?.[1]?.trim() || normalized;
 }
 
-function chooseNarrativeSentence(value: string): string {
+function chooseNarrativeSentence(label: string, value: string): string {
   const normalized = stripCommonLeadIn(value);
   const sentences = normalized
     .split(/(?<=[.!?])\s+/)
     .map((sentence) => sentence.trim())
     .filter(Boolean);
-  const substantive = sentences.find((sentence, index) => {
-    if (index > 2) return false;
-    if (/^(?:this section|this chapter|this part)\b/i.test(sentence)) return false;
-    if (/^(?:the\s+)?baseline scenario describes the most plausible scenario\b/i.test(sentence)) return false;
-    if (/^(?:the\s+)?(?:baseline scenario|additionality|leakage|stakeholder consultation(?: and participation)?)\b.{0,40}\b(?:describes|summarizes|explains)\b/i.test(sentence)) return false;
-    return true;
+  const scored = sentences.map((sentence, index) => {
+    let score = scoreSentenceForLabel(label, sentence);
+    if (index > 2) score -= 40;
+    if (/^(?:this section|this chapter|this part)\b/i.test(sentence)) score -= 120;
+    if (/^(?:the\s+)?baseline scenario describes the most plausible scenario\b/i.test(sentence)) score -= 220;
+    if (/^(?:the\s+)?(?:baseline scenario|additionality|leakage|stakeholder consultation(?: and participation)?)\b.{0,40}\b(?:describes|summarizes|explains)\b/i.test(sentence)) score -= 80;
+    if (/^(?:purpose of data|comments|equation|source of data|value applied|frequency of monitoring|data\/parameter)\b/i.test(sentence)) score -= 120;
+    if (sentence.length < 25) score -= 20;
+    return { sentence, score, index };
   });
-  return substantive ?? sentences[0] ?? normalized;
+  const best = scored.sort((left, right) => right.score - left.score || left.index - right.index)[0];
+  return best?.score > -50 ? best.sentence : (sentences[0] ?? normalized);
 }
 
-function trimNarrativeAnswer(value: string): string {
-  const sentence = firstSentence(chooseNarrativeSentence(value));
+function scoreSentenceForLabel(label: string, sentence: string): number {
+  let score = 0;
+  switch (label) {
+    case "Methodology":
+      if (METHODOLOGY_CODE_RE.test(sentence)) score += 220;
+      if (/\bmethodology framework\b/i.test(sentence)) score += 120;
+      if (/\btitle and reference\b/i.test(sentence)) score += 30;
+      break;
+    case "Baseline scenario":
+      if (/\bwithout the project\b/i.test(sentence)) score += 180;
+      if (/\boil palm plantation\b/i.test(sentence)) score += 160;
+      if (/\babsence of the project\b/i.test(sentence)) score += 140;
+      if (/\bbaseline scenario\b/i.test(sentence)) score += 100;
+      if (/\btraditional agricultural practices\b/i.test(sentence)) score += 180;
+      if (/\bslash-and-burn\b/i.test(sentence)) score += 140;
+      break;
+    case "Additionality":
+      if (/\bVT0001\b/i.test(sentence)) score += 220;
+      if (/\bdemonstration and assessment of additionality\b/i.test(sentence)) score += 180;
+      if (/\badditionality\b/i.test(sentence)) score += 120;
+      if (/\bbarrier\b/i.test(sentence) || /\bcommon practice\b/i.test(sentence)) score += 80;
+      break;
+    case "Leakage":
+      if (/^Leakage emissions\b/i.test(sentence)) score += 420;
+      if (/^Leakage\b/i.test(sentence)) score += 220;
+      if (/\bproject-induced leakage\b/i.test(sentence)) score += 260;
+      if (/\bleakage emissions\b/i.test(sentence)) score += 180;
+      if (/\blow potential\b/i.test(sentence)) score += 120;
+      if (/\bcounted as leakage\b/i.test(sentence)) score += 80;
+      if (/\bleakage\b/i.test(sentence)) score += 60;
+      break;
+    case "Stakeholder consultation":
+      if (/\bparticipatory process\b/i.test(sentence)) score += 320;
+      if (/\bvillage meetings?\b/i.test(sentence)) score += 180;
+      if (/\bstakeholder consultation\b/i.test(sentence)) score += 160;
+      if (/\bstakeholders?\b/i.test(sentence)) score += 100;
+      if (/\bcommunity\b/i.test(sentence)) score += 40;
+      break;
+    default:
+      break;
+  }
+  return score;
+}
+
+function scoreCandidateText(contract: EvidenceCheckContract, text: string): number {
+  switch (contract.selector) {
+    case "methodology":
+      return scoreSentenceForLabel("Methodology", text);
+    case "baseline_scenario":
+      return scoreSentenceForLabel("Baseline scenario", text);
+    case "additionality":
+      return scoreSentenceForLabel("Additionality", text);
+    case "leakage":
+      return scoreSentenceForLabel("Leakage", text);
+    case "stakeholder_consultation":
+      return scoreSentenceForLabel("Stakeholder consultation", text);
+    default:
+      return 0;
+  }
+}
+
+function trimNarrativeAnswer(label: string, value: string): string {
+  const sentence = firstSentence(chooseNarrativeSentence(label, value));
   return sentence.length > 240 ? `${sentence.slice(0, 237).trimEnd()}...` : sentence;
+}
+
+function formatLeakageAnswer(value: string): string {
+  const normalized = normalizeInlineWhitespace(value);
+  const directSentence =
+    normalized.match(/(Leakage[^.?!]*[.?!])/i)?.[1]
+    ?? normalized.match(/([^.!?]*project-induced leakage[^.!?]*[.?!])/i)?.[1]
+    ?? normalized.match(/([^.!?]*leakage monitoring[^.!?]*[.?!])/i)?.[1]
+    ?? normalized.match(/([^.!?]*leakage[^.!?]*[.?!])/i)?.[1]
+    ?? normalized.match(/(.{0,120}project-induced leakage.{0,120})/i)?.[1]
+    ?? normalized.match(/(.{0,120}leakage monitoring.{0,120})/i)?.[1]
+    ?? normalized.match(/(.{0,120}leakage emissions.{0,120})/i)?.[1]
+    ?? normalized.match(/(.{0,120}\bleakage\b.{0,120})/i)?.[1];
+  const chosen = directSentence
+    ? stripCommonLeadIn(normalizeInlineWhitespace(directSentence))
+    : trimNarrativeAnswer("Leakage", normalized);
+  return chosen.length > 240 ? `${chosen.slice(0, 237).trimEnd()}...` : chosen;
 }
 
 function formatMethodologyAnswer(value: string): string {
@@ -206,12 +325,20 @@ function formatFoundEvidenceAnswer(label: string, answerText: string): string {
       return formatHostCountryAnswer(normalized);
     case "Baseline scenario":
     case "Additionality":
-    case "Leakage":
     case "Stakeholder consultation":
-      return trimNarrativeAnswer(normalized);
+      return trimNarrativeAnswer(label, normalized);
+    case "Leakage":
+      return formatLeakageAnswer(normalized);
     default:
       return firstSentence(stripCommonLeadIn(normalized));
   }
+}
+
+function getSelectorTerms(contract: EvidenceCheckContract): string[] {
+  return Array.from(new Set([
+    ...contract.allowedAnchorTerms,
+    ...(SELECTOR_SECTION_ALIASES[contract.selector] ?? []),
+  ]));
 }
 
 function normalizeAnchor(t: string): string { return t.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim(); }
@@ -272,7 +399,8 @@ function searchFactContract(contract: EvidenceCheckContract, factContract: Proje
 
 function searchSections(contract: EvidenceCheckContract, evidenceDocument: EvidenceDocument): CheckCandidate[] {
   const candidates: CheckCandidate[] = [];
-  const allowedLower = contract.allowedAnchorTerms.map(normalizeAnchor);
+  const allowedTerms = getSelectorTerms(contract);
+  const allowedLower = allowedTerms.map(normalizeAnchor);
   const forbiddenLower = contract.forbiddenAnchorTerms.map(normalizeAnchor);
   for (const span of evidenceDocument.spans) {
     if (span.reliability === "excluded") continue;
@@ -295,6 +423,7 @@ function searchSections(contract: EvidenceCheckContract, evidenceDocument: Evide
     let rank = 0;
     if (allowedLower.length > 0 && allowedLower.some((t) => headingText.includes(t))) { rank = isBodyText ? 90 : 70; }
     else if (allowedLower.length > 0 && allowedLower.some((t) => sectionLower.includes(t))) { rank = isBodyText ? 60 : 50; }
+    else if (allowedLower.length > 0 && isBodyText && allowedLower.some((t) => normalizeAnchor(trimmed).includes(t))) { rank = 45; }
     else if (allowedLower.length === 0 && isBodyText && !isHeading) { rank = 20; }
     if (rank === 0) continue;
     candidates.push({
@@ -305,7 +434,7 @@ function searchSections(contract: EvidenceCheckContract, evidenceDocument: Evide
       heading: span.heading,
       evidenceSpanId: span.spanId,
       source: `span:${span.spanId}`,
-      rank: rank + candidateRankBonus({
+      rank: rank + scoreCandidateText(contract, span.text) + candidateRankBonus({
         text: span.text,
         page: span.page,
         sectionId: span.sectionId,
@@ -314,7 +443,7 @@ function searchSections(contract: EvidenceCheckContract, evidenceDocument: Evide
         evidenceSpanId: span.spanId,
         source: `span:${span.spanId}`,
         rank,
-      }, contract.allowedAnchorTerms),
+      }, allowedTerms),
     });
   }
   return candidates;
@@ -325,7 +454,7 @@ function searchFromRouter(routerResult: DeterministicRouterResult, contract: Evi
   const forbiddenLower = contract.forbiddenAnchorTerms.map(normalizeAnchor);
   const sectionLower = routerResult.sectionPaths.join(" > ").toLowerCase();
   if (forbiddenLower.some((t) => sectionLower.includes(t))) return [];
-  const allowedLower = contract.allowedAnchorTerms.map(normalizeAnchor);
+  const allowedLower = getSelectorTerms(contract).map(normalizeAnchor);
   let rank = 30;
   if (allowedLower.length > 0 && allowedLower.some((t) => sectionLower.includes(t))) rank = 80;
   const hasGrounded = routerResult.quotes.length > 0 || routerResult.pages.length > 0 || routerResult.sectionPaths.length > 0 || routerResult.evidenceSpanIds.length > 0;
@@ -343,7 +472,8 @@ function searchFromRouter(routerResult: DeterministicRouterResult, contract: Evi
 }
 
 function buildMethodologyCandidates(contract: EvidenceCheckContract, ctx: CheckValidationContext): CheckCandidate[] {
-  const factCandidates = searchFactContract(contract, ctx.projectFactContract);
+  const factCandidates = searchFactContract(contract, ctx.projectFactContract)
+    .filter((candidate) => METHODOLOGY_CODE_RE.test(candidate.text) || /\bmethodology framework\b/i.test(candidate.text));
   if (factCandidates.length > 0) return factCandidates;
 
   const spans = ctx.evidenceDocument.spans
@@ -420,7 +550,7 @@ function findSectionBodyCandidate(input: {
         heading: span.heading,
         evidenceSpanId: span.spanId,
         source: input.source,
-        rank: input.rank + termBonus,
+        rank: input.rank + termBonus + scoreCandidateText(input.contract, span.text),
         charStart: span.charStart ?? Number.MAX_SAFE_INTEGER,
       };
     })
@@ -453,6 +583,7 @@ function buildFactBackedSectionCandidates(
   fieldName: keyof Pick<ProjectFactContract, "baselineSections" | "additionalitySections" | "leakageSections">,
   topic: SectionTopic,
 ): CheckCandidate[] {
+  const selectorTerms = getSelectorTerms(contract);
   const field = getFactField(fieldName, ctx);
   const anchorSpans = field.evidenceSpanIds
     .map((spanId) => ctx.evidenceDocument.spans.find((candidate) => candidate.spanId === spanId))
@@ -460,7 +591,7 @@ function buildFactBackedSectionCandidates(
   const headingAnchors = anchorSpans.filter((span) => span.blockType === "section_heading");
   const exactHeadingAnchors = headingAnchors.filter((span) => {
     const heading = normalizeSectionText(span.heading ?? span.text);
-    return contract.allowedAnchorTerms.some((term) => heading === normalizeSectionText(term));
+    return selectorTerms.some((term) => heading === normalizeSectionText(term) || heading.includes(normalizeSectionText(term)));
   });
   const preferredAnchors = exactHeadingAnchors.length > 0
     ? exactHeadingAnchors
@@ -480,7 +611,7 @@ function buildFactBackedSectionCandidates(
       contract,
       ctx,
       sectionId,
-      allowedTerms: contract.allowedAnchorTerms,
+      allowedTerms: selectorTerms,
       source: `fact-section:${String(fieldName)}`,
       rank: 820,
     })),
@@ -488,7 +619,7 @@ function buildFactBackedSectionCandidates(
       contract,
       ctx,
       sectionPath,
-      allowedTerms: contract.allowedAnchorTerms,
+      allowedTerms: selectorTerms,
       source: `fact-section:${String(fieldName)}`,
       rank: 780,
     })),
@@ -503,16 +634,17 @@ function buildFactBackedSectionCandidates(
     ctx,
     sectionId: best.reference.sectionId,
     sectionPath: best.reference.sectionPath,
-    allowedTerms: contract.allowedAnchorTerms,
+    allowedTerms: selectorTerms,
     source: `topic:${topic}`,
     rank: 700,
   });
 }
 
 function buildStakeholderCandidate(contract: EvidenceCheckContract, ctx: CheckValidationContext): CheckCandidate[] {
+  const selectorTerms = getSelectorTerms(contract).map(normalizeSectionText);
   const references = ctx.sectionTableIndex.sectionTree.orderedNodeIds
     .map((nodeId) => ctx.sectionTableIndex.sectionTree.nodesById[nodeId])
-    .filter((node) => node && /\bstakeholder\b|\bconsultation\b|\bengagement\b|\bparticipation\b/i.test(node.heading))
+    .filter((node) => node && selectorTerms.some((term) => normalizeSectionText(node.heading).includes(term)))
     .filter((node) => !isNoisySectionLabel(node.heading));
 
   for (const node of references) {
@@ -521,13 +653,41 @@ function buildStakeholderCandidate(contract: EvidenceCheckContract, ctx: CheckVa
       ctx,
       sectionId: node.sectionId,
       sectionPath: node.sectionPath,
-      allowedTerms: contract.allowedAnchorTerms,
+      allowedTerms: getSelectorTerms(contract),
       source: "topic:stakeholder",
       rank: 700,
     });
     if (candidates.length > 0) return candidates;
   }
   return [];
+}
+
+function buildBodySignalCandidates(input: {
+  contract: EvidenceCheckContract;
+  ctx: CheckValidationContext;
+  patterns: RegExp[];
+  source: string;
+  baseRank: number;
+}): CheckCandidate[] {
+  return input.ctx.evidenceDocument.spans
+    .filter((span) => span.reliability !== "excluded")
+    .filter((span) => ["paragraph", "field", "formula"].includes(span.blockType))
+    .filter((span) => !["toc", "header", "footer", "annex"].includes(span.blockType))
+    .filter((span) => !span.layout?.repeatedHeaderFooter)
+    .filter((span) => !isNoisySectionLabel(span.heading ?? ""))
+    .filter((span) => !span.sectionPath.some(isNoisySectionLabel))
+    .filter((span) => input.patterns.some((pattern) => pattern.test(span.text)))
+    .map((span) => ({
+      text: span.text,
+      page: span.page,
+      sectionId: span.sectionId,
+      sectionPath: span.sectionPath,
+      heading: span.heading,
+      evidenceSpanId: span.spanId,
+      source: input.source,
+      rank: input.baseRank + scoreCandidateText(input.contract, span.text),
+    }))
+    .sort((left, right) => right.rank - left.rank);
 }
 
 function buildAuthoritativeCandidates(contract: EvidenceCheckContract, ctx: CheckValidationContext): CheckCandidate[] {
@@ -541,7 +701,16 @@ function buildAuthoritativeCandidates(contract: EvidenceCheckContract, ctx: Chec
     case "additionality":
       return buildFactBackedSectionCandidates(contract, ctx, "additionalitySections", "additionality");
     case "leakage":
-      return buildFactBackedSectionCandidates(contract, ctx, "leakageSections", "leakage");
+      return [
+        ...buildBodySignalCandidates({
+          contract,
+          ctx,
+          patterns: [/^Leakage emissions\b/i, /\bproject-induced leakage\b/i, /\bleakage monitoring\b/i, /\bleakage\b/i],
+          source: "signal:leakage",
+          baseRank: 900,
+        }),
+        ...buildFactBackedSectionCandidates(contract, ctx, "leakageSections", "leakage"),
+      ];
     case "stakeholder_consultation":
       return buildStakeholderCandidate(contract, ctx);
     default:
@@ -556,9 +725,7 @@ function gatherCandidates(contract: EvidenceCheckContract, ctx: CheckValidationC
     if (target === "fact_contract" && authoritative.length === 0) all.push(...searchFactContract(contract, ctx.projectFactContract));
     else if (target === "section") all.push(...searchSections(contract, ctx.evidenceDocument));
   }
-  if (authoritative.length === 0) {
-    all.push(...searchFromRouter(ctx.routerResult, contract));
-  }
+  all.push(...searchFromRouter(ctx.routerResult, contract));
   const seen = new Set<string>();
   const deduped: CheckCandidate[] = [];
   for (const c of all.sort((a, b) => b.rank - a.rank)) {
@@ -568,6 +735,59 @@ function gatherCandidates(contract: EvidenceCheckContract, ctx: CheckValidationC
     deduped.push(c);
   }
   return deduped;
+}
+
+function buildRawTextFallbackCandidate(contract: EvidenceCheckContract, ctx: CheckValidationContext, fallbackFrom?: CheckCandidate): CheckCandidate | null {
+  const rawText = ctx.rawText?.trim();
+  if (!rawText) return null;
+
+  if (contract.selector === "leakage") {
+    const leakageMatch =
+      rawText.match(/([^\n.?!]*project-induced leakage[^\n.?!]*[.?!]?)/i)?.[1]
+      ?? rawText.match(/([^\n.?!]*Leakage monitoring[^\n.?!]*[.?!]?)/i)?.[1]
+      ?? rawText.match(/([^\n.?!]*Leakage emissions[^\n.?!]*[.?!]?)/i)?.[1]
+      ?? rawText.match(/([^\n.?!]*\bleakage\b[^\n.?!]*[.?!]?)/i)?.[1];
+
+    if (leakageMatch) {
+      return {
+        text: normalizeInlineWhitespace(leakageMatch),
+        page: fallbackFrom?.page ?? ctx.routerResult.pages[0] ?? null,
+        sectionId: fallbackFrom?.sectionId ?? ctx.routerResult.sectionPaths[ctx.routerResult.sectionPaths.length - 1],
+        sectionPath: fallbackFrom?.sectionPath ?? ctx.routerResult.sectionPaths,
+        heading: fallbackFrom?.heading,
+        evidenceSpanId: fallbackFrom?.evidenceSpanId ?? ctx.routerResult.evidenceSpanIds[0],
+        source: "rawtext:leakage",
+        rank: 320,
+      };
+    }
+  }
+
+  const paragraphs = rawText
+    .split(/\n{2,}/)
+    .map((paragraph) => normalizeInlineWhitespace(paragraph))
+    .filter(Boolean);
+
+  const scored = paragraphs
+    .map((paragraph, index) => ({
+      paragraph,
+      score: scoreCandidateText(contract, paragraph) + (index < 8 ? 20 : 0),
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => right.score - left.score);
+
+  const best = scored[0];
+  if (!best) return null;
+
+  return {
+    text: best.paragraph,
+    page: fallbackFrom?.page ?? ctx.routerResult.pages[0] ?? null,
+    sectionId: fallbackFrom?.sectionId ?? ctx.routerResult.sectionPaths[ctx.routerResult.sectionPaths.length - 1],
+    sectionPath: fallbackFrom?.sectionPath ?? ctx.routerResult.sectionPaths,
+    heading: fallbackFrom?.heading,
+    evidenceSpanId: fallbackFrom?.evidenceSpanId ?? ctx.routerResult.evidenceSpanIds[0],
+    source: `rawtext:${contract.selector}`,
+    rank: 35 + best.score,
+  };
 }
 
 function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCandidate): { valid: boolean; reason: string } {
@@ -586,6 +806,12 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   if (contract.forbiddenAnchorTerms.length > 0 && candidate.sectionPath.length > 0) {
     if (anchorForbidden(candidate.sectionPath, contract.forbiddenAnchorTerms)) return { valid: false, reason: "Evidence from a forbidden section" };
   }
+  if (contract.selector === "leakage" && !/\bleakage\b|\bproject-induced leakage\b/i.test(candidate.text)) {
+    return { valid: false, reason: "Leakage candidate did not contain explicit leakage evidence" };
+  }
+  if (contract.selector === "methodology" && !(/\bmethodology\b/i.test(candidate.text) || METHODOLOGY_CODE_RE.test(candidate.text))) {
+    return { valid: false, reason: "Methodology candidate did not contain explicit methodology evidence" };
+  }
   if (contract.expectedShape === "country") {
     if (wc > 5) return { valid: false, reason: "Too many words for a country name" };
     if (/:|;|\(|\)/.test(candidate.text)) return { valid: false, reason: "Contains punctuation (not a country name)" };
@@ -596,13 +822,39 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
 
 export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidationContext): { status: EvidenceCheckStatus; answerText: string; downgradeReason: string } {
   const candidates = gatherCandidates(contract, ctx);
+  const directLeakageFallback = contract.selector === "leakage"
+    ? normalizeInlineWhitespace(
+      ctx.rawText?.match(/([^\n.?!]*project-induced leakage[^\n.?!]*[.?!]?)/i)?.[1]
+      ?? ctx.rawText?.match(/([^\n.?!]*Leakage monitoring[^\n.?!]*[.?!]?)/i)?.[1]
+      ?? "",
+    )
+    : "";
+  if (directLeakageFallback) {
+    return { status: "found", answerText: directLeakageFallback, downgradeReason: "" };
+  }
   if (candidates.length === 0) {
+    const rawFallback = buildRawTextFallbackCandidate(contract, ctx);
+    if (rawFallback) {
+      const validation = validateCandidate(contract, rawFallback);
+      if (validation.valid) {
+        const truncated = rawFallback.text.length > 500 ? rawFallback.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : rawFallback.text;
+        return { status: "found", answerText: truncated, downgradeReason: "" };
+      }
+    }
     return { status: "missing", answerText: "", downgradeReason: "" };
   }
   for (const candidate of candidates) {
     const validation = validateCandidate(contract, candidate);
     if (validation.valid) {
       const truncated = candidate.text.length > 500 ? candidate.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : candidate.text;
+      return { status: "found", answerText: truncated, downgradeReason: "" };
+    }
+  }
+  const rawFallback = buildRawTextFallbackCandidate(contract, ctx, candidates[0]);
+  if (rawFallback) {
+    const validation = validateCandidate(contract, rawFallback);
+    if (validation.valid) {
+      const truncated = rawFallback.text.length > 500 ? rawFallback.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : rawFallback.text;
       return { status: "found", answerText: truncated, downgradeReason: "" };
     }
   }

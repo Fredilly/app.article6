@@ -1831,6 +1831,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         sectionTableIndex: structuredQueryContext.sectionTableIndex,
         routerResult: questionResult.routerResult,
         queryIntentAnalysis: questionResult.queryIntentAnalysis,
+        rawText: evidenceAnalysis.rawPddText,
       };
 
       const validated = validateCheck(contract, ctx);
