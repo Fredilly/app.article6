@@ -1837,7 +1837,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const formatted = formatEvidenceCheckUiText({
         label: check.label,
         status: validated.status,
-        answerText: validated.answerText || questionResult.routerResult.answerText,
+        answerText: validated.answerText,
         downgradeReason: validated.downgradeReason,
       });
       const isFound = validated.status === "found";

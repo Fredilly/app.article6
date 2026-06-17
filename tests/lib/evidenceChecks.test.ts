@@ -1,5 +1,51 @@
+import fs from "fs";
+import path from "path";
 import { describe, expect, it } from "@jest/globals";
-import { formatEvidenceCheckUiText, getAllChecks } from "@/lib/quickCheck/evidenceChecks";
+import {
+  formatEvidenceCheckUiText,
+  getAllChecks,
+  getContract,
+  validateCheck,
+} from "@/lib/quickCheck/evidenceChecks";
+import { buildReviewQuestionResult, getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
+import type { EvidenceCheckId } from "@/lib/quickCheck/evidenceChecks";
+
+const FIXTURE_DIR = path.join(process.cwd(), "tests/fixtures/quick-check");
+const PLUM_A_DOC_TEXT = fs.readFileSync(path.join(FIXTURE_DIR, "a-pdf-extracted.txt"), "utf-8");
+const PD_REDD_DOC_TEXT = fs.readFileSync(path.join(FIXTURE_DIR, "pd-redd-v130-extracted.txt"), "utf-8");
+const RIMBA_RAYA_DOC_TEXT = fs.readFileSync(path.join(FIXTURE_DIR, "rimba-raya-fallback.txt"), "utf-8");
+
+function runCheck(input: {
+  checkId: EvidenceCheckId;
+  claimText: string;
+  rawText: string;
+  methodologyId?: string;
+  methodologyVersion?: string;
+}) {
+  const structuredQueryContext = getStructuredQueryContext(input.rawText);
+  const questionResult = buildReviewQuestionResult({
+    claimText: input.claimText,
+    methodologyId: input.methodologyId ?? "",
+    methodologyVersion: input.methodologyVersion ?? "",
+    rawPddText: input.rawText,
+    structuredQueryContext,
+  });
+
+  const validated = validateCheck(getContract(input.checkId), {
+    evidenceDocument: structuredQueryContext.evidenceDocument,
+    projectFactContract: structuredQueryContext.projectFactContract,
+    sectionTableIndex: structuredQueryContext.sectionTableIndex,
+    routerResult: questionResult.routerResult,
+    queryIntentAnalysis: questionResult.queryIntentAnalysis,
+  });
+
+  return formatEvidenceCheckUiText({
+    label: getAllChecks().find((check) => check.id === input.checkId)?.label ?? input.checkId,
+    status: validated.status,
+    answerText: validated.answerText,
+    downgradeReason: validated.downgradeReason,
+  });
+}
 
 describe("getAllChecks", () => {
   it("only exposes the six supported quick check topics", () => {
@@ -139,5 +185,72 @@ describe("formatEvidenceCheckUiText", () => {
       answerText: "Stakeholder consultation and participation were conducted through community meetings and workshops.",
       downgradeReason: "",
     });
+  });
+});
+
+describe("authoritative evidence check selectors", () => {
+  it("prefers primary methodology evidence from the document", () => {
+    const result = runCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: RIMBA_RAYA_DOC_TEXT,
+    });
+
+    expect(result.answerText).toContain("VM0004");
+    expect(result.answerText).not.toMatch(/^Project Description/i);
+  });
+
+  it("prefers the baseline section body instead of a heading-only match", () => {
+    const result = runCheck({
+      checkId: "baseline_scenario",
+      claimText: "What is the baseline scenario?",
+      rawText: PD_REDD_DOC_TEXT,
+    });
+
+    expect(result.answerText).not.toMatch(/^2\.4 Baseline Scenario/i);
+    expect(result.answerText.toLowerCase()).toContain("traditional agricultural practices");
+  });
+
+  it("prefers the additionality section body instead of TOC or methodology references", () => {
+    const result = runCheck({
+      checkId: "additionality",
+      claimText: "What does the document say about additionality?",
+      rawText: PD_REDD_DOC_TEXT,
+    });
+
+    expect(result.answerText).not.toMatch(/^2\.5 Additionality/i);
+    expect(result.answerText.toLowerCase()).toContain("as per vt0001");
+  });
+
+  it("prefers the main leakage section body over appendix and monitoring references", () => {
+    const result = runCheck({
+      checkId: "leakage",
+      claimText: "What does the document say about leakage?",
+      rawText: PD_REDD_DOC_TEXT,
+    });
+
+    expect(result.answerText).toContain("Leakage emissions accounted for are entirely from displacement of unplanned deforestation");
+    expect(result.answerText).not.toContain("Appendix I");
+  });
+
+  it("prefers substantive stakeholder consultation text over the section heading", () => {
+    const result = runCheck({
+      checkId: "stakeholder_consultation",
+      claimText: "What does the document say about stakeholder consultation?",
+      rawText: PD_REDD_DOC_TEXT,
+    });
+
+    expect(result.answerText.toLowerCase()).toContain("participatory process");
+    expect(result.answerText).not.toMatch(/^6 Stakeholder Comments/i);
+  });
+
+  it("uses early structured location-country evidence for PLUM instead of drifting into body noise", () => {
+    const result = runCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: PLUM_A_DOC_TEXT,
+    });
+
+    expect(result.answerText).toBe("Indonesia");
   });
 });
