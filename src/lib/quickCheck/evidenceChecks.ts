@@ -329,17 +329,11 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
 };
 
 const UNIVERSAL_CHECKS: EvidenceCheck[] = [
-  { id: "project_activity", label: "Project activity", question: "What is the project activity?" },
   { id: "host_country", label: "Host country", question: "What is the host country?" },
-  { id: "project_location", label: "Project location", question: "What is the project location?" },
   { id: "methodology", label: "Methodology", question: "What methodology was applied?" },
-  { id: "crediting_period", label: "Crediting period", question: "What is the crediting period?" },
-  { id: "monitoring_period", label: "Monitoring period", question: "What is the monitoring period?" },
   { id: "baseline_scenario", label: "Baseline scenario", question: "What is the baseline scenario?" },
   { id: "additionality", label: "Additionality", question: "What does the document say about additionality?" },
   { id: "leakage", label: "Leakage", question: "What does the document say about leakage?" },
-  { id: "safeguards", label: "Safeguards", question: "What does the document say about safeguards?" },
-  { id: "environmental_impacts", label: "Environmental impacts", question: "What does the document say about environmental impacts?" },
   { id: "stakeholder_consultation", label: "Stakeholder consultation", question: "What does the document say about stakeholder consultation?" },
 ];
 

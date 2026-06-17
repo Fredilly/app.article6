@@ -1,5 +1,18 @@
 import { describe, expect, it } from "@jest/globals";
-import { formatEvidenceCheckUiText } from "@/lib/quickCheck/evidenceChecks";
+import { formatEvidenceCheckUiText, getAllChecks } from "@/lib/quickCheck/evidenceChecks";
+
+describe("getAllChecks", () => {
+  it("only exposes the six supported quick check topics", () => {
+    expect(getAllChecks().map((check) => check.id)).toEqual([
+      "host_country",
+      "methodology",
+      "baseline_scenario",
+      "additionality",
+      "leakage",
+      "stakeholder_consultation",
+    ]);
+  });
+});
 
 describe("formatEvidenceCheckUiText", () => {
   it("uses a human-readable missing message", () => {
