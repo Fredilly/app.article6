@@ -73,6 +73,116 @@ type CheckCandidate = {
   rank: number;
 };
 
+export function formatEvidenceCheckUiText(input: {
+  label: string;
+  status: EvidenceCheckStatus;
+  answerText: string;
+  downgradeReason: string;
+}): { answerText: string; downgradeReason: string } {
+  const normalizedLabel = input.label.trim();
+  const topic = normalizedLabel.toLowerCase();
+  const fallbackUnclear = `Quick Check found a possible mention of ${topic}, but it was not specific enough to confirm.`;
+  const cleanFoundAnswer = formatFoundEvidenceAnswer(normalizedLabel, input.answerText);
+
+  if (input.status === "missing") {
+    return {
+      answerText: `Quick Check did not find a clear ${topic} in the uploaded document.`,
+      downgradeReason: "",
+    };
+  }
+
+  if (input.status !== "unclear") {
+    return {
+      answerText: cleanFoundAnswer,
+      downgradeReason: input.downgradeReason,
+    };
+  }
+
+  let downgradeReason = input.downgradeReason.trim();
+  if (/Too few words/i.test(downgradeReason)) {
+    downgradeReason = "The mention was too short to rely on.";
+  } else if (/Heading-only echo/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a heading, but not enough body text to confirm it.";
+  } else if (/No page, section, or evidence span provenance/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a possible mention, but it did not preserve enough source context to confirm it.";
+  } else if (/Evidence from a forbidden section/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a possible mention, but it came from a section that does not answer this topic directly.";
+  } else if (/Too many words for a country name|Contains punctuation|Contains standard\/methodology text/i.test(downgradeReason)) {
+    downgradeReason = "Quick Check found a possible mention, but it did not read like a specific country value.";
+  } else if (/Best candidate rejected:/i.test(downgradeReason)) {
+    downgradeReason = fallbackUnclear;
+  }
+
+  return {
+    answerText: input.answerText?.trim() || fallbackUnclear,
+    downgradeReason,
+  };
+}
+
+function normalizeInlineWhitespace(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function stripCommonLeadIn(value: string): string {
+  return normalizeInlineWhitespace(
+    value
+      .replace(/^[A-Z]\.\d+(?:\.\d+)*\s+/i, "")
+      .replace(/^\d+(?:\.\d+)*\s+/i, "")
+      .replace(/^(?:section|clause|part|appendix)\s+\S+\s*[:.-]?\s*/i, "")
+      .replace(/^(?:title and reference of methodology applied|methodology applied|applied methodology|methodology|host country|country\/area|country|baseline scenario|without-project land use scenario and additionality|additionality|leakage|stakeholder consultation(?: and participation)?|stakeholder comments?)\s*[:.-]?\s*/i, ""),
+  );
+}
+
+function firstSentence(value: string): string {
+  const normalized = normalizeInlineWhitespace(value);
+  const match = normalized.match(/^(.+?[.!?])(?:\s|$)/);
+  return match?.[1]?.trim() || normalized;
+}
+
+function trimNarrativeAnswer(value: string): string {
+  const sentence = firstSentence(stripCommonLeadIn(value));
+  return sentence.length > 240 ? `${sentence.slice(0, 237).trimEnd()}...` : sentence;
+}
+
+function formatMethodologyAnswer(value: string): string {
+  const normalized = normalizeInlineWhitespace(firstSentence(stripCommonLeadIn(value))).replace(/\.$/, "");
+  const withNormalizedVersion = normalized.replace(/\bversion\s*(\d+(?:[.-]\d+)*)$/i, "v$1");
+  const codeMatch = withNormalizedVersion.match(/\b(VM\d{4}|VMD\d{4}|GS-VER\d+|AR-[A-Z0-9.-]+|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+)\b/i);
+  if (!codeMatch) return withNormalizedVersion;
+  return withNormalizedVersion.replace(codeMatch[1], codeMatch[1].toUpperCase()).trim();
+}
+
+function formatHostCountryAnswer(value: string): string {
+  const normalized = normalizeInlineWhitespace(value);
+  const explicit =
+    normalized.match(/\b(?:host country|country\/area|country)\s*[:|-]\s*([^.;]+)/i)?.[1]
+    ?? stripCommonLeadIn(normalized).match(/^([^.;]+)/)?.[1];
+  const candidate = normalizeInlineWhitespace(explicit ?? "")
+    .replace(/\b(Project proponent|Methodology|Crediting period|Monitoring period)\b.*$/i, "")
+    .trim();
+  const countryLike = candidate.match(/^([A-Z][A-Za-z]+(?:[\s-][A-Z][A-Za-z]+){0,3})/)?.[1];
+  return countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+}
+
+function formatFoundEvidenceAnswer(label: string, answerText: string): string {
+  const normalized = normalizeInlineWhitespace(answerText);
+  if (!normalized) return "";
+
+  switch (label) {
+    case "Methodology":
+      return formatMethodologyAnswer(normalized);
+    case "Host country":
+      return formatHostCountryAnswer(normalized);
+    case "Baseline scenario":
+    case "Additionality":
+    case "Leakage":
+    case "Stakeholder consultation":
+      return trimNarrativeAnswer(normalized);
+    default:
+      return firstSentence(stripCommonLeadIn(normalized));
+  }
+}
+
 function normalizeAnchor(t: string): string { return t.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim(); }
 function anchorMatches(path: string[], terms: string[]): boolean { const lower = path.join(" > ").toLowerCase(); return terms.some((t) => lower.includes(normalizeAnchor(t))); }
 function anchorForbidden(path: string[], terms: string[]): boolean { return terms.length > 0 && anchorMatches(path, terms); }
@@ -179,7 +289,7 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
 export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidationContext): { status: EvidenceCheckStatus; answerText: string; downgradeReason: string } {
   const candidates = gatherCandidates(contract, ctx);
   if (candidates.length === 0) {
-    return { status: "missing", answerText: "", downgradeReason: `No candidates found. Allowed anchors: ${contract.allowedAnchorTerms.join(", ") || "any"}.` };
+    return { status: "missing", answerText: "", downgradeReason: "" };
   }
   for (const candidate of candidates) {
     const validation = validateCandidate(contract, candidate);
@@ -189,7 +299,7 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
     }
   }
   const bestFailed = validateCandidate(contract, candidates[0]);
-  return { status: "unclear", answerText: candidates[0].text, downgradeReason: `Best candidate rejected: ${bestFailed.reason}. ${candidates.length} candidate(s) found.` };
+  return { status: "unclear", answerText: candidates[0].text, downgradeReason: bestFailed.reason };
 }
 
 // ── Contracts ──────────────────────────────────────────────────────────────
@@ -219,17 +329,11 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
 };
 
 const UNIVERSAL_CHECKS: EvidenceCheck[] = [
-  { id: "project_activity", label: "Project activity", question: "What is the project activity?" },
   { id: "host_country", label: "Host country", question: "What is the host country?" },
-  { id: "project_location", label: "Project location", question: "What is the project location?" },
   { id: "methodology", label: "Methodology", question: "What methodology was applied?" },
-  { id: "crediting_period", label: "Crediting period", question: "What is the crediting period?" },
-  { id: "monitoring_period", label: "Monitoring period", question: "What is the monitoring period?" },
   { id: "baseline_scenario", label: "Baseline scenario", question: "What is the baseline scenario?" },
   { id: "additionality", label: "Additionality", question: "What does the document say about additionality?" },
   { id: "leakage", label: "Leakage", question: "What does the document say about leakage?" },
-  { id: "safeguards", label: "Safeguards", question: "What does the document say about safeguards?" },
-  { id: "environmental_impacts", label: "Environmental impacts", question: "What does the document say about environmental impacts?" },
   { id: "stakeholder_consultation", label: "Stakeholder consultation", question: "What does the document say about stakeholder consultation?" },
 ];
 
