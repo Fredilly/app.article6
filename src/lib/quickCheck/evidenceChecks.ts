@@ -433,7 +433,16 @@ function findSectionBodyCandidate(input: {
       if (leftPage !== rightPage) return leftPage - rightPage;
       return left.charStart - right.charStart;
     })
-    .map(({ charStart: _charStart, ...candidate }) => candidate);
+    .map((candidate) => ({
+      text: candidate.text,
+      page: candidate.page,
+      sectionId: candidate.sectionId,
+      sectionPath: candidate.sectionPath,
+      heading: candidate.heading,
+      evidenceSpanId: candidate.evidenceSpanId,
+      source: candidate.source,
+      rank: candidate.rank,
+    }));
 
   return spans;
 }
