@@ -43,4 +43,88 @@ describe("formatEvidenceCheckUiText", () => {
       downgradeReason: "",
     });
   });
+
+  it("parses methodology into a clean value", () => {
+    expect(
+      formatEvidenceCheckUiText({
+        label: "Methodology",
+        status: "found",
+        answerText: "Title and reference of methodology applied: VM0007 REDD+ Methodology Framework version 1.6.",
+        downgradeReason: "",
+      }),
+    ).toEqual({
+      answerText: "VM0007 REDD+ Methodology Framework v1.6",
+      downgradeReason: "",
+    });
+  });
+
+  it("parses host country into a clean value", () => {
+    expect(
+      formatEvidenceCheckUiText({
+        label: "Host country",
+        status: "found",
+        answerText: "Country/Area: Indonesia Project proponent: PT Rimba Makmur Utama",
+        downgradeReason: "",
+      }),
+    ).toEqual({
+      answerText: "Indonesia",
+      downgradeReason: "",
+    });
+  });
+
+  it("removes baseline heading echoes and keeps the first substantive sentence", () => {
+    expect(
+      formatEvidenceCheckUiText({
+        label: "Baseline scenario",
+        status: "found",
+        answerText: "2.4 Baseline Scenario The baseline scenario is continued cattle grazing on degraded grassland. Additional baseline details follow.",
+        downgradeReason: "",
+      }),
+    ).toEqual({
+      answerText: "The baseline scenario is continued cattle grazing on degraded grassland.",
+      downgradeReason: "",
+    });
+  });
+
+  it("removes additionality heading echoes and keeps the first substantive sentence", () => {
+    expect(
+      formatEvidenceCheckUiText({
+        label: "Additionality",
+        status: "found",
+        answerText: "2.5 Additionality Additionality is demonstrated through barrier analysis and limited access to finance. More text follows.",
+        downgradeReason: "",
+      }),
+    ).toEqual({
+      answerText: "Additionality is demonstrated through barrier analysis and limited access to finance.",
+      downgradeReason: "",
+    });
+  });
+
+  it("removes leakage heading echoes and keeps the first substantive sentence", () => {
+    expect(
+      formatEvidenceCheckUiText({
+        label: "Leakage",
+        status: "found",
+        answerText: "1.10 Leakage Leakage from activity shifting is assessed and mitigated in this section. More text follows.",
+        downgradeReason: "",
+      }),
+    ).toEqual({
+      answerText: "Leakage from activity shifting is assessed and mitigated in this section.",
+      downgradeReason: "",
+    });
+  });
+
+  it("removes stakeholder heading echoes and keeps the first substantive sentence", () => {
+    expect(
+      formatEvidenceCheckUiText({
+        label: "Stakeholder consultation",
+        status: "found",
+        answerText: "6 Stakeholder consultation and participation Stakeholder consultation and participation were conducted through community meetings and workshops. Additional details follow.",
+        downgradeReason: "",
+      }),
+    ).toEqual({
+      answerText: "Stakeholder consultation and participation were conducted through community meetings and workshops.",
+      downgradeReason: "",
+    });
+  });
 });

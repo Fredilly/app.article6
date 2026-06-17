@@ -79,8 +79,10 @@ export function formatEvidenceCheckUiText(input: {
   answerText: string;
   downgradeReason: string;
 }): { answerText: string; downgradeReason: string } {
-  const topic = input.label.trim().toLowerCase();
+  const normalizedLabel = input.label.trim();
+  const topic = normalizedLabel.toLowerCase();
   const fallbackUnclear = `Quick Check found a possible mention of ${topic}, but it was not specific enough to confirm.`;
+  const cleanFoundAnswer = formatFoundEvidenceAnswer(normalizedLabel, input.answerText);
 
   if (input.status === "missing") {
     return {
@@ -91,7 +93,7 @@ export function formatEvidenceCheckUiText(input: {
 
   if (input.status !== "unclear") {
     return {
-      answerText: input.answerText,
+      answerText: cleanFoundAnswer,
       downgradeReason: input.downgradeReason,
     };
   }
@@ -115,6 +117,70 @@ export function formatEvidenceCheckUiText(input: {
     answerText: input.answerText?.trim() || fallbackUnclear,
     downgradeReason,
   };
+}
+
+function normalizeInlineWhitespace(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function stripCommonLeadIn(value: string): string {
+  return normalizeInlineWhitespace(
+    value
+      .replace(/^[A-Z]\.\d+(?:\.\d+)*\s+/i, "")
+      .replace(/^\d+(?:\.\d+)*\s+/i, "")
+      .replace(/^(?:section|clause|part|appendix)\s+\S+\s*[:.-]?\s*/i, "")
+      .replace(/^(?:title and reference of methodology applied|methodology applied|applied methodology|methodology|host country|country\/area|country|baseline scenario|without-project land use scenario and additionality|additionality|leakage|stakeholder consultation(?: and participation)?|stakeholder comments?)\s*[:.-]?\s*/i, ""),
+  );
+}
+
+function firstSentence(value: string): string {
+  const normalized = normalizeInlineWhitespace(value);
+  const match = normalized.match(/^(.+?[.!?])(?:\s|$)/);
+  return match?.[1]?.trim() || normalized;
+}
+
+function trimNarrativeAnswer(value: string): string {
+  const sentence = firstSentence(stripCommonLeadIn(value));
+  return sentence.length > 240 ? `${sentence.slice(0, 237).trimEnd()}...` : sentence;
+}
+
+function formatMethodologyAnswer(value: string): string {
+  const normalized = normalizeInlineWhitespace(firstSentence(stripCommonLeadIn(value))).replace(/\.$/, "");
+  const withNormalizedVersion = normalized.replace(/\bversion\s*(\d+(?:[.-]\d+)*)$/i, "v$1");
+  const codeMatch = withNormalizedVersion.match(/\b(VM\d{4}|VMD\d{4}|GS-VER\d+|AR-[A-Z0-9.-]+|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+)\b/i);
+  if (!codeMatch) return withNormalizedVersion;
+  return withNormalizedVersion.replace(codeMatch[1], codeMatch[1].toUpperCase()).trim();
+}
+
+function formatHostCountryAnswer(value: string): string {
+  const normalized = normalizeInlineWhitespace(value);
+  const explicit =
+    normalized.match(/\b(?:host country|country\/area|country)\s*[:|-]\s*([^.;]+)/i)?.[1]
+    ?? stripCommonLeadIn(normalized).match(/^([^.;]+)/)?.[1];
+  const candidate = normalizeInlineWhitespace(explicit ?? "")
+    .replace(/\b(Project proponent|Methodology|Crediting period|Monitoring period)\b.*$/i, "")
+    .trim();
+  const countryLike = candidate.match(/^([A-Z][A-Za-z]+(?:[\s-][A-Z][A-Za-z]+){0,3})/)?.[1];
+  return countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+}
+
+function formatFoundEvidenceAnswer(label: string, answerText: string): string {
+  const normalized = normalizeInlineWhitespace(answerText);
+  if (!normalized) return "";
+
+  switch (label) {
+    case "Methodology":
+      return formatMethodologyAnswer(normalized);
+    case "Host country":
+      return formatHostCountryAnswer(normalized);
+    case "Baseline scenario":
+    case "Additionality":
+    case "Leakage":
+    case "Stakeholder consultation":
+      return trimNarrativeAnswer(normalized);
+    default:
+      return firstSentence(stripCommonLeadIn(normalized));
+  }
 }
 
 function normalizeAnchor(t: string): string { return t.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim(); }
