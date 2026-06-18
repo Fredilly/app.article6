@@ -25,6 +25,8 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
     text:
       filename === "fresh-monitoring-report.pdf"
         ? "Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference."
+        : filename === "validation-report.pdf"
+          ? "VALIDATION REPORT. VALIDATIONREPORT. Validation opinion. VM0007 applies to this project."
         : filename === "rimba-raya.pdf"
           ? RIMBA_RAYA_FALLBACK_TEXT
         : "",
@@ -32,6 +34,8 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
     methodologyMentions:
       filename === "fresh-monitoring-report.pdf"
         ? ["AR-ACM0003"]
+        : filename === "validation-report.pdf"
+          ? ["VM0007"]
         : filename === "rimba-raya.pdf"
           ? ["VM0004"]
           : [],
@@ -130,6 +134,8 @@ describe("QuickCheckPanel upload regression", () => {
             text:
               filename === "fresh-monitoring-report.pdf"
                 ? "Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference."
+                : filename === "validation-report.pdf"
+                  ? "VALIDATION REPORT. VALIDATIONREPORT. Validation opinion. VM0007 applies to this project."
                 : filename === "rimba-raya.pdf"
                   ? RIMBA_RAYA_FALLBACK_TEXT
                 : "",
@@ -288,5 +294,30 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toContain("VM0004 · 1.0");
     expect(text).toContain("Project boundary");
     expect(text).not.toContain("Extraction preview is unavailable right now");
+  });
+
+  it("renders deduped human-readable evidence for validation reports", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await uploadEvidence(
+      new File(
+        ["%PDF-1.4\n(VALIDATION REPORT. VALIDATIONREPORT. Validation opinion. VM0007 applies to this project.)\n%%EOF"],
+        "validation-report.pdf",
+        { type: "application/pdf" },
+      ),
+    );
+
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Validation Report");
+    expect(text).toContain("Title and headers read “Validation Report”.");
+    expect(text).not.toContain("page 1 title");
+    expect(text).not.toContain('body: "validation opinion"');
+    expect(text).not.toContain("VALIDATIONREPORT");
   });
 });

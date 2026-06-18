@@ -68,6 +68,7 @@ import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
 import {
   getAllChecks,
+  formatEvidenceCheckUiText,
   getContract,
   validateCheck,
   type CheckValidationContext,
@@ -1830,15 +1831,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         sectionTableIndex: structuredQueryContext.sectionTableIndex,
         routerResult: questionResult.routerResult,
         queryIntentAnalysis: questionResult.queryIntentAnalysis,
+        rawText: evidenceAnalysis.rawPddText,
       };
 
       const validated = validateCheck(contract, ctx);
+      const formatted = formatEvidenceCheckUiText({
+        label: check.label,
+        status: validated.status,
+        answerText: validated.answerText,
+        downgradeReason: validated.downgradeReason,
+      });
       const isFound = validated.status === "found";
       results.push({
         checkId: check.id,
         status: validated.status,
-        answerText: validated.answerText || questionResult.routerResult.answerText,
-        downgradeReason: validated.downgradeReason,
+        answerText: formatted.answerText,
+        downgradeReason: formatted.downgradeReason,
         quotes: isFound ? questionResult.routerResult.quotes : [],
         pages: isFound ? questionResult.routerResult.pages : [],
         sections: isFound ? questionResult.routerResult.sectionPaths : [],
@@ -2301,7 +2309,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               </div>
                             </>
                           ) : result.status === "missing" ? (
-                            <div className="text-xs text-slate-500">No evidence found for this topic in the uploaded document.</div>
+                            <div className="text-xs text-slate-500">{result.answerText}</div>
                           ) : result.status === "not_applicable" ? (
                             <div className="text-xs text-slate-400">Not applicable for this document type.</div>
                           ) : (
@@ -2312,9 +2320,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               ) : null}
                             </div>
                           )}
-                          {result.status !== "found" && result.status !== "not_applicable" && result.downgradeReason ? (
-                            <div className="mt-1 text-[10px] text-slate-400">{result.downgradeReason}</div>
-                          ) : null}
                         </div>
                       </details>
                     );

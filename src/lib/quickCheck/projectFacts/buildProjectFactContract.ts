@@ -27,6 +27,18 @@ type FieldRule = {
 
 const COUNTRY_RE = /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3})\b/;
 const METHODOLOGY_CODE_RE = /\b(?:V?M|ACM|AM|AMS|AR-AM|AR-ACM|VMR|CDM-SSC|GS)\d{3,5}[A-Z-]*\b/i;
+const REGION_DISPLAY_NAMES = typeof Intl.DisplayNames === "function"
+  ? new Intl.DisplayNames(["en"], { type: "region" as Intl.DisplayNamesOptions["type"] })
+  : null;
+const KNOWN_COUNTRY_NAMES = new Set<string>(
+  REGION_DISPLAY_NAMES
+    ? Array.from({ length: 26 }, (_, firstIndex) => String.fromCharCode(65 + firstIndex))
+      .flatMap((first) => Array.from({ length: 26 }, (_, secondIndex) => `${first}${String.fromCharCode(65 + secondIndex)}`))
+      .map((code) => REGION_DISPLAY_NAMES.of(code)?.trim())
+      .filter((name): name is string => Boolean(name && name !== "Unknown Region" && name !== "world"))
+      .map((name) => name.toLowerCase())
+    : [],
+);
 const FIELD_RULES: FieldRule[] = [
   {
     field: "projectId",
@@ -290,6 +302,45 @@ function findLabeledCandidates(
     }
   }
 
+  if (results.length === 0 && rule.multiline) {
+    const exactLabels = new Set(allLabels.map((label) => label.toLowerCase()));
+    for (let index = 0; index < document.spans.length; index += 1) {
+      const span = document.spans[index];
+      if (!span || span.reliability === "excluded") continue;
+      if (rule.preferBlockTypes && !rule.preferBlockTypes.includes(span.blockType)) continue;
+      const labelText = span.text.trim().replace(/[:.-]\s*$/, "").trim().toLowerCase();
+      if (!exactLabels.has(labelText)) continue;
+
+      const continuation = document.spans
+        .slice(index + 1, index + 4)
+        .find((candidate) => {
+          if (candidate.reliability === "excluded") return false;
+          if (candidate.page !== span.page) return false;
+          if (!["paragraph", "field", "formula", "title"].includes(candidate.blockType)) return false;
+          const candidateText = candidate.text.trim();
+          if (!candidateText) return false;
+          if (exactLabels.has(candidateText.toLowerCase())) return false;
+          if (/^(?:table of contents|page \d+|version \d)/i.test(candidateText)) return false;
+          return true;
+        });
+
+      if (!continuation) continue;
+      const value = continuation.text.trim().replace(/[.;:,]$/, "").trim();
+      if (!value) continue;
+      const dedupeKey = normalizeValue(value);
+      if (seenValues.has(dedupeKey)) continue;
+      seenValues.add(dedupeKey);
+      results.push({
+        value,
+        normalizedValue: dedupeKey,
+        confidence: rankConfidence(continuation, { preferStructured: continuation.blockType === "field" || continuation.blockType === "table" }),
+        span: continuation,
+        extractionRule: `label:${rule.field}:adjacent-span`,
+        warnings: [],
+      });
+    }
+  }
+
   // Heading-label fallback: when no colon/space-pattern candidates were found,
   // look for paragraph/field spans whose heading matches a field label.
   // This handles documents where the label is in the section heading and the
@@ -496,7 +547,33 @@ function deriveCountryFromLocation(field: ProjectFactField<string | null>, famil
   if (!field.value) {
     return createEmptyField<string | null>("project-country:location-fallback", family, [materializeWarning("Project country was not deterministically derivable.")]);
   }
-  const segments = field.value.split(/[;,]/).map((segment) => segment.trim()).filter(Boolean);
+  const segments = field.value
+    .split(/[;,]/)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const knownCountrySegment = segments.find((segment) => KNOWN_COUNTRY_NAMES.has(segment.toLowerCase()));
+  if (knownCountrySegment) {
+    return {
+      ...field,
+      value: knownCountrySegment,
+      extractionRule: "project-country:location-country-segment",
+    };
+  }
+
+  const countryLikeSegment = segments.find((segment) => {
+    if (/\b(?:province|state|district|county|municipality|regency|region|island|islands)\b/i.test(segment)) {
+      return false;
+    }
+    return Boolean(segment.match(COUNTRY_RE)?.[1]);
+  });
+  if (countryLikeSegment) {
+    return {
+      ...field,
+      value: countryLikeSegment.match(COUNTRY_RE)?.[1] ?? countryLikeSegment,
+      extractionRule: "project-country:location-countrylike-segment",
+    };
+  }
+
   const trailing = segments[segments.length - 1] ?? field.value;
   const match = trailing.match(COUNTRY_RE);
   if (!match?.[1]) {
@@ -691,10 +768,19 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
     "baseline",
     "without-project land use scenario",
     "without project land use scenario",
+    "without-project land use scenario and additionality",
+    "without project land use scenario and additionality",
+    "without-project scenario",
+    "without project scenario",
   ]);
   const monitoringSections = sectionsFact(document, "monitoring", ["monitoring plan", "monitoring"]);
-  const leakageSections = sectionsFact(document, "leakage", ["leakage"]);
-  const additionalitySections = sectionsFact(document, "additionality", ["additionality", "project is additional"]);
+  const leakageSections = sectionsFact(document, "leakage", ["leakage", "leakage monitoring"]);
+  const additionalitySections = sectionsFact(document, "additionality", [
+    "additionality",
+    "project is additional",
+    "without-project land use scenario and additionality",
+    "without project land use scenario and additionality",
+  ]);
 
   const fields = [
     title,
