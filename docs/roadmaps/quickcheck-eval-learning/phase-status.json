@@ -1,13 +1,13 @@
 {
   "roadmapId": "quickcheck-eval-learning",
   "name": "Quick Check Eval-Driven Learning Loop",
-  "status": "not_started",
-  "currentGoalId": "qcel-0-roadmap-boundary",
+  "status": "active",
+  "currentGoalId": "qcel-1-eval-corpus-metadata",
   "goals": [
     {
       "id": "qcel-0-roadmap-boundary",
       "title": "Roadmap and PR boundary",
-      "status": "not_started",
+      "status": "done",
       "dependsOn": [],
       "branch": "docs/quickcheck-eval-learning-roadmap",
       "doneCriteria": [
@@ -117,17 +117,23 @@
     }
   ],
   "phase_meta": {
-    "status": "not_started",
+    "status": "active",
     "summary": "Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.",
-    "current_focus": "Goal 0: Create roadmap files and separate this work from any in-flight selector PR.",
+    "current_focus": "Goal 1: Extend existing eval corpus metadata to support correction/learning fields.",
     "not_active_now": [
-      "All implementation goals (Goals 1–8)",
+      "Goals 2–8",
       "Selector fixes",
       "Correction export UI",
       "Active corpus reporting"
     ],
     "last_updated_at": "2026-06-18T00:00:00Z"
   },
-  "pr_evidence": {},
-  "pr_notes": {}
+  "pr_evidence": {
+    "779": {
+      "title": "docs: Quick Check eval-driven learning loop roadmap"
+    }
+  },
+  "pr_notes": {
+    "779": "Goal 0 complete: created roadmap.md (ROADMAP.md) and phase-status.json. No production code changed."
+  }
 }
