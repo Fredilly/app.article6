@@ -1,0 +1,288 @@
+{
+  "manifestVersion": 1,
+  "corpusId": "messy-carbon-doc-baseline",
+  "fixtures": [
+    {
+      "id": "real-envira-full-vcs-pd",
+      "fixturePath": "tests/fixtures/quick-check/proj-desc-1382-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VCS_PD",
+        "projectTitle": null,
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Baseline Scenario",
+        "monitoringSection": "Monitoring Plan",
+        "leakageSection": "Leakage",
+        "additionalitySection": "Additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "VM0007",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["baseline"],
+              "sectionHints": ["Baseline Scenario"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring Plan"],
+              "sectionHints": ["Monitoring Plan"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Leakage"],
+              "sectionHints": ["Leakage"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Additionality"],
+              "sectionHints": ["Additionality"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Full VCS PD with repeated page headers that fragment section text across multi-page headings. Fact contract extraction yields null for title/host/methodology despite document content — known weakness with VCS_PD family label matching on page-header-split heading text.",
+      "notes": "Full VCS PD (proj-desc-1382). Repeated-header pattern splits section headings across pages. Section detection works (baseline, monitoring, leakage, additionality found) but fact-level extraction fails. Tests that section_index routing survives repeated-header fragmentation."
+    },
+    {
+      "id": "real-vichada-validation",
+      "fixturePath": "tests/fixtures/quick-check/vichada-validation-report-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VCS_PD",
+        "projectTitle": null,
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Baseline Scenario",
+        "monitoringSection": "Monitoring Plan",
+        "leakageSection": null,
+        "additionalitySection": "Additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "VM0007",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Baseline Scenario"],
+              "sectionHints": ["Baseline Scenario"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring Plan"],
+              "sectionHints": ["Monitoring Plan"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Additionality"],
+              "sectionHints": ["Additionality"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Validation report with appendix-heavy structure. Section detection is partial (baseline, monitoring, additionality found; leakage not found). Fact contract extraction fails — validation reports lack structured PDD fields. Tests that the router does not hallucinate facts from review/validation documents.",
+      "notes": "Vichada validation report (ICONTEC, 31 pages). Appendix-heavy structure with validation findings tables. Tests section_index routing for existing sections and safe fallback for missing ones."
+    },
+    {
+      "id": "real-gen-forest-verification",
+      "fixturePath": "tests/fixtures/quick-check/generation-forest-verification-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VERRA_PD",
+        "projectTitle": null,
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": "Biodiversity Monitoring Plan",
+        "leakageSection": null,
+        "additionalitySection": "Additional Project Impact Information",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "VM0007",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Biodiversity Monitoring"],
+              "sectionHints": ["Biodiversity Monitoring Plan"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Additional Project Impact"],
+              "sectionHints": ["Additional Project Impact Information"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "CCB & VCS verification report with extensive CAR/CL commentary sections. Fact contract extraction fails — verification reports lack structured PDD fields. Limited section detection (only monitoring and additionality-style sections found). Tests safe routing on commentary-heavy non-PDD documents.",
+      "notes": "Generation Forest Group Project verification report (ICONTEC, 60 pages). Heavy CAR/CL/commentary structure. Only monitoring and additionality sections found — baseline and leakage absent because verification reports discuss findings, not methodology structure."
+    }
+  ]
+}
