@@ -710,39 +710,10 @@ function sectionsFact(
     ))
   ));
 
-  // Raw text fallback — only for CDM PDDs where the document parser merges
-  // inline section anchors (like a standalone "Leakage" heading) into parent
-  // paragraph spans.  Other document families don't have this quirk.
-  const rawTextLines = family === "CDM_PDD"
-    ? (document.rawText?.split("\n") ?? [])
-    : [];
-  const rawLineMatches = headingMatches.length === 0 && bodyMatches.length === 0
-    ? rawTextLines.filter((line) => {
-        const trimmed = line.trim();
-        if (!/^[A-Z][a-z]/.test(trimmed)) return false;
-        return normalizedTerms.some((term) => normalizeValue(trimmed).startsWith(term));
-      })
-    : [];
-
   const matches = headingMatches.length > 0 ? headingMatches : bodyMatches;
 
   if (matches.length === 0) {
     return createEmptyField<string[] | null>(`sections:${fieldName}`, family, [materializeWarning(`No ${fieldName} sections were found.`)]);
-  }
-
-  if (rawLineMatches.length > 0 && matches.length === 0) {
-    return {
-      value: dedupe(rawLineMatches.map((line) => line.trim().slice(0, 80))),
-      confidence: "low" as const,
-      evidenceSpanIds: [],
-      pageNumbers: [],
-      sectionPath: [],
-      heading: rawLineMatches[0].trim().slice(0, 80),
-      extractionRule: `sections:${fieldName}:raw-text`,
-      sourceParser: document.parserSource,
-      family,
-      warnings: [materializeWarning(`${fieldName} section inferred from raw text line prefix.`)],
-    };
   }
 
   const values = dedupe(matches.map((span) => span.heading ?? span.sectionId ?? span.text).filter(Boolean));
