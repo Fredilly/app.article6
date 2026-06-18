@@ -57,7 +57,7 @@ const FIELD_RULES: FieldRule[] = [
   },
   {
     field: "hostCountry",
-    labels: ["Host country", "Host country(ies)", "Country", "Host Party"],
+    labels: ["Host country", "Host country(ies)", "Host Party", "Host Party(ies)"],
     preferBlockTypes: ["field", "table", "paragraph"],
     familySpecificLabels: {
       VCS_PD: ["Country/Area", "Country", "Host Party(ies)", "Host Country", "Geographic location"],
@@ -90,7 +90,7 @@ const FIELD_RULES: FieldRule[] = [
     familySpecificLabels: {
       VCS_PD: ["Title and reference of methodology applied", "Methodology applied"],
       VERRA_PD: ["Title and reference of methodology applied", "Methodology applied"],
-      CDM_PDD: ["Applied baseline methodology", "Approved baseline and monitoring methodology"],
+      CDM_PDD: ["Title and reference of the approved baseline and monitoring methodology", "Applied baseline methodology", "Approved baseline and monitoring methodology"],
     },
   },
   {
@@ -491,6 +491,43 @@ function looksLikeGenericSectionHeading(value: string): boolean {
 
 function findProjectTitle(document: EvidenceDocument): ProjectFactField<string | null> {
   const family = document.documentFamily ?? "UNKNOWN";
+
+  // Prefer labeled title fields (e.g. A.1 "Title of the project activity:") over
+  // TOC/page-header title spans.  CDM PDDs often have noisy title blocks from the
+  // cover/TOC that conflict with the real project title.
+  // Use a dedicated colon-based match that extracts only the value after "Title of
+  // the project activity:" and avoids the conflict-prone short "Title" label.
+  for (const span of document.spans.filter((s) => s.reliability !== "excluded")) {
+    if (!["field", "paragraph"].includes(span.blockType)) continue;
+    const titleMatch = span.text.match(
+      /(?:^|\n)\s*(?:The\s+)?title\s+of\s+the\s+project\s+activity\s*:\s*([^\n]+)/i,
+    );
+    if (titleMatch?.[1]) {
+      // Trim trailing metadata: version number, date, document form markers
+      const value = titleMatch[1].trim()
+        .replace(/\s*The\s+current\s+version\s+number\s+of\s+the\s+document\s*:.*$/i, "")
+        .replace(/\s*The\s+date\s+of\s+the\s+document\s+was\s+completed\s*:.*$/i, "")
+        .replace(/\s+--\s*\d+\s+of\s+\d+\s*--\s*$/, "")
+        .replace(/\s+PROJECT DESIGN DOCUMENT FORM.*$/i, "")
+        .replace(/[.;:,]\s*$/, "")
+        .trim();
+      if (value.length > 5 && !looksLikeMethodology(value)) {
+        return {
+          value,
+          confidence: rankConfidence(span, { preferStructured: true }),
+          evidenceSpanIds: [span.spanId],
+          pageNumbers: span.page != null ? [span.page] : [],
+          sectionPath: span.sectionPath,
+          heading: span.heading,
+          extractionRule: "title:labeled-field",
+          sourceParser: span.parserSource,
+          family,
+          warnings: [],
+        };
+      }
+    }
+  }
+
   const titleSpans = document.spans.filter((span) => span.blockType === "title" && span.reliability !== "excluded");
   const candidates: Candidate[] = titleSpans
     .filter((span) => !looksLikeMethodology(span.text))
@@ -649,20 +686,30 @@ function sectionsFact(
   terms: string[],
 ): ProjectFactField<string[] | null> {
   const family = document.documentFamily ?? "UNKNOWN";
+  const normalizedTerms = terms.map((t) => normalizeValue(t));
+
+  // Section headings — use full span text (not truncated heading) so that
+  // terms near the end of long CDM headings are still matched.
   const headingMatches = document.spans.filter((span) => (
     span.reliability !== "excluded"
     && span.blockType === "section_heading"
-    && terms.some((term) => (
-      span.normalizedText.includes(normalizeValue(term))
-      || span.headingPath.some((heading) => normalizeValue(heading).includes(normalizeValue(term)))
-      || normalizeValue(span.heading ?? "").includes(normalizeValue(term))
+    && normalizedTerms.some((term) => (
+      normalizeValue(span.text).includes(term)
+      || span.headingPath.some((heading) => normalizeValue(heading).includes(term))
+      || normalizeValue(span.heading ?? "").includes(term)
     ))
   ));
+
+  // Body paragraph/field matches — catches inline anchors like "Leakage" that
+  // appear within a parent section but whose heading path includes the term.
   const bodyMatches = document.spans.filter((span) => (
     span.reliability !== "excluded"
     && (span.blockType === "paragraph" || span.blockType === "field")
-    && terms.some((term) => span.headingPath.some((heading) => normalizeValue(heading).includes(normalizeValue(term))))
+    && normalizedTerms.some((term) => (
+      span.headingPath.some((heading) => normalizeValue(heading).includes(term))
+    ))
   ));
+
   const matches = headingMatches.length > 0 ? headingMatches : bodyMatches;
 
   if (matches.length === 0) {
@@ -688,6 +735,122 @@ function findField(document: EvidenceDocument, field: FieldRule): ProjectFactFie
   return factFromCandidates(document.documentFamily ?? "UNKNOWN", field.field, findLabeledCandidates(document, field), {
     allowMedium: true,
   });
+}
+
+/**
+ * CDM-specific: find methodology by locating the B.1 heading and scanning the
+ * following paragraphs for a methodology code (ACM0010, AMS-III.H, etc.).
+ */
+function findMethodologyFromB1Heading(
+  document: EvidenceDocument,
+  rule: FieldRule,
+): ProjectFactField<string | null> {
+  const family = document.documentFamily ?? "UNKNOWN";
+  const spans = document.spans.filter((s) => s.reliability !== "excluded");
+
+  for (let i = 0; i < spans.length; i++) {
+    const span = spans[i];
+    if (span.blockType !== "section_heading") continue;
+    if (span.sectionId !== "section:B.1") continue;
+
+    // Scan the next few paragraphs for a methodology code
+    for (let j = i + 1; j < spans.length && j <= i + 5; j++) {
+      const next = spans[j];
+      if (next.blockType === "section_heading") break;
+      const codeMatch = next.text.match(METHODOLOGY_CODE_RE);
+      if (codeMatch) {
+        // Find the sentence boundaries around the match to extract the
+        // complete methodology title line (not a mid-word slice).
+        const matchStart = codeMatch.index ?? 0;
+        const matchEnd = matchStart + codeMatch[0].length;
+        // Expand to the nearest sentence or line boundary
+        const text = next.text;
+        let start = matchStart;
+        while (start > 0 && !/[.!\n]/.test(text[start - 1]) && !/^[A-Z][a-z]/.test(text.slice(start))) {
+          start--;
+        }
+        // Find end of methodology title (first sentence containing the code)
+        let end = matchEnd;
+        while (end < text.length) {
+          if (/[.!]\s/.test(text.slice(end, end + 2)) || text[end] === "\n") {
+            end += text[end] === "\n" ? 0 : 1;
+            break;
+          }
+          end++;
+        }
+        const context = text.slice(start, end).trim()
+          .replace(/^[>»\s]+/, "").trim()
+          // Strip leading noise from multi-span headings (e.g. "project activity: >>")
+          .replace(/^(?:project\s+activity\s*:?\s*)?[>»]*\s*/i, "");
+        const candidate: Candidate = {
+          value: context,
+          normalizedValue: normalizeValue(context),
+          confidence: rankConfidence(span, { preferStructured: true }),
+          span: next,
+          extractionRule: "label:methodologyPrimary:b1-code",
+          warnings: [],
+        };
+        return factFromCandidates<string | null>(family, rule.field, [candidate], { allowMedium: true });
+      }
+    }
+    break;
+  }
+
+  return createEmptyField<string | null>("methodology:b1-code", family, [materializeWarning("No methodology code found near B.1 heading.")]);
+}
+
+/**
+ * When a CDM-style heading contains the label (e.g. "A.4.1.1 Host Party(ies):")
+ * but the value follows on the next line/span, standard findField fails because
+ * the colon-matched value is empty.  This fallback scans for headings matching
+ * the rule's labels and extracts the next non-empty paragraph/field span.
+ */
+function findFieldFromHeadingValue(document: EvidenceDocument, rule: FieldRule): ProjectFactField<string | null> {
+  const family = document.documentFamily ?? "UNKNOWN";
+  const labels = dedupe([
+    ...rule.labels,
+    ...(rule.familySpecificLabels?.[family] ?? []),
+  ]);
+  const normalizedLabels = labels.map((l) => l.replace(/\s*\(s\)\s*$|\s*\(ies\)\s*$|\s*\(S\)\s*$/, "").trim());
+  const allLabels = dedupe([...labels, ...normalizedLabels]);
+  const labelGroup = allLabels.map(escapeRegExp).join("|");
+  const headingPattern = new RegExp(`\\b(?:${labelGroup})\\s*:?\\s*$`, "i");
+
+  const spans = document.spans.filter((s) => s.reliability !== "excluded");
+  for (let i = 0; i < spans.length; i++) {
+    const span = spans[i];
+    if (span.blockType !== "section_heading" && span.blockType !== "field") continue;
+
+    const cleanText = span.text.trim().replace(/^\s*[A-Z][.]?\d+[.]?\d*[.]?\d*\s*/, "").trim();
+    if (!headingPattern.test(cleanText)) continue;
+
+    // Value is in the next non-empty span
+    for (let j = i + 1; j < spans.length && j <= i + 3; j++) {
+      const next = spans[j];
+      const rawValue = next.text.trim();
+      if (!rawValue || rawValue.length < 2) continue;
+      if (next.blockType === "section_heading") break;
+
+      // Trim trailing noise: map captions, page markers, figure references
+      const value = rawValue
+        .replace(/\s*Figure\s+[A-Z]?\d*[.:].*$/i, "")
+        .replace(/\s*--\s*\d+\s+of\s+\d+\s*--\s*$/i, "")
+        .replace(/\s+PROJECT DESIGN DOCUMENT FORM.*$/i, "")
+        .trim();
+
+      const candidate: Candidate = {
+        value,
+        normalizedValue: normalizeValue(value),
+        confidence: rankConfidence(span, { preferStructured: true }),
+        span: next,
+        extractionRule: `label:${rule.field}:heading-next`,
+        warnings: [],
+      };
+      return factFromCandidates<string | null>(family, rule.field, [candidate], { allowMedium: true });
+    }
+  }
+
+  return createEmptyField<string | null>(`label:${rule.field}:heading-next`, family, [materializeWarning(`No ${rule.field} heading-value pair was found.`)]);
 }
 
 function inferProjectType(document: EvidenceDocument): ProjectFactField<string | null> {
@@ -724,7 +887,20 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const family = document.documentFamily ?? "UNKNOWN";
   const title = findProjectTitle(document);
   const projectId = findField(document, FIELD_RULES.find((rule) => rule.field === "projectId") as FieldRule);
-  const hostCountry = findField(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule);
+  const hostCountryRule = FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule;
+  const hostCountryCandidates = findLabeledCandidates(document, hostCountryRule);
+  const hostCountryRaw = factFromCandidates<string | null>(family, "hostCountry", hostCountryCandidates, { allowMedium: true });
+  // Use heading-next fallback when findLabeledCandidates found zero candidates
+  // (true absence), or for CDM_PDD where the broad "Country" label produces
+  // false conflicts that the heading-next pattern correctly resolves.
+  const hostCountryNeedsFallback = hostCountryCandidates.length === 0
+    || (family === "CDM_PDD" && hostCountryRaw.value == null);
+  const hostCountryFallback = hostCountryNeedsFallback
+    ? findFieldFromHeadingValue(document, hostCountryRule)
+    : null;
+  const hostCountry = hostCountryFallback?.value != null
+    ? hostCountryFallback
+    : hostCountryRaw;
   const projectLocation = findField(document, FIELD_RULES.find((rule) => rule.field === "projectLocation") as FieldRule);
   const projectCountry = hostCountry.value
     ? hostCountry
@@ -733,17 +909,25 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const projectProponent = findField(document, FIELD_RULES.find((rule) => rule.field === "projectProponent") as FieldRule);
   const methodologyPrimaryRule = FIELD_RULES.find((rule) => rule.field === "methodologyPrimary") as FieldRule;
   const labeledMethodologyCandidates = findLabeledCandidates(document, methodologyPrimaryRule);
-  const methodologyPrimary = factFromCandidates<string | null>(
-    family,
-    "methodologyPrimary",
-    labeledMethodologyCandidates.length > 0
-      ? labeledMethodologyCandidates
-      : [
-          ...labeledMethodologyCandidates,
-          ...findMethodologyCodeFallbackCandidates(document),
-        ],
-    { allowMedium: true },
-  );
+  // CDM PDDs define methodology in B.1 heading with the code in the body
+  // paragraph that follows.  Prefer this over label-based candidates which
+  // may match generic "methodology" text in B.2/B.7/B.8.
+  const headingMethodologyFallback = family === "CDM_PDD"
+    ? findMethodologyFromB1Heading(document, methodologyPrimaryRule)
+    : createEmptyField<string | null>("methodology:heading-next", family, []);
+  const methodologyPrimary = headingMethodologyFallback.value != null
+    ? headingMethodologyFallback
+    : factFromCandidates<string | null>(
+        family,
+        "methodologyPrimary",
+        labeledMethodologyCandidates.length > 0
+          ? labeledMethodologyCandidates
+          : [
+              ...labeledMethodologyCandidates,
+              ...findMethodologyCodeFallbackCandidates(document),
+            ],
+        { allowMedium: true },
+      );
   const baselineMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "baselineMethodology") as FieldRule);
   const monitoringMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "monitoringMethodology") as FieldRule);
   const creditingPeriod = findField(document, FIELD_RULES.find((rule) => rule.field === "creditingPeriod") as FieldRule);
