@@ -1,0 +1,133 @@
+{
+  "roadmapId": "quickcheck-eval-learning",
+  "name": "Quick Check Eval-Driven Learning Loop",
+  "status": "not_started",
+  "currentGoalId": "qcel-0-roadmap-boundary",
+  "goals": [
+    {
+      "id": "qcel-0-roadmap-boundary",
+      "title": "Roadmap and PR boundary",
+      "status": "not_started",
+      "dependsOn": [],
+      "branch": "docs/quickcheck-eval-learning-roadmap",
+      "doneCriteria": [
+        "roadmap.md exists",
+        "phase-status.json exists",
+        "all goals are listed",
+        "no production code changed"
+      ]
+    },
+    {
+      "id": "qcel-1-eval-corpus-metadata",
+      "title": "Extend existing eval corpus metadata",
+      "status": "not_started",
+      "dependsOn": ["qcel-0-roadmap-boundary"],
+      "branch": "feat/quickcheck-eval-corpus-metadata",
+      "doneCriteria": [
+        "existing evalCorpus types extended only where needed",
+        "manifest Zod validation remains compatible",
+        "no parallel runner added",
+        "tests pass"
+      ]
+    },
+    {
+      "id": "qcel-2-taisei-gold-fixture",
+      "title": "Add Taisei PDD gold fixture",
+      "status": "not_started",
+      "dependsOn": ["qcel-1-eval-corpus-metadata"],
+      "branch": "feat/quickcheck-taisei-gold-fixture",
+      "doneCriteria": [
+        "Taisei fixture added to existing eval corpus",
+        "expected answers, quote anchors, pages, and section hints included",
+        "baseline failure report captured before selector fix"
+      ]
+    },
+    {
+      "id": "qcel-3-core-selector-fixes",
+      "title": "Fix five core selectors against Taisei",
+      "status": "not_started",
+      "dependsOn": ["qcel-2-taisei-gold-fixture"],
+      "branch": "fix/quickcheck-core-authoritative-selectors",
+      "doneCriteria": [
+        "Taisei fixture passes",
+        "old corpus does not regress",
+        "strict eval passes"
+      ]
+    },
+    {
+      "id": "qcel-4-messy-pdd-fixture-pack",
+      "title": "Add representative messy PDD fixture pack",
+      "status": "not_started",
+      "dependsOn": ["qcel-3-core-selector-fixes"],
+      "branch": "feat/quickcheck-messy-pdd-fixtures",
+      "doneCriteria": [
+        "5 to 10 representative fixtures added",
+        "each fixture has expected answer, page, quote, and failure reason",
+        "strict eval passes"
+      ]
+    },
+    {
+      "id": "qcel-5-correction-export-json",
+      "title": "Add correction export JSON",
+      "status": "not_started",
+      "dependsOn": ["qcel-4-messy-pdd-fixture-pack"],
+      "branch": "feat/quickcheck-correction-export",
+      "doneCriteria": [
+        "answer cards can export correction JSON",
+        "no production repo file writes",
+        "feedback does not change production behavior"
+      ]
+    },
+    {
+      "id": "qcel-6-learning-queue",
+      "title": "Add learning queue and promotion workflow",
+      "status": "not_started",
+      "dependsOn": ["qcel-5-correction-export-json"],
+      "branch": "docs/quickcheck-learning-queue",
+      "doneCriteria": [
+        "learning queue format exists",
+        "promotion workflow documented",
+        "candidate corrections require review before gold fixture promotion"
+      ]
+    },
+    {
+      "id": "qcel-7-active-corpus-report",
+      "title": "Add active corpus report",
+      "status": "not_started",
+      "dependsOn": ["qcel-6-learning-queue"],
+      "branch": "feat/quickcheck-active-corpus-report",
+      "doneCriteria": [
+        "weakest check IDs reported",
+        "weakest document types reported",
+        "weakest methodology contexts reported",
+        "provenance and unclear/no_evidence rates grouped"
+      ]
+    },
+    {
+      "id": "qcel-8-future-check-packs",
+      "title": "Define future check pack process",
+      "status": "not_started",
+      "dependsOn": ["qcel-7-active-corpus-report"],
+      "branch": "docs/quickcheck-future-check-packs",
+      "doneCriteria": [
+        "new check pack format documented",
+        "each new check requires fixtures and evidence rules",
+        "no broad check expansion before core checks are stable"
+      ]
+    }
+  ],
+  "phase_meta": {
+    "status": "not_started",
+    "summary": "Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.",
+    "current_focus": "Goal 0: Create roadmap files and separate this work from any in-flight selector PR.",
+    "not_active_now": [
+      "All implementation goals (Goals 1–8)",
+      "Selector fixes",
+      "Correction export UI",
+      "Active corpus reporting"
+    ],
+    "last_updated_at": "2026-06-18T00:00:00Z"
+  },
+  "pr_evidence": {},
+  "pr_notes": {}
+}
