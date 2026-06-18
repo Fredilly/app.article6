@@ -2,7 +2,7 @@
   "roadmapId": "quickcheck-eval-learning",
   "name": "Quick Check Eval-Driven Learning Loop",
   "status": "active",
-  "currentGoalId": "qcel-4-messy-pdd-fixture-pack",
+  "currentGoalId": "qcel-5-correction-export-json",
   "goals": [
     {
       "id": "qcel-0-roadmap-boundary",
@@ -57,7 +57,7 @@
     {
       "id": "qcel-4-messy-pdd-fixture-pack",
       "title": "Add representative messy PDD fixture pack",
-      "status": "not_started",
+      "status": "done",
       "dependsOn": ["qcel-3-core-selector-fixes"],
       "branch": "feat/quickcheck-messy-pdd-fixtures",
       "doneCriteria": [
@@ -119,10 +119,9 @@
   "phase_meta": {
     "status": "active",
     "summary": "Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.",
-    "current_focus": "Goal 4: Add representative messy PDD fixture pack to cover diverse document patterns.",
+    "current_focus": "Goal 5: Add correction export JSON to Quick Check answer cards.",
     "not_active_now": [
-      "Goals 5–8",
-      "Correction export UI",
+      "Goals 6–8",
       "Active corpus reporting"
     ],
     "last_updated_at": "2026-06-18T00:00:00Z"
@@ -131,12 +130,16 @@
     "779": { "title": "docs: Quick Check eval-driven learning loop roadmap" },
     "780": { "title": "feat: add expectedAnswer and failureReason to eval corpus metadata" },
     "781": { "title": "test: add Taisei PDD gold fixture to eval corpus" },
-    "782": { "title": "fix: authoritative selectors for project title, host country, methodology" }
+    "782": { "title": "fix: authoritative selectors for project title, host country, methodology" },
+    "784": { "title": "test: add messy carbon document fixture pack (Goal 4)" },
+    "787": { "title": "test: complete messy PDD fixture pack (Goal 4)" }
   },
   "pr_notes": {
     "779": "Goal 0 complete: roadmap files created.",
     "780": "Goal 1 complete: expectedAnswer and failureReason fields added to eval corpus types.",
     "781": "Goal 2 complete: Taisei PDD gold fixture with baseline failure report, separate non-blocking manifest.",
-    "782": "Goal 3 complete: 5/6 core checks answered with provenance. Leakage/additionality unclear due to parser limitations."
+    "782": "Goal 3 complete: 5/6 core checks answered with provenance. Leakage/additionality unclear due to parser limitations.",
+    "784": "Goal 4 (partial): 3 messy fixtures added (envira-full-vcs-pd, vichada-validation, gen-forest-verification).",
+    "787": "Goal 4 complete: 5 total messy fixtures. Added monitoring-report and rimba-raya patterns."
   }
 }

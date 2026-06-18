@@ -283,6 +283,178 @@
       },
       "failureReason": "CCB & VCS verification report with extensive CAR/CL commentary sections. Fact contract extraction fails — verification reports lack structured PDD fields. Limited section detection (only monitoring and additionality-style sections found). Tests safe routing on commentary-heavy non-PDD documents.",
       "notes": "Generation Forest Group Project verification report (ICONTEC, 60 pages). Heavy CAR/CL/commentary structure. Only monitoring and additionality sections found — baseline and leakage absent because verification reports discuss findings, not methodology structure."
+    },
+    {
+      "id": "real-monitoring-report",
+      "fixturePath": "tests/fixtures/quick-check/monitoring-report-fallback.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "ACM0010",
+        "methodologyVersion": "03.0"
+      },
+      "gold": {
+        "documentFamily": "UNKNOWN",
+        "projectTitle": "Monitoring Report",
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": "ACM0010 Version 03.0",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": "Monitoring Plan",
+        "leakageSection": null,
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring Report"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["ACM0010"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Monitoring report document — UNKNOWN family classification. Differs from PDD/validation/verification reports. Only project_title and methodology extract reliably (ACM0010 found from body text). Tests that the router safely falls back to no_evidence/unclear on non-PDD documents without hallucinating.",
+      "notes": "Delta Mangrove Restoration monitoring report. Non-PDD document pattern. Tests document family robustness for monitoring reports that lack structured PDD sections."
+    },
+    {
+      "id": "real-rimba-raya",
+      "fixturePath": "tests/fixtures/quick-check/rimba-raya-fallback.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0004",
+        "methodologyVersion": "1.0"
+      },
+      "gold": {
+        "documentFamily": "UNKNOWN",
+        "projectTitle": "Rimba Raya Biodiversity Reserve Project",
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": "VM0004 Version 1.0",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Baseline Scenario",
+        "monitoringSection": "Monitoring Plan",
+        "leakageSection": "Leakage Management",
+        "additionalitySection": "Additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Rimba Raya Biodiversity Reserve Project"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0004"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring"],
+              "sectionHints": ["Monitoring Plan"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Bare project summary with TOC — UNKNOWN family classification. Only project_title, methodology, and monitoring extract reliably. Section detection finds monitoring via heading path but baseline/additionality/leakage sections lack body content. Tests routing on minimal documents that have section headings but no body prose.",
+      "notes": "Rimba Raya Biodiversity Reserve Project summary document. Minimal document pattern with TOC but little body text. Tests that section_index works for monitoring when headings exist but most section checks safely fall back to unclear."
     }
   ]
 }
