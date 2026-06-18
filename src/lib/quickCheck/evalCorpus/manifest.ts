@@ -15,6 +15,7 @@ const questionExpectationSchema = z.object({
   expectedRoute: z.enum(["project_fact_contract", "section_index", "table_index", "lexical_retrieval", "fallback"]).optional(),
   expectedEvidenceEmpty: z.boolean().optional(),
   goldEvidence: goldEvidenceSchema.optional(),
+  expectedAnswer: z.string().min(1).optional(),
   visibleAnswerStatus: z.enum(["likely_yes", "likely_no", "unclear"]).optional(),
   visibleAnswerTextContains: z.string().min(1).optional(),
   visibleAnswerEvidenceMin: z.number().int().min(0).optional(),
@@ -52,6 +53,7 @@ const fixtureSchema = z.object({
     questionExpectations: questionExpectationsSchema,
   }).strict(),
   notes: z.string().optional(),
+  failureReason: z.string().min(1).optional(),
 }).strict();
 
 const manifestSchema = z.object({
