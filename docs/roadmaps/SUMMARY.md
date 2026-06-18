@@ -180,7 +180,7 @@ Lane status: Active
 Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.
 
 Not active now:
-- Goals 6–8
+- Goals 7–8
 - Active corpus reporting
 
 
