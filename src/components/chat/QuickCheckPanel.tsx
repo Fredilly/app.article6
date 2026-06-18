@@ -2320,6 +2320,41 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               ) : null}
                             </div>
                           )}
+                          <button
+                            type="button"
+                            className="mt-2 flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[10px] text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                            onClick={() => {
+                              const primarySource = selectedEvidenceSources[0];
+                              const correction = {
+                                documentId: primarySource?.evidenceId ?? draft.evidenceIds[0] ?? "",
+                                documentName: draft.evidenceFileName || extractionPreviewView?.fileName || "",
+                                documentType: extractionPreviewView?.detectedDocumentType ?? "",
+                                methodologyId: draft.methodologyId,
+                                checkId: result.checkId,
+                                currentAnswer: result.answerText,
+                                currentStatus: result.status,
+                                currentQuote: result.quotes[0] ?? "",
+                                currentPage: result.pages[0] ?? null,
+                                currentSection: result.sections[0] ?? "",
+                                evidenceSpanIds: result.evidenceSpanIds,
+                                correctedAnswer: "",
+                                correctedQuote: "",
+                                correctedPage: null,
+                                correctedSection: "",
+                                confidence: 0,
+                                failureReason: "",
+                              };
+                              const blob = new Blob([JSON.stringify(correction, null, 2)], { type: "application/json" });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = `correction-${result.checkId}-${Date.now()}.json`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            }}
+                          >
+                            Export correction
+                          </button>
                         </div>
                       </details>
                     );
