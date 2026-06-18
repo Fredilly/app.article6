@@ -171,6 +171,21 @@ Not active now:
 - Additional Quick Check tactical alias patches
 
 
+## quickcheck-eval-learning
+
+Status SSOT: `docs/roadmaps/quickcheck-eval-learning/phase-status.json`
+Details: `docs/roadmaps/quickcheck-eval-learning/ROADMAP.md`
+
+Lane status: Unknown
+Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.
+
+Not active now:
+- All implementation goals (Goals 1–8)
+- Selector fixes
+- Correction export UI
+- Active corpus reporting
+
+
 ## requirement-coverage
 
 Status SSOT: `docs/roadmaps/requirement-coverage/phase-status.json`
