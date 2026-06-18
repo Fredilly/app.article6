@@ -143,6 +143,7 @@
     "782": "Goal 3 complete: 5/6 core checks answered with provenance. Leakage/additionality unclear due to parser limitations.",
     "784": "Goal 4 (partial): 3 messy fixtures added.",
     "785": "Goal 5: Correction export button. Client-side JSON download, no server writes, no behavior changes.",
-    "787": "Goal 4 complete: 5 full messy fixtures (replaced tiny samples with full-redd-pd-v130 and plum-ccb-full)."
+    "787": "Goal 4 complete: 5 full messy fixtures (replaced tiny samples with full-redd-pd-v130 and plum-ccb-full).",
+    "789": "Goal 6 complete: LEARNING_QUEUE.md with queue format, promotion workflow, and rules."
   }
 }
