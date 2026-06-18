@@ -283,6 +283,194 @@
       },
       "failureReason": "CCB & VCS verification report with extensive CAR/CL commentary sections. Fact contract extraction fails — verification reports lack structured PDD fields. Limited section detection (only monitoring and additionality-style sections found). Tests safe routing on commentary-heavy non-PDD documents.",
       "notes": "Generation Forest Group Project verification report (ICONTEC, 60 pages). Heavy CAR/CL/commentary structure. Only monitoring and additionality sections found — baseline and leakage absent because verification reports discuss findings, not methodology structure."
+    },
+    {
+      "id": "real-full-redd-pd-v130",
+      "fixturePath": "tests/fixtures/quick-check/pd-redd-v130-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VCS_PD",
+        "projectTitle": null,
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Baseline Emissions",
+        "monitoringSection": "Monitoring Plan",
+        "leakageSection": "Leakage",
+        "additionalitySection": "Additional Information Relevant to the Project",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Baseline Emissions"],
+              "sectionHints": ["Baseline Emissions"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring"],
+              "sectionHints": ["Monitoring Plan"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Leakage"],
+              "sectionHints": ["Leakage"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Additional Information"],
+              "sectionHints": ["Additional Information Relevant to the Project"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Full PD_REDD_v1_130 VCS PD (144 spans, 366K chars). Repeated page headers across every page fragment section headings and drown fact-level extraction (title, host, methodology all return null). Section detection survives and routes baseline/monitoring/leakage/additionality through section_index. Tests robustness of section routing on repeated-header full-extraction documents.",
+      "notes": "Full 366K-char VCS PD for PD_REDD_v1_130. Repeated-header pattern across 100+ pages. Section detection works well (8 baseline, 2 leakage, 1 additionality) but fact extraction returns null for all structured fields. Complements the existing excerpt fixture (real-pd-redd-v130) which passes strict eval."
+    },
+    {
+      "id": "real-plum-ccb-full",
+      "fixturePath": "tests/fixtures/quick-check/a-pdf-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VERRA_PD",
+        "projectTitle": null,
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": "Monitoring Plan",
+        "leakageSection": null,
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["Monitoring"],
+              "sectionHints": ["Monitoring Plan"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Full PLUM CCB & VCS PD (84 spans, 48K chars). Fact contract extraction fails entirely (title, host, methodology all null/undefined). Only methodology (via structured input) and monitoring (via section_index) produce answers. Tests that the router limits answers to provenanced sections on documents where the fact contract finds nothing.",
+      "notes": "Full PLUM Project CCB & VCS PD. Complements the existing plum-weak-ocr (which tests OCR degradation) and plum-pdd (regression excerpt). This fixture tests the full extracted document where section detection is minimal and fact extraction is absent."
     }
   ]
 }
