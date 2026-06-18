@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "quickcheck:eval": "jest tests/evals/quickCheckEval.test.ts --runInBand",
     "quickcheck:eval:corpus": "npx tsx scripts/run-quickcheck-eval-corpus.ts",
+    "quickcheck:eval:taisei": "npx tsx scripts/run-quickcheck-eval-corpus.ts --manifest tests/fixtures/quick-check/corpus/taisei-baseline-eval-corpus.json",
     "ci": "npm run guard:methodology-boundary && npm run lint && npm run typecheck && npm run check:docs-layout && npm run roadmap:validate-evidence && npm run quickcheck:eval && npm test && npm run build && npm run check:quick-check-pdf-trace && npm run roadmap:check",
     "test": "jest --passWithNoTests",
     "test:e2e": "playwright test",

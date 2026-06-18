@@ -1,0 +1,135 @@
+{
+  "manifestVersion": 1,
+  "corpusId": "taisei-china-baseline",
+  "fixtures": [
+    {
+      "id": "real-taisei-china-cdm",
+      "fixturePath": "tests/fixtures/quick-check/taisei-china-pdd-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "ACM0010",
+        "methodologyVersion": "02"
+      },
+      "gold": {
+        "documentFamily": "CDM_PDD",
+        "projectTitle": "Methane Digestion and Utilisation CDM project from Swine Manure, Foodstuffs Group Co., Laiyang City in Shandong Province",
+        "hostCountry": "The People's Republic of China",
+        "projectCountry": "The People's Republic of China",
+        "methodology": "ACM0010 Version 02",
+        "creditingPeriod": "01/01/2009 (10 years fixed)",
+        "reportingPeriod": null,
+        "baselineSection": "B.4 Description of how the baseline scenario is identified and description of the identified baseline scenario",
+        "monitoringSection": "B.7 Application of the monitoring methodology and description of the monitoring plan",
+        "leakageSection": "Leakage",
+        "additionalitySection": "B.5 Description of how the anthropogenic emissions of GHG by sources are reduced below those that would have occurred in the absence of the registered CDM project activity",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "expectedAnswer": "Methane Digestion and Utilisation CDM project from Swine Manure, Foodstuffs Group Co., Laiyang City in Shandong Province",
+            "goldEvidence": {
+              "pages": [2],
+              "spanAnchors": ["Methane Digestion and Utilisation CDM project from Swine Manure"],
+              "sectionHints": ["A.1 Title of the project activity"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "Methane Digestion and Utilisation CDM project",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "expectedAnswer": "The People's Republic of China",
+            "goldEvidence": {
+              "pages": [4],
+              "spanAnchors": ["Host Party", "The People's Republic of China"],
+              "sectionHints": ["A.4.1.1 Host Party"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "People's Republic of China",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "expectedAnswer": "ACM0010 (Version 02), Consolidated methodology for GHG emission reductions from manure management systems",
+            "goldEvidence": {
+              "pages": [11],
+              "spanAnchors": ["ACM0010 (Version 02)", "Consolidated methodology for GHG emission reductions from manure management systems"],
+              "sectionHints": ["B.1 Title and reference of the approved baseline and monitoring methodology"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "ACM0010",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "expectedAnswer": "Baseline III: urine is treated in an anaerobic lagoon, while dried manure is utilized as organic fertilizer",
+            "goldEvidence": {
+              "pages": [14],
+              "spanAnchors": ["BASELINE Ⅲ: Urine is treated in anaerobic lagoon, while dried manure is utilized as organic fertilizer"],
+              "sectionHints": ["B.4 Description of how the baseline scenario is identified"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "BASELINE",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "expectedAnswer": "The project applies ACM0010 monitoring methodology. It monitors baseline and project emission parameters including animal waste management, livestock populations, animal weights, biogas flow, methane concentration, electricity exported to the grid, and liquid fertilizer/digested liquor flow.",
+            "goldEvidence": {
+              "pages": [28],
+              "spanAnchors": ["In deciding monitoring methodology, ACM0010 Consolidated baseline methodology for GHG emission reduction from manure management system"],
+              "sectionHints": ["B.7 Application of the monitoring methodology and description of the monitoring plan"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "monitoring methodology",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "expectedAnswer": "Leakage covers emissions from land application of treated manure outside the project boundary. Net N2O and CH4 leakage is not considered because negative; ex-ante leakage estimate is 0 tCO2e/year.",
+            "goldEvidence": {
+              "pages": [24],
+              "spanAnchors": ["Leakage covers the emissions from land application of treated manure, outside the project boundary"],
+              "sectionHints": ["Leakage"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "land application of treated manure",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "expectedAnswer": "The project is additional because the baseline differs from the proposed CDM project activity, and the NPV comparison supports the CDM case. The cost of the non-CDM alternative is much higher than Baseline III.",
+            "goldEvidence": {
+              "pages": [16],
+              "spanAnchors": ["The baseline determination process has demonstrated that the baseline is different from the proposed project activity not undertaken as a CDM project activity, it is concluded that the project is additional"],
+              "sectionHints": ["B.5 Description of how the anthropogenic emissions of GHG by sources are reduced below those that would have occurred in the absence of the registered CDM project activity"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerTextContains": "project is additional",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedAnswer": "Not applicable to this CDM project",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "This fixture catches real PDD extraction failures where Quick Check must extract project facts and section-backed answers from the PDD itself, not guess from nearby methodology text or unrelated sections. It specifically catches wrong host country extraction, over-broad methodology answers, and generic baseline/additionality/leakage summaries without direct PDD provenance. Known failures: host_country selector matches generic 'China' references instead of structured Host Party field in A.4.1.1; methodology selector returns broad method context instead of B.1 title; baseline/additionality selectors produce generic summaries without anchoring to specific B.4/B.5 text.",
+      "notes": "Real CDM PDD for Foodstuffs Group methane digestion project in Laiyang City, Shandong Province, China. Full 51-page extraction. Tests host country from structured Host Party field (A.4.1.1), methodology from B.1 title, baseline from identified scenario at B.4 table/conclusion, additionality from B.5 demonstration, and leakage from the dedicated Leakage subsection (not generic applicability text)."
+    }
+  ]
+}
