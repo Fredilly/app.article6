@@ -1,0 +1,2374 @@
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 1
+CLEAN DEVELOPMENT MECHANISM
+PROJECT DESIGN DOCUMENT FORM (CDM-PDD)
+Version 03 - in effect as of: 28 July 2006
+CONTENTS
+A. 	General description of project activity
+B. 	Application of a baseline and monitoring methodology
+C. 	Duration of the project activity / crediting period
+D. 	Environmental impacts
+E. 	Stakeholders’ comments
+Annexes
+Annex 1: Contact information on participants in the project activity
+Annex 2: Information regarding public funding
+Annex 3: Baseline information
+Annex 4: Monitoring plan
+
+-- 1 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 2
+SECTION A. 	General description of project activity
+A.1 	Title of the project activity:
+The title of the project activity: Methane Digestion and Utilisation CDM project from Swine
+Manure , Foodstuffs Group Co., Laiyang City in Shandong Province
+The current version number of the document: Version 01
+The date of the document was completed: 03/05/2007
+A.2. 	Description of the project activity :
+The objective of this project is to generate electric power by applying methane fermentation process, and
+to sell extra electricity to the external grid, while by co-generation system producing heat energy to warm
+methane fermentation tank. The project will be implemented on the pig farm site owned by 	Foodstuff
+Group Co., Ltd., in Laiyang City, Shandong Province, People’s Republic of China.
+Figure A.1 : Biogas System
+On the farm at present, pig manure, urine and waste water (from rinsing the farm) is separated into
+manure and urine (containing waste water) ; manure is used for the raw materials of organic fertilizer,
+while urine is treated in the anaerobic lagoon on the farm site, resulting in emission sources of GHG,
+including methane (CH4 ) and un-oxydated Nitrogen (N2 O). This basic scheme of this project is to
+curve GHG emissions such as methane and N 2 O by effectively utilizing methane gas recovered from the
+No.3 Pig farm
+Hydrolysis tank
+Anaerobic tank
+Desulphurization tower
+Biogas storage
+Power generator
+Flare system
+Digested liquor storage
+Equalization tank
+Biogas System
+Liquid fertilizer
+Liquid fertilizer
+Electricity
+
+-- 2 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 3
+anaerobic fermentation tank built on the site.
+In China, demand for pig meat has been substantially on the increase caused by population growth as well
+as by improved living standard in line with socio-economic development of the country. In recent years,
+pig farm or pig raising business is becoming toward more professionally managed and centralized.
+At present time, there are over 15,000 large-and-medium-scaled pig farms countable across the country.
+According to the statistics of year 2003 issued by National Department of Agriculture, there were over
+4,000 farms which were raising more than 3,000 heads of pigs respectively; and they are shipping 31.33
+million pigs each year now.
+In such scaled pig farms, drastically improved efficiency for pig raising enables high degree of cost
+reduction, although counterproductive matters come to appear to result in serious environmental problems
+caused by accumulated amount of manure and waste water derived from farm operation.
+Statistics compiled by Shanghai Municipal Office identifies livestock manure as the 3 rd largest (or over
+30%) among the causes for environmental pollutions.
+Energy consumption in China is being on a rapid increase because of accelerated economic development
+to such an extent that primary energy consumption, e.g., is successively growing every year: 3.0% in
+1900 – 2001; 9.9% 2001 – 2002; 13.2% 2002 – 2003 respectively. Electric power consumption: 8.1% in
+1990 – 2001; 11.6% 2001 – 2002; 14.3% 2002 – 2003 respectively. The rapid growth of energy use is
+fulfilled by fossil fuel resources including coal and petroleum causing GHG emissions.
+Almost 100 % of electric power consumed in Laiyang City is produced by coal burning; and yet the
+chances will be high for the City to reduce GHG emissions by replacing conventional power generation
+with methane gas power system to be interfaced with the grid network in the area.
+Residues from the fermentation process will be supplied to the farmers in the neighbourhood who can
+Use it for quality liquid fertilizer, so that environmental load may be lowered substantially.
+Biogas power generation from livestock manure using methane fermentation process will be sure not only
+to curve serious environmental problems but to meet ever-growing energy demand without further load
+on the environment, thus eventually proving to make a great contribution to China’s sustainable growth in
+the future.
+A.3. 	Project participants:
+Table A.1 : Project participants
+Name of Party involved ((host)
+indicates a host Party)
+Private and/or public
+entity(ies) project participants
+Kindly indicate if the Party
+involved wishes to be
+considered as project
+participants
+The People’s Republic of China
+(host) Foodstuffs Group Co., 	NO
+Taisei Corporation
+Hokkaido Electric Power Co.,
+Inc.
+Japan
+Iwatani International Corporation
+NO
+
+-- 3 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 4
+Detailed contact information of the project participants is given in Annex 1.
+A.4. 	Technical description of the project activity:
+A.4.1. Location of the project activity:
+A.4.1.1. 	Host Party(ies):
+The People’s Republic of China
+Figure A.2 : Map of The People’s Republic of China
+A.4.1.2. 	Region/State/Province etc.:
+>>
+Shandong Province
+A.4.1.3. 	City/Town/Community etc:
+Laiyang City
+
+-- 4 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 5
+Figure A.3 : Project location in the Laiyang City
+A.4.1.4. 	Detail of physical location, including information allowing the
+unique identification of this project activity (maximum one page):
+In the middle of Shandong Peninsula, Laiyang lies in middle of Lanyan railway (from Lancun to Yantai)
+It borders Haiyang on the east, Laixi on the west, Qixia and Zhaoyuan on the north and Jimo on the south.
+It is 35 kilometers from west to east and 65 kilometers from south to north. The land area of whole city
+totals 1731.54 square meters. The coastline is 27.5 kilometers in curve. The city zone is located in the
+middle by north.
+Figure A.4 : The plant of the pig farm
+
+-- 5 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 6
+A.4.2. Category(ies) of project activity:
+The categories of the project activity are Sector Scope 13- waste handling and disposal; and Sector
+Scope 15- Agriculture.
+A.4.3. Technology to be employed by the project activity:
+>>
+When recovering methane gas by treating manure from pig farm, there are two process systems applicable
+as show on Fig.8-12: Overall Methane Gas Utilization Process and Methane Gas Intensive Water
+Treatment Process
+Proper selection among these processes may be decided according to the scale of the farm, total amount
+of organic resources, water-discharging standard, project investment size, and environmental capacity.
+Main features of each process system are described as below:
+（１）Overall Methane Gas Utilization Process
+① Process Application Conditions
+require large-size user(s) in the neighbourhood to the pig farm, such as big agri-farm, fish-culture
+farm, and fruit farm who can consume liquid effluent or liquid fertilizer;
+need methane gas consumer(s) nearby the pig farm;
+prefer the project site(pig farm), to the circumstantial lands of which has a wide environmental
+capacity for waste water discharge, e.g.
+Figure A.5 : Process of integrated utilization type
+Figure A.6: Process of advanced sewage treatment type
+aeration
+pond
+screen	manure 	Anaerobic
+fermentation
+coagulation 	Farm etc.
+biogas
+cleanup
+biogas
+strage
+boiler
+generator
+fertilizer
+methane gas
+【integrated utilization type 】
+Anaerobic
+fermentation
+SBR 	coagulation
+cattle urine
+【advanced sewage treatment type】
+aeration
+pond
+biogas
+cleanup
+biogas
+strage
+boiler
+generator
+treatment
+water
+composting
+treatment
+sludge	dried excrement
+animal feces
+methane gas
+organic
+fertilizer
+
+-- 6 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 7
+② Features of the Process
+Almost all of the manure and waste water from pig farm can be treated by automatically-operated
+system
+For the anaerobic treatment process, total anaerobic mixing tank or anaerobic contact reactor can be
+employed; efficient in treating high SS density effluent; HRT8-10 days; COD removal ratio 75-85%;
+Gasification ratio/volume 0.6-1.0m3 /m3 .d; Anaerobic treated effluent COD 1,500-3,000mg/l
+Digested effluent can be totally used; therefore, enabling to structure a recycle system based on
+methane gas recovery process resulting in favorable economics
+③ Benefits of the Process
+Total configuration of the process is simple and easy to operate and control。
+High rate of methane gas production can be obtained
+Equipment Investment and operational expenses are low, and payback time on
+investment will be shorter
+④ Drawbacks of the Process
+Efficiency of the process is not so high
+high density of the treated effluent may pollute periphery environment
+Pollution materials are digested on the plant site, and therefore wider range and amount of physical
+resources are required to achieve total utilization scheme of the process
+（２）Methane Gas Intensive Water Treatment Process
+① Process Application Conditions
+Applicable to such large-size pig firms that ship over 5,000 heads per year
+Suitable for the plant site controlled by strict discharging rules
+② Features of the Process
+Pig farm never fails to practice hygiene breeding by segregating dry matters
+from wet materials, so that dried manure is used to produce organic
+fertilizer
+Waste water is always pretreated before discharging, and separating solid from liquid matters is
+reinforced by sedimentation thus to control SS density quite strictly
+For anaerobic process configuration, UASB anaerobic reactor can be employed with HRT= 3 days;
+COD Removal ratio 80%-85%; Gasification ratio per Volume 率 1.0-1.2m3 /m3 .d; Anaerobic-treated
+effluent 700-1,000mg/l。
+For aerobic process configuration, SBR system can be adopted to obtain removal effects of COD,
+Nitrogen, Phosphorous, with HRT=2-3 days; COD Removal ratio 90-95%; NH3 -N95 ratio < 95%
+After 	aerobic 	treatment, 	further 	intensive 	treatment 	can 	be 	attained 	by 	condensation 	and
+
+-- 7 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 8
+sedimentation process
+Sludge treated by anaerobic―aerobic processes makes good organic fertilizer after dehydrated;
+continuous aerobic bio-composting process is employed to make organic fertilizer
+③ Benefits of the Process
+Not only able to recover methane gas, but to meet water-discharge
+regulations through intensive waste water treatment; therefore thus so widely applicable
+Process efficiency is so high as to attain great level of operational control
+management
+Removal ratio of COD and NH3 -N is high
+④ Drawbacks of the Process
+Equipments investment is expensive and so as operational expenses
+Highly-skilled operator(s) is required for smooth operational control
+Off-take use of dried manure for organic fertilizer lowers methane
+gas production volume
+（３）Process Selection
+Careful reviewing and comparing the above 2 processes’ benefits as well as their drawbacks has made us
+decide to adopt “Overall Methane Gas Utilization Process” as a new manure-treatment system for the
+following reasons:
+Around Pig Farm site, wide areas of agricultural land、fish culture farms and fruit plantation farms
+are located, which can provide large degree of environmental capacity allowing for overall
+utilization of digested effluent
+The process will be more economically competitive because of higher income expectable from
+electric power disposal to the grid which is generated by more methane gas recoverable compared
+with the other process
+The process is 50% less expensive in operational costs and equipment investment is about 40% less
+than the other process
+Liquid waste emitted from is retained in collecting pond, and then sand will be separated during
+the water going through the sand screen ditch while large foreign matters and impurities being removed
+by the filter screen , then transported into the oxidation adjustment pond.
+From the pond, the pre-treated liquid water will be pumped into anaerobic fermentation tank for
+anaerobic fermentation processing. The methane gas produced around the internal top of the tank will
+be st6red into the gas storage tank after treatment by way of dehydration and de-sulphurication (or gas
+purification process). The purified methane gas then will be sent to the CHP (combined heat and power
+generator) for power generation; and when the CHP is out of service for maintenance, methane gas will
+be transferred to the Flare stuck for burning in the air. The digested effluent from the anaerobic
+fermentation tank will be stored in the digested effluent storage pond for further treatment by diluting
+with water for irrigation water used by nearby agricultural farmers.
+Figure A.7 : The bird’s eye view of the plant site;
+
+-- 8 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 9
+Figure.A.8 : The plant configuration.
+
+-- 9 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 10
+A.4.4 	Estimated amount of emission reductions over the chosen crediting period:
+>>
+Years Annual estimation of emission reductions in tons
+of CO2e
+2009 	27,774
+2010 	27,774
+2011 	27,774
+2012 	27,774
+2013 	27,774
+2014 	27,774
+2015 	27,774
+2016 	27,774
+2017 	27,774
+2018 	27,774
+Total estimated reductions (tons of CO2e ) 	277,740
+Total number of crediting years 	10
+Annual average over the crediting period of
+estimated reductions (tons of CO2e )
+27,774
+A.4.5. Public funding of the project activity:
+There is no public funding involved in this project activity.
+
+-- 10 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 11
+SECTION B. 	Application of a baseline and monitoring methodology
+B.1. 	Title and reference of the approved baseline and monitoring methodology applied to the
+project activity:
+>>
+ACM0010 (Version 02) “Consolidated methodology for GHG emission reductions from manure
+management systems”
+B.2 	Justification of the choice of the methodology and why it is applicable to the project
+activity:
+This approved methodology ACM0010 is applicable to manure management system with the following
+conditions:
+z 	Farms where livestock populations, comprising of cattle, buffalo, swine, sheep, goats, and/or poultry,
+is managed under confined conditions;
+z 	Farms where manure is not discharged into natural water resources (e.g. rivers or estuaries);
+z 	In case of anaerobic lagoons treatments systems, the depth of the lagoons used for manure
+management under the baseline scenario should be at least 1m1 .
+z 	The annual average temperature in the site where the anaerobic manure treatment facility in the
+baseline existed is higher than 5°C.
+z 	In the baseline case, the minimum retention time of manure waste in the anaerobic treatment system
+is greater than 1 month.
+z 	The AWMS/process in the project case should ensure that no leakage of manure waste into ground
+water takes place, e.g., the lagoon should have a non-permeable layer at the lagoon bottom.
+The proposed project can meet all the above requirements of the baseline methodology with the following
+conditions. So this methodology is applicable to the proposed project.
+z 	The farm of the proposed project where livestock populations comprising of swine is managed under
+confined conditions;
+z 	AWMS system, including baseline scenario and alternative project manure management system, is in
+accordance with regulatory frameworks of the host country. The swine manure is not discharged into
+natural water resources (e.g. rivers or estuaries).
+z 	The depth of anaerobic lagoon treatment systems of the baseline scenario is deeper than 2.5m.
+z 	The annual average temperature at the project site is 8.75℃.
+z 	The minimum retention time of manure waste in the anaerobic lagoon is greater than 40 days.
+z 	The AWMS/process in the project case will not cause any leakage of manure waste into ground
+water.
+The baseline methodology, ASM-I.D.-Version 09, was chosen because it offers a GHG emissions model
+that can be used to characterize baseline emissions for project activities that use renewable energy
+technologies that supply electricity. Specifically, the methodology is applicable because:
+z 	The project activity includes renewable energy generation from, biogas cogeneration to offset the use
+of electricity supplied by coal-fired generating units.
+z 	The added new renewable component is less that 15MW, which qualifies as a small scale CDM
+project activity.
+
+-- 11 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 12
+B.3. 	Description of the sources and gases included in the project boundary
+>>
+Figure B.1 : Project Boundary
+Table B.1 : Sources and gases included in the project boundary
+Source 	Gas 	Included? 	Justification/Explanation
+CH4 	Included
+N2 O 	Included
+Direct emissions from
+the uncovered
+anaerobic lagoon
+CO2
+Excluded 	CO2 emissions from the
+decomposition of organic waste are
+not accounted.
+CH4
+Excluded 	Excluded for simplification. This is
+conservative
+N2 O Excluded 	Excluded for simplification. This is
+conservative
+Emissions from
+electricity consumption
+CO2
+Excluded 	Electricity is consumed from the grid
+in the baseline scenario
+CH4
+Excluded 	Excluded for simplification. This is
+conservative
+N2 O Excluded 	Excluded for simplification. This is
+conservative
+Baseline
+Emission from thermal
+energy generation
+CO2
+Excluded 	Thermal energy generation is not
+included in the project activity
+Project
+Activity
+Emission from thermal
+energy generation 	CH4
+Excluded 	Excluded for simplification.
+This emission source is assumed to
+be very small.
+Biogas System
+Flare
+Power
+generation
+Animal
+barns
+Land application of
+treated liquid
+Grid
+Project Boundary
+
+-- 12 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 13
+N2 O
+Excluded 	Excluded for simplification.
+This emission source is assumed to
+be very small.
+CO2
+Excluded 	Excluded for simplification.
+This emission source is assumed to
+be very small.
+CH4
+Excluded 	Excluded for simplification.
+This emission source is assumed to
+be very small.
+N2 O
+Excluded 	Excluded for simplification.
+This emission source is assumed to
+be very small.
+Emission from onsite
+electricity use
+CO2
+Excluded 	Electricity is generated from
+collected biogas. Therefore these
+emissions are not accounted.
+CH4 	Included
+N2 O 	Excluded
+Direct emissions from
+the treatment process
+CO2
+Excluded 	CO2 emissions from the
+decomposition of organic waste are
+not accounted.
+B.4. 	Description of how the baseline scenario is identified and description of the identified
+baseline scenario:
+The methodology ACM0010 determines the baseline scenario through the following steps:
+Step I: Define alternative scenarios to the proposed CDM project activity;
+Step II: Barriers analysis;
+Step III: Investment analysis;
+Step IV: Baseline revision at renewal of crediting period.
+Step I：Define alternative scenarios to the proposed CDM project activity
+Identify realistic and credible alternative scenarios that are available either to the project participants or to
+other potential project developers for managing the manure.
+The following list of scenario alternatives is derived from different AWMS presented in the 2006 IPCC
+Guidelines for National Greenhouse Gas Inventories:
+z 	Solid Storage
+z 	Liquid/Slurry
+z 	Pit Storage
+z 	Deep Bedding
+z 	Uncovered Anaerobic Lagoon
+According to the ACM0010, in drawing up a list of possible scenarios, combination of different AWMS
+should be taken into account. Possible combinations of AWMS are as follows:
+1.Anaerobic treatment - Flare
+
+-- 13 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 14
+2.Intensive Treatment by mixing manure and urine with water for discharging in the river
+3.Urine is treated in anaerobic lagoon, while dried manure is utilized as organic fertilizer
+4. This project non-applicable for registration as CDM
+Apply Sub-step 1b of “Tool for demonstration assessment and of additionality (Version 02)”. Eliminate
+alternatives that are not in compliance with all applicable legal and regulatory requirements.
+Solid Storage: This involves the storage of manure, typically for a period of several months, in
+unconfined piles or stacks. It is suitable for household farms. The proposed project is large-scale
+swine farms. So, this manure management system is not a potential alternative baseline scenario.
+Liquid/Slurry: Since the amount of discharged manure is very large even on a daily bases, storing the
+liquid manure in the tank to distribute them to the farmland requires a lot of labor work. Therefore it is
+unrealistic to implement such a task for this project under the competition of the market. Therefore this
+option faces significant barrier and is excluded from the baseline scenario.
+Pit Storage: This project site is a large-scale livestock farm and the manure quantity produced is too
+large to implement pit storage structure under the barns, so this scenario is excluded.
+Deep Bedding: The deep bedding is laborious and this is counter to achieving economies of scale
+associated with large animal counts. The concentration of nocuous gas in the bedding is high enough to
+poison pigs if it is disposed inappropriately, and it is favourable for the survival and breeding of vermin
+and microorganisms due to its high temperature and humidity. So, the deep bedding practice is excluded
+from consideration. This system is more applicable to small scale farms.
+Uncovered Anaerobic Lagoon: This system is the most common system in China, but in China,
+for enforcing anti-pollution regulations aimed at livestock industry, National Environment
+Protection Agency institutes “Control and Management Methods on Pollutants derived from
+Livestock Farms”, “Standards on Pollutants Emissions derived from Livestock Farms and Industry”,
+and “Technical Standards on Pollution Protection for Livestock Farms”
+On 4.3 of “Technical Standards on Pollution Protection for Livestock Farms”, newly-built,
+re-modeled , and enlarged pig farms are prohibited to emit manure mixed with urine ; therefore, this
+particular system will not construe Baseline scenario.
+All Possible combinations of AWMS meet regulations good enough to move on to Step Ⅱ.
+Step II: Barriers analysis;
+After analysing possible technical barriers as well as and customary and institutional barriers, there are no
+barriers and constraints detected in the Baseline scenarios of combinations of AWMS.
+Step III: Investment analysis;
+According to ACM0010 in the Step Ⅲ, undertake investment analysis of all the alternatives that don’t
+face any barriers, as identified in Step II. For each alternative, all costs and economic benefits attributable
+to the waste management scenario should be illustrated in a transparent and complete manner, as in the
+following tables.
+
+-- 14 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 15
+Table B.2 : Calculation of NPV and IRR – BaselineⅠ
+COSTS AND BEBEFITS(RMB)
+BASELINE Ⅰ: Anaerobic treatment - Flare
+Year 0 	Year 1 	Year n 	Year 10
+Equipment costs 	-3,240,000
+Installation costs 	-1,085,000
+Maintenance costs 	-513,000 	-513,000 	-513,000
+Other costs 	-1,445,000
+Revenues from the sale of electricity or other
+project related products, when applicable
+TOTAL 	-5770,000 	-513,000 	-513,000 	513,000
+NPV(RMB)(discount rate = 10%) 	-8,922,163
+IRR(%) 	Undefined
+Table B.3 : Calculation of NPV and IRR – BaselineⅡ
+COSTS AND BEBEFITS(RMB)
+BASELINE Ⅱ: Intensive Treatment by
+mixing manure and urine with water for
+discharging in the river
+Year 0 	Year 1 	Year n 	Year 10
+Equipment costs 	-7,080,000
+Installation costs
+Maintenance costs 	-200,000 	-200,000 	-200,000
+Other costs
+Revenues from the sale of electricity or other
+project related products, when applicable
+TOTAL 	-7,080,000 	-200,000 	-200,000 	-200,000
+NPV(RMB)(discount rate = 10%) 	-8,308,913
+IRR(%) 	Undefined
+Table B.4 : Calculation of NPV and IRR – BaselineⅢ
+COSTS AND BEBEFITS(RMB)
+BASELINE Ⅲ: Urine is treated in anaerobic
+lagoon, while dried manure is utilized as
+organic fertilizer
+Year 0 	Year 1 	Year n 	Year 10
+Equipment costs 	-192,000
+Installation costs
+Maintenance costs 	-50,000 	-50,000 	-50,000
+Other costs
+Revenues from the sale of organic fertilizer 	100,000 	100,000 	100,000
+TOTAL 	-192,000 	50,000 	50,000 	50,000
+NPV(RMB)(discount rate = 10%) 	115,228
+IRR(%) 	Undefined
+Table B.5 : Calculation of NPV and IRR – BaselineⅣ
+COSTS AND BEBEFITS(RMB)
+BASELINE Ⅳ: This project non-applicable
+Year 0 	Year 1 	Year n 	Year 10
+
+-- 15 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 16
+for registration as CDM
+Equipment costs 	-7,854,000
+Installation costs 	-1,085,000
+Maintenance costs 	513,000 	513,000 	513,000
+Other costs 	-1,445,000
+Revenues from the sale of electricity or other
+project related products, when applicable
+1,012,800 	1,012,800 	1,012,800
+TOTAL 	-10,384,000 	499,800 	499,800 	499,800
+NPV(RMB)(discount rate = 10%) 	-7,656,589
+IRR(%) 	Undefined
+The IRR cannot be calculated due to the existence of only negative flows in the financial analysis; so the
+economic analysis compares Net Present Value (NTV) parameters between the different scenarios.
+The following table shows the NPV of each scenario analyzed.
+Table B.6 : NPV comparison
+BASELINE Ⅰ:
+Anaerobic
+treatment - Flare
+BASELINE Ⅱ:
+Intensive
+Treatment by
+mixing manure and
+urine with water
+for discharging in
+the river
+BASELINE Ⅲ:
+Urine is treated in
+anaerobic lagoon,
+while dried manure
+is utilized as
+organic fertilizer
+BASELINE Ⅳ:
+This project non-
+applicable for
+registration as
+CDM
+NPV(RMB)
+(discount rate =
+10%)
+-8,922,163 	-8,308,913 	115,228 	-7,656589
+As shown in Table B. 6,it can be seen that BASELINEⅢ is the most attractive course of action and so the
+prevailing practice. The cost of BASELINEⅣ(This project non-applicable for registration as CDM) is
+much higher than the cost of BASELINEⅢ, so it is quantifiable that the project is additional from an
+economic standpoint.
+Therefore the most likely alternative scenario is the baseline scenario.
+Step IV: Baseline revision at renewal of crediting period.
+The crediting period adopted in the project activity is fixed crediting period, so this step is not applicable.
+B.5. 	Description of how the anthropogenic emissions of GHG by sources are reduced below
+those that would have occurred in the absence of the registered CDM project activity (assessment
+and demonstration of additionality): >>
+The baseline determination process has demonstrated that the baseline is different from the proposed
+project activity not undertaken as a CDM project activity, it is concluded that the project is additional.
+B.6. 	Emission reductions:
+B.6.1. 	Explanation of methodological choices:
+>>The emission reductions of the project activity are calculated according to the following equations
+
+-- 16 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 17
+Baseline emissions
+y	heat	elec	y	O	N	y	CH	y 	BE	BE	BE	BE 	,	/	,	2	,4 	+	+	= 	（1）
+BE y : Baseline emissions in year y, in tCO2 e/year.
+BE CH4,y : Baseline methane emissions in year y, in tCO2 e/year.
+BE N2O,y : Baseline N2 O emissions in year y, in tCO2 e/year.
+BE elec/heat,y : Baseline CO2 emissions from electricity and/or heat used in the baseline, in tCO2 e/year.
+Methane emissions
+j	Bl	y	LT	LT	LT
+LT	j
+CH	CH	y	j	CH 	MS	VS	N	B	MCFj	D	GWP	BE 	,	,	,0
+,
+4	4	,	,4 	%	*	*	*	*	*	* 	∑	= 	（2）
+BE CH4,y : the annual baseline methane emissions in t CO2e/y
+GWP CH4 : Global Warming Potential (GWP) of CH4 .
+DCH4 : CH4 density (0.00067 t/m3 at room temperature (20 ºC) and 1 atm pressure).
+MCF j : Annual methane conversion factor (MCF) for the baseline AWMS j from IPCC 2006
+table 10.17, chapter 10, volume 4.
+B 0,LT : Maximum methane producing potential of the volatile solid generated, in
+m3 CH4 /kg_dm, by animal type LT.
+NLT : Number of animals of type LT for the year y, expressed in numbers.
+VS LT,y : Annual volatile solid for livestock LT entering all AWMS [on a dry matter weight basis
+(kg-dm/animal/year), as estimated below.
+MS%Bl, j : Fraction of manure handled in system j
+Scaling default IPCC value Vsdefault to adjust for a site-specific average animal weight as shown in
+equation below :
+y	default
+default
+site
+y	LT 	nd	VS
+W
+W
+VS 	*	*	, 	⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+= 	（3）
+VS LT,y : Adjusted volatile solid excretion per year on a dry-matter basis for a defined livestock
+population at the project site in kg-dm/animal/yr.
+Wsite : Average animal weight of a defined population at the project site in kg.
+Wdefault : Default average animal weight of a defined population in kg from where the data on
+VS default is sourced (IPCC 2006 or US-EPA, which ever is lower).
+VS default : Default value (IPCC 2006 or US-EPA, which ever is lower) for the volatile solid excretion
+per day on a dry-matter basis for a defined livestock population in kg-dm/animal/day.
+nd y : Number of days in year y where the treatment plant was operational.
+Detailed information is given in Annex 2.
+N20 emissions from manure management
+)	(	*
+1000
+1
+*	* 	,	,	2	,	,	2	,	2	2	,	2 	y	ID	O	N	Y	D	O	N	N	N	O	N	O	N	y	O	N 	E	E	CF	GWP	BE 	+	= 	− 	（4）
+BE N2O,y : Annual baseline N2 O emissions in t CO2e / yr
+GWP N2O : Global Warming Potential (GWP) for N2 O.
+CF N2O-N,N : Conversion factor N2 O-N to N2 O (44/28).
+E N2O,D,y : Direct N2 O emission in kg N2 O-N/year.
+E N2O,ID,y : Indirect N2 O emission in kg N2 O-N/year.
+
+-- 17 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 18
+( 	)	j	Bl	LT	y	LT
+LT	j
+j	D	O	N	y	D	O	N 	MS	N	NEX	EF	E 	,	,
+,
+,	,	2	,	,	2 	%	*	*	*	∑	= 	（5）
+E N2O,D,y : Are the direct nitrous oxide emissions in kg of N2 O per year.
+EF N2O,D,j : Is the direct N2 O emission factor for the treatment system j of the manure management
+system in kg N2 O-N/kg N (estimated with site-specific, regional or national data if such data is available,
+otherwise use default EF 3 from table 10.21, chapter 10, volume 4, in the IPCC 2006 Guidelines for
+National Greenhouse Gas Inventories).
+NEX LT,y : Is the annual average nitrogen excretion per head of a defined livestock population in
+kgN/animal/year estimated as described in Annex 2.
+MS%Bl, j : Fraction of manure handled in system j, in %
+NLT Number of animals of type LT for the year y, expressed in numbers.
+t	IPCCdefaul
+default
+site
+y	LT 	NEX
+W
+W
+NEX 	*	, 	= 	（6）
+Detailed information is given in Annex 2.
+CO2 emission from electricity and heat within the project boundary
+y	therm	Bl	y	BL	grid	y	d	y	elec	Bl	y	Bl	y	heat	elec 	CEF	HG	CEF	EG	CEF	EG	BE 	,	,	,	,	,	,	,	,	/ 	*	*	* 	+	+	= 	（7）
+EGBL,y : is the amount of electricity in the year y that would be consumed at the project site in the
+absence of the project activity (MWh) for operating AWMS.
+CEF Bl, elec,y : is the carbon emissions factor for electricity consumed at the project site in the absence of the
+project activity (tCO2 /MWh)
+EGd,y : is the amount of electricity generated utilizing the biogas collected during project activity and
+exported to the grid during the year y (MWh)
+CEF grid : is the carbon emissions factor for the grid in the project scenario (tCO2 /MWh)
+HGBL,y : is the quantity of thermal energy that would be consumed in year y at the project site in the
+absence of the project activity (MJ) using fossil fuel for operating AWMS.
+CEF Bl, therm : is the CO2 emissions intensity for thermal energy generation (tCO2 e/MJ)
+Determination of CEFgrid: According to the requirements of ACM0010/Version 01, CEFgrid should be
+calculated according to methodology ASM-I.D.-Version 09 (“Indicative simplified baseline and
+monitoring Methodologies for Grid-Connected Renewable Electricity Generation”).Although the
+generation capacity is less than the small-scale project activity (15 MW), AMS 1.D simplified baseline
+methodology for small-scale CDM project activity could be used.
+The Electricity generated utilizing the biogas collected during the project activity is exported to the grid.
+By replacing electricity generated by fossil fuel-fired power plants connected to the North China Power
+Grid, the proposed project will achieve CO2 emission reductions. In the baseline scenario, the electricity
+would be otherwise generated by the operation of grid-connected power plants or by the addition of new
+generation sources.
+The spatial extent of the project boundary includes the project site and all power plants connected
+physically to the electricity system to which the CDM project power plant will be connected. The
+electricity system of the proposed project is defined as the North China Power Grid, and the connected
+
+-- 18 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 19
+electricity system is defined as the Northeast China Power Grid.
+To determine baseline scenario emissions, the emission factors of Operating Margin ( OM,y EF ) and Build
+Margin ( BM,y EF ) were calculated based on historical data from the North China Power Grid, which
+include the installed capacity, electricity generation and different types of fuel consumption of all the
+power plants connected into the North China Power Grid. Then, the baseline emission factor ( y EF ) was
+calculated as a combined margin(CM) of the Operating Margin (OM) and Build Margin (BM) emission
+factors as described in following three steps. All the calculations are in compliance with the requirements
+of the baseline methodology (ASM-I.D.) as described in detail by the following steps.
+1) Calculation the Operating Margin emission factor ( OM,y EF )
+Calculation of OM emission factor should be based on one of the following four methods:
+(a) Simple OM, or
+(b) Simple Adjusted OM, or
+(c) Dispatch Data Analysis OM, or
+(d) Average OM.
+The justifications of the choice of method to calculate OM emission factor are as follows.
+Method (b): Method (b) requires the annual load duration curve of the power grid and the load data of
+hourly data during the whole year on the basis of the time order. As mentioned above, the dispatch data
+and detailed load curve data were not available publicly. Therefore, method (b) is not applicable for the
+proposed project.
+Method (c): If the dispatch data is available, method (c) should be the first methodological choice. This
+method requires the dispatch order of each power plant and the dispatched electricity generation of all the
+power plants in the power grid during every operation hour period. The dispatch data and power plant
+operation data are considered confidential materials, available for internal usage only and not available
+publicly. Thus, method (c) is not applicable for the proposed project.
+Method (d): Method (d) will only be used when (1) low-cost/must-run resources constitute more than
+50% of total grid generation and detailed data to apply method (b) is not available, and (2) where detailed
+data to apply option (c) above is unavailable. From 2002 to 2004, hydropower in the North China Power
+Grid accounted for about 7%-10% and tended to decrease, and wind power or other low-cost/ must-run
+resources constituted less than 4%, the sum of which is much less than 50%. Hence method (d) is not
+applicable for the proposed project.
+Method (a): Method (a) can only be used where low-cost/must-run resources constitute less than 50% of
+total grid generation in: (1) average of the five most recent years, or (2) based on long-term normals for
+hydroelectric production. Low operating cost and must-run resources typically include hydro, geothermal,
+wind, low-cost biomass, nuclear and solar generation. If coal is used as must-run, it should also be
+included in this list, i.e. excluded from the set of plants. From 2002to 2004, hydropower in the North
+China Power Grid accounted for about 7%-10%, and wind power or other sources low-cost/ must- run
+resources constituted less than 4%, the sum of which is much less than 50%. Therefore, method (a) is
+applicable for the proposed project.
+In conclusion, method (a) is the only reasonable and feasible method among the four methods for
+calculating
+the Operating Margin emission factor ( OM,y EF ) of the North China Power Grid.
+According to the ASM-I.D., the Simple OM emission factor ( OM,simple,y EF ) is calculated as the
+generationweighted average emissions per electricity unit (tCO2 /MWh) of all generating sources serving
+the system, not including low-operating cost and must-run power plants.The detailed formulas are as
+follows:
+
+-- 19 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 20
+∑
+∑ 	×
+=
+j
+y	j
+j	i
+j	i	y	j	i
+y	simple	OM GEN
+COEF	F
+EF
+,
+,
+,	,	,
+,	, 	（8）
+F is the amount of fuel i (in a mass or volume unit) consumed by relevant power sources j in year(s) y ,
+j refers to the power sources delivering electricity to the grid, not including low-operating cost and
+mustrun
+power plants, and including imports to the grid1 ,
+i,j,y COEF is the CO2 emission coefficient of fuel i (tCO2 / mass or volume unit of the fuel), taking into
+account the carbon content of the fuels used by relevant power sources j and the percent oxidation of the
+fuel in year(s) y , and j,y GEN is the electricity (MWh) delivered to the grid by sources j .
+The CO 2 emission coefficient i COEF is obtained as
+i	i	CO	i	i 	OXID	EF	NCV	COEF 	×	×	= 	,2 	（9）
+where:
+i NCV is the net calorific value (energy content) per mass or volume unit of a fuel i , (TJ/ mass or volume
+unit),
+i OXID is the oxidation factor of the fuel i (see page 1.29 in the 1996 Revised IPCC Guidelines for
+default values),
+CO2 ,i EF is the CO2 emission factor per unit of energy of the fuel i (tCO2e/TJ).
+The Northeast China Power Grid is defined as the connected electricity system of the proposed project.
+For the past three years NCPG has continuously imported small amounts of electricity from the Northeast
+China Power Grid. According to the China Electric Power Yearbook, the imported electricity from the
+Northeast China Power Grid to the North China Power Grid was 4515GWh in 2004, 4244 GWh in 2003
+and 2905GWh in 2002 (http://www.sp.com.cn/zgdl/spw/12y/wsdljh1.htm). These imports account for
+less than 1% of total generation in NCPG for each respective year. In addition, the Northeast China Power
+Grid is also a coal-fired generation dominated grid (coal-fired power accounting for 94.1% in 2004).
+Therefore, these imports are not included in calculations of the OM emission factor, which is inline with
+conservation principles.
+Based on the calculation results, the Operation Margin emission factor ( OM,y EF ) of the North China
+Power Grid is: 1.0585 tCO2/MWh announced by Office of National Coordination Committee on Climate
+Change, National Development and Reform Committee, October 16 2006 .
+2) Calculation of the Build Margin emission factor ( OM,y EF )
+According to the ASM-I.D., the baseline Build Margin emission factor was calculated using the following
+∑
+∑ 	×
+=
+m
+y	m
+y	m	i
+m	i
+y	m	i
+y	BM GEN
+COEF	F
+EF
+,
+,	,
+,
+,	,
+, 	（10）
+F i,m,y is the amount of fuel i (in a mass or volume unit) consumed by m power plants in year(s) y,
+m refers to the power plants included in the sample group determined by the following steps.
+COEF i,m,y is the CO2 emission coefficient of fuel i (tCO2 / mass or volume unit of the fuel), taking into
+account the carbon content of the fuels used by m power plants and the percent oxidation of the fuel in
+
+-- 20 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 21
+year(s) y,
+GENm,y is the electricity (MWh) delivered to the grid by m power plants.
+According to the baseline methodology (ASM-I.D.-Version 09), one of the following two options shall be
+selected to identify the sample group for calculating the Build Margin emission factor.
+Option 1. Calculate the Build Margin emission factor BM,y EF ex-ante based on the most recent
+information available on plants already built for sample m at the time of PDD submission. The sample
+group m consists of either
+･ The five power plants that have been built most recently, or
+･ The power plants’ capacity additions in the electricity system that comprise 20% of the system
+generation (in MWh) and that have been built most recently.
+Project participants should choose the option whose sample group comprises the larger annual generation.
+Option 2. For the first crediting period, the Build Margin emission factor BM,y EF must be updated
+annually
+ex-post for the year in which actual project generation and associated emission reductions occur. For
+subsequent crediting periods, BM,y EF should be calculated ex-ante, as described in Option 1 above. The
+sample group m consists of either
+･ The five power plants that have been built most recently, or
+･ The power plants capacity additions in the electricity system that comprise 20% of the system
+generation (in MWh) and that have been built most recently.
+Project participants chose the options whose sample group comprised the larger annual generation.
+Power plant capacity additions registered as CDM project activities should be excluded from the sample
+group m.
+For the proposed project, Option 1 was adopted for calculating the Build Margin emission factor. The
+Build Margin emission factor BM,y EF of the North China Power Grid is 0.8642 tCO2/MWh which was
+announced by Office of National Coordination Committee on Climate Change, National Development
+and Reform Committee in October 16 2006.
+Step3: Calculation the baseline emission factor ( y EF )
+According to the baseline methodology (ASM-I.D.-Version 09), the baseline emission factor y EF is
+calculated as the weighted average of the Operating Margin emission factor ( OM,y EF ) and the Build
+Margin emission factor ( BM,y EF ),:
+y	BM	BM	y	OM	OM	y 	EF	EF	EF 	,	, 	×	+	×	=
+	ω
+	ω 	（11）
+where the weights ωOM and ωBM are 50% and 50% respectively by default.
+Where the default weights are adopted for the proposed project, the baseline emission factor is:
+EF y=0.50*EF OM,y+0.50*EF BM,y=0.9826tCO 2/MWh.
+Project emission
+Project emissions are estimated as follows:
+heat	elec	y	flare	y	PL	y	O	N	y	Aer	y	AD	y 	PE	PE	PE	PE	PE	PE	PE 	/	,	,	,	2	,	, 	+	+	+	+	+	= 	（12）
+PE AD, y : Leakage from AWMS systems that capture’s methane in t CO2e/yr
+PE Aer, y : Methane emissions from AWMS that aerobically treats the manure in t CO2e/yr
+PE N2O,y : Nitrous oxide emission from project manure waste management system in t CO2e/yr
+PE PL,y : Physical leakage of emissions from biogas network to flare the captured methane or
+
+-- 21 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 22
+supply to the facility where it is used for heat and/or electricity generation in t CO2e/yr
+PE flare,y : Project emissions from flareing of the residual gas stream in tCO2e/yr
+PE elec/heat : Project emissions from use of heat and/or electricity in the project case in t CO2e/yr
+Methane emissions from AWMS where gas is captured (PE AD,y )
+)	*	*	(	*	*	*	* 	,	,0	4	4	, 	y	LT	LT
+LT
+LT	AD	AD	CH	CH	y	AD 	VS	N	B	F	LF	D	GWP	PE 	∑	= 	（13）
+DCH4 : CH4 density (0.00067 t/m3 at room temperature (20 ºC) and 1 atm pressure).
+LF AD : Methane leakage from Anaerobic digesters, default of 0.15 multiplied by methane
+content of biogas.
+F AD : Fraction of volatile solid directed to anaerobic digester.
+LT : Index for livestock type
+B 0,LT : CH4 production capacity from manure for livestock type LT, in m3 CH4 /kg-VS, to be
+chosen based on procedure provided for in the baseline methodology section.
+NLT : Population of livestock type LT for the year y, expressed in numbers.
+VS LT,y : Annual volatile solid excretion of livestock type LT on a dry-matter basis in
+kg/animal/year
+Scaling default IPCC value Vsdefault to adjust for a site-specific average animal weight as shown in
+equation below :
+y	default
+default
+site
+y	LT 	nd	VS
+W
+W
+VS 	*	*	, 	⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+= 	（３）
+VS LT,y : Adjusted volatile solid excretion per year on a dry-matter basis for a defined livestock
+population at the project site in kg-dm/animal/yr.
+Wsite : Average animal weight of a defined population at the project site in kg.
+Wdefault : Default average animal weight of a defined population in kg from where the data on
+VS default is sourced (IPCC 2006 or US-EPA, which ever is lower).
+VS default : Default value (IPCC 2006 or US-EPA, which ever is lower) for the volatile solid excretion
+per day on a dry-matter basis for a defined livestock population in kg-dm/animal/day.
+nd y : Number of days in year y where the treatment plant was operational.
+Detailed information is given in Annex 2.
+Methane emissions from aerobic AWMS treatment (PEAve,y )
+This project activity will not include aerobic AWMS treatment. In this project, PEAve,y=0
+N2O emission from manure management
+)	(	*
+1000
+1
+*	* 	,	,	2	,	,	2	,	2	2	,	2 	y	ID	O	N	Y	D	O	N	N	N	O	N	O	N	y	O	N 	E	E	CF	GWP	PE 	+	= 	− 	(14)
+BE N2O,y : Annual baseline N2 O emissions in t CO2e / yr
+GWP N2O : Global Warming Potential (GWP) for N2 O.
+CF N2O-N,N : Conversion factor N2 O-N to N2 O (44/28).
+
+-- 22 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 23
+E N2O,D,y : Direct N2 O emission in kg N2 O-N/year.
+E N2O,ID,y : Indirect N2 O emission in kg N2 O-N/year.
+j	LT	y	LT
+LT	j
+j	D	O	N	y	D	O	N 	MS	N	NEX	EF	E 	%	*	*	* 	,
+,
+,	,	2	,	,	2 	∑	= 	(15)
+E N2O,D,y : Are the direct nitrous oxide emissions in kg of N2 O per year.
+EF N2O,D,j : Is the direct N2 O emission factor for the treatment system j of the manure management
+system in kg N2 O-N/kg N (estimated with site-specific, regional or national data if such data is available,
+otherwise use default EF 3 from table 10.21, chapter 10, volume 4, in the IPCC 2006 Guidelines for
+National Greenhouse Gas Inventories).
+NEX LT,y : Is the annual average nitrogen excretion per head of a defined livestock population in
+kgN/animal/year estimated as described in Annex 2.
+MS% j : Fraction of manure handled in system j, in %
+NLT : Number of animals of type LT for the year y, expressed in numbers.
+There are no Indirect N2 O emissions in this project. E N2O,ID,y =0
+Physical Leakage from distribution network of the captured methane in (PEPL,y )
+This refers to leaks in the biogas system from the biogas pipeline delivery system. The sum of the
+quantities of captured methane fed to the flare, to the power plant and to the boiler (measured as per the
+monitoring plan) must be compared annually with the total methane generated as measured by meter at
+the outlet of the methane generating digester. The difference between the monitored value of methane
+generated and that consumed in flare/electricity generation/heat shall be accounted as leakage from the
+pipelines.
+In the case where biogas is just flared and the pipeline from collection point to flare is short (i.e., less than
+1 km, and for on site delivery only), one flow meter can be used. In such cases the physical leakage may
+be considered as zero.
+The leakage from the pipeline is the difference between the monitored value of methane generated and
+that consumed in flare/electricity generation/heat which should be calculated based on monitored data,
+therefore the pipeline leakage would not be estimated ex-ante in the CDM-PDD.
+Project emissions from flaring of the regidual gas stream(PEflare,y )
+( 	) 1000
+*	1	* 	4
+,
+8760
+1
+,	,
+CH
+h	flare
+h
+h	RG	y	flare
+GWP
+TM	PE	
+η	−	= ∑=
+(16)
+TMRG,h : Mass flow rate of methane in the residual gas in the hour h
+h	flare,	
+η 	: Flare efficincy in hour h
+GWP CH4 : Global Warming Potential of methane valid for the commitment period
+Project emission from heat use and electricity use (PEelec/heat)
+y	therm	y	d	y	y	heat	elec 	CEF	HG	CEF	EL	PE 	,	Pr,	Pr,	Pr,	,	/ 	*	* 	+	= 	(17)
+
+-- 23 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 24
+EL Pr,y is the amount of electricity in the year y that is consumed at the project site in the project case
+(MWh) .
+CEF d is the carbon emissions factor for electricity consumed at the project site during the project
+activity (tCO2 /MWh), estimated as described below. Factor is zero if biogas is used to produce electricity.
+HGPr, y is the quantity of thermal energy consumed in year y at the project site in the project case
+(MJ).
+CEF Pr, therm,y is the CO2 emissions intensity for thermal energy generation (tCO2 e/MJ),. Factor is zero if
+biogas is used for generating thermal energy.
+Because the biogas collected are used in the project generation in the project activity, the electricity
+generated are much more than the electricity consumed by the manure management facilities used by the
+project activity, these emissions are not accounted for.
+Leakage
+Leakage covers the emissions from land application of treated manure, outside the project boundary.
+These emissions are estimated as net of those released under project activity and those released in the
+baseline scenario. In this project net leakage of N2 O and CH4 are not considered because they are negative.
+Emission reduction
+The emission reduction ER y by the project activity during a given year y is the difference between the
+baseline emissions (BE y) and the sum of project emissions (PE y) and leakage, as follows:
+y	y	y	y 	LE	PE	BE	ER 	−	−	= 	(18)
+B.6.2. 	Data and parameters that are available at validation:
+Data / Parameter: 	RVS,n
+Data unit: 	%
+Description: 	Volatile solid degradation factor
+Source of data used:
+Value applied:
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+Archive electronically during project plus 5 years
+Any comment:
+Data / Parameter: 	EF N2O,D,y
+Data unit: 	Kg N2O-N/kg N
+Description: 	Direct N2O emission factors
+Source of data used: 	Table 10.21,chapter 10,volume4, IPCC2006 Guidelines
+Value applied: 	Uncovered anaerobic lagoon:0
+
+-- 24 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 25
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+Archive electronically during project plus 5 years
+Any comment:
+Data / Parameter: 	nd y
+Data unit: 	Number
+Description: 	Number of days treatment plant was operationl in year y
+Source of data used: 	Project proponents
+Value applied: 	365
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+Archive electronically during project plus 5 years
+Any comment:
+Data / Parameter: 	MS%Bl,j
+Data unit: 	Fraction
+Description: 	Fraction of manure handled in system j in the baseline
+Source of data used: 	Project proponents
+Value applied: 	100%
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+Archive electronically during project plus 5 years
+Any comment:
+Data / Parameter: 	GWP CH4l
+Data unit: 	tCO2 e/tCH4
+Description: 	Global warming potential for CH4
+Source of data used: 	IPCC
+Value applied: 	21
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+21 for the first commitment period. Shall be updated according to any future
+COP/MOP decisions.
+Any comment:
+
+-- 25 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 26
+Data / Parameter: 	GWP N2O
+Data unit: 	tCO2 e/tN2 O
+Description: 	Global warming potential for N2O
+Source of data used: 	IPCC
+Value applied: 	310
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+310 for the first commitment period. Shall be updated according to any future
+COP/MOP decisions.
+Any comment:
+Data / Parameter: 	DCH4
+Data unit: 	t/m3
+Description: 	Density of methane
+Source of data used: 	Technical literature
+Value applied: 	0.00067(at room temperature 20℃ and 1 atm pressure)
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+Archive electronically during project plus 5 years
+Any comment:
+Data / Parameter: 	CF N2O-N,N2o
+Data unit:
+Description: 	Conversion factor from N2 O-N to N2 O
+Source of data used: 	Technical literature
+Value applied: 	44/28
+Justification of the
+choice of data or
+description of
+measurement methods
+and procedures actually
+applied :
+Archive electronically during project plus 5 years
+Any comment:
+B.6.3 	Ex-ante calculation of emission reductions:
+Baseline emission
+
+-- 26 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 27
+j	Bl	y	LT	LT	LT
+LT	j
+CH	CH	y	j	CH 	MS	VS	N	B	MCFj	D	GWP	BE 	,	,	,0
+,
+4	4	,	,4 	%	*	*	*	*	*	* 	∑	= 	(2)
+= 21 * 0.00067 *
+(0.665 * 0.29 * 18,000 * 156.4 * 1 + 0.665 * 0.29 * 2,000 * 711.7 * 1)
+= 11,501 t-CO2e/y
+)	(	*
+1000
+1
+*	* 	,	,	2	,	,	2	,	2	2	,	2 	y	ID	O	N	Y	D	O	N	N	N	O	N	O	N	y	O	N 	E	E	CF	GWP	BE 	+	= 	− 	(4)
+= 310 * 44/28 * 1/1000 * (36,355.7 kg-N2O/year + 0)
+= 17,710.4 tCO2e/y
+y	therm	Bl	y	Bl	grid	y	d	y	elec	Bl	y	Bl	y	heat	elec 	CEF	HG	CEF	EG	CEF	EG	BE 	,	,	,	,	,	,	,	,	/ 	*	*	* 	+	+	= 	(7)
+= 0+1,739 MWh/y * 0.9826 t-CO2/MWh+0
+= 1,708 t-CO2e/y
+y	heat	elec	y	O	N	y	CH	y 	BE	BE	BE	BE 	,	/	,	2	,4 	+	+	= 	(1)
+=11,501 t-CO2e/y + 17,710.4 t-CO2e/y + 1,708 t-CO2e/y
+= 30,919.4 t-CO2e/y
+Project emission
+)	*	*	(	*	*	*	* 	,	,0	4	4	, 	y	LT	LT
+LT
+LT	AD	AD	CH	CH	y	AD 	VS	N	B	F	LF	D	GWP	PE 	∑	= 	(13)
+= 21 * 0.00067 * 0.15 * 1*(0.29*18,000*156.4 + 0.29*2,000*711.7)
+= 2,594.2 t-CO2e/y
+)	(	*
+1000
+1
+*	* 	,	,	2	,	,	2	,	2	2	,	2 	y	ID	O	N	Y	D	O	N	N	N	O	N	O	N	y	O	N 	E	E	CF	GWP	PE 	+	= 	− 	(14)
+=310 * 44/28 *1/1000 * ( 0 + 0 )
+= 0
+( 	) 1000
+*	1	* 	4
+,
+8760
+1
+,	,
+CH
+h	flare
+h
+h	RG	y	flare
+GWP
+TM	PE	
+η	−	= ∑=
+(16)
+= 52516*(1-0.5)*21/1000
+= 551.4 t-CO2e/y
+heat	elec	y	IC	CH	y	PL	y	O	N	y	Aer	y	AD	y 	PE	PE	PE	PE	PE	PE	PE 	/	,	_	4	,	,	2	,	, 	+	+	+	+	+	= 	（12）
+= 2,594.2 t-CO2e/y + 0 + 0 + 0 + 551.4 t-CO2e/y + 0
+= 3,145.6 t-CO2e/y
+Emission reduction
+
+-- 27 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 28
+y	y	y	y 	LE	PE	BE	ER 	−	−	= 	（18）
+= 30,919.4t-CO2e/y –3,145.6 t-CO2e/y – 0
+= 27,773.8 t-CO2e/y
+B.6.4 	Summary of the ex-ante estimation of emission reductions:
+>>
+Year 	Estimation of
+baseline emissions
+(t-CO2e/y)
+Estimation of project
+activity emissions (t-
+CO2e/y)
+Estimation of
+leakage (t-
+CO2e/y)
+Estimation of
+emission reductions
+(t-CO2e/y)
+2009 	30,919 	3,145 	0 	27,774
+2010 	30,919 	3,145 	0 	27,774
+2011 	30,919 	3,145 	0 	27,774
+2012 	30,919 	3,145 	0 	27,774
+2013 	30,919 	3,145 	0 	27,774
+2014 	30,919 	3,145 	0 	27,774
+2015 	30,919 	3,145 	0 	27,774
+2016 	30,919 	3,145 	0 	27,774
+2017 	30,919 	3,145 	0 	27,774
+2018 	30,919 	3,145 	0 	27,774
+Total 	309,190 	31,450 	0 	277,740
+B.7 	Application of the monitoring methodology and description of the monitoring plan:
+In deciding monitoring methodology, ACM0010 Consolidated baseline methodology for GHG emission
+reduction from manure management system – Version 02” will be applied.
+In ACM0010 methodology, the following items below are mandated to be monitored with regards to
+Baseline Emissions as well as Project Emissions:
+Baseline Emissions
+・ Diagrammatic representation of animal waste management system existing on the project site prior to
+project implementation.
+・ Parameters MCF, Bo , and Rvs for estimating methane emissions from AWMS in the baseline.
+・ EF N2O and RN for estimating nitrogen emission from AWMS in the baseline;
+・ Ambient temperature at the AWMS site;
+・ Amount of electricity used for the operation of the AWMS in the baseline;
+・ Amount of fossil fuel used for the operation of the AWMS in the baseline;
+・ Biogas based electricity exported to the grid, needs to be monitored only if emissions reduction for
+electricity generation from biogas are claimed;
+・ Data and parameters for estimating heat and electricity emission factors.
+Project Emissions
+
+-- 28 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 29
+・ The livestock populations by different livestock types. This includes the number of heads of each
+population and the average animal weight in each population;
+・ Parameters MCF, Bo , and RVS for estimating methane emissions from AWMSs in the project case.
+・ EF N2O and RN for estimating nitrogen emission from AWMS in the baseline.
+・ The default volatile solid excretion values or other parameters required for estimating the volatile
+solids.
+・ Leakage from anaerobic digester, if used. The default value is 15%, but in case project participants
+use a lower value, the appropriate measurement to support the lower value shall be monitored and
+reported.
+・ The default nitrogen excretion per animal or parameters required to estimate nitrogen excretion. If N
+intake method is used the amount of dry matter intake by livestock shall be monitored;
+・ Amount of electricity used in the project case;
+・ Amount of heat used in the project case;
+・ Flow of biogas to the flare, heat generation, and electricity generation. In the case where biogas is just
+flared, one flow meter can be used provided that the meter used is calibrated periodically by an
+officially accredited entity.
+・ Concentration of methane in biogas at outlet of anaerobic digester, this shall be measured on wet
+basis;
+Biogas leakage in project: through leaks in the pipeline during transportation of biogas.
+B.7.1 	Data and parameters monitored:
+The detail of monitoring items in this project is shown below.
+Data / Parameter: 	MCF
+Data unit: 	Fraction
+Description: 	Methane correction factor
+Source of data to be
+used:
+Table 10.17 , Chapter10 , volume 4 , IPCC2006 Guidelines
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+Uncovered anaerobic lagoon = 66%
+Composting – Intensive windrow = 0.5%
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	The factor MCF is taken from IPCC 2006 guidelines. If annual average
+temperature is lower than 10℃ and higher than 5, Annual MCF should be
+estimated using linear interpolation assuming MCF=0 at annual average
+
+-- 29 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 30
+temperature of 5.
+Data / Parameter: 	LT	B ,0
+Data unit: 	Fraction
+Description: 	Maximum methane production
+Source of data to be
+used:
+Table 10A-7 , Table 10A-8 , Chapter10 , volume 4 , IPCC2006 Guidelines
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+Market swine = 0.29 m3CH4/kgVS
+Breeding swine = 0.29 m3CH4/kgVS
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	This value should be updated on latest revisions of IPCC Guidelines
+Data / Parameter: 	y	LT	VS 	,
+Data unit: 	Kg-dm / animal / year
+Description: 	Volatile solid excretion per animal per year
+Source of data to be
+used:
+Equation 4 of ACM0010 ”Consolidated baseline methodology for GHG
+emission reduction from manure management system – Version 02”
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+y	default
+default
+site
+y	LT 	nd	VS
+W
+W
+VS 	*	*	, 	⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+=
+Description of
+measurement methods
+and procedures to be
+applied:
+-----
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+Data / Parameter: 	default	VS
+Data unit: 	Kg-dm / animal / day
+
+-- 30 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 31
+Description: 	Default value for the volatile solid excretion per animal per day
+Source of data to be
+used:
+Table 10A-7 , Table 10A-8 , Chapter10 , volume 4 , IPCC2006 Guidelines
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+Market swine = 0.3kg-dm/animal/day
+Breeding swine = 0.3kg-dm/animal/day
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	This value should be updated on latest revisions of IPCC Guidelines
+Data / Parameter: 	site	W
+Data unit: 	Kg
+Description: 	Weight of swine
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+Market swine = 40kg
+Breeding swine = 182kg
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : average weight of each age categories.
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+Based on the pig farming standards of FOODSTUFFS GROUP CO.,LTD.
+Any comment: 	-----
+Data / Parameter: 	dehault	W
+Data unit: 	Kg
+Description: 	Default average weight of swine
+Source of data to be
+used:
+Table 10A-7 , Table 10A-8 , Chapter10 , volume 4 , IPCC2006 Guidelines
+Value of data applied 	Market swine = 28kg
+
+-- 31 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 32
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+Breeding swine = 28kg
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	This value should be updated on latest revisions of IPCC Guidelines
+Data / Parameter: 	grid	CEF
+Data unit: 	tCO2/MWh
+Description: 	Emission factor of exported electricity
+Source of data to be
+used:
+Official data on Dec.15,2006 issued by CHINA DNA
+“Clean Development Mechanism in China”
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+0.9826 tCO2/MWh
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+Data / Parameter: 	AD	LF
+Data unit: 	Fraction
+Description: 	Fraction of methane leakage from anaerobic digester
+Source of data to be
+used:
+IPCC2006 Guidelines
+Value of data applied
+for the purpose of
+calculating expected
+0.15
+
+-- 32 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 33
+emission reductions in
+section B.5
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+Data / Parameter: 	Type
+Data unit: 	-----
+Description: 	Type of barn and AWMS
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+-----
+Description of
+measurement methods
+and procedures to be
+applied:
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+Data / Parameter: 	T
+Data unit: 	℃
+Description: 	Annual average ambient temperature at project site
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+8.5
+Description of
+measurement methods
+Monitoring frequency : monthly
+Measurement procedures : Archive electronically during project plus 5 years.
+
+-- 33 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 34
+and procedures to be
+applied:
+QA/QC procedures to
+be applied:
+Any comment: 	Used to select the annual MCF from IPCC 2006 guidelines
+Data / Parameter: 	y	d	EG ,
+Data unit: 	MWh
+Description: 	Electricity exported to grid
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+1,739 MWh/y
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+Electricity meters will undergo maintenance/calibration subject to appropriate
+industry standards. The accuracy of meter readings will be verified by receipts
+issued by the purchasing power company.
+Any comment: 	-----
+Data / Parameter: 	gulations	Re
+Data unit: 	-----
+Description: 	Existence and enforcement of relevant regulation
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+-----
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : at start of crediting period
+QA/QC procedures to 	Quality control for the existence and enforcement of relevant regulations and
+
+-- 34 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 35
+be applied: 	incentives is beyond the bounds of the project activity. Instead,the DOE will
+verify the evidence collected.
+Any comment: 	-----
+Data / Parameter: 	LT	N
+Data unit: 	Number
+Description: 	Average swine population used in both baseline and project case emissions
+estimation
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+Market swine = 18,000
+Breeding swine = 2,000
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : monthly
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+Based on the pig farming standards of FOODSTUFFS GROUP CO.,LTD.
+Any comment: 	-----
+Data / Parameter: 	AD	F
+Data unit: 	Fraction
+Description: 	Fraction of volatile solids directed to anaerobic digesters
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+100%
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+
+-- 35 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 36
+Data / Parameter: 	f	V
+Data unit: 	m3
+Description: 	Biogas flow
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+-----
+Description of
+measurement methods
+and procedures to be
+applied:
+Installation : 1) outlet of the anaerobic digester
+2) 	inlet of the power generation system
+3) 	inlet of the flare system
+Monitoring frequency : Continuously by flow meter and reported cumulatively
+on weekly basis
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+Flow meters will undergo maintenance/calibration subject to appropriate industry
+standards.
+Any comment:
+Data / Parameter: 	4	CH	C
+Data unit: 	Fraction
+Description: 	Methane fraction of biogas
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+60%
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : daily
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+CH4 analyzer will undergo maintenance/calibration subject to appropriate
+industry standards.
+Any comment: 	-----
+
+-- 36 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 37
+Data / Parameter: 	%	MS
+Data unit: 	Fraction
+Description: 	Fraction of manure handled in system j in project activity
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+100%
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+Data / Parameter: 	y	LT	NEX 	,
+Data unit: 	Kg N / animal / year
+Description: 	Annual average nitrogen excretion per head of a defined swine population
+Source of data to be
+used:
+Annex 2 of ACM0010 ”Consolidated baseline methodology for GHG emission
+reduction from manure management system – Version 02”
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+y	default
+default
+site
+y	LT 	nd	VS
+W
+W
+VS 	*	*	, 	⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+=
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+Data / Parameter: 	t	IPCCdefaul	NEX
+Data unit: 	kg N /t/ day
+Description: 	Daily average nitrogen excretion per 1000kg of a defined swine population
+Source of data to be 	Table 10.19 , Chapter10 , volume 4 , IPCC2006 Guidelines
+
+-- 37 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 38
+used:
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+Market swine = 0.42 kg N /t/ day
+Breeding swine = 0.24 kg N /t/ day
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : Annually
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+Data / Parameter: 	y	FDT
+Data unit: 	minute/year
+Description: 	Flame detection time
+Source of data to be
+used:
+Project proponents
+Value of data applied
+for the purpose of
+calculating expected
+emission reductions in
+section B.5
+50,400 minutes = 840 hours
+Description of
+measurement methods
+and procedures to be
+applied:
+Monitoring frequency : continuously
+Measurement procedures : Archive electronically during project plus 5 years.
+QA/QC procedures to
+be applied:
+-----
+Any comment: 	-----
+B.7.2 	Description of the monitoring plan:
+>>■Monitoring points
+Figure B.2 : The monitoring points in this project process
+Biogas flow meter
+Digested liquor flow meter
+Methane concentration analyzer
+Electricity meter
+Monitoring instrument
+FL
+FQ
+WM
+CH4
+
+-- 38 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 39
+ID No. 	Data 	parameter 	unit 	remarks
+ID 1 	OD	f	V , 	Amount of biogas 	m3 outlet of the anaerobic
+digester
+ID 2 	IG	f	V , 	Consumption of biogas 	m3 inlet of the power
+generation system
+ID 3 	IF	f	V , 	Consumption of biogas 	m3 	inlet of the flare system
+ID 4 	4	CH	C 	Methane concentration 	mg/l 	regular time sampling
+ID 5 	y	d	EG , 	Power generation 	MWh 	electricity meter
+ID 6 	DV	Q 	Amount of liquid fertilizer 	m3 Outlet of digested liquor
+tank
+■Management and operational structure
+Figure B.3 : The organization chart of monitoring
+Anaerobic
+tank
+Digested
+liquor tank
+Power generation
+system
+Flare system
+Biogas tank
+liquid fertilizer
+To grid
+FL
+FQ
+FQ
+WM	FQ 	CH
+4
+Flare gas
+ID 1 	ID 2
+ID 3
+ID 4
+ID 6
+ID 5
+The Joint-stock
+company
+Foodstuffs
+Group Co.,
+Monitoring
+staff
+consignment of
+business
+activities
+management of monitoring data
+reporting
+
+-- 39 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 40
+The Joint-stock (or SPC) company will consign to Foodstuff Group Co., Ltd. Plant operation and
+monitoring implementations. Foodstuff Group Co., Ltd. will be assigned to control and manage daily
+works of monitoring done by its technical staff, the monthly report of which shall be submitted to the
+company. The company will compile the collected data which should back up verification of the project.
+B.8 	Date of completion of the application of the baseline study and monitoring methodology and
+the name of the responsible person(s)/entity(ies)
+>>
+The baseline and monitoring study was completed on 31/01/2007
+Name of persons/entity determining the baseline and monitoring methodology:
+Taisei Corporation
+1-25-1 Nishi Shinjuku, Shinjuku-ku, Tkyo, Japan
+Zip code: 163-0606
+Contact person: Nobuyuki Suzuki
+Phone number: +86-3-5381-5191
+E-mail: nobuyuki@eng.taisei.co.jp
+Taisei Corporation
+1-25-1 Nishi Shinjuku, Shinjuku-ku, Tkyo, Japan
+Zip code: 163-0606
+Contact person: Kazuya Kajimura
+Phone number: +86-3-5381-5171
+E-mail: kzmkzy00@pub.taisei.co.jp
+
+-- 40 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 41
+SECTION C. 	Duration of the project activity / crediting period
+C.1 	Duration of the project activity:
+C.1.1. 	Starting date of the project activity:
+The construction of the plant will start on 01/02/2008
+C.1.2. Expected operational lifetime of the project activity:
+>>
+15 years
+C.2 	Choice of the crediting period and related information:
+C.2.1. 	Renewable crediting period
+C.2.1.1. 	Starting date of the first crediting period:
+Not applicable
+C.2.1.2. 	Length of the first crediting period:
+Not applicable
+C.2.2. 	Fixed crediting period:
+C.2.2.1. 	Starting date:
+>>
+01/01/2009
+C.2.2.2. 	Length:
+>>
+10years
+SECTION D. 	Environmental impacts
+>>
+D.1. 	Documentation on the analysis of the environmental impacts, including transboundary
+impacts:
+>>
+This project must make an extensive contribution to the betterment and improvement of the periphery
+neighbourhood to the project site in terms of reducing GHG emissions, odour and ground water
+contamination, all of the effects which can be achieved by closed process technology to treat pig
+manure causing serious environmental impact upon the neighbourhood .
+It may be pointed out that there will be a quite limited impact on the periphery environment around
+the project site, due to the fact that no human residence nor social buildings are situated nearby the
+project site. The Table11-1 shows projected environmental impacts to be caused in executing this project.
+Table 11-1. Projected Environmental Impacts
+Impacts 	During Construction Period 	During Operation Period 	Remarks
+
+-- 41 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 42
+Air
+Pollution
+Exhaust gas emission from
+Heavy construction machinery
+Gas 	emission 	from 	power 	generating
+equipments
+Noise Noise 	from 	heavy 	construction
+machinery Noise from power generating equipments
+Vibration Vibration from heavy construction
+machinery
+Vibration 	from 	power 	generating
+equipments
+Odor Gaseous 	odor 	from 	heavy
+construction machinery
+Odor caused by emissions from biogas
+equipments
+As stated above, there could be no major impact on the periphery environment due to no residence
+located in the project site, but when executing the project designing, the China’s Environment Standards
+shall be given the first priority in all respects.
+D.2. 	If environmental impacts are considered significant by the project participants or the host
+Party, please provide conclusions and all references to support documentation of an environmental
+impact assessment undertaken in accordance with the procedures as required by the host Party:
+>>
+According to the EIA report table, the impacts of this project activity are very small. The project activity
+can mitigate the environmental pollutions caused by the manure from swine farms
+SECTION E. 	Stakeholders’ comments
+>>
+E.1. 	Brief description how comments by local stakeholders have been invited and compiled:
+>>
+Stakeholders 	Relation 	Date of meeting 	Remarks
+１ Laiyang Municipal Bureau of Foreign
+Trade & Economic Cooperation
+Municipal office in the
+project area jurisdiction 19.Sep.2006
+２ Laiyang Municipal Bureau of Power
+Supply Grid company 	20.Dec.2006
+３ Farmers 	in 	the 	project
+neighbourhood
+Users 	of 	manure
+fertilizer 19.Dec.2006
+４ 	Lognda Foodstuff Group Co., Ltd.
+Supplier of pig manure
+and
+assigned plant operator
+20.Sep.2006
+19.Dec.2006
+17.Jan.2007
+E.2. 	Summary of the comments received:
+>>
+Laiyang Municipal Office（Bureau of Joint Economic Policy; Bureau of Investment Promotion）
+is not familiar with CDM project at all, and yet welcomes any investment by
+foreign company;
+is anticipating good environmental effects to be brought out by the project, including improvement
+of periphery environment to the pig farm and preventive effect to ground water contamination;
+is ready to talk about favorable treatment measures for the new project company.
+
+-- 42 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 43
+Laiyang Municipal Bureau of Power Supply
+is not experienced at all with grid-interface power supply generated by biogas generation;
+will be able to apply for the favorable treatment measures granted to
+effective power generation business with use of industrial wastes and water;
+is not in a good position to fix purchasing price of the proposed power because no such previous
+cases have been seen by them.
+Farmers in the project neighbourhood
+like very much to use liquid fertilizer produced in the project because it
+it is easy to use and good as fertilizer;
+use manure by mixing with soil, and apply urine diluted by water for irrigation, but found them quite
+a poor fertilizer.
+can use all of the liquid fertilizer to spread as much as 500m3 /day（to apply on their own 600 ha
+fields）
+Foodstuff Group Co., Ltd.
+The company is our project partner and, therefore, is quite enthusiastic about CDM project activities,
+although good amount of hearing research has been executed by us in consideration of possible impact
+upon their manure supplies as well as upon their pig farming business to be caused by the project:
+Foodstuff Group is an environment-conscious company, and therefore welcomes any projects that
+must contribute to protect its periphery environment and to be earth-friendly as a whole.
+For account of quarantine reason, they want to avoid as much as possible moving pig manure
+derived from its each farm.
+Pig manure is now disposed to external users as fertilizer, and they intend
+to reserve a part of manure as well as residues from methane fermentation
+for organic fertilizer outlet.
+E.3. 	Report on how due account was taken of any comments received:
+There were no negative comments on the project. The stakeholders, including local government and local
+residents, support the project very much. Therefore, the adjustment for the project is not needed.
+
+-- 43 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 44
+Annex 1
+CONTACT INFORMATION ON PARTICIPANTS IN THE PROJECT ACTIVITY
+Organization: 	Foodstuffs Group Co.,LTD
+Street/P.O.Box: 	Industrial Zone
+Building:
+City: 	Laiyang
+State/Region: 	Shandong Province
+Postfix/ZIP: 	265231
+Country: 	People’s Republic of China
+Telephone: 	+86-535-7717036
+FAX: 	+86-535-7717188
+E-Mail:
+URL:
+Represented by: 	Wu Rui Zhong
+Title: 	General Manager
+Salutation: 	Mr.
+Last Name: 	Zhong
+Middle Name: 	Rui
+First Name: 	Wu
+Department: 	Raising and Breeding Division
+Mobile:
+Direct FAX:
+Direct tel:
+Personal E-Mail:
+
+-- 44 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 45
+Organization: 	Taisei Corporation
+Street/P.O.Box: 	1-25-1 Nishi Shinjuku
+Building:
+City: 	Shinkuku-ku
+State/Region: 	Tokyo
+Postfix/ZIP: 	163-0606
+Country: 	Japan
+Telephone: 	+81-3-3348-1111
+FAX: 	+81-3-3345-0481
+E-Mail:
+URL: 	http://www.taisei.co.jp
+Represented by: 	Nobuyuki Suzuki
+Title:
+Salutation: 	Mr.
+Last Name: 	Suzuki
+Middle Name:
+First Name: 	Nobuyuki
+Department: 	Engineering Division
+Mobile:
+Direct FAX: 	+81-3-3344-9476
+Direct tel: 	+81-3-5381-5191
+Personal E-Mail: 	nobuyuki@eng.taisei.co.jp
+Organization: 	Hokkaido Electric Power Co., Inc.
+
+-- 45 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 46
+Street/P.O.Box: 	2-Banchi, 1-Chome, Higashi, Ohdori, Chuo-ku
+Building: 	-
+City: 	Sapporo
+State/Region: 	Hokkaido
+Postfix/ZIP: 	060-8677
+Country: 	Japan
+Telephone: 	+81-11-251-1111
+FAX: 	-
+E-Mail: 	-
+URL: 	http://www.hepco.co.jp
+Represented by: 	Masaki Yabu
+Title: 	Manager
+Salutation: 	Mr.
+Last Name: 	Yabu
+Middle Name: 	-
+First Name: 	Masaki
+Department: 	Civil Engineering Department
+Mobile: 	-
+Direct FAX: 	+81-11-251-0425
+Direct tel: 	+81-11-251-4623
+Personal E-Mail: 	myabu@epmail.hepco.co.jp
+Organization: 	Iwatani International Corporation
+Street/P.O.Box: 	3-21-8,Nishi-Shimbashi
+
+-- 46 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 47
+Building:
+City: 	Minato-ku
+State/Region: 	Tokyo
+Postfix/ZIP: 	105-8458
+Country: 	Japan
+Telephone: 	+81-3-5405-7027
+FAX: 	+81-3-5405-7028
+E-Mail: 	iso@iwatani.co.jp
+URL: 	http://www.iwatani.co.jp/
+Represented by: 	Shin Endo
+Title: 	Senior Manager
+Salutation: 	Mr
+Last Name: 	Endo
+Middle Name:
+First Name: 	Shin
+Department: 	Safety & Environment Dept.
+Mobile:
+Direct FAX: 	+81-3-5405-7028
+Direct tel: 	+81-3-5405-7027
+Personal E-Mail: 	endo@iwatani.co.jp
+
+-- 47 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 48
+Annex 2
+INFORMATION REGARDING PUBLIC FUNDING
+There is no public funding from Annex Ⅰ Parties for the project.
+
+-- 48 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 49
+Annex 3
+BASELINE INFORMATION
+Adjusting the default value of 	y	LT	VS 	, in terms of weight is done by formula (3)
+below:
+y	default
+default
+site
+y	LT 	nd	VS
+W
+W
+VS 	*	*	, 	⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+= 	（3）
+site	W 	： 	Weights of Merchandise pig and Mother pig are set out as under:
+Raising Merchandise Pig is done as below:
+Breeding days 	Weight 	Change of
+Heads
+Remarks
+Baby Pig 	0 day～
+21days
+1.35kg～
+6.2kg
+110 Heads
+/day In-take
+Pig under
+Nursery
+21days～
+70days
+6.2kg～25kg
+Grownup
+Pig
+70days～
+160days
+25kg～100kg 	110
+Heads/day
+Shipped Out
+This may construe to set out an average weight of Merchandise pig as 40kg/head
+Raising Mother Pig is done as below:
+Breeding
+Period
+Weight 	Change of
+Heads
+When
+delivered
+100 days
+after birth
+50kg～
+60kg
+600Heads/yea
+r
+In-take
+30％ Replaced
+Grownu
+p Period
+240 days 	200kg
+Breeding
+Period
+1000 days 	200kg 	600
+Heads/year
+Shipped Out
+Change in weight in
+pregnancy disregarded
+This may construe to set out an average weight of Mother pig as 182kg/head
+default	W 	： 	Default value applicable to Merchandise pig and Mother pig raised in Asian
+countries is referred as 28kg/head
+（Source: IPCC2006 table 10A.7,10A.8,chapter 10,volume4）
+default	VS 	： 	Emission of VS(Volatile Solids) from Merchandise pig and Mother pig raised in
+Asian countries is 0.3 kg/hd/day
+y	nd 	： 	System’s total operation days per year is 365days
+
+-- 49 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 50
+■ 	Merchandise Pig’s 	y	m	LT	VS 	,	, 	Adjustment
+y	default
+default
+site
+y	m	LT 	nd	VS
+W
+W
+VS 	*	*	,	, 	⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+= 	（3.a）
+= (40kg/28kg)*0.3 kg/hd/day *365
+= 156.4kg/hd/y
+■ 	Mother pig’s 	y	b	LT	VS 	,	, 	adjustment
+y	default
+default
+site
+y	b	LT 	nd	VS
+W
+W
+VS 	*	*	,	, 	⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+= 	（3.b）
+= (182kg/28kg)*0.3 kg/hd/day *365
+= 711.7kg/hd/y
+Annex 4
+MONITORING INFORMATION
+■ 	Method to monitor the numbers of pigs
+The numbers of pigs by species will be monitored based on the data now available in Foodstuffs
+Group Co., to manage the total heads of the pigs fed. Usable data can be obtained from Pig
+Breeding Division of Foodstuffs Group Co., accordingly.
+■ 	Method to scale pig’s weight
+Scaling pig’s weight by species will be monitored based on the data also available in Logda to
+manage weight-control system. Usable data can be obtained from the same Division of the company.
+■ 	Calibration of Measuring Instruments
+Calibration works of measuring tools and instruments shall be based on the standards specified by
+individual manufacturers of them. The following instruments are required to be aligned :
+ID No. 	Monitoring instrument 	frequency 	calibration
+ID 1 	Biogas flow meter 	annually Based on the
+manufacturer standard
+ID 2 	Biogas flow meter 	annually Based on the
+manufacturer standard
+ID 3 	Biogas flow meter 	annually Based on the
+manufacturer standard
+ID 4 	Methane concentration analyzer 	annually Based on the
+manufacturer standard
+ID 5 	Electricity meter 	annually 	Based on the
+
+-- 50 of 51 --
+
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 03.1.
+CDM – Executive Board
+page 51
+manufacturer standard
+ID 6 	Digested liquor flow meter 	annually Based on the
+manufacturer standard
+■ 	Measuring Mandates
+Flow Meter :
+3 Flow Meters for measuring biogas flows will be installed in such places as: the outlet of the
+anaerobic fermentation tank; the inlet of the power generator; the inlet of the flare system. Each flow
+meter shows its accumulated data of figures which should be checked and recorded at regular time
+every day by the staff.
+A digested effluent flow meter will be installed in the exit of digested effluent tank to show
+Accumulated data of figures which should be checked and recorded by the staff at regular
+time every day.
+Methane concentration analyzer:
+The analyzer will be installed in the outlet of the anaerobic fermentation tank. Biogas should be sampled
+at regular time to measure biogas density which can be checked and recorded at regular time every day by
+the operator.
+Electric Power Meter:
+The meter will be installed at the interface with the external grid for measuring supplied quantity of
+electric power to the external grid. The accumulated data of supplied figures should be checked and
+recorded regularly by the staff every day.
+
+-- 51 of 51 --
+
