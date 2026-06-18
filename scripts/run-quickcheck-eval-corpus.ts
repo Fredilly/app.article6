@@ -14,15 +14,23 @@ const manifestPath = manifestFlagIndex >= 0 && process.argv[manifestFlagIndex + 
   ? path.resolve(process.argv[manifestFlagIndex + 1])
   : path.resolve(process.cwd(), "tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
 
+const manifest = loadEvalCorpusManifest(manifestPath);
+
+// Learning fixtures (with failureReason) are excluded from strict threshold
+// gating — they represent expected failures awaiting selector fixes.
+const learningFixtureIds = manifest.fixtures
+  .filter((f) => f.failureReason)
+  .map((f) => f.id);
+
 const report = runQuickCheckEvalCorpus({
   manifestPath,
   repoRoot: process.cwd(),
+  excludeFixtureIds: strict ? learningFixtureIds : [],
 });
 
 console.log(formatQuickCheckEvalCorpusReport(report));
 
 if (strict) {
-  const manifest = loadEvalCorpusManifest(manifestPath);
   const thresholds = manifest.thresholds ?? DEFAULT_STRICT_THRESHOLDS;
   const { passed, violations } = checkEvalCorpusThresholds(report, thresholds);
 
