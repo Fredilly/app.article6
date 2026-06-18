@@ -99,7 +99,7 @@ describe("formatEvidenceCheckUiText", () => {
         downgradeReason: "",
       }),
     ).toEqual({
-      answerText: "VM0007 v1.3",
+      answerText: "The project uses VM0007: v1.3.",
       downgradeReason: "",
     });
   });
@@ -113,7 +113,7 @@ describe("formatEvidenceCheckUiText", () => {
         downgradeReason: "",
       }),
     ).toEqual({
-      answerText: "VM0007 REDD+ Methodology Framework v1.6",
+      answerText: "The project uses VM0007: REDD+ Methodology Framework v1.6.",
       downgradeReason: "",
     });
   });
@@ -127,7 +127,7 @@ describe("formatEvidenceCheckUiText", () => {
         downgradeReason: "",
       }),
     ).toEqual({
-      answerText: "Indonesia",
+      answerText: "The host country is Indonesia.",
       downgradeReason: "",
     });
   });
@@ -252,7 +252,7 @@ describe("authoritative evidence check selectors", () => {
       rawText: PLUM_A_DOC_TEXT,
     });
 
-    expect(result.answerText).toBe("Indonesia");
+    expect(result.answerText).toBe("The host country is Indonesia.");
   });
 
   it("finds methodology from alternate methodology headings in PLUM", () => {

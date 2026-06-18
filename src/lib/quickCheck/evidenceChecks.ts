@@ -273,8 +273,12 @@ function scoreCandidateText(contract: EvidenceCheckContract, text: string): numb
 }
 
 function trimNarrativeAnswer(label: string, value: string): string {
-  const sentence = firstSentence(chooseNarrativeSentence(label, value));
-  return sentence.length > 240 ? `${sentence.slice(0, 237).trimEnd()}...` : sentence;
+  const chosen = chooseNarrativeSentence(label, value);
+  // Ensure the answer ends with a period (complete sentence).
+  let result = chosen.trim();
+  if (result.length > 0 && !/[.!?]$/.test(result)) result += ".";
+  if (result.length > 300) result = `${result.slice(0, 297).trimEnd()}...`;
+  return result;
 }
 
 function formatLeakageAnswer(value: string): string {
@@ -298,8 +302,14 @@ function formatMethodologyAnswer(value: string): string {
   const normalized = normalizeInlineWhitespace(firstSentence(stripCommonLeadIn(value))).replace(/\.$/, "");
   const withNormalizedVersion = normalized.replace(/\bversion\s*(\d+(?:[.-]\d+)*)$/i, "v$1");
   const codeMatch = withNormalizedVersion.match(/\b(VM\d{4}|VMD\d{4}|GS-VER\d+|AR-[A-Z0-9.-]+|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+)\b/i);
-  if (!codeMatch) return withNormalizedVersion;
-  return withNormalizedVersion.replace(codeMatch[1], codeMatch[1].toUpperCase()).trim();
+  const code = codeMatch?.[1]?.toUpperCase() ?? "";
+  // Extract methodology name: everything after the code, or the full text if no code found
+  const name = code
+    ? withNormalizedVersion.slice(withNormalizedVersion.toUpperCase().indexOf(code)).replace(/^[A-Z0-9.-]+\s*(?:\([^)]*\))?\s*/i, "").replace(/^[",\s>»]+/, "").trim()
+    : withNormalizedVersion;
+  if (!code && !name) return "";
+  if (!name) return `The project uses ${code}.`;
+  return `The project uses ${code}: ${name}.`;
 }
 
 function formatHostCountryAnswer(value: string): string {
@@ -310,8 +320,10 @@ function formatHostCountryAnswer(value: string): string {
   const candidate = normalizeInlineWhitespace(explicit ?? "")
     .replace(/\b(Project proponent|Methodology|Crediting period|Monitoring period)\b.*$/i, "")
     .trim();
-  const countryLike = candidate.match(/^([A-Z][A-Za-z]+(?:[\s-][A-Z][A-Za-z]+){0,3})/)?.[1];
-  return countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+  const countryLike = candidate.match(/^([A-Z][A-Za-z\u2019']+(?:[\s-][A-Za-z\u2019']+){0,5})/)?.[1];
+  const country = countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+  if (!country) return "";
+  return `The host country is ${country}.`;
 }
 
 function formatFoundEvidenceAnswer(label: string, answerText: string): string {

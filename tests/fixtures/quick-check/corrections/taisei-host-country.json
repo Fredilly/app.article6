@@ -1,0 +1,19 @@
+{
+  "documentId": "taisei-china-pdd",
+  "documentName": "2006Taisei_jChina_PDD.pdf",
+  "documentType": "CDM PDD",
+  "methodologyId": "ACM0010",
+  "checkId": "host_country",
+  "currentAnswer": "The People's Republic of China",
+  "currentStatus": "found",
+  "currentQuote": "The People's Republic of China",
+  "currentPage": 4,
+  "currentSection": "A.4.1.1 Host Party",
+  "evidenceSpanIds": ["host-country-span-1"],
+  "correctedAnswer": "The host country is the People's Republic of China.",
+  "correctedQuote": "The People's Republic of China",
+  "correctedPage": 4,
+  "correctedSection": "A.4.1.1 Host Party(ies)",
+  "confidence": 0.95,
+  "failureReason": ""
+}
