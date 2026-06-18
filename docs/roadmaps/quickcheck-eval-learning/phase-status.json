@@ -2,7 +2,7 @@
   "roadmapId": "quickcheck-eval-learning",
   "name": "Quick Check Eval-Driven Learning Loop",
   "status": "active",
-  "currentGoalId": "qcel-5-correction-export-json",
+  "currentGoalId": "qcel-6-learning-queue",
   "goals": [
     {
       "id": "qcel-0-roadmap-boundary",
@@ -69,7 +69,7 @@
     {
       "id": "qcel-5-correction-export-json",
       "title": "Add correction export JSON",
-      "status": "not_started",
+      "status": "done",
       "dependsOn": ["qcel-4-messy-pdd-fixture-pack"],
       "branch": "feat/quickcheck-correction-export",
       "doneCriteria": [
@@ -119,9 +119,9 @@
   "phase_meta": {
     "status": "active",
     "summary": "Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.",
-    "current_focus": "Goal 5: Add correction export JSON to Quick Check answer cards.",
+    "current_focus": "Goal 6: Add learning queue and promotion workflow.",
     "not_active_now": [
-      "Goals 6–8",
+      "Goals 7–8",
       "Active corpus reporting"
     ],
     "last_updated_at": "2026-06-18T00:00:00Z"
@@ -132,6 +132,7 @@
     "781": { "title": "test: add Taisei PDD gold fixture to eval corpus" },
     "782": { "title": "fix: authoritative selectors for project title, host country, methodology" },
     "784": { "title": "test: add messy carbon document fixture pack (Goal 4)" },
+    "785": { "title": "feat: add correction export button to Quick Check answer cards (Goal 5)" },
     "787": { "title": "test: complete messy PDD fixture pack (Goal 4)" }
   },
   "pr_notes": {
@@ -139,7 +140,8 @@
     "780": "Goal 1 complete: expectedAnswer and failureReason fields added to eval corpus types.",
     "781": "Goal 2 complete: Taisei PDD gold fixture with baseline failure report, separate non-blocking manifest.",
     "782": "Goal 3 complete: 5/6 core checks answered with provenance. Leakage/additionality unclear due to parser limitations.",
-    "784": "Goal 4 (partial): 3 messy fixtures added (envira-full-vcs-pd, vichada-validation, gen-forest-verification).",
-    "787": "Goal 4 complete: 5 total messy fixtures. Added monitoring-report and rimba-raya patterns."
+    "784": "Goal 4 (partial): 3 messy fixtures added.",
+    "785": "Goal 5: Correction export button. Client-side JSON download, no server writes, no behavior changes.",
+    "787": "Goal 4 complete: 5 full messy fixtures (replaced tiny samples with full-redd-pd-v130 and plum-ccb-full)."
   }
 }
