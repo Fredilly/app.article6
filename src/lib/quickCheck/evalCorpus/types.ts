@@ -32,6 +32,7 @@ export type EvalCorpusQuestionExpectation = {
   expectedRoute?: DeterministicRouterRoute;
   expectedEvidenceEmpty?: boolean;
   goldEvidence?: EvalCorpusGoldEvidence;
+  expectedAnswer?: string;
   visibleAnswerStatus?: DocumentAnswerStatus;
   visibleAnswerTextContains?: string;
   visibleAnswerEvidenceMin?: number;
@@ -61,6 +62,7 @@ export type EvalCorpusFixtureManifestEntry = {
   methodologyContext: EvalCorpusMethodologyContext;
   gold: EvalCorpusFixtureGold;
   notes?: string;
+  failureReason?: string;
 };
 
 export type EvalCorpusManifest = {
