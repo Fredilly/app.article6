@@ -279,12 +279,10 @@ function evaluateQuestion(input: {
 export function runQuickCheckEvalCorpus(options?: {
   manifestPath?: string;
   repoRoot?: string;
-  excludeFixtureIds?: string[];
 }): EvalCorpusReport {
   const repoRoot = options?.repoRoot ?? path.resolve(process.cwd());
   const manifestPath = options?.manifestPath ?? path.join(repoRoot, "tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
   const manifest = loadEvalCorpusManifest(manifestPath);
-  const excludeIds = new Set(options?.excludeFixtureIds ?? []);
   const failures: EvalCorpusFailure[] = [];
   const fixtureResults: EvalCorpusFixtureResult[] = [];
 
@@ -309,7 +307,6 @@ export function runQuickCheckEvalCorpus(options?: {
   let visibleAgreementTotal = 0;
 
   for (const fixture of manifest.fixtures) {
-    if (excludeIds.has(fixture.id)) continue;
     const rawPddText = readEvalCorpusFixture(repoRoot, fixture.fixturePath, fixture.kind);
     const structuredContext = getStructuredQueryContext(rawPddText);
     const factFailures = compareFactContract(fixture.gold, structuredContext.projectFactContract);
@@ -384,7 +381,7 @@ export function runQuickCheckEvalCorpus(options?: {
 
   return {
     corpusId: manifest.corpusId,
-    fixtureCount: manifest.fixtures.length - excludeIds.size,
+    fixtureCount: manifest.fixtures.length,
     fixtureResults,
     failures,
     metrics: {
