@@ -701,21 +701,21 @@ function sectionsFact(
   ));
 
   // Body paragraph/field matches — catches inline anchors like "Leakage" that
-  // appear as standalone paragraphs within a parent section.
+  // appear within a parent section but whose heading path includes the term.
   const bodyMatches = document.spans.filter((span) => (
     span.reliability !== "excluded"
     && (span.blockType === "paragraph" || span.blockType === "field")
     && normalizedTerms.some((term) => (
       span.headingPath.some((heading) => normalizeValue(heading).includes(term))
-      // Inline match: a paragraph whose text starts with the term (e.g. "Leakage covers...")
-      || (/^[A-Z]/.test(span.text.trim()) && normalizeValue(span.text.trim()).startsWith(term))
     ))
   ));
 
-  // Raw text fallback — when the document parser merges inline section anchors
-  // (like a standalone "Leakage" heading within a parent section) into the
-  // parent's paragraph span, look for the term as a line prefix in the raw text.
-  const rawTextLines = document.rawText?.split("\n") ?? [];
+  // Raw text fallback — only for CDM PDDs where the document parser merges
+  // inline section anchors (like a standalone "Leakage" heading) into parent
+  // paragraph spans.  Other document families don't have this quirk.
+  const rawTextLines = family === "CDM_PDD"
+    ? (document.rawText?.split("\n") ?? [])
+    : [];
   const rawLineMatches = headingMatches.length === 0 && bodyMatches.length === 0
     ? rawTextLines.filter((line) => {
         const trimmed = line.trim();
@@ -899,9 +899,12 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const title = findProjectTitle(document);
   const projectId = findField(document, FIELD_RULES.find((rule) => rule.field === "projectId") as FieldRule);
   const hostCountryRaw = findField(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule);
-  const hostCountry = hostCountryRaw.value != null
-    ? hostCountryRaw
+  const hostCountryFallback = hostCountryRaw.value != null
+    ? null
     : findFieldFromHeadingValue(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule);
+  const hostCountry = hostCountryFallback?.value != null
+    ? hostCountryFallback
+    : hostCountryRaw;
   const projectLocation = findField(document, FIELD_RULES.find((rule) => rule.field === "projectLocation") as FieldRule);
   const projectCountry = hostCountry.value
     ? hostCountry
