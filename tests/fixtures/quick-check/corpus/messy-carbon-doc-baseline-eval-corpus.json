@@ -1,6 +1,6 @@
 {
   "manifestVersion": 1,
-  "corpusId": "messy-pdd-baseline",
+  "corpusId": "messy-carbon-doc-baseline",
   "fixtures": [
     {
       "id": "real-envira-full-vcs-pd",
