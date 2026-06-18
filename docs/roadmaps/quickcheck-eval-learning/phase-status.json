@@ -2,7 +2,7 @@
   "roadmapId": "quickcheck-eval-learning",
   "name": "Quick Check Eval-Driven Learning Loop",
   "status": "active",
-  "currentGoalId": "qcel-6-learning-queue",
+  "currentGoalId": "qcel-7-active-corpus-report",
   "goals": [
     {
       "id": "qcel-0-roadmap-boundary",
@@ -81,7 +81,7 @@
     {
       "id": "qcel-6-learning-queue",
       "title": "Add learning queue and promotion workflow",
-      "status": "not_started",
+      "status": "done",
       "dependsOn": ["qcel-5-correction-export-json"],
       "branch": "docs/quickcheck-learning-queue",
       "doneCriteria": [
@@ -119,7 +119,7 @@
   "phase_meta": {
     "status": "active",
     "summary": "Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.",
-    "current_focus": "Goal 6: Add learning queue and promotion workflow.",
+    "current_focus": "Goal 7: Add active corpus report for weakness detection.",
     "not_active_now": [
       "Goals 7–8",
       "Active corpus reporting"
@@ -133,7 +133,8 @@
     "782": { "title": "fix: authoritative selectors for project title, host country, methodology" },
     "784": { "title": "test: add messy carbon document fixture pack (Goal 4)" },
     "785": { "title": "feat: add correction export button to Quick Check answer cards (Goal 5)" },
-    "787": { "title": "test: complete messy PDD fixture pack (Goal 4)" }
+    "787": { "title": "test: complete messy PDD fixture pack (Goal 4)" },
+    "789": { "title": "docs: add learning queue and promotion workflow (Goal 6)" }
   },
   "pr_notes": {
     "779": "Goal 0 complete: roadmap files created.",
