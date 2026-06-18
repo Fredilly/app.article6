@@ -638,11 +638,8 @@ describe("Phase 6 visible-answer eval — disagreement gate catches specific fai
 
   it("real corpus has zero visible/Technical disagreements (single source of truth)", () => {
     const report = runQuickCheckEvalCorpus();
-    const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-    const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
     let visibleFailureCount = 0;
     for (const fixtureResult of report.fixtureResults) {
-      if (learningIds.has(fixtureResult.fixtureId)) continue;
       for (const questionResult of fixtureResult.questionResults) {
         visibleFailureCount += questionResult.visibleFailures.length;
       }
@@ -1002,10 +999,7 @@ describe("Phase 5 — table routing regression", () => {
 describe("Phase 6 — eval corpus provenance and quote validation hardening", () => {
   it("no quote_validation_failed in router warnings across entire corpus", () => {
     const report = runQuickCheckEvalCorpus();
-    const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-    const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
     for (const fixture of report.fixtureResults) {
-      if (learningIds.has(fixture.fixtureId)) continue;
       for (const qr of fixture.questionResults) {
         expect(qr.actualWarnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
       }
@@ -1014,11 +1008,8 @@ describe("Phase 6 — eval corpus provenance and quote validation hardening", ()
 
   it("every answered question has non-empty evidenceSpanIds", () => {
     const report = runQuickCheckEvalCorpus();
-    const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-    const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
     let answeredCount = 0;
     for (const fixture of report.fixtureResults) {
-      if (learningIds.has(fixture.fixtureId)) continue;
       for (const qr of fixture.questionResults) {
         if (qr.actualStatus === "answered") {
           answeredCount++;
@@ -1031,12 +1022,7 @@ describe("Phase 6 — eval corpus provenance and quote validation hardening", ()
 
   it("no hallucinated answers (answered without provenance)", () => {
     const report = runQuickCheckEvalCorpus();
-    const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-    const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
-    const nonLearningFailures = report.failures.filter((f) => !learningIds.has(f.fixtureId) && f.category !== "visible_answer");
-    expect(nonLearningFailures.filter((f) => f.message.includes("without provenance") || f.message.includes("hallucinated")).length).toBe(0);
-    // Whole-corpus hallucinated rate may include learning fixtures — only assert on non-learning subset
-    expect(report.metrics.hallucinatedAnswerRate.rate).toBeLessThan(1);
+    expect(report.metrics.hallucinatedAnswerRate.rate).toBe(0);
   });
 
   it("weak-ocr fixture correctly answers methodology but monitoring route is flaky in eval runner", () => {
@@ -1141,10 +1127,7 @@ describe("Goal 8 — no fake answers regression", () => {
   describe("answered questions require evidence", () => {
     it("every answered question in corpus has non-empty evidenceSpanIds", () => {
       const report = runQuickCheckEvalCorpus();
-      const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-      const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
       for (const fixture of report.fixtureResults) {
-        if (learningIds.has(fixture.fixtureId)) continue;
         for (const qr of fixture.questionResults) {
           if (qr.actualStatus === "answered") {
             expect(qr.actualEvidenceSpanCount).toBeGreaterThan(0);
@@ -1155,10 +1138,7 @@ describe("Goal 8 — no fake answers regression", () => {
 
     it("answered questions never have quote_validation_failed", () => {
       const report = runQuickCheckEvalCorpus();
-      const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-      const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
       for (const fixture of report.fixtureResults) {
-        if (learningIds.has(fixture.fixtureId)) continue;
         for (const qr of fixture.questionResults) {
           if (qr.actualStatus === "answered") {
             expect(qr.actualWarnings.filter((w) => w.includes("quote_validation"))).toEqual([]);
@@ -1169,10 +1149,7 @@ describe("Goal 8 — no fake answers regression", () => {
 
     it("no_evidence questions have zero evidenceSpanIds", () => {
       const report = runQuickCheckEvalCorpus();
-      const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-      const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
       for (const fixture of report.fixtureResults) {
-        if (learningIds.has(fixture.fixtureId)) continue;
         for (const qr of fixture.questionResults) {
           if (qr.actualStatus === "no_evidence") {
             expect(qr.actualEvidenceSpanCount).toBe(0);
@@ -1188,10 +1165,7 @@ describe("Goal 9 — visible/router agreement gate", () => {
 
   it("answered router status always produces likely_yes visible status", () => {
     const report = runQuickCheckEvalCorpus();
-    const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-    const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
     for (const fixture of report.fixtureResults) {
-      if (learningIds.has(fixture.fixtureId)) continue;
       for (const qr of fixture.questionResults) {
         if (qr.actualStatus === "answered") {
           expect(qr.actualVisibleStatus).toBe("likely_yes");
@@ -1203,10 +1177,7 @@ describe("Goal 9 — visible/router agreement gate", () => {
 
   it("no_evidence router status always produces unclear visible status", () => {
     const report = runQuickCheckEvalCorpus();
-    const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-    const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
     for (const fixture of report.fixtureResults) {
-      if (learningIds.has(fixture.fixtureId)) continue;
       for (const qr of fixture.questionResults) {
         if (qr.actualStatus === "no_evidence") {
           expect(qr.actualVisibleStatus).toBe("unclear");
@@ -1234,11 +1205,8 @@ describe("Goal 9 — visible/router agreement gate", () => {
 
   it("visible answer has zero disagreements with router (visibleFailureCount == 0)", () => {
     const report = runQuickCheckEvalCorpus();
-    const manifest = loadEvalCorpusManifest("tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
-    const learningIds = new Set(manifest.fixtures.filter((f) => f.failureReason).map((f) => f.id));
     let count = 0;
     for (const f of report.fixtureResults) {
-      if (learningIds.has(f.fixtureId)) continue;
       for (const q of f.questionResults) {
         count += q.visibleFailures.length;
       }
