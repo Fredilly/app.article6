@@ -724,11 +724,9 @@ function sectionsFact(
       })
     : [];
 
-  const matches = headingMatches.length > 0 ? headingMatches
-    : bodyMatches.length > 0 ? bodyMatches
-    : [];
+  const matches = headingMatches.length > 0 ? headingMatches : bodyMatches;
 
-  if (matches.length === 0 && rawLineMatches.length === 0) {
+  if (matches.length === 0) {
     return createEmptyField<string[] | null>(`sections:${fieldName}`, family, [materializeWarning(`No ${fieldName} sections were found.`)]);
   }
 
@@ -790,9 +788,29 @@ function findMethodologyFromB1Heading(
       if (next.blockType === "section_heading") break;
       const codeMatch = next.text.match(METHODOLOGY_CODE_RE);
       if (codeMatch) {
-        // Extract the methodology code and surrounding context
-        const codeIndex = codeMatch.index ?? 0;
-        const context = next.text.slice(Math.max(0, codeIndex - 20), codeIndex + 100).trim();
+        // Find the sentence boundaries around the match to extract the
+        // complete methodology title line (not a mid-word slice).
+        const matchStart = codeMatch.index ?? 0;
+        const matchEnd = matchStart + codeMatch[0].length;
+        // Expand to the nearest sentence or line boundary
+        const text = next.text;
+        let start = matchStart;
+        while (start > 0 && !/[.!\n]/.test(text[start - 1]) && !/^[A-Z][a-z]/.test(text.slice(start))) {
+          start--;
+        }
+        // Find end of methodology title (first sentence containing the code)
+        let end = matchEnd;
+        while (end < text.length) {
+          if (/[.!]\s/.test(text.slice(end, end + 2)) || text[end] === "\n") {
+            end += text[end] === "\n" ? 0 : 1;
+            break;
+          }
+          end++;
+        }
+        const context = text.slice(start, end).trim()
+          .replace(/^[>»\s]+/, "").trim()
+          // Strip leading noise from multi-span headings (e.g. "project activity: >>")
+          .replace(/^(?:project\s+activity\s*:?\s*)?[>»]*\s*/i, "");
         const candidate: Candidate = {
           value: context,
           normalizedValue: normalizeValue(context),
@@ -898,10 +916,17 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const family = document.documentFamily ?? "UNKNOWN";
   const title = findProjectTitle(document);
   const projectId = findField(document, FIELD_RULES.find((rule) => rule.field === "projectId") as FieldRule);
-  const hostCountryRaw = findField(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule);
-  const hostCountryFallback = hostCountryRaw.value != null
-    ? null
-    : findFieldFromHeadingValue(document, FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule);
+  const hostCountryRule = FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule;
+  const hostCountryCandidates = findLabeledCandidates(document, hostCountryRule);
+  const hostCountryRaw = factFromCandidates<string | null>(family, "hostCountry", hostCountryCandidates, { allowMedium: true });
+  // Use heading-next fallback when findLabeledCandidates found zero candidates
+  // (true absence), or for CDM_PDD where the broad "Country" label produces
+  // false conflicts that the heading-next pattern correctly resolves.
+  const hostCountryNeedsFallback = hostCountryCandidates.length === 0
+    || (family === "CDM_PDD" && hostCountryRaw.value == null);
+  const hostCountryFallback = hostCountryNeedsFallback
+    ? findFieldFromHeadingValue(document, hostCountryRule)
+    : null;
   const hostCountry = hostCountryFallback?.value != null
     ? hostCountryFallback
     : hostCountryRaw;

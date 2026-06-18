@@ -20,7 +20,7 @@
         "reportingPeriod": null,
         "baselineSection": "Description of how the baseline scenario is identified and description of the identified",
         "monitoringSection": "Application of the monitoring methodology and description of the monitoring plan:",
-        "leakageSection": "Leakage",
+        "leakageSection": null,
         "additionalitySection": null,
         "unsupportedQuestionExpectation": {
           "expectedStatus": "no_evidence",
@@ -106,8 +106,8 @@
           }
         }
       },
-      "failureReason": "This fixture catches real PDD extraction failures where Quick Check must extract project facts and section-backed answers from the PDD itself. Known failures: host_country selector matches generic references instead of structured Host Party field in A.4.1.1; methodology selector returns broad method context instead of B.1 title. Leakage/additionality routing requires section table index improvements (not yet implemented).",
-      "notes": "Real CDM PDD for Foodstuffs Group methane digestion project in Laiyang City, Shandong Province, China. Full 51-page extraction. Core checks (title, host country, methodology, baseline, monitoring) now answered with provenance after selector fixes. Leakage and additionality remain unclear — section index needs to recognize inline subsection anchors parsed as raw-text fallbacks."
+      "failureReason": "Tests five core Quick Check selectors against a real CDM PDD. hostCountry must prefer Host Party heading over broad Country label matches. methodology must prefer B.1 title over B.2/B.7/B.8 section heading mentions. Leakage and additionality remain unclear pending section table index improvements for inline subsection anchors.",
+      "notes": "Real CDM PDD for Foodstuffs Group methane digestion project in Laiyang City, Shandong Province, China. Full 51-page extraction. 5/6 core checks answered with provenance after selector fixes. Leakage/additionality unclear — document parser does not create proper spans for inline subsection headings."
     }
   ]
 }
