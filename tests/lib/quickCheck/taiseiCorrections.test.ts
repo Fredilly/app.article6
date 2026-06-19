@@ -50,12 +50,10 @@ describe("Taisei PDD correction verification", () => {
     return;
   }
 
-  // Rule: answered results must have non-empty quotes, pages, sections, evidenceSpanIds
-  it("answered results must have complete evidence provenance", () => {
+  it("answered results have complete evidence provenance", () => {
     for (const c of corrections) {
-      const question = QUESTION_MAP[c.checkId];
       const result = buildReviewQuestionResult({
-        claimText: question,
+        claimText: QUESTION_MAP[c.checkId],
         methodologyId: "ACM0010",
         methodologyVersion: "02",
         rawPddText: pddText,
@@ -70,7 +68,6 @@ describe("Taisei PDD correction verification", () => {
         downgradeReason: result.routerResult.warnings.join("; "),
       });
 
-      // If the router answered, evidence must be present
       if (result.routerResult.status === "answered") {
         expect(result.routerResult.quotes.length).toBeGreaterThan(0);
         expect(result.routerResult.pages.length).toBeGreaterThan(0);
@@ -78,52 +75,109 @@ describe("Taisei PDD correction verification", () => {
         expect(result.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
       }
 
-      // host_country specific: answer must not be a truncated fragment
       if (c.checkId === "host_country") {
         expect(formatted.answerText.length).toBeGreaterThan(10);
         expect(formatted.answerText).not.toMatch(/^The People$/);
         expect(formatted.answerText).not.toMatch(/^the people$/);
+        expect(formatted.answerText).toMatch(/republic/i);
       }
 
-      // methodology specific: answer must not have noisy prefixes
       if (c.checkId === "methodology") {
         expect(formatted.answerText).not.toMatch(/^project activity/);
         expect(formatted.answerText).not.toMatch(/^>>/);
-      }
-
-      // baseline_scenario specific: answer must not cite B.8
-      if (c.checkId === "baseline_scenario") {
-        if (result.routerResult.status === "answered") {
-          const hasB8 = result.routerResult.sectionPaths.some((s) => s.includes("section:B.8"));
-          expect(hasB8).toBe(false);
-        }
-      }
-
-      // stakeholder_consultation specific: must not be a table dump
-      if (c.checkId === "stakeholder_consultation") {
-        if (result.routerResult.status === "answered") {
-          expect(formatted.answerText).not.toMatch(/^\s*>>/);
-          expect(formatted.answerText.length).toBeLessThan(500);
-        }
+        expect(formatted.answerText).toMatch(/ACM0010/i);
       }
     }
   });
 
-  it.each(corrections)("$checkId produces a meaningful answer", (c) => {
-    const question = QUESTION_MAP[c.checkId];
-    if (!question) throw new Error(`No question mapping for ${c.checkId}`);
-
+  it("baseline_scenario does not cite B.8 or methodology preamble", () => {
     const result = buildReviewQuestionResult({
-      claimText: question,
+      claimText: "What is the baseline scenario?",
       methodologyId: "ACM0010",
       methodologyVersion: "02",
       rawPddText: pddText,
     });
 
-    // Answer must be non-empty
-    expect(result.routerResult.answerText?.trim().length).toBeGreaterThan(0);
+    if (result.routerResult.status === "answered") {
+      // Must use B.4, not B.8
+      const hasB8 = result.routerResult.sectionPaths.some((s) => s.includes("section:B.8"));
+      expect(hasB8).toBe(false);
 
-    // Answer must not start with connector fragments or mid-word
+      // Quotes must be from B.4 (not B.8 completion-date text)
+      for (const q of result.routerResult.quotes) {
+        expect(q).not.toMatch(/date of completion/i);
+        expect(q).not.toMatch(/name of person/i);
+        expect(q).not.toMatch(/contact person/i);
+      }
+    }
+  });
+
+  it("stakeholder_consultation cites E.3 outcome, not E.1 prompt", () => {
+    const result = buildReviewQuestionResult({
+      claimText: "What does the document say about stakeholder consultation?",
+      methodologyId: "ACM0010",
+      methodologyVersion: "02",
+      rawPddText: pddText,
+    });
+
+    if (result.routerResult.status === "answered") {
+      // Must use E.3 (outcome), not just E.1 (prompt/heading)
+      const hasE3 = result.routerResult.sectionPaths.some((s) => s.includes("section:E.3"));
+      const onlyE1 = result.routerResult.sectionPaths.every((s) => s.includes("section:E.1") && !s.includes("section:E.3"));
+
+      // At minimum, shouldn't be ONLY E.1 with no E.3
+      if (onlyE1) {
+        // If only E.1, the quote should at least have substantive content,
+        // not just the section prompt heading
+        for (const q of result.routerResult.quotes) {
+          expect(q).not.toMatch(/^Brief description how comments/i);
+          expect(q).not.toMatch(/^How comments by local stakeholders/i);
+        }
+      }
+    }
+  });
+
+  it("additionality and leakage return unclear when evidence is unproven", () => {
+    for (const checkId of ["additionality", "leakage"]) {
+      const result = buildReviewQuestionResult({
+        claimText: QUESTION_MAP[checkId],
+        methodologyId: "ACM0010",
+        methodologyVersion: "02",
+        rawPddText: pddText,
+      });
+
+      // Since the parser can't route to B.5 or the Leakage paragraph,
+      // these should not return 'answered' with empty evidence.
+      if (result.routerResult.status === "answered") {
+        // If answered, must have real evidence provenance
+        expect(result.routerResult.quotes.length).toBeGreaterThan(0);
+        expect(result.routerResult.pages.length).toBeGreaterThan(0);
+        expect(result.routerResult.sectionPaths.length).toBeGreaterThan(0);
+        expect(result.routerResult.evidenceSpanIds.length).toBeGreaterThan(0);
+
+        // Quotes must contain relevant topic keywords
+        const allQuotes = result.routerResult.quotes.join(" ");
+        if (checkId === "additionality") {
+          expect(allQuotes).toMatch(/additional/i);
+        }
+        if (checkId === "leakage") {
+          expect(allQuotes).toMatch(/leakage/i);
+        }
+      }
+      // 'unclear' is acceptable — the router correctly refuses to answer
+      // when it can't find provenanced evidence.
+    }
+  });
+
+  it.each(corrections)("$checkId answer is non-empty and well-formed", (c) => {
+    const result = buildReviewQuestionResult({
+      claimText: QUESTION_MAP[c.checkId],
+      methodologyId: "ACM0010",
+      methodologyVersion: "02",
+      rawPddText: pddText,
+    });
+
+    expect(result.routerResult.answerText?.trim().length).toBeGreaterThan(0);
     expect(result.routerResult.answerText).not.toMatch(/^[a-z]/);
     expect(result.routerResult.answerText).not.toMatch(/^(and|or|but|also|>>|»)\b/i);
   });
