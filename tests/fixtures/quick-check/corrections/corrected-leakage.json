@@ -1,0 +1,21 @@
+{
+  "documentId": "6dbf8989-47db-4e0d-a15f-2a4944cd8366",
+  "documentName": "2006Taisei_jChina_PDD.pdf",
+  "documentType": "Project Description / PD",
+  "methodologyId": "",
+  "checkId": "leakage",
+  "currentAnswer": "activity: This approved methodology ACM0010 is applicable to manure management system with the following conditions: z Farms where livestock populations, comprising of cattle, buffalo, swine, sheep, goats, and / or poultry, is managed un...",
+  "currentStatus": "found",
+  "currentQuote": "",
+  "currentPage": null,
+  "currentSection": "",
+  "evidenceSpanIds": [],
+  "correctedAnswer": "Leakage covers emissions from land application of treated manure outside the project boundary. In this project, net leakage of N2O and CH4 is not considered because it is negative.",
+  "correctedQuote": "Leakage covers the emissions from land application of treated manure, outside the project boundary. These emissions are estimated as net of those released under project activity and those released in the baseline scenario. In this project net leakage of N2O and CH4 are not considered because they are negative.",
+  "correctedPage": 24,
+  "correctedSection": "section:B > section:B.6.1",
+  "confidence": 0.96,
+  "failureReason": "Current answer incorrectly pulls methodology applicability/manure-management text and has no quote, page, section, or evidence span. The leakage answer should cite the explicit Leakage subsection in B.6.1.",
+  "expectedStatus": "answered",
+  "reviewNote": "Human correction prepared from Taisei China PDD manual QA."
+}

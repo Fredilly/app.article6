@@ -1,0 +1,24 @@
+{
+  "documentId": "6dbf8989-47db-4e0d-a15f-2a4944cd8366",
+  "documentName": "2006Taisei_jChina_PDD.pdf",
+  "documentType": "Project Description / PD",
+  "methodologyId": "",
+  "checkId": "baseline_scenario",
+  "currentAnswer": "The methodology ACM0010 determines the baseline scenario through the following steps: Step I: Define alternative scenarios to the proposed CDM project activity; Step II: Barriers analysis; Step III: Investment analysis; Step IV: Baseline...",
+  "currentStatus": "found",
+  "currentQuote": "Date of completion of the application of the baseline study and monitoring methodology and",
+  "currentPage": 1,
+  "currentSection": "section:B",
+  "evidenceSpanIds": [
+    "quick-check-review-question:element:heading:B.8",
+    "quick-check-review-question:element:paragraph:B.8"
+  ],
+  "correctedAnswer": "BASELINE III: urine is treated in an anaerobic lagoon, while dried manure is utilized as organic fertilizer.",
+  "correctedQuote": "BASELINEⅢ: Urine is treated in anaerobic lagoon, while dried manure is utilized as organic fertilizer ... BASELINEⅢ is the most attractive course of action and so the prevailing practice. ... Therefore the most likely alternative scenario is the baseline scenario.",
+  "correctedPage": 16,
+  "correctedSection": "section:B > section:B.4",
+  "confidence": 0.95,
+  "failureReason": "Current answer describes the methodology steps, and the displayed quote comes from B.8 rather than proving the identified baseline scenario. The answer should identify the selected baseline scenario and cite the B.4 conclusion/Table B.6 discussion.",
+  "expectedStatus": "answered",
+  "reviewNote": "Human correction prepared from Taisei China PDD manual QA."
+}

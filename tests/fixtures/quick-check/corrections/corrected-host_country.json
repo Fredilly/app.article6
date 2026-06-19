@@ -1,0 +1,23 @@
+{
+  "documentId": "6dbf8989-47db-4e0d-a15f-2a4944cd8366",
+  "documentName": "2006Taisei_jChina_PDD.pdf",
+  "documentType": "Project Description / PD",
+  "methodologyId": "",
+  "checkId": "host_country",
+  "currentAnswer": "The People",
+  "currentStatus": "found",
+  "currentQuote": "The People’s Republic of China Figure A.2 : Map of The People’s Republic of China",
+  "currentPage": 1,
+  "currentSection": "section:A > section:A.4 > section:A.4.1 > section:A.4.1.1",
+  "evidenceSpanIds": [
+    "quick-check-review-question:element:paragraph:A.4.1.1"
+  ],
+  "correctedAnswer": "People’s Republic of China",
+  "correctedQuote": "A.4.1.1. Host Party(ies): The People’s Republic of China",
+  "correctedPage": 4,
+  "correctedSection": "section:A > section:A.4 > section:A.4.1 > section:A.4.1.1",
+  "confidence": 0.98,
+  "failureReason": "Current answer is a truncated fragment (`The People`) from a host-party/map caption area. The selector should extract the full host country name from A.4.1.1, not a partial phrase.",
+  "expectedStatus": "answered",
+  "reviewNote": "Human correction prepared from Taisei China PDD manual QA."
+}

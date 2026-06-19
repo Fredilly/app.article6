@@ -204,6 +204,8 @@ function chooseNarrativeSentence(label: string, value: string): string {
     if (/^(?:the\s+)?baseline scenario describes the most plausible scenario\b/i.test(sentence)) score -= 220;
     if (/^(?:the\s+)?(?:baseline scenario|additionality|leakage|stakeholder consultation(?: and participation)?)\b.{0,40}\b(?:describes|summarizes|explains)\b/i.test(sentence)) score -= 80;
     if (/^(?:purpose of data|comments|equation|source of data|value applied|frequency of monitoring|data\/parameter)\b/i.test(sentence)) score -= 120;
+    // Penalize stakeholder relation table dumps when scoring stakeholder sentences
+    if (label === "Stakeholder consultation" && /^(?:>>\s*)?stakeholders?\s+(?:relation|name|date\s+of\s+meeting)/i.test(sentence)) score -= 400;
     if (sentence.length < 25) score -= 20;
     return { sentence, score, index };
   });
@@ -220,18 +222,27 @@ function scoreSentenceForLabel(label: string, sentence: string): number {
       if (/\btitle and reference\b/i.test(sentence)) score += 30;
       break;
     case "Baseline scenario":
+      if (/\bBASELINE\s*[ⅠⅡⅢⅣIV1-4]\b/i.test(sentence)) score += 280;
+      if (/\bmost attractive course of action\b/i.test(sentence)) score += 260;
+      if (/\bprevailing practice\b/i.test(sentence)) score += 260;
       if (/\bwithout the project\b/i.test(sentence)) score += 180;
-      if (/\boil palm plantation\b/i.test(sentence)) score += 160;
       if (/\babsence of the project\b/i.test(sentence)) score += 140;
       if (/\bbaseline scenario\b/i.test(sentence)) score += 100;
+      if (/\boil palm plantation\b/i.test(sentence)) score += 160;
       if (/\btraditional agricultural practices\b/i.test(sentence)) score += 180;
       if (/\bslash-and-burn\b/i.test(sentence)) score += 140;
+      // Penalize methodology-step descriptions when used as baseline answers
+      if (/^the methodology \w+ determines the baseline/i.test(sentence)) score -= 300;
       break;
     case "Additionality":
       if (/\bVT0001\b/i.test(sentence)) score += 220;
       if (/\bdemonstration and assessment of additionality\b/i.test(sentence)) score += 180;
+      if (/\bproject is additional\b/i.test(sentence)) score += 200;
+      if (/\bconcluded that the project is additional\b/i.test(sentence)) score += 240;
       if (/\badditionality\b/i.test(sentence)) score += 120;
       if (/\bbarrier\b/i.test(sentence) || /\bcommon practice\b/i.test(sentence)) score += 80;
+      // Penalize methodology step references when used as additionality answer
+      if (/^the methodology \w+ determines/i.test(sentence)) score -= 300;
       break;
     case "Leakage":
       if (/^Leakage emissions\b/i.test(sentence)) score += 420;
@@ -243,7 +254,11 @@ function scoreSentenceForLabel(label: string, sentence: string): number {
       if (/\bleakage\b/i.test(sentence)) score += 60;
       break;
     case "Stakeholder consultation":
-      if (/\bparticipatory process\b/i.test(sentence)) score += 320;
+      if (/\bno negative comments\b/i.test(sentence)) score += 350;
+      if (/\bsupport the project\b/i.test(sentence)) score += 300;
+      if (/\badjustment for the project is not needed\b/i.test(sentence)) score += 280;
+      if (/\bdue account was taken\b/i.test(sentence)) score += 260;
+      if (/\bparticipatory process\b/i.test(sentence)) score += 220;
       if (/\bvillage meetings?\b/i.test(sentence)) score += 180;
       if (/\bstakeholder consultation\b/i.test(sentence)) score += 160;
       if (/\bstakeholders?\b/i.test(sentence)) score += 100;
@@ -295,7 +310,10 @@ function formatLeakageAnswer(value: string): string {
 }
 
 function formatMethodologyAnswer(value: string): string {
-  const normalized = normalizeInlineWhitespace(firstSentence(stripCommonLeadIn(value))).replace(/\.$/, "");
+  // Strip continuation text from CDM truncated headings (e.g. "project activity: >>")
+  const cleaned = value
+    .replace(/^(?:project\s+activity\s*:?\s*)?[>»]*\s*/i, "");
+  const normalized = normalizeInlineWhitespace(firstSentence(stripCommonLeadIn(cleaned))).replace(/\.$/, "");
   const withNormalizedVersion = normalized.replace(/\bversion\s*(\d+(?:[.-]\d+)*)$/i, "v$1");
   const codeMatch = withNormalizedVersion.match(/\b(VM\d{4}|VMD\d{4}|GS-VER\d+|AR-[A-Z0-9.-]+|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+)\b/i);
   if (!codeMatch) return withNormalizedVersion;
@@ -311,7 +329,8 @@ function formatHostCountryAnswer(value: string): string {
     .replace(/\b(Project proponent|Methodology|Crediting period|Monitoring period)\b.*$/i, "")
     .trim();
   const countryLike = candidate.match(/^([A-Z][A-Za-z]+(?:[\s-][A-Z][A-Za-z]+){0,3})/)?.[1];
-  return countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+  const country = countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+  return country.replace(/^The\s+/, "");
 }
 
 function formatFoundEvidenceAnswer(label: string, answerText: string): string {
