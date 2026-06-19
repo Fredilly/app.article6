@@ -132,7 +132,8 @@
     "785": { "title": "feat: add correction export button to Quick Check answer cards (Goal 5)" },
     "787": { "title": "test: complete messy PDD fixture pack (Goal 4)" },
     "789": { "title": "docs: add learning queue and promotion workflow (Goal 6)" },
-    "790": { "title": "feat: add active corpus report for weakness detection (Goal 7)" }
+    "790": { "title": "feat: add active corpus report for weakness detection (Goal 7)" },
+    "791": { "title": "docs: define future Quick Check check pack process (Goal 8)" }
   },
   "pr_notes": {
     "779": "Goal 0 complete: roadmap files created.",
@@ -143,6 +144,7 @@
     "785": "Goal 5: Correction export button. Client-side JSON download, no server writes, no behavior changes.",
     "787": "Goal 4 complete: 5 full messy fixtures (replaced tiny samples with full-redd-pd-v130 and plum-ccb-full).",
     "789": "Goal 6 complete: LEARNING_QUEUE.md with queue format, promotion workflow, and rules.",
-    "790": "Goal 7 complete: Active corpus report groups failures by check ID, document type, and methodology context."
+    "790": "Goal 7 complete: Active corpus report groups failures by check ID, document type, and methodology context.",
+    "791": "Goal 8 complete: FUTURE_CHECK_PACKS.md defines the check pack process with required artifacts, addition workflow, and blocking conditions."
   }
 }
