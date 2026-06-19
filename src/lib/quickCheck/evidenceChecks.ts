@@ -661,6 +661,9 @@ function buildFactBackedSectionCandidates(
 
 function buildStakeholderCandidate(contract: EvidenceCheckContract, ctx: CheckValidationContext): CheckCandidate[] {
   const selectorTerms = getSelectorTerms(contract).map(normalizeSectionText);
+  const allCandidates: CheckCandidate[] = [];
+
+  // Search main stakeholder section (e.g. E.1) for body text
   const references = ctx.sectionTableIndex.sectionTree.orderedNodeIds
     .map((nodeId) => ctx.sectionTableIndex.sectionTree.nodesById[nodeId])
     .filter((node) => node && selectorTerms.some((term) => normalizeSectionText(node.heading).includes(term)))
@@ -676,9 +679,35 @@ function buildStakeholderCandidate(contract: EvidenceCheckContract, ctx: CheckVa
       source: "topic:stakeholder",
       rank: 700,
     });
-    if (candidates.length > 0) return candidates;
+    allCandidates.push(...candidates);
   }
-  return [];
+
+  // Also search sibling subsections (e.g. E.2, E.3) for stakeholder
+  // conclusion text.  The main stakeholder section (E.1) often contains only
+  // the prompt and a table dump; the actual consultation outcome is in later
+  // subsections (E.3 "Report on how due account was taken").
+  for (const span of ctx.evidenceDocument.spans) {
+    if (span.reliability === "excluded") continue;
+    if (!["paragraph", "field", "formula"].includes(span.blockType)) continue;
+    if (!span.sectionPath.some((s) => /section:E\.(?:2|3)\b/.test(s))) continue;
+    if (!/\bno negative comments\b/i.test(span.text)
+      && !/\bsupport the project\b/i.test(span.text)
+      && !/\bdue account was taken\b/i.test(span.text)) continue;
+    allCandidates.push({
+      text: span.text,
+      page: span.page,
+      sectionId: span.sectionId,
+      sectionPath: span.sectionPath,
+      heading: span.heading,
+      evidenceSpanId: span.spanId,
+      source: "topic:stakeholder:sibling",
+      rank: 720 + scoreCandidateText(contract, span.text),
+    });
+  }
+
+  // Return the best candidate by rank
+  allCandidates.sort((a, b) => b.rank - a.rank);
+  return allCandidates.length > 0 ? [allCandidates[0]] : [];
 }
 
 function buildBodySignalCandidates(input: {
