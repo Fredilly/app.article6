@@ -1,5 +1,6 @@
 export { loadEvalCorpusManifest, readEvalCorpusFixture } from "@/lib/quickCheck/evalCorpus/manifest";
-export { runQuickCheckEvalCorpus, formatQuickCheckEvalCorpusReport, checkEvalCorpusThresholds } from "@/lib/quickCheck/evalCorpus/runner";
+export { runQuickCheckEvalCorpus, formatQuickCheckEvalCorpusReport, checkEvalCorpusThresholds, generateActiveCorpusReport, formatActiveCorpusReport } from "@/lib/quickCheck/evalCorpus/runner";
+export type { ActiveCorpusBreakdown, ActiveCorpusReport } from "@/lib/quickCheck/evalCorpus/runner";
 export { STANDARD_PHASE6_QUESTIONS } from "@/lib/quickCheck/evalCorpus/standardQuestions";
 export type {
   EvalCorpusManifest,

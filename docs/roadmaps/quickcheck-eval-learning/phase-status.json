@@ -2,7 +2,7 @@
   "roadmapId": "quickcheck-eval-learning",
   "name": "Quick Check Eval-Driven Learning Loop",
   "status": "active",
-  "currentGoalId": "qcel-7-active-corpus-report",
+      "currentGoalId": "qcel-8-future-check-packs",
   "goals": [
     {
       "id": "qcel-0-roadmap-boundary",
@@ -93,7 +93,7 @@
     {
       "id": "qcel-7-active-corpus-report",
       "title": "Add active corpus report",
-      "status": "not_started",
+      "status": "done",
       "dependsOn": ["qcel-6-learning-queue"],
       "branch": "feat/quickcheck-active-corpus-report",
       "doneCriteria": [
@@ -119,7 +119,7 @@
   "phase_meta": {
     "status": "active",
     "summary": "Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.",
-    "current_focus": "Goal 7: Add active corpus report for weakness detection.",
+    "current_focus": "Goal 8: Define future check pack process.",
     "not_active_now": [
       "Goals 7–8",
       "Active corpus reporting"
