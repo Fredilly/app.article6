@@ -857,8 +857,31 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   if (contract.selector === "leakage" && !/\bleakage\b|\bproject-induced leakage\b/i.test(candidate.text)) {
     return { valid: false, reason: "Leakage candidate did not contain explicit leakage evidence" };
   }
+  if (contract.selector === "leakage") {
+    // Must contain substantive leakage content, not just a passing mention.
+    // Methodology applicability text often mentions "leakage" in passing.
+    const hasLeakageEvidence = /^Leakage\b/i.test(candidate.text)
+      || /\bleakage covers\b/i.test(candidate.text)
+      || /\bleakage emissions\b/i.test(candidate.text)
+      || /\bproject-induced leakage\b/i.test(candidate.text)
+      || /\bnet leakage\b/i.test(candidate.text);
+    if (!hasLeakageEvidence) {
+      return { valid: false, reason: "Text mentions leakage only in passing (not substantive leakage evidence)" };
+    }
+  }
   if (contract.selector === "methodology" && !(/\bmethodology\b/i.test(candidate.text) || METHODOLOGY_CODE_RE.test(candidate.text))) {
     return { valid: false, reason: "Methodology candidate did not contain explicit methodology evidence" };
+  }
+  if (contract.selector === "baseline_scenario") {
+    // Must contain identified baseline scenario content, not just
+    // methodology-step preamble or generic baseline mentions.
+    const hasBaselineEvidence = /\bBASELINE\s*[ⅠⅡⅢⅣIV1-4]\b/i.test(candidate.text)
+      || /\bmost attractive course of action\b/i.test(candidate.text)
+      || /\bprevailing practice\b/i.test(candidate.text)
+      || /\bmost likely alternative scenario is the baseline\b/i.test(candidate.text);
+    if (!hasBaselineEvidence) {
+      return { valid: false, reason: "Text does not identify the selected baseline scenario" };
+    }
   }
   if (contract.expectedShape === "country") {
     if (wc > 5) return { valid: false, reason: "Too many words for a country name" };
