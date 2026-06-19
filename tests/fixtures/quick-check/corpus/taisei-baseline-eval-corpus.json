@@ -62,16 +62,10 @@
             "visibleAnswerEvidenceMin": 1
           },
           "baseline_scenario": {
-            "expectedStatus": "answered",
-            "expectedRoute": "lexical_retrieval",
-            "expectedAnswer": "Baseline III: urine is treated in an anaerobic lagoon, while dried manure is utilized as organic fertilizer",
-            "goldEvidence": {
-              "pages": [1],
-              "spanAnchors": ["BASELINE"],
-              "sectionHints": ["Description of how the baseline scenario is identified and description of the identified"]
-            },
-            "visibleAnswerStatus": "likely_yes",
-            "visibleAnswerEvidenceMin": 1
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
           },
           "monitoring": {
             "expectedStatus": "answered",

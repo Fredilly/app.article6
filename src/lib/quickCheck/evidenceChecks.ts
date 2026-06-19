@@ -868,7 +868,37 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   return { valid: true, reason: "" };
 }
 
-export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidationContext): { status: EvidenceCheckStatus; answerText: string; downgradeReason: string } {
+export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidationContext): EvidenceCheckResult {
+  const result = validateCheckInternal(contract, ctx);
+  // Build provenance from the best candidate that passed validation
+  const quotes: string[] = result.candidateText ? [result.candidateText] : [];
+  const pages: number[] = result.candidatePage != null ? [result.candidatePage] : [];
+  const sections: string[] = result.candidateSectionPath ?? [];
+  const evidenceSpanIds: string[] = result.candidateSpanId ? [result.candidateSpanId] : [];
+  return {
+    checkId: "" as EvidenceCheckId,
+    status: result.status,
+    answerText: result.answerText,
+    downgradeReason: result.downgradeReason,
+    quotes,
+    pages,
+    sections,
+    evidenceSpanIds,
+    warnings: [],
+  };
+}
+
+type ValidatedCheckInternal = {
+  status: EvidenceCheckStatus;
+  answerText: string;
+  downgradeReason: string;
+  candidateText?: string;
+  candidatePage?: number | null;
+  candidateSectionPath?: string[];
+  candidateSpanId?: string;
+};
+
+function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValidationContext): ValidatedCheckInternal {
   const candidates = gatherCandidates(contract, ctx);
   const directLeakageFallback = contract.selector === "leakage"
     ? normalizeInlineWhitespace(
@@ -886,7 +916,11 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
       const validation = validateCandidate(contract, rawFallback);
       if (validation.valid) {
         const truncated = rawFallback.text.length > 500 ? rawFallback.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : rawFallback.text;
-        return { status: "found", answerText: truncated, downgradeReason: "" };
+        return {
+          status: "found", answerText: truncated, downgradeReason: "",
+          candidateText: rawFallback.text, candidatePage: rawFallback.page,
+          candidateSectionPath: rawFallback.sectionPath, candidateSpanId: rawFallback.evidenceSpanId,
+        };
       }
     }
     return { status: "missing", answerText: "", downgradeReason: "" };
@@ -895,7 +929,11 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
     const validation = validateCandidate(contract, candidate);
     if (validation.valid) {
       const truncated = candidate.text.length > 500 ? candidate.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : candidate.text;
-      return { status: "found", answerText: truncated, downgradeReason: "" };
+      return {
+        status: "found", answerText: truncated, downgradeReason: "",
+        candidateText: candidate.text, candidatePage: candidate.page,
+        candidateSectionPath: candidate.sectionPath, candidateSpanId: candidate.evidenceSpanId,
+      };
     }
   }
   const rawFallback = buildRawTextFallbackCandidate(contract, ctx, candidates[0]);
@@ -903,7 +941,11 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
     const validation = validateCandidate(contract, rawFallback);
     if (validation.valid) {
       const truncated = rawFallback.text.length > 500 ? rawFallback.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : rawFallback.text;
-      return { status: "found", answerText: truncated, downgradeReason: "" };
+      return {
+        status: "found", answerText: truncated, downgradeReason: "",
+        candidateText: rawFallback.text, candidatePage: rawFallback.page,
+        candidateSectionPath: rawFallback.sectionPath, candidateSpanId: rawFallback.evidenceSpanId,
+      };
     }
   }
   const bestFailed = validateCandidate(contract, candidates[0]);
