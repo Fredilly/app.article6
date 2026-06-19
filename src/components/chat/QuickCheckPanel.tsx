@@ -72,6 +72,7 @@ import {
   getContract,
   validateCheck,
   type CheckValidationContext,
+  type EvidenceCheckStatus,
   type EvidenceCheckResult,
 } from "@/lib/quickCheck/evidenceChecks";
 import { getEnabledCheckIds } from "@/lib/quickCheck/evidenceCheckGroups";
@@ -1841,12 +1842,27 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         answerText: validated.answerText,
         downgradeReason: validated.downgradeReason,
       });
-      const isFound = validated.status === "found";
+      // Enforce evidence provenance invariant: a result must not show FOUND
+      // unless the router produced quotes/pages/sections/evidenceSpanIds
+      // that actually support the answer.
+      const hasEvidence = questionResult.routerResult.quotes.length > 0
+        && questionResult.routerResult.pages.length > 0
+        && questionResult.routerResult.sectionPaths.length > 0
+        && questionResult.routerResult.evidenceSpanIds.length > 0;
+      const effectiveStatus: EvidenceCheckStatus = validated.status === "found" && !hasEvidence
+        ? "unclear"
+        : validated.status;
+      const effectiveDowngrade = validated.status === "found" && !hasEvidence
+        ? "Quick Check found a possible match, but could not verify enough evidence provenance to confirm it."
+        : formatted.downgradeReason;
+      const isFound = effectiveStatus === "found";
       results.push({
         checkId: check.id,
-        status: validated.status,
-        answerText: formatted.answerText,
-        downgradeReason: formatted.downgradeReason,
+        status: effectiveStatus,
+        answerText: effectiveStatus === "unclear" && !hasEvidence
+          ? `Quick Check found a possible mention, but it was not specific enough to confirm.`
+          : formatted.answerText,
+        downgradeReason: effectiveDowngrade,
         quotes: isFound ? questionResult.routerResult.quotes : [],
         pages: isFound ? questionResult.routerResult.pages : [],
         sections: isFound ? questionResult.routerResult.sectionPaths : [],
