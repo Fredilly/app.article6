@@ -810,6 +810,30 @@ function buildRawTextFallbackCandidate(contract: EvidenceCheckContract, ctx: Che
     }
   }
 
+  // For baseline: extract text centered around the BASELINE III identifier
+  // rather than taking the full paragraph (which may include page headers
+  // and table data before the actual baseline selection).
+  if (contract.selector === "baseline_scenario") {
+    const baselineMatch = rawText.match(
+      /\b(BASELINE\s*[ⅠⅡⅢⅣIV1-4][\s\S]{0,300}?(?:prevailing practice|most attractive)[\s\S]{0,100}?[.!?])/i,
+    )?.[1]
+    ?? rawText.match(
+      /\b(BASELINE\s*[ⅠⅡⅢⅣIV1-4][\s\S]{0,300}?[.!?])/i,
+    )?.[1];
+    if (baselineMatch) {
+      return {
+        text: normalizeInlineWhitespace(baselineMatch),
+        page: fallbackFrom?.page ?? ctx.routerResult.pages[0] ?? null,
+        sectionId: fallbackFrom?.sectionId ?? ctx.routerResult.sectionPaths[ctx.routerResult.sectionPaths.length - 1],
+        sectionPath: fallbackFrom?.sectionPath ?? ctx.routerResult.sectionPaths,
+        heading: fallbackFrom?.heading,
+        evidenceSpanId: fallbackFrom?.evidenceSpanId ?? ctx.routerResult.evidenceSpanIds[0],
+        source: "rawtext:baseline_scenario",
+        rank: 320,
+      };
+    }
+  }
+
   const paragraphs = rawText
     .split(/\n{2,}/)
     .map((paragraph) => normalizeInlineWhitespace(paragraph))
@@ -873,12 +897,16 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
     return { valid: false, reason: "Methodology candidate did not contain explicit methodology evidence" };
   }
   if (contract.selector === "baseline_scenario") {
-    // Must contain identified baseline scenario content, not just
-    // methodology-step preamble or generic baseline mentions.
-    const hasBaselineEvidence = /\bBASELINE\s*[ⅠⅡⅢⅣIV1-4]\b/i.test(candidate.text)
-      || /\bmost attractive course of action\b/i.test(candidate.text)
-      || /\bprevailing practice\b/i.test(candidate.text)
-      || /\bmost likely alternative scenario is the baseline\b/i.test(candidate.text);
+    // Must contain identified baseline scenario content in the displayed
+    // portion (first 500 chars), not just buried deep in a long paragraph.
+    const displayable = candidate.text.length > 500
+      ? candidate.text.slice(0, 500)
+      : candidate.text;
+    const hasBaselineEvidence = /\bBASELINE\s*[ⅠⅡⅢⅣIV1-4]\b/i.test(displayable)
+      || /\bmost attractive course of action\b/i.test(displayable)
+      || /\bprevailing practice\b/i.test(displayable)
+      || /\bmost likely alternative scenario is the baseline\b/i.test(displayable)
+      || /\bselected baseline scenario\b/i.test(displayable);
     if (!hasBaselineEvidence) {
       return { valid: false, reason: "Text does not identify the selected baseline scenario" };
     }
