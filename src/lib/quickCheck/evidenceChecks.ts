@@ -256,9 +256,9 @@ function scoreSentenceForLabel(label: string, sentence: string): number {
     case "Stakeholder consultation":
       if (/\bno negative comments\b/i.test(sentence)) score += 350;
       if (/\bsupport the project\b/i.test(sentence)) score += 300;
+      if (/\bparticipatory process\b/i.test(sentence)) score += 320;
       if (/\badjustment for the project is not needed\b/i.test(sentence)) score += 280;
       if (/\bdue account was taken\b/i.test(sentence)) score += 260;
-      if (/\bparticipatory process\b/i.test(sentence)) score += 220;
       if (/\bvillage meetings?\b/i.test(sentence)) score += 180;
       if (/\bstakeholder consultation\b/i.test(sentence)) score += 160;
       if (/\bstakeholders?\b/i.test(sentence)) score += 100;
