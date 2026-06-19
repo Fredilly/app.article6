@@ -328,7 +328,7 @@ function formatHostCountryAnswer(value: string): string {
   const candidate = normalizeInlineWhitespace(explicit ?? "")
     .replace(/\b(Project proponent|Methodology|Crediting period|Monitoring period)\b.*$/i, "")
     .trim();
-  const countryLike = candidate.match(/^([A-Z][A-Za-z]+(?:[\s-][A-Z][A-Za-z]+){0,3})/)?.[1];
+  const countryLike = candidate.match(/^([A-Z][A-Za-z\u2019']+(?:[\s-][A-Za-z\u2019']+){0,5})/)?.[1];
   const country = countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
   return country.replace(/^The\s+/, "");
 }
