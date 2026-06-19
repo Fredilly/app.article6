@@ -5,17 +5,18 @@ import {
   generateActiveCorpusReport,
   formatActiveCorpusReport,
 } from "../src/lib/quickCheck/evalCorpus";
+import { loadEvalCorpusManifest } from "../src/lib/quickCheck/evalCorpus/manifest";
 
-const reportFlagIndex = process.argv.indexOf("--report");
 const manifestFlagIndex = process.argv.indexOf("--manifest");
 const manifestPath = manifestFlagIndex >= 0 && process.argv[manifestFlagIndex + 1]
   ? path.resolve(process.argv[manifestFlagIndex + 1])
   : path.resolve(process.cwd(), "tests/fixtures/quick-check/corpus/phase6-eval-corpus.json");
 
+const manifest = loadEvalCorpusManifest(manifestPath);
 const report = runQuickCheckEvalCorpus({
   manifestPath,
   repoRoot: process.cwd(),
 });
 
-const active = generateActiveCorpusReport(report);
+const active = generateActiveCorpusReport(report, manifest);
 console.log(formatActiveCorpusReport(active));

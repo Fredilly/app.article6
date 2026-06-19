@@ -7,6 +7,7 @@ import type {
   EvalCorpusFixtureGold,
   EvalCorpusFixtureManifestEntry,
   EvalCorpusFixtureResult,
+  EvalCorpusManifest,
   EvalCorpusQuestionExpectation,
   EvalCorpusQuestionResult,
   EvalCorpusReport,
@@ -526,7 +527,7 @@ export type ActiveCorpusReport = {
   byDocumentType: Array<{
     documentFamily: string;
     fixtureCount: number;
-    overallProvenanceRate: number;
+    provenanceRate: number;
     hallucinatedRate: number;
     firstPassRate: number;
   }>;
@@ -540,42 +541,112 @@ export type ActiveCorpusReport = {
   }>;
 };
 
-export function generateActiveCorpusReport(report: EvalCorpusReport): ActiveCorpusReport {
-  // Build per-question breakdown across all fixtures
+/** Returns true if a failure message is about evidence provenance (pages, quotes, sections). */
+function isProvenanceFailure(message: string): boolean {
+  return /expected evidence pages/i.test(message)
+    || /expected quote anchors/i.test(message)
+    || /expected section hint/i.test(message)
+    || /expected empty evidence/i.test(message)
+    || /quote_validation/i.test(message);
+}
+
+export function generateActiveCorpusReport(
+  report: EvalCorpusReport,
+  manifest: EvalCorpusManifest,
+): ActiveCorpusReport {
+  // Build fixture metadata maps from the manifest
+  const fixtureFamily = new Map<string, string>();
+  const fixtureMethodology = new Map<string, string>();
+  for (const f of manifest.fixtures) {
+    fixtureFamily.set(f.id, f.gold.documentFamily ?? "UNKNOWN");
+    fixtureMethodology.set(f.id, f.methodologyContext.methodologyId);
+  }
+
+  // Per-check breakdown
   const perQuestion = new Map<StandardPhase6QuestionId, {
     total: number;
-    answered: number;
-    unclear: number;
-    noEvidence: number;
-    provenancePassed: number;
-    provenanceTotal: number;
-    visibleMatched: number;
-    visibleTotal: number;
-    visibleAgreed: number;
-    visibleAgreementTotal: number;
+    answered: number; unclear: number; noEvidence: number;
+    provenancePassed: number; provenanceTotal: number;
+    visibleMatched: number; visibleTotal: number;
+    visibleAgreed: number; visibleAgreementTotal: number;
+  }>();
+
+  // Per-family aggregation
+  const perFamily = new Map<string, {
+    fixtureCount: number;
+    provenancePassed: number; provenanceTotal: number;
+    hallucinatedAnswered: number; answeredTotal: number;
+    fixturesPassed: number;
+  }>();
+
+  // Per-methodology aggregation
+  const perMethodology = new Map<string, {
+    fixtureCount: number;
+    answered: number; unclear: number; noEvidence: number;
+    provenancePassed: number; provenanceTotal: number;
   }>();
 
   for (const fr of report.fixtureResults) {
+    const family = fixtureFamily.get(fr.fixtureId) ?? "UNKNOWN";
+    const methodId = fixtureMethodology.get(fr.fixtureId) ?? "UNKNOWN";
+
+    const fam = perFamily.get(family) ?? {
+      fixtureCount: 0, provenancePassed: 0, provenanceTotal: 0,
+      hallucinatedAnswered: 0, answeredTotal: 0, fixturesPassed: 0,
+    };
+    fam.fixtureCount++;
+    if (fr.passed) fam.fixturesPassed++;
+
+    const meth = perMethodology.get(methodId) ?? {
+      fixtureCount: 0, answered: 0, unclear: 0, noEvidence: 0,
+      provenancePassed: 0, provenanceTotal: 0,
+    };
+    meth.fixtureCount++;
+
     for (const qr of fr.questionResults) {
-      const current = perQuestion.get(qr.questionId);
-      const entry = current ?? {
+      // Per-check
+      const ck = perQuestion.get(qr.questionId) ?? {
         total: 0, answered: 0, unclear: 0, noEvidence: 0,
         provenancePassed: 0, provenanceTotal: 0,
         visibleMatched: 0, visibleTotal: 0,
         visibleAgreed: 0, visibleAgreementTotal: 0,
       };
-      entry.total++;
-      if (qr.actualStatus === "answered") entry.answered++;
-      else if (qr.actualStatus === "unclear") entry.unclear++;
-      else entry.noEvidence++;
-      if (qr.passed) entry.provenancePassed++;
-      entry.provenanceTotal++;
-      if (qr.visibleStatusMatch) entry.visibleMatched++;
-      entry.visibleTotal++;
-      if (qr.visibleAgreementOk) entry.visibleAgreed++;
-      entry.visibleAgreementTotal++;
-      perQuestion.set(qr.questionId, entry);
+      ck.total++;
+      if (qr.actualStatus === "answered") ck.answered++;
+      else if (qr.actualStatus === "unclear") ck.unclear++;
+      else ck.noEvidence++;
+
+      // Provenance: count evidence failures, not status/route mismatches
+      const hasProvenanceFailures = qr.failures.some((f) => isProvenanceFailure(f));
+      ck.provenanceTotal++;
+      if (!hasProvenanceFailures) ck.provenancePassed++;
+      if (qr.visibleStatusMatch) ck.visibleMatched++;
+      ck.visibleTotal++;
+      if (qr.visibleAgreementOk) ck.visibleAgreed++;
+      ck.visibleAgreementTotal++;
+      perQuestion.set(qr.questionId, ck);
+
+      // Per-family provenance — only count questions that have evidence assertions
+      if (ck.provenanceTotal > 0) {
+        fam.provenancePassed += qr.failures.some((f) => isProvenanceFailure(f)) ? 0 : 1;
+        fam.provenanceTotal++;
+      }
+      // Per-family hallucinated: answered without evidence
+      if (qr.actualStatus === "answered") {
+        fam.answeredTotal++;
+        if (qr.actualEvidenceSpanCount === 0) fam.hallucinatedAnswered++;
+      }
+
+      // Per-methodology
+      if (qr.actualStatus === "answered") meth.answered++;
+      else if (qr.actualStatus === "unclear") meth.unclear++;
+      else meth.noEvidence++;
+      meth.provenanceTotal++;
+      if (!hasProvenanceFailures) meth.provenancePassed++;
     }
+
+    perFamily.set(family, fam);
+    perMethodology.set(methodId, meth);
   }
 
   const byCheckId: ActiveCorpusBreakdown[] = Array.from(perQuestion.entries())
@@ -591,37 +662,17 @@ export function generateActiveCorpusReport(report: EvalCorpusReport): ActiveCorp
     }))
     .sort((a, b) => a.provenanceRate - b.provenanceRate);
 
-  // Document type analysis — uses report-level metrics for now
-  // (full per-family breakdown requires manifest-level document family data)
-  const byDocumentType: ActiveCorpusReport["byDocumentType"] = [
-    {
-      documentFamily: "all",
-      fixtureCount: report.fixtureCount,
-      overallProvenanceRate: report.metrics.provenanceCorrectness.rate,
-      hallucinatedRate: report.metrics.hallucinatedAnswerRate.rate,
-      firstPassRate: report.metrics.firstPassSuccessRate.rate,
-    },
-  ];
+  const byDocumentType = Array.from(perFamily.entries())
+    .map(([family, entry]) => ({
+      documentFamily: family,
+      fixtureCount: entry.fixtureCount,
+      provenanceRate: entry.provenanceTotal > 0 ? entry.provenancePassed / entry.provenanceTotal : 1,
+      hallucinatedRate: entry.answeredTotal > 0 ? entry.hallucinatedAnswered / entry.answeredTotal : 0,
+      firstPassRate: entry.fixtureCount > 0 ? entry.fixturesPassed / entry.fixtureCount : 0,
+    }))
+    .sort((a, b) => a.provenanceRate - b.provenanceRate);
 
-  // Methodology analysis from unique methodology contexts across fixtures
-  const methodologyMap = new Map<string, { fixtureCount: number; answered: number; unclear: number; noEvidence: number; provenancePassed: number; provenanceTotal: number }>();
-  for (const fr of report.fixtureResults) {
-    // Use fixtureId as proxy — actual methodologyId not available in report directly
-    // We group by fixture as a methodology proxy
-    const key = fr.fixtureId;
-    const entry = methodologyMap.get(key) ?? { fixtureCount: 0, answered: 0, unclear: 0, noEvidence: 0, provenancePassed: 0, provenanceTotal: 0 };
-    entry.fixtureCount++;
-    for (const qr of fr.questionResults) {
-      if (qr.actualStatus === "answered") entry.answered++;
-      else if (qr.actualStatus === "unclear") entry.unclear++;
-      else entry.noEvidence++;
-      if (qr.passed) entry.provenancePassed++;
-      entry.provenanceTotal++;
-    }
-    methodologyMap.set(key, entry);
-  }
-
-  const byMethodology: ActiveCorpusReport["byMethodology"] = Array.from(methodologyMap.entries())
+  const byMethodology = Array.from(perMethodology.entries())
     .map(([id, entry]) => ({
       methodologyId: id,
       fixtureCount: entry.fixtureCount,
@@ -632,12 +683,7 @@ export function generateActiveCorpusReport(report: EvalCorpusReport): ActiveCorp
     }))
     .sort((a, b) => a.provenanceRate - b.provenanceRate);
 
-  return {
-    corpusId: report.corpusId,
-    byCheckId,
-    byDocumentType,
-    byMethodology,
-  };
+  return { corpusId: report.corpusId, byCheckId, byDocumentType, byMethodology };
 }
 
 export function formatActiveCorpusReport(active: ActiveCorpusReport): string {
@@ -670,15 +716,15 @@ export function formatActiveCorpusReport(active: ActiveCorpusReport): string {
     lines.push([
       d.documentFamily.padEnd(6),
       String(d.fixtureCount).padStart(7),
-      `${(d.overallProvenanceRate * 100).toFixed(0)}%`.padStart(10),
+      `${(d.provenanceRate * 100).toFixed(0)}%`.padStart(10),
       `${(d.hallucinatedRate * 100).toFixed(0)}%`.padStart(12),
       `${(d.firstPassRate * 100).toFixed(0)}%`.padStart(7),
     ].join(" | "));
   }
 
   lines.push("", "=== Methodology context overview ===", "");
-  lines.push(["Fixture", "Fixt.", "Answered", "Unclear", "NoEvid", "Provenance"].join(" | "));
-  lines.push(["-------", "-----", "--------", "-------", "------", "----------"].join("-|-"));
+  lines.push(["Methodology", "Fixt.", "Answered", "Unclear", "NoEvid", "Provenance"].join(" | "));
+  lines.push(["-----------", "-----", "--------", "-------", "------", "----------"].join("-|-"));
   for (const m of active.byMethodology) {
     lines.push([
       m.methodologyId.slice(0, 27).padEnd(27),
