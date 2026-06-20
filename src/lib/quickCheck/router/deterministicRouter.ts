@@ -32,6 +32,31 @@ type DeterministicRouterInput = {
   sectionTableIndex?: SectionTableIndex;
 };
 
+
+type CheckSpecId = "additionality" | "baseline_scenario" | "monitoring";
+type SufficiencyGrade = "strong" | "acceptable" | "weak" | "reject";
+
+type CheckSpecAssessment = {
+  specId: CheckSpecId;
+  grade: SufficiencyGrade;
+  reason: string;
+  warningCode: string;
+};
+
+type CheckSpecInput = {
+  claimText: string;
+  reviewArea: ReviewArea;
+  queryIntentAnalysis?: QueryIntentAnalysis;
+  evidenceDocument: EvidenceDocument;
+  candidate: {
+    route: RouterCandidate["route"];
+    answerText: string;
+    evidenceSpanIds: string[];
+    quoteTexts: string[];
+    sectionPaths: string[];
+  };
+};
+
 const ANSWER_CONFIDENCE_THRESHOLD = 0.7;
 const LEXICAL_MIN_CONFIDENCE = 0.74;
 
@@ -70,6 +95,249 @@ function clampConfidence(value: number): number {
 
 function normalize(value: string): string {
   return value.toLowerCase().replace(/[^\w\s.-]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+
+const CHECK_SPEC_WORD_RE = /\b[\w-]+\b/g;
+const CHECK_SPEC_TOC_RE = /\btable of contents\b|(?:^|\n)\s*\d+(?:\.\d+)*\s+[^\n.]{3,}\.{2,}\s*\d+\s*(?:\n|$)/i;
+const GENERIC_METHODOLOGY_RE = /\b(?:application of methodology|applied methodology|title and reference of methodology|this methodology|the methodology requires|according to the methodology|in accordance with the methodology|methodology framework|tool for the demonstration and assessment of additionality|latest approved version of the tool)\b/i;
+
+function checkSpecWordCount(value: string): number {
+  return value.match(CHECK_SPEC_WORD_RE)?.length ?? 0;
+}
+
+function hasAnyPattern(text: string, patterns: RegExp[]): boolean {
+  return patterns.some((pattern) => pattern.test(text));
+}
+
+function assessCheckSpecEvidence(input: CheckSpecInput): CheckSpecAssessment | null {
+  const spanLookup = getSpanLookup(input.evidenceDocument);
+  const spans = input.candidate.evidenceSpanIds
+    .map((spanId) => spanLookup.get(spanId))
+    .filter((span): span is EvidenceSpan => Boolean(span));
+  const combinedText = normalize([
+    input.candidate.answerText,
+    ...input.candidate.quoteTexts,
+    ...spans.map((span) => span.text),
+  ].filter(Boolean).join("\n"));
+  const combinedSections = normalize([
+    ...input.candidate.sectionPaths,
+    ...spans.flatMap((span) => span.sectionPath),
+    ...spans.map((span) => span.heading ?? ""),
+  ].filter(Boolean).join(" > "));
+  const tocEvidence = spans.some((span) => span.blockType === "toc" || /\btable of contents\b/i.test(span.heading ?? ""))
+    || CHECK_SPEC_TOC_RE.test(combinedText)
+    || CHECK_SPEC_TOC_RE.test(combinedSections);
+
+  if (tocEvidence) {
+    const specId: CheckSpecId = input.reviewArea === "baseline"
+      ? "baseline_scenario"
+      : input.reviewArea === "monitoring"
+        ? "monitoring"
+        : "additionality";
+    return {
+      specId,
+      grade: "reject",
+      reason: "Matched evidence came from a table of contents path, not project evidence.",
+      warningCode: `check_spec_${specId}_toc_reject`,
+    };
+  }
+
+  if (input.reviewArea === "additionality") {
+    const strongSignals = [
+      /\bproject is additional\b/i,
+      /\bactivity is considered additional\b/i,
+      /\bpasses the additionality test\b/i,
+      /\badditionality (?:is )?(?:demonstrated|justified|shown)\b/i,
+      /\bbarrier analysis\b/i,
+      /\binvestment analysis\b/i,
+      /\bcommon practice analysis\b/i,
+      /\bwithout carbon (?:revenue|revenues)\b/i,
+      /\bfinancial(?:ly)? (?:unattractive|not attractive|not viable)\b/i,
+      /\bfirst of (?:its|a) kind\b/i,
+    ];
+    const acceptableSignals = [
+      /\bbarrier\b/i,
+      /\bcommon practice\b/i,
+      /\binvestment\b/i,
+      /\badditionality assessment\b/i,
+      /\badditionality (?:has been )?(?:assessed|demonstrated|justified|shown)\b/i,
+    ];
+    const weakSignals = [
+      /\btool is applied\b/i,
+      /\btool .* is applied\b/i,
+      /\bappl(?:y|ies|ied) the tool\b/i,
+      /\bvt0001\b/i,
+      /\btool for the demonstration and assessment of additionality\b/i,
+      /\badditionality tool\b/i,
+    ];
+
+    if (GENERIC_METHODOLOGY_RE.test(combinedText) && !hasAnyPattern(combinedText, strongSignals)) {
+      return {
+        specId: "additionality",
+        grade: "reject",
+        reason: "Matched evidence was methodology preamble text, not project-specific additionality evidence.",
+        warningCode: "check_spec_additionality_methodology_reject",
+      };
+    }
+    if (hasAnyPattern(combinedText, strongSignals)) {
+      return {
+        specId: "additionality",
+        grade: "strong",
+        reason: "Matched evidence includes direct project-specific additionality justification.",
+        warningCode: "check_spec_additionality_strong",
+      };
+    }
+    if (hasAnyPattern(combinedText, acceptableSignals) && checkSpecWordCount(combinedText) >= 12 && !hasAnyPattern(combinedText, weakSignals)) {
+      return {
+        specId: "additionality",
+        grade: "acceptable",
+        reason: "Matched evidence discusses additionality with enough project-specific detail.",
+        warningCode: "check_spec_additionality_acceptable",
+      };
+    }
+    if (hasAnyPattern(combinedText, weakSignals) || /\badditionality\b/i.test(combinedText)) {
+      return {
+        specId: "additionality",
+        grade: "weak",
+        reason: "Matched evidence is related to additionality, but it does not show a project-specific conclusion or analysis.",
+        warningCode: "check_spec_additionality_weak",
+      };
+    }
+    return {
+      specId: "additionality",
+      grade: "reject",
+      reason: "Matched evidence does not address project-specific additionality.",
+      warningCode: "check_spec_additionality_no_project_signal",
+    };
+  }
+
+  if (input.reviewArea === "baseline") {
+    const strongSignals = [
+      /\bbaseline scenario is\b/i,
+      /\bwithout(?: |-)the project\b/i,
+      /\bwithout(?: |-)?project\b/i,
+      /\bin the absence of the project\b/i,
+      /\bmost likely land(?: |-)?use scenario\b/i,
+      /\bwould continue\b/i,
+      /\bcontinu(?:e|ed|ation) of\b/i,
+    ];
+    const methodologyPreambleSignals = [
+      /\bthe methodology .* determines the baseline\b/i,
+      /\bbaseline scenario shall be determined\b/i,
+      /\bbaseline shall be determined\b/i,
+      /\bbaseline emissions are determined\b/i,
+      /\baccording to the methodology\b/i,
+      /\bbaseline methodology\b/i,
+    ];
+
+    if (hasAnyPattern(combinedText, methodologyPreambleSignals) && !hasAnyPattern(combinedText, strongSignals)) {
+      return {
+        specId: "baseline_scenario",
+        grade: "reject",
+        reason: "Matched evidence was methodology text about how to determine a baseline, not the project's baseline scenario.",
+        warningCode: "check_spec_baseline_methodology_reject",
+      };
+    }
+    if (hasAnyPattern(combinedText, strongSignals) && checkSpecWordCount(combinedText) >= 10) {
+      return {
+        specId: "baseline_scenario",
+        grade: "strong",
+        reason: "Matched evidence directly states the project's without-project baseline scenario.",
+        warningCode: "check_spec_baseline_strong",
+      };
+    }
+    if (/\bbaseline scenario\b/i.test(combinedText) && (/\bmost likely\b/i.test(combinedText) || /\bwithout\b/i.test(combinedText))) {
+      return {
+        specId: "baseline_scenario",
+        grade: "acceptable",
+        reason: "Matched evidence describes the baseline scenario with enough project-specific context.",
+        warningCode: "check_spec_baseline_acceptable",
+      };
+    }
+    if (/\bbaseline\b/i.test(combinedText) || /\bwithout-project\b/i.test(combinedSections)) {
+      return {
+        specId: "baseline_scenario",
+        grade: "weak",
+        reason: "Matched evidence is related to baseline, but it does not clearly state the project's baseline scenario.",
+        warningCode: "check_spec_baseline_weak",
+      };
+    }
+    return {
+      specId: "baseline_scenario",
+      grade: "reject",
+      reason: "Matched evidence does not support the project's baseline scenario.",
+      warningCode: "check_spec_baseline_no_project_signal",
+    };
+  }
+
+  if (input.reviewArea === "monitoring") {
+    const strongSignals = [
+      /\bmonitoring plan\b/i,
+      /\bmonitor(?:ed|ing)\b.*\b(?:annually|monthly|quarterly|every \d+|frequency)\b/i,
+      /\bdata source\b/i,
+      /\bparameter\b/i,
+      /\bremote sensing\b/i,
+      /\bqaqc\b/i,
+      /\bsampling\b/i,
+      /\bplot revisit\b/i,
+    ];
+    const genericMethodologySignals = [
+      /\bmonitoring methodology\b/i,
+      /\bthis methodology requires monitoring\b/i,
+      /\baccording to the monitoring methodology\b/i,
+      /\bmonitoring shall be conducted in accordance with\b/i,
+      /\bmethodology requires that\b/i,
+    ];
+
+    if (hasAnyPattern(combinedText, genericMethodologySignals) && !hasAnyPattern(combinedText, strongSignals)) {
+      return {
+        specId: "monitoring",
+        grade: "reject",
+        reason: "Matched evidence was generic methodology text about monitoring, not the project's monitoring plan.",
+        warningCode: "check_spec_monitoring_methodology_reject",
+      };
+    }
+    if (hasAnyPattern(combinedText, strongSignals) && (combinedSections.includes("monitoring plan") || checkSpecWordCount(combinedText) >= 10)) {
+      return {
+        specId: "monitoring",
+        grade: "strong",
+        reason: "Matched evidence describes concrete monitoring plan procedures or frequencies.",
+        warningCode: "check_spec_monitoring_strong",
+      };
+    }
+    const proceduralHits = [
+      /\bmonitoring\b/i,
+      /\bfrequency\b/i,
+      /\bparameter\b/i,
+      /\bmeasure(?:d|ment)?\b/i,
+      /\brecord(?:ed|ing)?\b/i,
+    ].filter((pattern) => pattern.test(combinedText)).length;
+    if (proceduralHits >= 2 && checkSpecWordCount(combinedText) >= 8) {
+      return {
+        specId: "monitoring",
+        grade: "acceptable",
+        reason: "Matched evidence discusses monitoring procedures with enough project-specific detail.",
+        warningCode: "check_spec_monitoring_acceptable",
+      };
+    }
+    if (/\bmonitoring\b/i.test(combinedText) || /\bmonitoring\b/i.test(combinedSections)) {
+      return {
+        specId: "monitoring",
+        grade: "weak",
+        reason: "Matched evidence is related to monitoring, but it does not clearly describe the project's monitoring plan.",
+        warningCode: "check_spec_monitoring_weak",
+      };
+    }
+    return {
+      specId: "monitoring",
+      grade: "reject",
+      reason: "Matched evidence does not support a project monitoring answer.",
+      warningCode: "check_spec_monitoring_no_project_signal",
+    };
+  }
+
+  return null;
 }
 
 function normalizeConfidence(confidence: ProjectFactConfidence): number {
@@ -191,6 +459,60 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
       ? candidate.warnings
       : [...candidate.warnings, "low_confidence"],
   };
+}
+
+
+function applyCheckSpecGate(input: DeterministicRouterInput, candidate: RouterCandidate): DeterministicRouterResult | null {
+  if (!input.evidenceDocument || candidate.route === "project_fact_contract") return null;
+
+  const assessment = assessCheckSpecEvidence({
+    claimText: input.claimText,
+    reviewArea: input.reviewArea,
+    queryIntentAnalysis: input.queryIntentAnalysis,
+    evidenceDocument: input.evidenceDocument,
+    candidate: {
+      route: candidate.route,
+      answerText: candidate.answerText,
+      evidenceSpanIds: candidate.evidenceSpanIds,
+      quoteTexts: candidate.quoteInputs.map((quote) => quote.quote),
+      sectionPaths: candidate.sectionPaths,
+    },
+  });
+
+  if (!assessment) return null;
+  if (assessment.grade === "strong" || assessment.grade === "acceptable") return null;
+
+  return buildFallback({
+    answerText: assessment.grade === "weak"
+      ? "Quick Check found related evidence, but it was not sufficient to answer this question deterministically."
+      : "Quick Check found no validated evidence path for this question.",
+    status: assessment.grade === "weak" ? "unclear" : "no_evidence",
+    confidence: candidate.confidence,
+    warnings: [...candidate.warnings, assessment.warningCode],
+  });
+}
+
+function finalizeWithRouterAuthority(input: DeterministicRouterInput, candidate: RouterCandidate): DeterministicRouterResult {
+  const gated = applyCheckSpecGate(input, candidate);
+  if (gated) return gated;
+
+  if (candidate.isStructuredInput) {
+    return {
+      answerText: candidate.answerText,
+      status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
+      route: candidate.route,
+      confidence: clampConfidence(candidate.confidence),
+      evidenceSpanIds: candidate.evidenceSpanIds,
+      quotes: [],
+      pages: candidate.pages,
+      sectionPaths: candidate.sectionPaths,
+      warnings: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD
+        ? [...candidate.warnings, "structured_input_provenance"]
+        : [...candidate.warnings, "low_confidence", "structured_input_provenance"],
+    };
+  }
+
+  return finalizeCandidate(input.evidenceDocument!, candidate);
 }
 
 function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | null {
@@ -688,10 +1010,10 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
             : [...sectionCandidate.warnings, "low_confidence", "structured_input_provenance"],
         };
       }
-      return finalizeCandidate(input.evidenceDocument, sectionCandidate);
+      return finalizeWithRouterAuthority(input, sectionCandidate);
     }
     const lexicalCandidate = buildLexicalCandidate(input);
-    if (lexicalCandidate) return finalizeCandidate(input.evidenceDocument, lexicalCandidate);
+    if (lexicalCandidate) return finalizeWithRouterAuthority(input, lexicalCandidate);
     return buildFallback({
       answerText: "Quick Check found multiple plausible evidence paths and did not choose one deterministically.",
       status: "unclear",
@@ -717,21 +1039,5 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
     });
   }
 
-  if (candidate.isStructuredInput) {
-    return {
-      answerText: candidate.answerText,
-      status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
-      route: candidate.route,
-      confidence: clampConfidence(candidate.confidence),
-      evidenceSpanIds: candidate.evidenceSpanIds,
-      quotes: [],
-      pages: candidate.pages,
-      sectionPaths: candidate.sectionPaths,
-      warnings: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD
-        ? [...candidate.warnings, "structured_input_provenance"]
-        : [...candidate.warnings, "low_confidence", "structured_input_provenance"],
-    };
-  }
-
-  return finalizeCandidate(input.evidenceDocument, candidate);
+  return finalizeWithRouterAuthority(input, candidate);
 }
