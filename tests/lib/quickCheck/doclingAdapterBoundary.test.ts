@@ -5,6 +5,9 @@ import {
   parseDoclingText,
   setDoclingImplementationForTests,
   isDoclingMarkdown,
+  mapDoclingHelperJsonToParsedDocument,
+  parseDoclingHelperOutput,
+  type DoclingHelperJson,
 } from "@/lib/documentParsing/adapters/doclingAdapter";
 import {
   DOCUMENT_PARSER_ADAPTER_IDS,
@@ -339,5 +342,380 @@ describe("Docling adapter isolation", () => {
   it("does not recognize arbitrary text as Docling markdown", () => {
     expect(isDoclingMarkdown("1 Project Details\nHost country: Indonesia")).toBe(false);
     expect(isDoclingMarkdown("Plain paragraph text.")).toBe(false);
+  });
+});
+
+const SAMPLE_DOCLING_HELPER_JSON: DoclingHelperJson = {
+  engine: "docling",
+  parser_version: "2.0.0",
+  raw_text: [
+    "Project Description",
+    "This Verra VCS project concerns avoided deforestation in Central Kalimantan.",
+    "\f",
+    "Baseline Scenario",
+    "Baseline scenario: Conversion of peat swamp forest to plantations.",
+  ].join("\n"),
+  markdown: [
+    "## Project Description",
+    "This Verra VCS project concerns avoided deforestation in Central Kalimantan.",
+    "",
+    "## Baseline Scenario",
+    "Baseline scenario: Conversion of peat swamp forest to plantations.",
+  ].join("\n"),
+  pages: [
+    { page_number: 1, text: "Project Description" },
+    { page_number: 1, text: "This Verra VCS project concerns avoided deforestation in Central Kalimantan." },
+    { page_number: 2, text: "Baseline Scenario" },
+    { page_number: 2, text: "Baseline scenario: Conversion of peat swamp forest to plantations." },
+  ],
+  headings: [
+    { text: "Project Description", level: 2, page_number: 1 },
+    { text: "Baseline Scenario", level: 2, page_number: 2 },
+  ],
+  tables: [],
+};
+
+describe("parseDoclingHelperOutput", () => {
+  it("parses valid helper JSON", () => {
+    const output = parseDoclingHelperOutput(JSON.stringify(SAMPLE_DOCLING_HELPER_JSON));
+
+    expect(output.error).toBeUndefined();
+    expect(output.engine).toBe("docling");
+    expect(output.parser_version).toBe("2.0.0");
+    expect(output.headings).toHaveLength(2);
+    expect(output.headings?.[0]?.text).toBe("Project Description");
+    expect(output.headings?.[0]?.level).toBe(2);
+    expect(output.headings?.[0]?.page_number).toBe(1);
+  });
+
+  it("handles invalid JSON gracefully", () => {
+    const output = parseDoclingHelperOutput("not json at all");
+
+    expect(output.error).toBe("json_parse_failed");
+    expect(output.message).toBe("Docling helper produced invalid JSON.");
+  });
+
+  it("handles empty string gracefully", () => {
+    const output = parseDoclingHelperOutput("");
+
+    expect(output.error).toBe("json_parse_failed");
+  });
+
+  it("handles helper JSON with error field", () => {
+    const errorOutput = parseDoclingHelperOutput(
+      JSON.stringify({ error: "docling_not_installed", message: "pip install docling" }),
+    );
+
+    expect(errorOutput.error).toBe("docling_not_installed");
+    expect(errorOutput.message).toBe("pip install docling");
+  });
+});
+
+describe("mapDoclingHelperJsonToParsedDocument", () => {
+  it("produces adapterId docling", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    expect(parsed.adapterId).toBe("docling");
+  });
+
+  it("preserves raw_text from helper JSON", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    expect(parsed.rawText).toContain("Project Description");
+    expect(parsed.rawText).toContain("Baseline Scenario");
+    expect(parsed.rawText).toContain("\f");
+  });
+
+  it("maps page boundaries from form-feed separated raw_text", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    expect(parsed.pages).toHaveLength(2);
+    expect(parsed.pages[0]?.pageNumber).toBe(1);
+    expect(parsed.pages[1]?.pageNumber).toBe(2);
+    expect(parsed.qualityReport.hasPageBoundaries).toBe(true);
+    expect(parsed.qualityReport.pageCount).toBe(2);
+  });
+
+  it("maps headings into elements with correct elementType and metadata", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    const headingElements = parsed.elements.filter((e) => e.elementType === "heading");
+
+    expect(headingElements).toHaveLength(2);
+    expect(headingElements[0]?.text).toBe("Project Description");
+    expect(headingElements[0]?.pageNumber).toBe(1);
+    expect(headingElements[0]?.headingLevel).toBe(2);
+    expect(headingElements[0]?.sourceParser).toBe("docling");
+
+    expect(headingElements[1]?.text).toBe("Baseline Scenario");
+    expect(headingElements[1]?.pageNumber).toBe(2);
+  });
+
+  it("maps paragraph items into elements", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    const paragraphElements = parsed.elements.filter((e) => e.elementType === "paragraph");
+
+    expect(paragraphElements.length).toBeGreaterThan(0);
+    expect(paragraphElements.some((e) => e.text.includes("Verra VCS"))).toBe(true);
+    expect(paragraphElements.some((e) => e.text.includes("peat swamp"))).toBe(true);
+
+    for (const el of paragraphElements) {
+      expect(el.sourceParser).toBe("docling");
+    }
+  });
+
+  it("assigns confidence scores to all elements", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    for (const element of parsed.elements) {
+      expect(typeof element.confidence).toBe("number");
+      expect(element.confidence).toBeGreaterThan(0);
+      expect(element.confidence).toBeLessThanOrEqual(1);
+    }
+
+    const headings = parsed.elements.filter((e) => e.elementType === "heading");
+    for (const h of headings) {
+      expect(h.confidence).toBeGreaterThanOrEqual(0.9);
+    }
+  });
+
+  it("assigns elements to correct pages", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    const page1 = parsed.pages[0];
+    const page2 = parsed.pages[1];
+
+    expect(page1).toBeDefined();
+    expect(page2).toBeDefined();
+    expect(page1?.elements.every((e) => e.pageNumber === 1)).toBe(true);
+    expect(page2?.elements.every((e) => e.pageNumber === 2)).toBe(true);
+  });
+
+  it("sets quality report metadata", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    expect(parsed.qualityReport.parserName).toBe("docling");
+    expect(parsed.qualityReport.sourceContentMode).toBe("native_pdf");
+    expect(parsed.qualityReport.hasStructuredHeadings).toBe(true);
+    expect(parsed.qualityReport.hasBoundingBoxes).toBe(true);
+    expect(parsed.qualityReport.hasTables).toBe(false);
+  });
+
+  it("maps tables when present in helper JSON", () => {
+    const withTable: DoclingHelperJson = {
+      ...SAMPLE_DOCLING_HELPER_JSON,
+      raw_text: [
+        SAMPLE_DOCLING_HELPER_JSON.raw_text,
+        "\f",
+        "Monitoring Table",
+        "| Parameter | Frequency |",
+        "| Forest cover | Annual |",
+      ].join("\n"),
+      tables: [
+        {
+          id: "table:docling:0",
+          page_number: 3,
+          row_count: 2,
+          column_count: 2,
+          cells: [
+            { row: 0, col: 0, text: "Parameter" },
+            { row: 0, col: 1, text: "Frequency" },
+            { row: 1, col: 0, text: "Forest cover" },
+            { row: 1, col: 1, text: "Annual" },
+          ],
+        },
+      ],
+    };
+
+    const parsed = mapDoclingHelperJsonToParsedDocument(withTable, { rawText: "" });
+
+    expect(parsed.tables).toHaveLength(1);
+    expect(parsed.tables[0]?.id).toBe("table:docling:0");
+    expect(parsed.tables[0]?.pageNumber).toBe(3);
+    expect(parsed.tables[0]?.rowCount).toBe(2);
+    expect(parsed.tables[0]?.columnCount).toBe(2);
+    expect(parsed.tables[0]?.cells).toHaveLength(4);
+    expect(parsed.tables[0]?.cells[0]?.text).toBe("Parameter");
+    expect(parsed.qualityReport.hasTables).toBe(true);
+  });
+
+  it("includes parser version in diagnostics when available", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+
+    expect(parsed.diagnostics?.metadata?.docling_version).toBe("2.0.0");
+    expect(parsed.diagnostics?.metadata?.engine).toBe("docling");
+  });
+
+  it("normalizes into DocumentStructure", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+    const structure = buildDocumentStructure({ parsedDocument: parsed });
+
+    expect(structure.parserAdapterId).toBe("docling");
+    expect(structure.source).toBe("docling");
+    expect(structure.blocks.length).toBeGreaterThan(0);
+    expect(structure.sections.length).toBeGreaterThan(0);
+  });
+
+  it("normalizes into EvidenceDocument with provenance", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+    const structure = buildDocumentStructure({ parsedDocument: parsed });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "docling-helper-test",
+      documentStructure: structure,
+    });
+
+    expect(compiled.docId).toBe("docling-helper-test");
+    expect(compiled.parserAdapterId).toBe("docling");
+    expect(compiled.spans.length).toBeGreaterThan(0);
+    expect(compiled.spans.some((s) => s.blockType === "section_heading")).toBe(true);
+  });
+
+  it("quote validation works on helper-mapped evidence", () => {
+    const parsed = mapDoclingHelperJsonToParsedDocument(SAMPLE_DOCLING_HELPER_JSON, {
+      rawText: "",
+    });
+    const structure = buildDocumentStructure({ parsedDocument: parsed });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "docling-helper-test",
+      documentStructure: structure,
+    });
+
+    const [exact] = validateQuotes(compiled, [
+      { quote: "Verra VCS project concerns avoided deforestation" },
+    ]);
+
+    expect(exact.valid).toBe(true);
+  });
+});
+
+describe("Docling helper failure fallback", () => {
+  afterEach(() => {
+    delete process.env.QUICK_CHECK_PARSER;
+    setDoclingImplementationForTests(null);
+  });
+
+  it("parseDoclingHelperOutput handles helper JSON with file_not_found error", () => {
+    const output = parseDoclingHelperOutput(
+      JSON.stringify({ error: "file_not_found", message: "PDF file not found: /nonexistent.pdf" }),
+    );
+
+    expect(output.error).toBe("file_not_found");
+    expect(output.message).toContain("PDF file not found");
+  });
+
+  it("parseDoclingHelperOutput handles helper JSON with docling_not_installed error", () => {
+    const output = parseDoclingHelperOutput(
+      JSON.stringify({
+        error: "docling_not_installed",
+        message: "Docling is not installed. Install it with: pip install docling",
+      }),
+    );
+
+    expect(output.error).toBe("docling_not_installed");
+    expect(output.message).toContain("pip install docling");
+  });
+
+  it("parseDoclingHelperOutput handles helper JSON with parse_failed error", () => {
+    const output = parseDoclingHelperOutput(
+      JSON.stringify({
+        error: "parse_failed",
+        message: "Docling parsing failed with an unexpected error.",
+        traceback: "Traceback (most recent call last):\n  ...",
+      }),
+    );
+
+    expect(output.error).toBe("parse_failed");
+    expect(output.traceback).toBeDefined();
+  });
+
+  it("parseDoclingHelperOutput handles helper JSON with missing_argument error", () => {
+    const output = parseDoclingHelperOutput(
+      JSON.stringify({
+        error: "missing_argument",
+        message: "Usage: python3 scripts/docling-parse.py <pdf_path>",
+      }),
+    );
+
+    expect(output.error).toBe("missing_argument");
+  });
+
+  it("parseDoclingHelperOutput handles helper JSON with helper_execution_failed error", () => {
+    const output = parseDoclingHelperOutput(
+      JSON.stringify({
+        error: "helper_execution_failed",
+        message: "Docling helper process failed: python3 not found",
+        detail: "/bin/sh: python3: command not found",
+      }),
+    );
+
+    expect(output.error).toBe("helper_execution_failed");
+    expect(output.detail).toContain("command not found");
+  });
+
+  it("adapter falls back to current-extractor when test injection throws, preserving diagnostics", () => {
+    setDoclingImplementationForTests({
+      parseText() {
+        throw new Error("simulated docling failure");
+      },
+    });
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "1 Project Details\nHost country: Indonesia",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings?.some(
+      (w) => w.includes("simulated docling failure"),
+    )).toBe(true);
+  });
+
+  it("adapter falls back to current-extractor when test injection is unavailable", () => {
+    const parsed = doclingAdapter.parseText({
+      rawText: "1 Project Details\nHost country: Indonesia",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings).toContain(
+      "Docling unavailable; fell back to current extractor.",
+    );
+  });
+
+  it("adapter falls back when isAvailable returns false", () => {
+    setDoclingImplementationForTests({
+      isAvailable: () => false,
+      parseText: makeDoclingBaseline,
+    });
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "1 Project Details\nHost country: Indonesia",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings).toContain(
+      "Docling unavailable; fell back to current extractor.",
+    );
   });
 });
