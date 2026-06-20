@@ -70,6 +70,7 @@ import {
   getAllChecks,
   formatEvidenceCheckUiText,
   getContract,
+  statusFromRouter,
   validateCheck,
   type CheckValidationContext,
   type EvidenceCheckResult,
@@ -101,6 +102,13 @@ type MatchCandidate = {
   requirementLabel: string;
   score: number | null;
 };
+
+const ROUTER_GATED_EVIDENCE_CHECKS = new Set([
+  "baseline_scenario",
+  "additionality",
+  "leakage",
+  "stakeholder_consultation",
+]);
 
 type ResolvedMatchCandidate = QuickCheckResolvedCandidate<MatchCandidate>;
 
@@ -1841,12 +1849,33 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         answerText: validated.answerText,
         downgradeReason: validated.downgradeReason,
       });
+      const shouldGateByRouter = ROUTER_GATED_EVIDENCE_CHECKS.has(check.id);
+      let finalStatus = validated.status;
+      if (shouldGateByRouter && validated.status === "found" && questionResult.routerResult.status !== "answered") {
+        finalStatus = statusFromRouter(questionResult.routerResult.status);
+      }
+      let finalAnswerText = formatted.answerText.trim();
+      let finalDowngradeReason = formatted.downgradeReason;
+      if (finalStatus !== validated.status && finalStatus === "unclear") {
+        finalDowngradeReason = finalDowngradeReason || "Quick Check found related text, but the deterministic router did not validate it as a reliable answer.";
+      }
+      if (finalStatus === "found" && !finalAnswerText) {
+        finalAnswerText = formatted.answerText.trim()
+          || validated.answerText.trim()
+          || questionResult.routerResult.answerText.trim();
+        if (!finalAnswerText) {
+          finalStatus = shouldGateByRouter
+            ? statusFromRouter(questionResult.routerResult.status === "answered" ? "unclear" : questionResult.routerResult.status)
+            : "unclear";
+          finalDowngradeReason = finalDowngradeReason || "Quick Check could not preserve a readable answer for this evidence.";
+        }
+      }
       // Provenance now comes from the validated candidate, not the router.
       results.push({
         checkId: check.id,
-        status: validated.status,
-        answerText: formatted.answerText,
-        downgradeReason: formatted.downgradeReason,
+        status: finalStatus,
+        answerText: finalAnswerText,
+        downgradeReason: finalDowngradeReason,
         quotes: validated.quotes,
         pages: validated.pages,
         sections: validated.sections,

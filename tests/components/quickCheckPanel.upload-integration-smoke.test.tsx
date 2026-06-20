@@ -11,11 +11,16 @@ const PLUM_PDD_TEXT = fs.readFileSync(
   path.join(process.cwd(), "tests/fixtures/quick-check/plum-pdd-regression.txt"),
   "utf-8",
 );
+const PLUM_A_PDF_TEXT = fs.readFileSync(
+  path.join(process.cwd(), "tests/fixtures/quick-check/a-pdf-extracted.txt"),
+  "utf-8",
+);
 
 const createAndStoreEvidenceAttachmentMock = jest.fn();
 
 const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "qc-smoke-upload.pdf": PLUM_PDD_TEXT,
+  "qc-plum-a-upload.pdf": PLUM_A_PDF_TEXT,
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
@@ -111,6 +116,14 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     );
     expect(button).toBeTruthy();
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }
+
+  function evidenceCheckSummary(label: string) {
+    const summary = Array.from(container.querySelectorAll("summary")).find((node) =>
+      node.textContent?.includes(label),
+    );
+    expect(summary).toBeTruthy();
+    return summary as HTMLElement;
   }
 
   beforeEach(() => {
@@ -322,4 +335,47 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     expect(text).not.toContain("no document text available");
     expect(text).not.toContain("parsed document text was unavailable");
   });
+
+  it("does not mark PLUM methodology/tool text as found additionality in the upload results path", async () => {
+    seedSession({
+      claimText: "What methodology was applied?",
+      filename: "qc-plum-a-upload.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_A_PDF_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+    await flushUi();
+    await act(async () => {
+      clickButton("Run checks");
+    });
+    await flushUi();
+
+    const methodologySummary = evidenceCheckSummary("Methodology");
+    const additionalitySummary = evidenceCheckSummary("Additionality");
+    const leakageSummary = evidenceCheckSummary("Leakage");
+
+    expect(methodologySummary.textContent).toContain("Found");
+    expect(additionalitySummary.textContent).toContain("Unclear");
+    expect(additionalitySummary.textContent).not.toContain("Found");
+    expect(leakageSummary.textContent).not.toContain("Found");
+
+    const additionalityDetails = additionalitySummary.parentElement as HTMLDetailsElement;
+    additionalityDetails.open = true;
+    const leakageDetails = leakageSummary.parentElement as HTMLDetailsElement;
+    leakageDetails.open = true;
+    await flushUi();
+
+    expect(additionalityDetails.textContent).toContain("VT0001");
+    expect(additionalityDetails.textContent).toContain("deterministic router did not validate");
+    expect(leakageDetails.textContent).toContain("demonstrate low potential for project-induced leakage.");
+  }, 20000);
 });

@@ -48,6 +48,41 @@ function runCheck(input: {
   });
 }
 
+function runCheckDetailed(input: {
+  checkId: EvidenceCheckId;
+  claimText: string;
+  rawText: string;
+  methodologyId?: string;
+  methodologyVersion?: string;
+}) {
+  const structuredQueryContext = getStructuredQueryContext(input.rawText);
+  const questionResult = buildReviewQuestionResult({
+    claimText: input.claimText,
+    methodologyId: input.methodologyId ?? "",
+    methodologyVersion: input.methodologyVersion ?? "",
+    rawPddText: input.rawText,
+    structuredQueryContext,
+  });
+
+  const validated = validateCheck(getContract(input.checkId), {
+    evidenceDocument: structuredQueryContext.evidenceDocument,
+    projectFactContract: structuredQueryContext.projectFactContract,
+    sectionTableIndex: structuredQueryContext.sectionTableIndex,
+    routerResult: questionResult.routerResult,
+    queryIntentAnalysis: questionResult.queryIntentAnalysis,
+    rawText: input.rawText,
+  });
+
+  const formatted = formatEvidenceCheckUiText({
+    label: getAllChecks().find((check) => check.id === input.checkId)?.label ?? input.checkId,
+    status: validated.status,
+    answerText: validated.answerText,
+    downgradeReason: validated.downgradeReason,
+  });
+
+  return { questionResult, validated, formatted };
+}
+
 describe("getAllChecks", () => {
   it("only exposes the six supported quick check topics", () => {
     expect(getAllChecks().map((check) => check.id)).toEqual([
@@ -277,15 +312,27 @@ describe("authoritative evidence check selectors", () => {
     expect(result.answerText).not.toMatch(/^Quick Check did not find/i);
   });
 
-  it("finds additionality evidence from PLUM even when it is embedded in methodology content", () => {
-    const result = runCheck({
+  it("rejects PLUM methodology/tool text as sufficient additionality evidence", () => {
+    const result = runCheckDetailed({
       checkId: "additionality",
       claimText: "What does the document say about additionality?",
       rawText: PLUM_A_DOC_TEXT,
     });
 
-    expect(result.answerText).toContain("VT0001");
-    expect(result.answerText).not.toMatch(/^Quick Check did not find/i);
+    expect(result.questionResult.routerResult.status).not.toBe("answered");
+    expect(result.validated.status).toBe("found");
+    expect(result.formatted.answerText).toContain("VT0001");
+  });
+
+  it("keeps leakage formatting human-readable when the source sentence ends with leakage", () => {
+    const formatted = formatEvidenceCheckUiText({
+      label: "Leakage",
+      status: "found",
+      answerText: "demonstrate low potential for project-induced leakage.",
+      downgradeReason: "",
+    });
+
+    expect(formatted.answerText).toBe("demonstrate low potential for project-induced leakage.");
   });
 
   it("finds stakeholder consultation evidence from stakeholder engagement or dissemination text in PLUM", () => {

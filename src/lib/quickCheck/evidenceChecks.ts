@@ -295,10 +295,11 @@ function trimNarrativeAnswer(label: string, value: string): string {
 function formatLeakageAnswer(value: string): string {
   const normalized = normalizeInlineWhitespace(value);
   const directSentence =
-    normalized.match(/(Leakage[^.?!]*[.?!])/i)?.[1]
-    ?? normalized.match(/([^.!?]*project-induced leakage[^.!?]*[.?!])/i)?.[1]
+    normalized.match(/([^.!?]*project-induced leakage[^.!?]*[.?!])/i)?.[1]
     ?? normalized.match(/([^.!?]*leakage monitoring[^.!?]*[.?!])/i)?.[1]
+    ?? normalized.match(/([^.!?]*leakage emissions[^.!?]*[.?!])/i)?.[1]
     ?? normalized.match(/([^.!?]*leakage[^.!?]*[.?!])/i)?.[1]
+    ?? normalized.match(/(^Leakage[^.?!]*[.?!])/i)?.[1]
     ?? normalized.match(/(.{0,120}project-induced leakage.{0,120})/i)?.[1]
     ?? normalized.match(/(.{0,120}leakage monitoring.{0,120})/i)?.[1]
     ?? normalized.match(/(.{0,120}leakage emissions.{0,120})/i)?.[1]
@@ -306,7 +307,8 @@ function formatLeakageAnswer(value: string): string {
   const chosen = directSentence
     ? stripCommonLeadIn(normalizeInlineWhitespace(directSentence))
     : trimNarrativeAnswer("Leakage", normalized);
-  return chosen.length > 240 ? `${chosen.slice(0, 237).trimEnd()}...` : chosen;
+  const answer = chosen || trimNarrativeAnswer("Leakage", normalized);
+  return answer.length > 240 ? `${answer.slice(0, 237).trimEnd()}...` : answer;
 }
 
 function formatMethodologyAnswer(value: string): string {
