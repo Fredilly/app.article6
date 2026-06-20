@@ -469,8 +469,97 @@
           }
         }
       },
-      "failureReason": "Full PLUM CCB & VCS PD (84 spans, 48K chars). Fact contract extraction fails entirely (title, host, methodology all null/undefined). Only methodology (via structured input) and monitoring (via section_index) produce answers. Tests that the router limits answers to provenanced sections on documents where the fact contract finds nothing.",
-      "notes": "Full PLUM Project CCB & VCS PD. Complements the existing plum-weak-ocr (which tests OCR degradation) and plum-pdd (regression excerpt). This fixture tests the full extracted document where section detection is minimal and fact extraction is absent."
+      "failureReason": "Full PLUM CCB & VCS PD (84 spans, 48K chars). Fact contract extraction fails entirely. Only methodology (via structured input) and monitoring (via section_index) produce answers.",
+      "notes": "Full PLUM Project CCB & VCS PD. This fixture tests the full extracted document where section detection is minimal and fact extraction is absent."
+    },
+    {
+      "id": "real-plum-partial-excerpt",
+      "fixturePath": "tests/fixtures/quick-check/plum-partial-excerpt.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VERRA_PD",
+        "projectTitle": "PLUM Project",
+        "hostCountry": null,
+        "projectCountry": "The",
+        "methodology": "VM0007",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Without-project Land Use Scenario and Additionality",
+        "monitoringSection": null,
+        "leakageSection": null,
+        "additionalitySection": "Without-project Land Use Scenario and Additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["PLUM Project"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["VM0007"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": ["additionality"],
+              "sectionHints": ["Without-project Land Use Scenario and Additionality"]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Partial-document excerpt: TOC lists section 2.2 (additionality) but body only has thin text ('VT0001 tool is applied'). Additionality must not return FOUND in the evidence check from thin tool-references. The router returns FOUND because section 2.2 exists — the evidence check correctly rejects thin candidates.",
+      "notes": "Partial PLUM excerpt. Tests that the evidence check rejects thin additionality candidates (VT0001 tool reference) while the router still finds the section. Stakeholder section has substantive text. Methodology via structured input."
     }
   ]
 }

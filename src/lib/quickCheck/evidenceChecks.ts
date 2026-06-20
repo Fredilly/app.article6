@@ -896,6 +896,18 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   if (contract.selector === "methodology" && !(/\bmethodology\b/i.test(candidate.text) || METHODOLOGY_CODE_RE.test(candidate.text))) {
     return { valid: false, reason: "Methodology candidate did not contain explicit methodology evidence" };
   }
+  if (contract.selector === "additionality") {
+    // Must contain substantive additionality evidence, not just a tool
+    // reference ("VT0001 tool is applied") or generic TOC entry.
+    const hasSubstantiveEvidence = /\bproject is additional\b/i.test(candidate.text)
+      || /\bdemonstration and assessment of additionality\b/i.test(candidate.text)
+      || /\bconcluded that the project is additional\b/i.test(candidate.text)
+      || /\badditionality\b.{0,50}(?:barrier|investment|common practice)/i.test(candidate.text)
+      || /\b(?:barrier analysis|investment analysis|common practice analysis)\b/i.test(candidate.text);
+    if (!hasSubstantiveEvidence) {
+      return { valid: false, reason: "Text mentions additionality only in passing (no substantive barrier/investment evidence)" };
+    }
+  }
   if (contract.selector === "baseline_scenario") {
     // Must contain identified baseline scenario content in the displayed
     // portion (first 500 chars), not just buried deep in a long paragraph.
