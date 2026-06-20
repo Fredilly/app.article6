@@ -180,6 +180,12 @@ Lane status: Done
 Make Quick Check improve from real PDD/document failures through controlled gold fixtures, regression tests, selector fixes, and strict eval gates. Production may collect corrections, but only reviewed fixtures and PRs may change behavior.
 
 
+## quickcheck-parser-replacement
+
+Status SSOT: `docs/roadmaps/quickcheck-parser-replacement/phase-status.json`
+Details: `docs/roadmaps/quickcheck-parser-replacement/PLAN.md`
+
+
 ## requirement-coverage
 
 Status SSOT: `docs/roadmaps/requirement-coverage/phase-status.json`
