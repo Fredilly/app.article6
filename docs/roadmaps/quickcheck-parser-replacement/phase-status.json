@@ -1,0 +1,83 @@
+{
+  "roadmap": "quickcheck-parser-replacement",
+  "status": "active",
+  "current_phase": "phase-0b-docling-experimental-adapter",
+  "phases": [
+    {
+      "id": "phase-0a-parser-adapter-boundary",
+      "name": "Parser Adapter Boundary",
+      "branch": "feat/qc-parser-adapter",
+      "status": "done",
+      "pr": 794,
+      "goal": "Create a parser-agnostic adapter boundary and wrap the current raw-text extractor without changing Quick Check behavior."
+    },
+    {
+      "id": "phase-0b-docling-experimental-adapter",
+      "name": "Docling Experimental Adapter",
+      "branch": "feat/qc-docling-adapter",
+      "status": "not_started",
+      "goal": "Add Docling as an experimental parser adapter behind a feature flag while keeping the current raw-text adapter as default."
+    },
+    {
+      "id": "phase-0c-parser-bakeoff-scorecard",
+      "name": "Parser Bakeoff Scorecard",
+      "branch": "feat/qc-parser-bakeoff",
+      "status": "not_started",
+      "goal": "Compare current raw-text adapter vs Docling on frozen carbon PDFs using a JSON scorecard."
+    },
+    {
+      "id": "phase-0d-default-parser-switch-decision",
+      "name": "Default Parser Switch Decision",
+      "branch": "feat/qc-parser-default-decision",
+      "status": "not_started",
+      "goal": "Switch default parser only if Docling beats the current adapter and strict evals remain safe."
+    },
+    {
+      "id": "phase-1-evidence-compiler-v2",
+      "name": "Evidence Compiler v2",
+      "branch": "feat/qc-evidence-compiler-v2",
+      "status": "not_started",
+      "goal": "Use better parser structure to improve canonical EvidenceDocument spans."
+    },
+    {
+      "id": "phase-2-family-aware-projectfactcontract-v2",
+      "name": "Family-Aware ProjectFactContract v2",
+      "branch": "feat/qc-project-fact-contract-v2",
+      "status": "not_started",
+      "goal": "Improve project title, host country, and methodology extraction using document-family-aware rules."
+    },
+    {
+      "id": "phase-3-hierarchical-section-table-index",
+      "name": "Hierarchical Section + Table Index",
+      "branch": "feat/qc-section-table-index-v2",
+      "status": "not_started",
+      "goal": "Use parser-preserved hierarchy and table structure to improve section and table retrieval."
+    },
+    {
+      "id": "phase-4-evidence-sufficiency-validators",
+      "name": "Evidence Sufficiency Validators",
+      "branch": "feat/qc-evidence-sufficiency-validators",
+      "status": "not_started",
+      "goal": "Require check-specific evidence sufficiency before returning answered."
+    },
+    {
+      "id": "phase-5-eval-corpus-ci-gate",
+      "name": "Eval Corpus + CI Gate",
+      "branch": "feat/qc-parser-evidence-ci-gate",
+      "status": "not_started",
+      "goal": "Lock parser and evidence improvements into CI with strict evals and no fake-answer regressions."
+    }
+  ],
+  "rules": {
+    "one_phase_per_pr": true,
+    "start_each_phase_from_main": true,
+    "do_not_start_next_phase_before_previous_phase_merges": true,
+    "raw_text_adapter_remains_fallback_until_switch_is_proven": true,
+    "parser_must_not_decide_final_status": true,
+    "router_remains_final_status_authority": true,
+    "document_qa_remains_presentation_only": true,
+    "no_llm_final_answer_generation": true,
+    "no_ui_changes_unless_phase_says_so": true,
+    "no_eval_threshold_weakening": true
+  }
+}
