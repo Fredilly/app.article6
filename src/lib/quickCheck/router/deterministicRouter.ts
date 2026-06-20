@@ -33,17 +33,17 @@ type DeterministicRouterInput = {
 };
 
 
-type CheckSpecId = "additionality" | "baseline_scenario" | "monitoring";
-type SufficiencyGrade = "strong" | "acceptable" | "weak" | "reject";
+export type CheckSpecId = "additionality" | "baseline_scenario" | "monitoring";
+export type SufficiencyGrade = "strong" | "acceptable" | "weak" | "reject";
 
-type CheckSpecAssessment = {
+export type CheckSpecAssessment = {
   specId: CheckSpecId;
   grade: SufficiencyGrade;
   reason: string;
   warningCode: string;
 };
 
-type CheckSpecInput = {
+export type CheckSpecInput = {
   claimText: string;
   reviewArea: ReviewArea;
   queryIntentAnalysis?: QueryIntentAnalysis;
@@ -110,7 +110,7 @@ function hasAnyPattern(text: string, patterns: RegExp[]): boolean {
   return patterns.some((pattern) => pattern.test(text));
 }
 
-function assessCheckSpecEvidence(input: CheckSpecInput): CheckSpecAssessment | null {
+export function assessCheckSpecEvidence(input: CheckSpecInput): CheckSpecAssessment | null {
   const spanLookup = getSpanLookup(input.evidenceDocument);
   const spans = input.candidate.evidenceSpanIds
     .map((spanId) => spanLookup.get(spanId))
