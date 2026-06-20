@@ -1,5 +1,6 @@
 import { currentExtractorAdapter } from "@/lib/documentParsing/adapters/currentExtractor";
 import { liteParseAdapter } from "@/lib/documentParsing/adapters/liteParse";
+import { doclingAdapter } from "@/lib/documentParsing/adapters/doclingAdapter";
 import {
   DOCUMENT_PARSER_ADAPTER_IDS,
   DEFAULT_DOCUMENT_PARSER_ADAPTER_ID,
@@ -12,6 +13,7 @@ import {
 const ADAPTERS: Record<DocumentParserAdapterId, DocumentParserAdapter> = {
   "current-extractor": currentExtractorAdapter,
   liteparse: liteParseAdapter,
+  docling: doclingAdapter,
 };
 
 function isDocumentParserAdapterId(value: string): value is DocumentParserAdapterId {

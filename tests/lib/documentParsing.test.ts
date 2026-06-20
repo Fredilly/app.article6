@@ -33,8 +33,8 @@ describe("documentParsing current extractor adapter", () => {
   });
 
   it("registers both parser adapters while keeping current-extractor as the default", () => {
-    expect(DOCUMENT_PARSER_ADAPTER_IDS).toEqual(["current-extractor", "liteparse"]);
-    expect(listDocumentParserAdapters().map((adapter) => adapter.id)).toEqual(["current-extractor", "liteparse"]);
+    expect(DOCUMENT_PARSER_ADAPTER_IDS).toEqual(["current-extractor", "liteparse", "docling"]);
+    expect(listDocumentParserAdapters().map((adapter) => adapter.id)).toEqual(["current-extractor", "liteparse", "docling"]);
     expect(resolveConfiguredDocumentParserAdapterId(undefined)).toBe("current-extractor");
     expect(resolveConfiguredDocumentParserAdapterId("invalid-parser")).toBe("current-extractor");
     expect(getDocumentParserAdapter().id).toBe(DEFAULT_DOCUMENT_PARSER_ADAPTER_ID);
