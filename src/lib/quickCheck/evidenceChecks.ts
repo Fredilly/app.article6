@@ -204,6 +204,8 @@ function chooseNarrativeSentence(label: string, value: string): string {
     if (/^(?:the\s+)?baseline scenario describes the most plausible scenario\b/i.test(sentence)) score -= 220;
     if (/^(?:the\s+)?(?:baseline scenario|additionality|leakage|stakeholder consultation(?: and participation)?)\b.{0,40}\b(?:describes|summarizes|explains)\b/i.test(sentence)) score -= 80;
     if (/^(?:purpose of data|comments|equation|source of data|value applied|frequency of monitoring|data\/parameter)\b/i.test(sentence)) score -= 120;
+    // Penalize stakeholder relation table dumps when scoring stakeholder sentences
+    if (label === "Stakeholder consultation" && /^(?:>>\s*)?stakeholders?\s+(?:relation|name|date\s+of\s+meeting)/i.test(sentence)) score -= 400;
     if (sentence.length < 25) score -= 20;
     return { sentence, score, index };
   });
@@ -220,18 +222,27 @@ function scoreSentenceForLabel(label: string, sentence: string): number {
       if (/\btitle and reference\b/i.test(sentence)) score += 30;
       break;
     case "Baseline scenario":
+      if (/\bBASELINE\s*[ⅠⅡⅢⅣIV1-4]\b/i.test(sentence)) score += 280;
+      if (/\bmost attractive course of action\b/i.test(sentence)) score += 260;
+      if (/\bprevailing practice\b/i.test(sentence)) score += 260;
       if (/\bwithout the project\b/i.test(sentence)) score += 180;
-      if (/\boil palm plantation\b/i.test(sentence)) score += 160;
       if (/\babsence of the project\b/i.test(sentence)) score += 140;
       if (/\bbaseline scenario\b/i.test(sentence)) score += 100;
+      if (/\boil palm plantation\b/i.test(sentence)) score += 160;
       if (/\btraditional agricultural practices\b/i.test(sentence)) score += 180;
       if (/\bslash-and-burn\b/i.test(sentence)) score += 140;
+      // Penalize methodology-step descriptions when used as baseline answers
+      if (/^the methodology \w+ determines the baseline/i.test(sentence)) score -= 300;
       break;
     case "Additionality":
       if (/\bVT0001\b/i.test(sentence)) score += 220;
       if (/\bdemonstration and assessment of additionality\b/i.test(sentence)) score += 180;
+      if (/\bproject is additional\b/i.test(sentence)) score += 200;
+      if (/\bconcluded that the project is additional\b/i.test(sentence)) score += 240;
       if (/\badditionality\b/i.test(sentence)) score += 120;
       if (/\bbarrier\b/i.test(sentence) || /\bcommon practice\b/i.test(sentence)) score += 80;
+      // Penalize methodology step references when used as additionality answer
+      if (/^the methodology \w+ determines/i.test(sentence)) score -= 300;
       break;
     case "Leakage":
       if (/^Leakage emissions\b/i.test(sentence)) score += 420;
@@ -243,7 +254,11 @@ function scoreSentenceForLabel(label: string, sentence: string): number {
       if (/\bleakage\b/i.test(sentence)) score += 60;
       break;
     case "Stakeholder consultation":
+      if (/\bno negative comments\b/i.test(sentence)) score += 350;
+      if (/\bsupport the project\b/i.test(sentence)) score += 300;
       if (/\bparticipatory process\b/i.test(sentence)) score += 320;
+      if (/\badjustment for the project is not needed\b/i.test(sentence)) score += 280;
+      if (/\bdue account was taken\b/i.test(sentence)) score += 260;
       if (/\bvillage meetings?\b/i.test(sentence)) score += 180;
       if (/\bstakeholder consultation\b/i.test(sentence)) score += 160;
       if (/\bstakeholders?\b/i.test(sentence)) score += 100;
@@ -295,7 +310,10 @@ function formatLeakageAnswer(value: string): string {
 }
 
 function formatMethodologyAnswer(value: string): string {
-  const normalized = normalizeInlineWhitespace(firstSentence(stripCommonLeadIn(value))).replace(/\.$/, "");
+  // Strip continuation text from CDM truncated headings (e.g. "project activity: >>")
+  const cleaned = value
+    .replace(/^(?:project\s+activity\s*:?\s*)?[>»]*\s*/i, "");
+  const normalized = normalizeInlineWhitespace(firstSentence(stripCommonLeadIn(cleaned))).replace(/\.$/, "");
   const withNormalizedVersion = normalized.replace(/\bversion\s*(\d+(?:[.-]\d+)*)$/i, "v$1");
   const codeMatch = withNormalizedVersion.match(/\b(VM\d{4}|VMD\d{4}|GS-VER\d+|AR-[A-Z0-9.-]+|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+)\b/i);
   if (!codeMatch) return withNormalizedVersion;
@@ -310,8 +328,9 @@ function formatHostCountryAnswer(value: string): string {
   const candidate = normalizeInlineWhitespace(explicit ?? "")
     .replace(/\b(Project proponent|Methodology|Crediting period|Monitoring period)\b.*$/i, "")
     .trim();
-  const countryLike = candidate.match(/^([A-Z][A-Za-z]+(?:[\s-][A-Z][A-Za-z]+){0,3})/)?.[1];
-  return countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+  const countryLike = candidate.match(/^([A-Z][A-Za-z\u2019']+(?:[\s-][A-Za-z\u2019']+){0,5})/)?.[1];
+  const country = countryLike?.trim() || candidate || firstSentence(stripCommonLeadIn(normalized));
+  return country.replace(/^The\s+/, "");
 }
 
 function formatFoundEvidenceAnswer(label: string, answerText: string): string {
@@ -642,6 +661,9 @@ function buildFactBackedSectionCandidates(
 
 function buildStakeholderCandidate(contract: EvidenceCheckContract, ctx: CheckValidationContext): CheckCandidate[] {
   const selectorTerms = getSelectorTerms(contract).map(normalizeSectionText);
+  const allCandidates: CheckCandidate[] = [];
+
+  // Search main stakeholder section (e.g. E.1) for body text
   const references = ctx.sectionTableIndex.sectionTree.orderedNodeIds
     .map((nodeId) => ctx.sectionTableIndex.sectionTree.nodesById[nodeId])
     .filter((node) => node && selectorTerms.some((term) => normalizeSectionText(node.heading).includes(term)))
@@ -657,9 +679,35 @@ function buildStakeholderCandidate(contract: EvidenceCheckContract, ctx: CheckVa
       source: "topic:stakeholder",
       rank: 700,
     });
-    if (candidates.length > 0) return candidates;
+    allCandidates.push(...candidates);
   }
-  return [];
+
+  // Also search sibling subsections (e.g. E.2, E.3) for stakeholder
+  // conclusion text.  The main stakeholder section (E.1) often contains only
+  // the prompt and a table dump; the actual consultation outcome is in later
+  // subsections (E.3 "Report on how due account was taken").
+  for (const span of ctx.evidenceDocument.spans) {
+    if (span.reliability === "excluded") continue;
+    if (!["paragraph", "field", "formula"].includes(span.blockType)) continue;
+    if (!span.sectionPath.some((s) => /section:E\.(?:2|3)\b/.test(s))) continue;
+    if (!/\bno negative comments\b/i.test(span.text)
+      && !/\bsupport the project\b/i.test(span.text)
+      && !/\bdue account was taken\b/i.test(span.text)) continue;
+    allCandidates.push({
+      text: span.text,
+      page: span.page,
+      sectionId: span.sectionId,
+      sectionPath: span.sectionPath,
+      heading: span.heading,
+      evidenceSpanId: span.spanId,
+      source: "topic:stakeholder:sibling",
+      rank: 720 + scoreCandidateText(contract, span.text),
+    });
+  }
+
+  // Return the best candidate by rank
+  allCandidates.sort((a, b) => b.rank - a.rank);
+  return allCandidates.length > 0 ? [allCandidates[0]] : [];
 }
 
 function buildBodySignalCandidates(input: {
@@ -762,6 +810,30 @@ function buildRawTextFallbackCandidate(contract: EvidenceCheckContract, ctx: Che
     }
   }
 
+  // For baseline: extract text centered around the BASELINE III identifier
+  // rather than taking the full paragraph (which may include page headers
+  // and table data before the actual baseline selection).
+  if (contract.selector === "baseline_scenario") {
+    const baselineMatch = rawText.match(
+      /\b(BASELINE\s*[ⅠⅡⅢⅣIV1-4][\s\S]{0,300}?(?:prevailing practice|most attractive)[\s\S]{0,100}?[.!?])/i,
+    )?.[1]
+    ?? rawText.match(
+      /\b(BASELINE\s*[ⅠⅡⅢⅣIV1-4][\s\S]{0,300}?[.!?])/i,
+    )?.[1];
+    if (baselineMatch) {
+      return {
+        text: normalizeInlineWhitespace(baselineMatch),
+        page: fallbackFrom?.page ?? ctx.routerResult.pages[0] ?? null,
+        sectionId: fallbackFrom?.sectionId ?? ctx.routerResult.sectionPaths[ctx.routerResult.sectionPaths.length - 1],
+        sectionPath: fallbackFrom?.sectionPath ?? ctx.routerResult.sectionPaths,
+        heading: fallbackFrom?.heading,
+        evidenceSpanId: fallbackFrom?.evidenceSpanId ?? ctx.routerResult.evidenceSpanIds[0],
+        source: "rawtext:baseline_scenario",
+        rank: 320,
+      };
+    }
+  }
+
   const paragraphs = rawText
     .split(/\n{2,}/)
     .map((paragraph) => normalizeInlineWhitespace(paragraph))
@@ -809,8 +881,35 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   if (contract.selector === "leakage" && !/\bleakage\b|\bproject-induced leakage\b/i.test(candidate.text)) {
     return { valid: false, reason: "Leakage candidate did not contain explicit leakage evidence" };
   }
+  if (contract.selector === "leakage") {
+    // Must contain substantive leakage content, not just a passing mention.
+    // Methodology applicability text often mentions "leakage" in passing.
+    const hasLeakageEvidence = /^Leakage\b/i.test(candidate.text)
+      || /\bleakage covers\b/i.test(candidate.text)
+      || /\bleakage emissions\b/i.test(candidate.text)
+      || /\bproject-induced leakage\b/i.test(candidate.text)
+      || /\bnet leakage\b/i.test(candidate.text);
+    if (!hasLeakageEvidence) {
+      return { valid: false, reason: "Text mentions leakage only in passing (not substantive leakage evidence)" };
+    }
+  }
   if (contract.selector === "methodology" && !(/\bmethodology\b/i.test(candidate.text) || METHODOLOGY_CODE_RE.test(candidate.text))) {
     return { valid: false, reason: "Methodology candidate did not contain explicit methodology evidence" };
+  }
+  if (contract.selector === "baseline_scenario") {
+    // Must contain identified baseline scenario content in the displayed
+    // portion (first 500 chars), not just buried deep in a long paragraph.
+    const displayable = candidate.text.length > 500
+      ? candidate.text.slice(0, 500)
+      : candidate.text;
+    const hasBaselineEvidence = /\bBASELINE\s*[ⅠⅡⅢⅣIV1-4]\b/i.test(displayable)
+      || /\bmost attractive course of action\b/i.test(displayable)
+      || /\bprevailing practice\b/i.test(displayable)
+      || /\bmost likely alternative scenario is the baseline\b/i.test(displayable)
+      || /\bselected baseline scenario\b/i.test(displayable);
+    if (!hasBaselineEvidence) {
+      return { valid: false, reason: "Text does not identify the selected baseline scenario" };
+    }
   }
   if (contract.expectedShape === "country") {
     if (wc > 5) return { valid: false, reason: "Too many words for a country name" };
@@ -820,7 +919,37 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   return { valid: true, reason: "" };
 }
 
-export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidationContext): { status: EvidenceCheckStatus; answerText: string; downgradeReason: string } {
+export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidationContext): EvidenceCheckResult {
+  const result = validateCheckInternal(contract, ctx);
+  // Build provenance from the best candidate that passed validation
+  const quotes: string[] = result.candidateText ? [result.candidateText] : [];
+  const pages: number[] = result.candidatePage != null ? [result.candidatePage] : [];
+  const sections: string[] = result.candidateSectionPath ?? [];
+  const evidenceSpanIds: string[] = result.candidateSpanId ? [result.candidateSpanId] : [];
+  return {
+    checkId: "" as EvidenceCheckId,
+    status: result.status,
+    answerText: result.answerText,
+    downgradeReason: result.downgradeReason,
+    quotes,
+    pages,
+    sections,
+    evidenceSpanIds,
+    warnings: [],
+  };
+}
+
+type ValidatedCheckInternal = {
+  status: EvidenceCheckStatus;
+  answerText: string;
+  downgradeReason: string;
+  candidateText?: string;
+  candidatePage?: number | null;
+  candidateSectionPath?: string[];
+  candidateSpanId?: string;
+};
+
+function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValidationContext): ValidatedCheckInternal {
   const candidates = gatherCandidates(contract, ctx);
   const directLeakageFallback = contract.selector === "leakage"
     ? normalizeInlineWhitespace(
@@ -838,7 +967,11 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
       const validation = validateCandidate(contract, rawFallback);
       if (validation.valid) {
         const truncated = rawFallback.text.length > 500 ? rawFallback.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : rawFallback.text;
-        return { status: "found", answerText: truncated, downgradeReason: "" };
+        return {
+          status: "found", answerText: truncated, downgradeReason: "",
+          candidateText: rawFallback.text, candidatePage: rawFallback.page,
+          candidateSectionPath: rawFallback.sectionPath, candidateSpanId: rawFallback.evidenceSpanId,
+        };
       }
     }
     return { status: "missing", answerText: "", downgradeReason: "" };
@@ -847,7 +980,11 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
     const validation = validateCandidate(contract, candidate);
     if (validation.valid) {
       const truncated = candidate.text.length > 500 ? candidate.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : candidate.text;
-      return { status: "found", answerText: truncated, downgradeReason: "" };
+      return {
+        status: "found", answerText: truncated, downgradeReason: "",
+        candidateText: candidate.text, candidatePage: candidate.page,
+        candidateSectionPath: candidate.sectionPath, candidateSpanId: candidate.evidenceSpanId,
+      };
     }
   }
   const rawFallback = buildRawTextFallbackCandidate(contract, ctx, candidates[0]);
@@ -855,7 +992,11 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
     const validation = validateCandidate(contract, rawFallback);
     if (validation.valid) {
       const truncated = rawFallback.text.length > 500 ? rawFallback.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : rawFallback.text;
-      return { status: "found", answerText: truncated, downgradeReason: "" };
+      return {
+        status: "found", answerText: truncated, downgradeReason: "",
+        candidateText: rawFallback.text, candidatePage: rawFallback.page,
+        candidateSectionPath: rawFallback.sectionPath, candidateSpanId: rawFallback.evidenceSpanId,
+      };
     }
   }
   const bestFailed = validateCandidate(contract, candidates[0]);

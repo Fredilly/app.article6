@@ -712,20 +712,47 @@ function sectionsFact(
 
   const matches = headingMatches.length > 0 ? headingMatches : bodyMatches;
 
-  if (matches.length === 0) {
+  // Post-filter: exclude false positives where the term matches only because
+  // it appears in a heading that is about a different topic.
+  const filtered = matches.filter((span) => {
+    const heading = normalizeValue(span.heading ?? "");
+    if (fieldName === "baseline") {
+      // B.1 is "Title and reference of the approved baseline and
+      // monitoring methodology" — not about baseline scenario.
+      if (heading.includes("title and reference") && heading.includes("methodology")) return false;
+      // B.8 is "Date of completion of the baseline study and monitoring
+      // methodology" — contact-person / metadata, not baseline scenario.
+      if (heading.includes("date of completion") && heading.includes("baseline")) return false;
+    }
+    if (fieldName === "leakage") {
+      // Exclude sections that are about methodology justification or
+      // monitoring — they mention "leakage" in passing, not as the topic.
+      if (heading.includes("justification") && heading.includes("methodology")) return false;
+      if (heading.includes("monitoring methodology") || heading.includes("monitoring plan")) return false;
+      if (heading.includes("summary of the ex-ante estimation")) return false;
+    }
+    if (fieldName === "additionality") {
+      // B.4 is "Description of how the baseline scenario is identified" —
+      // mentions additionality tool in body text but isn't the additionality section.
+      if (heading.includes("baseline scenario is identified")) return false;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
     return createEmptyField<string[] | null>(`sections:${fieldName}`, family, [materializeWarning(`No ${fieldName} sections were found.`)]);
   }
 
-  const values = dedupe(matches.map((span) => span.heading ?? span.sectionId ?? span.text).filter(Boolean));
+  const values = dedupe(filtered.map((span) => span.heading ?? span.sectionId ?? span.text).filter(Boolean));
   return {
     value: values,
     confidence: "medium",
-    evidenceSpanIds: dedupe(matches.map((span) => span.spanId)),
-    pageNumbers: dedupe(matches.map((span) => span.page).filter((page): page is number => page != null)).sort((a, b) => a - b),
-    sectionPath: dedupe(matches.flatMap((span) => span.sectionPath)),
-    heading: matches[0]?.heading,
+    evidenceSpanIds: dedupe(filtered.map((span) => span.spanId)),
+    pageNumbers: dedupe(filtered.map((span) => span.page).filter((page): page is number => page != null)).sort((a, b) => a - b),
+    sectionPath: dedupe(filtered.flatMap((span) => span.sectionPath)),
+    heading: filtered[0]?.heading,
     extractionRule: `sections:${fieldName}`,
-    sourceParser: matches[0]?.parserSource,
+    sourceParser: filtered[0]?.parserSource,
     family,
     warnings: [],
   };

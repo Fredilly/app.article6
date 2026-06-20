@@ -1,0 +1,23 @@
+{
+  "documentId": "6dbf8989-47db-4e0d-a15f-2a4944cd8366",
+  "documentName": "2006Taisei_jChina_PDD.pdf",
+  "documentType": "Project Description / PD",
+  "methodologyId": "",
+  "checkId": "methodology",
+  "currentAnswer": "project activity: >> ACM0010 (Version 02) “Consolidated methodology for GHG emission reductions from manure management systems”",
+  "currentStatus": "found",
+  "currentQuote": "project activity: >> ACM0010 (Version 02) “Consolidated methodology for GHG emission reductions from manure management systems”",
+  "currentPage": 1,
+  "currentSection": "section:B > section:B.1",
+  "evidenceSpanIds": [
+    "quick-check-review-question:element:paragraph:B.1"
+  ],
+  "correctedAnswer": "ACM0010 (Version 02), “Consolidated methodology for GHG emission reductions from manure management systems”",
+  "correctedQuote": "ACM0010 (Version 02) “Consolidated methodology for GHG emission reductions from manure management systems”",
+  "correctedPage": 11,
+  "correctedSection": "section:B > section:B.1",
+  "confidence": 0.98,
+  "failureReason": "Current answer found the right methodology but includes noisy prefix text (`project activity: >>`). The extracted answer should be normalized to the methodology code, version, and title only.",
+  "expectedStatus": "answered",
+  "reviewNote": "Human correction prepared from Taisei China PDD manual QA."
+}

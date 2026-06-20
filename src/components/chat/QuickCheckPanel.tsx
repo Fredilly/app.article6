@@ -1841,16 +1841,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         answerText: validated.answerText,
         downgradeReason: validated.downgradeReason,
       });
-      const isFound = validated.status === "found";
+      // Provenance now comes from the validated candidate, not the router.
       results.push({
         checkId: check.id,
         status: validated.status,
         answerText: formatted.answerText,
         downgradeReason: formatted.downgradeReason,
-        quotes: isFound ? questionResult.routerResult.quotes : [],
-        pages: isFound ? questionResult.routerResult.pages : [],
-        sections: isFound ? questionResult.routerResult.sectionPaths : [],
-        evidenceSpanIds: isFound ? questionResult.routerResult.evidenceSpanIds : [],
+        quotes: validated.quotes,
+        pages: validated.pages,
+        sections: validated.sections,
+        evidenceSpanIds: validated.evidenceSpanIds,
         warnings: questionResult.routerResult.warnings,
       });
     }

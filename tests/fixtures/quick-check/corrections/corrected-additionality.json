@@ -1,0 +1,21 @@
+{
+  "documentId": "6dbf8989-47db-4e0d-a15f-2a4944cd8366",
+  "documentName": "2006Taisei_jChina_PDD.pdf",
+  "documentType": "Project Description / PD",
+  "methodologyId": "",
+  "checkId": "additionality",
+  "currentAnswer": "The methodology ACM0010 determines the baseline scenario through the following steps: Step I: Define alternative scenarios to the proposed CDM project activity; Step II: Barriers analysis; Step III: Investment analysis; Step IV: Baseline...",
+  "currentStatus": "found",
+  "currentQuote": "",
+  "currentPage": null,
+  "currentSection": "",
+  "evidenceSpanIds": [],
+  "correctedAnswer": "The project is additional because the baseline determination process shows that the baseline is different from the proposed project activity not undertaken as a CDM project activity.",
+  "correctedQuote": "The baseline determination process has demonstrated that the baseline is different from the proposed project activity not undertaken as a CDM project activity, it is concluded that the project is additional.",
+  "correctedPage": 16,
+  "correctedSection": "section:B > section:B.5",
+  "confidence": 0.97,
+  "failureReason": "Current answer reuses the baseline-scenario methodology-step text and has no quote, page, section, or evidence span. Additionality should come from B.5, not from the B.4 baseline-scenario steps.",
+  "expectedStatus": "answered",
+  "reviewNote": "Human correction prepared from Taisei China PDD manual QA."
+}

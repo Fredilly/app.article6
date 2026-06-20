@@ -398,7 +398,39 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
   const wordCount = trimmedText.split(/\s+/).filter(Boolean).length;
   const hasFormulaPattern = trimmedText.includes("-- 1 of") || trimmedText.includes("-- 2 of") || /\d+ of \d+ --/.test(trimmedText);
   if (wordCount < 4 || hasFormulaPattern) return null;
-  const answerText = node ? `${sectionDisplay(node)}: ${trimmedText}` : trimmedText;
+
+  // For stakeholder consultation: if the main section's body text is a
+  // heading prompt or table dump, scan sibling sections (E.2, E.3) for
+  // substantive conclusion text.
+  const isStakeholder = /\bstakeholder\b/i.test(input.claimText);
+  let effectiveText = trimmedText;
+  let effectiveQuotes = candidates;
+  if (isStakeholder && node) {
+    const siblingSpans = input.evidenceDocument.spans.filter((span) => {
+      if (span.reliability === "excluded") return false;
+      if (!["paragraph", "field", "formula"].includes(span.blockType)) return false;
+      if (!span.sectionPath.some((s) => /section:E\.(?:2|3)\b/.test(s))) return false;
+      if (!/\bno negative comments\b/i.test(span.text)
+        && !/\bsupport the project\b/i.test(span.text)
+        && !/\bdue account was taken\b/i.test(span.text)) return false;
+      return true;
+    });
+    if (siblingSpans.length > 0) {
+      const siblingText = siblingSpans[0].text.replace(/\s+/g, " ").trim();
+      effectiveText = siblingText.length > 10 ? siblingText : trimmedText;
+      // Replace quote inputs with sibling span data
+      effectiveQuotes = siblingSpans.map((s) => ({
+        ...best,
+        text: s.text,
+        pageNumbers: s.page != null ? [s.page] : [],
+        sectionId: s.sectionId ?? targetSections[0],
+        heading: s.heading,
+        evidenceSpanId: s.spanId,
+        sectionPath: s.sectionPath,
+      }));
+    }
+  }
+  const answerText = node ? `${sectionDisplay(node)}: ${effectiveText}` : effectiveText;
 
   return {
     answerText,
@@ -407,17 +439,17 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
       input.queryIntentAnalysis.confidence,
       node?.confidence ?? best.score,
     )),
-    evidenceSpanIds: candidates.map((c) => c.evidenceSpanId),
-    quoteInputs: candidates.map((c) => ({
+    evidenceSpanIds: effectiveQuotes.map((c) => c.evidenceSpanId),
+    quoteInputs: effectiveQuotes.map((c) => ({
       quote: c.text,
       page: c.pageNumbers[0],
       sectionId: c.sectionId ?? node?.sectionId ?? targetSections[0],
       heading: c.heading ?? node?.heading,
     })),
     answerQuoteCount: 1,
-    pages: dedupe(candidates.flatMap((c) => c.pageNumbers)),
+    pages: dedupe(effectiveQuotes.flatMap((c) => c.pageNumbers)),
     sectionPaths: dedupe([
-      ...candidates.flatMap((c) => c.sectionPath),
+      ...effectiveQuotes.flatMap((c) => c.sectionPath),
       node ? formatSectionPath(node.sectionPath) : "",
     ].filter(Boolean)),
     warnings: [],
@@ -564,9 +596,36 @@ function buildLexicalCandidate(input: DeterministicRouterInput): RouterCandidate
   // Prefer the first candidate with substantive body text
   const bodyBlockTypes = new Set(["paragraph", "field", "formula"]);
   const bestLexical = candidates.find((c) => bodyBlockTypes.has(c.blockType) && c.text.split(/\s+/).filter(Boolean).length >= 4 && !/^[A-Z][\w\s+.-]+ -- \d+ of \d+ --$/.test(c.text)) ?? candidates[0];
-  const lexicalText = bestLexical.text;
+  let lexicalText = bestLexical.text;
   // Reject if the best we have is just a heading echo
   if (lexicalText.split(/\s+/).filter(Boolean).length < 3) return null;
+
+  // For baseline/additionality queries: prefer the most informative sentence
+  // from the matched text rather than the raw search result.
+  const isBaselineQuery = /\bbaseline\b/i.test(input.claimText) && !/\bleakage\b/i.test(input.claimText);
+  const isAdditionalityQuery = /\badditionality\b/i.test(input.claimText);
+  if (isBaselineQuery || isAdditionalityQuery) {
+    // Search ALL candidate texts (not just the first one) for the ideal sentence
+    const allText = candidates.map((c) => c.text).join("\n");
+    const baselinePreferred = allText.match(
+      /(?:^|[\s\n])(.{0,20}BASELINE\s*[ⅠⅡⅢⅣIV1-4][\s\S]{0,300}?(?:prevailing practice|most attractive)[\s\S]{0,200}?[.!?])/i,
+    )?.[1];
+    const additionalityPreferred = allText.match(
+      /(?:^|[\s\n])(.{0,20}(?:concluded that the project is additional|project is additional)[\s\S]{0,200}?[.!?])/i,
+    )?.[1];
+    const baselineFallback = allText.match(
+      /(?:^|[\s\n])(.{0,20}BASELINE\s*[ⅠⅡⅢⅣIV1-4][^.!?\n]{0,250})/i,
+    )?.[1];
+    if (isBaselineQuery && baselinePreferred) lexicalText = baselinePreferred.trim();
+    else if (isBaselineQuery && baselineFallback) lexicalText = baselineFallback.trim();
+    else if (isAdditionalityQuery && additionalityPreferred) lexicalText = additionalityPreferred.trim();
+    // For baseline: if the only evidence we have is a methodology-step preamble
+    // (not the identified baseline scenario), refuse to answer rather than
+    // showing a misleading FOUND result.
+    if (isBaselineQuery && /the methodology \w+ determines the baseline/i.test(lexicalText)) {
+      if (!baselinePreferred && !baselineFallback) return null;
+    }
+  }
 
   const lexicalConfidence = clampConfidence(Math.max(bestLexical.score, input.queryIntentAnalysis?.confidence ?? 0));
   if (lexicalConfidence < LEXICAL_MIN_CONFIDENCE) return null;
