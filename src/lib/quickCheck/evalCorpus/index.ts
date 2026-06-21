@@ -9,3 +9,15 @@ export type {
   StandardPhase6QuestionId,
 } from "@/lib/quickCheck/evalCorpus/types";
 export { DEFAULT_STRICT_THRESHOLDS } from "@/lib/quickCheck/evalCorpus/types";
+export {
+  runParserBakeoff,
+  formatParserBakeoffScorecard,
+  formatParserBakeoffScorecardJson,
+} from "@/lib/quickCheck/evalCorpus/bakeoff";
+export type {
+  ParserBakeoffParserEntry,
+  ParserBakeoffPerPdfMetrics,
+  ParserBakeoffPdfResult,
+  ParserBakeoffEvalComparison,
+  ParserBakeoffScorecard,
+} from "@/lib/quickCheck/evalCorpus/bakeoff";

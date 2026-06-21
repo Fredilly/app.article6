@@ -22,7 +22,8 @@
       "id": "phase-0c-parser-bakeoff-scorecard",
       "name": "Parser Bakeoff Scorecard",
       "branch": "feat/qc-parser-bakeoff",
-      "status": "not_started",
+      "status": "in_progress",
+      "pr": "TBD",
       "goal": "Compare currentExtractor vs PyMuPDF adapter on frozen carbon PDFs using a JSON scorecard. Include Docling adapter only if available."
     },
     {
