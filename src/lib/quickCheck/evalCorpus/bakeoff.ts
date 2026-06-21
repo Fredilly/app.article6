@@ -62,6 +62,18 @@ export type ParserBakeoffScorecard = {
   defaultParserId: string;
 };
 
+/**
+ * Extract raw text from a PDF file using PyMuPDF.
+ *
+ * NOTE: This function is also used to supply text for the current-extractor
+ * parser in the bakeoff. This means current-extractor's per-PDF metrics are
+ * derived from PyMuPDF-extracted text rather than from its native raw-text
+ * reading path. The downstream eval corpus comparison (which uses the existing
+ * .txt fixture files) is NOT affected — current-extractor reads those text
+ * fixtures directly. Only the per-PDF bakeoff metrics for current-extractor
+ * share the same text source as pymupdf, which is intentional: it ensures a
+ * fair text-length comparison on identical input.
+ */
 function extractRawTextFromPdf(pdfPath: string): string {
   try {
     const scriptPath = path.resolve(process.cwd(), "scripts", "pymupdf-parse.py");
@@ -164,8 +176,9 @@ function runSingleParserOnPdf(
     };
   }
 
+  const savedEnv = process.env.QUICK_CHECK_PARSER;
+
   try {
-    const originalEnv = process.env.QUICK_CHECK_PARSER;
     process.env.QUICK_CHECK_PARSER = parserId;
 
     let input: ParseDocumentTextInput;
@@ -177,8 +190,6 @@ function runSingleParserOnPdf(
     }
 
     const parsed = parseDocumentText(input);
-
-    process.env.QUICK_CHECK_PARSER = originalEnv;
 
     return {
       pdfPath,
@@ -195,7 +206,11 @@ function runSingleParserOnPdf(
       error: message,
     };
   } finally {
-    process.env.QUICK_CHECK_PARSER = undefined;
+    if (savedEnv === undefined) {
+      delete process.env.QUICK_CHECK_PARSER;
+    } else {
+      process.env.QUICK_CHECK_PARSER = savedEnv;
+    }
   }
 }
 
@@ -216,16 +231,15 @@ function runEvalWithParser(
     };
   }
 
+  const savedEnv = process.env.QUICK_CHECK_PARSER;
+
   try {
-    const originalEnv = process.env.QUICK_CHECK_PARSER;
     process.env.QUICK_CHECK_PARSER = parserId;
 
     const report = runQuickCheckEvalCorpus({
       manifestPath,
       repoRoot,
     });
-
-    process.env.QUICK_CHECK_PARSER = originalEnv;
 
     const manifest = loadEvalCorpusManifest(manifestPath);
     const thresholds: EvalCorpusThresholds = manifest.thresholds ?? DEFAULT_STRICT_THRESHOLDS;
@@ -248,7 +262,11 @@ function runEvalWithParser(
       unavailableReason: available ? `eval failed: ${message}` : reason,
     };
   } finally {
-    process.env.QUICK_CHECK_PARSER = undefined;
+    if (savedEnv === undefined) {
+      delete process.env.QUICK_CHECK_PARSER;
+    } else {
+      process.env.QUICK_CHECK_PARSER = savedEnv;
+    }
   }
 }
 

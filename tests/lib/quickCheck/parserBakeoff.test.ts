@@ -247,3 +247,46 @@ describe("Parser bakeoff with real PDF fixtures", () => {
     }
   });
 });
+
+describe("Parser bakeoff env restoration", () => {
+  const nonexistentPdf = path.resolve("/tmp/does-not-exist-bakeoff-env.pdf");
+
+  afterEach(() => {
+    delete process.env.QUICK_CHECK_PARSER;
+  });
+
+  it("Case A: QUICK_CHECK_PARSER was unset, remains unset after bakeoff", () => {
+    delete process.env.QUICK_CHECK_PARSER;
+    expect(process.env.QUICK_CHECK_PARSER).toBeUndefined();
+
+    runParserBakeoff({
+      pdfPaths: [nonexistentPdf],
+      repoRoot: process.cwd(),
+    });
+
+    expect(process.env.QUICK_CHECK_PARSER).toBeUndefined();
+  });
+
+  it("Case B: QUICK_CHECK_PARSER was set, same value remains after bakeoff", () => {
+    process.env.QUICK_CHECK_PARSER = "pymupdf";
+    expect(process.env.QUICK_CHECK_PARSER).toBe("pymupdf");
+
+    runParserBakeoff({
+      pdfPaths: [nonexistentPdf],
+      repoRoot: process.cwd(),
+    });
+
+    expect(process.env.QUICK_CHECK_PARSER).toBe("pymupdf");
+  });
+
+  it("QUICK_CHECK_PARSER restoration survives per-PDF parser runs", () => {
+    process.env.QUICK_CHECK_PARSER = "liteparse";
+
+    runParserBakeoff({
+      pdfPaths: [nonexistentPdf],
+      repoRoot: process.cwd(),
+    });
+
+    expect(process.env.QUICK_CHECK_PARSER).toBe("liteparse");
+  });
+});
