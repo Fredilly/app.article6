@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { buildArticle6DocumentModel } from "@/lib/documentModel";
 import { parseDocumentText } from "@/lib/documentParsing";
+import { initDoclingAdapterRuntime } from "@/lib/documentParsing/adapters/doclingInit";
+import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
 import type { SemanticEvidenceCandidate, SemanticEvidenceStatus } from "@/lib/quickCheck/retrieval/types";
+
+initDoclingAdapterRuntime();
+initPymupdfAdapterRuntime();
 
 const HUGGING_FACE_URL = "https://api-inference.huggingface.co/models/openbmb/MiniCPM5-1B";
 const MAX_BLOCKS = 40;

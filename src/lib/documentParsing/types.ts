@@ -9,6 +9,8 @@ import type {
 export const DOCUMENT_PARSER_ADAPTER_IDS = [
   "current-extractor",
   "liteparse",
+  "docling",
+  "pymupdf",
 ] as const;
 
 export const DEFAULT_DOCUMENT_PARSER_ADAPTER_ID = "current-extractor" as const;
@@ -17,6 +19,7 @@ export type DocumentParserAdapterId = typeof DOCUMENT_PARSER_ADAPTER_IDS[number]
 
 export type ParseDocumentTextInput = {
   rawText: string;
+  pdfFilePath?: string;
 };
 
 export type ParsedBoundingBox = {

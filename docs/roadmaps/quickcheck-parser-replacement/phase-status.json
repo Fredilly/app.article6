@@ -1,7 +1,7 @@
 {
   "roadmap": "quickcheck-parser-replacement",
   "status": "active",
-  "current_phase": "phase-0b-docling-experimental-adapter",
+  "current_phase": "phase-0b-experimental-parser-adapters",
   "phases": [
     {
       "id": "phase-0a-parser-adapter-boundary",
@@ -12,25 +12,25 @@
       "goal": "Create a parser-agnostic adapter boundary and wrap the current raw-text extractor without changing Quick Check behavior."
     },
     {
-      "id": "phase-0b-docling-experimental-adapter",
-      "name": "Docling Experimental Adapter",
-      "branch": "feat/qc-docling-adapter",
-      "status": "not_started",
-      "goal": "Add Docling as an experimental parser adapter behind a feature flag while keeping the current raw-text adapter as default."
+      "id": "phase-0b-experimental-parser-adapters",
+      "name": "Experimental Parser Adapters",
+      "branch": "feat/qc-experimental-parser-adapters",
+      "status": "done",
+      "goal": "Add one or more experimental parser adapters behind feature flags while keeping currentExtractor as the default fallback. Primary successful adapter: PyMuPDF (QUICK_CHECK_PARSER=pymupdf). Docling adapter is also registered (QUICK_CHECK_PARSER=docling) but remains optional/unavailable-safe; Docling installation is not required for Phase 0B completion."
     },
     {
       "id": "phase-0c-parser-bakeoff-scorecard",
       "name": "Parser Bakeoff Scorecard",
       "branch": "feat/qc-parser-bakeoff",
       "status": "not_started",
-      "goal": "Compare current raw-text adapter vs Docling on frozen carbon PDFs using a JSON scorecard."
+      "goal": "Compare currentExtractor vs PyMuPDF adapter on frozen carbon PDFs using a JSON scorecard. Include Docling adapter only if available."
     },
     {
       "id": "phase-0d-default-parser-switch-decision",
       "name": "Default Parser Switch Decision",
       "branch": "feat/qc-parser-default-decision",
       "status": "not_started",
-      "goal": "Switch default parser only if Docling beats the current adapter and strict evals remain safe."
+      "goal": "Switch default parser only if the best experimental adapter beats currentExtractor and strict evals remain safe."
     },
     {
       "id": "phase-1-evidence-compiler-v2",

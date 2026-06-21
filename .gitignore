@@ -49,3 +49,6 @@ public/exports/audit-pack.zip
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.venv
+.venv_old/
+*.whl
