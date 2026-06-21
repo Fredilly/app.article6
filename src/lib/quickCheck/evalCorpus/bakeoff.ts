@@ -1,4 +1,5 @@
 import path from "path";
+import { existsSync, readdirSync, statSync } from "fs";
 import { execFileSync } from "child_process";
 import { parseDocumentText, resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
 import {
@@ -61,6 +62,55 @@ export type ParserBakeoffScorecard = {
   evalComparison: ParserBakeoffEvalComparison[];
   defaultParserId: string;
 };
+
+/**
+ * Collect PDF paths from CLI arguments. Accepts:
+ *   --pdfdir <dir>    – all PDFs in the directory
+ *   --pdf <path>      – individual PDFs (repeatable, deduped)
+ * Falls back to the frozen fixture PDFs when no flags are given.
+ */
+export function collectPdfPaths(
+  argv: string[] = process.argv,
+  repoRoot: string = process.cwd(),
+): string[] {
+  const paths: string[] = [];
+
+  const pdfDirFlagIndex = argv.indexOf("--pdfdir");
+  if (pdfDirFlagIndex >= 0) {
+    const dirPath = path.resolve(argv[pdfDirFlagIndex + 1] ?? "");
+    if (existsSync(dirPath) && statSync(dirPath).isDirectory()) {
+      for (const entry of readdirSync(dirPath)) {
+        if (entry.toLowerCase().endsWith(".pdf")) {
+          paths.push(path.resolve(dirPath, entry));
+        }
+      }
+    }
+  }
+
+  const pdfFlagIndexes: number[] = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--pdf" && argv[i + 1]) {
+      pdfFlagIndexes.push(i);
+    }
+  }
+  for (const idx of pdfFlagIndexes) {
+    const pdfPath = path.resolve(argv[idx + 1]);
+    if (!paths.includes(pdfPath)) {
+      paths.push(pdfPath);
+    }
+  }
+
+  if (paths.length > 0) {
+    return paths;
+  }
+
+  const fixtureDir = path.resolve(repoRoot, "tests/fixtures/quick-check");
+  return [
+    path.resolve(fixtureDir, "plum-verra-demo-excerpt.pdf"),
+    path.resolve(fixtureDir, "malawi-strong-signal-evidence.pdf"),
+    path.resolve(fixtureDir, "kenya-second-check-evidence.pdf"),
+  ].filter((p) => existsSync(p));
+}
 
 /**
  * Extract raw text from a PDF file using PyMuPDF.

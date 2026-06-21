@@ -1,9 +1,11 @@
 import { describe, expect, it } from "@jest/globals";
 import path from "path";
+import { mkdirSync, writeFileSync, rmSync } from "fs";
 import {
   runParserBakeoff,
   formatParserBakeoffScorecard,
   formatParserBakeoffScorecardJson,
+  collectPdfPaths,
 } from "@/lib/quickCheck/evalCorpus/bakeoff";
 import type { ParserBakeoffScorecard } from "@/lib/quickCheck/evalCorpus/bakeoff";
 
@@ -288,5 +290,107 @@ describe("Parser bakeoff env restoration", () => {
     });
 
     expect(process.env.QUICK_CHECK_PARSER).toBe("liteparse");
+  });
+});
+
+describe("collectPdfPaths CLI argument handling", () => {
+  const repoRoot = process.cwd();
+  const fixtureDir = path.resolve(repoRoot, "tests/fixtures/quick-check");
+
+  it("default fallback returns frozen fixture PDFs when no flags passed", () => {
+    const paths = collectPdfPaths([], repoRoot);
+
+    expect(paths.length).toBeGreaterThanOrEqual(1);
+    expect(paths.every((p) => p.endsWith(".pdf"))).toBe(true);
+    expect(paths.some((p) => p.includes("plum-verra-demo-excerpt"))).toBe(true);
+  });
+
+  it("--pdfdir collects all PDFs from a directory, sorted by name", () => {
+    const tmpDir = path.resolve("/tmp/bakeoff-collectPdfPaths-test");
+    rmSync(tmpDir, { recursive: true, force: true });
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(path.resolve(tmpDir, "alpha.pdf"), "%PDF-1.4 fake");
+    writeFileSync(path.resolve(tmpDir, "beta.pdf"), "%PDF-1.4 fake");
+
+    const paths = collectPdfPaths(["node", "script", "--pdfdir", tmpDir], repoRoot);
+
+    expect(paths.length).toBe(2);
+    expect(paths.every((p) => p.endsWith(".pdf"))).toBe(true);
+    expect(paths.some((p) => p.includes("alpha.pdf"))).toBe(true);
+    expect(paths.some((p) => p.includes("beta.pdf"))).toBe(true);
+
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("repeated --pdf flags collect all paths", () => {
+    const paths = collectPdfPaths([
+      "node", "script",
+      "--pdf", "/tmp/a.pdf",
+      "--pdf", "/tmp/b.pdf",
+    ], repoRoot);
+
+    expect(paths.length).toBe(2);
+    expect(paths).toContain(path.resolve("/tmp/a.pdf"));
+    expect(paths).toContain(path.resolve("/tmp/b.pdf"));
+  });
+
+  it("dedupes when same PDF is given via --pdf twice", () => {
+    const paths = collectPdfPaths([
+      "node", "script",
+      "--pdf", "/tmp/dup.pdf",
+      "--pdf", "/tmp/dup.pdf",
+    ], repoRoot);
+
+    expect(paths.length).toBe(1);
+    expect(paths[0]).toBe(path.resolve("/tmp/dup.pdf"));
+  });
+
+  it("combines --pdfdir and --pdf deduping across sources", () => {
+    const tmpDir = path.resolve("/tmp/bakeoff-combine-test");
+    rmSync(tmpDir, { recursive: true, force: true });
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(path.resolve(tmpDir, "dir.pdf"), "%PDF-1.4 fake");
+
+    const paths = collectPdfPaths([
+      "node", "script",
+      "--pdfdir", tmpDir,
+      "--pdf", "/tmp/extra.pdf",
+    ], repoRoot);
+
+    expect(paths.length).toBe(2);
+    expect(paths.some((p) => p.includes("dir.pdf"))).toBe(true);
+    expect(paths.some((p) => p.includes("extra.pdf"))).toBe(true);
+
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("--pdfdir pointing to nonexistent directory ignores gracefully", () => {
+    const paths = collectPdfPaths([
+      "node", "script",
+      "--pdfdir", "/tmp/does-not-exist-bakeoff-cli",
+    ], repoRoot);
+
+    // Falls back to defaults when no paths found
+    expect(paths.length).toBeGreaterThanOrEqual(1);
+    expect(paths.some((p) => p.includes(fixtureDir))).toBe(true);
+  });
+
+  it("dedupes when --pdfdir and --pdf yield the same path", () => {
+    const tmpDir = path.resolve("/tmp/bakeoff-same-test");
+    rmSync(tmpDir, { recursive: true, force: true });
+    mkdirSync(tmpDir, { recursive: true });
+    const pdfPath = path.resolve(tmpDir, "shared.pdf");
+    writeFileSync(pdfPath, "%PDF-1.4 fake");
+
+    const paths = collectPdfPaths([
+      "node", "script",
+      "--pdfdir", tmpDir,
+      "--pdf", pdfPath,
+    ], repoRoot);
+
+    expect(paths.length).toBe(1);
+    expect(paths[0]).toBe(pdfPath);
+
+    rmSync(tmpDir, { recursive: true, force: true });
   });
 });
