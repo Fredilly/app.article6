@@ -4,11 +4,11 @@ import {
   doclingAdapter,
   parseDoclingText,
   setDoclingImplementationForTests,
+  setDoclingHelperRunnerForTests,
   isDoclingMarkdown,
   mapDoclingHelperJsonToParsedDocument,
-  parseDoclingHelperOutput,
-  type DoclingHelperJson,
 } from "@/lib/documentParsing/adapters/doclingAdapter";
+import { parseDoclingHelperOutput, type DoclingHelperJson } from "@/lib/documentParsing/adapters/doclingHelper";
 import {
   DOCUMENT_PARSER_ADAPTER_IDS,
   getDocumentParserAdapter,
@@ -61,6 +61,7 @@ describe("Docling parser adapter", () => {
   afterEach(() => {
     delete process.env.QUICK_CHECK_PARSER;
     setDoclingImplementationForTests(null);
+    setDoclingHelperRunnerForTests(null);
   });
 
   it("is registered in the adapter list alongside current-extractor and liteparse", () => {
@@ -717,5 +718,167 @@ describe("Docling helper failure fallback", () => {
     expect(parsed.diagnostics?.warnings).toContain(
       "Docling unavailable; fell back to current extractor.",
     );
+  });
+});
+
+describe("Docling runtime connection: adapter calls helper via pdfFilePath", () => {
+  afterEach(() => {
+    delete process.env.QUICK_CHECK_PARSER;
+    setDoclingImplementationForTests(null);
+    setDoclingHelperRunnerForTests(null);
+  });
+
+  it("calls helper runner when pdfFilePath is set and no test injection is active", () => {
+    setDoclingHelperRunnerForTests((pdfPath: string) => {
+      expect(pdfPath).toBe("/tmp/test.pdf");
+      return JSON.stringify(SAMPLE_DOCLING_HELPER_JSON);
+    });
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("docling");
+    expect(parsed.source).toBe("docling");
+    expect(parsed.rawText).toContain("Project Description");
+    expect(parsed.rawText).toContain("Baseline Scenario");
+  });
+
+  it("returns adapterId docling on helper success with pdfFilePath", () => {
+    setDoclingHelperRunnerForTests(() =>
+      JSON.stringify(SAMPLE_DOCLING_HELPER_JSON),
+    );
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("docling");
+  });
+
+  it("falls back to current-extractor when helper JSON has an error field", () => {
+    setDoclingHelperRunnerForTests(() =>
+      JSON.stringify({ error: "docling_not_installed", message: "pip install docling" }),
+    );
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings?.some(
+      (w) => w.includes("docling_not_installed"),
+    )).toBe(true);
+  });
+
+  it("falls back to current-extractor when helper JSON has no parseable text", () => {
+    setDoclingHelperRunnerForTests(() =>
+      JSON.stringify({ engine: "docling" }),
+    );
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings?.some(
+      (w) => w.includes("no parseable text"),
+    )).toBe(true);
+  });
+
+  it("falls back to current-extractor when helper runner throws", () => {
+    setDoclingHelperRunnerForTests(() => {
+      throw new Error("python3: command not found");
+    });
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings?.some(
+      (w) => w.includes("command not found"),
+    )).toBe(true);
+  });
+
+  it("falls back when pdfFilePath is missing (no file path provided)", () => {
+    const parsed = doclingAdapter.parseText({
+      rawText: "1 Project Details\nHost country: Indonesia",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.diagnostics?.warnings).toContain(
+      "Docling unavailable; fell back to current extractor.",
+    );
+  });
+
+  it("test injection takes priority over pdfFilePath helper call", () => {
+    setDoclingHelperRunnerForTests(() =>
+      JSON.stringify(SAMPLE_DOCLING_HELPER_JSON),
+    );
+    setDoclingImplementationForTests({
+      parseText: makeDoclingBaseline,
+    });
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "1 Project Details\nHost country: Indonesia",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("docling");
+  });
+
+  it("default parser remains current-extractor even with pdfFilePath set", () => {
+    const parsed = parseDocumentText({
+      rawText: "1 Project Details\nHost country: Indonesia",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("current-extractor");
+    expect(getDocumentParserAdapter().id).toBe("current-extractor");
+  });
+
+  it("produces structured elements from helper-mapped ParsedDocument", () => {
+    setDoclingHelperRunnerForTests(() =>
+      JSON.stringify(SAMPLE_DOCLING_HELPER_JSON),
+    );
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    const headingElements = parsed.elements.filter((e) => e.elementType === "heading");
+
+    expect(headingElements).toHaveLength(2);
+    expect(headingElements[0]?.sourceParser).toBe("docling");
+    expect(headingElements[0]?.pageNumber).toBe(1);
+    expect(headingElements[1]?.sourceParser).toBe("docling");
+    expect(headingElements[1]?.pageNumber).toBe(2);
+  });
+
+  it("normalizes helper-mapped output into DocumentStructure and EvidenceDocument", () => {
+    setDoclingHelperRunnerForTests(() =>
+      JSON.stringify(SAMPLE_DOCLING_HELPER_JSON),
+    );
+
+    const parsed = doclingAdapter.parseText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+    const structure = buildDocumentStructure({ parsedDocument: parsed });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "runtime-test",
+      documentStructure: structure,
+    });
+
+    expect(compiled.parserAdapterId).toBe("docling");
+    expect(compiled.spans.length).toBeGreaterThan(0);
+    expect(compiled.spans.some((s) => s.blockType === "section_heading")).toBe(true);
   });
 });

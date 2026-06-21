@@ -1,6 +1,3 @@
-import { execFile } from "child_process";
-import { promisify } from "util";
-import path from "path";
 import { currentExtractorAdapter } from "@/lib/documentParsing/adapters/currentExtractor";
 import { buildPddHeadingIndex, extractPddSections } from "@/lib/chat/quickCheckSectionExtractor";
 import { buildDocumentQualityReport } from "@/lib/documentClassification";
@@ -15,7 +12,32 @@ import type {
   ParserDiagnostics,
 } from "@/lib/documentParsing/types";
 
-const execFileAsync = promisify(execFile);
+/** Shape of the JSON produced by scripts/docling-parse.py */
+type DoclingHelperJson = {
+  engine?: string;
+  parser_version?: string;
+  raw_text?: string;
+  markdown?: string;
+  pages?: Array<{ page_number: number; text: string }>;
+  headings?: Array<{ text: string; level: number; page_number: number }>;
+  tables?: Array<{
+    id: string;
+    page_number: number;
+    row_count: number;
+    column_count: number;
+    cells: Array<{ row: number; col: number; text: string }>;
+  }>;
+  error?: string;
+  message?: string;
+  detail?: string;
+  traceback?: string;
+};
+
+type DoclingHelperRunnerFn = (pdfPath: string) => string;
+type DoclingHelperParserFn = (stdout: string) => DoclingHelperJson;
+
+let doclingHelperRunner: DoclingHelperRunnerFn | null = null;
+let doclingHelperParser: DoclingHelperParserFn | null = null;
 
 type DoclingImplementation = {
   isAvailable?: () => boolean;
@@ -28,6 +50,16 @@ export function setDoclingImplementationForTests(
   implementation: DoclingImplementation | null,
 ): void {
   doclingImplementation = implementation;
+}
+
+export function setDoclingHelperRunnerForTests(
+  runner: DoclingHelperRunnerFn | null,
+  parser?: DoclingHelperParserFn | null,
+): void {
+  doclingHelperRunner = runner;
+  if (parser !== undefined) {
+    doclingHelperParser = parser;
+  }
 }
 
 function normalizeParserText(rawText: string): string {
@@ -90,58 +122,24 @@ function fallbackToCurrentExtractor(
   };
 }
 
-/** Shape of the JSON produced by scripts/docling-parse.py */
-export type DoclingHelperJson = {
-  engine?: string;
-  parser_version?: string;
-  raw_text?: string;
-  markdown?: string;
-  pages?: Array<{ page_number: number; text: string }>;
-  headings?: Array<{ text: string; level: number; page_number: number }>;
-  tables?: Array<{
-    id: string;
-    page_number: number;
-    row_count: number;
-    column_count: number;
-    cells: Array<{ row: number; col: number; text: string }>;
-  }>;
-  error?: string;
-  message?: string;
-  detail?: string;
-  traceback?: string;
-};
+function lazyRunDoclingHelperSync(pdfPath: string): string {
+  if (!doclingHelperRunner) {
+    throw new Error(
+      "Docling helper runner is not initialised. " +
+      "Call initDoclingAdapterRuntime() from a server-only context, or use setDoclingHelperRunnerForTests() in tests.",
+    );
+  }
+  return doclingHelperRunner(pdfPath);
+}
 
-export function parseDoclingHelperOutput(stdout: string): DoclingHelperJson {
+function lazyParseDoclingHelperOutput(stdout: string): DoclingHelperJson {
+  if (doclingHelperParser) {
+    return doclingHelperParser(stdout);
+  }
   try {
     return JSON.parse(stdout) as DoclingHelperJson;
   } catch {
     return { error: "json_parse_failed", message: "Docling helper produced invalid JSON." };
-  }
-}
-
-/**
- * Run the Docling Python helper script against a PDF file.
- * Returns the parsed JSON output, or an error-shaped object on failure.
- */
-export async function runDoclingHelper(pdfPath: string): Promise<DoclingHelperJson> {
-  const scriptPath = path.resolve(process.cwd(), "scripts", "docling-parse.py");
-
-  try {
-    const { stdout } = await execFileAsync("python3", [scriptPath, pdfPath], {
-      timeout: 120000,
-      maxBuffer: 50 * 1024 * 1024,
-    });
-    return parseDoclingHelperOutput(stdout);
-  } catch (err) {
-    const error = err as NodeJS.ErrnoException & { stdout?: string; stderr?: string };
-    if (error.stdout) {
-      return parseDoclingHelperOutput(error.stdout);
-    }
-    return {
-      error: "helper_execution_failed",
-      message: `Docling helper process failed: ${error.message ?? "unknown error"}`,
-      detail: error.stderr ?? "",
-    };
   }
 }
 
@@ -155,8 +153,6 @@ export function mapDoclingHelperJsonToParsedDocument(
   const parserName = "docling";
   const rawText = helperJson.raw_text ?? input.rawText ?? "";
   const normalizedText = normalizeParserText(rawText);
-  const projectRoot = process.cwd();
-  const scriptRelPath = path.relative(projectRoot, path.resolve(projectRoot, "scripts", "docling-parse.py"));
 
   const pages = splitRawTextIntoPages(rawText);
   const headings = (helperJson.headings ?? []).map((heading, index) => ({
@@ -251,7 +247,7 @@ export function mapDoclingHelperJsonToParsedDocument(
       parserName,
       warnings: rawText.trim() ? [] : ["Parsed document text is empty."],
       metadata: {
-        helper_script: scriptRelPath,
+        helper_script: "scripts/docling-parse.py",
         ...(versionMetadata ?? {}),
       },
       sourceContentMode: "native_pdf",
@@ -277,7 +273,7 @@ export function mapDoclingHelperJsonToParsedDocument(
       metadata: {
         engine: helperJson.engine ?? "docling",
         ...(versionMetadata ?? {}),
-        helper_script: scriptRelPath,
+        helper_script: "scripts/docling-parse.py",
       },
     },
   };
@@ -483,6 +479,45 @@ export const doclingAdapter: DocumentParserAdapter = {
         return fallbackToCurrentExtractor(
           input,
           `Docling failed at runtime; fell back to current extractor. ${message}`,
+        );
+      }
+    }
+
+    if (input.pdfFilePath) {
+      try {
+        const stdout = lazyRunDoclingHelperSync(input.pdfFilePath);
+        const helperJson = lazyParseDoclingHelperOutput(stdout);
+
+        if (helperJson.error) {
+          const reason = `Docling helper returned error: ${helperJson.error}`;
+          const metadata: Record<string, string> = {};
+          if (helperJson.message) metadata.helper_message = helperJson.message;
+          if (helperJson.detail) metadata.helper_detail = helperJson.detail;
+          return fallbackToCurrentExtractor(input, reason, metadata);
+        }
+
+        if (!helperJson.raw_text && !helperJson.markdown) {
+          return fallbackToCurrentExtractor(
+            input,
+            "Docling helper returned no parseable text.",
+          );
+        }
+
+        return mapDoclingHelperJsonToParsedDocument(helperJson, input);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const metadata: Record<string, string> = {};
+        const errorObj = error as { stderr?: string; code?: string };
+        if (errorObj.stderr) {
+          metadata.helper_stderr = errorObj.stderr;
+        }
+        if (errorObj.code) {
+          metadata.helper_exit_code = errorObj.code;
+        }
+        return fallbackToCurrentExtractor(
+          input,
+          `Docling helper execution failed: ${message}`,
+          metadata,
         );
       }
     }
