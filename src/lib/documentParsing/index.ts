@@ -1,6 +1,7 @@
 import { currentExtractorAdapter } from "@/lib/documentParsing/adapters/currentExtractor";
 import { liteParseAdapter } from "@/lib/documentParsing/adapters/liteParse";
 import { doclingAdapter } from "@/lib/documentParsing/adapters/doclingAdapter";
+import { pymupdfAdapter } from "@/lib/documentParsing/adapters/pymupdfAdapter";
 import {
   DOCUMENT_PARSER_ADAPTER_IDS,
   DEFAULT_DOCUMENT_PARSER_ADAPTER_ID,
@@ -14,6 +15,7 @@ const ADAPTERS: Record<DocumentParserAdapterId, DocumentParserAdapter> = {
   "current-extractor": currentExtractorAdapter,
   liteparse: liteParseAdapter,
   docling: doclingAdapter,
+  pymupdf: pymupdfAdapter,
 };
 
 function isDocumentParserAdapterId(value: string): value is DocumentParserAdapterId {

@@ -9,6 +9,7 @@ import {
   mapDoclingHelperJsonToParsedDocument,
 } from "@/lib/documentParsing/adapters/doclingAdapter";
 import { parseDoclingHelperOutput, type DoclingHelperJson } from "@/lib/documentParsing/adapters/doclingHelper";
+import { initDoclingAdapterRuntime } from "@/lib/documentParsing/adapters/doclingInit";
 import {
   DOCUMENT_PARSER_ADAPTER_IDS,
   getDocumentParserAdapter,
@@ -880,5 +881,106 @@ describe("Docling runtime connection: adapter calls helper via pdfFilePath", () 
     expect(compiled.parserAdapterId).toBe("docling");
     expect(compiled.spans.length).toBeGreaterThan(0);
     expect(compiled.spans.some((s) => s.blockType === "section_heading")).toBe(true);
+  });
+});
+
+describe("Docling server runtime: initDoclingAdapterRuntime wires real helper runner", () => {
+  afterEach(() => {
+    delete process.env.QUICK_CHECK_PARSER;
+    setDoclingImplementationForTests(null);
+    setDoclingHelperRunnerForTests(null);
+  });
+
+  it("initDoclingAdapterRuntime() executes without error and wires the helper runner", () => {
+    initDoclingAdapterRuntime();
+
+    process.env.QUICK_CHECK_PARSER = "docling";
+
+    const parsed = parseDocumentText({
+      rawText: "",
+      pdfFilePath: "/tmp/does-not-exist.pdf",
+    });
+
+    // initDoclingAdapterRuntime wired the real runner — adapter tried to call
+    // the Python helper (which may fail when python3/docling is unavailable).
+    // The adapter must NOT throw "not initialised" and must fall back gracefully.
+    expect(parsed.adapterId).toBe("current-extractor");
+
+    const hasHelperDiagnostic = parsed.diagnostics?.warnings?.some(
+      (w) =>
+        w.includes("helper") ||
+        w.includes("execution") ||
+        w.includes("not found") ||
+        w.includes("ENOENT") ||
+        w.includes("not installed") ||
+        w.includes("Docling helper returned error") ||
+        w.includes("no parseable text"),
+    );
+
+    expect(hasHelperDiagnostic).toBe(true);
+  });
+
+  it("initDoclingAdapterRuntime + mock runner: adapter uses helper output via parseDocumentText", () => {
+    // Simulate what initDoclingAdapterRuntime does, but with a mock for determinism
+    initDoclingAdapterRuntime();
+
+    // Override with mock runner for deterministic output
+    setDoclingHelperRunnerForTests(() =>
+      JSON.stringify(SAMPLE_DOCLING_HELPER_JSON),
+    );
+
+    process.env.QUICK_CHECK_PARSER = "docling";
+
+    const parsed = parseDocumentText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    expect(parsed.adapterId).toBe("docling");
+    expect(parsed.source).toBe("docling");
+    expect(parsed.rawText).toContain("Project Description");
+    expect(parsed.rawText).toContain("Baseline Scenario");
+    expect(parsed.pages).toHaveLength(2);
+
+    const headingElements = parsed.elements.filter((e) => e.elementType === "heading");
+    expect(headingElements).toHaveLength(2);
+    expect(headingElements[0]?.sourceParser).toBe("docling");
+  });
+
+  it("without init, calling with pdfFilePath throws 'not initialised' before fallback", () => {
+    // Ensure runner is unset
+    setDoclingHelperRunnerForTests(null);
+
+    process.env.QUICK_CHECK_PARSER = "docling";
+
+    const parsed = parseDocumentText({
+      rawText: "",
+      pdfFilePath: "/tmp/test.pdf",
+    });
+
+    // Without init, adapter should still fall back (the helper runner throws
+    // "not initialised" internally, which is caught by the adapter)
+    expect(parsed.adapterId).toBe("current-extractor");
+
+    const hasInitWarning = parsed.diagnostics?.warnings?.some(
+      (w) => w.includes("not initialised"),
+    );
+    expect(hasInitWarning).toBe(true);
+  });
+
+  it("initDoclingAdapterRuntime works with QUICK_CHECK_PARSER=docling and rawText fallback", () => {
+    initDoclingAdapterRuntime();
+
+    process.env.QUICK_CHECK_PARSER = "docling";
+
+    // With rawText but no pdfFilePath, adapter should process the markdown
+    const parsed = parseDocumentText({
+      rawText: DOCLING_MARKDOWN,
+    });
+
+    // Should still parse (using markdown mode since init doesn't affect rawText path)
+    expect(parsed.adapterId).toBe("docling");
+    expect(parsed.source).toBe("docling");
+    expect(parsed.rawText).toBe(DOCLING_MARKDOWN);
   });
 });
