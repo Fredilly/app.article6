@@ -1,6 +1,10 @@
 import path from "path";
 import { existsSync, readdirSync, statSync } from "fs";
 import { execFileSync } from "child_process";
+
+function resolvePython3Path(): string {
+  return process.env.PYTHON3 ?? "python3";
+}
 import { parseDocumentText, resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
 import {
   runQuickCheckEvalCorpus,
@@ -127,7 +131,7 @@ export function collectPdfPaths(
 function extractRawTextFromPdf(pdfPath: string): string {
   try {
     const scriptPath = path.resolve(process.cwd(), "scripts", "pymupdf-parse.py");
-    const stdout = execFileSync("python3", [scriptPath, pdfPath], {
+    const stdout = execFileSync(resolvePython3Path(), [scriptPath, pdfPath], {
       timeout: 120000,
       maxBuffer: 50 * 1024 * 1024,
       encoding: "utf-8",
@@ -181,9 +185,9 @@ function checkParserAvailable(parserId: string): { available: boolean; reason?: 
 
   if (parserId === "pymupdf") {
     try {
-      execFileSync("python3", ["--version"], { timeout: 5000, encoding: "utf-8" });
+      execFileSync(resolvePython3Path(), ["--version"], { timeout: 5000, encoding: "utf-8" });
       try {
-        execFileSync("python3", ["-c", "import fitz"], { timeout: 10000, encoding: "utf-8" });
+        execFileSync(resolvePython3Path(), ["-c", "import fitz"], { timeout: 10000, encoding: "utf-8" });
         return { available: true };
       } catch {
         return { available: false, reason: "python3 available but pymupdf (fitz) not installed" };
@@ -195,9 +199,9 @@ function checkParserAvailable(parserId: string): { available: boolean; reason?: 
 
   if (parserId === "docling") {
     try {
-      execFileSync("python3", ["--version"], { timeout: 5000, encoding: "utf-8" });
+      execFileSync(resolvePython3Path(), ["--version"], { timeout: 5000, encoding: "utf-8" });
       try {
-        execFileSync("python3", ["-c", "import docling"], { timeout: 10000, encoding: "utf-8" });
+        execFileSync(resolvePython3Path(), ["-c", "import docling"], { timeout: 10000, encoding: "utf-8" });
         return { available: true };
       } catch {
         return { available: false, reason: "python3 available but docling not installed" };
