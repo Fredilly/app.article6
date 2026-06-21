@@ -1,4 +1,5 @@
 import { execFileSync } from "child_process";
+import { existsSync } from "fs";
 import path from "path";
 
 export type PymupdfHelperJsonBlock = {
@@ -41,9 +42,17 @@ export function parsePymupdfHelperOutput(stdout: string): PymupdfHelperJson {
 
 export function runPymupdfHelperSync(pdfPath: string): string {
   const scriptPath = path.resolve(process.cwd(), "scripts", "pymupdf-parse.py");
-  return execFileSync("python3", [scriptPath, pdfPath], {
+  const python3 = _resolvePython3Path();
+  return execFileSync(python3, [scriptPath, pdfPath], {
     timeout: 120000,
     maxBuffer: 50 * 1024 * 1024,
     encoding: "utf-8",
   });
+}
+
+function _resolvePython3Path(): string {
+  if (process.env.PYTHON3) return process.env.PYTHON3;
+  const venvPath = path.resolve(process.cwd(), ".venv/bin/python3");
+  if (existsSync(venvPath)) return venvPath;
+  return "python3";
 }

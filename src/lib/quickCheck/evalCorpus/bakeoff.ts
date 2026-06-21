@@ -6,6 +6,8 @@ function resolvePython3Path(): string {
   return process.env.PYTHON3 ?? "python3";
 }
 import { parseDocumentText, resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
+import { setPymupdfHelperRunnerForTests } from "@/lib/documentParsing/adapters/pymupdfAdapter";
+import { runPymupdfHelperSync, parsePymupdfHelperOutput } from "@/lib/documentParsing/adapters/pymupdfHelper";
 import {
   runQuickCheckEvalCorpus,
   checkEvalCorpusThresholds,
@@ -329,6 +331,9 @@ export function runParserBakeoff(options: {
   manifestPath?: string;
   repoRoot: string;
 }): ParserBakeoffScorecard {
+  // Wire real helper runner so the adapter can call the Python script.
+  setPymupdfHelperRunnerForTests(runPymupdfHelperSync, parsePymupdfHelperOutput);
+
   const { pdfPaths, manifestPath, repoRoot } = options;
 
   const defaultManifestPath = manifestPath
