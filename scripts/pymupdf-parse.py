@@ -348,6 +348,15 @@ def _get_version() -> str:
 
 
 def main() -> None:
+    if len(sys.argv) >= 2 and sys.argv[1] == "--version":
+        try:
+            import fitz
+            ver = fitz.version
+        except ImportError:
+            ver = ("unknown",)
+        print(ver[0] if isinstance(ver, tuple) else str(ver))
+        sys.exit(0)
+
     if len(sys.argv) < 2:
         print(json.dumps({
             "error": "missing_argument",

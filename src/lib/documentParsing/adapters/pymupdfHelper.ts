@@ -54,6 +54,35 @@ let _availabilityCache: PymupdfAvailabilityCheck | null = null;
 export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
   if (_availabilityCache) return _availabilityCache;
 
+  // Check compiled PyInstaller binary first (Vercel deployment)
+  const compiledBinary = path.resolve(process.cwd(), "public", "pymupdf-parse");
+  if (existsSync(compiledBinary)) {
+    try {
+      const versionOutput = execFileSync(compiledBinary, ["--version"], {
+        timeout: 10000,
+        encoding: "utf-8",
+      }).trim();
+      const result: PymupdfAvailabilityCheck = {
+        available: true,
+        reason: "PyMuPDF is available (compiled binary)",
+        pythonPath: compiledBinary,
+        pymupdfVersion: versionOutput,
+      };
+      _availabilityCache = result;
+      return result;
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : String(e);
+      const result: PymupdfAvailabilityCheck = {
+        available: false,
+        reason: `Compiled binary at "${compiledBinary}" exists but failed to run.`,
+        pythonPath: compiledBinary,
+      };
+      if (detail) result.reason += ` Detail: ${detail}`;
+      _availabilityCache = result;
+      return result;
+    }
+  }
+
   const python3 = _resolvePython3Path();
   const pythonPackagesPath = _resolvePythonPackagesPath();
 
@@ -165,6 +194,16 @@ function _resolvePythonPackagesPath(): string | undefined {
 }
 
 export function runPymupdfHelperSync(pdfPath: string): string {
+  // Prefer the PyInstaller-compiled standalone binary on Vercel
+  const compiledBinary = path.resolve(process.cwd(), "public", "pymupdf-parse");
+  if (existsSync(compiledBinary)) {
+    return execFileSync(compiledBinary, [pdfPath], {
+      timeout: 120000,
+      maxBuffer: 50 * 1024 * 1024,
+      encoding: "utf-8",
+    });
+  }
+  // Fall back to python3 + script (local dev / CI with venv)
   const scriptPath = path.resolve(process.cwd(), "scripts", "pymupdf-parse.py");
   const python3 = _resolvePython3Path();
   return execFileSync(python3, [scriptPath, pdfPath], {
