@@ -48,6 +48,7 @@ export type QuickCheckEvidenceAnalysis = {
   extractionConfidence: number;
   warnings: string[];
   rawPddText?: string;
+  pdfFilePath?: string;
 };
 
 export type QuickCheckClaimIntent =
@@ -81,6 +82,7 @@ export type QuickCheckResolvedPdfText = {
     | "no-selectable-text"
     | "selected-methodology-mismatch"
     | "methodology-not-detected";
+  pdfFilePath?: string;
 };
 type ResolvePdfText = (input: {
   attachmentId: string;
@@ -1034,7 +1036,8 @@ export async function analyzeQuickCheckEvidence(
   const documentTypes = new Set<string>();
   const methodologyMentions = new Set<string>();
   const warningSet = new Set<string>();
-  const rawPddTextParts: string[] = [];
+    const rawPddTextParts: string[] = [];
+    let pdfFilePath: string | undefined;
   const sourceFileNames = new Set<string>();
   const sourceMimes = new Set<string>();
   const resolveAttachmentBytes = options?.resolveAttachmentBytes ?? getAttachmentBytes;
@@ -1082,6 +1085,7 @@ export async function analyzeQuickCheckEvidence(
             bytes,
           });
           text = resolved?.text ?? "";
+          if (resolved?.pdfFilePath) pdfFilePath = resolved.pdfFilePath;
           if (resolved?.warning) warningSet.add(resolved.warning);
           for (const mention of resolved?.methodologyMentions ?? []) {
             methodologyMentions.add(mention);
@@ -1135,6 +1139,7 @@ export async function analyzeQuickCheckEvidence(
     extractionConfidence,
     warnings,
     rawPddText: rawPddTextParts.length > 0 ? rawPddTextParts.join("\n\n") : undefined,
+    pdfFilePath,
   };
 }
 

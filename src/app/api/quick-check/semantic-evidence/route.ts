@@ -14,6 +14,7 @@ async function handlePost(request: Request) {
 
   const claimText = typeof body === "object" && body && "claimText" in body && typeof body.claimText === "string" ? body.claimText : "";
   const rawPddText = typeof body === "object" && body && "rawPddText" in body && typeof body.rawPddText === "string" ? body.rawPddText : "";
+  const pdfFilePath = typeof body === "object" && body && "pdfFilePath" in body && typeof body.pdfFilePath === "string" ? body.pdfFilePath : undefined;
   const methodologyId = typeof body === "object" && body && "methodologyId" in body && typeof body.methodologyId === "string" ? body.methodologyId : "";
   const methodologyVersion = typeof body === "object" && body && "methodologyVersion" in body && typeof body.methodologyVersion === "string" ? body.methodologyVersion : "";
 
@@ -24,6 +25,7 @@ async function handlePost(request: Request) {
   return NextResponse.json(await suggestSemanticEvidence({
     claimText,
     rawPddText,
+    pdfFilePath,
     methodologyId,
     methodologyVersion,
   }));

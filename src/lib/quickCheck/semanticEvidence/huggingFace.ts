@@ -23,6 +23,7 @@ const responseSchema = z.array(z.object({
 type SuggestInput = {
   claimText: string;
   rawPddText: string;
+  pdfFilePath?: string;
   methodologyId?: string;
   methodologyVersion?: string;
 };
@@ -48,7 +49,7 @@ function extractKeywords(claimText: string): string[] {
 }
 
 function buildCandidateBlocks(input: SuggestInput) {
-  const parsedDocument = parseDocumentText({ rawText: input.rawPddText });
+  const parsedDocument = parseDocumentText({ rawText: input.rawPddText, pdfFilePath: input.pdfFilePath });
   const model = buildArticle6DocumentModel({ parsedDocument });
   const sectionById = new Map(model.sections.map((section) => [section.id, section]));
   const keywords = extractKeywords(input.claimText);

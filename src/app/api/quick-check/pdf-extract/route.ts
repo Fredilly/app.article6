@@ -1,10 +1,23 @@
 export const runtime = "nodejs";
 
+import { mkdirSync, writeFileSync, existsSync } from "fs";
+import path from "path";
+import os from "os";
 import { NextResponse } from "next/server";
 import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { withMetrics } from "@/lib/metrics";
+
+function saveTempPdf(bytes: ArrayBuffer): string {
+  const dir = path.join(os.tmpdir(), "quick-check-pdfs");
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  const filePath = path.join(dir, `upload-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`);
+  writeFileSync(filePath, Buffer.from(bytes));
+  return filePath;
+}
 
 async function handlePost(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
@@ -68,6 +81,8 @@ async function handlePost(request: Request) {
     );
   }
 
+  const pdfFilePath = saveTempPdf(bytes);
+
   let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
   let diagnostics: PdfExtractionDiagnostics | undefined;
 
@@ -81,6 +96,7 @@ async function handlePost(request: Request) {
         text: extraction.text,
         engine: extraction.engine,
         metadata: extraction.metadata,
+        pdfFilePath,
       });
     }
   } catch (error) {
@@ -95,6 +111,7 @@ async function handlePost(request: Request) {
   return NextResponse.json({
     text: fallbackText,
     engine: "heuristic",
+    pdfFilePath,
     metadata: {
       parser: "heuristic",
       fallbackReason,

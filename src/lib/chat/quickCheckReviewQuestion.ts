@@ -47,8 +47,8 @@ export {
 } from "@/lib/quickCheck/retrieval/retrieveSections";
 export { evaluateRetrievedReviewQuestion } from "@/lib/quickCheck/evaluation/evaluateEvidence";
 
-function buildStructuredQueryContext(rawPddText: string) {
-  const parsedDocument = parseDocumentText({ rawText: rawPddText });
+function buildStructuredQueryContext(rawPddText: string, pdfFilePath?: string) {
+  const parsedDocument = parseDocumentText({ rawText: rawPddText, pdfFilePath });
   const documentStructure = buildDocumentStructure({ parsedDocument });
   const evidenceDocument = compileEvidenceDocumentFromStructure({
     docId: "quick-check-review-question",
@@ -70,8 +70,8 @@ function buildStructuredQueryContext(rawPddText: string) {
 
 export type StructuredQueryContext = ReturnType<typeof buildStructuredQueryContext>;
 
-export function getStructuredQueryContext(rawPddText: string): StructuredQueryContext {
-  return buildStructuredQueryContext(rawPddText.trim());
+export function getStructuredQueryContext(rawPddText: string, pdfFilePath?: string): StructuredQueryContext {
+  return buildStructuredQueryContext(rawPddText.trim(), pdfFilePath);
 }
 
 export function detectRuntimeReviewPath(input: {

@@ -9,6 +9,7 @@ export type SemanticEvidenceResponse = {
 export async function fetchSemanticEvidenceCandidates(input: {
   claimText: string;
   rawPddText: string;
+  pdfFilePath?: string;
   methodologyId: string;
   methodologyVersion: string;
 }): Promise<SemanticEvidenceResponse> {
