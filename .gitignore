@@ -51,6 +51,7 @@ public/exports/audit-pack.zip
 next-env.d.ts
 .venv
 .venv_old/
+public/.python/
 node_modules/.python/
 python_packages/
 *.whl

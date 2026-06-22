@@ -3,10 +3,5 @@
   "env": {
     "NEXT_PUBLIC_ENGINE_TAG": "mvp-baselines-v1"
   },
-  "installCommand": "npm install && pip3 install --target ./node_modules/.python PyMuPDF pdfplumber",
-  "functions": {
-    "src/app/api/quick-check/semantic-evidence/route.ts": {
-      "includeFiles": "scripts/pymupdf-parse.py"
-    }
-  }
+  "installCommand": "npm install && pip3 install --target ./public/.python PyMuPDF pdfplumber"
 }

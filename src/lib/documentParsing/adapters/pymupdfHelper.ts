@@ -155,6 +155,8 @@ function _buildPythonEnv(): NodeJS.ProcessEnv {
 
 function _resolvePythonPackagesPath(): string | undefined {
   if (process.env.PYTHON_PACKAGES_PATH) return process.env.PYTHON_PACKAGES_PATH;
+  const publicPath = path.resolve(process.cwd(), "public", ".python");
+  if (existsSync(publicPath)) return publicPath;
   const vercelPath = path.resolve(process.cwd(), "node_modules", ".python");
   if (existsSync(vercelPath)) return vercelPath;
   const legacyPath = path.resolve(process.cwd(), "python_packages");

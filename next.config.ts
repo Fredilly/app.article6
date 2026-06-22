@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/": [
       "./scripts/pymupdf-parse.py",
-      "./node_modules/.python/**/*",
     ],
     "/api/quick-check/pdf-extract": [
       "./scripts/extract-quick-check-pdf.cjs",
@@ -26,7 +25,6 @@ const nextConfig: NextConfig = {
     ],
     "/api/quick-check/semantic-evidence": [
       "./scripts/pymupdf-parse.py",
-      "./node_modules/.python/**/*",
     ],
   },
 };
