@@ -2189,6 +2189,32 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 )}
                               </div>
                             </div>
+                            {extractionState.analysis?.parserAdapterId ? (
+                              <div>
+                                <div className="text-xs font-medium text-slate-500">Parser adapter</div>
+                                <div className="mt-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <span className="font-mono font-medium text-slate-900">
+                                      {extractionState.analysis.parserAdapterId}
+                                    </span>
+                                    {extractionState.analysis.parserFallbackFrom ? (
+                                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                                        fallback
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                                        active
+                                      </span>
+                                    )}
+                                  </div>
+                                  {extractionState.analysis.parserFallbackFrom ? (
+                                    <div className="mt-1.5 text-xs text-slate-500">
+                                      Configured parser “{extractionState.analysis.parserAdapterId}” fell back — PyMuPDF is not available in this environment.
+                                    </div>
+                                  ) : null}
+                                </div>
+                              </div>
+                            ) : null}
                             <div className="md:col-span-2">
                               <div className="text-xs font-medium text-slate-500">Grounded signal details</div>
                               <div className="mt-2 grid gap-2">

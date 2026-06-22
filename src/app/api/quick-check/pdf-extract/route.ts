@@ -9,6 +9,8 @@ import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { storePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { withMetrics } from "@/lib/metrics";
+import { resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
+import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
 
 function saveTempPdf(bytes: ArrayBuffer): string {
   const dir = path.join(os.tmpdir(), "quick-check-pdfs");
@@ -18,6 +20,21 @@ function saveTempPdf(bytes: ArrayBuffer): string {
   const filePath = path.join(dir, `upload-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`);
   writeFileSync(filePath, Buffer.from(bytes));
   return filePath;
+}
+
+function buildParserDebug(): { parserAdapterId: string; parserFallbackFrom?: string } {
+  const adapterId = resolveConfiguredDocumentParserAdapterId();
+  if (adapterId !== "pymupdf") {
+    return { parserAdapterId: adapterId };
+  }
+  const availability = checkPymupdfAvailability();
+  if (availability.available) {
+    return { parserAdapterId: adapterId };
+  }
+  return {
+    parserAdapterId: adapterId,
+    parserFallbackFrom: "pymupdf",
+  };
 }
 
 async function handlePost(request: Request) {
@@ -94,11 +111,13 @@ async function handlePost(request: Request) {
     // pdf-parse can succeed but return empty text for ASCII85-encoded streams.
     // Fall through to heuristic extractor which has custom ASCII85 + FlateDecode.
     if (extraction.text.trim().length > 0) {
+      const parserDebug = buildParserDebug();
       return NextResponse.json({
         text: extraction.text,
         engine: extraction.engine,
         metadata: extraction.metadata,
         pdfRef,
+        ...parserDebug,
       });
     }
   } catch (error) {
@@ -110,10 +129,12 @@ async function handlePost(request: Request) {
   }
 
   const fallbackText = extractPdfText(bytes);
+  const parserDebug = buildParserDebug();
   return NextResponse.json({
     text: fallbackText,
     engine: "heuristic",
     pdfRef,
+    ...parserDebug,
     metadata: {
       parser: "heuristic",
       fallbackReason,

@@ -48,6 +48,8 @@ export async function resolveQuickCheckPdfText(input: {
       text?: string;
       engine?: "pdf-parse" | "heuristic";
       pdfRef?: string;
+      parserAdapterId?: string;
+      parserFallbackFrom?: string;
       metadata?: {
         parser?: "pdf-parse" | "heuristic";
         fallbackReason?: string;
@@ -82,6 +84,8 @@ export async function resolveQuickCheckPdfText(input: {
       warning: shouldRecoverTextLocally && text.trim() ? RECOVERED_TEXT_WARNING : warning,
       diagnosticCode: failureKind,
       pdfRef: payload.pdfRef,
+      parserAdapterId: payload.parserAdapterId,
+      parserFallbackFrom: payload.parserFallbackFrom,
     };
   } catch (err) {
     const localHeuristicText = extractPdfText(input.bytes);
