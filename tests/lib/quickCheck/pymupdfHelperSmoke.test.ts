@@ -12,6 +12,18 @@ function resolvePython3(): string {
   return "python3";
 }
 
+function checkFitzAvailable(): boolean {
+  try {
+    execFileSync(resolvePython3(), ["-c", "import fitz"], {
+      timeout: 10000,
+      encoding: "utf-8",
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function makeSyntheticPdf(pdfPath: string, pageCount: number): void {
   const pythonPath = resolvePython3();
   const pyScript = `
@@ -29,8 +41,13 @@ print("ok")
   execFileSync(pythonPath, ["-c", pyScript], { timeout: 30000, encoding: "utf-8" });
 }
 
-describe("pymupdf-parse.py smoke tests", () => {
-  const SYNTHETIC_PDF = path.resolve("/tmp/pymupdf-smoke-60.pdf");
+const FALLBACK_SYNTHETIC_PDF = path.resolve("/tmp/pymupdf-smoke-60.pdf");
+const FITZ_AVAILABLE = checkFitzAvailable();
+
+const describeOrSkip = FITZ_AVAILABLE ? describe : describe.skip;
+
+describeOrSkip("pymupdf-parse.py smoke tests", () => {
+  const SYNTHETIC_PDF = FALLBACK_SYNTHETIC_PDF;
 
   afterAll(() => {
     try { rmSync(SYNTHETIC_PDF); } catch { /* ok */ }
