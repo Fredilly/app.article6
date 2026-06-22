@@ -377,9 +377,8 @@ describe("PyMuPDF adapter isolation", () => {
     setPymupdfImplementationForTests(null);
   });
 
-  it("pymupdf adapter is never the default parser", () => {
-    expect(getDocumentParserAdapter().id).toBe("current-extractor");
-    expect(getDocumentParserAdapter().id).not.toBe("pymupdf");
+  it("pymupdf adapter is the default parser", () => {
+    expect(getDocumentParserAdapter().id).toBe("pymupdf");
   });
 
   it("default parseDocumentText uses current-extractor, not pymupdf", () => {
@@ -505,14 +504,17 @@ describe("PyMuPDF helper JSON mapping", () => {
     expect(parsed.adapterId).toBe("pymupdf");
   });
 
-  it("default parser remains current-extractor even with pdfFilePath set", () => {
+  it("default parser resolves to pymupdf even with pdfFilePath set", () => {
+    expect(getDocumentParserAdapter().id).toBe("pymupdf");
+
+    // Without a wired helper, parseDocumentText with pdfFilePath falls back.
     const parsed = parseDocumentText({
       rawText: "1 Project Details\nHost country: Indonesia",
       pdfFilePath: "/tmp/test.pdf",
     });
 
     expect(parsed.adapterId).toBe("current-extractor");
-    expect(getDocumentParserAdapter().id).toBe("current-extractor");
+    expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
   });
 
   it("maps tables from helper JSON to ParsedDocument tables", () => {

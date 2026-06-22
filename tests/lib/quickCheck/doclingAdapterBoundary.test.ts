@@ -310,8 +310,8 @@ describe("Docling adapter isolation", () => {
     setDoclingImplementationForTests(null);
   });
 
-  it("docling adapter is never the default parser", () => {
-    expect(getDocumentParserAdapter().id).toBe("current-extractor");
+  it("docling adapter is not the default parser", () => {
+    expect(getDocumentParserAdapter().id).toBe("pymupdf");
     expect(getDocumentParserAdapter().id).not.toBe("docling");
   });
 
@@ -834,14 +834,16 @@ describe("Docling runtime connection: adapter calls helper via pdfFilePath", () 
     expect(parsed.adapterId).toBe("docling");
   });
 
-  it("default parser remains current-extractor even with pdfFilePath set", () => {
+  it("default parser resolves to pymupdf even with pdfFilePath set", () => {
+    expect(getDocumentParserAdapter().id).toBe("pymupdf");
+
     const parsed = parseDocumentText({
       rawText: "1 Project Details\nHost country: Indonesia",
       pdfFilePath: "/tmp/test.pdf",
     });
 
     expect(parsed.adapterId).toBe("current-extractor");
-    expect(getDocumentParserAdapter().id).toBe("current-extractor");
+    expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
   });
 
   it("produces structured elements from helper-mapped ParsedDocument", () => {

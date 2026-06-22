@@ -32,21 +32,22 @@ describe("documentParsing current extractor adapter", () => {
     setLiteParseImplementationForTests(null);
   });
 
-  it("registers both parser adapters while keeping current-extractor as the default", () => {
+  it("registers all parser adapters with pymupdf as the default", () => {
     expect(DOCUMENT_PARSER_ADAPTER_IDS).toEqual(["current-extractor", "liteparse", "docling", "pymupdf"]);
     expect(listDocumentParserAdapters().map((adapter) => adapter.id)).toEqual(["current-extractor", "liteparse", "docling", "pymupdf"]);
-    expect(resolveConfiguredDocumentParserAdapterId(undefined)).toBe("current-extractor");
-    expect(resolveConfiguredDocumentParserAdapterId("invalid-parser")).toBe("current-extractor");
+    expect(resolveConfiguredDocumentParserAdapterId(undefined)).toBe("pymupdf");
+    expect(resolveConfiguredDocumentParserAdapterId("invalid-parser")).toBe("pymupdf");
     expect(getDocumentParserAdapter().id).toBe(DEFAULT_DOCUMENT_PARSER_ADAPTER_ID);
   });
 
-  it("exposes the current extractor as the default parser adapter", () => {
+  it("exposes pymupdf as the default parser adapter", () => {
     expect(getDocumentParserAdapter().id).toBe(DEFAULT_DOCUMENT_PARSER_ADAPTER_ID);
   });
 
-  it("returns the same section and heading extraction as the legacy quick check helpers", () => {
+  it("uses pymupdf as the default parser, falls back to current-extractor for rawText-only input", () => {
     const parsed = parseDocumentText({ rawText: VM0007_TEXT });
 
+    // pymupdf is default, but without pdfFilePath it falls back
     expect(parsed.adapterId).toBe("current-extractor");
     expect(parsed.source).toBe("current-extractor");
     expect(parsed.parserName).toBe("current-extractor");
@@ -88,9 +89,12 @@ describe("documentParsing current extractor adapter", () => {
     expect(parsed.blocks.some((block) => block.type === "paragraph")).toBe(true);
     expect(parsed.sectionsByNumber).toEqual(extractPddSections(VM0007_TEXT));
     expect(parsed.headingIndex).toEqual(buildPddHeadingIndex(VM0007_TEXT));
-    expect(parsed.diagnostics).toEqual({
-      metadata: debugSectionExtraction(VM0007_TEXT),
-    });
+    expect(parsed.diagnostics).toEqual(expect.objectContaining({
+      metadata: expect.objectContaining({
+        ...debugSectionExtraction(VM0007_TEXT),
+        fallback_from: "pymupdf",
+      }),
+    }));
   });
 
   it("avoids noisy diagnostics for blank input while keeping a stable empty shape", () => {
@@ -111,7 +115,7 @@ describe("documentParsing current extractor adapter", () => {
     expect(parsed.headings).toEqual([]);
     expect(parsed.sectionsByNumber).toEqual({});
     expect(parsed.headingIndex).toEqual([]);
-    expect(parsed.diagnostics).toBeUndefined();
+    expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
     expect(parsed.qualityReport).toEqual(expect.objectContaining({
       parserName: "current-extractor",
       pageCount: 1,
