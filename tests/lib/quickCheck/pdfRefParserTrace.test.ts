@@ -1,4 +1,5 @@
 import { existsSync } from "fs";
+import { execFileSync } from "child_process";
 import path from "path";
 import { describe, expect, it } from "@jest/globals";
 import { parseDocumentText } from "@/lib/documentParsing";
@@ -6,6 +7,19 @@ import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupd
 import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import { resolveStructuredQueryContext } from "@/lib/chat/quickCheckStructuredQuery";
 import { storePdfRef, resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
+
+function isPymupdfAvailable(): boolean {
+  const python3 = process.env.PYTHON3
+    ?? (existsSync(path.resolve(process.cwd(), ".venv/bin/python3"))
+      ? path.resolve(process.cwd(), ".venv/bin/python3")
+      : "python3");
+  try {
+    execFileSync(python3, ["-c", "import fitz"], { timeout: 10000, encoding: "utf-8" });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 describe("parserUsed trace in StructuredQueryContext", () => {
   it("rawText-only path falls back to current-extractor with pymupdf as default", () => {
@@ -106,7 +120,7 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
     expect(resolved).toBe(FIXTURE);
   });
 
-  it("resolveStructuredQueryContext with pdfRef returns parserAdapterId: pymupdf", async () => {
+  it("resolveStructuredQueryContext with pdfRef returns parserAdapterId: pymupdf when available", async () => {
     if (!existsSync(FIXTURE)) return;
 
     const token = storePdfRef(FIXTURE);
@@ -116,9 +130,15 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
       token,
     );
 
-    expect(ctx.parserAdapterId).toBe("pymupdf");
-    expect(ctx.parserFallbackFrom).toBeUndefined();
-    expect(ctx.parsedDocument.adapterId).toBe("pymupdf");
+    if (isPymupdfAvailable()) {
+      expect(ctx.parserAdapterId).toBe("pymupdf");
+      expect(ctx.parserFallbackFrom).toBeUndefined();
+      expect(ctx.parsedDocument.adapterId).toBe("pymupdf");
+    } else {
+      // On CI without pymupdf: falls back with diagnostics
+      expect(ctx.parserAdapterId).toBe("current-extractor");
+      expect(ctx.parserFallbackFrom).toBe("pymupdf");
+    }
   });
 
   it("resolveStructuredQueryContext without pdfRef falls back to current-extractor", async () => {
