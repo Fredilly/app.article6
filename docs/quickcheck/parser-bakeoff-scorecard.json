@@ -1,0 +1,1916 @@
+{
+  "bakeoffTimestamp": "2026-06-22T03:39:37.284Z",
+  "parsers": [
+    {
+      "parserId": "current-extractor",
+      "available": true
+    },
+    {
+      "parserId": "pymupdf",
+      "available": true
+    },
+    {
+      "parserId": "docling",
+      "available": false,
+      "unavailableReason": "python3 available but docling not installed"
+    }
+  ],
+  "pdfFixtures": [
+    "/Users/stphen/app.article6/real-messy-pdfs/vcs-madre-de-dios-verification-report.pdf",
+    "/Users/stphen/app.article6/real-messy-pdfs/verra-generation-forest-verification.pdf"
+  ],
+  "perPdfResults": [
+    {
+      "pdfPath": "/Users/stphen/app.article6/real-messy-pdfs/vcs-madre-de-dios-verification-report.pdf",
+      "parserId": "current-extractor",
+      "available": true,
+      "metrics": {
+        "pageCount": 80,
+        "rawTextLength": 245595,
+        "headingCount": 8,
+        "tableCount": 0,
+        "elementCount": 123,
+        "pageProvenanceElementCount": 123,
+        "hasPageBoundaries": true,
+        "hasBoundingBoxes": false,
+        "hasTables": false,
+        "hasStructuredHeadings": true,
+        "medianTextPerPage": 3105,
+        "avgConfidence": 0.85170731707317
+      }
+    },
+    {
+      "pdfPath": "/Users/stphen/app.article6/real-messy-pdfs/vcs-madre-de-dios-verification-report.pdf",
+      "parserId": "pymupdf",
+      "available": true,
+      "metrics": {
+        "pageCount": 80,
+        "rawTextLength": 245595,
+        "headingCount": 6,
+        "tableCount": 8,
+        "elementCount": 86,
+        "pageProvenanceElementCount": 86,
+        "hasPageBoundaries": true,
+        "hasBoundingBoxes": true,
+        "hasTables": true,
+        "hasStructuredHeadings": true,
+        "medianTextPerPage": 3105,
+        "avgConfidence": 0.8569767441860465
+      }
+    },
+    {
+      "pdfPath": "/Users/stphen/app.article6/real-messy-pdfs/vcs-madre-de-dios-verification-report.pdf",
+      "parserId": "docling",
+      "available": false,
+      "error": "python3 available but docling not installed"
+    },
+    {
+      "pdfPath": "/Users/stphen/app.article6/real-messy-pdfs/verra-generation-forest-verification.pdf",
+      "parserId": "current-extractor",
+      "available": true,
+      "metrics": {
+        "pageCount": 63,
+        "rawTextLength": 152052,
+        "headingCount": 15,
+        "tableCount": 0,
+        "elementCount": 107,
+        "pageProvenanceElementCount": 107,
+        "hasPageBoundaries": true,
+        "hasBoundingBoxes": false,
+        "hasTables": false,
+        "hasStructuredHeadings": true,
+        "medianTextPerPage": 2403,
+        "avgConfidence": 0.886074766355141
+      }
+    },
+    {
+      "pdfPath": "/Users/stphen/app.article6/real-messy-pdfs/verra-generation-forest-verification.pdf",
+      "parserId": "pymupdf",
+      "available": true,
+      "metrics": {
+        "pageCount": 63,
+        "rawTextLength": 152052,
+        "headingCount": 7,
+        "tableCount": 9,
+        "elementCount": 70,
+        "pageProvenanceElementCount": 70,
+        "hasPageBoundaries": true,
+        "hasBoundingBoxes": true,
+        "hasTables": true,
+        "hasStructuredHeadings": true,
+        "medianTextPerPage": 2403,
+        "avgConfidence": 0.860000000000001
+      }
+    },
+    {
+      "pdfPath": "/Users/stphen/app.article6/real-messy-pdfs/verra-generation-forest-verification.pdf",
+      "parserId": "docling",
+      "available": false,
+      "error": "python3 available but docling not installed"
+    }
+  ],
+  "evalComparison": [
+    {
+      "parserId": "current-extractor",
+      "available": true,
+      "passedCount": 7,
+      "totalCount": 7,
+      "report": {
+        "corpusId": "phase6-foundation",
+        "fixtureCount": 7,
+        "fixtureResults": [
+          {
+            "fixtureId": "real-cdm-nepal",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-envira-amazonia",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-pd-redd-v130",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-gs-luf",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-plum-pdd",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 3
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-plum-weak-ocr",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-blue-nile-redd",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          }
+        ],
+        "failures": [],
+        "metrics": {
+          "factExtractionAccuracy": {
+            "passed": 77,
+            "total": 77,
+            "rate": 1
+          },
+          "provenanceCorrectness": {
+            "passed": 68,
+            "total": 68,
+            "rate": 1
+          },
+          "sectionRetrievalPrecision": {
+            "passed": 17,
+            "total": 17,
+            "rate": 1
+          },
+          "sectionRetrievalRecall": {
+            "passed": 17,
+            "total": 17,
+            "rate": 1
+          },
+          "unsupportedRejectionRate": {
+            "passed": 7,
+            "total": 7,
+            "rate": 1
+          },
+          "noEvidenceFalseNegativeRate": {
+            "passed": 0,
+            "total": 15,
+            "rate": 0
+          },
+          "hallucinatedAnswerRate": {
+            "passed": 0,
+            "total": 34,
+            "rate": 0
+          },
+          "firstPassSuccessRate": {
+            "passed": 7,
+            "total": 7,
+            "rate": 1
+          },
+          "visibleAnswerGoldMatch": {
+            "passed": 56,
+            "total": 56,
+            "rate": 1
+          },
+          "visibleAnswerAgreementRate": {
+            "passed": 56,
+            "total": 56,
+            "rate": 1
+          },
+          "regressionCount": 0
+        }
+      }
+    },
+    {
+      "parserId": "pymupdf",
+      "available": true,
+      "passedCount": 7,
+      "totalCount": 7,
+      "report": {
+        "corpusId": "phase6-foundation",
+        "fixtureCount": 7,
+        "fixtureResults": [
+          {
+            "fixtureId": "real-cdm-nepal",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-envira-amazonia",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-pd-redd-v130",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-gs-luf",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-plum-pdd",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 3
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-plum-weak-ocr",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "unclear",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "ambiguous_intent"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          },
+          {
+            "fixtureId": "real-blue-nile-redd",
+            "passed": true,
+            "factFailures": [],
+            "questionResults": [
+              {
+                "questionId": "project_title",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "host_country",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "methodology",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "project_fact_contract",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "Methodology inferred from a top-of-document code reference because no explicit methodology label was found."
+                ],
+                "actualEvidenceSpanCount": 1
+              },
+              {
+                "questionId": "baseline_scenario",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "monitoring",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "leakage",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "no_validated_route"
+                ],
+                "actualEvidenceSpanCount": 0
+              },
+              {
+                "questionId": "additionality",
+                "passed": true,
+                "actualStatus": "answered",
+                "actualRoute": "section_index",
+                "actualVisibleStatus": "likely_yes",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [],
+                "actualEvidenceSpanCount": 2
+              },
+              {
+                "questionId": "marine_biodiversity_offsets",
+                "passed": true,
+                "actualStatus": "no_evidence",
+                "actualRoute": "fallback",
+                "actualVisibleStatus": "unclear",
+                "visibleStatusMatch": true,
+                "visibleAgreementOk": true,
+                "failures": [],
+                "visibleFailures": [],
+                "actualWarnings": [
+                  "unsupported_or_out_of_scope"
+                ],
+                "actualEvidenceSpanCount": 0
+              }
+            ]
+          }
+        ],
+        "failures": [],
+        "metrics": {
+          "factExtractionAccuracy": {
+            "passed": 77,
+            "total": 77,
+            "rate": 1
+          },
+          "provenanceCorrectness": {
+            "passed": 68,
+            "total": 68,
+            "rate": 1
+          },
+          "sectionRetrievalPrecision": {
+            "passed": 17,
+            "total": 17,
+            "rate": 1
+          },
+          "sectionRetrievalRecall": {
+            "passed": 17,
+            "total": 17,
+            "rate": 1
+          },
+          "unsupportedRejectionRate": {
+            "passed": 7,
+            "total": 7,
+            "rate": 1
+          },
+          "noEvidenceFalseNegativeRate": {
+            "passed": 0,
+            "total": 15,
+            "rate": 0
+          },
+          "hallucinatedAnswerRate": {
+            "passed": 0,
+            "total": 34,
+            "rate": 0
+          },
+          "firstPassSuccessRate": {
+            "passed": 7,
+            "total": 7,
+            "rate": 1
+          },
+          "visibleAnswerGoldMatch": {
+            "passed": 56,
+            "total": 56,
+            "rate": 1
+          },
+          "visibleAnswerAgreementRate": {
+            "passed": 56,
+            "total": 56,
+            "rate": 1
+          },
+          "regressionCount": 0
+        }
+      }
+    },
+    {
+      "parserId": "docling",
+      "available": false,
+      "passedCount": 0,
+      "totalCount": 0,
+      "unavailableReason": "python3 available but docling not installed"
+    }
+  ],
+  "defaultParserId": "current-extractor"
+}
