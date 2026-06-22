@@ -175,9 +175,26 @@ export function runPymupdfHelperSync(pdfPath: string): string {
   });
 }
 
+function _candidatePython3Paths(): string[] {
+  const candidates: string[] = [];
+  if (process.env.PYTHON3) candidates.push(process.env.PYTHON3);
+  candidates.push(path.resolve(process.cwd(), ".venv/bin/python3"));
+  candidates.push("/usr/bin/python3");
+  candidates.push("/usr/bin/python");
+  candidates.push("/usr/local/bin/python3");
+  candidates.push("python3");
+  return candidates;
+}
+
 function _resolvePython3Path(): string {
-  if (process.env.PYTHON3) return process.env.PYTHON3;
-  const venvPath = path.resolve(process.cwd(), ".venv/bin/python3");
-  if (existsSync(venvPath)) return venvPath;
+  for (const candidate of _candidatePython3Paths()) {
+    if (existsSync(candidate)) {
+      // Verify it actually runs
+      try {
+        execFileSync(candidate, ["--version"], { timeout: 5000, encoding: "utf-8" });
+        return candidate;
+      } catch { /* try next */ }
+    }
+  }
   return "python3";
 }
