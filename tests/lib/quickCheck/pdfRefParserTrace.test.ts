@@ -4,6 +4,8 @@ import { describe, expect, it } from "@jest/globals";
 import { parseDocumentText } from "@/lib/documentParsing";
 import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
 import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
+import { resolveStructuredQueryContext } from "@/lib/chat/quickCheckStructuredQuery";
+import { storePdfRef, resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
 
 describe("parserUsed trace in StructuredQueryContext", () => {
   it("rawText-only path falls back to current-extractor with pymupdf as default", () => {
@@ -84,5 +86,65 @@ describe("parserUsed trace in semantic evidence (server-side)", () => {
     if (parsed.adapterId === "pymupdf") {
       expect(parsed.diagnostics?.metadata?.engine).toBe("pymupdf");
     }
+  });
+});
+
+describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
+  const FIXTURE = path.resolve(
+    process.cwd(),
+    "tests/fixtures/quick-check/plum-verra-demo-excerpt.pdf",
+  );
+
+  it("storePdfRef + resolvePdfRef round-trips", () => {
+    if (!existsSync(FIXTURE)) return;
+
+    const token = storePdfRef(FIXTURE);
+    expect(typeof token).toBe("string");
+    expect(token.startsWith("pdf:")).toBe(true);
+
+    const resolved = resolvePdfRef(token);
+    expect(resolved).toBe(FIXTURE);
+  });
+
+  it("resolveStructuredQueryContext with pdfRef returns parserAdapterId: pymupdf", async () => {
+    if (!existsSync(FIXTURE)) return;
+
+    const token = storePdfRef(FIXTURE);
+
+    const ctx = await resolveStructuredQueryContext(
+      "Project Description\nThis is a test.",
+      token,
+    );
+
+    expect(ctx.parserAdapterId).toBe("pymupdf");
+    expect(ctx.parserFallbackFrom).toBeUndefined();
+    expect(ctx.parsedDocument.adapterId).toBe("pymupdf");
+  });
+
+  it("resolveStructuredQueryContext without pdfRef falls back to current-extractor", async () => {
+    const ctx = await resolveStructuredQueryContext(
+      "1 Project Details\nHost country: Indonesia",
+      undefined,
+    );
+
+    expect(ctx.parserAdapterId).toBe("current-extractor");
+    expect(ctx.parserFallbackFrom).toBe("pymupdf");
+  });
+
+  it("resolveStructuredQueryContext with expired pdfRef falls back", async () => {
+    if (!existsSync(FIXTURE)) return;
+
+    // Store with a short-lived token, then manually delete it to simulate expiry
+    const token = storePdfRef(FIXTURE);
+    expect(resolvePdfRef(token)).toBe(FIXTURE);
+
+    // Use a non-existent token to simulate expiry
+    const ctx = await resolveStructuredQueryContext(
+      "1 Project Details\nHost country: Indonesia",
+      "pdf:expired:deadbeef",
+    );
+
+    expect(ctx.parserAdapterId).toBe("current-extractor");
+    expect(ctx.parserFallbackFrom).toBe("pymupdf");
   });
 });

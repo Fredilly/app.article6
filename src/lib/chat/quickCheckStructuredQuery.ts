@@ -4,6 +4,9 @@ import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import type { StructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import { resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { parseDocumentText } from "@/lib/documentParsing";
+import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
+
+initPymupdfAdapterRuntime();
 
 export { type StructuredQueryContext };
 
