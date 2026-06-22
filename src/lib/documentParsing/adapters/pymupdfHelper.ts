@@ -32,12 +32,125 @@ export type PymupdfHelperJson = {
   traceback?: string;
 };
 
+export type PymupdfAvailabilityCheck = {
+  available: boolean;
+  reason: string;
+  pythonPath: string;
+  pythonVersion?: string;
+  pymupdfVersion?: string;
+  pythonPackagesPath?: string;
+};
+
+function isVercelPreview(): boolean {
+  return Boolean(
+    process.env.VERCEL_ENV === "preview" ||
+    process.env.VERCEL_ENV === "development" ||
+    process.env.VERCEL,
+  );
+}
+
+let _availabilityCache: PymupdfAvailabilityCheck | null = null;
+
+export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
+  if (_availabilityCache) return _availabilityCache;
+
+  const python3 = _resolvePython3Path();
+  const pythonPackagesPath = path.resolve(process.cwd(), "python_packages");
+
+  try {
+    execFileSync(python3, ["--version"], {
+      timeout: 5000,
+      encoding: "utf-8",
+    });
+  } catch {
+    const result: PymupdfAvailabilityCheck = {
+      available: false,
+      reason: `python3 not found at "${python3}". Is Python available in this environment?`,
+      pythonPath: python3,
+    };
+    if (isVercelPreview()) {
+      console.warn("[pymupdf:vercel] PyMuPDF unavailable — python3 not found.", {
+        attemptedPythonPath: python3,
+        cwd: process.cwd(),
+      });
+    }
+    _availabilityCache = result;
+    return result;
+  }
+
+  const pymupdfCheckEnv = { ...process.env };
+  if (existsSync(pythonPackagesPath)) {
+    const existingPythonPath = pymupdfCheckEnv.PYTHONPATH ?? "";
+    pymupdfCheckEnv.PYTHONPATH = existingPythonPath
+      ? `${pythonPackagesPath}:${existingPythonPath}`
+      : pythonPackagesPath;
+  }
+
+  try {
+    const fitzOutput = execFileSync(python3, ["-c", "import fitz; print(fitz.version)"], {
+      timeout: 10000,
+      encoding: "utf-8",
+      env: pymupdfCheckEnv,
+    }).trim();
+
+    const result: PymupdfAvailabilityCheck = {
+      available: true,
+      reason: "PyMuPDF is available",
+      pythonPath: python3,
+      pymupdfVersion: fitzOutput,
+    };
+    if (existsSync(pythonPackagesPath)) {
+      result.pythonPackagesPath = pythonPackagesPath;
+    }
+    _availabilityCache = result;
+    return result;
+  } catch (importError) {
+    const detail = importError instanceof Error ? importError.message : String(importError);
+    const result: PymupdfAvailabilityCheck = {
+      available: false,
+      reason: `python3 found at "${python3}" but PyMuPDF (fitz) is not installed.`,
+      pythonPath: python3,
+    };
+    if (existsSync(pythonPackagesPath)) {
+      result.pythonPackagesPath = pythonPackagesPath;
+    }
+    if (detail) {
+      result.reason += ` Detail: ${detail}`;
+    }
+    if (isVercelPreview()) {
+      console.warn("[pymupdf:vercel] PyMuPDF unavailable — fitz import failed.", {
+        pythonPath: python3,
+        pythonPackagesPath: result.pythonPackagesPath ?? "not set",
+        error: detail,
+      });
+    }
+    _availabilityCache = result;
+    return result;
+  }
+}
+
+export function resetPymupdfAvailabilityCache(): void {
+  _availabilityCache = null;
+}
+
 export function parsePymupdfHelperOutput(stdout: string): PymupdfHelperJson {
   try {
     return JSON.parse(stdout) as PymupdfHelperJson;
   } catch {
     return { error: "json_parse_failed", message: "PyMuPDF helper produced invalid JSON." };
   }
+}
+
+function _buildPythonEnv(): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  const pythonPackagesPath = path.resolve(process.cwd(), "python_packages");
+  if (existsSync(pythonPackagesPath)) {
+    const existingPythonPath = env.PYTHONPATH ?? "";
+    env.PYTHONPATH = existingPythonPath
+      ? `${pythonPackagesPath}:${existingPythonPath}`
+      : pythonPackagesPath;
+  }
+  return env;
 }
 
 export function runPymupdfHelperSync(pdfPath: string): string {
@@ -47,6 +160,7 @@ export function runPymupdfHelperSync(pdfPath: string): string {
     timeout: 120000,
     maxBuffer: 50 * 1024 * 1024,
     encoding: "utf-8",
+    env: _buildPythonEnv(),
   });
 }
 

@@ -51,5 +51,6 @@ public/exports/audit-pack.zip
 next-env.d.ts
 .venv
 .venv_old/
+python_packages/
 *.whl
 real-messy-pdfs/

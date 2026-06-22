@@ -153,7 +153,7 @@ describe("PyMuPDF parser adapter", () => {
       rawText: "1 Project Details\nHost country: Indonesia",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.source).toBe("current-extractor");
     expect(parsed.diagnostics?.warnings).toContain(
       "PyMuPDF unavailable; fell back to current extractor.",
@@ -185,7 +185,7 @@ describe("PyMuPDF parser adapter", () => {
       rawText: "1 Project Details\nHost country: Indonesia",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("simulated pymupdf failure"),
     )).toBe(true);
@@ -201,7 +201,7 @@ describe("PyMuPDF parser adapter", () => {
       rawText: "1 Project Details\nHost country: Indonesia",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings).toContain(
       "PyMuPDF unavailable; fell back to current extractor.",
     );
@@ -386,7 +386,7 @@ describe("PyMuPDF adapter isolation", () => {
       rawText: "1 Project Details\nHost country: Indonesia",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
   });
 
   it("selects pymupdf only when QUICK_CHECK_PARSER=pymupdf", () => {
@@ -450,7 +450,7 @@ describe("PyMuPDF helper JSON mapping", () => {
       pdfFilePath: "/tmp/test.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("pymupdf_not_installed"),
     )).toBe(true);
@@ -466,7 +466,7 @@ describe("PyMuPDF helper JSON mapping", () => {
       pdfFilePath: "/tmp/test.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("no parseable text"),
     )).toBe(true);
@@ -482,7 +482,7 @@ describe("PyMuPDF helper JSON mapping", () => {
       pdfFilePath: "/tmp/test.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("command not found"),
     )).toBe(true);
@@ -513,7 +513,7 @@ describe("PyMuPDF helper JSON mapping", () => {
       pdfFilePath: "/tmp/test.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
   });
 
@@ -663,7 +663,7 @@ describe("PyMuPDF adapter fallback behaviors", () => {
       rawText: "1 Project Details\nHost country: Indonesia",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings).toContain(
       "PyMuPDF unavailable; fell back to current extractor.",
     );
@@ -674,7 +674,7 @@ describe("PyMuPDF adapter fallback behaviors", () => {
       rawText: "",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings).toContain(
       "PyMuPDF unavailable; fell back to current extractor.",
     );
@@ -690,7 +690,7 @@ describe("PyMuPDF adapter fallback behaviors", () => {
       pdfFilePath: "/nonexistent.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("file_not_found"),
     )).toBe(true);
@@ -710,7 +710,7 @@ describe("PyMuPDF adapter fallback behaviors", () => {
       pdfFilePath: "/tmp/corrupt.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("parse_failed"),
     )).toBe(true);
@@ -722,7 +722,7 @@ describe("PyMuPDF adapter fallback behaviors", () => {
       "pymupdf",
     );
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
   });
 
@@ -736,7 +736,7 @@ describe("PyMuPDF adapter fallback behaviors", () => {
       pdfFilePath: "/tmp/fail.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
   });
 });
@@ -765,7 +765,7 @@ describe("PyMuPDF adapter weak extraction and empty content", () => {
       pdfFilePath: "/tmp/minimal.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("no parseable text"),
     )).toBe(true);
@@ -786,7 +786,7 @@ describe("PyMuPDF adapter weak extraction and empty content", () => {
       pdfFilePath: "/tmp/nopages.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.warnings?.some(
       (w) => w.includes("no parseable text"),
     )).toBe(true);
@@ -848,7 +848,7 @@ describe("PyMuPDF server runtime: initPymupdfAdapterRuntime wires real helper ru
       pdfFilePath: "/tmp/does-not-exist.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
 
     const hasHelperDiagnostic = parsed.diagnostics?.warnings?.some(
       (w) =>
@@ -899,7 +899,7 @@ describe("PyMuPDF server runtime: initPymupdfAdapterRuntime wires real helper ru
       pdfFilePath: "/tmp/test.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
 
     const hasInitWarning = parsed.diagnostics?.warnings?.some(
       (w) => w.includes("not initialised"),

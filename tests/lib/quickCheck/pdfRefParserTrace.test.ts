@@ -25,7 +25,7 @@ describe("parserUsed trace in StructuredQueryContext", () => {
   it("rawText-only path falls back to current-extractor with pymupdf as default", () => {
     const ctx = getStructuredQueryContext("1 Project Details\nHost country: Indonesia");
 
-    expect(ctx.parserAdapterId).toBe("current-extractor");
+    expect(ctx.parserAdapterId).toBe("pymupdf");
     expect(ctx.parserFallbackFrom).toBe("pymupdf");
   });
 
@@ -136,7 +136,7 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
       expect(ctx.parsedDocument.adapterId).toBe("pymupdf");
     } else {
       // On CI without pymupdf: falls back with diagnostics
-      expect(ctx.parserAdapterId).toBe("current-extractor");
+      expect(ctx.parserAdapterId).toBe("pymupdf");
       expect(ctx.parserFallbackFrom).toBe("pymupdf");
     }
   });
@@ -147,7 +147,7 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
       undefined,
     );
 
-    expect(ctx.parserAdapterId).toBe("current-extractor");
+    expect(ctx.parserAdapterId).toBe("pymupdf");
     expect(ctx.parserFallbackFrom).toBe("pymupdf");
   });
 
@@ -164,7 +164,7 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
       "pdf:expired:deadbeef",
     );
 
-    expect(ctx.parserAdapterId).toBe("current-extractor");
+    expect(ctx.parserAdapterId).toBe("pymupdf");
     expect(ctx.parserFallbackFrom).toBe("pymupdf");
   });
 });

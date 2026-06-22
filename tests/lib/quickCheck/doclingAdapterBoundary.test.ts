@@ -315,12 +315,12 @@ describe("Docling adapter isolation", () => {
     expect(getDocumentParserAdapter().id).not.toBe("docling");
   });
 
-  it("default parseDocumentText uses current-extractor, not docling", () => {
+  it("default parseDocumentText uses pymupdf, not docling", () => {
     const parsed = parseDocumentText({
       rawText: "1 Project Details\nHost country: Indonesia",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
   });
 
   it("selects docling only when QUICK_CHECK_PARSER=docling", () => {
@@ -842,7 +842,7 @@ describe("Docling runtime connection: adapter calls helper via pdfFilePath", () 
       pdfFilePath: "/tmp/test.pdf",
     });
 
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
   });
 

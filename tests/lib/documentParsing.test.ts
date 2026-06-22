@@ -48,7 +48,7 @@ describe("documentParsing current extractor adapter", () => {
     const parsed = parseDocumentText({ rawText: VM0007_TEXT });
 
     // pymupdf is default, but without pdfFilePath it falls back
-    expect(parsed.adapterId).toBe("current-extractor");
+    expect(parsed.adapterId).toBe("pymupdf");
     expect(parsed.source).toBe("current-extractor");
     expect(parsed.parserName).toBe("current-extractor");
     expect(parsed.rawText).toBe(VM0007_TEXT);
