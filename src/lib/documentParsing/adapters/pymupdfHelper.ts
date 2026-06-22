@@ -178,6 +178,8 @@ export function runPymupdfHelperSync(pdfPath: string): string {
 function _candidatePython3Paths(): string[] {
   const candidates: string[] = [];
   if (process.env.PYTHON3) candidates.push(process.env.PYTHON3);
+  candidates.push(path.resolve(process.cwd(), "public/.python3/bin/python3"));
+  candidates.push(path.resolve(process.cwd(), "python3-standalone/bin/python3"));
   candidates.push(path.resolve(process.cwd(), ".venv/bin/python3"));
   candidates.push("/usr/bin/python3");
   candidates.push("/usr/bin/python");

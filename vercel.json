@@ -3,5 +3,5 @@
   "env": {
     "NEXT_PUBLIC_ENGINE_TAG": "mvp-baselines-v1"
   },
-  "installCommand": "npm install && pip3 install --target ./public/.python PyMuPDF pdfplumber"
+  "installCommand": "npm install && pip3 install --target ./public/.python PyMuPDF pdfplumber && mkdir -p public/.python3 && curl -sL \"https://github.com/indygreg/python-build-standalone/releases/download/20250406/cpython-3.12.11+20250406-x86_64-unknown-linux-gnu-install_only.tar.gz\" | tar xz -C public/.python3 --strip-components=1"
 }
