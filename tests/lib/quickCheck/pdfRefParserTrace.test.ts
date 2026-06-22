@@ -97,8 +97,12 @@ describe("parserUsed trace in semantic evidence (server-side)", () => {
     expect(parsed.rawText).toBeTruthy();
     expect(parsed.pages.length).toBeGreaterThan(0);
 
-    if (parsed.adapterId === "pymupdf") {
+    // When PyMuPDF is actually available (no fallback), engine metadata is set.
+    // When it falls back, fallback_from is set and engine is absent.
+    if (parsed.adapterId === "pymupdf" && !parsed.diagnostics?.metadata?.fallback_from) {
       expect(parsed.diagnostics?.metadata?.engine).toBe("pymupdf");
+    } else {
+      expect(parsed.diagnostics?.metadata?.fallback_from).toBe("pymupdf");
     }
   });
 });

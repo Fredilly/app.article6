@@ -55,7 +55,7 @@ export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
   if (_availabilityCache) return _availabilityCache;
 
   const python3 = _resolvePython3Path();
-  const pythonPackagesPath = path.resolve(process.cwd(), "python_packages");
+  const pythonPackagesPath = _resolvePythonPackagesPath();
 
   try {
     execFileSync(python3, ["--version"], {
@@ -78,8 +78,8 @@ export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
     return result;
   }
 
-  const pymupdfCheckEnv = { ...process.env };
-  if (existsSync(pythonPackagesPath)) {
+  const pymupdfCheckEnv = _buildPythonEnv();
+  if (pythonPackagesPath) {
     const existingPythonPath = pymupdfCheckEnv.PYTHONPATH ?? "";
     pymupdfCheckEnv.PYTHONPATH = existingPythonPath
       ? `${pythonPackagesPath}:${existingPythonPath}`
@@ -99,7 +99,7 @@ export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
       pythonPath: python3,
       pymupdfVersion: fitzOutput,
     };
-    if (existsSync(pythonPackagesPath)) {
+    if (pythonPackagesPath) {
       result.pythonPackagesPath = pythonPackagesPath;
     }
     _availabilityCache = result;
@@ -111,7 +111,7 @@ export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
       reason: `python3 found at "${python3}" but PyMuPDF (fitz) is not installed.`,
       pythonPath: python3,
     };
-    if (existsSync(pythonPackagesPath)) {
+    if (pythonPackagesPath) {
       result.pythonPackagesPath = pythonPackagesPath;
     }
     if (detail) {
@@ -120,7 +120,7 @@ export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
     if (isVercelPreview()) {
       console.warn("[pymupdf:vercel] PyMuPDF unavailable — fitz import failed.", {
         pythonPath: python3,
-        pythonPackagesPath: result.pythonPackagesPath ?? "not set",
+        pythonPackagesPath: pythonPackagesPath ?? "not set",
         error: detail,
       });
     }
@@ -143,14 +143,23 @@ export function parsePymupdfHelperOutput(stdout: string): PymupdfHelperJson {
 
 function _buildPythonEnv(): NodeJS.ProcessEnv {
   const env = { ...process.env };
-  const pythonPackagesPath = path.resolve(process.cwd(), "python_packages");
-  if (existsSync(pythonPackagesPath)) {
+  const pythonPackagesPath = _resolvePythonPackagesPath();
+  if (pythonPackagesPath) {
     const existingPythonPath = env.PYTHONPATH ?? "";
     env.PYTHONPATH = existingPythonPath
       ? `${pythonPackagesPath}:${existingPythonPath}`
       : pythonPackagesPath;
   }
   return env;
+}
+
+function _resolvePythonPackagesPath(): string | undefined {
+  if (process.env.PYTHON_PACKAGES_PATH) return process.env.PYTHON_PACKAGES_PATH;
+  const vercelPath = path.resolve(process.cwd(), "node_modules", ".python");
+  if (existsSync(vercelPath)) return vercelPath;
+  const legacyPath = path.resolve(process.cwd(), "python_packages");
+  if (existsSync(legacyPath)) return legacyPath;
+  return undefined;
 }
 
 export function runPymupdfHelperSync(pdfPath: string): string {
