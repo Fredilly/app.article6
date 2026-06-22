@@ -65,6 +65,8 @@ function buildStructuredQueryContext(rawPddText: string) {
     evidenceDocument,
     projectFactContract,
     sectionTableIndex,
+    parserAdapterId: parsedDocument.adapterId,
+    parserFallbackFrom: parsedDocument.diagnostics?.metadata?.fallback_from,
   };
 }
 
@@ -328,5 +330,7 @@ export function buildReviewQuestionResult(input: {
     queryIntentAnalysis,
     documentAnswer,
     documentDiagnostic: buildReviewQuestionDocumentDiagnostic(documentAnswer),
+    parserUsed: structuredContext?.parserAdapterId,
+    parserFallbackFrom: structuredContext?.parserFallbackFrom,
   };
 }

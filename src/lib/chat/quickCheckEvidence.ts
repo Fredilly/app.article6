@@ -49,6 +49,8 @@ export type QuickCheckEvidenceAnalysis = {
   warnings: string[];
   rawPddText?: string;
   pdfRef?: string;
+  parserAdapterId?: string;
+  parserFallbackFrom?: string;
 };
 
 export type QuickCheckClaimIntent =

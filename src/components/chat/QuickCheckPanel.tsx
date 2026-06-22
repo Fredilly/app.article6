@@ -59,10 +59,12 @@ import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
 import {
   buildReviewQuestionResult,
   detectRuntimeReviewPath,
-  getStructuredQueryContext,
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
+import {
+  resolveStructuredQueryContext,
+} from "@/lib/chat/quickCheckStructuredQuery";
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
@@ -1482,7 +1484,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const reviewFieldText = draft.claimText.trim();
       const claimIntents = classifyQuickCheckClaimIntents(effectiveClaimText);
       const structuredQueryContext = evidenceAnalysis.rawPddText?.trim()
-        ? getStructuredQueryContext(evidenceAnalysis.rawPddText)
+        ? await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef)
         : undefined;
       const isReviewQuestion = detectRuntimeReviewPath({
         claimText: reviewFieldText,
@@ -1806,7 +1808,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
     const resolvedMethodologyVersion = draft.methodologyVersion.trim()
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
-    const structuredQueryContext = getStructuredQueryContext(evidenceAnalysis.rawPddText);
+    const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
 
     // Only run checks appropriate for the detected document purpose
     const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
