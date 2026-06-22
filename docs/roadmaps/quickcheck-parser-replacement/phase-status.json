@@ -1,7 +1,7 @@
 {
   "roadmap": "quickcheck-parser-replacement",
   "status": "active",
-  "current_phase": "phase-0b-experimental-parser-adapters",
+  "current_phase": "phase-0c-parser-bakeoff-scorecard",
   "phases": [
     {
       "id": "phase-0a-parser-adapter-boundary",
