@@ -1,8 +1,9 @@
 export const runtime = "nodejs";
 
-import { mkdirSync, writeFileSync, existsSync } from "fs";
+import { mkdirSync, writeFileSync, existsSync, readdirSync } from "fs";
 import path from "path";
 import os from "os";
+import { execFileSync } from "child_process";
 import { NextResponse } from "next/server";
 import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
@@ -22,19 +23,70 @@ function saveTempPdf(bytes: ArrayBuffer): string {
   return filePath;
 }
 
-function buildParserDebug(): { parserAdapterId: string; parserFallbackFrom?: string } {
+type ParserDebugPayload = {
+  parserAdapterId: string;
+  parserFallbackFrom?: string;
+  pythonPath?: string;
+  pythonPackagesPath?: string;
+  pythonPackagesExists?: boolean;
+  pythonPackagesFitzExists?: boolean;
+  pythonPackagesTopEntries?: string[];
+  fitzImportError?: string;
+  cwd?: string;
+};
+
+function buildParserDebug(): ParserDebugPayload {
   const adapterId = resolveConfiguredDocumentParserAdapterId();
-  if (adapterId !== "pymupdf") {
-    return { parserAdapterId: adapterId };
-  }
+  const cwd = process.cwd();
+  const debug: ParserDebugPayload = { parserAdapterId: adapterId, cwd };
+
   const availability = checkPymupdfAvailability();
-  if (availability.available) {
-    return { parserAdapterId: adapterId };
+  debug.pythonPath = availability.pythonPath;
+  debug.pythonPackagesPath = availability.pythonPackagesPath;
+
+  if (adapterId !== "pymupdf") return debug;
+
+  // Probe the packages directory
+  const probePaths = [
+    path.resolve(cwd, "public", ".python"),
+    path.resolve(cwd, "node_modules", ".python"),
+    path.resolve(cwd, "python_packages"),
+  ];
+  for (const p of probePaths) {
+    if (existsSync(p)) {
+      debug.pythonPackagesExists = true;
+      debug.pythonPackagesPath = p;
+      const fitzDir = path.join(p, "fitz");
+      debug.pythonPackagesFitzExists = existsSync(fitzDir);
+      try {
+        debug.pythonPackagesTopEntries = readdirSync(p).slice(0, 20);
+      } catch { /* ignore */ }
+      break;
+    }
   }
-  return {
-    parserAdapterId: adapterId,
-    parserFallbackFrom: "pymupdf",
-  };
+
+  // Capture fitz import error detail
+  const python3 = availability.pythonPath;
+  const env: NodeJS.ProcessEnv = { ...process.env };
+  if (debug.pythonPackagesPath) {
+    env.PYTHONPATH = env.PYTHONPATH
+      ? `${debug.pythonPackagesPath}:${env.PYTHONPATH}`
+      : debug.pythonPackagesPath;
+  }
+  try {
+    execFileSync(python3, ["-c", "import fitz; print(fitz.version)"], {
+      timeout: 10000,
+      encoding: "utf-8",
+      env,
+    });
+  } catch (e) {
+    debug.fitzImportError = e instanceof Error ? e.message : String(e);
+  }
+
+  if (availability.available) return debug;
+
+  debug.parserFallbackFrom = "pymupdf";
+  return debug;
 }
 
 async function handlePost(request: Request) {
@@ -117,7 +169,7 @@ async function handlePost(request: Request) {
         engine: extraction.engine,
         metadata: extraction.metadata,
         pdfRef,
-        ...parserDebug,
+        parserDebug,
       });
     }
   } catch (error) {
@@ -134,7 +186,7 @@ async function handlePost(request: Request) {
     text: fallbackText,
     engine: "heuristic",
     pdfRef,
-    ...parserDebug,
+    parserDebug,
     metadata: {
       parser: "heuristic",
       fallbackReason,

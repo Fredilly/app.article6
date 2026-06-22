@@ -1,4 +1,4 @@
-import { extractMethodologyMentions, extractPdfText, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
+import { extractMethodologyMentions, extractPdfText, type QuickCheckPdfParserDebug, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
 import { formatQuickCheckPdfLimitLabel, type QuickCheckPdfRouteErrorCode } from "@/lib/chat/quickCheckPdfUpload";
 
 function uniqueMentions(...groups: Array<string[] | undefined>): string[] {
@@ -50,6 +50,7 @@ export async function resolveQuickCheckPdfText(input: {
       pdfRef?: string;
       parserAdapterId?: string;
       parserFallbackFrom?: string;
+      parserDebug?: QuickCheckPdfParserDebug;
       metadata?: {
         parser?: "pdf-parse" | "heuristic";
         fallbackReason?: string;
@@ -77,6 +78,7 @@ export async function resolveQuickCheckPdfText(input: {
     const localHeuristicText = shouldRecoverTextLocally ? extractPdfText(input.bytes) : "";
     const localHeuristicMentions = shouldRecoverTextLocally ? extractMethodologyMentions(localHeuristicText) : [];
     const text = shouldRecoverTextLocally ? localHeuristicText : serverText;
+    const parserDebug = payload.parserDebug;
     return {
       text,
       engine: shouldRecoverTextLocally ? "heuristic" : engine,
@@ -84,8 +86,9 @@ export async function resolveQuickCheckPdfText(input: {
       warning: shouldRecoverTextLocally && text.trim() ? RECOVERED_TEXT_WARNING : warning,
       diagnosticCode: failureKind,
       pdfRef: payload.pdfRef,
-      parserAdapterId: payload.parserAdapterId,
-      parserFallbackFrom: payload.parserFallbackFrom,
+      parserAdapterId: parserDebug?.parserAdapterId ?? payload.parserAdapterId,
+      parserFallbackFrom: parserDebug?.parserFallbackFrom ?? payload.parserFallbackFrom,
+      parserDebug,
     };
   } catch (err) {
     const localHeuristicText = extractPdfText(input.bytes);

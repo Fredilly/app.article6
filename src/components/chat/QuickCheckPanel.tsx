@@ -2190,7 +2190,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               </div>
                             </div>
                             {extractionState.analysis?.parserAdapterId ? (
-                              <div>
+                              <div className="md:col-span-2">
                                 <div className="text-xs font-medium text-slate-500">Parser adapter</div>
                                 <div className="mt-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
                                   <div className="flex items-center gap-2 text-sm">
@@ -2210,6 +2210,23 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                   {extractionState.analysis.parserFallbackFrom ? (
                                     <div className="mt-1.5 text-xs text-slate-500">
                                       Configured parser “{extractionState.analysis.parserAdapterId}” fell back — PyMuPDF is not available in this environment.
+                                    </div>
+                                  ) : null}
+                                  {extractionState.analysis.parserDebug ? (
+                                    <div className="mt-2 border-t border-slate-100 pt-2">
+                                      <div className="grid gap-1 font-mono text-[11px] text-slate-500">
+                                        <div><span className="text-slate-400">pythonPath</span> {extractionState.analysis.parserDebug.pythonPath ?? "—"}</div>
+                                        <div><span className="text-slate-400">packagesPath</span> {extractionState.analysis.parserDebug.pythonPackagesPath ?? "—"}</div>
+                                        <div><span className="text-slate-400">packagesExists</span> {String(extractionState.analysis.parserDebug.pythonPackagesExists ?? false)}</div>
+                                        <div><span className="text-slate-400">fitzExists</span> {String(extractionState.analysis.parserDebug.pythonPackagesFitzExists ?? false)}</div>
+                                        <div><span className="text-slate-400">cwd</span> {extractionState.analysis.parserDebug.cwd ?? "—"}</div>
+                                        {extractionState.analysis.parserDebug.pythonPackagesTopEntries?.length ? (
+                                          <div><span className="text-slate-400">topEntries</span> [{extractionState.analysis.parserDebug.pythonPackagesTopEntries.join(", ")}]</div>
+                                        ) : null}
+                                        {extractionState.analysis.parserDebug.fitzImportError ? (
+                                          <div className="text-rose-600"><span className="text-rose-400">importError</span> {extractionState.analysis.parserDebug.fitzImportError}</div>
+                                        ) : null}
+                                      </div>
                                     </div>
                                   ) : null}
                                 </div>
