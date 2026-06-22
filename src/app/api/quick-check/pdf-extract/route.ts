@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
+import { storePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { withMetrics } from "@/lib/metrics";
 
 function saveTempPdf(bytes: ArrayBuffer): string {
@@ -82,6 +83,7 @@ async function handlePost(request: Request) {
   }
 
   const pdfFilePath = saveTempPdf(bytes);
+  const pdfRef = storePdfRef(pdfFilePath);
 
   let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
   let diagnostics: PdfExtractionDiagnostics | undefined;
@@ -96,7 +98,7 @@ async function handlePost(request: Request) {
         text: extraction.text,
         engine: extraction.engine,
         metadata: extraction.metadata,
-        pdfFilePath,
+        pdfRef,
       });
     }
   } catch (error) {
@@ -111,7 +113,7 @@ async function handlePost(request: Request) {
   return NextResponse.json({
     text: fallbackText,
     engine: "heuristic",
-    pdfFilePath,
+    pdfRef,
     metadata: {
       parser: "heuristic",
       fallbackReason,
