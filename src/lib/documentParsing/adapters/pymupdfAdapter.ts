@@ -111,9 +111,18 @@ function fallbackToCurrentExtractor(
   metadata?: Record<string, string>,
 ): ParsedDocument {
   const fallback = currentExtractorAdapter.parseText(input);
+  const enrichedDiagnostics = withFallbackDiagnostics(fallback.diagnostics, reason, metadata);
+  if (process.env.VERCEL) {
+    console.warn("[pymupdf:vercel] PyMuPDF adapter fell back to current-extractor.", {
+      reason,
+      fallback_from: enrichedDiagnostics.metadata?.fallback_from,
+      vercelEnv: process.env.VERCEL_ENV ?? "unknown",
+    });
+  }
   return {
     ...fallback,
-    diagnostics: withFallbackDiagnostics(fallback.diagnostics, reason, metadata),
+    adapterId: "pymupdf" as const,
+    diagnostics: enrichedDiagnostics,
   };
 }
 

@@ -48,6 +48,10 @@ export type QuickCheckEvidenceAnalysis = {
   extractionConfidence: number;
   warnings: string[];
   rawPddText?: string;
+  pdfRef?: string;
+  parserAdapterId?: string;
+  parserFallbackFrom?: string;
+  parserDebug?: QuickCheckPdfParserDebug;
 };
 
 export type QuickCheckClaimIntent =
@@ -68,6 +72,19 @@ type QuickCheckEvidenceSource = {
 };
 
 type ResolveAttachmentBytes = (attachmentId: string) => Promise<ArrayBuffer | null>;
+export type QuickCheckPdfParserDebug = {
+  parserAdapterId: string;
+  parserFallbackFrom?: string;
+  pythonPath?: string;
+  parserBinary?: string;
+  pythonPackagesPath?: string;
+  pythonPackagesExists?: boolean;
+  pythonPackagesFitzExists?: boolean;
+  pythonPackagesTopEntries?: string[];
+  fitzImportError?: string;
+  cwd?: string;
+};
+
 export type QuickCheckResolvedPdfText = {
   text: string;
   engine: "pdf-parse" | "heuristic";
@@ -81,6 +98,10 @@ export type QuickCheckResolvedPdfText = {
     | "no-selectable-text"
     | "selected-methodology-mismatch"
     | "methodology-not-detected";
+  pdfRef?: string;
+  parserAdapterId?: string;
+  parserFallbackFrom?: string;
+  parserDebug?: QuickCheckPdfParserDebug;
 };
 type ResolvePdfText = (input: {
   attachmentId: string;
@@ -1034,7 +1055,11 @@ export async function analyzeQuickCheckEvidence(
   const documentTypes = new Set<string>();
   const methodologyMentions = new Set<string>();
   const warningSet = new Set<string>();
-  const rawPddTextParts: string[] = [];
+    const rawPddTextParts: string[] = [];
+    let pdfRef: string | undefined;
+    let parserAdapterId: string | undefined;
+    let parserFallbackFrom: string | undefined;
+    let parserDebug: QuickCheckPdfParserDebug | undefined;
   const sourceFileNames = new Set<string>();
   const sourceMimes = new Set<string>();
   const resolveAttachmentBytes = options?.resolveAttachmentBytes ?? getAttachmentBytes;
@@ -1082,6 +1107,10 @@ export async function analyzeQuickCheckEvidence(
             bytes,
           });
           text = resolved?.text ?? "";
+          if (resolved?.pdfRef) pdfRef = resolved.pdfRef;
+          if (resolved?.parserAdapterId) parserAdapterId = resolved.parserAdapterId;
+          if (resolved?.parserFallbackFrom) parserFallbackFrom = resolved.parserFallbackFrom;
+          if (resolved?.parserDebug) parserDebug = resolved.parserDebug;
           if (resolved?.warning) warningSet.add(resolved.warning);
           for (const mention of resolved?.methodologyMentions ?? []) {
             methodologyMentions.add(mention);
@@ -1135,6 +1164,10 @@ export async function analyzeQuickCheckEvidence(
     extractionConfidence,
     warnings,
     rawPddText: rawPddTextParts.length > 0 ? rawPddTextParts.join("\n\n") : undefined,
+    pdfRef,
+    parserAdapterId,
+    parserFallbackFrom,
+    parserDebug,
   };
 }
 

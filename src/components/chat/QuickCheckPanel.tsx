@@ -59,10 +59,12 @@ import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
 import {
   buildReviewQuestionResult,
   detectRuntimeReviewPath,
-  getStructuredQueryContext,
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
+import {
+  resolveStructuredQueryContext,
+} from "@/lib/chat/quickCheckStructuredQuery";
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
@@ -1482,7 +1484,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const reviewFieldText = draft.claimText.trim();
       const claimIntents = classifyQuickCheckClaimIntents(effectiveClaimText);
       const structuredQueryContext = evidenceAnalysis.rawPddText?.trim()
-        ? getStructuredQueryContext(evidenceAnalysis.rawPddText)
+        ? await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef)
         : undefined;
       const isReviewQuestion = detectRuntimeReviewPath({
         claimText: reviewFieldText,
@@ -1529,6 +1531,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           void fetchSemanticEvidenceCandidates({
             claimText: reviewFieldText,
             rawPddText: evidenceAnalysis.rawPddText,
+            pdfRef: evidenceAnalysis.pdfRef,
             methodologyId: resolvedMethodologyId,
             methodologyVersion: resolvedMethodologyVersion,
           })
@@ -1805,7 +1808,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
     const resolvedMethodologyVersion = draft.methodologyVersion.trim()
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
-    const structuredQueryContext = getStructuredQueryContext(evidenceAnalysis.rawPddText);
+    const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
 
     // Only run checks appropriate for the detected document purpose
     const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
@@ -2186,6 +2189,42 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 )}
                               </div>
                             </div>
+                            {extractionState.analysis?.parserAdapterId ? (
+                              <div className="md:col-span-2">
+                                <div className="text-xs font-medium text-slate-500">Parser adapter</div>
+                                <div className="mt-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <span className="font-mono font-medium text-slate-900">
+                                      {extractionState.analysis.parserAdapterId}
+                                    </span>
+                                    {(() => {
+                                      const debug = extractionState.analysis.parserDebug;
+                                      const isFallback = Boolean(
+                                        extractionState.analysis.parserFallbackFrom ||
+                                        debug?.fitzImportError
+                                      );
+                                      if (isFallback) {
+                                        return (
+                                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                                            fallback
+                                          </span>
+                                        );
+                                      }
+                                      return (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                                          active
+                                        </span>
+                                      );
+                                    })()}
+                                  </div>
+                                  {extractionState.analysis.parserFallbackFrom || extractionState.analysis.parserDebug?.fitzImportError ? (
+                                    <div className="mt-1.5 text-xs text-slate-500">
+                                      Configured parser &ldquo;{extractionState.analysis.parserAdapterId}&rdquo; fell back &mdash; PyMuPDF is not available in this environment.
+                                    </div>
+                                  ) : null}
+                                </div>
+                              </div>
+                            ) : null}
                             <div className="md:col-span-2">
                               <div className="text-xs font-medium text-slate-500">Grounded signal details</div>
                               <div className="mt-2 grid gap-2">

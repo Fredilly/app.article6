@@ -20,7 +20,7 @@ describe("Parser bakeoff scorecard", () => {
 
     expect(scorecard).toBeDefined();
     expect(scorecard.bakeoffTimestamp).toBeTruthy();
-    expect(scorecard.defaultParserId).toBe("current-extractor");
+    expect(scorecard.defaultParserId).toBe("pymupdf");
     expect(scorecard.pdfFixtures).toEqual([nonexistentPdf]);
     expect(Array.isArray(scorecard.parsers)).toBe(true);
     expect(Array.isArray(scorecard.perPdfResults)).toBe(true);

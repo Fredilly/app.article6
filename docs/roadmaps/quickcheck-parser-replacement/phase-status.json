@@ -1,7 +1,7 @@
 {
   "roadmap": "quickcheck-parser-replacement",
   "status": "active",
-  "current_phase": "phase-0d-default-parser-switch-decision",
+  "current_phase": "phase-1-evidence-compiler-v2",
   "phases": [
     {
       "id": "phase-0a-parser-adapter-boundary",
@@ -31,7 +31,7 @@
       "id": "phase-0d-default-parser-switch-decision",
       "name": "Default Parser Switch Decision",
       "branch": "feat/qc-parser-default-decision",
-      "status": "not_started",
+      "status": "done",
       "goal": "Switch default parser only if the best experimental adapter beats currentExtractor and strict evals remain safe."
     },
     {

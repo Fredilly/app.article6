@@ -255,7 +255,7 @@ describe("ParsedDocument normalization into DocumentStructure", () => {
     const parsed = parseDocumentText({ rawText: NORMALIZED_TEXT });
     const structure: DocumentStructure = buildDocumentStructure({ parsedDocument: parsed });
 
-    expect(structure.parserAdapterId).toBe("current-extractor");
+    expect(structure.parserAdapterId).toBe("pymupdf");
     expect(structure.source).toBe("current-extractor");
     expect(structure.rawText).toBe(NORMALIZED_TEXT);
     expect(structure.cleanText).toBeDefined();
@@ -274,7 +274,7 @@ describe("ParsedDocument normalization into DocumentStructure", () => {
 
     expect(structure.pages).toHaveLength(1);
     expect(structure.pages[0]?.pageNumber).toBe(1);
-    expect(structure.pages[0]?.sourceRefs[0]?.parserAdapterId).toBe("current-extractor");
+    expect(structure.pages[0]?.sourceRefs[0]?.parserAdapterId).toBe("pymupdf");
     expect(structure.pages[0]?.sourceRefs[0]?.pageNumber).toBe(1);
   });
 
@@ -332,7 +332,7 @@ describe("ParsedDocument normalization into DocumentStructure", () => {
 
     expect(typeof structure.id).toBe("string");
     expect(structure.id.startsWith("article6-document:")).toBe(true);
-    expect(structure.parserAdapterId).toBe("current-extractor");
+    expect(structure.parserAdapterId).toBe("pymupdf");
     expect(structure.documentFamily.family).toBeDefined();
     expect(structure.documentFamily.confidence).toBeGreaterThan(0);
     expect(Array.isArray(structure.documentFamily.signals)).toBe(true);
@@ -366,7 +366,7 @@ describe("Normalized path evidence compilation", () => {
     expect(compiled.rawText).toBe(EVIDENCE_TEXT);
     expect(compiled.spans.length).toBeGreaterThan(0);
     expect(compiled.parserSource).toBe("current-extractor");
-    expect(compiled.parserAdapterId).toBe("current-extractor");
+    expect(compiled.parserAdapterId).toBe("pymupdf");
 
     const spanIds = compiled.spans.map((s) => s.spanId);
     expect(new Set(spanIds).size).toBe(spanIds.length);

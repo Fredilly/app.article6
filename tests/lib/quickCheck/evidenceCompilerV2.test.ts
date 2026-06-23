@@ -99,7 +99,7 @@ describe("Evidence Compiler v2", () => {
       sectionPath: ["section:2"],
       headingPath: ["Baseline Scenario"],
       parserSource: "current-extractor",
-      parserAdapterId: "current-extractor",
+      parserAdapterId: "pymupdf",
       documentFamily: documentStructure.documentFamily.family,
     }));
   });

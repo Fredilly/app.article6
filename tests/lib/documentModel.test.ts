@@ -25,7 +25,7 @@ describe("buildArticle6DocumentModel", () => {
     const parsedDocument = parseDocumentText({ rawText: NESTED_PDD_TEXT });
     const model = buildDocumentStructure({ parsedDocument });
 
-    expect(model.parserAdapterId).toBe("current-extractor");
+    expect(model.parserAdapterId).toBe("pymupdf");
     expect(model.source).toBe("current-extractor");
     expect(model.documentFamily.family).toBe("UNKNOWN");
     expect(model.documentFamily.confidence).toBeGreaterThan(0);
@@ -169,11 +169,11 @@ describe("buildArticle6DocumentModel", () => {
       pageNumber: 2,
     }));
     expect(model.pages[0]?.sourceRefs[0]).toEqual(expect.objectContaining({
-      parserAdapterId: "current-extractor",
+      parserAdapterId: "pymupdf",
       pageNumber: 1,
     }));
     expect(model.pages[1]?.sourceRefs[0]).toEqual(expect.objectContaining({
-      parserAdapterId: "current-extractor",
+      parserAdapterId: "pymupdf",
       pageNumber: 2,
     }));
     expect(model.blocks.some((block) => block.pageNumber === 2)).toBe(true);

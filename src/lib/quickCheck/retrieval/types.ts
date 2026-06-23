@@ -183,6 +183,8 @@ export type ReviewQuestionResult = {
   routingDiagnostic?: ReviewRoutingDiagnostic;
   documentAnswer: DocumentQuestionAnswer;
   documentDiagnostic: ReviewQuestionDocumentDiagnostic;
+  parserUsed?: string;
+  parserFallbackFrom?: string;
   semanticEvidenceCandidates?: SemanticEvidenceCandidate[];
   semanticEvidenceStatus?: SemanticEvidenceStatus;
   semanticEvidenceWarning?: string;

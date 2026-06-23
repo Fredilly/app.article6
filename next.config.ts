@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["pdf-parse", "pdfjs-dist", "@napi-rs/canvas"],
   outputFileTracingIncludes: {
+    "/": [
+      "./scripts/pymupdf-parse.py",
+    ],
     "/api/quick-check/pdf-extract": [
       "./scripts/extract-quick-check-pdf.cjs",
       "./node_modules/pdf-parse/**/*",
@@ -19,6 +22,9 @@ const nextConfig: NextConfig = {
       "./node_modules/pdf-parse/**/*",
       "./node_modules/pdfjs-dist/**/*",
       "./node_modules/@napi-rs/canvas/**/*",
+    ],
+    "/api/quick-check/semantic-evidence": [
+      "./scripts/pymupdf-parse.py",
     ],
   },
 };

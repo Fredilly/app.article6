@@ -2,5 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "env": {
     "NEXT_PUBLIC_ENGINE_TAG": "mvp-baselines-v1"
-  }
+  },
+  "installCommand": "npm install && pip3 install --break-system-packages pyinstaller pymupdf pdfplumber && python3 -m PyInstaller --onefile --name pymupdf-parse --noconfirm --distpath public scripts/pymupdf-parse.py && rm -rf build pymupdf-parse.spec"
 }

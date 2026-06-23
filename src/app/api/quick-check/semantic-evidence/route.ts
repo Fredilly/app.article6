@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { withMetrics } from "@/lib/metrics";
+import { resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { suggestSemanticEvidence } from "@/lib/quickCheck/semanticEvidence/huggingFace";
 
 async function handlePost(request: Request) {
@@ -14,6 +15,8 @@ async function handlePost(request: Request) {
 
   const claimText = typeof body === "object" && body && "claimText" in body && typeof body.claimText === "string" ? body.claimText : "";
   const rawPddText = typeof body === "object" && body && "rawPddText" in body && typeof body.rawPddText === "string" ? body.rawPddText : "";
+  const pdfRef = typeof body === "object" && body && "pdfRef" in body && typeof body.pdfRef === "string" ? body.pdfRef : undefined;
+  const pdfFilePath = pdfRef ? resolvePdfRef(pdfRef) : undefined;
   const methodologyId = typeof body === "object" && body && "methodologyId" in body && typeof body.methodologyId === "string" ? body.methodologyId : "";
   const methodologyVersion = typeof body === "object" && body && "methodologyVersion" in body && typeof body.methodologyVersion === "string" ? body.methodologyVersion : "";
 
@@ -24,6 +27,7 @@ async function handlePost(request: Request) {
   return NextResponse.json(await suggestSemanticEvidence({
     claimText,
     rawPddText,
+    pdfFilePath,
     methodologyId,
     methodologyVersion,
   }));
