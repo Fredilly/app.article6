@@ -1594,6 +1594,104 @@ describe("ProjectFactContract v2", () => {
 
       expect(contract.hostCountry.value).toBeNull();
     });
+
+    test("heading-next fallback rejects country from forbidden section (B.6 Leakage)", () => {
+      const rawText = [
+        "Forest Conservation Project",
+        "B.6 Leakage",
+        "Host country:",
+        "Cambodia",
+      ].join("\n");
+
+      const contract = compileContract("fallback-leakage-country", makeStructure({
+        rawText,
+        cleanText: rawText,
+        matchingText: rawText.toLowerCase(),
+        documentFamily: {
+          family: "CDM_PDD",
+          confidence: 0.96,
+          evidence: ["CDM"],
+          signals: [],
+          warnings: [],
+        },
+        sections: [
+          {
+            id: "section:B.6",
+            sectionNumber: "B.6",
+            titleRaw: "Leakage",
+            titleClean: "Leakage",
+            titleMatchingText: "leakage",
+            bodyRaw: "Host country: Cambodia",
+            bodyClean: "Host country: Cambodia",
+            bodyMatchingText: "host country: cambodia",
+            displaySnippet: "Host country: Cambodia",
+            matchingText: "leakage host country: cambodia",
+            childIds: [],
+            blockIds: ["section-1", "heading-1", "paragraph-1"],
+            sourceRefs: [],
+            confidence: 0.95,
+            extractionWarnings: [],
+          },
+        ],
+        pages: [{
+          id: "page:1",
+          pageNumber: 1,
+          rawText,
+          cleanText: rawText,
+          matchingText: rawText.toLowerCase(),
+          blockIds: ["title-1", "section-1", "heading-1", "paragraph-1"],
+          sourceRefs: [],
+        }],
+        blocks: [
+          {
+            id: "title-1",
+            type: "heading",
+            rawText: "Forest Conservation Project",
+            cleanText: "Forest Conservation Project",
+            matchingText: "forest conservation project",
+            pageNumber: 1,
+            sourceRefs: [],
+            confidence: 0.98,
+          },
+          {
+            id: "section-1",
+            type: "heading",
+            rawText: "B.6 Leakage",
+            cleanText: "B.6 Leakage",
+            matchingText: "b.6 leakage",
+            pageNumber: 1,
+            sectionId: "section:B.6",
+            sourceRefs: [],
+            confidence: 0.95,
+          },
+          {
+            id: "heading-1",
+            type: "heading",
+            rawText: "Host country:",
+            cleanText: "Host country:",
+            matchingText: "host country:",
+            pageNumber: 1,
+            sectionId: "section:B.6",
+            sourceRefs: [],
+            confidence: 0.95,
+          },
+          {
+            id: "paragraph-1",
+            type: "paragraph",
+            rawText: "Cambodia",
+            cleanText: "Cambodia",
+            matchingText: "cambodia",
+            pageNumber: 1,
+            sectionId: "section:B.6",
+            sourceRefs: [],
+            confidence: 0.95,
+          },
+        ],
+      }));
+
+      expect(contract.hostCountry.value).toBeNull();
+      expect(contract.hostCountry.warnings.join(" ")).toContain("No deterministic evidence found");
+    });
   });
 
   test("detects conflicting fact values and surfaces warnings", () => {

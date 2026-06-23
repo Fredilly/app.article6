@@ -313,7 +313,13 @@ function looksLikeMethodologyOrCountryNoise(value: string): boolean {
   if (/\b(?:ACM|AM|AMS|AR-AM|AR-ACM|VM|VMR|CDM-SSC)\s*[-.]?\s*[IVXLCDM0-9]+[-.][A-Za-z0-9]/i.test(value)) return true;
   if (/\bmethodology\b/i.test(normalized)) return true;
   if (/\bversion\b/i.test(normalized) && /\d+\.\d+/i.test(normalized)) return true;
-  if (/^(?:the|a|an|these|those|their|its|some|several)\s/i.test(value.trim())) return true;
+  // Reject preamble phrases like "The project is located..." unless the value
+  // contains a known country name (e.g. "The People's Republic of China").
+  if (/^(?:the|a|an|these|those|their|its|some|several)\s/i.test(value.trim())) {
+    const hasCountryName = KNOWN_COUNTRY_NAMES.size > 0
+      && normalized.split(/\s+/).some((word) => KNOWN_COUNTRY_NAMES.has(word));
+    if (!hasCountryName) return true;
+  }
   if (/\b(?:monitoring|baseline|leakage|additionality|stakeholder)\b/i.test(normalized)) return true;
   if (/\b(?:figure|fig|table|map|chart|annex|appendix|source|reference|version|page)\b/i.test(normalized)) return true;
   return false;
@@ -1055,9 +1061,24 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const hostCountryNeedsFallback = hostCountryCandidates.length === 0
     || (family === "CDM_PDD" && hostCountryRaw.value == null)
     || (hostCountryValidCandidates.length === 0 && hostCountryCandidates.length > 0);
-  const hostCountryFallback = hostCountryNeedsFallback
+  let hostCountryFallback = hostCountryNeedsFallback
     ? findFieldFromHeadingValue(document, hostCountryRule)
     : null;
+  // Validate fallback candidates against the same forbidden-context guards
+  // that direct candidates go through.  Otherwise a heading-next match inside
+  // methodology / baseline / leakage / etc. can promote a weak country mention
+  // that the primary path would have rejected.
+  if (hostCountryFallback?.value != null) {
+    const fallbackSpanIds = hostCountryFallback.evidenceSpanIds;
+    const fallbackSpan = document.spans.find((s) => fallbackSpanIds.includes(s.spanId));
+    if (
+      fallbackSpan == null
+      || isForbiddenHostCountrySpan(fallbackSpan)
+      || looksLikeMethodologyOrCountryNoise(hostCountryFallback.value as string)
+    ) {
+      hostCountryFallback = null;
+    }
+  }
   const hostCountry = hostCountryFallback?.value != null
     ? hostCountryFallback
     : hostCountryRaw;
