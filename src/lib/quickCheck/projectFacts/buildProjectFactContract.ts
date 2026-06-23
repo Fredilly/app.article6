@@ -204,6 +204,127 @@ function chooseDocumentType(family: DocumentFamily): ProjectFactContractDocument
   }
 }
 
+const FORBIDDEN_HOST_COUNTRY_SECTION_TERMS = new Set([
+  "methodology",
+  "baseline",
+  "baseline scenario",
+  "monitoring",
+  "monitoring plan",
+  "monitoring methodology",
+  "leakage",
+  "additionality",
+  "reference",
+  "bibliography",
+  "comments",
+  "stakeholder",
+  "stakeholder comments",
+  "stakeholder consultation",
+  "environmental impact",
+  "safeguard",
+  "grievance",
+  "data and parameters",
+  "deviations",
+  "appendix",
+  "annex",
+]);
+
+const FORBIDDEN_HOST_COUNTRY_HEADING_TERMS = new Set([
+  "methodology",
+  "baseline",
+  "monitoring",
+  "leakage",
+  "additionality",
+  "reference",
+  "bibliography",
+  "comments",
+  "stakeholder",
+  "deviations",
+  "appendix",
+  "annex",
+]);
+
+const PREFERRED_HOST_COUNTRY_SECTION_TERMS = new Set([
+  "general description",
+  "project description",
+  "project overview",
+  "project location",
+  "project title",
+  "introduction",
+  "description of the project activity",
+  "description of project activity",
+  "project background",
+  "host party",
+  "host country",
+  "geographic location",
+  "geographic reference",
+  "project area",
+]);
+
+function isForbiddenHostCountrySpan(span: EvidenceSpan): boolean {
+  if (span.reliability === "excluded") return true;
+  if (span.blockType === "toc" || span.blockType === "footer" || span.blockType === "header") return true;
+
+  if (span.noise?.some((n) => ["header", "footer", "toc", "source-caption", "reference"].includes(n))) {
+    return true;
+  }
+
+  const sectionPath = span.sectionPath
+    .map((s) => s.toLowerCase().replace(/^section:/, "").replace(/[-_]/g, " "))
+    .join(" ");
+  if (FORBIDDEN_HOST_COUNTRY_SECTION_TERMS.has(sectionPath)) return true;
+  for (const term of FORBIDDEN_HOST_COUNTRY_SECTION_TERMS) {
+    if (sectionPath.includes(term)) return true;
+  }
+
+  const headingPath = span.headingPath
+    .map((h) => h.toLowerCase())
+    .join(" ");
+  for (const term of FORBIDDEN_HOST_COUNTRY_HEADING_TERMS) {
+    if (headingPath.includes(term)) return true;
+  }
+
+  const heading = (span.heading ?? "").toLowerCase();
+  for (const term of FORBIDDEN_HOST_COUNTRY_HEADING_TERMS) {
+    if (heading.includes(term)) return true;
+  }
+
+  return false;
+}
+
+function isPreferredHostCountryContext(span: EvidenceSpan): boolean {
+  const sectionPath = span.sectionPath
+    .map((s) => s.toLowerCase().replace(/^section:/, "").replace(/[-_]/g, " "))
+    .join(" ");
+  for (const term of PREFERRED_HOST_COUNTRY_SECTION_TERMS) {
+    if (sectionPath.includes(term)) return true;
+  }
+
+  const heading = (span.heading ?? "").toLowerCase();
+  for (const term of PREFERRED_HOST_COUNTRY_SECTION_TERMS) {
+    if (heading.includes(term)) return true;
+  }
+
+  return false;
+}
+
+function looksLikeMethodologyOrCountryNoise(value: string): boolean {
+  const normalized = normalizeValue(value);
+  if (METHODOLOGY_CODE_RE.test(value)) return true;
+  if (/\b(?:ACM|AM|AMS|AR-AM|AR-ACM|VM|VMR|CDM-SSC)\s*[-.]?\s*[IVXLCDM0-9]+[-.][A-Za-z0-9]/i.test(value)) return true;
+  if (/\bmethodology\b/i.test(normalized)) return true;
+  if (/\bversion\b/i.test(normalized) && /\d+\.\d+/i.test(normalized)) return true;
+  // Reject preamble phrases like "The project is located..." unless the value
+  // contains a known country name (e.g. "The People's Republic of China").
+  if (/^(?:the|a|an|these|those|their|its|some|several)\s/i.test(value.trim())) {
+    const hasCountryName = KNOWN_COUNTRY_NAMES.size > 0
+      && normalized.split(/\s+/).some((word) => KNOWN_COUNTRY_NAMES.has(word));
+    if (!hasCountryName) return true;
+  }
+  if (/\b(?:monitoring|baseline|leakage|additionality|stakeholder)\b/i.test(normalized)) return true;
+  if (/\b(?:figure|fig|table|map|chart|annex|appendix|source|reference|version|page)\b/i.test(normalized)) return true;
+  return false;
+}
+
 function findLabeledCandidates(
   document: EvidenceDocument,
   rule: FieldRule,
@@ -916,15 +1037,48 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
   const projectId = findField(document, FIELD_RULES.find((rule) => rule.field === "projectId") as FieldRule);
   const hostCountryRule = FIELD_RULES.find((rule) => rule.field === "hostCountry") as FieldRule;
   const hostCountryCandidates = findLabeledCandidates(document, hostCountryRule);
-  const hostCountryRaw = factFromCandidates<string | null>(family, "hostCountry", hostCountryCandidates, { allowMedium: true });
+  const hostCountryValidCandidates = hostCountryCandidates.filter(
+    (candidate) => !isForbiddenHostCountrySpan(candidate.span) && !looksLikeMethodologyOrCountryNoise(candidate.value),
+  );
+  const hostCountryPreferredCandidates = hostCountryValidCandidates.filter(
+    (candidate) => isPreferredHostCountryContext(candidate.span),
+  );
+  // Use preferred candidates if available; otherwise use any valid candidate
+  const hostCountryFilteredCandidates = hostCountryPreferredCandidates.length > 0
+    ? hostCountryPreferredCandidates
+    : hostCountryValidCandidates;
+  // For host country, require high confidence unless there is clear labelled evidence
+  // from a preferred section context
+  const hostCountryRaw = factFromCandidates<string | null>(
+    family,
+    "hostCountry",
+    hostCountryFilteredCandidates,
+    { allowMedium: hostCountryFilteredCandidates.some((c) => isPreferredHostCountryContext(c.span)) },
+  );
   // Use heading-next fallback when findLabeledCandidates found zero candidates
   // (true absence), or for CDM_PDD where the broad "Country" label produces
   // false conflicts that the heading-next pattern correctly resolves.
   const hostCountryNeedsFallback = hostCountryCandidates.length === 0
-    || (family === "CDM_PDD" && hostCountryRaw.value == null);
-  const hostCountryFallback = hostCountryNeedsFallback
+    || (family === "CDM_PDD" && hostCountryRaw.value == null)
+    || (hostCountryValidCandidates.length === 0 && hostCountryCandidates.length > 0);
+  let hostCountryFallback = hostCountryNeedsFallback
     ? findFieldFromHeadingValue(document, hostCountryRule)
     : null;
+  // Validate fallback candidates against the same forbidden-context guards
+  // that direct candidates go through.  Otherwise a heading-next match inside
+  // methodology / baseline / leakage / etc. can promote a weak country mention
+  // that the primary path would have rejected.
+  if (hostCountryFallback?.value != null) {
+    const fallbackSpanIds = hostCountryFallback.evidenceSpanIds;
+    const fallbackSpan = document.spans.find((s) => fallbackSpanIds.includes(s.spanId));
+    if (
+      fallbackSpan == null
+      || isForbiddenHostCountrySpan(fallbackSpan)
+      || looksLikeMethodologyOrCountryNoise(hostCountryFallback.value as string)
+    ) {
+      hostCountryFallback = null;
+    }
+  }
   const hostCountry = hostCountryFallback?.value != null
     ? hostCountryFallback
     : hostCountryRaw;

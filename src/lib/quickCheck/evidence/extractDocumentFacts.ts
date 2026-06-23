@@ -14,6 +14,57 @@ type SpanMatch = {
   confidence: FactConfidence;
 };
 
+const METHODOLOGY_CODE_RE = /\b(?:V?M|ACM|AM|AMS|AR-AM|AR-ACM|VMR|CDM-SSC|GS)\d{3,5}[A-Z-]*\b/i;
+
+const FORBIDDEN_HOST_COUNTRY_NOISE: ReadonlySet<string> = new Set([
+  "header", "footer", "toc", "source-caption", "reference",
+]);
+
+const FORBIDDEN_HOST_COUNTRY_SECTION_TERMS = [
+  "methodology",
+  "baseline",
+  "monitoring",
+  "leakage",
+  "additionality",
+  "reference",
+  "bibliography",
+  "comments",
+  "stakeholder",
+  "deviations",
+  "appendix",
+  "annex",
+  "data and parameters",
+];
+
+function isHostCountryMatchValid(match: SpanMatch): boolean {
+  const span = match.span;
+  if (span.reliability === "excluded") return false;
+  if (["toc", "footer", "header"].includes(span.blockType)) return false;
+  if (span.blockType === "table" && span.table?.limitedProvenance) return false;
+
+  if (span.noise?.some((n) => FORBIDDEN_HOST_COUNTRY_NOISE.has(n))) return false;
+
+  const value = match.value.toLowerCase();
+  if (METHODOLOGY_CODE_RE.test(value)) return false;
+  if (/\bmethodology\b/i.test(value)) return false;
+  if (/\b(?:monitoring|baseline|leakage|additionality)\b/i.test(value)) return false;
+  if (/\b(?:figure|fig|table|map|chart|annex|appendix|source|reference|page)\b/i.test(value)) return false;
+
+  const sectionPath = span.sectionPath
+    .map((s) => s.toLowerCase().replace(/^section:/, "").replace(/[-_]/g, " "))
+    .join(" ");
+  for (const term of FORBIDDEN_HOST_COUNTRY_SECTION_TERMS) {
+    if (sectionPath.includes(term)) return false;
+  }
+
+  const heading = (span.heading ?? "").toLowerCase();
+  for (const term of FORBIDDEN_HOST_COUNTRY_SECTION_TERMS) {
+    if (heading.includes(term)) return false;
+  }
+
+  return true;
+}
+
 function cleanValue(value: string): string {
   return value
     .replace(/\s+/g, " ")
@@ -140,7 +191,11 @@ export function extractDocumentFacts(document: EvidenceDocument): DocumentFact[]
   const facts: Array<DocumentFact | null> = [
     toFact("project_title", findTitleFact(spans)),
     toFact("project_id", findLabeledValue(spans, ["Project ID", "Project identifier", "Project code", "Registry project ID", "Registry ID"], { preferBlockTypes: ["field", "table", "paragraph"] })),
-    toFact("host_country", findLabeledValue(spans, ["Host country", "Country"], { preferBlockTypes: ["field", "table", "paragraph"] })),
+    toFact("host_country", (() => {
+      const match = findLabeledValue(spans, ["Host country", "Country"], { preferBlockTypes: ["field", "table", "paragraph"] });
+      if (!match || !isHostCountryMatchValid(match)) return null;
+      return match;
+    })()),
     toFact("project_location", findLabeledValue(spans, ["Project location", "Location", "Project site"], { allowMultiline: true })),
     toFact("project_participants", findLabeledValue(spans, ["Project participants", "Participants", "Project proponent"], { allowMultiline: true })),
     toFact("methodology", findLabeledValue(spans, ["Methodology", "Applied methodology", "Approved methodology"], { allowMultiline: true })),
