@@ -88,8 +88,8 @@ const FIELD_RULES: FieldRule[] = [
     preferBlockTypes: ["field", "table", "paragraph", "title", "formula"],
     multiline: true,
     familySpecificLabels: {
-      VCS_PD: ["Title and reference of methodology applied", "Methodology applied"],
-      VERRA_PD: ["Title and reference of methodology applied", "Methodology applied"],
+      VCS_PD: ["Title and reference of methodology applied", "Title and reference of methodology", "Methodology applied"],
+      VERRA_PD: ["Title and reference of methodology applied", "Title and reference of methodology", "Methodology applied"],
       CDM_PDD: ["Title and reference of the approved baseline and monitoring methodology", "Applied baseline methodology", "Approved baseline and monitoring methodology"],
     },
   },
@@ -364,6 +364,8 @@ function findLabeledCandidates(
   for (const span of document.spans.filter((s) => s.reliability !== "excluded")) {
     if (rule.preferBlockTypes && !rule.preferBlockTypes.includes(span.blockType)) continue;
 
+    let colonMatchFound = false;
+
     // Try colon patterns first (strict, then relaxed)
     for (const pattern of [colonPattern, relaxedColonPattern].filter(Boolean) as RegExp[]) {
       const match = span.text.match(pattern);
@@ -382,11 +384,14 @@ function findLabeledCandidates(
         extractionRule: `label:${rule.field}`,
         warnings: [],
       });
+      colonMatchFound = true;
       break;
     }
 
     // Space-separated fallback: only for field/table blocks where the
     // label is at the start and followed by a value on the same line.
+    // Skip when a colon-based match already extracted a value for this span.
+    if (colonMatchFound) continue;
     const spaceMatch = span.text.match(spacePattern);
     if (spaceMatch?.[1]) {
       const rawValue = rule.multiline ? spaceMatch[1] : spaceMatch[1].split(/\s{2,}|\n/)[0];
@@ -613,16 +618,23 @@ function looksLikeGenericSectionHeading(value: string): boolean {
 function findProjectTitle(document: EvidenceDocument): ProjectFactField<string | null> {
   const family = document.documentFamily ?? "UNKNOWN";
 
-  // Prefer labeled title fields (e.g. A.1 "Title of the project activity:") over
-  // TOC/page-header title spans.  CDM PDDs often have noisy title blocks from the
-  // cover/TOC that conflict with the real project title.
-  // Use a dedicated colon-based match that extracts only the value after "Title of
-  // the project activity:" and avoids the conflict-prone short "Title" label.
+  // Prefer labeled title fields (e.g. A.1 "Title of the project activity:" or
+  // Verra "Project Title") over TOC/page-header title spans.  CDM PDDs often
+  // have noisy title blocks from the cover/TOC that conflict with the real title.
+  // Use a dedicated colon-based match that extracts only the value after the
+  // label and avoids the conflict-prone short "Title" label.
   for (const span of document.spans.filter((s) => s.reliability !== "excluded")) {
-    if (!["field", "paragraph"].includes(span.blockType)) continue;
-    const titleMatch = span.text.match(
+    if (!["field", "paragraph", "title"].includes(span.blockType)) continue;
+    // CDM-style: "Title of the project activity:"
+    let titleMatch = span.text.match(
       /(?:^|\n)\s*(?:The\s+)?title\s+of\s+the\s+project\s+activity\s*:\s*([^\n]+)/i,
     );
+    // Verra-style: "Project Title" at line start followed by the title text
+    if (!titleMatch) {
+      titleMatch = span.text.match(
+        /(?:^|\n)\s*project\s+title\s+(?!\s*[:])([A-Z][^\n]+)/i,
+      );
+    }
     if (titleMatch?.[1]) {
       // Trim trailing metadata: version number, date, document form markers
       const value = titleMatch[1].trim()
@@ -701,6 +713,9 @@ function findProjectTitle(document: EvidenceDocument): ProjectFactField<string |
   return factFromCandidates<string | null>(family, "title", candidates);
 }
 
+const CAPTION_SEGMENT_RE =
+  /\b(?:figure|fig\.?\s*\d|table|map|chart|annex|appendix|source\s*:|adapted\s+from|modified\s+from|reproduced\s+from|courtesy\s+of)\b/i;
+
 function deriveCountryFromLocation(field: ProjectFactField<string | null>, family: DocumentFamily): ProjectFactField<string | null> {
   if (!field.value) {
     return createEmptyField<string | null>("project-country:location-fallback", family, [materializeWarning("Project country was not deterministically derivable.")]);
@@ -709,16 +724,55 @@ function deriveCountryFromLocation(field: ProjectFactField<string | null>, famil
     .split(/[;,]/)
     .map((segment) => segment.trim())
     .filter(Boolean);
-  const knownCountrySegment = segments.find((segment) => KNOWN_COUNTRY_NAMES.has(segment.toLowerCase()));
-  if (knownCountrySegment) {
-    return {
-      ...field,
-      value: knownCountrySegment,
-      extractionRule: "project-country:location-country-segment",
-    };
+
+  // Reject segments that come from figure captions, map references,
+  // table headings, source citations, annex/appendix references.
+  const contentSegments = segments.filter(
+    (segment) => !CAPTION_SEGMENT_RE.test(segment),
+  );
+
+  // Walk content segments in order.  Prefer the earliest segment that
+  // contains a known country name (exact or substring).  This avoids
+  // picking up a country from a late-appearing figure caption when the
+  // project description itself names the host country early on.
+  if (KNOWN_COUNTRY_NAMES.size > 0) {
+    const orderedCountryNames = Array.from(KNOWN_COUNTRY_NAMES).sort(
+      (a, b) => b.length - a.length,
+    );
+    for (const segment of contentSegments) {
+      const segmentLower = segment.toLowerCase();
+
+      // Exact segment match (e.g. "Portugal")
+      if (KNOWN_COUNTRY_NAMES.has(segmentLower)) {
+        return {
+          ...field,
+          value: segment,
+          extractionRule: "project-country:location-country-segment",
+        };
+      }
+
+      // Substring match (e.g. "Republic of Guinea-Bissau" → "Guinea-Bissau")
+      for (const countryName of orderedCountryNames) {
+        const idx = segmentLower.indexOf(countryName);
+        if (idx < 0) continue;
+        // Guard: country name must be a whole-token match, not a substring
+        // of a larger word (e.g. "Niger" must not match inside "Nigeria").
+        const beforeOk = idx === 0 || !/[a-z]/.test(segmentLower[idx - 1]);
+        const afterOk = idx + countryName.length >= segmentLower.length
+          || !/[a-z]/.test(segmentLower[idx + countryName.length]);
+        if (!beforeOk || !afterOk) continue;
+        const originalCasing = segment.slice(idx, idx + countryName.length);
+        return {
+          ...field,
+          value: originalCasing,
+          extractionRule: "project-country:location-country-substring",
+        };
+      }
+    }
   }
 
-  const countryLikeSegment = segments.find((segment) => {
+  // Fall back to country-like capitalized-words pattern
+  const countryLikeSegment = contentSegments.find((segment) => {
     if (/\b(?:province|state|district|county|municipality|regency|region|island|islands)\b/i.test(segment)) {
       return false;
     }

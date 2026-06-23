@@ -427,6 +427,139 @@
       "notes": "Real REDD/AFOLU PDD under VM0007 v4.2. Project title extracted from doc title line, methodology from header, sections recovered as bare heading text without section-number prefixes. No host country or crediting period in extracted text."
     },
     {
+      "id": "real-pd-redd-v130-full",
+      "fixturePath": "tests/fixtures/quick-check/pd-redd-v130-extracted.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VCS_PD",
+        "projectTitle": "Community Based Avoided Deforestation Project in Guinea-Bissau",
+        "hostCountry": null,
+        "projectCountry": "Guinea-Bissau",
+        "methodology": "VM0007",
+        "creditingPeriod": "Crediting Period",
+        "reportingPeriod": "Crediting Period",
+        "baselineSection": "Baseline Scenario",
+        "monitoringSection": "Monitoring",
+        "leakageSection": "Leakage",
+        "additionalitySection": "Additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": [
+                "Community Based Avoided Deforestation Project in Guinea-Bissau"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": [
+                "Republic of Guinea-Bissau"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": [
+                "VM0007",
+                "REDD-MF"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": [
+                "Baseline Emissions"
+              ],
+              "sectionHints": [
+                "Baseline Emissions"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": [
+                "Monitoring"
+              ],
+              "sectionHints": [
+                "Monitoring"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": [
+                "Leakage"
+              ],
+              "sectionHints": [
+                "Leakage"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [1],
+              "spanAnchors": [
+                "Additional Information"
+              ],
+              "sectionHints": [
+                "Additional Information"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "notes": "Full PD_REDD_v1_130 extracted text with corrections from reviewer QA. Host country is Guinea-Bissau (extracted from project location, not figure caption). Portugal (from Figure 2 source citation) must never be returned as host country. Methodology should be VM0007 REDD-MF v1.4 from Title and Reference of Methodology, not the Modules and Tools table. Baseline, additionality, leakage, and stakeholder consultation all have strong section evidence and must return answered."
+    },
+    {
       "id": "real-gs-luf",
       "fixturePath": "tests/fixtures/quick-check/gs-luf-pdd-extracted.txt",
       "kind": "text",

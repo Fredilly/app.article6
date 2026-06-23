@@ -264,6 +264,7 @@ function buildFactCandidate(input: DeterministicRouterInput): RouterCandidate | 
   if (resolvedFacts.length === 0 && intent === "fact_lookup") {
     const fallbackMap: Record<string, ProjectFactId[]> = {
       creditingPeriod: ["reportingPeriod", "monitoringPeriod"],
+      hostCountry: ["projectCountry"],
       projectLocation: ["hostCountry", "projectCountry"],
     };
     for (const targetFact of targetFacts) {
