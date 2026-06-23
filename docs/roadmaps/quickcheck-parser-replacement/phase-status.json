@@ -45,7 +45,7 @@
       "id": "phase-2-family-aware-projectfactcontract-v2",
       "name": "Family-Aware ProjectFactContract v2",
       "branch": "feat/qc-project-fact-contract-v2",
-      "status": "not_started",
+      "status": "done",
       "goal": "Improve project title, host country, and methodology extraction using document-family-aware rules."
     },
     {
